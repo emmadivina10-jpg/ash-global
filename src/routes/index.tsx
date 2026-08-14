@@ -72,7 +72,7 @@ function Landing() {
 
       <main>
         <section className="relative overflow-hidden">
-          <div className="brand-gradient absolute inset-x-0 top-0 h-[420px] opacity-95" aria-hidden />
+          <div className="brand-gradient absolute inset-0 opacity-95" aria-hidden />
           <div className="relative mx-auto max-w-6xl px-4 pb-14 pt-12 sm:px-6 sm:pt-16 lg:pb-20">
             <div className="grid items-center gap-10 lg:grid-cols-2">
               <div className="text-primary-foreground">
