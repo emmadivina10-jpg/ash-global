@@ -44,6 +44,8 @@ export interface VerifyPaymentResult {
 
 export interface WebhookResult {
   valid: boolean;
+  /** True only when the payload signature was cryptographically verified. */
+  signatureVerified: boolean;
   reference?: string | undefined;
   providerTransactionId?: string | undefined;
   status?: PaymentStatus | undefined;
