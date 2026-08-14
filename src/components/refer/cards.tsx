@@ -17,23 +17,23 @@ export function StatCard({
   className?: string;
 }) {
   return (
-    <div className={cn("surface-card p-4 sm:p-5", className)}>
+    <div className={cn("tile p-4 sm:p-5", className)}>
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
-        <p className="min-w-0 truncate text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          {label}
-        </p>
+        <p className="eyebrow min-w-0 truncate text-muted-foreground">{label}</p>
         {icon ? (
           <span
             className={cn(
-              "grid size-8 shrink-0 place-items-center rounded-lg",
-              accent ? "bg-gold/20 text-gold-foreground" : "bg-primary/10 text-primary",
+              "grid size-9 shrink-0 place-items-center rounded-xl",
+              accent ? "hairline-gold bg-gold-soft text-gold-foreground" : "bg-primary/10 text-primary",
             )}
           >
             {icon}
           </span>
         ) : null}
       </div>
-      <p className="tabular mt-2 text-2xl font-bold text-foreground sm:text-[1.75rem]">{value}</p>
+      <p className="tabular mt-3 font-display text-2xl font-extrabold text-foreground sm:text-[1.75rem]">
+        {value}
+      </p>
       {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
     </div>
   );
@@ -51,15 +51,15 @@ export function BalanceCard({
   action?: ReactNode;
 }) {
   return (
-    <div className="brand-gradient relative overflow-hidden rounded-3xl p-6 text-primary-foreground shadow-[var(--shadow-raised)]">
+    <div className="tile-dark grain p-6 sm:p-7">
       <div
-        className="pointer-events-none absolute -right-16 -top-20 size-56 rounded-full bg-primary-foreground/10"
+        className="pointer-events-none absolute -right-20 -top-24 size-64 rounded-full bg-gold/10 blur-2xl"
         aria-hidden
       />
-      <p className="text-sm font-medium text-primary-foreground/80">{label}</p>
-      <p className="tabular mt-2 text-4xl font-bold sm:text-5xl">{amount}</p>
-      {footer ? <div className="mt-5 text-sm text-primary-foreground/85">{footer}</div> : null}
-      {action ? <div className="mt-5">{action}</div> : null}
+      <p className="eyebrow relative text-primary-foreground/70">{label}</p>
+      <p className="tabular relative mt-3 font-display text-4xl font-extrabold sm:text-5xl">{amount}</p>
+      {footer ? <div className="relative mt-5 text-sm text-primary-foreground/80">{footer}</div> : null}
+      {action ? <div className="relative mt-6">{action}</div> : null}
     </div>
   );
 }

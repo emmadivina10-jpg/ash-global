@@ -62,8 +62,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                 key={item.to}
                 to={item.to}
                 className={cn(
-                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                  pathname === item.to && "bg-primary/10 text-primary",
+                  "relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                  pathname === item.to &&
+                    "bg-primary/10 font-semibold text-primary before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-gold",
                 )}
               >
                 <item.icon className="size-4 shrink-0" aria-hidden />
@@ -74,8 +75,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link
                 to="/admin"
                 className={cn(
-                  "mt-2 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent",
-                  pathname.startsWith("/admin") && "bg-primary/10 text-primary",
+                  "relative mt-2 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent",
+                  pathname.startsWith("/admin") &&
+                    "bg-primary/10 font-semibold text-primary before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-gold",
                 )}
               >
                 <Shield className="size-4 shrink-0" aria-hidden />
@@ -87,7 +89,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <LanguageSwitcher />
             <ThemeToggle />
           </div>
-          <div className="mt-3 rounded-xl border border-border p-3">
+          <div className="mt-3 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-card)]">
             <p className="truncate text-sm font-semibold text-foreground">{profile?.full_name || t("shell.member")}</p>
             <StatusBadge
               status={profile?.account_status ?? "PENDING"}
@@ -102,7 +104,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur lg:hidden">
+          <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl lg:hidden">
             <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3">
               <Link to="/dashboard" className="min-w-0">
                 <Logo compact />
@@ -121,7 +123,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/90 backdrop-blur-xl lg:hidden">
         <ul className="mx-auto grid max-w-md grid-cols-4">
           {NAV.map((item) => {
             const active = pathname === item.to;
@@ -130,10 +132,16 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Link
                   to={item.to}
                   className={cn(
-                    "flex min-h-14 flex-col items-center justify-center gap-1 py-2 text-[11px] font-medium",
+                    "relative flex min-h-14 flex-col items-center justify-center gap-1 py-2 text-[11px] font-semibold transition-colors",
                     active ? "text-primary" : "text-muted-foreground",
                   )}
                 >
+                  {active ? (
+                    <span
+                      className="gold-gradient absolute top-0 h-0.5 w-10 rounded-full"
+                      aria-hidden
+                    />
+                  ) : null}
                   <item.icon className="size-5" aria-hidden />
                   {t(item.key)}
                 </Link>
