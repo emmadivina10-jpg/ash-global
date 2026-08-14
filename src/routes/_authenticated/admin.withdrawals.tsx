@@ -43,8 +43,7 @@ function AdminWithdrawals() {
     const { data: result, error } = await supabase.rpc("settle_withdrawal", {
       _withdrawal_id: pending.id,
       _status: pending.status,
-      _provider_reference: providerRef || null,
-      _note: null,
+      ...(providerRef ? { _provider_reference: providerRef } : {}),
     });
     setBusy(false);
     const payload = result as { ok?: boolean; error?: string } | null;
