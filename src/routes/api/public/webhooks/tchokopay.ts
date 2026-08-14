@@ -22,9 +22,25 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
           });
         }
 
+        // Without a shared signing secret the payload is untrusted: confirm the
+        // real status directly with the provider API before crediting anything.
+        let status = result.status;
+        let providerTransactionId = result.providerTransactionId;
+        if (!result.signatureVerified) {
+          const verification = await tchokoPay.verifyPayment(result.reference);
+          if (!verification.ok) {
+            return new Response(JSON.stringify({ error: "VERIFICATION_FAILED" }), {
+              status: 502,
+              headers: { "content-type": "application/json" },
+            });
+          }
+          status = verification.status;
+          providerTransactionId = verification.providerTransactionId;
+        }
+
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-        if (result.status === "PAID") {
+        if (status === "PAID") {
           // Idempotent: the database function ignores already-paid activations.
           const { error } = await supabaseAdmin.rpc("complete_activation", {
             _payment_reference: result.reference,
