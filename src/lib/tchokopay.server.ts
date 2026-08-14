@@ -102,8 +102,8 @@ function timingSafeEqual(a: string, b: string): boolean {
 
 export const tchokoPay: PaymentService = {
   isConfigured() {
-    const { apiKey, secret } = config();
-    return apiKey.length > 0 && secret.length > 0;
+    const { apiKey } = config();
+    return apiKey.length > 0;
   },
 
   async createPayment(input) {
