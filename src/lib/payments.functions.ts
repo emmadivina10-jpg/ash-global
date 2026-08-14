@@ -34,24 +34,23 @@ export const startActivation = createServerFn({ method: "POST" })
       .limit(1)
       .maybeSingle();
 
-    const reference = existing?.payment_reference ?? makeReference();
-
-    if (!existing) {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const { error } = await supabaseAdmin.from("activations").insert({
-        user_id: userId,
-        amount: ACTIVATION_AMOUNT,
-        currency: "XAF",
-        payment_provider: "TCHOKOPAY",
-        payment_reference: reference,
-        status: "PENDING",
-      });
-      if (error) return { ok: false as const, error: "ACTIVATION_CREATE_FAILED" };
+    // Resume an in-flight checkout when the provider still has a usable link.
+    if (existing?.payment_reference) {
+      const current = await tchokoPay.verifyPayment(existing.payment_reference);
+      if (current.ok && current.checkoutUrl && current.status !== "FAILED" && current.status !== "CANCELLED") {
+        return {
+          ok: true as const,
+          configured: true,
+          reference: existing.payment_reference,
+          checkoutUrl: current.checkoutUrl,
+          error: null,
+        };
+      }
     }
 
-    const origin = process.env["APP_URL"] ?? "";
+    const merchantReference = makeReference();
     const result = await tchokoPay.createPayment({
-      reference,
+      reference: merchantReference,
       amount: ACTIVATION_AMOUNT,
       currency: "XAF",
       description: "Refer account activation",
@@ -60,16 +59,47 @@ export const startActivation = createServerFn({ method: "POST" })
         email: profile.email ?? "",
         phone: profile.phone ?? "",
       },
-      callbackUrl: `${origin}/api/public/webhooks/tchokopay`,
-      returnUrl: `${origin}/activate?ref=${reference}`,
+      callbackUrl: "",
+      returnUrl: "",
     });
 
+    if (!result.ok) {
+      return {
+        ok: false as const,
+        configured: result.configured,
+        reference: merchantReference,
+        checkoutUrl: null,
+        error: result.error ?? "PAYMENT_CREATE_FAILED",
+      };
+    }
+
+    // The provider reference is what webhooks and status lookups use, so it is
+    // what we store as the activation's payment reference.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("activations").insert({
+      user_id: userId,
+      amount: ACTIVATION_AMOUNT,
+      currency: "XAF",
+      payment_provider: "TCHOKOPAY",
+      payment_reference: result.reference,
+      status: "PENDING",
+    });
+    if (error) {
+      return {
+        ok: false as const,
+        configured: true,
+        reference: result.reference,
+        checkoutUrl: null,
+        error: "ACTIVATION_CREATE_FAILED",
+      };
+    }
+
     return {
-      ok: result.ok,
-      configured: result.configured,
-      reference,
+      ok: true as const,
+      configured: true,
+      reference: result.reference,
       checkoutUrl: result.checkoutUrl ?? null,
-      error: result.error ?? null,
+      error: null,
     };
   });
 
