@@ -28,7 +28,7 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
           // Idempotent: the database function ignores already-paid activations.
           const { error } = await supabaseAdmin.rpc("complete_activation", {
             _payment_reference: result.reference,
-            _provider_transaction_id: result.providerTransactionId ?? null,
+            _provider_transaction_id: (result.providerTransactionId ?? null) as unknown as string,
           });
           if (error) {
             return new Response(JSON.stringify({ error: "PROCESSING_FAILED" }), {

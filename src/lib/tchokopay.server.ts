@@ -28,26 +28,26 @@ export interface CreatePaymentResult {
   ok: boolean;
   configured: boolean;
   reference: string;
-  checkoutUrl?: string;
-  providerTransactionId?: string;
+  checkoutUrl?: string | undefined;
+  providerTransactionId?: string | undefined;
   status: PaymentStatus;
-  error?: string;
+  error?: string | undefined;
 }
 
 export interface VerifyPaymentResult {
   ok: boolean;
   configured: boolean;
   status: PaymentStatus;
-  providerTransactionId?: string;
-  error?: string;
+  providerTransactionId?: string | undefined;
+  error?: string | undefined;
 }
 
 export interface WebhookResult {
   valid: boolean;
-  reference?: string;
-  providerTransactionId?: string;
-  status?: PaymentStatus;
-  error?: string;
+  reference?: string | undefined;
+  providerTransactionId?: string | undefined;
+  status?: PaymentStatus | undefined;
+  error?: string | undefined;
 }
 
 export interface PaymentService {

@@ -113,7 +113,7 @@ export const verifyActivation = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.rpc("complete_activation", {
       _payment_reference: data.reference,
-      _provider_transaction_id: verification.providerTransactionId ?? null,
+      _provider_transaction_id: (verification.providerTransactionId ?? null) as unknown as string,
     });
     if (error) return { ok: false as const, status: "ACTIVATION_FAILED" as const };
 
