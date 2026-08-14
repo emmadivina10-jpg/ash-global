@@ -47,7 +47,17 @@ function ActivatePage() {
         );
         return;
       }
-      setMessage("We could not start the payment. Please try again in a moment.");
+      if (result.error === "Invalid or revoked API key" || result.error === "PROVIDER_HTTP_401") {
+        setMessage(
+          "The payment provider rejected our credentials. The TchokoPay API key needs to be updated. No payment has been taken.",
+        );
+        return;
+      }
+      setMessage(
+        result.error
+          ? `We could not start the payment: ${result.error}`
+          : "We could not start the payment. Please try again in a moment.",
+      );
       return;
     }
 
