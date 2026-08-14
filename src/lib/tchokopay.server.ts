@@ -119,40 +119,46 @@ export const tchokoPay: PaymentService = {
     }
 
     try {
+      // TchokoPay Merchant API v1: only amount/currency/description/reference are
+      // accepted; the callback URL is configured once on the merchant webhook.
       const res = await fetch(`${baseUrl}/v1/payments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "idempotency-key": input.reference,
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          reference: input.reference,
           amount: input.amount,
           currency: input.currency,
           description: input.description,
-          customer: input.customer,
-          callback_url: input.callbackUrl,
-          return_url: input.returnUrl,
+          reference: input.reference,
+          expiresInMinutes: 60,
         }),
       });
 
       const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
       if (!res.ok) {
+        const message = data["message"];
         return {
           ok: false,
           configured: true,
           reference: input.reference,
           status: "FAILED",
-          error: String(data["message"] ?? `PROVIDER_HTTP_${res.status}`),
+          error: String(
+            Array.isArray(message) ? message.join(", ") : (message ?? `PROVIDER_HTTP_${res.status}`),
+          ),
         };
       }
 
       return {
         ok: true,
         configured: true,
-        reference: input.reference,
-        checkoutUrl: (data["checkout_url"] ?? data["payment_url"] ?? data["url"]) as string | undefined,
-        providerTransactionId: (data["transaction_id"] ?? data["id"]) as string | undefined,
+        // The provider reference is the authoritative id used by checkout,
+        // status lookups and webhooks.
+        reference: String(data["reference"] ?? input.reference),
+        checkoutUrl: data["checkoutUrl"] as string | undefined,
+        providerTransactionId: String(data["reference"] ?? input.reference),
         status: mapStatus(data["status"]),
       };
     } catch (error) {
@@ -188,7 +194,8 @@ export const tchokoPay: PaymentService = {
         ok: true,
         configured: true,
         status: mapStatus(data["status"]),
-        providerTransactionId: (data["transaction_id"] ?? data["id"]) as string | undefined,
+        providerTransactionId: (data["reference"] ?? reference) as string | undefined,
+        checkoutUrl: data["checkoutUrl"] as string | undefined,
       };
     } catch (error) {
       return {
