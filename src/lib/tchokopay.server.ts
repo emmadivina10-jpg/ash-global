@@ -39,6 +39,7 @@ export interface VerifyPaymentResult {
   configured: boolean;
   status: PaymentStatus;
   providerTransactionId?: string | undefined;
+  checkoutUrl?: string | undefined;
   error?: string | undefined;
 }
 
