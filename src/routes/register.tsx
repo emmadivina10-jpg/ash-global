@@ -30,9 +30,8 @@ const schema = z
   });
 
 export const Route = createFileRoute("/register")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    ref: typeof search["ref"] === "string" ? search["ref"] : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { ref?: string } =>
+    typeof search["ref"] === "string" ? { ref: search["ref"] } : {},
   head: () => ({
     meta: [
       { title: "Create your Refer account" },
