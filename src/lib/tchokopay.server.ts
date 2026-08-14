@@ -202,27 +202,31 @@ export const tchokoPay: PaymentService = {
 
   async handleWebhook(rawBody, headers) {
     const { secret } = config();
-    if (!secret) return { valid: false, error: "PAYMENT_PROVIDER_NOT_CONFIGURED" };
 
-    const signature =
-      headers.get("x-tchokopay-signature") ?? headers.get("x-signature") ?? "";
-    if (!signature) return { valid: false, error: "MISSING_SIGNATURE" };
+    let signatureVerified = false;
+    if (secret) {
+      const signature =
+        headers.get("x-tchokopay-signature") ?? headers.get("x-signature") ?? "";
+      if (!signature) return { valid: false, signatureVerified: false, error: "MISSING_SIGNATURE" };
 
-    const expected = await hmacHex(secret, rawBody);
-    if (!timingSafeEqual(signature.toLowerCase().replace(/^sha256=/, ""), expected)) {
-      return { valid: false, error: "INVALID_SIGNATURE" };
+      const expected = await hmacHex(secret, rawBody);
+      if (!timingSafeEqual(signature.toLowerCase().replace(/^sha256=/, ""), expected)) {
+        return { valid: false, signatureVerified: false, error: "INVALID_SIGNATURE" };
+      }
+      signatureVerified = true;
     }
 
     let payload: Record<string, unknown>;
     try {
       payload = JSON.parse(rawBody) as Record<string, unknown>;
     } catch {
-      return { valid: false, error: "INVALID_JSON" };
+      return { valid: false, signatureVerified, error: "INVALID_JSON" };
     }
 
     const data = (payload["data"] as Record<string, unknown> | undefined) ?? payload;
     return {
       valid: true,
+      signatureVerified,
       reference: (data["reference"] ?? data["payment_reference"]) as string | undefined,
       providerTransactionId: (data["transaction_id"] ?? data["id"]) as string | undefined,
       status: mapStatus(data["status"]),
