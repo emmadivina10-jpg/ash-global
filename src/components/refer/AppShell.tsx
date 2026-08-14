@@ -16,18 +16,20 @@ import { useIsAdmin, useProfile } from "@/lib/queries";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "./StatusBadge";
 import { Logo } from "./Logo";
+import { LanguageSwitcher, ThemeToggle } from "./Preferences";
+import { useI18n, type TKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 const NAV = [
-  { to: "/dashboard", label: "Home", icon: Home },
-  { to: "/network", label: "Network", icon: Users },
-  { to: "/wallet", label: "Wallet", icon: Wallet },
-  { to: "/profile", label: "Profile", icon: UserIcon },
+  { to: "/dashboard", key: "nav.home" as TKey, icon: Home },
+  { to: "/network", key: "nav.network" as TKey, icon: Users },
+  { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet },
+  { to: "/profile", key: "nav.profile" as TKey, icon: UserIcon },
 ] as const;
 
 const SIDE_EXTRA = [
-  { to: "/transactions", label: "Transactions", icon: Receipt },
-  { to: "/withdraw", label: "Withdraw", icon: ArrowDownToLine },
+  { to: "/transactions", key: "nav.transactions" as TKey, icon: Receipt },
+  { to: "/withdraw", key: "nav.withdraw" as TKey, icon: ArrowDownToLine },
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -35,6 +37,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const { data: profile } = useProfile();
   const { data: isAdmin } = useIsAdmin();
+  const { t } = useI18n();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   async function signOut() {
@@ -64,7 +67,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 )}
               >
                 <item.icon className="size-4 shrink-0" aria-hidden />
-                {item.label}
+                {t(item.key)}
               </Link>
             ))}
             {isAdmin ? (
@@ -76,20 +79,24 @@ export function AppShell({ children }: { children: ReactNode }) {
                 )}
               >
                 <Shield className="size-4 shrink-0" aria-hidden />
-                Admin
+                {t("nav.admin")}
               </Link>
             ) : null}
           </nav>
-          <div className="mt-4 rounded-xl border border-border p-3">
-            <p className="truncate text-sm font-semibold text-foreground">{profile?.full_name || "Member"}</p>
+          <div className="mt-4 flex items-center justify-between gap-2">
+            <LanguageSwitcher />
+            <ThemeToggle />
+          </div>
+          <div className="mt-3 rounded-xl border border-border p-3">
+            <p className="truncate text-sm font-semibold text-foreground">{profile?.full_name || t("shell.member")}</p>
             <StatusBadge
               status={profile?.account_status ?? "PENDING"}
-              label={profile?.account_status === "ACTIVE" ? "Active" : "Pending activation"}
+              label={profile?.account_status === "ACTIVE" ? t("shell.active") : t("shell.pending")}
               className="mt-2"
             />
             <Button variant="ghost" size="sm" className="mt-3 w-full justify-start" onClick={signOut}>
               <LogOut className="size-4" aria-hidden />
-              Sign out
+              {t("shell.signOut")}
             </Button>
           </div>
         </aside>
@@ -100,9 +107,13 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link to="/dashboard" className="min-w-0">
                 <Logo compact />
               </Link>
-              <Button variant="ghost" size="icon" aria-label="Sign out" onClick={signOut}>
+              <div className="flex items-center gap-1">
+                <LanguageSwitcher />
+                <ThemeToggle />
+              <Button variant="ghost" size="icon" aria-label={t("shell.signOut")} onClick={signOut}>
                 <LogOut className="size-4" aria-hidden />
               </Button>
+              </div>
             </div>
           </header>
 
@@ -124,7 +135,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   )}
                 >
                   <item.icon className="size-5" aria-hidden />
-                  {item.label}
+                  {t(item.key)}
                 </Link>
               </li>
             );
