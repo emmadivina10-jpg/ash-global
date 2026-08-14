@@ -48,9 +48,6 @@ export const startActivation = createServerFn({ method: "POST" })
       }
     }
 
-    const origin = process.env["APP_URL"] ?? "";
-    void origin;
-
     const merchantReference = makeReference();
     const result = await tchokoPay.createPayment({
       reference: merchantReference,
