@@ -60,6 +60,8 @@ export interface PaymentService {
 function config() {
   return {
     apiKey: process.env["TCHOKOPAY_API_KEY"] ?? "",
+    // Optional. When absent, webhook payloads are never trusted on their own:
+    // the reference is re-verified against the provider API before anything is credited.
     secret: process.env["TCHOKOPAY_SECRET"] ?? "",
     baseUrl: (process.env["TCHOKOPAY_BASE_URL"] ?? "https://api.tchokopay.com").replace(/\/$/, ""),
   };
