@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
+  ArrowUpRight,
   BadgeCheck,
   Banknote,
   Layers,
   ShieldCheck,
   Smartphone,
+  Sparkles,
   Users,
   Wallet,
 } from "lucide-react";
@@ -32,9 +34,27 @@ export const Route = createFileRoute("/")({
 });
 
 const LEVELS = [
-  { level: 1, amount: COMMISSIONS[1], label: "Direct referrals", copy: "Everyone who joins with your link and activates." },
-  { level: 2, amount: COMMISSIONS[2], label: "Second level", copy: "The people your referrals bring in." },
-  { level: 3, amount: COMMISSIONS[3], label: "Third level", copy: "Your network keeps paying, three levels deep." },
+  {
+    level: 1,
+    amount: COMMISSIONS[1],
+    label: "Direct referrals",
+    copy: "Everyone who joins with your link and activates.",
+    members: 18,
+  },
+  {
+    level: 2,
+    amount: COMMISSIONS[2],
+    label: "Second level",
+    copy: "The people your referrals bring in.",
+    members: 42,
+  },
+  {
+    level: 3,
+    amount: COMMISSIONS[3],
+    label: "Third level",
+    copy: "Your network keeps paying, three levels deep.",
+    members: 96,
+  },
 ];
 
 const FEATURES = [
@@ -56,14 +76,14 @@ const STEPS = [
 function Landing() {
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur">
-        <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 sm:px-6">
+      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">
+        <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3.5 sm:px-6">
           <Logo />
           <nav className="flex items-center gap-2">
             <Button asChild variant="ghost" size="sm">
               <Link to="/login">Sign in</Link>
             </Button>
-            <Button asChild size="sm">
+            <Button asChild size="sm" className="shadow-[var(--shadow-card)]">
               <Link to="/register">Get started</Link>
             </Button>
           </nav>
@@ -71,155 +91,169 @@ function Landing() {
       </header>
 
       <main>
-        <section className="relative overflow-hidden">
-          <div className="brand-gradient absolute inset-0 opacity-95" aria-hidden />
-          <div className="relative mx-auto max-w-6xl px-4 pb-14 pt-12 sm:px-6 sm:pt-16 lg:pb-20">
-            <div className="grid items-center gap-10 lg:grid-cols-2">
-              <div className="text-primary-foreground">
-                <span className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/15 px-3 py-1 text-xs font-semibold">
+        {/* Hero bento */}
+        <section className="mx-auto max-w-6xl px-4 pb-10 pt-8 sm:px-6 sm:pt-12 lg:pb-16">
+          <div className="grid gap-4 lg:grid-cols-12">
+            {/* Primary hero tile */}
+            <div className="tile-dark grain relative col-span-full flex flex-col justify-between p-7 sm:p-10 lg:col-span-7 lg:min-h-[26rem]">
+              <div className="relative">
+                <span className="hairline-gold inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 px-3 py-1 text-xs font-semibold text-primary-foreground/90">
                   <BadgeCheck className="size-3.5" aria-hidden />
                   Built for Cameroon · Paid in XAF
                 </span>
-                <h1 className="mt-4 font-display text-4xl font-extrabold leading-[1.05] sm:text-5xl lg:text-6xl">
+                <h1 className="mt-6 font-display text-4xl font-extrabold leading-[1.02] sm:text-5xl lg:text-[3.5rem]">
                   Refer friends.
                   <br />
-                  Earn real money.
+                  Earn <span className="gold-text">real money</span>.
                 </h1>
-                <p className="mt-4 max-w-lg text-base leading-relaxed text-primary-foreground/85 sm:text-lg">
-                  Activate your account once, share your link, and earn commissions across three levels of
-                  your network — withdrawn straight to mobile money.
+                <p className="mt-5 max-w-md text-base leading-relaxed text-primary-foreground/80">
+                  Activate your account once, share your link, and earn commissions across three levels of your
+                  network — withdrawn straight to mobile money.
                 </p>
-                <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-                  <Button asChild size="lg" variant="secondary" className="h-12">
-                    <Link to="/register">
-                      Sign up for free
-                      <ArrowRight className="size-4" aria-hidden />
-                    </Link>
-                  </Button>
-                  <Button
-                    asChild
-                    size="lg"
-                    variant="outline"
-                    className="h-12 border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10"
-                  >
-                    <Link to="/login">I have an account</Link>
-                  </Button>
-                </div>
-                <dl className="mt-9 grid max-w-md grid-cols-3 gap-4">
-                  {LEVELS.map((item) => (
-                    <div key={item.level}>
-                      <dt className="text-xs font-medium text-primary-foreground/70">Level {item.level}</dt>
-                      <dd className="tabular font-display text-lg font-bold sm:text-xl">
-                        {item.amount.toLocaleString("fr-FR")}
-                        <span className="ml-1 text-xs font-semibold">XAF</span>
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
               </div>
-
-              <div className="relative mx-auto w-full max-w-sm">
-                <div className="rounded-3xl border border-border bg-card p-5 shadow-2xl">
-                  <p className="text-xs font-medium text-muted-foreground">Available balance</p>
-                  <p className="tabular mt-1 font-display text-3xl font-extrabold text-foreground">
-                    {formatXAF(48750)}
-                  </p>
-                  <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-                    {LEVELS.map((item) => (
-                      <div key={item.level} className="rounded-xl bg-muted p-2.5">
-                        <p className="text-[11px] text-muted-foreground">L{item.level}</p>
-                        <p className="tabular text-sm font-bold text-foreground">
-                          {item.level === 1 ? 18 : item.level === 2 ? 42 : 96}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                  <ul className="mt-4 space-y-3">
-                    {[
-                      { label: "Referral commission · L1", amount: 1500 },
-                      { label: "Referral commission · L2", amount: 750 },
-                      { label: "Withdrawal · MTN MoMo", amount: -10000 },
-                    ].map((row) => (
-                      <li key={row.label} className="flex items-center justify-between gap-3 text-sm">
-                        <span className="truncate text-muted-foreground">{row.label}</span>
-                        <span
-                          className={`tabular font-semibold ${row.amount > 0 ? "text-primary" : "text-foreground"}`}
-                        >
-                          {row.amount > 0 ? "+" : ""}
-                          {formatXAF(row.amount)}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+              <div className="relative mt-8 flex flex-col gap-3 sm:flex-row">
+                <Button
+                  asChild
+                  size="lg"
+                  className="gold-gradient h-12 border-0 text-gold-foreground shadow-[var(--shadow-gold)] hover:opacity-90"
+                >
+                  <Link to="/register">
+                    Sign up for free
+                    <ArrowRight className="size-4" aria-hidden />
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="h-12 border-primary-foreground/30 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                >
+                  <Link to="/login">I have an account</Link>
+                </Button>
               </div>
             </div>
-          </div>
-        </section>
 
-        <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:py-20">
-          <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl">How the rewards work</h2>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
-            A one-time activation of {formatXAF(ACTIVATION_FEE)} unlocks your earning position. After that, every
-            activated member in your first three levels pays you a fixed commission.
-          </p>
-          <div className="mt-7 grid gap-4 sm:grid-cols-3">
-            {LEVELS.map((item) => (
-              <div key={item.level} className="rounded-2xl border border-border bg-card p-5">
-                <span className="inline-flex size-9 items-center justify-center rounded-xl bg-primary/10 font-display font-bold text-primary">
-                  {item.level}
+            {/* Wallet preview tile */}
+            <div className="tile col-span-full flex flex-col p-6 sm:p-7 lg:col-span-5">
+              <div className="flex items-center justify-between gap-3">
+                <p className="eyebrow text-muted-foreground">Available balance</p>
+                <span className="grid size-8 place-items-center rounded-full bg-gold-soft text-gold-foreground">
+                  <Sparkles className="size-4" aria-hidden />
                 </span>
-                <p className="tabular mt-4 font-display text-2xl font-extrabold text-foreground">
+              </div>
+              <p className="tabular mt-2 font-display text-4xl font-extrabold text-foreground">
+                {formatXAF(48750)}
+              </p>
+              <div className="mt-5 grid grid-cols-3 gap-2 text-center">
+                {LEVELS.map((item) => (
+                  <div key={item.level} className="rounded-2xl border border-border bg-muted/60 p-3">
+                    <p className="text-[11px] font-semibold text-muted-foreground">L{item.level}</p>
+                    <p className="tabular font-display text-base font-bold text-foreground">{item.members}</p>
+                  </div>
+                ))}
+              </div>
+              <ul className="mt-5 space-y-3 border-t border-border pt-4">
+                {[
+                  { label: "Referral commission · L1", amount: 1500 },
+                  { label: "Referral commission · L2", amount: 750 },
+                  { label: "Withdrawal · MTN MoMo", amount: -10000 },
+                ].map((row) => (
+                  <li key={row.label} className="flex items-center justify-between gap-3 text-sm">
+                    <span className="truncate text-muted-foreground">{row.label}</span>
+                    <span
+                      className={`tabular font-semibold ${row.amount > 0 ? "text-primary" : "text-foreground"}`}
+                    >
+                      {row.amount > 0 ? "+" : ""}
+                      {formatXAF(row.amount)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Commission tiles */}
+            {LEVELS.map((item) => (
+              <div key={item.level} className="tile col-span-full p-6 sm:col-span-1 lg:col-span-4">
+                <div className="flex items-center justify-between">
+                  <span className="hairline-gold grid size-10 place-items-center rounded-2xl bg-gold-soft font-display text-sm font-bold text-gold-foreground">
+                    L{item.level}
+                  </span>
+                  <ArrowUpRight className="size-4 text-muted-foreground" aria-hidden />
+                </div>
+                <p className="tabular mt-5 font-display text-3xl font-extrabold text-foreground">
                   {formatXAF(item.amount)}
                 </p>
                 <p className="mt-1 text-sm font-semibold text-foreground">{item.label}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{item.copy}</p>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{item.copy}</p>
               </div>
             ))}
           </div>
         </section>
 
-        <section className="border-y border-border bg-muted/40">
-          <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:py-20">
-            <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl">Get started in 4 steps</h2>
-            <ol className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {STEPS.map((step, index) => (
-                <li key={step.title} className="rounded-2xl border border-border bg-card p-5">
-                  <span className="text-xs font-bold uppercase tracking-wide text-primary">
-                    Step {index + 1}
-                  </span>
-                  <p className="mt-2 font-semibold text-foreground">{step.title}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{step.copy}</p>
-                </li>
-              ))}
-            </ol>
+        {/* Steps */}
+        <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:py-16">
+          <div className="max-w-2xl">
+            <p className="eyebrow text-primary">How it works</p>
+            <h2 className="mt-3 font-display text-3xl font-extrabold text-foreground sm:text-4xl">
+              Get started in four steps
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+              A one-time activation of {formatXAF(ACTIVATION_FEE)} unlocks your earning position. After that, every
+              activated member in your first three levels pays you a fixed commission.
+            </p>
           </div>
+          <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {STEPS.map((step, index) => (
+              <li key={step.title} className="tile p-6">
+                <span className="tabular font-display text-2xl font-extrabold text-gold">
+                  0{index + 1}
+                </span>
+                <p className="mt-4 font-semibold text-foreground">{step.title}</p>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{step.copy}</p>
+              </li>
+            ))}
+          </ol>
         </section>
 
-        <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:py-20">
-          <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
-            Everything you need to grow a network
-          </h2>
-          <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map((feature) => (
-              <div key={feature.title} className="rounded-2xl border border-border bg-card p-5">
-                <span className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary">
+        {/* Features bento */}
+        <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:py-16">
+          <div className="max-w-2xl">
+            <p className="eyebrow text-primary">The platform</p>
+            <h2 className="mt-3 font-display text-3xl font-extrabold text-foreground sm:text-4xl">
+              Everything you need to grow a network
+            </h2>
+          </div>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
+            {FEATURES.map((feature, index) => (
+              <div
+                key={feature.title}
+                className={`tile p-6 ${index < 2 ? "lg:col-span-3" : "lg:col-span-2"}`}
+              >
+                <span className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary">
                   <feature.icon className="size-5" aria-hidden />
                 </span>
-                <p className="mt-4 font-semibold text-foreground">{feature.title}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{feature.copy}</p>
+                <p className="mt-5 font-semibold text-foreground">{feature.title}</p>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{feature.copy}</p>
               </div>
             ))}
           </div>
         </section>
 
+        {/* CTA */}
         <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
-          <div className="brand-gradient rounded-3xl px-6 py-12 text-center text-primary-foreground sm:px-10">
-            <h2 className="font-display text-2xl font-extrabold sm:text-3xl">Your network is worth money</h2>
-            <p className="mx-auto mt-2 max-w-xl text-sm text-primary-foreground/85 sm:text-base">
+          <div className="tile-dark grain px-6 py-14 text-center sm:px-10">
+            <p className="eyebrow relative text-gold">Start earning</p>
+            <h2 className="relative mt-3 font-display text-3xl font-extrabold sm:text-4xl">
+              Your network is worth money
+            </h2>
+            <p className="relative mx-auto mt-3 max-w-xl text-sm text-primary-foreground/80 sm:text-base">
               Join Refer today, activate your account and start earning from every person you bring on board.
             </p>
-            <Button asChild size="lg" variant="secondary" className="mt-6 h-12">
+            <Button
+              asChild
+              size="lg"
+              className="gold-gradient relative mt-7 h-12 border-0 text-gold-foreground shadow-[var(--shadow-gold)] hover:opacity-90"
+            >
               <Link to="/register">
                 Create your account
                 <ArrowRight className="size-4" aria-hidden />
