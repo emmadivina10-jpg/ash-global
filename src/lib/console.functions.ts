@@ -238,3 +238,51 @@ export const getConsoleLedger = createServerFn({ method: "GET" }).handler(async 
     subscriptions: subs.data ?? [],
   };
 });
+
+export const getConsoleDeletionRequests = createServerFn({ method: "GET" }).handler(async () => {
+  const { requireConsole, adminClient } = await import("./console.server");
+  await requireConsole();
+  const db = await adminClient();
+
+  const { data: requests } = await db
+    .from("account_deletion_requests")
+    .select("id, user_id, reason, status, admin_note, reviewed_at, created_at")
+    .order("created_at", { ascending: false })
+    .limit(200);
+
+  const list = requests ?? [];
+  const ids = [...new Set(list.map((r) => r.user_id))];
+  const { data: profiles } = ids.length
+    ? await db.from("profiles").select("user_id, full_name, email, phone, account_status").in("user_id", ids)
+    : { data: [] as { user_id: string; full_name: string; email: string; phone: string; account_status: string }[] };
+
+  const byUser = new Map((profiles ?? []).map((p) => [p.user_id, p]));
+  return list.map((r) => ({ ...r, profile: byUser.get(r.user_id) ?? null }));
+});
+
+export const reviewDeletionRequest = createServerFn({ method: "POST" })
+  .inputValidator((data: { id: string; status: "APPROVED" | "REJECTED"; note?: string }) => data)
+  .handler(async ({ data }) => {
+    const { requireConsole, adminClient } = await import("./console.server");
+    await requireConsole();
+    if (data.status !== "APPROVED" && data.status !== "REJECTED") throw new Error("INVALID_STATUS");
+    const db = await adminClient();
+
+    const { error } = await db
+      .from("account_deletion_requests")
+      .update({ status: data.status, admin_note: data.note ?? null, reviewed_at: new Date().toISOString() })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+
+    if (data.status === "APPROVED") {
+      const { data: row } = await db
+        .from("account_deletion_requests")
+        .select("user_id")
+        .eq("id", data.id)
+        .maybeSingle();
+      if (row?.user_id) {
+        await db.from("profiles").update({ account_status: "CLOSED" }).eq("user_id", row.user_id);
+      }
+    }
+    return { ok: true as const };
+  });

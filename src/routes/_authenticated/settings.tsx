@@ -1,0 +1,176 @@
+import { useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Info, Loader2, LifeBuoy, ScrollText, ShieldCheck, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { SectionCard } from "@/components/refer/cards";
+import { ConfirmationModal } from "@/components/refer/ConfirmationModal";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { ACTIVATION_FEE, formatXAF } from "@/lib/format";
+import { useI18n, type TKey } from "@/lib/i18n";
+
+export const Route = createFileRoute("/_authenticated/settings")({
+  head: () => ({
+    meta: [
+      { title: "Settings — ASH Refer" },
+      {
+        name: "description",
+        content: "About ASH Refer, privacy policy, fair-use terms and account deletion requests.",
+      },
+      { property: "og:title", content: "Settings — ASH Refer" },
+      { property: "og:description", content: "About ASH Refer, privacy policy and account controls." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: SettingsPage,
+});
+
+function Paragraphs({ keys, vars }: { keys: TKey[]; vars?: Record<string, string> }) {
+  const { t } = useI18n();
+  return (
+    <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
+      {keys.map((k) => (
+        <p key={k}>{t(k, vars)}</p>
+      ))}
+    </div>
+  );
+}
+
+function SettingsPage() {
+  const { t } = useI18n();
+  const queryClient = useQueryClient();
+  const [reason, setReason] = useState("");
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  const { data: request } = useQuery({
+    queryKey: ["deletion-request"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("account_deletion_requests")
+        .select("id, status, created_at")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const pending = request?.status === "PENDING";
+
+  async function submit() {
+    setBusy(true);
+    const { data: auth } = await supabase.auth.getUser();
+    const userId = auth.user?.id;
+    if (!userId) {
+      setBusy(false);
+      toast.error(t("settings.delete.err"));
+      return;
+    }
+    const { error } = await supabase
+      .from("account_deletion_requests")
+      .insert({ user_id: userId, reason: reason.trim() || null });
+    setBusy(false);
+    setConfirming(false);
+    if (error) {
+      toast.error(t("settings.delete.err"));
+      return;
+    }
+    setReason("");
+    toast.success(t("settings.delete.sent"));
+    await queryClient.invalidateQueries({ queryKey: ["deletion-request"] });
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-3xl space-y-5">
+      <header>
+        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{t("settings.title")}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t("settings.subtitle")}</p>
+      </header>
+
+      <SectionCard
+        title={t("settings.about")}
+        action={<Info className="size-4 text-muted-foreground" aria-hidden />}
+      >
+        <Paragraphs
+          keys={["settings.about.1", "settings.about.2", "settings.about.3", "settings.about.4", "settings.about.5"]}
+          vars={{ fee: formatXAF(ACTIVATION_FEE) }}
+        />
+      </SectionCard>
+
+      <SectionCard
+        title={t("settings.privacy")}
+        action={<ShieldCheck className="size-4 text-muted-foreground" aria-hidden />}
+      >
+        <Paragraphs
+          keys={[
+            "settings.privacy.1",
+            "settings.privacy.2",
+            "settings.privacy.3",
+            "settings.privacy.4",
+            "settings.privacy.5",
+          ]}
+        />
+      </SectionCard>
+
+      <SectionCard
+        title={t("settings.terms")}
+        action={<ScrollText className="size-4 text-muted-foreground" aria-hidden />}
+      >
+        <Paragraphs keys={["settings.terms.1", "settings.terms.2", "settings.terms.3"]} />
+      </SectionCard>
+
+      <SectionCard
+        title={t("settings.support")}
+        action={<LifeBuoy className="size-4 text-muted-foreground" aria-hidden />}
+      >
+        <p className="text-sm leading-relaxed text-muted-foreground">{t("settings.support.copy")}</p>
+      </SectionCard>
+
+      <SectionCard title={t("settings.danger")} className="border-destructive/40">
+        <p className="text-sm leading-relaxed text-muted-foreground">{t("settings.delete.copy")}</p>
+
+        {pending ? (
+          <p className="mt-4 rounded-xl bg-muted p-3 text-sm font-medium text-foreground">
+            {t("settings.delete.pending")}
+          </p>
+        ) : (
+          <div className="mt-4 space-y-3">
+            {request?.status === "REJECTED" ? (
+              <p className="text-xs text-muted-foreground">{t("settings.delete.rejected")}</p>
+            ) : null}
+            <div className="space-y-2">
+              <Label htmlFor="delete-reason">{t("settings.delete.reason")}</Label>
+              <Textarea
+                id="delete-reason"
+                value={reason}
+                onChange={(event) => setReason(event.target.value)}
+                rows={3}
+              />
+            </div>
+            <Button variant="destructive" onClick={() => setConfirming(true)} disabled={busy}>
+              {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Trash2 className="size-4" aria-hidden />}
+              {t("settings.delete.submit")}
+            </Button>
+          </div>
+        )}
+      </SectionCard>
+
+      <p className="pb-2 text-center text-xs text-muted-foreground">{t("settings.version")}</p>
+
+      <ConfirmationModal
+        open={confirming}
+        onOpenChange={setConfirming}
+        title={t("settings.delete.confirm")}
+        description={t("settings.delete.confirmDesc")}
+        confirmLabel={t("settings.delete.submit")}
+        loading={busy}
+        onConfirm={() => void submit()}
+      />
+    </div>
+  );
+}

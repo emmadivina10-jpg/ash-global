@@ -17,6 +17,7 @@ const TABS = [
   { to: "/console/bookings", label: "Bookings" },
   { to: "/console/withdrawals", label: "Withdrawals" },
   { to: "/console/ledger", label: "Ledger" },
+  { to: "/console/deletions", label: "Deletions" },
 ] as const;
 
 export const Route = createFileRoute("/console")({

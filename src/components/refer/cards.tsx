@@ -70,8 +70,8 @@ export function BalanceCard({
         </div>
         <div className="text-right">
           <span className="font-display text-sm font-extrabold tracking-[0.22em]">ASH</span>
-          <span className="mt-1 block text-[10px] font-semibold uppercase tracking-[0.18em] opacity-60">
-            Virtual
+          <span className="mt-1 block rounded-full border border-[color:oklch(1_0_0_/_0.22)] bg-[oklch(0_0_0_/_0.28)] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.16em] opacity-90">
+            Card coming soon
           </span>
         </div>
       </div>

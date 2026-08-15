@@ -9,6 +9,7 @@ import {
   MessageCircle,
   Receipt,
   Scissors,
+  Settings as SettingsIcon,
   Shield,
   Sparkles,
   Users,
@@ -19,6 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin, useProfile } from "@/lib/queries";
 import { Button } from "@/components/ui/button";
 import { AssistantBubble } from "./AssistantBubble";
+import { AshCardBubble } from "./AshCardBubble";
 import { StatusBadge } from "./StatusBadge";
 import { Logo } from "./Logo";
 import { LanguageSwitcher, ThemeToggle } from "./Preferences";
@@ -39,6 +41,7 @@ const SIDE_EXTRA = [
   { to: "/studio", key: "nav.pro" as TKey, icon: Sparkles },
   { to: "/transactions", key: "nav.transactions" as TKey, icon: Receipt },
   { to: "/withdraw", key: "nav.withdraw" as TKey, icon: ArrowDownToLine },
+  { to: "/settings", key: "nav.settings" as TKey, icon: SettingsIcon },
 ] as const;
 
 
@@ -158,6 +161,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </ul>
       </nav>
 
+      <AshCardBubble />
       <AssistantBubble />
     </div>
   );

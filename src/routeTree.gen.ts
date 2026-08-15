@@ -23,12 +23,14 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
 import { Route as AuthenticatedNetworkRouteImport } from './routes/_authenticated/network'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
 import { Route as AuthenticatedTransactionsRouteImport } from './routes/_authenticated/transactions'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedWithdrawRouteImport } from './routes/_authenticated/withdraw'
 import { Route as ConsoleIndexRouteImport } from './routes/console.index'
 import { Route as ConsoleBookingsRouteImport } from './routes/console.bookings'
+import { Route as ConsoleDeletionsRouteImport } from './routes/console.deletions'
 import { Route as ConsoleLedgerRouteImport } from './routes/console.ledger'
 import { Route as ConsoleProvidersRouteImport } from './routes/console.providers'
 import { Route as ConsoleUsersRouteImport } from './routes/console.users'
@@ -106,6 +108,11 @@ const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedStudioRoute = AuthenticatedStudioRouteImport.update({
   id: '/studio',
   path: '/studio',
@@ -135,6 +142,11 @@ const ConsoleIndexRoute = ConsoleIndexRouteImport.update({
 const ConsoleBookingsRoute = ConsoleBookingsRouteImport.update({
   id: '/bookings',
   path: '/bookings',
+  getParentRoute: () => ConsoleRoute,
+} as any)
+const ConsoleDeletionsRoute = ConsoleDeletionsRouteImport.update({
+  id: '/deletions',
+  path: '/deletions',
   getParentRoute: () => ConsoleRoute,
 } as any)
 const ConsoleLedgerRoute = ConsoleLedgerRouteImport.update({
@@ -190,11 +202,13 @@ export interface FileRoutesByFullPath {
   '/messages': typeof AuthenticatedMessagesRoute
   '/network': typeof AuthenticatedNetworkRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
   '/console/bookings': typeof ConsoleBookingsRoute
+  '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/ledger': typeof ConsoleLedgerRoute
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/users': typeof ConsoleUsersRoute
@@ -217,11 +231,13 @@ export interface FileRoutesByTo {
   '/messages': typeof AuthenticatedMessagesRoute
   '/network': typeof AuthenticatedNetworkRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
   '/console/bookings': typeof ConsoleBookingsRoute
+  '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/ledger': typeof ConsoleLedgerRoute
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/users': typeof ConsoleUsersRoute
@@ -247,11 +263,13 @@ export interface FileRoutesById {
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/network': typeof AuthenticatedNetworkRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/studio': typeof AuthenticatedStudioRoute
   '/_authenticated/transactions': typeof AuthenticatedTransactionsRoute
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/_authenticated/withdraw': typeof AuthenticatedWithdrawRoute
   '/console/bookings': typeof ConsoleBookingsRoute
+  '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/ledger': typeof ConsoleLedgerRoute
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/users': typeof ConsoleUsersRoute
@@ -277,11 +295,13 @@ export interface FileRouteTypes {
     | '/messages'
     | '/network'
     | '/profile'
+    | '/settings'
     | '/studio'
     | '/transactions'
     | '/wallet'
     | '/withdraw'
     | '/console/bookings'
+    | '/console/deletions'
     | '/console/ledger'
     | '/console/providers'
     | '/console/users'
@@ -304,11 +324,13 @@ export interface FileRouteTypes {
     | '/messages'
     | '/network'
     | '/profile'
+    | '/settings'
     | '/studio'
     | '/transactions'
     | '/wallet'
     | '/withdraw'
     | '/console/bookings'
+    | '/console/deletions'
     | '/console/ledger'
     | '/console/providers'
     | '/console/users'
@@ -333,11 +355,13 @@ export interface FileRouteTypes {
     | '/_authenticated/messages'
     | '/_authenticated/network'
     | '/_authenticated/profile'
+    | '/_authenticated/settings'
     | '/_authenticated/studio'
     | '/_authenticated/transactions'
     | '/_authenticated/wallet'
     | '/_authenticated/withdraw'
     | '/console/bookings'
+    | '/console/deletions'
     | '/console/ledger'
     | '/console/providers'
     | '/console/users'
@@ -459,6 +483,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/studio': {
       id: '/_authenticated/studio'
       path: '/studio'
@@ -499,6 +530,13 @@ declare module '@tanstack/react-router' {
       path: '/bookings'
       fullPath: '/console/bookings'
       preLoaderRoute: typeof ConsoleBookingsRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/deletions': {
+      id: '/console/deletions'
+      path: '/deletions'
+      fullPath: '/console/deletions'
+      preLoaderRoute: typeof ConsoleDeletionsRouteImport
       parentRoute: typeof ConsoleRoute
     }
     '/console/ledger': {
@@ -561,6 +599,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
   AuthenticatedNetworkRoute: typeof AuthenticatedNetworkRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
   AuthenticatedTransactionsRoute: typeof AuthenticatedTransactionsRoute
   AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
@@ -577,6 +616,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
   AuthenticatedNetworkRoute: AuthenticatedNetworkRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStudioRoute: AuthenticatedStudioRoute,
   AuthenticatedTransactionsRoute: AuthenticatedTransactionsRoute,
   AuthenticatedWalletRoute: AuthenticatedWalletRoute,
@@ -590,6 +630,7 @@ const AuthenticatedRouteRouteWithChildren =
 
 interface ConsoleRouteChildren {
   ConsoleBookingsRoute: typeof ConsoleBookingsRoute
+  ConsoleDeletionsRoute: typeof ConsoleDeletionsRoute
   ConsoleLedgerRoute: typeof ConsoleLedgerRoute
   ConsoleProvidersRoute: typeof ConsoleProvidersRoute
   ConsoleUsersRoute: typeof ConsoleUsersRoute
@@ -599,6 +640,7 @@ interface ConsoleRouteChildren {
 
 const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsoleBookingsRoute: ConsoleBookingsRoute,
+  ConsoleDeletionsRoute: ConsoleDeletionsRoute,
   ConsoleLedgerRoute: ConsoleLedgerRoute,
   ConsoleProvidersRoute: ConsoleProvidersRoute,
   ConsoleUsersRoute: ConsoleUsersRoute,
