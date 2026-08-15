@@ -1,13 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { Users } from "lucide-react";
-import { useNetwork, useProfile } from "@/lib/queries";
+import { useNetwork, useNetworkTree, useProfile } from "@/lib/queries";
 import { SectionCard, StatCard } from "@/components/refer/cards";
 import { SkeletonRows } from "@/components/refer/states";
 import { NetworkTree } from "@/components/refer/NetworkTree";
 import { ReferralCard } from "@/components/refer/ReferralCard";
-import { Button } from "@/components/ui/button";
 import { COMMISSIONS, formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
+
 
 
 export const Route = createFileRoute("/_authenticated/network")({
