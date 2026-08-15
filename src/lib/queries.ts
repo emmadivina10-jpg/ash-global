@@ -169,3 +169,12 @@ export function useIsAdmin() {
     },
   });
 }
+
+export function useNetworkTree() {
+  const fetch = useServerFn(getNetworkTree);
+  return useQuery({
+    queryKey: ["network-tree"],
+    queryFn: fetch,
+  });
+}
+
