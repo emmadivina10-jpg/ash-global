@@ -102,6 +102,16 @@ const EN = {
   "net.members": "Members",
   "net.activeMembers": "Active members",
   "net.commissions": "Commissions generated",
+  "net.tree.title": "Network map",
+  "net.tree.subtitle": "Expand your tree to see who joined, who activated, and what each branch earns.",
+  "net.tree.filter.all": "All levels",
+  "net.tree.earnings": "Earnings from branch",
+  "net.tree.member": "Member",
+  "net.tree.joined": "Joined {date}",
+  "net.tree.empty": "No members match this filter.",
+  "net.tree.you": "You",
+  "net.tree.rootLabel": "Your account",
+
 
   // Wallet
   "wallet.title": "Wallet",
