@@ -29,9 +29,7 @@ function NetworkPage() {
     <div className="mx-auto w-full max-w-5xl space-y-5">
       <header>
         <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{t("net.title")}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("net.subtitle")}
-        </p>
+        <p className="mt-1 text-sm text-muted-foreground">{t("net.subtitle")}</p>
       </header>
 
       {isLoading ? (
@@ -39,39 +37,42 @@ function NetworkPage() {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
-            <StatCard label={t("dash.stat.network")} value={data?.total ?? 0} icon={<Users className="size-4" aria-hidden />} />
-            <StatCard label={t("dash.stat.direct")} value={data?.direct ?? 0} accent icon={<Users className="size-4" aria-hidden />} />
+            <StatCard
+              label={t("dash.stat.network")}
+              value={data?.total ?? 0}
+              icon={<Users className="size-4" aria-hidden />}
+            />
+            <StatCard
+              label={t("dash.stat.direct")}
+              value={data?.direct ?? 0}
+              accent
+              icon={<Users className="size-4" aria-hidden />}
+            />
           </div>
 
-          {(data?.total ?? 0) === 0 ? (
-            <EmptyState
-              title={t("net.empty.title")}
-              description={t("net.empty.copy")}
-              action={
-                <Button asChild>
-                  <Link to="/dashboard">{t("net.empty.cta")}</Link>
-                </Button>
-              }
-            />
-          ) : (
-            <div className="grid gap-4 lg:grid-cols-3">
-              {(data?.levels ?? []).map((level) => (
-                <SectionCard key={level.level}>
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-bold text-foreground">{t("net.level", { n: level.level })}</h2>
-                    <span className="tabular rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
-                      {t("net.each", { amount: formatXAF(COMMISSIONS[level.level as 1 | 2 | 3]) })}
-                    </span>
-                  </div>
-                  <dl className="mt-4 space-y-3 text-sm">
-                    <Row label={t("net.members")} value={String(level.members)} />
-                    <Row label={t("net.activeMembers")} value={String(level.active)} />
-                    <Row label={t("net.commissions")} value={formatXAF(level.commissions)} highlight />
-                  </dl>
-                </SectionCard>
-              ))}
-            </div>
-          )}
+          <div className="grid gap-4 lg:grid-cols-3">
+            {(data?.levels ?? []).map((level) => (
+              <SectionCard key={level.level}>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-foreground">{t("net.level", { n: level.level })}</h2>
+                  <span className="tabular rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+                    {t("net.each", { amount: formatXAF(COMMISSIONS[level.level as 1 | 2 | 3]) })}
+                  </span>
+                </div>
+                <dl className="mt-4 space-y-3 text-sm">
+                  <Row label={t("net.members")} value={String(level.members)} />
+                  <Row label={t("net.activeMembers")} value={String(level.active)} />
+                  <Row label={t("net.commissions")} value={formatXAF(level.commissions)} highlight />
+                </dl>
+              </SectionCard>
+            ))}
+          </div>
+
+          <NetworkTree
+            nodes={[]}
+            currentUserStatus={profile?.account_status ?? "PENDING"}
+            currentUserId={profile?.user_id ?? ""}
+          />
 
           {profile?.referral_code ? (
             <ReferralCard code={profile.referral_code} active={profile.account_status === "ACTIVE"} />
@@ -81,6 +82,7 @@ function NetworkPage() {
     </div>
   );
 }
+
 
 function Row({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
