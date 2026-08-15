@@ -3,7 +3,6 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowDownToLine,
-  Bot,
   CalendarDays,
   Home,
   LogOut,
@@ -19,6 +18,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin, useProfile } from "@/lib/queries";
 import { Button } from "@/components/ui/button";
+import { AssistantBubble } from "./AssistantBubble";
 import { StatusBadge } from "./StatusBadge";
 import { Logo } from "./Logo";
 import { LanguageSwitcher, ThemeToggle } from "./Preferences";
@@ -29,7 +29,6 @@ const NAV = [
   { to: "/dashboard", key: "nav.home" as TKey, icon: Home },
   { to: "/services", key: "nav.services" as TKey, icon: Scissors },
   { to: "/network", key: "nav.network" as TKey, icon: Users },
-  { to: "/assistant", key: "nav.assistant" as TKey, icon: Bot },
   { to: "/profile", key: "nav.profile" as TKey, icon: UserIcon },
 ] as const;
 
@@ -161,6 +160,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           })}
         </ul>
       </nav>
+
+      <AssistantBubble />
     </div>
   );
 }
