@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { validateReferralCode } from "@/lib/referrals.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { AuthLayout } from "@/components/refer/AuthLayout";
 import { SocialAuth } from "@/components/refer/SocialAuth";
@@ -188,9 +189,8 @@ function RegisterPage() {
         </Field>
 
         <Field label="Password" id="password" error={errors["password"]}>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
             autoComplete="new-password"
             value={form.password}
             onChange={(event) => update("password", event.target.value)}
@@ -198,9 +198,8 @@ function RegisterPage() {
         </Field>
 
         <Field label="Confirm password" id="confirmPassword" error={errors["confirmPassword"]}>
-          <Input
+          <PasswordInput
             id="confirmPassword"
-            type="password"
             autoComplete="new-password"
             value={form.confirmPassword}
             onChange={(event) => update("confirmPassword", event.target.value)}
