@@ -1,12 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { Users } from "lucide-react";
-import { useNetwork, useProfile } from "@/lib/queries";
+import { useNetwork, useNetworkTree, useProfile } from "@/lib/queries";
 import { SectionCard, StatCard } from "@/components/refer/cards";
-import { EmptyState, SkeletonRows } from "@/components/refer/states";
+import { SkeletonRows } from "@/components/refer/states";
+import { NetworkTree } from "@/components/refer/NetworkTree";
 import { ReferralCard } from "@/components/refer/ReferralCard";
-import { Button } from "@/components/ui/button";
 import { COMMISSIONS, formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
+
+
 
 export const Route = createFileRoute("/_authenticated/network")({
   head: () => ({
@@ -20,6 +22,7 @@ export const Route = createFileRoute("/_authenticated/network")({
 
 function NetworkPage() {
   const { data, isLoading } = useNetwork();
+  const { data: treeNodes, isLoading: treeLoading } = useNetworkTree();
   const { data: profile } = useProfile();
   const { t } = useI18n();
 
@@ -27,9 +30,7 @@ function NetworkPage() {
     <div className="mx-auto w-full max-w-5xl space-y-5">
       <header>
         <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{t("net.title")}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("net.subtitle")}
-        </p>
+        <p className="mt-1 text-sm text-muted-foreground">{t("net.subtitle")}</p>
       </header>
 
       {isLoading ? (
@@ -37,38 +38,45 @@ function NetworkPage() {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
-            <StatCard label={t("dash.stat.network")} value={data?.total ?? 0} icon={<Users className="size-4" aria-hidden />} />
-            <StatCard label={t("dash.stat.direct")} value={data?.direct ?? 0} accent icon={<Users className="size-4" aria-hidden />} />
+            <StatCard
+              label={t("dash.stat.network")}
+              value={data?.total ?? 0}
+              icon={<Users className="size-4" aria-hidden />}
+            />
+            <StatCard
+              label={t("dash.stat.direct")}
+              value={data?.direct ?? 0}
+              accent
+              icon={<Users className="size-4" aria-hidden />}
+            />
           </div>
 
-          {(data?.total ?? 0) === 0 ? (
-            <EmptyState
-              title={t("net.empty.title")}
-              description={t("net.empty.copy")}
-              action={
-                <Button asChild>
-                  <Link to="/dashboard">{t("net.empty.cta")}</Link>
-                </Button>
-              }
-            />
+          <div className="grid gap-4 lg:grid-cols-3">
+            {(data?.levels ?? []).map((level) => (
+              <SectionCard key={level.level}>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-foreground">{t("net.level", { n: level.level })}</h2>
+                  <span className="tabular rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+                    {t("net.each", { amount: formatXAF(COMMISSIONS[level.level as 1 | 2 | 3]) })}
+                  </span>
+                </div>
+                <dl className="mt-4 space-y-3 text-sm">
+                  <Row label={t("net.members")} value={String(level.members)} />
+                  <Row label={t("net.activeMembers")} value={String(level.active)} />
+                  <Row label={t("net.commissions")} value={formatXAF(level.commissions)} highlight />
+                </dl>
+              </SectionCard>
+            ))}
+          </div>
+
+          {treeLoading ? (
+            <SkeletonRows rows={4} />
           ) : (
-            <div className="grid gap-4 lg:grid-cols-3">
-              {(data?.levels ?? []).map((level) => (
-                <SectionCard key={level.level}>
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-bold text-foreground">{t("net.level", { n: level.level })}</h2>
-                    <span className="tabular rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
-                      {t("net.each", { amount: formatXAF(COMMISSIONS[level.level as 1 | 2 | 3]) })}
-                    </span>
-                  </div>
-                  <dl className="mt-4 space-y-3 text-sm">
-                    <Row label={t("net.members")} value={String(level.members)} />
-                    <Row label={t("net.activeMembers")} value={String(level.active)} />
-                    <Row label={t("net.commissions")} value={formatXAF(level.commissions)} highlight />
-                  </dl>
-                </SectionCard>
-              ))}
-            </div>
+            <NetworkTree
+              nodes={treeNodes ?? []}
+              currentUserStatus={profile?.account_status ?? "PENDING"}
+              currentUserId={profile?.user_id ?? ""}
+            />
           )}
 
           {profile?.referral_code ? (
@@ -79,6 +87,8 @@ function NetworkPage() {
     </div>
   );
 }
+
+
 
 function Row({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (

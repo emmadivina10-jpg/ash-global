@@ -267,6 +267,17 @@ export type Database = {
         Returns: Json
       }
       generate_referral_code: { Args: never; Returns: string }
+      get_user_network_tree: {
+        Args: never
+        Returns: {
+          account_status: string
+          commission: number
+          id: string
+          joined_at: string
+          level: number
+          parent_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
