@@ -40,7 +40,7 @@ function MessagesPage() {
     <div className="mx-auto w-full max-w-5xl space-y-5">
       <header>
         <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">{t("chat.title")}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{t("chat.subtitle")}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{t("chat.pick")}</p>
       </header>
 
       {isLoading ? (
@@ -55,7 +55,7 @@ function MessagesPage() {
         <div className="grid gap-4 md:grid-cols-[260px_minmax(0,1fr)]">
           <nav className="tile max-h-64 space-y-1 overflow-y-auto p-2 md:max-h-[70vh]">
             {list.map((conv) => {
-              const label = conv.provider?.business_name ?? t("chat.conversation");
+              const label = conv.provider?.business_name ?? t("chat.title");
               return (
                 <button
                   key={conv.id}
@@ -74,7 +74,7 @@ function MessagesPage() {
 
           <div className="tile flex h-[60vh] flex-col p-3">
             <p className="mb-2 truncate font-display font-semibold text-foreground">
-              {active?.provider?.business_name ?? t("chat.conversation")}
+              {active?.provider?.business_name ?? t("chat.title")}
             </p>
             {activeId ? <ChatThread conversationId={activeId} currentUserId={user?.id} className="flex-1" /> : null}
           </div>
