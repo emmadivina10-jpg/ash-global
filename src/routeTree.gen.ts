@@ -27,6 +27,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminTransactionsRouteImport } from './routes/_authenticated/admin.transactions'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminWithdrawalsRouteImport } from './routes/_authenticated/admin.withdrawals'
+import { Route as AuthenticatedServicesIndexRouteImport } from './routes/_authenticated/services.index'
 import { Route as ApiPublicWebhooksTchokopayRouteImport } from './routes/api/public/webhooks/tchokopay'
 
 const IndexRoute = IndexRouteImport.update({
@@ -121,6 +122,12 @@ const AuthenticatedAdminWithdrawalsRoute =
     path: '/withdrawals',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedServicesIndexRoute =
+  AuthenticatedServicesIndexRouteImport.update({
+    id: '/services/',
+    path: '/services/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicWebhooksTchokopayRoute =
   ApiPublicWebhooksTchokopayRouteImport.update({
     id: '/api/public/webhooks/tchokopay',
@@ -146,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/withdrawals': typeof AuthenticatedAdminWithdrawalsRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/services/': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
 }
 export interface FileRoutesByTo {
@@ -165,6 +173,7 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/withdrawals': typeof AuthenticatedAdminWithdrawalsRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/services': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
 }
 export interface FileRoutesById {
@@ -187,6 +196,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/admin/withdrawals': typeof AuthenticatedAdminWithdrawalsRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/services/': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
 }
 export interface FileRouteTypes {
@@ -209,6 +219,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/admin/withdrawals'
     | '/admin/'
+    | '/services/'
     | '/api/public/webhooks/tchokopay'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -228,6 +239,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/admin/withdrawals'
     | '/admin'
+    | '/services'
     | '/api/public/webhooks/tchokopay'
   id:
     | '__root__'
@@ -249,6 +261,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/users'
     | '/_authenticated/admin/withdrawals'
     | '/_authenticated/admin/'
+    | '/_authenticated/services/'
     | '/api/public/webhooks/tchokopay'
   fileRoutesById: FileRoutesById
 }
@@ -390,6 +403,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminWithdrawalsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/services/': {
+      id: '/_authenticated/services/'
+      path: '/services'
+      fullPath: '/services/'
+      preLoaderRoute: typeof AuthenticatedServicesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/webhooks/tchokopay': {
       id: '/api/public/webhooks/tchokopay'
       path: '/api/public/webhooks/tchokopay'
@@ -426,6 +446,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTransactionsRoute: typeof AuthenticatedTransactionsRoute
   AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
   AuthenticatedWithdrawRoute: typeof AuthenticatedWithdrawRoute
+  AuthenticatedServicesIndexRoute: typeof AuthenticatedServicesIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -437,6 +458,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTransactionsRoute: AuthenticatedTransactionsRoute,
   AuthenticatedWalletRoute: AuthenticatedWalletRoute,
   AuthenticatedWithdrawRoute: AuthenticatedWithdrawRoute,
+  AuthenticatedServicesIndexRoute: AuthenticatedServicesIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
