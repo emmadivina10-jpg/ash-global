@@ -56,6 +56,172 @@ export type Database = {
         }
         Relationships: []
       }
+      bookings: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          price: number
+          provider_id: string
+          scheduled_at: string
+          service_id: string | null
+          service_title: string
+          status: Database["public"]["Enums"]["booking_status"]
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          price?: number
+          provider_id: string
+          scheduled_at: string
+          service_id?: string | null
+          service_title: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          price?: number
+          provider_id?: string
+          scheduled_at?: string
+          service_id?: string | null
+          service_title?: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "provider_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          last_message_at: string
+          provider_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          provider_id: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          provider_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          read_at: string | null
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portfolio_items: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          image_path: string
+          provider_id: string
+          service_id: string | null
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          image_path: string
+          provider_id: string
+          service_id?: string | null
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          image_path?: string
+          provider_id?: string
+          service_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_items_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "portfolio_items_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "provider_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           account_status: string
@@ -95,6 +261,166 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          business_name: string
+          categories: Database["public"]["Enums"]["service_category"][]
+          city: string | null
+          cover_url: string | null
+          created_at: string
+          id: string
+          is_live: boolean
+          phone: string | null
+          rating_avg: number
+          rating_count: number
+          subscription_expires_at: string | null
+          updated_at: string
+          user_id: string
+          whatsapp: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          business_name: string
+          categories?: Database["public"]["Enums"]["service_category"][]
+          city?: string | null
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          is_live?: boolean
+          phone?: string | null
+          rating_avg?: number
+          rating_count?: number
+          subscription_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+          whatsapp?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          business_name?: string
+          categories?: Database["public"]["Enums"]["service_category"][]
+          city?: string | null
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          is_live?: boolean
+          phone?: string | null
+          rating_avg?: number
+          rating_count?: number
+          subscription_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      provider_services: {
+        Row: {
+          category: Database["public"]["Enums"]["service_category"]
+          created_at: string
+          description: string | null
+          duration_minutes: number
+          id: string
+          is_active: boolean
+          price: number
+          provider_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["service_category"]
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean
+          price: number
+          provider_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["service_category"]
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean
+          price?: number
+          provider_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_services_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_subscriptions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          payment_provider: string
+          payment_reference: string | null
+          period_end: string | null
+          period_start: string | null
+          provider_id: string
+          provider_transaction_id: string | null
+          status: Database["public"]["Enums"]["subscription_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          payment_provider?: string
+          payment_reference?: string | null
+          period_end?: string | null
+          period_start?: string | null
+          provider_id: string
+          provider_transaction_id?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          payment_provider?: string
+          payment_reference?: string | null
+          period_end?: string | null
+          period_start?: string | null
+          provider_id?: string
+          provider_transaction_id?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_subscriptions_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       referrals: {
         Row: {
           created_at: string
@@ -118,6 +444,51 @@ export type Database = {
           referrer_id?: string
         }
         Relationships: []
+      }
+      reviews: {
+        Row: {
+          booking_id: string
+          client_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          provider_id: string
+          rating: number
+        }
+        Insert: {
+          booking_id: string
+          client_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          provider_id: string
+          rating: number
+        }
+        Update: {
+          booking_id?: string
+          client_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          provider_id?: string
+          rating?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       transactions: {
         Row: {
@@ -266,6 +637,10 @@ export type Database = {
         Args: { _payment_reference: string; _provider_transaction_id: string }
         Returns: Json
       }
+      complete_provider_subscription: {
+        Args: { _payment_reference: string; _provider_transaction_id?: string }
+        Returns: undefined
+      }
       generate_referral_code: { Args: never; Returns: string }
       get_user_network_tree: {
         Args: never
@@ -285,6 +660,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_conversation_participant: {
+        Args: { _conversation_id: string }
+        Returns: boolean
+      }
+      is_provider_owner: { Args: { _provider_id: string }; Returns: boolean }
+      is_provider_visible: { Args: { _provider_id: string }; Returns: boolean }
       request_withdrawal: {
         Args: { _amount: number; _method: string; _phone: string }
         Returns: Json
@@ -301,6 +682,20 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      booking_status:
+        | "PENDING"
+        | "CONFIRMED"
+        | "COMPLETED"
+        | "CANCELLED"
+        | "DECLINED"
+      service_category:
+        | "BRAIDER"
+        | "NAIL_TECH"
+        | "LASH_TECH"
+        | "MAKEUP"
+        | "BARBER"
+        | "OTHER"
+      subscription_status: "PENDING" | "ACTIVE" | "EXPIRED" | "FAILED"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -429,6 +824,22 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      booking_status: [
+        "PENDING",
+        "CONFIRMED",
+        "COMPLETED",
+        "CANCELLED",
+        "DECLINED",
+      ],
+      service_category: [
+        "BRAIDER",
+        "NAIL_TECH",
+        "LASH_TECH",
+        "MAKEUP",
+        "BARBER",
+        "OTHER",
+      ],
+      subscription_status: ["PENDING", "ACTIVE", "EXPIRED", "FAILED"],
     },
   },
 } as const

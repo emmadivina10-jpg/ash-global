@@ -3,10 +3,15 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowDownToLine,
+  Bot,
+  CalendarDays,
   Home,
   LogOut,
+  MessageCircle,
   Receipt,
+  Scissors,
   Shield,
+  Sparkles,
   Users,
   User as UserIcon,
   Wallet,
@@ -22,15 +27,21 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { to: "/dashboard", key: "nav.home" as TKey, icon: Home },
+  { to: "/services", key: "nav.services" as TKey, icon: Scissors },
   { to: "/network", key: "nav.network" as TKey, icon: Users },
-  { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet },
+  { to: "/assistant", key: "nav.assistant" as TKey, icon: Bot },
   { to: "/profile", key: "nav.profile" as TKey, icon: UserIcon },
 ] as const;
 
 const SIDE_EXTRA = [
+  { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet },
+  { to: "/bookings", key: "nav.bookings" as TKey, icon: CalendarDays },
+  { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle },
+  { to: "/studio", key: "nav.pro" as TKey, icon: Sparkles },
   { to: "/transactions", key: "nav.transactions" as TKey, icon: Receipt },
   { to: "/withdraw", key: "nav.withdraw" as TKey, icon: ArrowDownToLine },
 ] as const;
+
 
 export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
