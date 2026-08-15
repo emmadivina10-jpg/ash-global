@@ -533,6 +533,19 @@ const FR: Record<TKey, string> = {
   "ai.hint3": "Comment obtenir plus de réservations ?",
   "ai.err": "L'assistant est indisponible pour le moment.",
   "ai.busy": "Réflexion…",
+  "ai.open": "Ouvrir l'assistant Refer",
+  "ai.close": "Fermer l'assistant",
+  "pro.billing.title": "Comment vous payez la plateforme",
+  "pro.billing.copy": "Créer votre studio est gratuit. Choisissez une formule quand vous êtes prêt à accepter des réservations.",
+  "pro.billing.sub": "Abonnement mensuel",
+  "pro.billing.subDesc": "{fee} par mois. Vous gardez 100 % de vos revenus de prestation.",
+  "pro.billing.com": "Payer selon vos gains",
+  "pro.billing.comDesc": "Aucun frais mensuel. La plateforme prend 1 % de chaque prestation payée terminée.",
+  "pro.billing.choose": "Choisir cette formule",
+  "pro.billing.current": "Formule actuelle",
+  "pro.billing.saved": "Formule mise à jour.",
+  "pro.billing.comLive": "Vous êtes en ligne en mode 1 %. 1 % est déduit de chaque réservation terminée.",
+  "pro.activatePrompt": "Votre studio est enregistré mais hors ligne. Choisissez une formule pour accepter des réservations.",
 };
 
 const DICT: Record<Lang, Record<TKey, string>> = { en: EN, fr: FR };
