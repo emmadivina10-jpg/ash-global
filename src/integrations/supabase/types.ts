@@ -644,6 +644,16 @@ export type Database = {
         Args: { _payment_reference: string; _provider_transaction_id?: string }
         Returns: undefined
       }
+      console_financials: { Args: never; Returns: Json }
+      console_settle_withdrawal: {
+        Args: {
+          _note?: string
+          _provider_reference?: string
+          _status: string
+          _withdrawal_id: string
+        }
+        Returns: Json
+      }
       generate_referral_code: { Args: never; Returns: string }
       get_user_network_tree: {
         Args: never
