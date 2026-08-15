@@ -254,6 +254,16 @@ const FR: Record<TKey, string> = {
   "net.members": "Membres",
   "net.activeMembers": "Membres actifs",
   "net.commissions": "Commissions générées",
+  "net.tree.title": "Carte du réseau",
+  "net.tree.subtitle": "Développez votre arbre pour voir qui a rejoint, qui a activé et ce que chaque branche rapporte.",
+  "net.tree.filter.all": "Tous les niveaux",
+  "net.tree.earnings": "Gains de la branche",
+  "net.tree.member": "Membre",
+  "net.tree.joined": "Rejoint le {date}",
+  "net.tree.empty": "Aucun membre ne correspond à ce filtre.",
+  "net.tree.you": "Vous",
+  "net.tree.rootLabel": "Votre compte",
+
 
   "wallet.title": "Portefeuille",
   "wallet.subtitle": "Les soldes proviennent de votre registre de transactions.",
