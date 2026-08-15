@@ -42,7 +42,7 @@ export function SocialAuth({ label }: { label: string }) {
     setPending(provider);
     try {
       const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: window.location.origin,
+        redirect_uri: `${window.location.origin}/auth/callback`,
       });
       if ("error" in result && result.error) {
         toast.error(result.error.message || "Could not start sign in. Please try again.");

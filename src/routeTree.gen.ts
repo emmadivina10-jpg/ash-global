@@ -29,6 +29,7 @@ import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedTransactionsRouteImport } from './routes/_authenticated/transactions'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedWithdrawRouteImport } from './routes/_authenticated/withdraw'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ConsoleIndexRouteImport } from './routes/console.index'
 import { Route as ConsoleBookingsRouteImport } from './routes/console.bookings'
 import { Route as ConsoleDeletionsRouteImport } from './routes/console.deletions'
@@ -140,6 +141,11 @@ const AuthenticatedWithdrawRoute = AuthenticatedWithdrawRouteImport.update({
   path: '/withdraw',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConsoleIndexRoute = ConsoleIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -214,6 +220,7 @@ export interface FileRoutesByFullPath {
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/console/bookings': typeof ConsoleBookingsRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/ledger': typeof ConsoleLedgerRoute
@@ -244,6 +251,7 @@ export interface FileRoutesByTo {
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/console/bookings': typeof ConsoleBookingsRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/ledger': typeof ConsoleLedgerRoute
@@ -277,6 +285,7 @@ export interface FileRoutesById {
   '/_authenticated/transactions': typeof AuthenticatedTransactionsRoute
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/_authenticated/withdraw': typeof AuthenticatedWithdrawRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/console/bookings': typeof ConsoleBookingsRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/ledger': typeof ConsoleLedgerRoute
@@ -310,6 +319,7 @@ export interface FileRouteTypes {
     | '/transactions'
     | '/wallet'
     | '/withdraw'
+    | '/auth/callback'
     | '/console/bookings'
     | '/console/deletions'
     | '/console/ledger'
@@ -340,6 +350,7 @@ export interface FileRouteTypes {
     | '/transactions'
     | '/wallet'
     | '/withdraw'
+    | '/auth/callback'
     | '/console/bookings'
     | '/console/deletions'
     | '/console/ledger'
@@ -372,6 +383,7 @@ export interface FileRouteTypes {
     | '/_authenticated/transactions'
     | '/_authenticated/wallet'
     | '/_authenticated/withdraw'
+    | '/auth/callback'
     | '/console/bookings'
     | '/console/deletions'
     | '/console/ledger'
@@ -393,6 +405,7 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   ApiPublicWebhooksTchokopayRoute: typeof ApiPublicWebhooksTchokopayRoute
 }
 
@@ -538,6 +551,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWithdrawRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/console/': {
       id: '/console/'
       path: '/'
@@ -680,6 +700,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   ApiPublicWebhooksTchokopayRoute: ApiPublicWebhooksTchokopayRoute,
 }
 export const routeTree = rootRouteImport
