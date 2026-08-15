@@ -82,7 +82,20 @@ function StudioPage() {
     });
   }, [studio?.id]);
 
-  const live = isSubscriptionActive(studio?.subscription_expires_at);
+  const commissionMode = studio?.billing_mode === "COMMISSION";
+  const live = commissionMode ? Boolean(studio?.is_live) : isSubscriptionActive(studio?.subscription_expires_at);
+
+  async function chooseBilling(mode: "SUBSCRIPTION" | "COMMISSION") {
+    if (!studio) return;
+    const { error } = await supabase.from("provider_profiles").update({ billing_mode: mode }).eq("id", studio.id);
+    if (error) {
+      toast.error(t("pro.saveErr"));
+      return;
+    }
+    toast.success(t("pro.billing.saved"));
+    void queryClient.invalidateQueries({ queryKey: ["provider"] });
+    void queryClient.invalidateQueries({ queryKey: ["providers"] });
+  }
 
   const stats = useMemo(() => {
     const list = bookings ?? [];
