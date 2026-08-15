@@ -263,6 +263,19 @@ const EN = {
   "ai.hint3": "How can I get more bookings?",
   "ai.err": "The assistant is unavailable right now.",
   "ai.busy": "Thinking…",
+  "ai.open": "Open Refer Assistant",
+  "ai.close": "Close assistant",
+  "pro.billing.title": "How you pay the platform",
+  "pro.billing.copy": "Setting up your studio is free. Choose a plan when you are ready to accept bookings from clients.",
+  "pro.billing.sub": "Monthly subscription",
+  "pro.billing.subDesc": "{fee} per month. Keep 100% of what you earn from each service.",
+  "pro.billing.com": "Pay as you earn",
+  "pro.billing.comDesc": "No monthly fee. The platform takes 1% of every completed paid service.",
+  "pro.billing.choose": "Choose this plan",
+  "pro.billing.current": "Current plan",
+  "pro.billing.saved": "Plan updated.",
+  "pro.billing.comLive": "You are live on pay-as-you-earn. 1% is deducted from each completed booking.",
+  "pro.activatePrompt": "Your studio is saved but offline. Pick a plan below to start accepting bookings.",
 } as const;
 
 export type TKey = keyof typeof EN;
