@@ -12,8 +12,10 @@ import {
   Wallet,
 } from "lucide-react";
 import { Logo } from "@/components/refer/Logo";
+import { LanguageSwitcher, ThemeToggle } from "@/components/refer/Preferences";
 import { Button } from "@/components/ui/button";
 import { ACTIVATION_FEE, COMMISSIONS, MIN_WITHDRAWAL, formatXAF } from "@/lib/format";
+import { useI18n, type TKey } from "@/lib/i18n";
 
 const TITLE = "Refer — Earn referral rewards in XAF from your phone";
 const DESCRIPTION =
@@ -34,57 +36,44 @@ export const Route = createFileRoute("/")({
 });
 
 const LEVELS = [
-  {
-    level: 1,
-    amount: COMMISSIONS[1],
-    label: "Direct referrals",
-    copy: "Everyone who joins with your link and activates.",
-    members: 18,
-  },
-  {
-    level: 2,
-    amount: COMMISSIONS[2],
-    label: "Second level",
-    copy: "The people your referrals bring in.",
-    members: 42,
-  },
-  {
-    level: 3,
-    amount: COMMISSIONS[3],
-    label: "Third level",
-    copy: "Your network keeps paying, three levels deep.",
-    members: 96,
-  },
+  { level: 1, amount: COMMISSIONS[1], label: "landing.level1.label" as TKey, copy: "landing.level1.copy" as TKey, members: 18 },
+  { level: 2, amount: COMMISSIONS[2], label: "landing.level2.label" as TKey, copy: "landing.level2.copy" as TKey, members: 42 },
+  { level: 3, amount: COMMISSIONS[3], label: "landing.level3.label" as TKey, copy: "landing.level3.copy" as TKey, members: 96 },
 ];
 
 const FEATURES = [
-  { icon: Smartphone, title: "Mobile money native", copy: "Pay and get paid with MTN Mobile Money or Orange Money." },
-  { icon: Layers, title: "Three earning levels", copy: "Commissions from your referrals, and theirs, and theirs." },
-  { icon: Wallet, title: "Live wallet", copy: "Available balance, pending payouts and a full transaction ledger." },
-  { icon: ShieldCheck, title: "Verified payments", copy: "Every activation is confirmed by the payment provider before rewards drop." },
-  { icon: Users, title: "Network insights", copy: "See exactly who joined, who activated and what each level earns." },
-  { icon: Banknote, title: "Fast withdrawals", copy: `Cash out from ${formatXAF(MIN_WITHDRAWAL)} straight to your mobile wallet.` },
+  { icon: Smartphone, title: "landing.f1.title" as TKey, copy: "landing.f1.copy" as TKey },
+  { icon: Layers, title: "landing.f2.title" as TKey, copy: "landing.f2.copy" as TKey },
+  { icon: Wallet, title: "landing.f3.title" as TKey, copy: "landing.f3.copy" as TKey },
+  { icon: ShieldCheck, title: "landing.f4.title" as TKey, copy: "landing.f4.copy" as TKey },
+  { icon: Users, title: "landing.f5.title" as TKey, copy: "landing.f5.copy" as TKey },
+  { icon: Banknote, title: "landing.f6.title" as TKey, copy: "landing.f6.copy" as TKey },
 ];
 
 const STEPS = [
-  { title: "Create your account", copy: "Sign up in under a minute with your name, email and phone number." },
-  { title: `Activate for ${formatXAF(ACTIVATION_FEE)}`, copy: "A single verified mobile money payment unlocks earning." },
-  { title: "Share your link", copy: "Every member gets a unique referral code and shareable link." },
-  { title: "Earn and withdraw", copy: "Commissions land in your wallet the moment a referral activates." },
+  { title: "landing.step1.title" as TKey, copy: "landing.step1.copy" as TKey },
+  { title: "landing.step2.title" as TKey, copy: "landing.step2.copy" as TKey },
+  { title: "landing.step3.title" as TKey, copy: "landing.step3.copy" as TKey },
+  { title: "landing.step4.title" as TKey, copy: "landing.step4.copy" as TKey },
 ];
 
 function Landing() {
+  const { t } = useI18n();
+  const fee = formatXAF(ACTIVATION_FEE);
+
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3.5 sm:px-6">
           <Logo />
-          <nav className="flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/login">Sign in</Link>
+          <nav className="flex items-center gap-1.5 sm:gap-2">
+            <LanguageSwitcher />
+            <ThemeToggle />
+            <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+              <Link to="/login">{t("landing.signIn")}</Link>
             </Button>
             <Button asChild size="sm" className="shadow-[var(--shadow-card)]">
-              <Link to="/register">Get started</Link>
+              <Link to="/register">{t("landing.getStarted")}</Link>
             </Button>
           </nav>
         </div>
@@ -99,16 +88,15 @@ function Landing() {
               <div className="relative">
                 <span className="hairline-gold inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 px-3 py-1 text-xs font-semibold text-primary-foreground/90">
                   <BadgeCheck className="size-3.5" aria-hidden />
-                  Built for Cameroon · Paid in XAF
+                  {t("landing.badge")}
                 </span>
                 <h1 className="mt-6 font-display text-4xl font-extrabold leading-[1.02] sm:text-5xl lg:text-[3.5rem]">
-                  Refer friends.
+                  {t("landing.h1a")}
                   <br />
-                  Earn <span className="gold-text">real money</span>.
+                  {t("landing.h1b")} <span className="gold-text">{t("landing.h1c")}</span>.
                 </h1>
                 <p className="mt-5 max-w-md text-base leading-relaxed text-primary-foreground/80">
-                  Activate your account once, share your link, and earn commissions across three levels of your
-                  network — withdrawn straight to mobile money.
+                  {t("landing.hero.copy")}
                 </p>
               </div>
               <div className="relative mt-8 flex flex-col gap-3 sm:flex-row">
@@ -118,7 +106,7 @@ function Landing() {
                   className="gold-gradient h-12 border-0 text-gold-foreground shadow-[var(--shadow-gold)] hover:opacity-90"
                 >
                   <Link to="/register">
-                    Sign up for free
+                    {t("landing.cta.signup")}
                     <ArrowRight className="size-4" aria-hidden />
                   </Link>
                 </Button>
@@ -128,7 +116,7 @@ function Landing() {
                   variant="outline"
                   className="h-12 border-primary-foreground/30 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
                 >
-                  <Link to="/login">I have an account</Link>
+                  <Link to="/login">{t("landing.cta.haveAccount")}</Link>
                 </Button>
               </div>
             </div>
@@ -136,7 +124,7 @@ function Landing() {
             {/* Wallet preview tile */}
             <div className="tile col-span-full flex flex-col p-6 sm:p-7 lg:col-span-5">
               <div className="flex items-center justify-between gap-3">
-                <p className="eyebrow text-muted-foreground">Available balance</p>
+                <p className="eyebrow text-muted-foreground">{t("landing.balance")}</p>
                 <span className="grid size-8 place-items-center rounded-full bg-gold-soft text-gold-foreground">
                   <Sparkles className="size-4" aria-hidden />
                 </span>
@@ -154,12 +142,12 @@ function Landing() {
               </div>
               <ul className="mt-5 space-y-3 border-t border-border pt-4">
                 {[
-                  { label: "Referral commission · L1", amount: 1500 },
-                  { label: "Referral commission · L2", amount: 750 },
-                  { label: "Withdrawal · MTN MoMo", amount: -10000 },
+                  { key: "landing.row.l1" as TKey, amount: 1500 },
+                  { key: "landing.row.l2" as TKey, amount: 750 },
+                  { key: "landing.row.withdrawal" as TKey, amount: -10000 },
                 ].map((row) => (
-                  <li key={row.label} className="flex items-center justify-between gap-3 text-sm">
-                    <span className="truncate text-muted-foreground">{row.label}</span>
+                  <li key={row.key} className="flex items-center justify-between gap-3 text-sm">
+                    <span className="truncate text-muted-foreground">{t(row.key)}</span>
                     <span
                       className={`tabular font-semibold ${row.amount > 0 ? "text-primary" : "text-foreground"}`}
                     >
@@ -183,8 +171,8 @@ function Landing() {
                 <p className="tabular mt-5 font-display text-3xl font-extrabold text-foreground">
                   {formatXAF(item.amount)}
                 </p>
-                <p className="mt-1 text-sm font-semibold text-foreground">{item.label}</p>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{item.copy}</p>
+                <p className="mt-1 text-sm font-semibold text-foreground">{t(item.label)}</p>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t(item.copy)}</p>
               </div>
             ))}
           </div>
@@ -193,13 +181,12 @@ function Landing() {
         {/* Steps */}
         <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:py-16">
           <div className="max-w-2xl">
-            <p className="eyebrow text-primary">How it works</p>
+            <p className="eyebrow text-primary">{t("landing.how.eyebrow")}</p>
             <h2 className="mt-3 font-display text-3xl font-extrabold text-foreground sm:text-4xl">
-              Get started in four steps
+              {t("landing.how.title")}
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
-              A one-time activation of {formatXAF(ACTIVATION_FEE)} unlocks your earning position. After that, every
-              activated member in your first three levels pays you a fixed commission.
+              {t("landing.how.copy", { fee })}
             </p>
           </div>
           <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -208,8 +195,8 @@ function Landing() {
                 <span className="tabular font-display text-2xl font-extrabold text-gold">
                   0{index + 1}
                 </span>
-                <p className="mt-4 font-semibold text-foreground">{step.title}</p>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{step.copy}</p>
+                <p className="mt-4 font-semibold text-foreground">{t(step.title, { fee })}</p>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{t(step.copy)}</p>
               </li>
             ))}
           </ol>
@@ -218,9 +205,9 @@ function Landing() {
         {/* Features bento */}
         <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:py-16">
           <div className="max-w-2xl">
-            <p className="eyebrow text-primary">The platform</p>
+            <p className="eyebrow text-primary">{t("landing.platform.eyebrow")}</p>
             <h2 className="mt-3 font-display text-3xl font-extrabold text-foreground sm:text-4xl">
-              Everything you need to grow a network
+              {t("landing.platform.title")}
             </h2>
           </div>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
@@ -232,8 +219,10 @@ function Landing() {
                 <span className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary">
                   <feature.icon className="size-5" aria-hidden />
                 </span>
-                <p className="mt-5 font-semibold text-foreground">{feature.title}</p>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{feature.copy}</p>
+                <p className="mt-5 font-semibold text-foreground">{t(feature.title)}</p>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                  {t(feature.copy, { min: formatXAF(MIN_WITHDRAWAL) })}
+                </p>
               </div>
             ))}
           </div>
@@ -242,12 +231,12 @@ function Landing() {
         {/* CTA */}
         <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
           <div className="tile-dark grain px-6 py-14 text-center sm:px-10">
-            <p className="eyebrow relative text-gold">Start earning</p>
+            <p className="eyebrow relative text-gold">{t("landing.final.eyebrow")}</p>
             <h2 className="relative mt-3 font-display text-3xl font-extrabold sm:text-4xl">
-              Your network is worth money
+              {t("landing.final.title")}
             </h2>
             <p className="relative mx-auto mt-3 max-w-xl text-sm text-primary-foreground/80 sm:text-base">
-              Join Refer today, activate your account and start earning from every person you bring on board.
+              {t("landing.final.copy")}
             </p>
             <Button
               asChild
@@ -255,7 +244,7 @@ function Landing() {
               className="gold-gradient relative mt-7 h-12 border-0 text-gold-foreground shadow-[var(--shadow-gold)] hover:opacity-90"
             >
               <Link to="/register">
-                Create your account
+                {t("landing.final.cta")}
                 <ArrowRight className="size-4" aria-hidden />
               </Link>
             </Button>
@@ -267,7 +256,7 @@ function Landing() {
         <div className="mx-auto grid max-w-6xl gap-3 px-4 py-8 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:px-6">
           <Logo compact />
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Refer. All amounts in XAF.
+            {t("landing.footer", { year: new Date().getFullYear() })}
           </p>
         </div>
       </footer>
