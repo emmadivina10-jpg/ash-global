@@ -30,6 +30,7 @@ import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedWithdrawRouteImport } from './routes/_authenticated/withdraw'
 import { Route as ConsoleIndexRouteImport } from './routes/console.index'
 import { Route as ConsoleBookingsRouteImport } from './routes/console.bookings'
+import { Route as ConsoleDeletionsRouteImport } from './routes/console.deletions'
 import { Route as ConsoleLedgerRouteImport } from './routes/console.ledger'
 import { Route as ConsoleProvidersRouteImport } from './routes/console.providers'
 import { Route as ConsoleUsersRouteImport } from './routes/console.users'
@@ -143,6 +144,11 @@ const ConsoleBookingsRoute = ConsoleBookingsRouteImport.update({
   path: '/bookings',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const ConsoleDeletionsRoute = ConsoleDeletionsRouteImport.update({
+  id: '/deletions',
+  path: '/deletions',
+  getParentRoute: () => ConsoleRoute,
+} as any)
 const ConsoleLedgerRoute = ConsoleLedgerRouteImport.update({
   id: '/ledger',
   path: '/ledger',
@@ -202,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
   '/console/bookings': typeof ConsoleBookingsRoute
+  '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/ledger': typeof ConsoleLedgerRoute
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/users': typeof ConsoleUsersRoute
@@ -230,6 +237,7 @@ export interface FileRoutesByTo {
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
   '/console/bookings': typeof ConsoleBookingsRoute
+  '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/ledger': typeof ConsoleLedgerRoute
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/users': typeof ConsoleUsersRoute
@@ -261,6 +269,7 @@ export interface FileRoutesById {
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/_authenticated/withdraw': typeof AuthenticatedWithdrawRoute
   '/console/bookings': typeof ConsoleBookingsRoute
+  '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/ledger': typeof ConsoleLedgerRoute
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/users': typeof ConsoleUsersRoute
@@ -292,6 +301,7 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/withdraw'
     | '/console/bookings'
+    | '/console/deletions'
     | '/console/ledger'
     | '/console/providers'
     | '/console/users'
@@ -320,6 +330,7 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/withdraw'
     | '/console/bookings'
+    | '/console/deletions'
     | '/console/ledger'
     | '/console/providers'
     | '/console/users'
@@ -350,6 +361,7 @@ export interface FileRouteTypes {
     | '/_authenticated/wallet'
     | '/_authenticated/withdraw'
     | '/console/bookings'
+    | '/console/deletions'
     | '/console/ledger'
     | '/console/providers'
     | '/console/users'
@@ -520,6 +532,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleBookingsRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/console/deletions': {
+      id: '/console/deletions'
+      path: '/deletions'
+      fullPath: '/console/deletions'
+      preLoaderRoute: typeof ConsoleDeletionsRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
     '/console/ledger': {
       id: '/console/ledger'
       path: '/ledger'
@@ -611,6 +630,7 @@ const AuthenticatedRouteRouteWithChildren =
 
 interface ConsoleRouteChildren {
   ConsoleBookingsRoute: typeof ConsoleBookingsRoute
+  ConsoleDeletionsRoute: typeof ConsoleDeletionsRoute
   ConsoleLedgerRoute: typeof ConsoleLedgerRoute
   ConsoleProvidersRoute: typeof ConsoleProvidersRoute
   ConsoleUsersRoute: typeof ConsoleUsersRoute
@@ -620,6 +640,7 @@ interface ConsoleRouteChildren {
 
 const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsoleBookingsRoute: ConsoleBookingsRoute,
+  ConsoleDeletionsRoute: ConsoleDeletionsRoute,
   ConsoleLedgerRoute: ConsoleLedgerRoute,
   ConsoleProvidersRoute: ConsoleProvidersRoute,
   ConsoleUsersRoute: ConsoleUsersRoute,

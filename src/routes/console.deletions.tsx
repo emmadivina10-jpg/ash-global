@@ -25,7 +25,7 @@ function DeletionsPage() {
   async function act(id: string, status: "APPROVED" | "REJECTED") {
     setBusy(id);
     try {
-      await review({ data: { id, status, note: notes[id] } });
+      await review({ data: { id, status, note: notes[id] ?? "" } });
       toast.success(status === "APPROVED" ? "Deletion approved." : "Request declined.");
       await queryClient.invalidateQueries({ queryKey: ["console"] });
     } catch {
