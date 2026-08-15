@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthLayout } from "@/components/refer/AuthLayout";
+import { SocialAuth } from "@/components/refer/SocialAuth";
 import { CM_PHONE_REGEX, normalizePhone } from "@/lib/format";
 
 const schema = z
@@ -242,6 +243,8 @@ function RegisterPage() {
           Activation costs a one-time 5,000 XAF after registration.
         </p>
       </form>
+
+      <SocialAuth label="Or sign up with" />
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         Already have an account?{" "}
