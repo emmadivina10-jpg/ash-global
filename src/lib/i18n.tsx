@@ -263,7 +263,7 @@ const EN = {
   "ai.hint3": "How can I get more bookings?",
   "ai.err": "The assistant is unavailable right now.",
   "ai.busy": "Thinking…",
-  "ai.open": "Open Refer Assistant",
+  "ai.open": "Open ASH Assistant",
   "ai.close": "Close assistant",
   "pro.billing.title": "How you pay the platform",
   "pro.billing.copy": "Setting up your studio is free. Choose a plan when you are ready to accept bookings from clients.",
