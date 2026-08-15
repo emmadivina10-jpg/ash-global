@@ -92,6 +92,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Activate once and earn three levels of referral commissions, paid to mobile money.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "ASH Refer" },
+      { property: "og:locale", content: "en_CM" },
+      { property: "og:locale:alternate", content: "fr_CM" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
