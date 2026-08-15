@@ -32,6 +32,7 @@ import { Route as ConsoleIndexRouteImport } from './routes/console.index'
 import { Route as ConsoleBookingsRouteImport } from './routes/console.bookings'
 import { Route as ConsoleProvidersRouteImport } from './routes/console.providers'
 import { Route as ConsoleUsersRouteImport } from './routes/console.users'
+import { Route as ConsoleWithdrawalsRouteImport } from './routes/console.withdrawals'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminTransactionsRouteImport } from './routes/_authenticated/admin.transactions'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
@@ -155,6 +156,11 @@ const ConsoleUsersRoute = ConsoleUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const ConsoleWithdrawalsRoute = ConsoleWithdrawalsRouteImport.update({
+  id: '/withdrawals',
+  path: '/withdrawals',
+  getParentRoute: () => ConsoleRoute,
+} as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -218,6 +224,7 @@ export interface FileRoutesByFullPath {
   '/console/bookings': typeof ConsoleBookingsRoute
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/users': typeof ConsoleUsersRoute
+  '/console/withdrawals': typeof ConsoleWithdrawalsRoute
   '/console/': typeof ConsoleIndexRoute
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -247,6 +254,7 @@ export interface FileRoutesByTo {
   '/console/bookings': typeof ConsoleBookingsRoute
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/users': typeof ConsoleUsersRoute
+  '/console/withdrawals': typeof ConsoleWithdrawalsRoute
   '/console': typeof ConsoleIndexRoute
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -280,6 +288,7 @@ export interface FileRoutesById {
   '/console/bookings': typeof ConsoleBookingsRoute
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/users': typeof ConsoleUsersRoute
+  '/console/withdrawals': typeof ConsoleWithdrawalsRoute
   '/console/': typeof ConsoleIndexRoute
   '/_authenticated/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -313,6 +322,7 @@ export interface FileRouteTypes {
     | '/console/bookings'
     | '/console/providers'
     | '/console/users'
+    | '/console/withdrawals'
     | '/console/'
     | '/admin/transactions'
     | '/admin/users'
@@ -342,6 +352,7 @@ export interface FileRouteTypes {
     | '/console/bookings'
     | '/console/providers'
     | '/console/users'
+    | '/console/withdrawals'
     | '/console'
     | '/admin/transactions'
     | '/admin/users'
@@ -374,6 +385,7 @@ export interface FileRouteTypes {
     | '/console/bookings'
     | '/console/providers'
     | '/console/users'
+    | '/console/withdrawals'
     | '/console/'
     | '/_authenticated/admin/transactions'
     | '/_authenticated/admin/users'
@@ -558,6 +570,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleUsersRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/console/withdrawals': {
+      id: '/console/withdrawals'
+      path: '/withdrawals'
+      fullPath: '/console/withdrawals'
+      preLoaderRoute: typeof ConsoleWithdrawalsRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
@@ -668,6 +687,7 @@ interface ConsoleRouteChildren {
   ConsoleBookingsRoute: typeof ConsoleBookingsRoute
   ConsoleProvidersRoute: typeof ConsoleProvidersRoute
   ConsoleUsersRoute: typeof ConsoleUsersRoute
+  ConsoleWithdrawalsRoute: typeof ConsoleWithdrawalsRoute
   ConsoleIndexRoute: typeof ConsoleIndexRoute
 }
 
@@ -675,6 +695,7 @@ const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsoleBookingsRoute: ConsoleBookingsRoute,
   ConsoleProvidersRoute: ConsoleProvidersRoute,
   ConsoleUsersRoute: ConsoleUsersRoute,
+  ConsoleWithdrawalsRoute: ConsoleWithdrawalsRoute,
   ConsoleIndexRoute: ConsoleIndexRoute,
 }
 

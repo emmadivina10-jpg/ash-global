@@ -36,9 +36,9 @@ function ConsoleWithdrawals() {
     if (!pending) return;
     setBusy(true);
     const result = await settle({
-      data: { id: pending.id, status: pending.status, providerReference: providerRef || undefined },
+      data: { id: pending.id, status: pending.status, ...(providerRef ? { providerReference: providerRef } : {}) },
     });
-    setBusy(false);
+
     if (!result.ok) {
       toast.error("Could not update this withdrawal");
       return;
