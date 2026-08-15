@@ -18,6 +18,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedActivateRouteImport } from './routes/_authenticated/activate'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
 import { Route as AuthenticatedNetworkRouteImport } from './routes/_authenticated/network'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedTransactionsRouteImport } from './routes/_authenticated/transactions'
@@ -73,6 +74,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedNetworkRoute = AuthenticatedNetworkRouteImport.update({
@@ -151,6 +157,7 @@ export interface FileRoutesByFullPath {
   '/activate': typeof AuthenticatedActivateRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/messages': typeof AuthenticatedMessagesRoute
   '/network': typeof AuthenticatedNetworkRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
@@ -172,6 +179,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/activate': typeof AuthenticatedActivateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/messages': typeof AuthenticatedMessagesRoute
   '/network': typeof AuthenticatedNetworkRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
@@ -196,6 +204,7 @@ export interface FileRoutesById {
   '/_authenticated/activate': typeof AuthenticatedActivateRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/network': typeof AuthenticatedNetworkRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/transactions': typeof AuthenticatedTransactionsRoute
@@ -220,6 +229,7 @@ export interface FileRouteTypes {
     | '/activate'
     | '/admin'
     | '/dashboard'
+    | '/messages'
     | '/network'
     | '/profile'
     | '/transactions'
@@ -241,6 +251,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/activate'
     | '/dashboard'
+    | '/messages'
     | '/network'
     | '/profile'
     | '/transactions'
@@ -264,6 +275,7 @@ export interface FileRouteTypes {
     | '/_authenticated/activate'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
+    | '/_authenticated/messages'
     | '/_authenticated/network'
     | '/_authenticated/profile'
     | '/_authenticated/transactions'
@@ -351,6 +363,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/messages': {
+      id: '/_authenticated/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof AuthenticatedMessagesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/network': {
@@ -461,6 +480,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedActivateRoute: typeof AuthenticatedActivateRoute
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
   AuthenticatedNetworkRoute: typeof AuthenticatedNetworkRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedTransactionsRoute: typeof AuthenticatedTransactionsRoute
@@ -474,6 +494,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedActivateRoute: AuthenticatedActivateRoute,
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
   AuthenticatedNetworkRoute: AuthenticatedNetworkRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedTransactionsRoute: AuthenticatedTransactionsRoute,
