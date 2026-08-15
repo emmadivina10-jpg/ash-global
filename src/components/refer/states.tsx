@@ -3,6 +3,7 @@ import { AlertCircle, Inbox, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 export function LoadingState({ label = "Loading…", className }: { label?: string; className?: string }) {
   return (
@@ -47,22 +48,23 @@ export function EmptyState({
 }
 
 export function ErrorState({
-  title = "Something went wrong",
-  description = "We couldn't load this information. Please try again.",
+  title,
+  description,
   onRetry,
 }: {
   title?: string;
   description?: string;
   onRetry?: () => void;
 }) {
+  const { t } = useI18n();
   return (
     <div className="flex flex-col items-center justify-center rounded-2xl border border-destructive/25 bg-destructive/5 px-6 py-10 text-center">
       <AlertCircle className="mb-3 size-6 text-destructive" aria-hidden />
-      <p className="font-semibold text-foreground">{title}</p>
-      <p className="mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>
+      <p className="font-semibold text-foreground">{title ?? t("state.error")}</p>
+      {description ? <p className="mt-1 max-w-sm text-sm text-muted-foreground">{description}</p> : null}
       {onRetry ? (
         <Button variant="outline" className="mt-5" onClick={onRetry}>
-          Try again
+          {t("state.retry")}
         </Button>
       ) : null}
     </div>

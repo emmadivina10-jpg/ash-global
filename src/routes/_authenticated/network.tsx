@@ -6,6 +6,7 @@ import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { ReferralCard } from "@/components/refer/ReferralCard";
 import { Button } from "@/components/ui/button";
 import { COMMISSIONS, formatXAF } from "@/lib/format";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/network")({
   head: () => ({
@@ -20,13 +21,14 @@ export const Route = createFileRoute("/_authenticated/network")({
 function NetworkPage() {
   const { data, isLoading } = useNetwork();
   const { data: profile } = useProfile();
+  const { t } = useI18n();
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
       <header>
-        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Referral Network</h1>
+        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{t("net.title")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Your network across three levels. Member identities stay private.
+          {t("net.subtitle")}
         </p>
       </header>
 
@@ -35,17 +37,17 @@ function NetworkPage() {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
-            <StatCard label="Total Network" value={data?.total ?? 0} icon={<Users className="size-4" aria-hidden />} />
-            <StatCard label="Direct Referrals" value={data?.direct ?? 0} accent icon={<Users className="size-4" aria-hidden />} />
+            <StatCard label={t("dash.stat.network")} value={data?.total ?? 0} icon={<Users className="size-4" aria-hidden />} />
+            <StatCard label={t("dash.stat.direct")} value={data?.direct ?? 0} accent icon={<Users className="size-4" aria-hidden />} />
           </div>
 
           {(data?.total ?? 0) === 0 ? (
             <EmptyState
-              title="Your network is empty"
-              description="Share your referral link to add your first member. Commissions are paid once they activate."
+              title={t("net.empty.title")}
+              description={t("net.empty.copy")}
               action={
                 <Button asChild>
-                  <Link to="/dashboard">Get your referral link</Link>
+                  <Link to="/dashboard">{t("net.empty.cta")}</Link>
                 </Button>
               }
             />
@@ -54,15 +56,15 @@ function NetworkPage() {
               {(data?.levels ?? []).map((level) => (
                 <SectionCard key={level.level}>
                   <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-bold text-foreground">Level {level.level}</h2>
+                    <h2 className="text-lg font-bold text-foreground">{t("net.level", { n: level.level })}</h2>
                     <span className="tabular rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
-                      {formatXAF(COMMISSIONS[level.level as 1 | 2 | 3])} each
+                      {t("net.each", { amount: formatXAF(COMMISSIONS[level.level as 1 | 2 | 3]) })}
                     </span>
                   </div>
                   <dl className="mt-4 space-y-3 text-sm">
-                    <Row label="Members" value={String(level.members)} />
-                    <Row label="Active members" value={String(level.active)} />
-                    <Row label="Commissions generated" value={formatXAF(level.commissions)} highlight />
+                    <Row label={t("net.members")} value={String(level.members)} />
+                    <Row label={t("net.activeMembers")} value={String(level.active)} />
+                    <Row label={t("net.commissions")} value={formatXAF(level.commissions)} highlight />
                   </dl>
                 </SectionCard>
               ))}
