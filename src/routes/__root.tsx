@@ -107,6 +107,29 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "ASH Refer",
+          url: "https://growrefer.app",
+          description:
+            "ASH Refer is a Cameroon referral and beauty-services platform paying three levels of XAF commissions to MTN Mobile Money and Orange Money.",
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "ASH Refer",
+          url: "https://growrefer.app",
+sameAs: [],
+        }),
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
