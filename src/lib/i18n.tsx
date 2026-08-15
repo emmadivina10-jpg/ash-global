@@ -291,6 +291,7 @@ const EN = {
 
   // Settings
   "nav.settings": "Settings",
+  "nav.more": "More",
   "settings.title": "Settings",
   "settings.subtitle": "About ASH Refer, your privacy, and account controls.",
   "settings.about": "About ASH Refer",
@@ -605,6 +606,7 @@ const FR: Record<TKey, string> = {
   "card.notify": "Aucune action requise — votre carte apparaîtra ici automatiquement au lancement.",
 
   "nav.settings": "Paramètres",
+  "nav.more": "Plus",
   "settings.title": "Paramètres",
   "settings.subtitle": "À propos d'ASH Refer, votre vie privée et votre compte.",
   "settings.about": "À propos d'ASH Refer",
