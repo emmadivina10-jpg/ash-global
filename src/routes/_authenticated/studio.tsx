@@ -157,7 +157,7 @@ function StudioPage() {
         if (upErr) throw upErr;
         const { error: rowErr } = await supabase
           .from("portfolio_items")
-          .insert({ provider_id: studio.id, storage_path: path });
+          .insert({ provider_id: studio.id, image_path: path });
         if (rowErr) throw rowErr;
       }
       void queryClient.invalidateQueries({ queryKey: ["portfolio", studio.id] });
@@ -177,7 +177,7 @@ function StudioPage() {
   async function paySubscription() {
     setBusySub(true);
     try {
-      const result = await startSub({ data: {} });
+      const result = await startSub();
       if (result?.checkoutUrl) {
         window.location.href = result.checkoutUrl;
         return;
@@ -193,8 +193,19 @@ function StudioPage() {
   async function checkSubscription() {
     setBusySub(true);
     try {
-      const result = await verifySub({ data: {} });
-      if (result?.active) {
+      const { data: sub } = await supabase
+        .from("provider_subscriptions")
+        .select("payment_reference")
+        .eq("user_id", user?.id ?? "")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!sub?.payment_reference) {
+        toast.message(t("pro.subPending"));
+        return;
+      }
+      const result = await verifySub({ data: { reference: sub.payment_reference } });
+      if (result?.ok) {
         toast.success(t("pro.subVerified"));
         void queryClient.invalidateQueries({ queryKey: ["provider"] });
       } else {
@@ -390,7 +401,7 @@ function StudioPage() {
                       variant="secondary"
                       className="absolute right-1.5 top-1.5 size-7"
                       aria-label={t("pro.delete")}
-                      onClick={() => removePhoto(item.id, item.storage_path)}
+                      onClick={() => removePhoto(item.id, item.image_path)}
                     >
                       <Trash2 className="size-3.5" aria-hidden />
                     </Button>
