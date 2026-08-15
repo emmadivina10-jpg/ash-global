@@ -27,10 +27,10 @@ import { useI18n } from "@/lib/i18n";
 export const Route = createFileRoute("/_authenticated/services/$providerId")({
   head: () => ({
     meta: [
-      { title: "Provider profile — Refer" },
+      { title: "Provider profile — ASH Refer" },
       { name: "description", content: "See a provider's work, services and reviews, then book or chat with them." },
-      { property: "og:title", content: "Provider profile — Refer" },
-      { property: "og:description", content: "Portfolio, services, reviews and instant booking on Refer." },
+      { property: "og:title", content: "Provider profile — ASH Refer" },
+      { property: "og:description", content: "Portfolio, services, reviews and instant booking on ASH Refer." },
       { property: "og:type", content: "profile" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

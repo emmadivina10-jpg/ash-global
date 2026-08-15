@@ -11,10 +11,10 @@ import { AuthLayout } from "@/components/refer/AuthLayout";
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
-      { title: "Set a new password — Refer" },
-      { name: "description", content: "Choose a new password for your Refer account." },
-      { property: "og:title", content: "Set a new password — Refer" },
-      { property: "og:description", content: "Choose a new password for your Refer account." },
+      { title: "Set a new password — ASH Refer" },
+      { name: "description", content: "Choose a new password for your ASH Refer account." },
+      { property: "og:title", content: "Set a new password — ASH Refer" },
+      { property: "og:description", content: "Choose a new password for your ASH Refer account." },
     ],
   }),
   component: ResetPasswordPage,

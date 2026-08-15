@@ -11,10 +11,10 @@ import { AuthLayout } from "@/components/refer/AuthLayout";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Login — Refer" },
-      { name: "description", content: "Sign in to your Refer account to track referrals, earnings and withdrawals." },
-      { property: "og:title", content: "Login — Refer" },
-      { property: "og:description", content: "Sign in to your Refer account." },
+      { title: "Login — ASH Refer" },
+      { name: "description", content: "Sign in to your ASH Refer account to track referrals, earnings and withdrawals." },
+      { property: "og:title", content: "Login — ASH Refer" },
+      { property: "og:description", content: "Sign in to your ASH Refer account." },
     ],
   }),
   component: LoginPage,
@@ -90,7 +90,7 @@ function LoginPage() {
       </form>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        New to Refer?{" "}
+        New to ASH Refer?{" "}
         <Link to="/register" className="font-semibold text-primary hover:underline">
           Create an account
         </Link>

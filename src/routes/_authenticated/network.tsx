@@ -13,7 +13,7 @@ import { useI18n } from "@/lib/i18n";
 export const Route = createFileRoute("/_authenticated/network")({
   head: () => ({
     meta: [
-      { title: "Referral network — Refer" },
+      { title: "Referral network — ASH Refer" },
       { name: "description", content: "See your level 1, 2 and 3 referral network and commissions earned." },
     ],
   }),

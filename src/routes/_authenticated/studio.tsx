@@ -34,9 +34,9 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/studio")({
   head: () => ({
     meta: [
-      { title: "My studio — Refer" },
+      { title: "My studio — ASH Refer" },
       { name: "description", content: "Create your provider studio, list services, upload your work and go live." },
-      { property: "og:title", content: "My studio — Refer" },
+      { property: "og:title", content: "My studio — ASH Refer" },
       { property: "og:description", content: "Manage services, portfolio, bookings and your monthly subscription." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -79,13 +79,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Refer — Earn referral rewards in XAF" },
+      { title: "ASH Refer — Earn referral rewards in XAF" },
       {
         name: "description",
         content:
           "Activate once and earn three levels of referral commissions, paid to MTN Mobile Money or Orange Money.",
       },
-      { property: "og:title", content: "Refer — Earn referral rewards in XAF" },
+      { property: "og:title", content: "ASH Refer — Earn referral rewards in XAF" },
       {
         property: "og:description",
         content:

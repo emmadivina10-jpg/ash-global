@@ -12,7 +12,7 @@ import { formatXAF, ACTIVATION_FEE, COMMISSIONS } from "@/lib/format";
 export const Route = createFileRoute("/_authenticated/activate")({
   head: () => ({
     meta: [
-      { title: "Activate your account — Refer" },
+      { title: "Activate your account — ASH Refer" },
       { name: "description", content: "Pay the one-time 5,000 XAF activation fee to unlock referral earnings." },
     ],
   }),
@@ -111,7 +111,7 @@ function ActivatePage() {
   return (
     <div className="mx-auto w-full max-w-2xl space-y-5">
       <header>
-        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Activate Your Refer Account</h1>
+        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Activate Your ASH Refer Account</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           A single payment unlocks referral participation on your account.
         </p>

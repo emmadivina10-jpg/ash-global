@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { ACTIVATION_FEE, COMMISSIONS, MIN_WITHDRAWAL, formatXAF } from "@/lib/format";
 import { useI18n, type TKey } from "@/lib/i18n";
 
-const TITLE = "Refer — Earn referral rewards in XAF from your phone";
+const TITLE = "ASH Refer — Earn referral rewards in XAF from your phone";
 const DESCRIPTION =
   "Activate once for 5,000 XAF and earn 3 levels of referral commissions in Cameroon. Track your network and withdraw to MTN Mobile Money or Orange Money.";
 
@@ -122,16 +122,28 @@ function Landing() {
             </div>
 
             {/* Wallet preview tile */}
-            <div className="tile col-span-full flex flex-col p-6 sm:p-7 lg:col-span-5">
-              <div className="flex items-center justify-between gap-3">
-                <p className="eyebrow text-muted-foreground">{t("landing.balance")}</p>
-                <span className="grid size-8 place-items-center rounded-full bg-gold-soft text-gold-foreground">
-                  <Sparkles className="size-4" aria-hidden />
-                </span>
+            <div className="tile col-span-full flex flex-col p-5 sm:p-6 lg:col-span-5">
+              <div className="virtual-card grain p-5">
+                <div className="relative flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="eyebrow opacity-60">{t("landing.balance")}</p>
+                    <p className="tabular mt-2 font-display text-[2rem] font-extrabold leading-none">
+                      {formatXAF(48750)}
+                    </p>
+                  </div>
+                  <span className="grid size-8 place-items-center rounded-full bg-[color:oklch(1_0_0_/_0.14)]">
+                    <Sparkles className="size-4" aria-hidden />
+                  </span>
+                </div>
+                <div className="relative mt-6 flex items-center gap-3">
+                  <span className="card-chip block h-7 w-10 rounded-[6px]" aria-hidden />
+                  <span className="tabular text-base font-semibold tracking-[0.2em]">•••• 8412</span>
+                </div>
+                <div className="relative mt-4 flex items-end justify-between gap-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] opacity-70">ASH Member</p>
+                  <p className="font-display text-sm font-extrabold tracking-[0.22em]">ASH</p>
+                </div>
               </div>
-              <p className="tabular mt-2 font-display text-4xl font-extrabold text-foreground">
-                {formatXAF(48750)}
-              </p>
               <div className="mt-5 grid grid-cols-3 gap-2 text-center">
                 {LEVELS.map((item) => (
                   <div key={item.level} className="rounded-2xl border border-border bg-muted/60 p-3">

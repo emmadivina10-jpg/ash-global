@@ -11,8 +11,8 @@ import { useI18n } from "@/lib/i18n";
 export const Route = createFileRoute("/_authenticated/wallet")({
   head: () => ({
     meta: [
-      { title: "Wallet — Refer" },
-      { name: "description", content: "Your Refer wallet: balances, earnings and full transaction history." },
+      { title: "Wallet — ASH Refer" },
+      { name: "description", content: "Your ASH Refer wallet: balances, earnings and full transaction history." },
     ],
   }),
   component: WalletPage,

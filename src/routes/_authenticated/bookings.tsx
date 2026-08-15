@@ -20,9 +20,9 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/bookings")({
   head: () => ({
     meta: [
-      { title: "Bookings — Refer" },
+      { title: "Bookings — ASH Refer" },
       { name: "description", content: "Track the appointments you booked and the clients booking your studio." },
-      { property: "og:title", content: "Bookings — Refer" },
+      { property: "og:title", content: "Bookings — ASH Refer" },
       { property: "og:description", content: "Manage beauty appointments and client requests in one place." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
