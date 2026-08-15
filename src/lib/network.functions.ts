@@ -17,11 +17,12 @@ export const getNetworkTree = createServerFn({ method: "GET" }).middleware([requ
   if (error) throw error;
 
   return (data ?? []).map((n: Record<string, unknown>) => ({
-    id: String(n.id),
-    parent_id: n.parent_id ? String(n.parent_id) : null,
-    level: Number(n.level),
-    account_status: String(n.account_status),
-    joined_at: String(n.joined_at),
-    commission: Number(n.commission),
+    id: String(n["id"]),
+    parent_id: n["parent_id"] ? String(n["parent_id"]) : null,
+    level: Number(n["level"]),
+    account_status: String(n["account_status"]),
+    joined_at: String(n["joined_at"]),
+    commission: Number(n["commission"]),
   })) as NetworkNode[];
+
 });
