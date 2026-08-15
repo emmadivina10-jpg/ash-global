@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { Logo } from "./Logo";
+import { LanguageSwitcher, ThemeToggle } from "./Preferences";
 
 export function AuthLayout({
   title,
