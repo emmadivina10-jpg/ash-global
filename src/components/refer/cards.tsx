@@ -44,22 +44,71 @@ export function BalanceCard({
   amount,
   footer,
   action,
+  holder,
+  last4 = "8412",
 }: {
   label: string;
   amount: string;
   footer?: ReactNode;
   action?: ReactNode;
+  holder?: string;
+  last4?: string;
 }) {
   return (
-    <div className="tile-dark grain p-6 sm:p-7">
+    <div className="virtual-card grain p-5 sm:p-7">
       <div
-        className="pointer-events-none absolute -right-20 -top-24 size-64 rounded-full bg-gold/10 blur-2xl"
+        className="pointer-events-none absolute -right-24 -top-28 size-72 rounded-full bg-gold/20 blur-3xl"
         aria-hidden
       />
-      <p className="eyebrow relative text-primary-foreground/70">{label}</p>
-      <p className="tabular relative mt-3 font-display text-4xl font-extrabold sm:text-5xl">{amount}</p>
-      {footer ? <div className="relative mt-5 text-sm text-primary-foreground/80">{footer}</div> : null}
-      {action ? <div className="relative mt-6">{action}</div> : null}
+
+      <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+        <div className="min-w-0">
+          <p className="eyebrow text-[color:oklch(0.98_0.004_285_/_0.6)]">{label}</p>
+          <p className="tabular mt-2 font-display text-[2rem] font-extrabold leading-none sm:text-[2.75rem]">
+            {amount}
+          </p>
+        </div>
+        <div className="text-right">
+          <span className="font-display text-sm font-extrabold tracking-[0.22em]">ASH</span>
+          <span className="mt-1 block text-[10px] font-semibold uppercase tracking-[0.18em] opacity-60">
+            Virtual
+          </span>
+        </div>
+      </div>
+
+      <div className="relative mt-6 flex items-center gap-3">
+        <span className="card-chip block h-7 w-10 rounded-[6px]" aria-hidden />
+        <svg viewBox="0 0 24 24" className="size-5 opacity-70" fill="none" aria-hidden>
+          <path
+            d="M6 8a8 8 0 0 1 0 8M10.5 5.5a12 12 0 0 1 0 13M15 3a16 16 0 0 1 0 18"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          />
+        </svg>
+      </div>
+
+      <p className="tabular relative mt-4 text-lg font-semibold tracking-[0.22em] sm:text-xl">
+        •••• •••• •••• {last4}
+      </p>
+
+      <div className="relative mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] opacity-55">Card holder</p>
+          <p className="truncate text-sm font-semibold uppercase tracking-wide">{holder ?? "ASH Member"}</p>
+        </div>
+        <div className="text-right">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] opacity-55">Valid thru</p>
+          <p className="tabular text-sm font-semibold">∞</p>
+        </div>
+      </div>
+
+      {footer ? (
+        <div className="relative mt-6 border-t border-[color:oklch(1_0_0_/_0.12)] pt-4 text-sm opacity-90">
+          {footer}
+        </div>
+      ) : null}
+      {action ? <div className="relative mt-5">{action}</div> : null}
     </div>
   );
 }
