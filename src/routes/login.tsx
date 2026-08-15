@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthLayout } from "@/components/refer/AuthLayout";
+import { SocialAuth } from "@/components/refer/SocialAuth";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -88,6 +89,8 @@ function LoginPage() {
           {loading ? "Signing in…" : "Sign In"}
         </Button>
       </form>
+
+      <SocialAuth label="Or continue with" />
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         New to ASH Refer?{" "}
