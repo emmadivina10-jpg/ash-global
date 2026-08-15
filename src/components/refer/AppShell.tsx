@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -12,6 +12,7 @@ import {
   Settings as SettingsIcon,
   Shield,
   Sparkles,
+  Menu,
   Users,
   User as UserIcon,
   Wallet,
@@ -19,6 +20,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin, useProfile } from "@/lib/queries";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { AssistantBubble } from "./AssistantBubble";
 import { AshCardBubble } from "./AshCardBubble";
 import { StatusBadge } from "./StatusBadge";
@@ -51,6 +53,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { data: profile } = useProfile();
   const { data: isAdmin } = useIsAdmin();
   const { t } = useI18n();
+  const [moreOpen, setMoreOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   async function signOut() {
@@ -134,7 +137,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </div>
 
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/90 backdrop-blur-xl lg:hidden">
-        <ul className="mx-auto grid max-w-md grid-cols-4">
+        <ul className="mx-auto grid max-w-md grid-cols-5">
           {NAV.map((item) => {
             const active = pathname === item.to;
             return (
@@ -158,6 +161,49 @@ export function AppShell({ children }: { children: ReactNode }) {
               </li>
             );
           })}
+          <li>
+            <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
+              <SheetTrigger asChild>
+                <button
+                  type="button"
+                  className="relative flex min-h-14 w-full flex-col items-center justify-center gap-1 py-2 text-[11px] font-semibold text-muted-foreground transition-colors"
+                >
+                  <Menu className="size-5" aria-hidden />
+                  {t("nav.more")}
+                </button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="rounded-t-3xl">
+                <SheetHeader>
+                  <SheetTitle>{t("nav.more")}</SheetTitle>
+                </SheetHeader>
+                <div className="grid grid-cols-3 gap-3 px-4 pb-8">
+                  {SIDE_EXTRA.map((item) => (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      onClick={() => setMoreOpen(false)}
+                      className={cn(
+                        "flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-4 text-center text-xs font-semibold text-foreground",
+                        pathname === item.to && "border-primary/50 text-primary",
+                      )}
+                    >
+                      <item.icon className="size-5" aria-hidden />
+                      {t(item.key)}
+                    </Link>
+                  ))}
+                  {isAdmin ? (
+                    <a
+                      href="/console"
+                      className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-4 text-center text-xs font-semibold text-foreground"
+                    >
+                      <Shield className="size-5" aria-hidden />
+                      {t("nav.admin")}
+                    </a>
+                  ) : null}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </li>
         </ul>
       </nav>
 
