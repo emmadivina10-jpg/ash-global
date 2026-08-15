@@ -324,20 +324,71 @@ function StudioPage() {
 
       {studio ? (
         <>
-          <SectionCard title={t("pro.subTitle")}>
-            <p className="text-sm text-muted-foreground">{t("pro.subCopy", { fee: formatXAF(SUBSCRIPTION_FEE) })}</p>
-            {live ? (
-              <p className="mt-2 text-sm font-semibold text-primary">
-                {t("pro.subActive", { date: formatDate(studio.subscription_expires_at) })}
+          <SectionCard title={t("pro.billing.title")}>
+            {!live ? (
+              <p className="mb-4 rounded-2xl bg-gold/10 px-3.5 py-2.5 text-sm font-medium text-foreground">
+                {t("pro.activatePrompt")}
               </p>
             ) : null}
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Button onClick={paySubscription} disabled={busySub}>
-                {busySub ? t("pro.subStarting") : t("pro.subPay", { fee: formatXAF(SUBSCRIPTION_FEE) })}
-              </Button>
-              <Button variant="outline" onClick={checkSubscription} disabled={busySub}>
-                {t("pro.subVerify")}
-              </Button>
+            <p className="text-sm text-muted-foreground">{t("pro.billing.copy")}</p>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div
+                className={cn(
+                  "rounded-2xl border p-4",
+                  !commissionMode ? "border-primary bg-primary/5" : "border-border",
+                )}
+              >
+                <p className="font-display font-bold text-foreground">{t("pro.billing.sub")}</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {t("pro.billing.subDesc", { fee: formatXAF(SUBSCRIPTION_FEE) })}
+                </p>
+                {!commissionMode && live ? (
+                  <p className="mt-2 text-sm font-semibold text-primary">
+                    {t("pro.subActive", { date: formatDate(studio.subscription_expires_at) })}
+                  </p>
+                ) : null}
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {commissionMode ? (
+                    <Button variant="outline" onClick={() => void chooseBilling("SUBSCRIPTION")}>
+                      {t("pro.billing.choose")}
+                    </Button>
+                  ) : (
+                    <>
+                      <Button onClick={paySubscription} disabled={busySub}>
+                        {busySub ? t("pro.subStarting") : t("pro.subPay", { fee: formatXAF(SUBSCRIPTION_FEE) })}
+                      </Button>
+                      <Button variant="outline" onClick={checkSubscription} disabled={busySub}>
+                        {t("pro.subVerify")}
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div
+                className={cn(
+                  "rounded-2xl border p-4",
+                  commissionMode ? "border-primary bg-primary/5" : "border-border",
+                )}
+              >
+                <p className="font-display font-bold text-foreground">{t("pro.billing.com")}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{t("pro.billing.comDesc")}</p>
+                {commissionMode ? (
+                  <p className="mt-2 text-sm font-semibold text-primary">{t("pro.billing.comLive")}</p>
+                ) : null}
+                <div className="mt-3">
+                  {commissionMode ? (
+                    <span className="text-xs font-semibold uppercase tracking-wide text-primary">
+                      {t("pro.billing.current")}
+                    </span>
+                  ) : (
+                    <Button variant="outline" onClick={() => void chooseBilling("COMMISSION")}>
+                      {t("pro.billing.choose")}
+                    </Button>
+                  )}
+                </div>
+              </div>
             </div>
           </SectionCard>
 
