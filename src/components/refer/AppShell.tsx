@@ -82,18 +82,15 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Link>
             ))}
             {isAdmin ? (
-              <Link
-                to="/admin"
-                className={cn(
-                  "relative mt-2 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent",
-                  pathname.startsWith("/admin") &&
-                    "bg-primary/10 font-semibold text-primary before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-gold",
-                )}
+              <a
+                href="/console"
+                className="relative mt-2 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent"
               >
                 <Shield className="size-4 shrink-0" aria-hidden />
                 {t("nav.admin")}
-              </Link>
+              </a>
             ) : null}
+
           </nav>
           <div className="mt-4 flex items-center justify-between gap-2">
             <LanguageSwitcher />

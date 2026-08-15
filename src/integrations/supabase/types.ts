@@ -644,6 +644,16 @@ export type Database = {
         Args: { _payment_reference: string; _provider_transaction_id?: string }
         Returns: undefined
       }
+      console_financials: { Args: never; Returns: Json }
+      console_settle_withdrawal: {
+        Args: {
+          _note?: string
+          _provider_reference?: string
+          _status: string
+          _withdrawal_id: string
+        }
+        Returns: Json
+      }
       generate_referral_code: { Args: never; Returns: string }
       get_user_network_tree: {
         Args: never
@@ -669,6 +679,7 @@ export type Database = {
       }
       is_provider_owner: { Args: { _provider_id: string }; Returns: boolean }
       is_provider_visible: { Args: { _provider_id: string }; Returns: boolean }
+      platform_financials: { Args: never; Returns: Json }
       request_withdrawal: {
         Args: { _amount: number; _method: string; _phone: string }
         Returns: Json
@@ -688,9 +699,14 @@ export type Database = {
       booking_status:
         | "PENDING"
         | "CONFIRMED"
+        | "IN_PROGRESS"
         | "COMPLETED"
         | "CANCELLED"
         | "DECLINED"
+        | "SETTLED"
+        | "NO_SHOW"
+        | "REFUNDED"
+        | "DISPUTED"
       service_category:
         | "BRAIDER"
         | "NAIL_TECH"
@@ -830,9 +846,14 @@ export const Constants = {
       booking_status: [
         "PENDING",
         "CONFIRMED",
+        "IN_PROGRESS",
         "COMPLETED",
         "CANCELLED",
         "DECLINED",
+        "SETTLED",
+        "NO_SHOW",
+        "REFUNDED",
+        "DISPUTED",
       ],
       service_category: [
         "BRAIDER",

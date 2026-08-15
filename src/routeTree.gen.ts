@@ -11,12 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as ConsoleRouteImport } from './routes/console'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedActivateRouteImport } from './routes/_authenticated/activate'
-import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAssistantRouteImport } from './routes/_authenticated/assistant'
 import { Route as AuthenticatedBookingsRouteImport } from './routes/_authenticated/bookings'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -27,10 +27,12 @@ import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedTransactionsRouteImport } from './routes/_authenticated/transactions'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedWithdrawRouteImport } from './routes/_authenticated/withdraw'
-import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
-import { Route as AuthenticatedAdminTransactionsRouteImport } from './routes/_authenticated/admin.transactions'
-import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
-import { Route as AuthenticatedAdminWithdrawalsRouteImport } from './routes/_authenticated/admin.withdrawals'
+import { Route as ConsoleIndexRouteImport } from './routes/console.index'
+import { Route as ConsoleBookingsRouteImport } from './routes/console.bookings'
+import { Route as ConsoleLedgerRouteImport } from './routes/console.ledger'
+import { Route as ConsoleProvidersRouteImport } from './routes/console.providers'
+import { Route as ConsoleUsersRouteImport } from './routes/console.users'
+import { Route as ConsoleWithdrawalsRouteImport } from './routes/console.withdrawals'
 import { Route as AuthenticatedServicesIndexRouteImport } from './routes/_authenticated/services.index'
 import { Route as AuthenticatedServicesProviderIdRouteImport } from './routes/_authenticated/services.$providerId'
 import { Route as ApiPublicWebhooksTchokopayRouteImport } from './routes/api/public/webhooks/tchokopay'
@@ -42,6 +44,11 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConsoleRoute = ConsoleRouteImport.update({
+  id: '/console',
+  path: '/console',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -67,11 +74,6 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const AuthenticatedActivateRoute = AuthenticatedActivateRouteImport.update({
   id: '/activate',
   path: '/activate',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAssistantRoute = AuthenticatedAssistantRouteImport.update({
@@ -125,28 +127,36 @@ const AuthenticatedWithdrawRoute = AuthenticatedWithdrawRouteImport.update({
   path: '/withdraw',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+const ConsoleIndexRoute = ConsoleIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AuthenticatedAdminRoute,
+  getParentRoute: () => ConsoleRoute,
 } as any)
-const AuthenticatedAdminTransactionsRoute =
-  AuthenticatedAdminTransactionsRouteImport.update({
-    id: '/transactions',
-    path: '/transactions',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+const ConsoleBookingsRoute = ConsoleBookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
+  getParentRoute: () => ConsoleRoute,
+} as any)
+const ConsoleLedgerRoute = ConsoleLedgerRouteImport.update({
+  id: '/ledger',
+  path: '/ledger',
+  getParentRoute: () => ConsoleRoute,
+} as any)
+const ConsoleProvidersRoute = ConsoleProvidersRouteImport.update({
+  id: '/providers',
+  path: '/providers',
+  getParentRoute: () => ConsoleRoute,
+} as any)
+const ConsoleUsersRoute = ConsoleUsersRouteImport.update({
   id: '/users',
   path: '/users',
-  getParentRoute: () => AuthenticatedAdminRoute,
+  getParentRoute: () => ConsoleRoute,
 } as any)
-const AuthenticatedAdminWithdrawalsRoute =
-  AuthenticatedAdminWithdrawalsRouteImport.update({
-    id: '/withdrawals',
-    path: '/withdrawals',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
+const ConsoleWithdrawalsRoute = ConsoleWithdrawalsRouteImport.update({
+  id: '/withdrawals',
+  path: '/withdrawals',
+  getParentRoute: () => ConsoleRoute,
+} as any)
 const AuthenticatedServicesIndexRoute =
   AuthenticatedServicesIndexRouteImport.update({
     id: '/services/',
@@ -168,12 +178,12 @@ const ApiPublicWebhooksTchokopayRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/console': typeof ConsoleRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/activate': typeof AuthenticatedActivateRoute
-  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/assistant': typeof AuthenticatedAssistantRoute
   '/bookings': typeof AuthenticatedBookingsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -184,11 +194,13 @@ export interface FileRoutesByFullPath {
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
-  '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
-  '/admin/users': typeof AuthenticatedAdminUsersRoute
-  '/admin/withdrawals': typeof AuthenticatedAdminWithdrawalsRoute
+  '/console/bookings': typeof ConsoleBookingsRoute
+  '/console/ledger': typeof ConsoleLedgerRoute
+  '/console/providers': typeof ConsoleProvidersRoute
+  '/console/users': typeof ConsoleUsersRoute
+  '/console/withdrawals': typeof ConsoleWithdrawalsRoute
+  '/console/': typeof ConsoleIndexRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
-  '/admin/': typeof AuthenticatedAdminIndexRoute
   '/services/': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
 }
@@ -209,11 +221,13 @@ export interface FileRoutesByTo {
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
-  '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
-  '/admin/users': typeof AuthenticatedAdminUsersRoute
-  '/admin/withdrawals': typeof AuthenticatedAdminWithdrawalsRoute
+  '/console/bookings': typeof ConsoleBookingsRoute
+  '/console/ledger': typeof ConsoleLedgerRoute
+  '/console/providers': typeof ConsoleProvidersRoute
+  '/console/users': typeof ConsoleUsersRoute
+  '/console/withdrawals': typeof ConsoleWithdrawalsRoute
+  '/console': typeof ConsoleIndexRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
-  '/admin': typeof AuthenticatedAdminIndexRoute
   '/services': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
 }
@@ -221,12 +235,12 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/console': typeof ConsoleRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/activate': typeof AuthenticatedActivateRoute
-  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/assistant': typeof AuthenticatedAssistantRoute
   '/_authenticated/bookings': typeof AuthenticatedBookingsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -237,11 +251,13 @@ export interface FileRoutesById {
   '/_authenticated/transactions': typeof AuthenticatedTransactionsRoute
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/_authenticated/withdraw': typeof AuthenticatedWithdrawRoute
-  '/_authenticated/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
-  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
-  '/_authenticated/admin/withdrawals': typeof AuthenticatedAdminWithdrawalsRoute
+  '/console/bookings': typeof ConsoleBookingsRoute
+  '/console/ledger': typeof ConsoleLedgerRoute
+  '/console/providers': typeof ConsoleProvidersRoute
+  '/console/users': typeof ConsoleUsersRoute
+  '/console/withdrawals': typeof ConsoleWithdrawalsRoute
+  '/console/': typeof ConsoleIndexRoute
   '/_authenticated/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
-  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/services/': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
 }
@@ -249,12 +265,12 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/console'
     | '/forgot-password'
     | '/login'
     | '/register'
     | '/reset-password'
     | '/activate'
-    | '/admin'
     | '/assistant'
     | '/bookings'
     | '/dashboard'
@@ -265,11 +281,13 @@ export interface FileRouteTypes {
     | '/transactions'
     | '/wallet'
     | '/withdraw'
-    | '/admin/transactions'
-    | '/admin/users'
-    | '/admin/withdrawals'
+    | '/console/bookings'
+    | '/console/ledger'
+    | '/console/providers'
+    | '/console/users'
+    | '/console/withdrawals'
+    | '/console/'
     | '/services/$providerId'
-    | '/admin/'
     | '/services/'
     | '/api/public/webhooks/tchokopay'
   fileRoutesByTo: FileRoutesByTo
@@ -290,23 +308,25 @@ export interface FileRouteTypes {
     | '/transactions'
     | '/wallet'
     | '/withdraw'
-    | '/admin/transactions'
-    | '/admin/users'
-    | '/admin/withdrawals'
+    | '/console/bookings'
+    | '/console/ledger'
+    | '/console/providers'
+    | '/console/users'
+    | '/console/withdrawals'
+    | '/console'
     | '/services/$providerId'
-    | '/admin'
     | '/services'
     | '/api/public/webhooks/tchokopay'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/console'
     | '/forgot-password'
     | '/login'
     | '/register'
     | '/reset-password'
     | '/_authenticated/activate'
-    | '/_authenticated/admin'
     | '/_authenticated/assistant'
     | '/_authenticated/bookings'
     | '/_authenticated/dashboard'
@@ -317,11 +337,13 @@ export interface FileRouteTypes {
     | '/_authenticated/transactions'
     | '/_authenticated/wallet'
     | '/_authenticated/withdraw'
-    | '/_authenticated/admin/transactions'
-    | '/_authenticated/admin/users'
-    | '/_authenticated/admin/withdrawals'
+    | '/console/bookings'
+    | '/console/ledger'
+    | '/console/providers'
+    | '/console/users'
+    | '/console/withdrawals'
+    | '/console/'
     | '/_authenticated/services/$providerId'
-    | '/_authenticated/admin/'
     | '/_authenticated/services/'
     | '/api/public/webhooks/tchokopay'
   fileRoutesById: FileRoutesById
@@ -329,6 +351,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  ConsoleRoute: typeof ConsoleRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
@@ -350,6 +373,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/console': {
+      id: '/console'
+      path: '/console'
+      fullPath: '/console'
+      preLoaderRoute: typeof ConsoleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forgot-password': {
@@ -385,13 +415,6 @@ declare module '@tanstack/react-router' {
       path: '/activate'
       fullPath: '/activate'
       preLoaderRoute: typeof AuthenticatedActivateRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/admin': {
-      id: '/_authenticated/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/assistant': {
@@ -464,33 +487,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWithdrawRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/admin/': {
-      id: '/_authenticated/admin/'
+    '/console/': {
+      id: '/console/'
       path: '/'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+      fullPath: '/console/'
+      preLoaderRoute: typeof ConsoleIndexRouteImport
+      parentRoute: typeof ConsoleRoute
     }
-    '/_authenticated/admin/transactions': {
-      id: '/_authenticated/admin/transactions'
-      path: '/transactions'
-      fullPath: '/admin/transactions'
-      preLoaderRoute: typeof AuthenticatedAdminTransactionsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+    '/console/bookings': {
+      id: '/console/bookings'
+      path: '/bookings'
+      fullPath: '/console/bookings'
+      preLoaderRoute: typeof ConsoleBookingsRouteImport
+      parentRoute: typeof ConsoleRoute
     }
-    '/_authenticated/admin/users': {
-      id: '/_authenticated/admin/users'
+    '/console/ledger': {
+      id: '/console/ledger'
+      path: '/ledger'
+      fullPath: '/console/ledger'
+      preLoaderRoute: typeof ConsoleLedgerRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/providers': {
+      id: '/console/providers'
+      path: '/providers'
+      fullPath: '/console/providers'
+      preLoaderRoute: typeof ConsoleProvidersRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/users': {
+      id: '/console/users'
       path: '/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+      fullPath: '/console/users'
+      preLoaderRoute: typeof ConsoleUsersRouteImport
+      parentRoute: typeof ConsoleRoute
     }
-    '/_authenticated/admin/withdrawals': {
-      id: '/_authenticated/admin/withdrawals'
+    '/console/withdrawals': {
+      id: '/console/withdrawals'
       path: '/withdrawals'
-      fullPath: '/admin/withdrawals'
-      preLoaderRoute: typeof AuthenticatedAdminWithdrawalsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+      fullPath: '/console/withdrawals'
+      preLoaderRoute: typeof ConsoleWithdrawalsRouteImport
+      parentRoute: typeof ConsoleRoute
     }
     '/_authenticated/services/': {
       id: '/_authenticated/services/'
@@ -516,26 +553,8 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AuthenticatedAdminRouteChildren {
-  AuthenticatedAdminTransactionsRoute: typeof AuthenticatedAdminTransactionsRoute
-  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
-  AuthenticatedAdminWithdrawalsRoute: typeof AuthenticatedAdminWithdrawalsRoute
-  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
-}
-
-const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
-  AuthenticatedAdminTransactionsRoute: AuthenticatedAdminTransactionsRoute,
-  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
-  AuthenticatedAdminWithdrawalsRoute: AuthenticatedAdminWithdrawalsRoute,
-  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
-}
-
-const AuthenticatedAdminRouteWithChildren =
-  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
-
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedActivateRoute: typeof AuthenticatedActivateRoute
-  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedAssistantRoute: typeof AuthenticatedAssistantRoute
   AuthenticatedBookingsRoute: typeof AuthenticatedBookingsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
@@ -552,7 +571,6 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedActivateRoute: AuthenticatedActivateRoute,
-  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedAssistantRoute: AuthenticatedAssistantRoute,
   AuthenticatedBookingsRoute: AuthenticatedBookingsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
@@ -570,9 +588,31 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface ConsoleRouteChildren {
+  ConsoleBookingsRoute: typeof ConsoleBookingsRoute
+  ConsoleLedgerRoute: typeof ConsoleLedgerRoute
+  ConsoleProvidersRoute: typeof ConsoleProvidersRoute
+  ConsoleUsersRoute: typeof ConsoleUsersRoute
+  ConsoleWithdrawalsRoute: typeof ConsoleWithdrawalsRoute
+  ConsoleIndexRoute: typeof ConsoleIndexRoute
+}
+
+const ConsoleRouteChildren: ConsoleRouteChildren = {
+  ConsoleBookingsRoute: ConsoleBookingsRoute,
+  ConsoleLedgerRoute: ConsoleLedgerRoute,
+  ConsoleProvidersRoute: ConsoleProvidersRoute,
+  ConsoleUsersRoute: ConsoleUsersRoute,
+  ConsoleWithdrawalsRoute: ConsoleWithdrawalsRoute,
+  ConsoleIndexRoute: ConsoleIndexRoute,
+}
+
+const ConsoleRouteWithChildren =
+  ConsoleRoute._addFileChildren(ConsoleRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  ConsoleRoute: ConsoleRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,

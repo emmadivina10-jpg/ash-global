@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { getConsoleWithdrawals, settleWithdrawal } from "@/lib/console.functions";
 import { SectionCard } from "@/components/refer/cards";
 import { StatusBadge } from "@/components/refer/StatusBadge";
 import { ConfirmationModal } from "@/components/refer/ConfirmationModal";
-import { EmptyState, SkeletonRows } from "@/components/refer/states";
+import { EmptyState, ErrorState, SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,53 +15,47 @@ import { PAYMENT_METHOD_LABEL, formatDateTime, formatXAF } from "@/lib/format";
 
 type Pending = { id: string; status: "PROCESSING" | "COMPLETED" | "FAILED" } | null;
 
-export const Route = createFileRoute("/_authenticated/admin/withdrawals")({
-  component: AdminWithdrawals,
+export const Route = createFileRoute("/console/withdrawals")({
+  component: ConsoleWithdrawals,
 });
 
-function AdminWithdrawals() {
+function ConsoleWithdrawals() {
   const queryClient = useQueryClient();
+  const fetchWithdrawals = useServerFn(getConsoleWithdrawals);
+  const settle = useServerFn(settleWithdrawal);
   const [pending, setPending] = useState<Pending>(null);
   const [providerRef, setProviderRef] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["admin", "withdrawals"],
-    queryFn: async () => {
-      const { data: rows, error } = await supabase
-        .from("withdrawals")
-        .select("*")
-        .order("requested_at", { ascending: false })
-        .limit(300);
-      if (error) throw error;
-      return rows ?? [];
-    },
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ["console", "withdrawals"],
+    queryFn: fetchWithdrawals,
   });
 
-  async function settle() {
+  async function confirm() {
     if (!pending) return;
     setBusy(true);
-    const { data: result, error } = await supabase.rpc("settle_withdrawal", {
-      _withdrawal_id: pending.id,
-      _status: pending.status,
-      ...(providerRef ? { _provider_reference: providerRef } : {}),
+    const result = await settle({
+      data: { id: pending.id, status: pending.status, ...(providerRef ? { providerReference: providerRef } : {}) },
     });
     setBusy(false);
-    const payload = result as { ok?: boolean; error?: string } | null;
-    if (error || !payload?.ok) {
+    if (!result.ok) {
+
       toast.error("Could not update this withdrawal");
       return;
     }
     toast.success(`Withdrawal marked ${pending.status.toLowerCase()}`);
     setPending(null);
     setProviderRef("");
-    await queryClient.invalidateQueries({ queryKey: ["admin"] });
+    await queryClient.invalidateQueries({ queryKey: ["console"] });
   }
 
   return (
-    <SectionCard title="Withdrawal management" description="Approve, complete or reject mobile money payouts.">
+    <SectionCard title="Withdrawals" description="Approve, complete or reject mobile money payouts.">
       {isLoading ? (
         <SkeletonRows rows={4} />
+      ) : isError ? (
+        <ErrorState onRetry={() => void refetch()} />
       ) : (data ?? []).length === 0 ? (
         <EmptyState title="No withdrawal requests" />
       ) : (
@@ -71,7 +66,7 @@ function AdminWithdrawals() {
                 <div className="min-w-0">
                   <p className="tabular text-base font-bold text-foreground">{formatXAF(row.amount)}</p>
                   <p className="truncate text-xs text-muted-foreground">
-                    {PAYMENT_METHOD_LABEL[row.payment_method]} · {row.phone_number}
+                    {PAYMENT_METHOD_LABEL[row.payment_method] ?? row.payment_method} · {row.phone_number}
                   </p>
                   <p className="truncate text-xs text-muted-foreground">
                     {formatDateTime(row.requested_at)} · {row.reference}
@@ -119,7 +114,7 @@ function AdminWithdrawals() {
         }
         loading={busy}
         confirmLabel="Confirm"
-        onConfirm={settle}
+        onConfirm={confirm}
         details={
           <div className="space-y-2 text-left">
             <Label htmlFor="providerRef">Provider reference (optional)</Label>
