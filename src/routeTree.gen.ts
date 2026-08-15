@@ -29,6 +29,7 @@ import { Route as AuthenticatedTransactionsRouteImport } from './routes/_authent
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedWithdrawRouteImport } from './routes/_authenticated/withdraw'
 import { Route as ConsoleIndexRouteImport } from './routes/console.index'
+import { Route as ConsoleUsersRouteImport } from './routes/console.users'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminTransactionsRouteImport } from './routes/_authenticated/admin.transactions'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
@@ -137,6 +138,11 @@ const ConsoleIndexRoute = ConsoleIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const ConsoleUsersRoute = ConsoleUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => ConsoleRoute,
+} as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -197,6 +203,7 @@ export interface FileRoutesByFullPath {
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
+  '/console/users': typeof ConsoleUsersRoute
   '/console/': typeof ConsoleIndexRoute
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -223,6 +230,7 @@ export interface FileRoutesByTo {
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
+  '/console/users': typeof ConsoleUsersRoute
   '/console': typeof ConsoleIndexRoute
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -253,6 +261,7 @@ export interface FileRoutesById {
   '/_authenticated/transactions': typeof AuthenticatedTransactionsRoute
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/_authenticated/withdraw': typeof AuthenticatedWithdrawRoute
+  '/console/users': typeof ConsoleUsersRoute
   '/console/': typeof ConsoleIndexRoute
   '/_authenticated/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -283,6 +292,7 @@ export interface FileRouteTypes {
     | '/transactions'
     | '/wallet'
     | '/withdraw'
+    | '/console/users'
     | '/console/'
     | '/admin/transactions'
     | '/admin/users'
@@ -309,6 +319,7 @@ export interface FileRouteTypes {
     | '/transactions'
     | '/wallet'
     | '/withdraw'
+    | '/console/users'
     | '/console'
     | '/admin/transactions'
     | '/admin/users'
@@ -338,6 +349,7 @@ export interface FileRouteTypes {
     | '/_authenticated/transactions'
     | '/_authenticated/wallet'
     | '/_authenticated/withdraw'
+    | '/console/users'
     | '/console/'
     | '/_authenticated/admin/transactions'
     | '/_authenticated/admin/users'
@@ -501,6 +513,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleIndexRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/console/users': {
+      id: '/console/users'
+      path: '/users'
+      fullPath: '/console/users'
+      preLoaderRoute: typeof ConsoleUsersRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
@@ -608,10 +627,12 @@ const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 interface ConsoleRouteChildren {
+  ConsoleUsersRoute: typeof ConsoleUsersRoute
   ConsoleIndexRoute: typeof ConsoleIndexRoute
 }
 
 const ConsoleRouteChildren: ConsoleRouteChildren = {
+  ConsoleUsersRoute: ConsoleUsersRoute,
   ConsoleIndexRoute: ConsoleIndexRoute,
 }
 
