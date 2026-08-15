@@ -263,6 +263,19 @@ const EN = {
   "ai.hint3": "How can I get more bookings?",
   "ai.err": "The assistant is unavailable right now.",
   "ai.busy": "Thinking…",
+  "ai.open": "Open Refer Assistant",
+  "ai.close": "Close assistant",
+  "pro.billing.title": "How you pay the platform",
+  "pro.billing.copy": "Setting up your studio is free. Choose a plan when you are ready to accept bookings from clients.",
+  "pro.billing.sub": "Monthly subscription",
+  "pro.billing.subDesc": "{fee} per month. Keep 100% of what you earn from each service.",
+  "pro.billing.com": "Pay as you earn",
+  "pro.billing.comDesc": "No monthly fee. The platform takes 1% of every completed paid service.",
+  "pro.billing.choose": "Choose this plan",
+  "pro.billing.current": "Current plan",
+  "pro.billing.saved": "Plan updated.",
+  "pro.billing.comLive": "You are live on pay-as-you-earn. 1% is deducted from each completed booking.",
+  "pro.activatePrompt": "Your studio is saved but offline. Pick a plan below to start accepting bookings.",
 } as const;
 
 export type TKey = keyof typeof EN;
@@ -520,6 +533,19 @@ const FR: Record<TKey, string> = {
   "ai.hint3": "Comment obtenir plus de réservations ?",
   "ai.err": "L'assistant est indisponible pour le moment.",
   "ai.busy": "Réflexion…",
+  "ai.open": "Ouvrir l'assistant Refer",
+  "ai.close": "Fermer l'assistant",
+  "pro.billing.title": "Comment vous payez la plateforme",
+  "pro.billing.copy": "Créer votre studio est gratuit. Choisissez une formule quand vous êtes prêt à accepter des réservations.",
+  "pro.billing.sub": "Abonnement mensuel",
+  "pro.billing.subDesc": "{fee} par mois. Vous gardez 100 % de vos revenus de prestation.",
+  "pro.billing.com": "Payer selon vos gains",
+  "pro.billing.comDesc": "Aucun frais mensuel. La plateforme prend 1 % de chaque prestation payée terminée.",
+  "pro.billing.choose": "Choisir cette formule",
+  "pro.billing.current": "Formule actuelle",
+  "pro.billing.saved": "Formule mise à jour.",
+  "pro.billing.comLive": "Vous êtes en ligne en mode 1 %. 1 % est déduit de chaque réservation terminée.",
+  "pro.activatePrompt": "Votre studio est enregistré mais hors ligne. Choisissez une formule pour accepter des réservations.",
 };
 
 const DICT: Record<Lang, Record<TKey, string>> = { en: EN, fr: FR };

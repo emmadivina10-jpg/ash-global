@@ -15,6 +15,7 @@ export type ProviderProfile = {
   avatar_url: string | null;
   cover_url: string | null;
   is_live: boolean;
+  billing_mode: "SUBSCRIPTION" | "COMMISSION";
   subscription_expires_at: string | null;
   rating_avg: number;
   rating_count: number;
