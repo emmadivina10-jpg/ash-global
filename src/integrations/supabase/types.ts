@@ -264,6 +264,7 @@ export type Database = {
       provider_profiles: {
         Row: {
           avatar_url: string | null
+          billing_mode: string
           bio: string | null
           business_name: string
           categories: Database["public"]["Enums"]["service_category"][]
@@ -282,6 +283,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          billing_mode?: string
           bio?: string | null
           business_name: string
           categories?: Database["public"]["Enums"]["service_category"][]
@@ -300,6 +302,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          billing_mode?: string
           bio?: string | null
           business_name?: string
           categories?: Database["public"]["Enums"]["service_category"][]
