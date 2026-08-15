@@ -669,6 +669,7 @@ export type Database = {
       }
       is_provider_owner: { Args: { _provider_id: string }; Returns: boolean }
       is_provider_visible: { Args: { _provider_id: string }; Returns: boolean }
+      platform_financials: { Args: never; Returns: Json }
       request_withdrawal: {
         Args: { _amount: number; _method: string; _phone: string }
         Returns: Json
@@ -688,9 +689,14 @@ export type Database = {
       booking_status:
         | "PENDING"
         | "CONFIRMED"
+        | "IN_PROGRESS"
         | "COMPLETED"
         | "CANCELLED"
         | "DECLINED"
+        | "SETTLED"
+        | "NO_SHOW"
+        | "REFUNDED"
+        | "DISPUTED"
       service_category:
         | "BRAIDER"
         | "NAIL_TECH"
@@ -830,9 +836,14 @@ export const Constants = {
       booking_status: [
         "PENDING",
         "CONFIRMED",
+        "IN_PROGRESS",
         "COMPLETED",
         "CANCELLED",
         "DECLINED",
+        "SETTLED",
+        "NO_SHOW",
+        "REFUNDED",
+        "DISPUTED",
       ],
       service_category: [
         "BRAIDER",
