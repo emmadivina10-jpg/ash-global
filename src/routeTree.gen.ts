@@ -17,7 +17,6 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedActivateRouteImport } from './routes/_authenticated/activate'
-import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAssistantRouteImport } from './routes/_authenticated/assistant'
 import { Route as AuthenticatedBookingsRouteImport } from './routes/_authenticated/bookings'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -34,10 +33,6 @@ import { Route as ConsoleLedgerRouteImport } from './routes/console.ledger'
 import { Route as ConsoleProvidersRouteImport } from './routes/console.providers'
 import { Route as ConsoleUsersRouteImport } from './routes/console.users'
 import { Route as ConsoleWithdrawalsRouteImport } from './routes/console.withdrawals'
-import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
-import { Route as AuthenticatedAdminTransactionsRouteImport } from './routes/_authenticated/admin.transactions'
-import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
-import { Route as AuthenticatedAdminWithdrawalsRouteImport } from './routes/_authenticated/admin.withdrawals'
 import { Route as AuthenticatedServicesIndexRouteImport } from './routes/_authenticated/services.index'
 import { Route as AuthenticatedServicesProviderIdRouteImport } from './routes/_authenticated/services.$providerId'
 import { Route as ApiPublicWebhooksTchokopayRouteImport } from './routes/api/public/webhooks/tchokopay'
@@ -79,11 +74,6 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const AuthenticatedActivateRoute = AuthenticatedActivateRouteImport.update({
   id: '/activate',
   path: '/activate',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAssistantRoute = AuthenticatedAssistantRouteImport.update({
@@ -167,28 +157,6 @@ const ConsoleWithdrawalsRoute = ConsoleWithdrawalsRouteImport.update({
   path: '/withdrawals',
   getParentRoute: () => ConsoleRoute,
 } as any)
-const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthenticatedAdminRoute,
-} as any)
-const AuthenticatedAdminTransactionsRoute =
-  AuthenticatedAdminTransactionsRouteImport.update({
-    id: '/transactions',
-    path: '/transactions',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => AuthenticatedAdminRoute,
-} as any)
-const AuthenticatedAdminWithdrawalsRoute =
-  AuthenticatedAdminWithdrawalsRouteImport.update({
-    id: '/withdrawals',
-    path: '/withdrawals',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
 const AuthenticatedServicesIndexRoute =
   AuthenticatedServicesIndexRouteImport.update({
     id: '/services/',
@@ -216,7 +184,6 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/activate': typeof AuthenticatedActivateRoute
-  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/assistant': typeof AuthenticatedAssistantRoute
   '/bookings': typeof AuthenticatedBookingsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -233,11 +200,7 @@ export interface FileRoutesByFullPath {
   '/console/users': typeof ConsoleUsersRoute
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
   '/console/': typeof ConsoleIndexRoute
-  '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
-  '/admin/users': typeof AuthenticatedAdminUsersRoute
-  '/admin/withdrawals': typeof AuthenticatedAdminWithdrawalsRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
-  '/admin/': typeof AuthenticatedAdminIndexRoute
   '/services/': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
 }
@@ -264,11 +227,7 @@ export interface FileRoutesByTo {
   '/console/users': typeof ConsoleUsersRoute
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
   '/console': typeof ConsoleIndexRoute
-  '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
-  '/admin/users': typeof AuthenticatedAdminUsersRoute
-  '/admin/withdrawals': typeof AuthenticatedAdminWithdrawalsRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
-  '/admin': typeof AuthenticatedAdminIndexRoute
   '/services': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
 }
@@ -282,7 +241,6 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/activate': typeof AuthenticatedActivateRoute
-  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/assistant': typeof AuthenticatedAssistantRoute
   '/_authenticated/bookings': typeof AuthenticatedBookingsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -299,11 +257,7 @@ export interface FileRoutesById {
   '/console/users': typeof ConsoleUsersRoute
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
   '/console/': typeof ConsoleIndexRoute
-  '/_authenticated/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
-  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
-  '/_authenticated/admin/withdrawals': typeof AuthenticatedAdminWithdrawalsRoute
   '/_authenticated/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
-  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/services/': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
 }
@@ -317,7 +271,6 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/activate'
-    | '/admin'
     | '/assistant'
     | '/bookings'
     | '/dashboard'
@@ -334,11 +287,7 @@ export interface FileRouteTypes {
     | '/console/users'
     | '/console/withdrawals'
     | '/console/'
-    | '/admin/transactions'
-    | '/admin/users'
-    | '/admin/withdrawals'
     | '/services/$providerId'
-    | '/admin/'
     | '/services/'
     | '/api/public/webhooks/tchokopay'
   fileRoutesByTo: FileRoutesByTo
@@ -365,11 +314,7 @@ export interface FileRouteTypes {
     | '/console/users'
     | '/console/withdrawals'
     | '/console'
-    | '/admin/transactions'
-    | '/admin/users'
-    | '/admin/withdrawals'
     | '/services/$providerId'
-    | '/admin'
     | '/services'
     | '/api/public/webhooks/tchokopay'
   id:
@@ -382,7 +327,6 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/_authenticated/activate'
-    | '/_authenticated/admin'
     | '/_authenticated/assistant'
     | '/_authenticated/bookings'
     | '/_authenticated/dashboard'
@@ -399,11 +343,7 @@ export interface FileRouteTypes {
     | '/console/users'
     | '/console/withdrawals'
     | '/console/'
-    | '/_authenticated/admin/transactions'
-    | '/_authenticated/admin/users'
-    | '/_authenticated/admin/withdrawals'
     | '/_authenticated/services/$providerId'
-    | '/_authenticated/admin/'
     | '/_authenticated/services/'
     | '/api/public/webhooks/tchokopay'
   fileRoutesById: FileRoutesById
@@ -475,13 +415,6 @@ declare module '@tanstack/react-router' {
       path: '/activate'
       fullPath: '/activate'
       preLoaderRoute: typeof AuthenticatedActivateRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/admin': {
-      id: '/_authenticated/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/assistant': {
@@ -596,34 +529,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleWithdrawalsRouteImport
       parentRoute: typeof ConsoleRoute
     }
-    '/_authenticated/admin/': {
-      id: '/_authenticated/admin/'
-      path: '/'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/transactions': {
-      id: '/_authenticated/admin/transactions'
-      path: '/transactions'
-      fullPath: '/admin/transactions'
-      preLoaderRoute: typeof AuthenticatedAdminTransactionsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/users': {
-      id: '/_authenticated/admin/users'
-      path: '/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/withdrawals': {
-      id: '/_authenticated/admin/withdrawals'
-      path: '/withdrawals'
-      fullPath: '/admin/withdrawals'
-      preLoaderRoute: typeof AuthenticatedAdminWithdrawalsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
     '/_authenticated/services/': {
       id: '/_authenticated/services/'
       path: '/services'
@@ -648,26 +553,8 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AuthenticatedAdminRouteChildren {
-  AuthenticatedAdminTransactionsRoute: typeof AuthenticatedAdminTransactionsRoute
-  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
-  AuthenticatedAdminWithdrawalsRoute: typeof AuthenticatedAdminWithdrawalsRoute
-  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
-}
-
-const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
-  AuthenticatedAdminTransactionsRoute: AuthenticatedAdminTransactionsRoute,
-  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
-  AuthenticatedAdminWithdrawalsRoute: AuthenticatedAdminWithdrawalsRoute,
-  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
-}
-
-const AuthenticatedAdminRouteWithChildren =
-  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
-
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedActivateRoute: typeof AuthenticatedActivateRoute
-  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedAssistantRoute: typeof AuthenticatedAssistantRoute
   AuthenticatedBookingsRoute: typeof AuthenticatedBookingsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
@@ -684,7 +571,6 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedActivateRoute: AuthenticatedActivateRoute,
-  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedAssistantRoute: AuthenticatedAssistantRoute,
   AuthenticatedBookingsRoute: AuthenticatedBookingsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
