@@ -34,13 +34,13 @@ export const Route = createFileRoute("/register")({
     typeof search["ref"] === "string" ? { ref: search["ref"] } : {},
   head: () => ({
     meta: [
-      { title: "Create your Refer account" },
+      { title: "Create your ASH Refer account" },
       {
         name: "description",
-        content: "Join Refer in minutes, activate for 5,000 XAF and start earning referral rewards on three levels.",
+        content: "Join ASH Refer in minutes, activate for 5,000 XAF and start earning referral rewards on three levels.",
       },
-      { property: "og:title", content: "Create your Refer account" },
-      { property: "og:description", content: "Join Refer and start earning referral rewards." },
+      { property: "og:title", content: "Create your ASH Refer account" },
+      { property: "og:description", content: "Join ASH Refer and start earning referral rewards." },
     ],
   }),
   component: RegisterPage,
@@ -151,7 +151,7 @@ function RegisterPage() {
   }
 
   return (
-    <AuthLayout title="Create your account" subtitle="Join Refer and start building your network.">
+    <AuthLayout title="Create your account" subtitle="Join ASH Refer and start building your network.">
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         <Field label="Full name" id="fullName" error={errors["fullName"]}>
           <Input

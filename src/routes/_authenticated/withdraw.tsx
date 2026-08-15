@@ -35,8 +35,8 @@ const ERRORS: Record<string, string> = {
 export const Route = createFileRoute("/_authenticated/withdraw")({
   head: () => ({
     meta: [
-      { title: "Withdraw — Refer" },
-      { name: "description", content: "Withdraw your Refer earnings to MTN Mobile Money or Orange Money." },
+      { title: "Withdraw — ASH Refer" },
+      { name: "description", content: "Withdraw your ASH Refer earnings to MTN Mobile Money or Orange Money." },
     ],
   }),
   component: WithdrawPage,

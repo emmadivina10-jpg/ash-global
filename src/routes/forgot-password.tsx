@@ -10,9 +10,9 @@ import { AuthLayout } from "@/components/refer/AuthLayout";
 export const Route = createFileRoute("/forgot-password")({
   head: () => ({
     meta: [
-      { title: "Reset your password — Refer" },
-      { name: "description", content: "Request a secure password reset link for your Refer account." },
-      { property: "og:title", content: "Reset your password — Refer" },
+      { title: "Reset your password — ASH Refer" },
+      { name: "description", content: "Request a secure password reset link for your ASH Refer account." },
+      { property: "og:title", content: "Reset your password — ASH Refer" },
       { property: "og:description", content: "Request a secure password reset link." },
     ],
   }),

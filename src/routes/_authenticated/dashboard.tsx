@@ -14,8 +14,8 @@ import { useI18n } from "@/lib/i18n";
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
-      { title: "Dashboard — Refer" },
-      { name: "description", content: "Track your balance, referrals and earnings on Refer." },
+      { title: "Dashboard — ASH Refer" },
+      { name: "description", content: "Track your balance, referrals and earnings on ASH Refer." },
     ],
   }),
   component: DashboardPage,

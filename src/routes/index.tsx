@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { ACTIVATION_FEE, COMMISSIONS, MIN_WITHDRAWAL, formatXAF } from "@/lib/format";
 import { useI18n, type TKey } from "@/lib/i18n";
 
-const TITLE = "Refer — Earn referral rewards in XAF from your phone";
+const TITLE = "ASH Refer — Earn referral rewards in XAF from your phone";
 const DESCRIPTION =
   "Activate once for 5,000 XAF and earn 3 levels of referral commissions in Cameroon. Track your network and withdraw to MTN Mobile Money or Orange Money.";
 

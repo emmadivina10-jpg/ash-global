@@ -70,9 +70,9 @@ const EN = {
   "landing.final.eyebrow": "Start earning",
   "landing.final.title": "Your network is worth money",
   "landing.final.copy":
-    "Join Refer today, activate your account and start earning from every person you bring on board.",
+    "Join ASH Refer today, activate your account and start earning from every person you bring on board.",
   "landing.final.cta": "Create your account",
-  "landing.footer": "© {year} Refer. All amounts in XAF.",
+  "landing.footer": "© {year} ASH Refer. All amounts in XAF.",
 
   // Dashboard
   "dash.welcome": "Welcome back",
@@ -345,9 +345,9 @@ const FR: Record<TKey, string> = {
   "landing.final.eyebrow": "Commencez à gagner",
   "landing.final.title": "Votre réseau a de la valeur",
   "landing.final.copy":
-    "Rejoignez Refer aujourd'hui, activez votre compte et gagnez sur chaque personne que vous amenez.",
+    "Rejoignez ASH Refer aujourd'hui, activez votre compte et gagnez sur chaque personne que vous amenez.",
   "landing.final.cta": "Créer mon compte",
-  "landing.footer": "© {year} Refer. Tous les montants en XAF.",
+  "landing.footer": "© {year} ASH Refer. Tous les montants en XAF.",
 
   "dash.welcome": "Bon retour",
   "dash.availableBalance": "Solde disponible",
@@ -525,7 +525,7 @@ const FR: Record<TKey, string> = {
   "pro.stat.upcoming": "À venir",
   "pro.stat.revenue": "Revenus (terminées)",
   "pro.stat.rating": "Note",
-  "ai.title": "Assistant Refer",
+  "ai.title": "Assistant ASH",
   "ai.subtitle": "Posez vos questions sur la plateforme, votre réseau ou vos performances.",
   "ai.placeholder": "Demandez vos gains, réservations ou conseils de croissance…",
   "ai.hint1": "Comment fonctionnent les commissions de parrainage ?",
@@ -533,7 +533,7 @@ const FR: Record<TKey, string> = {
   "ai.hint3": "Comment obtenir plus de réservations ?",
   "ai.err": "L'assistant est indisponible pour le moment.",
   "ai.busy": "Réflexion…",
-  "ai.open": "Ouvrir l'assistant Refer",
+  "ai.open": "Ouvrir l'assistant ASH Refer",
   "ai.close": "Fermer l'assistant",
   "pro.billing.title": "Comment vous payez la plateforme",
   "pro.billing.copy": "Créer votre studio est gratuit. Choisissez une formule quand vous êtes prêt à accepter des réservations.",

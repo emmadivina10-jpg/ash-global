@@ -18,8 +18,8 @@ const FILTERS = [
 export const Route = createFileRoute("/_authenticated/transactions")({
   head: () => ({
     meta: [
-      { title: "Transactions — Refer" },
-      { name: "description", content: "Full immutable ledger of your Refer account activity." },
+      { title: "Transactions — ASH Refer" },
+      { name: "description", content: "Full immutable ledger of your ASH Refer account activity." },
     ],
   }),
   component: TransactionsPage,
