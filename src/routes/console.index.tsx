@@ -33,7 +33,7 @@ function MoneyRow({
         className={cn(
           "tabular shrink-0 text-sm font-bold",
           tone === "revenue" && "text-success",
-          tone === "liability" && "text-gold-foreground",
+          tone === "liability" && "text-gold",
           tone === "neutral" && "text-foreground",
         )}
       >
