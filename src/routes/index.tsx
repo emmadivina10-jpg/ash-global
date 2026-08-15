@@ -17,9 +17,10 @@ import { Button } from "@/components/ui/button";
 import { ACTIVATION_FEE, COMMISSIONS, MIN_WITHDRAWAL, formatXAF } from "@/lib/format";
 import { useI18n, type TKey } from "@/lib/i18n";
 
-const TITLE = "ASH Refer — Earn referral rewards in XAF from your phone";
+const TITLE = "ASH Refer Cameroon — Earn XAF referrals & book braiders";
 const DESCRIPTION =
-  "Activate once for 5,000 XAF and earn 3 levels of referral commissions in Cameroon. Track your network and withdraw to MTN Mobile Money or Orange Money.";
+  "Earn 3 levels of referral commissions in Cameroon and withdraw to MTN Mobile Money or Orange Money. Book braiders, nail and lash technicians near you on ASH Refer.";
+const OG_IMAGE = "https://growrefer.app/ash-social.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -29,7 +30,36 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://growrefer.app/" },
+      { property: "og:image", content: OG_IMAGE },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "ASH Refer" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: OG_IMAGE },
+    ],
+    links: [{ rel: "canonical", href: "https://growrefer.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebApplication",
+          name: "ASH Refer",
+          url: "https://growrefer.app/",
+          applicationCategory: "FinanceApplication",
+          operatingSystem: "Web, Android, iOS",
+          inLanguage: ["en", "fr"],
+          areaServed: { "@type": "Country", name: "Cameroon" },
+          offers: {
+            "@type": "Offer",
+            price: "5000",
+            priceCurrency: "XAF",
+            description: "One-time account activation fee",
+          },
+          description: DESCRIPTION,
+        }),
+      },
     ],
   }),
   component: Landing,
