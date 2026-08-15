@@ -22,6 +22,7 @@ export const Route = createFileRoute("/_authenticated/network")({
 
 function NetworkPage() {
   const { data, isLoading } = useNetwork();
+  const { data: treeNodes, isLoading: treeLoading } = useNetworkTree();
   const { data: profile } = useProfile();
   const { t } = useI18n();
 
@@ -68,11 +69,15 @@ function NetworkPage() {
             ))}
           </div>
 
-          <NetworkTree
-            nodes={[]}
-            currentUserStatus={profile?.account_status ?? "PENDING"}
-            currentUserId={profile?.user_id ?? ""}
-          />
+          {treeLoading ? (
+            <SkeletonRows rows={4} />
+          ) : (
+            <NetworkTree
+              nodes={treeNodes ?? []}
+              currentUserStatus={profile?.account_status ?? "PENDING"}
+              currentUserId={profile?.user_id ?? ""}
+            />
+          )}
 
           {profile?.referral_code ? (
             <ReferralCard code={profile.referral_code} active={profile.account_status === "ACTIVE"} />
@@ -82,6 +87,7 @@ function NetworkPage() {
     </div>
   );
 }
+
 
 
 function Row({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
