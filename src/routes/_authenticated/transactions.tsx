@@ -6,12 +6,13 @@ import { TransactionList } from "@/components/refer/TransactionList";
 import { ErrorState, SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useI18n, type TKey } from "@/lib/i18n";
 
 const FILTERS = [
-  { key: "ALL", label: "All" },
-  { key: "REFERRAL_COMMISSION", label: "Commissions" },
-  { key: "ACTIVATION_PAYMENT", label: "Activation" },
-  { key: "WITHDRAWAL", label: "Withdrawals" },
+  { key: "ALL", label: "tx.filter.all" as TKey },
+  { key: "REFERRAL_COMMISSION", label: "tx.filter.commissions" as TKey },
+  { key: "ACTIVATION_PAYMENT", label: "tx.filter.activation" as TKey },
+  { key: "WITHDRAWAL", label: "tx.filter.withdrawals" as TKey },
 ] as const;
 
 export const Route = createFileRoute("/_authenticated/transactions")({
@@ -27,14 +28,15 @@ export const Route = createFileRoute("/_authenticated/transactions")({
 function TransactionsPage() {
   const { data, isLoading, isError, refetch } = useTransactions(200);
   const [filter, setFilter] = useState<string>("ALL");
+  const { t } = useI18n();
 
   const items = (data ?? []).filter((tx) => filter === "ALL" || tx.type === filter);
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-5">
       <header>
-        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Transactions</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Every financial event on your account.</p>
+        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{t("tx.title")}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t("tx.subtitle")}</p>
       </header>
 
       <div className="flex flex-wrap gap-2">
@@ -46,7 +48,7 @@ function TransactionsPage() {
             className={cn("rounded-full")}
             onClick={() => setFilter(item.key)}
           >
-            {item.label}
+            {t(item.label)}
           </Button>
         ))}
       </div>

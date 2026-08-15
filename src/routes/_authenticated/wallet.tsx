@@ -6,6 +6,7 @@ import { TransactionList } from "@/components/refer/TransactionList";
 import { SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
 import { formatXAF } from "@/lib/format";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/wallet")({
   head: () => ({
@@ -22,12 +23,13 @@ function WalletPage() {
   const { data: profile } = useProfile();
   const { data: transactions, isLoading: txLoading } = useTransactions(20);
   const active = profile?.account_status === "ACTIVE";
+  const { t } = useI18n();
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
       <header>
-        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Wallet</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Balances update from your transaction ledger.</p>
+        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{t("wallet.title")}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t("wallet.subtitle")}</p>
       </header>
 
       {isLoading ? (
@@ -35,14 +37,14 @@ function WalletPage() {
       ) : (
         <>
           <BalanceCard
-            label="Available Balance"
+            label={t("dash.availableBalance")}
             amount={formatXAF(wallet?.available_balance ?? 0)}
             action={
               active ? (
                 <Button asChild variant="secondary">
                   <Link to="/withdraw">
                     <ArrowDownToLine className="size-4" aria-hidden />
-                    Withdraw
+                    {t("wallet.withdraw")}
                   </Link>
                 </Button>
               ) : null
@@ -51,19 +53,19 @@ function WalletPage() {
 
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
             <StatCard
-              label="Pending Balance"
+              label={t("wallet.pending")}
               value={formatXAF(wallet?.pending_balance ?? 0)}
-              hint="Held while a withdrawal is processed"
+              hint={t("wallet.pendingHint")}
               icon={<Clock className="size-4" aria-hidden />}
             />
             <StatCard
-              label="Total Earned"
+              label={t("dash.stat.earned")}
               value={formatXAF(wallet?.total_earned ?? 0)}
               accent
               icon={<Coins className="size-4" aria-hidden />}
             />
             <StatCard
-              label="Total Withdrawn"
+              label={t("dash.stat.withdrawn")}
               value={formatXAF(wallet?.total_withdrawn ?? 0)}
               icon={<WalletMinimal className="size-4" aria-hidden />}
               className="col-span-2 lg:col-span-1"
@@ -71,10 +73,10 @@ function WalletPage() {
           </div>
 
           <SectionCard
-            title="Transaction history"
+            title={t("wallet.history")}
             action={
               <Button asChild variant="ghost" size="sm">
-                <Link to="/transactions">View all</Link>
+                <Link to="/transactions">{t("common.viewAll")}</Link>
               </Button>
             }
           >

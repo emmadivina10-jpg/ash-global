@@ -12,7 +12,8 @@ import { SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CM_PHONE_REGEX, formatDate, normalizePhone, referralLink } from "@/lib/format";
+import { ACTIVATION_FEE, CM_PHONE_REGEX, formatDate, formatXAF, normalizePhone, referralLink } from "@/lib/format";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
@@ -32,6 +33,8 @@ function ProfilePage() {
   const [phone, setPhone] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useI18n();
+  const fee = formatXAF(ACTIVATION_FEE);
 
   useEffect(() => {
     if (profile) {
@@ -43,11 +46,11 @@ function ProfilePage() {
   async function save(event: React.FormEvent) {
     event.preventDefault();
     if (fullName.trim().length < 3) {
-      setError("Enter your full name.");
+      setError(t("profile.err.name"));
       return;
     }
     if (!CM_PHONE_REGEX.test(normalizePhone(phone))) {
-      setError("Enter a valid Cameroon number.");
+      setError(t("profile.err.phone"));
       return;
     }
     setError(null);
@@ -58,10 +61,10 @@ function ProfilePage() {
       .eq("user_id", profile?.user_id ?? "");
     setSaving(false);
     if (updateError) {
-      setError("We could not save your changes. Please try again.");
+      setError(t("profile.err.save"));
       return;
     }
-    toast.success("Profile updated");
+    toast.success(t("profile.saved"));
     await queryClient.invalidateQueries({ queryKey: ["profile"] });
   }
 
@@ -82,12 +85,12 @@ function ProfilePage() {
     <div className="mx-auto w-full max-w-3xl space-y-5">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <div className="min-w-0">
-          <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">{profile.full_name || "Profile"}</h1>
+          <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">{profile.full_name || t("profile.title")}</h1>
           <p className="truncate text-sm text-muted-foreground">{profile.email}</p>
         </div>
         <StatusBadge
           status={profile.account_status}
-          label={active ? "Active" : "Pending activation"}
+          label={active ? t("shell.active") : t("shell.pending")}
         />
       </header>
 
@@ -95,27 +98,27 @@ function ProfilePage() {
         <SectionCard className="border-gold/40 bg-gold/10">
           <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
             <p className="text-sm text-foreground">
-              Your account is pending activation. Pay 5,000 XAF once to start earning.
+              {t("profile.pendingCopy", { fee })}
             </p>
             <Button asChild>
-              <Link to="/activate">Activate now</Link>
+              <Link to="/activate">{t("profile.activateNow")}</Link>
             </Button>
           </div>
         </SectionCard>
       ) : null}
 
-      <SectionCard title="Account details">
+      <SectionCard title={t("profile.accountDetails")}>
         <form onSubmit={save} className="space-y-4" noValidate>
           <div className="space-y-2">
-            <Label htmlFor="fullName">Full name</Label>
+            <Label htmlFor="fullName">{t("profile.fullName")}</Label>
             <Input id="fullName" value={fullName} onChange={(event) => setFullName(event.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t("profile.email")}</Label>
             <Input id="email" value={profile.email} disabled />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone number</Label>
+            <Label htmlFor="phone">{t("profile.phone")}</Label>
             <Input id="phone" value={phone} onChange={(event) => setPhone(event.target.value)} />
           </div>
           {error ? (
@@ -125,19 +128,19 @@ function ProfilePage() {
           ) : null}
           <Button type="submit" disabled={saving}>
             {saving ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-            Save changes
+            {t("profile.save")}
           </Button>
         </form>
       </SectionCard>
 
-      <SectionCard title="Referral details">
+      <SectionCard title={t("profile.referralDetails")}>
         <dl className="space-y-3 text-sm">
           <div className="flex items-center justify-between gap-3">
-            <dt className="text-muted-foreground">Referral code</dt>
+            <dt className="text-muted-foreground">{t("profile.referralCode")}</dt>
             <dd className="tabular font-bold text-primary">{profile.referral_code}</dd>
           </div>
           <div className="flex items-center justify-between gap-3">
-            <dt className="text-muted-foreground">Member since</dt>
+            <dt className="text-muted-foreground">{t("profile.memberSince")}</dt>
             <dd className="font-semibold">{formatDate(profile.created_at)}</dd>
           </div>
         </dl>
