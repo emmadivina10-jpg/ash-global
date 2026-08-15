@@ -4,11 +4,17 @@ export type Financials = {
   activation_revenue: number;
   subscription_revenue: number;
   commission_revenue: number;
+  booking_cash: number;
   platform_revenue: number;
   provider_owed: number;
   member_owed: number;
   pending_withdrawals: number;
   refund_liability: number;
+  paid_out: number;
+  cash_in: number;
+  cash_on_hand: number;
+  total_liabilities: number;
+  safe_to_withdraw: number;
   available_to_platform: number;
 };
 
