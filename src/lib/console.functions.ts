@@ -202,7 +202,7 @@ export const settleWithdrawal = createServerFn({ method: "POST" })
     const { data: result, error } = await db.rpc("console_settle_withdrawal", {
       _withdrawal_id: data.id,
       _status: data.status,
-      _provider_reference: data.providerReference ?? null,
+      ...(data.providerReference ? { _provider_reference: data.providerReference } : {}),
     });
     const payload = result as { ok?: boolean; error?: string } | null;
     if (error || !payload?.ok) {
