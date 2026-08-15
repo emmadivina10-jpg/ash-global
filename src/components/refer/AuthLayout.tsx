@@ -14,10 +14,14 @@ export function AuthLayout({
 }) {
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <header className="px-4 py-5 sm:px-8">
-        <Link to="/">
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-5 sm:px-8">
+        <Link to="/" className="min-w-0">
           <Logo />
         </Link>
+        <div className="flex items-center gap-1.5">
+          <LanguageSwitcher />
+          <ThemeToggle />
+        </div>
       </header>
       <main className="flex flex-1 items-start justify-center px-4 pb-16 sm:items-center">
         <div className="w-full max-w-md">
