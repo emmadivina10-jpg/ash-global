@@ -48,6 +48,8 @@ function ConsoleOverview() {
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["console", "overview"],
     queryFn: fetchOverview,
+    refetchInterval: 15000,
+    refetchOnWindowFocus: true,
   });
 
   if (isLoading) return <SkeletonRows rows={5} />;
@@ -113,12 +115,47 @@ function ConsoleOverview() {
       </div>
 
       <SectionCard
-        title="Available to ASH"
-        description="Platform revenue after pending payout and refund obligations. This is the only balance ASH can draw from."
+        title="Safe to withdraw"
+        description="Cash the platform is holding, minus every franc that belongs to members and providers. Updates automatically every 15 seconds."
       >
-        <p className="tabular font-display text-3xl font-extrabold text-foreground sm:text-4xl">
-          {formatXAF(Number(f?.available_to_platform ?? 0))}
+        <p className="tabular font-display text-3xl font-extrabold text-success sm:text-4xl">
+          {formatXAF(Number(f?.safe_to_withdraw ?? 0))}
         </p>
+        <div className="mt-4">
+          <MoneyRow
+            label="Cash collected"
+            value={Number(f?.cash_in ?? 0)}
+            hint="Activations + subscriptions + booking payments"
+            tone="revenue"
+          />
+          <MoneyRow
+            label="Already paid out"
+            value={-Number(f?.paid_out ?? 0)}
+            hint="Completed mobile money withdrawals"
+          />
+          <MoneyRow
+            label="Cash on hand"
+            value={Number(f?.cash_on_hand ?? 0)}
+            hint="What the platform is actually holding right now"
+          />
+          <MoneyRow
+            label="Owed to users"
+            value={-Number(f?.total_liabilities ?? 0)}
+            hint="Member + provider wallet balances (incl. pending payouts) and disputes"
+            tone="liability"
+          />
+          <MoneyRow
+            label="Safe to withdraw"
+            value={Number(f?.safe_to_withdraw ?? 0)}
+            hint="Cash on hand minus what belongs to users"
+            tone="revenue"
+          />
+        </div>
+        {Number(f?.safe_to_withdraw ?? 0) <= 0 ? (
+          <p className="mt-3 rounded-xl bg-destructive/10 p-3 text-xs text-destructive">
+            Nothing is safely withdrawable right now — all cash on hand is owed to members and providers.
+          </p>
+        ) : null}
       </SectionCard>
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
