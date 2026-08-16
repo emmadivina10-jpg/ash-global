@@ -73,6 +73,12 @@ const EN = {
     "Join ASH Refer today, activate your account and start earning from every person you bring on board.",
   "landing.final.cta": "Create your account",
   "landing.footer": "© {year} ASH Refer. All amounts in XAF.",
+  "landing.services.eyebrow": "ASH Services",
+  "landing.services.title": "Book braiders, nail & lash techs near you",
+  "landing.services.copy": "Browse portfolios, read reviews, book appointments and chat live with verified beauty providers.",
+  "landing.services.cta": "Find a pro",
+  "landing.services.reviews": "Verified reviews",
+  "landing.services.chat": "Live chat",
 
   // Dashboard
   "dash.welcome": "Welcome back",
