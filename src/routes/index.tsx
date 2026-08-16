@@ -5,9 +5,11 @@ import {
   BadgeCheck,
   Banknote,
   Layers,
+  Scissors,
   ShieldCheck,
   Smartphone,
   Sparkles,
+  Star,
   Users,
   Wallet,
 } from "lucide-react";
@@ -113,6 +115,40 @@ function Landing() {
         {/* Hero bento */}
         <section className="mx-auto max-w-6xl px-4 pb-10 pt-8 sm:px-6 sm:pt-12 lg:pb-16">
           <div className="grid gap-4 lg:grid-cols-12">
+            {/* Services marketplace tile */}
+            <div className="tile col-span-full flex flex-col justify-between p-6 sm:p-8 lg:flex-row lg:items-center">
+              <div className="max-w-xl">
+                <span className="eyebrow inline-flex items-center gap-2 text-primary">
+                  <Scissors className="size-3.5" aria-hidden />
+                  {t("landing.services.eyebrow")}
+                </span>
+                <h2 className="mt-3 font-display text-2xl font-extrabold text-foreground sm:text-3xl">
+                  {t("landing.services.title")}
+                </h2>
+                <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
+                  {t("landing.services.copy")}
+                </p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+                    <Star className="size-3.5 text-gold" aria-hidden />
+                    {t("landing.services.reviews")}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+                    <Smartphone className="size-3.5 text-primary" aria-hidden />
+                    {t("landing.services.chat")}
+                  </span>
+                </div>
+              </div>
+              <div className="mt-5 lg:mt-0">
+                <Button asChild size="lg" className="h-12 shadow-[var(--shadow-card)]">
+                  <Link to="/services">
+                    {t("landing.services.cta")}
+                    <ArrowRight className="size-4" aria-hidden />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+
             {/* Primary hero tile */}
             <div className="tile-dark grain relative col-span-full flex flex-col justify-between p-7 sm:p-10 lg:col-span-7 lg:min-h-[26rem]">
               <div className="relative">
