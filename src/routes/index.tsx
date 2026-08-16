@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import ashServicesHero from "../../public/ash-services-hero.jpg";
 import {
   ArrowRight,
   ArrowUpRight,
