@@ -70,9 +70,9 @@ const EN = {
   "landing.final.eyebrow": "Start earning",
   "landing.final.title": "Your network is worth money",
   "landing.final.copy":
-    "Join ASH Refer today, activate your account and start earning from every person you bring on board.",
+    "Join ASH Glo REFER today, activate your account and start earning from every person you bring on board.",
   "landing.final.cta": "Create your account",
-  "landing.footer": "© {year} ASH Refer. All amounts in XAF.",
+  "landing.footer": "© {year} ASH Glo REFER. All amounts in XAF.",
   "landing.services.eyebrow": "ASH Services",
   "landing.services.title": "Book braiders, nail & lash techs and barbers near you",
   "landing.services.copy": "Browse portfolios, read reviews, book appointments and chat live with verified beauty providers.",
@@ -295,7 +295,7 @@ const EN = {
   "card.tagline": "Premium virtual card",
   "card.desc": "Your ASH virtual card is on the way. Spend your referral and service earnings directly, without waiting for a payout.",
   "card.f1": "Spend your wallet balance online, anywhere.",
-  "card.f2": "Instant top-up from your ASH Refer wallet.",
+  "card.f2": "Instant top-up from your ASH Glo REFER wallet.",
   "card.f3": "Gold-tier perks for active members and providers.",
   "card.notify": "No action needed — your card will appear here automatically when it launches.",
 
@@ -303,9 +303,9 @@ const EN = {
   "nav.settings": "Settings",
   "nav.more": "More",
   "settings.title": "Settings",
-  "settings.subtitle": "About ASH Refer, your privacy, and account controls.",
-  "settings.about": "About ASH Refer",
-  "settings.about.1": "ASH Refer is a Cameroon-first referral and services platform. You activate your account once, share your personal referral link, and earn commissions across three levels of your network — paid in XAF.",
+  "settings.subtitle": "About ASH Glo REFER, your privacy, and account controls.",
+  "settings.about": "About ASH Glo REFER",
+  "settings.about.1": "ASH Glo REFER is a Cameroon-first referral and services platform. You activate your account once, share your personal referral link, and earn commissions across three levels of your network — paid in XAF.",
   "settings.about.2": "Activation costs {fee} and is paid with MTN Mobile Money or Orange Money. Once activated you earn 1,500 XAF on level 1, 750 XAF on level 2 and 250 XAF on level 3 whenever someone in your network activates.",
   "settings.about.3": "ASH Services lets any member become a provider — braider, nail tech, lash tech, makeup artist or barber. Providers build a studio profile, upload a portfolio, list services and accept bookings with in-app chat and reviews.",
   "settings.about.4": "Providers choose a plan: 2,000 XAF per month to stay live, or pay-as-you-earn where the platform keeps 1% of each completed booking. Provider funds and member commissions are tracked separately from platform revenue.",
@@ -332,7 +332,7 @@ const EN = {
   "settings.delete.pending": "Your deletion request is pending admin approval.",
   "settings.delete.rejected": "Your last deletion request was declined by an administrator.",
   "settings.delete.err": "Could not send the request. Please try again.",
-  "settings.version": "ASH Refer version 1.0",
+  "settings.version": "ASH Glo REFER version 1.0",
 } as const;
 
 export type TKey = keyof typeof EN;
@@ -402,9 +402,9 @@ const FR: Record<TKey, string> = {
   "landing.final.eyebrow": "Commencez à gagner",
   "landing.final.title": "Votre réseau a de la valeur",
   "landing.final.copy":
-    "Rejoignez ASH Refer aujourd'hui, activez votre compte et gagnez sur chaque personne que vous amenez.",
+    "Rejoignez ASH Glo REFER aujourd'hui, activez votre compte et gagnez sur chaque personne que vous amenez.",
   "landing.final.cta": "Créer mon compte",
-  "landing.footer": "© {year} ASH Refer. Tous les montants en XAF.",
+  "landing.footer": "© {year} ASH Glo REFER. Tous les montants en XAF.",
   "landing.services.eyebrow": "ASH Services",
   "landing.services.title": "Réservez des coiffeuses, ongleries, cils et barbiers près de chez vous",
   "landing.services.copy": "Parcourez les portfolios, lisez les avis, réservez et discutez en direct avec des professionnels de la beauté vérifiés.",
@@ -621,16 +621,16 @@ const FR: Record<TKey, string> = {
   "card.tagline": "Carte virtuelle premium",
   "card.desc": "Votre carte virtuelle ASH arrive bientôt. Dépensez vos gains de parrainage et de prestations directement, sans attendre un retrait.",
   "card.f1": "Payez en ligne avec le solde de votre portefeuille.",
-  "card.f2": "Rechargement instantané depuis votre portefeuille ASH Refer.",
+  "card.f2": "Rechargement instantané depuis votre portefeuille ASH Glo REFER.",
   "card.f3": "Avantages Gold pour les membres et prestataires actifs.",
   "card.notify": "Aucune action requise — votre carte apparaîtra ici automatiquement au lancement.",
 
   "nav.settings": "Paramètres",
   "nav.more": "Plus",
   "settings.title": "Paramètres",
-  "settings.subtitle": "À propos d'ASH Refer, votre vie privée et votre compte.",
-  "settings.about": "À propos d'ASH Refer",
-  "settings.about.1": "ASH Refer est une plateforme camerounaise de parrainage et de services. Vous activez votre compte une fois, partagez votre lien de parrainage et gagnez des commissions sur trois niveaux de votre réseau — payées en XAF.",
+  "settings.subtitle": "À propos d'ASH Glo REFER, votre vie privée et votre compte.",
+  "settings.about": "À propos d'ASH Glo REFER",
+  "settings.about.1": "ASH Glo REFER est une plateforme camerounaise de parrainage et de services. Vous activez votre compte une fois, partagez votre lien de parrainage et gagnez des commissions sur trois niveaux de votre réseau — payées en XAF.",
   "settings.about.2": "L'activation coûte {fee} et se paie par MTN Mobile Money ou Orange Money. Une fois activé, vous gagnez 1 500 XAF au niveau 1, 750 XAF au niveau 2 et 250 XAF au niveau 3 à chaque activation dans votre réseau.",
   "settings.about.3": "ASH Services permet à tout membre de devenir prestataire — coiffure, ongles, cils, maquillage ou barbier. Les prestataires créent un studio, publient un portfolio, listent leurs services et acceptent des réservations avec messagerie et avis.",
   "settings.about.4": "Les prestataires choisissent une formule : 2 000 XAF par mois pour rester en ligne, ou 1 % prélevé sur chaque réservation terminée. Les fonds des prestataires et les commissions des membres sont suivis séparément des revenus de la plateforme.",
@@ -657,7 +657,7 @@ const FR: Record<TKey, string> = {
   "settings.delete.pending": "Votre demande de suppression est en attente d'approbation.",
   "settings.delete.rejected": "Votre dernière demande de suppression a été refusée par un administrateur.",
   "settings.delete.err": "Impossible d'envoyer la demande. Veuillez réessayer.",
-  "settings.version": "ASH Refer version 1.0",
+  "settings.version": "ASH Glo REFER version 1.0",
 };
 
 const DICT: Record<Lang, Record<TKey, string>> = { en: EN, fr: FR };

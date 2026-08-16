@@ -20,9 +20,9 @@ import { Button } from "@/components/ui/button";
 import { ACTIVATION_FEE, COMMISSIONS, MIN_WITHDRAWAL, formatXAF } from "@/lib/format";
 import { useI18n, type TKey } from "@/lib/i18n";
 
-const TITLE = "ASH Refer Cameroon — Earn XAF referrals & book braiders";
+const TITLE = "ASH Glo REFER Cameroon — Earn XAF referrals & book braiders";
 const DESCRIPTION =
-  "Earn 3 levels of referral commissions in Cameroon and withdraw to MTN Mobile Money or Orange Money. Book braiders, nail and lash technicians near you on ASH Refer.";
+  "Earn 3 levels of referral commissions in Cameroon and withdraw to MTN Mobile Money or Orange Money. Book braiders, nail and lash technicians near you on ASH Glo REFER.";
 const OG_IMAGE = "https://growrefer.app/ash-social.png";
 
 export const Route = createFileRoute("/")({
@@ -37,7 +37,7 @@ export const Route = createFileRoute("/")({
       { property: "og:image", content: OG_IMAGE },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
-      { property: "og:image:alt", content: "ASH Refer" },
+      { property: "og:image:alt", content: "ASH Glo REFER" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:image", content: OG_IMAGE },
     ],
@@ -48,7 +48,7 @@ export const Route = createFileRoute("/")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "WebApplication",
-          name: "ASH Refer",
+          name: "ASH Glo REFER",
           url: "https://growrefer.app/",
           applicationCategory: "FinanceApplication",
           operatingSystem: "Web, Android, iOS",

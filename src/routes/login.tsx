@@ -13,10 +13,10 @@ import { SocialAuth } from "@/components/refer/SocialAuth";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Login — ASH Refer" },
-      { name: "description", content: "Sign in to your ASH Refer account to track referrals, earnings and withdrawals." },
-      { property: "og:title", content: "Login — ASH Refer" },
-      { property: "og:description", content: "Sign in to your ASH Refer account." },
+      { title: "Login — ASH Glo REFER" },
+      { name: "description", content: "Sign in to your ASH Glo REFER account to track referrals, earnings and withdrawals." },
+      { property: "og:title", content: "Login — ASH Glo REFER" },
+      { property: "og:description", content: "Sign in to your ASH Glo REFER account." },
     ],
   }),
   component: LoginPage,
@@ -93,7 +93,7 @@ function LoginPage() {
       <SocialAuth label="Or continue with" />
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        New to ASH Refer?{" "}
+        New to ASH Glo REFER?{" "}
         <Link to="/register" className="font-semibold text-primary hover:underline">
           Create an account
         </Link>
