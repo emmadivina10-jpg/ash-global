@@ -79,6 +79,10 @@ const EN = {
   "landing.services.cta": "Find a pro",
   "landing.services.reviews": "Verified reviews",
   "landing.services.chat": "Live chat",
+  "landing.services.hero.eyebrow": "Beauty marketplace",
+  "landing.services.hero.title": "Braids, nails, lashes & cuts",
+  "landing.services.hero.copy": "Discover top providers, book in minutes and pay securely — all from one place.",
+  "landing.services.hero.cta": "Explore services",
 
   // Dashboard
   "dash.welcome": "Welcome back",
@@ -407,6 +411,10 @@ const FR: Record<TKey, string> = {
   "landing.services.cta": "Trouver un pro",
   "landing.services.reviews": "Avis vérifiés",
   "landing.services.chat": "Chat en direct",
+  "landing.services.hero.eyebrow": "Marché de la beauté",
+  "landing.services.hero.title": "Tresses, ongles, cils & coupes",
+  "landing.services.hero.copy": "Découvrez les meilleurs professionnels, réservez en quelques minutes et payez en toute sécurité — tout en un seul endroit.",
+  "landing.services.hero.cta": "Explorer les services",
 
   "dash.welcome": "Bon retour",
   "dash.availableBalance": "Solde disponible",
