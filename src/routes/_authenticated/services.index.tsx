@@ -13,12 +13,12 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/services/")({
   head: () => ({
     meta: [
-      { title: "Book a braider, nail or lash pro — ASH Refer" },
+      { title: "Book a braider, nail or lash pro — ASH Glo REFER" },
       {
         name: "description",
         content: "Browse verified braiders, nail and lash technicians, see their work, book a slot and chat live.",
       },
-      { property: "og:title", content: "Book a braider, nail or lash pro — ASH Refer" },
+      { property: "og:title", content: "Book a braider, nail or lash pro — ASH Glo REFER" },
       { property: "og:description", content: "Discover beauty pros near you, view their portfolio and book instantly." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

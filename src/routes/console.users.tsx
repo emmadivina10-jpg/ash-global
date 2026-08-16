@@ -32,7 +32,7 @@ function ConsoleUsers() {
   );
 
   return (
-    <SectionCard title="Members" description="All ASH Refer accounts, balances and roles.">
+    <SectionCard title="Members" description="All ASH Glo REFER accounts, balances and roles.">
       <div className="mb-4">
         <Input
           value={term}
