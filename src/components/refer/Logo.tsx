@@ -17,7 +17,7 @@ export function Logo({ compact = false, className }: { compact?: boolean; classN
       <span className="min-w-0">
         <span className="flex items-center gap-1.5 leading-none">
           <span className="font-display text-lg font-extrabold tracking-tight text-foreground">ASH Glo</span>
-          <span className="brand-gradient rounded-md px-1.5 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-primary-foreground">
+          <span className="brand-gradient hidden rounded-md px-1.5 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-primary-foreground sm:inline-block">
             REFER
           </span>
         </span>
