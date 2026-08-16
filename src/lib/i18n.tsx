@@ -401,6 +401,12 @@ const FR: Record<TKey, string> = {
     "Rejoignez ASH Refer aujourd'hui, activez votre compte et gagnez sur chaque personne que vous amenez.",
   "landing.final.cta": "Créer mon compte",
   "landing.footer": "© {year} ASH Refer. Tous les montants en XAF.",
+  "landing.services.eyebrow": "ASH Services",
+  "landing.services.title": "Réservez des coiffeuses, ongleries et cils près de chez vous",
+  "landing.services.copy": "Parcourez les portfolios, lisez les avis, réservez et discutez en direct avec des professionnels de la beauté vérifiés.",
+  "landing.services.cta": "Trouver un pro",
+  "landing.services.reviews": "Avis vérifiés",
+  "landing.services.chat": "Chat en direct",
 
   "dash.welcome": "Bon retour",
   "dash.availableBalance": "Solde disponible",
