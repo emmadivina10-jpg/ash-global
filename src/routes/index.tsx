@@ -150,6 +150,43 @@ function Landing() {
               </div>
             </div>
 
+            {/* Services hero image card */}
+            <div className="tile col-span-full overflow-hidden p-0">
+              <div className="grid lg:grid-cols-[1.2fr_1fr]">
+                <div className="relative min-h-[16rem] sm:min-h-[20rem] lg:min-h-[22rem]">
+                  <img
+                    src={ashServicesHero}
+                    alt="Braiders, nail technicians, lash artists and barbers on ASH Services"
+                    className="absolute inset-0 h-full w-full object-cover"
+                    width={1200}
+                    height={800}
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/40 to-transparent lg:via-background/20" />
+                </div>
+                <div className="flex flex-col justify-center p-6 sm:p-8 lg:pl-0">
+                  <span className="eyebrow inline-flex items-center gap-2 text-primary">
+                    <Sparkles className="size-3.5" aria-hidden />
+                    {t("landing.services.hero.eyebrow")}
+                  </span>
+                  <h2 className="mt-3 font-display text-2xl font-extrabold text-foreground sm:text-3xl">
+                    {t("landing.services.hero.title")}
+                  </h2>
+                  <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
+                    {t("landing.services.hero.copy")}
+                  </p>
+                  <div className="mt-5">
+                    <Button asChild size="lg" className="h-12 shadow-[var(--shadow-card)]">
+                      <Link to="/services">
+                        {t("landing.services.hero.cta")}
+                        <ArrowRight className="size-4" aria-hidden />
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Primary hero tile */}
             <div className="tile-dark grain relative col-span-full flex flex-col justify-between p-7 sm:p-10 lg:col-span-7 lg:min-h-[26rem]">
               <div className="relative">
