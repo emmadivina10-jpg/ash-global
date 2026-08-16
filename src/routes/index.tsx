@@ -5,9 +5,11 @@ import {
   BadgeCheck,
   Banknote,
   Layers,
+  Scissors,
   ShieldCheck,
   Smartphone,
   Sparkles,
+  Star,
   Users,
   Wallet,
 } from "lucide-react";
