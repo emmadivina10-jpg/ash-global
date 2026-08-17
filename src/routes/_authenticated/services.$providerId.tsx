@@ -20,7 +20,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { CATEGORY_KEY, type ServiceCategory } from "@/lib/marketplace";
+import { type ServiceCategory } from "@/lib/marketplace";
+import { categoryLabel } from "@/lib/taxonomy";
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 
@@ -40,7 +41,7 @@ export const Route = createFileRoute("/_authenticated/services/$providerId")({
 
 function ProviderPage() {
   const { providerId } = Route.useParams();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const navigate = useNavigate();
   const { user } = useUser();
   const queryClient = useQueryClient();
@@ -129,7 +130,7 @@ function ProviderPage() {
             <div className="mt-2 flex flex-wrap gap-1.5">
               {(provider.categories ?? []).map((c: ServiceCategory) => (
                 <span key={c} className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
-                  {t(CATEGORY_KEY[c] ?? "cat.OTHER")}
+                  {categoryLabel(c, lang)}
                 </span>
               ))}
             </div>

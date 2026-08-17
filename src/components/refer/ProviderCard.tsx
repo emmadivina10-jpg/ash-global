@@ -2,7 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { MapPin } from "lucide-react";
 import { RatingStars } from "./RatingStars";
 import { useI18n } from "@/lib/i18n";
-import { CATEGORY_KEY, type ServiceCategory } from "@/lib/marketplace";
+import { type ServiceCategory } from "@/lib/marketplace";
+import { categoryLabel } from "@/lib/taxonomy";
 import { formatXAF } from "@/lib/format";
 import type { ProviderProfile } from "@/lib/marketplace.queries";
 
@@ -15,7 +16,7 @@ export function ProviderCard({
   fromPrice?: number | null;
   photos?: { id: string; url: string; caption: string | null }[];
 }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
 
 
   return (
@@ -57,7 +58,7 @@ export function ProviderCard({
       <div className="flex flex-wrap gap-1.5">
         {(provider.categories ?? []).map((c: ServiceCategory) => (
           <span key={c} className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
-            {t(CATEGORY_KEY[c] ?? "cat.OTHER")}
+            {categoryLabel(c, lang)}
           </span>
         ))}
       </div>

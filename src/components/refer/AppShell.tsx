@@ -4,11 +4,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowDownToLine,
   CalendarDays,
+  Compass,
   Home,
   LogOut,
   MessageCircle,
   Receipt,
-  Scissors,
   Settings as SettingsIcon,
   Shield,
   Sparkles,
@@ -21,8 +21,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin, useProfile } from "@/lib/queries";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { AssistantBubble } from "./AssistantBubble";
-import { AshCardBubble } from "./AshCardBubble";
+import { AshOrb } from "./AshOrb";
 import { StatusBadge } from "./StatusBadge";
 import { NotificationBell } from "./NotificationBell";
 import { Logo } from "./Logo";
@@ -32,13 +31,13 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { to: "/dashboard", key: "nav.home" as TKey, icon: Home },
-  { to: "/services", key: "nav.services" as TKey, icon: Scissors },
+  { to: "/services", key: "nav.services" as TKey, icon: Compass },
+  { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet },
   { to: "/network", key: "nav.network" as TKey, icon: Users },
-  { to: "/profile", key: "nav.profile" as TKey, icon: UserIcon },
 ] as const;
 
 const SIDE_EXTRA = [
-  { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet },
+  { to: "/profile", key: "nav.profile" as TKey, icon: UserIcon },
   { to: "/bookings", key: "nav.bookings" as TKey, icon: CalendarDays },
   { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle },
   { to: "/studio", key: "nav.pro" as TKey, icon: Sparkles },
@@ -141,7 +140,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/90 backdrop-blur-xl lg:hidden">
+      <nav className="ash-glass fixed inset-x-0 bottom-0 z-40 border-x-0 border-b-0 pb-[env(safe-area-inset-bottom)] lg:hidden">
         <ul className="mx-auto grid max-w-md grid-cols-5">
           {NAV.map((item) => {
             const active = pathname === item.to;
@@ -150,13 +149,13 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Link
                   to={item.to}
                   className={cn(
-                    "relative flex min-h-14 flex-col items-center justify-center gap-1 py-2 text-[11px] font-semibold transition-colors",
-                    active ? "text-primary" : "text-muted-foreground",
+                    "relative flex min-h-14 flex-col items-center justify-center gap-1 py-2 text-[11px] font-semibold transition-all duration-300",
+                    active ? "-translate-y-0.5 text-primary" : "text-muted-foreground",
                   )}
                 >
                   {active ? (
                     <span
-                      className="gold-gradient absolute top-0 h-0.5 w-10 rounded-full"
+                      className="brand-gradient absolute top-0 h-1 w-10 rounded-full transition-all duration-300"
                       aria-hidden
                     />
                   ) : null}
@@ -212,8 +211,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </ul>
       </nav>
 
-      <AshCardBubble />
-      <AssistantBubble />
+      <AshOrb />
     </div>
   );
 }

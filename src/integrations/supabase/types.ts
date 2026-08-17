@@ -880,6 +880,29 @@ export type Database = {
         | "MAKEUP"
         | "BARBER"
         | "OTHER"
+        | "HAIR_STYLIST"
+        | "MASSAGE"
+        | "WEB_DEV"
+        | "MOBILE_DEV"
+        | "UIUX"
+        | "CYBERSECURITY"
+        | "DEVOPS"
+        | "CLOUD"
+        | "AI"
+        | "IT_CONSULTING"
+        | "ELECTRICIAN"
+        | "PLUMBER"
+        | "CLEANER"
+        | "HANDYMAN"
+        | "PRIVATE_CHEF"
+        | "PHOTOGRAPHY"
+        | "VIDEOGRAPHY"
+        | "CATERING"
+        | "DECORATION"
+        | "DJ"
+        | "EVENT_PLANNING"
+        | "HEALTH_WELLNESS"
+        | "PROFESSIONAL"
       subscription_status: "PENDING" | "ACTIVE" | "EXPIRED" | "FAILED"
     }
     CompositeTypes: {
@@ -1028,6 +1051,29 @@ export const Constants = {
         "MAKEUP",
         "BARBER",
         "OTHER",
+        "HAIR_STYLIST",
+        "MASSAGE",
+        "WEB_DEV",
+        "MOBILE_DEV",
+        "UIUX",
+        "CYBERSECURITY",
+        "DEVOPS",
+        "CLOUD",
+        "AI",
+        "IT_CONSULTING",
+        "ELECTRICIAN",
+        "PLUMBER",
+        "CLEANER",
+        "HANDYMAN",
+        "PRIVATE_CHEF",
+        "PHOTOGRAPHY",
+        "VIDEOGRAPHY",
+        "CATERING",
+        "DECORATION",
+        "DJ",
+        "EVENT_PLANNING",
+        "HEALTH_WELLNESS",
+        "PROFESSIONAL",
       ],
       subscription_status: ["PENDING", "ACTIVE", "EXPIRED", "FAILED"],
     },

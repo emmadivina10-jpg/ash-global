@@ -51,7 +51,7 @@ function NetworkPage() {
             />
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-3">
+          <div className="ash-fade-slide grid gap-4 lg:grid-cols-3">
             {(data?.levels ?? []).map((level) => (
               <SectionCard key={level.level}>
                 <div className="flex items-center justify-between">
@@ -59,6 +59,12 @@ function NetworkPage() {
                   <span className="tabular rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
                     {t("net.each", { amount: formatXAF(COMMISSIONS[level.level as 1 | 2 | 3]) })}
                   </span>
+                </div>
+                <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted" aria-hidden>
+                  <span
+                    className="brand-gradient block h-full rounded-full transition-all duration-700"
+                    style={{ width: `${level.members > 0 ? Math.round((level.active / level.members) * 100) : 0}%` }}
+                  />
                 </div>
                 <dl className="mt-4 space-y-3 text-sm">
                   <Row label={t("net.members")} value={String(level.members)} />
