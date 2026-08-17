@@ -66,6 +66,7 @@ export function AshOrb() {
                 >
                   <button
                     type="button"
+                    aria-label={item.label}
                     onClick={() => {
                       setPanel(item.id);
                       setOpen(false);
