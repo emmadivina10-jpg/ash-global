@@ -43,6 +43,8 @@
   --color-gold-foreground: var(--gold-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  /* Always-light text for dark brand panels (constant across themes). */
+  --color-on-dark: oklch(0.9784 0.0045 285);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
