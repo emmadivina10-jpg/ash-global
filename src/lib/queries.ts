@@ -125,6 +125,8 @@ export function useNetwork() {
         levels,
         total: refs?.length ?? 0,
         direct: levels[0]?.members ?? 0,
+        pendingTotal: levels.reduce((s, l) => s + l.pendingCommissions, 0),
+        earnedTotal: levels.reduce((s, l) => s + l.commissions, 0),
       };
     },
   });
