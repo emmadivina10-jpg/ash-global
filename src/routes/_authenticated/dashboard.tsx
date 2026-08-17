@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowDownToLine, Coins, TrendingUp, Users, Wallet as WalletIcon } from "lucide-react";
+import { ArrowDownToLine, CalendarDays, Coins, Compass, Share2, TrendingUp, Users, Wallet as WalletIcon } from "lucide-react";
 import { useNetwork, useProfile, useWallet } from "@/lib/queries";
 import { BalanceCard, SectionCard, StatCard } from "@/components/refer/cards";
 import { ReferralCard } from "@/components/refer/ReferralCard";
@@ -114,6 +114,26 @@ function DashboardPage() {
               value={network?.total ?? 0}
               icon={<TrendingUp className="size-4" aria-hidden />}
             />
+          </div>
+
+          <div className="ash-fade-slide grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[
+              { to: "/services", icon: Compass, label: t("nav.services") },
+              { to: "/withdraw", icon: ArrowDownToLine, label: t("nav.withdraw") },
+              { to: "/network", icon: Share2, label: t("nav.network") },
+              { to: "/bookings", icon: CalendarDays, label: t("nav.bookings") },
+            ].map((action) => (
+              <Link
+                key={action.to}
+                to={action.to}
+                className="tile flex flex-col items-center gap-2 p-4 text-center text-xs font-bold text-foreground transition-transform hover:-translate-y-0.5"
+              >
+                <span className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary">
+                  <action.icon className="size-5" aria-hidden />
+                </span>
+                {action.label}
+              </Link>
+            ))}
           </div>
 
           {profile?.referral_code ? (
