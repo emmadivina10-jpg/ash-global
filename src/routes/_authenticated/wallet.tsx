@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowDownToLine, Clock, Coins, WalletMinimal } from "lucide-react";
-import { useProfile, useTransactions, useWallet } from "@/lib/queries";
+import { ArrowDownToLine, Clock, Coins, Hourglass, WalletMinimal } from "lucide-react";
+import { useNetwork, useProfile, useTransactions, useWallet } from "@/lib/queries";
 import { BalanceCard, SectionCard, StatCard } from "@/components/refer/cards";
 import { TransactionList } from "@/components/refer/TransactionList";
 import { SkeletonRows } from "@/components/refer/states";
@@ -22,6 +22,7 @@ function WalletPage() {
   const { data: wallet, isLoading } = useWallet();
   const { data: profile } = useProfile();
   const { data: transactions, isLoading: txLoading } = useTransactions(20);
+  const { data: network } = useNetwork();
   const active = profile?.account_status === "ACTIVE";
   const { t } = useI18n();
 
