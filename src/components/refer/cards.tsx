@@ -19,7 +19,7 @@ export function StatCard({
   return (
     <div className={cn("tile p-4 sm:p-5", className)}>
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
-        <p className="eyebrow min-w-0 truncate text-muted-foreground">{label}</p>
+        <p className="eyebrow min-w-0 break-words text-muted-foreground">{label}</p>
         {icon ? (
           <span
             className={cn(
