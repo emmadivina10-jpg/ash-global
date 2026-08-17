@@ -32,8 +32,12 @@ export function useNotifications(limit = 30) {
   });
 
   useEffect(() => {
+    // Unique topic per mount: the shell can render more than one consumer
+    // (sidebar + mobile header), and reusing one topic makes supabase-js throw
+    // "cannot add postgres_changes callbacks after subscribe()".
+    const topic = `notifications-feed-${Math.random().toString(36).slice(2)}`;
     const channel = supabase
-      .channel("notifications-feed")
+      .channel(topic)
       .on("postgres_changes", { event: "*", schema: "public", table: "notifications" }, () => {
         void queryClient.invalidateQueries({ queryKey: ["notifications"] });
         void queryClient.invalidateQueries({ queryKey: ["wallet"] });
