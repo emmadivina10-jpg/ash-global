@@ -100,7 +100,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           </nav>
           <div className="mt-4 flex items-center justify-between gap-2">
             <LanguageSwitcher />
-            <ThemeToggle />
+            <div className="flex items-center gap-1">
+              <NotificationBell />
+              <ThemeToggle />
+            </div>
           </div>
           <div className="mt-3 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-card)]">
             <p className="truncate text-sm font-semibold text-foreground">{profile?.full_name || t("shell.member")}</p>
