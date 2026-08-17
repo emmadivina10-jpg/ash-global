@@ -337,3 +337,99 @@
 @utility tabular {
   font-variant-numeric: tabular-nums;
 }
+
+/* ── ASH Glo Phase 2A: motion + surfaces ─────────────────────────── */
+
+/* Frosted glass surface that stays readable in both themes. */
+@utility ash-glass {
+  background-color: color-mix(in oklab, var(--color-card) 72%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-border) 90%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+}
+
+/* The one ASH floating orb. */
+@utility orb-surface {
+  background-image: linear-gradient(
+    140deg,
+    var(--color-primary) 0%,
+    var(--color-primary-dark) 45%,
+    var(--color-gold) 100%
+  );
+  color: oklch(0.9784 0.0045 285);
+  box-shadow:
+    0 10px 30px -8px color-mix(in oklab, var(--color-primary) 55%, transparent),
+    0 0 0 1px color-mix(in oklab, white 18%, transparent) inset;
+}
+
+@utility ash-ring {
+  box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-primary) 45%, transparent);
+  animation: ash-pulse 3.6s ease-out infinite;
+}
+
+@keyframes ash-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-primary) 40%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 14px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@keyframes ash-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@utility ash-rise {
+  animation: ash-rise 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes ash-fade-slide {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility ash-fade-slide {
+  animation: ash-fade-slide 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Short brand flash used between major sections. */
+@keyframes ash-veil {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@utility ash-veil {
+  animation: ash-veil 0.5s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ash-rise,
+  .ash-fade-slide,
+  .ash-veil,
+  .ash-ring {
+    animation: none !important;
+  }
+}
