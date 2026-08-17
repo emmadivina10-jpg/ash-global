@@ -24,7 +24,22 @@ export function ProviderCard({
       params={{ providerId: provider.id }}
       className="tile group flex flex-col gap-3 p-4 transition-transform hover:-translate-y-0.5"
     >
+      {photos.length > 0 ? (
+        <div className={`grid gap-1.5 ${photos.length === 1 ? "grid-cols-1" : "grid-cols-3"}`}>
+          {photos.slice(0, 3).map((p) => (
+            <img
+              key={p.id}
+              src={p.url}
+              alt={p.caption ?? provider.business_name}
+              loading="lazy"
+              className={`w-full rounded-xl object-cover ${photos.length === 1 ? "aspect-[16/9]" : "aspect-square"}`}
+            />
+          ))}
+        </div>
+      ) : null}
+
       <div className="flex items-start gap-3">
+
         <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary/10 font-display text-lg font-bold text-primary">
           {provider.business_name.slice(0, 2).toUpperCase()}
         </span>
