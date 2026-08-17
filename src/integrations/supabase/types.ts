@@ -89,6 +89,45 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_audit_log: {
+        Row: {
+          action: string
+          actor: string
+          created_at: string
+          id: string
+          metadata: Json
+          new_state: Json
+          previous_state: Json
+          reason: string | null
+          target_reference: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          action: string
+          actor?: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          new_state?: Json
+          previous_state?: Json
+          reason?: string | null
+          target_reference?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor?: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          new_state?: Json
+          previous_state?: Json
+          reason?: string | null
+          target_reference?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           client_id: string
@@ -243,6 +282,39 @@ export type Database = {
           read_at?: string | null
           title?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      payment_events: {
+        Row: {
+          created_at: string
+          detail: Json
+          id: string
+          outcome: string
+          reference: string | null
+          signature_verified: boolean
+          source: string
+          status: string | null
+        }
+        Insert: {
+          created_at?: string
+          detail?: Json
+          id?: string
+          outcome: string
+          reference?: string | null
+          signature_verified?: boolean
+          source: string
+          status?: string | null
+        }
+        Update: {
+          created_at?: string
+          detail?: Json
+          id?: string
+          outcome?: string
+          reference?: string | null
+          signature_verified?: boolean
+          source?: string
+          status?: string | null
         }
         Relationships: []
       }
@@ -717,6 +789,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_manual_activate: {
+        Args: { _actor?: string; _reason: string; _user_id: string }
+        Returns: Json
+      }
       complete_activation: {
         Args: { _payment_reference: string; _provider_transaction_id: string }
         Returns: Json

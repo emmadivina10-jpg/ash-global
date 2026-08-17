@@ -52,6 +52,12 @@ async function reconcile(limit: number) {
     results.push({ reference: row.payment_reference, status: verification.status });
   }
 
+  await supabaseAdmin.from("payment_events").insert({
+    source: "RECONCILE",
+    outcome: "RECONCILED",
+    detail: { checked: pending?.length ?? 0, activated },
+  });
+
   return { ok: true as const, checked: pending?.length ?? 0, activated, results };
 }
 
