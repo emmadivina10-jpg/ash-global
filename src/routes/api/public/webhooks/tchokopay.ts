@@ -39,6 +39,7 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
         }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        let outcome = status ?? "PENDING";
 
         if (status === "PAID") {
           // Idempotent: the database function ignores already-paid activations.
@@ -47,6 +48,14 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
             _provider_transaction_id: (providerTransactionId ?? null) as unknown as string,
           });
           if (error) {
+            await supabaseAdmin.from("payment_events").insert({
+              source: "WEBHOOK",
+              reference: result.reference,
+              status: status ?? null,
+              signature_verified: result.signatureVerified,
+              outcome: "COMPLETE_FAILED",
+              detail: { error: error.message },
+            });
             return new Response(JSON.stringify({ error: "PROCESSING_FAILED" }), {
               status: 500,
               headers: { "content-type": "application/json" },
@@ -59,6 +68,15 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
             .eq("payment_reference", result.reference)
             .neq("status", "PAID");
         }
+
+        await supabaseAdmin.from("payment_events").insert({
+          source: "WEBHOOK",
+          reference: result.reference,
+          status: status ?? null,
+          signature_verified: result.signatureVerified,
+          outcome,
+          detail: { provider_transaction_id: providerTransactionId ?? null },
+        });
 
         return new Response(JSON.stringify({ received: true }), {
           headers: { "content-type": "application/json" },
