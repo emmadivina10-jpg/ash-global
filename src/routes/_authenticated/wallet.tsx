@@ -72,6 +72,21 @@ function WalletPage() {
             />
           </div>
 
+          {(network?.pendingTotal ?? 0) > 0 ? (
+            <div className="flex items-start gap-3 rounded-2xl border border-destructive/25 bg-destructive/5 p-4">
+              <Hourglass className="mt-0.5 size-5 shrink-0 text-destructive" aria-hidden />
+              <div>
+                <p className="text-sm font-semibold text-foreground">
+                  {formatXAF(network?.pendingTotal ?? 0)} waiting on referral activations
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  These commissions are not withdrawable yet. They are credited automatically the moment each
+                  referred member’s 5,000 XAF activation payment is verified.
+                </p>
+              </div>
+            </div>
+          ) : null}
+
           <SectionCard
             title={t("wallet.history")}
             action={
