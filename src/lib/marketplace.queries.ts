@@ -224,3 +224,35 @@ export async function openConversation(providerId: string): Promise<string | nul
   if (error) return null;
   return data.id;
 }
+
+/** Latest portfolio thumbnails for a set of providers, keyed by provider id. */
+export function useProvidersPortfolio(providerIds: string[], perProvider = 3) {
+  const key = [...providerIds].sort().join(",");
+  return useQuery({
+    enabled: providerIds.length > 0,
+    queryKey: ["portfolio", "covers", key, perProvider],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("portfolio_items")
+        .select("id, provider_id, image_path, caption, created_at")
+        .in("provider_id", providerIds)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      const rows = data ?? [];
+      const byProvider: Record<string, typeof rows> = {};
+      for (const row of rows) {
+        const list = (byProvider[row.provider_id] ??= []);
+        if (list.length < perProvider) list.push(row);
+      }
+      const picked = Object.values(byProvider).flat();
+      const urls = await signPortfolioPaths(picked.map((i) => i.image_path));
+      const result: Record<string, { id: string; url: string; caption: string | null }[]> = {};
+      for (const [pid, list] of Object.entries(byProvider)) {
+        result[pid] = list
+          .map((i) => ({ id: i.id, url: urls[i.image_path] ?? "", caption: i.caption }))
+          .filter((i) => i.url);
+      }
+      return result;
+    },
+  });
+}
