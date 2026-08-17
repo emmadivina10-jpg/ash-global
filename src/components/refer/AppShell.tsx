@@ -127,6 +127,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Logo compact />
               </Link>
               <div className="flex items-center gap-1">
+                <NotificationBell />
                 <LanguageSwitcher />
                 <ThemeToggle />
               <Button variant="ghost" size="icon" aria-label={t("shell.signOut")} onClick={signOut}>
