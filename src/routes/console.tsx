@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 
 const TABS = [
   { to: "/console", label: "Overview" },
+  { to: "/console/payments", label: "Payments" },
   { to: "/console/users", label: "Users" },
   { to: "/console/providers", label: "Providers" },
   { to: "/console/bookings", label: "Bookings" },
