@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Scissors, Search, Sparkle } from "lucide-react";
-import { useProviders } from "@/lib/marketplace.queries";
+import { useProviders, useProvidersPortfolio } from "@/lib/marketplace.queries";
 import { ProviderCard } from "@/components/refer/ProviderCard";
 import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { Input } from "@/components/ui/input";
@@ -45,6 +45,8 @@ function ServicesPage() {
       return matchesCategory && matchesTerm;
     });
   }, [providers, search, category]);
+
+  const { data: photosByProvider } = useProvidersPortfolio(filtered.map((p) => p.id));
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
@@ -104,7 +106,7 @@ function ServicesPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((provider) => (
-            <ProviderCard key={provider.id} provider={provider} />
+            <ProviderCard key={provider.id} provider={provider} photos={photosByProvider?.[provider.id] ?? []} />
           ))}
         </div>
       )}
