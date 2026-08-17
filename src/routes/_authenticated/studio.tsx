@@ -310,7 +310,7 @@ function StudioPage() {
                       selected ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted",
                     )}
                   >
-                    {t(CATEGORY_KEY[c])}
+                    {categoryLabel(c, lang)}
                   </button>
                 );
               })}

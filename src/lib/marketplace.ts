@@ -1,3 +1,4 @@
+import type { TKey } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 
 export const SUBSCRIPTION_FEE = 2000;

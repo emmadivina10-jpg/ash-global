@@ -129,7 +129,7 @@ function ProviderPage() {
             <div className="mt-2 flex flex-wrap gap-1.5">
               {(provider.categories ?? []).map((c: ServiceCategory) => (
                 <span key={c} className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
-                  {t(CATEGORY_KEY[c] ?? "cat.OTHER")}
+                  {categoryLabel(c, lang)}
                 </span>
               ))}
             </div>
