@@ -6,8 +6,17 @@ import { CATEGORY_KEY, type ServiceCategory } from "@/lib/marketplace";
 import { formatXAF } from "@/lib/format";
 import type { ProviderProfile } from "@/lib/marketplace.queries";
 
-export function ProviderCard({ provider, fromPrice }: { provider: ProviderProfile; fromPrice?: number | null }) {
+export function ProviderCard({
+  provider,
+  fromPrice,
+  photos = [],
+}: {
+  provider: ProviderProfile;
+  fromPrice?: number | null;
+  photos?: { id: string; url: string; caption: string | null }[];
+}) {
   const { t } = useI18n();
+
 
   return (
     <Link
