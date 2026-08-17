@@ -82,51 +82,42 @@ export type NetworkLevel = {
   level: number;
   members: number;
   active: number;
+  pending: number;
   commissions: number;
+  pendingCommissions: number;
 };
 
+/**
+ * Referral figures come from the referral ledger (activation_status /
+ * commission_status / commission_amount), which the backend maintains when an
+ * activation payment is verified. Nothing here is derived from frontend state.
+ */
 export function useNetwork() {
   return useQuery({
     queryKey: ["network"],
     queryFn: async () => {
       const { data: auth } = await supabase.auth.getUser();
-      if (!auth.user) return { levels: [] as NetworkLevel[], total: 0, direct: 0 };
+      if (!auth.user) {
+        return { levels: [] as NetworkLevel[], total: 0, direct: 0, pendingTotal: 0, earnedTotal: 0 };
+      }
 
       const { data: refs, error } = await supabase
         .from("referrals")
-        .select("referred_user_id, level, created_at")
+        .select("referred_user_id, level, activation_status, commission_status, commission_amount")
         .eq("referrer_id", auth.user.id);
       if (error) throw error;
 
-      const ids = (refs ?? []).map((r) => r.referred_user_id);
-      let statuses: Record<string, string> = {};
-      if (ids.length > 0) {
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("user_id, account_status")
-          .in("user_id", ids);
-        statuses = Object.fromEntries((profiles ?? []).map((p) => [p.user_id, p.account_status]));
-      }
-
-      const { data: commissionTx } = await supabase
-        .from("transactions")
-        .select("amount, description")
-        .eq("type", "REFERRAL_COMMISSION");
-
-      const commissionByLevel: Record<number, number> = { 1: 0, 2: 0, 3: 0 };
-      for (const tx of commissionTx ?? []) {
-        const match = /Level (\d)/.exec(tx.description ?? "");
-        const lvl = match ? Number(match[1]) : 0;
-        if (lvl >= 1 && lvl <= 3) commissionByLevel[lvl] = (commissionByLevel[lvl] ?? 0) + Number(tx.amount);
-      }
-
       const levels: NetworkLevel[] = [1, 2, 3].map((level) => {
         const members = (refs ?? []).filter((r) => r.level === level);
+        const earned = members.filter((m) => m.commission_status === "EARNED");
+        const pending = members.filter((m) => m.commission_status === "PENDING");
         return {
           level,
           members: members.length,
-          active: members.filter((m) => statuses[m.referred_user_id] === "ACTIVE").length,
-          commissions: commissionByLevel[level] ?? 0,
+          active: members.filter((m) => m.activation_status === "ACTIVE").length,
+          pending: pending.length,
+          commissions: earned.reduce((sum, m) => sum + Number(m.commission_amount ?? 0), 0),
+          pendingCommissions: pending.reduce((sum, m) => sum + Number(m.commission_amount ?? 0), 0),
         };
       });
 
