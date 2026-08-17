@@ -39,6 +39,7 @@ import { Route as ConsoleUsersRouteImport } from './routes/console.users'
 import { Route as ConsoleWithdrawalsRouteImport } from './routes/console.withdrawals'
 import { Route as AuthenticatedServicesIndexRouteImport } from './routes/_authenticated/services.index'
 import { Route as AuthenticatedServicesProviderIdRouteImport } from './routes/_authenticated/services.$providerId'
+import { Route as ApiPublicReconcileActivationsRouteImport } from './routes/api/public/reconcile-activations'
 import { Route as ApiPublicWebhooksTchokopayRouteImport } from './routes/api/public/webhooks/tchokopay'
 
 const IndexRoute = IndexRouteImport.update({
@@ -193,6 +194,12 @@ const AuthenticatedServicesProviderIdRoute =
     path: '/services/$providerId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicReconcileActivationsRoute =
+  ApiPublicReconcileActivationsRouteImport.update({
+    id: '/api/public/reconcile-activations',
+    path: '/api/public/reconcile-activations',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWebhooksTchokopayRoute =
   ApiPublicWebhooksTchokopayRouteImport.update({
     id: '/api/public/webhooks/tchokopay',
@@ -229,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
   '/console/': typeof ConsoleIndexRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
+  '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/services/': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
 }
@@ -260,6 +268,7 @@ export interface FileRoutesByTo {
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
   '/console': typeof ConsoleIndexRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
+  '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/services': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
 }
@@ -294,6 +303,7 @@ export interface FileRoutesById {
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
   '/console/': typeof ConsoleIndexRoute
   '/_authenticated/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
+  '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/_authenticated/services/': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
 }
@@ -328,6 +338,7 @@ export interface FileRouteTypes {
     | '/console/withdrawals'
     | '/console/'
     | '/services/$providerId'
+    | '/api/public/reconcile-activations'
     | '/services/'
     | '/api/public/webhooks/tchokopay'
   fileRoutesByTo: FileRoutesByTo
@@ -359,6 +370,7 @@ export interface FileRouteTypes {
     | '/console/withdrawals'
     | '/console'
     | '/services/$providerId'
+    | '/api/public/reconcile-activations'
     | '/services'
     | '/api/public/webhooks/tchokopay'
   id:
@@ -392,6 +404,7 @@ export interface FileRouteTypes {
     | '/console/withdrawals'
     | '/console/'
     | '/_authenticated/services/$providerId'
+    | '/api/public/reconcile-activations'
     | '/_authenticated/services/'
     | '/api/public/webhooks/tchokopay'
   fileRoutesById: FileRoutesById
@@ -406,6 +419,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
+  ApiPublicReconcileActivationsRoute: typeof ApiPublicReconcileActivationsRoute
   ApiPublicWebhooksTchokopayRoute: typeof ApiPublicWebhooksTchokopayRoute
 }
 
@@ -621,6 +635,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedServicesProviderIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/reconcile-activations': {
+      id: '/api/public/reconcile-activations'
+      path: '/api/public/reconcile-activations'
+      fullPath: '/api/public/reconcile-activations'
+      preLoaderRoute: typeof ApiPublicReconcileActivationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/tchokopay': {
       id: '/api/public/webhooks/tchokopay'
       path: '/api/public/webhooks/tchokopay'
@@ -701,6 +722,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AuthCallbackRoute: AuthCallbackRoute,
+  ApiPublicReconcileActivationsRoute: ApiPublicReconcileActivationsRoute,
   ApiPublicWebhooksTchokopayRoute: ApiPublicWebhooksTchokopayRoute,
 }
 export const routeTree = rootRouteImport
