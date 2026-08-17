@@ -20,7 +20,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  CATEGORY_KEY,
   PORTFOLIO_BUCKET,
   SERVICE_CATEGORIES,
   SUBSCRIPTION_FEE,
@@ -28,6 +27,7 @@ import {
   type ServiceCategory,
 } from "@/lib/marketplace";
 import { formatDate, formatDateTime, formatXAF } from "@/lib/format";
+import { categoryLabel } from "@/lib/taxonomy";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -46,7 +46,7 @@ export const Route = createFileRoute("/_authenticated/studio")({
 });
 
 function StudioPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { user } = useUser();
   const queryClient = useQueryClient();
   const { data: studio, isLoading } = useMyProviderProfile();
