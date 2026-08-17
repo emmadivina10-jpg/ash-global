@@ -49,7 +49,9 @@ export function AshOrb() {
       ) : null}
 
       <div className="fixed bottom-24 right-4 z-50 lg:bottom-8 lg:right-8">
-        {/* 180°-ish arc: items fan up and to the left, reachable with one thumb. */}
+        {/* Quarter-circle arc: items fan up and to the left, thumb-reachable.
+            The radial offset lives on the wrapper because the entrance
+            animation owns `transform` on the button itself. */}
         {open
           ? items.map((item, index) => {
               const angle = (index / (items.length - 1)) * 92 + 2; // degrees, up → left
@@ -57,27 +59,31 @@ export function AshOrb() {
               const dx = -Math.sin(rad) * RADIUS;
               const dy = -Math.cos(rad) * RADIUS;
               return (
-                <button
+                <div
                   key={item.id}
-                  type="button"
-                  onClick={() => {
-                    setPanel(item.id);
-                    setOpen(false);
-                  }}
-                  style={{
-                    transform: `translate3d(${dx}px, ${dy}px, 0)`,
-                    animationDelay: `${index * 45}ms`,
-                  }}
-                  className="ash-rise ash-glass absolute bottom-1.5 right-1.5 grid size-14 place-items-center rounded-full text-foreground shadow-[var(--shadow-card)] transition-transform duration-200 hover:scale-105"
+                  style={{ transform: `translate3d(${dx}px, ${dy}px, 0)` }}
+                  className="absolute bottom-1.5 right-1.5"
                 >
-                  <span className="grid place-items-center text-primary">{item.icon}</span>
-                  <span className="pointer-events-none absolute -bottom-6 whitespace-nowrap rounded-full bg-foreground/85 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-background">
-                    {item.soon ? (fr ? "Bientôt" : "Soon") : item.label}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPanel(item.id);
+                      setOpen(false);
+                    }}
+                    style={{ animationDelay: `${index * 45}ms` }}
+                    className="ash-rise ash-glass grid size-14 place-items-center rounded-full text-foreground shadow-[var(--shadow-card)] transition-[scale] duration-200 hover:scale-105"
+                  >
+                    <span className="grid place-items-center text-primary">{item.icon}</span>
+                  </button>
+                  <span className="pointer-events-none absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-foreground/85 px-2 py-0.5 text-[10px] font-bold text-background">
+                    {item.label}
+                    {item.soon ? ` · ${fr ? "Bientôt" : "Soon"}` : ""}
                   </span>
-                </button>
+                </div>
               );
             })
           : null}
+
 
         <button
           type="button"
