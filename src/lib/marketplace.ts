@@ -1,28 +1,41 @@
 import { supabase } from "@/integrations/supabase/client";
-import type { TKey } from "@/lib/i18n";
 
 export const SUBSCRIPTION_FEE = 2000;
 export const PORTFOLIO_BUCKET = "portfolio";
 
 export const SERVICE_CATEGORIES = [
   "BRAIDER",
+  "HAIR_STYLIST",
+  "BARBER",
   "NAIL_TECH",
   "LASH_TECH",
   "MAKEUP",
-  "BARBER",
+  "MASSAGE",
+  "WEB_DEV",
+  "MOBILE_DEV",
+  "UIUX",
+  "CLOUD",
+  "DEVOPS",
+  "AI",
+  "CYBERSECURITY",
+  "IT_CONSULTING",
+  "ELECTRICIAN",
+  "PLUMBER",
+  "CLEANER",
+  "HANDYMAN",
+  "PRIVATE_CHEF",
+  "PHOTOGRAPHY",
+  "VIDEOGRAPHY",
+  "CATERING",
+  "DECORATION",
+  "DJ",
+  "EVENT_PLANNING",
+  "HEALTH_WELLNESS",
+  "PROFESSIONAL",
   "OTHER",
 ] as const;
 
 export type ServiceCategory = (typeof SERVICE_CATEGORIES)[number];
-
-export const CATEGORY_KEY: Record<ServiceCategory, TKey> = {
-  BRAIDER: "cat.BRAIDER",
-  NAIL_TECH: "cat.NAIL_TECH",
-  LASH_TECH: "cat.LASH_TECH",
-  MAKEUP: "cat.MAKEUP",
-  BARBER: "cat.BARBER",
-  OTHER: "cat.OTHER",
-};
 
 export const BOOKING_STATUSES = [
   "PENDING",
