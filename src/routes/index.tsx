@@ -190,7 +190,7 @@ function Landing() {
             {/* Primary hero tile */}
             <div className="tile-dark grain relative col-span-full flex flex-col justify-between p-7 sm:p-10 lg:col-span-7 lg:min-h-[26rem]">
               <div className="relative">
-                <span className="hairline-gold inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 px-3 py-1 text-xs font-semibold text-primary-foreground/90">
+                <span className="hairline-gold inline-flex items-center gap-2 rounded-full bg-on-dark/10 px-3 py-1 text-xs font-semibold text-on-dark/90">
                   <BadgeCheck className="size-3.5" aria-hidden />
                   {t("landing.badge")}
                 </span>
@@ -199,7 +199,7 @@ function Landing() {
                   <br />
                   {t("landing.h1b")} <span className="gold-text">{t("landing.h1c")}</span>.
                 </h1>
-                <p className="mt-5 max-w-md text-base leading-relaxed text-primary-foreground/80">
+                <p className="mt-5 max-w-md text-base leading-relaxed text-on-dark/80">
                   {t("landing.hero.copy")}
                 </p>
               </div>
@@ -218,7 +218,7 @@ function Landing() {
                   asChild
                   size="lg"
                   variant="outline"
-                  className="h-12 border-primary-foreground/30 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                  className="h-12 border-on-dark/30 bg-transparent text-on-dark hover:bg-on-dark/10 hover:text-on-dark"
                 >
                   <Link to="/login">{t("landing.cta.haveAccount")}</Link>
                 </Button>
@@ -351,7 +351,7 @@ function Landing() {
             <h2 className="relative mt-3 font-display text-3xl font-extrabold sm:text-4xl">
               {t("landing.final.title")}
             </h2>
-            <p className="relative mx-auto mt-3 max-w-xl text-sm text-primary-foreground/80 sm:text-base">
+            <p className="relative mx-auto mt-3 max-w-xl text-sm text-on-dark/80 sm:text-base">
               {t("landing.final.copy")}
             </p>
             <Button
