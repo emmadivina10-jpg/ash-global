@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { AlertCircle, CheckCircle2, Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useProfile } from "@/lib/queries";
-import { startActivation, verifyActivation } from "@/lib/payments.functions";
+import { startActivation } from "@/lib/payments.functions";
+import { syncMyActivation } from "@/lib/activation.functions";
 import { SectionCard } from "@/components/refer/cards";
 import { Button } from "@/components/ui/button";
 import { formatXAF, ACTIVATION_FEE, COMMISSIONS } from "@/lib/format";
@@ -24,11 +26,41 @@ type Phase = "idle" | "creating" | "awaiting" | "verifying" | "active" | "error"
 function ActivatePage() {
   const queryClient = useQueryClient();
   const { data: profile } = useProfile();
+  const sync = useServerFn(syncMyActivation);
   const [phase, setPhase] = useState<Phase>("idle");
   const [reference, setReference] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const celebrated = useRef(false);
 
   const alreadyActive = profile?.account_status === "ACTIVE";
+
+  // The server is the source of truth: on load (and while a payment is in
+  // flight) we ask it to re-check the provider and activate when it confirms.
+  useEffect(() => {
+    if (alreadyActive) return;
+    let cancelled = false;
+
+    async function check() {
+      const state = await sync({ data: undefined });
+      if (cancelled) return;
+      if (state.reference) setReference(state.reference);
+      if (state.accountStatus === "ACTIVE" || state.status === "PAID") {
+        setPhase("active");
+        if (!celebrated.current) {
+          celebrated.current = true;
+          toast.success("Payment confirmed. Your account is now active.");
+        }
+        await queryClient.invalidateQueries();
+      }
+    }
+
+    void check();
+    const id = setInterval(() => void check(), 15000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [alreadyActive, sync, queryClient]);
 
   async function pay() {
     setPhase("creating");
@@ -69,12 +101,11 @@ function ActivatePage() {
   }
 
   async function verify() {
-    if (!reference) return;
     setPhase("verifying");
     setMessage(null);
-    const result = await verifyActivation({ data: { reference } });
+    const state = await sync({ data: undefined });
 
-    if (result.ok) {
+    if (state.accountStatus === "ACTIVE" || state.status === "PAID") {
       setPhase("active");
       toast.success("Payment confirmed. Your account is now active.");
       await queryClient.invalidateQueries();
@@ -83,9 +114,9 @@ function ActivatePage() {
 
     setPhase("error");
     setMessage(
-      result.status === "UNVERIFIED"
-        ? "Payment could not be verified. Please try again."
-        : "We have not received a confirmed payment for this reference yet.",
+      state.status === "FAILED" || state.status === "CANCELLED"
+        ? "The payment provider reports this payment as unsuccessful. Please start a new payment."
+        : "We have not received a confirmed payment for this reference yet. If you just paid, wait a moment and check again.",
     );
   }
 
@@ -158,9 +189,12 @@ function ActivatePage() {
           <div className="surface-card p-4">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">Payment reference</p>
             <p className="tabular mt-1 font-semibold text-foreground">{reference}</p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              We re-check this payment with the provider automatically every 15 seconds.
+            </p>
             <Button variant="outline" className="mt-3 w-full" onClick={verify} disabled={phase === "verifying"}>
               {phase === "verifying" ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-              {phase === "verifying" ? "Verifying payment…" : "I have paid — verify payment"}
+              {phase === "verifying" ? "Verifying payment…" : "I have paid — check payment now"}
             </Button>
           </div>
         ) : null}

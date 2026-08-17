@@ -24,6 +24,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { AssistantBubble } from "./AssistantBubble";
 import { AshCardBubble } from "./AshCardBubble";
 import { StatusBadge } from "./StatusBadge";
+import { NotificationBell } from "./NotificationBell";
 import { Logo } from "./Logo";
 import { LanguageSwitcher, ThemeToggle } from "./Preferences";
 import { useI18n, type TKey } from "@/lib/i18n";
@@ -100,7 +101,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           </nav>
           <div className="mt-4 flex items-center justify-between gap-2">
             <LanguageSwitcher />
-            <ThemeToggle />
+            <div className="flex items-center gap-1">
+              <NotificationBell />
+              <ThemeToggle />
+            </div>
           </div>
           <div className="mt-3 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-card)]">
             <p className="truncate text-sm font-semibold text-foreground">{profile?.full_name || t("shell.member")}</p>
@@ -123,6 +127,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Logo compact />
               </Link>
               <div className="flex items-center gap-1">
+                <NotificationBell />
                 <LanguageSwitcher />
                 <ThemeToggle />
               <Button variant="ghost" size="icon" aria-label={t("shell.signOut")} onClick={signOut}>

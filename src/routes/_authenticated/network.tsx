@@ -63,6 +63,8 @@ function NetworkPage() {
                 <dl className="mt-4 space-y-3 text-sm">
                   <Row label={t("net.members")} value={String(level.members)} />
                   <Row label={t("net.activeMembers")} value={String(level.active)} />
+                  <Row label="Pending activation" value={String(level.pending)} warn />
+                  <Row label="Pending commission" value={formatXAF(level.pendingCommissions)} warn />
                   <Row label={t("net.commissions")} value={formatXAF(level.commissions)} highlight />
                 </dl>
               </SectionCard>
@@ -90,11 +92,29 @@ function NetworkPage() {
 
 
 
-function Row({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+function Row({
+  label,
+  value,
+  highlight,
+  warn,
+}: {
+  label: string;
+  value: string;
+  highlight?: boolean;
+  warn?: boolean;
+}) {
   return (
     <div className="flex items-center justify-between gap-3 border-b border-border pb-2 last:border-0 last:pb-0">
       <dt className="text-muted-foreground">{label}</dt>
-      <dd className={highlight ? "tabular font-bold text-success" : "tabular font-semibold text-foreground"}>
+      <dd
+        className={
+          highlight
+            ? "tabular font-bold text-success"
+            : warn
+              ? "tabular font-semibold text-destructive"
+              : "tabular font-semibold text-foreground"
+        }
+      >
         {value}
       </dd>
     </div>

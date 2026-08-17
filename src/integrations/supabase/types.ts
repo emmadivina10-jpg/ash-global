@@ -213,6 +213,39 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string
+          category: string
+          created_at: string
+          data: Json
+          id: string
+          read_at: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string
+          category: string
+          created_at?: string
+          data?: Json
+          id?: string
+          read_at?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          category?: string
+          created_at?: string
+          data?: Json
+          id?: string
+          read_at?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       portfolio_items: {
         Row: {
           caption: string | null
@@ -459,25 +492,40 @@ export type Database = {
       }
       referrals: {
         Row: {
+          activated_at: string | null
+          activation_status: string
+          commission_amount: number
+          commission_status: string
           created_at: string
           id: string
           level: number
           referred_user_id: string
           referrer_id: string
+          transaction_id: string | null
         }
         Insert: {
+          activated_at?: string | null
+          activation_status?: string
+          commission_amount?: number
+          commission_status?: string
           created_at?: string
           id?: string
           level: number
           referred_user_id: string
           referrer_id: string
+          transaction_id?: string | null
         }
         Update: {
+          activated_at?: string | null
+          activation_status?: string
+          commission_amount?: number
+          commission_status?: string
           created_at?: string
           id?: string
           level?: number
           referred_user_id?: string
           referrer_id?: string
+          transaction_id?: string | null
         }
         Relationships: []
       }
@@ -712,6 +760,16 @@ export type Database = {
       }
       is_provider_owner: { Args: { _provider_id: string }; Returns: boolean }
       is_provider_visible: { Args: { _provider_id: string }; Returns: boolean }
+      notify_user: {
+        Args: {
+          _body?: string
+          _category: string
+          _data?: Json
+          _title: string
+          _user_id: string
+        }
+        Returns: undefined
+      }
       request_withdrawal: {
         Args: { _amount: number; _method: string; _phone: string }
         Returns: Json

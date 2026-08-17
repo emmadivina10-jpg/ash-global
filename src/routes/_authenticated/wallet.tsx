@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowDownToLine, Clock, Coins, WalletMinimal } from "lucide-react";
-import { useProfile, useTransactions, useWallet } from "@/lib/queries";
+import { ArrowDownToLine, Clock, Coins, Hourglass, WalletMinimal } from "lucide-react";
+import { useNetwork, useProfile, useTransactions, useWallet } from "@/lib/queries";
 import { BalanceCard, SectionCard, StatCard } from "@/components/refer/cards";
 import { TransactionList } from "@/components/refer/TransactionList";
 import { SkeletonRows } from "@/components/refer/states";
@@ -22,6 +22,7 @@ function WalletPage() {
   const { data: wallet, isLoading } = useWallet();
   const { data: profile } = useProfile();
   const { data: transactions, isLoading: txLoading } = useTransactions(20);
+  const { data: network } = useNetwork();
   const active = profile?.account_status === "ACTIVE";
   const { t } = useI18n();
 
@@ -71,6 +72,21 @@ function WalletPage() {
               className="col-span-2 lg:col-span-1"
             />
           </div>
+
+          {(network?.pendingTotal ?? 0) > 0 ? (
+            <div className="flex items-start gap-3 rounded-2xl border border-destructive/25 bg-destructive/5 p-4">
+              <Hourglass className="mt-0.5 size-5 shrink-0 text-destructive" aria-hidden />
+              <div>
+                <p className="text-sm font-semibold text-foreground">
+                  {formatXAF(network?.pendingTotal ?? 0)} waiting on referral activations
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  These commissions are not withdrawable yet. They are credited automatically the moment each
+                  referred member’s 5,000 XAF activation payment is verified.
+                </p>
+              </div>
+            </div>
+          ) : null}
 
           <SectionCard
             title={t("wallet.history")}
