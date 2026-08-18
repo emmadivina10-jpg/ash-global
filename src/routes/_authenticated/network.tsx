@@ -69,8 +69,8 @@ function NetworkPage() {
                 <dl className="mt-4 space-y-3 text-sm">
                   <Row label={t("net.members")} value={String(level.members)} />
                   <Row label={t("net.activeMembers")} value={String(level.active)} />
-                  <Row label="Pending activation" value={String(level.pending)} warn />
-                  <Row label="Pending commission" value={formatXAF(level.pendingCommissions)} warn />
+                  <Row label={t("net.pendingActivation")} value={String(level.pending)} warn />
+                  <Row label={t("net.pendingCommission")} value={formatXAF(level.pendingCommissions)} warn />
                   <Row label={t("net.commissions")} value={formatXAF(level.commissions)} highlight />
                 </dl>
               </SectionCard>
