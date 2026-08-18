@@ -327,10 +327,14 @@ function DiscoveryPage() {
         </div>
       ) : null}
 
-      {location?.city ? (
+      {location ? (
         <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <MapPin className="size-3.5" aria-hidden />
-          {fr ? "Vous êtes près de" : "You are near"} {location.city}
+          {location.label
+            ? `${fr ? "Vous êtes près de" : "You are near"} ${location.label}`
+            : fr
+              ? "Localisation activée — filtrez par ville pour les pros proches."
+              : "Location on — filter by city for pros near you."}
         </p>
       ) : null}
 
