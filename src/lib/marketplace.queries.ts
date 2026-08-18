@@ -121,32 +121,78 @@ export function useProviderReviews(providerId: string | undefined) {
 export function useMyBookings() {
   return useQuery({
     queryKey: ["bookings", "mine"],
+    refetchInterval: 30000,
     queryFn: async () => {
       const { data: auth } = await supabase.auth.getUser();
       if (!auth.user) return [];
       const { data, error } = await supabase
         .from("bookings")
-        .select("*, provider:provider_profiles(id, business_name, city)")
+        .select(
+          "*, provider:provider_profiles(id, business_name, city, phone, whatsapp, avatar_url, is_verified)",
+        )
         .eq("client_id", auth.user.id)
-        .order("scheduled_at", { ascending: false });
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
     },
   });
 }
 
+export type ProviderBookingRow = {
+  id: string;
+  client_id: string;
+  provider_id: string;
+  service_id: string | null;
+  service_title: string;
+  price: number;
+  scheduled_at: string;
+  notes: string | null;
+  address: string | null;
+  status: string;
+  decline_reason: string | null;
+  respond_by: string | null;
+  pay_by: string | null;
+  accepted_at: string | null;
+  paid_at: string | null;
+  completed_at: string | null;
+  invoice_number: string | null;
+  platform_fee: number | null;
+  provider_amount: number | null;
+  created_at: string;
+  client_name: string;
+  client_phone: string | null;
+  client_email: string | null;
+};
+
+/** Bookings received by the signed-in provider, with the customer details they are allowed to see. */
 export function useProviderBookings(providerId: string | undefined) {
   return useQuery({
     enabled: Boolean(providerId),
     queryKey: ["bookings", "provider", providerId],
+    refetchInterval: 30000,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("bookings")
-        .select("*")
-        .eq("provider_id", providerId!)
-        .order("scheduled_at", { ascending: false });
+      const { data, error } = await supabase.rpc("get_provider_bookings");
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as ProviderBookingRow[];
+    },
+  });
+}
+
+/** Review rows written by the signed-in client, keyed by booking id. */
+export function useMyReviews() {
+  return useQuery({
+    queryKey: ["reviews", "mine"],
+    queryFn: async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) return {} as Record<string, { rating: number }>;
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("booking_id, rating")
+        .eq("client_id", auth.user.id);
+      if (error) throw error;
+      const map: Record<string, { rating: number }> = {};
+      for (const row of data ?? []) map[row.booking_id] = { rating: row.rating };
+      return map;
     },
   });
 }
