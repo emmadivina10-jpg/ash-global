@@ -161,7 +161,7 @@ function BookingsPage() {
     setBusyId(bookingId);
     const { data, error } = await supabase.rpc("decide_booking", {
       _booking_id: bookingId,
-      _decision: decision,
+      _accept: decision === "ACCEPT",
       _reason: reason ?? "",
     });
     setBusyId(null);
@@ -186,7 +186,7 @@ function BookingsPage() {
     setBusyId(bookingId);
     const { data, error } = await supabase.rpc("set_booking_progress", {
       _booking_id: bookingId,
-      _next: next,
+      _status: next,
     });
     setBusyId(null);
     const result = data as { ok?: boolean; error?: string } | null;
