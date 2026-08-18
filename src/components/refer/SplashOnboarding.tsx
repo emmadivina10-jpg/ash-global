@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
-import { AshMark } from "@/components/refer/AshMark";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import ashLogo from "@/assets/ash-logo.png.asset.json";
 
 const KEY = "ash.onboarding.v1";
 
 const COPY = {
   en: {
+    title: "ASH Glo",
+    subtitle: "Cameroon's Digital Marketplace",
     tagline: "Refer. Earn. Discover. Grow.",
     skip: "Skip",
     next: "Next",
@@ -20,6 +22,8 @@ const COPY = {
     ],
   },
   fr: {
+    title: "ASH Glo",
+    subtitle: "Le marché numérique du Cameroun",
     tagline: "Parrainez. Gagnez. Découvrez. Grandissez.",
     skip: "Passer",
     next: "Suivant",
@@ -127,12 +131,15 @@ export function SplashOnboarding() {
 
       {isSplash ? (
         <div className="relative flex h-full flex-col items-center justify-center px-6 text-center">
-          <div className="ash-splash-mark brand-gradient grid size-20 place-items-center rounded-[26px] shadow-[var(--shadow-brand)]">
-            <AshMark className="size-10" ai={false} />
+          <div className="ash-splash-mark brand-gradient grid size-24 place-items-center overflow-hidden rounded-[32px] shadow-[var(--shadow-brand)]">
+            <img src={ashLogo.url} alt="ASH Glo" className="size-16 object-contain" />
           </div>
-          <h1 className="ash-fade-up mt-7 font-display text-4xl font-extrabold tracking-tight [animation-delay:420ms]">
-            ASH Glo
+          <h1 className="ash-fade-up mt-7 font-display text-5xl font-extrabold tracking-tight [animation-delay:420ms]">
+            {copy.title}
           </h1>
+          <p className="ash-fade-up mt-2 text-base font-semibold tracking-wide text-on-dark/90 [animation-delay:600ms]">
+            {copy.subtitle}
+          </p>
           <p className="ash-fade-up mt-3 text-sm font-medium tracking-[0.18em] uppercase text-on-dark/70 [animation-delay:760ms]">
             {copy.tagline}
           </p>
@@ -151,8 +158,8 @@ export function SplashOnboarding() {
         >
           <div className="flex items-center justify-between">
             <span className="inline-flex items-center gap-2">
-              <span className="brand-gradient grid size-8 place-items-center rounded-xl">
-                <AshMark className="size-4" ai={false} />
+              <span className="brand-gradient grid size-8 place-items-center overflow-hidden rounded-xl">
+                <img src={ashLogo.url} alt="ASH Glo" className="size-6 object-contain" />
               </span>
               <span className="font-display text-sm font-bold">ASH Glo</span>
             </span>
@@ -166,8 +173,8 @@ export function SplashOnboarding() {
           </div>
 
           <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center text-center">
-            <div className="ash-splash-mark brand-gradient grid size-24 place-items-center rounded-[30px] shadow-[var(--shadow-brand)]">
-              <AshMark className="size-12" ai={slide === 2} />
+            <div className="ash-splash-mark brand-gradient grid size-28 place-items-center overflow-hidden rounded-[36px] shadow-[var(--shadow-brand)]">
+              <img src={ashLogo.url} alt="ASH Glo" className="size-20 object-contain" />
             </div>
             <h2
               key={`t-${slide}`}
