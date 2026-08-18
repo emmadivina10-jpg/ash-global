@@ -39,7 +39,7 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
         }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        let outcome = status ?? "PENDING";
+        let outcome: string = status ?? "PENDING";
         // References are namespaced: BKG- belongs to a marketplace booking,
         // anything else is an account activation.
         const isBooking = result.reference.startsWith("BKG-");
