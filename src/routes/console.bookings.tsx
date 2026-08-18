@@ -20,6 +20,10 @@ import { cn } from "@/lib/utils";
 
 const LIFECYCLE = [
   "PENDING",
+  "ACCEPTED",
+  "PAYMENT_PROCESSING",
+  "PAYMENT_FAILED",
+  "PAYMENT_EXPIRED",
   "CONFIRMED",
   "IN_PROGRESS",
   "COMPLETED",
@@ -48,6 +52,7 @@ function ConsoleBookings() {
   });
 
   const rows = (data ?? []).filter((b) => filter === "ALL" || b.status === filter);
+  const disputes = (data ?? []).filter((b) => b.status === "DISPUTED").length;
 
   async function change(id: string, status: string) {
     setBusy(id);
@@ -66,6 +71,12 @@ function ConsoleBookings() {
       title="Bookings"
       description="Lifecycle: pending → confirmed → in progress → completed → settled. The 1% fee is only recognised at completion and reverses on refunds, disputes and no-shows."
     >
+      {disputes > 0 ? (
+        <p className="mb-3 rounded-xl bg-destructive/10 px-3 py-2 text-sm font-semibold text-destructive">
+          {disputes} booking(s) in dispute need a decision.
+        </p>
+      ) : null}
+
       <div className="mb-4 flex flex-wrap gap-2">
         {["ALL", ...LIFECYCLE].map((key) => (
           <Button
