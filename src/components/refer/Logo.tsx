@@ -6,7 +6,7 @@ export function Logo({ compact = false, className }: { compact?: boolean; classN
       <span className="brand-gradient grid size-9 place-items-center rounded-xl text-on-dark shadow-[var(--shadow-brand)]">
         <svg viewBox="0 0 24 24" className="size-5" fill="none" aria-hidden>
           <path
-            d="M5 19V7a2 2 0 0 1 2-2h6a4 4 0 0 1 0 8H9m5 0 5 6"
+            d="M5 19.5 12 4.5l7 15M8.4 14.5h7.2"
             stroke="currentColor"
             strokeWidth="2.2"
             strokeLinecap="round"
