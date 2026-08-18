@@ -78,11 +78,10 @@ function WalletPage() {
               <Hourglass className="mt-0.5 size-5 shrink-0 text-destructive" aria-hidden />
               <div>
                 <p className="text-sm font-semibold text-foreground">
-                  {formatXAF(network?.pendingTotal ?? 0)} waiting on referral activations
+                  {t("wallet.pendingTitle", { amount: formatXAF(network?.pendingTotal ?? 0) })}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  These commissions are not withdrawable yet. They are credited automatically the moment each
-                  referred member’s 5,000 XAF activation payment is verified.
+                  {t("wallet.pendingBody")}
                 </p>
               </div>
             </div>
