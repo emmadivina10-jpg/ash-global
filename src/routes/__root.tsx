@@ -169,6 +169,7 @@ function RootComponent() {
         <I18nProvider>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
+          <SplashOnboarding />
         </I18nProvider>
       </ThemeProvider>
     </QueryClientProvider>
