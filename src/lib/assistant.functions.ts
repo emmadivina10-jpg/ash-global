@@ -14,8 +14,11 @@ How the platform works:
 - Referral commissions are paid when a referred member activates: level 1 = 1,500 XAF, level 2 = 750 XAF, level 3 = 250 XAF. Commissions land in the member's wallet available balance.
 - Wallet withdrawals go to MTN Mobile Money or Orange Money, minimum 1,000 XAF, reviewed by an admin.
 - The services marketplace lets any member open a "studio" profile as a braider, nail tech, lash tech, makeup artist or barber. Providers pay 2,000 XAF per month to go live and be discoverable.
-- Providers list services (title, price in XAF, duration), upload portfolio photos of their work, and receive bookings with a date/time, notes and a status: pending, confirmed, completed, cancelled or declined.
-- Clients browse live providers, book a service, chat live with the provider in the Messages section, and can leave a 1-5 star review after a booking is completed. Reviews set the provider's public rating.
+- Providers list services (title, price in XAF, duration), upload portfolio photos of their work, and receive booking requests with a date/time, address and notes.
+- Booking lifecycle: the client sends a request (status Requested) -> the provider has 24 hours to accept or decline -> once accepted the client has 24 hours to pay through mobile money -> after payment the booking is Confirmed and an ASH invoice appears in the booking chat -> the provider marks it In progress then Completed.
+- If the provider does not answer in 24 hours, or the client does not pay in 24 hours, the booking expires automatically. Nobody pays anything before the provider accepts.
+- Platform fee: providers on commission billing pay 1% of the booking price; providers on the 2,000 XAF monthly subscription keep 100%.
+- Clients browse verified providers in Discover (Beauty, Tech, Home, Events and more), filter by city, price and rating, chat live with the provider in Messages, and can leave a 1-5 star review after a booking is completed. Reviews set the provider's public rating.
 
 Your job:
 - Answer questions about how the platform works, in clear simple language.
@@ -35,7 +38,7 @@ async function buildContext(supabase: unknown, userId: string): Promise<string> 
   const [profile, wallet, referrals, provider] = await Promise.all([
     db.from("profiles").select("full_name, account_status, referral_code, created_at").eq("user_id", userId).maybeSingle(),
     db.from("wallets").select("available_balance, total_earned, total_withdrawn").eq("user_id", userId).maybeSingle(),
-    db.from("referrals").select("level, referred_id").eq("referrer_id", userId),
+    db.from("referrals").select("level, referred_user_id").eq("referrer_id", userId),
     db.from("provider_profiles").select("id, business_name, is_live, subscription_expires_at, rating_avg, rating_count, categories").eq("user_id", userId).maybeSingle(),
   ]);
 
@@ -76,6 +79,38 @@ async function buildContext(supabase: unknown, userId: string): Promise<string> 
     );
   } else {
     lines.push("Studio: none yet (user is not a provider).");
+  }
+
+  const clientBookings = await db
+    .from("bookings")
+    .select("status, price, service_title, scheduled_at, pay_by, invoice_number")
+    .eq("client_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(10);
+  const cb = (clientBookings?.data ?? []) as Array<{
+    status: string;
+    price: number;
+    service_title: string;
+    scheduled_at: string;
+    pay_by: string | null;
+    invoice_number: string | null;
+  }>;
+  if (cb.length > 0) {
+    lines.push(
+      `As a client: ${cb.length} recent bookings — ` +
+        cb
+          .map(
+            (b) =>
+              `${b.service_title} (${b.status}, ${Number(b.price)} XAF, ${b.scheduled_at}${
+                b.status === "ACCEPTED" && b.pay_by ? `, must pay before ${b.pay_by}` : ""
+              })`,
+          )
+          .join("; "),
+    );
+    const awaiting = cb.filter((b) => b.status === "ACCEPTED").length;
+    if (awaiting > 0) lines.push(`Action needed: ${awaiting} accepted booking(s) waiting for payment.`);
+  } else {
+    lines.push("As a client: no bookings yet.");
   }
 
   return lines.join("\n");
