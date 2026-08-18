@@ -252,21 +252,23 @@ export function useMessages(conversationId: string | undefined) {
 }
 
 /** Finds (or creates) the conversation between the signed-in client and a provider. */
-export async function openConversation(providerId: string): Promise<string | null> {
+export async function openConversation(providerId: string, bookingId?: string): Promise<string | null> {
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) return null;
 
-  const { data: existing } = await supabase
+  let lookup = supabase
     .from("conversations")
     .select("id")
     .eq("provider_id", providerId)
-    .eq("client_id", auth.user.id)
-    .maybeSingle();
-  if (existing?.id) return existing.id;
+    .eq("client_id", auth.user.id);
+  if (bookingId) lookup = lookup.eq("booking_id", bookingId);
+
+  const { data: existing } = await lookup.order("last_message_at", { ascending: false }).limit(1);
+  if (existing?.[0]?.id) return existing[0].id;
 
   const { data, error } = await supabase
     .from("conversations")
-    .insert({ provider_id: providerId, client_id: auth.user.id })
+    .insert({ provider_id: providerId, client_id: auth.user.id, booking_id: bookingId ?? null })
     .select("id")
     .single();
   if (error) return null;
