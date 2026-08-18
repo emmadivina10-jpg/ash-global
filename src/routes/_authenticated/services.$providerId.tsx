@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Clock, MapPin, MessageCircle } from "lucide-react";
+import { BadgeCheck, CalendarCheck, Clock, MapPin, MessageCircle, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { type ServiceCategory } from "@/lib/marketplace";
 import { categoryLabel } from "@/lib/taxonomy";
 import { formatDateTime, formatXAF } from "@/lib/format";
@@ -39,9 +39,20 @@ export const Route = createFileRoute("/_authenticated/services/$providerId")({
   component: ProviderPage,
 });
 
+type ServiceRow = {
+  id: string;
+  title: string;
+  description: string | null;
+  price: number;
+  duration_minutes: number;
+  category: ServiceCategory;
+  is_active: boolean;
+};
+
 function ProviderPage() {
   const { providerId } = Route.useParams();
   const { t, lang } = useI18n();
+  const fr = lang === "fr";
   const navigate = useNavigate();
   const { user } = useUser();
   const queryClient = useQueryClient();
@@ -50,158 +61,142 @@ function ProviderPage() {
   const { data: portfolio } = usePortfolio(providerId);
   const { data: reviews } = useProviderReviews(providerId);
 
-  const [open, setOpen] = useState(false);
-  const [serviceId, setServiceId] = useState<string>("");
-  const [when, setWhen] = useState("");
-  const [notes, setNotes] = useState("");
-  const [saving, setSaving] = useState(false);
+  const [detail, setDetail] = useState<ServiceRow | null>(null);
+  const [booking, setBooking] = useState<ServiceRow | null>(null);
 
-  if (isLoading) return <SkeletonRows rows={4} />;
-  if (!provider) return <EmptyState title={t("svc.notFound")} />;
+  const activeServices = useMemo(
+    () => ((services ?? []) as ServiceRow[]).filter((s) => s.is_active),
+    [services],
+  );
+  const bookable = Boolean(provider?.is_live && (provider as { accepting_bookings?: boolean })?.accepting_bookings !== false);
+  const isOwner = provider?.user_id === user?.id;
 
-  async function startChat() {
+  async function chat() {
     const id = await openConversation(providerId);
-    if (id) void navigate({ to: "/messages", search: { c: id } });
-  }
-
-  async function book(event: React.FormEvent) {
-    event.preventDefault();
-    if (!user) return;
-    const service = (services ?? []).find((s) => s.id === serviceId) ?? (services ?? [])[0];
-    if (!service) return;
-    const scheduled = new Date(when);
-    if (!when || Number.isNaN(scheduled.getTime()) || scheduled.getTime() < Date.now()) {
-      toast.error(t("book.errDate"));
-      return;
-    }
-    setSaving(true);
-    const { error } = await supabase.from("bookings").insert({
-      client_id: user.id,
-      provider_id: providerId,
-      service_id: service.id,
-      service_title: service.title,
-      price: service.price,
-      scheduled_at: scheduled.toISOString(),
-      notes: notes.trim() || null,
-    });
-    setSaving(false);
-    if (error) {
+    if (!id) {
       toast.error(t("book.err"));
       return;
     }
-    toast.success(t("book.sent"));
-    setOpen(false);
-    setNotes("");
-    setWhen("");
-    void queryClient.invalidateQueries({ queryKey: ["bookings"] });
+    void navigate({ to: "/messages", search: { c: id } });
   }
 
-  const minPrice = (services ?? []).reduce<number | null>(
-    (min, s) => (min === null || s.price < min ? s.price : min),
-    null,
-  );
+  if (isLoading) return <SkeletonRows rows={4} />;
+  if (!provider) return <EmptyState title={t("svc.empty")} description={t("svc.emptyCopy")} />;
+
+  const verified = (provider as { is_verified?: boolean }).is_verified === true;
+  const completed = Number((provider as { completed_bookings?: number }).completed_bookings ?? 0);
+  const areas = ((provider as { service_areas?: string[] }).service_areas ?? []).filter(Boolean);
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-5">
-      <header className="tile p-5">
-        <div className="flex flex-wrap items-start gap-4">
-          <span className="grid size-16 shrink-0 place-items-center rounded-2xl bg-primary/10 font-display text-2xl font-bold text-primary">
-            {provider.business_name.slice(0, 2).toUpperCase()}
-          </span>
-          <div className="min-w-0 flex-1">
-            <h1 className="font-display text-2xl font-bold text-foreground">{provider.business_name}</h1>
-            {provider.city ? (
-              <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-                <MapPin className="size-3.5" aria-hidden />
-                {provider.city}
-              </p>
+    <div className="mx-auto w-full max-w-4xl space-y-5">
+      <SectionCard>
+        <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-4">
+          <div className="size-16 overflow-hidden rounded-2xl bg-muted sm:size-20">
+            {provider.avatar_url ? (
+              <img
+                src={provider.avatar_url}
+                alt={provider.business_name}
+                loading="lazy"
+                className="size-full object-cover"
+              />
             ) : null}
-            <div className="mt-2 flex items-center gap-2">
-              <RatingStars value={Number(provider.rating_avg)} />
-              <span className="text-xs text-muted-foreground">
-                {provider.rating_count > 0 ? t("svc.reviews", { count: provider.rating_count }) : t("svc.noRating")}
+          </div>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="truncate font-display text-xl font-extrabold text-foreground sm:text-2xl">
+                {provider.business_name}
+              </h1>
+              {verified ? (
+                <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary">
+                  <BadgeCheck className="size-3.5" aria-hidden />
+                  {fr ? "Vérifié" : "Verified"}
+                </span>
+              ) : null}
+              <span
+                className={
+                  bookable
+                    ? "rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary"
+                    : "rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground"
+                }
+              >
+                {bookable ? (fr ? "Disponible" : "Available") : fr ? "Indisponible" : "Unavailable"}
               </span>
-              {minPrice !== null ? (
-                <span className="tabular text-xs font-semibold text-foreground">
-                  · {t("svc.from", { price: formatXAF(minPrice) })}
+            </div>
+
+            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <RatingStars value={Number(provider.rating_avg)} size={14} />
+                <span className="tabular">
+                  {Number(provider.rating_avg).toFixed(1)} ({provider.rating_count})
+                </span>
+              </span>
+              {provider.city ? (
+                <span className="flex items-center gap-1">
+                  <MapPin className="size-3.5" aria-hidden />
+                  {provider.city}
+                </span>
+              ) : null}
+              {completed > 0 ? (
+                <span className="flex items-center gap-1">
+                  <CalendarCheck className="size-3.5" aria-hidden />
+                  {completed} {fr ? "prestations terminées" : "completed bookings"}
                 </span>
               ) : null}
             </div>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {(provider.categories ?? []).map((c: ServiceCategory) => (
-                <span key={c} className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+
+            {provider.bio ? <p className="mt-3 text-sm text-foreground/90">{provider.bio}</p> : null}
+
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {((provider.categories ?? []) as ServiceCategory[]).map((c) => (
+                <span key={c} className="rounded-full border border-border px-2.5 py-1 text-[11px] font-semibold">
                   {categoryLabel(c, lang)}
                 </span>
               ))}
             </div>
+
+            {areas.length > 0 ? (
+              <p className="mt-3 text-xs text-muted-foreground">
+                {fr ? "Zones desservies : " : "Service areas: "}
+                {areas.join(", ")}
+              </p>
+            ) : null}
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button
+                disabled={!bookable || isOwner || activeServices.length === 0}
+                onClick={() => setBooking(activeServices[0] ?? null)}
+              >
+                {fr ? "Réserver un service" : "Book service"}
+              </Button>
+              <Button variant="outline" onClick={() => void chat()} disabled={isOwner}>
+                <MessageCircle className="size-4" aria-hidden />
+                {t("svc.chat")}
+              </Button>
+            </div>
           </div>
         </div>
+      </SectionCard>
 
-        {provider.bio ? <p className="mt-4 text-sm text-muted-foreground">{provider.bio}</p> : null}
-
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button disabled={(services ?? []).length === 0}>{t("svc.book")}</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{t("book.title", { name: provider.business_name })}</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={book} className="space-y-4">
-                <div className="space-y-1.5">
-                  <Label htmlFor="service">{t("book.service")}</Label>
-                  <select
-                    id="service"
-                    value={serviceId}
-                    onChange={(e) => setServiceId(e.target.value)}
-                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                  >
-                    {(services ?? []).map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.title} — {formatXAF(s.price)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="when">{t("book.when")}</Label>
-                  <Input id="when" type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} required />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="notes">{t("book.notes")}</Label>
-                  <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
-                </div>
-                <Button type="submit" className="w-full" disabled={saving}>
-                  {t("book.confirm")}
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
-
-          <Button variant="outline" onClick={startChat}>
-            <MessageCircle className="size-4" aria-hidden />
-            {t("svc.chat")}
-          </Button>
-        </div>
-      </header>
-
-      <SectionCard title={t("svc.services")}>
-        {(services ?? []).length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t("svc.noServices")}</p>
+      <SectionCard title={fr ? "Services" : "Services"}>
+        {activeServices.length === 0 ? (
+          <EmptyState title={fr ? "Aucun service actif" : "No active service"} />
         ) : (
           <ul className="divide-y divide-border">
-            {(services ?? []).map((s) => (
-              <li key={s.id} className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 py-3">
-                <div className="min-w-0">
-                  <p className="truncate font-semibold text-foreground">{s.title}</p>
-                  {s.description ? <p className="mt-0.5 text-sm text-muted-foreground">{s.description}</p> : null}
-                  <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                    <Clock className="size-3" aria-hidden />
-                    {t("svc.duration", { minutes: s.duration_minutes })}
+            {activeServices.map((service) => (
+              <li key={service.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3">
+                <button type="button" className="min-w-0 text-left" onClick={() => setDetail(service)}>
+                  <p className="truncate font-semibold text-foreground">{service.title}</p>
+                  <p className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Clock className="size-3.5" aria-hidden />
+                    {service.duration_minutes} min · {categoryLabel(service.category, lang)}
                   </p>
+                </button>
+                <div className="flex shrink-0 items-center gap-2">
+                  <span className="tabular text-sm font-bold">{formatXAF(service.price)}</span>
+                  <Button size="sm" disabled={!bookable || isOwner} onClick={() => setBooking(service)}>
+                    {t("svc.book")}
+                  </Button>
                 </div>
-                <p className="tabular self-center text-sm font-semibold text-foreground">{formatXAF(s.price)}</p>
               </li>
             ))}
           </ul>
@@ -210,12 +205,12 @@ function ProviderPage() {
 
       <SectionCard title={t("svc.portfolio")}>
         {(portfolio ?? []).length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t("svc.noPortfolio")}</p>
+          <EmptyState title={fr ? "Pas encore de photos" : "No photos yet"} />
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {(portfolio ?? []).map((item) =>
               item.url ? (
-                <figure key={item.id} className="overflow-hidden rounded-2xl border border-border">
+                <figure key={item.id} className="overflow-hidden rounded-xl border border-border bg-muted">
                   <img
                     src={item.url}
                     alt={item.caption ?? provider.business_name}
@@ -223,7 +218,9 @@ function ProviderPage() {
                     className="aspect-square w-full object-cover"
                   />
                   {item.caption ? (
-                    <figcaption className="truncate px-2 py-1.5 text-xs text-muted-foreground">{item.caption}</figcaption>
+                    <figcaption className="truncate px-2 py-1 text-[11px] text-muted-foreground">
+                      {item.caption}
+                    </figcaption>
                   ) : null}
                 </figure>
               ) : null,
@@ -232,23 +229,228 @@ function ProviderPage() {
         )}
       </SectionCard>
 
-      <SectionCard title={t("svc.reviewsTitle")}>
+      <SectionCard title={t("svc.reviews")}>
         {(reviews ?? []).length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t("svc.noReviews")}</p>
+          <EmptyState title={fr ? "Pas encore d'avis" : "No reviews yet"} />
         ) : (
           <ul className="space-y-3">
-            {(reviews ?? []).map((r) => (
-              <li key={r.id} className="rounded-2xl border border-border p-3">
-                <div className="flex items-center justify-between gap-2">
-                  <RatingStars value={r.rating} />
-                  <span className="text-xs text-muted-foreground">{formatDateTime(r.created_at)}</span>
-                </div>
-                {r.comment ? <p className="mt-2 text-sm text-foreground">{r.comment}</p> : null}
+            {(reviews ?? []).map((review) => (
+              <li key={review.id} className="rounded-xl border border-border p-3">
+                <RatingStars value={review.rating} size={14} />
+                {review.comment ? <p className="mt-1 text-sm text-foreground/90">{review.comment}</p> : null}
+                <p className="mt-1 text-[11px] text-muted-foreground">{formatDateTime(review.created_at)}</p>
               </li>
             ))}
           </ul>
         )}
       </SectionCard>
+
+      {/* Service detail */}
+      <Dialog open={Boolean(detail)} onOpenChange={(v) => !v && setDetail(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{detail?.title}</DialogTitle>
+          </DialogHeader>
+          {detail ? (
+            <div className="space-y-3 text-sm">
+              {detail.description ? <p className="text-foreground/90">{detail.description}</p> : null}
+              <dl className="grid grid-cols-2 gap-2 text-muted-foreground">
+                <div>
+                  <dt className="text-xs">{fr ? "Prix" : "Price"}</dt>
+                  <dd className="tabular font-bold text-foreground">{formatXAF(detail.price)}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs">{fr ? "Durée" : "Duration"}</dt>
+                  <dd className="font-semibold text-foreground">{detail.duration_minutes} min</dd>
+                </div>
+                <div>
+                  <dt className="text-xs">{fr ? "Pro" : "Provider"}</dt>
+                  <dd className="font-semibold text-foreground">{provider.business_name}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs">{fr ? "Zone" : "Service area"}</dt>
+                  <dd className="font-semibold text-foreground">
+                    {areas.length > 0 ? areas.join(", ") : (provider.city ?? "—")}
+                  </dd>
+                </div>
+              </dl>
+              <Button
+                className="w-full"
+                disabled={!bookable || isOwner || !detail.is_active}
+                onClick={() => {
+                  setBooking(detail);
+                  setDetail(null);
+                }}
+              >
+                {bookable ? t("svc.book") : fr ? "Indisponible" : "Unavailable"}
+              </Button>
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
+
+      {booking ? (
+        <BookingRequestDialog
+          provider={{ id: provider.id, name: provider.business_name, city: provider.city }}
+          service={booking}
+          services={activeServices}
+          onClose={() => setBooking(null)}
+          onDone={() => {
+            setBooking(null);
+            void queryClient.invalidateQueries({ queryKey: ["bookings"] });
+            void navigate({ to: "/bookings" });
+          }}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function BookingRequestDialog({
+  provider,
+  service,
+  services,
+  onClose,
+  onDone,
+}: {
+  provider: { id: string; name: string; city: string | null };
+  service: ServiceRow;
+  services: ServiceRow[];
+  onClose: () => void;
+  onDone: () => void;
+}) {
+  const { lang } = useI18n();
+  const fr = lang === "fr";
+  const [serviceId, setServiceId] = useState(service.id);
+  const [when, setWhen] = useState("");
+  const [address, setAddress] = useState("");
+  const [notes, setNotes] = useState("");
+  const [step, setStep] = useState<"form" | "confirm">("form");
+  const [busy, setBusy] = useState(false);
+
+  const selected = services.find((s) => s.id === serviceId) ?? service;
+
+  async function submit() {
+    setBusy(true);
+    const { data, error } = await supabase.rpc("request_booking", {
+      _provider_id: provider.id,
+      _service_id: serviceId,
+      _scheduled_at: new Date(when).toISOString(),
+      _notes: notes,
+      _address: address,
+    });
+    setBusy(false);
+    const result = data as { ok?: boolean; error?: string } | null;
+    if (error || !result?.ok) {
+      toast.error(
+        result?.error === "PROVIDER_UNAVAILABLE"
+          ? fr
+            ? "Ce pro n'accepte pas de réservations pour le moment."
+            : "This pro is not accepting bookings right now."
+          : result?.error === "INVALID_DATE"
+            ? fr
+              ? "Choisissez une date future."
+              : "Pick a future date."
+            : fr
+              ? "Impossible d'envoyer la demande."
+              : "Could not send the request.",
+      );
+      return;
+    }
+    toast.success(
+      fr ? "Demande envoyée. Le pro a 24 h pour répondre." : "Request sent. The pro has 24 hours to respond.",
+    );
+    onDone();
+  }
+
+  return (
+    <Dialog open onOpenChange={(v) => !v && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{step === "form" ? (fr ? "Demander une réservation" : "Request a booking") : fr ? "Confirmer" : "Confirm"}</DialogTitle>
+        </DialogHeader>
+
+        {step === "form" ? (
+          <form
+            className="space-y-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!when) return;
+              setStep("confirm");
+            }}
+          >
+            <div className="space-y-1.5">
+              <Label htmlFor="svc">{fr ? "Service" : "Service"}</Label>
+              <select
+                id="svc"
+                value={serviceId}
+                onChange={(e) => setServiceId(e.target.value)}
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              >
+                {services.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.title} — {formatXAF(s.price)}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="when">{fr ? "Date et heure" : "Date and time"}</Label>
+              <Input id="when" type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} required />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="addr">{fr ? "Lieu / adresse" : "Location / address"}</Label>
+              <Input
+                id="addr"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder={provider.city ?? (fr ? "Où ?" : "Where?")}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="notes">{fr ? "Détails" : "Details"}</Label>
+              <Textarea id="notes" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
+            </div>
+            <Button type="submit" className="w-full" disabled={!when}>
+              {fr ? "Continuer" : "Continue"}
+            </Button>
+          </form>
+        ) : (
+          <div className="space-y-4">
+            <dl className="space-y-2 rounded-xl border border-border p-3 text-sm">
+              <Row label={fr ? "Pro" : "Provider"} value={provider.name} />
+              <Row label={fr ? "Service" : "Service"} value={selected.title} />
+              <Row label={fr ? "Date" : "Date"} value={formatDateTime(new Date(when).toISOString())} />
+              <Row label={fr ? "Durée" : "Duration"} value={`${selected.duration_minutes} min`} />
+              <Row label={fr ? "Lieu" : "Location"} value={address || provider.city || "—"} />
+              <Row label={fr ? "Total" : "Total"} value={formatXAF(selected.price)} />
+            </dl>
+            <p className="flex items-start gap-2 rounded-xl bg-muted p-3 text-xs text-muted-foreground">
+              <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden />
+              {fr
+                ? "Aucun paiement maintenant. Vous paierez seulement après l'acceptation du pro."
+                : "No payment now. You only pay after the pro accepts."}
+            </p>
+            <div className="flex gap-2">
+              <Button variant="ghost" className="flex-1" onClick={() => setStep("form")} disabled={busy}>
+                {fr ? "Retour" : "Back"}
+              </Button>
+              <Button className="flex-1" onClick={() => void submit()} disabled={busy}>
+                {fr ? "Envoyer la demande" : "Send request"}
+              </Button>
+            </div>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="grid grid-cols-[auto_minmax(0,1fr)] items-baseline gap-3">
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dd className="truncate text-right font-semibold text-foreground">{value}</dd>
     </div>
   );
 }
