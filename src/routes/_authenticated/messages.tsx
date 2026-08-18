@@ -6,6 +6,8 @@ import { useUser } from "@/lib/queries";
 import { ChatThread } from "@/components/refer/ChatThread";
 import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { useI18n } from "@/lib/i18n";
+import { formatDateTime } from "@/lib/format";
+import { bookingStatusLabel } from "@/lib/booking";
 import { cn } from "@/lib/utils";
 
 const searchSchema = z.object({ c: z.string().optional() });
@@ -26,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/messages")({
 });
 
 function MessagesPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { user } = useUser();
   const { c } = Route.useSearch();
   const navigate = Route.useNavigate();
@@ -66,16 +68,29 @@ function MessagesPage() {
                     conv.id === activeId ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted",
                   )}
                 >
-                  {label}
+                  <span className="block truncate">{label}</span>
+                  {conv.booking ? (
+                    <span className="block truncate text-[11px] font-normal opacity-80">
+                      {conv.booking.service_title}
+                    </span>
+                  ) : null}
                 </button>
               );
             })}
           </nav>
 
           <div className="tile flex h-[60vh] flex-col p-3">
-            <p className="mb-2 truncate font-display font-semibold text-foreground">
-              {active?.provider?.business_name ?? t("chat.title")}
-            </p>
+            <div className="mb-2 min-w-0">
+              <p className="truncate font-display font-semibold text-foreground">
+                {active?.provider?.business_name ?? t("chat.title")}
+              </p>
+              {active?.booking ? (
+                <p className="truncate text-xs text-muted-foreground">
+                  {active.booking.service_title} · {formatDateTime(active.booking.scheduled_at)} ·{" "}
+                  {bookingStatusLabel(active.booking.status, lang)}
+                </p>
+              ) : null}
+            </div>
             {activeId ? <ChatThread conversationId={activeId} currentUserId={user?.id} className="flex-1" /> : null}
           </div>
         </div>
