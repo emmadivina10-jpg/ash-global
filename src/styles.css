@@ -433,3 +433,81 @@
     animation: none !important;
   }
 }
+
+/* ---------------------------------------------------------------
+   First-launch splash & onboarding — soft "liquid" brand motion.
+   Lightweight: three blurred gradient blobs, no simulation.
+---------------------------------------------------------------- */
+.ash-liquid {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.55;
+  will-change: transform;
+}
+
+.ash-liquid-a {
+  top: -18%;
+  left: -12%;
+  width: 62vmax;
+  height: 62vmax;
+  background: radial-gradient(circle at 30% 30%, var(--color-primary) 0%, transparent 68%);
+  animation: ash-drift-a 18s ease-in-out infinite alternate;
+}
+
+.ash-liquid-b {
+  bottom: -22%;
+  right: -16%;
+  width: 66vmax;
+  height: 66vmax;
+  background: radial-gradient(circle at 60% 40%, var(--color-gold) 0%, transparent 66%);
+  animation: ash-drift-b 22s ease-in-out infinite alternate;
+}
+
+.ash-liquid-c {
+  top: 25%;
+  right: 10%;
+  width: 40vmax;
+  height: 40vmax;
+  opacity: 0.4;
+  background: radial-gradient(circle at 50% 50%, var(--color-primary-dark) 0%, transparent 70%);
+  animation: ash-drift-a 26s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes ash-drift-a {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(8%, 10%, 0) scale(1.15); }
+}
+
+@keyframes ash-drift-b {
+  0% { transform: translate3d(0, 0, 0) scale(1.1); }
+  100% { transform: translate3d(-10%, -8%, 0) scale(0.95); }
+}
+
+.ash-splash-mark {
+  animation: ash-mark-in 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes ash-mark-in {
+  0% { opacity: 0; transform: scale(0.82); filter: blur(6px); }
+  100% { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+.ash-fade-up {
+  animation: ash-fade-up 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes ash-fade-up {
+  0% { opacity: 0; transform: translateY(14px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ash-liquid { animation: none; opacity: 0.35; }
+  .ash-splash-mark,
+  .ash-fade-up { animation: ash-simple-fade 300ms ease-out both; }
+  @keyframes ash-simple-fade {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+}
