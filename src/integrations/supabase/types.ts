@@ -130,12 +130,24 @@ export type Database = {
       }
       bookings: {
         Row: {
+          accepted_at: string | null
+          address: string | null
           client_id: string
+          completed_at: string | null
           created_at: string
+          decline_reason: string | null
           id: string
+          invoice_number: string | null
           notes: string | null
+          paid_at: string | null
+          pay_by: string | null
+          payment_reference: string | null
+          platform_fee: number
           price: number
+          provider_amount: number | null
           provider_id: string
+          provider_transaction_id: string | null
+          respond_by: string | null
           scheduled_at: string
           service_id: string | null
           service_title: string
@@ -143,12 +155,24 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          accepted_at?: string | null
+          address?: string | null
           client_id: string
+          completed_at?: string | null
           created_at?: string
+          decline_reason?: string | null
           id?: string
+          invoice_number?: string | null
           notes?: string | null
+          paid_at?: string | null
+          pay_by?: string | null
+          payment_reference?: string | null
+          platform_fee?: number
           price?: number
+          provider_amount?: number | null
           provider_id: string
+          provider_transaction_id?: string | null
+          respond_by?: string | null
           scheduled_at: string
           service_id?: string | null
           service_title: string
@@ -156,12 +180,24 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          accepted_at?: string | null
+          address?: string | null
           client_id?: string
+          completed_at?: string | null
           created_at?: string
+          decline_reason?: string | null
           id?: string
+          invoice_number?: string | null
           notes?: string | null
+          paid_at?: string | null
+          pay_by?: string | null
+          payment_reference?: string | null
+          platform_fee?: number
           price?: number
+          provider_amount?: number | null
           provider_id?: string
+          provider_transaction_id?: string | null
+          respond_by?: string | null
           scheduled_at?: string
           service_id?: string | null
           service_title?: string
@@ -187,6 +223,7 @@ export type Database = {
       }
       conversations: {
         Row: {
+          booking_id: string | null
           client_id: string
           created_at: string
           id: string
@@ -194,6 +231,7 @@ export type Database = {
           provider_id: string
         }
         Insert: {
+          booking_id?: string | null
           client_id: string
           created_at?: string
           id?: string
@@ -201,6 +239,7 @@ export type Database = {
           provider_id: string
         }
         Update: {
+          booking_id?: string | null
           client_id?: string
           created_at?: string
           id?: string
@@ -208,6 +247,13 @@ export type Database = {
           provider_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "conversations_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "conversations_provider_id_fkey"
             columns: ["provider_id"]
@@ -223,6 +269,8 @@ export type Database = {
           conversation_id: string
           created_at: string
           id: string
+          kind: string
+          metadata: Json
           read_at: string | null
           sender_id: string
         }
@@ -231,6 +279,8 @@ export type Database = {
           conversation_id: string
           created_at?: string
           id?: string
+          kind?: string
+          metadata?: Json
           read_at?: string | null
           sender_id: string
         }
@@ -239,6 +289,8 @@ export type Database = {
           conversation_id?: string
           created_at?: string
           id?: string
+          kind?: string
+          metadata?: Json
           read_at?: string | null
           sender_id?: string
         }
@@ -401,57 +453,69 @@ export type Database = {
       }
       provider_profiles: {
         Row: {
+          accepting_bookings: boolean
           avatar_url: string | null
           billing_mode: string
           bio: string | null
           business_name: string
           categories: Database["public"]["Enums"]["service_category"][]
           city: string | null
+          completed_bookings: number
           cover_url: string | null
           created_at: string
           id: string
           is_live: boolean
+          is_verified: boolean
           phone: string | null
           rating_avg: number
           rating_count: number
+          service_areas: string[]
           subscription_expires_at: string | null
           updated_at: string
           user_id: string
           whatsapp: string | null
         }
         Insert: {
+          accepting_bookings?: boolean
           avatar_url?: string | null
           billing_mode?: string
           bio?: string | null
           business_name: string
           categories?: Database["public"]["Enums"]["service_category"][]
           city?: string | null
+          completed_bookings?: number
           cover_url?: string | null
           created_at?: string
           id?: string
           is_live?: boolean
+          is_verified?: boolean
           phone?: string | null
           rating_avg?: number
           rating_count?: number
+          service_areas?: string[]
           subscription_expires_at?: string | null
           updated_at?: string
           user_id: string
           whatsapp?: string | null
         }
         Update: {
+          accepting_bookings?: boolean
           avatar_url?: string | null
           billing_mode?: string
           bio?: string | null
           business_name?: string
           categories?: Database["public"]["Enums"]["service_category"][]
           city?: string | null
+          completed_bookings?: number
           cover_url?: string | null
           created_at?: string
           id?: string
           is_live?: boolean
+          is_verified?: boolean
           phone?: string | null
           rating_avg?: number
           rating_count?: number
+          service_areas?: string[]
           subscription_expires_at?: string | null
           updated_at?: string
           user_id?: string
@@ -608,6 +672,7 @@ export type Database = {
           comment: string | null
           created_at: string
           id: string
+          photo_path: string | null
           provider_id: string
           rating: number
         }
@@ -617,6 +682,7 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
+          photo_path?: string | null
           provider_id: string
           rating: number
         }
@@ -626,6 +692,7 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
+          photo_path?: string | null
           provider_id?: string
           rating?: number
         }
@@ -793,8 +860,20 @@ export type Database = {
         Args: { _actor?: string; _reason: string; _user_id: string }
         Returns: Json
       }
+      begin_booking_payment: {
+        Args: { _booking_id: string; _reference: string }
+        Returns: Json
+      }
+      cancel_booking: {
+        Args: { _booking_id: string; _reason?: string }
+        Returns: Json
+      }
       complete_activation: {
         Args: { _payment_reference: string; _provider_transaction_id: string }
+        Returns: Json
+      }
+      complete_booking_payment: {
+        Args: { _payment_reference: string; _provider_transaction_id?: string }
         Returns: Json
       }
       complete_provider_subscription: {
@@ -811,7 +890,43 @@ export type Database = {
         }
         Returns: Json
       }
+      decide_booking: {
+        Args: { _accept: boolean; _booking_id: string; _reason?: string }
+        Returns: Json
+      }
+      fail_booking_payment: {
+        Args: { _payment_reference: string; _status: string }
+        Returns: Json
+      }
       generate_referral_code: { Args: never; Returns: string }
+      get_provider_bookings: {
+        Args: never
+        Returns: {
+          accepted_at: string
+          address: string
+          client_email: string
+          client_id: string
+          client_name: string
+          client_phone: string
+          completed_at: string
+          created_at: string
+          decline_reason: string
+          id: string
+          invoice_number: string
+          notes: string
+          paid_at: string
+          pay_by: string
+          platform_fee: number
+          price: number
+          provider_amount: number
+          provider_id: string
+          respond_by: string
+          scheduled_at: string
+          service_id: string
+          service_title: string
+          status: string
+        }[]
+      }
       get_user_network_tree: {
         Args: never
         Returns: {
@@ -846,8 +961,22 @@ export type Database = {
         }
         Returns: undefined
       }
+      request_booking: {
+        Args: {
+          _address?: string
+          _notes?: string
+          _provider_id: string
+          _scheduled_at: string
+          _service_id: string
+        }
+        Returns: Json
+      }
       request_withdrawal: {
         Args: { _amount: number; _method: string; _phone: string }
+        Returns: Json
+      }
+      set_booking_progress: {
+        Args: { _booking_id: string; _status: string }
         Returns: Json
       }
       settle_withdrawal: {
@@ -856,6 +985,15 @@ export type Database = {
           _provider_reference?: string
           _status: string
           _withdrawal_id: string
+        }
+        Returns: Json
+      }
+      submit_review: {
+        Args: {
+          _booking_id: string
+          _comment?: string
+          _photo_path?: string
+          _rating: number
         }
         Returns: Json
       }
@@ -873,6 +1011,10 @@ export type Database = {
         | "NO_SHOW"
         | "REFUNDED"
         | "DISPUTED"
+        | "ACCEPTED"
+        | "PAYMENT_PROCESSING"
+        | "PAYMENT_FAILED"
+        | "PAYMENT_EXPIRED"
       service_category:
         | "BRAIDER"
         | "NAIL_TECH"
@@ -1043,6 +1185,10 @@ export const Constants = {
         "NO_SHOW",
         "REFUNDED",
         "DISPUTED",
+        "ACCEPTED",
+        "PAYMENT_PROCESSING",
+        "PAYMENT_FAILED",
+        "PAYMENT_EXPIRED",
       ],
       service_category: [
         "BRAIDER",

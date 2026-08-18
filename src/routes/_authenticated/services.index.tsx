@@ -1,16 +1,32 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { MapPin, Search, Sparkle, Users } from "lucide-react";
-import { useProviders, useProvidersPortfolio } from "@/lib/marketplace.queries";
-import { ProviderCard } from "@/components/refer/ProviderCard";
+import { MapPin, Search, SlidersHorizontal, Sparkle, Star, Users } from "lucide-react";
 import { CategoryHero } from "@/components/refer/CategoryHero";
+import { ProviderCard } from "@/components/refer/ProviderCard";
 import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { type ServiceCategory } from "@/lib/marketplace";
 import { CATEGORY_GROUPS, categoryLabel, type GroupId } from "@/lib/taxonomy";
+import {
+  DEFAULT_FILTERS,
+  useDiscovery,
+  useProviderCities,
+  type DiscoveryFilters,
+  type DiscoverySort,
+} from "@/lib/discovery.queries";
 import { useLocation } from "@/lib/location";
 import { useI18n } from "@/lib/i18n";
+import { formatXAF } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/services/")({
@@ -34,41 +50,67 @@ export const Route = createFileRoute("/_authenticated/services/")({
   component: DiscoveryPage,
 });
 
+const PRICE_STEPS = [5000, 10000, 25000, 50000, 100000];
+
 function DiscoveryPage() {
   const { t, lang } = useI18n();
   const fr = lang === "fr";
-  const { data: providers, isLoading } = useProviders();
   const { location, asked, request, dismiss } = useLocation();
-  const [search, setSearch] = useState("");
+  const { data: cities } = useProviderCities();
+
   const [group, setGroup] = useState<GroupId | "ALL">("ALL");
   const [category, setCategory] = useState<ServiceCategory | "ALL">("ALL");
+  const [searchInput, setSearchInput] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState<DiscoveryFilters>(DEFAULT_FILTERS);
 
   const groupCategories = useMemo(
     () => (group === "ALL" ? [] : (CATEGORY_GROUPS.find((g) => g.id === group)?.categories ?? [])),
     [group],
   );
 
-  const filtered = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    return (providers ?? []).filter((p) => {
-      const cats = (p.categories ?? []) as ServiceCategory[];
-      const inGroup = group === "ALL" || cats.some((c) => groupCategories.includes(c));
-      const inCategory = category === "ALL" || cats.includes(category);
-      const matchesTerm =
-        term.length === 0 ||
-        p.business_name.toLowerCase().includes(term) ||
-        (p.city ?? "").toLowerCase().includes(term) ||
-        (p.bio ?? "").toLowerCase().includes(term);
-      return inGroup && inCategory && matchesTerm;
-    });
-  }, [providers, search, group, groupCategories, category]);
+  // Debounce the free-text search so typing does not hit the database per keystroke.
+  useEffect(() => {
+    const id = setTimeout(() => setFilters((f) => ({ ...f, search: searchInput })), 350);
+    return () => clearTimeout(id);
+  }, [searchInput]);
 
-  const { data: photosByProvider } = useProvidersPortfolio(filtered.map((p) => p.id));
+  useEffect(() => {
+    const cats: ServiceCategory[] =
+      category !== "ALL" ? [category] : group !== "ALL" ? [...groupCategories] : [];
+    setFilters((f) => ({ ...f, categories: cats }));
+  }, [category, group, groupCategories]);
+
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useDiscovery(filters);
+  const providers = useMemo(() => (data?.pages ?? []).flat(), [data]);
+
+  // Infinite scroll sentinel.
+  const sentinel = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const node = sentinel.current;
+    if (!node) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) void fetchNextPage();
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   function selectGroup(next: GroupId | "ALL") {
     setGroup(next);
     setCategory("ALL");
   }
+
+  function patch(next: Partial<DiscoveryFilters>) {
+    setFilters((f) => ({ ...f, ...next }));
+  }
+
+  const activeFilterCount =
+    (filters.city ? 1 : 0) +
+    (filters.minRating > 0 ? 1 : 0) +
+    (filters.maxPrice !== null ? 1 : 0) +
+    (filters.verifiedOnly ? 1 : 0) +
+    (filters.availableOnly ? 1 : 0);
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
@@ -85,7 +127,7 @@ function DiscoveryPage() {
           <Link to="/studio">
             <Sparkle className="size-4" aria-hidden />
             <span className="hidden sm:inline">{t("svc.becomePro")}</span>
-            <span className="sm:hidden">{fr ? "Pro" : "Pro"}</span>
+            <span className="sm:hidden">Pro</span>
           </Link>
         </Button>
       </header>
@@ -111,18 +153,29 @@ function DiscoveryPage() {
         </div>
       ) : null}
 
-      <div className="relative">
-        <Search
-          className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-          aria-hidden
-        />
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={fr ? "Rechercher un pro, une ville…" : "Search a pro, a city…"}
-          className="pl-9"
-          aria-label={t("svc.search")}
-        />
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
+        <div className="relative min-w-0">
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+            aria-hidden
+          />
+          <Input
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder={fr ? "Rechercher un pro, une ville…" : "Search a pro, a city…"}
+            className="pl-9"
+            aria-label={t("svc.search")}
+          />
+        </div>
+        <Button
+          variant={showFilters || activeFilterCount > 0 ? "default" : "outline"}
+          onClick={() => setShowFilters((v) => !v)}
+          aria-expanded={showFilters}
+        >
+          <SlidersHorizontal className="size-4" aria-hidden />
+          <span className="hidden sm:inline">{fr ? "Filtres" : "Filters"}</span>
+          {activeFilterCount > 0 ? <span className="tabular text-xs">({activeFilterCount})</span> : null}
+        </Button>
       </div>
 
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
@@ -163,9 +216,131 @@ function DiscoveryPage() {
         </div>
       ) : null}
 
+      {showFilters ? (
+        <div className="grid gap-4 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="space-y-1.5">
+            <Label>{fr ? "Ville" : "City"}</Label>
+            <Select
+              value={filters.city || "ALL"}
+              onValueChange={(v) => patch({ city: v === "ALL" ? "" : v })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={fr ? "Toutes" : "All"} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">{fr ? "Toutes les villes" : "All cities"}</SelectItem>
+                {(cities ?? []).map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>{fr ? "Note minimum" : "Minimum rating"}</Label>
+            <Select value={String(filters.minRating)} onValueChange={(v) => patch({ minRating: Number(v) })}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[0, 3, 4, 4.5].map((r) => (
+                  <SelectItem key={r} value={String(r)}>
+                    {r === 0 ? (fr ? "Toutes" : "Any") : `${r}+ ★`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>{fr ? "Prix max" : "Max price"}</Label>
+            <Select
+              value={filters.maxPrice === null ? "ALL" : String(filters.maxPrice)}
+              onValueChange={(v) => patch({ maxPrice: v === "ALL" ? null : Number(v) })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">{fr ? "Tous les prix" : "Any price"}</SelectItem>
+                {PRICE_STEPS.map((p) => (
+                  <SelectItem key={p} value={String(p)}>
+                    ≤ {formatXAF(p)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>{fr ? "Trier par" : "Sort by"}</Label>
+            <Select value={filters.sort} onValueChange={(v) => patch({ sort: v as DiscoverySort })}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="TOP_RATED">{fr ? "Mieux notés" : "Top rated"}</SelectItem>
+                <SelectItem value="NEARBY">{fr ? "Par ville" : "By city"}</SelectItem>
+                <SelectItem value="PRICE_LOW">{fr ? "Prix croissant" : "Price: low to high"}</SelectItem>
+                <SelectItem value="PRICE_HIGH">{fr ? "Prix décroissant" : "Price: high to low"}</SelectItem>
+                <SelectItem value="NEWEST">{fr ? "Nouveaux" : "Newest"}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-border px-3 py-2">
+            <Label htmlFor="verified-only" className="text-sm">
+              {fr ? "Pros vérifiés" : "Verified pros"}
+            </Label>
+            <Switch
+              id="verified-only"
+              checked={filters.verifiedOnly}
+              onCheckedChange={(v) => patch({ verifiedOnly: v })}
+            />
+          </div>
+
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-border px-3 py-2">
+            <Label htmlFor="available-only" className="text-sm">
+              {fr ? "Disponibles" : "Available now"}
+            </Label>
+            <Switch
+              id="available-only"
+              checked={filters.availableOnly}
+              onCheckedChange={(v) => patch({ availableOnly: v })}
+            />
+          </div>
+
+          <div className="sm:col-span-2 lg:col-span-2">
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setFilters({ ...DEFAULT_FILTERS, search: searchInput });
+                setCategory("ALL");
+                setGroup("ALL");
+              }}
+            >
+              {fr ? "Réinitialiser les filtres" : "Reset filters"}
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
+      {location ? (
+        <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <MapPin className="size-3.5" aria-hidden />
+          {location.label
+            ? `${fr ? "Vous êtes près de" : "You are near"} ${location.label}`
+            : fr
+              ? "Localisation activée — filtrez par ville pour les pros proches."
+              : "Location on — filter by city for pros near you."}
+        </p>
+      ) : null}
+
       {isLoading ? (
-        <SkeletonRows rows={3} />
-      ) : filtered.length === 0 ? (
+        <SkeletonRows rows={4} />
+      ) : providers.length === 0 ? (
         <EmptyState
           title={t("svc.empty")}
           description={t("svc.emptyCopy")}
@@ -177,11 +352,41 @@ function DiscoveryPage() {
           }
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((provider) => (
-            <ProviderCard key={provider.id} provider={provider} photos={photosByProvider?.[provider.id] ?? []} />
-          ))}
-        </div>
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {providers.map((provider) => (
+              <div key={provider.id} className="relative">
+                <ProviderCard provider={provider} photos={provider.photos} />
+                <div className="pointer-events-none absolute right-3 top-3 flex flex-col items-end gap-1">
+                  {provider.is_verified ? (
+                    <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                      {fr ? "Vérifié" : "Verified"}
+                    </span>
+                  ) : null}
+                  {provider.fromPrice !== null ? (
+                    <span className="rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-bold text-foreground">
+                      {fr ? "dès" : "from"} {formatXAF(provider.fromPrice)}
+                    </span>
+                  ) : null}
+                  {provider.completed_bookings > 0 ? (
+                    <span className="flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                      <Star className="size-3" aria-hidden />
+                      {provider.completed_bookings} {fr ? "terminées" : "done"}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div ref={sentinel} className="h-10" aria-hidden />
+          {isFetchingNextPage ? <SkeletonRows rows={1} /> : null}
+          {!hasNextPage && providers.length > 0 ? (
+            <p className="pb-2 text-center text-xs text-muted-foreground">
+              {fr ? "Vous avez tout vu." : "You have seen everyone."}
+            </p>
+          ) : null}
+        </>
       )}
     </div>
   );

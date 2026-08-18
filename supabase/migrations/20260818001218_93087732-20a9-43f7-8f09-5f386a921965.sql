@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.sync_provider_completed_bookings() FROM PUBLIC, anon, authenticated;

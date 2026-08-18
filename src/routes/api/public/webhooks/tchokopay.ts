@@ -39,14 +39,22 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
         }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        let outcome = status ?? "PENDING";
+        let outcome: string = status ?? "PENDING";
+        // References are namespaced: BKG- belongs to a marketplace booking,
+        // anything else is an account activation.
+        const isBooking = result.reference.startsWith("BKG-");
 
         if (status === "PAID") {
-          // Idempotent: the database function ignores already-paid activations.
-          const { error } = await supabaseAdmin.rpc("complete_activation", {
-            _payment_reference: result.reference,
-            _provider_transaction_id: (providerTransactionId ?? null) as unknown as string,
-          });
+          // Idempotent: both database functions ignore already-paid records.
+          const { error } = isBooking
+            ? await supabaseAdmin.rpc("complete_booking_payment", {
+                _payment_reference: result.reference,
+                _provider_transaction_id: (providerTransactionId ?? null) as unknown as string,
+              })
+            : await supabaseAdmin.rpc("complete_activation", {
+                _payment_reference: result.reference,
+                _provider_transaction_id: (providerTransactionId ?? null) as unknown as string,
+              });
           if (error) {
             await supabaseAdmin.from("payment_events").insert({
               source: "WEBHOOK",
@@ -54,19 +62,27 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
               status: status ?? null,
               signature_verified: result.signatureVerified,
               outcome: "COMPLETE_FAILED",
-              detail: { error: error.message },
+              detail: { error: error.message, kind: isBooking ? "BOOKING" : "ACTIVATION" },
             });
             return new Response(JSON.stringify({ error: "PROCESSING_FAILED" }), {
               status: 500,
               headers: { "content-type": "application/json" },
             });
           }
+          outcome = isBooking ? "BOOKING_CONFIRMED" : outcome;
         } else if (status === "FAILED" || status === "CANCELLED") {
-          await supabaseAdmin
-            .from("activations")
-            .update({ status, updated_at: new Date().toISOString() })
-            .eq("payment_reference", result.reference)
-            .neq("status", "PAID");
+          if (isBooking) {
+            await supabaseAdmin.rpc("fail_booking_payment", {
+              _payment_reference: result.reference,
+              _status: status,
+            });
+          } else {
+            await supabaseAdmin
+              .from("activations")
+              .update({ status, updated_at: new Date().toISOString() })
+              .eq("payment_reference", result.reference)
+              .neq("status", "PAID");
+          }
         }
 
         await supabaseAdmin.from("payment_events").insert({
