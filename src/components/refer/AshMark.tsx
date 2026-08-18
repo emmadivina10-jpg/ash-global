@@ -9,7 +9,7 @@ export function AshMark({ className, ai = true }: { className?: string; ai?: boo
   return (
     <svg viewBox="0 0 32 32" className={cn("size-6", className)} fill="none" aria-hidden>
       <path
-        d="M9 24V10a2.5 2.5 0 0 1 2.5-2.5h6a4.5 4.5 0 0 1 0 9h-4.5m5.5 0 5.5 7.5"
+        d="M7.5 25.5 16 6.5l8.5 19M11.4 19h9.2"
         stroke="currentColor"
         strokeWidth="2.4"
         strokeLinecap="round"
