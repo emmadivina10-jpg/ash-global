@@ -6,11 +6,11 @@ import {
   BadgeCheck,
   Banknote,
   Layers,
-  Scissors,
   ShieldCheck,
   Smartphone,
   Sparkles,
   Star,
+  Store,
   Users,
   Wallet,
 } from "lucide-react";
@@ -120,7 +120,7 @@ function Landing() {
             <div className="tile col-span-full flex flex-col justify-between p-6 sm:p-8 lg:flex-row lg:items-center">
               <div className="max-w-xl">
                 <span className="eyebrow inline-flex items-center gap-2 text-primary">
-                  <Scissors className="size-3.5" aria-hidden />
+                  <Store className="size-3.5" aria-hidden />
                   {t("landing.services.eyebrow")}
                 </span>
                 <h2 className="mt-3 font-display text-2xl font-extrabold text-foreground sm:text-3xl">
@@ -156,7 +156,7 @@ function Landing() {
                 <div className="relative min-h-[16rem] sm:min-h-[20rem] lg:min-h-[22rem]">
                   <img
                     src={ashServicesHero}
-                    alt="Braiders, nail technicians, lash artists and barbers on ASH Services"
+                    alt="Verified sellers, service providers and professionals on ASH Marketplace"
                     className="absolute inset-0 h-full w-full object-cover"
                     width={1200}
                     height={800}
