@@ -13,7 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ThemeProvider } from "@/lib/theme";
 import { I18nProvider } from "@/lib/i18n";
-import { SplashOnboarding } from "@/components/refer/SplashOnboarding";
+
 
 function NotFoundComponent() {
   return (
@@ -170,7 +170,6 @@ function RootComponent() {
         <I18nProvider>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
-          <SplashOnboarding />
         </I18nProvider>
       </ThemeProvider>
     </QueryClientProvider>
