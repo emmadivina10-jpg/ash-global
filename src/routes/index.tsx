@@ -36,7 +36,7 @@ export const Route = createFileRoute("/")({
       { property: "og:url", content: "https://growrefer.app/" },
       { property: "og:image", content: OG_IMAGE },
       { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "630" },
+      { property: "og:image:height", content: "640" },
       { property: "og:image:alt", content: "ASH Glo REFER" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:image", content: OG_IMAGE },
@@ -158,8 +158,8 @@ function Landing() {
                     src={ashServicesHero}
                     alt="Verified sellers, service providers and professionals on ASH Marketplace"
                     className="absolute inset-0 h-full w-full object-cover"
-                    width={1200}
-                    height={800}
+                    width={1536}
+                    height={1024}
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/40 to-transparent lg:via-background/20" />
