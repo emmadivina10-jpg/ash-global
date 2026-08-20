@@ -438,12 +438,20 @@ function StudioPage() {
                 value={service.description}
                 onChange={(e) => setService({ ...service, description: e.target.value })}
               />
-              <Button type="submit">{t("pro.addService")}</Button>
+              <Button type="submit" disabled={addingService}>
+                {addingService ? t("pro.uploading") : t("pro.addService")}
+              </Button>
             </form>
 
             <ul className="mt-4 divide-y divide-border">
               {(services ?? []).map((s) => (
-                <li key={s.id} className="flex items-center justify-between gap-3 py-3">
+                <li
+                  key={s.id}
+                  className={cn(
+                    "flex items-center justify-between gap-3 rounded-xl px-2 py-3 transition-colors",
+                    highlightId === s.id && "bg-primary/10",
+                  )}
+                >
                   <div className="min-w-0">
                     <p className="truncate font-semibold text-foreground">{s.title}</p>
                     <p className="text-xs text-muted-foreground">
@@ -456,6 +464,7 @@ function StudioPage() {
                 </li>
               ))}
             </ul>
+
           </SectionCard>
 
           <SectionCard title={t("svc.portfolio")}>
