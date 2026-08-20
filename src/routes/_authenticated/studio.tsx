@@ -69,6 +69,8 @@ function StudioPage() {
   const [busySub, setBusySub] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [service, setService] = useState({ title: "", price: "", duration_minutes: "60", description: "" });
+  const [addingService, setAddingService] = useState(false);
+  const [highlightId, setHighlightId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!studio) return;
@@ -139,20 +141,32 @@ function StudioPage() {
     const price = Number(service.price);
     const duration = Number(service.duration_minutes);
     if (!service.title.trim() || !Number.isFinite(price) || price <= 0) return;
-    const { error } = await supabase.from("provider_services").insert({
-      provider_id: studio.id,
-      title: service.title.trim(),
-      price,
-      duration_minutes: Number.isFinite(duration) && duration > 0 ? duration : 60,
-      description: service.description.trim() || null,
-    });
+    setAddingService(true);
+    const { data: inserted, error } = await supabase
+      .from("provider_services")
+      .insert({
+        provider_id: studio.id,
+        title: service.title.trim(),
+        price,
+        duration_minutes: Number.isFinite(duration) && duration > 0 ? duration : 60,
+        description: service.description.trim() || null,
+      })
+      .select("id")
+      .maybeSingle();
+    setAddingService(false);
     if (error) {
-      toast.error(t("pro.saveErr"));
+      toast.error(error.message || t("pro.saveErr"));
       return;
     }
     setService({ title: "", price: "", duration_minutes: "60", description: "" });
-    void queryClient.invalidateQueries({ queryKey: ["provider-services", studio.id] });
+    toast.success(t("pro.serviceAdded"));
+    await queryClient.invalidateQueries({ queryKey: ["provider-services"] });
+    if (inserted?.id) {
+      setHighlightId(inserted.id);
+      setTimeout(() => setHighlightId((id) => (id === inserted.id ? null : id)), 2500);
+    }
   }
+
 
   async function removeService(id: string) {
     await supabase.from("provider_services").delete().eq("id", id);
@@ -424,12 +438,20 @@ function StudioPage() {
                 value={service.description}
                 onChange={(e) => setService({ ...service, description: e.target.value })}
               />
-              <Button type="submit">{t("pro.addService")}</Button>
+              <Button type="submit" disabled={addingService}>
+                {addingService ? t("pro.uploading") : t("pro.addService")}
+              </Button>
             </form>
 
             <ul className="mt-4 divide-y divide-border">
               {(services ?? []).map((s) => (
-                <li key={s.id} className="flex items-center justify-between gap-3 py-3">
+                <li
+                  key={s.id}
+                  className={cn(
+                    "flex items-center justify-between gap-3 rounded-xl px-2 py-3 transition-colors",
+                    highlightId === s.id && "bg-primary/10",
+                  )}
+                >
                   <div className="min-w-0">
                     <p className="truncate font-semibold text-foreground">{s.title}</p>
                     <p className="text-xs text-muted-foreground">
@@ -442,6 +464,7 @@ function StudioPage() {
                 </li>
               ))}
             </ul>
+
           </SectionCard>
 
           <SectionCard title={t("svc.portfolio")}>
