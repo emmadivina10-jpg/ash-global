@@ -139,20 +139,32 @@ function StudioPage() {
     const price = Number(service.price);
     const duration = Number(service.duration_minutes);
     if (!service.title.trim() || !Number.isFinite(price) || price <= 0) return;
-    const { error } = await supabase.from("provider_services").insert({
-      provider_id: studio.id,
-      title: service.title.trim(),
-      price,
-      duration_minutes: Number.isFinite(duration) && duration > 0 ? duration : 60,
-      description: service.description.trim() || null,
-    });
+    setAddingService(true);
+    const { data: inserted, error } = await supabase
+      .from("provider_services")
+      .insert({
+        provider_id: studio.id,
+        title: service.title.trim(),
+        price,
+        duration_minutes: Number.isFinite(duration) && duration > 0 ? duration : 60,
+        description: service.description.trim() || null,
+      })
+      .select("id")
+      .maybeSingle();
+    setAddingService(false);
     if (error) {
-      toast.error(t("pro.saveErr"));
+      toast.error(error.message || t("pro.saveErr"));
       return;
     }
     setService({ title: "", price: "", duration_minutes: "60", description: "" });
-    void queryClient.invalidateQueries({ queryKey: ["provider-services", studio.id] });
+    toast.success(t("pro.serviceAdded"));
+    await queryClient.invalidateQueries({ queryKey: ["provider-services"] });
+    if (inserted?.id) {
+      setHighlightId(inserted.id);
+      setTimeout(() => setHighlightId((id) => (id === inserted.id ? null : id)), 2500);
+    }
   }
+
 
   async function removeService(id: string) {
     await supabase.from("provider_services").delete().eq("id", id);
