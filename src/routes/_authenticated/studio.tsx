@@ -173,9 +173,10 @@ function StudioPage() {
           .insert({ provider_id: studio.id, image_path: path });
         if (rowErr) throw rowErr;
       }
-      void queryClient.invalidateQueries({ queryKey: ["portfolio", studio.id] });
-    } catch {
-      toast.error(t("pro.uploadErr"));
+      void queryClient.invalidateQueries({ queryKey: ["portfolio"] });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "";
+      toast.error(message === "too-large" ? t("pro.uploadErr") : message || t("pro.uploadErr"));
     } finally {
       setUploading(false);
     }
