@@ -69,6 +69,8 @@ function StudioPage() {
   const [busySub, setBusySub] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [service, setService] = useState({ title: "", price: "", duration_minutes: "60", description: "" });
+  const [addingService, setAddingService] = useState(false);
+  const [highlightId, setHighlightId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!studio) return;
