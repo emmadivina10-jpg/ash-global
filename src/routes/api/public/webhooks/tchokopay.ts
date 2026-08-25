@@ -43,11 +43,17 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
         // References are namespaced: BKG- belongs to a marketplace booking,
         // anything else is an account activation.
         const isBooking = result.reference.startsWith("BKG-");
+        const isLink = result.reference.startsWith("PLK-");
 
         if (status === "PAID") {
-          // Idempotent: both database functions ignore already-paid records.
+          // Idempotent: all three database functions ignore already-paid records.
           const { error } = isBooking
             ? await supabaseAdmin.rpc("complete_booking_payment", {
+                _payment_reference: result.reference,
+                _provider_transaction_id: (providerTransactionId ?? null) as unknown as string,
+              })
+            : isLink
+            ? await supabaseAdmin.rpc("complete_link_payment", {
                 _payment_reference: result.reference,
                 _provider_transaction_id: (providerTransactionId ?? null) as unknown as string,
               })
@@ -62,17 +68,22 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
               status: status ?? null,
               signature_verified: result.signatureVerified,
               outcome: "COMPLETE_FAILED",
-              detail: { error: error.message, kind: isBooking ? "BOOKING" : "ACTIVATION" },
+              detail: { error: error.message, kind: isBooking ? "BOOKING" : isLink ? "PAYMENT_LINK" : "ACTIVATION" },
             });
             return new Response(JSON.stringify({ error: "PROCESSING_FAILED" }), {
               status: 500,
               headers: { "content-type": "application/json" },
             });
           }
-          outcome = isBooking ? "BOOKING_CONFIRMED" : outcome;
+          outcome = isBooking ? "BOOKING_CONFIRMED" : isLink ? "LINK_PAID" : outcome;
         } else if (status === "FAILED" || status === "CANCELLED") {
           if (isBooking) {
             await supabaseAdmin.rpc("fail_booking_payment", {
+              _payment_reference: result.reference,
+              _status: status,
+            });
+          } else if (isLink) {
+            await supabaseAdmin.rpc("fail_link_payment", {
               _payment_reference: result.reference,
               _status: status,
             });
