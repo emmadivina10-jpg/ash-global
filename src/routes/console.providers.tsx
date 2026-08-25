@@ -5,7 +5,7 @@ import { getConsoleProviders } from "@/lib/console.functions";
 import { SectionCard } from "@/components/refer/cards";
 import { StatusBadge } from "@/components/refer/StatusBadge";
 import { EmptyState, ErrorState, SkeletonRows } from "@/components/refer/states";
-import { formatDate, formatXAF } from "@/lib/format";
+import { formatXAF } from "@/lib/format";
 
 export const Route = createFileRoute("/console/providers")({
   component: ConsoleProviders,
@@ -22,7 +22,7 @@ function ConsoleProviders() {
   if (isError) return <ErrorState onRetry={() => void refetch()} />;
 
   return (
-    <SectionCard title="Providers" description="Studios, billing mode and the revenue they generate.">
+    <SectionCard title="Providers" description="Studios and the revenue they generate (ASH takes 1% of every paid booking).">
       {(data ?? []).length === 0 ? (
         <EmptyState title="No providers yet" />
       ) : (
@@ -31,16 +31,12 @@ function ConsoleProviders() {
             <li key={p.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 py-3.5">
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-foreground">{p.business_name}</p>
-                <p className="truncate text-xs text-muted-foreground">
-                  {p.city || "—"} · {p.billing_mode === "COMMISSION" ? "1% commission" : "2,000 XAF/month"}
-                </p>
+                <p className="truncate text-xs text-muted-foreground">{p.city || "—"} · 1% commission</p>
                 <p className="truncate text-xs text-muted-foreground">
                   {p.completed}/{p.bookings} completed · ★ {Number(p.rating_avg).toFixed(1)} ({p.rating_count})
-                  {p.billing_mode === "SUBSCRIPTION"
-                    ? ` · renews ${formatDate(p.subscription_expires_at)}`
-                    : ""}
                 </p>
               </div>
+
               <div className="text-right">
                 <StatusBadge status={p.is_live ? "ACTIVE" : "PENDING"} label={p.is_live ? "Live" : "Offline"} />
                 <p className="tabular mt-1.5 text-xs font-semibold text-foreground">{formatXAF(p.revenue)}</p>

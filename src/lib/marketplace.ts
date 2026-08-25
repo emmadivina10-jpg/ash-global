@@ -1,7 +1,8 @@
 import type { TKey } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 
-export const SUBSCRIPTION_FEE = 2000;
+/** The marketplace is free to join; ASH earns 1% of every paid booking. */
+export const PLATFORM_COMMISSION_RATE = 0.01;
 export const PORTFOLIO_BUCKET = "portfolio";
 
 export const SERVICE_CATEGORIES = [

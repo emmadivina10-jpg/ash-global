@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { MapPin, Search, SlidersHorizontal, Sparkle, Star, Users } from "lucide-react";
+import { MapPin, Search, SlidersHorizontal, Sparkle, Users } from "lucide-react";
 import { CategoryHero } from "@/components/refer/CategoryHero";
 import { ProviderCard } from "@/components/refer/ProviderCard";
 import { EmptyState, SkeletonRows } from "@/components/refer/states";
@@ -80,6 +80,12 @@ function DiscoveryPage() {
       category !== "ALL" ? [category] : group !== "ALL" ? [...groupCategories] : [];
     setFilters((f) => ({ ...f, categories: cats }));
   }, [category, group, groupCategories]);
+
+  // Location-first: once we know the member's city, it leads the feed.
+  useEffect(() => {
+    const city = location?.label ?? null;
+    setFilters((f) => (f.nearCity === city ? f : { ...f, nearCity: city }));
+  }, [location?.label]);
 
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useDiscovery(filters);
   const providers = useMemo(() => (data?.pages ?? []).flat(), [data]);
@@ -282,7 +288,7 @@ function DiscoveryPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="TOP_RATED">{fr ? "Mieux notés" : "Top rated"}</SelectItem>
-                <SelectItem value="NEARBY">{fr ? "Par ville" : "By city"}</SelectItem>
+                <SelectItem value="NEARBY">{fr ? "Près de moi" : "Near me"}</SelectItem>
                 <SelectItem value="PRICE_LOW">{fr ? "Prix croissant" : "Price: low to high"}</SelectItem>
                 <SelectItem value="PRICE_HIGH">{fr ? "Prix décroissant" : "Price: high to low"}</SelectItem>
                 <SelectItem value="NEWEST">{fr ? "Nouveaux" : "Newest"}</SelectItem>
@@ -316,7 +322,7 @@ function DiscoveryPage() {
             <Button
               variant="ghost"
               onClick={() => {
-                setFilters({ ...DEFAULT_FILTERS, search: searchInput });
+                setFilters({ ...DEFAULT_FILTERS, search: searchInput, nearCity: location?.label ?? null });
                 setCategory("ALL");
                 setGroup("ALL");
               }}
@@ -331,10 +337,12 @@ function DiscoveryPage() {
         <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <MapPin className="size-3.5" aria-hidden />
           {location.label
-            ? `${fr ? "Vous êtes près de" : "You are near"} ${location.label}`
+            ? fr
+              ? `Pros à ${location.label} affichés en premier.`
+              : `Showing pros in ${location.label} first.`
             : fr
-              ? "Localisation activée — filtrez par ville pour les pros proches."
-              : "Location on — filter by city for pros near you."}
+              ? "Localisation activée."
+              : "Location on."}
         </p>
       ) : null}
 
@@ -355,29 +363,23 @@ function DiscoveryPage() {
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {providers.map((provider) => (
-              <div key={provider.id} className="relative">
-                <ProviderCard provider={provider} photos={provider.photos} />
-                <div className="pointer-events-none absolute right-3 top-3 flex flex-col items-end gap-1">
-                  {provider.is_verified ? (
-                    <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
-                      {fr ? "Vérifié" : "Verified"}
-                    </span>
-                  ) : null}
-                  {provider.fromPrice !== null ? (
-                    <span className="rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-bold text-foreground">
-                      {fr ? "dès" : "from"} {formatXAF(provider.fromPrice)}
-                    </span>
-                  ) : null}
-                  {provider.completed_bookings > 0 ? (
-                    <span className="flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
-                      <Star className="size-3" aria-hidden />
-                      {provider.completed_bookings} {fr ? "terminées" : "done"}
-                    </span>
-                  ) : null}
-                </div>
-              </div>
+              <ProviderCard
+                key={provider.id}
+                provider={provider}
+                photos={provider.photos}
+                services={provider.services}
+                fromPrice={provider.fromPrice}
+                isVerified={provider.is_verified}
+                acceptingBookings={provider.accepting_bookings}
+                completedBookings={provider.completed_bookings}
+                nearby={
+                  Boolean(filters.nearCity) &&
+                  (provider.city ?? "").trim().toLowerCase() === (filters.nearCity ?? "").trim().toLowerCase()
+                }
+              />
             ))}
           </div>
+
 
           <div ref={sentinel} className="h-10" aria-hidden />
           {isFetchingNextPage ? <SkeletonRows rows={1} /> : null}

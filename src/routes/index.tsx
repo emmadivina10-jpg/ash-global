@@ -1,5 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import ashServicesHero from "../../public/ash-services-hero.jpg";
+import marketHero from "@/assets/market-hero.jpg";
+import marketHome from "@/assets/market-home.jpg";
+import marketHealth from "@/assets/market-health.jpg";
+import marketTech from "@/assets/market-tech.jpg";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -83,6 +87,33 @@ const FEATURES = [
   { icon: Banknote, title: "landing.f6.title" as TKey, copy: "landing.f6.copy" as TKey },
 ];
 
+const CATEGORY_TILES = [
+  {
+    image: ashServicesHero,
+    title: "landing.cat.beauty.title" as TKey,
+    copy: "landing.cat.beauty.copy" as TKey,
+    alt: "landing.cat.beauty.title" as TKey,
+  },
+  {
+    image: marketHome,
+    title: "landing.cat.home.title" as TKey,
+    copy: "landing.cat.home.copy" as TKey,
+    alt: "landing.cat.home.title" as TKey,
+  },
+  {
+    image: marketHealth,
+    title: "landing.cat.health.title" as TKey,
+    copy: "landing.cat.health.copy" as TKey,
+    alt: "landing.cat.health.title" as TKey,
+  },
+  {
+    image: marketTech,
+    title: "landing.cat.tech.title" as TKey,
+    copy: "landing.cat.tech.copy" as TKey,
+    alt: "landing.cat.tech.title" as TKey,
+  },
+];
+
 const STEPS = [
   { title: "landing.step1.title" as TKey, copy: "landing.step1.copy" as TKey },
   { title: "landing.step2.title" as TKey, copy: "landing.step2.copy" as TKey },
@@ -116,76 +147,100 @@ function Landing() {
         {/* Hero bento */}
         <section className="mx-auto max-w-6xl px-4 pb-10 pt-8 sm:px-6 sm:pt-12 lg:pb-16">
           <div className="grid gap-4 lg:grid-cols-12">
-            {/* Services marketplace tile */}
-            <div className="tile col-span-full flex flex-col justify-between p-6 sm:p-8 lg:flex-row lg:items-center">
-              <div className="max-w-xl">
-                <span className="eyebrow inline-flex items-center gap-2 text-primary">
-                  <Store className="size-3.5" aria-hidden />
-                  {t("landing.services.eyebrow")}
-                </span>
-                <h2 className="mt-3 font-display text-2xl font-extrabold text-foreground sm:text-3xl">
-                  {t("landing.services.title")}
-                </h2>
-                <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
-                  {t("landing.services.copy")}
-                </p>
-                <div className="mt-4 flex flex-wrap gap-3">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-                    <Star className="size-3.5 text-gold" aria-hidden />
-                    {t("landing.services.reviews")}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-                    <Smartphone className="size-3.5 text-primary" aria-hidden />
-                    {t("landing.services.chat")}
-                  </span>
-                </div>
-              </div>
-              <div className="mt-5 lg:mt-0">
-                <Button asChild size="lg" className="h-12 shadow-[var(--shadow-card)]">
-                  <Link to="/services">
-                    {t("landing.services.cta")}
-                    <ArrowRight className="size-4" aria-hidden />
-                  </Link>
-                </Button>
-              </div>
-            </div>
+            {/* Cinematic marketplace hero */}
+            <div className="tile relative col-span-full overflow-hidden p-0">
+              <div className="relative min-h-[30rem] sm:min-h-[34rem] lg:min-h-[38rem]">
+                <img
+                  src={marketHero}
+                  alt="Verified beauty, tech, home and health professionals on the ASH marketplace"
+                  className="absolute inset-0 h-full w-full object-cover object-center"
+                  width={1600}
+                  height={1008}
+                  fetchPriority="high"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[oklch(0.12_0.02_320)] via-[oklch(0.12_0.02_320_/_0.72)] to-[oklch(0.12_0.02_320_/_0.25)]" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[oklch(0.12_0.02_320_/_0.85)] to-transparent lg:to-[oklch(0.12_0.02_320_/_0.05)]" />
 
-            {/* Services hero image card */}
-            <div className="tile col-span-full overflow-hidden p-0">
-              <div className="grid lg:grid-cols-[1.2fr_1fr]">
-                <div className="relative min-h-[16rem] sm:min-h-[20rem] lg:min-h-[22rem]">
-                  <img
-                    src={ashServicesHero}
-                    alt="Verified sellers, service providers and professionals on ASH Marketplace"
-                    className="absolute inset-0 h-full w-full object-cover"
-                    width={1536}
-                    height={1024}
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/40 to-transparent lg:via-background/20" />
-                </div>
-                <div className="flex flex-col justify-center p-6 sm:p-8 lg:pl-0">
-                  <span className="eyebrow inline-flex items-center gap-2 text-primary">
-                    <Sparkles className="size-3.5" aria-hidden />
-                    {t("landing.services.hero.eyebrow")}
+                <div className="relative flex min-h-[30rem] flex-col justify-end p-6 sm:min-h-[34rem] sm:p-10 lg:min-h-[38rem] lg:p-14">
+                  <span className="hairline-gold inline-flex w-fit items-center gap-2 rounded-full bg-on-dark/10 px-3 py-1 text-xs font-semibold text-on-dark/90 backdrop-blur-sm">
+                    <Store className="size-3.5" aria-hidden />
+                    {t("landing.services.eyebrow")}
                   </span>
-                  <h2 className="mt-3 font-display text-2xl font-extrabold text-foreground sm:text-3xl">
-                    {t("landing.services.hero.title")}
+                  <h2 className="mt-4 max-w-2xl font-display text-3xl font-extrabold leading-[1.05] text-on-dark sm:text-5xl lg:text-[3.25rem]">
+                    {t("landing.services.title")}
                   </h2>
-                  <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
-                    {t("landing.services.hero.copy")}
+                  <p className="mt-3 max-w-xl text-sm leading-relaxed text-on-dark/80 sm:text-base">
+                    {t("landing.services.copy")}
                   </p>
-                  <div className="mt-5">
-                    <Button asChild size="lg" className="h-12 shadow-[var(--shadow-card)]">
+
+                  <div className="mt-5 flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-on-dark/10 px-3 py-1 text-xs font-medium text-on-dark/85 backdrop-blur-sm">
+                      <Star className="size-3.5 text-gold" aria-hidden />
+                      {t("landing.services.reviews")}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-on-dark/10 px-3 py-1 text-xs font-medium text-on-dark/85 backdrop-blur-sm">
+                      <Smartphone className="size-3.5" aria-hidden />
+                      {t("landing.services.chat")}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-on-dark/10 px-3 py-1 text-xs font-medium text-on-dark/85 backdrop-blur-sm">
+                      <ShieldCheck className="size-3.5" aria-hidden />
+                      {t("landing.services.secure")}
+                    </span>
+                  </div>
+
+                  <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                    <Button
+                      asChild
+                      size="lg"
+                      className="h-12 w-full shadow-[var(--shadow-card)] sm:w-auto"
+                    >
                       <Link to="/services">
-                        {t("landing.services.hero.cta")}
+                        {t("landing.services.cta")}
                         <ArrowRight className="size-4" aria-hidden />
                       </Link>
+                    </Button>
+                    <Button
+                      asChild
+                      size="lg"
+                      variant="outline"
+                      className="h-12 w-full border-on-dark/30 bg-transparent text-on-dark hover:bg-on-dark/10 hover:text-on-dark sm:w-auto"
+                    >
+                      <Link to="/register">{t("landing.services.sell")}</Link>
                     </Button>
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* Premium category strip */}
+            <div className="col-span-full grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+              {CATEGORY_TILES.map((tile) => (
+                <Link
+                  key={tile.title}
+                  to="/services"
+                  className="tile group relative overflow-hidden p-0"
+                >
+                  <div className="relative aspect-[4/5] w-full sm:aspect-[3/4]">
+                    <img
+                      src={tile.image}
+                      alt={t(tile.alt)}
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      loading="lazy"
+                      width={912}
+                      height={1104}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[oklch(0.12_0.02_320_/_0.9)] via-[oklch(0.12_0.02_320_/_0.35)] to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 p-4">
+                      <p className="font-display text-base font-bold text-on-dark sm:text-lg">{t(tile.title)}</p>
+                      <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-on-dark/75 sm:text-xs">
+                        {t(tile.copy)}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
 
             {/* Primary hero tile */}
             <div className="tile-dark grain relative col-span-full flex flex-col justify-between p-7 sm:p-10 lg:col-span-7 lg:min-h-[26rem]">

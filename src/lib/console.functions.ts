@@ -46,16 +46,30 @@ export const lockConsole = createServerFn({ method: "POST" }).handler(async () =
   return { ok: true as const };
 });
 
+type Counts = {
+  total_users: number;
+  active_users: number;
+  pending_users: number;
+  total_providers: number;
+  live_providers: number;
+  total_services: number;
+  total_bookings: number;
+  paid_bookings: number;
+  completed_bookings: number;
+  pending_bookings: number;
+  gmv: number;
+  completed_gmv: number;
+};
+
 export const getConsoleOverview = createServerFn({ method: "GET" }).handler(async () => {
   const { requireConsole, adminClient } = await import("./console.server");
   await requireConsole();
   const db = await adminClient();
 
-  const [fin, profiles, providers, bookings, ledger] = await Promise.all([
+  // Counts come from the database so they are never capped by API page size.
+  const [fin, counts, ledger] = await Promise.all([
     db.rpc("console_financials"),
-    db.from("profiles").select("account_status"),
-    db.from("provider_profiles").select("billing_mode, is_live"),
-    db.from("bookings").select("status, price"),
+    db.rpc("console_counts"),
     db
       .from("transactions")
       .select("id, type, amount, reference, description, status, created_at")
@@ -63,27 +77,28 @@ export const getConsoleOverview = createServerFn({ method: "GET" }).handler(asyn
       .limit(12),
   ]);
 
-  const users = profiles.data ?? [];
-  const provs = providers.data ?? [];
-  const bks = bookings.data ?? [];
+  const c = (counts.data ?? null) as Counts | null;
+  const n = (value: number | undefined) => Number(value ?? 0);
 
   return {
     financials: (fin.data ?? null) as Financials | null,
-    totalUsers: users.length,
-    activeUsers: users.filter((u) => u.account_status === "ACTIVE").length,
-    pendingUsers: users.filter((u) => u.account_status !== "ACTIVE").length,
-    totalProviders: provs.length,
-    liveProviders: provs.filter((p) => p.is_live).length,
-    subscriptionProviders: provs.filter((p) => p.billing_mode === "SUBSCRIPTION").length,
-    commissionProviders: provs.filter((p) => p.billing_mode === "COMMISSION").length,
-    totalBookings: bks.length,
-    completedBookings: bks.filter((b) => b.status === "COMPLETED" || b.status === "SETTLED").length,
-    gmv: bks
-      .filter((b) => b.status === "COMPLETED" || b.status === "SETTLED")
-      .reduce((sum, b) => sum + Number(b.price), 0),
+    financialsError: fin.error?.message ?? null,
+    totalUsers: n(c?.total_users),
+    activeUsers: n(c?.active_users),
+    pendingUsers: n(c?.pending_users),
+    totalProviders: n(c?.total_providers),
+    liveProviders: n(c?.live_providers),
+    totalServices: n(c?.total_services),
+    totalBookings: n(c?.total_bookings),
+    paidBookings: n(c?.paid_bookings),
+    completedBookings: n(c?.completed_bookings),
+    pendingBookings: n(c?.pending_bookings),
+    gmv: n(c?.gmv),
+    completedGmv: n(c?.completed_gmv),
     recent: ledger.data ?? [],
   };
 });
+
 
 export const getConsoleUsers = createServerFn({ method: "GET" }).handler(async () => {
   const { requireConsole, adminClient } = await import("./console.server");
@@ -119,7 +134,7 @@ export const getConsoleProviders = createServerFn({ method: "GET" }).handler(asy
     db
       .from("provider_profiles")
       .select(
-        "id, business_name, city, billing_mode, is_live, subscription_expires_at, rating_avg, rating_count, created_at",
+        "id, business_name, city, is_live, rating_avg, rating_count, created_at",
       )
       .order("created_at", { ascending: false })
       .limit(300),
@@ -135,7 +150,7 @@ export const getConsoleProviders = createServerFn({ method: "GET" }).handler(asy
       bookings: mine.length,
       completed: done.length,
       revenue,
-      fees: p.billing_mode === "COMMISSION" ? Math.round(revenue * 0.01) : 0,
+      fees: Math.round(revenue * 0.01),
     };
   });
 });
@@ -150,14 +165,14 @@ export const getConsoleBookings = createServerFn({ method: "GET" }).handler(asyn
       .select("id, provider_id, service_title, price, status, scheduled_at, created_at")
       .order("created_at", { ascending: false })
       .limit(300),
-    db.from("provider_profiles").select("id, business_name, billing_mode"),
+    db.from("provider_profiles").select("id, business_name"),
   ]);
   const pMap = new Map((providers.data ?? []).map((p) => [p.id, p]));
   return (bookings.data ?? []).map((b) => ({
     ...b,
     providerName: pMap.get(b.provider_id)?.business_name ?? "—",
-    billingMode: pMap.get(b.provider_id)?.billing_mode ?? "SUBSCRIPTION",
-    fee: pMap.get(b.provider_id)?.billing_mode === "COMMISSION" ? Math.round(Number(b.price) * 0.01) : 0,
+    billingMode: "COMMISSION" as const,
+    fee: Math.round(Number(b.price) * 0.01),
   }));
 });
 
