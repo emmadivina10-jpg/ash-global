@@ -59,6 +59,11 @@ function ConsoleOverview() {
 
   return (
     <div className="space-y-5">
+      {data?.financialsError ? (
+        <p className="rounded-xl bg-destructive/10 p-3 text-xs text-destructive">
+          Financial figures could not be loaded: {data.financialsError}
+        </p>
+      ) : null}
       <div className="grid gap-4 lg:grid-cols-2">
         <SectionCard title="ASH money" description="Revenue the platform has actually earned.">
           <MoneyRow
@@ -161,13 +166,18 @@ function ConsoleOverview() {
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard label="Total users" value={data?.totalUsers ?? 0} />
         <StatCard label="Active users" value={data?.activeUsers ?? 0} accent />
+        <StatCard label="Pending activation" value={data?.pendingUsers ?? 0} />
         <StatCard label="Providers" value={data?.totalProviders ?? 0} />
         <StatCard label="Live providers" value={data?.liveProviders ?? 0} />
-        <StatCard label="Subscription mode" value={data?.subscriptionProviders ?? 0} />
-        <StatCard label="Commission mode" value={data?.commissionProviders ?? 0} />
+        <StatCard label="Listed services" value={data?.totalServices ?? 0} />
+        <StatCard label="Bookings" value={data?.totalBookings ?? 0} />
+        <StatCard label="Awaiting action" value={data?.pendingBookings ?? 0} />
+        <StatCard label="Paid bookings" value={data?.paidBookings ?? 0} />
         <StatCard label="Completed bookings" value={data?.completedBookings ?? 0} />
-        <StatCard label="Booking volume" value={formatXAF(data?.gmv ?? 0)} />
+        <StatCard label="Booking volume (paid)" value={formatXAF(data?.gmv ?? 0)} />
+        <StatCard label="Completed volume" value={formatXAF(data?.completedGmv ?? 0)} />
       </div>
+
 
       <SectionCard title="Recent ledger activity">
         <TransactionList items={data?.recent ?? []} />

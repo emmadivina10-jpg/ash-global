@@ -16,6 +16,8 @@ export type DiscoveryFilters = {
   verifiedOnly: boolean;
   availableOnly: boolean;
   sort: DiscoverySort;
+  /** City detected from the member's coordinates — surfaced first in the feed. */
+  nearCity: string | null;
 };
 
 export const DEFAULT_FILTERS: DiscoveryFilters = {
@@ -26,7 +28,8 @@ export const DEFAULT_FILTERS: DiscoveryFilters = {
   maxPrice: null,
   verifiedOnly: false,
   availableOnly: false,
-  sort: "TOP_RATED",
+  sort: "NEARBY",
+  nearCity: null,
 };
 
 export type DiscoveryProvider = ProviderProfile & {
@@ -76,7 +79,6 @@ export function useDiscovery(filters: DiscoveryFilters) {
       }
 
       if (filters.sort === "NEWEST") query = query.order("created_at", { ascending: false });
-      else if (filters.sort === "NEARBY") query = query.order("city", { ascending: true }).order("rating_avg", { ascending: false });
       else {
         query = query
           .order("rating_avg", { ascending: false })
@@ -131,6 +133,17 @@ export function useDiscovery(filters: DiscoveryFilters) {
           const av = a.fromPrice ?? Number.MAX_SAFE_INTEGER;
           const bv = b.fromPrice ?? Number.MAX_SAFE_INTEGER;
           return filters.sort === "PRICE_LOW" ? av - bv : bv - av;
+        });
+      }
+
+      // Location-first discovery: pros in the member's own city lead the feed.
+      const near = (filters.nearCity ?? "").trim().toLowerCase();
+      if (filters.sort === "NEARBY" && near) {
+        prepared.sort((a, b) => {
+          const an = (a.city ?? "").trim().toLowerCase() === near ? 0 : 1;
+          const bn = (b.city ?? "").trim().toLowerCase() === near ? 0 : 1;
+          if (an !== bn) return an - bn;
+          return Number(b.rating_avg) - Number(a.rating_avg);
         });
       }
 

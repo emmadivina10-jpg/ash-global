@@ -135,6 +135,7 @@ function StudioPage() {
         price,
         duration_minutes: Number.isFinite(duration) && duration > 0 ? duration : 60,
         description: service.description.trim() || null,
+        ...(service.category ? { category: service.category as ServiceCategory } : {}),
       })
       .select("id")
       .maybeSingle();
@@ -143,7 +144,7 @@ function StudioPage() {
       toast.error(error.message || t("pro.saveErr"));
       return;
     }
-    setService({ title: "", price: "", duration_minutes: "60", description: "" });
+    setService({ title: "", price: "", duration_minutes: "60", description: "", category: "" });
     toast.success(t("pro.serviceAdded"));
     await queryClient.invalidateQueries({ queryKey: ["provider-services"] });
     if (inserted?.id) {
@@ -187,49 +188,6 @@ function StudioPage() {
     void queryClient.invalidateQueries({ queryKey: ["portfolio", studio?.id] });
   }
 
-  async function paySubscription() {
-    setBusySub(true);
-    try {
-      const result = await startSub();
-      if (result?.checkoutUrl) {
-        window.location.href = result.checkoutUrl;
-        return;
-      }
-      toast.error(t("pro.subErr"));
-    } catch {
-      toast.error(t("pro.subErr"));
-    } finally {
-      setBusySub(false);
-    }
-  }
-
-  async function checkSubscription() {
-    setBusySub(true);
-    try {
-      const { data: sub } = await supabase
-        .from("provider_subscriptions")
-        .select("payment_reference")
-        .eq("user_id", user?.id ?? "")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (!sub?.payment_reference) {
-        toast.message(t("pro.subPending"));
-        return;
-      }
-      const result = await verifySub({ data: { reference: sub.payment_reference } });
-      if (result?.ok) {
-        toast.success(t("pro.subVerified"));
-        void queryClient.invalidateQueries({ queryKey: ["provider"] });
-      } else {
-        toast.message(t("pro.subPending"));
-      }
-    } catch {
-      toast.error(t("pro.subErr"));
-    } finally {
-      setBusySub(false);
-    }
-  }
 
   if (isLoading) return <SkeletonRows rows={4} />;
 
@@ -259,11 +217,7 @@ function StudioPage() {
       ) : null}
 
       <SectionCard title={studio ? t("pro.title") : t("pro.create")}>
-        {!studio ? (
-          <p className="mb-4 text-sm text-muted-foreground">
-            {t("pro.createCopy", { fee: formatXAF(SUBSCRIPTION_FEE) })}
-          </p>
-        ) : null}
+        {!studio ? <p className="mb-4 text-sm text-muted-foreground">{t("pro.createCopyFree")}</p> : null}
         <form onSubmit={saveProfile} className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="business_name">{t("pro.businessName")}</Label>
@@ -330,67 +284,17 @@ function StudioPage() {
                 {t("pro.activatePrompt")}
               </p>
             ) : null}
-            <p className="text-sm text-muted-foreground">{t("pro.billing.copy")}</p>
-
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <div
-                className={cn(
-                  "rounded-2xl border p-4",
-                  !commissionMode ? "border-primary bg-primary/5" : "border-border",
-                )}
-              >
-                <p className="font-display font-bold text-foreground">{t("pro.billing.sub")}</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {t("pro.billing.subDesc", { fee: formatXAF(SUBSCRIPTION_FEE) })}
-                </p>
-                {!commissionMode && live ? (
-                  <p className="mt-2 text-sm font-semibold text-primary">
-                    {t("pro.subActive", { date: formatDate(studio.subscription_expires_at) })}
-                  </p>
-                ) : null}
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {commissionMode ? (
-                    <Button variant="outline" onClick={() => void chooseBilling("SUBSCRIPTION")}>
-                      {t("pro.billing.choose")}
-                    </Button>
-                  ) : (
-                    <>
-                      <Button onClick={paySubscription} disabled={busySub}>
-                        {busySub ? t("pro.subStarting") : t("pro.subPay", { fee: formatXAF(SUBSCRIPTION_FEE) })}
-                      </Button>
-                      <Button variant="outline" onClick={checkSubscription} disabled={busySub}>
-                        {t("pro.subVerify")}
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              <div
-                className={cn(
-                  "rounded-2xl border p-4",
-                  commissionMode ? "border-primary bg-primary/5" : "border-border",
-                )}
-              >
-                <p className="font-display font-bold text-foreground">{t("pro.billing.com")}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{t("pro.billing.comDesc")}</p>
-                {commissionMode ? (
-                  <p className="mt-2 text-sm font-semibold text-primary">{t("pro.billing.comLive")}</p>
-                ) : null}
-                <div className="mt-3">
-                  {commissionMode ? (
-                    <span className="text-xs font-semibold uppercase tracking-wide text-primary">
-                      {t("pro.billing.current")}
-                    </span>
-                  ) : (
-                    <Button variant="outline" onClick={() => void chooseBilling("COMMISSION")}>
-                      {t("pro.billing.choose")}
-                    </Button>
-                  )}
-                </div>
-              </div>
+            <div className="rounded-2xl border border-primary/40 bg-primary/5 p-4">
+              <p className="font-display text-lg font-bold text-foreground">{t("pro.billing.freeTitle")}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{t("pro.billing.freeCopy")}</p>
+              <ul className="mt-3 space-y-1.5 text-sm text-foreground">
+                <li>• {t("pro.billing.freePoint1")}</li>
+                <li>• {t("pro.billing.freePoint2")}</li>
+                <li>• {t("pro.billing.freePoint3")}</li>
+              </ul>
             </div>
           </SectionCard>
+
 
           <SectionCard title={t("svc.services")}>
             <form onSubmit={addService} className="grid gap-3 sm:grid-cols-4">
@@ -417,8 +321,21 @@ function StudioPage() {
                 value={service.duration_minutes}
                 onChange={(e) => setService({ ...service, duration_minutes: e.target.value })}
               />
+              <select
+                aria-label={t("pro.categories")}
+                className="h-10 rounded-xl border border-border bg-background px-3 text-sm text-foreground"
+                value={service.category}
+                onChange={(e) => setService({ ...service, category: e.target.value as ServiceCategory })}
+              >
+                <option value="">{t("pro.categories")}</option>
+                {SERVICE_CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {categoryLabel(c, lang)}
+                  </option>
+                ))}
+              </select>
               <Input
-                className="sm:col-span-3"
+                className="sm:col-span-2"
                 placeholder={t("pro.description")}
                 value={service.description}
                 onChange={(e) => setService({ ...service, description: e.target.value })}
