@@ -12,21 +12,15 @@ import {
   useMyProviderProfile,
 } from "@/lib/marketplace.queries";
 import { useUser } from "@/lib/queries";
-import { startProviderSubscription, verifyProviderSubscription } from "@/lib/subscriptions.functions";
+
 import { SectionCard, StatCard } from "@/components/refer/cards";
 import { SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  PORTFOLIO_BUCKET,
-  SERVICE_CATEGORIES,
-  SUBSCRIPTION_FEE,
-  isSubscriptionActive,
-  type ServiceCategory,
-} from "@/lib/marketplace";
-import { formatDate, formatDateTime, formatXAF } from "@/lib/format";
+import { PORTFOLIO_BUCKET, SERVICE_CATEGORIES, type ServiceCategory } from "@/lib/marketplace";
+import { formatDateTime, formatXAF } from "@/lib/format";
 import { categoryLabel } from "@/lib/taxonomy";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -54,8 +48,6 @@ function StudioPage() {
   const { data: portfolio } = usePortfolio(studio?.id);
   const { data: bookings } = useProviderBookings(studio?.id);
 
-  const startSub = useServerFn(startProviderSubscription);
-  const verifySub = useServerFn(verifyProviderSubscription);
 
   const [form, setForm] = useState({
     business_name: "",
@@ -66,9 +58,14 @@ function StudioPage() {
     categories: [] as ServiceCategory[],
   });
   const [saving, setSaving] = useState(false);
-  const [busySub, setBusySub] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [service, setService] = useState({ title: "", price: "", duration_minutes: "60", description: "" });
+  const [service, setService] = useState({
+    title: "",
+    price: "",
+    duration_minutes: "60",
+    description: "",
+    category: "" as ServiceCategory | "",
+  });
   const [addingService, setAddingService] = useState(false);
   const [highlightId, setHighlightId] = useState<string | null>(null);
 
@@ -84,20 +81,8 @@ function StudioPage() {
     });
   }, [studio?.id]);
 
-  const commissionMode = studio?.billing_mode === "COMMISSION";
-  const live = commissionMode ? Boolean(studio?.is_live) : isSubscriptionActive(studio?.subscription_expires_at);
-
-  async function chooseBilling(mode: "SUBSCRIPTION" | "COMMISSION") {
-    if (!studio) return;
-    const { error } = await supabase.from("provider_profiles").update({ billing_mode: mode }).eq("id", studio.id);
-    if (error) {
-      toast.error(t("pro.saveErr"));
-      return;
-    }
-    toast.success(t("pro.billing.saved"));
-    void queryClient.invalidateQueries({ queryKey: ["provider"] });
-    void queryClient.invalidateQueries({ queryKey: ["providers"] });
-  }
+  // The marketplace is free: a studio goes live as soon as its profile is saved.
+  const live = Boolean(studio?.is_live);
 
   const stats = useMemo(() => {
     const list = bookings ?? [];

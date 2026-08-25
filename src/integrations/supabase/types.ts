@@ -880,6 +880,7 @@ export type Database = {
         Args: { _payment_reference: string; _provider_transaction_id?: string }
         Returns: undefined
       }
+      console_counts: { Args: never; Returns: Json }
       console_financials: { Args: never; Returns: Json }
       console_settle_withdrawal: {
         Args: {
