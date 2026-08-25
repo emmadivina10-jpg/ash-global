@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import ashServicesHero from "../../public/ash-services-hero.jpg";
 import marketHero from "@/assets/market-hero.jpg";
+import marketBeauty from "@/assets/market-beauty.jpg";
 import marketHome from "@/assets/market-home.jpg";
 import marketHealth from "@/assets/market-health.jpg";
 import marketTech from "@/assets/market-tech.jpg";
@@ -89,7 +89,7 @@ const FEATURES = [
 
 const CATEGORY_TILES = [
   {
-    image: ashServicesHero,
+    image: marketBeauty,
     title: "landing.cat.beauty.title" as TKey,
     copy: "landing.cat.beauty.copy" as TKey,
     alt: "landing.cat.beauty.title" as TKey,
