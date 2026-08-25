@@ -4,9 +4,11 @@ import ashLogo from "@/assets/ash-logo.png.asset.json";
 export function Logo({ compact = false, className }: { compact?: boolean; className?: string }) {
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
-      <span className="brand-gradient grid size-9 place-items-center overflow-hidden rounded-xl text-on-dark shadow-[var(--shadow-brand)]">
-        <img src={ashLogo.url} alt="ASH Glo" className="size-7 object-contain" />
-      </span>
+      <img
+        src={ashLogo.url}
+        alt="ASH Glo"
+        className="size-9 shrink-0 object-contain drop-shadow-[0_2px_10px_rgba(228,48,107,0.35)]"
+      />
       <span className="min-w-0">
         <span className="flex items-center gap-1.5 leading-none">
           <span className="font-display text-lg font-extrabold tracking-tight text-foreground">ASH Glo</span>
@@ -20,3 +22,4 @@ export function Logo({ compact = false, className }: { compact?: boolean; classN
     </span>
   );
 }
+

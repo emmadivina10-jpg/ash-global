@@ -123,6 +123,7 @@ function MessagesPage() {
               <ChatThread
                 conversationId={activeId}
                 currentUserId={user?.id}
+                peerName={active?.provider?.business_name ?? "ASH"}
                 className="flex-1"
                 quickReplies={
                   lang === "fr"
