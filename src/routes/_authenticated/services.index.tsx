@@ -120,23 +120,43 @@ function DiscoveryPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
-      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-        <div className="min-w-0">
-          <h1 className="truncate font-display text-2xl font-extrabold text-foreground sm:text-3xl">
-            {fr ? "Découvrir" : "Discover"}
-          </h1>
-          <p className="truncate text-sm text-muted-foreground">
-            {fr ? "Des pros vérifiés, près de chez vous." : "Verified pros, close to you."}
-          </p>
+      <header className="relative overflow-hidden rounded-[calc(var(--radius)+10px)] border border-border bg-card p-4 shadow-[var(--shadow-card)] sm:p-6">
+        <div
+          className="pointer-events-none absolute -right-16 -top-20 size-56 rounded-full bg-primary/20 blur-3xl"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute -bottom-24 -left-10 size-52 rounded-full bg-gold/15 blur-3xl"
+          aria-hidden
+        />
+        <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+          <div className="min-w-0">
+            <span className="eyebrow inline-flex w-fit items-center gap-1.5 rounded-full border border-border bg-background/70 px-2.5 py-1 text-[10px] font-bold text-primary backdrop-blur">
+              <Sparkle className="size-3" aria-hidden />
+              {fr ? "Place de marché ASH" : "ASH Marketplace"}
+            </span>
+            <h1 className="mt-2 font-display text-2xl font-extrabold leading-tight text-foreground sm:text-4xl">
+              {fr ? "Trouvez le bon pro," : "Find the right pro,"}{" "}
+              <span className="brand-gradient bg-clip-text text-transparent">
+                {fr ? "près de chez vous." : "right near you."}
+              </span>
+            </h1>
+            <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground sm:text-base">
+              {fr
+                ? "Beauté, tech, maison, événements et santé — portfolios vérifiés, avis réels, réservation en quelques secondes."
+                : "Beauty, tech, home, events and health — verified portfolios, real reviews, booking in seconds."}
+            </p>
+          </div>
+          <Button asChild className="shrink-0">
+            <Link to="/studio">
+              <Sparkle className="size-4" aria-hidden />
+              <span className="hidden sm:inline">{t("svc.becomePro")}</span>
+              <span className="sm:hidden">Pro</span>
+            </Link>
+          </Button>
         </div>
-        <Button asChild variant="outline" className="shrink-0">
-          <Link to="/studio">
-            <Sparkle className="size-4" aria-hidden />
-            <span className="hidden sm:inline">{t("svc.becomePro")}</span>
-            <span className="sm:hidden">Pro</span>
-          </Link>
-        </Button>
       </header>
+
 
       <CategoryHero onSelect={(id) => selectGroup(id)} />
 
