@@ -4,8 +4,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowDownToLine,
   CalendarDays,
-  Compass,
-  Home,
   Store,
   TrendingUp,
   LogOut,
