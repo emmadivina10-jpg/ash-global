@@ -23,8 +23,9 @@ export function ProviderCard({
   acceptingBookings?: boolean;
 }) {
   const { t, lang } = useI18n();
-  const hasPhoto = photos.length > 0;
   const cover = photos[0];
+  const hasPhoto = Boolean(cover);
+
   const categories = (provider.categories ?? []) as ServiceCategory[];
   const rating = Number(provider.rating_avg);
   const ratingText =
