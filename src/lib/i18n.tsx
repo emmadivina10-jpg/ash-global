@@ -5,7 +5,7 @@ export type Lang = "en" | "fr";
 const KEY = "refer.lang";
 
 const EN = {
-  "nav.home": "Home",
+  "nav.home": "Earnings",
   "nav.network": "Network",
   "nav.wallet": "Wallet",
   "nav.profile": "Profile",
@@ -179,7 +179,7 @@ const EN = {
   "net.pendingCommission": "Pending commission",
   "wallet.pendingTitle": "{amount} waiting on referral activations",
   "wallet.pendingBody": "These commissions are not withdrawable yet. They are credited automatically the moment each referred member's 5,000 XAF activation payment is verified.",
-  "nav.services": "Discover",
+  "nav.services": "Market",
   "nav.bookings": "Bookings",
   "nav.messages": "Messages",
   "nav.pro": "My studio",
@@ -364,7 +364,7 @@ const EN = {
 export type TKey = keyof typeof EN;
 
 const FR: Record<TKey, string> = {
-  "nav.home": "Accueil",
+  "nav.home": "Gains",
   "nav.network": "Réseau",
   "nav.wallet": "Portefeuille",
   "nav.profile": "Profil",
@@ -532,7 +532,7 @@ const FR: Record<TKey, string> = {
   "net.pendingCommission": "Commission en attente",
   "wallet.pendingTitle": "{amount} en attente d'activations de filleuls",
   "wallet.pendingBody": "Ces commissions ne sont pas encore retirables. Elles sont créditées automatiquement dès que le paiement d'activation de 5 000 XAF de chaque filleul est vérifié.",
-  "nav.services": "Découvrir",
+  "nav.services": "Marché",
   "nav.bookings": "Réservations",
   "nav.messages": "Messages",
   "nav.pro": "Mon studio",
