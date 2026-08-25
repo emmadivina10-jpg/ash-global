@@ -23,6 +23,7 @@ import { PORTFOLIO_BUCKET, SERVICE_CATEGORIES, type ServiceCategory } from "@/li
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { categoryLabel } from "@/lib/taxonomy";
 import { useI18n } from "@/lib/i18n";
+import { AvailabilityCard, PaymentLinksCard, StorefrontCard } from "@/components/refer/StorefrontTools";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/studio")({
@@ -310,6 +311,13 @@ function StudioPage() {
 
       {studio ? (
         <>
+          <StorefrontCard studio={studio as never} />
+          <AvailabilityCard studio={studio as never} />
+          <PaymentLinksCard
+            studio={studio as never}
+            services={(services ?? []).map((s) => ({ id: s.id, title: s.title, price: s.price }))}
+          />
+
           <SectionCard title={t("pro.billing.title")}>
             {!live ? (
               <p className="mb-4 rounded-2xl bg-gold/10 px-3.5 py-2.5 text-sm font-medium text-foreground">
