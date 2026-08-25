@@ -41,10 +41,11 @@ export function ProviderCard({
     >
       {/* Image */}
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
-        {hasPhoto ? (
+        {cover ? (
           <img
             src={cover.url}
             alt={cover.caption ?? provider.business_name}
+
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
