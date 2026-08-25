@@ -408,7 +408,7 @@ function StudioPage() {
                 accept="image/*"
                 multiple
                 className="sr-only"
-                onChange={(e) => uploadPhotos(e.target.files)}
+                onChange={(e) => uploadPhotos(e.target.files, e.currentTarget)}
               />
               {uploading ? t("pro.uploading") : t("pro.upload")}
             </label>
