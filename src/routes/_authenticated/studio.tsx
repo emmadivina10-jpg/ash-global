@@ -159,28 +159,60 @@ function StudioPage() {
     void queryClient.invalidateQueries({ queryKey: ["provider-services", studio?.id] });
   }
 
-  async function uploadPhotos(files: FileList | null) {
-    if (!files || !studio || !user) return;
+  async function uploadPhotos(files: FileList | null, input?: HTMLInputElement | null) {
+    if (!files || files.length === 0) return;
+    if (!user) {
+      toast.error(t("pro.uploadErr"));
+      return;
+    }
+    if (!studio) {
+      toast.error(t("pro.activatePrompt"));
+      return;
+    }
     setUploading(true);
+    let uploaded = 0;
     try {
       for (const file of Array.from(files)) {
-        if (file.size > 5 * 1024 * 1024) throw new Error("too-large");
-        const path = `${user.id}/${crypto.randomUUID()}-${file.name.replace(/[^\w.-]/g, "_")}`;
-        const { error: upErr } = await supabase.storage.from(PORTFOLIO_BUCKET).upload(path, file);
-        if (upErr) throw upErr;
+        if (!file.type.startsWith("image/")) {
+          toast.error(`${file.name}: image only`);
+          continue;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          toast.error(`${file.name}: max 5MB`);
+          continue;
+        }
+        const safeName = file.name.replace(/[^\w.-]/g, "_");
+        const path = `${user.id}/${crypto.randomUUID()}-${safeName}`;
+        const { error: upErr } = await supabase.storage
+          .from(PORTFOLIO_BUCKET)
+          .upload(path, file, { contentType: file.type, upsert: false });
+        if (upErr) {
+          toast.error(`${file.name}: ${upErr.message}`);
+          continue;
+        }
         const { error: rowErr } = await supabase
           .from("portfolio_items")
           .insert({ provider_id: studio.id, image_path: path });
-        if (rowErr) throw rowErr;
+        if (rowErr) {
+          // Don't leave an orphan object behind if the row could not be saved.
+          await supabase.storage.from(PORTFOLIO_BUCKET).remove([path]);
+          toast.error(`${file.name}: ${rowErr.message}`);
+          continue;
+        }
+        uploaded += 1;
       }
-      void queryClient.invalidateQueries({ queryKey: ["portfolio"] });
+      if (uploaded > 0) {
+        toast.success(`${uploaded} ${uploaded === 1 ? "photo" : "photos"} uploaded`);
+        await queryClient.invalidateQueries({ queryKey: ["portfolio"] });
+      }
     } catch (err) {
-      const message = err instanceof Error ? err.message : "";
-      toast.error(message === "too-large" ? t("pro.uploadErr") : message || t("pro.uploadErr"));
+      toast.error(err instanceof Error ? err.message : t("pro.uploadErr"));
     } finally {
       setUploading(false);
+      if (input) input.value = "";
     }
   }
+
 
   async function removePhoto(id: string, path: string) {
     await supabase.storage.from(PORTFOLIO_BUCKET).remove([path]);
