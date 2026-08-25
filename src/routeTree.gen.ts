@@ -38,6 +38,7 @@ import { Route as ConsolePaymentsRouteImport } from './routes/console.payments'
 import { Route as ConsoleProvidersRouteImport } from './routes/console.providers'
 import { Route as ConsoleUsersRouteImport } from './routes/console.users'
 import { Route as ConsoleWithdrawalsRouteImport } from './routes/console.withdrawals'
+import { Route as SSlugRouteImport } from './routes/s.$slug'
 import { Route as AuthenticatedServicesIndexRouteImport } from './routes/_authenticated/services.index'
 import { Route as AuthenticatedServicesProviderIdRouteImport } from './routes/_authenticated/services.$providerId'
 import { Route as ApiPublicReconcileActivationsRouteImport } from './routes/api/public/reconcile-activations'
@@ -188,6 +189,11 @@ const ConsoleWithdrawalsRoute = ConsoleWithdrawalsRouteImport.update({
   path: '/withdrawals',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const SSlugRoute = SSlugRouteImport.update({
+  id: '/s/$slug',
+  path: '/s/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedServicesIndexRoute =
   AuthenticatedServicesIndexRouteImport.update({
     id: '/services/',
@@ -241,6 +247,7 @@ export interface FileRoutesByFullPath {
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/users': typeof ConsoleUsersRoute
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
+  '/s/$slug': typeof SSlugRoute
   '/console/': typeof ConsoleIndexRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
@@ -274,6 +281,7 @@ export interface FileRoutesByTo {
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/users': typeof ConsoleUsersRoute
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
+  '/s/$slug': typeof SSlugRoute
   '/console': typeof ConsoleIndexRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
@@ -310,6 +318,7 @@ export interface FileRoutesById {
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/users': typeof ConsoleUsersRoute
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
+  '/s/$slug': typeof SSlugRoute
   '/console/': typeof ConsoleIndexRoute
   '/_authenticated/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
@@ -346,6 +355,7 @@ export interface FileRouteTypes {
     | '/console/providers'
     | '/console/users'
     | '/console/withdrawals'
+    | '/s/$slug'
     | '/console/'
     | '/services/$providerId'
     | '/api/public/reconcile-activations'
@@ -379,6 +389,7 @@ export interface FileRouteTypes {
     | '/console/providers'
     | '/console/users'
     | '/console/withdrawals'
+    | '/s/$slug'
     | '/console'
     | '/services/$providerId'
     | '/api/public/reconcile-activations'
@@ -414,6 +425,7 @@ export interface FileRouteTypes {
     | '/console/providers'
     | '/console/users'
     | '/console/withdrawals'
+    | '/s/$slug'
     | '/console/'
     | '/_authenticated/services/$providerId'
     | '/api/public/reconcile-activations'
@@ -431,6 +443,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
+  SSlugRoute: typeof SSlugRoute
   ApiPublicReconcileActivationsRoute: typeof ApiPublicReconcileActivationsRoute
   ApiPublicWebhooksTchokopayRoute: typeof ApiPublicWebhooksTchokopayRoute
 }
@@ -640,6 +653,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleWithdrawalsRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/s/$slug': {
+      id: '/s/$slug'
+      path: '/s/$slug'
+      fullPath: '/s/$slug'
+      preLoaderRoute: typeof SSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/services/': {
       id: '/_authenticated/services/'
       path: '/services'
@@ -743,6 +763,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AuthCallbackRoute: AuthCallbackRoute,
+  SSlugRoute: SSlugRoute,
   ApiPublicReconcileActivationsRoute: ApiPublicReconcileActivationsRoute,
   ApiPublicWebhooksTchokopayRoute: ApiPublicWebhooksTchokopayRoute,
 }
