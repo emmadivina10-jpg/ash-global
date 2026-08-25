@@ -6,6 +6,8 @@ import {
   CalendarDays,
   Compass,
   Home,
+  Store,
+  TrendingUp,
   LogOut,
   MessageCircle,
   Receipt,
@@ -30,8 +32,8 @@ import { useI18n, type TKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 const NAV = [
-  { to: "/dashboard", key: "nav.home" as TKey, icon: Home },
-  { to: "/services", key: "nav.services" as TKey, icon: Compass },
+  { to: "/services", key: "nav.services" as TKey, icon: Store },
+  { to: "/dashboard", key: "nav.home" as TKey, icon: TrendingUp },
   { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet },
   { to: "/network", key: "nav.network" as TKey, icon: Users },
 ] as const;
@@ -69,7 +71,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-background">
       <div className="mx-auto flex w-full max-w-7xl">
         <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-border bg-sidebar p-5 lg:flex">
-          <Link to="/dashboard" className="mb-8 inline-flex">
+          <Link to="/services" className="mb-8 inline-flex">
             <Logo />
           </Link>
           <nav className="flex flex-1 flex-col gap-1">
@@ -122,7 +124,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl lg:hidden">
             <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3">
-              <Link to="/dashboard" className="min-w-0">
+              <Link to="/services" className="min-w-0">
                 <Logo compact />
               </Link>
               <div className="flex items-center gap-1">
