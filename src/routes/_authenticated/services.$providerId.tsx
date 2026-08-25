@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { BadgeCheck, CalendarCheck, Clock, MapPin, MessageCircle, ShieldCheck } from "lucide-react";
@@ -323,12 +323,39 @@ function BookingRequestDialog({
   const fr = lang === "fr";
   const [serviceId, setServiceId] = useState(service.id);
   const [when, setWhen] = useState("");
+  const [day, setDay] = useState("");
+  const [slots, setSlots] = useState<string[] | null>(null);
+  const [loadingSlots, setLoadingSlots] = useState(false);
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
   const [step, setStep] = useState<"form" | "confirm">("form");
   const [busy, setBusy] = useState(false);
 
   const selected = services.find((s) => s.id === serviceId) ?? service;
+
+  // Real bookable slots come from the provider's weekly hours minus taken times.
+  useEffect(() => {
+    if (!day) {
+      setSlots(null);
+      return;
+    }
+    let cancelled = false;
+    setLoadingSlots(true);
+    void supabase
+      .rpc("provider_slots", {
+        _provider_id: provider.id,
+        _date: day,
+        _duration: selected.duration_minutes,
+      })
+      .then(({ data }) => {
+        if (cancelled) return;
+        setSlots(((data ?? []) as string[]) ?? []);
+        setLoadingSlots(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [day, provider.id, selected.duration_minutes]);
 
   async function submit() {
     setBusy(true);
@@ -395,9 +422,64 @@ function BookingRequestDialog({
               </select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="when">{fr ? "Date et heure" : "Date and time"}</Label>
-              <Input id="when" type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} required />
+              <Label htmlFor="day">{fr ? "Date" : "Date"}</Label>
+              <Input
+                id="day"
+                type="date"
+                value={day}
+                min={new Date().toISOString().slice(0, 10)}
+                onChange={(e) => {
+                  setDay(e.target.value);
+                  setWhen("");
+                }}
+                required
+              />
             </div>
+
+            {day ? (
+              <div className="space-y-1.5">
+                <Label>{fr ? "Créneaux disponibles" : "Available slots"}</Label>
+                {loadingSlots ? (
+                  <p className="text-sm text-muted-foreground">{fr ? "Chargement…" : "Loading…"}</p>
+                ) : (slots ?? []).length === 0 ? (
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      {fr
+                        ? "Aucun créneau ce jour-là. Choisissez une autre date ou proposez une heure."
+                        : "No slot that day. Pick another date or propose a time."}
+                    </p>
+                    <Input
+                      type="datetime-local"
+                      aria-label={fr ? "Proposer une heure" : "Propose a time"}
+                      value={when}
+                      onChange={(e) => setWhen(e.target.value)}
+                    />
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {(slots ?? []).map((slot) => {
+                      const local = new Date(slot).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+                      const value = toLocalInput(slot);
+                      const active = when === value;
+                      return (
+                        <button
+                          key={slot}
+                          type="button"
+                          onClick={() => setWhen(value)}
+                          className={
+                            active
+                              ? "rounded-full bg-primary px-3.5 py-1.5 text-xs font-bold text-primary-foreground"
+                              : "rounded-full border border-border px-3.5 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"
+                          }
+                        >
+                          {local}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            ) : null}
             <div className="space-y-1.5">
               <Label htmlFor="addr">{fr ? "Lieu / adresse" : "Location / address"}</Label>
               <Input
@@ -444,6 +526,13 @@ function BookingRequestDialog({
       </DialogContent>
     </Dialog>
   );
+}
+
+/** datetime-local value for a UTC timestamp, in the visitor's own timezone. */
+function toLocalInput(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function Row({ label, value }: { label: string; value: string }) {
