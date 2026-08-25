@@ -24,7 +24,7 @@ export function ProviderCard({
 }) {
   const { t, lang } = useI18n();
   const cover = photos[0];
-  const hasPhoto = Boolean(cover);
+
 
   const categories = (provider.categories ?? []) as ServiceCategory[];
   const rating = Number(provider.rating_avg);
