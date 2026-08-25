@@ -179,7 +179,7 @@ function DiscoveryPage() {
         </div>
       ) : null}
 
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
+      <div className="sticky top-14 z-20 -mx-1 grid grid-cols-[minmax(0,1fr)_auto] gap-2 rounded-2xl bg-background/85 px-1 py-2 backdrop-blur-xl lg:top-0">
         <div className="relative min-w-0">
           <Search
             className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
@@ -189,7 +189,7 @@ function DiscoveryPage() {
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder={fr ? "Rechercher un pro, une ville…" : "Search a pro, a city…"}
-            className="pl-9"
+            className="h-11 rounded-full pl-9 shadow-[var(--shadow-card)]"
             aria-label={t("svc.search")}
           />
         </div>
@@ -197,6 +197,7 @@ function DiscoveryPage() {
           variant={showFilters || activeFilterCount > 0 ? "default" : "outline"}
           onClick={() => setShowFilters((v) => !v)}
           aria-expanded={showFilters}
+          className="h-11 rounded-full"
         >
           <SlidersHorizontal className="size-4" aria-hidden />
           <span className="hidden sm:inline">{fr ? "Filtres" : "Filters"}</span>
