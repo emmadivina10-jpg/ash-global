@@ -20,7 +20,7 @@ function AuthCallback() {
         const { data } = await supabase.auth.getSession();
         if (cancelled) return;
         if (data.session) {
-          navigate({ to: "/dashboard", replace: true });
+          navigate({ to: "/services", replace: true });
           return;
         }
         await new Promise((r) => setTimeout(r, 250));

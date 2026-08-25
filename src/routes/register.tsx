@@ -129,7 +129,7 @@ function RegisterPage() {
     const { data: session } = await supabase.auth.getSession();
     if (session.session) {
       toast.success("Account created");
-      navigate({ to: "/dashboard" });
+      navigate({ to: "/services" });
       return;
     }
     setDone(true);
