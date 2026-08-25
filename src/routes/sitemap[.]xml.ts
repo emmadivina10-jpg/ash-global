@@ -20,6 +20,37 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/forgot-password", changefreq: "yearly", priority: "0.2" },
         ];
 
+        // Live storefronts are public, shareable landing pages worth indexing.
+        try {
+          const key = process.env["SUPABASE_PUBLISHABLE_KEY"];
+          const url = process.env["SUPABASE_URL"];
+          if (key && url) {
+            const { createClient } = await import("@supabase/supabase-js");
+            const supabase = createClient(url, key, {
+              auth: { persistSession: false },
+              global: {
+                fetch: (input, init) => {
+                  const h = new Headers(init?.headers);
+                  if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+                  h.set("apikey", key);
+                  return fetch(input, { ...init, headers: h });
+                },
+              },
+            });
+            const { data } = await supabase
+              .from("provider_profiles")
+              .select("slug")
+              .eq("is_live", true)
+              .not("slug", "is", null)
+              .limit(500);
+            for (const row of data ?? []) {
+              entries.push({ path: `/s/${row.slug as string}`, changefreq: "weekly", priority: "0.8" });
+            }
+          }
+        } catch {
+          // A sitemap must still render if the database is unreachable.
+        }
+
         const urls = entries.map((e) =>
           [
             `  <url>`,
