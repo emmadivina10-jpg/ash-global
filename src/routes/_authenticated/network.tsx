@@ -1,12 +1,14 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Users } from "lucide-react";
-import { useNetwork, useNetworkTree, useProfile } from "@/lib/queries";
-import { SectionCard, StatCard } from "@/components/refer/cards";
+import { ChevronDown, Users } from "lucide-react";
+import { useNetwork, useNetworkTree, useProfile, type NetworkLevel } from "@/lib/queries";
+import { StatCard } from "@/components/refer/cards";
 import { SkeletonRows } from "@/components/refer/states";
 import { NetworkTree } from "@/components/refer/NetworkTree";
 import { ReferralCard } from "@/components/refer/ReferralCard";
 import { COMMISSIONS, formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 
 
