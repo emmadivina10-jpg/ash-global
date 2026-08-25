@@ -32,14 +32,14 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { to: "/services", key: "nav.services" as TKey, icon: Store },
   { to: "/dashboard", key: "nav.home" as TKey, icon: TrendingUp },
-  { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet },
+  { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle },
   { to: "/network", key: "nav.network" as TKey, icon: Users },
 ] as const;
 
 const SIDE_EXTRA = [
   { to: "/profile", key: "nav.profile" as TKey, icon: UserIcon },
+  { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet },
   { to: "/bookings", key: "nav.bookings" as TKey, icon: CalendarDays },
-  { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle },
   { to: "/studio", key: "nav.pro" as TKey, icon: Sparkles },
   { to: "/transactions", key: "nav.transactions" as TKey, icon: Receipt },
   { to: "/withdraw", key: "nav.withdraw" as TKey, icon: ArrowDownToLine },
