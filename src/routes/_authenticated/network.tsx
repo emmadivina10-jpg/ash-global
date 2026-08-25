@@ -51,31 +51,12 @@ function NetworkPage() {
             />
           </div>
 
-          <div className="ash-fade-slide grid gap-4 lg:grid-cols-3">
+          <section className="surface-card ash-fade-slide divide-y divide-border overflow-hidden">
             {(data?.levels ?? []).map((level) => (
-              <SectionCard key={level.level}>
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-foreground">{t("net.level", { n: level.level })}</h2>
-                  <span className="tabular rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
-                    {t("net.each", { amount: formatXAF(COMMISSIONS[level.level as 1 | 2 | 3]) })}
-                  </span>
-                </div>
-                <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted" aria-hidden>
-                  <span
-                    className="brand-gradient block h-full rounded-full transition-all duration-700"
-                    style={{ width: `${level.members > 0 ? Math.round((level.active / level.members) * 100) : 0}%` }}
-                  />
-                </div>
-                <dl className="mt-4 space-y-3 text-sm">
-                  <Row label={t("net.members")} value={String(level.members)} />
-                  <Row label={t("net.activeMembers")} value={String(level.active)} />
-                  <Row label={t("net.pendingActivation")} value={String(level.pending)} warn />
-                  <Row label={t("net.pendingCommission")} value={formatXAF(level.pendingCommissions)} warn />
-                  <Row label={t("net.commissions")} value={formatXAF(level.commissions)} highlight />
-                </dl>
-              </SectionCard>
+              <LevelRow key={level.level} level={level} />
             ))}
-          </div>
+          </section>
+
 
           {treeLoading ? (
             <SkeletonRows rows={4} />
