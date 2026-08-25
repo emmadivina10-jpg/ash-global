@@ -83,7 +83,7 @@ export function NetworkTree({
 
       <div className="relative">
         <RootNode status={currentUserStatus} />
-        <div className="mt-3 space-y-3">
+        <div className="mt-3 max-h-[26rem] space-y-3 overflow-y-auto pr-1">
           {visibleChildren.length === 0 ? (
             <p className="rounded-xl border border-dashed border-border bg-muted/50 px-4 py-8 text-center text-sm text-muted-foreground">
               {t("net.tree.empty")}
@@ -93,6 +93,7 @@ export function NetworkTree({
           )}
         </div>
       </div>
+
     </section>
   );
 }
