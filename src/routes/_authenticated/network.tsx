@@ -109,3 +109,68 @@ function Row({
     </div>
   );
 }
+
+function LevelRow({ level }: { level: NetworkLevel }) {
+  const { t } = useI18n();
+  const [open, setOpen] = useState(false);
+  const pct = level.members > 0 ? Math.round((level.active / level.members) * 100) : 0;
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-muted/50 sm:px-5"
+      >
+        <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+          {level.level}
+        </span>
+
+        <span className="min-w-0 flex-1">
+          <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="text-sm font-semibold text-foreground">{t("net.level", { n: level.level })}</span>
+            <span className="tabular rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+              {t("net.each", { amount: formatXAF(COMMISSIONS[level.level as 1 | 2 | 3]) })}
+            </span>
+          </span>
+          <span className="mt-1 flex items-center gap-2">
+            <span className="h-1.5 w-full max-w-40 overflow-hidden rounded-full bg-muted" aria-hidden>
+              <span
+                className="brand-gradient block h-full rounded-full transition-all duration-700"
+                style={{ width: `${pct}%` }}
+              />
+            </span>
+            <span className="tabular text-[11px] text-muted-foreground">
+              {level.active}/{level.members}
+            </span>
+          </span>
+        </span>
+
+        <span className="text-right">
+          <span className="tabular block text-sm font-bold text-success">{formatXAF(level.commissions)}</span>
+          {level.pendingCommissions > 0 ? (
+            <span className="tabular block text-[11px] font-semibold text-destructive">
+              +{formatXAF(level.pendingCommissions)}
+            </span>
+          ) : null}
+        </span>
+
+        <ChevronDown
+          className={cn("size-4 shrink-0 text-muted-foreground transition-transform", open && "rotate-180")}
+          aria-hidden
+        />
+      </button>
+
+      {open ? (
+        <dl className="space-y-3 px-4 pb-4 text-sm sm:px-5">
+          <Row label={t("net.members")} value={String(level.members)} />
+          <Row label={t("net.activeMembers")} value={String(level.active)} />
+          <Row label={t("net.pendingActivation")} value={String(level.pending)} warn />
+          <Row label={t("net.pendingCommission")} value={formatXAF(level.pendingCommissions)} warn />
+          <Row label={t("net.commissions")} value={formatXAF(level.commissions)} highlight />
+        </dl>
+      ) : null}
+    </div>
+  );
+}
