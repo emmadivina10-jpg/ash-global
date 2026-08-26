@@ -21,6 +21,16 @@ on:
   workflow_dispatch:
 
 jobs:
+  unit-tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - name: Pure unit suite (no network, no secrets)
+        run: bun run test:unit
+
   rls-regression:
     name: RLS regression tests
     runs-on: ubuntu-latest

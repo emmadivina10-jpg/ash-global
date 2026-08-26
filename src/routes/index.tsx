@@ -439,11 +439,17 @@ function Landing() {
       <footer className="border-t border-border">
         <div className="mx-auto grid max-w-6xl gap-3 px-4 py-8 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:px-6">
           <Logo compact />
-          <p className="text-xs text-muted-foreground">
-            {t("landing.footer", { year: new Date().getFullYear() })}
-          </p>
+          <div className="flex flex-col gap-1 sm:items-end">
+            <p className="text-xs text-muted-foreground">
+              {t("landing.footer", { year: new Date().getFullYear() })}
+            </p>
+            <Link to="/privacy" className="text-xs font-medium text-primary hover:underline">
+              Privacy Policy
+            </Link>
+          </div>
         </div>
       </footer>
+
     </div>
   );
 }

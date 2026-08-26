@@ -18,6 +18,8 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/login", changefreq: "monthly", priority: "0.5" },
           { path: "/register", changefreq: "monthly", priority: "0.7" },
           { path: "/forgot-password", changefreq: "yearly", priority: "0.2" },
+          { path: "/privacy", changefreq: "yearly", priority: "0.4" },
+
         ];
 
         // Live storefronts are public, shareable landing pages worth indexing.

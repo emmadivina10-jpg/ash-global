@@ -24,6 +24,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { AshOrb } from "./AshOrb";
 import { StatusBadge } from "./StatusBadge";
 import { NotificationBell } from "./NotificationBell";
+import { PushBridge } from "./PushBridge";
+
 import { Logo } from "./Logo";
 import { LanguageSwitcher, ThemeToggle } from "./Preferences";
 import { useI18n, type TKey } from "@/lib/i18n";
@@ -74,7 +76,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background">
+      <PushBridge />
       <div className="mx-auto flex w-full max-w-7xl">
+
         <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-border bg-sidebar p-5 lg:flex">
           <Link to="/services" className="mb-8 inline-flex">
             <Logo />
