@@ -73,9 +73,7 @@ export function useDiscovery(filters: DiscoveryFilters) {
       if (filters.minRating > 0) query = query.gte("rating_avg", filters.minRating);
       if (filters.verifiedOnly) query = query.eq("is_verified", true);
       if (filters.availableOnly) query = query.eq("accepting_bookings", true);
-      if (needsServiceJoin) {
-        query = query.eq("services.is_active", true).lte("services.price", filters.maxPrice!);
-      }
+      if (needsServiceJoin) query = query.lte("services.price", filters.maxPrice!);
 
       const term = filters.search.trim();
       if (term) {
