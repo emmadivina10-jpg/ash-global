@@ -27,9 +27,9 @@ import { Button } from "@/components/ui/button";
 import { ACTIVATION_FEE, COMMISSIONS, MIN_WITHDRAWAL, formatXAF } from "@/lib/format";
 import { useI18n, type TKey } from "@/lib/i18n";
 
-const TITLE = "ASH Glo Cameroon — Digital marketplace, referral rewards & verified services";
+const TITLE = "ASH Glo — Digital marketplace, referral rewards & verified services";
 const DESCRIPTION =
-  "Earn 3 levels of referral commissions in Cameroon and withdraw to MTN Mobile Money or Orange Money. Discover verified beauty, tech, home and wellness providers on ASH Glo.";
+  "Earn 3 levels of referral commissions and withdraw to MTN Mobile Money or Orange Money. Discover verified beauty, tech, home and wellness providers on ASH Glo.";
 const OG_IMAGE = "https://ashglogroup.company/ash-social.png";
 
 export const Route = createFileRoute("/")({
@@ -43,7 +43,7 @@ export const Route = createFileRoute("/")({
       { property: "og:url", content: "https://ashglogroup.company/" },
       { property: "og:image", content: OG_IMAGE },
       { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "640" },
+      { property: "og:image:height", content: "630" },
       { property: "og:image:alt", content: "ASH Glo" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:image", content: OG_IMAGE },
@@ -60,7 +60,6 @@ export const Route = createFileRoute("/")({
           applicationCategory: "FinanceApplication",
           operatingSystem: "Web, Android, iOS",
           inLanguage: ["en", "fr"],
-          areaServed: { "@type": "Country", name: "Cameroon" },
           offers: {
             "@type": "Offer",
             price: "5000",
