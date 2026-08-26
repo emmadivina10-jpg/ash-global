@@ -537,3 +537,116 @@ export const getConsoleAuditLog = createServerFn({ method: "GET" }).handler(asyn
   const byUser = new Map((profiles ?? []).map((p) => [p.user_id, p]));
   return list.map((r) => ({ ...r, profile: r.target_user_id ? (byUser.get(r.target_user_id) ?? null) : null }));
 });
+
+export type DayPoint = {
+  day: string;
+  activations: number;
+  subscriptions: number;
+  commission: number;
+  bookingVolume: number;
+  payouts: number;
+  signups: number;
+};
+
+export type ConsoleAnalytics = {
+  series: DayPoint[];
+  range: number;
+  totals: {
+    activations: number;
+    subscriptions: number;
+    commission: number;
+    bookingVolume: number;
+    payouts: number;
+    signups: number;
+    revenue: number;
+  };
+  channels: { name: string; value: number }[];
+};
+
+function dayKey(value: string | null | undefined): string | null {
+  if (!value) return null;
+  return new Date(value).toISOString().slice(0, 10);
+}
+
+/** Daily platform analytics for the console graphs. Real-time (no cache). */
+export const getConsoleAnalytics = createServerFn({ method: "GET" })
+  .inputValidator((input: { days?: number } | undefined) => ({
+    days: Math.min(Math.max(Number(input?.days ?? 30), 7), 90),
+  }))
+  .handler(async ({ data }): Promise<ConsoleAnalytics> => {
+    const { requireConsole, adminClient } = await import("./console.server");
+    await requireConsole();
+    const db = await adminClient();
+
+    const since = new Date(Date.now() - data.days * 86400000);
+    const sinceIso = since.toISOString();
+
+    const [activations, subs, bookings, payouts, signups] = await Promise.all([
+      db.from("activations").select("amount, paid_at").eq("status", "PAID").gte("paid_at", sinceIso),
+      db
+        .from("provider_subscriptions")
+        .select("amount, created_at")
+        .eq("status", "ACTIVE")
+        .gte("created_at", sinceIso),
+      db
+        .from("bookings")
+        .select("price, platform_fee, paid_at")
+        .not("paid_at", "is", null)
+        .gte("paid_at", sinceIso),
+      db.from("withdrawals").select("amount, processed_at").eq("status", "PAID").gte("processed_at", sinceIso),
+      db.from("profiles").select("created_at").gte("created_at", sinceIso),
+    ]);
+
+    const buckets = new Map<string, DayPoint>();
+    for (let i = data.days - 1; i >= 0; i -= 1) {
+      const day = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
+      buckets.set(day, {
+        day,
+        activations: 0,
+        subscriptions: 0,
+        commission: 0,
+        bookingVolume: 0,
+        payouts: 0,
+        signups: 0,
+      });
+    }
+    const add = (key: string | null, field: keyof Omit<DayPoint, "day">, amount: number) => {
+      if (!key) return;
+      const bucket = buckets.get(key);
+      if (!bucket) return;
+      bucket[field] += amount;
+    };
+
+    for (const row of activations.data ?? []) add(dayKey(row.paid_at), "activations", Number(row.amount ?? 0));
+    for (const row of subs.data ?? []) add(dayKey(row.created_at), "subscriptions", Number(row.amount ?? 0));
+    for (const row of bookings.data ?? []) {
+      const key = dayKey(row.paid_at);
+      add(key, "commission", Number(row.platform_fee ?? 0));
+      add(key, "bookingVolume", Number(row.price ?? 0));
+    }
+    for (const row of payouts.data ?? []) add(dayKey(row.processed_at), "payouts", Number(row.amount ?? 0));
+    for (const row of signups.data ?? []) add(dayKey(row.created_at), "signups", 1);
+
+    const series = [...buckets.values()];
+    const sum = (field: keyof Omit<DayPoint, "day">) => series.reduce((acc, p) => acc + p[field], 0);
+    const totals = {
+      activations: sum("activations"),
+      subscriptions: sum("subscriptions"),
+      commission: sum("commission"),
+      bookingVolume: sum("bookingVolume"),
+      payouts: sum("payouts"),
+      signups: sum("signups"),
+      revenue: sum("activations") + sum("subscriptions") + sum("commission"),
+    };
+
+    return {
+      series,
+      range: data.days,
+      totals,
+      channels: [
+        { name: "Activations", value: totals.activations },
+        { name: "Subscriptions", value: totals.subscriptions },
+        { name: "Booking commission", value: totals.commission },
+      ].filter((c) => c.value > 0),
+    };
+  });
