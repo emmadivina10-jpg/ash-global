@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { formatXAF } from "@/lib/format";
 import { Logo } from "@/components/refer/Logo";
 
-const SITE = "https://growrefer.app";
+const SITE = "https://ashglogroup.company";
 const FALLBACK_IMAGE = `${SITE}/ash-social.png`;
 
 function previewImage(store: Storefront | null): string {

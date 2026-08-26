@@ -30,7 +30,7 @@ import { useI18n, type TKey } from "@/lib/i18n";
 const TITLE = "ASH Glo REFER Cameroon — Digital marketplace, referral rewards & verified services";
 const DESCRIPTION =
   "Earn 3 levels of referral commissions in Cameroon and withdraw to MTN Mobile Money or Orange Money. Discover verified beauty, tech, home and wellness providers on ASH Glo REFER.";
-const OG_IMAGE = "https://growrefer.app/ash-social.png";
+const OG_IMAGE = "https://ashglogroup.company/ash-social.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -40,7 +40,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://growrefer.app/" },
+      { property: "og:url", content: "https://ashglogroup.company/" },
       { property: "og:image", content: OG_IMAGE },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "640" },
@@ -48,7 +48,7 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:image", content: OG_IMAGE },
     ],
-    links: [{ rel: "canonical", href: "https://growrefer.app/" }],
+    links: [{ rel: "canonical", href: "https://ashglogroup.company/" }],
     scripts: [
       {
         type: "application/ld+json",
@@ -56,7 +56,7 @@ export const Route = createFileRoute("/")({
           "@context": "https://schema.org",
           "@type": "WebApplication",
           name: "ASH Glo REFER",
-          url: "https://growrefer.app/",
+          url: "https://ashglogroup.company/",
           applicationCategory: "FinanceApplication",
           operatingSystem: "Web, Android, iOS",
           inLanguage: ["en", "fr"],
