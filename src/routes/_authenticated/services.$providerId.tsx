@@ -87,6 +87,21 @@ function ProviderPage() {
   const completed = Number((provider as { completed_bookings?: number }).completed_bookings ?? 0);
   const areas = ((provider as { service_areas?: string[] }).service_areas ?? []).filter(Boolean);
 
+  // Say *why* booking is unavailable instead of showing a dead grey button.
+  const blockedReason = isOwner
+    ? fr
+      ? "C'est votre propre vitrine — vous ne pouvez pas vous réserver."
+      : "This is your own storefront, so you can't book yourself."
+    : activeServices.length === 0
+      ? fr
+        ? "Ce pro n'a pas encore publié de service réservable."
+        : "This pro hasn't published a bookable service yet."
+      : !bookable
+        ? fr
+          ? "Ce pro n'accepte pas de nouvelles réservations pour le moment. Vous pouvez quand même discuter."
+          : "This pro isn't accepting new bookings right now. You can still start a chat."
+        : null;
+
   return (
     <div className="mx-auto w-full max-w-4xl space-y-5">
       <SectionCard>
