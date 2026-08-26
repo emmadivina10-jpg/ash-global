@@ -91,7 +91,7 @@ export const getStorefront = createServerFn({ method: "GET" })
     const paths = (photos ?? []).map((p) => p.image_path).filter(Boolean);
     let signed: Record<string, string> = {};
     if (paths.length > 0) {
-      const { data: urls } = await supabase.storage.from("portfolio").createSignedUrls(paths, 60 * 60 * 24);
+      const { data: urls } = await supabase.storage.from("portfolio").createSignedUrls(paths, 60 * 60 * 24 * 365);
       for (const u of urls ?? []) {
         if (u.path && u.signedUrl) signed[u.path] = u.signedUrl;
       }

@@ -19,6 +19,8 @@ export type ProviderProfile = {
   subscription_expires_at: string | null;
   rating_avg: number;
   rating_count: number;
+  slug: string | null;
+  country: string;
   created_at: string;
 };
 

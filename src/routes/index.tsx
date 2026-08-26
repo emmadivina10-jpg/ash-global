@@ -19,6 +19,9 @@ import {
   Wallet,
 } from "lucide-react";
 import { Logo } from "@/components/refer/Logo";
+import { PaymentMethods } from "@/components/refer/PaymentMethods";
+import { RegionSwitcher } from "@/components/refer/RegionSwitcher";
+import { useRegion } from "@/lib/region-context";
 import { LanguageSwitcher, ThemeToggle } from "@/components/refer/Preferences";
 import { Button } from "@/components/ui/button";
 import { ACTIVATION_FEE, COMMISSIONS, MIN_WITHDRAWAL, formatXAF } from "@/lib/format";
@@ -123,6 +126,7 @@ const STEPS = [
 
 function Landing() {
   const { t } = useI18n();
+  const region = useRegion();
   const fee = formatXAF(ACTIVATION_FEE);
 
   return (
@@ -131,6 +135,7 @@ function Landing() {
         <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3.5 sm:px-6">
           <Logo />
           <nav className="flex items-center gap-1.5 sm:gap-2">
+            <RegionSwitcher className="hidden sm:inline-flex" />
             <LanguageSwitcher />
             <ThemeToggle />
             <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
@@ -257,6 +262,7 @@ function Landing() {
                 <p className="mt-5 max-w-md text-base leading-relaxed text-on-dark/80">
                   {t("landing.hero.copy")}
                 </p>
+                <PaymentMethods className="relative mt-7" />
               </div>
               <div className="relative mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button
@@ -280,6 +286,8 @@ function Landing() {
               </div>
             </div>
 
+            {region.referralEnabled ? (
+              <>
             {/* Wallet preview tile */}
             <div className="tile col-span-full flex flex-col p-5 sm:p-6 lg:col-span-5">
               <div className="virtual-card grain p-5">
@@ -346,10 +354,13 @@ function Landing() {
                 <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t(item.copy)}</p>
               </div>
             ))}
+              </>
+            ) : null}
           </div>
         </section>
 
         {/* Steps */}
+        {region.referralEnabled ? (
         <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:py-16">
           <div className="max-w-2xl">
             <p className="eyebrow text-primary">{t("landing.how.eyebrow")}</p>
@@ -372,6 +383,8 @@ function Landing() {
             ))}
           </ol>
         </section>
+
+        ) : null}
 
         {/* Features bento */}
         <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:py-16">

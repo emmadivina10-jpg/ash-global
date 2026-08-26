@@ -8,6 +8,8 @@ import { useProfile } from "@/lib/queries";
 import { SectionCard } from "@/components/refer/cards";
 import { StatusBadge } from "@/components/refer/StatusBadge";
 import { CopyReferralButton } from "@/components/refer/ReferralCard";
+import { AvatarUpload } from "@/components/refer/AvatarUpload";
+
 import { SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -108,8 +110,24 @@ function ProfilePage() {
       ) : null}
 
       <SectionCard title={t("profile.accountDetails")}>
+        <div className="mb-5 border-b border-border pb-5">
+          <AvatarUpload
+            userId={profile.user_id}
+            path={profile.avatar_url}
+            name={profile.full_name}
+            onUploaded={async (avatarPath) => {
+              const { error: avatarError } = await supabase
+                .from("profiles")
+                .update({ avatar_url: avatarPath })
+                .eq("user_id", profile.user_id);
+              if (avatarError) throw new Error(avatarError.message);
+              await queryClient.invalidateQueries({ queryKey: ["profile"] });
+            }}
+          />
+        </div>
         <form onSubmit={save} className="space-y-4" noValidate>
           <div className="space-y-2">
+
             <Label htmlFor="fullName">{t("profile.fullName")}</Label>
             <Input id="fullName" value={fullName} onChange={(event) => setFullName(event.target.value)} />
           </div>

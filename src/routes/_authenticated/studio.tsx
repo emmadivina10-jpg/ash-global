@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CalendarClock, Coins, Star, Trash2 } from "lucide-react";
+import { CalendarClock, Coins, PartyPopper, Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -23,6 +23,7 @@ import { PORTFOLIO_BUCKET, SERVICE_CATEGORIES, type ServiceCategory } from "@/li
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { categoryLabel } from "@/lib/taxonomy";
 import { useI18n } from "@/lib/i18n";
+import { useRegion } from "@/lib/region-context";
 import { AvailabilityCard, PaymentLinksCard, StorefrontCard } from "@/components/refer/StorefrontTools";
 import { cn } from "@/lib/utils";
 
@@ -59,6 +60,9 @@ function StudioPage() {
     categories: [] as ServiceCategory[],
   });
   const [saving, setSaving] = useState(false);
+  const [celebrate, setCelebrate] = useState<"created" | "updated" | null>(null);
+  const navigate = useNavigate();
+  const region = useRegion();
   const [uploading, setUploading] = useState(false);
   const [service, setService] = useState({
     title: "",
@@ -107,7 +111,9 @@ function StudioPage() {
       phone: form.phone.trim() || null,
       whatsapp: form.whatsapp.trim() || null,
       categories: form.categories,
+      country: region.seesEverything ? region.detected : region.country,
     };
+    const isNew = !studio;
     const { error } = studio
       ? await supabase.from("provider_profiles").update(payload).eq("id", studio.id)
       : await supabase.from("provider_profiles").insert(payload);
@@ -116,10 +122,11 @@ function StudioPage() {
       toast.error(t("pro.saveErr"));
       return;
     }
-    toast.success(t("pro.saved"));
-    void queryClient.invalidateQueries({ queryKey: ["provider"] });
-    void queryClient.invalidateQueries({ queryKey: ["providers"] });
+    await queryClient.invalidateQueries({ queryKey: ["provider"] });
+    await queryClient.invalidateQueries({ queryKey: ["providers"] });
+    setCelebrate(isNew ? "created" : "updated");
   }
+
 
   async function addService(event: React.FormEvent) {
     event.preventDefault();
@@ -459,6 +466,37 @@ function StudioPage() {
             </p>
           </SectionCard>
         </>
+      ) : null}
+
+      {celebrate ? (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-foreground/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-3xl border border-border bg-card p-7 text-center shadow-raised">
+            <span className="mx-auto grid size-14 place-items-center rounded-full bg-gradient-to-br from-primary to-gold text-on-dark">
+              <PartyPopper className="size-6" aria-hidden />
+            </span>
+            <h2 className="mt-4 font-display text-xl font-extrabold text-foreground">
+              {celebrate === "created" ? "Congratulations, you're live!" : "Storefront updated!"}
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {celebrate === "created"
+                ? "Your storefront is now on the ASH Glo marketplace. Customers nearby can find, book and pay you."
+                : "Your changes are saved and already visible on the marketplace."}
+            </p>
+            <div className="mt-5 grid gap-2">
+              <Button
+                onClick={() => {
+                  setCelebrate(null);
+                  void navigate({ to: "/services" });
+                }}
+              >
+                Go to the marketplace
+              </Button>
+              <Button variant="ghost" onClick={() => setCelebrate(null)}>
+                Keep editing
+              </Button>
+            </div>
+          </div>
+        </div>
       ) : null}
     </div>
   );

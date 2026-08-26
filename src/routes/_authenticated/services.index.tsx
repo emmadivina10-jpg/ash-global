@@ -25,6 +25,7 @@ import {
   type DiscoverySort,
 } from "@/lib/discovery.queries";
 import { useLocation } from "@/lib/location";
+import { useRegion } from "@/lib/region-context";
 import { useI18n } from "@/lib/i18n";
 import { formatXAF } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -58,6 +59,7 @@ function DiscoveryPage() {
   const { location, asked, request, dismiss } = useLocation();
   const { data: cities } = useProviderCities();
 
+  const region = useRegion();
   const [group, setGroup] = useState<GroupId | "ALL">("ALL");
   const [category, setCategory] = useState<ServiceCategory | "ALL">("ALL");
   const [searchInput, setSearchInput] = useState("");
@@ -86,6 +88,14 @@ function DiscoveryPage() {
     const city = location?.label ?? null;
     setFilters((f) => (f.nearCity === city ? f : { ...f, nearCity: city }));
   }, [location?.label]);
+
+  // Country-scoped catalogue: you only see storefronts in your own country
+  // (admins in "all regions" mode see everything).
+  useEffect(() => {
+    const scope = region.seesEverything ? null : region.country;
+    setFilters((f) => (f.country === scope ? f : { ...f, country: scope }));
+  }, [region.country, region.seesEverything]);
+
 
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useDiscovery(filters);
   const providers = useMemo(() => (data?.pages ?? []).flat(), [data]);
