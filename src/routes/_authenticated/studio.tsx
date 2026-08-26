@@ -108,6 +108,7 @@ function StudioPage() {
       whatsapp: form.whatsapp.trim() || null,
       categories: form.categories,
     };
+    const isNew = !studio;
     const { error } = studio
       ? await supabase.from("provider_profiles").update(payload).eq("id", studio.id)
       : await supabase.from("provider_profiles").insert(payload);
@@ -116,10 +117,11 @@ function StudioPage() {
       toast.error(t("pro.saveErr"));
       return;
     }
-    toast.success(t("pro.saved"));
-    void queryClient.invalidateQueries({ queryKey: ["provider"] });
-    void queryClient.invalidateQueries({ queryKey: ["providers"] });
+    await queryClient.invalidateQueries({ queryKey: ["provider"] });
+    await queryClient.invalidateQueries({ queryKey: ["providers"] });
+    setCelebrate(isNew ? "created" : "updated");
   }
+
 
   async function addService(event: React.FormEvent) {
     event.preventDefault();
