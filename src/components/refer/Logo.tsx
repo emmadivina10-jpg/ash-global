@@ -7,8 +7,9 @@ export function Logo({ compact = false, className }: { compact?: boolean; classN
       <img
         src={ashLogo.url}
         alt="ASH Glo"
-        className="size-9 shrink-0 object-contain drop-shadow-[0_2px_10px_rgba(228,48,107,0.35)]"
+        className="size-9 shrink-0 rounded-full bg-primary-deep object-cover p-0.5 ring-1 ring-border/50 drop-shadow-[0_2px_10px_rgba(228,48,107,0.35)]"
       />
+
       <span className="min-w-0">
         <span className="flex items-center gap-1.5 leading-none">
           <span className="font-display text-lg font-extrabold tracking-tight text-foreground">ASH Glo</span>
