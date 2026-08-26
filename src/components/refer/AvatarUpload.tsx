@@ -41,8 +41,8 @@ export function Avatar({
   className,
 }: {
   path: string | null | undefined;
-  name?: string | null;
-  className?: string;
+  name?: string | null | undefined;
+  className?: string | undefined;
 }) {
   const url = useAvatarUrl(path);
   const initials = (name ?? "")
@@ -78,7 +78,7 @@ export function AvatarUpload({
 }: {
   userId: string;
   path: string | null | undefined;
-  name?: string | null;
+  name?: string | null | undefined;
   onUploaded: (path: string) => Promise<void> | void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
