@@ -315,6 +315,8 @@ export function useMessages(conversationId: string | undefined) {
   const query = useQuery({
     enabled: Boolean(conversationId),
     queryKey: ["messages", conversationId],
+    // Fallback poll so a dropped realtime socket never strands a conversation.
+    refetchInterval: 15_000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("messages")
