@@ -92,11 +92,9 @@ export const getStorefront = createServerFn({ method: "GET" })
     let signed: Record<string, string> = {};
     if (paths.length > 0) {
       const { data: urls } = await supabase.storage.from("portfolio").createSignedUrls(paths, 60 * 60 * 24);
-      signed = Object.fromEntries(
-        (urls ?? [])
-          .filter((u): u is { path: string; signedUrl: string; error: null } => Boolean(u.path && u.signedUrl))
-          .map((u) => [u.path, u.signedUrl]),
-      );
+      for (const u of urls ?? []) {
+        if (u.path && u.signedUrl) signed[u.path] = u.signedUrl;
+      }
     }
 
     return {
