@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
@@ -59,7 +59,7 @@ function WithdrawPage() {
   const { data: profile } = useProfile();
   const { data: withdrawals, isLoading } = useWithdrawals();
   const { data: transactions } = useTransactions(300);
-  const { region } = useRegion();
+  const { country, mobileMoneyEnabled } = useRegion();
 
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState<Method>("MTN_MOMO");
@@ -87,10 +87,14 @@ function WithdrawPage() {
   );
 
   const isBank = method === "STRIPE_BANK";
-  const momoAvailable = region.country === "CM";
+  const momoAvailable = mobileMoneyEnabled;
   const methodOptions: Method[] = momoAvailable
     ? ["MTN_MOMO", "ORANGE_MONEY", "STRIPE_BANK"]
     : ["STRIPE_BANK"];
+
+  useEffect(() => {
+    if (!methodOptions.includes(method)) setMethod("STRIPE_BANK");
+  }, [method, momoAvailable]);
 
   function review(event: React.FormEvent) {
     event.preventDefault();
