@@ -1244,6 +1244,7 @@ export type Database = {
         Args: { _amount: number; _method: string; _phone: string }
         Returns: Json
       }
+      security_housekeeping: { Args: never; Returns: undefined }
       security_overview: { Args: { _hours?: number }; Returns: Json }
       security_selfcheck: { Args: never; Returns: Json }
       set_booking_progress: {
