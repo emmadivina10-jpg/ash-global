@@ -38,6 +38,14 @@ function MessagesPage() {
   const activeId = c ?? list[0]?.id;
   const active = list.find((conv) => conv.id === activeId);
 
+  /** Providers see the client; clients see the business. */
+  function peerOf(conv: (typeof list)[number]): string {
+    const viewerIsProvider = Boolean(user?.id) && conv.provider?.user_id === user?.id;
+    return viewerIsProvider
+      ? (conv.client?.full_name ?? "ASH client")
+      : (conv.provider?.business_name ?? t("chat.title"));
+  }
+
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
       <header>
