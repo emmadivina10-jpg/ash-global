@@ -23,6 +23,7 @@ import { PORTFOLIO_BUCKET, SERVICE_CATEGORIES, type ServiceCategory } from "@/li
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { categoryLabel } from "@/lib/taxonomy";
 import { useI18n } from "@/lib/i18n";
+import { useRegion } from "@/lib/region-context";
 import { AvailabilityCard, PaymentLinksCard, StorefrontCard } from "@/components/refer/StorefrontTools";
 import { cn } from "@/lib/utils";
 
@@ -61,6 +62,7 @@ function StudioPage() {
   const [saving, setSaving] = useState(false);
   const [celebrate, setCelebrate] = useState<"created" | "updated" | null>(null);
   const navigate = useNavigate();
+  const region = useRegion();
   const [uploading, setUploading] = useState(false);
   const [service, setService] = useState({
     title: "",
@@ -109,6 +111,7 @@ function StudioPage() {
       phone: form.phone.trim() || null,
       whatsapp: form.whatsapp.trim() || null,
       categories: form.categories,
+      country: region.seesEverything ? region.detected : region.country,
     };
     const isNew = !studio;
     const { error } = studio
