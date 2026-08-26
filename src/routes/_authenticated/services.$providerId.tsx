@@ -14,6 +14,7 @@ import {
 import { useUser } from "@/lib/queries";
 import { SectionCard } from "@/components/refer/cards";
 import { RatingStars } from "@/components/refer/RatingStars";
+import { ReviewComposer } from "@/components/refer/ReviewComposer";
 import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
