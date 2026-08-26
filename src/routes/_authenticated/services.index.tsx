@@ -25,6 +25,7 @@ import {
   type DiscoverySort,
 } from "@/lib/discovery.queries";
 import { useLocation } from "@/lib/location";
+import { useRegion } from "@/lib/region-context";
 import { useI18n } from "@/lib/i18n";
 import { formatXAF } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -58,6 +59,7 @@ function DiscoveryPage() {
   const { location, asked, request, dismiss } = useLocation();
   const { data: cities } = useProviderCities();
 
+  const region = useRegion();
   const [group, setGroup] = useState<GroupId | "ALL">("ALL");
   const [category, setCategory] = useState<ServiceCategory | "ALL">("ALL");
   const [searchInput, setSearchInput] = useState("");
