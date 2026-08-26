@@ -57,10 +57,11 @@ export function ReviewComposer({
       return;
     }
     setSaving(true);
+    const trimmed = comment.trim();
     const { data, error } = await supabase.rpc("submit_community_review", {
       _provider_id: providerId,
       _rating: rating,
-      _comment: comment.trim() || undefined,
+      ...(trimmed ? { _comment: trimmed } : {}),
     });
     setSaving(false);
 

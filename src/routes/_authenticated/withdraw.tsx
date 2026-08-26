@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useProfile, useWallet, useWithdrawals } from "@/lib/queries";
+import { useProfile, useTransactions, useWallet, useWithdrawals } from "@/lib/queries";
+import { PayoutAccountCard } from "@/components/refer/PayoutAccountCard";
+import { useRegion } from "@/lib/region-context";
 import { SectionCard } from "@/components/refer/cards";
 import { StatusBadge } from "@/components/refer/StatusBadge";
 import { ConfirmationModal } from "@/components/refer/ConfirmationModal";
@@ -30,6 +32,15 @@ const ERRORS: Record<string, string> = {
   INSUFFICIENT_BALANCE: "You do not have enough available balance.",
   PENDING_WITHDRAWAL_EXISTS: "You already have a withdrawal being processed.",
   UNAUTHENTICATED: "Please sign in again.",
+  BANK_NOT_CONNECTED: "Connect and verify your bank account before requesting a bank payout.",
+};
+
+type Method = "MTN_MOMO" | "ORANGE_MONEY" | "STRIPE_BANK";
+
+const METHOD_LABEL: Record<Method, string> = {
+  MTN_MOMO: "MTN Mobile Money",
+  ORANGE_MONEY: "Orange Money",
+  STRIPE_BANK: "Bank account",
 };
 
 export const Route = createFileRoute("/_authenticated/withdraw")({
@@ -47,9 +58,11 @@ function WithdrawPage() {
   const { data: wallet } = useWallet();
   const { data: profile } = useProfile();
   const { data: withdrawals, isLoading } = useWithdrawals();
+  const { data: transactions } = useTransactions(300);
+  const { country, mobileMoneyEnabled } = useRegion();
 
   const [amount, setAmount] = useState("");
-  const [method, setMethod] = useState<"MTN_MOMO" | "ORANGE_MONEY">("MTN_MOMO");
+  const [method, setMethod] = useState<Method>("MTN_MOMO");
   const [phone, setPhone] = useState(profile?.phone ?? "");
   const [error, setError] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
@@ -57,6 +70,31 @@ function WithdrawPage() {
 
   const active = profile?.account_status === "ACTIVE";
   const available = Number(wallet?.available_balance ?? 0);
+  const pending = Number(wallet?.pending_balance ?? 0);
+
+  // Show people where their money came from: referral commissions vs money
+  // earned delivering services on the marketplace.
+  const split = (transactions ?? []).reduce(
+    (acc, row) => {
+      if (row.status !== "SUCCESS" && row.status !== "COMPLETED") return acc;
+      const value = Number(row.amount ?? 0);
+      if (value <= 0) return acc;
+      if (row.type === "COMMISSION" || row.type === "REFERRAL_COMMISSION") acc.referral += value;
+      else if (row.type === "SERVICE_EARNING" || row.type === "BOOKING_EARNING") acc.service += value;
+      return acc;
+    },
+    { referral: 0, service: 0 },
+  );
+
+  const isBank = method === "STRIPE_BANK";
+  const momoAvailable = mobileMoneyEnabled;
+  const methodOptions: Method[] = momoAvailable
+    ? ["MTN_MOMO", "ORANGE_MONEY", "STRIPE_BANK"]
+    : ["STRIPE_BANK"];
+
+  useEffect(() => {
+    if (!methodOptions.includes(method)) setMethod("STRIPE_BANK");
+  }, [method, momoAvailable]);
 
   function review(event: React.FormEvent) {
     event.preventDefault();
@@ -69,7 +107,7 @@ function WithdrawPage() {
       setError(ERRORS["INSUFFICIENT_BALANCE"] ?? null);
       return;
     }
-    if (!CM_PHONE_REGEX.test(normalizePhone(phone))) {
+    if (!isBank && !CM_PHONE_REGEX.test(normalizePhone(phone))) {
       setError(ERRORS["INVALID_PHONE"] ?? null);
       return;
     }
@@ -82,7 +120,7 @@ function WithdrawPage() {
     const { data, error: rpcError } = await supabase.rpc("request_withdrawal", {
       _amount: Number(amount),
       _method: method,
-      _phone: normalizePhone(phone),
+      _phone: isBank ? "BANK" : normalizePhone(phone),
     });
     setSubmitting(false);
     setConfirming(false);
@@ -126,6 +164,29 @@ function WithdrawPage() {
         </p>
       </header>
 
+      <SectionCard title="Where your money came from">
+        <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {[
+            { label: "Ready to withdraw", value: available, tone: "text-primary" },
+            { label: "Pending clearance", value: pending, tone: "text-foreground" },
+            { label: "Service earnings", value: split.service, tone: "text-foreground" },
+            { label: "Referral commissions", value: split.referral, tone: "text-foreground" },
+          ].map((item) => (
+            <div key={item.label} className="rounded-xl border border-border p-3">
+              <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                {item.label}
+              </dt>
+              <dd className={`tabular mt-1 text-base font-bold ${item.tone}`}>{formatXAF(item.value)}</dd>
+            </div>
+          ))}
+        </dl>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Only the “ready to withdraw” balance can be paid out. Pending amounts clear once bookings are completed.
+        </p>
+      </SectionCard>
+
+      <PayoutAccountCard country={country} />
+
       <SectionCard title="Request a payout">
         <form onSubmit={review} className="space-y-5" noValidate>
           <div className="space-y-2">
@@ -142,9 +203,9 @@ function WithdrawPage() {
           </div>
 
           <fieldset className="space-y-2">
-            <legend className="mb-2 text-sm font-medium">Mobile money provider</legend>
-            <div className="grid grid-cols-2 gap-3">
-              {(["MTN_MOMO", "ORANGE_MONEY"] as const).map((option) => (
+            <legend className="mb-2 text-sm font-medium">Payout destination</legend>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {methodOptions.map((option) => (
                 <button
                   key={option}
                   type="button"
@@ -156,23 +217,29 @@ function WithdrawPage() {
                       : "border-border bg-card text-muted-foreground hover:bg-muted",
                   )}
                 >
-                  {PAYMENT_METHOD_LABEL[option]}
+                  {METHOD_LABEL[option]}
                 </button>
               ))}
             </div>
           </fieldset>
 
-          <div className="space-y-2">
-            <Label htmlFor="phone">Mobile money number</Label>
-            <Input
-              id="phone"
-              inputMode="tel"
-              value={phone}
-              onChange={(event) => setPhone(event.target.value)}
-              placeholder="6XX XXX XXX"
-              className="h-12"
-            />
-          </div>
+          {isBank ? (
+            <p className="rounded-xl bg-muted/60 p-3 text-xs text-muted-foreground">
+              Funds are sent to the bank account you verified with Stripe above.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              <Label htmlFor="phone">Mobile money number</Label>
+              <Input
+                id="phone"
+                inputMode="tel"
+                value={phone}
+                onChange={(event) => setPhone(event.target.value)}
+                placeholder="6XX XXX XXX"
+                className="h-12"
+              />
+            </div>
+          )}
 
           {error ? (
             <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
@@ -198,7 +265,8 @@ function WithdrawPage() {
                 <div className="min-w-0">
                   <p className="tabular text-sm font-bold text-foreground">{formatXAF(item.amount)}</p>
                   <p className="truncate text-xs text-muted-foreground">
-                    {PAYMENT_METHOD_LABEL[item.payment_method]} · {item.phone_number}
+                    {METHOD_LABEL[item.payment_method as Method] ?? PAYMENT_METHOD_LABEL[item.payment_method]}
+                    {item.payment_method === "STRIPE_BANK" ? "" : ` · ${item.phone_number}`}
                   </p>
                   <p className="truncate text-xs text-muted-foreground">
                     {formatDateTime(item.requested_at)} · {item.reference}
@@ -226,13 +294,15 @@ function WithdrawPage() {
               <dd className="tabular font-bold">{formatXAF(Number(amount || 0))}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">Provider</dt>
-              <dd className="font-semibold">{PAYMENT_METHOD_LABEL[method]}</dd>
+              <dt className="text-muted-foreground">Destination</dt>
+              <dd className="font-semibold">{METHOD_LABEL[method]}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-muted-foreground">Number</dt>
-              <dd className="font-semibold">{normalizePhone(phone)}</dd>
-            </div>
+            {isBank ? null : (
+              <div className="flex justify-between">
+                <dt className="text-muted-foreground">Number</dt>
+                <dd className="font-semibold">{normalizePhone(phone)}</dd>
+              </div>
+            )}
           </dl>
         }
       />
