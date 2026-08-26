@@ -161,9 +161,15 @@ function ProviderPage() {
               </p>
             ) : null}
 
+            {blockedReason ? (
+              <p className="mt-4 rounded-xl border border-border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
+                {blockedReason}
+              </p>
+            ) : null}
+
             <div className="mt-4 flex flex-wrap gap-2">
               <Button
-                disabled={!bookable || isOwner || activeServices.length === 0}
+                disabled={Boolean(blockedReason)}
                 onClick={() => setBooking(activeServices[0] ?? null)}
               >
                 {fr ? "Réserver un service" : "Book service"}
