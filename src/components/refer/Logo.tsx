@@ -14,12 +14,8 @@ export function Logo({ compact = false, className }: { compact?: boolean; classN
         <span className="flex items-center gap-1.5 leading-none">
           <span className="font-display text-lg font-extrabold tracking-tight text-foreground">ASH Glo</span>
         </span>
-        {!compact ? (
-          <span className="mt-1 block text-[11px] font-medium leading-tight text-muted-foreground">
-            Refer. Earn. Discover. Grow.
-          </span>
-        ) : null}
       </span>
+
     </span>
   );
 }
