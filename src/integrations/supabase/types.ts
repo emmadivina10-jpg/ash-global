@@ -141,6 +141,9 @@ export type Database = {
           notes: string | null
           paid_at: string | null
           pay_by: string | null
+          payment_amount: number | null
+          payment_currency: string | null
+          payment_provider: string
           payment_reference: string | null
           platform_fee: number
           price: number
@@ -166,6 +169,9 @@ export type Database = {
           notes?: string | null
           paid_at?: string | null
           pay_by?: string | null
+          payment_amount?: number | null
+          payment_currency?: string | null
+          payment_provider?: string
           payment_reference?: string | null
           platform_fee?: number
           price?: number
@@ -191,6 +197,9 @@ export type Database = {
           notes?: string | null
           paid_at?: string | null
           pay_by?: string | null
+          payment_amount?: number | null
+          payment_currency?: string | null
+          payment_provider?: string
           payment_reference?: string | null
           platform_fee?: number
           price?: number
