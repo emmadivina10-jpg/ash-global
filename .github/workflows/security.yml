@@ -1,0 +1,55 @@
+name: Security
+
+# Runs the RLS regression suite and the database self-check.
+# - on every push/PR that touches migrations or security-sensitive code
+# - on a daily schedule, as a backstop
+on:
+  push:
+    paths:
+      - "supabase/migrations/**"
+      - "src/lib/**"
+      - "src/routes/api/**"
+      - "tests/**"
+  pull_request:
+    paths:
+      - "supabase/migrations/**"
+      - "src/lib/**"
+      - "src/routes/api/**"
+      - "tests/**"
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+
+jobs:
+  rls-regression:
+    name: RLS regression tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - name: Anonymous access regression suite
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: bun run test:security
+
+  database-selfcheck:
+    name: Database security self-check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger self-check and fail on critical findings
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          SECURITY_SCAN_SECRET: ${{ secrets.SECURITY_SCAN_SECRET }}
+        run: |
+          response=$(mktemp)
+          status=$(curl -sS -o "$response" -w '%{http_code}' -X POST \
+            "$APP_URL/api/public/security-selfcheck" \
+            -H "x-security-scan-secret: $SECURITY_SCAN_SECRET")
+          echo "HTTP $status"
+          cat "$response"
+          if [ "$status" != "200" ]; then
+            echo "::error::Security self-check reported findings (HTTP $status)"
+            exit 1
+          fi

@@ -11,6 +11,7 @@ import {
   Menu,
   Moon,
   ReceiptText,
+  ShieldAlert,
   ShieldCheck,
   Store,
   Sun,
@@ -36,6 +37,7 @@ const NAV = [
   { to: "/console/providers", label: "Providers", icon: Store, group: "People" },
   { to: "/console/bookings", label: "Bookings", icon: CalendarCheck, group: "People" },
   { to: "/console/deletions", label: "Deletions", icon: Trash2, group: "People" },
+  { to: "/console/security", label: "Security", icon: ShieldAlert, group: "Insights" },
 ] as const;
 
 const GROUPS = ["Insights", "Money", "People"] as const;
