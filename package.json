@@ -11,7 +11,12 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest run",
-    "test:security": "vitest run tests/rls-anonymous-access.test.ts"
+    "test:security": "vitest run tests/rls-anonymous-access.test.ts",
+    "native:sync": "cap sync",
+    "native:open:ios": "cap open ios",
+    "native:open:android": "cap open android",
+    "native:add:ios": "cap add ios",
+    "native:add:android": "cap add android"
   },
   "dependencies": {
     "@capacitor/app": "^8.1.1",
