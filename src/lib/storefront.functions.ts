@@ -52,11 +52,31 @@ function publicClient() {
   });
 }
 
+/** Throttles a public surface. Returns true when the caller must be refused. */
+async function throttled(bucket: string, route: string, limit: number, detail?: Record<string, unknown>) {
+  const { getRequest } = await import("@tanstack/react-start/server");
+  const { guardPublicRequest } = await import("./rate-limit.server");
+  const request = getRequest();
+  if (!request) return false;
+  const verdict = await guardPublicRequest({
+    request,
+    bucket,
+    route,
+    limit,
+    windowSeconds: 60,
+    ...(detail ? { detail } : {}),
+  });
+  return verdict !== null;
+}
+
 /** Public catalog for a shareable storefront link (/s/:slug). */
 export const getStorefront = createServerFn({ method: "GET" })
   .inputValidator((input: { slug: string }) => ({ slug: String(input?.slug ?? "").slice(0, 80) }))
   .handler(async ({ data }): Promise<Storefront | null> => {
     if (!data.slug) return null;
+    // Storefronts are public, so they are the natural surface for scraping and
+    // for probing a business's booked-out times. Throttle per visitor.
+    if (await throttled("storefront_view", "/s/:slug", 40, { slug: data.slug })) return null;
     const supabase = publicClient();
 
     const { data: provider } = await supabase
@@ -139,6 +159,8 @@ export const getPaymentLink = createServerFn({ method: "GET" })
   .inputValidator((input: { code: string }) => ({ code: String(input?.code ?? "").slice(0, 40) }))
   .handler(async ({ data }): Promise<PublicPaymentLink | null> => {
     if (!data.code) return null;
+    // A payment code is guessable, so brute-force enumeration must be slowed.
+    if (await throttled("payment_link_view", "/pay/:code", 20, { code: data.code })) return null;
     const supabase = publicClient();
     const { data: link } = await supabase
       .from("payment_links")
@@ -175,6 +197,10 @@ export const startLinkPayment = createServerFn({ method: "POST" })
   }))
   .handler(async ({ data }) => {
     if (!data.code || !data.name || !data.phone) return { ok: false as const, error: "INVALID_INPUT" };
+    // Money path: much tighter budget than a read.
+    if (await throttled("payment_link_start", "/pay/:code#start", 5, { code: data.code })) {
+      return { ok: false as const, error: "TOO_MANY_REQUESTS" };
+    }
 
     const supabase = publicClient();
     const { data: link } = await supabase
@@ -220,6 +246,9 @@ export const verifyLinkPayment = createServerFn({ method: "POST" })
   .inputValidator((input: { reference: string }) => ({ reference: String(input?.reference ?? "").slice(0, 64) }))
   .handler(async ({ data }) => {
     if (!data.reference.startsWith("PLK-")) return { ok: false as const, status: "NOT_FOUND" as const };
+    if (await throttled("payment_link_verify", "/pay/:code#verify", 30)) {
+      return { ok: false as const, status: "UNVERIFIED" as const };
+    }
     const { tchokoPay } = await import("./tchokopay.server");
     const verification = await tchokoPay.verifyPayment(data.reference);
     if (!verification.ok) return { ok: false as const, status: "UNVERIFIED" as const };
