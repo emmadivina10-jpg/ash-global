@@ -1117,6 +1117,7 @@ export type Database = {
         Args: { _booking_id: string; _reference: string }
         Returns: Json
       }
+      can_view_avatar: { Args: { _object_name: string }; Returns: boolean }
       cancel_booking: {
         Args: { _booking_id: string; _reason?: string }
         Returns: Json
