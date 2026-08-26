@@ -650,3 +650,63 @@ export const getConsoleAnalytics = createServerFn({ method: "GET" })
       ].filter((c) => c.value > 0),
     };
   });
+
+export type SecurityEvent = {
+  id: string;
+  kind: string;
+  severity: "INFO" | "WARN" | "CRITICAL";
+  subject: string | null;
+  actor_user_id: string | null;
+  route: string | null;
+  detail: Record<string, unknown>;
+  created_at: string;
+};
+
+export type SecurityOverview = {
+  since: string;
+  total: number;
+  critical: number;
+  warn: number;
+  by_kind: { kind: string; count: number }[];
+  top_subjects: { subject: string; count: number; kinds: string[] }[];
+  last_selfcheck: { severity: string; detail: Record<string, unknown>; created_at: string } | null;
+};
+
+/** Security audit log + suspicious-activity summary for the console. */
+export const getSecurityAudit = createServerFn({ method: "GET" })
+  .inputValidator((input: { hours?: number } | undefined) => ({
+    hours: Math.min(Math.max(Number(input?.hours ?? 24), 1), 720),
+  }))
+  .handler(async ({ data }) => {
+    const { requireConsole, adminClient } = await import("./console.server");
+    await requireConsole();
+    const db = await adminClient();
+
+    const [overview, events] = await Promise.all([
+      db.rpc("security_overview", { _hours: data.hours }),
+      db
+        .from("security_events")
+        .select("id, kind, severity, subject, actor_user_id, route, detail, created_at")
+        .order("created_at", { ascending: false })
+        .limit(200),
+    ]);
+
+    return {
+      overview: (overview.data ?? null) as SecurityOverview | null,
+      overviewError: overview.error?.message ?? null,
+      events: (events.data ?? []) as SecurityEvent[],
+    };
+  });
+
+/** Runs the database security self-check on demand from the console. */
+export const runSecuritySelfCheck = createServerFn({ method: "POST" }).handler(async () => {
+  const { requireConsole, adminClient } = await import("./console.server");
+  await requireConsole();
+  const db = await adminClient();
+  const { data, error } = await db.rpc("security_selfcheck");
+  if (error) return { ok: false as const, error: error.message };
+  return {
+    ok: true as const,
+    report: data as { ok: boolean; critical: number; warn: number; findings: { code: string; severity: string; object: string; detail: string }[] },
+  };
+});
