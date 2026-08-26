@@ -214,7 +214,7 @@ function ProviderPage() {
                 </button>
                 <div className="flex shrink-0 items-center gap-2">
                   <span className="tabular text-sm font-bold">{formatXAF(service.price)}</span>
-                  <Button size="sm" disabled={!bookable || isOwner} onClick={() => setBooking(service)}>
+                  <Button size="sm" disabled={Boolean(blockedReason)} onClick={() => setBooking(service)}>
                     {t("svc.book")}
                   </Button>
                 </div>
@@ -297,7 +297,7 @@ function ProviderPage() {
               </dl>
               <Button
                 className="w-full"
-                disabled={!bookable || isOwner || !detail.is_active}
+                disabled={Boolean(blockedReason) || !detail.is_active}
                 onClick={() => {
                   setBooking(detail);
                   setDetail(null);
