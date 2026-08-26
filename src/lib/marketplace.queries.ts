@@ -349,27 +349,49 @@ export function useMessages(conversationId: string | undefined) {
   return query;
 }
 
-/** Finds (or creates) the conversation between the signed-in client and a provider. */
+/**
+ * Finds (or creates) the single conversation between the signed-in client and a
+ * provider. There is one thread per pair; a booking id simply tags the thread
+ * with the most recent order so the header can show it.
+ */
 export async function openConversation(providerId: string, bookingId?: string): Promise<string | null> {
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) return null;
 
-  let lookup = supabase
+  const { data: existing } = await supabase
     .from("conversations")
-    .select("id")
+    .select("id, booking_id")
     .eq("provider_id", providerId)
-    .eq("client_id", auth.user.id);
-  if (bookingId) lookup = lookup.eq("booking_id", bookingId);
+    .eq("client_id", auth.user.id)
+    .order("last_message_at", { ascending: false })
+    .limit(1);
 
-  const { data: existing } = await lookup.order("last_message_at", { ascending: false }).limit(1);
-  if (existing?.[0]?.id) return existing[0].id;
+  const found = existing?.[0];
+  if (found) {
+    if (bookingId && found.booking_id !== bookingId) {
+      await supabase.from("conversations").update({ booking_id: bookingId }).eq("id", found.id);
+    }
+    return found.id;
+  }
 
   const { data, error } = await supabase
     .from("conversations")
     .insert({ provider_id: providerId, client_id: auth.user.id, booking_id: bookingId ?? null })
     .select("id")
     .single();
-  if (error) return null;
+
+  if (error) {
+    // Another tab may have created it a moment ago — reuse that row.
+    const { data: raced } = await supabase
+      .from("conversations")
+      .select("id")
+      .eq("provider_id", providerId)
+      .eq("client_id", auth.user.id)
+      .limit(1);
+    if (raced?.[0]?.id) return raced[0].id;
+    console.error("openConversation failed", error);
+    return null;
+  }
   return data.id;
 }
 
