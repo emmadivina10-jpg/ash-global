@@ -4,11 +4,20 @@ Cameroon’s digital marketplace for services and products. **Refer. Earn. Disco
 
 A mobile-first, bilingual (EN/FR) web application powering service bookings, referral earnings, chat, payments, and an admin console. Built for the Cameroon and Nigeria markets first, with international card support via Stripe.
 
+## Documentation
+
+- [DOCS-INDEX.md](./DOCS-INDEX.md) — start here: every document, code map and common task
+- [DELIVERABLES.md](./DELIVERABLES.md) — full inventory of what has been built
+- [NATIVE.md](./NATIVE.md) — Capacitor / App Store / Play Store workflow
+- [SECURITY.md](./SECURITY.md) and [SECURITY-CHANGELOG.md](./SECURITY-CHANGELOG.md) — security model and hardening log
+- `/privacy` — the public privacy policy served by the app
+
 ## Features
 
 - **ASH Marketplace** – Book verified service providers (braiders, barbers, nail/lash techs, electricians, nurses, and more).
 - **Refer & Earn** – 3-level referral commission system (for eligible regions).
 - **Payments** – Mobile Money (MTN MoMo, Orange Money) via TchokoPay and card payments via Stripe.
+- **Notifications** – In-app bell plus device push for withdrawals, activation, referral commissions, bookings and chat.
 - **Chat & Reviews** – Order-based messaging with real-time notifications and community reviews.
 - **Provider Studio** – Upload portfolio, set booking slots, manage services, generate payment links, and share a public storefront.
 - **ASH Console** – Admin dashboard for financials, users, providers, bookings, withdrawals, and security audit logs.
@@ -33,6 +42,17 @@ bun run dev
 ```
 
 The app runs at `http://localhost:8080` by default.
+
+## Testing
+
+```sh
+bun run test          # everything (RLS suite needs backend env vars)
+bun run test:unit     # pure unit suites — no network, no secrets
+bun run test:security # anonymous-access RLS regression suite
+```
+
+CI runs the unit suite, the RLS regression suite and a database self-check
+(`.github/workflows/security.yml`).
 
 ## Native Builds (Capacitor)
 
