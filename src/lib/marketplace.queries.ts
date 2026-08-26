@@ -190,29 +190,105 @@ export function useMyReviews() {
       const { data, error } = await supabase
         .from("reviews")
         .select("booking_id, rating")
-        .eq("client_id", auth.user.id);
+        .eq("client_id", auth.user.id)
+        .not("booking_id", "is", null);
       if (error) throw error;
       const map: Record<string, { rating: number }> = {};
-      for (const row of data ?? []) map[row.booking_id] = { rating: row.rating };
+      for (const row of data ?? []) if (row.booking_id) map[row.booking_id] = { rating: row.rating };
       return map;
     },
   });
 }
 
-export function useConversations() {
+/** Public reviews for one provider, newest first, with the author's name. */
+export function useProviderReviews(providerId: string | undefined) {
   return useQuery({
+    enabled: Boolean(providerId),
+    queryKey: ["reviews", "provider", providerId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("id, rating, comment, kind, created_at, client_id, booking_id")
+        .eq("provider_id", providerId!)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      const rows = data ?? [];
+      const ids = [...new Set(rows.map((r) => r.client_id))];
+      const names: Record<string, { name: string; avatar: string | null }> = {};
+      if (ids.length > 0) {
+        const { data: people } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, avatar_url")
+          .in("user_id", ids);
+        for (const p of people ?? []) {
+          names[p.user_id] = { name: p.full_name || "ASH member", avatar: p.avatar_url };
+        }
+      }
+      return rows.map((r) => ({
+        ...r,
+        author: names[r.client_id]?.name ?? "ASH member",
+        authorAvatar: names[r.client_id]?.avatar ?? null,
+      }));
+    },
+  });
+}
+
+/** True when the signed-in user already left a community review for a provider. */
+export function useMyCommunityReview(providerId: string | undefined) {
+  return useQuery({
+    enabled: Boolean(providerId),
+    queryKey: ["reviews", "community", "mine", providerId],
+    queryFn: async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) return null;
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("id, rating, comment")
+        .eq("provider_id", providerId!)
+        .eq("client_id", auth.user.id)
+        .eq("kind", "COMMUNITY")
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useConversations() {
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ["conversations"],
+    refetchInterval: 30_000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("conversations")
         .select(
-          "*, provider:provider_profiles(id, business_name, user_id, avatar_url, phone), booking:bookings(id, service_title, scheduled_at, status, address, price, invoice_number)",
+          "*, provider:provider_profiles(id, business_name, user_id, avatar_url, phone), client:profiles!conversations_client_id_fkey(user_id, full_name, avatar_url), booking:bookings(id, service_title, scheduled_at, status, address, price, invoice_number)",
         )
         .order("last_message_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
     },
   });
+
+  // Keep the inbox live even when no thread is open.
+  useEffect(() => {
+    const channel = supabase
+      .channel("inbox:messages")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, (payload) => {
+        void queryClient.invalidateQueries({ queryKey: ["conversations"] });
+        const convId = (payload.new as { conversation_id?: string } | null)?.conversation_id;
+        if (convId) void queryClient.invalidateQueries({ queryKey: ["messages", convId] });
+      })
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
+  return query;
 }
 
 export function useMessages(conversationId: string | undefined) {
