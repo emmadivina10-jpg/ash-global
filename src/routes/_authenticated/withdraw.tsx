@@ -60,7 +60,6 @@ function WithdrawPage() {
   const { data: withdrawals, isLoading } = useWithdrawals();
   const { data: transactions } = useTransactions(300);
   const { region } = useRegion();
-  const isBank = method === "STRIPE_BANK";
 
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState<Method>("MTN_MOMO");
