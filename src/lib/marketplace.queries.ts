@@ -104,22 +104,6 @@ export function usePortfolio(providerId: string | undefined) {
   });
 }
 
-export function useProviderReviews(providerId: string | undefined) {
-  return useQuery({
-    enabled: Boolean(providerId),
-    queryKey: ["reviews", providerId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("reviews")
-        .select("*")
-        .eq("provider_id", providerId!)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data ?? [];
-    },
-  });
-}
-
 export function useMyBookings() {
   return useQuery({
     queryKey: ["bookings", "mine"],
@@ -190,18 +174,77 @@ export function useMyReviews() {
       const { data, error } = await supabase
         .from("reviews")
         .select("booking_id, rating")
-        .eq("client_id", auth.user.id);
+        .eq("client_id", auth.user.id)
+        .not("booking_id", "is", null);
       if (error) throw error;
       const map: Record<string, { rating: number }> = {};
-      for (const row of data ?? []) map[row.booking_id] = { rating: row.rating };
+      for (const row of data ?? []) if (row.booking_id) map[row.booking_id] = { rating: row.rating };
       return map;
     },
   });
 }
 
-export function useConversations() {
+/** Public reviews for one provider, newest first, with the author's name. */
+export function useProviderReviews(providerId: string | undefined) {
   return useQuery({
+    enabled: Boolean(providerId),
+    queryKey: ["reviews", "provider", providerId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("id, rating, comment, kind, created_at, client_id, booking_id")
+        .eq("provider_id", providerId!)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      const rows = data ?? [];
+      const ids = [...new Set(rows.map((r) => r.client_id))];
+      const names: Record<string, { name: string; avatar: string | null }> = {};
+      if (ids.length > 0) {
+        const { data: people } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, avatar_url")
+          .in("user_id", ids);
+        for (const p of people ?? []) {
+          names[p.user_id] = { name: p.full_name || "ASH member", avatar: p.avatar_url };
+        }
+      }
+      return rows.map((r) => ({
+        ...r,
+        author: names[r.client_id]?.name ?? "ASH member",
+        authorAvatar: names[r.client_id]?.avatar ?? null,
+      }));
+    },
+  });
+}
+
+/** True when the signed-in user already left a community review for a provider. */
+export function useMyCommunityReview(providerId: string | undefined) {
+  return useQuery({
+    enabled: Boolean(providerId),
+    queryKey: ["reviews", "community", "mine", providerId],
+    queryFn: async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) return null;
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("id, rating, comment")
+        .eq("provider_id", providerId!)
+        .eq("client_id", auth.user.id)
+        .eq("kind", "COMMUNITY")
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useConversations() {
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ["conversations"],
+    refetchInterval: 30_000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("conversations")
@@ -210,9 +253,44 @@ export function useConversations() {
         )
         .order("last_message_at", { ascending: false });
       if (error) throw error;
-      return data ?? [];
+      const rows = data ?? [];
+
+      // conversations.client_id points at auth.users, so the client profile is
+      // fetched separately (PostgREST cannot embed across schemas).
+      const clientIds = [...new Set(rows.map((r) => r.client_id))];
+      const clients: Record<string, { full_name: string; avatar_url: string | null }> = {};
+      if (clientIds.length > 0) {
+        const { data: people } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, avatar_url")
+          .in("user_id", clientIds);
+        for (const p of people ?? []) {
+          clients[p.user_id] = { full_name: p.full_name || "ASH client", avatar_url: p.avatar_url };
+        }
+      }
+      return rows.map((row) => ({
+        ...row,
+        client: clients[row.client_id] ?? { full_name: "ASH client", avatar_url: null },
+      }));
     },
   });
+
+  // Keep the inbox live even when no thread is open.
+  useEffect(() => {
+    const channel = supabase
+      .channel("inbox:messages")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, (payload) => {
+        void queryClient.invalidateQueries({ queryKey: ["conversations"] });
+        const convId = (payload.new as { conversation_id?: string } | null)?.conversation_id;
+        if (convId) void queryClient.invalidateQueries({ queryKey: ["messages", convId] });
+      })
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
+  return query;
 }
 
 export function useMessages(conversationId: string | undefined) {
@@ -221,6 +299,8 @@ export function useMessages(conversationId: string | undefined) {
   const query = useQuery({
     enabled: Boolean(conversationId),
     queryKey: ["messages", conversationId],
+    // Fallback poll so a dropped realtime socket never strands a conversation.
+    refetchInterval: 15_000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("messages")
@@ -253,27 +333,49 @@ export function useMessages(conversationId: string | undefined) {
   return query;
 }
 
-/** Finds (or creates) the conversation between the signed-in client and a provider. */
+/**
+ * Finds (or creates) the single conversation between the signed-in client and a
+ * provider. There is one thread per pair; a booking id simply tags the thread
+ * with the most recent order so the header can show it.
+ */
 export async function openConversation(providerId: string, bookingId?: string): Promise<string | null> {
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) return null;
 
-  let lookup = supabase
+  const { data: existing } = await supabase
     .from("conversations")
-    .select("id")
+    .select("id, booking_id")
     .eq("provider_id", providerId)
-    .eq("client_id", auth.user.id);
-  if (bookingId) lookup = lookup.eq("booking_id", bookingId);
+    .eq("client_id", auth.user.id)
+    .order("last_message_at", { ascending: false })
+    .limit(1);
 
-  const { data: existing } = await lookup.order("last_message_at", { ascending: false }).limit(1);
-  if (existing?.[0]?.id) return existing[0].id;
+  const found = existing?.[0];
+  if (found) {
+    if (bookingId && found.booking_id !== bookingId) {
+      await supabase.from("conversations").update({ booking_id: bookingId }).eq("id", found.id);
+    }
+    return found.id;
+  }
 
   const { data, error } = await supabase
     .from("conversations")
     .insert({ provider_id: providerId, client_id: auth.user.id, booking_id: bookingId ?? null })
     .select("id")
     .single();
-  if (error) return null;
+
+  if (error) {
+    // Another tab may have created it a moment ago — reuse that row.
+    const { data: raced } = await supabase
+      .from("conversations")
+      .select("id")
+      .eq("provider_id", providerId)
+      .eq("client_id", auth.user.id)
+      .limit(1);
+    if (raced?.[0]?.id) return raced[0].id;
+    console.error("openConversation failed", error);
+    return null;
+  }
   return data.id;
 }
 

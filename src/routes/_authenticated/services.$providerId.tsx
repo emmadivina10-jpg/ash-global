@@ -14,6 +14,7 @@ import {
 import { useUser } from "@/lib/queries";
 import { SectionCard } from "@/components/refer/cards";
 import { RatingStars } from "@/components/refer/RatingStars";
+import { ReviewComposer } from "@/components/refer/ReviewComposer";
 import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -86,6 +87,21 @@ function ProviderPage() {
   const verified = (provider as { is_verified?: boolean }).is_verified === true;
   const completed = Number((provider as { completed_bookings?: number }).completed_bookings ?? 0);
   const areas = ((provider as { service_areas?: string[] }).service_areas ?? []).filter(Boolean);
+
+  // Say *why* booking is unavailable instead of showing a dead grey button.
+  const blockedReason = isOwner
+    ? fr
+      ? "C'est votre propre vitrine — vous ne pouvez pas vous réserver."
+      : "This is your own storefront, so you can't book yourself."
+    : activeServices.length === 0
+      ? fr
+        ? "Ce pro n'a pas encore publié de service réservable."
+        : "This pro hasn't published a bookable service yet."
+      : !bookable
+        ? fr
+          ? "Ce pro n'accepte pas de nouvelles réservations pour le moment. Vous pouvez quand même discuter."
+          : "This pro isn't accepting new bookings right now. You can still start a chat."
+        : null;
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-5">
@@ -161,9 +177,15 @@ function ProviderPage() {
               </p>
             ) : null}
 
+            {blockedReason ? (
+              <p className="mt-4 rounded-xl border border-border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
+                {blockedReason}
+              </p>
+            ) : null}
+
             <div className="mt-4 flex flex-wrap gap-2">
               <Button
-                disabled={!bookable || isOwner || activeServices.length === 0}
+                disabled={Boolean(blockedReason)}
                 onClick={() => setBooking(activeServices[0] ?? null)}
               >
                 {fr ? "Réserver un service" : "Book service"}
@@ -193,7 +215,7 @@ function ProviderPage() {
                 </button>
                 <div className="flex shrink-0 items-center gap-2">
                   <span className="tabular text-sm font-bold">{formatXAF(service.price)}</span>
-                  <Button size="sm" disabled={!bookable || isOwner} onClick={() => setBooking(service)}>
+                  <Button size="sm" disabled={Boolean(blockedReason)} onClick={() => setBooking(service)}>
                     {t("svc.book")}
                   </Button>
                 </div>
@@ -230,17 +252,45 @@ function ProviderPage() {
       </SectionCard>
 
       <SectionCard title={t("svc.reviews")}>
+        <ReviewComposer providerId={providerId} isOwner={isOwner} fr={fr} />
+
         {(reviews ?? []).length === 0 ? (
-          <EmptyState title={fr ? "Pas encore d'avis" : "No reviews yet"} />
+          <div className="mt-3">
+            <EmptyState title={fr ? "Pas encore d'avis" : "No reviews yet"} />
+          </div>
         ) : (
-          <ul className="space-y-3">
-            {(reviews ?? []).map((review) => (
-              <li key={review.id} className="rounded-xl border border-border p-3">
-                <RatingStars value={review.rating} size={14} />
-                {review.comment ? <p className="mt-1 text-sm text-foreground/90">{review.comment}</p> : null}
-                <p className="mt-1 text-[11px] text-muted-foreground">{formatDateTime(review.created_at)}</p>
-              </li>
-            ))}
+          <ul className="mt-3 space-y-3">
+            {(reviews ?? []).map((review) => {
+              const isVerified = review.kind !== "COMMUNITY";
+              return (
+                <li key={review.id} className="rounded-xl border border-border p-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <RatingStars value={review.rating} size={14} />
+                    <span className="text-xs font-semibold text-foreground">{review.author}</span>
+                    <span
+                      className={
+                        isVerified
+                          ? "flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary"
+                          : "rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold text-muted-foreground"
+                      }
+                    >
+                      {isVerified ? (
+                        <>
+                          <ShieldCheck className="size-3" aria-hidden />
+                          {fr ? "Réservation vérifiée" : "Verified booking"}
+                        </>
+                      ) : fr ? (
+                        "Avis communautaire"
+                      ) : (
+                        "Community review"
+                      )}
+                    </span>
+                  </div>
+                  {review.comment ? <p className="mt-1 text-sm text-foreground/90">{review.comment}</p> : null}
+                  <p className="mt-1 text-[11px] text-muted-foreground">{formatDateTime(review.created_at)}</p>
+                </li>
+              );
+            })}
           </ul>
         )}
       </SectionCard>
@@ -276,7 +326,7 @@ function ProviderPage() {
               </dl>
               <Button
                 className="w-full"
-                disabled={!bookable || isOwner || !detail.is_active}
+                disabled={Boolean(blockedReason) || !detail.is_active}
                 onClick={() => {
                   setBooking(detail);
                   setDetail(null);

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, Check, CheckCheck, Loader2, ReceiptText, Send } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMessages } from "@/lib/marketplace.queries";
 import { Button } from "@/components/ui/button";
@@ -101,6 +102,8 @@ export function ChatThread({
     setSending(false);
     setPending((p) => p.filter((v) => v !== value));
     if (error) {
+      console.error("chat send failed", error);
+      toast.error(error.message || "Message not sent — tap to retry");
       setFailed(value);
       return;
     }
