@@ -164,6 +164,29 @@ function WithdrawPage() {
         </p>
       </header>
 
+      <SectionCard title="Where your money came from">
+        <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {[
+            { label: "Ready to withdraw", value: available, tone: "text-primary" },
+            { label: "Pending clearance", value: pending, tone: "text-foreground" },
+            { label: "Service earnings", value: split.service, tone: "text-foreground" },
+            { label: "Referral commissions", value: split.referral, tone: "text-foreground" },
+          ].map((item) => (
+            <div key={item.label} className="rounded-xl border border-border p-3">
+              <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                {item.label}
+              </dt>
+              <dd className={`tabular mt-1 text-base font-bold ${item.tone}`}>{formatXAF(item.value)}</dd>
+            </div>
+          ))}
+        </dl>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Only the “ready to withdraw” balance can be paid out. Pending amounts clear once bookings are completed.
+        </p>
+      </SectionCard>
+
+      <PayoutAccountCard country={country} />
+
       <SectionCard title="Request a payout">
         <form onSubmit={review} className="space-y-5" noValidate>
           <div className="space-y-2">
