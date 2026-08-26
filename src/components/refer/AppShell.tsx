@@ -70,7 +70,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     navigate({ to: "/login", replace: true });
   }
 
-  const links = [...NAV, ...SIDE_EXTRA];
+  const links = visible([...NAV, ...SIDE_EXTRA]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -105,7 +105,8 @@ export function AppShell({ children }: { children: ReactNode }) {
             ) : null}
 
           </nav>
-          <div className="mt-4 flex items-center justify-between gap-2">
+          <RegionSwitcher className="mt-4 w-full justify-start" />
+          <div className="mt-3 flex items-center justify-between gap-2">
             <LanguageSwitcher />
             <div className="flex items-center gap-1">
               <NotificationBell />
