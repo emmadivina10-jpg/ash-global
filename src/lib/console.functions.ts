@@ -651,6 +651,8 @@ export const getConsoleAnalytics = createServerFn({ method: "GET" })
     };
   });
 
+type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+
 export type SecurityEvent = {
   id: string;
   kind: string;
@@ -658,7 +660,7 @@ export type SecurityEvent = {
   subject: string | null;
   actor_user_id: string | null;
   route: string | null;
-  detail: Record<string, unknown>;
+  detail: Record<string, JsonValue>;
   created_at: string;
 };
 
@@ -669,7 +671,7 @@ export type SecurityOverview = {
   warn: number;
   by_kind: { kind: string; count: number }[];
   top_subjects: { subject: string; count: number; kinds: string[] }[];
-  last_selfcheck: { severity: string; detail: Record<string, unknown>; created_at: string } | null;
+  last_selfcheck: { severity: string; detail: Record<string, JsonValue>; created_at: string } | null;
 };
 
 /** Security audit log + suspicious-activity summary for the console. */
