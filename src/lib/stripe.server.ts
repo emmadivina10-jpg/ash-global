@@ -121,3 +121,144 @@ export const stripePay = {
     return { ok: true, configured: true, status, paymentIntentId, error: null };
   },
 };
+
+/* ------------------------------------------------------------------ */
+/* Stripe Connect — provider bank payouts                              */
+/* ------------------------------------------------------------------ */
+
+export type ConnectStatus = {
+  configured: boolean;
+  accountId: string | null;
+  detailsSubmitted: boolean;
+  payoutsEnabled: boolean;
+  requirementsDue: string[];
+  error: string | null;
+};
+
+const EMPTY_CONNECT: ConnectStatus = {
+  configured: false,
+  accountId: null,
+  detailsSubmitted: false,
+  payoutsEnabled: false,
+  requirementsDue: [],
+  error: "STRIPE_NOT_CONFIGURED",
+};
+
+function readAccount(data: Record<string, unknown>): ConnectStatus {
+  const requirements = (data["requirements"] as { currently_due?: string[] } | undefined) ?? {};
+  return {
+    configured: true,
+    accountId: (data["id"] as string) ?? null,
+    detailsSubmitted: data["details_submitted"] === true,
+    payoutsEnabled: data["payouts_enabled"] === true,
+    requirementsDue: requirements.currently_due ?? [],
+    error: null,
+  };
+}
+
+export const stripeConnect = {
+  configured(): boolean {
+    return key() !== null;
+  },
+
+  /** Creates an Express connected account. ASH never sees the bank details. */
+  async createAccount(input: { email: string; country: string }): Promise<ConnectStatus> {
+    if (!key()) return EMPTY_CONNECT;
+    const body = new URLSearchParams();
+    body.set("type", "express");
+    body.set("country", input.country.toUpperCase());
+    body.set("email", input.email);
+    body.set("capabilities[transfers][requested]", "true");
+    body.set("business_type", "individual");
+
+    const result = await stripeRequest("accounts", { method: "POST", body });
+    if (!result.ok) {
+      const err = result.data["error"] as { message?: string } | undefined;
+      return { ...EMPTY_CONNECT, configured: true, error: err?.message ?? "STRIPE_ERROR" };
+    }
+    return readAccount(result.data);
+  },
+
+  async getAccount(accountId: string): Promise<ConnectStatus> {
+    if (!key()) return EMPTY_CONNECT;
+    const result = await stripeRequest(`accounts/${encodeURIComponent(accountId)}`);
+    if (!result.ok) {
+      const err = result.data["error"] as { message?: string } | undefined;
+      return { ...EMPTY_CONNECT, configured: true, error: err?.message ?? "STRIPE_ERROR" };
+    }
+    return readAccount(result.data);
+  },
+
+  /** Hosted onboarding link — the only place bank details are ever entered. */
+  async onboardingLink(input: {
+    accountId: string;
+    refreshUrl: string;
+    returnUrl: string;
+  }): Promise<{ ok: boolean; url: string | null; error: string | null }> {
+    if (!key()) return { ok: false, url: null, error: "STRIPE_NOT_CONFIGURED" };
+    const body = new URLSearchParams();
+    body.set("account", input.accountId);
+    body.set("refresh_url", input.refreshUrl);
+    body.set("return_url", input.returnUrl);
+    body.set("type", "account_onboarding");
+
+    const result = await stripeRequest("account_links", { method: "POST", body });
+    if (!result.ok) {
+      const err = result.data["error"] as { message?: string } | undefined;
+      return { ok: false, url: null, error: err?.message ?? "STRIPE_ERROR" };
+    }
+    return { ok: true, url: (result.data["url"] as string) ?? null, error: null };
+  },
+
+  /** Express dashboard link for a provider who already finished onboarding. */
+  async loginLink(accountId: string): Promise<{ ok: boolean; url: string | null; error: string | null }> {
+    if (!key()) return { ok: false, url: null, error: "STRIPE_NOT_CONFIGURED" };
+    const result = await stripeRequest(`accounts/${encodeURIComponent(accountId)}/login_links`, {
+      method: "POST",
+      body: new URLSearchParams(),
+    });
+    if (!result.ok) {
+      const err = result.data["error"] as { message?: string } | undefined;
+      return { ok: false, url: null, error: err?.message ?? "STRIPE_ERROR" };
+    }
+    return { ok: true, url: (result.data["url"] as string) ?? null, error: null };
+  },
+
+  /**
+   * Moves money to a connected account. `idempotencyKey` is the withdrawal
+   * reference, so a retried settlement can never pay twice.
+   */
+  async transfer(input: {
+    accountId: string;
+    amountCents: number;
+    currency: string;
+    idempotencyKey: string;
+    description?: string;
+  }): Promise<{ ok: boolean; transferId: string | null; error: string | null }> {
+    const secret = key();
+    if (!secret) return { ok: false, transferId: null, error: "STRIPE_NOT_CONFIGURED" };
+
+    const body = new URLSearchParams();
+    body.set("amount", String(input.amountCents));
+    body.set("currency", input.currency.toLowerCase());
+    body.set("destination", input.accountId);
+    body.set("transfer_group", input.idempotencyKey);
+    if (input.description) body.set("description", input.description.slice(0, 200));
+
+    const response = await fetch("https://api.stripe.com/v1/transfers", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${secret}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Idempotency-Key": `wd_${input.idempotencyKey}`,
+      },
+      body,
+    });
+    const data = (await response.json().catch(() => ({}))) as Record<string, unknown>;
+    if (!response.ok) {
+      const err = data["error"] as { message?: string } | undefined;
+      return { ok: false, transferId: null, error: err?.message ?? "STRIPE_ERROR" };
+    }
+    return { ok: true, transferId: (data["id"] as string) ?? null, error: null };
+  },
+};
