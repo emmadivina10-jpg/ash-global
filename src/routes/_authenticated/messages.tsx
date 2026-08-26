@@ -65,7 +65,7 @@ function MessagesPage() {
         <div className="grid gap-4 md:grid-cols-[280px_minmax(0,1fr)]">
           <nav className="tile max-h-64 space-y-1 overflow-y-auto p-2 md:max-h-[70vh]">
             {list.map((conv) => {
-              const label = conv.provider?.business_name ?? t("chat.title");
+              const label = peerOf(conv);
               return (
                 <button
                   key={conv.id}
@@ -107,7 +107,7 @@ function MessagesPage() {
             <div className="mb-2 flex items-start justify-between gap-3 border-b border-border pb-2">
               <div className="min-w-0">
                 <p className="truncate font-display font-semibold text-foreground">
-                  {active?.provider?.business_name ?? t("chat.title")}
+                  {active ? peerOf(active) : t("chat.title")}
                 </p>
                 {active?.booking ? (
                   <p className="truncate text-xs text-muted-foreground">
@@ -131,7 +131,7 @@ function MessagesPage() {
               <ChatThread
                 conversationId={activeId}
                 currentUserId={user?.id}
-                peerName={active?.provider?.business_name ?? "ASH"}
+                peerName={active ? peerOf(active) : "ASH"}
                 className="flex-1"
                 quickReplies={
                   lang === "fr"
