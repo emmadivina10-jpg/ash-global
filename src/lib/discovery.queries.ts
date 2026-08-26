@@ -136,18 +136,36 @@ export function useDiscovery(filters: DiscoveryFilters) {
         });
       }
 
-      // Location-first discovery: pros in the member's own city lead the feed.
+      // Location-first discovery: active pros in the member's own city lead the feed.
       const near = (filters.nearCity ?? "").trim().toLowerCase();
       if (filters.sort === "NEARBY" && near) {
+        const score = (p: (typeof prepared)[number]) => {
+          const sameCity = (p.city ?? "").trim().toLowerCase() === near ? 0 : 2;
+          const active = p.accepting_bookings ? 0 : 1;
+          return sameCity + active;
+        };
         prepared.sort((a, b) => {
-          const an = (a.city ?? "").trim().toLowerCase() === near ? 0 : 1;
-          const bn = (b.city ?? "").trim().toLowerCase() === near ? 0 : 1;
-          if (an !== bn) return an - bn;
+          const diff = score(a) - score(b);
+          if (diff !== 0) return diff;
           return Number(b.rating_avg) - Number(a.rating_avg);
         });
       }
 
+      // A provider always sees their own storefront at the top of the first page.
+      if (page === 0) {
+        const { data: auth } = await supabase.auth.getUser();
+        const uid = auth.user?.id;
+        if (uid) {
+          const mineIndex = prepared.findIndex((p) => p.user_id === uid);
+          if (mineIndex > 0) {
+            const [mine] = prepared.splice(mineIndex, 1);
+            if (mine) prepared.unshift(mine);
+          }
+        }
+      }
+
       return prepared;
+
     },
   });
 }
