@@ -349,7 +349,7 @@ function BookingRequestDialog({
       })
       .then(({ data }) => {
         if (cancelled) return;
-        setSlots(((data ?? []) as string[]) ?? []);
+        setSlots((data ?? []) as string[]);
         setLoadingSlots(false);
       });
     return () => {
