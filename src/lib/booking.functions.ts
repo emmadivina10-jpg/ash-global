@@ -168,7 +168,7 @@ export const syncBookingPayment = createServerFn({ method: "POST" })
 
     const { data: booking } = await supabase
       .from("bookings")
-      .select("id, client_id, status, payment_reference, invoice_number")
+      .select("id, client_id, status, payment_reference, invoice_number, payment_provider, provider_transaction_id")
       .eq("id", data.bookingId)
       .maybeSingle();
 
@@ -180,11 +180,34 @@ export const syncBookingPayment = createServerFn({ method: "POST" })
       return { ok: true as const, status: "PENDING" as const, bookingStatus: booking.status, error: null };
     }
 
-    const { tchokoPay } = await import("./tchokopay.server");
-    const verification = await tchokoPay.verifyPayment(booking.payment_reference);
+    let verification: {
+      ok: boolean;
+      status: "PAID" | "PENDING" | "FAILED" | "CANCELLED" | string;
+      providerTransactionId?: string | null;
+      error?: string | null;
+    };
+
+    if (booking.payment_provider === "STRIPE") {
+      const { stripePay } = await import("./stripe.server");
+      if (!booking.provider_transaction_id) {
+        return { ok: true as const, status: "PENDING" as const, bookingStatus: booking.status, error: null };
+      }
+      const session = await stripePay.verifySession(booking.provider_transaction_id);
+      verification = {
+        ok: session.ok,
+        status: session.status,
+        providerTransactionId: session.paymentIntentId,
+        error: session.error,
+      };
+    } else {
+      const { tchokoPay } = await import("./tchokopay.server");
+      verification = await tchokoPay.verifyPayment(booking.payment_reference);
+    }
+
     if (!verification.ok) {
       return { ok: false as const, error: verification.error ?? "UNVERIFIED", bookingStatus: booking.status };
     }
+
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
