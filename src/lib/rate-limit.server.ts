@@ -88,8 +88,8 @@ export async function logSecurityEvent(entry: {
     await supabaseAdmin.rpc("log_security_event", {
       _kind: entry.kind,
       _severity: entry.severity ?? "WARN",
-      _subject: entry.subject ?? undefined,
-      _route: entry.route ?? undefined,
+      ...(entry.subject ? { _subject: entry.subject } : {}),
+      ...(entry.route ? { _route: entry.route } : {}),
       _detail: (entry.detail ?? {}) as never,
     });
   } catch {
