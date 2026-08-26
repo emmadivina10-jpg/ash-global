@@ -131,7 +131,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           name: "ASH Glo",
           url: "https://ashglogroup.company",
           description:
-            "ASH Glo is a Cameroon referral and beauty-services platform paying three levels of XAF commissions to MTN Mobile Money and Orange Money.",
+            "ASH Glo is a referral and beauty-services platform paying three levels of XAF commissions to MTN Mobile Money and Orange Money.",
         }),
       },
       {

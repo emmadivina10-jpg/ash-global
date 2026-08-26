@@ -60,7 +60,6 @@ export const Route = createFileRoute("/")({
           applicationCategory: "FinanceApplication",
           operatingSystem: "Web, Android, iOS",
           inLanguage: ["en", "fr"],
-          areaServed: { "@type": "Country", name: "Cameroon" },
           offers: {
             "@type": "Offer",
             price: "5000",
