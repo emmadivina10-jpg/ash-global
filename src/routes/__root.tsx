@@ -129,7 +129,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@context": "https://schema.org",
           "@type": "Organization",
           name: "ASH Glo REFER",
-          url: "https://growrefer.app",
+          url: "https://ashglogroup.company",
           description:
             "ASH Glo REFER is a Cameroon referral and beauty-services platform paying three levels of XAF commissions to MTN Mobile Money and Orange Money.",
         }),
@@ -140,7 +140,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@context": "https://schema.org",
           "@type": "WebSite",
           name: "ASH Glo REFER",
-          url: "https://growrefer.app",
+          url: "https://ashglogroup.company",
 sameAs: [],
         }),
       },

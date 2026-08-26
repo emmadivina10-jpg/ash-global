@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/refer/Logo";
 import { formatXAF } from "@/lib/format";
 
-const SITE = "https://growrefer.app";
+const SITE = "https://ashglogroup.company";
 
 export const Route = createFileRoute("/pay/$code")({
   loader: async ({ params }) => {
