@@ -19,6 +19,9 @@ import {
   Wallet,
 } from "lucide-react";
 import { Logo } from "@/components/refer/Logo";
+import { PaymentMethods } from "@/components/refer/PaymentMethods";
+import { RegionSwitcher } from "@/components/refer/RegionSwitcher";
+import { useRegion } from "@/lib/region-context";
 import { LanguageSwitcher, ThemeToggle } from "@/components/refer/Preferences";
 import { Button } from "@/components/ui/button";
 import { ACTIVATION_FEE, COMMISSIONS, MIN_WITHDRAWAL, formatXAF } from "@/lib/format";
@@ -280,6 +283,8 @@ function Landing() {
               </div>
             </div>
 
+            {region.referralEnabled ? (
+              <>
             {/* Wallet preview tile */}
             <div className="tile col-span-full flex flex-col p-5 sm:p-6 lg:col-span-5">
               <div className="virtual-card grain p-5">
@@ -346,9 +351,12 @@ function Landing() {
                 <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t(item.copy)}</p>
               </div>
             ))}
+              </>
+            ) : null}
           </div>
         </section>
 
+        {region.referralEnabled ? (
         {/* Steps */}
         <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:py-16">
           <div className="max-w-2xl">
@@ -372,6 +380,8 @@ function Landing() {
             ))}
           </ol>
         </section>
+
+        ) : null}
 
         {/* Features bento */}
         <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:py-16">
