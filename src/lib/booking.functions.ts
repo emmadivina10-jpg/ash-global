@@ -11,9 +11,9 @@ function makeReference(): string {
  */
 export const startBookingPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { bookingId: string }) => {
+  .inputValidator((input: { bookingId: string; method?: "MOMO" | "CARD" }) => {
     if (!input?.bookingId) throw new Error("bookingId required");
-    return { bookingId: input.bookingId };
+    return { bookingId: input.bookingId, method: input.method === "CARD" ? ("CARD" as const) : ("MOMO" as const) };
   })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -21,7 +21,7 @@ export const startBookingPayment = createServerFn({ method: "POST" })
 
     const { data: booking } = await supabase
       .from("bookings")
-      .select("id, client_id, status, price, service_title, payment_reference, pay_by")
+      .select("id, client_id, status, price, service_title, payment_reference, pay_by, payment_provider, provider_transaction_id")
       .eq("id", data.bookingId)
       .maybeSingle();
 
@@ -33,18 +33,40 @@ export const startBookingPayment = createServerFn({ method: "POST" })
       return { ok: false as const, error: "PAYMENT_NOT_AVAILABLE" };
     }
 
-    // Resume an in-flight checkout when the provider still has a usable link.
+    // Resume an in-flight checkout when the rail still has a usable link.
     if (booking.status === "PAYMENT_PROCESSING" && booking.payment_reference) {
-      const current = await tchokoPay.verifyPayment(booking.payment_reference);
-      if (current.ok && current.checkoutUrl && current.status !== "FAILED" && current.status !== "CANCELLED") {
-        return {
-          ok: true as const,
-          reference: booking.payment_reference,
-          checkoutUrl: current.checkoutUrl,
-          error: null,
-        };
+      if (booking.payment_provider === "STRIPE" && data.method === "CARD" && booking.provider_transaction_id) {
+        const { stripePay } = await import("./stripe.server");
+        const current = await stripePay.verifySession(booking.provider_transaction_id);
+        if (current.ok && current.status === "PENDING") {
+          const resumed = await stripePay.createCheckoutSession({
+            reference: booking.payment_reference,
+            amountCents: (await import("./stripe.server")).xafToUsdCents(Number(booking.price)),
+            currency: "USD",
+            description: `ASH booking — ${booking.service_title}`,
+            successUrl: `${process.env["APP_URL"] ?? "https://growrefer.app"}/bookings`,
+            cancelUrl: `${process.env["APP_URL"] ?? "https://growrefer.app"}/bookings`,
+            metadata: { booking_id: booking.id },
+          });
+          if (resumed.ok && resumed.checkoutUrl) {
+            const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+            await supabaseAdmin.from("bookings").update({ provider_transaction_id: resumed.id }).eq("id", booking.id);
+            return { ok: true as const, reference: booking.payment_reference, checkoutUrl: resumed.checkoutUrl, error: null };
+          }
+        }
+      } else if (booking.payment_provider !== "STRIPE" && data.method === "MOMO") {
+        const current = await tchokoPay.verifyPayment(booking.payment_reference);
+        if (current.ok && current.checkoutUrl && current.status !== "FAILED" && current.status !== "CANCELLED") {
+          return {
+            ok: true as const,
+            reference: booking.payment_reference,
+            checkoutUrl: current.checkoutUrl,
+            error: null,
+          };
+        }
       }
     }
+
 
     const reference = makeReference();
     const { data: begun, error: beginError } = await supabase.rpc("begin_booking_payment", {
