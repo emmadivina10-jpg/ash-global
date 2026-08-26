@@ -126,6 +126,7 @@ const STEPS = [
 
 function Landing() {
   const { t } = useI18n();
+  const region = useRegion();
   const fee = formatXAF(ACTIVATION_FEE);
 
   return (
@@ -134,6 +135,7 @@ function Landing() {
         <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3.5 sm:px-6">
           <Logo />
           <nav className="flex items-center gap-1.5 sm:gap-2">
+            <RegionSwitcher className="hidden sm:inline-flex" />
             <LanguageSwitcher />
             <ThemeToggle />
             <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
