@@ -4,13 +4,13 @@ import { Logo } from "@/components/refer/Logo";
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy Policy — ASH Glo REFER" },
+      { title: "Privacy Policy — ASH Glo" },
       {
         name: "description",
         content:
-          "How ASH Glo REFER collects, uses, shares and protects your personal data across the marketplace, referral programme, payments and mobile apps.",
+          "How ASH Glo collects, uses, shares and protects your personal data across the marketplace, referral programme, payments and mobile apps.",
       },
-      { property: "og:title", content: "Privacy Policy — ASH Glo REFER" },
+      { property: "og:title", content: "Privacy Policy — ASH Glo" },
       {
         property: "og:description",
         content:
@@ -98,13 +98,13 @@ function PrivacyPage() {
 
         <Section id="who-we-are" title="1. Who we are">
           <p>
-            ASH Glo REFER (“ASH Glo”, “we”, “us”) operates a digital marketplace and referral platform
+            ASH Glo (“ASH Glo”, “we”, “us”) operates a digital marketplace and referral platform
             available at https://growrefer.app and as the mobile app “ASH Glo” (bundle ID
             app.growrefer.ashglo).
           </p>
           <Bullets
             items={[
-              "Data controller: ASH Glo REFER, Douala, Cameroon.",
+              "Data controller: ASH Glo, Douala, Cameroon.",
               `Privacy contact: ${PRIVACY_EMAIL}`,
               "Support: https://growrefer.app",
             ]}
@@ -316,7 +316,7 @@ function PrivacyPage() {
               ],
               [
                 "AI assistant provider",
-                "Processor — powers the in-app Refer Assistant",
+                "Processor — powers the in-app ASH Assistant",
                 "Your assistant messages and minimal account context. Do not paste sensitive data into the assistant.",
               ],
               ["Email delivery provider", "Processor — transactional email", "Email address, message content"],
@@ -429,14 +429,14 @@ function PrivacyPage() {
 
         <Section id="contact" title="14. Contact">
           <Bullets
-            items={["ASH Glo REFER, Douala, Cameroon", `Email: ${PRIVACY_EMAIL}`, "Support: https://growrefer.app"]}
+            items={["ASH Glo, Douala, Cameroon", `Email: ${PRIVACY_EMAIL}`, "Support: https://growrefer.app"]}
           />
         </Section>
       </main>
 
       <footer className="border-t border-border">
         <div className="mx-auto max-w-3xl px-4 py-8 text-xs text-muted-foreground sm:px-6">
-          © {new Date().getFullYear()} ASH Glo REFER. Refer. Earn. Discover. Grow.
+          © {new Date().getFullYear()} ASH Glo. Refer. Earn. Discover. Grow.
         </div>
       </footer>
     </div>

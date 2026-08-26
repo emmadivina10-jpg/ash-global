@@ -29,9 +29,9 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/bookings")({
   head: () => ({
     meta: [
-      { title: "Bookings — ASH Glo REFER" },
+      { title: "Bookings — ASH Glo" },
       { name: "description", content: "Track the appointments you booked and the clients booking your studio." },
-      { property: "og:title", content: "Bookings — ASH Glo REFER" },
+      { property: "og:title", content: "Bookings — ASH Glo" },
       { property: "og:description", content: "Manage appointments, payments and invoices in one place." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

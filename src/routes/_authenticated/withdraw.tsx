@@ -46,8 +46,8 @@ const METHOD_LABEL: Record<Method, string> = {
 export const Route = createFileRoute("/_authenticated/withdraw")({
   head: () => ({
     meta: [
-      { title: "Withdraw — ASH Glo REFER" },
-      { name: "description", content: "Withdraw your ASH Glo REFER earnings to MTN Mobile Money or Orange Money." },
+      { title: "Withdraw — ASH Glo" },
+      { name: "description", content: "Withdraw your ASH Glo earnings to MTN Mobile Money or Orange Money." },
     ],
   }),
   component: WithdrawPage,

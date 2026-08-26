@@ -12,10 +12,10 @@ import { useI18n } from "@/lib/i18n";
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
-      { title: "Set a new password — ASH Glo REFER" },
-      { name: "description", content: "Choose a new password for your ASH Glo REFER account." },
-      { property: "og:title", content: "Set a new password — ASH Glo REFER" },
-      { property: "og:description", content: "Choose a new password for your ASH Glo REFER account." },
+      { title: "Set a new password — ASH Glo" },
+      { name: "description", content: "Choose a new password for your ASH Glo account." },
+      { property: "og:title", content: "Set a new password — ASH Glo" },
+      { property: "og:description", content: "Choose a new password for your ASH Glo account." },
     ],
   }),
   component: ResetPasswordPage,

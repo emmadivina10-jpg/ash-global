@@ -1,4 +1,4 @@
-# Deliverables — ASH Glo REFER
+# Deliverables — ASH Glo
 
 A complete inventory of what has been built. See [DOCS-INDEX.md](./DOCS-INDEX.md) for navigation.
 

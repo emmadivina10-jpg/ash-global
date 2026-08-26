@@ -14,10 +14,10 @@ import { useI18n } from "@/lib/i18n";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Login — ASH Glo REFER" },
-      { name: "description", content: "Sign in to your ASH Glo REFER account to track referrals, earnings and withdrawals." },
-      { property: "og:title", content: "Login — ASH Glo REFER" },
-      { property: "og:description", content: "Sign in to your ASH Glo REFER account." },
+      { title: "Login — ASH Glo" },
+      { name: "description", content: "Sign in to your ASH Glo account to track referrals, earnings and withdrawals." },
+      { property: "og:title", content: "Login — ASH Glo" },
+      { property: "og:description", content: "Sign in to your ASH Glo account." },
     ],
   }),
   component: LoginPage,

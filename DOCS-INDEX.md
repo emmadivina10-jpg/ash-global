@@ -1,4 +1,4 @@
-# Documentation index — ASH Glo REFER
+# Documentation index — ASH Glo
 
 Start here. Every document in the repository, what it answers, and who it is for.
 

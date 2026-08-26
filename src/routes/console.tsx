@@ -47,7 +47,7 @@ export const Route = createFileRoute("/console")({
   head: () => ({
     meta: [
       { title: "ASH Console — Platform Operations" },
-      { name: "description", content: "Private operations console for ASH Glo REFER platform finance and payouts." },
+      { name: "description", content: "Private operations console for ASH Glo platform finance and payouts." },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),

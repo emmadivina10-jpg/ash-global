@@ -20,8 +20,8 @@ import { useI18n } from "@/lib/i18n";
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
     meta: [
-      { title: "Profile — ASH Glo REFER" },
-      { name: "description", content: "Manage your ASH Glo REFER profile, referral link and account status." },
+      { title: "Profile — ASH Glo" },
+      { name: "description", content: "Manage your ASH Glo profile, referral link and account status." },
     ],
   }),
   component: ProfilePage,

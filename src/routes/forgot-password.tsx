@@ -11,9 +11,9 @@ import { useI18n } from "@/lib/i18n";
 export const Route = createFileRoute("/forgot-password")({
   head: () => ({
     meta: [
-      { title: "Reset your password — ASH Glo REFER" },
-      { name: "description", content: "Request a secure password reset link for your ASH Glo REFER account." },
-      { property: "og:title", content: "Reset your password — ASH Glo REFER" },
+      { title: "Reset your password — ASH Glo" },
+      { name: "description", content: "Request a secure password reset link for your ASH Glo account." },
+      { property: "og:title", content: "Reset your password — ASH Glo" },
       { property: "og:description", content: "Request a secure password reset link." },
     ],
   }),
