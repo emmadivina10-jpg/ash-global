@@ -511,3 +511,16 @@
     100% { opacity: 1; }
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Native app (Capacitor) — notch and home-indicator safe areas         */
+/* ------------------------------------------------------------------ */
+html.native body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  overscroll-behavior-y: none;
+}
+
+html.native {
+  -webkit-tap-highlight-color: transparent;
+}
