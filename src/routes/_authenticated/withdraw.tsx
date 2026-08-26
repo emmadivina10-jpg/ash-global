@@ -86,6 +86,12 @@ function WithdrawPage() {
     { referral: 0, service: 0 },
   );
 
+  const isBank = method === "STRIPE_BANK";
+  const momoAvailable = region.country === "CM";
+  const methodOptions: Method[] = momoAvailable
+    ? ["MTN_MOMO", "ORANGE_MONEY", "STRIPE_BANK"]
+    : ["STRIPE_BANK"];
+
   function review(event: React.FormEvent) {
     event.preventDefault();
     const value = Number(amount);
