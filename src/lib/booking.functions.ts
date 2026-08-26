@@ -183,8 +183,8 @@ export const syncBookingPayment = createServerFn({ method: "POST" })
     let verification: {
       ok: boolean;
       status: "PAID" | "PENDING" | "FAILED" | "CANCELLED" | string;
-      providerTransactionId?: string | null;
-      error?: string | null;
+      providerTransactionId?: string | null | undefined;
+      error?: string | null | undefined;
     };
 
     if (booking.payment_provider === "STRIPE") {

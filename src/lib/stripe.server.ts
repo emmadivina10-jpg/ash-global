@@ -30,7 +30,7 @@ async function stripeRequest(
       Authorization: `Bearer ${secret}`,
       "Content-Type": "application/x-www-form-urlencoded",
     },
-    body: init?.body,
+    ...(init?.body ? { body: init.body } : {}),
   });
   const data = (await response.json().catch(() => ({}))) as Record<string, unknown>;
   return { ok: response.ok, status: response.status, data };
