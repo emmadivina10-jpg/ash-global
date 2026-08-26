@@ -101,6 +101,8 @@ export function ChatThread({
     setSending(false);
     setPending((p) => p.filter((v) => v !== value));
     if (error) {
+      console.error("chat send failed", error);
+      toast.error(error.message || "Message not sent — tap to retry");
       setFailed(value);
       return;
     }
