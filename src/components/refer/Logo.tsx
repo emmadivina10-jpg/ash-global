@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import ashLogo from "@/assets/ash-logo.png.asset.json";
 
-export function Logo({ compact = false, className }: { compact?: boolean; className?: string }) {
+export function Logo({ className }: { compact?: boolean; className?: string }) {
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
       <img
