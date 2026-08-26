@@ -27,24 +27,28 @@ import { NotificationBell } from "./NotificationBell";
 import { Logo } from "./Logo";
 import { LanguageSwitcher, ThemeToggle } from "./Preferences";
 import { useI18n, type TKey } from "@/lib/i18n";
+import { useRegion } from "@/lib/region-context";
+import { RegionSwitcher } from "./RegionSwitcher";
 import { cn } from "@/lib/utils";
 
-const NAV = [
-  { to: "/services", key: "nav.services" as TKey, icon: Store },
-  { to: "/dashboard", key: "nav.home" as TKey, icon: TrendingUp },
-  { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle },
-  { to: "/network", key: "nav.network" as TKey, icon: Users },
-] as const;
+type NavItem = { to: string; key: TKey; icon: typeof Store; referralOnly?: boolean };
 
-const SIDE_EXTRA = [
+const NAV: NavItem[] = [
+  { to: "/services", key: "nav.services" as TKey, icon: Store },
+  { to: "/dashboard", key: "nav.home" as TKey, icon: TrendingUp, referralOnly: true },
+  { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle },
+  { to: "/network", key: "nav.network" as TKey, icon: Users, referralOnly: true },
+];
+
+const SIDE_EXTRA: NavItem[] = [
   { to: "/profile", key: "nav.profile" as TKey, icon: UserIcon },
   { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet },
   { to: "/bookings", key: "nav.bookings" as TKey, icon: CalendarDays },
   { to: "/studio", key: "nav.pro" as TKey, icon: Sparkles },
   { to: "/transactions", key: "nav.transactions" as TKey, icon: Receipt },
-  { to: "/withdraw", key: "nav.withdraw" as TKey, icon: ArrowDownToLine },
+  { to: "/withdraw", key: "nav.withdraw" as TKey, icon: ArrowDownToLine, referralOnly: true },
   { to: "/settings", key: "nav.settings" as TKey, icon: SettingsIcon },
-] as const;
+];
 
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -53,6 +57,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { data: profile } = useProfile();
   const { data: isAdmin } = useIsAdmin();
   const { t } = useI18n();
+  const region = useRegion();
+  const visible = (items: NavItem[]) =>
+    items.filter((item) => !item.referralOnly || region.referralEnabled);
   const [moreOpen, setMoreOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
@@ -142,7 +149,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <nav className="ash-glass fixed inset-x-0 bottom-0 z-40 border-x-0 border-b-0 pb-[env(safe-area-inset-bottom)] lg:hidden">
         <ul className="mx-auto grid max-w-md grid-cols-5">
-          {NAV.map((item) => {
+          {visible(NAV).map((item) => {
             const active = pathname === item.to;
             return (
               <li key={item.to}>
@@ -181,7 +188,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <SheetTitle>{t("nav.more")}</SheetTitle>
                 </SheetHeader>
                 <div className="grid grid-cols-3 gap-3 px-4 pb-8">
-                  {SIDE_EXTRA.map((item) => (
+                  {visible(SIDE_EXTRA).map((item) => (
                     <Link
                       key={item.to}
                       to={item.to}
