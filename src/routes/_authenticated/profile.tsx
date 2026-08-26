@@ -8,6 +8,8 @@ import { useProfile } from "@/lib/queries";
 import { SectionCard } from "@/components/refer/cards";
 import { StatusBadge } from "@/components/refer/StatusBadge";
 import { CopyReferralButton } from "@/components/refer/ReferralCard";
+import { AvatarUpload } from "@/components/refer/AvatarUpload";
+
 import { SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
