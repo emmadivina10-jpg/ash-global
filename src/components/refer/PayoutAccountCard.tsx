@@ -32,12 +32,25 @@ export function PayoutAccountCard({ country }: { country: string }) {
     }).catch(() => null);
     setBusy(false);
     if (!result?.url) {
-      toast.error("We could not open Stripe onboarding. Please try again.");
+      const reason = result?.error ?? "";
+      if (/platform profile/i.test(reason)) {
+        toast.error("Stripe Connect isn’t activated yet", {
+          description:
+            "The platform owner must complete the Stripe Connect platform profile questionnaire before bank accounts can be connected.",
+          duration: 10000,
+        });
+      } else {
+        toast.error("We could not open Stripe onboarding", {
+          description: reason || "Please try again in a moment.",
+          duration: 8000,
+        });
+      }
       void refetch();
       return;
     }
     window.location.href = result.url;
   }
+
 
   async function openDashboard() {
     setBusy(true);
