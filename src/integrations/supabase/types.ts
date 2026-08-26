@@ -528,6 +528,7 @@ export type Database = {
       profiles: {
         Row: {
           account_status: string
+          avatar_url: string | null
           created_at: string
           email: string
           full_name: string
@@ -540,6 +541,7 @@ export type Database = {
         }
         Insert: {
           account_status?: string
+          avatar_url?: string | null
           created_at?: string
           email?: string
           full_name?: string
@@ -552,6 +554,7 @@ export type Database = {
         }
         Update: {
           account_status?: string
+          avatar_url?: string | null
           created_at?: string
           email?: string
           full_name?: string
@@ -610,6 +613,7 @@ export type Database = {
           categories: Database["public"]["Enums"]["service_category"][]
           city: string | null
           completed_bookings: number
+          country: string
           cover_url: string | null
           created_at: string
           id: string
@@ -640,6 +644,7 @@ export type Database = {
           categories?: Database["public"]["Enums"]["service_category"][]
           city?: string | null
           completed_bookings?: number
+          country?: string
           cover_url?: string | null
           created_at?: string
           id?: string
@@ -670,6 +675,7 @@ export type Database = {
           categories?: Database["public"]["Enums"]["service_category"][]
           city?: string | null
           completed_bookings?: number
+          country?: string
           cover_url?: string | null
           created_at?: string
           id?: string
