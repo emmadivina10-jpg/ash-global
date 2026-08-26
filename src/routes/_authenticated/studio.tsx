@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CalendarClock, Coins, Star, Trash2 } from "lucide-react";
+import { CalendarClock, Coins, PartyPopper, Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -59,6 +59,8 @@ function StudioPage() {
     categories: [] as ServiceCategory[],
   });
   const [saving, setSaving] = useState(false);
+  const [celebrate, setCelebrate] = useState<"created" | "updated" | null>(null);
+  const navigate = useNavigate();
   const [uploading, setUploading] = useState(false);
   const [service, setService] = useState({
     title: "",
@@ -461,6 +463,37 @@ function StudioPage() {
             </p>
           </SectionCard>
         </>
+      ) : null}
+
+      {celebrate ? (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-foreground/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-3xl border border-border bg-card p-7 text-center shadow-raised">
+            <span className="mx-auto grid size-14 place-items-center rounded-full bg-gradient-to-br from-primary to-gold text-on-dark">
+              <PartyPopper className="size-6" aria-hidden />
+            </span>
+            <h2 className="mt-4 font-display text-xl font-extrabold text-foreground">
+              {celebrate === "created" ? "Congratulations, you're live!" : "Storefront updated!"}
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {celebrate === "created"
+                ? "Your storefront is now on the ASH Glo marketplace. Customers nearby can find, book and pay you."
+                : "Your changes are saved and already visible on the marketplace."}
+            </p>
+            <div className="mt-5 grid gap-2">
+              <Button
+                onClick={() => {
+                  setCelebrate(null);
+                  void navigate({ to: "/services" });
+                }}
+              >
+                Go to the marketplace
+              </Button>
+              <Button variant="ghost" onClick={() => setCelebrate(null)}>
+                Keep editing
+              </Button>
+            </div>
+          </div>
+        </div>
       ) : null}
     </div>
   );
