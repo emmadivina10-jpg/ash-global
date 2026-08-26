@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthLayout } from "@/components/refer/AuthLayout";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/forgot-password")({
   head: () => ({
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/forgot-password")({
 });
 
 function ForgotPasswordPage() {
+  const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -42,14 +44,14 @@ function ForgotPasswordPage() {
 
   if (sent) {
     return (
-      <AuthLayout title="Check your inbox" subtitle="If that email is registered, a reset link is on its way.">
+      <AuthLayout title={t("auth.forgot.sentTitle")} subtitle={t("auth.forgot.sentSub")}>
         <div className="flex flex-col items-center text-center">
           <MailCheck className="size-10 text-success" aria-hidden />
           <p className="mt-4 text-sm text-muted-foreground">
-            Open the link on this device to set a new password.
+            {t("auth.forgot.sentCopy")}
           </p>
           <Button asChild variant="outline" className="mt-6 w-full">
-            <Link to="/login">Back to login</Link>
+            <Link to="/login">{t("auth.forgot.back")}</Link>
           </Button>
         </div>
       </AuthLayout>
@@ -57,10 +59,10 @@ function ForgotPasswordPage() {
   }
 
   return (
-    <AuthLayout title="Forgot password" subtitle="We'll email you a secure reset link.">
+    <AuthLayout title={t("auth.forgot.title")} subtitle={t("auth.forgot.subtitle")}>
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t("auth.email")}</Label>
           <Input
             id="email"
             type="email"
@@ -77,12 +79,12 @@ function ForgotPasswordPage() {
         ) : null}
         <Button type="submit" className="h-12 w-full" disabled={loading}>
           {loading ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-          Send reset link
+          {t("auth.forgot.submit")}
         </Button>
       </form>
       <p className="mt-6 text-center text-sm text-muted-foreground">
         <Link to="/login" className="font-semibold text-primary hover:underline">
-          Back to login
+          {t("auth.forgot.back")}
         </Link>
       </p>
     </AuthLayout>

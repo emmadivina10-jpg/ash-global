@@ -9,6 +9,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { AuthLayout } from "@/components/refer/AuthLayout";
 import { SocialAuth } from "@/components/refer/SocialAuth";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,20 +40,20 @@ function LoginPage() {
     if (signInError) {
       setError(
         signInError.message.toLowerCase().includes("invalid")
-          ? "Incorrect email or password."
+          ? t("auth.login.invalid")
           : signInError.message,
       );
       return;
     }
-    toast.success("Welcome back");
+    toast.success(t("auth.login.welcome"));
     navigate({ to: "/services" });
   }
 
   return (
-    <AuthLayout title="Welcome back" subtitle="Sign in to continue growing your network.">
+    <AuthLayout title={t("auth.login.title")} subtitle={t("auth.login.subtitle")}>
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t("auth.email")}</Label>
           <Input
             id="email"
             type="email"
@@ -64,9 +66,9 @@ function LoginPage() {
         </div>
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t("auth.password")}</Label>
             <Link to="/forgot-password" className="text-xs font-semibold text-primary hover:underline">
-              Forgot password?
+              {t("auth.login.forgot")}
             </Link>
           </div>
           <PasswordInput
@@ -86,16 +88,16 @@ function LoginPage() {
 
         <Button type="submit" className="h-12 w-full" disabled={loading}>
           {loading ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-          {loading ? "Signing in…" : "Sign In"}
+          {loading ? t("auth.login.submitting") : t("auth.login.submit")}
         </Button>
       </form>
 
-      <SocialAuth label="Or continue with" />
+      <SocialAuth label={t("auth.login.orContinue")} />
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        New to ASH Glo REFER?{" "}
+        {t("auth.login.noAccount")}{" "}
         <Link to="/register" className="font-semibold text-primary hover:underline">
-          Create an account
+          {t("auth.login.createAccount")}
         </Link>
       </p>
     </AuthLayout>
