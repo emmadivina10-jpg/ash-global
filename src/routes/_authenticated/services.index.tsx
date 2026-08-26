@@ -87,6 +87,14 @@ function DiscoveryPage() {
     setFilters((f) => (f.nearCity === city ? f : { ...f, nearCity: city }));
   }, [location?.label]);
 
+  // Country-scoped catalogue: you only see storefronts in your own country
+  // (admins in "all regions" mode see everything).
+  useEffect(() => {
+    const scope = region.seesEverything ? null : region.country;
+    setFilters((f) => (f.country === scope ? f : { ...f, country: scope }));
+  }, [region.country, region.seesEverything]);
+
+
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useDiscovery(filters);
   const providers = useMemo(() => (data?.pages ?? []).flat(), [data]);
 
