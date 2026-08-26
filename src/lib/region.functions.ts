@@ -7,10 +7,8 @@ import { createServerFn } from "@tanstack/react-start";
 export const detectCountry = createServerFn({ method: "GET" }).handler(async () => {
   const { getRequestHeaders } = await import("@tanstack/react-start/server");
   const headers = getRequestHeaders();
-  const get = (name: string) => {
-    const value = headers instanceof Headers ? headers.get(name) : (headers as Record<string, string | undefined>)[name];
-    return value ?? null;
-  };
+  const bag = headers as unknown as Record<string, string | undefined>;
+  const get = (name: string) => bag[name] ?? null;
 
   const raw =
     get("cf-ipcountry") ??
