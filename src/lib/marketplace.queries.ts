@@ -265,11 +265,29 @@ export function useConversations() {
       const { data, error } = await supabase
         .from("conversations")
         .select(
-          "*, provider:provider_profiles(id, business_name, user_id, avatar_url, phone), client:profiles!conversations_client_id_fkey(user_id, full_name, avatar_url), booking:bookings(id, service_title, scheduled_at, status, address, price, invoice_number)",
+          "*, provider:provider_profiles(id, business_name, user_id, avatar_url, phone), booking:bookings(id, service_title, scheduled_at, status, address, price, invoice_number)",
         )
         .order("last_message_at", { ascending: false });
       if (error) throw error;
-      return data ?? [];
+      const rows = data ?? [];
+
+      // conversations.client_id points at auth.users, so the client profile is
+      // fetched separately (PostgREST cannot embed across schemas).
+      const clientIds = [...new Set(rows.map((r) => r.client_id))];
+      const clients: Record<string, { full_name: string; avatar_url: string | null }> = {};
+      if (clientIds.length > 0) {
+        const { data: people } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, avatar_url")
+          .in("user_id", clientIds);
+        for (const p of people ?? []) {
+          clients[p.user_id] = { full_name: p.full_name || "ASH client", avatar_url: p.avatar_url };
+        }
+      }
+      return rows.map((row) => ({
+        ...row,
+        client: clients[row.client_id] ?? { full_name: "ASH client", avatar_url: null },
+      }));
     },
   });
 
