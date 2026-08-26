@@ -85,6 +85,41 @@ export const startBookingPayment = createServerFn({ method: "POST" })
       .maybeSingle();
 
     const appUrl = process.env["APP_URL"] ?? "https://growrefer.app";
+
+    // Card rail (Stripe): available worldwide, including to Cameroonian cards.
+    if (data.method === "CARD") {
+      const { stripePay, xafToUsdCents } = await import("./stripe.server");
+      const amountCents = xafToUsdCents(Number(booking.price));
+      const session = await stripePay.createCheckoutSession({
+        reference,
+        amountCents,
+        currency: "USD",
+        description: `ASH booking — ${booking.service_title}`,
+        ...(profile?.email ? { email: profile.email } : {}),
+        successUrl: `${appUrl}/bookings`,
+        cancelUrl: `${appUrl}/bookings`,
+        metadata: { booking_id: booking.id },
+      });
+
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      if (!session.ok || !session.checkoutUrl) {
+        await supabaseAdmin.rpc("fail_booking_payment", { _payment_reference: reference, _status: "FAILED" });
+        return { ok: false as const, error: session.error ?? "PAYMENT_START_FAILED" };
+      }
+
+      await supabaseAdmin
+        .from("bookings")
+        .update({
+          payment_provider: "STRIPE",
+          payment_currency: "USD",
+          payment_amount: amountCents / 100,
+          provider_transaction_id: session.id,
+        })
+        .eq("id", booking.id);
+
+      return { ok: true as const, reference, checkoutUrl: session.checkoutUrl, error: null };
+    }
+
     const result = await tchokoPay.createPayment({
       reference,
       amount: Number(booking.price),
@@ -98,6 +133,7 @@ export const startBookingPayment = createServerFn({ method: "POST" })
       callbackUrl: `${appUrl}/api/public/webhooks/tchokopay`,
       returnUrl: `${appUrl}/bookings`,
     });
+
 
     if (!result.ok) {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
