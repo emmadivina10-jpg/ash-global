@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, BadgeCheck, CheckCircle2, MapPin } from "lucide-react";
 import { RatingStars } from "./RatingStars";
+import { ShareStorefront } from "./ShareStorefront";
+
 import { useI18n } from "@/lib/i18n";
 import { type ServiceCategory } from "@/lib/marketplace";
 import { categoryLabel } from "@/lib/taxonomy";
