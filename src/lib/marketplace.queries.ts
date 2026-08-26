@@ -104,22 +104,6 @@ export function usePortfolio(providerId: string | undefined) {
   });
 }
 
-export function useProviderReviews(providerId: string | undefined) {
-  return useQuery({
-    enabled: Boolean(providerId),
-    queryKey: ["reviews", providerId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("reviews")
-        .select("*")
-        .eq("provider_id", providerId!)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data ?? [];
-    },
-  });
-}
-
 export function useMyBookings() {
   return useQuery({
     queryKey: ["bookings", "mine"],
