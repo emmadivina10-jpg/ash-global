@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CalendarDays, Clock, CreditCard, MapPin, MessageCircle, RefreshCw, User } from "lucide-react";
+import { CalendarDays, Clock, CreditCard, MapPin, MessageCircle, RefreshCw, Smartphone, User } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -23,6 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
+import { useRegion } from "@/lib/region-context";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/bookings")({
@@ -85,6 +86,7 @@ function BookingsPage() {
   const fr = lang === "fr";
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { mobileMoneyEnabled } = useRegion();
   const { data: mine, isLoading } = useMyBookings();
   const { data: studio } = useMyProviderProfile();
   const { data: received } = useProviderBookings(studio?.id);
@@ -107,10 +109,10 @@ function BookingsPage() {
     void queryClient.invalidateQueries({ queryKey: ["bookings"] });
   }
 
-  async function pay(bookingId: string) {
+  async function pay(bookingId: string, method: "MOMO" | "CARD") {
     setBusyId(bookingId);
     try {
-      const result = await startPayment({ data: { bookingId } });
+      const result = await startPayment({ data: { bookingId, method } });
       if (!result.ok) {
         toast.error(
           result.error === "PAYMENT_WINDOW_EXPIRED"
@@ -311,10 +313,21 @@ function BookingsPage() {
                     </div>
 
                     <div className="mt-3 flex flex-wrap gap-2">
+                      {payable && mobileMoneyEnabled ? (
+                        <Button size="sm" disabled={busyId === b.id || expired} onClick={() => void pay(b.id, "MOMO")}>
+                          <Smartphone className="size-4" aria-hidden />
+                          {fr ? "Payer par Mobile Money" : "Pay with Mobile Money"}
+                        </Button>
+                      ) : null}
                       {payable ? (
-                        <Button size="sm" disabled={busyId === b.id || expired} onClick={() => void pay(b.id)}>
+                        <Button
+                          size="sm"
+                          variant={mobileMoneyEnabled ? "outline" : "default"}
+                          disabled={busyId === b.id || expired}
+                          onClick={() => void pay(b.id, "CARD")}
+                        >
                           <CreditCard className="size-4" aria-hidden />
-                          {fr ? "Payer maintenant" : "Pay now"}
+                          {fr ? "Payer par carte" : "Pay by card"}
                         </Button>
                       ) : null}
                       {b.status === "PAYMENT_PROCESSING" ? (
