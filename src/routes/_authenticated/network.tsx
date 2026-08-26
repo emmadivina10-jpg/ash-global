@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/network")({
   head: () => ({
     meta: [
-      { title: "Referral network — ASH Glo REFER" },
+      { title: "Referral network — ASH Glo" },
       { name: "description", content: "See your level 1, 2 and 3 referral network and commissions earned." },
     ],
   }),

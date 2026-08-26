@@ -16,10 +16,10 @@ export const Route = createFileRoute("/_authenticated/messages")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Messages — ASH Glo REFER" },
+      { title: "Messages — ASH Glo" },
       { name: "description", content: "Chat live with your beauty pro or your clients about upcoming bookings." },
-      { property: "og:title", content: "Messages — ASH Glo REFER" },
-      { property: "og:description", content: "Live chat between clients and beauty providers on ASH Glo REFER." },
+      { property: "og:title", content: "Messages — ASH Glo" },
+      { property: "og:description", content: "Live chat between clients and beauty providers on ASH Glo." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

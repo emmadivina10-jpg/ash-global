@@ -12,12 +12,12 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/assistant")({
   head: () => ({
     meta: [
-      { title: "Refer Assistant — AI coach for your earnings" },
+      { title: "ASH Assistant — AI coach for your earnings" },
       {
         name: "description",
-        content: "Ask the Refer Assistant about commissions, bookings and how to grow your studio and network.",
+        content: "Ask the ASH Assistant about commissions, bookings and how to grow your studio and network.",
       },
-      { property: "og:title", content: "Refer Assistant — AI coach for your earnings" },
+      { property: "og:title", content: "ASH Assistant — AI coach for your earnings" },
       { property: "og:description", content: "Personalized analytics and growth advice powered by AI." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

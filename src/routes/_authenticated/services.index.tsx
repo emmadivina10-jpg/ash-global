@@ -33,13 +33,13 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/services/")({
   head: () => ({
     meta: [
-      { title: "Discover beauty, tech, home & event pros — ASH Glo REFER" },
+      { title: "Discover beauty, tech, home & event pros — ASH Glo" },
       {
         name: "description",
         content:
           "Discover verified professionals on ASH Glo: braiders, barbers, nail and lash artists, developers, electricians, photographers and more. See their work, then book.",
       },
-      { property: "og:title", content: "Discover beauty, tech, home & event pros — ASH Glo REFER" },
+      { property: "og:title", content: "Discover beauty, tech, home & event pros — ASH Glo" },
       {
         property: "og:description",
         content: "Browse verified ASH Glo providers by category, view portfolios and book in a few taps.",

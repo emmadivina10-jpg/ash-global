@@ -40,13 +40,13 @@ export const Route = createFileRoute("/register")({
     typeof search["ref"] === "string" ? { ref: search["ref"] } : {},
   head: () => ({
     meta: [
-      { title: "Create your ASH Glo REFER account" },
+      { title: "Create your ASH Glo account" },
       {
         name: "description",
-        content: "Join ASH Glo REFER in minutes, activate for 5,000 XAF and start earning referral rewards on three levels.",
+        content: "Join ASH Glo in minutes, activate for 5,000 XAF and start earning referral rewards on three levels.",
       },
-      { property: "og:title", content: "Create your ASH Glo REFER account" },
-      { property: "og:description", content: "Join ASH Glo REFER and start earning referral rewards." },
+      { property: "og:title", content: "Create your ASH Glo account" },
+      { property: "og:description", content: "Join ASH Glo and start earning referral rewards." },
     ],
   }),
   component: RegisterPage,

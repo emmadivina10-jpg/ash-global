@@ -1,4 +1,4 @@
-# ASH Glo REFER
+# ASH Glo
 
 Cameroon’s digital marketplace for services and products. **Refer. Earn. Discover. Grow.**
 

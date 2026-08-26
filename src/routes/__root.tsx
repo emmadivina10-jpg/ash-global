@@ -85,20 +85,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "viewport",
         content: "width=device-width, initial-scale=1, viewport-fit=cover",
       },
-      { title: "ASH Glo REFER — Earn referral rewards in XAF" },
+      { title: "ASH Glo — Earn referral rewards in XAF" },
       {
         name: "description",
         content:
           "Activate once and earn three levels of referral commissions, paid to MTN Mobile Money or Orange Money.",
       },
-      { property: "og:title", content: "ASH Glo REFER — Earn referral rewards in XAF" },
+      { property: "og:title", content: "ASH Glo — Earn referral rewards in XAF" },
       {
         property: "og:description",
         content:
           "Activate once and earn three levels of referral commissions, paid to mobile money.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "ASH Glo REFER" },
+      { property: "og:site_name", content: "ASH Glo" },
       { property: "og:locale", content: "en_CM" },
       { property: "og:locale:alternate", content: "fr_CM" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -128,10 +128,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Organization",
-          name: "ASH Glo REFER",
+          name: "ASH Glo",
           url: "https://ashglogroup.company",
           description:
-            "ASH Glo REFER is a Cameroon referral and beauty-services platform paying three levels of XAF commissions to MTN Mobile Money and Orange Money.",
+            "ASH Glo is a Cameroon referral and beauty-services platform paying three levels of XAF commissions to MTN Mobile Money and Orange Money.",
         }),
       },
       {
@@ -139,7 +139,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "WebSite",
-          name: "ASH Glo REFER",
+          name: "ASH Glo",
           url: "https://ashglogroup.company",
 sameAs: [],
         }),

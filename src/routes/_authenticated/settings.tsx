@@ -15,13 +15,13 @@ import { useI18n, type TKey } from "@/lib/i18n";
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
     meta: [
-      { title: "Settings — ASH Glo REFER" },
+      { title: "Settings — ASH Glo" },
       {
         name: "description",
-        content: "About ASH Glo REFER, privacy policy, fair-use terms and account deletion requests.",
+        content: "About ASH Glo, privacy policy, fair-use terms and account deletion requests.",
       },
-      { property: "og:title", content: "Settings — ASH Glo REFER" },
-      { property: "og:description", content: "About ASH Glo REFER, privacy policy and account controls." },
+      { property: "og:title", content: "Settings — ASH Glo" },
+      { property: "og:description", content: "About ASH Glo, privacy policy and account controls." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
