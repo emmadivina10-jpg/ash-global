@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ThemeProvider } from "@/lib/theme";
 import { RegionProvider } from "@/lib/region-context";
 import { I18nProvider } from "@/lib/i18n";
+import { NativeBridge } from "@/components/refer/NativeBridge";
 
 
 function NotFoundComponent() {
