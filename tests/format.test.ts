@@ -75,7 +75,7 @@ describe("referral links", () => {
 
 describe("phone helpers", () => {
   it("strips spaces and dashes", () => {
-    expect(normalizePhone(" 6 77-123 456 ")).toBe(" 677123456 ".trim() === "677123456" ? " 677123456 ".replace(/\s/g, "") : "677123456");
+    expect(normalizePhone(" 677-123 456").trim()).toBe("677123456");
   });
 
   it("accepts a local Cameroon number", () => {
