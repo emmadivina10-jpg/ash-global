@@ -262,6 +262,7 @@ function Landing() {
                 <p className="mt-5 max-w-md text-base leading-relaxed text-on-dark/80">
                   {t("landing.hero.copy")}
                 </p>
+                <PaymentMethods className="relative mt-7" />
               </div>
               <div className="relative mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button
@@ -358,8 +359,8 @@ function Landing() {
           </div>
         </section>
 
-        {region.referralEnabled ? (
         {/* Steps */}
+        {region.referralEnabled ? (
         <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:py-16">
           <div className="max-w-2xl">
             <p className="eyebrow text-primary">{t("landing.how.eyebrow")}</p>
