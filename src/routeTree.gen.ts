@@ -43,6 +43,7 @@ import { Route as SSlugRouteImport } from './routes/s.$slug'
 import { Route as AuthenticatedServicesIndexRouteImport } from './routes/_authenticated/services.index'
 import { Route as AuthenticatedServicesProviderIdRouteImport } from './routes/_authenticated/services.$providerId'
 import { Route as ApiPublicReconcileActivationsRouteImport } from './routes/api/public/reconcile-activations'
+import { Route as ApiPublicSecuritySelfcheckRouteImport } from './routes/api/public/security-selfcheck'
 import { Route as ApiPublicWebhooksTchokopayRouteImport } from './routes/api/public/webhooks/tchokopay'
 
 const IndexRoute = IndexRouteImport.update({
@@ -218,6 +219,12 @@ const ApiPublicReconcileActivationsRoute =
     path: '/api/public/reconcile-activations',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicSecuritySelfcheckRoute =
+  ApiPublicSecuritySelfcheckRouteImport.update({
+    id: '/api/public/security-selfcheck',
+    path: '/api/public/security-selfcheck',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWebhooksTchokopayRoute =
   ApiPublicWebhooksTchokopayRouteImport.update({
     id: '/api/public/webhooks/tchokopay',
@@ -258,6 +265,7 @@ export interface FileRoutesByFullPath {
   '/console/': typeof ConsoleIndexRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
+  '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
   '/services/': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
 }
@@ -293,6 +301,7 @@ export interface FileRoutesByTo {
   '/console': typeof ConsoleIndexRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
+  '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
   '/services': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
 }
@@ -331,6 +340,7 @@ export interface FileRoutesById {
   '/console/': typeof ConsoleIndexRoute
   '/_authenticated/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
+  '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
   '/_authenticated/services/': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
 }
@@ -369,6 +379,7 @@ export interface FileRouteTypes {
     | '/console/'
     | '/services/$providerId'
     | '/api/public/reconcile-activations'
+    | '/api/public/security-selfcheck'
     | '/services/'
     | '/api/public/webhooks/tchokopay'
   fileRoutesByTo: FileRoutesByTo
@@ -404,6 +415,7 @@ export interface FileRouteTypes {
     | '/console'
     | '/services/$providerId'
     | '/api/public/reconcile-activations'
+    | '/api/public/security-selfcheck'
     | '/services'
     | '/api/public/webhooks/tchokopay'
   id:
@@ -441,6 +453,7 @@ export interface FileRouteTypes {
     | '/console/'
     | '/_authenticated/services/$providerId'
     | '/api/public/reconcile-activations'
+    | '/api/public/security-selfcheck'
     | '/_authenticated/services/'
     | '/api/public/webhooks/tchokopay'
   fileRoutesById: FileRoutesById
@@ -458,6 +471,7 @@ export interface RootRouteChildren {
   PayCodeRoute: typeof PayCodeRoute
   SSlugRoute: typeof SSlugRoute
   ApiPublicReconcileActivationsRoute: typeof ApiPublicReconcileActivationsRoute
+  ApiPublicSecuritySelfcheckRoute: typeof ApiPublicSecuritySelfcheckRoute
   ApiPublicWebhooksTchokopayRoute: typeof ApiPublicWebhooksTchokopayRoute
 }
 
@@ -701,6 +715,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicReconcileActivationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/security-selfcheck': {
+      id: '/api/public/security-selfcheck'
+      path: '/api/public/security-selfcheck'
+      fullPath: '/api/public/security-selfcheck'
+      preLoaderRoute: typeof ApiPublicSecuritySelfcheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/tchokopay': {
       id: '/api/public/webhooks/tchokopay'
       path: '/api/public/webhooks/tchokopay'
@@ -786,6 +807,7 @@ const rootRouteChildren: RootRouteChildren = {
   PayCodeRoute: PayCodeRoute,
   SSlugRoute: SSlugRoute,
   ApiPublicReconcileActivationsRoute: ApiPublicReconcileActivationsRoute,
+  ApiPublicSecuritySelfcheckRoute: ApiPublicSecuritySelfcheckRoute,
   ApiPublicWebhooksTchokopayRoute: ApiPublicWebhooksTchokopayRoute,
 }
 export const routeTree = rootRouteImport
