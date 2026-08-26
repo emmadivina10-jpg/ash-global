@@ -12,24 +12,28 @@ import { Label } from "@/components/ui/label";
 import { AuthLayout } from "@/components/refer/AuthLayout";
 import { SocialAuth } from "@/components/refer/SocialAuth";
 import { CM_PHONE_REGEX, normalizePhone } from "@/lib/format";
+import { useI18n, type TKey } from "@/lib/i18n";
 
-const schema = z
-  .object({
-    fullName: z.string().trim().min(3, "Enter your full name").max(80),
-    email: z.string().trim().email("Enter a valid email").max(255),
-    phone: z
-      .string()
-      .trim()
-      .transform(normalizePhone)
-      .refine((value) => CM_PHONE_REGEX.test(value), "Enter a valid Cameroon number (e.g. 6XX XXX XXX)"),
-    password: z.string().min(8, "Password must be at least 8 characters").max(72),
-    confirmPassword: z.string(),
-    referralCode: z.string().trim().max(32).optional(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+/** Validation messages follow the selected language. */
+function buildSchema(t: (k: TKey) => string) {
+  return z
+    .object({
+      fullName: z.string().trim().min(3, t("auth.err.name")).max(80),
+      email: z.string().trim().email(t("auth.err.email")).max(255),
+      phone: z
+        .string()
+        .trim()
+        .transform(normalizePhone)
+        .refine((value) => CM_PHONE_REGEX.test(value), t("auth.err.phone")),
+      password: z.string().min(8, t("auth.err.passwordMin")).max(72),
+      confirmPassword: z.string(),
+      referralCode: z.string().trim().max(32).optional(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t("auth.err.passwordMatch"),
+      path: ["confirmPassword"],
+    });
+}
 
 export const Route = createFileRoute("/register")({
   validateSearch: (search: Record<string, unknown>): { ref?: string } =>
@@ -51,6 +55,7 @@ export const Route = createFileRoute("/register")({
 function RegisterPage() {
   const navigate = useNavigate();
   const { ref } = Route.useSearch();
+  const { t } = useI18n();
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -84,7 +89,7 @@ function RegisterPage() {
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
-    const parsed = schema.safeParse(form);
+    const parsed = buildSchema(t).safeParse(form);
     if (!parsed.success) {
       const fieldErrors: Record<string, string> = {};
       for (const issue of parsed.error.issues) {
@@ -97,7 +102,7 @@ function RegisterPage() {
 
     const code = (parsed.data.referralCode ?? "").trim().toUpperCase();
     if (code && refState === "invalid") {
-      setErrors({ referralCode: "This referral code does not exist." });
+      setErrors({ referralCode: t("auth.register.refMissing") });
       return;
     }
 
@@ -120,7 +125,7 @@ function RegisterPage() {
     if (error) {
       setErrors({
         form: error.message.toLowerCase().includes("already")
-          ? "An account with this email already exists."
+          ? t("auth.register.exists")
           : error.message,
       });
       return;
@@ -128,7 +133,7 @@ function RegisterPage() {
 
     const { data: session } = await supabase.auth.getSession();
     if (session.session) {
-      toast.success("Account created");
+      toast.success(t("auth.register.created"));
       navigate({ to: "/services" });
       return;
     }
@@ -137,15 +142,14 @@ function RegisterPage() {
 
   if (done) {
     return (
-      <AuthLayout title="Check your email" subtitle="One last step before you can sign in.">
+      <AuthLayout title={t("auth.register.checkEmail")} subtitle={t("auth.register.checkEmailSub")}>
         <div className="flex flex-col items-center text-center">
           <CheckCircle2 className="size-10 text-success" aria-hidden />
           <p className="mt-4 text-sm text-muted-foreground">
-            We sent a confirmation link to <span className="font-semibold text-foreground">{form.email}</span>.
-            Confirm your email, then sign in to activate your account.
+            {t("auth.register.checkEmailCopy", { email: form.email })}
           </p>
           <Button asChild className="mt-6 w-full">
-            <Link to="/login">Go to login</Link>
+            <Link to="/login">{t("auth.register.goLogin")}</Link>
           </Button>
         </div>
       </AuthLayout>
@@ -153,9 +157,9 @@ function RegisterPage() {
   }
 
   return (
-    <AuthLayout title="Create your account" subtitle="Join ASH Glo REFER and start building your network.">
+    <AuthLayout title={t("auth.register.title")} subtitle={t("auth.register.subtitle")}>
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
-        <Field label="Full name" id="fullName" error={errors["fullName"]}>
+        <Field label={t("auth.register.fullName")} id="fullName" error={errors["fullName"]}>
           <Input
             id="fullName"
             autoComplete="name"
@@ -165,7 +169,7 @@ function RegisterPage() {
           />
         </Field>
 
-        <Field label="Email" id="email" error={errors["email"]}>
+        <Field label={t("auth.email")} id="email" error={errors["email"]}>
           <Input
             id="email"
             type="email"
@@ -176,7 +180,7 @@ function RegisterPage() {
           />
         </Field>
 
-        <Field label="Phone number" id="phone" error={errors["phone"]} hint="Cameroon number, e.g. 677 000 000">
+        <Field label={t("auth.register.phone")} id="phone" error={errors["phone"]} hint={t("auth.register.phoneHint")}>
           <Input
             id="phone"
             type="tel"
@@ -188,7 +192,7 @@ function RegisterPage() {
           />
         </Field>
 
-        <Field label="Password" id="password" error={errors["password"]}>
+        <Field label={t("auth.password")} id="password" error={errors["password"]}>
           <PasswordInput
             id="password"
             autoComplete="new-password"
@@ -197,7 +201,7 @@ function RegisterPage() {
           />
         </Field>
 
-        <Field label="Confirm password" id="confirmPassword" error={errors["confirmPassword"]}>
+        <Field label={t("auth.register.confirmPassword")} id="confirmPassword" error={errors["confirmPassword"]}>
           <PasswordInput
             id="confirmPassword"
             autoComplete="new-password"
@@ -207,16 +211,16 @@ function RegisterPage() {
         </Field>
 
         <Field
-          label="Referral code (optional)"
+          label={t("auth.register.referral")}
           id="referralCode"
           error={errors["referralCode"]}
           hint={
             refState === "checking"
-              ? "Checking code…"
+              ? t("auth.register.refChecking")
               : refState === "valid"
-                ? "Valid referral code"
+                ? t("auth.register.refValid")
                 : refState === "invalid"
-                  ? "Code not recognised"
+                  ? t("auth.register.refInvalid")
                   : undefined
           }
         >
@@ -236,19 +240,19 @@ function RegisterPage() {
 
         <Button type="submit" className="h-12 w-full" disabled={loading}>
           {loading ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-          {loading ? "Creating account…" : "Create an account"}
+          {loading ? t("auth.register.submitting") : t("auth.register.submit")}
         </Button>
         <p className="text-center text-xs text-muted-foreground">
-          Activation costs a one-time 5,000 XAF after registration.
+          {t("auth.register.activationNote")}
         </p>
       </form>
 
-      <SocialAuth label="Or sign up with" />
+      <SocialAuth label={t("auth.register.orSignUp")} />
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        Already have an account?{" "}
+        {t("auth.register.haveAccount")}{" "}
         <Link to="/login" className="font-semibold text-primary hover:underline">
-          Sign in
+          {t("auth.register.signIn")}
         </Link>
       </p>
     </AuthLayout>

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { AuthLayout } from "@/components/refer/AuthLayout";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/reset-password")({
 
 function ResetPasswordPage() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,11 +32,11 @@ function ResetPasswordPage() {
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
     if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
+      setError(t("auth.err.passwordMin"));
       return;
     }
     if (password !== confirm) {
-      setError("Passwords do not match.");
+      setError(t("auth.err.passwordMatch"));
       return;
     }
     setError(null);
@@ -45,15 +47,15 @@ function ResetPasswordPage() {
       setError(updateError.message);
       return;
     }
-    toast.success("Password updated");
+    toast.success(t("auth.reset.updated"));
     navigate({ to: "/dashboard" });
   }
 
   return (
-    <AuthLayout title="Set a new password" subtitle="Choose a strong password you don't use elsewhere.">
+    <AuthLayout title={t("auth.reset.title")} subtitle={t("auth.reset.subtitle")}>
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         <div className="space-y-2">
-          <Label htmlFor="password">New password</Label>
+          <Label htmlFor="password">{t("auth.reset.new")}</Label>
           <PasswordInput
             id="password"
             autoComplete="new-password"
@@ -62,7 +64,7 @@ function ResetPasswordPage() {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="confirm">Confirm password</Label>
+          <Label htmlFor="confirm">{t("auth.reset.confirm")}</Label>
           <PasswordInput
             id="confirm"
             autoComplete="new-password"
@@ -77,7 +79,7 @@ function ResetPasswordPage() {
         ) : null}
         <Button type="submit" className="h-12 w-full" disabled={loading}>
           {loading ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-          Update password
+          {t("auth.reset.submit")}
         </Button>
       </form>
     </AuthLayout>
