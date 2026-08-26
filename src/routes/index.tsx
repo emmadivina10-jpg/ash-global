@@ -27,9 +27,9 @@ import { Button } from "@/components/ui/button";
 import { ACTIVATION_FEE, COMMISSIONS, MIN_WITHDRAWAL, formatXAF } from "@/lib/format";
 import { useI18n, type TKey } from "@/lib/i18n";
 
-const TITLE = "ASH Glo Cameroon — Digital marketplace, referral rewards & verified services";
+const TITLE = "ASH Glo — Digital marketplace, referral rewards & verified services";
 const DESCRIPTION =
-  "Earn 3 levels of referral commissions in Cameroon and withdraw to MTN Mobile Money or Orange Money. Discover verified beauty, tech, home and wellness providers on ASH Glo.";
+  "Earn 3 levels of referral commissions and withdraw to MTN Mobile Money or Orange Money. Discover verified beauty, tech, home and wellness providers on ASH Glo.";
 const OG_IMAGE = "https://ashglogroup.company/ash-social.png";
 
 export const Route = createFileRoute("/")({
