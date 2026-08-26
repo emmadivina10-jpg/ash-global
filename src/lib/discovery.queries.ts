@@ -18,6 +18,8 @@ export type DiscoveryFilters = {
   sort: DiscoverySort;
   /** City detected from the member's coordinates — surfaced first in the feed. */
   nearCity: string | null;
+  /** ISO country the viewer is browsing from. null = show every country (admin). */
+  country: string | null;
 };
 
 export const DEFAULT_FILTERS: DiscoveryFilters = {
@@ -30,6 +32,7 @@ export const DEFAULT_FILTERS: DiscoveryFilters = {
   availableOnly: false,
   sort: "NEARBY",
   nearCity: null,
+  country: null,
 };
 
 export type DiscoveryProvider = ProviderProfile & {
@@ -62,6 +65,9 @@ export function useDiscovery(filters: DiscoveryFilters) {
             : "*, services:provider_services(id, title, price, category, is_active)",
         )
         .eq("is_live", true);
+
+      // Storefronts are only visible to people browsing from the same country.
+      if (filters.country) query = query.eq("country", filters.country);
 
       if (filters.categories.length > 0) query = query.overlaps("categories", filters.categories);
       if (filters.city.trim()) query = query.ilike("city", `%${filters.city.trim()}%`);

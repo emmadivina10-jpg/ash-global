@@ -20,6 +20,7 @@ export type ProviderProfile = {
   rating_avg: number;
   rating_count: number;
   slug: string | null;
+  country: string;
   created_at: string;
 };
 
