@@ -101,11 +101,19 @@ export function ProviderCard({
               {fr ? "Près de vous" : "Near you"}
             </span>
           ) : null}
-          {typeof min === "number" ? (
-            <span className="ml-auto rounded-full bg-background/95 px-2.5 py-1 text-[10px] font-bold text-foreground shadow-sm backdrop-blur-sm">
-              {t("svc.from", { price: formatXAF(min) })}
-            </span>
-          ) : null}
+          <span className="ml-auto flex items-center gap-1.5">
+            {typeof min === "number" ? (
+              <span className="rounded-full bg-background/95 px-2.5 py-1 text-[10px] font-bold text-foreground shadow-sm backdrop-blur-sm">
+                {t("svc.from", { price: formatXAF(min) })}
+              </span>
+            ) : null}
+            {provider.slug ? (
+              <span className="pointer-events-auto">
+                <ShareStorefront slug={provider.slug} businessName={provider.business_name} compact />
+              </span>
+            ) : null}
+          </span>
+
         </div>
 
         {!acceptingBookings ? (
