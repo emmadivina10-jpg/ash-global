@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, Check, CheckCheck, Loader2, ReceiptText, Send } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMessages } from "@/lib/marketplace.queries";
 import { Button } from "@/components/ui/button";
