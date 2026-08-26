@@ -1,29 +1,72 @@
-# Welcome to your Lovable project
+# ASH Glo REFER
 
-This project was built with [Lovable](https://lovable.dev).
+Cameroon’s digital marketplace for services and products. **Refer. Earn. Discover. Grow.**
 
-## Build with Lovable
+A mobile-first, bilingual (EN/FR) web application powering service bookings, referral earnings, chat, payments, and an admin console. Built for the Cameroon and Nigeria markets first, with international card support via Stripe.
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+## Features
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+- **ASH Marketplace** – Book verified service providers (braiders, barbers, nail/lash techs, electricians, nurses, and more).
+- **Refer & Earn** – 3-level referral commission system (for eligible regions).
+- **Payments** – Mobile Money (MTN MoMo, Orange Money) via TchokoPay and card payments via Stripe.
+- **Chat & Reviews** – Order-based messaging with real-time notifications and community reviews.
+- **Provider Studio** – Upload portfolio, set booking slots, manage services, generate payment links, and share a public storefront.
+- **ASH Console** – Admin dashboard for financials, users, providers, bookings, withdrawals, and security audit logs.
+- **Native App Ready** – Capacitor configuration included for iOS/Android builds.
+
+## Tech Stack
+
+- **Frontend / Framework**: TanStack Start (React 19, Vite 7, TypeScript)
+- **Styling**: Tailwind CSS v4 with OKLCH design tokens
+- **Backend / Auth / Storage**: Lovable Cloud (Supabase)
+- **Payments**: TchokoPay (Mobile Money) + Stripe (Cards / Connect payouts)
+- **Native Shell**: Capacitor
 
 ## Development
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+# Install dependencies
+bun install
+
+# Start the dev server
+bun run dev
 ```
 
-## Built with
+The app runs at `http://localhost:8080` by default.
 
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
+## Native Builds (Capacitor)
+
+1. Publish the web app so it is live on your production domain.
+2. Sync the web build into the native shell:
+   ```sh
+   bun run build
+   npx cap sync
+   ```
+3. Open the native project:
+   - iOS: `npx cap open ios` (requires macOS + Xcode)
+   - Android: `npx cap open android` (requires Android Studio)
+4. Build, sign, and submit to the App Store / Play Store.
+
+See `NATIVE.md` for the full submission checklist.
+
+## Deployment
+
+The recommended flow is:
+
+1. Build: `bun run build`
+2. Deploy via Lovable, or push to GitHub for CI/CD.
+3. Connect GitHub in the Lovable editor (`+ → GitHub → Connect project`) for automatic two-way sync.
+
+## Environment Notes
+
+- Server-only variables are read inside `createServerFn` handlers (not at module scope).
+- Browser-facing Supabase config is auto-generated in `.env` by Lovable Cloud; do not edit it manually.
+
+## Project URLs
+
+- Published: https://growrefer.app
+- Custom domain: https://www.growrefer.app
+
+---
+
+Built with [Lovable](https://lovable.dev).
