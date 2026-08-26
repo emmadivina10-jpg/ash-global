@@ -801,6 +801,30 @@ export type Database = {
           },
         ]
       }
+      rate_limit_hits: {
+        Row: {
+          bucket: string
+          hits: number
+          subject: string
+          updated_at: string
+          window_start: string
+        }
+        Insert: {
+          bucket: string
+          hits?: number
+          subject: string
+          updated_at?: string
+          window_start: string
+        }
+        Update: {
+          bucket?: string
+          hits?: number
+          subject?: string
+          updated_at?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       referrals: {
         Row: {
           activated_at: string | null
@@ -887,6 +911,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      security_events: {
+        Row: {
+          actor_user_id: string | null
+          created_at: string
+          detail: Json
+          id: string
+          kind: string
+          route: string | null
+          severity: string
+          subject: string | null
+        }
+        Insert: {
+          actor_user_id?: string | null
+          created_at?: string
+          detail?: Json
+          id?: string
+          kind: string
+          route?: string | null
+          severity?: string
+          subject?: string | null
+        }
+        Update: {
+          actor_user_id?: string | null
+          created_at?: string
+          detail?: Json
+          id?: string
+          kind?: string
+          route?: string | null
+          severity?: string
+          subject?: string | null
+        }
+        Relationships: []
       }
       transactions: {
         Row: {
@@ -1139,6 +1196,17 @@ export type Database = {
       }
       is_provider_owner: { Args: { _provider_id: string }; Returns: boolean }
       is_provider_visible: { Args: { _provider_id: string }; Returns: boolean }
+      log_security_event: {
+        Args: {
+          _actor?: string
+          _detail?: Json
+          _kind: string
+          _route?: string
+          _severity?: string
+          _subject?: string
+        }
+        Returns: undefined
+      }
       notify_user: {
         Args: {
           _body?: string
@@ -1152,6 +1220,15 @@ export type Database = {
       provider_slots: {
         Args: { _date: string; _duration?: number; _provider_id: string }
         Returns: string[]
+      }
+      rate_limit_check: {
+        Args: {
+          _bucket: string
+          _limit: number
+          _subject: string
+          _window_seconds: number
+        }
+        Returns: Json
       }
       request_booking: {
         Args: {
@@ -1167,6 +1244,8 @@ export type Database = {
         Args: { _amount: number; _method: string; _phone: string }
         Returns: Json
       }
+      security_overview: { Args: { _hours?: number }; Returns: Json }
+      security_selfcheck: { Args: never; Returns: Json }
       set_booking_progress: {
         Args: { _booking_id: string; _status: string }
         Returns: Json
