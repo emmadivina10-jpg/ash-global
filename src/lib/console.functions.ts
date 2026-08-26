@@ -134,7 +134,7 @@ export const getConsoleProviders = createServerFn({ method: "GET" }).handler(asy
     db
       .from("provider_profiles")
       .select(
-        "id, business_name, city, is_live, rating_avg, rating_count, created_at",
+        "id, business_name, city, slug, is_live, is_verified, verification_status, rating_avg, rating_count, created_at",
       )
       .order("created_at", { ascending: false })
       .limit(300),
@@ -154,6 +154,23 @@ export const getConsoleProviders = createServerFn({ method: "GET" }).handler(asy
     };
   });
 });
+
+export const setProviderVerification = createServerFn({ method: "POST" })
+  .inputValidator((data: { providerId: string; approve: boolean }) => ({
+    providerId: String(data?.providerId ?? ""),
+    approve: Boolean(data?.approve),
+  }))
+  .handler(async ({ data }) => {
+    const { requireConsole, adminClient } = await import("./console.server");
+    await requireConsole();
+    if (!data.providerId) return { ok: false as const, error: "INVALID_PROVIDER" };
+    const db = await adminClient();
+    const { error } = await db.rpc("console_set_verification", {
+      _provider_id: data.providerId,
+      _approve: data.approve,
+    });
+    return error ? { ok: false as const, error: error.message } : { ok: true as const };
+  });
 
 export const getConsoleBookings = createServerFn({ method: "GET" }).handler(async () => {
   const { requireConsole, adminClient } = await import("./console.server");

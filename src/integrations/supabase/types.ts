@@ -370,6 +370,119 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_link_charges: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          link_id: string
+          paid_at: string | null
+          payer_name: string | null
+          payer_phone: string | null
+          platform_fee: number
+          provider_amount: number
+          provider_transaction_id: string | null
+          reference: string
+          status: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          link_id: string
+          paid_at?: string | null
+          payer_name?: string | null
+          payer_phone?: string | null
+          platform_fee?: number
+          provider_amount?: number
+          provider_transaction_id?: string | null
+          reference: string
+          status?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          link_id?: string
+          paid_at?: string | null
+          payer_name?: string | null
+          payer_phone?: string | null
+          platform_fee?: number
+          provider_amount?: number
+          provider_transaction_id?: string | null
+          reference?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_link_charges_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "payment_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_links: {
+        Row: {
+          amount: number
+          code: string
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          is_active: boolean
+          paid_count: number
+          provider_id: string
+          service_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          code: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          paid_count?: number
+          provider_id: string
+          service_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          code?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          paid_count?: number
+          provider_id?: string
+          service_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_links_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_links_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "provider_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       portfolio_items: {
         Row: {
           caption: string | null
@@ -451,12 +564,48 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_availability: {
+        Row: {
+          created_at: string
+          end_minute: number
+          id: string
+          provider_id: string
+          start_minute: number
+          weekday: number
+        }
+        Insert: {
+          created_at?: string
+          end_minute: number
+          id?: string
+          provider_id: string
+          start_minute: number
+          weekday: number
+        }
+        Update: {
+          created_at?: string
+          end_minute?: number
+          id?: string
+          provider_id?: string
+          start_minute?: number
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_availability_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       provider_profiles: {
         Row: {
           accepting_bookings: boolean
           avatar_url: string | null
           billing_mode: string
           bio: string | null
+          booking_lead_hours: number
           business_name: string
           categories: Database["public"]["Enums"]["service_category"][]
           city: string | null
@@ -470,9 +619,15 @@ export type Database = {
           rating_avg: number
           rating_count: number
           service_areas: string[]
+          slot_minutes: number
+          slug: string | null
           subscription_expires_at: string | null
+          tagline: string | null
           updated_at: string
           user_id: string
+          verification_requested_at: string | null
+          verification_status: string
+          verified_at: string | null
           whatsapp: string | null
         }
         Insert: {
@@ -480,6 +635,7 @@ export type Database = {
           avatar_url?: string | null
           billing_mode?: string
           bio?: string | null
+          booking_lead_hours?: number
           business_name: string
           categories?: Database["public"]["Enums"]["service_category"][]
           city?: string | null
@@ -493,9 +649,15 @@ export type Database = {
           rating_avg?: number
           rating_count?: number
           service_areas?: string[]
+          slot_minutes?: number
+          slug?: string | null
           subscription_expires_at?: string | null
+          tagline?: string | null
           updated_at?: string
           user_id: string
+          verification_requested_at?: string | null
+          verification_status?: string
+          verified_at?: string | null
           whatsapp?: string | null
         }
         Update: {
@@ -503,6 +665,7 @@ export type Database = {
           avatar_url?: string | null
           billing_mode?: string
           bio?: string | null
+          booking_lead_hours?: number
           business_name?: string
           categories?: Database["public"]["Enums"]["service_category"][]
           city?: string | null
@@ -516,9 +679,15 @@ export type Database = {
           rating_avg?: number
           rating_count?: number
           service_areas?: string[]
+          slot_minutes?: number
+          slug?: string | null
           subscription_expires_at?: string | null
+          tagline?: string | null
           updated_at?: string
           user_id?: string
+          verification_requested_at?: string | null
+          verification_status?: string
+          verified_at?: string | null
           whatsapp?: string | null
         }
         Relationships: []
@@ -876,12 +1045,20 @@ export type Database = {
         Args: { _payment_reference: string; _provider_transaction_id?: string }
         Returns: Json
       }
+      complete_link_payment: {
+        Args: { _payment_reference: string; _provider_transaction_id?: string }
+        Returns: Json
+      }
       complete_provider_subscription: {
         Args: { _payment_reference: string; _provider_transaction_id?: string }
         Returns: undefined
       }
       console_counts: { Args: never; Returns: Json }
       console_financials: { Args: never; Returns: Json }
+      console_set_verification: {
+        Args: { _approve: boolean; _provider_id: string }
+        Returns: Json
+      }
       console_settle_withdrawal: {
         Args: {
           _note?: string
@@ -898,6 +1075,10 @@ export type Database = {
       fail_booking_payment: {
         Args: { _payment_reference: string; _status: string }
         Returns: Json
+      }
+      fail_link_payment: {
+        Args: { _payment_reference: string; _status: string }
+        Returns: undefined
       }
       generate_referral_code: { Args: never; Returns: string }
       get_provider_bookings: {
@@ -962,6 +1143,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      provider_slots: {
+        Args: { _date: string; _duration?: number; _provider_id: string }
+        Returns: string[]
+      }
       request_booking: {
         Args: {
           _address?: string
@@ -989,6 +1174,7 @@ export type Database = {
         }
         Returns: Json
       }
+      slugify: { Args: { _value: string }; Returns: string }
       submit_review: {
         Args: {
           _booking_id: string
