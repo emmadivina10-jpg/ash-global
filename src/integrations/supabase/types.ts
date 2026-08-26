@@ -545,6 +545,9 @@ export type Database = {
           phone: string
           referral_code: string
           referred_by: string | null
+          stripe_account_id: string | null
+          stripe_details_submitted: boolean
+          stripe_payouts_enabled: boolean
           updated_at: string
           user_id: string
         }
@@ -558,6 +561,9 @@ export type Database = {
           phone?: string
           referral_code: string
           referred_by?: string | null
+          stripe_account_id?: string | null
+          stripe_details_submitted?: boolean
+          stripe_payouts_enabled?: boolean
           updated_at?: string
           user_id: string
         }
@@ -571,6 +577,9 @@ export type Database = {
           phone?: string
           referral_code?: string
           referred_by?: string | null
+          stripe_account_id?: string | null
+          stripe_details_submitted?: boolean
+          stripe_payouts_enabled?: boolean
           updated_at?: string
           user_id?: string
         }
@@ -875,31 +884,34 @@ export type Database = {
       }
       reviews: {
         Row: {
-          booking_id: string
+          booking_id: string | null
           client_id: string
           comment: string | null
           created_at: string
           id: string
+          kind: string
           photo_path: string | null
           provider_id: string
           rating: number
         }
         Insert: {
-          booking_id: string
+          booking_id?: string | null
           client_id: string
           comment?: string | null
           created_at?: string
           id?: string
+          kind?: string
           photo_path?: string | null
           provider_id: string
           rating: number
         }
         Update: {
-          booking_id?: string
+          booking_id?: string | null
           client_id?: string
           comment?: string | null
           created_at?: string
           id?: string
+          kind?: string
           photo_path?: string | null
           provider_id?: string
           rating?: number
@@ -908,7 +920,7 @@ export type Database = {
           {
             foreignKeyName: "reviews_booking_id_fkey"
             columns: ["booking_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "bookings"
             referencedColumns: ["id"]
           },
@@ -1270,6 +1282,10 @@ export type Database = {
         Returns: Json
       }
       slugify: { Args: { _value: string }; Returns: string }
+      submit_community_review: {
+        Args: { _comment?: string; _provider_id: string; _rating: number }
+        Returns: Json
+      }
       submit_review: {
         Args: {
           _booking_id: string
