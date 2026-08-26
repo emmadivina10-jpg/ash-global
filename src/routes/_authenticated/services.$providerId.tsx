@@ -251,17 +251,45 @@ function ProviderPage() {
       </SectionCard>
 
       <SectionCard title={t("svc.reviews")}>
+        <ReviewComposer providerId={providerId} isOwner={isOwner} fr={fr} />
+
         {(reviews ?? []).length === 0 ? (
-          <EmptyState title={fr ? "Pas encore d'avis" : "No reviews yet"} />
+          <div className="mt-3">
+            <EmptyState title={fr ? "Pas encore d'avis" : "No reviews yet"} />
+          </div>
         ) : (
-          <ul className="space-y-3">
-            {(reviews ?? []).map((review) => (
-              <li key={review.id} className="rounded-xl border border-border p-3">
-                <RatingStars value={review.rating} size={14} />
-                {review.comment ? <p className="mt-1 text-sm text-foreground/90">{review.comment}</p> : null}
-                <p className="mt-1 text-[11px] text-muted-foreground">{formatDateTime(review.created_at)}</p>
-              </li>
-            ))}
+          <ul className="mt-3 space-y-3">
+            {(reviews ?? []).map((review) => {
+              const isVerified = review.kind !== "COMMUNITY";
+              return (
+                <li key={review.id} className="rounded-xl border border-border p-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <RatingStars value={review.rating} size={14} />
+                    <span className="text-xs font-semibold text-foreground">{review.author}</span>
+                    <span
+                      className={
+                        isVerified
+                          ? "flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary"
+                          : "rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold text-muted-foreground"
+                      }
+                    >
+                      {isVerified ? (
+                        <>
+                          <ShieldCheck className="size-3" aria-hidden />
+                          {fr ? "Réservation vérifiée" : "Verified booking"}
+                        </>
+                      ) : fr ? (
+                        "Avis communautaire"
+                      ) : (
+                        "Community review"
+                      )}
+                    </span>
+                  </div>
+                  {review.comment ? <p className="mt-1 text-sm text-foreground/90">{review.comment}</p> : null}
+                  <p className="mt-1 text-[11px] text-muted-foreground">{formatDateTime(review.created_at)}</p>
+                </li>
+              );
+            })}
           </ul>
         )}
       </SectionCard>
