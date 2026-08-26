@@ -60,7 +60,7 @@ export function ReviewComposer({
     const { data, error } = await supabase.rpc("submit_community_review", {
       _provider_id: providerId,
       _rating: rating,
-      _comment: comment.trim() || null,
+      _comment: comment.trim() || undefined,
     });
     setSaving(false);
 
