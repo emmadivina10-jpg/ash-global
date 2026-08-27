@@ -133,7 +133,10 @@ function StudioPage() {
     if (!studio) return;
     const price = Number(service.price);
     const duration = Number(service.duration_minutes);
-    if (!service.title.trim() || !Number.isFinite(price) || price <= 0) return;
+    if (!service.title.trim() || !Number.isFinite(price) || price <= 0) {
+      toast.error(t("pro.saveErr"));
+      return;
+    }
     setAddingService(true);
     const { data: inserted, error } = await supabase
       .from("provider_services")
@@ -148,18 +151,20 @@ function StudioPage() {
       .select("id")
       .maybeSingle();
     setAddingService(false);
-    if (error) {
-      toast.error(error.message || t("pro.saveErr"));
+    if (error || !inserted?.id) {
+      toast.error(error?.message || t("pro.saveErr"));
       return;
     }
     setService({ title: "", price: "", duration_minutes: "60", description: "", category: "" });
     toast.success(t("pro.serviceAdded"));
     await queryClient.invalidateQueries({ queryKey: ["provider-services"] });
-    if (inserted?.id) {
-      setHighlightId(inserted.id);
-      setTimeout(() => setHighlightId((id) => (id === inserted.id ? null : id)), 2500);
-    }
+    await queryClient.invalidateQueries({ queryKey: ["providers"] });
+    setHighlightId(inserted.id);
+    setTimeout(() => setHighlightId((id) => (id === inserted.id ? null : id)), 2500);
+    // The service is saved: confirm it and offer to leave the studio for the marketplace.
+    setCelebrate("service");
   }
+
 
 
   async function removeService(id: string) {
