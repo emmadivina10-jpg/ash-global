@@ -506,10 +506,9 @@ function StudioPage() {
                 {celebrate === "service" ? "Add another service" : "Keep editing"}
               </Button>
             </div>
-
-            </div>
           </div>
         </div>
+
       ) : null}
     </div>
   );
