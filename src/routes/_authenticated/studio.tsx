@@ -480,12 +480,18 @@ function StudioPage() {
               <PartyPopper className="size-6" aria-hidden />
             </span>
             <h2 className="mt-4 font-display text-xl font-extrabold text-foreground">
-              {celebrate === "created" ? "Congratulations, you're live!" : "Storefront updated!"}
+              {celebrate === "created"
+                ? "Congratulations, you're live!"
+                : celebrate === "service"
+                  ? "Service published!"
+                  : "Storefront updated!"}
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
               {celebrate === "created"
                 ? "Your storefront is now on the ASH Glo marketplace. Customers nearby can find, book and pay you."
-                : "Your changes are saved and already visible on the marketplace."}
+                : celebrate === "service"
+                  ? "Your service is saved and now bookable on the ASH Glo marketplace."
+                  : "Your changes are saved and already visible on the marketplace."}
             </p>
             <div className="mt-5 grid gap-2">
               <Button
@@ -497,8 +503,10 @@ function StudioPage() {
                 Go to the marketplace
               </Button>
               <Button variant="ghost" onClick={() => setCelebrate(null)}>
-                Keep editing
+                {celebrate === "service" ? "Add another service" : "Keep editing"}
               </Button>
+            </div>
+
             </div>
           </div>
         </div>
