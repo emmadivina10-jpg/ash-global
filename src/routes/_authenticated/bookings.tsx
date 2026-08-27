@@ -114,24 +114,41 @@ function BookingsPage() {
     try {
       const result = await startPayment({ data: { bookingId, method } });
       if (!result.ok) {
-        toast.error(
-          result.error === "PAYMENT_WINDOW_EXPIRED"
+        const code = result.error ?? "";
+        const message =
+          code === "PAYMENT_WINDOW_EXPIRED"
             ? fr
               ? "Le délai de paiement de 24 h est dépassé."
               : "The 24-hour payment window has expired."
-            : fr
-              ? "Impossible de démarrer le paiement."
-              : "Could not start the payment.",
-        );
+            : code === "ALREADY_PAID"
+              ? fr
+                ? "Cette réservation est déjà payée."
+                : "This booking is already paid."
+              : code === "STRIPE_NOT_CONFIGURED" || code === "PROVIDER_NOT_CONFIGURED"
+                ? fr
+                  ? "Ce moyen de paiement n'est pas encore disponible. Essayez l'autre option."
+                  : "This payment method isn't available yet. Try the other option."
+                : code ||
+                  (fr ? "Impossible de démarrer le paiement." : "Could not start the payment.");
+        toast.error(message);
         refresh();
         return;
       }
       if (result.checkoutUrl) window.location.href = result.checkoutUrl;
       else toast.message(fr ? "Suivez les instructions sur votre téléphone." : "Follow the prompt on your phone.");
+    } catch (err) {
+      toast.error(
+        err instanceof Error && err.message
+          ? err.message
+          : fr
+            ? "Impossible de démarrer le paiement."
+            : "Could not start the payment.",
+      );
     } finally {
       setBusyId(null);
     }
   }
+
 
   async function sync(bookingId: string) {
     setBusyId(bookingId);
