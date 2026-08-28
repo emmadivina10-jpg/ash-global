@@ -60,6 +60,7 @@ function StudioPage() {
     categories: [] as ServiceCategory[],
   });
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<{ code: string | null; message: string } | null>(null);
   const [celebrate, setCelebrate] = useState<"created" | "updated" | "service" | null>(null);
   const navigate = useNavigate();
   const region = useRegion();
