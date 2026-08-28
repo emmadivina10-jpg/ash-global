@@ -114,6 +114,7 @@ function StudioPage() {
   async function saveProfile(event: React.FormEvent) {
     event.preventDefault();
     setSaving(true);
+    setSaveError(null);
     try {
       // Resolve the owner id from the live session so brand-new accounts work too.
       let ownerId = user?.id ?? null;
@@ -122,11 +123,11 @@ function StudioPage() {
         ownerId = auth.user?.id ?? null;
       }
       if (!ownerId) {
-        toast.error(t("pro.saveErr"));
+        setSaveError({ code: "AUTH_REQUIRED", message: t("pro.saveErr") });
         return;
       }
       if (!form.business_name.trim()) {
-        toast.error(t("pro.saveErr"));
+        setSaveError({ code: "VALIDATION_ERROR", message: t("pro.saveErr") });
         return;
       }
       const payload = {
@@ -147,7 +148,10 @@ function StudioPage() {
         .select("id")
         .maybeSingle();
       if (error || !saved?.id) {
-        toast.error(error?.message || t("pro.saveErr"));
+        setSaveError({
+          code: error?.code ?? (saved?.id ? null : "NO_ROW_RETURNED"),
+          message: error?.message ?? t("pro.saveErr"),
+        });
         return;
       }
       await queryClient.invalidateQueries({ queryKey: ["provider"] });
@@ -155,7 +159,10 @@ function StudioPage() {
       toast.success(isNew ? "Studio created — you're live!" : "Storefront updated");
       setCelebrate(isNew ? "created" : "updated");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t("pro.saveErr"));
+      setSaveError({
+        code: "CLIENT_EXCEPTION",
+        message: err instanceof Error ? err.message : t("pro.saveErr"),
+      });
     } finally {
       setSaving(false);
     }
