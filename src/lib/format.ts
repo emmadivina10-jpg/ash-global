@@ -44,6 +44,13 @@ export function normalizePhone(input: string): string {
   return input.replace(/[\s-]/g, "");
 }
 
+/** Accepts any plausible international number (8–15 digits, optional +). */
+export function isValidPhone(input: string): boolean {
+  const value = normalizePhone(input).replace(/[()]/g, "");
+  return /^\+?\d{8,15}$/.test(value);
+}
+
+
 export function transactionLabel(type: string): string {
   switch (type) {
     case "ACTIVATION_PAYMENT":

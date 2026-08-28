@@ -14,7 +14,7 @@ import { SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ACTIVATION_FEE, CM_PHONE_REGEX, formatDate, formatXAF, normalizePhone, referralLink } from "@/lib/format";
+import { ACTIVATION_FEE, formatDate, formatXAF, isValidPhone, normalizePhone, referralLink } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/profile")({
@@ -51,20 +51,42 @@ function ProfilePage() {
       setError(t("profile.err.name"));
       return;
     }
-    if (!CM_PHONE_REGEX.test(normalizePhone(phone))) {
+    if (!isValidPhone(phone)) {
       setError(t("profile.err.phone"));
+      return;
+    }
+    const { data: auth } = await supabase.auth.getUser();
+    const userId = profile?.user_id ?? auth.user?.id;
+    if (!userId) {
+      setError(t("profile.err.save"));
       return;
     }
     setError(null);
     setSaving(true);
-    const { error: updateError } = await supabase
+    const { data: saved, error: updateError } = await supabase
       .from("profiles")
       .update({ full_name: fullName.trim(), phone: normalizePhone(phone) })
-      .eq("user_id", profile?.user_id ?? "");
+      .eq("user_id", userId)
+      .select("user_id")
+      .maybeSingle();
     setSaving(false);
     if (updateError) {
-      setError(t("profile.err.save"));
+      setError(updateError.message || t("profile.err.save"));
       return;
+    }
+    if (!saved) {
+      // No row matched — the account has no profile record yet.
+      const { error: insertError } = await supabase.from("profiles").insert({
+        user_id: userId,
+        full_name: fullName.trim(),
+        phone: normalizePhone(phone),
+        email: auth.user?.email ?? "",
+        referral_code: "",
+      } as never);
+      if (insertError) {
+        setError(t("profile.err.save"));
+        return;
+      }
     }
     toast.success(t("profile.saved"));
     await queryClient.invalidateQueries({ queryKey: ["profile"] });
@@ -77,9 +99,24 @@ function ProfilePage() {
     navigate({ to: "/login", replace: true });
   }
 
-  if (isLoading || !profile) {
+  if (isLoading) {
     return <SkeletonRows rows={4} />;
   }
+
+  if (!profile) {
+    return (
+      <SectionCard title={t("profile.title")}>
+        <p className="text-sm text-muted-foreground">
+          We could not load your profile. Please sign out and sign in again.
+        </p>
+        <Button variant="outline" className="mt-4" onClick={signOut}>
+          <LogOut className="size-4" aria-hidden />
+          Sign out
+        </Button>
+      </SectionCard>
+    );
+  }
+
 
   const active = profile.account_status === "ACTIVE";
 
