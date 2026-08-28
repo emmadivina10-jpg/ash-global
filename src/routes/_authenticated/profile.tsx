@@ -14,7 +14,7 @@ import { SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ACTIVATION_FEE, CM_PHONE_REGEX, formatDate, formatXAF, normalizePhone, referralLink } from "@/lib/format";
+import { ACTIVATION_FEE, formatDate, formatXAF, isValidPhone, normalizePhone, referralLink } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/profile")({
