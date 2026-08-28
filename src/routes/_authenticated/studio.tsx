@@ -86,8 +86,19 @@ function StudioPage() {
     });
   }, [studio?.id]);
 
+  // After saving the profile, confirm briefly then take the user to the marketplace.
+  useEffect(() => {
+    if (celebrate !== "created" && celebrate !== "updated") return;
+    const timer = setTimeout(() => {
+      setCelebrate(null);
+      void navigate({ to: "/services" });
+    }, 2200);
+    return () => clearTimeout(timer);
+  }, [celebrate, navigate]);
+
   // The marketplace is free: a studio goes live as soon as its profile is saved.
   const live = Boolean(studio?.is_live);
+
 
   const stats = useMemo(() => {
     const list = bookings ?? [];
