@@ -101,31 +101,54 @@ function StudioPage() {
 
   async function saveProfile(event: React.FormEvent) {
     event.preventDefault();
-    if (!user) return;
     setSaving(true);
-    const payload = {
-      user_id: user.id,
-      business_name: form.business_name.trim(),
-      bio: form.bio.trim() || null,
-      city: form.city.trim() || null,
-      phone: form.phone.trim() || null,
-      whatsapp: form.whatsapp.trim() || null,
-      categories: form.categories,
-      country: region.seesEverything ? region.detected : region.country,
-    };
-    const isNew = !studio;
-    const { error } = studio
-      ? await supabase.from("provider_profiles").update(payload).eq("id", studio.id)
-      : await supabase.from("provider_profiles").insert(payload);
-    setSaving(false);
-    if (error) {
-      toast.error(t("pro.saveErr"));
-      return;
+    try {
+      // Resolve the owner id from the live session so brand-new accounts work too.
+      let ownerId = user?.id ?? null;
+      if (!ownerId) {
+        const { data: auth } = await supabase.auth.getUser();
+        ownerId = auth.user?.id ?? null;
+      }
+      if (!ownerId) {
+        toast.error(t("pro.saveErr"));
+        return;
+      }
+      if (!form.business_name.trim()) {
+        toast.error(t("pro.saveErr"));
+        return;
+      }
+      const payload = {
+        user_id: ownerId,
+        business_name: form.business_name.trim(),
+        bio: form.bio.trim() || null,
+        city: form.city.trim() || null,
+        phone: form.phone.trim() || null,
+        whatsapp: form.whatsapp.trim() || null,
+        categories: form.categories,
+        country: region.seesEverything ? region.detected : region.country,
+      };
+      const isNew = !studio;
+      // Upsert on user_id: creates the studio the first time, updates it afterwards.
+      const { data: saved, error } = await supabase
+        .from("provider_profiles")
+        .upsert(payload, { onConflict: "user_id" })
+        .select("id")
+        .maybeSingle();
+      if (error || !saved?.id) {
+        toast.error(error?.message || t("pro.saveErr"));
+        return;
+      }
+      await queryClient.invalidateQueries({ queryKey: ["provider"] });
+      await queryClient.invalidateQueries({ queryKey: ["providers"] });
+      toast.success(isNew ? "Studio created — you're live!" : "Storefront updated");
+      setCelebrate(isNew ? "created" : "updated");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t("pro.saveErr"));
+    } finally {
+      setSaving(false);
     }
-    await queryClient.invalidateQueries({ queryKey: ["provider"] });
-    await queryClient.invalidateQueries({ queryKey: ["providers"] });
-    setCelebrate(isNew ? "created" : "updated");
   }
+
 
 
   async function addService(event: React.FormEvent) {
