@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CalendarClock, Coins, PartyPopper, Star, Trash2 } from "lucide-react";
+import { AlertTriangle, CalendarClock, Coins, PartyPopper, Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -156,6 +156,7 @@ function StudioPage() {
       }
       await queryClient.invalidateQueries({ queryKey: ["provider"] });
       await queryClient.invalidateQueries({ queryKey: ["providers"] });
+      await queryClient.invalidateQueries({ queryKey: ["discovery"] });
       toast.success(isNew ? "Studio created — you're live!" : "Storefront updated");
       setCelebrate(isNew ? "created" : "updated");
     } catch (err) {
@@ -305,6 +306,20 @@ function StudioPage() {
 
       <SectionCard title={studio ? t("pro.title") : t("pro.create")}>
         {!studio ? <p className="mb-4 text-sm text-muted-foreground">{t("pro.createCopyFree")}</p> : null}
+        {saveError ? (
+          <div
+            role="alert"
+            className="mb-4 flex items-start gap-3 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-destructive"
+          >
+            <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
+            <div className="min-w-0 text-sm">
+              <p className="font-semibold">Studio could not be saved</p>
+              <p className="mt-0.5 break-words">
+                {saveError.code ? `${saveError.code}: ` : ""}{saveError.message}
+              </p>
+            </div>
+          </div>
+        ) : null}
         <form onSubmit={saveProfile} className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="business_name">{t("pro.businessName")}</Label>
