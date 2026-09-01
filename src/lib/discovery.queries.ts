@@ -57,11 +57,15 @@ export function useDiscovery(filters: DiscoveryFilters) {
       const from = page * PAGE_SIZE;
       const needsServiceJoin = filters.maxPrice !== null;
 
-      // Inner join: a storefront only belongs in the marketplace once it has at
-      // least one active, bookable service.
+      // Keep live storefronts discoverable while their owner is still adding
+      // the first service. A price filter is the exception: it must only return
+      // storefronts with an active service in the requested price range.
+      const servicesRelation = needsServiceJoin
+        ? "services:provider_services!inner(id, title, price, category, is_active)"
+        : "services:provider_services(id, title, price, category, is_active)";
       let query = supabase
         .from("provider_profiles")
-        .select("*, services:provider_services!inner(id, title, price, category, is_active)")
+        .select(`*, ${servicesRelation}`)
         .eq("is_live", true)
         .eq("services.is_active", true);
 
