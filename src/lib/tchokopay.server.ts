@@ -160,8 +160,8 @@ async function request(
       list,
       error: {
         code: String(data["code"] ?? (res.status === 401 ? "UNAUTHORIZED" : `PROVIDER_HTTP_${res.status}`)),
-        message: typeof data["message"] === "string" ? (data["message"] as string) : undefined,
-        param: typeof data["param"] === "string" ? (data["param"] as string) : undefined,
+        ...(typeof data["message"] === "string" ? { message: data["message"] as string } : {}),
+        ...(typeof data["param"] === "string" ? { param: data["param"] as string } : {}),
       },
     };
   }

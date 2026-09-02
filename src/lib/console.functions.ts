@@ -420,7 +420,7 @@ export const verifyPaymentReference = createServerFn({ method: "POST" })
 
     // The console accepts either reference: ours (ACT-/BKG-/PLK-) or TchokoPay's REQ-.
     const isProviderRef = data.reference.startsWith("REQ-");
-    let merchantReference = isProviderRef ? await findMerchantReference(data.reference) : data.reference;
+    const merchantReference = isProviderRef ? await findMerchantReference(data.reference) : data.reference;
     let providerReference: string | null = isProviderRef ? data.reference : null;
 
     if (!isProviderRef) {
@@ -486,28 +486,26 @@ export const reconcilePayments = createServerFn({ method: "POST" }).handler(asyn
 
   const { data: pending } = await db
     .from("activations")
-    .select("payment_reference")
+    .select("payment_reference, provider_transaction_id")
     .in("status", ["PENDING", "PROCESSING"])
     .order("created_at", { ascending: false })
     .limit(100);
 
+  const { settleCollection } = await import("./payment-settlement.server");
   let activated = 0;
   for (const row of pending ?? []) {
-    const verification = await tchokoPay.verifyPayment(row.payment_reference);
+    const providerRef = row.provider_transaction_id ?? "";
+    const verification = providerRef.startsWith("REQ-")
+      ? await tchokoPay.getCollection(providerRef)
+      : await tchokoPay.verifyLegacyPayment(row.payment_reference);
     if (!verification.ok) continue;
-    if (verification.status === "PAID") {
-      const { error } = await db.rpc("complete_activation", {
-        _payment_reference: row.payment_reference,
-        _provider_transaction_id: (verification.providerTransactionId ?? null) as unknown as string,
-      });
-      if (!error) activated += 1;
-    } else if (verification.status === "FAILED" || verification.status === "CANCELLED") {
-      await db
-        .from("activations")
-        .update({ status: verification.status, updated_at: new Date().toISOString() })
-        .eq("payment_reference", row.payment_reference)
-        .neq("status", "PAID");
-    }
+    const settled = await settleCollection({
+      merchantReference: row.payment_reference,
+      providerReference: verification.providerReference ?? row.provider_transaction_id,
+      status: verification.status,
+      source: "CONSOLE_RECONCILE",
+    });
+    if (verification.status === "PAID" && settled.ok) activated += 1;
   }
 
   await db.from("payment_events").insert({
