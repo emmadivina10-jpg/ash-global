@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { BadgeCheck, CalendarCheck, Clock, MapPin, MessageCircle, Share2, Star } from "lucide-react";
+import { BadgeCheck, CalendarCheck, Clock, MapPin, MessageCircle, Play, Share2, Star } from "lucide-react";
 import { toast } from "sonner";
 import { getStorefront, type Storefront } from "@/lib/storefront.functions";
 import { Button } from "@/components/ui/button";
 import { formatXAF } from "@/lib/format";
 import { Logo } from "@/components/refer/Logo";
+import { MediaLightbox, isVideoSource, type LightboxMedia } from "@/components/refer/MediaLightbox";
 
 const SITE = "https://ashglogroup.company";
 const FALLBACK_IMAGE = `${SITE}/ash-social.png`;
@@ -75,7 +76,7 @@ function StoreMissing() {
 
 function StorefrontPage() {
   const { store } = Route.useLoaderData();
-  const [openPhoto, setOpenPhoto] = useState<string | null>(null);
+  const [openPhoto, setOpenPhoto] = useState<LightboxMedia | null>(null);
 
   const shareUrl = `${SITE}/s/${store.slug}`;
   const jsonLd = useMemo(
@@ -240,21 +241,35 @@ function StorefrontPage() {
         <section className="mx-auto mt-6 max-w-3xl px-4">
           <h2 className="font-display text-lg font-bold text-foreground">Work gallery</h2>
           <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
-            {store.photos.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => setOpenPhoto(p.url)}
-                className="overflow-hidden rounded-xl border border-border"
-              >
-                <img
-                  src={p.url}
-                  alt={p.caption ?? store.business_name}
-                  loading="lazy"
-                  className="aspect-square w-full object-cover transition-transform hover:scale-105"
-                />
-              </button>
-            ))}
+            {store.photos.map((p) => {
+              const video = isVideoSource(p.url);
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => setOpenPhoto({ url: p.url, caption: p.caption, isVideo: video })}
+                  className="relative overflow-hidden rounded-xl border border-border"
+                >
+                  {video ? (
+                    <>
+                      <video src={p.url} muted playsInline preload="metadata" className="aspect-square w-full object-cover" />
+                      <span className="absolute inset-0 grid place-items-center bg-black/30">
+                        <span className="grid size-9 place-items-center rounded-full bg-white/90 text-black">
+                          <Play className="size-4 fill-current" aria-hidden />
+                        </span>
+                      </span>
+                    </>
+                  ) : (
+                    <img
+                      src={p.url}
+                      alt={p.caption ?? store.business_name}
+                      loading="lazy"
+                      className="aspect-square w-full object-cover transition-transform hover:scale-105"
+                    />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </section>
       ) : null}
@@ -295,16 +310,7 @@ function StorefrontPage() {
         </div>
       </section>
 
-      {openPhoto ? (
-        <button
-          type="button"
-          aria-label="Close photo"
-          onClick={() => setOpenPhoto(null)}
-          className="fixed inset-0 z-50 grid place-items-center bg-black/80 p-6"
-        >
-          <img src={openPhoto} alt="" className="max-h-[80vh] w-auto rounded-2xl" />
-        </button>
-      ) : null}
+      <MediaLightbox media={openPhoto} onClose={() => setOpenPhoto(null)} />
     </main>
   );
 }
