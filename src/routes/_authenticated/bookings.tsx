@@ -415,6 +415,32 @@ function BookingsPage() {
           )}
         </SectionCard>
       ) : null}
+
+      <Dialog open={Boolean(momoBooking)} onOpenChange={(open) => !open && setMomoBooking(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {fr ? "Payer par Mobile Money" : "Pay with Mobile Money"}
+              {momoBooking ? ` — ${formatXAF(momoBooking.price)}` : ""}
+            </DialogTitle>
+          </DialogHeader>
+          {momoBooking ? (
+            <MomoCharge
+              country={country}
+              fr={fr}
+              busy={busyId === momoBooking.id}
+              submitLabel={
+                busyId === momoBooking.id
+                  ? fr
+                    ? "Envoi de la demande…"
+                    : "Sending prompt…"
+                  : `${fr ? "Payer" : "Pay"} ${formatXAF(momoBooking.price)}`
+              }
+              onCharge={(provider, phone) => pay(momoBooking.id, "MOMO", { provider, phone })}
+            />
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
