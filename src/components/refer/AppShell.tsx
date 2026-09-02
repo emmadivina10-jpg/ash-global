@@ -165,32 +165,52 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </div>
 
-      <nav className="ash-glass fixed inset-x-0 bottom-0 z-40 border-x-0 border-b-0 pb-[env(safe-area-inset-bottom)] lg:hidden">
-        <ul className="mx-auto grid max-w-md grid-cols-5">
-          {visible(NAV).map((item) => {
-            const active = pathname === item.to;
-            return (
-              <li key={item.to}>
-                <Link
-                  to={item.to}
-                  className={cn(
-                    "relative flex min-h-14 flex-col items-center justify-center gap-1 py-2 text-[11px] font-semibold transition-all duration-300",
-                    active ? "-translate-y-0.5 text-primary" : "text-muted-foreground",
-                  )}
-                >
-                  {active ? (
-                    <span
-                      className="brand-gradient absolute top-0 h-1 w-10 rounded-full transition-all duration-300"
-                      aria-hidden
-                    />
-                  ) : null}
-                  <item.icon className="size-5" aria-hidden />
-                  {t(item.key)}
-                </Link>
-              </li>
-            );
-          })}
-          <li>
+      {(() => {
+        const items = visible(NAV);
+        const centerItem = items.find((item) => item.to === "/create");
+        const sideItems = items.filter((item) => item.to !== "/create");
+        const left = sideItems.slice(0, Math.ceil(sideItems.length / 2));
+        const right = sideItems.slice(Math.ceil(sideItems.length / 2));
+        const renderTab = (item: NavItem) => {
+          const active = pathname === item.to;
+          return (
+            <li key={item.to}>
+              <Link
+                to={item.to}
+                className={cn(
+                  "relative flex min-h-14 flex-col items-center justify-center gap-1 py-2 text-[11px] font-semibold transition-all duration-300",
+                  active ? "-translate-y-0.5 text-primary" : "text-muted-foreground",
+                )}
+              >
+                {active ? (
+                  <span
+                    className="brand-gradient absolute top-0 h-1 w-10 rounded-full transition-all duration-300"
+                    aria-hidden
+                  />
+                ) : null}
+                <item.icon className="size-5" aria-hidden />
+                {t(item.key)}
+              </Link>
+            </li>
+          );
+        };
+        return (
+          <nav className="fixed inset-x-0 bottom-0 z-40 lg:hidden">
+            {centerItem ? (
+              <Link
+                to={centerItem.to}
+                aria-label={t(centerItem.key)}
+                className="brand-gradient absolute left-1/2 top-0 z-10 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-primary-foreground shadow-[var(--shadow-brand)] ring-4 ring-background transition-transform duration-300 active:scale-95"
+              >
+                <centerItem.icon className="size-6" aria-hidden />
+              </Link>
+            ) : null}
+            <div className="ash-glass nav-cutout border-x-0 border-b-0 pb-[env(safe-area-inset-bottom)]">
+              <ul className="mx-auto grid max-w-md grid-cols-5">
+                {left.map(renderTab)}
+                <li aria-hidden>{centerItem ? <span className="block min-h-14" /> : null}</li>
+                {right.map(renderTab)}
+                <li>
             <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
               <SheetTrigger asChild>
                 <button
