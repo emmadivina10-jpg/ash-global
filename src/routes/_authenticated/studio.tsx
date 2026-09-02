@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { AlertTriangle, CalendarClock, Coins, PartyPopper, Star, Trash2 } from "lucide-react";
+import { AlertTriangle, ArrowRight, CalendarClock, Coins, PartyPopper, Star, Trash2, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -11,7 +11,7 @@ import {
   useProviderServices,
   useMyProviderProfile,
 } from "@/lib/marketplace.queries";
-import { useUser } from "@/lib/queries";
+import { useUser, useWallet } from "@/lib/queries";
 
 import { SectionCard, StatCard } from "@/components/refer/cards";
 import { SkeletonRows } from "@/components/refer/states";
