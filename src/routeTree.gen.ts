@@ -64,6 +64,7 @@ import { Route as SSlugRouteImport } from './routes/s.$slug'
 import { Route as AuthenticatedEventsIndexRouteImport } from './routes/_authenticated/events.index'
 import { Route as AuthenticatedEventsEventIdRouteImport } from './routes/_authenticated/events.$eventId'
 import { Route as AuthenticatedFreelanceIndexRouteImport } from './routes/_authenticated/freelance.index'
+import { Route as AuthenticatedFreelanceProjectIdRouteImport } from './routes/_authenticated/freelance.$projectId'
 import { Route as AuthenticatedServicesIndexRouteImport } from './routes/_authenticated/services.index'
 import { Route as AuthenticatedServicesProviderIdRouteImport } from './routes/_authenticated/services.$providerId'
 import { Route as ApiPublicReconcileActivationsRouteImport } from './routes/api/public/reconcile-activations'
@@ -351,6 +352,12 @@ const AuthenticatedFreelanceIndexRoute =
     path: '/freelance/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedFreelanceProjectIdRoute =
+  AuthenticatedFreelanceProjectIdRouteImport.update({
+    id: '/freelance/$projectId',
+    path: '/freelance/$projectId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedServicesIndexRoute =
   AuthenticatedServicesIndexRouteImport.update({
     id: '/services/',
@@ -451,6 +458,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug': typeof SSlugRoute
   '/console/': typeof ConsoleIndexRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
+  '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
@@ -514,6 +522,7 @@ export interface FileRoutesByTo {
   '/s/$slug': typeof SSlugRoute
   '/console': typeof ConsoleIndexRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
+  '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
@@ -580,6 +589,7 @@ export interface FileRoutesById {
   '/s/$slug': typeof SSlugRoute
   '/console/': typeof ConsoleIndexRoute
   '/_authenticated/events/$eventId': typeof AuthenticatedEventsEventIdRoute
+  '/_authenticated/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/_authenticated/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
@@ -646,6 +656,7 @@ export interface FileRouteTypes {
     | '/s/$slug'
     | '/console/'
     | '/events/$eventId'
+    | '/freelance/$projectId'
     | '/services/$providerId'
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
@@ -709,6 +720,7 @@ export interface FileRouteTypes {
     | '/s/$slug'
     | '/console'
     | '/events/$eventId'
+    | '/freelance/$projectId'
     | '/services/$providerId'
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
@@ -774,6 +786,7 @@ export interface FileRouteTypes {
     | '/s/$slug'
     | '/console/'
     | '/_authenticated/events/$eventId'
+    | '/_authenticated/freelance/$projectId'
     | '/_authenticated/services/$providerId'
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
@@ -1197,6 +1210,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFreelanceIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/freelance/$projectId': {
+      id: '/_authenticated/freelance/$projectId'
+      path: '/freelance/$projectId'
+      fullPath: '/freelance/$projectId'
+      preLoaderRoute: typeof AuthenticatedFreelanceProjectIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/services/': {
       id: '/_authenticated/services/'
       path: '/services'
@@ -1271,6 +1291,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
   AuthenticatedWithdrawRoute: typeof AuthenticatedWithdrawRoute
   AuthenticatedEventsEventIdRoute: typeof AuthenticatedEventsEventIdRoute
+  AuthenticatedFreelanceProjectIdRoute: typeof AuthenticatedFreelanceProjectIdRoute
   AuthenticatedServicesProviderIdRoute: typeof AuthenticatedServicesProviderIdRoute
   AuthenticatedEventsIndexRoute: typeof AuthenticatedEventsIndexRoute
   AuthenticatedFreelanceIndexRoute: typeof AuthenticatedFreelanceIndexRoute
@@ -1292,6 +1313,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedWalletRoute: AuthenticatedWalletRoute,
   AuthenticatedWithdrawRoute: AuthenticatedWithdrawRoute,
   AuthenticatedEventsEventIdRoute: AuthenticatedEventsEventIdRoute,
+  AuthenticatedFreelanceProjectIdRoute: AuthenticatedFreelanceProjectIdRoute,
   AuthenticatedServicesProviderIdRoute: AuthenticatedServicesProviderIdRoute,
   AuthenticatedEventsIndexRoute: AuthenticatedEventsIndexRoute,
   AuthenticatedFreelanceIndexRoute: AuthenticatedFreelanceIndexRoute,
