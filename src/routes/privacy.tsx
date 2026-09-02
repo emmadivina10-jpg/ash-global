@@ -419,14 +419,41 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
           />
         </Section>
 
-        <Section id="changes" title="13. Changes to this policy">
+        <Section id="safety" title="13. User content, safety and children">
+          <p>
+            ASH Glo hosts user-generated content: storefront photos and videos, service descriptions,
+            reviews and private chat. We apply a zero-tolerance policy to objectionable content and
+            abusive behaviour, set out in section 3 of our{" "}
+            <Link to="/terms" className="text-primary hover:underline">
+              Terms of Service
+            </Link>
+            .
+          </p>
+          <Bullets
+            items={[
+              "Every profile, portfolio item, review and chat thread can be reported in-app with the flag control.",
+              "Any user can block another user instantly; blocked users can no longer send them messages.",
+              "Reports reach the ASH Trust & Safety team and are reviewed within 24 hours; breaching content is removed and accounts suspended or terminated.",
+              "ASH Glo is an 18+ service. We do not knowingly collect data from children; child sexual abuse and exploitation material is prohibited, removed and reported to the competent authorities. Contact privacy@ashglogroup.company for child-safety concerns.",
+            ]}
+          />
+          <p>
+            You can delete your account at any time from Settings in the app, or through{" "}
+            <Link to="/account-deletion" className="text-primary hover:underline">
+              our account deletion page
+            </Link>
+            .
+          </p>
+        </Section>
+
+        <Section id="changes" title="14. Changes to this policy">
           <p>
             We will post any change here and update the “Last updated” date. For material changes we
             will notify you in the app or by email before they take effect.
           </p>
         </Section>
 
-        <Section id="contact" title="14. Contact">
+        <Section id="contact" title="15. Contact">
           <Bullets
             items={["ASH Glo, Douala, Cameroon", `Email: ${PRIVACY_EMAIL}`, "Support: https://ashglogroup.company"]}
           />
