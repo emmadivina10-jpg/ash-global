@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { MessageCircle } from "lucide-react";
+import { ArrowLeft, MessageCircle } from "lucide-react";
 import { useConversations } from "@/lib/marketplace.queries";
 import { useUser } from "@/lib/queries";
 import { ChatThread } from "@/components/refer/ChatThread";
@@ -35,8 +35,10 @@ function MessagesPage() {
   const { data: conversations, isLoading } = useConversations();
 
   const list = conversations ?? [];
-  const activeId = c ?? list[0]?.id;
+  // Desktop falls back to the first conversation; mobile requires an explicit pick.
+  const activeId = c ?? (typeof window !== "undefined" && window.innerWidth >= 768 ? list[0]?.id : undefined);
   const active = list.find((conv) => conv.id === activeId);
+  const mobileView = c ? "thread" : "list";
 
   /** Providers see the client; clients see the business. */
   function peerOf(conv: (typeof list)[number]): string {
@@ -48,7 +50,7 @@ function MessagesPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
-      <header>
+      <header className={cn(mobileView === "thread" && "hidden", "md:block")}>
         <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">{t("chat.title")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{t("chat.pick")}</p>
       </header>
@@ -63,7 +65,12 @@ function MessagesPage() {
         />
       ) : (
         <div className="grid gap-4 md:grid-cols-[280px_minmax(0,1fr)]">
-          <nav className="tile max-h-64 space-y-1 overflow-y-auto p-2 md:max-h-[70vh]">
+          <nav
+            className={cn(
+              "tile space-y-1 overflow-y-auto p-2 md:max-h-[70vh]",
+              mobileView === "thread" ? "hidden md:block" : "max-h-[calc(100dvh-12rem)]",
+            )}
+          >
             {list.map((conv) => {
               const label = peerOf(conv);
               return (
@@ -103,9 +110,22 @@ function MessagesPage() {
             })}
           </nav>
 
-          <div className="tile flex h-[64vh] flex-col p-3">
+          <div
+            className={cn(
+              "tile flex flex-col p-3",
+              mobileView === "list" ? "hidden md:flex" : "h-[calc(100dvh-10rem)] md:h-[64vh]",
+            )}
+          >
             <div className="mb-2 flex items-start justify-between gap-3 border-b border-border pb-2">
-              <div className="min-w-0">
+              <button
+                type="button"
+                onClick={() => void navigate({ search: {} })}
+                aria-label={t("chat.title")}
+                className="grid size-9 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-muted md:hidden"
+              >
+                <ArrowLeft className="size-5" aria-hidden />
+              </button>
+              <div className="min-w-0 flex-1">
                 <p className="truncate font-display font-semibold text-foreground">
                   {active ? peerOf(active) : t("chat.title")}
                 </p>
