@@ -16,6 +16,7 @@ import { SectionCard } from "@/components/refer/cards";
 import { RatingStars } from "@/components/refer/RatingStars";
 import { MediaLightbox, isVideoSource, type LightboxMedia } from "@/components/refer/MediaLightbox";
 import { ReviewComposer } from "@/components/refer/ReviewComposer";
+import { ReportDialog } from "@/components/refer/ReportDialog";
 import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
