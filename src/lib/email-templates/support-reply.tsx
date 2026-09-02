@@ -60,7 +60,7 @@ const Email = ({ name, subject, reply, original, ticketRef }: Props) => (
 export const template = {
   component: Email,
   subject: (data: Record<string, any>) =>
-    data?.subject ? `Re: ${data.subject}` : 'Reply from ASH Glo support',
+    data?.['subject'] ? `Re: ${data['subject']}` : 'Reply from ASH Glo support',
   displayName: 'Support reply',
   previewData: {
     name: 'Divine',
