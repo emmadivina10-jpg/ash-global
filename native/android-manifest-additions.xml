@@ -1,0 +1,59 @@
+<!--
+  Merge into android/app/src/main/AndroidManifest.xml.
+
+  1) Permissions and <queries> go as direct children of <manifest>.
+  2) Keep android:usesCleartextTraffic="false" on <application>.
+  3) targetSdkVersion must be 35+ in android/variables.gradle before Play accepts
+     the bundle.
+-->
+
+<!-- direct children of <manifest> -->
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<!-- Push notifications (Android 13+ runtime prompt) -->
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+<!-- Portfolio uploads: scoped media access, no legacy READ_EXTERNAL_STORAGE -->
+<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+<uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+<uses-permission
+    android:name="android.permission.READ_EXTERNAL_STORAGE"
+    android:maxSdkVersion="32" />
+<!-- Optional: camera capture from the file picker -->
+<uses-permission android:name="android.permission.CAMERA" />
+<uses-feature android:name="android.hardware.camera" android:required="false" />
+
+<!--
+  Do NOT declare QUERY_ALL_PACKAGES (Play sensitive-permission rejection).
+  Declare only the intents the app actually resolves.
+-->
+<queries>
+  <intent>
+    <action android:name="android.intent.action.VIEW" />
+    <data android:scheme="https" />
+  </intent>
+  <intent>
+    <action android:name="android.intent.action.SEND" />
+    <data android:mimeType="text/plain" />
+  </intent>
+  <intent>
+    <action android:name="android.intent.action.DIAL" />
+    <data android:scheme="tel" />
+  </intent>
+  <intent>
+    <action android:name="android.intent.action.SENDTO" />
+    <data android:scheme="mailto" />
+  </intent>
+</queries>
+
+<!--
+  Inside <application>: deep links so ashglogroup.company URLs (payment returns,
+  storefront shares, OAuth callbacks) reopen the app instead of the browser.
+  Add to the MainActivity <activity> block.
+-->
+<intent-filter android:autoVerify="true">
+  <action android:name="android.intent.action.VIEW" />
+  <category android:name="android.intent.category.DEFAULT" />
+  <category android:name="android.intent.category.BROWSABLE" />
+  <data android:scheme="https" android:host="ashglogroup.company" />
+  <data android:scheme="https" android:host="www.ashglogroup.company" />
+</intent-filter>
