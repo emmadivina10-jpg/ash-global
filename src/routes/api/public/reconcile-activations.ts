@@ -3,62 +3,90 @@ import { createFileRoute } from "@tanstack/react-router";
 /**
  * Reconciliation endpoint (safe to call publicly and from a scheduler).
  *
- * It never trusts the caller: for each activation still awaiting payment it asks
- * TchokoPay for the authoritative status and only completes the ones the provider
- * itself reports as PAID. Completion runs through complete_activation(), which is
- * idempotent, so replays cannot double-credit anything.
+ * It never trusts the caller: for every payment still awaiting an outcome it asks
+ * TchokoPay for the authoritative status of that collection and only settles what
+ * the provider itself reports. Settlement runs through idempotent database
+ * functions, so replays cannot double-credit anything.
  */
 async function reconcile(limit: number) {
   const { tchokoPay } = await import("@/lib/tchokopay.server");
   if (!tchokoPay.isConfigured()) {
-    return { ok: false as const, error: "PAYMENT_PROVIDER_NOT_CONFIGURED", checked: 0, activated: 0 };
+    return { ok: false as const, error: "PAYMENT_PROVIDER_NOT_CONFIGURED", checked: 0, settled: 0 };
   }
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data: pending } = await supabaseAdmin
-    .from("activations")
-    .select("payment_reference, status")
-    .in("status", ["PENDING", "PROCESSING"])
-    .order("created_at", { ascending: false })
-    .limit(limit);
+  const { settleCollection } = await import("@/lib/payment-settlement.server");
 
-  let activated = 0;
+  const [activations, bookings, links] = await Promise.all([
+    supabaseAdmin
+      .from("activations")
+      .select("payment_reference, provider_transaction_id")
+      .in("status", ["PENDING", "PROCESSING"])
+      .order("created_at", { ascending: false })
+      .limit(limit),
+    supabaseAdmin
+      .from("bookings")
+      .select("payment_reference, provider_transaction_id")
+      .eq("status", "PAYMENT_PROCESSING")
+      .eq("payment_provider", "TCHOKOPAY")
+      .order("created_at", { ascending: false })
+      .limit(limit),
+    supabaseAdmin
+      .from("payment_link_charges")
+      .select("reference, provider_transaction_id")
+      .in("status", ["PENDING", "PROCESSING"])
+      .order("created_at", { ascending: false })
+      .limit(limit),
+  ]);
+
+  const pending: { merchantReference: string; providerReference: string | null }[] = [
+    ...(activations.data ?? []).map((r) => ({
+      merchantReference: r.payment_reference,
+      providerReference: r.provider_transaction_id,
+    })),
+    ...(bookings.data ?? [])
+      .filter((r) => Boolean(r.payment_reference))
+      .map((r) => ({
+        merchantReference: r.payment_reference as string,
+        providerReference: r.provider_transaction_id,
+      })),
+    ...(links.data ?? []).map((r) => ({
+      merchantReference: r.reference,
+      providerReference: r.provider_transaction_id,
+    })),
+  ];
+
+  let settled = 0;
   const results: { reference: string; status: string }[] = [];
 
-  for (const row of pending ?? []) {
-    const verification = await tchokoPay.verifyPayment(row.payment_reference);
-    if (!verification.ok) {
-      results.push({ reference: row.payment_reference, status: `UNVERIFIED:${verification.error ?? ""}` });
+  for (const row of pending) {
+    const providerRef = row.providerReference ?? "";
+    const collection = providerRef.startsWith("REQ-")
+      ? await tchokoPay.getCollection(providerRef)
+      : await tchokoPay.verifyLegacyPayment(row.merchantReference);
+
+    if (!collection.ok) {
+      results.push({ reference: row.merchantReference, status: `UNVERIFIED:${collection.error ?? ""}` });
       continue;
     }
 
-    if (verification.status === "PAID") {
-      const { error } = await supabaseAdmin.rpc("complete_activation", {
-        _payment_reference: row.payment_reference,
-        _provider_transaction_id: (verification.providerTransactionId ?? null) as unknown as string,
-      });
-      if (!error) activated += 1;
-      results.push({ reference: row.payment_reference, status: error ? "COMPLETE_FAILED" : "PAID" });
-      continue;
-    }
-
-    if (verification.status === "FAILED" || verification.status === "CANCELLED") {
-      await supabaseAdmin
-        .from("activations")
-        .update({ status: verification.status, updated_at: new Date().toISOString() })
-        .eq("payment_reference", row.payment_reference)
-        .neq("status", "PAID");
-    }
-    results.push({ reference: row.payment_reference, status: verification.status });
+    const outcome = await settleCollection({
+      merchantReference: row.merchantReference,
+      providerReference: collection.providerReference ?? row.providerReference,
+      status: collection.status,
+      source: "RECONCILE",
+    });
+    if (collection.status === "PAID" && outcome.ok) settled += 1;
+    results.push({ reference: row.merchantReference, status: outcome.outcome });
   }
 
   await supabaseAdmin.from("payment_events").insert({
     source: "RECONCILE",
     outcome: "RECONCILED",
-    detail: { checked: pending?.length ?? 0, activated },
+    detail: { checked: pending.length, settled },
   });
 
-  return { ok: true as const, checked: pending?.length ?? 0, activated, results };
+  return { ok: true as const, checked: pending.length, settled, results };
 }
 
 export const Route = createFileRoute("/api/public/reconcile-activations")({
