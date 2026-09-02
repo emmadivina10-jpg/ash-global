@@ -181,19 +181,13 @@ function ProviderPage() {
             ) : null}
 
             <div className="mt-4 flex flex-wrap gap-2">
-              {!isOwner && activeServices.length === 0 ? (
-                <Button onClick={() => void chat()}>
-                  <MessageCircle className="size-4" aria-hidden />
-                  {fr ? "Demander un devis" : "Request a quote"}
-                </Button>
-              ) : (
-                <Button
-                  disabled={Boolean(blockedReason)}
-                  onClick={() => setBooking(activeServices[0] ?? null)}
-                >
-                  {fr ? "Réserver un service" : "Book service"}
-                </Button>
-              )}
+              <Button
+                disabled={Boolean(blockedReason)}
+                onClick={() => setBooking(activeServices[0] ?? customService(fr))}
+              >
+                {fr ? "Réserver un service" : "Book service"}
+              </Button>
+
               <Button variant="outline" onClick={() => void chat()} disabled={isOwner}>
                 <MessageCircle className="size-4" aria-hidden />
                 {t("svc.chat")}
