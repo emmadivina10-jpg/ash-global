@@ -88,7 +88,7 @@ function BookingsPage() {
   const fr = lang === "fr";
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { mobileMoneyEnabled } = useRegion();
+  const { mobileMoneyEnabled, country } = useRegion();
   const { data: mine, isLoading } = useMyBookings();
   const { data: studio } = useMyProviderProfile();
   const { data: received } = useProviderBookings(studio?.id);
@@ -97,6 +97,7 @@ function BookingsPage() {
   const startPayment = useServerFn(startBookingPayment);
   const syncPayment = useServerFn(syncBookingPayment);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [momoBooking, setMomoBooking] = useState<{ id: string; price: number } | null>(null);
   const [tab, setTab] = useState<"client" | "provider">("client");
 
   const clientBookings = (mine ?? []) as Array<Record<string, unknown> & { id: string }>;
@@ -111,10 +112,12 @@ function BookingsPage() {
     void queryClient.invalidateQueries({ queryKey: ["bookings"] });
   }
 
-  async function pay(bookingId: string, method: "MOMO" | "CARD") {
+  async function pay(bookingId: string, method: "MOMO" | "CARD", momo?: { provider: string; phone: string }) {
     setBusyId(bookingId);
     try {
-      const result = await startPayment({ data: { bookingId, method } });
+      const result = await startPayment({
+        data: { bookingId, method, provider: momo?.provider ?? "", phone: momo?.phone ?? "", country },
+      });
       if (!result.ok) {
         const code = result.error ?? "";
         const message =
@@ -130,14 +133,20 @@ function BookingsPage() {
                 ? fr
                   ? "Ce moyen de paiement n'est pas encore disponible. Essayez l'autre option."
                   : "This payment method isn't available yet. Try the other option."
-                : code ||
-                  (fr ? "Impossible de démarrer le paiement." : "Could not start the payment.");
+                : paymentErrorMessage(code, fr, "message" in result ? result.message : null);
         toast.error(message);
         refresh();
         return;
       }
-      if (result.checkoutUrl) window.location.href = result.checkoutUrl;
-      else toast.message(fr ? "Suivez les instructions sur votre téléphone." : "Follow the prompt on your phone.");
+      if ("checkoutUrl" in result && result.checkoutUrl) {
+        window.location.href = result.checkoutUrl;
+        return;
+      }
+      setMomoBooking(null);
+      refresh();
+      toast.message(
+        fr ? "Validez la demande sur votre téléphone." : "Approve the payment prompt on your phone.",
+      );
     } catch (err) {
       toast.error(
         err instanceof Error && err.message
