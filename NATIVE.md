@@ -64,18 +64,37 @@ npx capacitor-assets generate --iconBackgroundColor '#080812' --splashBackground
 
 ## Store submission checklist
 
-- **Apple**: paid Apple Developer account, App Store Connect listing, privacy
-  policy URL, sign-in options (Apple sign-in is already supported, which Apple
-  requires when Google sign-in is offered), and a screen-recorded demo of a real
-  booking if requested. Apple reviews web-container apps against Guideline 4.2 —
-  the native splash, status bar handling, in-app browser for external links and
-  push-ready structure are what make the build acceptable, so keep them.
-- **Google Play**: Play Console account, signed AAB from Android Studio
-  (`Build > Generate Signed Bundle`), data-safety form, and a privacy policy URL.
-- Both stores require your payment flows to comply with their rules. ASH Glo
-  sells real-world services (bookings, mobile money, provider payouts), which is
-  exempt from in-app-purchase requirements — keep it that way; do not sell
-  digital-only unlocks through the app without adding IAP.
+Full listing copy, review notes and privacy answers live in
+[STORE-SUBMISSION.md](./STORE-SUBMISSION.md). Before you submit:
+
+1. **Legal URLs** — privacy https://ashglogroup.company/privacy, terms
+   https://ashglogroup.company/terms, account deletion
+   https://ashglogroup.company/account-deletion, support
+   https://ashglogroup.company/support. All four are live public routes.
+2. **iOS purpose strings** — paste `native/ios-info-plist-additions.xml` into
+   `ios/App/App/Info.plist`. Without them iOS terminates the app when a user taps
+   a portfolio upload field (automatic rejection, Guideline 5.1.1).
+3. **Android manifest** — merge `native/android-manifest-additions.xml` into
+   `android/app/src/main/AndroidManifest.xml`. Never add `QUERY_ALL_PACKAGES`.
+4. **Target SDK 35+**, 64-bit AAB, and Play App Signing enabled.
+5. **User-generated content controls** (Apple 1.2 / Play UGC policy) are shipped:
+   zero-tolerance clause in `/terms` §3, in-app report flag on provider profiles,
+   reviews and chat, user blocking, and the `/console/reports` moderation queue
+   with a 24-hour SLA. Do not remove them.
+6. **Account deletion in-app** — More → Settings → Delete account (Apple 5.1.1(v)).
+7. **Sign in with Apple** ships alongside Google sign-in (Apple 4.8).
+8. **Payments** — ASH Glo sells real-world services, so mobile money and cards are
+   allowed and in-app purchase is not required. Never add digital-only unlocks
+   without adding IAP first.
+9. **Demo account** — create a pre-activated reviewer account with a published
+   storefront and put the credentials in the App Store Connect review notes and
+   the Play Console testing instructions.
+10. **Push notifications** — booking, payment and payout events only; the Android
+    13 runtime prompt is requested at the point of use.
+
+Apple reviews web-container apps against Guideline 4.2, so keep the native
+splash, status bar handling, hardware back button, in-app browser, native share
+and push notifications that make this build more than a wrapper.
 
 ## What's wired in the codebase
 

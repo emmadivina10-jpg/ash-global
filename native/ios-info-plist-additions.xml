@@ -1,0 +1,34 @@
+<!--
+  Paste these keys into ios/App/App/Info.plist (inside the top-level <dict>).
+  Without the usage descriptions iOS kills the app the moment a user taps a file
+  input to upload a portfolio photo or video — an automatic App Review rejection
+  under Guideline 5.1.1.
+-->
+<key>NSCameraUsageDescription</key>
+<string>ASH Glo uses the camera so you can photograph or film your work for your storefront portfolio.</string>
+
+<key>NSPhotoLibraryUsageDescription</key>
+<string>ASH Glo needs access to your photos so you can upload portfolio images and a profile picture.</string>
+
+<key>NSPhotoLibraryAddUsageDescription</key>
+<string>ASH Glo saves receipts and shared images to your photo library when you ask it to.</string>
+
+<key>NSMicrophoneUsageDescription</key>
+<string>ASH Glo uses the microphone when you record a video of your service for your portfolio.</string>
+
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>ASH Glo uses your location to show verified providers near you. You can also type your city instead.</string>
+
+<key>NSFaceIDUsageDescription</key>
+<string>ASH Glo can use Face ID to unlock your wallet and payout details.</string>
+
+<key>ITSAppUsesNonExemptEncryption</key>
+<false/>
+
+<key>UIBackgroundModes</key>
+<array>
+  <string>remote-notification</string>
+</array>
+
+<key>CFBundleDisplayName</key>
+<string>ASH Glo</string>

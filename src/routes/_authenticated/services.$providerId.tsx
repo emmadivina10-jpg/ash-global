@@ -16,6 +16,7 @@ import { SectionCard } from "@/components/refer/cards";
 import { RatingStars } from "@/components/refer/RatingStars";
 import { MediaLightbox, isVideoSource, type LightboxMedia } from "@/components/refer/MediaLightbox";
 import { ReviewComposer } from "@/components/refer/ReviewComposer";
+import { ReportDialog } from "@/components/refer/ReportDialog";
 import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -210,6 +211,16 @@ function ProviderPage() {
                 <MessageCircle className="size-4" aria-hidden />
                 {t("svc.chat")}
               </Button>
+
+              {isOwner ? null : (
+                <ReportDialog
+                  targetType="PROVIDER"
+                  targetId={provider.id}
+                  targetUserId={provider.user_id}
+                  targetLabel={provider.business_name}
+                  variant="outline"
+                />
+              )}
             </div>
 
           </div>
@@ -342,7 +353,10 @@ function ProviderPage() {
                     </span>
                   </div>
                   {review.comment ? <p className="mt-1 text-sm text-foreground/90">{review.comment}</p> : null}
-                  <p className="mt-1 text-[11px] text-muted-foreground">{formatDateTime(review.created_at)}</p>
+                  <div className="mt-1 flex items-center justify-between gap-2">
+                    <p className="text-[11px] text-muted-foreground">{formatDateTime(review.created_at)}</p>
+                    <ReportDialog targetType="REVIEW" targetId={review.id} allowBlock={false} compact />
+                  </div>
                 </li>
               );
             })}

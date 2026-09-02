@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMessages } from "@/lib/marketplace.queries";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { ReportDialog } from "@/components/refer/ReportDialog";
 import { useI18n } from "@/lib/i18n";
 import { formatXAF } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -43,12 +44,14 @@ export function ChatThread({
   className,
   quickReplies = [],
   peerName,
+  peerUserId,
 }: {
   conversationId: string;
   currentUserId: string | undefined;
   className?: string;
   quickReplies?: string[];
   peerName?: string;
+  peerUserId?: string | null;
 }) {
   const { t, lang } = useI18n();
   const fr = lang === "fr";
@@ -114,6 +117,15 @@ export function ChatThread({
 
   return (
     <div className={cn("flex min-h-0 flex-col", className)}>
+      <div className="flex items-center justify-end px-1">
+        <ReportDialog
+          targetType="MESSAGE"
+          targetId={conversationId}
+          targetUserId={peerUserId ?? null}
+          targetLabel={peerName}
+          compact
+        />
+      </div>
       <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-1 py-2">
         {isLoading ? (
           <div className="space-y-3 py-4">
