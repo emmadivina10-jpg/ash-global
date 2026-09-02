@@ -3,19 +3,21 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type ActivationState = {
   accountStatus: string;
+  /** Our merchant reference (ACT-…). */
   reference: string | null;
+  /** TchokoPay's REQ- reference for the collection in flight. */
+  providerReference: string | null;
   status: string | null;
-  checkoutUrl: string | null;
   configured: boolean;
 };
 
 /**
  * Server-side source of truth for "did my activation payment land?".
  *
- * The browser never decides this: we look up the user's most recent activation
- * record, ask TchokoPay for the authoritative status, and complete the activation
- * through the idempotent complete_activation() database function when — and only
- * when — the provider reports PAID.
+ * The browser never decides this: we look up the user's most recent activation,
+ * ask TchokoPay for the authoritative status of that collection, and complete the
+ * activation through the idempotent complete_activation() function when — and only
+ * when — the provider reports the money cleared.
  */
 export const syncMyActivation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -33,7 +35,7 @@ export const syncMyActivation = createServerFn({ method: "POST" })
 
     const { data: activation } = await supabase
       .from("activations")
-      .select("payment_reference, status")
+      .select("payment_reference, provider_transaction_id, status")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(1)
@@ -43,62 +45,51 @@ export const syncMyActivation = createServerFn({ method: "POST" })
       return {
         accountStatus,
         reference: null,
+        providerReference: null,
         status: null,
-        checkoutUrl: null,
         configured: tchokoPay.isConfigured(),
       };
     }
+
+    const providerRef = activation.provider_transaction_id ?? null;
 
     if (activation.status === "PAID" || accountStatus === "ACTIVE") {
       return {
         accountStatus,
         reference: activation.payment_reference,
+        providerReference: providerRef,
         status: activation.status,
-        checkoutUrl: null,
         configured: true,
       };
     }
 
-    const verification = await tchokoPay.verifyPayment(activation.payment_reference);
+    const verification = providerRef?.startsWith("REQ-")
+      ? await tchokoPay.getCollection(providerRef)
+      : await tchokoPay.verifyLegacyPayment(activation.payment_reference);
+
     if (!verification.ok) {
       return {
         accountStatus,
         reference: activation.payment_reference,
+        providerReference: providerRef,
         status: activation.status,
-        checkoutUrl: null,
         configured: verification.configured,
       };
     }
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-    if (verification.status === "PAID") {
-      const { error } = await supabaseAdmin.rpc("complete_activation", {
-        _payment_reference: activation.payment_reference,
-        _provider_transaction_id: (verification.providerTransactionId ?? null) as unknown as string,
-      });
-      return {
-        accountStatus: error ? accountStatus : "ACTIVE",
-        reference: activation.payment_reference,
-        status: error ? activation.status : "PAID",
-        checkoutUrl: null,
-        configured: true,
-      };
-    }
-
-    if (verification.status === "FAILED" || verification.status === "CANCELLED") {
-      await supabaseAdmin
-        .from("activations")
-        .update({ status: verification.status, updated_at: new Date().toISOString() })
-        .eq("payment_reference", activation.payment_reference)
-        .neq("status", "PAID");
-    }
+    const { settleCollection } = await import("./payment-settlement.server");
+    const settled = await settleCollection({
+      merchantReference: activation.payment_reference,
+      providerReference: verification.providerReference ?? providerRef,
+      status: verification.status,
+      source: "ACTIVATION_SYNC",
+    });
 
     return {
-      accountStatus,
+      accountStatus: verification.status === "PAID" && settled.ok ? "ACTIVE" : accountStatus,
       reference: activation.payment_reference,
+      providerReference: verification.providerReference ?? providerRef,
       status: verification.status,
-      checkoutUrl: verification.checkoutUrl ?? null,
       configured: true,
     };
   });

@@ -2,11 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { AlertCircle, CheckCircle2, Loader2, ShieldCheck } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader2, ShieldCheck, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 import { useProfile } from "@/lib/queries";
+import { useRegion } from "@/lib/region-context";
 import { startActivation } from "@/lib/payments.functions";
 import { syncMyActivation } from "@/lib/activation.functions";
+import { paymentErrorMessage } from "@/lib/payment-errors";
+import { MomoCharge } from "@/components/refer/MomoCharge";
 import { SectionCard } from "@/components/refer/cards";
 import { Button } from "@/components/ui/button";
 import { formatXAF, ACTIVATION_FEE, COMMISSIONS } from "@/lib/format";
@@ -21,11 +24,13 @@ export const Route = createFileRoute("/_authenticated/activate")({
   component: ActivatePage,
 });
 
-type Phase = "idle" | "creating" | "awaiting" | "verifying" | "active" | "error";
+type Phase = "idle" | "charging" | "awaiting" | "verifying" | "active" | "error";
 
 function ActivatePage() {
   const queryClient = useQueryClient();
   const { data: profile } = useProfile();
+  const { country } = useRegion();
+  const charge = useServerFn(startActivation);
   const sync = useServerFn(syncMyActivation);
   const [phase, setPhase] = useState<Phase>("idle");
   const [reference, setReference] = useState<string | null>(null);
@@ -33,9 +38,10 @@ function ActivatePage() {
   const celebrated = useRef(false);
 
   const alreadyActive = profile?.account_status === "ACTIVE";
+  const awaiting = phase === "awaiting" || phase === "verifying";
 
-  // The server is the source of truth: on load (and while a payment is in
-  // flight) we ask it to re-check the provider and activate when it confirms.
+  // The server is the source of truth: while a prompt is in flight we ask it to
+  // re-read the collection from TchokoPay and activate only when it confirms.
   useEffect(() => {
     if (alreadyActive) return;
     let cancelled = false;
@@ -51,21 +57,26 @@ function ActivatePage() {
           toast.success("Payment confirmed. Your account is now active.");
         }
         await queryClient.invalidateQueries();
+        return;
+      }
+      if (state.status === "FAILED" || state.status === "CANCELLED") {
+        setPhase("error");
+        setMessage("The payment did not go through. You can send a new prompt below.");
       }
     }
 
     void check();
-    const id = setInterval(() => void check(), 15000);
+    const id = setInterval(() => void check(), awaiting ? 5000 : 15000);
     return () => {
       cancelled = true;
       clearInterval(id);
     };
-  }, [alreadyActive, sync, queryClient]);
+  }, [alreadyActive, sync, queryClient, awaiting]);
 
-  async function pay() {
-    setPhase("creating");
+  async function pay(provider: string, phone: string) {
+    setPhase("charging");
     setMessage(null);
-    const result = await startActivation({ data: undefined });
+    const result = await charge({ data: { provider, phone, country } });
 
     if (!result.ok) {
       setPhase("error");
@@ -73,31 +84,13 @@ function ActivatePage() {
         setMessage("Your account is already active.");
         return;
       }
-      if (result.error === "PAYMENT_PROVIDER_NOT_CONFIGURED") {
-        setMessage(
-          "Payments are not connected yet. TchokoPay credentials must be added before activation payments can be created. No payment has been taken.",
-        );
-        return;
-      }
-      if (result.error === "Invalid or revoked API key" || result.error === "PROVIDER_HTTP_401") {
-        setMessage(
-          "The payment provider rejected our credentials. The TchokoPay API key needs to be updated. No payment has been taken.",
-        );
-        return;
-      }
-      setMessage(
-        result.error
-          ? `We could not start the payment: ${result.error}`
-          : "We could not start the payment. Please try again in a moment.",
-      );
+      setMessage(paymentErrorMessage(result.error, false, result.message));
       return;
     }
 
     setReference(result.reference);
     setPhase("awaiting");
-    if (result.checkoutUrl) {
-      window.location.href = result.checkoutUrl;
-    }
+    toast.message("Check your phone and approve the payment prompt.");
   }
 
   async function verify() {
@@ -115,8 +108,8 @@ function ActivatePage() {
     setPhase("error");
     setMessage(
       state.status === "FAILED" || state.status === "CANCELLED"
-        ? "The payment provider reports this payment as unsuccessful. Please start a new payment."
-        : "We have not received a confirmed payment for this reference yet. If you just paid, wait a moment and check again.",
+        ? "The payment provider reports this payment as unsuccessful. Please send a new prompt."
+        : "The payment hasn't cleared yet. If you just approved it, give it a few seconds.",
     );
   }
 
@@ -152,7 +145,7 @@ function ActivatePage() {
         <p className="text-sm opacity-85">One-time activation fee</p>
         <p className="tabular mt-1 text-5xl font-bold">{formatXAF(ACTIVATION_FEE)}</p>
         <p className="mt-4 text-sm opacity-85">
-          Paid securely through TchokoPay. Your account activates only after the payment is verified.
+          Paid with Mobile Money through TchokoPay. Your account activates only after the payment clears.
         </p>
       </div>
 
@@ -179,32 +172,38 @@ function ActivatePage() {
         </div>
       ) : null}
 
-      <div className="space-y-3">
-        <Button className="h-12 w-full" onClick={pay} disabled={phase === "creating" || phase === "verifying"}>
-          {phase === "creating" ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-          {phase === "creating" ? "Payment processing…" : `Pay ${formatXAF(ACTIVATION_FEE)}`}
-        </Button>
+      <SectionCard title="Pay with Mobile Money">
+        <MomoCharge
+          country={country}
+          busy={phase === "charging"}
+          submitLabel={phase === "charging" ? "Sending prompt…" : `Pay ${formatXAF(ACTIVATION_FEE)}`}
+          onCharge={pay}
+        />
+      </SectionCard>
 
-        {reference ? (
-          <div className="surface-card p-4">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Payment reference</p>
-            <p className="tabular mt-1 font-semibold text-foreground">{reference}</p>
-            <p className="mt-2 text-xs text-muted-foreground">
-              We re-check this payment with the provider automatically every 15 seconds.
-            </p>
-            <Button variant="outline" className="mt-3 w-full" onClick={verify} disabled={phase === "verifying"}>
-              {phase === "verifying" ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-              {phase === "verifying" ? "Verifying payment…" : "I have paid — check payment now"}
-            </Button>
-          </div>
-        ) : null}
+      {reference ? (
+        <div className="surface-card p-4">
+          <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
+            <Smartphone className="size-4 text-primary" aria-hidden />
+            Approve the prompt on your phone
+          </p>
+          <p className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">Payment reference</p>
+          <p className="tabular mt-1 font-semibold text-foreground">{reference}</p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            We re-check this payment with TchokoPay automatically every few seconds.
+          </p>
+          <Button variant="outline" className="mt-3 w-full" onClick={verify} disabled={phase === "verifying"}>
+            {phase === "verifying" ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+            {phase === "verifying" ? "Checking payment…" : "I have approved — check now"}
+          </Button>
+        </div>
+      ) : null}
 
-        <p className="flex items-start gap-2 text-xs text-muted-foreground">
-          <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
-          Activation is granted by our servers only after the payment provider confirms the payment. Clicking
-          pay never activates an account on its own.
-        </p>
-      </div>
+      <p className="flex items-start gap-2 text-xs text-muted-foreground">
+        <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
+        Activation is granted by our servers only after TchokoPay confirms the money cleared. Sending a prompt
+        never activates an account on its own.
+      </p>
     </div>
   );
 }

@@ -415,13 +415,49 @@ export const verifyPaymentReference = createServerFn({ method: "POST" })
     const { requireConsole, adminClient } = await import("./console.server");
     await requireConsole();
     const { tchokoPay } = await import("./tchokopay.server");
+    const { findMerchantReference, settleCollection } = await import("./payment-settlement.server");
     const db = await adminClient();
 
-    const verification = await tchokoPay.verifyPayment(data.reference);
+    // The console accepts either reference: ours (ACT-/BKG-/PLK-) or TchokoPay's REQ-.
+    const isProviderRef = data.reference.startsWith("REQ-");
+    const merchantReference = isProviderRef ? await findMerchantReference(data.reference) : data.reference;
+    let providerReference: string | null = isProviderRef ? data.reference : null;
+
+    if (!isProviderRef) {
+      const { data: activation } = await db
+        .from("activations")
+        .select("provider_transaction_id")
+        .eq("payment_reference", data.reference)
+        .maybeSingle();
+      providerReference = activation?.provider_transaction_id ?? null;
+      if (!providerReference) {
+        const { data: booking } = await db
+          .from("bookings")
+          .select("provider_transaction_id")
+          .eq("payment_reference", data.reference)
+          .maybeSingle();
+        providerReference = booking?.provider_transaction_id ?? null;
+      }
+      if (!providerReference) {
+        const { data: charge } = await db
+          .from("payment_link_charges")
+          .select("provider_transaction_id")
+          .eq("reference", data.reference)
+          .maybeSingle();
+        providerReference = charge?.provider_transaction_id ?? null;
+      }
+    }
+
+    if (!merchantReference) return { ok: false as const, error: "UNKNOWN_REFERENCE" };
+
+    const verification = providerReference?.startsWith("REQ-")
+      ? await tchokoPay.getCollection(providerReference)
+      : await tchokoPay.verifyLegacyPayment(merchantReference);
+
     if (!verification.ok) {
       await db.from("payment_events").insert({
         source: "CONSOLE_VERIFY",
-        reference: data.reference,
+        reference: merchantReference,
         status: verification.status ?? null,
         outcome: "VERIFY_FAILED",
         detail: { error: verification.error ?? null },
@@ -429,30 +465,14 @@ export const verifyPaymentReference = createServerFn({ method: "POST" })
       return { ok: false as const, error: verification.error ?? "VERIFY_FAILED" };
     }
 
-    let outcome = verification.status as string;
-    if (verification.status === "PAID") {
-      const { error } = await db.rpc("complete_activation", {
-        _payment_reference: data.reference,
-        _provider_transaction_id: (verification.providerTransactionId ?? null) as unknown as string,
-      });
-      if (error) outcome = "COMPLETE_FAILED";
-    } else if (verification.status === "FAILED" || verification.status === "CANCELLED") {
-      await db
-        .from("activations")
-        .update({ status: verification.status, updated_at: new Date().toISOString() })
-        .eq("payment_reference", data.reference)
-        .neq("status", "PAID");
-    }
-
-    await db.from("payment_events").insert({
-      source: "CONSOLE_VERIFY",
-      reference: data.reference,
+    const settled = await settleCollection({
+      merchantReference,
+      providerReference: verification.providerReference ?? providerReference,
       status: verification.status,
-      outcome,
-      detail: { provider_transaction_id: verification.providerTransactionId ?? null },
+      source: "CONSOLE_VERIFY",
     });
 
-    return { ok: outcome !== "COMPLETE_FAILED", status: verification.status, outcome };
+    return { ok: settled.ok, status: verification.status, outcome: settled.outcome };
   });
 
 /** Runs provider-authoritative reconciliation over every activation still awaiting payment. */
@@ -466,28 +486,26 @@ export const reconcilePayments = createServerFn({ method: "POST" }).handler(asyn
 
   const { data: pending } = await db
     .from("activations")
-    .select("payment_reference")
+    .select("payment_reference, provider_transaction_id")
     .in("status", ["PENDING", "PROCESSING"])
     .order("created_at", { ascending: false })
     .limit(100);
 
+  const { settleCollection } = await import("./payment-settlement.server");
   let activated = 0;
   for (const row of pending ?? []) {
-    const verification = await tchokoPay.verifyPayment(row.payment_reference);
+    const providerRef = row.provider_transaction_id ?? "";
+    const verification = providerRef.startsWith("REQ-")
+      ? await tchokoPay.getCollection(providerRef)
+      : await tchokoPay.verifyLegacyPayment(row.payment_reference);
     if (!verification.ok) continue;
-    if (verification.status === "PAID") {
-      const { error } = await db.rpc("complete_activation", {
-        _payment_reference: row.payment_reference,
-        _provider_transaction_id: (verification.providerTransactionId ?? null) as unknown as string,
-      });
-      if (!error) activated += 1;
-    } else if (verification.status === "FAILED" || verification.status === "CANCELLED") {
-      await db
-        .from("activations")
-        .update({ status: verification.status, updated_at: new Date().toISOString() })
-        .eq("payment_reference", row.payment_reference)
-        .neq("status", "PAID");
-    }
+    const settled = await settleCollection({
+      merchantReference: row.payment_reference,
+      providerReference: verification.providerReference ?? row.provider_transaction_id,
+      status: verification.status,
+      source: "CONSOLE_RECONCILE",
+    });
+    if (verification.status === "PAID" && settled.ok) activated += 1;
   }
 
   await db.from("payment_events").insert({

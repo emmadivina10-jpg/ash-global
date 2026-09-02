@@ -188,18 +188,22 @@ function makeReference(): string {
   return `PLK-${crypto.randomUUID().replace(/-/g, "").slice(0, 16).toUpperCase()}`;
 }
 
-/** Starts a TchokoPay checkout for a payment link. Anyone with the link can pay. */
+/** Sends a mobile money prompt for a payment link. Anyone with the link can pay. */
 export const startLinkPayment = createServerFn({ method: "POST" })
-  .inputValidator((input: { code: string; name: string; phone: string }) => ({
+  .inputValidator((input: { code: string; name: string; phone: string; provider?: string; country?: string }) => ({
     code: String(input?.code ?? "").slice(0, 40),
     name: String(input?.name ?? "").trim().slice(0, 80),
     phone: String(input?.phone ?? "").trim().slice(0, 20),
+    provider: String(input?.provider ?? "").trim().slice(0, 40),
+    country: String(input?.country ?? "CM").toUpperCase().slice(0, 2) || "CM",
   }))
   .handler(async ({ data }) => {
-    if (!data.code || !data.name || !data.phone) return { ok: false as const, error: "INVALID_INPUT" };
+    if (!data.code || !data.name || !data.phone || !data.provider) {
+      return { ok: false as const, error: "INVALID_INPUT", message: null, reference: null, status: "FAILED" };
+    }
     // Money path: much tighter budget than a read.
     if (await throttled("payment_link_start", "/pay/:code#start", 5, { code: data.code })) {
-      return { ok: false as const, error: "TOO_MANY_REQUESTS" };
+      return { ok: false as const, error: "TOO_MANY_REQUESTS", message: null, reference: null, status: "FAILED" };
     }
 
     const supabase = publicClient();
@@ -208,7 +212,9 @@ export const startLinkPayment = createServerFn({ method: "POST" })
       .select("id, code, title, amount, currency, is_active")
       .eq("code", data.code)
       .maybeSingle();
-    if (!link || !link.is_active) return { ok: false as const, error: "LINK_UNAVAILABLE" };
+    if (!link || !link.is_active) {
+      return { ok: false as const, error: "LINK_UNAVAILABLE", message: null, reference: null, status: "FAILED" };
+    }
 
     const reference = makeReference();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -219,26 +225,38 @@ export const startLinkPayment = createServerFn({ method: "POST" })
       payer_name: data.name,
       payer_phone: data.phone,
     });
-    if (chargeError) return { ok: false as const, error: "CHARGE_CREATE_FAILED" };
+    if (chargeError) {
+      return { ok: false as const, error: "CHARGE_CREATE_FAILED", message: null, reference: null, status: "FAILED" };
+    }
 
-    const appUrl = process.env["APP_URL"] ?? "https://ashglogroup.company";
     const { tchokoPay } = await import("./tchokopay.server");
-    const result = await tchokoPay.createPayment({
-      reference,
+    const result = await tchokoPay.createCharge({
+      merchantReference: reference,
       amount: link.amount,
       currency: link.currency || "XAF",
+      country: data.country,
+      provider: data.provider,
+      phone: data.phone,
       description: `ASH — ${link.title}`,
-      customer: { name: data.name, email: "", phone: data.phone },
-      callbackUrl: `${appUrl}/api/public/webhooks/tchokopay`,
-      returnUrl: `${appUrl}/pay/${link.code}?ref=${reference}`,
     });
 
     if (!result.ok) {
       await supabaseAdmin.rpc("fail_link_payment", { _payment_reference: reference, _status: "FAILED" });
-      return { ok: false as const, error: result.error ?? "PAYMENT_START_FAILED" };
+      return {
+        ok: false as const,
+        error: result.error ?? "PAYMENT_START_FAILED",
+        message: result.message ?? null,
+        reference,
+        status: "FAILED",
+      };
     }
 
-    return { ok: true as const, reference, checkoutUrl: result.checkoutUrl ?? null };
+    await supabaseAdmin
+      .from("payment_link_charges")
+      .update({ provider_transaction_id: result.providerReference ?? null })
+      .eq("reference", reference);
+
+    return { ok: true as const, error: null, message: null, reference, status: result.status };
   });
 
 /** Verifies a link payment against the provider API (source of truth). */
@@ -249,20 +267,30 @@ export const verifyLinkPayment = createServerFn({ method: "POST" })
     if (await throttled("payment_link_verify", "/pay/:code#verify", 30)) {
       return { ok: false as const, status: "UNVERIFIED" as const };
     }
-    const { tchokoPay } = await import("./tchokopay.server");
-    const verification = await tchokoPay.verifyPayment(data.reference);
-    if (!verification.ok) return { ok: false as const, status: "UNVERIFIED" as const };
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    if (verification.status === "PAID") {
-      await supabaseAdmin.rpc("complete_link_payment", {
-        _payment_reference: data.reference,
-        _provider_transaction_id: (verification.providerTransactionId ?? null) as unknown as string,
-      });
-      return { ok: true as const, status: "PAID" as const };
-    }
-    if (verification.status === "FAILED" || verification.status === "CANCELLED") {
-      await supabaseAdmin.rpc("fail_link_payment", { _payment_reference: data.reference, _status: verification.status });
-    }
+    const { data: charge } = await supabaseAdmin
+      .from("payment_link_charges")
+      .select("reference, provider_transaction_id, status")
+      .eq("reference", data.reference)
+      .maybeSingle();
+    if (!charge) return { ok: false as const, status: "NOT_FOUND" as const };
+    if (charge.status === "PAID") return { ok: true as const, status: "PAID" as const };
+
+    const { tchokoPay } = await import("./tchokopay.server");
+    const providerRef = charge.provider_transaction_id ?? "";
+    const verification = providerRef.startsWith("REQ-")
+      ? await tchokoPay.getCollection(providerRef)
+      : await tchokoPay.verifyLegacyPayment(data.reference);
+    if (!verification.ok) return { ok: false as const, status: "UNVERIFIED" as const };
+
+    const { settleCollection } = await import("./payment-settlement.server");
+    await settleCollection({
+      merchantReference: data.reference,
+      providerReference: verification.providerReference ?? providerRef ?? null,
+      status: verification.status,
+      source: "LINK_VERIFY",
+    });
+
     return { ok: true as const, status: verification.status };
   });
