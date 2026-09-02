@@ -716,7 +716,7 @@ const FR: Record<TKey, string> = {
   "ai.hint3": "Comment obtenir plus de réservations ?",
   "ai.err": "L'assistant est indisponible pour le moment.",
   "ai.busy": "Réflexion…",
-  "ai.open": "Ouvrir l'assistant ASH",
+  "ai.open": "Ouvrir ASH AI",
   "ai.close": "Fermer l'assistant",
   "pro.billing.title": "Comment vous payez la plateforme",
   "pro.createCopyFree": "Créer votre studio est gratuit. Ajoutez vos prestations et vos photos, vous passez en ligne immédiatement.",
