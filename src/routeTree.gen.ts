@@ -18,6 +18,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SupportRouteImport } from './routes/support'
 import { Route as AuthenticatedActivateRouteImport } from './routes/_authenticated/activate'
 import { Route as AuthenticatedAssistantRouteImport } from './routes/_authenticated/assistant'
 import { Route as AuthenticatedBookingsRouteImport } from './routes/_authenticated/bookings'
@@ -39,6 +40,7 @@ import { Route as ConsolePaymentsRouteImport } from './routes/console.payments'
 import { Route as ConsolePayoutRouteImport } from './routes/console.payout'
 import { Route as ConsoleProvidersRouteImport } from './routes/console.providers'
 import { Route as ConsoleSecurityRouteImport } from './routes/console.security'
+import { Route as ConsoleSupportRouteImport } from './routes/console.support'
 import { Route as ConsoleUsersRouteImport } from './routes/console.users'
 import { Route as ConsoleWithdrawalsRouteImport } from './routes/console.withdrawals'
 import { Route as PayCodeRouteImport } from './routes/pay.$code'
@@ -94,6 +96,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedActivateRoute = AuthenticatedActivateRouteImport.update({
@@ -202,6 +209,11 @@ const ConsoleSecurityRoute = ConsoleSecurityRouteImport.update({
   path: '/security',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const ConsoleSupportRoute = ConsoleSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => ConsoleRoute,
+} as any)
 const ConsoleUsersRoute = ConsoleUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -278,6 +290,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/support': typeof SupportRoute
   '/activate': typeof AuthenticatedActivateRoute
   '/assistant': typeof AuthenticatedAssistantRoute
   '/bookings': typeof AuthenticatedBookingsRoute
@@ -298,6 +311,7 @@ export interface FileRoutesByFullPath {
   '/console/payout': typeof ConsolePayoutRoute
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/security': typeof ConsoleSecurityRoute
+  '/console/support': typeof ConsoleSupportRoute
   '/console/users': typeof ConsoleUsersRoute
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
   '/pay/$code': typeof PayCodeRoute
@@ -320,6 +334,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/support': typeof SupportRoute
   '/activate': typeof AuthenticatedActivateRoute
   '/assistant': typeof AuthenticatedAssistantRoute
   '/bookings': typeof AuthenticatedBookingsRoute
@@ -340,6 +355,7 @@ export interface FileRoutesByTo {
   '/console/payout': typeof ConsolePayoutRoute
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/security': typeof ConsoleSecurityRoute
+  '/console/support': typeof ConsoleSupportRoute
   '/console/users': typeof ConsoleUsersRoute
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
   '/pay/$code': typeof PayCodeRoute
@@ -365,6 +381,7 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/support': typeof SupportRoute
   '/_authenticated/activate': typeof AuthenticatedActivateRoute
   '/_authenticated/assistant': typeof AuthenticatedAssistantRoute
   '/_authenticated/bookings': typeof AuthenticatedBookingsRoute
@@ -385,6 +402,7 @@ export interface FileRoutesById {
   '/console/payout': typeof ConsolePayoutRoute
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/security': typeof ConsoleSecurityRoute
+  '/console/support': typeof ConsoleSupportRoute
   '/console/users': typeof ConsoleUsersRoute
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
   '/pay/$code': typeof PayCodeRoute
@@ -410,6 +428,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/support'
     | '/activate'
     | '/assistant'
     | '/bookings'
@@ -430,6 +449,7 @@ export interface FileRouteTypes {
     | '/console/payout'
     | '/console/providers'
     | '/console/security'
+    | '/console/support'
     | '/console/users'
     | '/console/withdrawals'
     | '/pay/$code'
@@ -452,6 +472,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/support'
     | '/activate'
     | '/assistant'
     | '/bookings'
@@ -472,6 +493,7 @@ export interface FileRouteTypes {
     | '/console/payout'
     | '/console/providers'
     | '/console/security'
+    | '/console/support'
     | '/console/users'
     | '/console/withdrawals'
     | '/pay/$code'
@@ -496,6 +518,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/support'
     | '/_authenticated/activate'
     | '/_authenticated/assistant'
     | '/_authenticated/bookings'
@@ -516,6 +539,7 @@ export interface FileRouteTypes {
     | '/console/payout'
     | '/console/providers'
     | '/console/security'
+    | '/console/support'
     | '/console/users'
     | '/console/withdrawals'
     | '/pay/$code'
@@ -541,6 +565,7 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  SupportRoute: typeof SupportRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   PayCodeRoute: typeof PayCodeRoute
   SSlugRoute: typeof SSlugRoute
@@ -615,6 +640,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/activate': {
@@ -764,6 +796,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleSecurityRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/console/support': {
+      id: '/console/support'
+      path: '/support'
+      fullPath: '/console/support'
+      preLoaderRoute: typeof ConsoleSupportRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
     '/console/users': {
       id: '/console/users'
       path: '/users'
@@ -896,6 +935,7 @@ interface ConsoleRouteChildren {
   ConsolePayoutRoute: typeof ConsolePayoutRoute
   ConsoleProvidersRoute: typeof ConsoleProvidersRoute
   ConsoleSecurityRoute: typeof ConsoleSecurityRoute
+  ConsoleSupportRoute: typeof ConsoleSupportRoute
   ConsoleUsersRoute: typeof ConsoleUsersRoute
   ConsoleWithdrawalsRoute: typeof ConsoleWithdrawalsRoute
   ConsoleIndexRoute: typeof ConsoleIndexRoute
@@ -909,6 +949,7 @@ const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsolePayoutRoute: ConsolePayoutRoute,
   ConsoleProvidersRoute: ConsoleProvidersRoute,
   ConsoleSecurityRoute: ConsoleSecurityRoute,
+  ConsoleSupportRoute: ConsoleSupportRoute,
   ConsoleUsersRoute: ConsoleUsersRoute,
   ConsoleWithdrawalsRoute: ConsoleWithdrawalsRoute,
   ConsoleIndexRoute: ConsoleIndexRoute,
@@ -927,6 +968,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  SupportRoute: SupportRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   PayCodeRoute: PayCodeRoute,
   SSlugRoute: SSlugRoute,
