@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { AlertTriangle, ArrowRight, CalendarClock, Coins, PartyPopper, Star, Trash2, Wallet } from "lucide-react";
+import { AlertTriangle, ArrowRight, CalendarClock, Coins, PartyPopper, Star, Trash2, Wallet , Play } from "lucide-react";
+import { MediaLightbox, isVideoSource, type LightboxMedia } from "@/components/refer/MediaLightbox";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -48,6 +49,7 @@ function StudioPage() {
   const { data: studio, isLoading } = useMyProviderProfile();
   const { data: services } = useProviderServices(studio?.id, false);
   const { data: portfolio } = usePortfolio(studio?.id);
+  const [lightbox, setLightbox] = useState<LightboxMedia | null>(null);
   const { data: bookings } = useProviderBookings(studio?.id);
   const { data: wallet } = useWallet();
   const pendingPayments = (bookings ?? []).filter((b) =>
@@ -236,12 +238,14 @@ function StudioPage() {
     let uploaded = 0;
     try {
       for (const file of Array.from(files)) {
-        if (!file.type.startsWith("image/")) {
-          toast.error(`${file.name}: image only`);
+        const isVideo = file.type.startsWith("video/");
+        if (!file.type.startsWith("image/") && !isVideo) {
+          toast.error(`${file.name}: images or videos only`);
           continue;
         }
-        if (file.size > 5 * 1024 * 1024) {
-          toast.error(`${file.name}: max 5MB`);
+        const maxBytes = isVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
+        if (file.size > maxBytes) {
+          toast.error(`${file.name}: max ${isVideo ? "50MB" : "5MB"}`);
           continue;
         }
         const safeName = file.name.replace(/[^\w.-]/g, "_");
@@ -265,7 +269,7 @@ function StudioPage() {
         uploaded += 1;
       }
       if (uploaded > 0) {
-        toast.success(`${uploaded} ${uploaded === 1 ? "photo" : "photos"} uploaded`);
+        toast.success(`${uploaded} ${uploaded === 1 ? "file" : "files"} uploaded`);
         await queryClient.invalidateQueries({ queryKey: ["portfolio"] });
       }
     } catch (err) {
@@ -522,7 +526,7 @@ function StudioPage() {
             <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-border px-4 py-3 text-sm font-semibold text-muted-foreground hover:bg-muted">
               <input
                 type="file"
-                accept="image/*"
+                accept="image/*,video/*"
                 multiple
                 className="sr-only"
                 onChange={(e) => uploadPhotos(e.target.files, e.currentTarget)}
@@ -534,7 +538,30 @@ function StudioPage() {
               {(portfolio ?? []).map((item) =>
                 item.url ? (
                   <figure key={item.id} className="relative overflow-hidden rounded-2xl border border-border">
-                    <img src={item.url} alt={item.caption ?? ""} loading="lazy" className="aspect-square w-full object-cover" />
+                    {isVideoSource(item.image_path) ? (
+                      <button
+                        type="button"
+                        className="relative block w-full"
+                        aria-label="Play video"
+                        onClick={() => setLightbox({ url: item.url!, caption: item.caption, isVideo: true })}
+                      >
+                        <video src={item.url} muted playsInline preload="metadata" className="aspect-square w-full object-cover" />
+                        <span className="absolute inset-0 grid place-items-center bg-black/30">
+                          <span className="grid size-9 place-items-center rounded-full bg-white/90 text-black">
+                            <Play className="size-4 fill-current" aria-hidden />
+                          </span>
+                        </span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="block w-full"
+                        aria-label="View photo"
+                        onClick={() => setLightbox({ url: item.url!, caption: item.caption, isVideo: false })}
+                      >
+                        <img src={item.url} alt={item.caption ?? ""} loading="lazy" className="aspect-square w-full object-cover" />
+                      </button>
+                    )}
                     <Button
                       size="icon"
                       variant="secondary"
@@ -548,6 +575,7 @@ function StudioPage() {
                 ) : null,
               )}
             </div>
+            <MediaLightbox media={lightbox} onClose={() => setLightbox(null)} />
           </SectionCard>
 
           <SectionCard title={t("book.received")}>
