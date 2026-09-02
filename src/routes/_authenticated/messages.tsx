@@ -114,6 +114,10 @@ function MessagesPage() {
                         <span className="block truncate text-[11px] text-muted-foreground">
                           {conv.booking.service_title} · {formatXAF(Number(conv.booking.price))}
                         </span>
+                      ) : conv.listing ? (
+                        <span className="block truncate text-[11px] text-muted-foreground">
+                          ASH Property · {conv.listing.city}
+                        </span>
                       ) : (
                         <span className="block truncate text-[11px] text-muted-foreground">{t("chat.pick")}</span>
                       )}

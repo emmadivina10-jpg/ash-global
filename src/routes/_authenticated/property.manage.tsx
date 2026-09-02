@@ -1,14 +1,19 @@
 import { useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { BarChart3, CalendarClock, Heart, Home, Plus } from "lucide-react";
+import { BarChart3, CalendarClock, Heart, Home, MessageCircle, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PropertyCard } from "@/components/refer/PropertyCard";
 import { PromoteDialog } from "@/components/refer/PromoteDialog";
 import { EmptyState, LoadingState } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
-import { useMyProperties, useSavedProperties, useViewingRequests } from "@/lib/property.queries";
+import {
+  openPropertyConversation,
+  useMyProperties,
+  useSavedProperties,
+  useViewingRequests,
+} from "@/lib/property.queries";
 import { PROPERTY_STATUSES, categoryLabel, formatPropertyPrice } from "@/lib/property";
 import { formatDateTime } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
