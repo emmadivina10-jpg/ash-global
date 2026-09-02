@@ -334,6 +334,15 @@ function PropertyDetail() {
                 </DialogContent>
               </Dialog>
 
+              {user?.id && user.id !== listing.owner_id ? (
+                <Button variant="outline" className="w-full" disabled={busy} onClick={messageOwner}>
+                  <MessageCircle className="size-4" aria-hidden />
+                  {fr ? "Discuter avec le propriétaire" : "Message owner"}
+                </Button>
+              ) : null}
+
+
+
               {listing.contact_whatsapp ? (
                 <Button variant="outline" asChild className="w-full">
                   <a
