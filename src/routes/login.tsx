@@ -30,23 +30,51 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [unconfirmed, setUnconfirmed] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resent, setResent] = useState(false);
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
     setError(null);
+    setUnconfirmed(false);
+    setResent(false);
     setLoading(true);
     const { error: signInError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     setLoading(false);
     if (signInError) {
-      setError(
-        signInError.message.toLowerCase().includes("invalid")
-          ? t("auth.login.invalid")
-          : signInError.message,
-      );
+      const message = signInError.message.toLowerCase();
+      if (message.includes("email not confirmed") || message.includes("not confirmed")) {
+        setUnconfirmed(true);
+        setError(t("auth.login.unconfirmed"));
+      } else {
+        setError(
+          message.includes("invalid")
+            ? t("auth.login.invalid")
+            : signInError.message,
+        );
+      }
       return;
     }
     toast.success(t("auth.login.welcome"));
     navigate({ to: "/services" });
+  }
+
+  async function resendConfirmation() {
+    if (resending || !email.trim()) return;
+    setResending(true);
+    const { error: resendError } = await supabase.auth.resend({
+      type: "signup",
+      email: email.trim(),
+      options: { emailRedirectTo: window.location.origin },
+    });
+    setResending(false);
+    if (resendError) {
+      toast.error(resendError.message);
+      return;
+    }
+    setResent(true);
+    toast.success(t("auth.login.resent"));
   }
 
   return (
@@ -81,9 +109,23 @@ function LoginPage() {
         </div>
 
         {error ? (
-          <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
-            {error}
-          </p>
+          <div role="alert" className="space-y-2 rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
+            <p>{error}</p>
+            {unconfirmed ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="w-full"
+                disabled={resending || resent}
+                onClick={resendConfirmation}
+              >
+                {resending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+                {resending ? t("auth.login.resending") : t("auth.login.resend")}
+              </Button>
+            ) : null}
+            {resent ? <p className="text-xs text-muted-foreground">{t("auth.login.resent")}</p> : null}
+          </div>
         ) : null}
 
         <Button type="submit" className="h-12 w-full" disabled={loading}>
