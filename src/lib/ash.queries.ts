@@ -350,7 +350,9 @@ export function useMyPromotions() {
       if (!uid) return [];
       const { data, error } = await supabase
         .from("promotions")
-        .select("*")
+        .select(
+          "id, owner_id, target_type, target_id, headline, plan, amount, currency, city, category, status, starts_at, ends_at, impressions, clicks, created_at, updated_at",
+        )
         .eq("owner_id", uid)
         .order("created_at", { ascending: false });
       if (error) throw error;
