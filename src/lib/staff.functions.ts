@@ -125,7 +125,7 @@ export const updateStaffSeat = createServerFn({ method: "POST" })
     }
     if (!Object.keys(patch).length) return { ok: true as const };
     const db = await adminClient();
-    const { error } = await db.from("staff_accounts").update(patch).eq("id", data.id);
+    const { error } = await db.from("staff_accounts").update(patch as never).eq("id", data.id);
     return error ? { ok: false as const, error: error.message } : { ok: true as const };
   });
 
