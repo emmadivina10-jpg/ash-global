@@ -11,9 +11,9 @@ export const Route = createFileRoute("/_authenticated/search")({
   head: () => ({
     meta: [
       { title: "Universal search — find anything on ASH" },
-      { name: "description", content: "Search freelancers, projects, deals, events, businesses and services across the whole ASH marketplace in one place." },
+      { name: "description", content: "Search property, freelancers, projects, deals, events, businesses and services across the whole ASH ecosystem in one place." },
       { property: "og:title", content: "Universal search — find anything on ASH" },
-      { property: "og:description", content: "One search box for talent, deals, events, businesses and services." },
+      { property: "og:description", content: "One search box for property, talent, deals, events, businesses and services." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -50,6 +50,15 @@ function SearchPage() {
           items: data.projects.map((row) => ({ id: row.id, title: row.title, meta: formatXAF(row.budget) })),
         },
         {
+          key: "properties",
+          label: fr ? "Immobilier" : "Property",
+          items: data.properties.map((row) => ({
+            id: row.id,
+            title: row.title,
+            meta: `${row.neighborhood ? row.neighborhood + ", " : ""}${row.city} · ${row.price.toLocaleString()} ${row.currency}${row.price_period ? "/" + row.price_period.toLowerCase() : ""}`,
+          })),
+        },
+        {
           key: "deals",
           label: fr ? "Bons plans" : "Deals",
           items: data.deals.map((row) => ({ id: row.id, title: row.title, meta: formatXAF(row.deal_price) })),
@@ -67,7 +76,7 @@ function SearchPage() {
       <header>
         <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">{fr ? "Recherche" : "Search"}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {fr ? "Talents, projets, bons plans, événements, entreprises et services." : "Talent, projects, deals, events, businesses and services."}
+          {fr ? "Talents, immobilier, projets, bons plans, événements, entreprises et services." : "Talent, property, projects, deals, events, businesses and services."}
         </p>
       </header>
 
