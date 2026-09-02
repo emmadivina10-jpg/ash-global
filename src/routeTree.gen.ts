@@ -52,6 +52,7 @@ import { Route as ConsoleOutreachRouteImport } from './routes/console.outreach'
 import { Route as ConsolePartnershipsRouteImport } from './routes/console.partnerships'
 import { Route as ConsolePaymentsRouteImport } from './routes/console.payments'
 import { Route as ConsolePayoutRouteImport } from './routes/console.payout'
+import { Route as ConsolePropertyRouteImport } from './routes/console.property'
 import { Route as ConsoleProvidersRouteImport } from './routes/console.providers'
 import { Route as ConsoleReportsRouteImport } from './routes/console.reports'
 import { Route as ConsoleRevenueRouteImport } from './routes/console.revenue'
@@ -296,6 +297,11 @@ const ConsolePayoutRoute = ConsolePayoutRouteImport.update({
   path: '/payout',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const ConsolePropertyRoute = ConsolePropertyRouteImport.update({
+  id: '/property',
+  path: '/property',
+  getParentRoute: () => ConsoleRoute,
+} as any)
 const ConsoleProvidersRoute = ConsoleProvidersRouteImport.update({
   id: '/providers',
   path: '/providers',
@@ -493,6 +499,7 @@ export interface FileRoutesByFullPath {
   '/console/partnerships': typeof ConsolePartnershipsRoute
   '/console/payments': typeof ConsolePaymentsRoute
   '/console/payout': typeof ConsolePayoutRoute
+  '/console/property': typeof ConsolePropertyRoute
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/reports': typeof ConsoleReportsRoute
   '/console/revenue': typeof ConsoleRevenueRoute
@@ -564,6 +571,7 @@ export interface FileRoutesByTo {
   '/console/partnerships': typeof ConsolePartnershipsRoute
   '/console/payments': typeof ConsolePaymentsRoute
   '/console/payout': typeof ConsolePayoutRoute
+  '/console/property': typeof ConsolePropertyRoute
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/reports': typeof ConsoleReportsRoute
   '/console/revenue': typeof ConsoleRevenueRoute
@@ -638,6 +646,7 @@ export interface FileRoutesById {
   '/console/partnerships': typeof ConsolePartnershipsRoute
   '/console/payments': typeof ConsolePaymentsRoute
   '/console/payout': typeof ConsolePayoutRoute
+  '/console/property': typeof ConsolePropertyRoute
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/reports': typeof ConsoleReportsRoute
   '/console/revenue': typeof ConsoleRevenueRoute
@@ -712,6 +721,7 @@ export interface FileRouteTypes {
     | '/console/partnerships'
     | '/console/payments'
     | '/console/payout'
+    | '/console/property'
     | '/console/providers'
     | '/console/reports'
     | '/console/revenue'
@@ -783,6 +793,7 @@ export interface FileRouteTypes {
     | '/console/partnerships'
     | '/console/payments'
     | '/console/payout'
+    | '/console/property'
     | '/console/providers'
     | '/console/reports'
     | '/console/revenue'
@@ -856,6 +867,7 @@ export interface FileRouteTypes {
     | '/console/partnerships'
     | '/console/payments'
     | '/console/payout'
+    | '/console/property'
     | '/console/providers'
     | '/console/reports'
     | '/console/revenue'
@@ -1214,6 +1226,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsolePayoutRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/console/property': {
+      id: '/console/property'
+      path: '/property'
+      fullPath: '/console/property'
+      preLoaderRoute: typeof ConsolePropertyRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
     '/console/providers': {
       id: '/console/providers'
       path: '/providers'
@@ -1488,6 +1507,7 @@ interface ConsoleRouteChildren {
   ConsolePartnershipsRoute: typeof ConsolePartnershipsRoute
   ConsolePaymentsRoute: typeof ConsolePaymentsRoute
   ConsolePayoutRoute: typeof ConsolePayoutRoute
+  ConsolePropertyRoute: typeof ConsolePropertyRoute
   ConsoleProvidersRoute: typeof ConsoleProvidersRoute
   ConsoleReportsRoute: typeof ConsoleReportsRoute
   ConsoleRevenueRoute: typeof ConsoleRevenueRoute
@@ -1515,6 +1535,7 @@ const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsolePartnershipsRoute: ConsolePartnershipsRoute,
   ConsolePaymentsRoute: ConsolePaymentsRoute,
   ConsolePayoutRoute: ConsolePayoutRoute,
+  ConsolePropertyRoute: ConsolePropertyRoute,
   ConsoleProvidersRoute: ConsoleProvidersRoute,
   ConsoleReportsRoute: ConsoleReportsRoute,
   ConsoleRevenueRoute: ConsoleRevenueRoute,
