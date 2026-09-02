@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
+  Building2,
   ArrowDownToLine,
   BarChart3,
   Briefcase,
@@ -48,6 +49,7 @@ const NAV: NavItem[] = [
 ];
 
 const SIDE_EXTRA: NavItem[] = [
+  { to: "/property", key: "nav.property" as TKey, label: "Property", icon: Building2 },
   { to: "/deals", key: "nav.deals" as TKey, label: "Deals", icon: Flame },
   { to: "/events", key: "nav.events" as TKey, label: "Events", icon: CalendarDays },
   { to: "/freelance", key: "nav.freelance" as TKey, label: "Freelance", icon: Briefcase },

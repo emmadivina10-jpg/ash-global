@@ -28,7 +28,7 @@ export function PromoteDialog({
   category,
   trigger,
 }: {
-  targetType: "PROVIDER" | "DEAL" | "EVENT" | "PROJECT" | "FREELANCER";
+  targetType: "PROVIDER" | "DEAL" | "EVENT" | "PROJECT" | "FREELANCER" | "PROPERTY";
   targetId: string;
   defaultHeadline?: string;
   city?: string | null;

@@ -68,6 +68,10 @@ import { Route as AuthenticatedEventsIndexRouteImport } from './routes/_authenti
 import { Route as AuthenticatedEventsEventIdRouteImport } from './routes/_authenticated/events.$eventId'
 import { Route as AuthenticatedFreelanceIndexRouteImport } from './routes/_authenticated/freelance.index'
 import { Route as AuthenticatedFreelanceProjectIdRouteImport } from './routes/_authenticated/freelance.$projectId'
+import { Route as AuthenticatedPropertyIndexRouteImport } from './routes/_authenticated/property.index'
+import { Route as AuthenticatedPropertyListingIdRouteImport } from './routes/_authenticated/property.$listingId'
+import { Route as AuthenticatedPropertyManageRouteImport } from './routes/_authenticated/property.manage'
+import { Route as AuthenticatedPropertyNewRouteImport } from './routes/_authenticated/property.new'
 import { Route as AuthenticatedServicesIndexRouteImport } from './routes/_authenticated/services.index'
 import { Route as AuthenticatedServicesProviderIdRouteImport } from './routes/_authenticated/services.$providerId'
 import { Route as ApiPublicReconcileActivationsRouteImport } from './routes/api/public/reconcile-activations'
@@ -376,6 +380,30 @@ const AuthenticatedFreelanceProjectIdRoute =
     path: '/freelance/$projectId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPropertyIndexRoute =
+  AuthenticatedPropertyIndexRouteImport.update({
+    id: '/property/',
+    path: '/property/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPropertyListingIdRoute =
+  AuthenticatedPropertyListingIdRouteImport.update({
+    id: '/property/$listingId',
+    path: '/property/$listingId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPropertyManageRoute =
+  AuthenticatedPropertyManageRouteImport.update({
+    id: '/property/manage',
+    path: '/property/manage',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPropertyNewRoute =
+  AuthenticatedPropertyNewRouteImport.update({
+    id: '/property/new',
+    path: '/property/new',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedServicesIndexRoute =
   AuthenticatedServicesIndexRouteImport.update({
     id: '/services/',
@@ -480,11 +508,15 @@ export interface FileRoutesByFullPath {
   '/console/': typeof ConsoleIndexRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
+  '/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
+  '/property/manage': typeof AuthenticatedPropertyManageRoute
+  '/property/new': typeof AuthenticatedPropertyNewRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
   '/events/': typeof AuthenticatedEventsIndexRoute
   '/freelance/': typeof AuthenticatedFreelanceIndexRoute
+  '/property/': typeof AuthenticatedPropertyIndexRoute
   '/services/': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -547,11 +579,15 @@ export interface FileRoutesByTo {
   '/console': typeof ConsoleIndexRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
+  '/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
+  '/property/manage': typeof AuthenticatedPropertyManageRoute
+  '/property/new': typeof AuthenticatedPropertyNewRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
   '/events': typeof AuthenticatedEventsIndexRoute
   '/freelance': typeof AuthenticatedFreelanceIndexRoute
+  '/property': typeof AuthenticatedPropertyIndexRoute
   '/services': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -617,11 +653,15 @@ export interface FileRoutesById {
   '/console/': typeof ConsoleIndexRoute
   '/_authenticated/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/_authenticated/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
+  '/_authenticated/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
+  '/_authenticated/property/manage': typeof AuthenticatedPropertyManageRoute
+  '/_authenticated/property/new': typeof AuthenticatedPropertyNewRoute
   '/_authenticated/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
   '/_authenticated/events/': typeof AuthenticatedEventsIndexRoute
   '/_authenticated/freelance/': typeof AuthenticatedFreelanceIndexRoute
+  '/_authenticated/property/': typeof AuthenticatedPropertyIndexRoute
   '/_authenticated/services/': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -687,11 +727,15 @@ export interface FileRouteTypes {
     | '/console/'
     | '/events/$eventId'
     | '/freelance/$projectId'
+    | '/property/$listingId'
+    | '/property/manage'
+    | '/property/new'
     | '/services/$providerId'
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
     | '/events/'
     | '/freelance/'
+    | '/property/'
     | '/services/'
     | '/api/public/webhooks/tchokopay'
     | '/lovable/email/auth/preview'
@@ -754,11 +798,15 @@ export interface FileRouteTypes {
     | '/console'
     | '/events/$eventId'
     | '/freelance/$projectId'
+    | '/property/$listingId'
+    | '/property/manage'
+    | '/property/new'
     | '/services/$providerId'
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
     | '/events'
     | '/freelance'
+    | '/property'
     | '/services'
     | '/api/public/webhooks/tchokopay'
     | '/lovable/email/auth/preview'
@@ -823,11 +871,15 @@ export interface FileRouteTypes {
     | '/console/'
     | '/_authenticated/events/$eventId'
     | '/_authenticated/freelance/$projectId'
+    | '/_authenticated/property/$listingId'
+    | '/_authenticated/property/manage'
+    | '/_authenticated/property/new'
     | '/_authenticated/services/$providerId'
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
     | '/_authenticated/events/'
     | '/_authenticated/freelance/'
+    | '/_authenticated/property/'
     | '/_authenticated/services/'
     | '/api/public/webhooks/tchokopay'
     | '/lovable/email/auth/preview'
@@ -1274,6 +1326,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFreelanceProjectIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/property/': {
+      id: '/_authenticated/property/'
+      path: '/property'
+      fullPath: '/property/'
+      preLoaderRoute: typeof AuthenticatedPropertyIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/property/$listingId': {
+      id: '/_authenticated/property/$listingId'
+      path: '/property/$listingId'
+      fullPath: '/property/$listingId'
+      preLoaderRoute: typeof AuthenticatedPropertyListingIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/property/manage': {
+      id: '/_authenticated/property/manage'
+      path: '/property/manage'
+      fullPath: '/property/manage'
+      preLoaderRoute: typeof AuthenticatedPropertyManageRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/property/new': {
+      id: '/_authenticated/property/new'
+      path: '/property/new'
+      fullPath: '/property/new'
+      preLoaderRoute: typeof AuthenticatedPropertyNewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/services/': {
       id: '/_authenticated/services/'
       path: '/services'
@@ -1352,9 +1432,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedWithdrawRoute: typeof AuthenticatedWithdrawRoute
   AuthenticatedEventsEventIdRoute: typeof AuthenticatedEventsEventIdRoute
   AuthenticatedFreelanceProjectIdRoute: typeof AuthenticatedFreelanceProjectIdRoute
+  AuthenticatedPropertyListingIdRoute: typeof AuthenticatedPropertyListingIdRoute
+  AuthenticatedPropertyManageRoute: typeof AuthenticatedPropertyManageRoute
+  AuthenticatedPropertyNewRoute: typeof AuthenticatedPropertyNewRoute
   AuthenticatedServicesProviderIdRoute: typeof AuthenticatedServicesProviderIdRoute
   AuthenticatedEventsIndexRoute: typeof AuthenticatedEventsIndexRoute
   AuthenticatedFreelanceIndexRoute: typeof AuthenticatedFreelanceIndexRoute
+  AuthenticatedPropertyIndexRoute: typeof AuthenticatedPropertyIndexRoute
   AuthenticatedServicesIndexRoute: typeof AuthenticatedServicesIndexRoute
 }
 
@@ -1377,9 +1461,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedWithdrawRoute: AuthenticatedWithdrawRoute,
   AuthenticatedEventsEventIdRoute: AuthenticatedEventsEventIdRoute,
   AuthenticatedFreelanceProjectIdRoute: AuthenticatedFreelanceProjectIdRoute,
+  AuthenticatedPropertyListingIdRoute: AuthenticatedPropertyListingIdRoute,
+  AuthenticatedPropertyManageRoute: AuthenticatedPropertyManageRoute,
+  AuthenticatedPropertyNewRoute: AuthenticatedPropertyNewRoute,
   AuthenticatedServicesProviderIdRoute: AuthenticatedServicesProviderIdRoute,
   AuthenticatedEventsIndexRoute: AuthenticatedEventsIndexRoute,
   AuthenticatedFreelanceIndexRoute: AuthenticatedFreelanceIndexRoute,
+  AuthenticatedPropertyIndexRoute: AuthenticatedPropertyIndexRoute,
   AuthenticatedServicesIndexRoute: AuthenticatedServicesIndexRoute,
 }
 

@@ -368,6 +368,16 @@ export type SearchBuckets = {
   events: AshEvent[];
   providers: Array<{ id: string; business_name: string; city: string | null; slug: string | null; rating_avg: number }>;
   services: Array<{ id: string; title: string; price: number; provider_id: string; category: string }>;
+  properties: Array<{
+    id: string;
+    title: string;
+    category: string;
+    city: string;
+    neighborhood: string | null;
+    price: number;
+    currency: string;
+    price_period: string | null;
+  }>;
 };
 
 export function useUniversalSearch(term: string) {
@@ -377,13 +387,22 @@ export function useUniversalSearch(term: string) {
     enabled: q.length >= 2,
     queryFn: async (): Promise<SearchBuckets> => {
       const like = `%${q}%`;
-      const [freelancers, projects, deals, events, providers, services] = await Promise.all([
+      const nowIso = new Date().toISOString();
+      const [freelancers, projects, deals, events, providers, services, properties] = await Promise.all([
         supabase.from("freelancer_profiles").select("*").eq("is_published", true).or(`headline.ilike.${like},bio.ilike.${like}`).limit(12),
         supabase.from("freelance_projects").select("*").eq("status", "OPEN").or(`title.ilike.${like},description.ilike.${like}`).limit(12),
         supabase.from("deals").select("*").eq("is_active", true).gt("ends_at", new Date().toISOString()).ilike("title", like).limit(12),
         supabase.from("events").select("*").eq("is_published", true).or(`title.ilike.${like},venue.ilike.${like}`).limit(12),
         supabase.from("provider_profiles").select("id, business_name, city, slug, rating_avg").eq("is_live", true).ilike("business_name", like).limit(12),
         supabase.from("provider_services").select("id, title, price, provider_id, category").eq("is_active", true).ilike("title", like).limit(12),
+        supabase
+          .from("property_listings")
+          .select("id, title, category, city, neighborhood, price, currency, price_period")
+          .eq("status", "ACTIVE")
+          .gt("expires_at", nowIso)
+          .or(`title.ilike.${like},description.ilike.${like},city.ilike.${like},neighborhood.ilike.${like},university_name.ilike.${like}`)
+          .order("created_at", { ascending: false })
+          .limit(12),
       ]);
 
       return {
@@ -393,6 +412,7 @@ export function useUniversalSearch(term: string) {
         events: (events.data ?? []) as unknown as AshEvent[],
         providers: (providers.data ?? []) as SearchBuckets["providers"],
         services: (services.data ?? []) as unknown as SearchBuckets["services"],
+        properties: (properties.data ?? []) as unknown as SearchBuckets["properties"],
       };
     },
   });
