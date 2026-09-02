@@ -349,15 +349,14 @@ function PropertyDetail() {
         </section>
       ) : null}
 
-      {lightbox !== null && gallery[lightbox] ? (
-        <MediaLightbox
-          open
-          onOpenChange={(value) => setLightbox(value ? lightbox : null)}
-          items={gallery.map((image) => ({ url: image.url!, kind: "image" as const, caption: image.caption }))}
-          index={lightbox}
-          onIndexChange={setLightbox}
-        />
-      ) : null}
+      <MediaLightbox
+        media={
+          lightbox !== null && gallery[lightbox]
+            ? { url: gallery[lightbox]!.url!, caption: gallery[lightbox]!.caption, isVideo: false }
+            : null
+        }
+        onClose={() => setLightbox(null)}
+      />
     </div>
   );
 }
