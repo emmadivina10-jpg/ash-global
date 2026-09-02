@@ -298,17 +298,16 @@ export const getEmailDeliveryLogs = createServerFn({ method: "GET" }).handler(as
   const { requireConsole } = await import("./console.server");
   await requireConsole();
   const apiKey = process.env["LOVABLE_API_KEY"];
-  if (!apiKey) return { ok: false as const, error: "EMAIL_API_KEY_MISSING", logs: [] };
+  if (!apiKey) return { ok: false as const, error: "EMAIL_API_KEY_MISSING", logs: [] as { timestamp: string; recipient: string; event_type: string; status?: string }[] };
   try {
     const { listEmailLogs } = await import("@lovable.dev/email-js");
-    const result = await listEmailLogs({ apiKey, limit: 50 });
-    const logs = (Array.isArray(result) ? result : ((result as any)?.logs ?? [])) as any[];
-    return { ok: true as const, error: null, logs };
+    const result = await listEmailLogs({ limit: 50 }, { apiKey });
+    return { ok: true as const, error: null, logs: result.data ?? [] };
   } catch (err) {
     return {
       ok: false as const,
       error: err instanceof Error ? err.message : "LOG_FETCH_FAILED",
-      logs: [] as any[],
+      logs: [] as { timestamp: string; recipient: string; event_type: string; status?: string }[],
     };
   }
 });
