@@ -601,7 +601,7 @@ function BookingRequestDialog({
               <Label htmlFor="notes">{fr ? "Détails" : "Details"}</Label>
               <Textarea id="notes" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
             </div>
-            <Button type="submit" className="w-full" disabled={!when}>
+            <Button type="submit" className="w-full" disabled={!when || (isCustom && !customTitle.trim())}>
               {fr ? "Continuer" : "Continue"}
             </Button>
           </form>
@@ -609,12 +609,16 @@ function BookingRequestDialog({
           <div className="space-y-4">
             <dl className="space-y-2 rounded-xl border border-border p-3 text-sm">
               <Row label={fr ? "Pro" : "Provider"} value={provider.name} />
-              <Row label={fr ? "Service" : "Service"} value={selected.title} />
+              <Row label={fr ? "Service" : "Service"} value={effTitle} />
               <Row label={fr ? "Date" : "Date"} value={formatDateTime(new Date(when).toISOString())} />
               <Row label={fr ? "Durée" : "Duration"} value={`${selected.duration_minutes} min`} />
               <Row label={fr ? "Lieu" : "Location"} value={address || provider.city || "—"} />
-              <Row label={fr ? "Total" : "Total"} value={formatXAF(selected.price)} />
+              <Row
+                label={isCustom ? (fr ? "Budget" : "Budget") : fr ? "Total" : "Total"}
+                value={effPrice > 0 ? formatXAF(effPrice) : fr ? "À confirmer" : "To be confirmed"}
+              />
             </dl>
+
             <p className="flex items-start gap-2 rounded-xl bg-muted p-3 text-xs text-muted-foreground">
               <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden />
               {fr
