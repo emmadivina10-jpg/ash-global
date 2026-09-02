@@ -249,7 +249,7 @@ export function useConversations() {
       const { data, error } = await supabase
         .from("conversations")
         .select(
-          "*, provider:provider_profiles(id, business_name, user_id, avatar_url, phone), booking:bookings(id, service_title, scheduled_at, status, address, price, invoice_number)",
+          "*, provider:provider_profiles(id, business_name, user_id, avatar_url, phone), booking:bookings(id, service_title, scheduled_at, status, address, price, invoice_number), listing:property_listings(id, title, city, price, currency, price_period)",
         )
         .order("last_message_at", { ascending: false });
       if (error) throw error;
