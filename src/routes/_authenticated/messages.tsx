@@ -51,7 +51,7 @@ function MessagesPage() {
   /** The other person's auth id — used for reporting and blocking. */
   function peerUserIdOf(conv: (typeof list)[number]): string | null {
     const viewerIsProvider = Boolean(user?.id) && conv.provider?.user_id === user?.id;
-    return (viewerIsProvider ? conv.client?.user_id : conv.provider?.user_id) ?? null;
+    return (viewerIsProvider ? conv.client_id : conv.provider?.user_id) ?? null;
   }
 
   return (
