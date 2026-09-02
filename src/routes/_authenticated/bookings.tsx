@@ -342,7 +342,11 @@ function BookingsPage() {
 
                     <div className="mt-3 flex flex-wrap gap-2">
                       {payable && mobileMoneyEnabled ? (
-                        <Button size="sm" disabled={busyId === b.id || expired} onClick={() => void pay(b.id, "MOMO")}>
+                        <Button
+                          size="sm"
+                          disabled={busyId === b.id || expired}
+                          onClick={() => setMomoBooking({ id: b.id, price: Number(b.price ?? 0) })}
+                        >
                           <Smartphone className="size-4" aria-hidden />
                           {fr ? "Payer par Mobile Money" : "Pay with Mobile Money"}
                         </Button>
