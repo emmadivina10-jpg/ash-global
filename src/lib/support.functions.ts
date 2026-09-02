@@ -194,8 +194,8 @@ export const replyToTicket = createServerFn({ method: "POST" })
     resolve: Boolean(data?.resolve),
   }))
   .handler(async ({ data }) => {
-    const { requireConsole, adminClient } = await import("./console.server");
-    await requireConsole();
+    const { requireDepartment, adminClient } = await import("./console.server");
+    await requireDepartment("SUPPORT");
     if (!data.ticketId || !data.body) return { ok: false as const, error: "MISSING_FIELDS" };
     const db = await adminClient();
 
@@ -264,8 +264,8 @@ export const setTicketStatus = createServerFn({ method: "POST" })
     status: String(data?.status ?? "OPEN") as TicketStatus,
   }))
   .handler(async ({ data }) => {
-    const { requireConsole, adminClient } = await import("./console.server");
-    await requireConsole();
+    const { requireDepartment, adminClient } = await import("./console.server");
+    await requireDepartment("SUPPORT");
     if (!["OPEN", "PENDING", "RESOLVED"].includes(data.status)) {
       return { ok: false as const, error: "INVALID_STATUS" };
     }
@@ -283,8 +283,8 @@ export const setTicketPriority = createServerFn({ method: "POST" })
     priority: data?.priority ?? "NORMAL",
   }))
   .handler(async ({ data }) => {
-    const { requireConsole, adminClient } = await import("./console.server");
-    await requireConsole();
+    const { requireDepartment, adminClient } = await import("./console.server");
+    await requireDepartment("SUPPORT");
     const db = await adminClient();
     const { error } = await db
       .from("support_tickets")

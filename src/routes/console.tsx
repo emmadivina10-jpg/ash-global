@@ -13,6 +13,15 @@ import {
   Moon,
   ReceiptText,
   LifeBuoy,
+  Megaphone,
+  Handshake,
+  Video,
+  Send,
+  Rocket,
+  Map,
+  Target,
+  UserCog,
+  Unlock,
   ShieldAlert,
   ShieldCheck,
   Store,
@@ -22,7 +31,7 @@ import {
   Wallet,
   X,
 } from "lucide-react";
-import { consoleStatus, lockConsole, unlockConsole } from "@/lib/console.functions";
+import { consoleStatus, lockConsole, setElevatedMode, unlockConsole } from "@/lib/console.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,20 +40,33 @@ import { useTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
 const NAV = [
-  { to: "/console", label: "Overview", icon: BarChart3, group: "Insights" },
-  { to: "/console/payments", label: "Payments", icon: CreditCard, group: "Money" },
-  { to: "/console/withdrawals", label: "Withdrawals", icon: Wallet, group: "Money" },
-  { to: "/console/payout", label: "Payout", icon: Banknote, group: "Money" },
-  { to: "/console/ledger", label: "Ledger", icon: ReceiptText, group: "Money" },
-  { to: "/console/users", label: "Users", icon: Users, group: "People" },
-  { to: "/console/providers", label: "Providers", icon: Store, group: "People" },
-  { to: "/console/bookings", label: "Bookings", icon: CalendarCheck, group: "People" },
-  { to: "/console/deletions", label: "Deletions", icon: Trash2, group: "People" },
-  { to: "/console/support", label: "Support", icon: LifeBuoy, group: "People" },
-  { to: "/console/security", label: "Security", icon: ShieldAlert, group: "Insights" },
+  { to: "/console", label: "Overview", icon: BarChart3, group: "Insights", dept: "SUPER_ADMIN" },
+  { to: "/console/revenue", label: "Revenue", icon: Target, group: "Insights", dept: "REVENUE" },
+  { to: "/console/security", label: "Security", icon: ShieldAlert, group: "Insights", dept: "SUPER_ADMIN" },
+  { to: "/console/payments", label: "Payments", icon: CreditCard, group: "Money", dept: "REVENUE" },
+  { to: "/console/withdrawals", label: "Withdrawals", icon: Wallet, group: "Money", dept: "REVENUE" },
+  { to: "/console/payout", label: "Payout", icon: Banknote, group: "Money", dept: "REVENUE" },
+  { to: "/console/ledger", label: "Ledger", icon: ReceiptText, group: "Money", dept: "REVENUE" },
+  { to: "/console/users", label: "Users", icon: Users, group: "People", dept: "SUPER_ADMIN" },
+  { to: "/console/providers", label: "Providers", icon: Store, group: "People", dept: "TRUST" },
+  { to: "/console/bookings", label: "Bookings", icon: CalendarCheck, group: "People", dept: "MARKETPLACE_OPS" },
+  { to: "/console/deletions", label: "Deletions", icon: Trash2, group: "People", dept: "SUPER_ADMIN" },
+  { to: "/console/support", label: "Support", icon: LifeBuoy, group: "People", dept: "SUPPORT" },
+  { to: "/console/outreach", label: "Outreach", icon: Send, group: "People", dept: "SUPPORT" },
+  { to: "/console/growth", label: "Growth", icon: Rocket, group: "Workforce", dept: "GROWTH" },
+  { to: "/console/sales", label: "Sales", icon: Target, group: "Workforce", dept: "SALES" },
+  { to: "/console/marketplace", label: "Marketplace Ops", icon: Store, group: "Workforce", dept: "MARKETPLACE_OPS" },
+  { to: "/console/advertising", label: "Advertising", icon: Megaphone, group: "Workforce", dept: "ADVERTISING" },
+  { to: "/console/partnerships", label: "Partnerships", icon: Handshake, group: "Workforce", dept: "PARTNERSHIPS" },
+  { to: "/console/content", label: "Content & Creators", icon: Video, group: "Workforce", dept: "CONTENT" },
+  { to: "/console/merchant", label: "Merchants", icon: Store, group: "Workforce", dept: "MERCHANT" },
+  { to: "/console/expansion", label: "Expansion", icon: Map, group: "Workforce", dept: "EXPANSION" },
+  { to: "/console/trust", label: "Trust & Verification", icon: ShieldCheck, group: "Workforce", dept: "TRUST" },
+  { to: "/console/staff", label: "Staff & departments", icon: UserCog, group: "Admin", dept: "SUPER_ADMIN" },
 ] as const;
 
-const GROUPS = ["Insights", "Money", "People"] as const;
+const GROUPS = ["Insights", "Money", "People", "Workforce", "Admin"] as const;
+
 
 export const Route = createFileRoute("/console")({
   ssr: false,
@@ -67,14 +89,23 @@ function ThemeToggle() {
   );
 }
 
-function SidebarNav({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+function SidebarNav({
+  pathname,
+  onNavigate,
+  superAdmin,
+}: {
+  pathname: string;
+  onNavigate?: () => void;
+  superAdmin: boolean;
+}) {
+  const items = NAV.filter((item) => superAdmin || item.group !== "Admin");
   return (
     <nav className="space-y-6">
-      {GROUPS.map((group) => (
+      {GROUPS.filter((group) => items.some((item) => item.group === group)).map((group) => (
         <div key={group}>
           <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{group}</p>
           <div className="space-y-0.5">
-            {NAV.filter((item) => item.group === group).map((item) => {
+            {items.filter((item) => item.group === group).map((item) => {
               const active = pathname === item.to;
               const Icon = item.icon;
               return (
@@ -105,6 +136,7 @@ function ConsoleLayout() {
   const queryClient = useQueryClient();
   const status = useServerFn(consoleStatus);
   const lock = useServerFn(lockConsole);
+  const elevate = useServerFn(setElevatedMode);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -113,6 +145,7 @@ function ConsoleLayout() {
   if (isLoading) return <LoadingState label="Checking console access…" />;
   if (!data?.unlocked) return <UnlockScreen />;
 
+  const actor = data.actor;
   const current = NAV.find((item) => item.to === pathname)?.label ?? "Overview";
 
   return (
@@ -130,13 +163,20 @@ function ConsoleLayout() {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          <SidebarNav pathname={pathname} />
+          <SidebarNav pathname={pathname} superAdmin={Boolean(actor?.superAdmin)} />
         </div>
 
+        <div className="mt-4 rounded-xl border border-sidebar-border bg-card p-3">
+          <p className="truncate text-sm font-bold text-foreground">{actor?.name}</p>
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
+            {actor?.department.replace(/_/g, " ")}
+            {actor?.elevated ? " · elevated" : ""}
+          </p>
+        </div>
         <Button
           variant="outline"
           size="sm"
-          className="mt-4 w-full"
+          className="mt-3 w-full"
           onClick={async () => {
             await lock();
             await queryClient.invalidateQueries({ queryKey: ["console"] });
@@ -165,6 +205,27 @@ function ConsoleLayout() {
             </div>
           </div>
           <div className="flex items-center gap-1">
+            <div className="hidden text-right sm:block">
+              <p className="text-xs font-bold text-foreground">{actor?.name}</p>
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                {actor?.department.replace(/_/g, " ")}
+              </p>
+            </div>
+            {actor?.superAdmin ? (
+              <Button
+                variant={actor.elevated ? "default" : "outline"}
+                size="sm"
+                onClick={async () => {
+                  await elevate({ data: { elevated: !actor.elevated } });
+                  await queryClient.invalidateQueries({ queryKey: ["console"] });
+                }}
+              >
+                <Unlock className="size-4" aria-hidden />
+                <span className="hidden sm:inline">
+                  {actor.elevated ? "Privileges on" : "Elevate privilege"}
+                </span>
+              </Button>
+            ) : null}
             <ThemeToggle />
             <Button
               variant="outline"
@@ -202,7 +263,11 @@ function ConsoleLayout() {
               </Button>
             </div>
             <div className="flex-1 overflow-y-auto">
-              <SidebarNav pathname={pathname} onNavigate={() => setMenuOpen(false)} />
+              <SidebarNav
+                pathname={pathname}
+                onNavigate={() => setMenuOpen(false)}
+                superAdmin={Boolean(actor?.superAdmin)}
+              />
             </div>
           </div>
         </div>
@@ -214,6 +279,7 @@ function ConsoleLayout() {
 function UnlockScreen() {
   const queryClient = useQueryClient();
   const unlock = useServerFn(unlockConsole);
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -222,7 +288,7 @@ function UnlockScreen() {
     event.preventDefault();
     setBusy(true);
     setError(false);
-    const result = await unlock({ data: { password } });
+    const result = await unlock({ data: { username, password } });
     setBusy(false);
     if (!result.ok) {
       setError(true);
@@ -247,7 +313,18 @@ function UnlockScreen() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="console-password">Console password</Label>
+          <Label htmlFor="console-username">Staff username</Label>
+          <Input
+            id="console-username"
+            autoComplete="username"
+            value={username}
+            onChange={(event) => setUsername(event.target.value)}
+            placeholder="Leave empty for the master password"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="console-password">Password</Label>
           <Input
             id="console-password"
             type="password"
@@ -256,7 +333,9 @@ function UnlockScreen() {
             onChange={(event) => setPassword(event.target.value)}
             required
           />
-          {error ? <p className="text-xs font-medium text-destructive">Incorrect password.</p> : null}
+          {error ? (
+            <p className="text-xs font-medium text-destructive">Incorrect username or password.</p>
+          ) : null}
         </div>
 
         <Button type="submit" className="w-full" disabled={busy}>

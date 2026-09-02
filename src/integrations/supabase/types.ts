@@ -272,6 +272,147 @@ export type Database = {
           },
         ]
       }
+      lead_activities: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          kind: string
+          lead_id: string
+          staff_id: string | null
+          staff_name: string
+          stage_from: string | null
+          stage_to: string | null
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          lead_id: string
+          staff_id?: string | null
+          staff_name?: string
+          stage_from?: string | null
+          stage_to?: string | null
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          lead_id?: string
+          staff_id?: string | null
+          staff_name?: string
+          stage_from?: string | null
+          stage_to?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_activities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_activities_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          assigned_to: string | null
+          category: string | null
+          city: string | null
+          converted_provider_id: string | null
+          converted_user_id: string | null
+          country: string
+          created_at: string
+          created_by: string | null
+          department: string
+          email: string | null
+          id: string
+          last_contacted_at: string | null
+          lead_type: string
+          name: string
+          next_follow_up: string | null
+          notes: string | null
+          phone: string | null
+          source: string | null
+          stage: string
+          updated_at: string
+          value: number
+          whatsapp: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          category?: string | null
+          city?: string | null
+          converted_provider_id?: string | null
+          converted_user_id?: string | null
+          country?: string
+          created_at?: string
+          created_by?: string | null
+          department?: string
+          email?: string | null
+          id?: string
+          last_contacted_at?: string | null
+          lead_type?: string
+          name: string
+          next_follow_up?: string | null
+          notes?: string | null
+          phone?: string | null
+          source?: string | null
+          stage?: string
+          updated_at?: string
+          value?: number
+          whatsapp?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          category?: string | null
+          city?: string | null
+          converted_provider_id?: string | null
+          converted_user_id?: string | null
+          country?: string
+          created_at?: string
+          created_by?: string | null
+          department?: string
+          email?: string | null
+          id?: string
+          last_contacted_at?: string | null
+          lead_type?: string
+          name?: string
+          next_follow_up?: string | null
+          notes?: string | null
+          phone?: string | null
+          source?: string | null
+          stage?: string
+          updated_at?: string
+          value?: number
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "staff_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "staff_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           body: string
@@ -345,6 +486,65 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      outreach_log: {
+        Row: {
+          body: string
+          channel: string
+          created_at: string
+          delivered: boolean
+          error: string | null
+          id: string
+          lead_id: string | null
+          recipient: string
+          staff_id: string | null
+          staff_name: string
+          subject: string | null
+          target_user_id: string | null
+          template_key: string | null
+          ticket_id: string | null
+        }
+        Insert: {
+          body: string
+          channel: string
+          created_at?: string
+          delivered?: boolean
+          error?: string | null
+          id?: string
+          lead_id?: string | null
+          recipient: string
+          staff_id?: string | null
+          staff_name?: string
+          subject?: string | null
+          target_user_id?: string | null
+          template_key?: string | null
+          ticket_id?: string | null
+        }
+        Update: {
+          body?: string
+          channel?: string
+          created_at?: string
+          delivered?: boolean
+          error?: string | null
+          id?: string
+          lead_id?: string | null
+          recipient?: string
+          staff_id?: string | null
+          staff_name?: string
+          subject?: string | null
+          target_user_id?: string | null
+          template_key?: string | null
+          ticket_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outreach_log_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payment_events: {
         Row: {
@@ -1019,6 +1219,92 @@ export type Database = {
           subject?: string | null
         }
         Relationships: []
+      }
+      staff_accounts: {
+        Row: {
+          created_at: string
+          department: string
+          email: string | null
+          full_name: string
+          id: string
+          is_active: boolean
+          last_login_at: string | null
+          password_hash: string
+          phone: string | null
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          department: string
+          email?: string | null
+          full_name: string
+          id?: string
+          is_active?: boolean
+          last_login_at?: string | null
+          password_hash: string
+          phone?: string | null
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          department?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          is_active?: boolean
+          last_login_at?: string | null
+          password_hash?: string
+          phone?: string | null
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      staff_targets: {
+        Row: {
+          contacts_target: number
+          created_at: string
+          deals_target: number
+          id: string
+          period: string
+          recruits_target: number
+          revenue_target: number
+          staff_id: string
+          updated_at: string
+        }
+        Insert: {
+          contacts_target?: number
+          created_at?: string
+          deals_target?: number
+          id?: string
+          period?: string
+          recruits_target?: number
+          revenue_target?: number
+          staff_id: string
+          updated_at?: string
+        }
+        Update: {
+          contacts_target?: number
+          created_at?: string
+          deals_target?: number
+          id?: string
+          period?: string
+          recruits_target?: number
+          revenue_target?: number
+          staff_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_targets_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       support_ticket_messages: {
         Row: {

@@ -19,29 +19,94 @@ export type Financials = {
 };
 
 export const consoleStatus = createServerFn({ method: "GET" }).handler(async () => {
-  const { isUnlocked } = await import("./console.server");
-  return { unlocked: await isUnlocked() };
+  const { consoleSession } = await import("./console.server");
+  const session = await consoleSession();
+  if (!session.data.unlocked) return { unlocked: false as const, actor: null };
+  return {
+    unlocked: true as const,
+    actor: {
+      staffId: session.data.staffId ?? null,
+      name: session.data.staffName ?? "Super admin",
+      department: session.data.department ?? "SUPER_ADMIN",
+      elevated: Boolean(session.data.elevated),
+      superAdmin: (session.data.department ?? "SUPER_ADMIN") === "SUPER_ADMIN",
+    },
+  };
 });
 
+/**
+ * Staff sign-in. The master CONSOLE_PASSWORD always signs in as super admin
+ * (with or without a username), so the owner can never be locked out.
+ */
 export const unlockConsole = createServerFn({ method: "POST" })
-  .inputValidator((data: { password: string }) => data)
+  .inputValidator((data: { username?: string; password: string }) => ({
+    username: String(data?.username ?? "").trim().toLowerCase().slice(0, 60),
+    password: String(data?.password ?? ""),
+  }))
   .handler(async ({ data }) => {
-    const { passwordMatches, sessionConfig } = await import("./console.server");
-    const { useSession } = await import("@tanstack/react-start/server");
-    const expected = process.env["CONSOLE_PASSWORD"];
-    if (!expected) throw new Error("CONSOLE_PASSWORD is not set");
-    if (typeof data.password !== "string" || !passwordMatches(data.password, expected)) {
+    const { passwordMatches, verifyStaffPassword, consoleSession, adminClient } = await import(
+      "./console.server"
+    );
+    const master = process.env["CONSOLE_PASSWORD"];
+    if (!master) throw new Error("CONSOLE_PASSWORD is not set");
+    const session = await consoleSession();
+
+    if (data.password && passwordMatches(data.password, master)) {
+      await session.update({
+        unlocked: true,
+        staffId: null,
+        staffName: "Super admin",
+        department: "SUPER_ADMIN" as const,
+        elevated: true,
+      });
+      return { ok: true as const, department: "SUPER_ADMIN" };
+    }
+
+    if (!data.username || !data.password) return { ok: false as const };
+
+    const db = await adminClient();
+    const { data: staff } = await db
+      .from("staff_accounts")
+      .select("id, full_name, department, password_hash, is_active")
+      .eq("username", data.username)
+      .maybeSingle();
+
+    if (!staff || !staff.is_active || !verifyStaffPassword(data.password, staff.password_hash)) {
       return { ok: false as const };
     }
-    const session = await useSession<{ unlocked?: boolean }>(sessionConfig());
-    await session.update({ unlocked: true });
+
+    await db.from("staff_accounts").update({ last_login_at: new Date().toISOString() }).eq("id", staff.id);
+    await session.update({
+      unlocked: true,
+      staffId: staff.id,
+      staffName: staff.full_name,
+      department: staff.department as never,
+      elevated: false,
+    });
+    return { ok: true as const, department: staff.department };
+  });
+
+/** Super admin only: temporarily unlock write access to every department. */
+export const setElevatedMode = createServerFn({ method: "POST" })
+  .inputValidator((data: { elevated: boolean }) => ({ elevated: Boolean(data?.elevated) }))
+  .handler(async ({ data }) => {
+    const { requireSuperAdmin, consoleSession, adminClient } = await import("./console.server");
+    const actor = await requireSuperAdmin();
+    const session = await consoleSession();
+    await session.update({ elevated: data.elevated });
+    const db = await adminClient();
+    await db.from("admin_audit_log").insert({
+      actor: actor.name,
+      action: data.elevated ? "PRIVILEGE_ELEVATED" : "PRIVILEGE_DROPPED",
+      previous_state: { elevated: !data.elevated },
+      new_state: { elevated: data.elevated },
+    });
     return { ok: true as const };
   });
 
 export const lockConsole = createServerFn({ method: "POST" }).handler(async () => {
-  const { sessionConfig } = await import("./console.server");
-  const { useSession } = await import("@tanstack/react-start/server");
-  const session = await useSession<{ unlocked?: boolean }>(sessionConfig());
+  const { consoleSession } = await import("./console.server");
+  const session = await consoleSession();
   await session.clear();
   return { ok: true as const };
 });
@@ -161,8 +226,8 @@ export const setProviderVerification = createServerFn({ method: "POST" })
     approve: Boolean(data?.approve),
   }))
   .handler(async ({ data }) => {
-    const { requireConsole, adminClient } = await import("./console.server");
-    await requireConsole();
+    const { requireDepartment, adminClient } = await import("./console.server");
+    await requireDepartment("TRUST");
     if (!data.providerId) return { ok: false as const, error: "INVALID_PROVIDER" };
     const db = await adminClient();
     const { error } = await db.rpc("console_set_verification", {
@@ -196,8 +261,8 @@ export const getConsoleBookings = createServerFn({ method: "GET" }).handler(asyn
 export const setBookingStatus = createServerFn({ method: "POST" })
   .inputValidator((data: { id: string; status: string }) => data)
   .handler(async ({ data }) => {
-    const { requireConsole, adminClient } = await import("./console.server");
-    await requireConsole();
+    const { requireDepartment, adminClient } = await import("./console.server");
+    await requireDepartment("MARKETPLACE_OPS");
     const allowed = [
       "PENDING",
       "CONFIRMED",
@@ -234,8 +299,8 @@ export const getConsoleWithdrawals = createServerFn({ method: "GET" }).handler(a
 export const settleWithdrawal = createServerFn({ method: "POST" })
   .inputValidator((data: { id: string; status: string; providerReference?: string }) => data)
   .handler(async ({ data }) => {
-    const { requireConsole, adminClient } = await import("./console.server");
-    await requireConsole();
+    const { requireDepartment, adminClient } = await import("./console.server");
+    await requireDepartment("REVENUE");
     const db = await adminClient();
     const { data: result, error } = await db.rpc("console_settle_withdrawal", {
       _withdrawal_id: data.id,
@@ -301,8 +366,8 @@ export const getConsoleDeletionRequests = createServerFn({ method: "GET" }).hand
 export const reviewDeletionRequest = createServerFn({ method: "POST" })
   .inputValidator((data: { id: string; status: "APPROVED" | "REJECTED"; note?: string }) => data)
   .handler(async ({ data }) => {
-    const { requireConsole, adminClient } = await import("./console.server");
-    await requireConsole();
+    const { requireDepartment, adminClient } = await import("./console.server");
+    await requireDepartment("SUPPORT");
     if (data.status !== "APPROVED" && data.status !== "REJECTED") throw new Error("INVALID_STATUS");
     const db = await adminClient();
 
@@ -412,8 +477,8 @@ export const getConsolePayments = createServerFn({ method: "GET" }).handler(asyn
 export const verifyPaymentReference = createServerFn({ method: "POST" })
   .inputValidator((data: { reference: string }) => data)
   .handler(async ({ data }) => {
-    const { requireConsole, adminClient } = await import("./console.server");
-    await requireConsole();
+    const { requireDepartment, adminClient } = await import("./console.server");
+    await requireDepartment("REVENUE");
     const { tchokoPay } = await import("./tchokopay.server");
     const { findMerchantReference, settleCollection } = await import("./payment-settlement.server");
     const db = await adminClient();
@@ -477,8 +542,8 @@ export const verifyPaymentReference = createServerFn({ method: "POST" })
 
 /** Runs provider-authoritative reconciliation over every activation still awaiting payment. */
 export const reconcilePayments = createServerFn({ method: "POST" }).handler(async () => {
-  const { requireConsole, adminClient } = await import("./console.server");
-  await requireConsole();
+  const { requireDepartment, adminClient } = await import("./console.server");
+  await requireDepartment("REVENUE");
   const { tchokoPay } = await import("./tchokopay.server");
   const db = await adminClient();
 
@@ -521,8 +586,8 @@ export const reconcilePayments = createServerFn({ method: "POST" }).handler(asyn
 export const manualActivate = createServerFn({ method: "POST" })
   .inputValidator((data: { userId: string; reason: string }) => data)
   .handler(async ({ data }) => {
-    const { requireConsole, adminClient } = await import("./console.server");
-    await requireConsole();
+    const { requireDepartment, adminClient } = await import("./console.server");
+    await requireDepartment("REVENUE");
     if (!data.reason || data.reason.trim().length < 5) {
       return { ok: false as const, error: "REASON_REQUIRED" };
     }
@@ -720,8 +785,8 @@ export const getSecurityAudit = createServerFn({ method: "GET" })
 
 /** Runs the database security self-check on demand from the console. */
 export const runSecuritySelfCheck = createServerFn({ method: "POST" }).handler(async () => {
-  const { requireConsole, adminClient } = await import("./console.server");
-  await requireConsole();
+  const { requireSuperAdmin, adminClient } = await import("./console.server");
+  await requireSuperAdmin();
   const db = await adminClient();
   const { data, error } = await db.rpc("security_selfcheck");
   if (error) return { ok: false as const, error: error.message };
@@ -772,8 +837,8 @@ export const getConsolePayouts = createServerFn({ method: "GET" }).handler(async
 export const requestConsolePayout = createServerFn({ method: "POST" })
   .inputValidator((data: { amount: number; destination: string; note?: string }) => data)
   .handler(async ({ data }) => {
-    const { requireConsole, adminClient } = await import("./console.server");
-    await requireConsole();
+    const { requireDepartment, adminClient } = await import("./console.server");
+    await requireDepartment("REVENUE");
     const db = await adminClient();
     const { data: result, error } = await db.rpc("console_platform_payout", {
       _amount: Math.round(Number(data.amount)),
