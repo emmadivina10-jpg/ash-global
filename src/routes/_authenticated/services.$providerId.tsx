@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { BadgeCheck, CalendarCheck, Clock, MapPin, MessageCircle, ShieldCheck } from "lucide-react";
+import { BadgeCheck, CalendarCheck, Clock, MapPin, MessageCircle, Play, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -14,6 +14,7 @@ import {
 import { useUser } from "@/lib/queries";
 import { SectionCard } from "@/components/refer/cards";
 import { RatingStars } from "@/components/refer/RatingStars";
+import { MediaLightbox, isVideoSource, type LightboxMedia } from "@/components/refer/MediaLightbox";
 import { ReviewComposer } from "@/components/refer/ReviewComposer";
 import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
@@ -76,6 +77,7 @@ function ProviderPage() {
   const { data: provider, isLoading } = useProvider(providerId);
   const { data: services } = useProviderServices(providerId);
   const { data: portfolio } = usePortfolio(providerId);
+  const [lightbox, setLightbox] = useState<LightboxMedia | null>(null);
   const { data: reviews } = useProviderReviews(providerId);
 
   const [detail, setDetail] = useState<ServiceRow | null>(null);
