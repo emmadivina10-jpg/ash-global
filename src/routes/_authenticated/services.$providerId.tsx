@@ -50,6 +50,22 @@ type ServiceRow = {
   is_active: boolean;
 };
 
+/** Placeholder used when a pro hasn't published a service yet — the client describes the job. */
+const CUSTOM_ID = "custom";
+
+function customService(fr: boolean): ServiceRow {
+  return {
+    id: CUSTOM_ID,
+    title: fr ? "Prestation sur mesure" : "Custom request",
+    description: null,
+    price: 0,
+    duration_minutes: 60,
+    category: "OTHER" as ServiceCategory,
+    is_active: true,
+  };
+}
+
+
 function ProviderPage() {
   const { providerId } = Route.useParams();
   const { t, lang } = useI18n();
@@ -93,15 +109,12 @@ function ProviderPage() {
     ? fr
       ? "C'est votre propre vitrine — vous ne pouvez pas vous réserver."
       : "This is your own storefront, so you can't book yourself."
-    : activeServices.length === 0
+    : !bookable
       ? fr
-        ? "Ce pro n'a pas encore publié de service réservable."
-        : "This pro hasn't published a bookable service yet."
-      : !bookable
-        ? fr
-          ? "Ce pro n'accepte pas de nouvelles réservations pour le moment. Vous pouvez quand même discuter."
-          : "This pro isn't accepting new bookings right now. You can still start a chat."
-        : null;
+        ? "Ce pro n'accepte pas de nouvelles réservations pour le moment. Vous pouvez quand même discuter."
+        : "This pro isn't accepting new bookings right now. You can still start a chat."
+      : null;
+
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-5">
@@ -184,19 +197,13 @@ function ProviderPage() {
             ) : null}
 
             <div className="mt-4 flex flex-wrap gap-2">
-              {!isOwner && activeServices.length === 0 ? (
-                <Button onClick={() => void chat()}>
-                  <MessageCircle className="size-4" aria-hidden />
-                  {fr ? "Demander un devis" : "Request a quote"}
-                </Button>
-              ) : (
-                <Button
-                  disabled={Boolean(blockedReason)}
-                  onClick={() => setBooking(activeServices[0] ?? null)}
-                >
-                  {fr ? "Réserver un service" : "Book service"}
-                </Button>
-              )}
+              <Button
+                disabled={Boolean(blockedReason)}
+                onClick={() => setBooking(activeServices[0] ?? customService(fr))}
+              >
+                {fr ? "Réserver un service" : "Book service"}
+              </Button>
+
               <Button variant="outline" onClick={() => void chat()} disabled={isOwner}>
                 <MessageCircle className="size-4" aria-hidden />
                 {t("svc.chat")}
@@ -386,10 +393,16 @@ function BookingRequestDialog({
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
+  const [customTitle, setCustomTitle] = useState("");
+  const [customPrice, setCustomPrice] = useState("");
   const [step, setStep] = useState<"form" | "confirm">("form");
   const [busy, setBusy] = useState(false);
 
+  const isCustom = serviceId === CUSTOM_ID;
   const selected = services.find((s) => s.id === serviceId) ?? service;
+  const effTitle = isCustom ? customTitle.trim() : selected.title;
+  const effPrice = isCustom ? Math.max(0, Math.round(Number(customPrice) || 0)) : selected.price;
+
 
   // Real bookable slots come from the provider's weekly hours minus taken times.
   useEffect(() => {
@@ -419,11 +432,13 @@ function BookingRequestDialog({
     setBusy(true);
     const { data, error } = await supabase.rpc("request_booking", {
       _provider_id: provider.id,
-      _service_id: serviceId,
+      _service_id: isCustom ? (null as unknown as string) : serviceId,
       _scheduled_at: new Date(when).toISOString(),
       _notes: notes,
       _address: address,
+      ...(isCustom ? { _custom_title: effTitle, _custom_price: effPrice } : {}),
     });
+
     setBusy(false);
     const result = data as { ok?: boolean; error?: string } | null;
     if (error || !result?.ok) {
@@ -464,23 +479,58 @@ function BookingRequestDialog({
               setStep("confirm");
             }}
           >
-            <div className="space-y-1.5">
-              <Label htmlFor="svc">{fr ? "Service" : "Service"}</Label>
-              <select
-                id="svc"
-                value={serviceId}
-                onChange={(e) => setServiceId(e.target.value)}
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-              >
-                {services.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.title} — {formatXAF(s.price)}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {isCustom ? (
+              <>
+                <div className="space-y-1.5">
+                  <Label htmlFor="ctitle">{fr ? "Que voulez-vous ?" : "What do you need?"}</Label>
+                  <Input
+                    id="ctitle"
+                    value={customTitle}
+                    onChange={(e) => setCustomTitle(e.target.value)}
+                    placeholder={fr ? "ex. Tresses box, coupe homme…" : "e.g. Box braids, men's haircut…"}
+                    maxLength={120}
+                    required
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="cprice">{fr ? "Votre budget (XAF)" : "Your budget (XAF)"}</Label>
+                  <Input
+                    id="cprice"
+                    type="number"
+                    min={0}
+                    step={500}
+                    inputMode="numeric"
+                    value={customPrice}
+                    onChange={(e) => setCustomPrice(e.target.value)}
+                    placeholder="5000"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {fr
+                      ? "Le pro confirme le prix avant tout paiement."
+                      : "The pro confirms the price before any payment."}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="space-y-1.5">
+                <Label htmlFor="svc">{fr ? "Service" : "Service"}</Label>
+                <select
+                  id="svc"
+                  value={serviceId}
+                  onChange={(e) => setServiceId(e.target.value)}
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  {services.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.title} — {formatXAF(s.price)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             <div className="space-y-1.5">
               <Label htmlFor="day">{fr ? "Date" : "Date"}</Label>
+
               <Input
                 id="day"
                 type="date"
@@ -551,7 +601,7 @@ function BookingRequestDialog({
               <Label htmlFor="notes">{fr ? "Détails" : "Details"}</Label>
               <Textarea id="notes" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
             </div>
-            <Button type="submit" className="w-full" disabled={!when}>
+            <Button type="submit" className="w-full" disabled={!when || (isCustom && !customTitle.trim())}>
               {fr ? "Continuer" : "Continue"}
             </Button>
           </form>
@@ -559,12 +609,16 @@ function BookingRequestDialog({
           <div className="space-y-4">
             <dl className="space-y-2 rounded-xl border border-border p-3 text-sm">
               <Row label={fr ? "Pro" : "Provider"} value={provider.name} />
-              <Row label={fr ? "Service" : "Service"} value={selected.title} />
+              <Row label={fr ? "Service" : "Service"} value={effTitle} />
               <Row label={fr ? "Date" : "Date"} value={formatDateTime(new Date(when).toISOString())} />
               <Row label={fr ? "Durée" : "Duration"} value={`${selected.duration_minutes} min`} />
               <Row label={fr ? "Lieu" : "Location"} value={address || provider.city || "—"} />
-              <Row label={fr ? "Total" : "Total"} value={formatXAF(selected.price)} />
+              <Row
+                label={isCustom ? (fr ? "Budget" : "Budget") : fr ? "Total" : "Total"}
+                value={effPrice > 0 ? formatXAF(effPrice) : fr ? "À confirmer" : "To be confirmed"}
+              />
             </dl>
+
             <p className="flex items-start gap-2 rounded-xl bg-muted p-3 text-xs text-muted-foreground">
               <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden />
               {fr
