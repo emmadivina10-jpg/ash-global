@@ -210,6 +210,16 @@ function ProviderPage() {
                 <MessageCircle className="size-4" aria-hidden />
                 {t("svc.chat")}
               </Button>
+
+              {isOwner ? null : (
+                <ReportDialog
+                  targetType="PROVIDER"
+                  targetId={provider.id}
+                  targetUserId={provider.user_id}
+                  targetLabel={provider.business_name}
+                  variant="outline"
+                />
+              )}
             </div>
 
           </div>
