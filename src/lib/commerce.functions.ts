@@ -197,13 +197,19 @@ export const verifyCommerceCharge = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { reference: string }) => ({ reference: String(input?.reference ?? "").slice(0, 64) }))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
     const { tchokoPay } = await import("./tchokopay.server");
     const isTicket = data.reference.startsWith("EVT-");
 
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const row = isTicket
       ? await supabase.from("event_tickets").select("payment_reference, provider_transaction_id, status").eq("payment_reference", data.reference).maybeSingle()
-      : await supabase.from("promotions").select("payment_reference, provider_transaction_id, status").eq("payment_reference", data.reference).maybeSingle();
+      : await supabaseAdmin
+          .from("promotions")
+          .select("payment_reference, provider_transaction_id, status")
+          .eq("payment_reference", data.reference)
+          .eq("owner_id", userId)
+          .maybeSingle();
 
     const record = row.data as { provider_transaction_id: string | null; status: string } | null;
     if (!record) return { ok: false as const, status: "NOT_FOUND" as const };
