@@ -32,6 +32,7 @@ const NAV = [
   { to: "/console", label: "Overview", icon: BarChart3, group: "Insights" },
   { to: "/console/payments", label: "Payments", icon: CreditCard, group: "Money" },
   { to: "/console/withdrawals", label: "Withdrawals", icon: Wallet, group: "Money" },
+  { to: "/console/payout", label: "Payout", icon: Banknote, group: "Money" },
   { to: "/console/ledger", label: "Ledger", icon: ReceiptText, group: "Money" },
   { to: "/console/users", label: "Users", icon: Users, group: "People" },
   { to: "/console/providers", label: "Providers", icon: Store, group: "People" },
