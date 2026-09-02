@@ -129,9 +129,17 @@ function SettingsPage() {
         action={<LifeBuoy className="size-4 text-muted-foreground" aria-hidden />}
       >
         <p className="text-sm leading-relaxed text-muted-foreground">{t("settings.support.copy")}</p>
-        <Button asChild variant="outline" className="mt-3">
-          <Link to="/support">{t("settings.support.cta")}</Link>
-        </Button>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Button asChild variant="outline">
+            <Link to="/support">{t("settings.support.cta")}</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/privacy">Privacy Policy</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/terms">Terms of Service</Link>
+          </Button>
+        </div>
 
       </SectionCard>
 
