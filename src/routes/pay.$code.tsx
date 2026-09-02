@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { BadgeCheck, Loader2, ShieldCheck } from "lucide-react";
+import { BadgeCheck, Smartphone, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { getPaymentLink, startLinkPayment, verifyLinkPayment } from "@/lib/storefront.functions";
+import { paymentErrorMessage } from "@/lib/payment-errors";
+import { MomoCharge } from "@/components/refer/MomoCharge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -57,30 +59,48 @@ function PayPage() {
   const start = useServerFn(startLinkPayment);
   const verify = useServerFn(verifyLinkPayment);
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
+  const [reference, setReference] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  // Coming back from the checkout page: confirm with the provider API.
+  // Poll the server while a prompt is on the payer's phone. The reference can
+  // also arrive in the URL (older links), which we honour the same way.
   useEffect(() => {
-    const ref = new URLSearchParams(window.location.search).get("ref");
-    if (!ref) return;
-    setBusy(true);
-    void verify({ data: { reference: ref } })
-      .then((r) => setStatus(r.ok ? r.status : "UNVERIFIED"))
-      .finally(() => setBusy(false));
-  }, [verify]);
+    const fromUrl = new URLSearchParams(window.location.search).get("ref");
+    if (fromUrl) setReference(fromUrl);
+  }, []);
 
-  async function pay(event: React.FormEvent) {
-    event.preventDefault();
+  useEffect(() => {
+    if (!reference || status === "PAID") return;
+    let cancelled = false;
+    async function check() {
+      const result = await verify({ data: { reference: reference! } });
+      if (cancelled) return;
+      if (result.ok) setStatus(result.status);
+    }
+    void check();
+    const id = setInterval(() => void check(), 5000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [reference, status, verify]);
+
+  async function pay(provider: string, phone: string) {
     setBusy(true);
-    const result = await start({ data: { code: link.code, name, phone } });
+    setError(null);
+    const result = await start({ data: { code: link.code, name, phone, provider } });
     setBusy(false);
-    if (!result.ok || !result.checkoutUrl) {
-      toast.error(result.ok ? "Could not open checkout." : "Payment could not start. Try again.");
+    if (!result.ok) {
+      const text = paymentErrorMessage(result.error, false, result.message);
+      setError(text);
+      toast.error(text);
       return;
     }
-    window.location.href = result.checkoutUrl;
+    setReference(result.reference);
+    setStatus(result.status);
+    toast.message("Check your phone and approve the payment prompt.");
   }
 
   return (
@@ -116,32 +136,42 @@ function PayPage() {
             <p className="mt-5 rounded-2xl bg-muted p-4 text-sm text-muted-foreground">
               This payment link is no longer active.
             </p>
-          ) : (
-            <form className="mt-5 space-y-3" onSubmit={pay}>
-              <div className="space-y-1.5">
-                <Label htmlFor="name">Your name</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required maxLength={80} />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="phone">Mobile Money number</Label>
-                <Input
-                  id="phone"
-                  inputMode="tel"
-                  placeholder="6XXXXXXXX"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  required
-                  maxLength={20}
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={busy || !name || !phone}>
-                {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-                Pay {formatXAF(link.amount)}
-              </Button>
-              {status && status !== "PAID" ? (
-                <p className="text-center text-xs text-muted-foreground">Last attempt: {status}</p>
+          ) : reference ? (
+            <div className="mt-5 rounded-2xl border border-border bg-muted/50 p-4">
+              <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <Smartphone className="size-4 text-primary" aria-hidden />
+                Approve the prompt on your phone
+              </p>
+              <p className="tabular mt-2 text-xs text-muted-foreground">Reference {reference}</p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                {status && status !== "PENDING" && status !== "PROCESSING"
+                  ? `Last status: ${status}.`
+                  : "We're checking with TchokoPay every few seconds."}
+              </p>
+              {status === "FAILED" || status === "CANCELLED" ? (
+                <Button variant="outline" className="mt-3 w-full" onClick={() => setReference(null)}>
+                  Try again
+                </Button>
               ) : null}
-            </form>
+            </div>
+          ) : (
+            <div className="mt-5">
+              {error ? (
+                <p role="alert" className="mb-3 rounded-xl border border-destructive/25 bg-destructive/5 p-3 text-sm">
+                  {error}
+                </p>
+              ) : null}
+              <MomoCharge
+                busy={busy}
+                submitLabel={busy ? "Sending prompt…" : `Pay ${formatXAF(link.amount)}`}
+                onCharge={pay}
+              >
+                <div className="space-y-1.5">
+                  <Label htmlFor="name">Your name</Label>
+                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required maxLength={80} />
+                </div>
+              </MomoCharge>
+            </div>
           )}
 
           <p className="mt-4 flex items-start gap-2 text-xs text-muted-foreground">
