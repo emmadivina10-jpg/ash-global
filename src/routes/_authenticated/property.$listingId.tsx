@@ -131,6 +131,28 @@ function PropertyDetail() {
     toast.success(fr ? "Demande de visite envoyée." : "Viewing request sent.");
   }
 
+  async function messageOwner() {
+    setBusy(true);
+    try {
+      const conversationId = await openPropertyConversation(listingId);
+      await navigate({ to: "/messages", search: { c: conversationId } });
+    } catch (cause) {
+      toast.error(
+        cause instanceof Error && cause.message === "OWN_LISTING"
+          ? fr
+            ? "C’est votre propre annonce."
+            : "This is your own listing."
+          : fr
+            ? "Impossible d’ouvrir la discussion."
+            : "Could not open the chat.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
