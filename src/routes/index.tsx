@@ -248,6 +248,39 @@ function Landing() {
               ))}
             </div>
 
+            {/* ASH Property advert */}
+            <section className="tile group relative col-span-full overflow-hidden p-0">
+              <div className="relative grid gap-0 sm:grid-cols-2">
+                <img
+                  src={marketProperty}
+                  alt="Apartments and rental homes listed on ASH Property"
+                  className="h-56 w-full object-cover transition-transform duration-700 group-hover:scale-105 sm:h-full"
+                  loading="lazy"
+                  width={1280}
+                  height={860}
+                />
+                <div className="flex flex-col justify-center gap-3 p-6 sm:p-8">
+                  <span className="w-fit rounded-full bg-primary/12 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
+                    ASH Property
+                  </span>
+                  <h2 className="font-display text-2xl font-extrabold text-foreground sm:text-3xl">
+                    {t("landing.property.title")}
+                  </h2>
+                  <p className="text-sm text-muted-foreground">{t("landing.property.copy")}</p>
+                  <div className="mt-1 flex flex-wrap gap-2">
+                    <Button asChild>
+                      <Link to="/property">{t("landing.property.browse")}</Link>
+                    </Button>
+                    <Button asChild variant="outline">
+                      <Link to="/property/new">{t("landing.property.list")}</Link>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+
+
 
             {/* Primary hero tile */}
             <div className="tile-dark grain relative col-span-full flex flex-col justify-between p-7 sm:p-10 lg:col-span-7 lg:min-h-[26rem]">
