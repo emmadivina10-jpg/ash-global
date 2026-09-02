@@ -18,7 +18,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-export type ReportTargetType = "PROVIDER" | "REVIEW" | "MESSAGE" | "USER" | "PORTFOLIO";
+export type ReportTargetType = "PROVIDER" | "REVIEW" | "MESSAGE" | "USER" | "PORTFOLIO" | "PROPERTY";
 
 const REASONS = [
   { value: "SPAM", en: "Spam or misleading", fr: "Spam ou trompeur" },

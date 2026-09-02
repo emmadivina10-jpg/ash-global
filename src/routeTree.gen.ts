@@ -70,6 +70,7 @@ import { Route as AuthenticatedFreelanceIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedFreelanceProjectIdRouteImport } from './routes/_authenticated/freelance.$projectId'
 import { Route as AuthenticatedPropertyIndexRouteImport } from './routes/_authenticated/property.index'
 import { Route as AuthenticatedPropertyListingIdRouteImport } from './routes/_authenticated/property.$listingId'
+import { Route as AuthenticatedPropertyManageRouteImport } from './routes/_authenticated/property.manage'
 import { Route as AuthenticatedPropertyNewRouteImport } from './routes/_authenticated/property.new'
 import { Route as AuthenticatedServicesIndexRouteImport } from './routes/_authenticated/services.index'
 import { Route as AuthenticatedServicesProviderIdRouteImport } from './routes/_authenticated/services.$providerId'
@@ -391,6 +392,12 @@ const AuthenticatedPropertyListingIdRoute =
     path: '/property/$listingId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPropertyManageRoute =
+  AuthenticatedPropertyManageRouteImport.update({
+    id: '/property/manage',
+    path: '/property/manage',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPropertyNewRoute =
   AuthenticatedPropertyNewRouteImport.update({
     id: '/property/new',
@@ -502,6 +509,7 @@ export interface FileRoutesByFullPath {
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
+  '/property/manage': typeof AuthenticatedPropertyManageRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
@@ -572,6 +580,7 @@ export interface FileRoutesByTo {
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
+  '/property/manage': typeof AuthenticatedPropertyManageRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
@@ -645,6 +654,7 @@ export interface FileRoutesById {
   '/_authenticated/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/_authenticated/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/_authenticated/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
+  '/_authenticated/property/manage': typeof AuthenticatedPropertyManageRoute
   '/_authenticated/property/new': typeof AuthenticatedPropertyNewRoute
   '/_authenticated/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
@@ -718,6 +728,7 @@ export interface FileRouteTypes {
     | '/events/$eventId'
     | '/freelance/$projectId'
     | '/property/$listingId'
+    | '/property/manage'
     | '/property/new'
     | '/services/$providerId'
     | '/api/public/reconcile-activations'
@@ -788,6 +799,7 @@ export interface FileRouteTypes {
     | '/events/$eventId'
     | '/freelance/$projectId'
     | '/property/$listingId'
+    | '/property/manage'
     | '/property/new'
     | '/services/$providerId'
     | '/api/public/reconcile-activations'
@@ -860,6 +872,7 @@ export interface FileRouteTypes {
     | '/_authenticated/events/$eventId'
     | '/_authenticated/freelance/$projectId'
     | '/_authenticated/property/$listingId'
+    | '/_authenticated/property/manage'
     | '/_authenticated/property/new'
     | '/_authenticated/services/$providerId'
     | '/api/public/reconcile-activations'
@@ -1327,6 +1340,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPropertyListingIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/property/manage': {
+      id: '/_authenticated/property/manage'
+      path: '/property/manage'
+      fullPath: '/property/manage'
+      preLoaderRoute: typeof AuthenticatedPropertyManageRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/property/new': {
       id: '/_authenticated/property/new'
       path: '/property/new'
@@ -1413,6 +1433,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedEventsEventIdRoute: typeof AuthenticatedEventsEventIdRoute
   AuthenticatedFreelanceProjectIdRoute: typeof AuthenticatedFreelanceProjectIdRoute
   AuthenticatedPropertyListingIdRoute: typeof AuthenticatedPropertyListingIdRoute
+  AuthenticatedPropertyManageRoute: typeof AuthenticatedPropertyManageRoute
   AuthenticatedPropertyNewRoute: typeof AuthenticatedPropertyNewRoute
   AuthenticatedServicesProviderIdRoute: typeof AuthenticatedServicesProviderIdRoute
   AuthenticatedEventsIndexRoute: typeof AuthenticatedEventsIndexRoute
@@ -1441,6 +1462,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEventsEventIdRoute: AuthenticatedEventsEventIdRoute,
   AuthenticatedFreelanceProjectIdRoute: AuthenticatedFreelanceProjectIdRoute,
   AuthenticatedPropertyListingIdRoute: AuthenticatedPropertyListingIdRoute,
+  AuthenticatedPropertyManageRoute: AuthenticatedPropertyManageRoute,
   AuthenticatedPropertyNewRoute: AuthenticatedPropertyNewRoute,
   AuthenticatedServicesProviderIdRoute: AuthenticatedServicesProviderIdRoute,
   AuthenticatedEventsIndexRoute: AuthenticatedEventsIndexRoute,
