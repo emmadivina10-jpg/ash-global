@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AccountDeletionRouteImport } from './routes/account-deletion'
 import { Route as ConsoleRouteImport } from './routes/console'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
@@ -19,6 +20,7 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SupportRouteImport } from './routes/support'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedActivateRouteImport } from './routes/_authenticated/activate'
 import { Route as AuthenticatedAssistantRouteImport } from './routes/_authenticated/assistant'
 import { Route as AuthenticatedBookingsRouteImport } from './routes/_authenticated/bookings'
@@ -47,6 +49,7 @@ import { Route as ConsolePartnershipsRouteImport } from './routes/console.partne
 import { Route as ConsolePaymentsRouteImport } from './routes/console.payments'
 import { Route as ConsolePayoutRouteImport } from './routes/console.payout'
 import { Route as ConsoleProvidersRouteImport } from './routes/console.providers'
+import { Route as ConsoleReportsRouteImport } from './routes/console.reports'
 import { Route as ConsoleRevenueRouteImport } from './routes/console.revenue'
 import { Route as ConsoleSalesRouteImport } from './routes/console.sales'
 import { Route as ConsoleSecurityRouteImport } from './routes/console.security'
@@ -73,6 +76,11 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountDeletionRoute = AccountDeletionRouteImport.update({
+  id: '/account-deletion',
+  path: '/account-deletion',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConsoleRoute = ConsoleRouteImport.update({
@@ -113,6 +121,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const SupportRoute = SupportRouteImport.update({
   id: '/support',
   path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedActivateRoute = AuthenticatedActivateRouteImport.update({
@@ -256,6 +269,11 @@ const ConsoleProvidersRoute = ConsoleProvidersRouteImport.update({
   path: '/providers',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const ConsoleReportsRoute = ConsoleReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => ConsoleRoute,
+} as any)
 const ConsoleRevenueRoute = ConsoleRevenueRouteImport.update({
   id: '/revenue',
   path: '/revenue',
@@ -355,6 +373,7 @@ const LovableEmailTransactionalPreviewRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account-deletion': typeof AccountDeletionRoute
   '/console': typeof ConsoleRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
@@ -363,6 +382,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
+  '/terms': typeof TermsRoute
   '/activate': typeof AuthenticatedActivateRoute
   '/assistant': typeof AuthenticatedAssistantRoute
   '/bookings': typeof AuthenticatedBookingsRoute
@@ -390,6 +410,7 @@ export interface FileRoutesByFullPath {
   '/console/payments': typeof ConsolePaymentsRoute
   '/console/payout': typeof ConsolePayoutRoute
   '/console/providers': typeof ConsoleProvidersRoute
+  '/console/reports': typeof ConsoleReportsRoute
   '/console/revenue': typeof ConsoleRevenueRoute
   '/console/sales': typeof ConsoleSalesRoute
   '/console/security': typeof ConsoleSecurityRoute
@@ -412,6 +433,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account-deletion': typeof AccountDeletionRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
@@ -419,6 +441,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
+  '/terms': typeof TermsRoute
   '/activate': typeof AuthenticatedActivateRoute
   '/assistant': typeof AuthenticatedAssistantRoute
   '/bookings': typeof AuthenticatedBookingsRoute
@@ -446,6 +469,7 @@ export interface FileRoutesByTo {
   '/console/payments': typeof ConsolePaymentsRoute
   '/console/payout': typeof ConsolePayoutRoute
   '/console/providers': typeof ConsoleProvidersRoute
+  '/console/reports': typeof ConsoleReportsRoute
   '/console/revenue': typeof ConsoleRevenueRoute
   '/console/sales': typeof ConsoleSalesRoute
   '/console/security': typeof ConsoleSecurityRoute
@@ -470,6 +494,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/account-deletion': typeof AccountDeletionRoute
   '/console': typeof ConsoleRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
@@ -478,6 +503,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
+  '/terms': typeof TermsRoute
   '/_authenticated/activate': typeof AuthenticatedActivateRoute
   '/_authenticated/assistant': typeof AuthenticatedAssistantRoute
   '/_authenticated/bookings': typeof AuthenticatedBookingsRoute
@@ -505,6 +531,7 @@ export interface FileRoutesById {
   '/console/payments': typeof ConsolePaymentsRoute
   '/console/payout': typeof ConsolePayoutRoute
   '/console/providers': typeof ConsoleProvidersRoute
+  '/console/reports': typeof ConsoleReportsRoute
   '/console/revenue': typeof ConsoleRevenueRoute
   '/console/sales': typeof ConsoleSalesRoute
   '/console/security': typeof ConsoleSecurityRoute
@@ -529,6 +556,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/account-deletion'
     | '/console'
     | '/forgot-password'
     | '/login'
@@ -537,6 +565,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/support'
+    | '/terms'
     | '/activate'
     | '/assistant'
     | '/bookings'
@@ -564,6 +593,7 @@ export interface FileRouteTypes {
     | '/console/payments'
     | '/console/payout'
     | '/console/providers'
+    | '/console/reports'
     | '/console/revenue'
     | '/console/sales'
     | '/console/security'
@@ -586,6 +616,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/account-deletion'
     | '/forgot-password'
     | '/login'
     | '/privacy'
@@ -593,6 +624,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/support'
+    | '/terms'
     | '/activate'
     | '/assistant'
     | '/bookings'
@@ -620,6 +652,7 @@ export interface FileRouteTypes {
     | '/console/payments'
     | '/console/payout'
     | '/console/providers'
+    | '/console/reports'
     | '/console/revenue'
     | '/console/sales'
     | '/console/security'
@@ -643,6 +676,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/account-deletion'
     | '/console'
     | '/forgot-password'
     | '/login'
@@ -651,6 +685,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/support'
+    | '/terms'
     | '/_authenticated/activate'
     | '/_authenticated/assistant'
     | '/_authenticated/bookings'
@@ -678,6 +713,7 @@ export interface FileRouteTypes {
     | '/console/payments'
     | '/console/payout'
     | '/console/providers'
+    | '/console/reports'
     | '/console/revenue'
     | '/console/sales'
     | '/console/security'
@@ -702,6 +738,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AccountDeletionRoute: typeof AccountDeletionRoute
   ConsoleRoute: typeof ConsoleRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
@@ -710,6 +747,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SupportRoute: typeof SupportRoute
+  TermsRoute: typeof TermsRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   PayCodeRoute: typeof PayCodeRoute
   SSlugRoute: typeof SSlugRoute
@@ -735,6 +773,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account-deletion': {
+      id: '/account-deletion'
+      path: '/account-deletion'
+      fullPath: '/account-deletion'
+      preLoaderRoute: typeof AccountDeletionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/console': {
@@ -791,6 +836,13 @@ declare module '@tanstack/react-router' {
       path: '/support'
       fullPath: '/support'
       preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/activate': {
@@ -989,6 +1041,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleProvidersRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/console/reports': {
+      id: '/console/reports'
+      path: '/reports'
+      fullPath: '/console/reports'
+      preLoaderRoute: typeof ConsoleReportsRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
     '/console/revenue': {
       id: '/console/revenue'
       path: '/revenue'
@@ -1170,6 +1229,7 @@ interface ConsoleRouteChildren {
   ConsolePaymentsRoute: typeof ConsolePaymentsRoute
   ConsolePayoutRoute: typeof ConsolePayoutRoute
   ConsoleProvidersRoute: typeof ConsoleProvidersRoute
+  ConsoleReportsRoute: typeof ConsoleReportsRoute
   ConsoleRevenueRoute: typeof ConsoleRevenueRoute
   ConsoleSalesRoute: typeof ConsoleSalesRoute
   ConsoleSecurityRoute: typeof ConsoleSecurityRoute
@@ -1196,6 +1256,7 @@ const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsolePaymentsRoute: ConsolePaymentsRoute,
   ConsolePayoutRoute: ConsolePayoutRoute,
   ConsoleProvidersRoute: ConsoleProvidersRoute,
+  ConsoleReportsRoute: ConsoleReportsRoute,
   ConsoleRevenueRoute: ConsoleRevenueRoute,
   ConsoleSalesRoute: ConsoleSalesRoute,
   ConsoleSecurityRoute: ConsoleSecurityRoute,
@@ -1213,6 +1274,7 @@ const ConsoleRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AccountDeletionRoute: AccountDeletionRoute,
   ConsoleRoute: ConsoleRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
@@ -1221,6 +1283,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SupportRoute: SupportRoute,
+  TermsRoute: TermsRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   PayCodeRoute: PayCodeRoute,
   SSlugRoute: SSlugRoute,
