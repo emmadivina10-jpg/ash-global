@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { MessageCircle } from "lucide-react";
+import { ArrowLeft, MessageCircle } from "lucide-react";
 import { useConversations } from "@/lib/marketplace.queries";
 import { useUser } from "@/lib/queries";
 import { ChatThread } from "@/components/refer/ChatThread";
