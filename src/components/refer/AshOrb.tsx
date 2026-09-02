@@ -155,7 +155,7 @@ export function AshOrb() {
               </span>
             </button>
 
-            <a href="mailto:support@ashglogroup.company" className="tile flex w-full items-center gap-3 p-4 text-left">
+            <Link to="/support" onClick={() => setOpen(false)} className="tile flex w-full items-center gap-3 p-4 text-left">
               <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-gold-soft text-gold-foreground">
                 <Headphones className="size-5" aria-hidden />
               </span>
@@ -163,18 +163,22 @@ export function AshOrb() {
                 <span className="block text-sm font-bold text-foreground">
                   {fr ? "Contacter le support" : "Contact support"}
                 </span>
+                <span className="block truncate text-xs text-muted-foreground">
+                  {fr ? "Nous répondons par e-mail sous 24 h" : "We reply by email within 24 hours"}
+                </span>
+              </span>
+            </Link>
+
+            <a href="mailto:support@ashglogroup.company" className="tile flex w-full items-center gap-3 p-4 text-left">
+              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-muted text-muted-foreground">
+                <Mail className="size-5" aria-hidden />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-sm font-bold text-foreground">{fr ? "Par e-mail" : "By email"}</span>
                 <span className="block truncate text-xs text-muted-foreground">support@ashglogroup.company</span>
               </span>
             </a>
 
-            <div className="rounded-2xl border border-dashed border-border p-4">
-              <p className="text-sm font-semibold text-foreground">{fr ? "Mes tickets" : "My tickets"}</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {fr
-                  ? "Le suivi des tickets arrive bientôt. En attendant, écrivez-nous par e-mail."
-                  : "Ticket tracking is coming soon. Email us in the meantime and we'll reply there."}
-              </p>
-            </div>
           </div>
         ) : null}
 
