@@ -48,6 +48,12 @@ function MessagesPage() {
       : (conv.provider?.business_name ?? t("chat.title"));
   }
 
+  /** The other person's auth id — used for reporting and blocking. */
+  function peerUserIdOf(conv: (typeof list)[number]): string | null {
+    const viewerIsProvider = Boolean(user?.id) && conv.provider?.user_id === user?.id;
+    return (viewerIsProvider ? conv.client?.user_id : conv.provider?.user_id) ?? null;
+  }
+
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
       <header className={cn(mobileView === "thread" && "hidden", "md:block")}>
