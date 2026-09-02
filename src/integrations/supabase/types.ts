@@ -1020,6 +1020,86 @@ export type Database = {
         }
         Relationships: []
       }
+      support_ticket_messages: {
+        Row: {
+          body: string
+          created_at: string
+          email_error: string | null
+          email_sent: boolean
+          id: string
+          sender: string
+          ticket_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          email_error?: string | null
+          email_sent?: boolean
+          id?: string
+          sender: string
+          ticket_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          email_error?: string | null
+          email_sent?: boolean
+          id?: string
+          sender?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_ticket_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          category: string
+          created_at: string
+          email: string
+          id: string
+          last_message_at: string
+          name: string
+          priority: string
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          email: string
+          id?: string
+          last_message_at?: string
+          name: string
+          priority?: string
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          email?: string
+          id?: string
+          last_message_at?: string
+          name?: string
+          priority?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number
