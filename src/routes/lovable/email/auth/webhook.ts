@@ -9,7 +9,7 @@ import { EmailChangeEmail } from '@/lib/email-templates/email-change'
 import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
 
 // Configuration
-const SITE_NAME = "ashglo-group"
+const SITE_NAME = "ASH Glo"
 const SENDER_DOMAIN = "notify.ashglogroup.company"
 const ROOT_DOMAIN = "ashglogroup.company"
 const FROM_DOMAIN = "notify.ashglogroup.company"
