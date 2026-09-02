@@ -65,7 +65,12 @@ function MessagesPage() {
         />
       ) : (
         <div className="grid gap-4 md:grid-cols-[280px_minmax(0,1fr)]">
-          <nav className="tile max-h-64 space-y-1 overflow-y-auto p-2 md:max-h-[70vh]">
+          <nav
+            className={cn(
+              "tile space-y-1 overflow-y-auto p-2 md:max-h-[70vh]",
+              mobileView === "thread" ? "hidden md:block" : "max-h-[calc(100dvh-12rem)]",
+            )}
+          >
             {list.map((conv) => {
               const label = peerOf(conv);
               return (
