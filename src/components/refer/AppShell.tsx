@@ -3,12 +3,17 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowDownToLine,
+  BarChart3,
+  Briefcase,
   CalendarDays,
+  Flame,
+  PlusCircle,
   Store,
   TrendingUp,
   LogOut,
   MessageCircle,
   Receipt,
+  Search,
   Settings as SettingsIcon,
   Shield,
   Sparkles,
@@ -33,16 +38,22 @@ import { useRegion } from "@/lib/region-context";
 import { RegionSwitcher } from "./RegionSwitcher";
 import { cn } from "@/lib/utils";
 
-type NavItem = { to: string; key: TKey; icon: typeof Store; referralOnly?: boolean };
+type NavItem = { to: string; key: TKey; label?: string; icon: typeof Store; referralOnly?: boolean };
 
 const NAV: NavItem[] = [
   { to: "/services", key: "nav.services" as TKey, icon: Store },
-  { to: "/dashboard", key: "nav.home" as TKey, icon: TrendingUp, referralOnly: true },
+  { to: "/search", key: "nav.search" as TKey, label: "Search", icon: Search },
+  { to: "/create", key: "nav.create" as TKey, label: "Create", icon: PlusCircle },
   { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle },
-  { to: "/network", key: "nav.network" as TKey, icon: Users, referralOnly: true },
 ];
 
 const SIDE_EXTRA: NavItem[] = [
+  { to: "/deals", key: "nav.deals" as TKey, label: "Deals", icon: Flame },
+  { to: "/events", key: "nav.events" as TKey, label: "Events", icon: CalendarDays },
+  { to: "/freelance", key: "nav.freelance" as TKey, label: "Freelance", icon: Briefcase },
+  { to: "/dashboard", key: "nav.home" as TKey, icon: TrendingUp, referralOnly: true },
+  { to: "/network", key: "nav.network" as TKey, icon: Users, referralOnly: true },
+  { to: "/analytics", key: "nav.analytics" as TKey, label: "Analytics", icon: BarChart3 },
   { to: "/profile", key: "nav.profile" as TKey, icon: UserIcon },
   { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet },
   { to: "/bookings", key: "nav.bookings" as TKey, icon: CalendarDays },
