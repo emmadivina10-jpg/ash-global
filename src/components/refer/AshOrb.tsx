@@ -155,7 +155,7 @@ export function AshOrb() {
               </span>
             </button>
 
-            <a href="mailto:support@growrefer.app" className="tile flex w-full items-center gap-3 p-4 text-left">
+            <a href="mailto:support@ashglogroup.company" className="tile flex w-full items-center gap-3 p-4 text-left">
               <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-gold-soft text-gold-foreground">
                 <Headphones className="size-5" aria-hidden />
               </span>
@@ -163,7 +163,7 @@ export function AshOrb() {
                 <span className="block text-sm font-bold text-foreground">
                   {fr ? "Contacter le support" : "Contact support"}
                 </span>
-                <span className="block truncate text-xs text-muted-foreground">support@growrefer.app</span>
+                <span className="block truncate text-xs text-muted-foreground">support@ashglogroup.company</span>
               </span>
             </a>
 

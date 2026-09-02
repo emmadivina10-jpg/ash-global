@@ -221,7 +221,7 @@ export const startLinkPayment = createServerFn({ method: "POST" })
     });
     if (chargeError) return { ok: false as const, error: "CHARGE_CREATE_FAILED" };
 
-    const appUrl = process.env["APP_URL"] ?? "https://growrefer.app";
+    const appUrl = process.env["APP_URL"] ?? "https://ashglogroup.company";
     const { tchokoPay } = await import("./tchokopay.server");
     const result = await tchokoPay.createPayment({
       reference,

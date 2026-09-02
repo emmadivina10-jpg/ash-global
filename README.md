@@ -84,8 +84,8 @@ The recommended flow is:
 
 ## Project URLs
 
-- Published: https://growrefer.app
-- Custom domain: https://www.growrefer.app
+- Published: https://ashglogroup.company
+- Custom domain: https://www.ashglogroup.company
 
 ---
 

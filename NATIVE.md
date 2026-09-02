@@ -33,7 +33,7 @@ npx cap open android   # builds & runs from Android Studio
 
 You do **not** need to rebuild the app for normal product changes — publishing
 the web app updates the native apps immediately, because they load
-`https://growrefer.app`.
+`https://ashglogroup.company`.
 
 To point a build at the preview environment instead:
 
@@ -45,7 +45,7 @@ CAP_SERVER_URL=https://project--27f7580a-d6af-45a7-9546-ba56b1916cbe-dev.lovable
 
 | Setting | Value |
 | --- | --- |
-| App ID (bundle id / package name) | `app.growrefer.ashglo` |
+| App ID (bundle id / package name) | `com.ashglogroup.app` |
 | App name | ASH Glo |
 | Splash / status bar colour | `#080812` |
 
