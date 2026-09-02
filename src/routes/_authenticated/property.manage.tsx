@@ -1,14 +1,19 @@
 import { useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { BarChart3, CalendarClock, Heart, Home, Plus } from "lucide-react";
+import { BarChart3, CalendarClock, Heart, Home, MessageCircle, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PropertyCard } from "@/components/refer/PropertyCard";
 import { PromoteDialog } from "@/components/refer/PromoteDialog";
 import { EmptyState, LoadingState } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
-import { useMyProperties, useSavedProperties, useViewingRequests } from "@/lib/property.queries";
+import {
+  openPropertyConversation,
+  useMyProperties,
+  useSavedProperties,
+  useViewingRequests,
+} from "@/lib/property.queries";
 import { PROPERTY_STATUSES, categoryLabel, formatPropertyPrice } from "@/lib/property";
 import { formatDateTime } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
@@ -34,7 +39,18 @@ function ManageProperty() {
   const { lang } = useI18n();
   const fr = lang === "fr";
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("LISTINGS");
+
+  async function chatAboutListing(listingId: string) {
+    try {
+      const conversationId = await openPropertyConversation(listingId);
+      await navigate({ to: "/messages", search: { c: conversationId } });
+    } catch {
+      toast.error(fr ? "Impossible d’ouvrir la discussion." : "Could not open the chat.");
+    }
+  }
+
 
   const { data: mine, isLoading } = useMyProperties();
   const { data: incoming } = useViewingRequests("owner");
@@ -267,7 +283,17 @@ function ManageProperty() {
                     {row.response_note ? (
                       <p className="mt-2 text-sm text-muted-foreground">{row.response_note}</p>
                     ) : null}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="mt-3"
+                      onClick={() => void chatAboutListing(row.listing_id)}
+                    >
+                      <MessageCircle className="size-4" aria-hidden />
+                      {fr ? "Discuter avec le propriétaire" : "Message owner"}
+                    </Button>
                   </div>
+
                 ))}
               </div>
             )}

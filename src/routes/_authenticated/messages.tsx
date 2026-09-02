@@ -40,8 +40,12 @@ function MessagesPage() {
   const active = list.find((conv) => conv.id === activeId);
   const mobileView = c ? "thread" : "list";
 
-  /** Providers see the client; clients see the business. */
+  /** Providers see the client; clients see the business. Property threads show the listing/owner. */
   function peerOf(conv: (typeof list)[number]): string {
+    if (conv.listing_id) {
+      const viewerIsOwner = Boolean(user?.id) && conv.owner_id === user?.id;
+      return viewerIsOwner ? (conv.client?.full_name ?? "ASH client") : (conv.listing?.title ?? "ASH Property");
+    }
     const viewerIsProvider = Boolean(user?.id) && conv.provider?.user_id === user?.id;
     return viewerIsProvider
       ? (conv.client?.full_name ?? "ASH client")
@@ -50,6 +54,10 @@ function MessagesPage() {
 
   /** The other person's auth id — used for reporting and blocking. */
   function peerUserIdOf(conv: (typeof list)[number]): string | null {
+    if (conv.listing_id) {
+      const viewerIsOwner = Boolean(user?.id) && conv.owner_id === user?.id;
+      return (viewerIsOwner ? conv.client_id : conv.owner_id) ?? null;
+    }
     const viewerIsProvider = Boolean(user?.id) && conv.provider?.user_id === user?.id;
     return (viewerIsProvider ? conv.client_id : conv.provider?.user_id) ?? null;
   }
@@ -105,6 +113,10 @@ function MessagesPage() {
                       {conv.booking ? (
                         <span className="block truncate text-[11px] text-muted-foreground">
                           {conv.booking.service_title} · {formatXAF(Number(conv.booking.price))}
+                        </span>
+                      ) : conv.listing ? (
+                        <span className="block truncate text-[11px] text-muted-foreground">
+                          ASH Property · {conv.listing.city}
                         </span>
                       ) : (
                         <span className="block truncate text-[11px] text-muted-foreground">{t("chat.pick")}</span>

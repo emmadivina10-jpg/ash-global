@@ -31,9 +31,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useProperty, useSavedIds, useSimilarProperties } from "@/lib/property.queries";
+import { useProperty, useSavedIds, useSimilarProperties, openPropertyConversation } from "@/lib/property.queries";
 import { AMENITIES, VERIFICATION_STATES, categoryLabel, formatPropertyPrice, labelOf } from "@/lib/property";
 import { formatDateTime } from "@/lib/format";
+import { useUser } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -56,6 +57,10 @@ function PropertyDetail() {
   const { lang } = useI18n();
   const fr = lang === "fr";
   const queryClient = useQueryClient();
+  const navigate = Route.useNavigate();
+  const { user } = useUser();
+
+
 
   const { data, isLoading } = useProperty(listingId);
   const { data: similar } = useSimilarProperties(data?.listing ?? null);
@@ -125,6 +130,28 @@ function PropertyDetail() {
     await queryClient.invalidateQueries({ queryKey: ["property"] });
     toast.success(fr ? "Demande de visite envoyée." : "Viewing request sent.");
   }
+
+  async function messageOwner() {
+    setBusy(true);
+    try {
+      const conversationId = await openPropertyConversation(listingId);
+      await navigate({ to: "/messages", search: { c: conversationId } });
+    } catch (cause) {
+      toast.error(
+        cause instanceof Error && cause.message === "OWN_LISTING"
+          ? fr
+            ? "C’est votre propre annonce."
+            : "This is your own listing."
+          : fr
+            ? "Impossible d’ouvrir la discussion."
+            : "Could not open the chat.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+
 
   return (
     <div className="space-y-6">
@@ -306,6 +333,15 @@ function PropertyDetail() {
                   </div>
                 </DialogContent>
               </Dialog>
+
+              {user?.id && user.id !== listing.owner_id ? (
+                <Button variant="outline" className="w-full" disabled={busy} onClick={messageOwner}>
+                  <MessageCircle className="size-4" aria-hidden />
+                  {fr ? "Discuter avec le propriétaire" : "Message owner"}
+                </Button>
+              ) : null}
+
+
 
               {listing.contact_whatsapp ? (
                 <Button variant="outline" asChild className="w-full">

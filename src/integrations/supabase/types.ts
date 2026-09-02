@@ -282,7 +282,9 @@ export type Database = {
           created_at: string
           id: string
           last_message_at: string
-          provider_id: string
+          listing_id: string | null
+          owner_id: string | null
+          provider_id: string | null
         }
         Insert: {
           booking_id?: string | null
@@ -290,7 +292,9 @@ export type Database = {
           created_at?: string
           id?: string
           last_message_at?: string
-          provider_id: string
+          listing_id?: string | null
+          owner_id?: string | null
+          provider_id?: string | null
         }
         Update: {
           booking_id?: string | null
@@ -298,7 +302,9 @@ export type Database = {
           created_at?: string
           id?: string
           last_message_at?: string
-          provider_id?: string
+          listing_id?: string | null
+          owner_id?: string | null
+          provider_id?: string | null
         }
         Relationships: [
           {
@@ -306,6 +312,13 @@ export type Database = {
             columns: ["booking_id"]
             isOneToOne: false
             referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "property_listings"
             referencedColumns: ["id"]
           },
           {
@@ -2531,6 +2544,10 @@ export type Database = {
           _user_id: string
         }
         Returns: undefined
+      }
+      open_property_conversation: {
+        Args: { _listing_id: string }
+        Returns: Json
       }
       owns_property: { Args: { _listing_id: string }; Returns: boolean }
       property_is_public: { Args: { _listing_id: string }; Returns: boolean }
