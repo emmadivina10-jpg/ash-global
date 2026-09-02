@@ -393,10 +393,16 @@ function BookingRequestDialog({
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
+  const [customTitle, setCustomTitle] = useState("");
+  const [customPrice, setCustomPrice] = useState("");
   const [step, setStep] = useState<"form" | "confirm">("form");
   const [busy, setBusy] = useState(false);
 
+  const isCustom = serviceId === CUSTOM_ID;
   const selected = services.find((s) => s.id === serviceId) ?? service;
+  const effTitle = isCustom ? customTitle.trim() : selected.title;
+  const effPrice = isCustom ? Math.max(0, Math.round(Number(customPrice) || 0)) : selected.price;
+
 
   // Real bookable slots come from the provider's weekly hours minus taken times.
   useEffect(() => {
