@@ -12,7 +12,7 @@ const SITE = "https://ashglogroup.company";
 const FALLBACK_IMAGE = `${SITE}/ash-social.png`;
 
 function previewImage(store: Storefront | null): string {
-  const candidates = [store?.cover_url, store?.avatar_url, store?.photos?.[0]?.url];
+  const candidates = [store?.cover_url, store?.avatar_url, store?.photos?.find((p) => !isVideoSource(p.url))?.url];
   const found = candidates.find((u) => typeof u === "string" && u.startsWith("https://"));
   return found ?? FALLBACK_IMAGE;
 }
@@ -141,8 +141,8 @@ function StorefrontPage() {
           <div className="relative h-36 bg-gradient-to-br from-primary/30 via-primary/10 to-transparent sm:h-44">
             {store.cover_url ? (
               <img src={store.cover_url} alt="" className="size-full object-cover" loading="eager" />
-            ) : store.photos[0] ? (
-              <img src={store.photos[0].url} alt="" className="size-full object-cover" loading="eager" />
+            ) : store.photos.find((p) => !isVideoSource(p.url)) ? (
+              <img src={store.photos.find((p) => !isVideoSource(p.url))!.url} alt="" className="size-full object-cover" loading="eager" />
             ) : null}
           </div>
           <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-4 p-4 sm:p-5">
