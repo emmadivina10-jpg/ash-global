@@ -8,6 +8,7 @@ Start here. Every document in the repository, what it answers, and who it is for
 | --- | --- |
 | [README.md](./README.md) | Project overview, tech stack, local development, deployment, testing commands |
 | [DELIVERABLES.md](./DELIVERABLES.md) | Everything shipped: app surfaces, backend, native assets, store collateral |
+| [STORE-SUBMISSION.md](./STORE-SUBMISSION.md) | App Store & Play Store submission pack — listing copy, review notes, App Privacy / Data safety answers, policy checklist |
 | [NATIVE.md](./NATIVE.md) | Capacitor workflow — `cap add`, `cap sync`, icons/splash, App Store & Play Store submission |
 | [AGENTS.md](./AGENTS.md) | Conventions for automated contributors working in this repo |
 
@@ -25,6 +26,9 @@ Start here. Every document in the repository, what it answers, and who it is for
 | Location | What it covers |
 | --- | --- |
 | `/privacy` (in-app route, `src/routes/privacy.tsx`) | Public privacy policy required for App Store / Play Store submission |
+| `/terms` (`src/routes/terms.tsx`) | Terms of service / EULA with the zero-tolerance user-content clause Apple requires |
+| `/account-deletion` (`src/routes/account-deletion.tsx`) | Public account & data deletion instructions required by Google Play |
+| `/console/reports` (`src/routes/console.reports.tsx`) | Trust & Safety moderation queue for in-app reports |
 | `/mnt/documents/store-listing-copy.md` | EN/FR app names, subtitles, descriptions, keywords, review notes |
 | `/mnt/documents/store-preview-video-script.md` | 30-second store preview script and storyboard |
 | `/mnt/documents/store-screenshots/` | Framed iOS 6.7" and Android store screenshots |

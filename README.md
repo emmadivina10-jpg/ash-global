@@ -9,8 +9,9 @@ A mobile-first, bilingual (EN/FR) web application powering service bookings, ref
 - [DOCS-INDEX.md](./DOCS-INDEX.md) — start here: every document, code map and common task
 - [DELIVERABLES.md](./DELIVERABLES.md) — full inventory of what has been built
 - [NATIVE.md](./NATIVE.md) — Capacitor / App Store / Play Store workflow
+- [STORE-SUBMISSION.md](./STORE-SUBMISSION.md) — store listing copy, review notes, privacy/data-safety answers and the policy compliance checklist
 - [SECURITY.md](./SECURITY.md) and [SECURITY-CHANGELOG.md](./SECURITY-CHANGELOG.md) — security model and hardening log
-- `/privacy` — the public privacy policy served by the app
+- `/privacy`, `/terms`, `/account-deletion` — the public legal pages the stores require
 
 ## Features
 
@@ -67,7 +68,7 @@ CI runs the unit suite, the RLS regression suite and a database self-check
    - Android: `npx cap open android` (requires Android Studio)
 4. Build, sign, and submit to the App Store / Play Store.
 
-See `NATIVE.md` for the full submission checklist.
+See `NATIVE.md` for the build workflow and `STORE-SUBMISSION.md` for the full submission checklist.
 
 ## Deployment
 
