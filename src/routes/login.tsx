@@ -109,9 +109,23 @@ function LoginPage() {
         </div>
 
         {error ? (
-          <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
-            {error}
-          </p>
+          <div role="alert" className="space-y-2 rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
+            <p>{error}</p>
+            {unconfirmed ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="w-full"
+                disabled={resending || resent}
+                onClick={resendConfirmation}
+              >
+                {resending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+                {resending ? t("auth.login.resending") : t("auth.login.resend")}
+              </Button>
+            ) : null}
+            {resent ? <p className="text-xs text-muted-foreground">{t("auth.login.resent")}</p> : null}
+          </div>
         ) : null}
 
         <Button type="submit" className="h-12 w-full" disabled={loading}>
