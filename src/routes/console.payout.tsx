@@ -39,7 +39,7 @@ function ConsolePayout() {
       return;
     }
     setBusy(true);
-    const result = await requestPayout({ data: { amount: value, destination, note: note || undefined } });
+    const result = await requestPayout({ data: { amount: value, destination, ...(note ? { note } : {}) } });
     setBusy(false);
     if (!result.ok) {
       toast.error(

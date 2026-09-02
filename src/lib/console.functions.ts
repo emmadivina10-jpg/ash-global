@@ -308,7 +308,7 @@ export const reviewDeletionRequest = createServerFn({ method: "POST" })
 
     const { error } = await db
       .from("account_deletion_requests")
-      .update({ status: data.status, admin_note: data.note ?? null, reviewed_at: new Date().toISOString() })
+      .update({ status: data.status, admin_note: data.note ? String(data.note) : null, reviewed_at: new Date().toISOString() })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
 
@@ -741,7 +741,7 @@ export const getConsolePayouts = createServerFn({ method: "GET" }).handler(async
   return {
     financials: (fin.data ?? null) as Financials | null,
     taken,
-    available: Math.max(Number(f.safe_to_withdraw ?? 0) - taken, 0),
+    available: Math.max(Number(f['safe_to_withdraw'] ?? 0) - taken, 0),
     payouts: payouts.data ?? [],
     bookings: (bookings.data ?? []).map((b) => ({
       ...b,
@@ -760,7 +760,7 @@ export const requestConsolePayout = createServerFn({ method: "POST" })
     const { data: result, error } = await db.rpc("console_platform_payout", {
       _amount: Math.round(Number(data.amount)),
       _destination: String(data.destination ?? ""),
-      _note: data.note ?? null,
+      _note: data.note ? String(data.note) : null,
     });
     const payload = result as { ok?: boolean; error?: string; available?: number } | null;
     if (error || !payload?.ok) {
