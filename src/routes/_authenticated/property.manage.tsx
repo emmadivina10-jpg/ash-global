@@ -39,7 +39,18 @@ function ManageProperty() {
   const { lang } = useI18n();
   const fr = lang === "fr";
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("LISTINGS");
+
+  async function chatAboutListing(listingId: string) {
+    try {
+      const conversationId = await openPropertyConversation(listingId);
+      await navigate({ to: "/messages", search: { c: conversationId } });
+    } catch {
+      toast.error(fr ? "Impossible d’ouvrir la discussion." : "Could not open the chat.");
+    }
+  }
+
 
   const { data: mine, isLoading } = useMyProperties();
   const { data: incoming } = useViewingRequests("owner");
