@@ -50,7 +50,7 @@ function MessagesPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
-      <header>
+      <header className={cn(mobileView === "thread" && "hidden", "md:block")}>
         <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">{t("chat.title")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{t("chat.pick")}</p>
       </header>
