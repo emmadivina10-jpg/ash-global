@@ -35,8 +35,10 @@ function MessagesPage() {
   const { data: conversations, isLoading } = useConversations();
 
   const list = conversations ?? [];
-  const activeId = c ?? list[0]?.id;
+  // Desktop falls back to the first conversation; mobile requires an explicit pick.
+  const activeId = c ?? (typeof window !== "undefined" && window.innerWidth >= 768 ? list[0]?.id : undefined);
   const active = list.find((conv) => conv.id === activeId);
+  const mobileView = c ? "thread" : "list";
 
   /** Providers see the client; clients see the business. */
   function peerOf(conv: (typeof list)[number]): string {
