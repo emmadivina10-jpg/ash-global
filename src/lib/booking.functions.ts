@@ -11,9 +11,15 @@ function makeReference(): string {
  */
 export const startBookingPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { bookingId: string; method?: "MOMO" | "CARD" }) => {
+  .inputValidator((input: { bookingId: string; method?: "MOMO" | "CARD"; provider?: string; phone?: string; country?: string }) => {
     if (!input?.bookingId) throw new Error("bookingId required");
-    return { bookingId: input.bookingId, method: input.method === "CARD" ? ("CARD" as const) : ("MOMO" as const) };
+    return {
+      bookingId: input.bookingId,
+      method: input.method === "CARD" ? ("CARD" as const) : ("MOMO" as const),
+      provider: String(input.provider ?? "").trim().slice(0, 40),
+      phone: String(input.phone ?? "").trim().slice(0, 20),
+      country: (String(input.country ?? "CM").toUpperCase().slice(0, 2) || "CM"),
+    };
   })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -33,7 +39,7 @@ export const startBookingPayment = createServerFn({ method: "POST" })
       return { ok: false as const, error: "PAYMENT_NOT_AVAILABLE" };
     }
 
-    // Resume an in-flight checkout when the rail still has a usable link.
+    // Resume an in-flight payment when the rail still has a live attempt.
     if (booking.status === "PAYMENT_PROCESSING" && booking.payment_reference) {
       if (booking.payment_provider === "STRIPE" && data.method === "CARD" && booking.provider_transaction_id) {
         const { stripePay } = await import("./stripe.server");
@@ -44,7 +50,7 @@ export const startBookingPayment = createServerFn({ method: "POST" })
             amountCents: (await import("./stripe.server")).xafToUsdCents(Number(booking.price)),
             currency: "USD",
             description: `ASH booking — ${booking.service_title}`,
-successUrl: `${process.env["APP_URL"] ?? "https://ashglogroup.company"}/bookings`,
+            successUrl: `${process.env["APP_URL"] ?? "https://ashglogroup.company"}/bookings`,
             cancelUrl: `${process.env["APP_URL"] ?? "https://ashglogroup.company"}/bookings`,
             metadata: { booking_id: booking.id },
           });
@@ -54,13 +60,20 @@ successUrl: `${process.env["APP_URL"] ?? "https://ashglogroup.company"}/bookings
             return { ok: true as const, reference: booking.payment_reference, checkoutUrl: resumed.checkoutUrl, error: null };
           }
         }
-      } else if (booking.payment_provider !== "STRIPE" && data.method === "MOMO") {
-        const current = await tchokoPay.verifyPayment(booking.payment_reference);
-        if (current.ok && current.checkoutUrl && current.status !== "FAILED" && current.status !== "CANCELLED") {
+      } else if (
+        booking.payment_provider !== "STRIPE" &&
+        data.method === "MOMO" &&
+        booking.provider_transaction_id?.startsWith("REQ-")
+      ) {
+        // A prompt is already on the payer's phone: don't send a second one.
+        const current = await tchokoPay.getCollection(booking.provider_transaction_id);
+        if (current.ok && (current.status === "PENDING" || current.status === "PROCESSING")) {
           return {
             ok: true as const,
             reference: booking.payment_reference,
-            checkoutUrl: current.checkoutUrl,
+            checkoutUrl: null,
+            providerReference: booking.provider_transaction_id,
+            status: current.status,
             error: null,
           };
         }
@@ -120,34 +133,53 @@ successUrl: `${process.env["APP_URL"] ?? "https://ashglogroup.company"}/bookings
       return { ok: true as const, reference, checkoutUrl: session.checkoutUrl, error: null };
     }
 
-    const result = await tchokoPay.createPayment({
-      reference,
+    // Mobile money rail: a direct charge, so the payer stays inside ASH and
+    // simply approves the prompt on their phone.
+    if (!data.provider || !data.phone) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin.rpc("fail_booking_payment", { _payment_reference: reference, _status: "FAILED" });
+      return { ok: false as const, error: "MOMO_DETAILS_REQUIRED" };
+    }
+
+    const result = await tchokoPay.createCharge({
+      merchantReference: reference,
       amount: Number(booking.price),
       currency: "XAF",
+      country: data.country,
+      provider: data.provider,
+      phone: data.phone || (profile?.phone ?? ""),
       description: `ASH booking — ${booking.service_title}`,
-      customer: {
-        name: profile?.full_name ?? "ASH client",
-        email: profile?.email ?? "",
-        phone: profile?.phone ?? "",
-      },
-      callbackUrl: `${appUrl}/api/public/webhooks/tchokopay`,
-      returnUrl: `${appUrl}/bookings`,
     });
 
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     if (!result.ok) {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       await supabaseAdmin.rpc("fail_booking_payment", {
         _payment_reference: reference,
         _status: "FAILED",
       });
-      return { ok: false as const, error: result.error ?? "PAYMENT_START_FAILED" };
+      return {
+        ok: false as const,
+        error: result.error ?? "PAYMENT_START_FAILED",
+        message: result.message ?? null,
+      };
     }
+
+    await supabaseAdmin
+      .from("bookings")
+      .update({
+        payment_provider: "TCHOKOPAY",
+        payment_currency: "XAF",
+        provider_transaction_id: result.providerReference ?? null,
+      })
+      .eq("id", booking.id);
 
     return {
       ok: true as const,
       reference,
-      checkoutUrl: result.checkoutUrl ?? null,
+      checkoutUrl: null,
+      providerReference: result.providerReference ?? null,
+      status: result.status,
       error: null,
     };
   });
@@ -201,7 +233,16 @@ export const syncBookingPayment = createServerFn({ method: "POST" })
       };
     } else {
       const { tchokoPay } = await import("./tchokopay.server");
-      verification = await tchokoPay.verifyPayment(booking.payment_reference);
+      const providerRef = booking.provider_transaction_id ?? "";
+      const collection = providerRef.startsWith("REQ-")
+        ? await tchokoPay.getCollection(providerRef)
+        : await tchokoPay.verifyLegacyPayment(booking.payment_reference);
+      verification = {
+        ok: collection.ok,
+        status: collection.status,
+        providerTransactionId: collection.providerReference ?? providerRef,
+        error: collection.error,
+      };
     }
 
     if (!verification.ok) {
