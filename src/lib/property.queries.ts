@@ -281,3 +281,15 @@ export function useViewingRequests(role: "owner" | "requester") {
     },
   });
 }
+
+/**
+ * Opens (or reuses) the ASH chat thread between the signed-in user and the
+ * owner of a listing. Reuses the existing conversations/messages system, so
+ * property chats land in the same inbox and notification stream.
+ */
+export async function openPropertyConversation(listingId: string): Promise<string> {
+  const { data, error } = await supabase.rpc("open_property_conversation", { _listing_id: listingId });
+  const payload = data as { ok?: boolean; id?: string; error?: string } | null;
+  if (error || !payload?.ok || !payload.id) throw new Error(payload?.error ?? error?.message ?? "CHAT_FAILED");
+  return payload.id;
+}
