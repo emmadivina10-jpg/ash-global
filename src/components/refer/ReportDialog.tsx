@@ -49,9 +49,9 @@ export function ReportDialog({
   targetType: ReportTargetType;
   targetId?: string | null;
   targetUserId?: string | null;
-  targetLabel?: string;
+  targetLabel?: string | undefined;
   allowBlock?: boolean;
-  className?: string;
+  className?: string | undefined;
   variant?: "ghost" | "outline";
   compact?: boolean;
 }) {
