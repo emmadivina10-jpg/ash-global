@@ -242,29 +242,67 @@ function ProviderPage() {
 
       <SectionCard title={t("svc.portfolio")}>
         {(portfolio ?? []).length === 0 ? (
-          <EmptyState title={fr ? "Pas encore de photos" : "No photos yet"} />
+          <EmptyState title={fr ? "Pas encore de médias" : "No photos or videos yet"} />
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {(portfolio ?? []).map((item) =>
-              item.url ? (
+            {(portfolio ?? []).map((item) => {
+              if (!item.url) return null;
+              const video = isVideoSource(item.image_path) || isVideoSource(item.url);
+              return (
                 <figure key={item.id} className="overflow-hidden rounded-xl border border-border bg-muted">
-                  <img
-                    src={item.url}
-                    alt={item.caption ?? provider.business_name}
-                    loading="lazy"
-                    className="aspect-square w-full object-cover"
-                  />
+                  <button
+                    type="button"
+                    className="relative block w-full"
+                    aria-label={
+                      video
+                        ? fr
+                          ? "Regarder la vidéo"
+                          : "Play video"
+                        : fr
+                          ? "Voir la photo"
+                          : "View photo"
+                    }
+                    onClick={() =>
+                      setLightbox({ url: item.url!, caption: item.caption, isVideo: video })
+                    }
+                  >
+                    {video ? (
+                      <>
+                        <video
+                          src={item.url}
+                          muted
+                          playsInline
+                          preload="metadata"
+                          className="aspect-square w-full object-cover"
+                        />
+                        <span className="absolute inset-0 grid place-items-center bg-black/30">
+                          <span className="grid size-10 place-items-center rounded-full bg-white/90 text-black">
+                            <Play className="size-4 fill-current" aria-hidden />
+                          </span>
+                        </span>
+                      </>
+                    ) : (
+                      <img
+                        src={item.url}
+                        alt={item.caption ?? provider.business_name}
+                        loading="lazy"
+                        className="aspect-square w-full object-cover transition-transform hover:scale-105"
+                      />
+                    )}
+                  </button>
                   {item.caption ? (
                     <figcaption className="truncate px-2 py-1 text-[11px] text-muted-foreground">
                       {item.caption}
                     </figcaption>
                   ) : null}
                 </figure>
-              ) : null,
-            )}
+              );
+            })}
           </div>
         )}
       </SectionCard>
+
+      <MediaLightbox media={lightbox} onClose={() => setLightbox(null)} />
 
       <SectionCard title={t("svc.reviews")}>
         <ReviewComposer providerId={providerId} isOwner={isOwner} fr={fr} />
