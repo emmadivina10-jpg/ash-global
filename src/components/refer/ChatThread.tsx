@@ -43,12 +43,14 @@ export function ChatThread({
   className,
   quickReplies = [],
   peerName,
+  peerUserId,
 }: {
   conversationId: string;
   currentUserId: string | undefined;
   className?: string;
   quickReplies?: string[];
   peerName?: string;
+  peerUserId?: string | null;
 }) {
   const { t, lang } = useI18n();
   const fr = lang === "fr";
