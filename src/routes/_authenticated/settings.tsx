@@ -129,6 +129,10 @@ function SettingsPage() {
         action={<LifeBuoy className="size-4 text-muted-foreground" aria-hidden />}
       >
         <p className="text-sm leading-relaxed text-muted-foreground">{t("settings.support.copy")}</p>
+        <Button asChild variant="outline" className="mt-3">
+          <Link to="/support">{t("settings.support.cta")}</Link>
+        </Button>
+
       </SectionCard>
 
       <SectionCard title={t("settings.danger")} className="border-destructive/40">
