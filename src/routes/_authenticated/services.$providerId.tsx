@@ -353,7 +353,10 @@ function ProviderPage() {
                     </span>
                   </div>
                   {review.comment ? <p className="mt-1 text-sm text-foreground/90">{review.comment}</p> : null}
-                  <p className="mt-1 text-[11px] text-muted-foreground">{formatDateTime(review.created_at)}</p>
+                  <div className="mt-1 flex items-center justify-between gap-2">
+                    <p className="text-[11px] text-muted-foreground">{formatDateTime(review.created_at)}</p>
+                    <ReportDialog targetType="REVIEW" targetId={review.id} allowBlock={false} compact />
+                  </div>
                 </li>
               );
             })}
