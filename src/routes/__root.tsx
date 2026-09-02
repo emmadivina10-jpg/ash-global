@@ -85,20 +85,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "viewport",
         content: "width=device-width, initial-scale=1, viewport-fit=cover",
       },
-      { title: "ASH Glo — Earn referral rewards in XAF" },
+      { title: "ASH — Where Opportunities Connect." },
       {
         name: "description",
         content:
-          "Activate once and earn three levels of referral commissions, paid to MTN Mobile Money or Orange Money.",
+          "ASH is a digital opportunity, commerce, services, freelance, property, community and events platform that connects people, businesses, freelancers, service providers, communities and event organizers in one ecosystem.",
       },
-      { property: "og:title", content: "ASH Glo — Earn referral rewards in XAF" },
+      { property: "og:title", content: "ASH — Where Opportunities Connect." },
       {
         property: "og:description",
         content:
-          "Activate once and earn three levels of referral commissions, paid to mobile money.",
+          "ASH is a digital opportunity, commerce, services, freelance, property, community and events platform that connects people, businesses, freelancers, service providers, communities and event organizers in one ecosystem.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "ASH Glo" },
+      { property: "og:site_name", content: "ASH" },
       { property: "og:locale", content: "en_CM" },
       { property: "og:locale:alternate", content: "fr_CM" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -128,10 +128,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Organization",
-          name: "ASH Glo",
+          name: "ASH",
+          alternateName: "ASH Glo",
+          slogan: "Where Opportunities Connect.",
           url: "https://ashglogroup.company",
           description:
-            "ASH Glo is a referral and beauty-services platform paying three levels of XAF commissions to MTN Mobile Money and Orange Money.",
+            "ASH is a digital opportunity, commerce, services, freelance, property, community and events platform that connects people, businesses, freelancers, service providers, communities and event organizers in one ecosystem.",
         }),
       },
       {
