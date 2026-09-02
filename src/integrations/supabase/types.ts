@@ -2386,7 +2386,54 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      promotions_public: {
+        Row: {
+          category: string | null
+          city: string | null
+          clicks: number | null
+          created_at: string | null
+          ends_at: string | null
+          headline: string | null
+          id: string | null
+          impressions: number | null
+          plan: string | null
+          starts_at: string | null
+          status: string | null
+          target_id: string | null
+          target_type: string | null
+        }
+        Insert: {
+          category?: string | null
+          city?: string | null
+          clicks?: number | null
+          created_at?: string | null
+          ends_at?: string | null
+          headline?: string | null
+          id?: string | null
+          impressions?: number | null
+          plan?: string | null
+          starts_at?: string | null
+          status?: string | null
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Update: {
+          category?: string | null
+          city?: string | null
+          clicks?: number | null
+          created_at?: string | null
+          ends_at?: string | null
+          headline?: string | null
+          id?: string | null
+          impressions?: number | null
+          plan?: string | null
+          starts_at?: string | null
+          status?: string | null
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       admin_manual_activate: {
