@@ -432,11 +432,13 @@ function BookingRequestDialog({
     setBusy(true);
     const { data, error } = await supabase.rpc("request_booking", {
       _provider_id: provider.id,
-      _service_id: serviceId,
+      _service_id: isCustom ? (null as unknown as string) : serviceId,
       _scheduled_at: new Date(when).toISOString(),
       _notes: notes,
       _address: address,
+      ...(isCustom ? { _custom_title: effTitle, _custom_price: effPrice } : {}),
     });
+
     setBusy(false);
     const result = data as { ok?: boolean; error?: string } | null;
     if (error || !result?.ok) {
