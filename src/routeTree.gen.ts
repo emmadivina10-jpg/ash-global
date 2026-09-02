@@ -33,14 +33,26 @@ import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedWithdrawRouteImport } from './routes/_authenticated/withdraw'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ConsoleIndexRouteImport } from './routes/console.index'
+import { Route as ConsoleAdvertisingRouteImport } from './routes/console.advertising'
 import { Route as ConsoleBookingsRouteImport } from './routes/console.bookings'
+import { Route as ConsoleContentRouteImport } from './routes/console.content'
 import { Route as ConsoleDeletionsRouteImport } from './routes/console.deletions'
+import { Route as ConsoleExpansionRouteImport } from './routes/console.expansion'
+import { Route as ConsoleGrowthRouteImport } from './routes/console.growth'
 import { Route as ConsoleLedgerRouteImport } from './routes/console.ledger'
+import { Route as ConsoleMarketplaceRouteImport } from './routes/console.marketplace'
+import { Route as ConsoleMerchantRouteImport } from './routes/console.merchant'
+import { Route as ConsoleOutreachRouteImport } from './routes/console.outreach'
+import { Route as ConsolePartnershipsRouteImport } from './routes/console.partnerships'
 import { Route as ConsolePaymentsRouteImport } from './routes/console.payments'
 import { Route as ConsolePayoutRouteImport } from './routes/console.payout'
 import { Route as ConsoleProvidersRouteImport } from './routes/console.providers'
+import { Route as ConsoleRevenueRouteImport } from './routes/console.revenue'
+import { Route as ConsoleSalesRouteImport } from './routes/console.sales'
 import { Route as ConsoleSecurityRouteImport } from './routes/console.security'
+import { Route as ConsoleStaffRouteImport } from './routes/console.staff'
 import { Route as ConsoleSupportRouteImport } from './routes/console.support'
+import { Route as ConsoleTrustRouteImport } from './routes/console.trust'
 import { Route as ConsoleUsersRouteImport } from './routes/console.users'
 import { Route as ConsoleWithdrawalsRouteImport } from './routes/console.withdrawals'
 import { Route as PayCodeRouteImport } from './routes/pay.$code'
@@ -174,9 +186,19 @@ const ConsoleIndexRoute = ConsoleIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const ConsoleAdvertisingRoute = ConsoleAdvertisingRouteImport.update({
+  id: '/advertising',
+  path: '/advertising',
+  getParentRoute: () => ConsoleRoute,
+} as any)
 const ConsoleBookingsRoute = ConsoleBookingsRouteImport.update({
   id: '/bookings',
   path: '/bookings',
+  getParentRoute: () => ConsoleRoute,
+} as any)
+const ConsoleContentRoute = ConsoleContentRouteImport.update({
+  id: '/content',
+  path: '/content',
   getParentRoute: () => ConsoleRoute,
 } as any)
 const ConsoleDeletionsRoute = ConsoleDeletionsRouteImport.update({
@@ -184,9 +206,39 @@ const ConsoleDeletionsRoute = ConsoleDeletionsRouteImport.update({
   path: '/deletions',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const ConsoleExpansionRoute = ConsoleExpansionRouteImport.update({
+  id: '/expansion',
+  path: '/expansion',
+  getParentRoute: () => ConsoleRoute,
+} as any)
+const ConsoleGrowthRoute = ConsoleGrowthRouteImport.update({
+  id: '/growth',
+  path: '/growth',
+  getParentRoute: () => ConsoleRoute,
+} as any)
 const ConsoleLedgerRoute = ConsoleLedgerRouteImport.update({
   id: '/ledger',
   path: '/ledger',
+  getParentRoute: () => ConsoleRoute,
+} as any)
+const ConsoleMarketplaceRoute = ConsoleMarketplaceRouteImport.update({
+  id: '/marketplace',
+  path: '/marketplace',
+  getParentRoute: () => ConsoleRoute,
+} as any)
+const ConsoleMerchantRoute = ConsoleMerchantRouteImport.update({
+  id: '/merchant',
+  path: '/merchant',
+  getParentRoute: () => ConsoleRoute,
+} as any)
+const ConsoleOutreachRoute = ConsoleOutreachRouteImport.update({
+  id: '/outreach',
+  path: '/outreach',
+  getParentRoute: () => ConsoleRoute,
+} as any)
+const ConsolePartnershipsRoute = ConsolePartnershipsRouteImport.update({
+  id: '/partnerships',
+  path: '/partnerships',
   getParentRoute: () => ConsoleRoute,
 } as any)
 const ConsolePaymentsRoute = ConsolePaymentsRouteImport.update({
@@ -204,14 +256,34 @@ const ConsoleProvidersRoute = ConsoleProvidersRouteImport.update({
   path: '/providers',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const ConsoleRevenueRoute = ConsoleRevenueRouteImport.update({
+  id: '/revenue',
+  path: '/revenue',
+  getParentRoute: () => ConsoleRoute,
+} as any)
+const ConsoleSalesRoute = ConsoleSalesRouteImport.update({
+  id: '/sales',
+  path: '/sales',
+  getParentRoute: () => ConsoleRoute,
+} as any)
 const ConsoleSecurityRoute = ConsoleSecurityRouteImport.update({
   id: '/security',
   path: '/security',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const ConsoleStaffRoute = ConsoleStaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => ConsoleRoute,
+} as any)
 const ConsoleSupportRoute = ConsoleSupportRouteImport.update({
   id: '/support',
   path: '/support',
+  getParentRoute: () => ConsoleRoute,
+} as any)
+const ConsoleTrustRoute = ConsoleTrustRouteImport.update({
+  id: '/trust',
+  path: '/trust',
   getParentRoute: () => ConsoleRoute,
 } as any)
 const ConsoleUsersRoute = ConsoleUsersRouteImport.update({
@@ -304,14 +376,26 @@ export interface FileRoutesByFullPath {
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/console/advertising': typeof ConsoleAdvertisingRoute
   '/console/bookings': typeof ConsoleBookingsRoute
+  '/console/content': typeof ConsoleContentRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
+  '/console/expansion': typeof ConsoleExpansionRoute
+  '/console/growth': typeof ConsoleGrowthRoute
   '/console/ledger': typeof ConsoleLedgerRoute
+  '/console/marketplace': typeof ConsoleMarketplaceRoute
+  '/console/merchant': typeof ConsoleMerchantRoute
+  '/console/outreach': typeof ConsoleOutreachRoute
+  '/console/partnerships': typeof ConsolePartnershipsRoute
   '/console/payments': typeof ConsolePaymentsRoute
   '/console/payout': typeof ConsolePayoutRoute
   '/console/providers': typeof ConsoleProvidersRoute
+  '/console/revenue': typeof ConsoleRevenueRoute
+  '/console/sales': typeof ConsoleSalesRoute
   '/console/security': typeof ConsoleSecurityRoute
+  '/console/staff': typeof ConsoleStaffRoute
   '/console/support': typeof ConsoleSupportRoute
+  '/console/trust': typeof ConsoleTrustRoute
   '/console/users': typeof ConsoleUsersRoute
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
   '/pay/$code': typeof PayCodeRoute
@@ -348,14 +432,26 @@ export interface FileRoutesByTo {
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/console/advertising': typeof ConsoleAdvertisingRoute
   '/console/bookings': typeof ConsoleBookingsRoute
+  '/console/content': typeof ConsoleContentRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
+  '/console/expansion': typeof ConsoleExpansionRoute
+  '/console/growth': typeof ConsoleGrowthRoute
   '/console/ledger': typeof ConsoleLedgerRoute
+  '/console/marketplace': typeof ConsoleMarketplaceRoute
+  '/console/merchant': typeof ConsoleMerchantRoute
+  '/console/outreach': typeof ConsoleOutreachRoute
+  '/console/partnerships': typeof ConsolePartnershipsRoute
   '/console/payments': typeof ConsolePaymentsRoute
   '/console/payout': typeof ConsolePayoutRoute
   '/console/providers': typeof ConsoleProvidersRoute
+  '/console/revenue': typeof ConsoleRevenueRoute
+  '/console/sales': typeof ConsoleSalesRoute
   '/console/security': typeof ConsoleSecurityRoute
+  '/console/staff': typeof ConsoleStaffRoute
   '/console/support': typeof ConsoleSupportRoute
+  '/console/trust': typeof ConsoleTrustRoute
   '/console/users': typeof ConsoleUsersRoute
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
   '/pay/$code': typeof PayCodeRoute
@@ -395,14 +491,26 @@ export interface FileRoutesById {
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/_authenticated/withdraw': typeof AuthenticatedWithdrawRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/console/advertising': typeof ConsoleAdvertisingRoute
   '/console/bookings': typeof ConsoleBookingsRoute
+  '/console/content': typeof ConsoleContentRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
+  '/console/expansion': typeof ConsoleExpansionRoute
+  '/console/growth': typeof ConsoleGrowthRoute
   '/console/ledger': typeof ConsoleLedgerRoute
+  '/console/marketplace': typeof ConsoleMarketplaceRoute
+  '/console/merchant': typeof ConsoleMerchantRoute
+  '/console/outreach': typeof ConsoleOutreachRoute
+  '/console/partnerships': typeof ConsolePartnershipsRoute
   '/console/payments': typeof ConsolePaymentsRoute
   '/console/payout': typeof ConsolePayoutRoute
   '/console/providers': typeof ConsoleProvidersRoute
+  '/console/revenue': typeof ConsoleRevenueRoute
+  '/console/sales': typeof ConsoleSalesRoute
   '/console/security': typeof ConsoleSecurityRoute
+  '/console/staff': typeof ConsoleStaffRoute
   '/console/support': typeof ConsoleSupportRoute
+  '/console/trust': typeof ConsoleTrustRoute
   '/console/users': typeof ConsoleUsersRoute
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
   '/pay/$code': typeof PayCodeRoute
@@ -442,14 +550,26 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/withdraw'
     | '/auth/callback'
+    | '/console/advertising'
     | '/console/bookings'
+    | '/console/content'
     | '/console/deletions'
+    | '/console/expansion'
+    | '/console/growth'
     | '/console/ledger'
+    | '/console/marketplace'
+    | '/console/merchant'
+    | '/console/outreach'
+    | '/console/partnerships'
     | '/console/payments'
     | '/console/payout'
     | '/console/providers'
+    | '/console/revenue'
+    | '/console/sales'
     | '/console/security'
+    | '/console/staff'
     | '/console/support'
+    | '/console/trust'
     | '/console/users'
     | '/console/withdrawals'
     | '/pay/$code'
@@ -486,14 +606,26 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/withdraw'
     | '/auth/callback'
+    | '/console/advertising'
     | '/console/bookings'
+    | '/console/content'
     | '/console/deletions'
+    | '/console/expansion'
+    | '/console/growth'
     | '/console/ledger'
+    | '/console/marketplace'
+    | '/console/merchant'
+    | '/console/outreach'
+    | '/console/partnerships'
     | '/console/payments'
     | '/console/payout'
     | '/console/providers'
+    | '/console/revenue'
+    | '/console/sales'
     | '/console/security'
+    | '/console/staff'
     | '/console/support'
+    | '/console/trust'
     | '/console/users'
     | '/console/withdrawals'
     | '/pay/$code'
@@ -532,14 +664,26 @@ export interface FileRouteTypes {
     | '/_authenticated/wallet'
     | '/_authenticated/withdraw'
     | '/auth/callback'
+    | '/console/advertising'
     | '/console/bookings'
+    | '/console/content'
     | '/console/deletions'
+    | '/console/expansion'
+    | '/console/growth'
     | '/console/ledger'
+    | '/console/marketplace'
+    | '/console/merchant'
+    | '/console/outreach'
+    | '/console/partnerships'
     | '/console/payments'
     | '/console/payout'
     | '/console/providers'
+    | '/console/revenue'
+    | '/console/sales'
     | '/console/security'
+    | '/console/staff'
     | '/console/support'
+    | '/console/trust'
     | '/console/users'
     | '/console/withdrawals'
     | '/pay/$code'
@@ -747,11 +891,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleIndexRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/console/advertising': {
+      id: '/console/advertising'
+      path: '/advertising'
+      fullPath: '/console/advertising'
+      preLoaderRoute: typeof ConsoleAdvertisingRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
     '/console/bookings': {
       id: '/console/bookings'
       path: '/bookings'
       fullPath: '/console/bookings'
       preLoaderRoute: typeof ConsoleBookingsRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/content': {
+      id: '/console/content'
+      path: '/content'
+      fullPath: '/console/content'
+      preLoaderRoute: typeof ConsoleContentRouteImport
       parentRoute: typeof ConsoleRoute
     }
     '/console/deletions': {
@@ -761,11 +919,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleDeletionsRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/console/expansion': {
+      id: '/console/expansion'
+      path: '/expansion'
+      fullPath: '/console/expansion'
+      preLoaderRoute: typeof ConsoleExpansionRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/growth': {
+      id: '/console/growth'
+      path: '/growth'
+      fullPath: '/console/growth'
+      preLoaderRoute: typeof ConsoleGrowthRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
     '/console/ledger': {
       id: '/console/ledger'
       path: '/ledger'
       fullPath: '/console/ledger'
       preLoaderRoute: typeof ConsoleLedgerRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/marketplace': {
+      id: '/console/marketplace'
+      path: '/marketplace'
+      fullPath: '/console/marketplace'
+      preLoaderRoute: typeof ConsoleMarketplaceRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/merchant': {
+      id: '/console/merchant'
+      path: '/merchant'
+      fullPath: '/console/merchant'
+      preLoaderRoute: typeof ConsoleMerchantRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/outreach': {
+      id: '/console/outreach'
+      path: '/outreach'
+      fullPath: '/console/outreach'
+      preLoaderRoute: typeof ConsoleOutreachRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/partnerships': {
+      id: '/console/partnerships'
+      path: '/partnerships'
+      fullPath: '/console/partnerships'
+      preLoaderRoute: typeof ConsolePartnershipsRouteImport
       parentRoute: typeof ConsoleRoute
     }
     '/console/payments': {
@@ -789,6 +989,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleProvidersRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/console/revenue': {
+      id: '/console/revenue'
+      path: '/revenue'
+      fullPath: '/console/revenue'
+      preLoaderRoute: typeof ConsoleRevenueRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/sales': {
+      id: '/console/sales'
+      path: '/sales'
+      fullPath: '/console/sales'
+      preLoaderRoute: typeof ConsoleSalesRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
     '/console/security': {
       id: '/console/security'
       path: '/security'
@@ -796,11 +1010,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleSecurityRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/console/staff': {
+      id: '/console/staff'
+      path: '/staff'
+      fullPath: '/console/staff'
+      preLoaderRoute: typeof ConsoleStaffRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
     '/console/support': {
       id: '/console/support'
       path: '/support'
       fullPath: '/console/support'
       preLoaderRoute: typeof ConsoleSupportRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/trust': {
+      id: '/console/trust'
+      path: '/trust'
+      fullPath: '/console/trust'
+      preLoaderRoute: typeof ConsoleTrustRouteImport
       parentRoute: typeof ConsoleRoute
     }
     '/console/users': {
@@ -928,28 +1156,52 @@ const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 interface ConsoleRouteChildren {
+  ConsoleAdvertisingRoute: typeof ConsoleAdvertisingRoute
   ConsoleBookingsRoute: typeof ConsoleBookingsRoute
+  ConsoleContentRoute: typeof ConsoleContentRoute
   ConsoleDeletionsRoute: typeof ConsoleDeletionsRoute
+  ConsoleExpansionRoute: typeof ConsoleExpansionRoute
+  ConsoleGrowthRoute: typeof ConsoleGrowthRoute
   ConsoleLedgerRoute: typeof ConsoleLedgerRoute
+  ConsoleMarketplaceRoute: typeof ConsoleMarketplaceRoute
+  ConsoleMerchantRoute: typeof ConsoleMerchantRoute
+  ConsoleOutreachRoute: typeof ConsoleOutreachRoute
+  ConsolePartnershipsRoute: typeof ConsolePartnershipsRoute
   ConsolePaymentsRoute: typeof ConsolePaymentsRoute
   ConsolePayoutRoute: typeof ConsolePayoutRoute
   ConsoleProvidersRoute: typeof ConsoleProvidersRoute
+  ConsoleRevenueRoute: typeof ConsoleRevenueRoute
+  ConsoleSalesRoute: typeof ConsoleSalesRoute
   ConsoleSecurityRoute: typeof ConsoleSecurityRoute
+  ConsoleStaffRoute: typeof ConsoleStaffRoute
   ConsoleSupportRoute: typeof ConsoleSupportRoute
+  ConsoleTrustRoute: typeof ConsoleTrustRoute
   ConsoleUsersRoute: typeof ConsoleUsersRoute
   ConsoleWithdrawalsRoute: typeof ConsoleWithdrawalsRoute
   ConsoleIndexRoute: typeof ConsoleIndexRoute
 }
 
 const ConsoleRouteChildren: ConsoleRouteChildren = {
+  ConsoleAdvertisingRoute: ConsoleAdvertisingRoute,
   ConsoleBookingsRoute: ConsoleBookingsRoute,
+  ConsoleContentRoute: ConsoleContentRoute,
   ConsoleDeletionsRoute: ConsoleDeletionsRoute,
+  ConsoleExpansionRoute: ConsoleExpansionRoute,
+  ConsoleGrowthRoute: ConsoleGrowthRoute,
   ConsoleLedgerRoute: ConsoleLedgerRoute,
+  ConsoleMarketplaceRoute: ConsoleMarketplaceRoute,
+  ConsoleMerchantRoute: ConsoleMerchantRoute,
+  ConsoleOutreachRoute: ConsoleOutreachRoute,
+  ConsolePartnershipsRoute: ConsolePartnershipsRoute,
   ConsolePaymentsRoute: ConsolePaymentsRoute,
   ConsolePayoutRoute: ConsolePayoutRoute,
   ConsoleProvidersRoute: ConsoleProvidersRoute,
+  ConsoleRevenueRoute: ConsoleRevenueRoute,
+  ConsoleSalesRoute: ConsoleSalesRoute,
   ConsoleSecurityRoute: ConsoleSecurityRoute,
+  ConsoleStaffRoute: ConsoleStaffRoute,
   ConsoleSupportRoute: ConsoleSupportRoute,
+  ConsoleTrustRoute: ConsoleTrustRoute,
   ConsoleUsersRoute: ConsoleUsersRoute,
   ConsoleWithdrawalsRoute: ConsoleWithdrawalsRoute,
   ConsoleIndexRoute: ConsoleIndexRoute,

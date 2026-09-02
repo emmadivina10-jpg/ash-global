@@ -1,6 +1,8 @@
 import type { ComponentType } from 'react'
 import { template as supportReplyTemplate } from './support-reply'
 import { template as supportReceivedTemplate } from './support-received'
+import { template as ashOutreachTemplate } from './ash-outreach'
+
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -18,4 +20,5 @@ export interface TemplateEntry {
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'support-reply': supportReplyTemplate,
   'support-received': supportReceivedTemplate,
+  'ash-outreach': ashOutreachTemplate,
 }
