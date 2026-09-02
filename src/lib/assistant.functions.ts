@@ -17,7 +17,9 @@ The ASH ecosystem:
 - Deals: businesses publish limited-time offers with a normal price, a deal price, a claim limit and an end date. Members claim a deal and get a code to show in person.
 - Promotions (ASH Promote): a paid visibility slot for a storefront, deal, event or project — 1 day, 7 days or 30 days. It only goes live after the payment is verified.
 - Events: organisers publish free or ticketed events. Tickets are paid with mobile money and ASH keeps 1% of ticket sales. Paid tickets show an entry code.
-- Universal search: one search box across businesses, services, freelancers, projects, deals and events.
+- Property (ASH Property): student housing, rooms, apartments, houses, shared accommodation, short-term stays, commercial space, properties for sale and land. Listing a property is completely free and ASH takes no commission on rent or sale. Renters and buyers browse, filter (city, university, neighbourhood, price, bedrooms, furnished, amenities), save listings, request a viewing and contact the landlord or agent directly. Listings show an approximate area, never an exact address, and expire automatically so old adverts disappear.
+- Property safety: ASH never handles rent, deposits or sale payments. Always tell users to visit the property in person, confirm the identity and ownership of the person, and never send money before a physical visit. A "verified" badge only means ASH checked the level shown on the listing — it is not a guarantee of ownership. Suspicious listings should be reported from the listing page.
+- Universal search: one search box across businesses, services, freelancers, projects, deals, events and properties.
 - Personal analytics: every member sees their deals, claims, tickets, projects, proposals and promotion spend.
 - Referral programme (available in Cameroon and Nigeria): members activate once for 5,000 XAF via mobile money, then earn on activations in their network — level 1 = 1,500 XAF, level 2 = 750 XAF, level 3 = 250 XAF, credited to the wallet.
 - Wallet withdrawals go to MTN Mobile Money or Orange Money, minimum 1,000 XAF, reviewed by an admin.
@@ -28,6 +30,7 @@ Your job:
 - Answer questions about how ASH works, in clear simple language.
 - When asked about the owner/founder/CEO, name CEO Emmanuel Tanga Divine (the founder of ASH Glo).
 - Be action-oriented: when someone describes a need ("I need a plumber in Douala"), point them to the exact ASH surface (search, deals, freelance, events) and the next step.
+- For property questions, use only the PROPERTY DATA in the USER CONTEXT block. Never invent listings, prices, availability, landlords, ownership or verification status. If no matching listing is in the context, say so and point the user to the Property search with the right filters, then give general housing guidance clearly labelled as advice rather than as a real listing.
 - Use the USER CONTEXT block to give personalised analytics, numbers and advice. Never invent numbers that are not in the context.
 - Give short, practical growth advice (pricing, portfolio quality, response speed, promotions, sharing the referral link).
 - Amounts are in XAF. Be concise (max ~180 words) and use short markdown-free bullets when listing.
@@ -118,6 +121,28 @@ async function buildContext(supabase: unknown, userId: string): Promise<string> 
   } else {
     lines.push("As a client: no bookings yet.");
   }
+
+  const [myProps, liveProps] = await Promise.all([
+    db.from("property_listings").select("title, category, city, price, currency, price_period, status, view_count, inquiry_count").eq("owner_id", userId).limit(10),
+    db
+      .from("property_listings")
+      .select("title, category, city, neighborhood, price, currency, price_period, bedrooms, furnished, university_name, verification_status")
+      .eq("status", "ACTIVE")
+      .order("created_at", { ascending: false })
+      .limit(12),
+  ]);
+  const mp = (myProps?.data ?? []) as Array<Record<string, unknown>>;
+  const lp = (liveProps?.data ?? []) as Array<Record<string, unknown>>;
+  lines.push(
+    mp.length > 0
+      ? `My property listings: ${mp.map((r) => `${r["title"]} (${r["category"]}, ${r["city"]}, ${r["price"]} ${r["currency"]}${r["price_period"] ? "/" + r["price_period"] : ""}, ${r["status"]}, ${r["view_count"]} views, ${r["inquiry_count"]} inquiries)`).join("; ")}`
+      : "My property listings: none.",
+  );
+  lines.push(
+    lp.length > 0
+      ? `PROPERTY DATA — newest active listings on ASH (real, do not invent others): ${lp.map((r) => `${r["title"]} (${r["category"]}, ${r["neighborhood"] ? r["neighborhood"] + ", " : ""}${r["city"]}, ${r["price"]} ${r["currency"]}${r["price_period"] ? "/" + r["price_period"] : ""}${r["bedrooms"] ? ", " + r["bedrooms"] + " bed" : ""}${r["furnished"] ? ", furnished" : ""}${r["university_name"] ? ", near " + r["university_name"] : ""}, verification ${r["verification_status"]})`).join("; ")}`
+      : "PROPERTY DATA: no active listings on ASH right now.",
+  );
 
   return lines.join("\n");
 }
