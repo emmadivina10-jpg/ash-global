@@ -283,7 +283,17 @@ function ManageProperty() {
                     {row.response_note ? (
                       <p className="mt-2 text-sm text-muted-foreground">{row.response_note}</p>
                     ) : null}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="mt-3"
+                      onClick={() => void chatAboutListing(row.listing_id)}
+                    >
+                      <MessageCircle className="size-4" aria-hidden />
+                      {fr ? "Discuter avec le propriétaire" : "Message owner"}
+                    </Button>
                   </div>
+
                 ))}
               </div>
             )}
