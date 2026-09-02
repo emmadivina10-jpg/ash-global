@@ -317,6 +317,407 @@ export type Database = {
           },
         ]
       }
+      deal_claims: {
+        Row: {
+          claimed_at: string
+          code: string
+          deal_id: string
+          id: string
+          redeemed_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          code: string
+          deal_id: string
+          id?: string
+          redeemed_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string
+          code?: string
+          deal_id?: string
+          id?: string
+          redeemed_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_claims_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deals: {
+        Row: {
+          category: string
+          city: string | null
+          claim_limit: number
+          claimed_count: number
+          country: string
+          created_at: string
+          deal_price: number
+          description: string | null
+          ends_at: string
+          id: string
+          image_path: string | null
+          is_active: boolean
+          original_price: number
+          owner_id: string
+          provider_id: string | null
+          starts_at: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          city?: string | null
+          claim_limit?: number
+          claimed_count?: number
+          country?: string
+          created_at?: string
+          deal_price: number
+          description?: string | null
+          ends_at?: string
+          id?: string
+          image_path?: string | null
+          is_active?: boolean
+          original_price: number
+          owner_id: string
+          provider_id?: string | null
+          starts_at?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          city?: string | null
+          claim_limit?: number
+          claimed_count?: number
+          country?: string
+          created_at?: string
+          deal_price?: number
+          description?: string | null
+          ends_at?: string
+          id?: string
+          image_path?: string | null
+          is_active?: boolean
+          original_price?: number
+          owner_id?: string
+          provider_id?: string | null
+          starts_at?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deals_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_tickets: {
+        Row: {
+          amount: number
+          code: string
+          created_at: string
+          event_id: string
+          id: string
+          paid_at: string | null
+          payment_provider: string
+          payment_reference: string | null
+          platform_fee: number
+          provider_transaction_id: string | null
+          quantity: number
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          code: string
+          created_at?: string
+          event_id: string
+          id?: string
+          paid_at?: string | null
+          payment_provider?: string
+          payment_reference?: string | null
+          platform_fee?: number
+          provider_transaction_id?: string | null
+          quantity?: number
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          code?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+          paid_at?: string | null
+          payment_provider?: string
+          payment_reference?: string | null
+          platform_fee?: number
+          provider_transaction_id?: string | null
+          quantity?: number
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_tickets_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          category: string
+          city: string | null
+          country: string
+          cover_path: string | null
+          created_at: string
+          description: string | null
+          ends_at: string | null
+          id: string
+          is_free: boolean
+          is_published: boolean
+          organizer_id: string
+          starts_at: string
+          ticket_capacity: number
+          ticket_price: number
+          tickets_sold: number
+          title: string
+          updated_at: string
+          venue: string | null
+          views: number
+        }
+        Insert: {
+          category?: string
+          city?: string | null
+          country?: string
+          cover_path?: string | null
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          is_free?: boolean
+          is_published?: boolean
+          organizer_id: string
+          starts_at: string
+          ticket_capacity?: number
+          ticket_price?: number
+          tickets_sold?: number
+          title: string
+          updated_at?: string
+          venue?: string | null
+          views?: number
+        }
+        Update: {
+          category?: string
+          city?: string | null
+          country?: string
+          cover_path?: string | null
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          is_free?: boolean
+          is_published?: boolean
+          organizer_id?: string
+          starts_at?: string
+          ticket_capacity?: number
+          ticket_price?: number
+          tickets_sold?: number
+          title?: string
+          updated_at?: string
+          venue?: string | null
+          views?: number
+        }
+        Relationships: []
+      }
+      freelance_projects: {
+        Row: {
+          awarded_user_id: string | null
+          budget: number
+          category: string
+          city: string | null
+          client_id: string
+          country: string
+          created_at: string
+          currency: string
+          deadline_days: number
+          description: string
+          id: string
+          location_type: string
+          proposals_count: number
+          skills: string[]
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          awarded_user_id?: string | null
+          budget?: number
+          category?: string
+          city?: string | null
+          client_id: string
+          country?: string
+          created_at?: string
+          currency?: string
+          deadline_days?: number
+          description: string
+          id?: string
+          location_type?: string
+          proposals_count?: number
+          skills?: string[]
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          awarded_user_id?: string | null
+          budget?: number
+          category?: string
+          city?: string | null
+          client_id?: string
+          country?: string
+          created_at?: string
+          currency?: string
+          deadline_days?: number
+          description?: string
+          id?: string
+          location_type?: string
+          proposals_count?: number
+          skills?: string[]
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      freelance_proposals: {
+        Row: {
+          amount: number
+          cover_letter: string
+          created_at: string
+          delivery_days: number
+          freelancer_id: string
+          id: string
+          project_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          cover_letter: string
+          created_at?: string
+          delivery_days?: number
+          freelancer_id: string
+          id?: string
+          project_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          cover_letter?: string
+          created_at?: string
+          delivery_days?: number
+          freelancer_id?: string
+          id?: string
+          project_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "freelance_proposals_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "freelance_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      freelancer_profiles: {
+        Row: {
+          availability: string
+          bio: string | null
+          categories: string[]
+          city: string | null
+          completed_projects: number
+          country: string
+          created_at: string
+          headline: string
+          hourly_rate: number | null
+          id: string
+          is_published: boolean
+          profile_views: number
+          rating_avg: number
+          rating_count: number
+          skills: string[]
+          starting_price: number
+          updated_at: string
+          user_id: string
+          years_experience: number
+        }
+        Insert: {
+          availability?: string
+          bio?: string | null
+          categories?: string[]
+          city?: string | null
+          completed_projects?: number
+          country?: string
+          created_at?: string
+          headline: string
+          hourly_rate?: number | null
+          id?: string
+          is_published?: boolean
+          profile_views?: number
+          rating_avg?: number
+          rating_count?: number
+          skills?: string[]
+          starting_price?: number
+          updated_at?: string
+          user_id: string
+          years_experience?: number
+        }
+        Update: {
+          availability?: string
+          bio?: string | null
+          categories?: string[]
+          city?: string | null
+          completed_projects?: number
+          country?: string
+          created_at?: string
+          headline?: string
+          hourly_rate?: number | null
+          id?: string
+          is_published?: boolean
+          profile_views?: number
+          rating_avg?: number
+          rating_count?: number
+          skills?: string[]
+          starting_price?: number
+          updated_at?: string
+          user_id?: string
+          years_experience?: number
+        }
+        Relationships: []
+      }
       lead_activities: {
         Row: {
           body: string | null
@@ -854,6 +1255,72 @@ export type Database = {
           stripe_payouts_enabled?: boolean
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      promotions: {
+        Row: {
+          amount: number
+          category: string | null
+          city: string | null
+          clicks: number
+          created_at: string
+          currency: string
+          ends_at: string | null
+          headline: string
+          id: string
+          impressions: number
+          owner_id: string
+          payment_reference: string | null
+          plan: string
+          provider_transaction_id: string | null
+          starts_at: string | null
+          status: string
+          target_id: string
+          target_type: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          category?: string | null
+          city?: string | null
+          clicks?: number
+          created_at?: string
+          currency?: string
+          ends_at?: string | null
+          headline: string
+          id?: string
+          impressions?: number
+          owner_id: string
+          payment_reference?: string | null
+          plan: string
+          provider_transaction_id?: string | null
+          starts_at?: string | null
+          status?: string
+          target_id: string
+          target_type: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          city?: string | null
+          clicks?: number
+          created_at?: string
+          currency?: string
+          ends_at?: string | null
+          headline?: string
+          id?: string
+          impressions?: number
+          owner_id?: string
+          payment_reference?: string | null
+          plan?: string
+          provider_transaction_id?: string | null
+          starts_at?: string | null
+          status?: string
+          target_id?: string
+          target_type?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1611,6 +2078,10 @@ export type Database = {
         Args: { _booking_id: string; _reason?: string }
         Returns: Json
       }
+      claim_deal: {
+        Args: { _deal_id: string; _user_id: string }
+        Returns: Json
+      }
       complete_activation: {
         Args: { _payment_reference: string; _provider_transaction_id: string }
         Returns: Json
@@ -1619,8 +2090,16 @@ export type Database = {
         Args: { _payment_reference: string; _provider_transaction_id?: string }
         Returns: Json
       }
+      complete_event_ticket: {
+        Args: { _payment_reference: string; _provider_transaction_id: string }
+        Returns: Json
+      }
       complete_link_payment: {
         Args: { _payment_reference: string; _provider_transaction_id?: string }
+        Returns: Json
+      }
+      complete_promotion: {
+        Args: { _payment_reference: string; _provider_transaction_id: string }
         Returns: Json
       }
       complete_provider_subscription: {
@@ -1654,7 +2133,15 @@ export type Database = {
         Args: { _payment_reference: string; _status: string }
         Returns: Json
       }
+      fail_event_ticket: {
+        Args: { _payment_reference: string; _status: string }
+        Returns: undefined
+      }
       fail_link_payment: {
+        Args: { _payment_reference: string; _status: string }
+        Returns: undefined
+      }
+      fail_promotion: {
         Args: { _payment_reference: string; _status: string }
         Returns: undefined
       }

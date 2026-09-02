@@ -7,11 +7,13 @@
  */
 import type { PaymentStatus } from "./tchokopay.server";
 
-export type SettlementKind = "ACTIVATION" | "BOOKING" | "PAYMENT_LINK";
+export type SettlementKind = "ACTIVATION" | "BOOKING" | "PAYMENT_LINK" | "EVENT_TICKET" | "PROMOTION";
 
 export function kindOf(merchantReference: string): SettlementKind {
   if (merchantReference.startsWith("BKG-")) return "BOOKING";
   if (merchantReference.startsWith("PLK-")) return "PAYMENT_LINK";
+  if (merchantReference.startsWith("EVT-")) return "EVENT_TICKET";
+  if (merchantReference.startsWith("PRM-")) return "PROMOTION";
   return "ACTIVATION";
 }
 
@@ -22,7 +24,7 @@ export function kindOf(merchantReference: string): SettlementKind {
 export async function findMerchantReference(providerReference: string): Promise<string | null> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-  const [activation, booking, link] = await Promise.all([
+  const [activation, booking, link, ticket, promotion] = await Promise.all([
     supabaseAdmin
       .from("activations")
       .select("payment_reference")
@@ -38,10 +40,25 @@ export async function findMerchantReference(providerReference: string): Promise<
       .select("reference")
       .eq("provider_transaction_id", providerReference)
       .maybeSingle(),
+    supabaseAdmin
+      .from("event_tickets")
+      .select("payment_reference")
+      .eq("provider_transaction_id", providerReference)
+      .maybeSingle(),
+    supabaseAdmin
+      .from("promotions")
+      .select("payment_reference")
+      .eq("provider_transaction_id", providerReference)
+      .maybeSingle(),
   ]);
 
   return (
-    activation.data?.payment_reference ?? booking.data?.payment_reference ?? link.data?.reference ?? null
+    activation.data?.payment_reference ??
+    booking.data?.payment_reference ??
+    link.data?.reference ??
+    ticket.data?.payment_reference ??
+    promotion.data?.payment_reference ??
+    null
   );
 }
 
@@ -75,7 +92,11 @@ export async function settleCollection(input: SettleInput): Promise<SettleOutcom
         ? "complete_booking_payment"
         : kind === "PAYMENT_LINK"
           ? "complete_link_payment"
-          : "complete_activation";
+          : kind === "EVENT_TICKET"
+            ? "complete_event_ticket"
+            : kind === "PROMOTION"
+              ? "complete_promotion"
+              : "complete_activation";
     const { error: rpcError } = await supabaseAdmin.rpc(rpc, {
       _payment_reference: input.merchantReference,
       _provider_transaction_id: providerRef,
@@ -85,7 +106,16 @@ export async function settleCollection(input: SettleInput): Promise<SettleOutcom
       error = rpcError.message;
       outcome = "COMPLETE_FAILED";
     } else {
-      outcome = kind === "BOOKING" ? "BOOKING_CONFIRMED" : kind === "PAYMENT_LINK" ? "LINK_PAID" : "PAID";
+      outcome =
+        kind === "BOOKING"
+          ? "BOOKING_CONFIRMED"
+          : kind === "PAYMENT_LINK"
+            ? "LINK_PAID"
+            : kind === "EVENT_TICKET"
+              ? "TICKET_CONFIRMED"
+              : kind === "PROMOTION"
+                ? "PROMOTION_ACTIVE"
+                : "PAID";
     }
   } else if (input.status === "FAILED" || input.status === "CANCELLED") {
     if (kind === "BOOKING") {
@@ -95,6 +125,16 @@ export async function settleCollection(input: SettleInput): Promise<SettleOutcom
       });
     } else if (kind === "PAYMENT_LINK") {
       await supabaseAdmin.rpc("fail_link_payment", {
+        _payment_reference: input.merchantReference,
+        _status: input.status,
+      });
+    } else if (kind === "EVENT_TICKET") {
+      await supabaseAdmin.rpc("fail_event_ticket", {
+        _payment_reference: input.merchantReference,
+        _status: input.status,
+      });
+    } else if (kind === "PROMOTION") {
+      await supabaseAdmin.rpc("fail_promotion", {
         _payment_reference: input.merchantReference,
         _status: input.status,
       });
