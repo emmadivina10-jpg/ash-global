@@ -56,7 +56,7 @@ export const claimDeal = createServerFn({ method: "POST" })
 /** Reserves tickets and pushes a mobile money prompt for the total. */
 export const startTicketPurchase = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { eventId: string; quantity: number; provider: string; phone: string; country?: string }) => ({
+  .inputValidator((input: { eventId: string; quantity: number; provider: string; phone: string; country?: string | undefined }) => ({
     eventId: String(input?.eventId ?? "").slice(0, 64),
     quantity: Math.min(10, Math.max(1, Number(input?.quantity ?? 1))),
     provider: String(input?.provider ?? "").trim().slice(0, 40),
@@ -127,11 +127,11 @@ export const startPromotion = createServerFn({ method: "POST" })
     targetId: string;
     headline: string;
     plan: string;
-    city?: string;
-    category?: string;
+    city?: string | undefined;
+    category?: string | undefined;
     provider: string;
     phone: string;
-    country?: string;
+    country?: string | undefined;
   }) => ({
     targetType: String(input?.targetType ?? "PROVIDER").toUpperCase().slice(0, 20),
     targetId: String(input?.targetId ?? "").slice(0, 64),
