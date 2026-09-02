@@ -59,12 +59,12 @@ function ManageProperty() {
     toast.success(fr ? "Statut mis à jour." : "Status updated.");
   }
 
-  async function respond(id: string, status: string) {
+  async function respond(id: string, status: string, fallbackAt: string) {
     const { data, error } = await supabase.rpc("respond_property_viewing", {
       _viewing_id: id,
       _status: status,
       _note: "",
-      _proposed_at: new Date().toISOString(),
+      _proposed_at: fallbackAt,
     });
     const payload = data as { ok?: boolean; error?: string } | null;
     if (error || !payload?.ok) {
@@ -224,13 +224,24 @@ function ManageProperty() {
                     {row.message ? <p className="mt-2 text-sm text-muted-foreground">{row.message}</p> : null}
                     {row.status === "PENDING" ? (
                       <div className="mt-3 flex gap-2">
-                        <Button size="sm" onClick={() => void respond(row.id, "ACCEPTED")}>
+                        <Button size="sm" onClick={() => void respond(row.id, "ACCEPTED", row.requested_at)}>
                           {fr ? "Accepter" : "Accept"}
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => void respond(row.id, "DECLINED")}>
+                        <Button size="sm" variant="outline" onClick={() => void respond(row.id, "DECLINED", row.requested_at)}>
                           {fr ? "Refuser" : "Decline"}
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => void respond(row.id, "RESCHEDULED")}>
+                        <Button size="sm" variant="ghost" onClick={() => void (async () => {
+                            const input = window.prompt(
+                              fr ? "Nouvelle date/heure (AAAA-MM-JJ HH:MM)" : "New date/time (YYYY-MM-DD HH:MM)",
+                            );
+                            if (!input) return;
+                            const when = new Date(input);
+                            if (Number.isNaN(when.getTime())) {
+                              toast.error(fr ? "Date invalide." : "Invalid date.");
+                              return;
+                            }
+                            await respond(row.id, "RESCHEDULED", when.toISOString());
+                          })()}>
                           {fr ? "Proposer un autre créneau" : "Propose another time"}
                         </Button>
                       </div>
