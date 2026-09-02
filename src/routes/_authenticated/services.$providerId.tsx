@@ -479,22 +479,56 @@ function BookingRequestDialog({
               setStep("confirm");
             }}
           >
-            <div className="space-y-1.5">
-              <Label htmlFor="svc">{fr ? "Service" : "Service"}</Label>
-              <select
-                id="svc"
-                value={serviceId}
-                onChange={(e) => setServiceId(e.target.value)}
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-              >
-                {services.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.title} — {formatXAF(s.price)}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-1.5">
+            {isCustom ? (
+              <>
+                <div className="space-y-1.5">
+                  <Label htmlFor="ctitle">{fr ? "Que voulez-vous ?" : "What do you need?"}</Label>
+                  <Input
+                    id="ctitle"
+                    value={customTitle}
+                    onChange={(e) => setCustomTitle(e.target.value)}
+                    placeholder={fr ? "ex. Tresses box, coupe homme…" : "e.g. Box braids, men's haircut…"}
+                    maxLength={120}
+                    required
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="cprice">{fr ? "Votre budget (XAF)" : "Your budget (XAF)"}</Label>
+                  <Input
+                    id="cprice"
+                    type="number"
+                    min={0}
+                    step={500}
+                    inputMode="numeric"
+                    value={customPrice}
+                    onChange={(e) => setCustomPrice(e.target.value)}
+                    placeholder="5000"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {fr
+                      ? "Le pro confirme le prix avant tout paiement."
+                      : "The pro confirms the price before any payment."}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="space-y-1.5">
+                <Label htmlFor="svc">{fr ? "Service" : "Service"}</Label>
+                <select
+                  id="svc"
+                  value={serviceId}
+                  onChange={(e) => setServiceId(e.target.value)}
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  {services.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.title} — {formatXAF(s.price)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
               <Label htmlFor="day">{fr ? "Date" : "Date"}</Label>
               <Input
                 id="day"
