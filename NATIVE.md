@@ -89,3 +89,33 @@ npx capacitor-assets generate --iconBackgroundColor '#080812' --splashBackground
   the web.
 - `src/styles.css` — `html.native` safe-area padding for notches and the iOS
   home indicator.
+
+## Built artifacts (com.ashglogroup.app)
+
+Native projects are generated and committed: `android/` (Gradle) and `ios/` (Xcode).
+Icons/splash are generated from `assets/` via `npx @capacitor/assets generate`.
+
+Android builds produced from this repo:
+
+| File | Use |
+|---|---|
+| `ASH-Glo-debug.apk` | sideload/test on any phone |
+| `ASH-Glo-release.apk` | signed release, direct install/distribution |
+| `ASH-Glo-release.aab` | upload to Google Play Console |
+
+Signed with `ash-glo-release.keystore` (alias `ashglo`). **Keep this keystore safe —
+Play requires the same key for every future update.** Rotate the password after download.
+
+Rebuild:
+```bash
+npx cap sync
+cd android && ./gradlew assembleRelease bundleRelease   # needs JDK 21 + Android SDK 36
+```
+
+### iOS
+Requires macOS + Xcode (cannot be compiled on Linux):
+```bash
+npx cap sync ios
+cd ios/App && pod install   # if using CocoaPods
+npx cap open ios            # set team, then Product > Archive > Distribute
+```
