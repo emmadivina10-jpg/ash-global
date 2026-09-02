@@ -1390,16 +1390,29 @@ export type Database = {
         }
         Returns: Json
       }
-      request_booking: {
-        Args: {
-          _address?: string
-          _notes?: string
-          _provider_id: string
-          _scheduled_at: string
-          _service_id: string
-        }
-        Returns: Json
-      }
+      request_booking:
+        | {
+            Args: {
+              _address?: string
+              _notes?: string
+              _provider_id: string
+              _scheduled_at: string
+              _service_id: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              _address?: string
+              _custom_price?: number
+              _custom_title?: string
+              _notes?: string
+              _provider_id: string
+              _scheduled_at: string
+              _service_id: string
+            }
+            Returns: Json
+          }
       request_withdrawal: {
         Args: { _amount: number; _method: string; _phone: string }
         Returns: Json
