@@ -50,6 +50,22 @@ type ServiceRow = {
   is_active: boolean;
 };
 
+/** Placeholder used when a pro hasn't published a service yet — the client describes the job. */
+const CUSTOM_ID = "custom";
+
+function customService(fr: boolean): ServiceRow {
+  return {
+    id: CUSTOM_ID,
+    title: fr ? "Prestation sur mesure" : "Custom request",
+    description: null,
+    price: 0,
+    duration_minutes: 60,
+    category: "OTHER" as ServiceCategory,
+    is_active: true,
+  };
+}
+
+
 function ProviderPage() {
   const { providerId } = Route.useParams();
   const { t, lang } = useI18n();
