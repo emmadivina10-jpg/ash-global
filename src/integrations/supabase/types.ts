@@ -1324,6 +1324,317 @@ export type Database = {
         }
         Relationships: []
       }
+      property_categories: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          kind: string
+          label_en: string
+          label_fr: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          kind?: string
+          label_en: string
+          label_fr: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          kind?: string
+          label_en?: string
+          label_fr?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      property_images: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          image_path: string
+          listing_id: string
+          sort_order: number
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          image_path: string
+          listing_id: string
+          sort_order?: number
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          image_path?: string
+          listing_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_images_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "property_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_listings: {
+        Row: {
+          amenities: string[]
+          approx_lat: number | null
+          approx_lng: number | null
+          available_from: string | null
+          bathrooms: number
+          bedrooms: number
+          category: string
+          city: string
+          contact_phone: string | null
+          contact_whatsapp: string | null
+          country: string
+          created_at: string
+          currency: string
+          description: string | null
+          distance_km: number | null
+          expires_at: string
+          id: string
+          inquiry_count: number
+          is_furnished: boolean
+          land_use: string | null
+          listing_kind: string
+          neighborhood: string | null
+          owner_id: string
+          owner_kind: string
+          postal_code: string | null
+          price: number
+          price_period: string
+          region: string | null
+          size_unit: string | null
+          size_value: number | null
+          status: string
+          title: string
+          university: string | null
+          updated_at: string
+          verification_status: string
+          view_count: number
+        }
+        Insert: {
+          amenities?: string[]
+          approx_lat?: number | null
+          approx_lng?: number | null
+          available_from?: string | null
+          bathrooms?: number
+          bedrooms?: number
+          category?: string
+          city: string
+          contact_phone?: string | null
+          contact_whatsapp?: string | null
+          country?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          distance_km?: number | null
+          expires_at?: string
+          id?: string
+          inquiry_count?: number
+          is_furnished?: boolean
+          land_use?: string | null
+          listing_kind?: string
+          neighborhood?: string | null
+          owner_id: string
+          owner_kind?: string
+          postal_code?: string | null
+          price?: number
+          price_period?: string
+          region?: string | null
+          size_unit?: string | null
+          size_value?: number | null
+          status?: string
+          title: string
+          university?: string | null
+          updated_at?: string
+          verification_status?: string
+          view_count?: number
+        }
+        Update: {
+          amenities?: string[]
+          approx_lat?: number | null
+          approx_lng?: number | null
+          available_from?: string | null
+          bathrooms?: number
+          bedrooms?: number
+          category?: string
+          city?: string
+          contact_phone?: string | null
+          contact_whatsapp?: string | null
+          country?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          distance_km?: number | null
+          expires_at?: string
+          id?: string
+          inquiry_count?: number
+          is_furnished?: boolean
+          land_use?: string | null
+          listing_kind?: string
+          neighborhood?: string | null
+          owner_id?: string
+          owner_kind?: string
+          postal_code?: string | null
+          price?: number
+          price_period?: string
+          region?: string | null
+          size_unit?: string | null
+          size_value?: number | null
+          status?: string
+          title?: string
+          university?: string | null
+          updated_at?: string
+          verification_status?: string
+          view_count?: number
+        }
+        Relationships: []
+      }
+      property_saves: {
+        Row: {
+          created_at: string
+          id: string
+          listing_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listing_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listing_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_saves_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "property_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_verifications: {
+        Row: {
+          check_kind: string
+          created_at: string
+          id: string
+          listing_id: string
+          notes: string | null
+          outcome: string
+          reviewed_at: string | null
+          reviewer: string
+        }
+        Insert: {
+          check_kind: string
+          created_at?: string
+          id?: string
+          listing_id: string
+          notes?: string | null
+          outcome?: string
+          reviewed_at?: string | null
+          reviewer?: string
+        }
+        Update: {
+          check_kind?: string
+          created_at?: string
+          id?: string
+          listing_id?: string
+          notes?: string | null
+          outcome?: string
+          reviewed_at?: string | null
+          reviewer?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_verifications_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "property_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_viewing_requests: {
+        Row: {
+          created_at: string
+          id: string
+          listing_id: string
+          message: string | null
+          owner_id: string
+          proposed_at: string | null
+          requested_at: string
+          requester_id: string
+          responded_at: string | null
+          response_note: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listing_id: string
+          message?: string | null
+          owner_id: string
+          proposed_at?: string | null
+          requested_at: string
+          requester_id: string
+          responded_at?: string | null
+          response_note?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listing_id?: string
+          message?: string | null
+          owner_id?: string
+          proposed_at?: string | null
+          requested_at?: string
+          requester_id?: string
+          responded_at?: string | null
+          response_note?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_viewing_requests_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "property_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       provider_availability: {
         Row: {
           created_at: string
@@ -2129,6 +2440,7 @@ export type Database = {
         Args: { _accept: boolean; _booking_id: string; _reason?: string }
         Returns: Json
       }
+      expire_property_listings: { Args: never; Returns: number }
       fail_booking_payment: {
         Args: { _payment_reference: string; _status: string }
         Returns: Json
@@ -2220,6 +2532,8 @@ export type Database = {
         }
         Returns: undefined
       }
+      owns_property: { Args: { _listing_id: string }; Returns: boolean }
+      property_is_public: { Args: { _listing_id: string }; Returns: boolean }
       provider_slots: {
         Args: { _date: string; _duration?: number; _provider_id: string }
         Returns: string[]
@@ -2232,6 +2546,10 @@ export type Database = {
           _window_seconds: number
         }
         Returns: Json
+      }
+      record_property_view: {
+        Args: { _listing_id: string }
+        Returns: undefined
       }
       request_booking:
         | {
@@ -2256,8 +2574,21 @@ export type Database = {
             }
             Returns: Json
           }
+      request_property_viewing: {
+        Args: { _listing_id: string; _message: string; _requested_at: string }
+        Returns: Json
+      }
       request_withdrawal: {
         Args: { _amount: number; _method: string; _phone: string }
+        Returns: Json
+      }
+      respond_property_viewing: {
+        Args: {
+          _note: string
+          _proposed_at: string
+          _status: string
+          _viewing_id: string
+        }
         Returns: Json
       }
       security_housekeeping: { Args: never; Returns: undefined }
