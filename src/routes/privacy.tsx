@@ -24,7 +24,7 @@ export const Route = createFileRoute("/privacy")({
 });
 
 const LAST_UPDATED = "26 August 2026";
-const PRIVACY_EMAIL = "privacy@growrefer.app";
+const PRIVACY_EMAIL = "privacy@ashglogroup.company";
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
@@ -99,14 +99,13 @@ function PrivacyPage() {
         <Section id="who-we-are" title="1. Who we are">
           <p>
             ASH Glo (“ASH Glo”, “we”, “us”) operates a digital marketplace and referral platform
-            available at https://growrefer.app and as the mobile app “ASH Glo” (bundle ID
-            app.growrefer.ashglo).
+available at https://ashglogroup.company and as the mobile app “ASH Glo”.
           </p>
           <Bullets
             items={[
               "Data controller: ASH Glo, Douala, Cameroon.",
               `Privacy contact: ${PRIVACY_EMAIL}`,
-              "Support: https://growrefer.app",
+              "Support: https://ashglogroup.company",
             ]}
           />
           <p>
@@ -429,7 +428,7 @@ function PrivacyPage() {
 
         <Section id="contact" title="14. Contact">
           <Bullets
-            items={["ASH Glo, Douala, Cameroon", `Email: ${PRIVACY_EMAIL}`, "Support: https://growrefer.app"]}
+            items={["ASH Glo, Douala, Cameroon", `Email: ${PRIVACY_EMAIL}`, "Support: https://ashglogroup.company"]}
           />
         </Section>
       </main>
