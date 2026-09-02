@@ -3,6 +3,7 @@ import marketHero from "@/assets/market-hero.jpg";
 import marketBeauty from "@/assets/market-beauty.jpg";
 import marketHome from "@/assets/market-home.jpg";
 import marketHealth from "@/assets/market-health.jpg";
+import marketProperty from "@/assets/market-property.jpg";
 import marketTech from "@/assets/market-tech.jpg";
 import {
   ArrowRight,
