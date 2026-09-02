@@ -152,6 +152,7 @@ function MessagesPage() {
                 conversationId={activeId}
                 currentUserId={user?.id}
                 peerName={active ? peerOf(active) : "ASH"}
+                peerUserId={active ? peerUserIdOf(active) : null}
                 className="flex-1"
                 quickReplies={
                   lang === "fr"

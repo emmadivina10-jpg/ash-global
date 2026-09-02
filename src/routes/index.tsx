@@ -442,9 +442,20 @@ function Landing() {
             <p className="text-xs text-muted-foreground">
               {t("landing.footer", { year: new Date().getFullYear() })}
             </p>
-            <Link to="/privacy" className="text-xs font-medium text-primary hover:underline">
-              Privacy Policy
-            </Link>
+            <div className="flex flex-wrap gap-3">
+              <Link to="/privacy" className="text-xs font-medium text-primary hover:underline">
+                Privacy Policy
+              </Link>
+              <Link to="/terms" className="text-xs font-medium text-primary hover:underline">
+                Terms of Service
+              </Link>
+              <Link to="/account-deletion" className="text-xs font-medium text-primary hover:underline">
+                Delete account
+              </Link>
+              <Link to="/support" className="text-xs font-medium text-primary hover:underline">
+                Support
+              </Link>
+            </div>
           </div>
         </div>
       </footer>

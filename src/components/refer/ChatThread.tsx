@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMessages } from "@/lib/marketplace.queries";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { ReportDialog } from "@/components/refer/ReportDialog";
 import { useI18n } from "@/lib/i18n";
 import { formatXAF } from "@/lib/format";
 import { cn } from "@/lib/utils";

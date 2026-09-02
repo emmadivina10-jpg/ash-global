@@ -61,6 +61,7 @@ const NAV = [
   { to: "/console/content", label: "Content & Creators", icon: Video, group: "Workforce", dept: "CONTENT" },
   { to: "/console/merchant", label: "Merchants", icon: Store, group: "Workforce", dept: "MERCHANT" },
   { to: "/console/expansion", label: "Expansion", icon: Map, group: "Workforce", dept: "EXPANSION" },
+  { to: "/console/reports", label: "Safety reports", icon: ShieldCheck, group: "Workforce", dept: "TRUST" },
   { to: "/console/trust", label: "Trust & Verification", icon: ShieldCheck, group: "Workforce", dept: "TRUST" },
   { to: "/console/staff", label: "Staff & departments", icon: UserCog, group: "Admin", dept: "SUPER_ADMIN" },
 ] as const;
