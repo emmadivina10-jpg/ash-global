@@ -36,6 +36,7 @@ import { Route as ConsoleBookingsRouteImport } from './routes/console.bookings'
 import { Route as ConsoleDeletionsRouteImport } from './routes/console.deletions'
 import { Route as ConsoleLedgerRouteImport } from './routes/console.ledger'
 import { Route as ConsolePaymentsRouteImport } from './routes/console.payments'
+import { Route as ConsolePayoutRouteImport } from './routes/console.payout'
 import { Route as ConsoleProvidersRouteImport } from './routes/console.providers'
 import { Route as ConsoleSecurityRouteImport } from './routes/console.security'
 import { Route as ConsoleUsersRouteImport } from './routes/console.users'
@@ -183,6 +184,11 @@ const ConsolePaymentsRoute = ConsolePaymentsRouteImport.update({
   path: '/payments',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const ConsolePayoutRoute = ConsolePayoutRouteImport.update({
+  id: '/payout',
+  path: '/payout',
+  getParentRoute: () => ConsoleRoute,
+} as any)
 const ConsoleProvidersRoute = ConsoleProvidersRouteImport.update({
   id: '/providers',
   path: '/providers',
@@ -270,6 +276,7 @@ export interface FileRoutesByFullPath {
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/ledger': typeof ConsoleLedgerRoute
   '/console/payments': typeof ConsolePaymentsRoute
+  '/console/payout': typeof ConsolePayoutRoute
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/security': typeof ConsoleSecurityRoute
   '/console/users': typeof ConsoleUsersRoute
@@ -308,6 +315,7 @@ export interface FileRoutesByTo {
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/ledger': typeof ConsoleLedgerRoute
   '/console/payments': typeof ConsolePaymentsRoute
+  '/console/payout': typeof ConsolePayoutRoute
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/security': typeof ConsoleSecurityRoute
   '/console/users': typeof ConsoleUsersRoute
@@ -349,6 +357,7 @@ export interface FileRoutesById {
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/ledger': typeof ConsoleLedgerRoute
   '/console/payments': typeof ConsolePaymentsRoute
+  '/console/payout': typeof ConsolePayoutRoute
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/security': typeof ConsoleSecurityRoute
   '/console/users': typeof ConsoleUsersRoute
@@ -390,6 +399,7 @@ export interface FileRouteTypes {
     | '/console/deletions'
     | '/console/ledger'
     | '/console/payments'
+    | '/console/payout'
     | '/console/providers'
     | '/console/security'
     | '/console/users'
@@ -428,6 +438,7 @@ export interface FileRouteTypes {
     | '/console/deletions'
     | '/console/ledger'
     | '/console/payments'
+    | '/console/payout'
     | '/console/providers'
     | '/console/security'
     | '/console/users'
@@ -468,6 +479,7 @@ export interface FileRouteTypes {
     | '/console/deletions'
     | '/console/ledger'
     | '/console/payments'
+    | '/console/payout'
     | '/console/providers'
     | '/console/security'
     | '/console/users'
@@ -691,6 +703,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsolePaymentsRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/console/payout': {
+      id: '/console/payout'
+      path: '/payout'
+      fullPath: '/console/payout'
+      preLoaderRoute: typeof ConsolePayoutRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
     '/console/providers': {
       id: '/console/providers'
       path: '/providers'
@@ -813,6 +832,7 @@ interface ConsoleRouteChildren {
   ConsoleDeletionsRoute: typeof ConsoleDeletionsRoute
   ConsoleLedgerRoute: typeof ConsoleLedgerRoute
   ConsolePaymentsRoute: typeof ConsolePaymentsRoute
+  ConsolePayoutRoute: typeof ConsolePayoutRoute
   ConsoleProvidersRoute: typeof ConsoleProvidersRoute
   ConsoleSecurityRoute: typeof ConsoleSecurityRoute
   ConsoleUsersRoute: typeof ConsoleUsersRoute
@@ -825,6 +845,7 @@ const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsoleDeletionsRoute: ConsoleDeletionsRoute,
   ConsoleLedgerRoute: ConsoleLedgerRoute,
   ConsolePaymentsRoute: ConsolePaymentsRoute,
+  ConsolePayoutRoute: ConsolePayoutRoute,
   ConsoleProvidersRoute: ConsoleProvidersRoute,
   ConsoleSecurityRoute: ConsoleSecurityRoute,
   ConsoleUsersRoute: ConsoleUsersRoute,

@@ -492,6 +492,33 @@ export type Database = {
           },
         ]
       }
+      platform_payouts: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          destination: string
+          id: string
+          note: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          destination: string
+          id?: string
+          note?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          destination?: string
+          id?: string
+          note?: string | null
+        }
+        Relationships: []
+      }
       portfolio_items: {
         Row: {
           caption: string | null
@@ -1167,6 +1194,10 @@ export type Database = {
       }
       console_counts: { Args: never; Returns: Json }
       console_financials: { Args: never; Returns: Json }
+      console_platform_payout: {
+        Args: { _amount: number; _destination: string; _note?: string }
+        Returns: Json
+      }
       console_set_verification: {
         Args: { _approve: boolean; _provider_id: string }
         Returns: Json

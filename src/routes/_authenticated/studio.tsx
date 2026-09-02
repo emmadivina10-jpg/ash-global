@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { AlertTriangle, CalendarClock, Coins, PartyPopper, Star, Trash2 } from "lucide-react";
+import { AlertTriangle, ArrowRight, CalendarClock, Coins, PartyPopper, Star, Trash2, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -11,7 +11,7 @@ import {
   useProviderServices,
   useMyProviderProfile,
 } from "@/lib/marketplace.queries";
-import { useUser } from "@/lib/queries";
+import { useUser, useWallet } from "@/lib/queries";
 
 import { SectionCard, StatCard } from "@/components/refer/cards";
 import { SkeletonRows } from "@/components/refer/states";
@@ -49,6 +49,13 @@ function StudioPage() {
   const { data: services } = useProviderServices(studio?.id, false);
   const { data: portfolio } = usePortfolio(studio?.id);
   const { data: bookings } = useProviderBookings(studio?.id);
+  const { data: wallet } = useWallet();
+  const pendingPayments = (bookings ?? []).filter((b) =>
+    ["ACCEPTED", "PAYMENT_PROCESSING", "PAYMENT_FAILED"].includes(String(b.status)),
+  );
+  const earnedNet = (bookings ?? [])
+    .filter((b) => ["COMPLETED", "SETTLED"].includes(String(b.status)))
+    .reduce((sum, b) => sum + Number(b.provider_amount ?? b.price - Math.round(Number(b.price) * 0.01)), 0);
 
 
   const [form, setForm] = useState({
@@ -302,6 +309,39 @@ function StudioPage() {
           <StatCard label={t("pro.stat.upcoming")} value={String(stats.upcoming)} icon={<CalendarClock className="size-4" />} />
           <StatCard label={t("pro.stat.revenue")} value={formatXAF(stats.revenue)} icon={<Coins className="size-4" />} />
         </div>
+      ) : null}
+
+      {studio ? (
+        <SectionCard title={lang === "fr" ? "Revenus et paiement" : "Earnings & payout"}>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-xl border border-primary/40 bg-primary/5 p-3">
+              <p className="text-xs text-muted-foreground">{lang === "fr" ? "Disponible au retrait" : "Available to withdraw"}</p>
+              <p className="mt-1 font-display text-lg font-bold text-primary">
+                {formatXAF(Number(wallet?.available_balance ?? 0))}
+              </p>
+            </div>
+            <div className="rounded-xl border border-border p-3">
+              <p className="text-xs text-muted-foreground">{lang === "fr" ? "Paiements en attente" : "Pending payments"}</p>
+              <p className="mt-1 font-display text-lg font-bold text-foreground">
+                {pendingPayments.length} {lang === "fr" ? "réservation(s)" : "booking(s)"}
+              </p>
+            </div>
+            <div className="rounded-xl border border-border p-3">
+              <p className="text-xs text-muted-foreground">{lang === "fr" ? "Gains nets (après 1%)" : "Net earnings (after 1% fee)"}</p>
+              <p className="mt-1 font-display text-lg font-bold text-foreground">{formatXAF(earnedNet)}</p>
+            </div>
+          </div>
+          <p className="mt-3 text-xs text-muted-foreground">
+            {lang === "fr"
+              ? "ASH Glo retient 1% de commission par réservation. Vos gains arrivent dans votre portefeuille une fois la prestation terminée."
+              : "ASH Glo keeps a 1% commission per booking. Your earnings land in your wallet once the job is completed."}
+          </p>
+          <Button variant="outline" className="mt-3" onClick={() => void navigate({ to: "/wallet" })}>
+            <Wallet className="size-4" />
+            {lang === "fr" ? "Ouvrir mon portefeuille" : "Open my wallet"}
+            <ArrowRight className="size-4" />
+          </Button>
+        </SectionCard>
       ) : null}
 
       <SectionCard title={studio ? t("pro.title") : t("pro.create")}>

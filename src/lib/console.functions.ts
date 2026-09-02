@@ -308,7 +308,7 @@ export const reviewDeletionRequest = createServerFn({ method: "POST" })
 
     const { error } = await db
       .from("account_deletion_requests")
-      .update({ status: data.status, admin_note: data.note ?? null, reviewed_at: new Date().toISOString() })
+      .update({ status: data.status, admin_note: data.note ? String(data.note) : null, reviewed_at: new Date().toISOString() })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
 
@@ -712,3 +712,59 @@ export const runSecuritySelfCheck = createServerFn({ method: "POST" }).handler(a
     report: data as { ok: boolean; critical: number; warn: number; findings: { code: string; severity: string; object: string; detail: string }[] },
   };
 });
+
+/* ------------------------------------------------------------------ *
+ * Platform payouts — withdrawing the platform's own revenue
+ * ------------------------------------------------------------------ */
+
+export const getConsolePayouts = createServerFn({ method: "GET" }).handler(async () => {
+  const { requireConsole, adminClient } = await import("./console.server");
+  await requireConsole();
+  const db = await adminClient();
+  const [fin, payouts, bookings, providers] = await Promise.all([
+    db.rpc("console_financials"),
+    db
+      .from("platform_payouts")
+      .select("id, amount, currency, destination, note, created_at")
+      .order("created_at", { ascending: false })
+      .limit(200),
+    db
+      .from("bookings")
+      .select("id, provider_id, service_title, price, status, platform_fee, provider_amount, paid_at, created_at")
+      .order("created_at", { ascending: false })
+      .limit(300),
+    db.from("provider_profiles").select("id, business_name"),
+  ]);
+  const taken = (payouts.data ?? []).reduce((sum, p) => sum + Number(p.amount), 0);
+  const f = (fin.data ?? {}) as Record<string, number>;
+  const pMap = new Map((providers.data ?? []).map((p) => [p.id, p.business_name]));
+  return {
+    financials: (fin.data ?? null) as Financials | null,
+    taken,
+    available: Math.max(Number(f['safe_to_withdraw'] ?? 0) - taken, 0),
+    payouts: payouts.data ?? [],
+    bookings: (bookings.data ?? []).map((b) => ({
+      ...b,
+      providerName: pMap.get(b.provider_id) ?? "—",
+      fee: Number(b.platform_fee ?? Math.round(Number(b.price) * 0.01)),
+    })),
+  };
+});
+
+export const requestConsolePayout = createServerFn({ method: "POST" })
+  .inputValidator((data: { amount: number; destination: string; note?: string }) => data)
+  .handler(async ({ data }) => {
+    const { requireConsole, adminClient } = await import("./console.server");
+    await requireConsole();
+    const db = await adminClient();
+    const { data: result, error } = await db.rpc("console_platform_payout", {
+      _amount: Math.round(Number(data.amount)),
+      _destination: String(data.destination ?? ""),
+      ...(data.note ? { _note: String(data.note) } : {}),
+    });
+    const payload = result as { ok?: boolean; error?: string; available?: number } | null;
+    if (error || !payload?.ok) {
+      return { ok: false as const, error: payload?.error ?? error?.message ?? "FAILED", available: payload?.available ?? null };
+    }
+    return { ok: true as const };
+  });
