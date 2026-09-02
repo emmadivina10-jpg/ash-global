@@ -31,9 +31,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useProperty, useSavedIds, useSimilarProperties } from "@/lib/property.queries";
+import { useProperty, useSavedIds, useSimilarProperties, openPropertyConversation } from "@/lib/property.queries";
 import { AMENITIES, VERIFICATION_STATES, categoryLabel, formatPropertyPrice, labelOf } from "@/lib/property";
 import { formatDateTime } from "@/lib/format";
+import { useUser } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
