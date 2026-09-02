@@ -252,9 +252,12 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </div>
               </SheetContent>
             </Sheet>
-          </li>
-        </ul>
-      </nav>
+                </li>
+              </ul>
+            </div>
+          </nav>
+        );
+      })()}
 
       <AshOrb />
     </div>
