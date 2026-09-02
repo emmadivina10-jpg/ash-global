@@ -57,6 +57,10 @@ function PropertyDetail() {
   const { lang } = useI18n();
   const fr = lang === "fr";
   const queryClient = useQueryClient();
+  const navigate = Route.useNavigate();
+  const { user } = useUser();
+
+
 
   const { data, isLoading } = useProperty(listingId);
   const { data: similar } = useSimilarProperties(data?.listing ?? null);
