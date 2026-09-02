@@ -44,8 +44,8 @@ export const startBookingPayment = createServerFn({ method: "POST" })
             amountCents: (await import("./stripe.server")).xafToUsdCents(Number(booking.price)),
             currency: "USD",
             description: `ASH booking — ${booking.service_title}`,
-            successUrl: `${process.env["APP_URL"] ?? "https://growrefer.app"}/bookings`,
-            cancelUrl: `${process.env["APP_URL"] ?? "https://growrefer.app"}/bookings`,
+successUrl: `${process.env["APP_URL"] ?? "https://ashglogroup.company"}/bookings`,
+            cancelUrl: `${process.env["APP_URL"] ?? "https://ashglogroup.company"}/bookings`,
             metadata: { booking_id: booking.id },
           });
           if (resumed.ok && resumed.checkoutUrl) {
@@ -84,7 +84,7 @@ export const startBookingPayment = createServerFn({ method: "POST" })
       .eq("user_id", userId)
       .maybeSingle();
 
-    const appUrl = process.env["APP_URL"] ?? "https://growrefer.app";
+    const appUrl = process.env["APP_URL"] ?? "https://ashglogroup.company";
 
     // Card rail (Stripe): available worldwide, including to Cameroonian cards.
     if (data.method === "CARD") {

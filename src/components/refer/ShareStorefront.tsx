@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 export function storefrontUrl(slug: string) {
-  const origin = typeof window === "undefined" ? "https://growrefer.app" : window.location.origin;
+  const origin = typeof window === "undefined" ? "https://ashglogroup.company" : window.location.origin;
   return `${origin}/s/${slug}`;
 }
 

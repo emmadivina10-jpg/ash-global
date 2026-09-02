@@ -6,15 +6,15 @@ import type { CapacitorConfig } from "@capacitor/cli";
  * The app is a server-rendered application with server functions, payments and
  * auth callbacks, so the native builds load the live deployment instead of a
  * frozen static bundle. Point `server.url` at a build you control:
- *   - production : https://growrefer.app
+*   - production : https://ashglogroup.company
  *   - staging    : https://project--27f7580a-d6af-45a7-9546-ba56b1916cbe-dev.lovable.app
  *
  * Set CAP_SERVER_URL when building to override without editing this file.
  */
-const serverUrl = process.env["CAP_SERVER_URL"] ?? "https://growrefer.app";
+const serverUrl = process.env["CAP_SERVER_URL"] ?? "https://ashglogroup.company";
 
 const config: CapacitorConfig = {
-  appId: "app.growrefer.ashglo",
+  appId: "com.ashglogroup.app",
   appName: "ASH Glo",
   // Local bootstrap page shipped inside the binary (used offline / before the
   // remote URL responds). `npx cap sync` copies this folder into each platform.
@@ -25,8 +25,8 @@ const config: CapacitorConfig = {
     androidScheme: "https",
     iosScheme: "https",
     allowNavigation: [
-      "growrefer.app",
-      "www.growrefer.app",
+"ashglogroup.company",
+      "www.ashglogroup.company",
       "*.lovable.app",
       "*.supabase.co",
       "checkout.stripe.com",

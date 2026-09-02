@@ -37,7 +37,7 @@ function timeToMinutes(value: string): number {
 }
 
 function origin(): string {
-  return typeof window === "undefined" ? "https://growrefer.app" : window.location.origin;
+  return typeof window === "undefined" ? "https://ashglogroup.company" : window.location.origin;
 }
 
 async function copy(text: string, message = "Link copied") {
