@@ -760,7 +760,7 @@ export const requestConsolePayout = createServerFn({ method: "POST" })
     const { data: result, error } = await db.rpc("console_platform_payout", {
       _amount: Math.round(Number(data.amount)),
       _destination: String(data.destination ?? ""),
-      _note: data.note ? String(data.note) : null,
+      ...(data.note ? { _note: String(data.note) } : {}),
     });
     const payload = result as { ok?: boolean; error?: string; available?: number } | null;
     if (error || !payload?.ok) {
