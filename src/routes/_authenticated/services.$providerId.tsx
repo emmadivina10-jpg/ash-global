@@ -528,8 +528,9 @@ function BookingRequestDialog({
                 </select>
               </div>
             )}
-
+            <div className="space-y-1.5">
               <Label htmlFor="day">{fr ? "Date" : "Date"}</Label>
+
               <Input
                 id="day"
                 type="date"
