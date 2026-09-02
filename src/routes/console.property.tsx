@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { LoadingState } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { PROPERTY_STATUSES, PROPERTY_VERIFICATIONS, categoryLabel, formatPropertyPrice } from "@/lib/property";
+import { PROPERTY_STATUSES, VERIFICATION_STATES, categoryLabel, formatPropertyPrice } from "@/lib/property";
 import { formatDateTime } from "@/lib/format";
 
 export const Route = createFileRoute("/console/property")({
@@ -70,7 +70,7 @@ function ConsoleProperty() {
     },
   });
 
-  async function patch(id: string, values: Record<string, string>) {
+  async function patch(id: string, values: { status?: string; verification_status?: string }) {
     const { error } = await supabase.from("property_listings").update(values).eq("id", id);
     if (error) {
       toast.error(error.message);
@@ -152,9 +152,9 @@ function ConsoleProperty() {
                   className="h-9 rounded-xl border border-border bg-background px-2 text-xs"
                   aria-label="Verification level"
                 >
-                  {PROPERTY_VERIFICATIONS.map((level) => (
-                    <option key={level} value={level}>
-                      {level}
+                  {VERIFICATION_STATES.map((level) => (
+                    <option key={level.code} value={level.code}>
+                      {level.en}
                     </option>
                   ))}
                 </select>
