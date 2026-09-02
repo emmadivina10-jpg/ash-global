@@ -110,9 +110,22 @@ function MessagesPage() {
             })}
           </nav>
 
-          <div className="tile flex h-[64vh] flex-col p-3">
+          <div
+            className={cn(
+              "tile flex flex-col p-3",
+              mobileView === "list" ? "hidden md:flex" : "h-[calc(100dvh-10rem)] md:h-[64vh]",
+            )}
+          >
             <div className="mb-2 flex items-start justify-between gap-3 border-b border-border pb-2">
-              <div className="min-w-0">
+              <button
+                type="button"
+                onClick={() => void navigate({ search: {} })}
+                aria-label={t("chat.title")}
+                className="grid size-9 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-muted md:hidden"
+              >
+                <ArrowLeft className="size-5" aria-hidden />
+              </button>
+              <div className="min-w-0 flex-1">
                 <p className="truncate font-display font-semibold text-foreground">
                   {active ? peerOf(active) : t("chat.title")}
                 </p>
