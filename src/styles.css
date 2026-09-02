@@ -347,6 +347,12 @@
   backdrop-filter: blur(18px) saturate(140%);
 }
 
+/* Center-cutout mobile tab bar: semicircular notch for the raised FAB. */
+@utility nav-cutout {
+  mask-image: radial-gradient(circle 38px at 50% 0%, transparent 37px, black 38px);
+  -webkit-mask-image: radial-gradient(circle 38px at 50% 0%, transparent 37px, black 38px);
+}
+
 /* The one ASH floating orb. */
 @utility orb-surface {
   background-image: linear-gradient(
