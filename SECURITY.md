@@ -86,7 +86,7 @@ The scan checks for:
 ### Calling the endpoint manually
 
 ```bash
-curl -X POST https://growrefer.app/api/public/security-selfcheck \
+curl -X POST https://ashglogroup.company/api/public/security-selfcheck \
      -H "x-security-scan-secret: $SECURITY_SCAN_SECRET"
 ```
 

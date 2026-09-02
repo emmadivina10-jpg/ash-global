@@ -67,8 +67,8 @@ describe("date formatting", () => {
 
 describe("referral links", () => {
   it("builds a register link carrying the code", () => {
-    expect(referralLink("ASH123", "https://growrefer.app")).toBe(
-      "https://growrefer.app/register?ref=ASH123",
+expect(referralLink("ASH123", "https://ashglogroup.company")).toBe(
+      "https://ashglogroup.company/register?ref=ASH123",
     );
   });
 });
