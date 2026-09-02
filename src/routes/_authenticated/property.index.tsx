@@ -330,7 +330,7 @@ function PropertyLanding() {
           <LoadingState label={fr ? "Recherche en cours…" : "Searching…"} />
         ) : (listings?.length ?? 0) === 0 ? (
           <EmptyState
-            icon={Home}
+            icon={<Home className="size-5" aria-hidden />}
             title={fr ? "Aucune annonce pour l’instant" : "No listings yet"}
             description={
               fr

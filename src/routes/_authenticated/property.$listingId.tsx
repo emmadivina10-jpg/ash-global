@@ -76,7 +76,7 @@ function PropertyDetail() {
   if (!data)
     return (
       <EmptyState
-        icon={MapPin}
+        icon={<MapPin className="size-5" aria-hidden />}
         title={fr ? "Annonce introuvable" : "Listing not found"}
         description={fr ? "Cette annonce n’est plus disponible." : "This listing is no longer available."}
         action={

@@ -63,8 +63,8 @@ function ManageProperty() {
     const { data, error } = await supabase.rpc("respond_property_viewing", {
       _viewing_id: id,
       _status: status,
-      _note: null,
-      _proposed_at: null,
+      _note: "",
+      _proposed_at: new Date().toISOString(),
     });
     const payload = data as { ok?: boolean; error?: string } | null;
     if (error || !payload?.ok) {
@@ -136,7 +136,7 @@ function ManageProperty() {
           <LoadingState />
         ) : totals.listings === 0 ? (
           <EmptyState
-            icon={Home}
+            icon={<Home className="size-5" aria-hidden />}
             title={fr ? "Aucune annonce" : "No listings yet"}
             description={fr ? "Publier est gratuit." : "Listing is free."}
             action={
@@ -212,7 +212,7 @@ function ManageProperty() {
               {fr ? "Reçues" : "Received"}
             </h2>
             {(incoming?.length ?? 0) === 0 ? (
-              <EmptyState icon={CalendarClock} title={fr ? "Aucune demande" : "No viewing requests"} />
+              <EmptyState icon={<CalendarClock className="size-5" aria-hidden />} title={fr ? "Aucune demande" : "No viewing requests"} />
             ) : (
               <div className="space-y-2">
                 {incoming?.map((row) => (
@@ -244,7 +244,7 @@ function ManageProperty() {
           <section>
             <h2 className="mb-2 text-sm font-bold text-foreground">{fr ? "Envoyées" : "Sent"}</h2>
             {(outgoing?.length ?? 0) === 0 ? (
-              <EmptyState icon={CalendarClock} title={fr ? "Aucune visite demandée" : "No viewings requested"} />
+              <EmptyState icon={<CalendarClock className="size-5" aria-hidden />} title={fr ? "Aucune visite demandée" : "No viewings requested"} />
             ) : (
               <div className="space-y-2">
                 {outgoing?.map((row) => (
@@ -266,7 +266,7 @@ function ManageProperty() {
 
       {tab === "SAVED" ? (
         (saved?.length ?? 0) === 0 ? (
-          <EmptyState icon={Heart} title={fr ? "Aucun favori" : "Nothing saved yet"} />
+          <EmptyState icon={<Heart className="size-5" aria-hidden />} title={fr ? "Aucun favori" : "Nothing saved yet"} />
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {saved?.map((listing) => <PropertyCard key={listing.id} listing={listing} />)}
