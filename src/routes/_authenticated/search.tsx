@@ -109,9 +109,14 @@ function SearchPage() {
               <h2 className="text-xs font-bold uppercase tracking-wide text-muted-foreground">{group.label}</h2>
               <ul className="space-y-2">
                 {group.items.map((item) => (
-                  <li key={item.id} className="tile flex items-center justify-between gap-3 p-3.5">
-                    <span className="min-w-0 truncate font-semibold text-foreground">{item.title}</span>
-                    <span className="shrink-0 text-xs text-muted-foreground">{item.meta}</span>
+                  <li key={item.id}>
+                    <Link
+                      to={item.href as never}
+                      className="tile flex items-center justify-between gap-3 p-3.5 transition-colors hover:border-primary/40"
+                    >
+                      <span className="min-w-0 truncate font-semibold text-foreground">{item.title}</span>
+                      <span className="shrink-0 text-xs text-muted-foreground">{item.meta}</span>
+                    </Link>
                   </li>
                 ))}
               </ul>
