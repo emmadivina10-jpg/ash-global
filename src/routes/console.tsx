@@ -157,6 +157,10 @@ function ConsoleLayout() {
   if (!data?.unlocked) return <UnlockScreen />;
 
   const actor = data.actor;
+  const superAdmin = Boolean(actor?.superAdmin);
+  const department = actor?.department ?? "";
+  const allowed = allowedNav(superAdmin, department);
+  const hasAccess = allowed.some((item) => item.to === pathname);
   const current = NAV.find((item) => item.to === pathname)?.label ?? "Overview";
 
   return (
