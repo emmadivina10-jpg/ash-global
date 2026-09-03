@@ -12,7 +12,7 @@ definitions:
   scripts:
     - &install_deps
       name: Install JS dependencies
-      script: npm ci
+      script: npm install --no-audit --no-fund
     - &sync_native
       name: Capacitor sync (copies native/www + plugin config into the native project)
       script: npx cap sync
