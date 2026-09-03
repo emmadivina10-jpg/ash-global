@@ -130,9 +130,79 @@ export async function registerPushDevice(): Promise<string | null> {
   }
 }
 
+/** Short buzz pattern used when a new notification lands. */
+export const NOTIFICATION_VIBRATION: number[] = [0, 180, 90, 180];
+
+/** Vibrates the device (native haptics, or the web Vibration API). */
+export async function vibrateDevice(pattern: number[] = NOTIFICATION_VIBRATION): Promise<void> {
+  if (typeof window === "undefined") return;
+
+  if (isNativeApp()) {
+    try {
+      const { Haptics, NotificationType } = await import("@capacitor/haptics");
+      await Haptics.notification({ type: NotificationType.Success });
+      return;
+    } catch {
+      /* haptics unavailable — fall through to web */
+    }
+  }
+
+  try {
+    if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+      navigator.vibrate(pattern);
+    }
+  } catch {
+    /* vibration blocked */
+  }
+}
+
+type BadgeNavigator = Navigator & {
+  setAppBadge?: (count?: number) => Promise<void>;
+  clearAppBadge?: () => Promise<void>;
+};
+
+/**
+ * Shows the unread count on the installed app icon (1, 2, 3 …).
+ * Works for installed PWAs / home-screen bookmarks via the Badging API and on
+ * native builds via the badge plugin. No-ops where unsupported.
+ */
+export async function setAppBadgeCount(count: number): Promise<void> {
+  if (typeof window === "undefined" || typeof navigator === "undefined") return;
+  const safe = Number.isFinite(count) && count > 0 ? Math.floor(count) : 0;
+
+  const nav = navigator as BadgeNavigator;
+  try {
+    if (safe > 0 && typeof nav.setAppBadge === "function") {
+      await nav.setAppBadge(safe);
+    } else if (typeof nav.clearAppBadge === "function") {
+      await nav.clearAppBadge();
+    }
+  } catch {
+    /* badging blocked */
+  }
+
+  if (!isNativeApp()) return;
+  try {
+    const { Badge } = await import("@capawesome/capacitor-badge");
+    if (safe > 0) await Badge.set({ count: safe });
+    else await Badge.clear();
+  } catch {
+    /* badge plugin not installed */
+  }
+}
+
+/** Keeps the app-icon badge in sync with the unread notification count. */
+export function useAppBadge(unreadCount: number) {
+  useEffect(() => {
+    void setAppBadgeCount(unreadCount);
+  }, [unreadCount]);
+}
+
 /** Shows a notification on the device (native local notification or web). */
 export async function showDeviceNotification(title: string, body: string): Promise<void> {
   if (typeof window === "undefined") return;
+
+  void vibrateDevice();
 
   if (isNativeApp()) {
     try {
@@ -160,12 +230,13 @@ export async function showDeviceNotification(title: string, body: string): Promi
 
   try {
     if ("Notification" in window && Notification.permission === "granted") {
-      new Notification(title, { body, icon: "/favicon.ico" });
+      new Notification(title, { body, icon: "/favicon.png", silent: false });
     }
   } catch {
     /* blocked */
   }
 }
+
 
 /**
  * Registers the device once per session and mirrors new backend notifications
