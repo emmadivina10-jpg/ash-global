@@ -1,5 +1,19 @@
 apply plugin: 'com.android.application'
 
+// Release signing. Credentials never live in the repository:
+//  - locally  : android/keystore.properties (git-ignored)
+//  - Codemagic: CM_KEYSTORE_PATH / CM_KEY_ALIAS / CM_KEYSTORE_PASSWORD / CM_KEY_PASSWORD
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+def ksPath = keystoreProperties['storeFile'] ?: System.getenv('CM_KEYSTORE_PATH')
+def ksPassword = keystoreProperties['storePassword'] ?: System.getenv('CM_KEYSTORE_PASSWORD')
+def ksAlias = keystoreProperties['keyAlias'] ?: System.getenv('CM_KEY_ALIAS')
+def ksAliasPassword = keystoreProperties['keyPassword'] ?: System.getenv('CM_KEY_PASSWORD')
+def hasReleaseSigning = ksPath != null && file(ksPath).exists()
+
 android {
     namespace = "com.ashglogroup.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -16,8 +30,21 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        if (hasReleaseSigning) {
+            release {
+                storeFile file(ksPath)
+                storePassword ksPassword
+                keyAlias ksAlias
+                keyPassword ksAliasPassword
+            }
+        }
+    }
     buildTypes {
         release {
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
