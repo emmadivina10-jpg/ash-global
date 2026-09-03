@@ -178,7 +178,7 @@ function ConsoleLayout() {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          <SidebarNav pathname={pathname} superAdmin={Boolean(actor?.superAdmin)} />
+          <SidebarNav pathname={pathname} superAdmin={superAdmin} department={department} />
         </div>
 
         <div className="mt-4 rounded-xl border border-sidebar-border bg-card p-3">
@@ -257,7 +257,22 @@ function ConsoleLayout() {
         </header>
 
         <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6">
-          <Outlet />
+          {hasAccess ? (
+            <Outlet />
+          ) : (
+            <div className="mx-auto max-w-md rounded-2xl border border-border bg-card p-8 text-center">
+              <Lock className="mx-auto size-6 text-muted-foreground" aria-hidden />
+              <h2 className="mt-3 font-display text-lg font-extrabold text-foreground">Section restricted</h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Your seat covers {department.replace(/_/g, " ").toLowerCase()} only. Ask the CEO for access.
+              </p>
+              {allowed[0] ? (
+                <Button asChild size="sm" className="mt-4">
+                  <Link to={allowed[0].to}>Go to {allowed[0].label}</Link>
+                </Button>
+              ) : null}
+            </div>
+          )}
         </main>
       </div>
 
@@ -281,7 +296,8 @@ function ConsoleLayout() {
               <SidebarNav
                 pathname={pathname}
                 onNavigate={() => setMenuOpen(false)}
-                superAdmin={Boolean(actor?.superAdmin)}
+                superAdmin={superAdmin}
+                department={department}
               />
             </div>
           </div>
