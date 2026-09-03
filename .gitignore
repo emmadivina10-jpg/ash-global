@@ -42,6 +42,46 @@ dist-ssr
 *.sln
 *.sw?
 
-# Capacitor native builds (generated locally, not committed)
-/ios
-/android
+# ---------------------------------------------------------------------------
+# Capacitor native projects
+# ios/ and android/ ARE committed on purpose: they hold production config
+# (Info.plist purpose strings, entitlements, universal links, Android
+# permissions + deep links, generated icons/splash) that `npx cap add` would
+# not recreate. Only build output and signing material are ignored.
+# ---------------------------------------------------------------------------
+ios/App/build/
+ios/App/Pods/
+ios/App/Podfile.lock
+ios/App/output/
+ios/DerivedData/
+ios/App/App/public/
+ios/App/App.xcodeproj/xcuserdata/
+ios/App/App.xcodeproj/project.xcworkspace/xcuserdata/
+ios/App/App.xcworkspace/xcuserdata/
+android/build/
+android/app/build/
+android/.gradle/
+android/.idea/
+android/local.properties
+android/captures/
+android/app/src/main/assets/public/
+android/app/release/
+android/app/debug/
+android/capacitor-cordova-android-plugins/build/
+
+# Signing material and store credentials — NEVER commit
+*.keystore
+*.jks
+*.p12
+*.p8
+*.mobileprovision
+*.cer
+*.certSigningRequest
+keystore.properties
+ios/ExportOptions.plist
+AuthKey_*.p8
+
+# Locally built binaries
+*.apk
+*.aab
+*.ipa

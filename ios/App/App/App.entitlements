@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Push notifications. Xcode/Codemagic switch this to "production" automatically
+	     for App Store / TestFlight distribution builds. -->
+	<key>aps-environment</key>
+	<string>development</string>
+
+	<!-- Universal links: payment returns, storefront shares and OAuth callbacks
+	     reopen the app instead of Safari. Requires an apple-app-site-association
+	     file served from https://ashglogroup.company/.well-known/ -->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:ashglogroup.company</string>
+		<string>applinks:www.ashglogroup.company</string>
+	</array>
+</dict>
+</plist>
