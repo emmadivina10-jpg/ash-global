@@ -2,9 +2,20 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { AlertTriangle, PlayCircle, ShieldAlert, ShieldCheck, Loader2 } from "lucide-react";
+import {
+  AlertTriangle,
+  Download,
+  Gauge,
+  KeyRound,
+  PlayCircle,
+  ShieldAlert,
+  ShieldCheck,
+  Loader2,
+  Waves,
+} from "lucide-react";
 import { toast } from "sonner";
 import { getSecurityAudit, runSecuritySelfCheck, type SecurityEvent } from "@/lib/console.functions";
+import { getCyberOps } from "@/lib/cyber.functions";
 import { SectionCard, StatCard } from "@/components/refer/cards";
 import { ErrorState, SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
@@ -80,6 +91,13 @@ function ConsoleSecurity() {
   const [hours, setHours] = useState<(typeof RANGES)[number]>(24);
   const [running, setRunning] = useState(false);
 
+  const fetchOps = useServerFn(getCyberOps);
+  const { data: ops } = useQuery({
+    queryKey: ["console", "cyber", hours],
+    queryFn: () => fetchOps({ data: { hours } }),
+    refetchInterval: 60000,
+  });
+
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["console", "security", hours],
     queryFn: () => fetchAudit({ data: { hours } }),
@@ -100,6 +118,24 @@ function ConsoleSecurity() {
     else if (warn > 0) toast.warning(`${warn} warning(s) found`);
     else toast.success("No security issues found");
     await refetch();
+  }
+
+  function exportLog() {
+    const rows = data?.events ?? [];
+    const header = "created_at,severity,kind,route,subject,detail\n";
+    const body = rows
+      .map((e) =>
+        [e.created_at, e.severity, e.kind, e.route ?? "", e.subject ?? "", JSON.stringify(e.detail ?? {})]
+          .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+          .join(","),
+      )
+      .join("\n");
+    const url = URL.createObjectURL(new Blob([header + body], { type: "text/csv" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `ash-security-log-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   if (isLoading) return <SkeletonRows rows={5} />;
@@ -131,7 +167,11 @@ function ConsoleSecurity() {
             {RANGE_LABEL[r]}
           </button>
         ))}
-        <Button size="sm" className="ml-auto" onClick={scanNow} disabled={running}>
+        <Button size="sm" variant="outline" className="ml-auto" onClick={exportLog}>
+          <Download className="size-4" aria-hidden />
+          Export log
+        </Button>
+        <Button size="sm" onClick={scanNow} disabled={running}>
           {running ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <PlayCircle className="size-4" aria-hidden />}
           Run scan now
         </Button>
@@ -147,6 +187,147 @@ function ConsoleSecurity() {
         <StatCard label="Warnings" value={overview?.warn ?? 0} accent />
         <StatCard label="Flagged visitors" value={overview?.top_subjects?.length ?? 0} />
       </div>
+
+      {ops ? (
+        <>
+          <SectionCard
+            title="Security posture"
+            description="Live score across critical events, throttled traffic, webhook signature failures and scan freshness."
+          >
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="flex items-center gap-3">
+                <Gauge
+                  className={cn(
+                    "size-8",
+                    ops.posture.score >= 85 ? "text-success" : ops.posture.score >= 60 ? "text-gold" : "text-destructive",
+                  )}
+                  aria-hidden
+                />
+                <div>
+                  <p className="tabular text-3xl font-black text-foreground">{ops.posture.score}</p>
+                  <p className="text-xs text-muted-foreground">out of 100</p>
+                </div>
+              </div>
+              <ul className="grid flex-1 grid-cols-2 gap-2 text-xs text-muted-foreground sm:grid-cols-4">
+                <li>Critical events: <span className="font-bold text-foreground">{ops.posture.critical}</span></li>
+                <li>Warnings: <span className="font-bold text-foreground">{ops.posture.warn}</span></li>
+                <li>Open safety reports: <span className="font-bold text-foreground">{ops.posture.open_reports}</span></li>
+                <li>
+                  Scan freshness:{" "}
+                  <span className={cn("font-bold", ops.posture.stale_scan ? "text-destructive" : "text-success")}>
+                    {ops.posture.stale_scan ? "Overdue" : "Current"}
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </SectionCard>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <SectionCard
+              title="Traffic throttling"
+              description="Requests slowed down on public surfaces in this window. Spikes usually mean scraping or credential stuffing."
+            >
+              {ops.throttling.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No throttled traffic in this window.</p>
+              ) : (
+                <ul>
+                  {ops.throttling.map((b) => (
+                    <li key={b.bucket} className="flex items-center justify-between gap-3 border-b border-border py-2.5 last:border-0">
+                      <span className="flex min-w-0 items-center gap-2 text-sm font-medium text-foreground">
+                        <Waves className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+                        <span className="truncate font-mono text-xs">{b.bucket}</span>
+                      </span>
+                      <span className="tabular shrink-0 text-xs text-muted-foreground">
+                        {b.subjects} visitor(s) · <span className="font-bold text-foreground">{b.hits}</span> hits
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </SectionCard>
+
+            <SectionCard
+              title="Payment webhook integrity"
+              description="Every incoming payment callback must carry a valid signature. Rejected callbacks are forgery attempts or misconfiguration."
+            >
+              <div className="grid grid-cols-3 gap-3">
+                <StatCard label="Received" value={ops.webhooks.total} />
+                <StatCard label="Verified" value={ops.webhooks.verified} />
+                <StatCard label="Rejected" value={ops.webhooks.rejected} accent />
+              </div>
+              {ops.webhooks.recent.length > 0 ? (
+                <ul className="mt-3">
+                  {ops.webhooks.recent.map((w) => (
+                    <li key={w.id} className="flex items-start justify-between gap-3 border-b border-border py-2.5 last:border-0">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-foreground">
+                          {w.source} — {w.outcome}
+                        </p>
+                        <p className="truncate font-mono text-[11px] text-muted-foreground">
+                          {w.reference ?? "no reference"} · signature {w.signature_verified ? "valid" : "INVALID"}
+                        </p>
+                      </div>
+                      <span className="shrink-0 text-xs text-muted-foreground">{formatDateTime(w.created_at)}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </SectionCard>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <SectionCard title="Staff access" description="Every console seat and when it was last used. Dormant or disabled seats should be removed.">
+              <ul>
+                {ops.staff.map((s) => (
+                  <li key={s.username} className="flex items-center justify-between gap-3 border-b border-border py-2.5 last:border-0">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-foreground">
+                        <KeyRound className="mr-1.5 inline size-3.5 text-muted-foreground" aria-hidden />
+                        {s.full_name}
+                        <span className="ml-2 font-mono text-[11px] text-muted-foreground">@{s.username}</span>
+                      </p>
+                      <p className="text-xs text-muted-foreground">{s.department.replace(/_/g, " ").toLowerCase()}</p>
+                    </div>
+                    <span className={cn("shrink-0 text-xs", s.is_active ? "text-muted-foreground" : "text-destructive")}>
+                      {s.is_active ? (s.last_login_at ? formatDateTime(s.last_login_at) : "never signed in") : "disabled"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
+
+            <SectionCard title="Account safety" description="Abuse signals across the member base.">
+              <div className="grid grid-cols-2 gap-3">
+                <StatCard label="Open reports" value={ops.accounts.open_reports} accent />
+                <StatCard label="Blocks between users" value={ops.accounts.blocked_pairs} />
+                <StatCard label="Deletion requests" value={ops.accounts.deletion_requests} />
+                <StatCard label="Non-active accounts" value={ops.accounts.suspended} />
+              </div>
+            </SectionCard>
+          </div>
+
+          <SectionCard title="Privileged actions" description="Everything staff changed with elevated rights, newest first.">
+            {ops.adminActions.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No privileged actions recorded.</p>
+            ) : (
+              <ul>
+                {ops.adminActions.map((a) => (
+                  <li key={a.id} className="flex items-start justify-between gap-3 border-b border-border py-2.5 last:border-0">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-foreground">{a.action.replace(/_/g, " ")}</p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        by {a.actor}
+                        {a.reason ? ` — ${a.reason}` : ""}
+                      </p>
+                    </div>
+                    <span className="shrink-0 text-xs text-muted-foreground">{formatDateTime(a.created_at)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </SectionCard>
+        </>
+      ) : null}
 
       {/* Latest automated scan */}
       <SectionCard
