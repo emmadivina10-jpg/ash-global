@@ -32,22 +32,22 @@ function SearchPage() {
         {
           key: "providers",
           label: fr ? "Entreprises" : "Businesses",
-          items: data.providers.map((row) => ({ id: row.id, title: row.business_name, meta: row.city ?? "" })),
+          items: data.providers.map((row) => ({ id: row.id, title: row.business_name, meta: row.city ?? "", href: `/services/${row.id}` })),
         },
         {
           key: "services",
           label: fr ? "Services" : "Services",
-          items: data.services.map((row) => ({ id: row.id, title: row.title, meta: formatXAF(row.price) })),
+          items: data.services.map((row) => ({ id: row.id, title: row.title, meta: formatXAF(row.price), href: `/services/${row.provider_id}` })),
         },
         {
           key: "freelancers",
           label: fr ? "Freelances" : "Freelancers",
-          items: data.freelancers.map((row) => ({ id: row.id, title: row.headline, meta: row.city ?? row.country })),
+          items: data.freelancers.map((row) => ({ id: row.id, title: row.headline, meta: row.city ?? row.country, href: "/freelance" })),
         },
         {
           key: "projects",
           label: fr ? "Projets" : "Projects",
-          items: data.projects.map((row) => ({ id: row.id, title: row.title, meta: formatXAF(row.budget) })),
+          items: data.projects.map((row) => ({ id: row.id, title: row.title, meta: formatXAF(row.budget), href: `/freelance/${row.id}` })),
         },
         {
           key: "properties",
@@ -56,17 +56,18 @@ function SearchPage() {
             id: row.id,
             title: row.title,
             meta: `${row.neighborhood ? row.neighborhood + ", " : ""}${row.city} · ${row.price.toLocaleString()} ${row.currency}${row.price_period ? "/" + row.price_period.toLowerCase() : ""}`,
+            href: `/property/${row.id}`,
           })),
         },
         {
           key: "deals",
           label: fr ? "Bons plans" : "Deals",
-          items: data.deals.map((row) => ({ id: row.id, title: row.title, meta: formatXAF(row.deal_price) })),
+          items: data.deals.map((row) => ({ id: row.id, title: row.title, meta: formatXAF(row.deal_price), href: "/deals" })),
         },
         {
           key: "events",
           label: fr ? "Événements" : "Events",
-          items: data.events.map((row) => ({ id: row.id, title: row.title, meta: row.city ?? row.country })),
+          items: data.events.map((row) => ({ id: row.id, title: row.title, meta: row.city ?? row.country, href: `/events/${row.id}` })),
         },
       ].filter((group) => group.items.length > 0)
     : [];
