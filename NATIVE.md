@@ -71,7 +71,7 @@ serve:
 - `https://ashglogroup.company/.well-known/apple-app-site-association`
   (JSON, no extension, `application/json`) containing `TEAMID.com.ashglogroup.mobile`
 - `https://ashglogroup.company/.well-known/assetlinks.json` containing the
-  Play App Signing SHA-256 fingerprint for `com.ashglogroup.mobile` (iOS) / `com.ashglogroup.app` (Android)
+  Play App Signing SHA-256 fingerprint for `com.ashglogroup.app` (Android)
 
 Both need values only Apple Developer / Play Console can give you, so they are
 not committed with placeholders.

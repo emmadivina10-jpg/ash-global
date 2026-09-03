@@ -57,7 +57,7 @@ CI runs the unit suite, the RLS regression suite and a database self-check
 
 ## Native Builds (Capacitor)
 
-App ID: `com.ashglogroup.mobile (iOS) · com.ashglogroup.app (Android)` · App name: **ASH Glo**. The `ios/` and `android/`
+iOS bundle ID: `com.ashglogroup.mobile` · Android package: `com.ashglogroup.app` · App name: **ASH Glo**. The `ios/` and `android/`
 projects are committed, so a fresh clone only needs:
 
 ```sh
