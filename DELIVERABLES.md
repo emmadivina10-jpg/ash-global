@@ -50,7 +50,7 @@ verification, bookings, withdrawals review, payments, referral ledger, deletion 
 
 ## 6. Native app (Capacitor)
 
-- `capacitor.config.ts` (app ID `com.ashglogroup.app`, app name ASH Glo).
+- `capacitor.config.ts` (app ID `com.ashglogroup.mobile (iOS) · com.ashglogroup.app (Android)`, app name ASH Glo).
 - Offline bootstrap page in `native/www`, status bar + hardware back handling, safe-area CSS.
 - `resources/icon.png` (1024×1024) and `resources/splash.png` (2732×2732) sources.
 - Full build and submission checklist in [NATIVE.md](./NATIVE.md).

@@ -53,7 +53,7 @@ Supply them in Codemagic:
 
 - **App Store Connect API key** (Issuer ID, Key ID, `.p8`) as an integration
   named `ASH Glo API Key`; iOS signing uses `distribution_type: app_store` and
-  `bundle_identifier: com.ashglogroup.app`.
+  `bundle_identifier: com.ashglogroup.mobile`.
 - **Android keystore** uploaded as the signing reference `ash_glo_keystore`
   (alias `ashglo`). Locally, Gradle instead reads git-ignored
   `android/keystore.properties` (`storeFile`, `storePassword`, `keyAlias`,
@@ -69,9 +69,9 @@ for the same hosts. For verification to succeed the production domain must
 serve:
 
 - `https://ashglogroup.company/.well-known/apple-app-site-association`
-  (JSON, no extension, `application/json`) containing `TEAMID.com.ashglogroup.app`
+  (JSON, no extension, `application/json`) containing `TEAMID.com.ashglogroup.mobile`
 - `https://ashglogroup.company/.well-known/assetlinks.json` containing the
-  Play App Signing SHA-256 fingerprint for `com.ashglogroup.app`
+  Play App Signing SHA-256 fingerprint for `com.ashglogroup.mobile` (iOS) / `com.ashglogroup.app` (Android)
 
 Both need values only Apple Developer / Play Console can give you, so they are
 not committed with placeholders.
@@ -100,7 +100,7 @@ CAP_SERVER_URL=https://project--27f7580a-d6af-45a7-9546-ba56b1916cbe-dev.lovable
 
 | Setting | Value |
 | --- | --- |
-| App ID (bundle id / package name) | `com.ashglogroup.app` |
+| App ID (bundle id / package name) | `com.ashglogroup.mobile` (iOS) / `com.ashglogroup.app` (Android) |
 | App name | ASH Glo |
 | Splash / status bar colour | `#080812` |
 
@@ -164,7 +164,7 @@ and push notifications that make this build more than a wrapper.
 - `src/styles.css` — `html.native` safe-area padding for notches and the iOS
   home indicator.
 
-## Built artifacts (com.ashglogroup.app)
+## Built artifacts (iOS com.ashglogroup.mobile)
 
 Native projects are generated and committed: `android/` (Gradle) and `ios/` (Xcode).
 Icons/splash are generated from `assets/` via `npx @capacitor/assets generate`.

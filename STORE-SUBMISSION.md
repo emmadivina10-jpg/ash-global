@@ -10,7 +10,7 @@ release. Companion docs: [`NATIVE.md`](./NATIVE.md) (building), [`SECURITY.md`](
 | --- | --- |
 | App name | ASH Glo |
 | Subtitle / short description | Book braiders, barbers & home pros |
-| Bundle ID / package | `com.ashglogroup.app` |
+| Bundle ID / package | `com.ashglogroup.mobile (iOS) · com.ashglogroup.app (Android)` |
 | Developer | ASH Global Technologies |
 | Category | Lifestyle (secondary: Business) |
 | Age rating | 18+ (unrestricted web access in-app + user-generated content + marketplace) |
