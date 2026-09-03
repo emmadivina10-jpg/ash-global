@@ -92,16 +92,24 @@ function ThemeToggle() {
   );
 }
 
+/** CEO sees everything; every other seat sees only its own department. */
+function allowedNav(superAdmin: boolean, department: string) {
+  if (superAdmin) return NAV.slice();
+  return NAV.filter((item) => item.dept === department);
+}
+
 function SidebarNav({
   pathname,
   onNavigate,
   superAdmin,
+  department,
 }: {
   pathname: string;
   onNavigate?: () => void;
   superAdmin: boolean;
+  department: string;
 }) {
-  const items = NAV.filter((item) => superAdmin || item.group !== "Admin");
+  const items = allowedNav(superAdmin, department);
   return (
     <nav className="space-y-6">
       {GROUPS.filter((group) => items.some((item) => item.group === group)).map((group) => (
