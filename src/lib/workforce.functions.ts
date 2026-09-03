@@ -46,7 +46,9 @@ export const getWorkBoard = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { requireConsole, adminClient } = await import("./console.server");
     const actor = await requireConsole();
-    const department = data.department || actor.department;
+    // Only the CEO (super admin) may read another department's board.
+    const department =
+      actor.superAdmin || actor.elevated ? data.department || actor.department : actor.department;
     const db = await adminClient();
     const since = todayStart();
 
