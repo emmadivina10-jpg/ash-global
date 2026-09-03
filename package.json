@@ -17,7 +17,12 @@
     "native:open:ios": "cap open ios",
     "native:open:android": "cap open android",
     "native:add:ios": "cap add ios",
-    "native:add:android": "cap add android"
+    "native:add:android": "cap add android",
+    "native:sync:ios": "cap sync ios",
+    "native:sync:android": "cap sync android",
+    "native:doctor": "cap doctor",
+    "native:copy": "cap copy",
+    "native:build:android": "cap sync android && cd android && ./gradlew bundleRelease"
   },
   "dependencies": {
     "@capacitor/app": "^8.1.1",

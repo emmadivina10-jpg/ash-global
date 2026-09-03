@@ -1,0 +1,90 @@
+# ASH Glo — Codemagic CI/CD
+# No Xcode or Android Studio needed locally. All signing material is supplied by
+# Codemagic (Teams > Code signing identities / environment groups) — never by
+# this repository.
+#
+# Required environment groups:
+#   app_store_credentials : APP_STORE_CONNECT_ISSUER_ID, APP_STORE_CONNECT_KEY_IDENTIFIER,
+#                           APP_STORE_CONNECT_PRIVATE_KEY, CERTIFICATE_PRIVATE_KEY
+#   google_play           : GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+#   android_signing       : uploaded keystore reference "ash_glo_keystore"
+definitions:
+  scripts:
+    - &install_deps
+      name: Install JS dependencies
+      script: npm install --no-audit --no-fund
+    - &sync_native
+      name: Capacitor sync (copies native/www + plugin config into the native project)
+      script: npx cap sync
+
+workflows:
+  ios-app-store:
+    name: ASH Glo iOS — App Store
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      app_store_connect: ASH Glo API Key
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.ashglogroup.app
+      vars:
+        XCODE_WORKSPACE: "ios/App/App.xcodeproj"
+        XCODE_SCHEME: "App"
+        BUNDLE_ID: "com.ashglogroup.app"
+      node: 20
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - *install_deps
+      - *sync_native
+      - name: Set build number from App Store Connect
+        script: |
+          cd ios/App
+          agvtool new-version -all $(($(app-store-connect get-latest-app-store-build-number "$APP_ID" 2>/dev/null || echo 0) + 1))
+      - name: Initialise keychain and apply signing
+        script: |
+          keychain initialize
+          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
+          keychain add-certificates
+          xcode-project use-profiles
+      - name: Build IPA
+        script: |
+          xcode-project build-ipa \
+            --project "$XCODE_WORKSPACE" \
+            --scheme "$XCODE_SCHEME" \
+            --config Release
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+
+  android-play:
+    name: ASH Glo Android — Play Store
+    instance_type: linux_x2
+    max_build_duration: 45
+    environment:
+      android_signing:
+        - ash_glo_keystore
+      groups:
+        - google_play
+      node: 20
+      java: 21
+    scripts:
+      - *install_deps
+      - *sync_native
+      - name: Build signed AAB
+        script: |
+          cd android
+          ./gradlew bundleRelease
+    artifacts:
+      - android/app/build/outputs/**/*.aab
+      - android/app/build/outputs/**/*.apk
+    publishing:
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
+        submit_as_draft: true
