@@ -764,7 +764,7 @@ export const getSecurityAudit = createServerFn({ method: "GET" })
   }))
   .handler(async ({ data }) => {
     const { requireDepartment, adminClient } = await import("./console.server");
-    await requireDepartment("SUPER_ADMIN");
+    await requireDepartment("CYBERSECURITY");
     const db = await adminClient();
 
     const [overview, events] = await Promise.all([
@@ -785,8 +785,8 @@ export const getSecurityAudit = createServerFn({ method: "GET" })
 
 /** Runs the database security self-check on demand from the console. */
 export const runSecuritySelfCheck = createServerFn({ method: "POST" }).handler(async () => {
-  const { requireSuperAdmin, adminClient } = await import("./console.server");
-  await requireSuperAdmin();
+  const { requireDepartment, adminClient } = await import("./console.server");
+  await requireDepartment("CYBERSECURITY");
   const db = await adminClient();
   const { data, error } = await db.rpc("security_selfcheck");
   if (error) return { ok: false as const, error: error.message };
