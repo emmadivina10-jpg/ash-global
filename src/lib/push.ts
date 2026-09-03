@@ -269,9 +269,11 @@ export function usePushNotifications(enabled = true) {
           },
           (payload) => {
             const row = payload.new as { category?: string; title?: string; body?: string };
+            void vibrateDevice();
             if (!row?.title || !isPushCategory(row.category ?? "")) return;
             void showDeviceNotification(row.title, row.body ?? "");
           },
+
         )
         .subscribe();
     });
