@@ -17,8 +17,8 @@ export type ModerationReport = {
 export const listReports = createServerFn({ method: "POST" })
   .inputValidator((data: { status?: string }) => ({ status: String(data?.status ?? "OPEN").toUpperCase() }))
   .handler(async ({ data }) => {
-    const { requireConsole, adminClient } = await import("./console.server");
-    await requireConsole();
+    const { requireDepartment, adminClient } = await import("./console.server");
+    await requireDepartment("TRUST", "SUPPORT");
     const db = await adminClient();
 
     let query = db.from("content_reports").select("*").order("created_at", { ascending: false }).limit(200);

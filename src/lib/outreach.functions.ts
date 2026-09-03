@@ -24,8 +24,8 @@ export const lookupContact = createServerFn({ method: "POST" })
     query: String(data?.query ?? "").trim().toLowerCase().slice(0, 200),
   }))
   .handler(async ({ data }): Promise<{ ok: boolean; contact: ContactCard | null }> => {
-    const { requireConsole, adminClient } = await import("./console.server");
-    await requireConsole();
+    const { requireDepartment, adminClient } = await import("./console.server");
+    await requireDepartment("SUPPORT");
     if (!data.query) return { ok: false, contact: null };
     const db = await adminClient();
 
@@ -198,8 +198,8 @@ export const logOutreach = createServerFn({ method: "POST" })
   });
 
 export const getOutreachLog = createServerFn({ method: "GET" }).handler(async () => {
-  const { requireConsole, adminClient } = await import("./console.server");
-  await requireConsole();
+  const { requireDepartment, adminClient } = await import("./console.server");
+  await requireDepartment("SUPPORT");
   const db = await adminClient();
   const { data } = await db
     .from("outreach_log")

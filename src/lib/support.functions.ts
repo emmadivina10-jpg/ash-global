@@ -150,8 +150,8 @@ export const getMySupportTickets = createServerFn({ method: "GET" }).handler(asy
 /* ------------------------------------------------------------------ */
 
 export const getConsoleTickets = createServerFn({ method: "GET" }).handler(async () => {
-  const { requireConsole, adminClient } = await import("./console.server");
-  await requireConsole();
+  const { requireDepartment, adminClient } = await import("./console.server");
+  await requireDepartment("SUPPORT");
   const db = await adminClient();
 
   const { data: tickets } = await db
@@ -295,8 +295,8 @@ export const setTicketPriority = createServerFn({ method: "POST" })
 
 /** Recent delivery events from Lovable's managed email API. */
 export const getEmailDeliveryLogs = createServerFn({ method: "GET" }).handler(async () => {
-  const { requireConsole } = await import("./console.server");
-  await requireConsole();
+  const { requireDepartment } = await import("./console.server");
+  await requireDepartment("SUPPORT");
   const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) return { ok: false as const, error: "EMAIL_API_KEY_MISSING", logs: [] as { timestamp: string; recipient: string; event_type: string; status?: string }[] };
   try {
