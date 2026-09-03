@@ -1,4 +1,4 @@
--# ASH Glo — Codemagic CI/CD
+# ASH Glo — Codemagic CI/CD
 # No Xcode or Android Studio needed locally. All signing material is supplied by
 # Codemagic (Teams > Code signing identities / environment groups) — never by
 # this repository.
