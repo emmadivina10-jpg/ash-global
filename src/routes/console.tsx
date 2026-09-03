@@ -43,7 +43,7 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { to: "/console", label: "Overview", icon: BarChart3, group: "Insights", dept: "SUPER_ADMIN" },
   { to: "/console/revenue", label: "Revenue", icon: Target, group: "Insights", dept: "REVENUE" },
-  { to: "/console/security", label: "Security", icon: ShieldAlert, group: "Insights", dept: "SUPER_ADMIN" },
+  { to: "/console/security", label: "Cybersecurity", icon: ShieldAlert, group: "Insights", dept: "CYBERSECURITY" },
   { to: "/console/payments", label: "Payments", icon: CreditCard, group: "Money", dept: "REVENUE" },
   { to: "/console/withdrawals", label: "Withdrawals", icon: Wallet, group: "Money", dept: "REVENUE" },
   { to: "/console/payout", label: "Payout", icon: Banknote, group: "Money", dept: "REVENUE" },
