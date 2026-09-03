@@ -14,7 +14,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 const serverUrl = process.env["CAP_SERVER_URL"] ?? "https://ashglogroup.company";
 
 const config: CapacitorConfig = {
-  appId: "com.ashglogroup.app",
+  appId: "com.ashglogroup.mobile",
   appName: "ASH Glo",
   // Local bootstrap page shipped inside the binary (used offline / before the
   // remote URL responds). `npx cap sync` copies this folder into each platform.
