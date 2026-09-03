@@ -472,8 +472,15 @@ function BookingRequestDialog({
         _date: day,
         _duration: selected.duration_minutes,
       })
-      .then(({ data }) => {
+      .then(({ data, error }) => {
         if (cancelled) return;
+        if (error) {
+          console.error("provider_slots failed", error);
+          toast.error(error.message);
+          setSlots([]);
+          setLoadingSlots(false);
+          return;
+        }
         setSlots((data ?? []) as string[]);
         setLoadingSlots(false);
       });
