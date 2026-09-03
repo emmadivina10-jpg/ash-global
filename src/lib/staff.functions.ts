@@ -19,8 +19,8 @@ export type StaffSeat = {
 };
 
 export const listStaff = createServerFn({ method: "GET" }).handler(async () => {
-  const { requireConsole, adminClient } = await import("./console.server");
-  await requireConsole();
+  const { requireDepartment, adminClient } = await import("./console.server");
+  await requireDepartment("SUPER_ADMIN");
   const db = await adminClient();
   const [seats, targets] = await Promise.all([
     db

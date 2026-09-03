@@ -127,8 +127,8 @@ type Counts = {
 };
 
 export const getConsoleOverview = createServerFn({ method: "GET" }).handler(async () => {
-  const { requireConsole, adminClient } = await import("./console.server");
-  await requireConsole();
+  const { requireDepartment, adminClient } = await import("./console.server");
+  await requireDepartment("SUPER_ADMIN");
   const db = await adminClient();
 
   // Counts come from the database so they are never capped by API page size.
@@ -166,8 +166,8 @@ export const getConsoleOverview = createServerFn({ method: "GET" }).handler(asyn
 
 
 export const getConsoleUsers = createServerFn({ method: "GET" }).handler(async () => {
-  const { requireConsole, adminClient } = await import("./console.server");
-  await requireConsole();
+  const { requireDepartment, adminClient } = await import("./console.server");
+  await requireDepartment("SUPER_ADMIN");
   const db = await adminClient();
   const [profiles, roles, wallets] = await Promise.all([
     db
@@ -192,8 +192,8 @@ export const getConsoleUsers = createServerFn({ method: "GET" }).handler(async (
 });
 
 export const getConsoleProviders = createServerFn({ method: "GET" }).handler(async () => {
-  const { requireConsole, adminClient } = await import("./console.server");
-  await requireConsole();
+  const { requireDepartment, adminClient } = await import("./console.server");
+  await requireDepartment("TRUST");
   const db = await adminClient();
   const [providers, bookings] = await Promise.all([
     db
@@ -238,8 +238,8 @@ export const setProviderVerification = createServerFn({ method: "POST" })
   });
 
 export const getConsoleBookings = createServerFn({ method: "GET" }).handler(async () => {
-  const { requireConsole, adminClient } = await import("./console.server");
-  await requireConsole();
+  const { requireDepartment, adminClient } = await import("./console.server");
+  await requireDepartment("MARKETPLACE_OPS");
   const db = await adminClient();
   const [bookings, providers] = await Promise.all([
     db
@@ -285,8 +285,8 @@ export const setBookingStatus = createServerFn({ method: "POST" })
   });
 
 export const getConsoleWithdrawals = createServerFn({ method: "GET" }).handler(async () => {
-  const { requireConsole, adminClient } = await import("./console.server");
-  await requireConsole();
+  const { requireDepartment, adminClient } = await import("./console.server");
+  await requireDepartment("REVENUE");
   const db = await adminClient();
   const { data } = await db
     .from("withdrawals")
@@ -315,8 +315,8 @@ export const settleWithdrawal = createServerFn({ method: "POST" })
   });
 
 export const getConsoleLedger = createServerFn({ method: "GET" }).handler(async () => {
-  const { requireConsole, adminClient } = await import("./console.server");
-  await requireConsole();
+  const { requireDepartment, adminClient } = await import("./console.server");
+  await requireDepartment("REVENUE");
   const db = await adminClient();
   const [tx, activations, subs] = await Promise.all([
     db
@@ -343,8 +343,8 @@ export const getConsoleLedger = createServerFn({ method: "GET" }).handler(async 
 });
 
 export const getConsoleDeletionRequests = createServerFn({ method: "GET" }).handler(async () => {
-  const { requireConsole, adminClient } = await import("./console.server");
-  await requireConsole();
+  const { requireDepartment, adminClient } = await import("./console.server");
+  await requireDepartment("SUPER_ADMIN");
   const db = await adminClient();
 
   const { data: requests } = await db
@@ -415,8 +415,8 @@ export type PaymentRow = {
 };
 
 export const getConsolePayments = createServerFn({ method: "GET" }).handler(async () => {
-  const { requireConsole, adminClient } = await import("./console.server");
-  await requireConsole();
+  const { requireDepartment, adminClient } = await import("./console.server");
+  await requireDepartment("REVENUE");
   const db = await adminClient();
 
   const { data: activations } = await db
@@ -603,8 +603,8 @@ export const manualActivate = createServerFn({ method: "POST" })
   });
 
 export const getConsoleAuditLog = createServerFn({ method: "GET" }).handler(async () => {
-  const { requireConsole, adminClient } = await import("./console.server");
-  await requireConsole();
+  const { requireDepartment, adminClient } = await import("./console.server");
+  await requireDepartment("SUPER_ADMIN");
   const db = await adminClient();
   const { data } = await db
     .from("admin_audit_log")
@@ -657,8 +657,8 @@ export const getConsoleAnalytics = createServerFn({ method: "GET" })
     days: Math.min(Math.max(Number(input?.days ?? 30), 7), 90),
   }))
   .handler(async ({ data }): Promise<ConsoleAnalytics> => {
-    const { requireConsole, adminClient } = await import("./console.server");
-    await requireConsole();
+    const { requireDepartment, adminClient } = await import("./console.server");
+    await requireDepartment("SUPER_ADMIN");
     const db = await adminClient();
 
     const since = new Date(Date.now() - data.days * 86400000);
@@ -763,8 +763,8 @@ export const getSecurityAudit = createServerFn({ method: "GET" })
     hours: Math.min(Math.max(Number(input?.hours ?? 24), 1), 720),
   }))
   .handler(async ({ data }) => {
-    const { requireConsole, adminClient } = await import("./console.server");
-    await requireConsole();
+    const { requireDepartment, adminClient } = await import("./console.server");
+    await requireDepartment("SUPER_ADMIN");
     const db = await adminClient();
 
     const [overview, events] = await Promise.all([
@@ -801,8 +801,8 @@ export const runSecuritySelfCheck = createServerFn({ method: "POST" }).handler(a
  * ------------------------------------------------------------------ */
 
 export const getConsolePayouts = createServerFn({ method: "GET" }).handler(async () => {
-  const { requireConsole, adminClient } = await import("./console.server");
-  await requireConsole();
+  const { requireDepartment, adminClient } = await import("./console.server");
+  await requireDepartment("REVENUE");
   const db = await adminClient();
   const [fin, payouts, bookings, providers] = await Promise.all([
     db.rpc("console_financials"),
