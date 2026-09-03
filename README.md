@@ -57,17 +57,23 @@ CI runs the unit suite, the RLS regression suite and a database self-check
 
 ## Native Builds (Capacitor)
 
-1. Publish the web app so it is live on your production domain.
-2. Sync the web build into the native shell:
-   ```sh
-   bun run build
-   npx cap sync
-   ```
-3. Open the native project:
-   - iOS: `npx cap open ios` (requires macOS + Xcode)
-   - Android: `npx cap open android` (requires Android Studio)
-4. Build, sign, and submit to the App Store / Play Store.
+App ID: `com.ashglogroup.app` · App name: **ASH Glo**. The `ios/` and `android/`
+projects are committed, so a fresh clone only needs:
 
+```sh
+npm install       # or bun install
+npx cap sync      # web assets, plugins, Package.swift, gradle files
+npx cap doctor
+```
+
+- iOS is built on Codemagic macOS runners (`codemagic.yaml` → `ios-app-store`);
+  no local Xcode required.
+- Android: `npm run native:build:android` (JDK 21 + Android SDK 36) or the
+  `android-play` Codemagic workflow.
+- Android push additionally needs `android/app/google-services.json` from your
+  Firebase project; Gradle applies the plugin only when that file is present.
+
+No certificates, keystores, API keys or passwords live in this repository.
 See `NATIVE.md` for the build workflow and `STORE-SUBMISSION.md` for the full submission checklist.
 
 ## Deployment
