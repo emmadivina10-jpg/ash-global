@@ -5,21 +5,76 @@ app keeps its server-rendered pages, payments, auth callbacks and realtime chat
 working exactly as on the web, while gaining a native container, splash screen,
 status bar, hardware back button and store distribution.
 
-## One-time setup (run on your own machine)
+## After cloning from GitHub
 
-You need Node 20+, Xcode 15+ (iOS) and Android Studio (Android).
+`ios/` and `android/` are **committed** to the repository. They contain
+production configuration that `npx cap add` does not recreate: Info.plist
+purpose strings, `App.entitlements` (push + universal links), the Android
+manifest permissions and deep links, generated icons and splash screens, and
+the release signing hooks. A cloud build must compile the exact project that
+was reviewed, so never delete and re-add the platforms casually.
+
+You only need Node 20+. Xcode is **not** required locally — iOS builds run on
+Codemagic's macOS machines.
 
 ```bash
 git clone <this repo> && cd <repo>
-npm install
+npm install          # or: bun install
+npx cap sync         # regenerates web assets, plugins, Package.swift, gradle files
+npx cap doctor       # sanity check
+```
 
-# scaffold the native projects (creates ios/ and android/ folders)
+Only if the native folders are ever lost or deliberately reset:
+
+```bash
 npx cap add ios
 npx cap add android
-
-# copy web assets + plugin config into both platforms
 npx cap sync
+# then re-apply native/ios-info-plist-additions.xml,
+# native/android-manifest-additions.xml, ios/App/App/App.entitlements and
+# npx @capacitor/assets generate
 ```
+
+## Cloud builds (Codemagic — no local Xcode)
+
+`codemagic.yaml` at the repository root defines two workflows:
+
+| Workflow | Machine | Output |
+| --- | --- | --- |
+| `ios-app-store` | macOS (Xcode latest) | signed `.ipa` → TestFlight / App Store |
+| `android-play` | Linux (JDK 21) | signed `.aab` → Play internal track |
+
+Both run `npm install` then `npx cap sync` before building, so generated assets
+(`ios/App/App/public`, `android/app/src/main/assets/public`, `Package.swift`)
+are produced in CI and stay out of git.
+
+No certificate, keystore, API key or password is stored in this repository.
+Supply them in Codemagic:
+
+- **App Store Connect API key** (Issuer ID, Key ID, `.p8`) as an integration
+  named `ASH Glo API Key`; iOS signing uses `distribution_type: app_store` and
+  `bundle_identifier: com.ashglogroup.app`.
+- **Android keystore** uploaded as the signing reference `ash_glo_keystore`
+  (alias `ashglo`). Locally, Gradle instead reads git-ignored
+  `android/keystore.properties` (`storeFile`, `storePassword`, `keyAlias`,
+  `keyPassword`); with neither present the release build is simply unsigned.
+- **Google Play service account JSON** as `GCLOUD_SERVICE_ACCOUNT_CREDENTIALS`
+  in the `google_play` group.
+
+## Universal links / App Links
+
+`ios/App/App/App.entitlements` declares `applinks:ashglogroup.company` and
+`aps-environment`; the Android manifest declares an `autoVerify` intent filter
+for the same hosts. For verification to succeed the production domain must
+serve:
+
+- `https://ashglogroup.company/.well-known/apple-app-site-association`
+  (JSON, no extension, `application/json`) containing `TEAMID.com.ashglogroup.app`
+- `https://ashglogroup.company/.well-known/assetlinks.json` containing the
+  Play App Signing SHA-256 fingerprint for `com.ashglogroup.app`
+
+Both need values only Apple Developer / Play Console can give you, so they are
+not committed with placeholders.
 
 ## Everyday workflow
 
