@@ -127,8 +127,8 @@ type Counts = {
 };
 
 export const getConsoleOverview = createServerFn({ method: "GET" }).handler(async () => {
-  const { requireConsole, adminClient } = await import("./console.server");
-  await requireConsole();
+  const { requireDepartment, adminClient } = await import("./console.server");
+  await requireDepartment("SUPER_ADMIN");
   const db = await adminClient();
 
   // Counts come from the database so they are never capped by API page size.
@@ -657,8 +657,8 @@ export const getConsoleAnalytics = createServerFn({ method: "GET" })
     days: Math.min(Math.max(Number(input?.days ?? 30), 7), 90),
   }))
   .handler(async ({ data }): Promise<ConsoleAnalytics> => {
-    const { requireConsole, adminClient } = await import("./console.server");
-    await requireConsole();
+    const { requireDepartment, adminClient } = await import("./console.server");
+    await requireDepartment("SUPER_ADMIN");
     const db = await adminClient();
 
     const since = new Date(Date.now() - data.days * 86400000);
@@ -763,8 +763,8 @@ export const getSecurityAudit = createServerFn({ method: "GET" })
     hours: Math.min(Math.max(Number(input?.hours ?? 24), 1), 720),
   }))
   .handler(async ({ data }) => {
-    const { requireConsole, adminClient } = await import("./console.server");
-    await requireConsole();
+    const { requireDepartment, adminClient } = await import("./console.server");
+    await requireDepartment("SUPER_ADMIN");
     const db = await adminClient();
 
     const [overview, events] = await Promise.all([
