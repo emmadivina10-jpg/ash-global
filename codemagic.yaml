@@ -1,3 +1,4 @@
+workflows:
   ios-app-store:
     name: ASH Glo iOS — App Store
     instance_type: mac_mini_m2
@@ -21,16 +22,37 @@
       cocoapods: default
 
     scripts:
+      - name: Install JS dependencies
+        script: |
+          npm install -g npm@11
+          npm --version
 
-      - *install_deps
+          rm -rf node_modules
 
-      - *sync_native
+          npm ci --no-audit --no-fund || {
+            echo "npm ci failed — falling back to fresh install"
+            rm -rf node_modules package-lock.json
+            npm install --no-audit --no-fund
+          }
+
+      - name: Capacitor sync
+        script: |
+          npx cap sync
 
       - name: Set build number from App Store Connect
         script: |
           cd ios/App
-          agvtool new-version -all \
-            $(($(app-store-connect get-latest-app-store-build-number "$APP_ID" 2>/dev/null || echo 0) + 1))
+
+          LATEST_BUILD_NUMBER=$(
+            app-store-connect get-latest-app-store-build-number "$APP_ID" 2>/dev/null || echo 0
+          )
+
+          NEW_BUILD_NUMBER=$((LATEST_BUILD_NUMBER + 1))
+
+          echo "Latest build number: $LATEST_BUILD_NUMBER"
+          echo "New build number: $NEW_BUILD_NUMBER"
+
+          agvtool new-version -all "$NEW_BUILD_NUMBER"
 
       - name: Initialise keychain and apply signing
         script: |
@@ -42,7 +64,7 @@
           echo "=== Installing signing certificates ==="
           keychain add-certificates
 
-          echo "=== Applying Codemagic provisioning profiles ==="
+          echo "=== Applying provisioning profiles ==="
           xcode-project use-profiles
 
       - name: Verify iOS signing configuration
@@ -54,6 +76,7 @@
           echo "========================================"
           echo " INSTALLED CODE SIGNING IDENTITIES"
           echo "========================================"
+
           security find-identity -v -p codesigning || true
 
           echo
@@ -86,6 +109,7 @@
           echo "========================================"
 
           for profile in "$HOME"/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision; do
+
             [ -e "$profile" ] || continue
 
             decoded="/tmp/xcodebuild_logs/$(basename "$profile").plist"
@@ -94,18 +118,39 @@
 
             echo
             echo "----------------------------------------"
-            echo "Profile: $(/usr/libexec/PlistBuddy -c 'Print :Name' "$decoded" 2>/dev/null || echo unknown)"
-            echo "UUID: $(/usr/libexec/PlistBuddy -c 'Print :UUID' "$decoded" 2>/dev/null || echo unknown)"
-            echo "Application identifier: $(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "$decoded" 2>/dev/null || echo missing)"
-            echo "Push environment: $(/usr/libexec/PlistBuddy -c 'Print :Entitlements:aps-environment' "$decoded" 2>/dev/null || echo missing)"
+
+            echo "Profile:"
+            /usr/libexec/PlistBuddy \
+              -c 'Print :Name' \
+              "$decoded" \
+              2>/dev/null || echo unknown
+
+            echo "UUID:"
+            /usr/libexec/PlistBuddy \
+              -c 'Print :UUID' \
+              "$decoded" \
+              2>/dev/null || echo unknown
+
+            echo "Application identifier:"
+            /usr/libexec/PlistBuddy \
+              -c 'Print :Entitlements:application-identifier' \
+              "$decoded" \
+              2>/dev/null || echo missing
+
+            echo "Push environment:"
+            /usr/libexec/PlistBuddy \
+              -c 'Print :Entitlements:aps-environment' \
+              "$decoded" \
+              2>/dev/null || echo missing
 
             echo "Associated domains:"
             /usr/libexec/PlistBuddy \
               -c 'Print :Entitlements:com.apple.developer.associated-domains' \
               "$decoded" \
-              2>/dev/null || echo "missing"
+              2>/dev/null || echo missing
 
             echo "----------------------------------------"
+
           done
 
       - name: Build IPA
@@ -149,7 +194,7 @@
 
             echo
             echo "========================================"
-            echo " ARCHIVE FAILED — SIGNING DIAGNOSTICS"
+            echo " ARCHIVE FAILED"
             echo "========================================"
 
             grep -nE \
@@ -159,6 +204,7 @@
               || true
 
             exit "$archive_status"
+
           fi
 
           echo
@@ -170,8 +216,10 @@
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
           "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+
           <plist version="1.0">
           <dict>
+
             <key>destination</key>
             <string>export</string>
 
@@ -189,6 +237,7 @@
 
             <key>uploadSymbols</key>
             <true/>
+
           </dict>
           </plist>
           PLIST
@@ -216,7 +265,7 @@
 
             echo
             echo "========================================"
-            echo " EXPORT FAILED — SIGNING DIAGNOSTICS"
+            echo " EXPORT FAILED"
             echo "========================================"
 
             grep -nE \
@@ -226,6 +275,7 @@
               || true
 
             exit "$export_status"
+
           fi
 
           echo
@@ -241,3 +291,51 @@
       app_store_connect:
         auth: integration
         submit_to_testflight: true
+
+  android-play:
+    name: ASH Glo Android — Play Store
+    instance_type: linux_x2
+    max_build_duration: 45
+
+    environment:
+      android_signing:
+        - ash_glo_keystore
+
+      groups:
+        - google_play
+
+      node: 20
+      java: 21
+
+    scripts:
+      - name: Install JS dependencies
+        script: |
+          npm install -g npm@11
+          npm --version
+
+          rm -rf node_modules
+
+          npm ci --no-audit --no-fund || {
+            echo "npm ci failed — falling back to fresh install"
+            rm -rf node_modules package-lock.json
+            npm install --no-audit --no-fund
+          }
+
+      - name: Capacitor sync
+        script: |
+          npx cap sync
+
+      - name: Build signed AAB
+        script: |
+          cd android
+          ./gradlew bundleRelease
+
+    artifacts:
+      - android/app/build/outputs/**/*.aab
+      - android/app/build/outputs/**/*.apk
+
+    publishing:
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
+        submit_as_draft: true
