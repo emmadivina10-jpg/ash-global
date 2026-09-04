@@ -12,7 +12,15 @@ definitions:
   scripts:
     - &install_deps
       name: Install JS dependencies
-      script: npm install --no-audit --no-fund
+      script: |
+        npm --version
+        # Clean any partial tree, then install from the committed lockfile.
+        rm -rf node_modules
+        npm ci --no-audit --no-fund || {
+          echo "npm ci failed — falling back to a fresh resolve"
+          rm -rf node_modules package-lock.json
+          npm install --no-audit --no-fund --legacy-peer-deps
+        }
     - &sync_native
       name: Capacitor sync (copies native/www + plugin config into the native project)
       script: npx cap sync
