@@ -58,21 +58,113 @@ workflows:
           app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
           keychain add-certificates
           xcode-project use-profiles
-      - name: Build IPA (full xcodebuild output)
+      - name: Verify iOS signing configuration
+        script: |
+          mkdir -p /tmp/xcodebuild_logs
+          {
+            echo "=== Installed code-signing identities ==="
+            security find-identity -v -p codesigning || true
+            echo
+            echo "=== Effective Release signing settings ==="
+            xcodebuild \
+              -project "$XCODE_WORKSPACE" \
+              -scheme "$XCODE_SCHEME" \
+              -configuration Release \
+              -destination "generic/platform=iOS" \
+              -showBuildSettings | grep -E "^[[:space:]]*(CODE_SIGN|DEVELOPMENT_TEAM|PRODUCT_BUNDLE_IDENTIFIER|PROVISIONING_PROFILE|SUPPORTED_PLATFORMS)" || true
+            echo
+            echo "=== Requested app entitlements ==="
+            /usr/libexec/PlistBuddy -c Print ios/App/App/App.entitlements
+            echo
+            echo "=== Installed provisioning profiles ==="
+            for profile in "$HOME"/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision; do
+              [ -e "$profile" ] || continue
+              decoded="/tmp/xcodebuild_logs/$(basename "$profile").plist"
+              security cms -D -i "$profile" > "$decoded"
+              echo "Profile: $(/usr/libexec/PlistBuddy -c 'Print :Name' "$decoded" 2>/dev/null || echo unknown)"
+              echo "UUID: $(/usr/libexec/PlistBuddy -c 'Print :UUID' "$decoded" 2>/dev/null || echo unknown)"
+              echo "Application identifier: $(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "$decoded" 2>/dev/null || echo missing)"
+              echo "Push environment: $(/usr/libexec/PlistBuddy -c 'Print :Entitlements:aps-environment' "$decoded" 2>/dev/null || echo missing)"
+              echo "Associated domains:"
+              /usr/libexec/PlistBuddy -c 'Print :Entitlements:com.apple.developer.associated-domains' "$decoded" 2>/dev/null || echo "missing"
+              echo
+            done
+          } 2>&1 | tee /tmp/xcodebuild_logs/signing-diagnostics.log
+      - name: Build IPA (raw xcodebuild output)
         script: |
           set -o pipefail
-          mkdir -p /tmp/xcodebuild_logs
-          # --verbose + stdout log stream prints the complete xcodebuild output
-          # instead of the one-line "Failed to archive" summary.
-          xcode-project build-ipa \
-            --project "$XCODE_WORKSPACE" \
-            --scheme "$XCODE_SCHEME" \
-            --config Release \
-            --verbose \
-            --log-stream stdout 2>&1 | tee /tmp/xcodebuild_logs/build-ipa.log
+          mkdir -p /tmp/xcodebuild_logs build/ios/xcarchive build/ios/ipa
+          rm -rf \
+            /tmp/xcodebuild_logs/archive.xcresult \
+            /tmp/xcodebuild_logs/export.xcresult \
+            build/ios/xcarchive/App.xcarchive
+
+          # Run xcodebuild directly so Codemagic receives every compiler and
+          # signing diagnostic instead of only the wrapper's status summary.
+          set +e
+          xcodebuild \
+            -project "$XCODE_WORKSPACE" \
+            -scheme "$XCODE_SCHEME" \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -archivePath "$CM_BUILD_DIR/build/ios/xcarchive/App.xcarchive" \
+            -resultBundlePath /tmp/xcodebuild_logs/archive.xcresult \
+            clean archive \
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            CODE_SIGN_STYLE=Manual \
+            "CODE_SIGN_IDENTITY=Apple Distribution" \
+            2>&1 | tee /tmp/xcodebuild_logs/xcodebuild-archive.log
+          archive_status=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$archive_status" -ne 0 ]; then
+            echo "=== First compiler/signing diagnostics ==="
+            grep -nE "(^|: )(error:|fatal error:)|CodeSign|Provisioning|requires a provisioning profile|entitlement|certificate" \
+              /tmp/xcodebuild_logs/xcodebuild-archive.log | head -n 120 || true
+            exit "$archive_status"
+          fi
+
+          cat > /tmp/xcodebuild_logs/ExportOptions.plist <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>destination</key>
+            <string>export</string>
+            <key>manageAppVersionAndBuildNumber</key>
+            <false/>
+            <key>method</key>
+            <string>app-store-connect</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>stripSwiftSymbols</key>
+            <true/>
+            <key>uploadSymbols</key>
+            <true/>
+          </dict>
+          </plist>
+          PLIST
+
+          set +e
+          xcodebuild \
+            -exportArchive \
+            -archivePath "$CM_BUILD_DIR/build/ios/xcarchive/App.xcarchive" \
+            -exportPath "$CM_BUILD_DIR/build/ios/ipa" \
+            -exportOptionsPlist /tmp/xcodebuild_logs/ExportOptions.plist \
+            -resultBundlePath /tmp/xcodebuild_logs/export.xcresult \
+            2>&1 | tee /tmp/xcodebuild_logs/xcodebuild-export.log
+          export_status=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$export_status" -ne 0 ]; then
+            echo "=== First export/signing diagnostics ==="
+            grep -nE "(^|: )(error:|fatal error:)|CodeSign|Provisioning|requires a provisioning profile|entitlement|certificate" \
+              /tmp/xcodebuild_logs/xcodebuild-export.log | head -n 120 || true
+            exit "$export_status"
+          fi
     artifacts:
       - build/ios/ipa/*.ipa
-      - /tmp/xcodebuild_logs/*.log
+      - /tmp/xcodebuild_logs/**
     publishing:
       app_store_connect:
         auth: integration
