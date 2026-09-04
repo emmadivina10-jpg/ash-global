@@ -13,13 +13,15 @@ definitions:
     - &install_deps
       name: Install JS dependencies
       script: |
+        # npm 10 (bundled with Node 22) crashes on this dependency tree with
+        # "Cannot read properties of null (reading 'edgesOut')". npm 11 resolves it.
+        npm install -g npm@11
         npm --version
-        # Clean any partial tree, then install from the committed lockfile.
         rm -rf node_modules
         npm ci --no-audit --no-fund || {
           echo "npm ci failed — falling back to a fresh resolve"
           rm -rf node_modules package-lock.json
-          npm install --no-audit --no-fund --legacy-peer-deps
+          npm install --no-audit --no-fund
         }
     - &sync_native
       name: Capacitor sync (copies native/www + plugin config into the native project)
