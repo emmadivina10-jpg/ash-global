@@ -1,107 +1,133 @@
-# ASH Glo — Codemagic CI/CD
-# No Xcode or Android Studio needed locally. All signing material is supplied by
-# Codemagic (Teams > Code signing identities / environment groups) — never by
-# this repository.
-#
-# Required environment groups:
-#   app_store_credentials : APP_STORE_CONNECT_ISSUER_ID, APP_STORE_CONNECT_KEY_IDENTIFIER,
-#                           APP_STORE_CONNECT_PRIVATE_KEY, CERTIFICATE_PRIVATE_KEY
-#   google_play           : GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
-#   android_signing       : uploaded keystore reference "ash_glo_keystore"
-definitions:
-  scripts:
-    - &install_deps
-      name: Install JS dependencies
-      script: |
-        # npm 10 (bundled with Node 22) crashes on this dependency tree with
-        # "Cannot read properties of null (reading 'edgesOut')". npm 11 resolves it.
-        npm install -g npm@11
-        npm --version
-        rm -rf node_modules
-        npm ci --no-audit --no-fund || {
-          echo "npm ci failed — falling back to a fresh resolve"
-          rm -rf node_modules package-lock.json
-          npm install --no-audit --no-fund
-        }
-    - &sync_native
-      name: Capacitor sync (copies native/www + plugin config into the native project)
-      script: npx cap sync
-
-workflows:
   ios-app-store:
     name: ASH Glo iOS — App Store
     instance_type: mac_mini_m2
     max_build_duration: 60
+
     integrations:
       app_store_connect: ASH Glo App Store
+
     environment:
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.ashglogroup.mobile
+
       vars:
         XCODE_WORKSPACE: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
         BUNDLE_ID: "com.ashglogroup.mobile"
+
       node: 22
       xcode: latest
       cocoapods: default
+
     scripts:
+
       - *install_deps
+
       - *sync_native
+
       - name: Set build number from App Store Connect
         script: |
           cd ios/App
-          agvtool new-version -all $(($(app-store-connect get-latest-app-store-build-number "$APP_ID" 2>/dev/null || echo 0) + 1))
+          agvtool new-version -all \
+            $(($(app-store-connect get-latest-app-store-build-number "$APP_ID" 2>/dev/null || echo 0) + 1))
+
       - name: Initialise keychain and apply signing
         script: |
+          set -e
+
+          echo "=== Initialising keychain ==="
           keychain initialize
-          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
+
+          echo "=== Installing signing certificates ==="
           keychain add-certificates
+
+          echo "=== Applying Codemagic provisioning profiles ==="
           xcode-project use-profiles
+
       - name: Verify iOS signing configuration
         script: |
+          set -e
+
           mkdir -p /tmp/xcodebuild_logs
-          {
-            echo "=== Installed code-signing identities ==="
-            security find-identity -v -p codesigning || true
+
+          echo "========================================"
+          echo " INSTALLED CODE SIGNING IDENTITIES"
+          echo "========================================"
+          security find-identity -v -p codesigning || true
+
+          echo
+          echo "========================================"
+          echo " EFFECTIVE RELEASE SIGNING SETTINGS"
+          echo "========================================"
+
+          xcodebuild \
+            -project "$XCODE_WORKSPACE" \
+            -scheme "$XCODE_SCHEME" \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -showBuildSettings \
+            | grep -E "^[[:space:]]*(CODE_SIGN|DEVELOPMENT_TEAM|PRODUCT_BUNDLE_IDENTIFIER|PROVISIONING_PROFILE|SUPPORTED_PLATFORMS)" \
+            || true
+
+          echo
+          echo "========================================"
+          echo " REQUESTED APP ENTITLEMENTS"
+          echo "========================================"
+
+          /usr/libexec/PlistBuddy \
+            -c Print \
+            ios/App/App/App.entitlements \
+            || true
+
+          echo
+          echo "========================================"
+          echo " INSTALLED PROVISIONING PROFILES"
+          echo "========================================"
+
+          for profile in "$HOME"/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision; do
+            [ -e "$profile" ] || continue
+
+            decoded="/tmp/xcodebuild_logs/$(basename "$profile").plist"
+
+            security cms -D -i "$profile" > "$decoded"
+
             echo
-            echo "=== Effective Release signing settings ==="
-            xcodebuild \
-              -project "$XCODE_WORKSPACE" \
-              -scheme "$XCODE_SCHEME" \
-              -configuration Release \
-              -destination "generic/platform=iOS" \
-              -showBuildSettings | grep -E "^[[:space:]]*(CODE_SIGN|DEVELOPMENT_TEAM|PRODUCT_BUNDLE_IDENTIFIER|PROVISIONING_PROFILE|SUPPORTED_PLATFORMS)" || true
-            echo
-            echo "=== Requested app entitlements ==="
-            /usr/libexec/PlistBuddy -c Print ios/App/App/App.entitlements
-            echo
-            echo "=== Installed provisioning profiles ==="
-            for profile in "$HOME"/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision; do
-              [ -e "$profile" ] || continue
-              decoded="/tmp/xcodebuild_logs/$(basename "$profile").plist"
-              security cms -D -i "$profile" > "$decoded"
-              echo "Profile: $(/usr/libexec/PlistBuddy -c 'Print :Name' "$decoded" 2>/dev/null || echo unknown)"
-              echo "UUID: $(/usr/libexec/PlistBuddy -c 'Print :UUID' "$decoded" 2>/dev/null || echo unknown)"
-              echo "Application identifier: $(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "$decoded" 2>/dev/null || echo missing)"
-              echo "Push environment: $(/usr/libexec/PlistBuddy -c 'Print :Entitlements:aps-environment' "$decoded" 2>/dev/null || echo missing)"
-              echo "Associated domains:"
-              /usr/libexec/PlistBuddy -c 'Print :Entitlements:com.apple.developer.associated-domains' "$decoded" 2>/dev/null || echo "missing"
-              echo
-            done
-          } 2>&1 | tee /tmp/xcodebuild_logs/signing-diagnostics.log
-      - name: Build IPA (raw xcodebuild output)
+            echo "----------------------------------------"
+            echo "Profile: $(/usr/libexec/PlistBuddy -c 'Print :Name' "$decoded" 2>/dev/null || echo unknown)"
+            echo "UUID: $(/usr/libexec/PlistBuddy -c 'Print :UUID' "$decoded" 2>/dev/null || echo unknown)"
+            echo "Application identifier: $(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "$decoded" 2>/dev/null || echo missing)"
+            echo "Push environment: $(/usr/libexec/PlistBuddy -c 'Print :Entitlements:aps-environment' "$decoded" 2>/dev/null || echo missing)"
+
+            echo "Associated domains:"
+            /usr/libexec/PlistBuddy \
+              -c 'Print :Entitlements:com.apple.developer.associated-domains' \
+              "$decoded" \
+              2>/dev/null || echo "missing"
+
+            echo "----------------------------------------"
+          done
+
+      - name: Build IPA
         script: |
           set -o pipefail
-          mkdir -p /tmp/xcodebuild_logs build/ios/xcarchive build/ios/ipa
+
+          mkdir -p \
+            /tmp/xcodebuild_logs \
+            build/ios/xcarchive \
+            build/ios/ipa
+
           rm -rf \
             /tmp/xcodebuild_logs/archive.xcresult \
             /tmp/xcodebuild_logs/export.xcresult \
             build/ios/xcarchive/App.xcarchive
 
-          # Run xcodebuild directly so Codemagic receives every compiler and
-          # signing diagnostic instead of only the wrapper's status summary.
+          echo "========================================"
+          echo " BUILDING IOS ARCHIVE"
+          echo "========================================"
+
           set +e
+
           xcodebuild \
             -project "$XCODE_WORKSPACE" \
             -scheme "$XCODE_SCHEME" \
@@ -114,38 +140,66 @@ workflows:
             CODE_SIGN_STYLE=Manual \
             "CODE_SIGN_IDENTITY=Apple Distribution" \
             2>&1 | tee /tmp/xcodebuild_logs/xcodebuild-archive.log
+
           archive_status=${PIPESTATUS[0]}
+
           set -e
 
           if [ "$archive_status" -ne 0 ]; then
-            echo "=== First compiler/signing diagnostics ==="
-            grep -nE "(^|: )(error:|fatal error:)|CodeSign|Provisioning|requires a provisioning profile|entitlement|certificate" \
-              /tmp/xcodebuild_logs/xcodebuild-archive.log | head -n 120 || true
+
+            echo
+            echo "========================================"
+            echo " ARCHIVE FAILED — SIGNING DIAGNOSTICS"
+            echo "========================================"
+
+            grep -nE \
+              "(error:|fatal error:|CodeSign|Provisioning|requires a provisioning profile|entitlement|certificate)" \
+              /tmp/xcodebuild_logs/xcodebuild-archive.log \
+              | head -n 150 \
+              || true
+
             exit "$archive_status"
           fi
 
+          echo
+          echo "========================================"
+          echo " ARCHIVE SUCCEEDED"
+          echo "========================================"
+
           cat > /tmp/xcodebuild_logs/ExportOptions.plist <<'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+          "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
             <key>destination</key>
             <string>export</string>
+
             <key>manageAppVersionAndBuildNumber</key>
             <false/>
+
             <key>method</key>
             <string>app-store-connect</string>
+
             <key>signingStyle</key>
             <string>manual</string>
+
             <key>stripSwiftSymbols</key>
             <true/>
+
             <key>uploadSymbols</key>
             <true/>
           </dict>
           </plist>
           PLIST
 
+          echo
+          echo "========================================"
+          echo " EXPORTING IPA"
+          echo "========================================"
+
           set +e
+
           xcodebuild \
             -exportArchive \
             -archivePath "$CM_BUILD_DIR/build/ios/xcarchive/App.xcarchive" \
@@ -153,46 +207,37 @@ workflows:
             -exportOptionsPlist /tmp/xcodebuild_logs/ExportOptions.plist \
             -resultBundlePath /tmp/xcodebuild_logs/export.xcresult \
             2>&1 | tee /tmp/xcodebuild_logs/xcodebuild-export.log
+
           export_status=${PIPESTATUS[0]}
+
           set -e
 
           if [ "$export_status" -ne 0 ]; then
-            echo "=== First export/signing diagnostics ==="
-            grep -nE "(^|: )(error:|fatal error:)|CodeSign|Provisioning|requires a provisioning profile|entitlement|certificate" \
-              /tmp/xcodebuild_logs/xcodebuild-export.log | head -n 120 || true
+
+            echo
+            echo "========================================"
+            echo " EXPORT FAILED — SIGNING DIAGNOSTICS"
+            echo "========================================"
+
+            grep -nE \
+              "(error:|fatal error:|CodeSign|Provisioning|requires a provisioning profile|entitlement|certificate)" \
+              /tmp/xcodebuild_logs/xcodebuild-export.log \
+              | head -n 150 \
+              || true
+
             exit "$export_status"
           fi
+
+          echo
+          echo "========================================"
+          echo " IPA EXPORT SUCCEEDED"
+          echo "========================================"
+
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/**
+
     publishing:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
-
-  android-play:
-    name: ASH Glo Android — Play Store
-    instance_type: linux_x2
-    max_build_duration: 45
-    environment:
-      android_signing:
-        - ash_glo_keystore
-      groups:
-        - google_play
-      node: 20
-      java: 21
-    scripts:
-      - *install_deps
-      - *sync_native
-      - name: Build signed AAB
-        script: |
-          cd android
-          ./gradlew bundleRelease
-    artifacts:
-      - android/app/build/outputs/**/*.aab
-      - android/app/build/outputs/**/*.apk
-    publishing:
-      google_play:
-        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
-        track: internal
-        submit_as_draft: true
