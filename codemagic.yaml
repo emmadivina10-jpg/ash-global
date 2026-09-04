@@ -5,7 +5,7 @@ workflows:
     max_build_duration: 60
 
     integrations:
-      app_store_connect: ASH_Glo_2026
+      app_store_connect: ash glo
 
     environment:
       ios_signing:
@@ -22,80 +22,93 @@ workflows:
       cocoapods: default
 
     scripts:
-      # --------------------------------------------------
-      # 1. INSTALL JAVASCRIPT DEPENDENCIES
-      # --------------------------------------------------
       - name: Install JS dependencies
         script: |
           set -e
 
           npm install -g npm@11
-
-          echo "Node:"
-          node --version
-
-          echo "NPM:"
           npm --version
 
           rm -rf node_modules
 
-          npm ci --no-audit --no-fund
+          npm ci --no-audit --no-fund || {
+            echo "npm ci failed — falling back to npm install"
+            rm -rf node_modules
+            npm install --no-audit --no-fund
+          }
 
-      # --------------------------------------------------
-      # 2. CAPACITOR SYNC
-      # --------------------------------------------------
       - name: Capacitor sync
         script: |
           set -e
 
           npx cap sync ios
 
-      # --------------------------------------------------
-      # 3. INITIALISE KEYCHAIN
-      # --------------------------------------------------
-      - name: Initialise keychain
+      - name: Set build number
         script: |
           set -e
+
+          cd ios/App
+
+          echo "Current build settings:"
+          agvtool what-version -terse
+
+          CURRENT_BUILD=$(
+            agvtool what-version -terse 2>/dev/null \
+            | head -n 1 \
+            | tr -d '[:space:]'
+          )
+
+          if ! [[ "$CURRENT_BUILD" =~ ^[0-9]+$ ]]; then
+            CURRENT_BUILD=0
+          fi
+
+          NEW_BUILD_NUMBER=$((CURRENT_BUILD + 1))
+
+          echo "Current build number: $CURRENT_BUILD"
+          echo "New build number: $NEW_BUILD_NUMBER"
+
+          agvtool new-version -all "$NEW_BUILD_NUMBER"
+
+      - name: Initialise keychain and apply signing
+        script: |
+          set -e
+
+          echo "========================================"
+          echo " INITIALISING KEYCHAIN"
+          echo "========================================"
 
           keychain initialize
 
-      # --------------------------------------------------
-      # 4. INSTALL CERTIFICATES
-      # --------------------------------------------------
-      - name: Install signing certificates
-        script: |
-          set -e
+          echo
+          echo "========================================"
+          echo " INSTALLING SIGNING CERTIFICATES"
+          echo "========================================"
 
           keychain add-certificates
 
-      # --------------------------------------------------
-      # 5. APPLY PROVISIONING PROFILES
-      # --------------------------------------------------
-      - name: Apply provisioning profiles
-        script: |
-          set -e
+          echo
+          echo "========================================"
+          echo " APPLYING PROVISIONING PROFILES"
+          echo "========================================"
 
           xcode-project use-profiles
 
-      # --------------------------------------------------
-      # 6. VERIFY IOS SIGNING
-      # --------------------------------------------------
       - name: Verify iOS signing configuration
         script: |
           set -e
 
           mkdir -p /tmp/xcodebuild_logs
 
-          echo ""
+          echo
           echo "========================================"
-          echo " INSTALLED CODE SIGNING IDENTITIES"
+          echo " CODE SIGNING IDENTITIES"
           echo "========================================"
 
           security find-identity -v -p codesigning || true
 
-          echo ""
+          echo
           echo "========================================"
-          echo " EFFECTIVE RELEASE SIGNING SETTINGS"
+          echo " XCODE BUILD SETTINGS"
           echo "========================================"
 
           xcodebuild \
@@ -105,12 +118,12 @@ workflows:
             -destination "generic/platform=iOS" \
             -showBuildSettings \
             | grep -E \
-              "CODE_SIGN|DEVELOPMENT_TEAM|PRODUCT_BUNDLE_IDENTIFIER|PROVISIONING_PROFILE|SUPPORTED_PLATFORMS" \
+              "^[[:space:]]*(CODE_SIGN|DEVELOPMENT_TEAM|PRODUCT_BUNDLE_IDENTIFIER|PROVISIONING_PROFILE|SUPPORTED_PLATFORMS)" \
             || true
 
-          echo ""
+          echo
           echo "========================================"
-          echo " REQUESTED APP ENTITLEMENTS"
+          echo " APP ENTITLEMENTS"
           echo "========================================"
 
           if [ -f "ios/App/App/App.entitlements" ]; then
@@ -119,10 +132,10 @@ workflows:
               ios/App/App/App.entitlements \
               || true
           else
-            echo "App.entitlements not found"
+            echo "No App.entitlements file found"
           fi
 
-          echo ""
+          echo
           echo "========================================"
           echo " INSTALLED PROVISIONING PROFILES"
           echo "========================================"
@@ -135,7 +148,7 @@ workflows:
 
             security cms -D -i "$profile" > "$decoded"
 
-            echo ""
+            echo
             echo "----------------------------------------"
 
             echo "Profile:"
@@ -172,33 +185,6 @@ workflows:
 
           done
 
-      # --------------------------------------------------
-      # 7. SET BUILD NUMBER
-      # --------------------------------------------------
-      - name: Set build number
-        script: |
-          set -e
-
-          cd ios/App
-
-          CURRENT_BUILD=$(
-            agvtool what-version -terse 2>/dev/null || echo 0
-          )
-
-          if ! [[ "$CURRENT_BUILD" =~ ^[0-9]+$ ]]; then
-            CURRENT_BUILD=0
-          fi
-
-          NEW_BUILD=$((CURRENT_BUILD + 1))
-
-          echo "Current build number: $CURRENT_BUILD"
-          echo "New build number: $NEW_BUILD"
-
-          agvtool new-version -all "$NEW_BUILD"
-
-      # --------------------------------------------------
-      # 8. BUILD IPA
-      # --------------------------------------------------
       - name: Build IPA
         script: |
           set -o pipefail
@@ -213,7 +199,7 @@ workflows:
             /tmp/xcodebuild_logs/export.xcresult \
             "$CM_BUILD_DIR/build/ios/xcarchive/App.xcarchive"
 
-          echo ""
+          echo
           echo "========================================"
           echo " BUILDING IOS ARCHIVE"
           echo "========================================"
@@ -231,7 +217,8 @@ workflows:
             COMPILER_INDEX_STORE_ENABLE=NO \
             CODE_SIGN_STYLE=Manual \
             "CODE_SIGN_IDENTITY=Apple Distribution" \
-            2>&1 | tee /tmp/xcodebuild_logs/xcodebuild-archive.log
+            2>&1 \
+            | tee /tmp/xcodebuild_logs/xcodebuild-archive.log
 
           archive_status=${PIPESTATUS[0]}
 
@@ -239,13 +226,13 @@ workflows:
 
           if [ "$archive_status" -ne 0 ]; then
 
-            echo ""
+            echo
             echo "========================================"
             echo " ARCHIVE FAILED"
             echo "========================================"
 
             grep -nE \
-              "error:|fatal error:|CodeSign|Provisioning|requires a provisioning profile|entitlement|certificate" \
+              "(error:|fatal error:|CodeSign|Provisioning|requires a provisioning profile|entitlement|certificate)" \
               /tmp/xcodebuild_logs/xcodebuild-archive.log \
               | head -n 150 \
               || true
@@ -254,7 +241,7 @@ workflows:
 
           fi
 
-          echo ""
+          echo
           echo "========================================"
           echo " ARCHIVE SUCCEEDED"
           echo "========================================"
@@ -270,8 +257,11 @@ workflows:
             <key>destination</key>
             <string>export</string>
 
+            <key>manageAppVersionAndBuildNumber</key>
+            <false/>
+
             <key>method</key>
-            <string>app-store-connect</string>
+            <string>app-store</string>
 
             <key>signingStyle</key>
             <string>manual</string>
@@ -286,7 +276,7 @@ workflows:
           </plist>
           PLIST
 
-          echo ""
+          echo
           echo "========================================"
           echo " EXPORTING IPA"
           echo "========================================"
@@ -299,7 +289,8 @@ workflows:
             -exportPath "$CM_BUILD_DIR/build/ios/ipa" \
             -exportOptionsPlist /tmp/xcodebuild_logs/ExportOptions.plist \
             -resultBundlePath /tmp/xcodebuild_logs/export.xcresult \
-            2>&1 | tee /tmp/xcodebuild_logs/xcodebuild-export.log
+            2>&1 \
+            | tee /tmp/xcodebuild_logs/xcodebuild-export.log
 
           export_status=${PIPESTATUS[0]}
 
@@ -307,13 +298,13 @@ workflows:
 
           if [ "$export_status" -ne 0 ]; then
 
-            echo ""
+            echo
             echo "========================================"
             echo " EXPORT FAILED"
             echo "========================================"
 
             grep -nE \
-              "error:|fatal error:|CodeSign|Provisioning|requires a provisioning profile|entitlement|certificate" \
+              "(error:|fatal error:|CodeSign|Provisioning|requires a provisioning profile|entitlement|certificate)" \
               /tmp/xcodebuild_logs/xcodebuild-export.log \
               | head -n 150 \
               || true
@@ -322,31 +313,34 @@ workflows:
 
           fi
 
-          echo ""
+          echo
           echo "========================================"
           echo " IPA EXPORT SUCCEEDED"
           echo "========================================"
 
-          ls -lh "$CM_BUILD_DIR/build/ios/ipa"
-
-      # --------------------------------------------------
-      # 9. VERIFY IPA
-      # --------------------------------------------------
       - name: Verify generated IPA
         script: |
           set -e
 
-          IPA_FILE=$(find "$CM_BUILD_DIR/build/ios/ipa" -name "*.ipa" -type f | head -n 1)
+          echo "========================================"
+          echo " GENERATED IPA"
+          echo "========================================"
+
+          ls -lah "$CM_BUILD_DIR/build/ios/ipa"
+
+          IPA_FILE=$(find "$CM_BUILD_DIR/build/ios/ipa" -name "*.ipa" | head -n 1)
 
           if [ -z "$IPA_FILE" ]; then
-            echo "ERROR: IPA was not generated."
+            echo "ERROR: No IPA was generated."
             exit 1
           fi
 
-          echo "IPA generated successfully:"
+          echo "IPA:"
           echo "$IPA_FILE"
 
-          ls -lh "$IPA_FILE"
+          echo
+          echo "IPA size:"
+          du -h "$IPA_FILE"
 
     artifacts:
       - build/ios/ipa/*.ipa
@@ -356,10 +350,6 @@ workflows:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
-
-  # ======================================================
-  # ANDROID
-  # ======================================================
 
   android-play:
     name: ASH Glo Android — Play Store
@@ -382,12 +372,15 @@ workflows:
           set -e
 
           npm install -g npm@11
-
           npm --version
 
           rm -rf node_modules
 
-          npm ci --no-audit --no-fund
+          npm ci --no-audit --no-fund || {
+            echo "npm ci failed — falling back to npm install"
+            rm -rf node_modules
+            npm install --no-audit --no-fund
+          }
 
       - name: Capacitor sync
         script: |
@@ -400,6 +393,8 @@ workflows:
           set -e
 
           cd android
+
+          chmod +x ./gradlew
 
           ./gradlew bundleRelease
 
