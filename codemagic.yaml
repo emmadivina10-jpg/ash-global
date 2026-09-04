@@ -22,9 +22,16 @@ workflows:
       cocoapods: default
 
     scripts:
+      # ============================================================
+      # INSTALL JAVASCRIPT DEPENDENCIES
+      # ============================================================
       - name: Install JS dependencies
         script: |
           set -e
+
+          echo "========================================"
+          echo " INSTALLING JAVASCRIPT DEPENDENCIES"
+          echo "========================================"
 
           npm install -g npm@11
           npm --version
@@ -37,15 +44,29 @@ workflows:
             npm install --no-audit --no-fund
           }
 
+      # ============================================================
+      # CAPACITOR IOS SYNC
+      # ============================================================
       - name: Capacitor sync
         script: |
           set -e
 
+          echo "========================================"
+          echo " SYNCING CAPACITOR IOS PROJECT"
+          echo "========================================"
+
           npx cap sync ios
 
+      # ============================================================
+      # INCREMENT IOS BUILD NUMBER
+      # ============================================================
       - name: Set build number
         script: |
           set -e
+
+          echo "========================================"
+          echo " SETTING IOS BUILD NUMBER"
+          echo "========================================"
 
           cd ios/App
 
@@ -69,6 +90,9 @@ workflows:
 
           agvtool new-version -all "$NEW_BUILD_NUMBER"
 
+      # ============================================================
+      # INITIALIZE KEYCHAIN + APPLY CODE SIGNING
+      # ============================================================
       - name: Initialise keychain and apply signing
         script: |
           set -e
@@ -93,6 +117,9 @@ workflows:
 
           xcode-project use-profiles
 
+      # ============================================================
+      # VERIFY IOS SIGNING
+      # ============================================================
       - name: Verify iOS signing configuration
         script: |
           set -e
@@ -150,7 +177,6 @@ workflows:
 
             echo
             echo "----------------------------------------"
-
             echo "Profile:"
             /usr/libexec/PlistBuddy \
               -c 'Print :Name' \
@@ -185,7 +211,10 @@ workflows:
 
           done
 
-      - name: Build IPA
+      # ============================================================
+      # BUILD IOS ARCHIVE
+      # ============================================================
+      - name: Build iOS Archive
         script: |
           set -o pipefail
 
@@ -246,6 +275,18 @@ workflows:
           echo " ARCHIVE SUCCEEDED"
           echo "========================================"
 
+      # ============================================================
+      # EXPORT IPA
+      # ============================================================
+      - name: Build IPA
+        script: |
+          set -o pipefail
+
+          echo
+          echo "========================================"
+          echo " PREPARING IPA EXPORT"
+          echo "========================================"
+
           cat > /tmp/xcodebuild_logs/ExportOptions.plist <<'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
@@ -261,10 +302,16 @@ workflows:
             <false/>
 
             <key>method</key>
-            <string>app-store</string>
+            <string>app-store-connect</string>
 
             <key>signingStyle</key>
             <string>manual</string>
+
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>com.ashglogroup.mobile</key>
+              <string>ASH Glo App Store 2026 Production</string>
+            </dict>
 
             <key>stripSwiftSymbols</key>
             <true/>
@@ -275,6 +322,13 @@ workflows:
           </dict>
           </plist>
           PLIST
+
+          echo
+          echo "========================================"
+          echo " EXPORT OPTIONS"
+          echo "========================================"
+
+          cat /tmp/xcodebuild_logs/ExportOptions.plist
 
           echo
           echo "========================================"
@@ -318,12 +372,15 @@ workflows:
           echo " IPA EXPORT SUCCEEDED"
           echo "========================================"
 
+      # ============================================================
+      # VERIFY IPA
+      # ============================================================
       - name: Verify generated IPA
         script: |
           set -e
 
           echo "========================================"
-          echo " GENERATED IPA"
+          echo " VERIFYING GENERATED IPA"
           echo "========================================"
 
           ls -lah "$CM_BUILD_DIR/build/ios/ipa"
@@ -335,12 +392,18 @@ workflows:
             exit 1
           fi
 
+          echo
           echo "IPA:"
           echo "$IPA_FILE"
 
           echo
           echo "IPA size:"
           du -h "$IPA_FILE"
+
+          echo
+          echo "========================================"
+          echo " IPA READY"
+          echo "========================================"
 
     artifacts:
       - build/ios/ipa/*.ipa
@@ -351,6 +414,9 @@ workflows:
         auth: integration
         submit_to_testflight: true
 
+  # ================================================================
+  # ANDROID — GOOGLE PLAY
+  # ================================================================
   android-play:
     name: ASH Glo Android — Play Store
     instance_type: linux_x2
@@ -367,9 +433,16 @@ workflows:
       java: 21
 
     scripts:
+      # ============================================================
+      # INSTALL JAVASCRIPT DEPENDENCIES
+      # ============================================================
       - name: Install JS dependencies
         script: |
           set -e
+
+          echo "========================================"
+          echo " INSTALLING JAVASCRIPT DEPENDENCIES"
+          echo "========================================"
 
           npm install -g npm@11
           npm --version
@@ -382,21 +455,40 @@ workflows:
             npm install --no-audit --no-fund
           }
 
+      # ============================================================
+      # CAPACITOR ANDROID SYNC
+      # ============================================================
       - name: Capacitor sync
         script: |
           set -e
 
+          echo "========================================"
+          echo " SYNCING CAPACITOR ANDROID PROJECT"
+          echo "========================================"
+
           npx cap sync android
 
+      # ============================================================
+      # BUILD SIGNED ANDROID AAB
+      # ============================================================
       - name: Build signed AAB
         script: |
           set -e
+
+          echo "========================================"
+          echo " BUILDING ANDROID RELEASE"
+          echo "========================================"
 
           cd android
 
           chmod +x ./gradlew
 
           ./gradlew bundleRelease
+
+          echo
+          echo "========================================"
+          echo " ANDROID BUILD SUCCEEDED"
+          echo "========================================"
 
     artifacts:
       - android/app/build/outputs/**/*.aab
