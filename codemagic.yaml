@@ -58,12 +58,18 @@ workflows:
           app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
           keychain add-certificates
           xcode-project use-profiles
-      - name: Build IPA
+      - name: Build IPA (full xcodebuild output)
         script: |
+          set -o pipefail
+          mkdir -p /tmp/xcodebuild_logs
+          # --verbose + stdout log stream prints the complete xcodebuild output
+          # instead of the one-line "Failed to archive" summary.
           xcode-project build-ipa \
             --project "$XCODE_WORKSPACE" \
             --scheme "$XCODE_SCHEME" \
-            --config Release
+            --config Release \
+            --verbose \
+            --log-stream stdout 2>&1 | tee /tmp/xcodebuild_logs/build-ipa.log
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
