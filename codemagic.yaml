@@ -22,9 +22,20 @@ workflows:
       cocoapods: default
 
     scripts:
+      # ============================================================
+      # INSTALL JAVASCRIPT DEPENDENCIES
+      # ============================================================
       - name: Install JS dependencies
         script: |
+          set -e
+
+          echo "========================================"
+          echo " INSTALLING JS DEPENDENCIES"
+          echo "========================================"
+
           npm install -g npm@11
+
+          echo "npm version:"
           npm --version
 
           rm -rf node_modules
@@ -35,12 +46,30 @@ workflows:
             npm install --no-audit --no-fund
           }
 
+      # ============================================================
+      # CAPACITOR SYNC
+      # ============================================================
       - name: Capacitor sync
         script: |
+          set -e
+
+          echo "========================================"
+          echo " CAPACITOR SYNC"
+          echo "========================================"
+
           npx cap sync
 
+      # ============================================================
+      # SET BUILD NUMBER
+      # ============================================================
       - name: Set build number from App Store Connect
         script: |
+          set -e
+
+          echo "========================================"
+          echo " SETTING IOS BUILD NUMBER"
+          echo "========================================"
+
           cd ios/App
 
           LATEST_BUILD_NUMBER=$(
@@ -49,30 +78,52 @@ workflows:
 
           NEW_BUILD_NUMBER=$((LATEST_BUILD_NUMBER + 1))
 
-          echo "Latest build number: $LATEST_BUILD_NUMBER"
+          echo "Latest App Store build number: $LATEST_BUILD_NUMBER"
           echo "New build number: $NEW_BUILD_NUMBER"
 
           agvtool new-version -all "$NEW_BUILD_NUMBER"
 
+          echo "Build number successfully set to $NEW_BUILD_NUMBER"
+
+      # ============================================================
+      # INITIALISE KEYCHAIN + APPLY APPLE SIGNING
+      # ============================================================
       - name: Initialise keychain and apply signing
         script: |
           set -e
 
-          echo "=== Initialising keychain ==="
+          echo "========================================"
+          echo " INITIALISING KEYCHAIN"
+          echo "========================================"
+
           keychain initialize
 
-          echo "=== Installing signing certificates ==="
+          echo "========================================"
+          echo " INSTALLING SIGNING CERTIFICATES"
+          echo "========================================"
+
           keychain add-certificates
 
-          echo "=== Applying provisioning profiles ==="
+          echo "========================================"
+          echo " APPLYING PROVISIONING PROFILES"
+          echo "========================================"
+
           xcode-project use-profiles
 
+          echo "========================================"
+          echo " SIGNING MATERIAL APPLIED"
+          echo "========================================"
+
+      # ============================================================
+      # VERIFY SIGNING CONFIGURATION
+      # ============================================================
       - name: Verify iOS signing configuration
         script: |
           set -e
 
           mkdir -p /tmp/xcodebuild_logs
 
+          echo
           echo "========================================"
           echo " INSTALLED CODE SIGNING IDENTITIES"
           echo "========================================"
@@ -90,7 +141,11 @@ workflows:
             -configuration Release \
             -destination "generic/platform=iOS" \
             -showBuildSettings \
-            | grep -E "^[[:space:]]*(CODE_SIGN|DEVELOPMENT_TEAM|PRODUCT_BUNDLE_IDENTIFIER|PROVISIONING_PROFILE|SUPPORTED_PLATFORMS)" \
+            > /tmp/xcodebuild_logs/build-settings.log 2>&1 || true
+
+          grep -E \
+            "^[[:space:]]*(CODE_SIGN|DEVELOPMENT_TEAM|PRODUCT_BUNDLE_IDENTIFIER|PROVISIONING_PROFILE|SUPPORTED_PLATFORMS)" \
+            /tmp/xcodebuild_logs/build-settings.log \
             || true
 
           echo
@@ -98,19 +153,27 @@ workflows:
           echo " REQUESTED APP ENTITLEMENTS"
           echo "========================================"
 
-          /usr/libexec/PlistBuddy \
-            -c Print \
-            ios/App/App/App.entitlements \
-            || true
+          if [ -f "ios/App/App/App.entitlements" ]; then
+            /usr/libexec/PlistBuddy \
+              -c Print \
+              ios/App/App/App.entitlements \
+              || true
+          else
+            echo "App.entitlements file not found"
+          fi
 
           echo
           echo "========================================"
           echo " INSTALLED PROVISIONING PROFILES"
           echo "========================================"
 
+          PROFILE_FOUND=0
+
           for profile in "$HOME"/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision; do
 
             [ -e "$profile" ] || continue
+
+            PROFILE_FOUND=1
 
             decoded="/tmp/xcodebuild_logs/$(basename "$profile").plist"
 
@@ -123,36 +186,54 @@ workflows:
             /usr/libexec/PlistBuddy \
               -c 'Print :Name' \
               "$decoded" \
-              2>/dev/null || echo unknown
+              2>/dev/null || echo "unknown"
 
             echo "UUID:"
             /usr/libexec/PlistBuddy \
               -c 'Print :UUID' \
               "$decoded" \
-              2>/dev/null || echo unknown
+              2>/dev/null || echo "unknown"
 
             echo "Application identifier:"
             /usr/libexec/PlistBuddy \
               -c 'Print :Entitlements:application-identifier' \
               "$decoded" \
-              2>/dev/null || echo missing
+              2>/dev/null || echo "missing"
 
             echo "Push environment:"
             /usr/libexec/PlistBuddy \
               -c 'Print :Entitlements:aps-environment' \
               "$decoded" \
-              2>/dev/null || echo missing
+              2>/dev/null || echo "missing"
 
             echo "Associated domains:"
             /usr/libexec/PlistBuddy \
               -c 'Print :Entitlements:com.apple.developer.associated-domains' \
               "$decoded" \
-              2>/dev/null || echo missing
+              2>/dev/null || echo "missing"
+
+            echo "Team identifier:"
+            /usr/libexec/PlistBuddy \
+              -c 'Print :Entitlements:com.apple.developer.team-identifier' \
+              "$decoded" \
+              2>/dev/null || echo "missing"
 
             echo "----------------------------------------"
 
           done
 
+          if [ "$PROFILE_FOUND" -eq 0 ]; then
+            echo "WARNING: No provisioning profiles were found."
+          fi
+
+          echo
+          echo "========================================"
+          echo " SIGNING DIAGNOSTICS COMPLETE"
+          echo "========================================"
+
+      # ============================================================
+      # BUILD ARCHIVE + EXPORT IPA
+      # ============================================================
       - name: Build IPA
         script: |
           set -o pipefail
@@ -167,6 +248,7 @@ workflows:
             /tmp/xcodebuild_logs/export.xcresult \
             build/ios/xcarchive/App.xcarchive
 
+          echo
           echo "========================================"
           echo " BUILDING IOS ARCHIVE"
           echo "========================================"
@@ -197,11 +279,17 @@ workflows:
             echo " ARCHIVE FAILED"
             echo "========================================"
 
+            echo
+            echo "=== FIRST COMPILER / SIGNING ERRORS ==="
+
             grep -nE \
-              "(error:|fatal error:|CodeSign|Provisioning|requires a provisioning profile|entitlement|certificate)" \
+              "(error:|fatal error:|CodeSign|Provisioning|requires a provisioning profile|entitlement|certificate|signing)" \
               /tmp/xcodebuild_logs/xcodebuild-archive.log \
               | head -n 150 \
               || true
+
+            echo
+            echo "=== END ARCHIVE DIAGNOSTICS ==="
 
             exit "$archive_status"
 
@@ -212,14 +300,24 @@ workflows:
           echo " ARCHIVE SUCCEEDED"
           echo "========================================"
 
+          echo
+          echo "Archive created at:"
+          echo "$CM_BUILD_DIR/build/ios/xcarchive/App.xcarchive"
+
+          # ========================================================
+          # EXPORT OPTIONS
+          # ========================================================
+
+          echo
+          echo "========================================"
+          echo " CREATING EXPORT OPTIONS"
+          echo "========================================"
+
           cat > /tmp/xcodebuild_logs/ExportOptions.plist <<'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
-          "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
-
             <key>destination</key>
             <string>export</string>
 
@@ -232,15 +330,22 @@ workflows:
             <key>signingStyle</key>
             <string>manual</string>
 
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>com.ashglogroup.mobile</key>
+              <string>ASH Glo Mobile</string>
+            </dict>
+
             <key>stripSwiftSymbols</key>
             <true/>
 
             <key>uploadSymbols</key>
             <true/>
-
           </dict>
           </plist>
           PLIST
+
+          echo "ExportOptions.plist created."
 
           echo
           echo "========================================"
@@ -268,11 +373,27 @@ workflows:
             echo " EXPORT FAILED"
             echo "========================================"
 
+            echo
+            echo "=== FIRST EXPORT / SIGNING ERRORS ==="
+
             grep -nE \
-              "(error:|fatal error:|CodeSign|Provisioning|requires a provisioning profile|entitlement|certificate)" \
+              "(error:|fatal error:|CodeSign|Provisioning|requires a provisioning profile|entitlement|certificate|signing)" \
               /tmp/xcodebuild_logs/xcodebuild-export.log \
               | head -n 150 \
               || true
+
+            echo
+            echo "=== ARCHIVE CONTENTS ==="
+
+            /usr/bin/find \
+              "$CM_BUILD_DIR/build/ios/xcarchive" \
+              -maxdepth 5 \
+              -type f \
+              | head -n 100 \
+              || true
+
+            echo
+            echo "=== END EXPORT DIAGNOSTICS ==="
 
             exit "$export_status"
 
@@ -283,15 +404,52 @@ workflows:
           echo " IPA EXPORT SUCCEEDED"
           echo "========================================"
 
+          echo
+          echo "Generated IPA files:"
+          ls -lh "$CM_BUILD_DIR/build/ios/ipa/" || true
+
+      # ============================================================
+      # FINAL IPA CHECK
+      # ============================================================
+      - name: Verify generated IPA
+        script: |
+          set -e
+
+          echo
+          echo "========================================"
+          echo " VERIFYING GENERATED IPA"
+          echo "========================================"
+
+          if ls build/ios/ipa/*.ipa >/dev/null 2>&1; then
+
+            echo "IPA successfully generated:"
+            ls -lh build/ios/ipa/*.ipa
+
+          else
+
+            echo "ERROR: No IPA file was generated."
+            exit 1
+
+          fi
+
+    # ==============================================================
+    # IOS ARTIFACTS
+    # ==============================================================
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/**
 
+    # ==============================================================
+    # TESTFLIGHT / APP STORE CONNECT
+    # ==============================================================
     publishing:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
 
+  # =================================================================
+  # ANDROID — GOOGLE PLAY
+  # =================================================================
   android-play:
     name: ASH Glo Android — Play Store
     instance_type: linux_x2
@@ -308,9 +466,16 @@ workflows:
       java: 21
 
     scripts:
+      # ============================================================
+      # INSTALL JS DEPENDENCIES
+      # ============================================================
       - name: Install JS dependencies
         script: |
+          set -e
+
           npm install -g npm@11
+
+          echo "npm version:"
           npm --version
 
           rm -rf node_modules
@@ -321,19 +486,36 @@ workflows:
             npm install --no-audit --no-fund
           }
 
+      # ============================================================
+      # CAPACITOR SYNC
+      # ============================================================
       - name: Capacitor sync
         script: |
+          set -e
+
           npx cap sync
 
+      # ============================================================
+      # BUILD ANDROID AAB
+      # ============================================================
       - name: Build signed AAB
         script: |
+          set -e
+
           cd android
+
           ./gradlew bundleRelease
 
+    # ==============================================================
+    # ANDROID ARTIFACTS
+    # ==============================================================
     artifacts:
       - android/app/build/outputs/**/*.aab
       - android/app/build/outputs/**/*.apk
 
+    # ==============================================================
+    # GOOGLE PLAY PUBLISHING
+    # ==============================================================
     publishing:
       google_play:
         credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
