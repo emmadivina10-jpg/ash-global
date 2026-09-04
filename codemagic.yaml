@@ -213,39 +213,48 @@ workflows:
           echo "========================================"
 
           cat > /tmp/xcodebuild_logs/ExportOptions.plist <<'PLIST'
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
-          "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+"http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 
-          <plist version="1.0">
-          <dict>
+<plist version="1.0">
+<dict>
 
-            <key>destination</key>
-            <string>export</string>
+    <key>destination</key>
+    <string>export</string>
 
-            <key>manageAppVersionAndBuildNumber</key>
-            <false/>
+    <key>method</key>
+    <string>app-store-connect</string>
 
-            <key>method</key>
-            <string>app-store-connect</string>
+    <key>signingStyle</key>
+    <string>manual</string>
 
-            <key>signingStyle</key>
-            <string>manual</string>
+    <key>provisioningProfiles</key>
+    <dict>
+        <key>com.ashglogroup.mobile</key>
+        <string>ASH Glo Mobile</string>
+    </dict>
 
-            <key>stripSwiftSymbols</key>
-            <true/>
+    <key>manageAppVersionAndBuildNumber</key>
+    <false/>
 
-            <key>uploadSymbols</key>
-            <true/>
+    <key>stripSwiftSymbols</key>
+    <true/>
 
-          </dict>
-          </plist>
-          PLIST
+    <key>uploadSymbols</key>
+    <true/>
+
+</dict>
+</plist>
+PLIST
 
           echo
           echo "========================================"
           echo " EXPORTING IPA"
           echo "========================================"
+
+          echo "Using provisioning profile: ASH Glo Mobile"
+          echo "Bundle identifier: com.ashglogroup.mobile"
 
           set +e
 
