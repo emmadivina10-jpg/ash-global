@@ -32,7 +32,7 @@ workflows:
         XCODE_WORKSPACE: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
         BUNDLE_ID: "com.ashglogroup.mobile"
-      node: 20
+      node: 22
       xcode: latest
       cocoapods: default
     scripts:
