@@ -410,13 +410,19 @@ function ProviderPage() {
 
       {booking ? (
         <BookingRequestDialog
-          provider={{ id: provider.id, name: provider.business_name, city: provider.city }}
+          provider={{
+            id: provider.id,
+            name: provider.business_name,
+            city: provider.city,
+            country: (provider as { country?: string | null }).country ?? null,
+          }}
           service={booking}
           services={activeServices}
           onClose={() => setBooking(null)}
           onDone={() => {
             setBooking(null);
             void queryClient.invalidateQueries({ queryKey: ["bookings"] });
+            void queryClient.invalidateQueries({ queryKey: ["notifications"] });
             void navigate({ to: "/bookings" });
           }}
         />
@@ -432,7 +438,7 @@ function BookingRequestDialog({
   onClose,
   onDone,
 }: {
-  provider: { id: string; name: string; city: string | null };
+  provider: { id: string; name: string; city: string | null; country: string | null };
   service: ServiceRow;
   services: ServiceRow[];
   onClose: () => void;
@@ -440,10 +446,14 @@ function BookingRequestDialog({
 }) {
   const { lang } = useI18n();
   const fr = lang === "fr";
+  const zone = providerTimeZone(provider.country);
+  const showZone = isDifferentZone(zone);
   const [serviceId, setServiceId] = useState(service.id);
+  /** The chosen instant, as an ISO string. Never a device-local wall clock. */
   const [when, setWhen] = useState("");
   const [day, setDay] = useState("");
   const [slots, setSlots] = useState<string[] | null>(null);
+  const [slotError, setSlotError] = useState(false);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
@@ -451,6 +461,8 @@ function BookingRequestDialog({
   const [customPrice, setCustomPrice] = useState("");
   const [step, setStep] = useState<"form" | "confirm">("form");
   const [busy, setBusy] = useState(false);
+  /** Guards against a double tap firing two `request_booking` calls. */
+  const sending = useRef(false);
 
   const isCustom = serviceId === CUSTOM_ID;
   const selected = services.find((s) => s.id === serviceId) ?? service;
@@ -462,10 +474,12 @@ function BookingRequestDialog({
   useEffect(() => {
     if (!day) {
       setSlots(null);
+      setSlotError(false);
       return;
     }
     let cancelled = false;
     setLoadingSlots(true);
+    setSlotError(false);
     void supabase
       .rpc("provider_slots", {
         _provider_id: provider.id,
@@ -476,7 +490,7 @@ function BookingRequestDialog({
         if (cancelled) return;
         if (error) {
           console.error("provider_slots failed", error);
-          toast.error(error.message);
+          setSlotError(true);
           setSlots([]);
           setLoadingSlots(false);
           return;
@@ -490,6 +504,8 @@ function BookingRequestDialog({
   }, [day, provider.id, selected.duration_minutes]);
 
   async function submit() {
+    if (sending.current) return; // double-tap guard: one request, one booking
+    sending.current = true;
     setBusy(true);
     const { data, error } = await supabase.rpc("request_booking", {
       _provider_id: provider.id,
@@ -503,19 +519,10 @@ function BookingRequestDialog({
     setBusy(false);
     const result = data as { ok?: boolean; error?: string } | null;
     if (error || !result?.ok) {
-      toast.error(
-        result?.error === "PROVIDER_UNAVAILABLE"
-          ? fr
-            ? "Ce pro n'accepte pas de réservations pour le moment."
-            : "This pro is not accepting bookings right now."
-          : result?.error === "INVALID_DATE"
-            ? fr
-              ? "Choisissez une date future."
-              : "Pick a future date."
-            : fr
-              ? "Impossible d'envoyer la demande."
-              : "Could not send the request.",
-      );
+      sending.current = false;
+      const code = error ? "REQUEST_FAILED" : (result?.error ?? "REQUEST_FAILED");
+      if (error) console.error("request_booking failed", error);
+      toast.error(bookingRequestError(code, fr));
       return;
     }
     toast.success(
@@ -525,11 +532,12 @@ function BookingRequestDialog({
   }
 
   return (
-    <Dialog open onOpenChange={(v) => !v && onClose()}>
+    <Dialog open onOpenChange={(v) => !v && !busy && onClose()}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{step === "form" ? (fr ? "Demander une réservation" : "Request a booking") : fr ? "Confirmer" : "Confirm"}</DialogTitle>
         </DialogHeader>
+
 
         {step === "form" ? (
           <form
