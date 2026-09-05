@@ -438,7 +438,7 @@ function BookingRequestDialog({
   onClose,
   onDone,
 }: {
-  provider: { id: string; name: string; city: string | null };
+  provider: { id: string; name: string; city: string | null; country: string | null };
   service: ServiceRow;
   services: ServiceRow[];
   onClose: () => void;
@@ -446,10 +446,14 @@ function BookingRequestDialog({
 }) {
   const { lang } = useI18n();
   const fr = lang === "fr";
+  const zone = providerTimeZone(provider.country);
+  const showZone = isDifferentZone(zone);
   const [serviceId, setServiceId] = useState(service.id);
+  /** The chosen instant, as an ISO string. Never a device-local wall clock. */
   const [when, setWhen] = useState("");
   const [day, setDay] = useState("");
   const [slots, setSlots] = useState<string[] | null>(null);
+  const [slotError, setSlotError] = useState(false);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
@@ -457,6 +461,8 @@ function BookingRequestDialog({
   const [customPrice, setCustomPrice] = useState("");
   const [step, setStep] = useState<"form" | "confirm">("form");
   const [busy, setBusy] = useState(false);
+  /** Guards against a double tap firing two `request_booking` calls. */
+  const sending = useRef(false);
 
   const isCustom = serviceId === CUSTOM_ID;
   const selected = services.find((s) => s.id === serviceId) ?? service;
