@@ -410,13 +410,19 @@ function ProviderPage() {
 
       {booking ? (
         <BookingRequestDialog
-          provider={{ id: provider.id, name: provider.business_name, city: provider.city }}
+          provider={{
+            id: provider.id,
+            name: provider.business_name,
+            city: provider.city,
+            country: (provider as { country?: string | null }).country ?? null,
+          }}
           service={booking}
           services={activeServices}
           onClose={() => setBooking(null)}
           onDone={() => {
             setBooking(null);
             void queryClient.invalidateQueries({ queryKey: ["bookings"] });
+            void queryClient.invalidateQueries({ queryKey: ["notifications"] });
             void navigate({ to: "/bookings" });
           }}
         />
