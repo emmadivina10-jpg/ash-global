@@ -474,10 +474,12 @@ function BookingRequestDialog({
   useEffect(() => {
     if (!day) {
       setSlots(null);
+      setSlotError(false);
       return;
     }
     let cancelled = false;
     setLoadingSlots(true);
+    setSlotError(false);
     void supabase
       .rpc("provider_slots", {
         _provider_id: provider.id,
@@ -488,7 +490,7 @@ function BookingRequestDialog({
         if (cancelled) return;
         if (error) {
           console.error("provider_slots failed", error);
-          toast.error(error.message);
+          setSlotError(true);
           setSlots([]);
           setLoadingSlots(false);
           return;
@@ -502,6 +504,8 @@ function BookingRequestDialog({
   }, [day, provider.id, selected.duration_minutes]);
 
   async function submit() {
+    if (sending.current) return; // double-tap guard: one request, one booking
+    sending.current = true;
     setBusy(true);
     const { data, error } = await supabase.rpc("request_booking", {
       _provider_id: provider.id,
@@ -515,19 +519,10 @@ function BookingRequestDialog({
     setBusy(false);
     const result = data as { ok?: boolean; error?: string } | null;
     if (error || !result?.ok) {
-      toast.error(
-        result?.error === "PROVIDER_UNAVAILABLE"
-          ? fr
-            ? "Ce pro n'accepte pas de réservations pour le moment."
-            : "This pro is not accepting bookings right now."
-          : result?.error === "INVALID_DATE"
-            ? fr
-              ? "Choisissez une date future."
-              : "Pick a future date."
-            : fr
-              ? "Impossible d'envoyer la demande."
-              : "Could not send the request.",
-      );
+      sending.current = false;
+      const code = error ? "REQUEST_FAILED" : (result?.error ?? "REQUEST_FAILED");
+      if (error) console.error("request_booking failed", error);
+      toast.error(bookingRequestError(code, fr));
       return;
     }
     toast.success(
@@ -537,11 +532,12 @@ function BookingRequestDialog({
   }
 
   return (
-    <Dialog open onOpenChange={(v) => !v && onClose()}>
+    <Dialog open onOpenChange={(v) => !v && !busy && onClose()}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{step === "form" ? (fr ? "Demander une réservation" : "Request a booking") : fr ? "Confirmer" : "Confirm"}</DialogTitle>
         </DialogHeader>
+
 
         {step === "form" ? (
           <form
