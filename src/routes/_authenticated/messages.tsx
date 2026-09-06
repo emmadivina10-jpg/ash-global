@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, MessageCircle } from "lucide-react";
+import { ArrowLeft, MessageCircle, Search } from "lucide-react";
 import { useConversations } from "@/lib/marketplace.queries";
 import { useUser } from "@/lib/queries";
 import { ChatThread } from "@/components/refer/ChatThread";
+import { Avatar } from "@/components/refer/AvatarUpload";
 import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { useI18n } from "@/lib/i18n";
 import { formatDateTime, formatXAF } from "@/lib/format";
@@ -27,12 +29,26 @@ export const Route = createFileRoute("/_authenticated/messages")({
   component: MessagesPage,
 });
 
+/** Short WhatsApp-style stamp: time today, "Yesterday", else a short date. */
+function stamp(iso: string | null | undefined, fr: boolean) {
+  if (!iso) return "";
+  const date = new Date(iso);
+  const now = new Date();
+  const yesterday = new Date(now.getTime() - 86400000);
+  if (date.toDateString() === now.toDateString())
+    return date.toLocaleTimeString(fr ? "fr-FR" : "en-GB", { hour: "2-digit", minute: "2-digit" });
+  if (date.toDateString() === yesterday.toDateString()) return fr ? "Hier" : "Yesterday";
+  return date.toLocaleDateString(fr ? "fr-FR" : "en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" });
+}
+
 function MessagesPage() {
   const { t, lang } = useI18n();
+  const fr = lang === "fr";
   const { user } = useUser();
   const { c } = Route.useSearch();
   const navigate = Route.useNavigate();
   const { data: conversations, isLoading } = useConversations();
+  const [term, setTerm] = useState("");
 
   const list = conversations ?? [];
   // Desktop falls back to the first conversation; mobile requires an explicit pick.
@@ -52,6 +68,16 @@ function MessagesPage() {
       : (conv.provider?.business_name ?? t("chat.title"));
   }
 
+  /** Picture of the other side, when we have one. */
+  function peerAvatarOf(conv: (typeof list)[number]): string | null {
+    if (conv.listing_id) {
+      const viewerIsOwner = Boolean(user?.id) && conv.owner_id === user?.id;
+      return viewerIsOwner ? (conv.client?.avatar_url ?? null) : null;
+    }
+    const viewerIsProvider = Boolean(user?.id) && conv.provider?.user_id === user?.id;
+    return viewerIsProvider ? (conv.client?.avatar_url ?? null) : (conv.provider?.avatar_url ?? null);
+  }
+
   /** The other person's auth id — used for reporting and blocking. */
   function peerUserIdOf(conv: (typeof list)[number]): string | null {
     if (conv.listing_id) {
@@ -62,8 +88,27 @@ function MessagesPage() {
     return (viewerIsProvider ? conv.client_id : conv.provider?.user_id) ?? null;
   }
 
+  /** One-line preview of the newest message, like the WhatsApp chat list. */
+  function previewOf(conv: (typeof list)[number]): string {
+    const last = conv.last_message;
+    if (!last) {
+      if (conv.booking) return conv.booking.service_title;
+      if (conv.listing) return `ASH Property · ${conv.listing.city}`;
+      return t("chat.pick");
+    }
+    const mine = last.sender_id === user?.id;
+    const text = last.kind === "INVOICE" ? (fr ? "Facture" : "Invoice") : last.body;
+    return `${mine ? (fr ? "Vous : " : "You: ") : ""}${text}`.replace(/\s+/g, " ").trim();
+  }
+
+  const filtered = term.trim()
+    ? list.filter((conv) =>
+        `${peerOf(conv)} ${previewOf(conv)}`.toLowerCase().includes(term.trim().toLowerCase()),
+      )
+    : list;
+
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-5">
+    <div className="mx-auto w-full max-w-5xl space-y-4">
       <header className={cn(mobileView === "thread" && "hidden", "md:block")}>
         <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">{t("chat.title")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{t("chat.pick")}</p>
@@ -78,63 +123,88 @@ function MessagesPage() {
           icon={<MessageCircle className="size-5" aria-hidden />}
         />
       ) : (
-        <div className="grid gap-4 md:grid-cols-[280px_minmax(0,1fr)]">
-          <nav
+        <div className="grid gap-4 md:grid-cols-[320px_minmax(0,1fr)]">
+          <div
             className={cn(
-              "tile space-y-1 overflow-y-auto p-2 md:max-h-[70vh]",
-              mobileView === "thread" ? "hidden md:block" : "max-h-[calc(100dvh-12rem)]",
+              "tile flex flex-col overflow-hidden p-0",
+              mobileView === "thread" ? "hidden md:flex" : "max-h-[calc(100dvh-11rem)]",
+              "md:max-h-[72vh]",
             )}
           >
-            {list.map((conv) => {
-              const label = peerOf(conv);
-              return (
-                <button
-                  key={conv.id}
-                  type="button"
-                  onClick={() => void navigate({ search: { c: conv.id } })}
-                  className={cn(
-                    "w-full rounded-xl px-3 py-2.5 text-left transition-colors",
-                    conv.id === activeId ? "bg-primary/10" : "hover:bg-muted",
-                  )}
-                >
-                  <span className="flex items-center gap-2">
-                    <span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary/15 text-[11px] font-bold text-primary">
-                      {label.slice(0, 2).toUpperCase()}
-                    </span>
+            <div className="border-b border-border p-2.5">
+              <div className="flex items-center gap-2 rounded-full bg-muted px-3 py-2">
+                <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+                <input
+                  value={term}
+                  onChange={(event) => setTerm(event.target.value)}
+                  placeholder={fr ? "Rechercher une discussion" : "Search chats"}
+                  aria-label={fr ? "Rechercher une discussion" : "Search chats"}
+                  className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                />
+              </div>
+            </div>
+
+            <nav className="min-h-0 flex-1 divide-y divide-border overflow-y-auto">
+              {filtered.length === 0 ? (
+                <p className="p-6 text-center text-sm text-muted-foreground">
+                  {fr ? "Aucune discussion trouvée." : "No chats found."}
+                </p>
+              ) : null}
+              {filtered.map((conv) => {
+                const label = peerOf(conv);
+                const unread = conv.unread_count ?? 0;
+                return (
+                  <button
+                    key={conv.id}
+                    type="button"
+                    onClick={() => void navigate({ search: { c: conv.id } })}
+                    className={cn(
+                      "flex w-full items-center gap-3 px-3 py-3 text-left transition-colors",
+                      conv.id === activeId ? "bg-primary/10" : "hover:bg-muted/70 active:bg-muted",
+                    )}
+                  >
+                    <Avatar path={peerAvatarOf(conv)} name={label} className="size-12" />
                     <span className="min-w-0 flex-1">
-                      <span
-                        className={cn(
-                          "block truncate text-sm font-semibold",
-                          conv.id === activeId ? "text-primary" : "text-foreground",
-                        )}
-                      >
-                        {label}
+                      <span className="flex items-baseline justify-between gap-2">
+                        <span className="truncate text-[15px] font-semibold text-foreground">{label}</span>
+                        <span
+                          className={cn(
+                            "shrink-0 text-[11px]",
+                            unread > 0 ? "font-semibold text-primary" : "text-muted-foreground",
+                          )}
+                        >
+                          {stamp(conv.last_message?.created_at ?? conv.last_message_at, fr)}
+                        </span>
                       </span>
-                      {conv.booking ? (
-                        <span className="block truncate text-[11px] text-muted-foreground">
-                          {conv.booking.service_title} · {formatXAF(Number(conv.booking.price))}
+                      <span className="mt-0.5 flex items-center justify-between gap-2">
+                        <span
+                          className={cn(
+                            "truncate text-[13px]",
+                            unread > 0 ? "font-medium text-foreground" : "text-muted-foreground",
+                          )}
+                        >
+                          {previewOf(conv)}
                         </span>
-                      ) : conv.listing ? (
-                        <span className="block truncate text-[11px] text-muted-foreground">
-                          ASH Property · {conv.listing.city}
-                        </span>
-                      ) : (
-                        <span className="block truncate text-[11px] text-muted-foreground">{t("chat.pick")}</span>
-                      )}
+                        {unread > 0 ? (
+                          <span className="grid min-w-5 shrink-0 place-items-center rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground">
+                            {unread > 99 ? "99+" : unread}
+                          </span>
+                        ) : null}
+                      </span>
                     </span>
-                  </span>
-                </button>
-              );
-            })}
-          </nav>
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
 
           <div
             className={cn(
-              "tile flex flex-col p-3",
-              mobileView === "list" ? "hidden md:flex" : "h-[calc(100dvh-10rem)] md:h-[64vh]",
+              "tile chat-surface flex flex-col overflow-hidden p-0",
+              mobileView === "list" ? "hidden md:flex" : "h-[calc(100dvh-9rem)] md:h-[72vh]",
             )}
           >
-            <div className="mb-2 flex items-start justify-between gap-3 border-b border-border pb-2">
+            <div className="flex items-center gap-2.5 border-b border-border bg-card/95 px-2.5 py-2 backdrop-blur">
               <button
                 type="button"
                 onClick={() => void navigate({ search: {} })}
@@ -143,14 +213,19 @@ function MessagesPage() {
               >
                 <ArrowLeft className="size-5" aria-hidden />
               </button>
+              {active ? <Avatar path={peerAvatarOf(active)} name={peerOf(active)} className="size-10" /> : null}
               <div className="min-w-0 flex-1">
-                <p className="truncate font-display font-semibold text-foreground">
+                <p className="truncate font-display text-[15px] font-semibold text-foreground">
                   {active ? peerOf(active) : t("chat.title")}
                 </p>
                 {active?.booking ? (
-                  <p className="truncate text-xs text-muted-foreground">
+                  <p className="truncate text-[11px] text-muted-foreground">
                     {active.booking.service_title} · {formatDateTime(active.booking.scheduled_at)}
                     {active.booking.invoice_number ? ` · ${active.booking.invoice_number}` : ""}
+                  </p>
+                ) : active?.listing ? (
+                  <p className="truncate text-[11px] text-muted-foreground">
+                    ASH Property · {active.listing.city}
                   </p>
                 ) : null}
               </div>
@@ -171,18 +246,21 @@ function MessagesPage() {
                 currentUserId={user?.id}
                 peerName={active ? peerOf(active) : "ASH"}
                 peerUserId={active ? peerUserIdOf(active) : null}
-                className="flex-1"
+                className="min-h-0 flex-1 px-2 pb-2"
                 quickReplies={
                   lang === "fr"
                     ? ["Bonjour 👋", "Quelle est votre disponibilité ?", "Je confirme le rendez-vous", "Je suis en route"]
                     : ["Hello 👋", "What is your availability?", "I confirm the appointment", "I'm on my way"]
                 }
               />
-            ) : null}
+            ) : (
+              <div className="grid flex-1 place-items-center p-6 text-center text-sm text-muted-foreground">
+                {t("chat.pick")}
+              </div>
+            )}
           </div>
         </div>
       )}
-
     </div>
   );
 }
