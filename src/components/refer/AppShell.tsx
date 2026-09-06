@@ -31,6 +31,17 @@ import { AshOrb } from "./AshOrb";
 import { StatusBadge } from "./StatusBadge";
 import { NotificationBell } from "./NotificationBell";
 import { PushBridge } from "./PushBridge";
+import { WelcomeIntro, welcomeSeen } from "./WelcomeIntro";
+import { OnboardingTips } from "./OnboardingTips";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import { Logo } from "./Logo";
 import { LanguageSwitcher, ThemeToggle } from "./Preferences";
@@ -39,14 +50,21 @@ import { useRegion } from "@/lib/region-context";
 import { RegionSwitcher } from "./RegionSwitcher";
 import { cn } from "@/lib/utils";
 
-type NavItem = { to: string; key: TKey; label?: string; icon: typeof Store; referralOnly?: boolean };
+type NavItem = {
+  to: string;
+  key: TKey;
+  label?: string;
+  icon: typeof Store;
+  referralOnly?: boolean;
+  tour?: string;
+};
 
 const NAV: NavItem[] = [
-  { to: "/services", key: "nav.services" as TKey, icon: Store },
-  { to: "/search", key: "nav.search" as TKey, label: "Search", icon: Search },
-  { to: "/create", key: "nav.create" as TKey, label: "Create", icon: PlusCircle },
-  { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle },
-  { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet },
+  { to: "/services", key: "nav.services" as TKey, icon: Store, tour: "market" },
+  { to: "/search", key: "nav.search" as TKey, label: "Search", icon: Search, tour: "search" },
+  { to: "/create", key: "nav.create" as TKey, label: "Create", icon: PlusCircle, tour: "create" },
+  { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle, tour: "messages" },
+  { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet, tour: "wallet" },
 ];
 
 const SIDE_EXTRA: NavItem[] = [
@@ -76,6 +94,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const visible = (items: NavItem[]) =>
     items.filter((item) => !item.referralOnly || region.referralEnabled);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [introDone, setIntroDone] = useState(() => (typeof window === "undefined" ? false : welcomeSeen()));
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   async function signOut() {
@@ -131,7 +150,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </div>
           <div className="mt-3 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-card)]">
-            <p className="truncate text-sm font-semibold text-foreground">{profile?.full_name || t("shell.member")}</p>
+            <div className="flex items-center gap-2">
+              <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
+              <p className="min-w-0 truncate text-sm font-semibold text-foreground">
+                {profile?.full_name || t("shell.member")}
+              </p>
+            </div>
             <StatusBadge
               status={profile?.account_status ?? "PENDING"}
               label={profile?.account_status === "ACTIVE" ? t("shell.active") : t("shell.pending")}
@@ -146,7 +170,42 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl lg:hidden">
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3">
+            <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4 py-3">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    data-tour="profile"
+                    aria-label={t("nav.profile")}
+                    className="rounded-full ring-offset-background transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:opacity-80"
+                  >
+                    <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-60">
+                  <DropdownMenuLabel className="space-y-1">
+                    <p className="truncate text-sm font-semibold">{profile?.full_name || t("shell.member")}</p>
+                    <StatusBadge
+                      status={profile?.account_status ?? "PENDING"}
+                      label={profile?.account_status === "ACTIVE" ? t("shell.active") : t("shell.pending")}
+                    />
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={() => navigate({ to: "/profile" })}>
+                    <UserIcon className="size-4" aria-hidden />
+                    {t("nav.profile")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => navigate({ to: "/settings" })}>
+                    <SettingsIcon className="size-4" aria-hidden />
+                    {t("nav.settings")}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={() => void signOut()}>
+                    <LogOut className="size-4" aria-hidden />
+                    {t("shell.signOut")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Link to="/services" className="min-w-0">
                 <Logo compact />
               </Link>
@@ -154,9 +213,6 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <NotificationBell />
                 <LanguageSwitcher />
                 <ThemeToggle />
-              <Button variant="ghost" size="icon" aria-label={t("shell.signOut")} onClick={signOut}>
-                <LogOut className="size-4" aria-hidden />
-              </Button>
               </div>
             </div>
           </header>
@@ -177,6 +233,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <li key={item.to}>
               <Link
                 to={item.to}
+                data-tour={item.tour}
                 className={cn(
                   "relative flex min-h-14 flex-col items-center justify-center gap-1 py-2 text-[11px] font-semibold transition-all duration-300",
                   active ? "-translate-y-0.5 text-primary" : "text-muted-foreground",
@@ -200,6 +257,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link
                 to={centerItem.to}
                 aria-label={t(centerItem.key)}
+                data-tour="create"
                 className="brand-gradient absolute left-1/2 top-0 z-10 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-primary-foreground shadow-[var(--shadow-brand)] ring-4 ring-background transition-transform duration-300 active:scale-95"
               >
                 <centerItem.icon className="size-6" aria-hidden />
@@ -260,6 +318,26 @@ export function AppShell({ children }: { children: ReactNode }) {
       })()}
 
       <AshOrb />
+      <WelcomeIntro onDone={() => setIntroDone(true)} />
+      <OnboardingTips enabled={introDone} />
     </div>
+  );
+}
+
+/** Small round avatar with the member's initials as the fallback. */
+function ProfileAvatar({ name, url }: { name: string | null | undefined; url: string | null | undefined }) {
+  const initials = (name ?? "")
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+  return (
+    <Avatar className="size-9 border border-border">
+      {url ? <AvatarImage src={url} alt="" /> : null}
+      <AvatarFallback className="bg-primary/10 text-xs font-bold text-primary">
+        {initials || "A"}
+      </AvatarFallback>
+    </Avatar>
   );
 }

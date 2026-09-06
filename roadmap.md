@@ -15,10 +15,12 @@ Done
 - [x] Bottom bar white-space fix (double safe-area padding on native)
 - [x] Notifications open the booking / chat / payout they refer to
 - [x] Floating "A" button is draggable and remembers its position
+- [x] First-launch welcome + guided tour + header profile menu
 
 Next
 - [ ] Marketplace = marketplace + social feed (posts, photos, likes, comments) in the Market tab
-- [ ] First-launch welcome animation + onboarding tooltips
+- [x] First-launch welcome animation ("Welcome to ASH", ~2.4s, reduced-motion aware) + onboarding coach marks (Next/Skip), shown once per device
+- [x] Profile avatar + menu in the header (profile, settings, sign out)
 - [ ] Smart auth: browse publicly, sign in only for protected actions, return to the exact action
 - [ ] Profile avatar + menu in header
 - [ ] Deal-claim confirmation screen (provider, directions, redemption, contact)
