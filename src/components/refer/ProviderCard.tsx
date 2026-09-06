@@ -46,7 +46,7 @@ export function ProviderCard({
   const prices = services.map((s) => Number(s.price)).filter((n) => Number.isFinite(n));
   const min = prices.length > 0 ? Math.min(...prices) : (fromPrice ?? null);
   const max = prices.length > 0 ? Math.max(...prices) : null;
-  const topServices = [...services].sort((a, b) => Number(a.price) - Number(b.price)).slice(0, 3);
+  const topServices = [...services].sort((a, b) => Number(a.price) - Number(b.price)).slice(0, 2);
 
   return (
     <Link
@@ -119,8 +119,8 @@ export function ProviderCard({
         </div>
 
         {!acceptingBookings ? (
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2.5 pt-8">
-            <span className="text-[10px] font-semibold text-white">{t("svc.unavailable")}</span>
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-primary-deep/80 to-transparent p-2.5 pt-8">
+            <span className="text-[11px] font-semibold text-on-dark">{t("svc.unavailable")}</span>
           </div>
         ) : null}
       </div>
@@ -132,7 +132,7 @@ export function ProviderCard({
             <h3 className="line-clamp-1 font-display text-base font-semibold text-foreground sm:text-lg">
               {provider.business_name}
             </h3>
-            <p className="line-clamp-1 text-xs text-muted-foreground">
+            <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
               {provider.bio ?? t("svc.byProvider", { name: provider.business_name })}
             </p>
           </div>
@@ -144,7 +144,7 @@ export function ProviderCard({
           ) : null}
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-muted-foreground">
           <span className="flex items-center gap-1">
             <RatingStars value={rating} size={12} />
             {rating > 0 ? <span className="font-semibold text-foreground">{rating.toFixed(1)}</span> : null}
@@ -175,17 +175,17 @@ export function ProviderCard({
           </div>
         ) : null}
 
-        {/* Catalogue preview — a vendor sells many things at many prices. */}
+        {/* A light catalogue preview keeps comparison quick without nesting a card. */}
         {topServices.length > 0 ? (
-          <ul className="mt-0.5 divide-y divide-border rounded-xl border border-border">
+          <ul className="mt-0.5 divide-y divide-border border-y border-border">
             {topServices.map((s) => (
-              <li key={s.id} className="flex items-center justify-between gap-3 px-2.5 py-1.5">
-                <span className="truncate text-xs font-medium text-foreground">{s.title}</span>
-                <span className="tabular shrink-0 text-xs font-bold text-foreground">{formatXAF(Number(s.price))}</span>
+              <li key={s.id} className="flex items-center justify-between gap-3 py-2">
+                <span className="truncate text-[13px] font-medium text-foreground">{s.title}</span>
+                <span className="tabular shrink-0 text-[13px] font-bold text-foreground">{formatXAF(Number(s.price))}</span>
               </li>
             ))}
             {services.length > topServices.length ? (
-              <li className="px-2.5 py-1.5 text-[11px] font-semibold text-primary">
+              <li className="py-2 text-xs font-semibold text-primary">
                 +{services.length - topServices.length} {fr ? "autres prestations" : "more services"}
               </li>
             ) : null}
