@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Building2, CalendarDays, Sparkles, Store, Wallet } from "lucide-react";
+import { Building2, Sparkles, Store, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 
@@ -137,5 +137,3 @@ export function MobileOnboarding() {
     </div>
   );
 }
-
-export { CalendarDays };
