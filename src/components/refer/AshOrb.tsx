@@ -104,7 +104,10 @@ export function AshOrb() {
         />
       ) : null}
 
-      <div className="fixed bottom-24 right-4 z-50 lg:bottom-8 lg:right-8">
+      <div
+        style={{ transform: `translate3d(${offset.x}px, ${offset.y}px, 0)` }}
+        className="fixed bottom-24 right-4 z-50 touch-none lg:bottom-8 lg:right-8"
+      >
         {/* Quarter-circle arc: items fan up and to the left, thumb-reachable.
             The radial offset lives on the wrapper because the entrance
             animation owns `transform` on the button itself. */}
@@ -146,7 +149,10 @@ export function AshOrb() {
           type="button"
           aria-expanded={open}
           aria-label={open ? (fr ? "Fermer ASH" : "Close ASH") : (fr ? "Ouvrir ASH" : "Open ASH")}
-          onClick={() => setOpen((value) => !value)}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={() => (drag.current = null)}
           className={cn(
             "orb-surface relative grid size-16 place-items-center rounded-full transition-transform duration-300",
             open ? "rotate-45 scale-95" : "ash-ring hover:scale-105",
