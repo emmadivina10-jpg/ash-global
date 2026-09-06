@@ -34,6 +34,7 @@ import { PushBridge } from "./PushBridge";
 import { WelcomeIntro, welcomeSeen } from "./WelcomeIntro";
 import { OnboardingTips } from "./OnboardingTips";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAvatarUrl } from "./AvatarUpload";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -339,9 +340,10 @@ function ProfileAvatar({ name, url }: { name: string | null | undefined; url: st
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase() ?? "")
     .join("");
+  const resolved = useAvatarUrl(url);
   return (
     <Avatar className="size-9 border border-border">
-      {url ? <AvatarImage src={url} alt="" /> : null}
+      {resolved ? <AvatarImage src={resolved} alt="" /> : null}
       <AvatarFallback className="bg-primary/10 text-xs font-bold text-primary">
         {initials || "A"}
       </AvatarFallback>
