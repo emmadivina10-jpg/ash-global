@@ -325,7 +325,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 }
 
 /** Small round avatar with the member's initials as the fallback. */
-function ProfileAvatar({ name, url }: { name?: string | null; url?: string | null }) {
+function ProfileAvatar({ name, url }: { name: string | null | undefined; url: string | null | undefined }) {
   const initials = (name ?? "")
     .split(" ")
     .filter(Boolean)
