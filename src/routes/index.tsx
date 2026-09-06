@@ -130,7 +130,24 @@ const STEPS = [
 function Landing() {
   const { t } = useI18n();
   const region = useRegion();
+  const navigate = useNavigate();
   const fee = formatXAF(ACTIVATION_FEE);
+
+  // The installed app skips the marketing page: members go straight in, new
+  // visitors land on sign-in. The website keeps the full landing page.
+  useEffect(() => {
+    if (!isNativeApp()) return;
+    let cancelled = false;
+    void supabase.auth.getSession().then(({ data }) => {
+      if (cancelled) return;
+      void navigate({ to: data.session?.user ? "/services" : "/login", replace: true });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate]);
+
+  if (isNativeApp()) return <div className="min-h-dvh bg-background" />;
 
   return (
     <div className="safe-top min-h-dvh bg-background">
