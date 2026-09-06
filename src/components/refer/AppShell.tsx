@@ -46,6 +46,7 @@ const NAV: NavItem[] = [
   { to: "/search", key: "nav.search" as TKey, label: "Search", icon: Search },
   { to: "/create", key: "nav.create" as TKey, label: "Create", icon: PlusCircle },
   { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle },
+  { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet },
 ];
 
 const SIDE_EXTRA: NavItem[] = [
@@ -57,7 +58,6 @@ const SIDE_EXTRA: NavItem[] = [
   { to: "/network", key: "nav.network" as TKey, icon: Users, referralOnly: true },
   { to: "/analytics", key: "nav.analytics" as TKey, label: "Analytics", icon: BarChart3 },
   { to: "/profile", key: "nav.profile" as TKey, icon: UserIcon },
-  { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet },
   { to: "/bookings", key: "nav.bookings" as TKey, icon: CalendarDays },
   { to: "/studio", key: "nav.pro" as TKey, icon: Sparkles },
   { to: "/transactions", key: "nav.transactions" as TKey, icon: Receipt },
