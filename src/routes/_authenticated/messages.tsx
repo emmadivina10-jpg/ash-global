@@ -228,10 +228,11 @@ function MessagesPage() {
               "tile chat-surface flex flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-0",
               mobileView === "list"
                 ? "hidden md:flex"
-                : "max-md:fixed max-md:inset-0 max-md:z-50 max-md:h-[100dvh] max-md:w-screen md:h-[72vh]",
+                : "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:z-[70] max-md:h-[var(--ash-vh,100dvh)] max-md:w-screen md:h-[72vh]",
             )}
           >
             <div className="flex items-center gap-2.5 border-b border-border bg-card/95 px-2.5 py-2 backdrop-blur max-md:pt-[calc(0.5rem+env(safe-area-inset-top))]">
+
               <button
                 type="button"
                 onClick={() => void navigate({ search: {} })}
