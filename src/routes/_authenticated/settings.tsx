@@ -50,8 +50,8 @@ export const Route = createFileRoute("/_authenticated/settings")({
 /** Quick links into the ASH ecosystem pillars. */
 const PILLARS = [
   { to: "/network", icon: Users, en: "Refer", fr: "Parrainage" },
-  { to: "/services", icon: Briefcase, en: "Services", fr: "Services" },
-  { to: "/market", icon: Store, en: "Marketplace", fr: "Marketplace" },
+  { to: "/services", icon: Store, en: "Services", fr: "Services" },
+  { to: "/freelance", icon: Briefcase, en: "Freelance", fr: "Freelance" },
   { to: "/property", icon: Home, en: "Property", fr: "Immobilier" },
   { to: "/events", icon: Calendar, en: "Events", fr: "Événements" },
   { to: "/deals", icon: Tag, en: "Deals", fr: "Promos" },
