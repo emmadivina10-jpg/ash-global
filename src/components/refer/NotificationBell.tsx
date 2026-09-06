@@ -58,7 +58,12 @@ export function NotificationBell() {
               <button
                 key={n.id}
                 type="button"
-                onClick={() => !n.read_at && markRead.mutate([n.id])}
+                onClick={() => {
+                  if (!n.read_at) markRead.mutate([n.id]);
+                  // Take the member straight to the booking, chat, payout or
+                  // review the notification is about.
+                  void navigate({ to: notificationLink(n.category, n.data ?? {}) });
+                }}
                 className={cn(
                   "block w-full border-b border-border/60 px-4 py-3 text-left transition-colors hover:bg-muted/60",
                   !n.read_at && "bg-primary/5",
