@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { MapPin, Search, SlidersHorizontal, Sparkle, Users } from "lucide-react";
-import { CategoryHero } from "@/components/refer/CategoryHero";
+
 import { ProviderCard } from "@/components/refer/ProviderCard";
 import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { Input } from "@/components/ui/input";
