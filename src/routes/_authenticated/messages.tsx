@@ -123,10 +123,10 @@ function MessagesPage() {
           icon={<MessageCircle className="size-5" aria-hidden />}
         />
       ) : (
-        <div className="grid gap-4 md:grid-cols-[320px_minmax(0,1fr)]">
+        <div className="grid gap-4 max-md:-mx-4 md:grid-cols-[320px_minmax(0,1fr)]">
           <div
             className={cn(
-              "tile flex flex-col overflow-hidden p-0",
+              "tile flex flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-x-0",
               mobileView === "thread" ? "hidden md:flex" : "max-h-[calc(100dvh-11rem)]",
               "md:max-h-[72vh]",
             )}
@@ -200,8 +200,8 @@ function MessagesPage() {
 
           <div
             className={cn(
-              "tile chat-surface flex flex-col overflow-hidden p-0",
-              mobileView === "list" ? "hidden md:flex" : "h-[calc(100dvh-9rem)] md:h-[72vh]",
+              "tile chat-surface flex flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-x-0",
+              mobileView === "list" ? "hidden md:flex" : "h-[calc(100dvh-8.5rem)] md:h-[72vh]",
             )}
           >
             <div className="flex items-center gap-2.5 border-b border-border bg-card/95 px-2.5 py-2 backdrop-blur">
