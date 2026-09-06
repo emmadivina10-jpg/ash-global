@@ -427,7 +427,7 @@ const EN = {
   "auth.reset.confirm": "Confirm password",
   "auth.reset.submit": "Update password",
   "auth.reset.updated": "Password updated",
-  "settings.version": "ASH Glo version 1.0",
+  "settings.version": "ASH — Where Opportunities Connect · v1.0",
 } as const;
 
 export type TKey = keyof typeof EN;
@@ -847,7 +847,7 @@ const FR: Record<TKey, string> = {
   "auth.reset.confirm": "Confirmer le mot de passe",
   "auth.reset.submit": "Mettre \u00e0 jour",
   "auth.reset.updated": "Mot de passe mis \u00e0 jour",
-  "settings.version": "ASH Glo version 1.0",
+  "settings.version": "ASH — Where Opportunities Connect · v1.0",
 };
 
 const DICT: Record<Lang, Record<TKey, string>> = { en: EN, fr: FR };
