@@ -18,6 +18,9 @@ Done
 - [x] First-launch welcome + guided tour + header profile menu
 
 Next
+- [x] Marketplace polish: phone-system typography, compact unframed header, and removed the Pro card
+- [x] Native launch polish: rounded ASH mark followed by an animated app-launch welcome
+- [x] Native scroll/safe-area correction: one bounded scroll surface with no duplicated top or bottom inset
 - [ ] Marketplace = marketplace + social feed (posts, photos, likes, comments) in the Market tab
 - [x] First-launch welcome animation ("Welcome to ASH", ~2.4s, reduced-motion aware) + onboarding coach marks (Next/Skip), shown once per device
 - [x] Profile avatar + menu in the header (profile, settings, sign out)
