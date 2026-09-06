@@ -584,7 +584,12 @@ html.native,
 html.native body {
   width: 100%;
   height: 100%;
-  overflow: hidden;
+}
+
+/* Public pages keep the document as their natural scroll surface. Authenticated
+   pages use the fixed shell below, so only its main pane scrolls. */
+html.native body {
+  overflow-x: hidden;
 }
 
 html.native .app-shell {
