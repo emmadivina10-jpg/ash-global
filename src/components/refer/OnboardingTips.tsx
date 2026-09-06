@@ -74,7 +74,10 @@ export function OnboardingTips({ enabled }: { enabled: boolean }) {
   const step = STEPS[index]!;
   const below = box.top < 200;
   const top = below ? box.top + box.height + 12 : box.top - 12;
-  const left = Math.min(Math.max(box.left + box.width / 2, 130), window.innerWidth - 130);
+  // Keep the bubble fully on screen, with a 16px gutter on both sides.
+  const width = Math.min(260, window.innerWidth - 32);
+  const half = width / 2;
+  const left = Math.min(Math.max(box.left + box.width / 2, half + 16), window.innerWidth - half - 16);
 
   return (
     <div className="fixed inset-0 z-[90]" role="dialog" aria-label="ASH tour">
