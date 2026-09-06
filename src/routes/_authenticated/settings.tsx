@@ -1,7 +1,21 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Info, Loader2, LifeBuoy, ScrollText, ShieldCheck, Trash2 } from "lucide-react";
+import {
+  ArrowUpRight,
+  Briefcase,
+  Calendar,
+  Home,
+  Info,
+  LifeBuoy,
+  Loader2,
+  ScrollText,
+  ShieldCheck,
+  Store,
+  Tag,
+  Trash2,
+  Users,
+} from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { SectionCard } from "@/components/refer/cards";
@@ -15,19 +29,33 @@ import { useI18n, type TKey } from "@/lib/i18n";
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
     meta: [
-      { title: "Settings — ASH Glo" },
+      { title: "Settings — ASH" },
       {
         name: "description",
-        content: "About ASH Glo, privacy policy, fair-use terms and account deletion requests.",
+        content:
+          "ASH — Where Opportunities Connect. About the ecosystem, privacy policy, fair-use terms and account controls.",
       },
-      { property: "og:title", content: "Settings — ASH Glo" },
-      { property: "og:description", content: "About ASH Glo, privacy policy and account controls." },
+      { property: "og:title", content: "Settings — ASH" },
+      {
+        property: "og:description",
+        content: "ASH — Where Opportunities Connect. About the platform, privacy and account controls.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
   component: SettingsPage,
 });
+
+/** Quick links into the ASH ecosystem pillars. */
+const PILLARS = [
+  { to: "/network", icon: Users, en: "Refer", fr: "Parrainage" },
+  { to: "/services", icon: Store, en: "Services", fr: "Services" },
+  { to: "/freelance", icon: Briefcase, en: "Freelance", fr: "Freelance" },
+  { to: "/property", icon: Home, en: "Property", fr: "Immobilier" },
+  { to: "/events", icon: Calendar, en: "Events", fr: "Événements" },
+  { to: "/deals", icon: Tag, en: "Deals", fr: "Promos" },
+] as const;
 
 function Paragraphs({ keys, vars }: { keys: TKey[]; vars?: Record<string, string> }) {
   const { t } = useI18n();
@@ -41,7 +69,8 @@ function Paragraphs({ keys, vars }: { keys: TKey[]; vars?: Record<string, string
 }
 
 function SettingsPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const fr = lang === "fr";
   const queryClient = useQueryClient();
   const [reason, setReason] = useState("");
   const [confirming, setConfirming] = useState(false);
@@ -89,6 +118,9 @@ function SettingsPage() {
     <div className="mx-auto w-full max-w-3xl space-y-5">
       <header>
         <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{t("settings.title")}</h1>
+        <p className="mt-1 text-sm font-semibold text-primary">
+          ASH — {fr ? "Là où les opportunités se connectent." : "Where Opportunities Connect."}
+        </p>
         <p className="mt-1 text-sm text-muted-foreground">{t("settings.subtitle")}</p>
       </header>
 
@@ -100,6 +132,19 @@ function SettingsPage() {
           keys={["settings.about.1", "settings.about.2", "settings.about.3", "settings.about.4", "settings.about.5"]}
           vars={{ fee: formatXAF(ACTIVATION_FEE) }}
         />
+        <div className="mt-4 flex flex-wrap gap-2">
+          {PILLARS.map(({ to, icon: Icon, en, fr: label }) => (
+            <Link
+              key={to}
+              to={to}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/40 px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+            >
+              <Icon className="size-3.5" aria-hidden />
+              {fr ? label : en}
+              <ArrowUpRight className="size-3 text-muted-foreground" aria-hidden />
+            </Link>
+          ))}
+        </div>
       </SectionCard>
 
       <SectionCard
