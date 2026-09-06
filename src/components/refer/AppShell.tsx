@@ -143,7 +143,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </div>
           <div className="mt-3 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-card)]">
-            <p className="truncate text-sm font-semibold text-foreground">{profile?.full_name || t("shell.member")}</p>
+            <div className="flex items-center gap-2">
+              <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
+              <p className="min-w-0 truncate text-sm font-semibold text-foreground">
+                {profile?.full_name || t("shell.member")}
+              </p>
+            </div>
             <StatusBadge
               status={profile?.account_status ?? "PENDING"}
               label={profile?.account_status === "ACTIVE" ? t("shell.active") : t("shell.pending")}
