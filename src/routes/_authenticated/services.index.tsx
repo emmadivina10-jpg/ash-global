@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { MapPin, Search, SlidersHorizontal, Sparkle, Users } from "lucide-react";
-import { CategoryHero } from "@/components/refer/CategoryHero";
+
 import { ProviderCard } from "@/components/refer/ProviderCard";
 import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { Input } from "@/components/ui/input";
@@ -167,8 +167,6 @@ function DiscoveryPage() {
         </div>
       </header>
 
-
-      <CategoryHero onSelect={(id) => selectGroup(id)} />
 
       {!asked && !location ? (
         <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-2xl border border-border bg-card p-4 sm:flex sm:justify-between">
