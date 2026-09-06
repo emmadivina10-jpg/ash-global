@@ -13,7 +13,7 @@ export function AuthLayout({
   children: ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="safe-top flex min-h-dvh flex-col bg-background">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-5 sm:px-8">
         <Link to="/" className="min-w-0">
           <Logo />

@@ -62,7 +62,7 @@ export const Route = createFileRoute("/s/$slug")({
 
 function StoreMissing() {
   return (
-    <main className="mx-auto grid min-h-screen max-w-md place-items-center p-6 text-center">
+    <main className="mx-auto grid min-h-dvh max-w-md place-items-center p-6 text-center">
       <div>
         <h1 className="font-display text-2xl font-bold text-foreground">Storefront not found</h1>
         <p className="mt-2 text-sm text-muted-foreground">This ASH storefront is offline or the link is wrong.</p>
@@ -121,7 +121,7 @@ function StorefrontPage() {
   const whatsapp = store.whatsapp?.replace(/[^\d]/g, "");
 
   return (
-    <main className="min-h-screen bg-background pb-16">
+    <main className="safe-top min-h-dvh bg-background pb-16">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
 
       <header className="sticky top-0 z-20 border-b border-border/60 bg-background/85 backdrop-blur">

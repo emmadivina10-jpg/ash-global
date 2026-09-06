@@ -164,7 +164,7 @@ function ConsoleLayout() {
   const current = NAV.find((item) => item.to === pathname)?.label ?? "Overview";
 
   return (
-    <div className="min-h-screen bg-background lg:grid lg:grid-cols-[260px_minmax(0,1fr)]">
+    <div className="safe-top min-h-dvh bg-background lg:grid lg:grid-cols-[260px_minmax(0,1fr)]">
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-screen flex-col border-r border-sidebar-border bg-sidebar p-4 lg:flex">
         <div className="flex items-center gap-2.5 px-2 pb-6">
@@ -330,7 +330,7 @@ function UnlockScreen() {
   }
 
   return (
-    <div className="grid min-h-screen place-items-center bg-background px-4">
+    <div className="grid min-h-dvh place-items-center bg-background px-4">
       <form
         onSubmit={submit}
         className="w-full max-w-sm space-y-5 rounded-3xl border border-border bg-card p-7 shadow-xl"
