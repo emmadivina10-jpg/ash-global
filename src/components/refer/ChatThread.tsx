@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { AlertCircle, Check, CheckCheck, Loader2, ReceiptText, Send } from "lucide-react";
+import { AlertCircle, Check, CheckCheck, Loader2, ReceiptText, Send, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMessages } from "@/lib/marketplace.queries";
@@ -61,7 +61,9 @@ export function ChatThread({
   const [sending, setSending] = useState(false);
   const [pending, setPending] = useState<string[]>([]);
   const [failed, setFailed] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
+  const pressRef = useRef<number | null>(null);
 
   const messages = (data ?? []) as unknown as ChatMessage[];
   const peerInitials = (peerName ?? "ASH").trim().slice(0, 2).toUpperCase();
@@ -111,6 +113,20 @@ export function ChatThread({
       return;
     }
     setBody("");
+    void queryClient.invalidateQueries({ queryKey: ["messages", conversationId] });
+    void queryClient.invalidateQueries({ queryKey: ["conversations"] });
+  }
+
+  /** Remove one of my own messages for everybody in the thread. */
+  async function remove(id: string) {
+    setConfirmDelete(null);
+    const { error } = await supabase.from("messages").delete().eq("id", id);
+    if (error) {
+      console.error("chat delete failed", error);
+      toast.error(error.message || (fr ? "Message non supprimé" : "Message not deleted"));
+      return;
+    }
+    toast.success(fr ? "Message supprimé" : "Message deleted");
     void queryClient.invalidateQueries({ queryKey: ["messages", conversationId] });
     void queryClient.invalidateQueries({ queryKey: ["conversations"] });
   }
@@ -177,8 +193,23 @@ export function ChatThread({
                       </span>
                     ) : null}
                     <div
+                      onContextMenu={(e) => {
+                        if (!mine) return;
+                        e.preventDefault();
+                        setConfirmDelete(m.id);
+                      }}
+                      onPointerDown={() => {
+                        if (!mine) return;
+                        pressRef.current = window.setTimeout(() => setConfirmDelete(m.id), 500);
+                      }}
+                      onPointerUp={() => {
+                        if (pressRef.current) window.clearTimeout(pressRef.current);
+                      }}
+                      onPointerLeave={() => {
+                        if (pressRef.current) window.clearTimeout(pressRef.current);
+                      }}
                       className={cn(
-                        "max-w-[78%] px-3.5 py-2 shadow-sm transition-colors",
+                        "group relative max-w-[78%] px-3.5 py-2 shadow-sm transition-colors",
                         mine
                           ? "rounded-2xl bg-primary text-primary-foreground"
                           : "rounded-2xl bg-muted text-foreground",
@@ -188,7 +219,35 @@ export function ChatThread({
                         !mine && endsRun && "rounded-bl-sm",
                       )}
                     >
+                      {mine ? (
+                        <button
+                          type="button"
+                          onClick={() => setConfirmDelete(m.id)}
+                          aria-label={fr ? "Supprimer le message" : "Delete message"}
+                          className="absolute -left-8 top-1/2 hidden size-7 -translate-y-1/2 place-items-center rounded-full bg-card text-muted-foreground shadow-sm group-hover:grid hover:text-destructive"
+                        >
+                          <Trash2 className="size-3.5" aria-hidden />
+                        </button>
+                      ) : null}
                       <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">{m.body}</p>
+                      {confirmDelete === m.id ? (
+                        <span className="mt-2 flex items-center justify-end gap-2 text-[11px] font-semibold">
+                          <button
+                            type="button"
+                            onClick={() => setConfirmDelete(null)}
+                            className={cn("rounded-full px-2 py-0.5", mine ? "bg-primary-foreground/20" : "bg-background")}
+                          >
+                            {fr ? "Annuler" : "Cancel"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => void remove(m.id)}
+                            className="rounded-full bg-destructive px-2 py-0.5 text-destructive-foreground"
+                          >
+                            {fr ? "Supprimer" : "Delete"}
+                          </button>
+                        </span>
+                      ) : null}
                       {endsRun ? (
                         <span
                           className={cn(

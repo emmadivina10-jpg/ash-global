@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import { ArrowLeft, MessageCircle, Search } from "lucide-react";
 import { useConversations } from "@/lib/marketplace.queries";
@@ -47,6 +47,7 @@ function MessagesPage() {
   const { user } = useUser();
   const { c } = Route.useSearch();
   const navigate = Route.useNavigate();
+  const routerNavigate = useNavigate();
   const { data: conversations, isLoading } = useConversations();
   const [term, setTerm] = useState("");
 
@@ -86,6 +87,25 @@ function MessagesPage() {
     }
     const viewerIsProvider = Boolean(user?.id) && conv.provider?.user_id === user?.id;
     return (viewerIsProvider ? conv.client_id : conv.provider?.user_id) ?? null;
+  }
+
+  /** Where the other side's public page lives, when they have one. */
+  function peerProfileOf(conv: (typeof list)[number] | undefined) {
+    if (!conv) return null;
+    if (conv.listing_id) {
+      const viewerIsOwner = Boolean(user?.id) && conv.owner_id === user?.id;
+      return viewerIsOwner || !conv.listing ? null : { to: "/property/$listingId", params: { listingId: conv.listing.id } };
+    }
+    const viewerIsProvider = Boolean(user?.id) && conv.provider?.user_id === user?.id;
+    if (viewerIsProvider || !conv.provider) return null;
+    return { to: "/services/$providerId", params: { providerId: conv.provider.id } };
+  }
+
+  /** Open the other side's page from the chat header. */
+  function openPeerProfile(conv: (typeof list)[number]) {
+    const target = peerProfileOf(conv);
+    if (!target) return;
+    void routerNavigate({ to: target.to, params: target.params } as never);
   }
 
   /** One-line preview of the newest message, like the WhatsApp chat list. */
@@ -200,11 +220,13 @@ function MessagesPage() {
 
           <div
             className={cn(
-              "tile chat-surface flex flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-x-0",
-              mobileView === "list" ? "hidden md:flex" : "h-[calc(100dvh-8.5rem)] md:h-[72vh]",
+              "tile chat-surface flex flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-0",
+              mobileView === "list"
+                ? "hidden md:flex"
+                : "max-md:fixed max-md:inset-0 max-md:z-50 max-md:h-[100dvh] max-md:w-screen md:h-[72vh]",
             )}
           >
-            <div className="flex items-center gap-2.5 border-b border-border bg-card/95 px-2.5 py-2 backdrop-blur">
+            <div className="flex items-center gap-2.5 border-b border-border bg-card/95 px-2.5 py-2 backdrop-blur max-md:pt-[calc(0.5rem+env(safe-area-inset-top))]">
               <button
                 type="button"
                 onClick={() => void navigate({ search: {} })}
@@ -213,11 +235,19 @@ function MessagesPage() {
               >
                 <ArrowLeft className="size-5" aria-hidden />
               </button>
-              {active ? <Avatar path={peerAvatarOf(active)} name={peerOf(active)} className="size-10" /> : null}
-              <div className="min-w-0 flex-1">
+              <button
+                type="button"
+                onClick={() => active && openPeerProfile(active)}
+                disabled={!active || !peerProfileOf(active)}
+                aria-label={fr ? "Voir le profil" : "View profile"}
+                className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl px-1 py-0.5 text-left transition-colors enabled:hover:bg-muted/60"
+              >
+                {active ? <Avatar path={peerAvatarOf(active)} name={peerOf(active)} className="size-10" /> : null}
+                <div className="min-w-0 flex-1">
                 <p className="truncate font-display text-[15px] font-semibold text-foreground">
                   {active ? peerOf(active) : t("chat.title")}
                 </p>
+
                 {active?.booking ? (
                   <p className="truncate text-[11px] text-muted-foreground">
                     {active.booking.service_title} · {formatDateTime(active.booking.scheduled_at)}
@@ -228,7 +258,9 @@ function MessagesPage() {
                     ASH Property · {active.listing.city}
                   </p>
                 ) : null}
-              </div>
+                </div>
+              </button>
+
               {active?.booking ? (
                 <div className="shrink-0 text-right">
                   <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
@@ -246,7 +278,7 @@ function MessagesPage() {
                 currentUserId={user?.id}
                 peerName={active ? peerOf(active) : "ASH"}
                 peerUserId={active ? peerUserIdOf(active) : null}
-                className="min-h-0 flex-1 px-2 pb-2"
+                className="min-h-0 flex-1 px-2 pb-2 max-md:pb-[calc(0.5rem+env(safe-area-inset-bottom))]"
                 quickReplies={
                   lang === "fr"
                     ? ["Bonjour 👋", "Quelle est votre disponibilité ?", "Je confirme le rendez-vous", "Je suis en route"]
