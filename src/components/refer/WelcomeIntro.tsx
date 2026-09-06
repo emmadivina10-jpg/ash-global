@@ -26,15 +26,17 @@ export function welcomeSeen(): boolean {
 export function WelcomeIntro({ onDone }: { onDone?: () => void }) {
   const { lang } = useI18n();
   const fr = lang === "fr";
-  const [show, setShow] = useState(false);
+  // Rendered from the first paint (server included) so no page content flashes
+  // before the brand animation; hidden immediately when it has already played.
+  const [show, setShow] = useState(true);
   const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
     if (welcomeSeen()) {
+      setShow(false);
       onDone?.();
       return;
     }
-    setShow(true);
     const reduced =
       typeof window.matchMedia === "function" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
