@@ -67,9 +67,11 @@ const MOBILE_NAV: NavItem[] = [
 ];
 
 const DESKTOP_NAV: NavItem[] = [
-  MOBILE_NAV[0],
+  { to: "/services", key: "nav.services" as TKey, icon: Store, tour: "market" },
   { to: "/search", key: "nav.search" as TKey, label: "Search", icon: Search, tour: "search" },
-  ...MOBILE_NAV.slice(1),
+  { to: "/create", key: "nav.create" as TKey, label: "Create", icon: PlusCircle, tour: "create" },
+  { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle, tour: "messages" },
+  { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet, tour: "wallet" },
 ];
 
 const SIDE_EXTRA: NavItem[] = [
