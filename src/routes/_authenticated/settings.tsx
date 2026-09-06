@@ -1,7 +1,21 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Info, Loader2, LifeBuoy, ScrollText, ShieldCheck, Trash2 } from "lucide-react";
+import {
+  ArrowUpRight,
+  Briefcase,
+  Calendar,
+  Home,
+  Info,
+  LifeBuoy,
+  Loader2,
+  ScrollText,
+  ShieldCheck,
+  Store,
+  Tag,
+  Trash2,
+  Users,
+} from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { SectionCard } from "@/components/refer/cards";
@@ -15,19 +29,33 @@ import { useI18n, type TKey } from "@/lib/i18n";
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
     meta: [
-      { title: "Settings — ASH Glo" },
+      { title: "Settings — ASH" },
       {
         name: "description",
-        content: "About ASH Glo, privacy policy, fair-use terms and account deletion requests.",
+        content:
+          "ASH — Where Opportunities Connect. About the ecosystem, privacy policy, fair-use terms and account controls.",
       },
-      { property: "og:title", content: "Settings — ASH Glo" },
-      { property: "og:description", content: "About ASH Glo, privacy policy and account controls." },
+      { property: "og:title", content: "Settings — ASH" },
+      {
+        property: "og:description",
+        content: "ASH — Where Opportunities Connect. About the platform, privacy and account controls.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
   component: SettingsPage,
 });
+
+/** Quick links into the ASH ecosystem pillars. */
+const PILLARS = [
+  { to: "/network", icon: Users, en: "Refer", fr: "Parrainage" },
+  { to: "/services", icon: Briefcase, en: "Services", fr: "Services" },
+  { to: "/market", icon: Store, en: "Marketplace", fr: "Marketplace" },
+  { to: "/property", icon: Home, en: "Property", fr: "Immobilier" },
+  { to: "/events", icon: Calendar, en: "Events", fr: "Événements" },
+  { to: "/deals", icon: Tag, en: "Deals", fr: "Promos" },
+] as const;
 
 function Paragraphs({ keys, vars }: { keys: TKey[]; vars?: Record<string, string> }) {
   const { t } = useI18n();
