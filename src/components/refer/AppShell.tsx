@@ -50,14 +50,21 @@ import { useRegion } from "@/lib/region-context";
 import { RegionSwitcher } from "./RegionSwitcher";
 import { cn } from "@/lib/utils";
 
-type NavItem = { to: string; key: TKey; label?: string; icon: typeof Store; referralOnly?: boolean };
+type NavItem = {
+  to: string;
+  key: TKey;
+  label?: string;
+  icon: typeof Store;
+  referralOnly?: boolean;
+  tour?: string;
+};
 
 const NAV: NavItem[] = [
-  { to: "/services", key: "nav.services" as TKey, icon: Store },
-  { to: "/search", key: "nav.search" as TKey, label: "Search", icon: Search },
-  { to: "/create", key: "nav.create" as TKey, label: "Create", icon: PlusCircle },
-  { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle },
-  { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet },
+  { to: "/services", key: "nav.services" as TKey, icon: Store, tour: "market" },
+  { to: "/search", key: "nav.search" as TKey, label: "Search", icon: Search, tour: "search" },
+  { to: "/create", key: "nav.create" as TKey, label: "Create", icon: PlusCircle, tour: "create" },
+  { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle, tour: "messages" },
+  { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet, tour: "wallet" },
 ];
 
 const SIDE_EXTRA: NavItem[] = [
@@ -204,6 +211,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Link>
               <div className="flex items-center gap-1">
                 <NotificationBell />
+                <LanguageSwitcher />
                 <ThemeToggle />
               </div>
             </div>
@@ -225,6 +233,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <li key={item.to}>
               <Link
                 to={item.to}
+                data-tour={item.tour}
                 className={cn(
                   "relative flex min-h-14 flex-col items-center justify-center gap-1 py-2 text-[11px] font-semibold transition-all duration-300",
                   active ? "-translate-y-0.5 text-primary" : "text-muted-foreground",
@@ -248,6 +257,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link
                 to={centerItem.to}
                 aria-label={t(centerItem.key)}
+                data-tour="create"
                 className="brand-gradient absolute left-1/2 top-0 z-10 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-primary-foreground shadow-[var(--shadow-brand)] ring-4 ring-background transition-transform duration-300 active:scale-95"
               >
                 <centerItem.icon className="size-6" aria-hidden />
@@ -308,6 +318,26 @@ export function AppShell({ children }: { children: ReactNode }) {
       })()}
 
       <AshOrb />
+      <WelcomeIntro onDone={() => setIntroDone(true)} />
+      <OnboardingTips enabled={introDone} />
     </div>
+  );
+}
+
+/** Small round avatar with the member's initials as the fallback. */
+function ProfileAvatar({ name, url }: { name?: string | null; url?: string | null }) {
+  const initials = (name ?? "")
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+  return (
+    <Avatar className="size-9 border border-border">
+      {url ? <AvatarImage src={url} alt="" /> : null}
+      <AvatarFallback className="bg-primary/10 text-xs font-bold text-primary">
+        {initials || "A"}
+      </AvatarFallback>
+    </Avatar>
   );
 }
