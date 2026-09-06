@@ -206,7 +206,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Link>
             ) : null}
             <div className="ash-glass nav-cutout border-x-0 border-b-0 pb-[env(safe-area-inset-bottom)]">
-              <ul className="mx-auto grid max-w-md grid-cols-5">
+              <ul className="mx-auto grid max-w-lg grid-cols-6">
                 {left.map(renderTab)}
                 <li aria-hidden>{centerItem ? <span className="block min-h-14" /> : null}</li>
                 {right.map(renderTab)}
