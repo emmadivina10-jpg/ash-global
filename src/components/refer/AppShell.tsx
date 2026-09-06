@@ -31,7 +31,7 @@ import { AshOrb } from "./AshOrb";
 import { StatusBadge } from "./StatusBadge";
 import { NotificationBell } from "./NotificationBell";
 import { PushBridge } from "./PushBridge";
-import { OnboardingTips } from "./OnboardingTips";
+import { MobileOnboarding } from "./MobileOnboarding";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAvatarUrl } from "./AvatarUpload";
 import {
@@ -269,7 +269,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <centerItem.icon className="size-6" aria-hidden />
               </Link>
             ) : null}
-            <div className="ash-glass nav-cutout border-x-0 border-b-0 pb-[env(safe-area-inset-bottom)]">
+            <div className="ash-glass nav-cutout nav-bar-fill border-x-0 border-b-0 pb-[env(safe-area-inset-bottom)]">
               <ul className="mx-auto grid max-w-lg grid-cols-5">
                 {left.map(renderTab)}
                 <li aria-hidden>{centerItem ? <span className="block min-h-14" /> : null}</li>
@@ -324,7 +324,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       })()}
 
       <AshOrb />
-      <OnboardingTips enabled />
+      <MobileOnboarding />
     </div>
   );
 }

@@ -637,3 +637,26 @@ html.native .app-shell > nav {
     radial-gradient(circle at 70% 65%, color-mix(in oklab, var(--color-primary) 5%, transparent) 0 1px, transparent 1px);
   background-size: 26px 26px, 34px 34px;
 }
+
+/* Bottom tab bar: keep the bar flush with the screen edge and paint any
+   residual strip below it (iOS home-indicator area) in the bar's own colour
+   so no empty/white band can show while scrolling. */
+.app-shell > nav {
+  bottom: 0;
+}
+
+.nav-bar-fill {
+  position: relative;
+  background-color: color-mix(in oklab, var(--color-card) 92%, var(--color-background));
+}
+
+.nav-bar-fill::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 8rem;
+  background-color: color-mix(in oklab, var(--color-card) 92%, var(--color-background));
+  pointer-events: none;
+}
