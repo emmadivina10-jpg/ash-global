@@ -166,7 +166,7 @@ function ConsoleLayout() {
   return (
     <div className="safe-top min-h-dvh bg-background lg:grid lg:grid-cols-[260px_minmax(0,1fr)]">
       {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-screen flex-col border-r border-sidebar-border bg-sidebar p-4 lg:flex">
+      <aside className="sticky top-0 hidden h-dvh flex-col border-r border-sidebar-border bg-sidebar p-4 lg:flex">
         <div className="flex items-center gap-2.5 px-2 pb-6">
           <span className="grid size-9 place-items-center rounded-full bg-gradient-to-br from-primary to-gold text-primary-foreground">
             <ShieldCheck className="size-4.5" aria-hidden />
