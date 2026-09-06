@@ -200,11 +200,13 @@ function MessagesPage() {
 
           <div
             className={cn(
-              "tile chat-surface flex flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-x-0",
-              mobileView === "list" ? "hidden md:flex" : "h-[calc(100dvh-8.5rem)] md:h-[72vh]",
+              "tile chat-surface flex flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-0",
+              mobileView === "list"
+                ? "hidden md:flex"
+                : "max-md:fixed max-md:inset-0 max-md:z-50 max-md:h-[100dvh] max-md:w-screen md:h-[72vh]",
             )}
           >
-            <div className="flex items-center gap-2.5 border-b border-border bg-card/95 px-2.5 py-2 backdrop-blur">
+            <div className="flex items-center gap-2.5 border-b border-border bg-card/95 px-2.5 py-2 backdrop-blur max-md:pt-[calc(0.5rem+env(safe-area-inset-top))]">
               <button
                 type="button"
                 onClick={() => void navigate({ search: {} })}
@@ -213,11 +215,19 @@ function MessagesPage() {
               >
                 <ArrowLeft className="size-5" aria-hidden />
               </button>
-              {active ? <Avatar path={peerAvatarOf(active)} name={peerOf(active)} className="size-10" /> : null}
-              <div className="min-w-0 flex-1">
+              <button
+                type="button"
+                onClick={() => active && openPeerProfile(active)}
+                disabled={!active || !peerProfileOf(active)}
+                aria-label={fr ? "Voir le profil" : "View profile"}
+                className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl px-1 py-0.5 text-left transition-colors enabled:hover:bg-muted/60"
+              >
+                {active ? <Avatar path={peerAvatarOf(active)} name={peerOf(active)} className="size-10" /> : null}
+                <div className="min-w-0 flex-1">
                 <p className="truncate font-display text-[15px] font-semibold text-foreground">
                   {active ? peerOf(active) : t("chat.title")}
                 </p>
+
                 {active?.booking ? (
                   <p className="truncate text-[11px] text-muted-foreground">
                     {active.booking.service_title} · {formatDateTime(active.booking.scheduled_at)}
