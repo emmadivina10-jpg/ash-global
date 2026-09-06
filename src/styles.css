@@ -6,13 +6,13 @@
 
 /*
  * Refer design system — "Emerald Prestige".
- * Deep emerald + gold, warm paper surfaces, editorial type (Sora / Manrope).
+ * Deep emerald + gold with familiar, highly readable mobile typography.
  * All colors are oklch semantic tokens. Never hardcode colors in components.
  */
 
 @theme inline {
-  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -194,7 +194,7 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.03em;
+    letter-spacing: 0;
   }
 
   ::selection {
@@ -508,6 +508,32 @@
   animation: ash-fade-up 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+.ash-launch-mark {
+  position: relative;
+  isolation: isolate;
+}
+
+.ash-launch-mark::before,
+.ash-launch-mark::after {
+  content: "";
+  position: absolute;
+  inset: -12px;
+  z-index: -1;
+  border: 1px solid color-mix(in oklab, var(--color-primary) 45%, transparent);
+  border-radius: 999px;
+  animation: ash-launch-ring 1.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.ash-launch-mark::after {
+  animation-delay: 450ms;
+}
+
+@keyframes ash-launch-ring {
+  0% { opacity: 0; transform: scale(0.72); }
+  35% { opacity: 0.8; }
+  100% { opacity: 0; transform: scale(1.35); }
+}
+
 @keyframes ash-fade-up {
   0% { opacity: 0; transform: translateY(14px); }
   100% { opacity: 1; transform: translateY(0); }
@@ -516,7 +542,9 @@
 @media (prefers-reduced-motion: reduce) {
   .ash-liquid { animation: none; opacity: 0.35; }
   .ash-splash-mark,
-  .ash-fade-up { animation: ash-simple-fade 300ms ease-out both; }
+  .ash-fade-up,
+  .ash-launch-mark::before,
+  .ash-launch-mark::after { animation: ash-simple-fade 300ms ease-out both; }
   @keyframes ash-simple-fade {
     0% { opacity: 0; }
     100% { opacity: 1; }
@@ -560,9 +588,13 @@ html.native body {
 }
 
 html.native .app-shell {
-  height: 100dvh;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: auto;
   min-height: 0;
   overflow: hidden;
+  padding-top: 0;
 }
 
 html.native .app-shell-frame,
@@ -577,6 +609,11 @@ html.native .app-shell-scroll {
   overflow-y: auto;
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+html.native .app-shell > nav {
+  bottom: 0;
 }
 
 /* Applied by the app shell so the inset adds padding inside the scroll

@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import ashLogo from "@/assets/ash-logo.png.asset.json";
 import { useI18n } from "@/lib/i18n";
+import { isNativeApp } from "@/lib/native";
 
 const KEY = "ash-welcome-v1";
 
 /** True once the first-launch welcome has already played on this device. */
 export function welcomeSeen(): boolean {
   try {
+    if (isNativeApp()) return false;
     return window.localStorage.getItem(KEY) === "1";
   } catch {
     return true;
@@ -60,11 +62,13 @@ export function WelcomeIntro({ onDone }: { onDone?: () => void }) {
       aria-live="polite"
     >
       
-      <img
-        src={ashLogo.url}
-        alt=""
-        className="ash-mark-in size-24 rounded-full bg-primary-deep object-cover p-1 ring-1 ring-border/50 drop-shadow-[0_8px_40px_rgba(228,48,107,0.45)]"
-      />
+      <span className="ash-launch-mark">
+        <img
+          src={ashLogo.url}
+          alt=""
+          className="ash-mark-in size-24 rounded-full bg-primary-deep object-cover p-1 ring-1 ring-border/50 shadow-[var(--shadow-brand)]"
+        />
+      </span>
       <h1 className="ash-fade-up mt-6 text-center font-display text-2xl font-extrabold tracking-tight text-foreground">
         {fr ? "Bienvenue sur ASH" : "Welcome to ASH"}
       </h1>
