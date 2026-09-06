@@ -87,6 +87,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const visible = (items: NavItem[]) =>
     items.filter((item) => !item.referralOnly || region.referralEnabled);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [introDone, setIntroDone] = useState(() => (typeof window === "undefined" ? false : welcomeSeen()));
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   async function signOut() {
