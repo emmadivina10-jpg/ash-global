@@ -59,12 +59,17 @@ type NavItem = {
   tour?: string;
 };
 
-const NAV: NavItem[] = [
+const MOBILE_NAV: NavItem[] = [
   { to: "/services", key: "nav.services" as TKey, icon: Store, tour: "market" },
-  { to: "/search", key: "nav.search" as TKey, label: "Search", icon: Search, tour: "search" },
   { to: "/create", key: "nav.create" as TKey, label: "Create", icon: PlusCircle, tour: "create" },
   { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle, tour: "messages" },
   { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet, tour: "wallet" },
+];
+
+const DESKTOP_NAV: NavItem[] = [
+  MOBILE_NAV[0],
+  { to: "/search", key: "nav.search" as TKey, label: "Search", icon: Search, tour: "search" },
+  ...MOBILE_NAV.slice(1),
 ];
 
 const SIDE_EXTRA: NavItem[] = [
@@ -104,12 +109,12 @@ export function AppShell({ children }: { children: ReactNode }) {
     navigate({ to: "/login", replace: true });
   }
 
-  const links = visible([...NAV, ...SIDE_EXTRA]);
+  const links = visible([...DESKTOP_NAV, ...SIDE_EXTRA]);
 
   return (
-    <div className="safe-top min-h-dvh bg-background">
+    <div className="app-shell safe-top min-h-dvh bg-background">
       <PushBridge />
-      <div className="mx-auto flex w-full max-w-7xl">
+      <div className="app-shell-frame mx-auto flex w-full max-w-7xl">
 
         <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-border bg-sidebar p-5 lg:flex">
           <Link to="/services" className="mb-8 inline-flex">
@@ -168,7 +173,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </aside>
 
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="app-shell-column flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl lg:hidden">
             <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4 py-3">
               <DropdownMenu>
@@ -217,12 +222,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </header>
 
-          <main className="min-w-0 flex-1 px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:px-8 lg:pb-10">{children}</main>
+          <main className="app-shell-scroll min-w-0 flex-1 px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:px-8 lg:pb-10">{children}</main>
         </div>
       </div>
 
       {(() => {
-        const items = visible(NAV);
+        const items = visible(MOBILE_NAV);
         const centerItem = items.find((item) => item.to === "/create");
         const sideItems = items.filter((item) => item.to !== "/create");
         const left = sideItems.slice(0, Math.ceil(sideItems.length / 2));
@@ -264,7 +269,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Link>
             ) : null}
             <div className="ash-glass nav-cutout border-x-0 border-b-0 pb-[env(safe-area-inset-bottom)]">
-              <ul className="mx-auto grid max-w-lg grid-cols-6">
+              <ul className="mx-auto grid max-w-lg grid-cols-5">
                 {left.map(renderTab)}
                 <li aria-hidden>{centerItem ? <span className="block min-h-14" /> : null}</li>
                 {right.map(renderTab)}

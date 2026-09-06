@@ -1,6 +1,20 @@
 import UIKit
 import Capacitor
 
+final class ASHBridgeViewController: CAPBridgeViewController {
+    override func capacitorDidLoad() {
+        super.capacitorDidLoad()
+
+        let ashBackground = UIColor(red: 8.0 / 255.0, green: 8.0 / 255.0, blue: 18.0 / 255.0, alpha: 1.0)
+        view.backgroundColor = ashBackground
+        webView?.backgroundColor = ashBackground
+        webView?.scrollView.backgroundColor = ashBackground
+        webView?.scrollView.bounces = false
+        webView?.scrollView.alwaysBounceVertical = false
+        webView?.scrollView.contentInsetAdjustmentBehavior = .never
+    }
+}
+
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
@@ -8,7 +22,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = scene as? UIWindowScene else { return }
 
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = CAPBridgeViewController()
+        window?.backgroundColor = UIColor(red: 8.0 / 255.0, green: 8.0 / 255.0, blue: 18.0 / 255.0, alpha: 1.0)
+        window?.rootViewController = ASHBridgeViewController()
         window?.makeKeyAndVisible()
 
         SceneDelegateProxy.shared.scene(scene, willConnectTo: session, options: connectionOptions)
