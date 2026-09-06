@@ -168,8 +168,6 @@ function DiscoveryPage() {
       </header>
 
 
-      <CategoryHero onSelect={(id) => selectGroup(id)} />
-
       {!asked && !location ? (
         <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-2xl border border-border bg-card p-4 sm:flex sm:justify-between">
           <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
