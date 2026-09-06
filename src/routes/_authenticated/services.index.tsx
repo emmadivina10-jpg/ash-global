@@ -1,8 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { MapPin, Search, SlidersHorizontal, Users } from "lucide-react";
+import {
+  Briefcase,
+  Calendar,
+  Home,
+  MapPin,
+  Search,
+  SlidersHorizontal,
+  Tag,
+  Users,
+  Wrench,
+} from "lucide-react";
 
 import { ProviderCard } from "@/components/refer/ProviderCard";
+import { useCommunityFeed } from "@/lib/marketplace.queries";
 import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -100,6 +111,13 @@ function DiscoveryPage() {
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useDiscovery(filters);
   const providers = useMemo(() => (data?.pages ?? []).flat(), [data]);
 
+  const browsing = !searchInput.trim() && category === "ALL" && group === "ALL";
+  const recommended = useMemo(
+    () => [...providers].sort((a, b) => b.rating_avg - a.rating_avg).slice(0, 8),
+    [providers],
+  );
+  const { data: community } = useCommunityFeed();
+
   // Infinite scroll sentinel.
   const sentinel = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -187,6 +205,33 @@ function DiscoveryPage() {
           {activeFilterCount > 0 ? <span className="tabular text-xs">({activeFilterCount})</span> : null}
         </Button>
       </div>
+
+      <nav
+        aria-label={fr ? "Sections ASH" : "ASH sections"}
+        className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-1 pt-1"
+      >
+        {[
+          { to: "/services", label: fr ? "Services" : "Services", Icon: Wrench },
+          { to: "/freelance", label: fr ? "Emplois" : "Jobs", Icon: Briefcase },
+          { to: "/deals", label: fr ? "Promos" : "Deals", Icon: Tag },
+          { to: "/events", label: fr ? "Événements" : "Events", Icon: Calendar },
+          { to: "/property", label: fr ? "Immobilier" : "Property", Icon: Home },
+          { to: "/network", label: fr ? "Personnes" : "People", Icon: Users },
+        ].map(({ to, label, Icon }) => (
+          <Link
+            key={to}
+            to={to}
+            className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
+          >
+            <span className="grid size-12 place-items-center rounded-full brand-gradient text-on-dark shadow-[var(--shadow-brand)] transition-transform group-hover:scale-105">
+              <Icon className="size-5" aria-hidden />
+            </span>
+            <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
+              {label}
+            </span>
+          </Link>
+        ))}
+      </nav>
 
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
         {(["ALL", ...CATEGORY_GROUPS.map((g) => g.id)] as const).map((id) => (
@@ -348,6 +393,74 @@ function DiscoveryPage() {
               ? "Localisation activée."
               : "Location on."}
         </p>
+      ) : null}
+
+      {browsing && recommended.length > 0 ? (
+        <section aria-label={fr ? "Recommandé pour vous" : "Recommended for you"} className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="font-display text-lg font-bold text-foreground">
+              {fr ? "Recommandé pour vous" : "Recommended for you"}
+            </h2>
+          </div>
+          <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1">
+            {recommended.map((provider) => (
+              <div key={provider.id} className="w-64 shrink-0 snap-start sm:w-72">
+                <ProviderCard
+                  provider={provider}
+                  photos={provider.photos}
+                  services={provider.services}
+                  fromPrice={provider.fromPrice}
+                  isVerified={provider.is_verified}
+                  acceptingBookings={provider.accepting_bookings}
+                  completedBookings={provider.completed_bookings}
+                  nearby={
+                    Boolean(filters.nearCity) &&
+                    (provider.city ?? "").trim().toLowerCase() === (filters.nearCity ?? "").trim().toLowerCase()
+                  }
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {browsing && (community ?? []).length > 0 ? (
+        <section aria-label={fr ? "Dernières nouvelles de la communauté" : "Latest from the community"} className="space-y-3">
+          <h2 className="font-display text-lg font-bold text-foreground">
+            {fr ? "Dernières nouvelles de la communauté" : "Latest from the community"}
+          </h2>
+          <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1">
+            {(community ?? []).map((post) => (
+              <Link
+                key={post.id}
+                to="/services/$providerId"
+                params={{ providerId: post.provider.id }}
+                className="group w-56 shrink-0 snap-start overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]"
+              >
+                <div className="aspect-[4/3] overflow-hidden bg-muted">
+                  <img
+                    src={post.url}
+                    alt={post.caption ?? post.provider.business_name}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                  />
+                </div>
+                <div className="space-y-0.5 p-3">
+                  <p className="truncate text-sm font-bold text-foreground">{post.provider.business_name}</p>
+                  {post.caption ? (
+                    <p className="line-clamp-2 text-xs text-muted-foreground">{post.caption}</p>
+                  ) : null}
+                  {post.provider.city ? (
+                    <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                      <MapPin className="size-3" aria-hidden />
+                      {post.provider.city}
+                    </p>
+                  ) : null}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
       ) : null}
 
       {isLoading ? (
