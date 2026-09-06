@@ -73,7 +73,7 @@ export function WelcomeIntro({ onDone }: { onDone?: () => void }) {
         <img
           src={ashLogo.url}
           alt=""
-          className="ash-mark-in aspect-square size-28 rounded-full bg-primary-deep object-cover p-1.5 shadow-[var(--shadow-brand)] ring-1 ring-border/50"
+          className="ash-splash-mark aspect-square size-28 rounded-full bg-primary-deep object-cover p-1.5 shadow-[var(--shadow-brand)] ring-1 ring-border/50"
         />
       </span>
       <h1 className="ash-fade-up mt-7 text-center font-display text-2xl font-extrabold tracking-tight text-foreground">
