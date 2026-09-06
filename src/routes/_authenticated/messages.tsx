@@ -238,7 +238,9 @@ function MessagesPage() {
                     ASH Property · {active.listing.city}
                   </p>
                 ) : null}
-              </div>
+                </div>
+              </button>
+
               {active?.booking ? (
                 <div className="shrink-0 text-right">
                   <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
