@@ -17,6 +17,7 @@ function timeAgo(iso: string) {
 }
 
 export function NotificationBell() {
+  const navigate = useNavigate();
   const { data } = useNotifications();
   const markRead = useMarkNotificationsRead();
   const items = data ?? [];
