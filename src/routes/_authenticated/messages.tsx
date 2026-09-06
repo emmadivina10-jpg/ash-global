@@ -278,7 +278,7 @@ function MessagesPage() {
                 currentUserId={user?.id}
                 peerName={active ? peerOf(active) : "ASH"}
                 peerUserId={active ? peerUserIdOf(active) : null}
-                className="min-h-0 flex-1 px-2 pb-2"
+                className="min-h-0 flex-1 px-2 pb-2 max-md:pb-[calc(0.5rem+env(safe-area-inset-bottom))]"
                 quickReplies={
                   lang === "fr"
                     ? ["Bonjour 👋", "Quelle est votre disponibilité ?", "Je confirme le rendez-vous", "Je suis en route"]
