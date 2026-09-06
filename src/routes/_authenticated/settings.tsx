@@ -69,7 +69,8 @@ function Paragraphs({ keys, vars }: { keys: TKey[]; vars?: Record<string, string
 }
 
 function SettingsPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const fr = lang === "fr";
   const queryClient = useQueryClient();
   const [reason, setReason] = useState("");
   const [confirming, setConfirming] = useState(false);
