@@ -171,6 +171,7 @@ function RootComponent() {
         <I18nProvider>
           <RegionProvider>
             <NativeBridge />
+            <WelcomeIntro />
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />
           </RegionProvider>
