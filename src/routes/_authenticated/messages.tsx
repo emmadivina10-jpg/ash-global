@@ -149,11 +149,12 @@ function MessagesPage() {
               "tile flex flex-col overflow-hidden bg-background p-0 max-md:rounded-none max-md:border-0",
               mobileView === "thread"
                 ? "hidden md:flex"
-                : "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:z-40 max-md:h-[calc(100dvh-4.75rem-env(safe-area-inset-bottom))]",
+                : "max-md:-mx-4 max-md:-mt-5 max-md:h-[calc(var(--ash-vh,100dvh)-3.5rem-4.75rem)]",
               "md:max-h-[72vh]",
             )}
           >
-            <div className="border-b border-border bg-card/95 px-3 pb-2.5 pt-2.5 backdrop-blur max-md:pt-[calc(0.75rem+env(safe-area-inset-top))]">
+            <div className="border-b border-border bg-card/95 px-3 pb-2.5 pt-2.5 backdrop-blur">
+
               <h2 className="mb-2 font-display text-xl font-bold text-foreground md:hidden">{t("chat.title")}</h2>
               <div className="flex items-center gap-2 rounded-full bg-muted px-3 py-2">
                 <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden />
