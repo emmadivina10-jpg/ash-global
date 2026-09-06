@@ -27,6 +27,31 @@ import { type ServiceCategory } from "@/lib/marketplace";
 import { categoryLabel } from "@/lib/taxonomy";
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
+import {
+  formatDateTimeInZone,
+  formatTimeInZone,
+  isDifferentZone,
+  providerTimeZone,
+  zoneLabel,
+} from "@/lib/timezone";
+
+/** Friendly message for a `request_booking` failure code. */
+function bookingRequestError(code: string, fr: boolean): string {
+  switch (code) {
+    case "CANNOT_BOOK_SELF":
+      return fr ? "Vous ne pouvez pas réserver votre propre service." : "You can't book your own service.";
+    case "SERVICE_NOT_FOUND":
+      return fr ? "Ce service n'existe plus." : "That service no longer exists.";
+    case "SERVICE_UNAVAILABLE":
+      return fr ? "Ce créneau vient d'être pris. Choisissez-en un autre." : "That time was just taken. Please pick another.";
+    case "UNAUTHENTICATED":
+      return fr ? "Connectez-vous pour réserver." : "Please sign in to book.";
+    default:
+      return fr ? "Envoi impossible. Réessayez." : "Couldn't send your request. Please try again.";
+  }
+}
+
+
 
 export const Route = createFileRoute("/_authenticated/services/$providerId")({
   head: () => ({
