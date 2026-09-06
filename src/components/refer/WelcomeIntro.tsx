@@ -59,7 +59,7 @@ export function WelcomeIntro({ onDone }: { onDone?: () => void }) {
       role="status"
       aria-live="polite"
     >
-      <div className="ash-liquid-field pointer-events-none absolute inset-0" aria-hidden />
+      
       <img
         src={ashLogo.url}
         alt=""
