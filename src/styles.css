@@ -628,3 +628,12 @@ html.native .app-shell > nav {
   padding-top: 0;
 }
 
+
+/* WhatsApp-style chat surface: a soft patterned backdrop behind the bubbles. */
+.chat-surface {
+  background-color: color-mix(in oklab, var(--color-muted) 45%, var(--color-background));
+  background-image:
+    radial-gradient(circle at 20% 25%, color-mix(in oklab, var(--color-primary) 7%, transparent) 0 1px, transparent 1px),
+    radial-gradient(circle at 70% 65%, color-mix(in oklab, var(--color-primary) 5%, transparent) 0 1px, transparent 1px);
+  background-size: 26px 26px, 34px 34px;
+}
