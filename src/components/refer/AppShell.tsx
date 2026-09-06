@@ -31,7 +31,6 @@ import { AshOrb } from "./AshOrb";
 import { StatusBadge } from "./StatusBadge";
 import { NotificationBell } from "./NotificationBell";
 import { PushBridge } from "./PushBridge";
-import { WelcomeIntro, welcomeSeen } from "./WelcomeIntro";
 import { OnboardingTips } from "./OnboardingTips";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAvatarUrl } from "./AvatarUpload";
@@ -102,7 +101,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   const visible = (items: NavItem[]) =>
     items.filter((item) => !item.referralOnly || region.referralEnabled);
   const [moreOpen, setMoreOpen] = useState(false);
-  const [introDone, setIntroDone] = useState(() => (typeof window === "undefined" ? false : welcomeSeen()));
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   async function signOut() {
@@ -326,8 +324,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       })()}
 
       <AshOrb />
-      <WelcomeIntro onDone={() => setIntroDone(true)} />
-      <OnboardingTips enabled={introDone} />
+      <OnboardingTips enabled />
     </div>
   );
 }
@@ -342,8 +339,8 @@ function ProfileAvatar({ name, url }: { name: string | null | undefined; url: st
     .join("");
   const resolved = useAvatarUrl(url);
   return (
-    <Avatar className="size-9 border border-border">
-      {resolved ? <AvatarImage src={resolved} alt="" /> : null}
+    <Avatar className="aspect-square size-9 shrink-0 overflow-hidden rounded-full border border-border">
+      {resolved ? <AvatarImage src={resolved} alt="" className="size-full rounded-full object-cover object-center" /> : null}
       <AvatarFallback className="bg-primary/10 text-xs font-bold text-primary">
         {initials || "A"}
       </AvatarFallback>

@@ -74,7 +74,10 @@ export function OnboardingTips({ enabled }: { enabled: boolean }) {
   const step = STEPS[index]!;
   const below = box.top < 200;
   const top = below ? box.top + box.height + 12 : box.top - 12;
-  const left = Math.min(Math.max(box.left + box.width / 2, 130), window.innerWidth - 130);
+  // Keep the bubble fully on screen, with a 16px gutter on both sides.
+  const width = Math.min(260, window.innerWidth - 32);
+  const half = width / 2;
+  const left = Math.min(Math.max(box.left + box.width / 2, half + 16), window.innerWidth - half - 16);
 
   return (
     <div className="fixed inset-0 z-[90]" role="dialog" aria-label="ASH tour">
@@ -90,8 +93,8 @@ export function OnboardingTips({ enabled }: { enabled: boolean }) {
         aria-hidden
       />
       <div
-        className="absolute w-[260px] -translate-x-1/2 rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-card)]"
-        style={{ top, left, transform: `translate(-50%, ${below ? "0" : "-100%"})` }}
+        className="absolute -translate-x-1/2 rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-card)]"
+        style={{ top, left, width, transform: `translate(-50%, ${below ? "0" : "-100%"})` }}
       >
         <p className="text-sm font-semibold text-foreground">{fr ? step.fr : step.en}</p>
         <div className="mt-3 flex items-center justify-between gap-2">

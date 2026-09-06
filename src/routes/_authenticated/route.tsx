@@ -12,9 +12,25 @@ export const Route = createFileRoute("/_authenticated")({
     const { data: sessionData } = await supabase.auth.getSession();
     if (sessionData.session?.user) return { user: sessionData.session.user };
 
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/login" });
-    return { user: data.user };
+    // No session in storage yet: it may still be rehydrating on a cold start
+    // (installed app resuming, slow storage broker). Give it a brief window
+    // before falling back to the network check.
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 120));
+      const { data: retry } = await supabase.auth.getSession();
+      if (retry.session?.user) return { user: retry.session.user };
+    }
+
+    try {
+      const { data, error } = await supabase.auth.getUser();
+      if (data.user) return { user: data.user };
+      if (error) throw error;
+    } catch {
+      // Network hiccup — never sign a member out because a request failed.
+      const { data: last } = await supabase.auth.getSession();
+      if (last.session?.user) return { user: last.session.user };
+    }
+    throw redirect({ to: "/login" });
   },
   component: () => (
     <AppShell>

@@ -5,71 +5,80 @@ import { isNativeApp } from "@/lib/native";
 
 const KEY = "ash-welcome-v1";
 
-/** True once the first-launch welcome has already played on this device. */
+/**
+ * True once the launch animation has already played for this visit.
+ * The installed app replays it on every launch (WhatsApp-style); the website
+ * plays it once per browser tab session so navigation stays instant.
+ */
 export function welcomeSeen(): boolean {
   try {
     if (isNativeApp()) return false;
-    return window.localStorage.getItem(KEY) === "1";
+    return window.sessionStorage.getItem(KEY) === "1";
   } catch {
     return true;
   }
 }
 
 /**
- * First-launch only: a short (~2.4s) cinematic ASH welcome. Returning members
- * never see it again, and it collapses to a plain fade when the device asks
- * for reduced motion.
+ * ASH launch screen: a soft liquid brand wash behind the rounded ASH mark.
+ * Collapses to a plain fade when the device asks for reduced motion.
  */
 export function WelcomeIntro({ onDone }: { onDone?: () => void }) {
   const { lang } = useI18n();
   const fr = lang === "fr";
-  const [show, setShow] = useState(false);
+  // Rendered from the first paint (server included) so no page content flashes
+  // before the brand animation; hidden immediately when it has already played.
+  const [show, setShow] = useState(true);
   const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
     if (welcomeSeen()) {
+      setShow(false);
       onDone?.();
       return;
     }
-    setShow(true);
     const reduced =
       typeof window.matchMedia === "function" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const hold = reduced ? 900 : 2100;
+    const hold = reduced ? 800 : 2000;
     const leaveAt = window.setTimeout(() => setLeaving(true), hold);
     const endAt = window.setTimeout(() => {
       try {
-        window.localStorage.setItem(KEY, "1");
+        window.sessionStorage.setItem(KEY, "1");
       } catch {
         /* private mode — the intro simply plays again next time */
       }
       setShow(false);
       onDone?.();
-    }, hold + 320);
+    }, hold + 420);
     return () => {
       window.clearTimeout(leaveAt);
       window.clearTimeout(endAt);
     };
-  }, [onDone]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!show) return null;
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background transition-opacity duration-300"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden bg-background transition-opacity duration-[420ms]"
       style={{ opacity: leaving ? 0 : 1 }}
       role="status"
       aria-live="polite"
     >
-      
-      <span className="ash-launch-mark">
+      <span className="ash-liquid ash-liquid-a" aria-hidden />
+      <span className="ash-liquid ash-liquid-b" aria-hidden />
+      <span className="ash-liquid ash-liquid-c" aria-hidden />
+
+      <span className="ash-launch-mark relative">
         <img
           src={ashLogo.url}
           alt=""
-          className="ash-mark-in size-24 rounded-full bg-primary-deep object-cover p-1 ring-1 ring-border/50 shadow-[var(--shadow-brand)]"
+          className="ash-splash-mark aspect-square size-28 rounded-full bg-primary-deep object-cover p-1.5 shadow-[var(--shadow-brand)] ring-1 ring-border/50"
         />
       </span>
-      <h1 className="ash-fade-up mt-6 text-center font-display text-2xl font-extrabold tracking-tight text-foreground">
+      <h1 className="ash-fade-up mt-7 text-center font-display text-2xl font-extrabold tracking-tight text-foreground">
         {fr ? "Bienvenue sur ASH" : "Welcome to ASH"}
       </h1>
       <p className="ash-fade-up mt-2 text-center text-sm text-muted-foreground">
