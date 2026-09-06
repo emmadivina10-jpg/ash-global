@@ -63,6 +63,7 @@ export function ChatThread({
   const [failed, setFailed] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
+  const pressRef = useRef<number | null>(null);
 
   const messages = (data ?? []) as unknown as ChatMessage[];
   const peerInitials = (peerName ?? "ASH").trim().slice(0, 2).toUpperCase();
@@ -196,6 +197,16 @@ export function ChatThread({
                         if (!mine) return;
                         e.preventDefault();
                         setConfirmDelete(m.id);
+                      }}
+                      onPointerDown={() => {
+                        if (!mine) return;
+                        pressRef.current = window.setTimeout(() => setConfirmDelete(m.id), 500);
+                      }}
+                      onPointerUp={() => {
+                        if (pressRef.current) window.clearTimeout(pressRef.current);
+                      }}
+                      onPointerLeave={() => {
+                        if (pressRef.current) window.clearTimeout(pressRef.current);
                       }}
                       className={cn(
                         "group relative max-w-[78%] px-3.5 py-2 shadow-sm transition-colors",
