@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { Banknote, CreditCard, Headphones, Mail, MapPin, Sparkles, X } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,61 @@ export function AshOrb() {
   const [open, setOpen] = useState(false);
   const [panel, setPanel] = useState<OrbAction | null>(null);
   const { location, request, busy } = useLocation();
+
+  // Draggable orb. The wrapper is anchored bottom-right, so the offset is
+  // always negative-or-zero and clamped to the viewport: the button can be
+  // moved out of the way but never off-screen.
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const drag = useRef<{ px: number; py: number; ox: number; oy: number; moved: boolean } | null>(null);
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem("ash-orb-offset");
+      if (raw) {
+        const parsed = JSON.parse(raw) as { x: number; y: number };
+        if (typeof parsed?.x === "number" && typeof parsed?.y === "number") setOffset(parsed);
+      }
+    } catch {
+      /* ignore unreadable storage */
+    }
+  }, []);
+
+  function clamp(x: number, y: number) {
+    const maxLeft = Math.max(0, window.innerWidth - 96);
+    const maxUp = Math.max(0, window.innerHeight - 180);
+    return { x: Math.min(0, Math.max(-maxLeft, x)), y: Math.min(0, Math.max(-maxUp, y)) };
+  }
+
+  function onPointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
+    drag.current = { px: event.clientX, py: event.clientY, ox: offset.x, oy: offset.y, moved: false };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function onPointerMove(event: ReactPointerEvent<HTMLButtonElement>) {
+    const d = drag.current;
+    if (!d) return;
+    const dx = event.clientX - d.px;
+    const dy = event.clientY - d.py;
+    if (!d.moved && Math.hypot(dx, dy) < 6) return;
+    d.moved = true;
+    setOffset(clamp(d.ox + dx, d.oy + dy));
+  }
+
+  function onPointerUp(event: ReactPointerEvent<HTMLButtonElement>) {
+    const d = drag.current;
+    drag.current = null;
+    if (!d) return;
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+    if (d.moved) {
+      try {
+        window.localStorage.setItem("ash-orb-offset", JSON.stringify(offset));
+      } catch {
+        /* ignore unwritable storage */
+      }
+      return;
+    }
+    setOpen((value) => !value);
+  }
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -49,7 +104,10 @@ export function AshOrb() {
         />
       ) : null}
 
-      <div className="fixed bottom-24 right-4 z-50 lg:bottom-8 lg:right-8">
+      <div
+        style={{ transform: `translate3d(${offset.x}px, ${offset.y}px, 0)` }}
+        className="fixed bottom-24 right-4 z-50 touch-none lg:bottom-8 lg:right-8"
+      >
         {/* Quarter-circle arc: items fan up and to the left, thumb-reachable.
             The radial offset lives on the wrapper because the entrance
             animation owns `transform` on the button itself. */}
@@ -91,7 +149,10 @@ export function AshOrb() {
           type="button"
           aria-expanded={open}
           aria-label={open ? (fr ? "Fermer ASH" : "Close ASH") : (fr ? "Ouvrir ASH" : "Open ASH")}
-          onClick={() => setOpen((value) => !value)}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={() => (drag.current = null)}
           className={cn(
             "orb-surface relative grid size-16 place-items-center rounded-full transition-transform duration-300",
             open ? "rotate-45 scale-95" : "ash-ring hover:scale-105",

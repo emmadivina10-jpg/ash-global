@@ -1,4 +1,6 @@
 import { Bell, CheckCheck } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { notificationLink } from "@/lib/push";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useMarkNotificationsRead, useNotifications } from "@/lib/notifications";
@@ -15,6 +17,7 @@ function timeAgo(iso: string) {
 }
 
 export function NotificationBell() {
+  const navigate = useNavigate();
   const { data } = useNotifications();
   const markRead = useMarkNotificationsRead();
   const items = data ?? [];
@@ -55,7 +58,16 @@ export function NotificationBell() {
               <button
                 key={n.id}
                 type="button"
-                onClick={() => !n.read_at && markRead.mutate([n.id])}
+                onClick={() => {
+                  if (!n.read_at) markRead.mutate([n.id]);
+                  // Take the member straight to the booking, chat, payout or
+                  // review the notification is about.
+                  const [path, qs] = notificationLink(n.category, n.data ?? {}).split("?");
+                  void navigate({
+                    to: path,
+                    search: qs ? Object.fromEntries(new URLSearchParams(qs)) : undefined,
+                  } as never);
+                }}
                 className={cn(
                   "block w-full border-b border-border/60 px-4 py-3 text-left transition-colors hover:bg-muted/60",
                   !n.read_at && "bg-primary/5",

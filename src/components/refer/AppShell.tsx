@@ -46,6 +46,7 @@ const NAV: NavItem[] = [
   { to: "/search", key: "nav.search" as TKey, label: "Search", icon: Search },
   { to: "/create", key: "nav.create" as TKey, label: "Create", icon: PlusCircle },
   { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle },
+  { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet },
 ];
 
 const SIDE_EXTRA: NavItem[] = [
@@ -57,7 +58,6 @@ const SIDE_EXTRA: NavItem[] = [
   { to: "/network", key: "nav.network" as TKey, icon: Users, referralOnly: true },
   { to: "/analytics", key: "nav.analytics" as TKey, label: "Analytics", icon: BarChart3 },
   { to: "/profile", key: "nav.profile" as TKey, icon: UserIcon },
-  { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet },
   { to: "/bookings", key: "nav.bookings" as TKey, icon: CalendarDays },
   { to: "/studio", key: "nav.pro" as TKey, icon: Sparkles },
   { to: "/transactions", key: "nav.transactions" as TKey, icon: Receipt },
@@ -206,7 +206,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Link>
             ) : null}
             <div className="ash-glass nav-cutout border-x-0 border-b-0 pb-[env(safe-area-inset-bottom)]">
-              <ul className="mx-auto grid max-w-md grid-cols-5">
+              <ul className="mx-auto grid max-w-lg grid-cols-6">
                 {left.map(renderTab)}
                 <li aria-hidden>{centerItem ? <span className="block min-h-14" /> : null}</li>
                 {right.map(renderTab)}
