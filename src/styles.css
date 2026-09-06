@@ -521,9 +521,11 @@
 /* ------------------------------------------------------------------ */
 /* Native app (Capacitor) — notch and home-indicator safe areas         */
 /* ------------------------------------------------------------------ */
+/* The bottom tab bar already pads itself with the home-indicator inset;
+   padding the body as well inflated document height and pushed a white
+   strip under the nav while scrolling. */
 html.native body {
   padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
   overscroll-behavior-y: none;
 }
 
