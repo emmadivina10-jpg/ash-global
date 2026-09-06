@@ -521,14 +521,32 @@
 /* ------------------------------------------------------------------ */
 /* Native app (Capacitor) — notch and home-indicator safe areas         */
 /* ------------------------------------------------------------------ */
-/* The bottom tab bar already pads itself with the home-indicator inset;
-   padding the body as well inflated document height and pushed a white
-   strip under the nav while scrolling. */
-html.native body {
-  padding-top: env(safe-area-inset-top);
+/* The document itself must never be taller than the visual viewport, or
+   iOS exposes a blank strip under the content when scrolling. The status
+   bar inset is therefore applied inside the shell, never on <body>, and
+   the bottom inset lives only on the tab bar. */
+html,
+body {
+  min-height: 100%;
+  background-color: var(--color-background);
   overscroll-behavior-y: none;
+}
+
+body {
+  overflow-x: hidden;
 }
 
 html.native {
   -webkit-tap-highlight-color: transparent;
 }
+
+html.native body {
+  overscroll-behavior-y: none;
+}
+
+/* Applied by the app shell so the inset adds padding inside the scroll
+   area instead of extending the document height. */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
