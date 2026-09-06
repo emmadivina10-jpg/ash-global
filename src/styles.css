@@ -616,9 +616,10 @@ html.native .app-shell > nav {
   bottom: 0;
 }
 
-/* Applied by the app shell so the inset adds padding inside the scroll
-   area instead of extending the document height. */
+/* The native WebView is already placed below the status bar because the
+   status bar does not overlay it. Adding the CSS inset again created the
+   visible top strip on mobile browsers and duplicated native spacing. */
 .safe-top {
-  padding-top: env(safe-area-inset-top);
+  padding-top: 0;
 }
 
