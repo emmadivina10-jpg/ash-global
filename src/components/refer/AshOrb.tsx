@@ -43,12 +43,12 @@ export function AshOrb() {
     return { x: Math.min(0, Math.max(-maxLeft, x)), y: Math.min(0, Math.max(-maxUp, y)) };
   }
 
-  function onPointerDown(event: React.PointerEvent<HTMLButtonElement>) {
+  function onPointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
     drag.current = { px: event.clientX, py: event.clientY, ox: offset.x, oy: offset.y, moved: false };
     event.currentTarget.setPointerCapture(event.pointerId);
   }
 
-  function onPointerMove(event: React.PointerEvent<HTMLButtonElement>) {
+  function onPointerMove(event: ReactPointerEvent<HTMLButtonElement>) {
     const d = drag.current;
     if (!d) return;
     const dx = event.clientX - d.px;
@@ -58,7 +58,7 @@ export function AshOrb() {
     setOffset(clamp(d.ox + dx, d.oy + dy));
   }
 
-  function onPointerUp(event: React.PointerEvent<HTMLButtonElement>) {
+  function onPointerUp(event: ReactPointerEvent<HTMLButtonElement>) {
     const d = drag.current;
     drag.current = null;
     if (!d) return;
