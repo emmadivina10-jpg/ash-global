@@ -434,7 +434,7 @@ function DiscoveryPage() {
               <Link
                 key={post.id}
                 to="/services/$providerId"
-                params={{ providerId: post.provider.slug ?? post.provider.id }}
+                params={{ providerId: post.provider.id }}
                 className="group w-56 shrink-0 snap-start overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]"
               >
                 <div className="aspect-[4/3] overflow-hidden bg-muted">
