@@ -107,11 +107,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   const links = visible([...NAV, ...SIDE_EXTRA]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="safe-top min-h-dvh bg-background">
       <PushBridge />
       <div className="mx-auto flex w-full max-w-7xl">
 
-        <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-border bg-sidebar p-5 lg:flex">
+        <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-border bg-sidebar p-5 lg:flex">
           <Link to="/services" className="mb-8 inline-flex">
             <Logo />
           </Link>
@@ -217,7 +217,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </header>
 
-          <main className="min-w-0 flex-1 px-4 pb-28 pt-5 sm:px-6 lg:px-8 lg:pb-10">{children}</main>
+          <main className="min-w-0 flex-1 px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:px-8 lg:pb-10">{children}</main>
         </div>
       </div>
 

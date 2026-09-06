@@ -37,11 +37,16 @@ const config: CapacitorConfig = {
     ],
   },
   ios: {
-    contentInset: "always",
+    // "never" keeps WKWebView from adding automatic scroll-view insets, which
+    // showed as blank space under the content when scrolling to the bottom.
+    contentInset: "never",
+    scrollEnabled: true,
+    backgroundColor: "#080812",
     limitsNavigationsToAppBoundDomains: false,
   },
   android: {
     allowMixedContent: false,
+    backgroundColor: "#080812",
   },
   plugins: {
     SplashScreen: {

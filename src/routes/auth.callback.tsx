@@ -35,7 +35,7 @@ function AuthCallback() {
   }, [navigate]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
+    <div className="flex min-h-dvh items-center justify-center bg-background">
       <div className="flex items-center gap-3 text-muted-foreground">
         <Loader2 className="size-5 animate-spin" />
         <span className="text-sm">Signing you in…</span>

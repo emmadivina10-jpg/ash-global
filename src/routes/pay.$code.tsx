@@ -42,7 +42,7 @@ export const Route = createFileRoute("/pay/$code")({
     };
   },
   notFoundComponent: () => (
-    <main className="grid min-h-screen place-items-center p-6 text-center">
+    <main className="grid min-h-dvh place-items-center p-6 text-center">
       <div>
         <h1 className="font-display text-2xl font-bold">Payment link not found</h1>
         <Button asChild className="mt-4">
@@ -104,7 +104,7 @@ function PayPage() {
   }
 
   return (
-    <main className="grid min-h-screen place-items-center bg-background p-4">
+    <main className="grid min-h-dvh place-items-center bg-background p-4">
       <div className="w-full max-w-md">
         <div className="mb-4 flex justify-center">
           <Logo />

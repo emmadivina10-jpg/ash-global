@@ -76,7 +76,7 @@ function Bullets({ items }: { items: string[] }) {
 
 function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="safe-top min-h-dvh bg-background">
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4 sm:px-6">
           <Link to="/" className="inline-flex">

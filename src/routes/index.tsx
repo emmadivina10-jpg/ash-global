@@ -133,7 +133,7 @@ function Landing() {
   const fee = formatXAF(ACTIVATION_FEE);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="safe-top min-h-dvh bg-background">
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3.5 sm:px-6">
           <Logo />
