@@ -163,17 +163,48 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl lg:hidden">
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3">
+            <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4 py-3">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    data-tour="profile"
+                    aria-label={t("nav.profile")}
+                    className="rounded-full ring-offset-background transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:opacity-80"
+                  >
+                    <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-60">
+                  <DropdownMenuLabel className="space-y-1">
+                    <p className="truncate text-sm font-semibold">{profile?.full_name || t("shell.member")}</p>
+                    <StatusBadge
+                      status={profile?.account_status ?? "PENDING"}
+                      label={profile?.account_status === "ACTIVE" ? t("shell.active") : t("shell.pending")}
+                    />
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={() => navigate({ to: "/profile" })}>
+                    <UserIcon className="size-4" aria-hidden />
+                    {t("nav.profile")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => navigate({ to: "/settings" })}>
+                    <SettingsIcon className="size-4" aria-hidden />
+                    {t("nav.settings")}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={() => void signOut()}>
+                    <LogOut className="size-4" aria-hidden />
+                    {t("shell.signOut")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Link to="/services" className="min-w-0">
                 <Logo compact />
               </Link>
               <div className="flex items-center gap-1">
                 <NotificationBell />
-                <LanguageSwitcher />
                 <ThemeToggle />
-              <Button variant="ghost" size="icon" aria-label={t("shell.signOut")} onClick={signOut}>
-                <LogOut className="size-4" aria-hidden />
-              </Button>
               </div>
             </div>
           </header>
