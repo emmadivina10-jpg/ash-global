@@ -13,7 +13,17 @@ final class ASHBridgeViewController: CAPBridgeViewController {
         webView?.scrollView.alwaysBounceVertical = false
         webView?.scrollView.contentInsetAdjustmentBehavior = .never
     }
+
+    // Stretch the web view over the full window, including the home-indicator
+    // area, so no blank strip can show under the tab bar.
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        webView?.frame = view.bounds
+    }
+
+    override var prefersHomeIndicatorAutoHidden: Bool { false }
 }
+
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
