@@ -268,12 +268,46 @@ export function useConversations() {
           clients[p.user_id] = { full_name: p.full_name || "ASH client", avatar_url: p.avatar_url };
         }
       }
+      // Last message preview + unread count, WhatsApp-style inbox rows.
+      const convIds = rows.map((r) => r.id);
+      const preview: Record<
+        string,
+        { body: string; created_at: string; sender_id: string; kind: string | null }
+      > = {};
+      const unread: Record<string, number> = {};
+      if (convIds.length > 0) {
+        const { data: auth } = await supabase.auth.getUser();
+        const me = auth.user?.id ?? "";
+        const { data: recent } = await supabase
+          .from("messages")
+          .select("conversation_id, body, created_at, sender_id, read_at, kind")
+          .in("conversation_id", convIds)
+          .order("created_at", { ascending: false })
+          .limit(400);
+        for (const m of recent ?? []) {
+          if (!preview[m.conversation_id]) {
+            preview[m.conversation_id] = {
+              body: m.body,
+              created_at: m.created_at,
+              sender_id: m.sender_id,
+              kind: (m as { kind?: string | null }).kind ?? "TEXT",
+            };
+          }
+          if (m.sender_id !== me && !m.read_at) {
+            unread[m.conversation_id] = (unread[m.conversation_id] ?? 0) + 1;
+          }
+        }
+      }
+
       return rows.map((row) => ({
         ...row,
         client: clients[row.client_id] ?? { full_name: "ASH client", avatar_url: null },
+        last_message: preview[row.id] ?? null,
+        unread_count: unread[row.id] ?? 0,
       }));
     },
   });
+
 
   // Keep the inbox live even when no thread is open.
   useEffect(() => {
