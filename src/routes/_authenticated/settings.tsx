@@ -118,6 +118,9 @@ function SettingsPage() {
     <div className="mx-auto w-full max-w-3xl space-y-5">
       <header>
         <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{t("settings.title")}</h1>
+        <p className="mt-1 text-sm font-semibold text-primary">
+          ASH — {fr ? "Là où les opportunités se connectent." : "Where Opportunities Connect."}
+        </p>
         <p className="mt-1 text-sm text-muted-foreground">{t("settings.subtitle")}</p>
       </header>
 
@@ -129,6 +132,19 @@ function SettingsPage() {
           keys={["settings.about.1", "settings.about.2", "settings.about.3", "settings.about.4", "settings.about.5"]}
           vars={{ fee: formatXAF(ACTIVATION_FEE) }}
         />
+        <div className="mt-4 flex flex-wrap gap-2">
+          {PILLARS.map(({ to, icon: Icon, en, fr: label }) => (
+            <Link
+              key={to}
+              to={to}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/40 px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+            >
+              <Icon className="size-3.5" aria-hidden />
+              {fr ? label : en}
+              <ArrowUpRight className="size-3 text-muted-foreground" aria-hidden />
+            </Link>
+          ))}
+        </div>
       </SectionCard>
 
       <SectionCard
