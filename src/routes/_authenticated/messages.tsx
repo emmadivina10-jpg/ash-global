@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import { ArrowLeft, MessageCircle, Search } from "lucide-react";
 import { useConversations } from "@/lib/marketplace.queries";
@@ -47,6 +47,7 @@ function MessagesPage() {
   const { user } = useUser();
   const { c } = Route.useSearch();
   const navigate = Route.useNavigate();
+  const routerNavigate = useNavigate();
   const { data: conversations, isLoading } = useConversations();
   const [term, setTerm] = useState("");
 
@@ -86,6 +87,25 @@ function MessagesPage() {
     }
     const viewerIsProvider = Boolean(user?.id) && conv.provider?.user_id === user?.id;
     return (viewerIsProvider ? conv.client_id : conv.provider?.user_id) ?? null;
+  }
+
+  /** Where the other side's public page lives, when they have one. */
+  function peerProfileOf(conv: (typeof list)[number] | undefined) {
+    if (!conv) return null;
+    if (conv.listing_id) {
+      const viewerIsOwner = Boolean(user?.id) && conv.owner_id === user?.id;
+      return viewerIsOwner || !conv.listing ? null : { to: "/property/$listingId", params: { listingId: conv.listing.id } };
+    }
+    const viewerIsProvider = Boolean(user?.id) && conv.provider?.user_id === user?.id;
+    if (viewerIsProvider || !conv.provider) return null;
+    return { to: "/services/$providerId", params: { providerId: conv.provider.id } };
+  }
+
+  /** Open the other side's page from the chat header. */
+  function openPeerProfile(conv: (typeof list)[number]) {
+    const target = peerProfileOf(conv);
+    if (!target) return;
+    void routerNavigate({ to: target.to, params: target.params } as never);
   }
 
   /** One-line preview of the newest message, like the WhatsApp chat list. */
