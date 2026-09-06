@@ -19,6 +19,61 @@ export function AshOrb() {
   const [panel, setPanel] = useState<OrbAction | null>(null);
   const { location, request, busy } = useLocation();
 
+  // Draggable orb. The wrapper is anchored bottom-right, so the offset is
+  // always negative-or-zero and clamped to the viewport: the button can be
+  // moved out of the way but never off-screen.
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const drag = useRef<{ px: number; py: number; ox: number; oy: number; moved: boolean } | null>(null);
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem("ash-orb-offset");
+      if (raw) {
+        const parsed = JSON.parse(raw) as { x: number; y: number };
+        if (typeof parsed?.x === "number" && typeof parsed?.y === "number") setOffset(parsed);
+      }
+    } catch {
+      /* ignore unreadable storage */
+    }
+  }, []);
+
+  function clamp(x: number, y: number) {
+    const maxLeft = Math.max(0, window.innerWidth - 96);
+    const maxUp = Math.max(0, window.innerHeight - 180);
+    return { x: Math.min(0, Math.max(-maxLeft, x)), y: Math.min(0, Math.max(-maxUp, y)) };
+  }
+
+  function onPointerDown(event: React.PointerEvent<HTMLButtonElement>) {
+    drag.current = { px: event.clientX, py: event.clientY, ox: offset.x, oy: offset.y, moved: false };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function onPointerMove(event: React.PointerEvent<HTMLButtonElement>) {
+    const d = drag.current;
+    if (!d) return;
+    const dx = event.clientX - d.px;
+    const dy = event.clientY - d.py;
+    if (!d.moved && Math.hypot(dx, dy) < 6) return;
+    d.moved = true;
+    setOffset(clamp(d.ox + dx, d.oy + dy));
+  }
+
+  function onPointerUp(event: React.PointerEvent<HTMLButtonElement>) {
+    const d = drag.current;
+    drag.current = null;
+    if (!d) return;
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+    if (d.moved) {
+      try {
+        window.localStorage.setItem("ash-orb-offset", JSON.stringify(offset));
+      } catch {
+        /* ignore unwritable storage */
+      }
+      return;
+    }
+    setOpen((value) => !value);
+  }
+
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
       if (event.key !== "Escape") return;
