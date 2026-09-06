@@ -544,6 +544,36 @@ html.native body {
   overscroll-behavior-y: none;
 }
 
+/* Keep the installed app inside the visual viewport. The authenticated page
+   scrolls inside this frame, so WKWebView never reveals its backing view below
+   the document when a member reaches the end of a page. */
+html.native,
+html.native body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+html.native .app-shell {
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+html.native .app-shell-frame,
+html.native .app-shell-column {
+  height: 100%;
+  min-height: 0;
+}
+
+html.native .app-shell-scroll {
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Applied by the app shell so the inset adds padding inside the scroll
    area instead of extending the document height. */
 .safe-top {

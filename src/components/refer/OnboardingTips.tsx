@@ -7,8 +7,7 @@ const KEY = "ash-tips-v1";
 type Step = { tour: string; en: string; fr: string };
 
 const STEPS: Step[] = [
-  { tour: "market", en: "Discover services, deals and people here.", fr: "Découvrez services, bons plans et personnes ici." },
-  { tour: "search", en: "Search the whole marketplace here.", fr: "Recherchez dans tout le marché ici." },
+  { tour: "market", en: "Discover and search services, deals and people here.", fr: "Découvrez et recherchez services, bons plans et personnes ici." },
   { tour: "create", en: "Create a post, service, deal or event here.", fr: "Créez une publication, un service, un bon plan ou un événement ici." },
   { tour: "messages", en: "Start a conversation here.", fr: "Démarrez une conversation ici." },
   { tour: "wallet", en: "Your balance and payments live here.", fr: "Votre solde et vos paiements sont ici." },

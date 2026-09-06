@@ -12,7 +12,7 @@
 Done
 - [x] Session persistence: signed-in members no longer bounced to the landing page after closing/reopening (trust stored session before the network check)
 - [x] Wallet promoted to its own bottom tab; removed from More
-- [x] Bottom bar white-space fix (double safe-area padding on native)
+- [x] Bottom bar white-space fix (bounded native scroll surface, no WebView bounce or exposed backing view)
 - [x] Notifications open the booking / chat / payout they refer to
 - [x] Floating "A" button is draggable and remembers its position
 - [x] First-launch welcome + guided tour + header profile menu
