@@ -1,4 +1,6 @@
 import { Bell, CheckCheck } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { notificationLink } from "@/lib/push";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useMarkNotificationsRead, useNotifications } from "@/lib/notifications";
