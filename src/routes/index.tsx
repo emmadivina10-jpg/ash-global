@@ -1,4 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { isNativeApp } from "@/lib/native";
+import { supabase } from "@/integrations/supabase/client";
 import marketHero from "@/assets/market-hero.jpg";
 import marketBeauty from "@/assets/market-beauty.jpg";
 import marketHome from "@/assets/market-home.jpg";
