@@ -444,3 +444,32 @@ export function useProvidersPortfolio(providerIds: string[], perProvider = 3) {
     },
   });
 }
+
+/** Latest portfolio posts across live providers — powers "Latest from the community". */
+export function useCommunityFeed(limit = 12) {
+  return useQuery({
+    queryKey: ["community-feed", limit],
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("portfolio_items")
+        .select("id, provider_id, image_path, caption, created_at, provider:provider_profiles!inner(id, business_name, slug, city, avatar_url, is_live)")
+        .eq("provider.is_live", true)
+        .order("created_at", { ascending: false })
+        .limit(limit);
+      if (error) throw error;
+      const rows = (data ?? []) as unknown as {
+        id: string;
+        provider_id: string;
+        image_path: string;
+        caption: string | null;
+        created_at: string;
+        provider: { id: string; business_name: string; slug: string | null; city: string | null; avatar_url: string | null };
+      }[];
+      const urls = await signPortfolioPaths(rows.map((r) => r.image_path));
+      return rows
+        .map((r) => ({ ...r, url: urls[r.image_path] ?? "" }))
+        .filter((r) => r.url);
+    },
+  });
+}
