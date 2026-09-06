@@ -93,8 +93,8 @@ export function OnboardingTips({ enabled }: { enabled: boolean }) {
         aria-hidden
       />
       <div
-        className="absolute w-[260px] -translate-x-1/2 rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-card)]"
-        style={{ top, left, transform: `translate(-50%, ${below ? "0" : "-100%"})` }}
+        className="absolute -translate-x-1/2 rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-card)]"
+        style={{ top, left, width, transform: `translate(-50%, ${below ? "0" : "-100%"})` }}
       >
         <p className="text-sm font-semibold text-foreground">{fr ? step.fr : step.en}</p>
         <div className="mt-3 flex items-center justify-between gap-2">
