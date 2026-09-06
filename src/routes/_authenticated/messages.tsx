@@ -128,8 +128,8 @@ function MessagesPage() {
     : list;
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-4">
-      <header className={cn(mobileView === "thread" && "hidden", "md:block")}>
+    <div className="mx-auto w-full max-w-5xl md:space-y-4">
+      <header className="hidden md:block">
         <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">{t("chat.title")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{t("chat.pick")}</p>
       </header>
@@ -143,15 +143,18 @@ function MessagesPage() {
           icon={<MessageCircle className="size-5" aria-hidden />}
         />
       ) : (
-        <div className="grid gap-4 max-md:-mx-4 md:grid-cols-[320px_minmax(0,1fr)]">
+        <div className="grid md:gap-4 md:grid-cols-[320px_minmax(0,1fr)]">
           <div
             className={cn(
-              "tile flex flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-x-0",
-              mobileView === "thread" ? "hidden md:flex" : "max-h-[calc(100dvh-11rem)]",
+              "tile flex flex-col overflow-hidden bg-background p-0 max-md:rounded-none max-md:border-0",
+              mobileView === "thread"
+                ? "hidden md:flex"
+                : "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:z-40 max-md:h-[calc(100dvh-4.75rem-env(safe-area-inset-bottom))]",
               "md:max-h-[72vh]",
             )}
           >
-            <div className="border-b border-border p-2.5">
+            <div className="border-b border-border bg-card/95 px-3 pb-2.5 pt-2.5 backdrop-blur max-md:pt-[calc(0.75rem+env(safe-area-inset-top))]">
+              <h2 className="mb-2 font-display text-xl font-bold text-foreground md:hidden">{t("chat.title")}</h2>
               <div className="flex items-center gap-2 rounded-full bg-muted px-3 py-2">
                 <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden />
                 <input
@@ -163,6 +166,7 @@ function MessagesPage() {
                 />
               </div>
             </div>
+
 
             <nav className="min-h-0 flex-1 divide-y divide-border overflow-y-auto">
               {filtered.length === 0 ? (

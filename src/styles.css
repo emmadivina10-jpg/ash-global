@@ -594,9 +594,12 @@ html.native body {
 
 html.native .app-shell {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: auto;
   width: 100%;
-  height: auto;
+  height: var(--ash-vh, 100%);
   min-height: 0;
   overflow: hidden;
   padding-top: 0;
@@ -617,7 +620,10 @@ html.native .app-shell-scroll {
   touch-action: pan-y;
 }
 
+/* Anchor the tab bar to the bottom of the *visible* frame instead of the
+   layout viewport, so no empty band can appear beneath it. */
 html.native .app-shell > nav {
+  position: absolute;
   bottom: 0;
 }
 
