@@ -465,7 +465,7 @@ export function ChatThread({
           e.preventDefault();
           void submit(body);
         }}
-        className="flex items-end gap-2 border-t border-border pt-3 pb-[env(safe-area-inset-bottom)]"
+        className="sticky bottom-0 z-20 flex items-end gap-2 border-t border-border bg-background pt-3 pb-[calc(env(safe-area-inset-bottom)+0.5rem)]"
       >
         <div className="flex min-w-0 flex-1 flex-col">
           <Textarea
@@ -544,15 +544,19 @@ function InvoiceMessage({
   const invoice = String(
     metadata["invoice_number"] ?? "",
   );
+
   const total = Number(
     metadata["total"] ?? metadata["price"] ?? 0,
   );
+
   const fee = Number(
     metadata["platform_fee"] ?? 0,
   );
+
   const net = Number(
     metadata["provider_amount"] ?? 0,
   );
+
   const service = String(
     metadata["service_title"] ?? "",
   );
