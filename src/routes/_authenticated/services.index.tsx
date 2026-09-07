@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Briefcase,
   Calendar,
+  Cloud,
   Home,
   MapPin,
   Search,
@@ -91,10 +92,9 @@ function DiscoveryPage() {
 
   // Debounce the free-text search so typing does not hit the database per keystroke.
   useEffect(() => {
-    const id = setTimeout(
-      () => setFilters((f) => ({ ...f, search: searchInput })),
-      350,
-    );
+    const id = setTimeout(() => {
+      setFilters((f) => ({ ...f, search: searchInput }));
+    }, 350);
 
     return () => clearTimeout(id);
   }, [searchInput]);
@@ -113,6 +113,7 @@ function DiscoveryPage() {
   // Location-first: once we know the member's city, it leads the feed.
   useEffect(() => {
     const city = location?.label ?? null;
+
     setFilters((f) =>
       f.nearCity === city ? f : { ...f, nearCity: city },
     );
@@ -122,6 +123,7 @@ function DiscoveryPage() {
   // (admins in "all regions" mode see everything).
   useEffect(() => {
     const scope = region.seesEverything ? null : region.country;
+
     setFilters((f) =>
       f.country === scope ? f : { ...f, country: scope },
     );
@@ -235,7 +237,11 @@ function DiscoveryPage() {
               {fr ? "Activer" : "Enable"}
             </Button>
 
-            <Button size="sm" variant="ghost" onClick={dismiss}>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={dismiss}
+            >
               {fr ? "Plus tard" : "Later"}
             </Button>
           </div>
@@ -272,7 +278,10 @@ function DiscoveryPage() {
           aria-expanded={showFilters}
           className="h-11 rounded-full"
         >
-          <SlidersHorizontal className="size-4" aria-hidden />
+          <SlidersHorizontal
+            className="size-4"
+            aria-hidden
+          />
 
           <span className="hidden sm:inline">
             {fr ? "Filtres" : "Filters"}
@@ -286,121 +295,232 @@ function DiscoveryPage() {
         </Button>
       </div>
 
-      {/* ASH sections + external quick links */}
+      {/* ASH ecosystem navigation */}
       <nav
         aria-label={fr ? "Sections ASH" : "ASH sections"}
         className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-1 pt-1"
       >
-        {/* Native ASH sections */}
-        {[
-          {
-            to: "/services",
-            label: fr ? "Services" : "Services",
-            Icon: Wrench,
-          },
-          {
-            to: "/freelance",
-            label: fr ? "Emplois" : "Jobs",
-            Icon: Briefcase,
-          },
-          {
-            to: "/deals",
-            label: fr ? "Promos" : "Deals",
-            Icon: Tag,
-          },
-          {
-            to: "/events",
-            label: fr ? "Événements" : "Events",
-            Icon: Calendar,
-          },
-          {
-            to: "/property",
-            label: fr ? "Immobilier" : "Property",
-            Icon: Home,
-          },
-          {
-            to: "/network",
-            label: fr ? "Personnes" : "People",
-            Icon: Users,
-          },
-        ].map(({ to, label, Icon }) => (
-          <Link
-            key={to}
-            to={to}
-            className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
-          >
-            <span className="grid size-12 place-items-center rounded-full brand-gradient text-on-dark shadow-[var(--shadow-brand)] transition-transform group-hover:scale-105">
-              <Icon
-                className="size-5"
-                aria-hidden
-              />
-            </span>
+        {/* Services */}
+        <Link
+          to="/services"
+          className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
+        >
+          <span className="grid size-12 place-items-center rounded-full brand-gradient text-on-dark shadow-[var(--shadow-brand)] transition-transform group-hover:scale-105">
+            <Wrench
+              className="size-5"
+              aria-hidden
+            />
+          </span>
 
-            <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-              {label}
-            </span>
-          </Link>
-        ))}
+          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
+            {fr ? "Services" : "Services"}
+          </span>
+        </Link>
 
-        {/* External quick links */}
-        {[
-          {
-            href: "https://chatgpt.com/",
-            label: "ChatGPT",
-            logo: "https://cdn.simpleicons.org/openai",
-          },
-          {
-            href: "https://www.tchokopay.com/",
-            label: "TchokoPay",
-            logo: "https://www.tchokopay.com/favicon.ico",
-          },
-          {
-            href: "https://www.paypal.com/",
-            label: "PayPal",
-            logo: "https://cdn.simpleicons.org/paypal",
-          },
-          {
-            href: "https://stripe.com/",
-            label: "Stripe",
-            logo: "https://cdn.simpleicons.org/stripe",
-          },
-          {
-            href: "https://www.metatrader5.com/",
-            label: "MT5",
-            logo: "https://www.metatrader5.com/favicon.ico",
-          },
-        ].map(({ href, label, logo }) => (
-          <a
-            key={href}
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
-            aria-label={`${label} - external website`}
-          >
-            <span className="relative grid size-12 place-items-center rounded-full border border-border bg-card shadow-sm transition-transform group-hover:scale-105">
-              <img
-                src={logo}
-                alt=""
-                className="size-7 object-contain"
-                loading="lazy"
-                referrerPolicy="no-referrer"
-                aria-hidden
-              />
+        {/* TchokoPay */}
+        <a
+          href="https://www.tchokopay.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
+          aria-label="TchokoPay - external website"
+        >
+          <span className="relative grid size-12 place-items-center rounded-full border border-border bg-card shadow-sm transition-transform group-hover:scale-105">
+            <img
+              src="https://www.tchokopay.com/favicon.ico"
+              alt=""
+              className="size-7 object-contain"
+              loading="lazy"
+              referrerPolicy="no-referrer"
+              aria-hidden
+            />
 
-              <span
-                className="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-background text-[9px] font-bold text-muted-foreground ring-1 ring-border"
-                aria-hidden
-              >
-                ↗
-              </span>
+            <span
+              className="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-background text-[9px] font-bold text-muted-foreground ring-1 ring-border"
+              aria-hidden
+            >
+              ↗
             </span>
+          </span>
 
-            <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-              {label}
+          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
+            TchokoPay
+          </span>
+        </a>
+
+        {/* Stripe */}
+        <a
+          href="https://stripe.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
+          aria-label="Stripe - external website"
+        >
+          <span className="relative grid size-12 place-items-center rounded-full border border-border bg-card shadow-sm transition-transform group-hover:scale-105">
+            <img
+              src="https://cdn.simpleicons.org/stripe"
+              alt=""
+              className="size-7 object-contain"
+              loading="lazy"
+              referrerPolicy="no-referrer"
+              aria-hidden
+            />
+
+            <span
+              className="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-background text-[9px] font-bold text-muted-foreground ring-1 ring-border"
+              aria-hidden
+            >
+              ↗
             </span>
-          </a>
-        ))}
+          </span>
+
+          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
+            Stripe
+          </span>
+        </a>
+
+        {/* Jobs */}
+        <Link
+          to="/freelance"
+          className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
+        >
+          <span className="grid size-12 place-items-center rounded-full brand-gradient text-on-dark shadow-[var(--shadow-brand)] transition-transform group-hover:scale-105">
+            <Briefcase
+              className="size-5"
+              aria-hidden
+            />
+          </span>
+
+          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
+            {fr ? "Emplois" : "Jobs"}
+          </span>
+        </Link>
+
+        {/* Deals */}
+        <Link
+          to="/deals"
+          className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
+        >
+          <span className="grid size-12 place-items-center rounded-full bg-[#07152f] text-white shadow-md transition-transform group-hover:scale-105">
+            <Tag
+              className="size-5"
+              aria-hidden
+            />
+          </span>
+
+          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
+            {fr ? "Promos" : "Deals"}
+          </span>
+        </Link>
+
+        {/* Events */}
+        <Link
+          to="/events"
+          className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
+        >
+          <span className="grid size-12 place-items-center rounded-full bg-[#07152f] text-white shadow-md transition-transform group-hover:scale-105">
+            <Calendar
+              className="size-5"
+              aria-hidden
+            />
+          </span>
+
+          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
+            {fr ? "Événements" : "Events"}
+          </span>
+        </Link>
+
+        {/* MetaTrader 5 */}
+        <a
+          href="https://www.metatrader5.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
+          aria-label="MetaTrader 5 - external website"
+        >
+          <span className="relative grid size-12 place-items-center rounded-full border border-border bg-card shadow-sm transition-transform group-hover:scale-105">
+            <img
+              src="https://www.metatrader5.com/favicon.ico"
+              alt=""
+              className="size-7 object-contain"
+              loading="lazy"
+              referrerPolicy="no-referrer"
+              aria-hidden
+            />
+
+            <span
+              className="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-background text-[9px] font-bold text-muted-foreground ring-1 ring-border"
+              aria-hidden
+            >
+              ↗
+            </span>
+          </span>
+
+          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
+            MT5
+          </span>
+        </a>
+
+        {/* Property */}
+        <Link
+          to="/property"
+          className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
+        >
+          <span className="grid size-12 place-items-center rounded-full bg-slate-200 text-slate-800 shadow-md transition-transform group-hover:scale-105 dark:bg-slate-300 dark:text-slate-900">
+            <Home
+              className="size-5"
+              aria-hidden
+            />
+          </span>
+
+          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
+            {fr ? "Immobilier" : "Property"}
+          </span>
+        </Link>
+
+        {/* Cloud */}
+        <a
+          href="https://cloud.google.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
+          aria-label="Cloud - external website"
+        >
+          <span className="relative grid size-12 place-items-center rounded-full bg-slate-100 text-slate-700 shadow-md transition-transform group-hover:scale-105 dark:bg-slate-200 dark:text-slate-800">
+            <Cloud
+              className="size-6"
+              aria-hidden
+            />
+
+            <span
+              className="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-background text-[9px] font-bold text-muted-foreground ring-1 ring-border"
+              aria-hidden
+            >
+              ↗
+            </span>
+          </span>
+
+          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
+            Cloud
+          </span>
+        </a>
+
+        {/* People */}
+        <Link
+          to="/network"
+          className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
+        >
+          <span className="grid size-12 place-items-center rounded-full bg-slate-200 text-slate-800 shadow-md transition-transform group-hover:scale-105 dark:bg-slate-300 dark:text-slate-900">
+            <Users
+              className="size-5"
+              aria-hidden
+            />
+          </span>
+
+          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
+            {fr ? "Personnes" : "People"}
+          </span>
+        </Link>
       </nav>
 
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
@@ -498,7 +618,9 @@ function DiscoveryPage() {
 
           <div className="space-y-1.5">
             <Label>
-              {fr ? "Note minimum" : "Minimum rating"}
+              {fr
+                ? "Note minimum"
+                : "Minimum rating"}
             </Label>
 
             <Select
@@ -746,9 +868,7 @@ function DiscoveryPage() {
                   }
                   nearby={
                     Boolean(filters.nearCity) &&
-                    (
-                      provider.city ?? ""
-                    )
+                    (provider.city ?? "")
                       .trim()
                       .toLowerCase() ===
                       (
@@ -875,9 +995,7 @@ function DiscoveryPage() {
                 }
                 nearby={
                   Boolean(filters.nearCity) &&
-                  (
-                    provider.city ?? ""
-                  )
+                  (provider.city ?? "")
                     .trim()
                     .toLowerCase() ===
                     (
