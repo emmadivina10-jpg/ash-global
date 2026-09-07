@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import { ArrowLeft, MessageCircle, Search } from "lucide-react";
+
 import { useConversations } from "@/lib/marketplace.queries";
 import { useUser } from "@/lib/queries";
 import { ChatThread } from "@/components/refer/ChatThread";
@@ -137,6 +138,7 @@ function MessagesPage() {
   const { c } = Route.useSearch();
   const navigate = Route.useNavigate();
   const routerNavigate = useNavigate();
+
   const { data: conversations, isLoading } = useConversations();
   const [term, setTerm] = useState("");
 
@@ -450,7 +452,8 @@ function MessagesPage() {
               "tile chat-surface flex flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-0",
               mobileView === "list"
                 ? "hidden md:flex"
-                : "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:z-[70] max-md:h-[calc(var(--ash-vh,100dvh)-env(safe-area-inset-top)-env(safe-area-inset-bottom))] max-md:w-screen md:h-[72vh]",
+                : "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:z-[70] max-md:h-[calc(var(--ash-vh,100dvh)-env(safe-area-inset-top)-env(safe-area-inset-bottom))] max-md:w-screen",
+              "md:h-[72vh]",
             )}
           >
             {/* CHAT HEADER */}
@@ -458,7 +461,12 @@ function MessagesPage() {
               {/* BACK TO MESSAGES */}
               <button
                 type="button"
-                onClick={() => void navigate({ search: {} })}
+                onClick={() =>
+                  void navigate({
+                    to: "/messages",
+                    search: {},
+                  })
+                }
                 aria-label={
                   fr
                     ? "Retour aux messages"
