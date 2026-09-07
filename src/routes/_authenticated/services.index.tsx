@@ -3,7 +3,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Briefcase,
   Calendar,
-  ExternalLink,
   Home,
   MapPin,
   Search,
@@ -453,17 +452,13 @@ function DiscoveryPage() {
           rel="noopener noreferrer"
           className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="relative grid size-14 place-items-center overflow-hidden rounded-full border-2 border-border bg-card shadow-lg transition-all duration-200 group-hover:scale-105 group-hover:shadow-xl">
+          <span className="grid size-14 place-items-center overflow-hidden rounded-full border-2 border-border bg-card shadow-lg transition-all duration-200 group-hover:scale-105 group-hover:shadow-xl">
             <img
               src="https://www.tchokopay.com/favicon.ico"
               alt="TchokoPay"
               className="size-7 object-contain"
               loading="lazy"
             />
-
-            <span className="absolute right-0.5 top-0.5 grid size-4 place-items-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground shadow">
-              ↗
-            </span>
           </span>
 
           <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
@@ -478,17 +473,13 @@ function DiscoveryPage() {
           rel="noopener noreferrer"
           className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="relative grid size-14 place-items-center overflow-hidden rounded-full border-2 border-border bg-card shadow-lg transition-all duration-200 group-hover:scale-105 group-hover:shadow-xl">
+          <span className="grid size-14 place-items-center overflow-hidden rounded-full border-2 border-border bg-card shadow-lg transition-all duration-200 group-hover:scale-105 group-hover:shadow-xl">
             <img
               src="https://cdn.simpleicons.org/stripe"
               alt="Stripe"
               className="size-7 object-contain"
               loading="lazy"
             />
-
-            <span className="absolute right-0.5 top-0.5 grid size-4 place-items-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground shadow">
-              ↗
-            </span>
           </span>
 
           <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
@@ -560,17 +551,13 @@ function DiscoveryPage() {
           rel="noopener noreferrer"
           className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="relative grid size-14 place-items-center overflow-hidden rounded-full border-2 border-border bg-card shadow-lg transition-all duration-200 group-hover:scale-105 group-hover:shadow-xl">
+          <span className="grid size-14 place-items-center overflow-hidden rounded-full border-2 border-border bg-card shadow-lg transition-all duration-200 group-hover:scale-105 group-hover:shadow-xl">
             <img
               src="https://www.metatrader5.com/favicon.ico"
               alt="MetaTrader 5"
               className="size-7 object-contain"
               loading="lazy"
             />
-
-            <span className="absolute right-0.5 top-0.5 grid size-4 place-items-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground shadow">
-              ↗
-            </span>
           </span>
 
           <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
