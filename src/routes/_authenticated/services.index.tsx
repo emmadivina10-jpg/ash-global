@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Briefcase,
   Calendar,
+  ExternalLink,
   Home,
   MapPin,
   Search,
@@ -134,12 +135,14 @@ function DiscoveryPage() {
   // Debounce the free-text search so typing does not hit
   // the database per keystroke.
   useEffect(() => {
-    const id = setTimeout(() => {
-      setFilters((f) => ({
-        ...f,
-        search: searchInput,
-      }));
-    }, 350);
+    const id = setTimeout(
+      () =>
+        setFilters((f) => ({
+          ...f,
+          search: searchInput,
+        })),
+      350,
+    );
 
     return () => clearTimeout(id);
   }, [searchInput]);
@@ -165,8 +168,7 @@ function DiscoveryPage() {
   // Location-first: once we know the member's city,
   // it leads the feed.
   useEffect(() => {
-    const city =
-      location?.label ?? null;
+    const city = location?.label ?? null;
 
     setFilters((f) =>
       f.nearCity === city
@@ -178,13 +180,11 @@ function DiscoveryPage() {
     );
   }, [location?.label]);
 
-  // Country-scoped catalogue: you only see storefronts
-  // in your own country.
+  // Country-scoped catalogue.
   useEffect(() => {
-    const scope =
-      region.seesEverything
-        ? null
-        : region.country;
+    const scope = region.seesEverything
+      ? null
+      : region.country;
 
     setFilters((f) =>
       f.country === scope
@@ -208,7 +208,8 @@ function DiscoveryPage() {
   } = useDiscovery(filters);
 
   const providers = useMemo(
-    () => (data?.pages ?? []).flat(),
+    () =>
+      (data?.pages ?? []).flat(),
     [data],
   );
 
@@ -237,8 +238,7 @@ function DiscoveryPage() {
     useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const node =
-      sentinel.current;
+    const node = sentinel.current;
 
     if (!node) return;
 
@@ -352,6 +352,7 @@ function DiscoveryPage() {
         </div>
       ) : null}
 
+      {/* SEARCH */}
       <div className="-mx-1 grid grid-cols-[minmax(0,1fr)_auto] gap-2 rounded-2xl bg-background/85 px-1 py-2 backdrop-blur-xl lg:top-0">
         <div className="relative min-w-0">
           <Search
@@ -415,23 +416,25 @@ function DiscoveryPage() {
         </Button>
       </div>
 
-      {/* ASH ecosystem navigation */}
+      {/* =========================================================
+          ASH MARKETPLACE QUICK NAVIGATION
+          ========================================================= */}
       <nav
         aria-label={
           fr
             ? "Sections ASH"
             : "ASH sections"
         }
-        className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-1 pt-1"
+        className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 pt-1 scrollbar-none"
       >
-        {/* Services */}
+        {/* SERVICES */}
         <Link
           to="/services"
-          className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
+          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="grid size-12 place-items-center rounded-full bg-slate-700 text-white shadow-md transition-transform group-hover:scale-105 dark:bg-slate-500 dark:text-white">
+          <span className="grid size-14 place-items-center rounded-full bg-slate-700 text-white shadow-lg ring-2 ring-slate-400/30 transition-all duration-200 group-hover:scale-105 group-hover:shadow-xl dark:bg-slate-600">
             <Wrench
-              className="size-5"
+              className="size-6"
               aria-hidden
             />
           </span>
@@ -443,28 +446,22 @@ function DiscoveryPage() {
           </span>
         </Link>
 
-        {/* TchokoPay */}
+        {/* TCHOKOPAY */}
         <a
           href="https://www.tchokopay.com/"
           target="_blank"
           rel="noopener noreferrer"
-          className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
-          aria-label="TchokoPay - external website"
+          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="relative grid size-12 place-items-center rounded-full border border-border bg-card shadow-sm transition-transform group-hover:scale-105">
+          <span className="relative grid size-14 place-items-center overflow-hidden rounded-full border-2 border-border bg-card shadow-lg transition-all duration-200 group-hover:scale-105 group-hover:shadow-xl">
             <img
               src="https://www.tchokopay.com/favicon.ico"
-              alt=""
+              alt="TchokoPay"
               className="size-7 object-contain"
               loading="lazy"
-              referrerPolicy="no-referrer"
-              aria-hidden
             />
 
-            <span
-              className="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-background text-[9px] font-bold text-muted-foreground ring-1 ring-border"
-              aria-hidden
-            >
+            <span className="absolute right-0.5 top-0.5 grid size-4 place-items-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground shadow">
               ↗
             </span>
           </span>
@@ -474,28 +471,22 @@ function DiscoveryPage() {
           </span>
         </a>
 
-        {/* Stripe */}
+        {/* STRIPE */}
         <a
           href="https://stripe.com/"
           target="_blank"
           rel="noopener noreferrer"
-          className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
-          aria-label="Stripe - external website"
+          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="relative grid size-12 place-items-center rounded-full border border-border bg-card shadow-sm transition-transform group-hover:scale-105">
+          <span className="relative grid size-14 place-items-center overflow-hidden rounded-full border-2 border-border bg-card shadow-lg transition-all duration-200 group-hover:scale-105 group-hover:shadow-xl">
             <img
               src="https://cdn.simpleicons.org/stripe"
-              alt=""
+              alt="Stripe"
               className="size-7 object-contain"
               loading="lazy"
-              referrerPolicy="no-referrer"
-              aria-hidden
             />
 
-            <span
-              className="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-background text-[9px] font-bold text-muted-foreground ring-1 ring-border"
-              aria-hidden
-            >
+            <span className="absolute right-0.5 top-0.5 grid size-4 place-items-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground shadow">
               ↗
             </span>
           </span>
@@ -505,14 +496,14 @@ function DiscoveryPage() {
           </span>
         </a>
 
-        {/* Jobs */}
+        {/* JOBS */}
         <Link
           to="/freelance"
-          className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
+          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="grid size-12 place-items-center rounded-full bg-violet-500 text-white shadow-md transition-transform group-hover:scale-105 dark:bg-violet-400 dark:text-white">
+          <span className="grid size-14 place-items-center rounded-full bg-violet-600 text-white shadow-lg ring-2 ring-violet-400/30 transition-all duration-200 group-hover:scale-105 group-hover:shadow-xl dark:bg-violet-500">
             <Briefcase
-              className="size-5"
+              className="size-6"
               aria-hidden
             />
           </span>
@@ -524,14 +515,14 @@ function DiscoveryPage() {
           </span>
         </Link>
 
-        {/* Deals */}
+        {/* DEALS */}
         <Link
           to="/deals"
-          className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
+          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="grid size-12 place-items-center rounded-full bg-blue-700 text-white shadow-md transition-transform group-hover:scale-105 dark:bg-blue-600 dark:text-white">
+          <span className="grid size-14 place-items-center rounded-full bg-blue-600 text-white shadow-lg ring-2 ring-blue-400/30 transition-all duration-200 group-hover:scale-105 group-hover:shadow-xl dark:bg-blue-500">
             <Tag
-              className="size-5"
+              className="size-6"
               aria-hidden
             />
           </span>
@@ -543,14 +534,14 @@ function DiscoveryPage() {
           </span>
         </Link>
 
-        {/* Events */}
+        {/* EVENTS */}
         <Link
           to="/events"
-          className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
+          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="grid size-12 place-items-center rounded-full bg-sky-600 text-white shadow-md transition-transform group-hover:scale-105 dark:bg-sky-500 dark:text-white">
+          <span className="grid size-14 place-items-center rounded-full bg-sky-600 text-white shadow-lg ring-2 ring-sky-400/30 transition-all duration-200 group-hover:scale-105 group-hover:shadow-xl dark:bg-sky-500">
             <Calendar
-              className="size-5"
+              className="size-6"
               aria-hidden
             />
           </span>
@@ -562,28 +553,22 @@ function DiscoveryPage() {
           </span>
         </Link>
 
-        {/* MetaTrader 5 */}
+        {/* MT5 */}
         <a
           href="https://www.metatrader5.com/"
           target="_blank"
           rel="noopener noreferrer"
-          className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
-          aria-label="MetaTrader 5 - external website"
+          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="relative grid size-12 place-items-center rounded-full border border-border bg-card shadow-sm transition-transform group-hover:scale-105">
+          <span className="relative grid size-14 place-items-center overflow-hidden rounded-full border-2 border-border bg-card shadow-lg transition-all duration-200 group-hover:scale-105 group-hover:shadow-xl">
             <img
               src="https://www.metatrader5.com/favicon.ico"
-              alt=""
+              alt="MetaTrader 5"
               className="size-7 object-contain"
               loading="lazy"
-              referrerPolicy="no-referrer"
-              aria-hidden
             />
 
-            <span
-              className="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-background text-[9px] font-bold text-muted-foreground ring-1 ring-border"
-              aria-hidden
-            >
+            <span className="absolute right-0.5 top-0.5 grid size-4 place-items-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground shadow">
               ↗
             </span>
           </span>
@@ -593,14 +578,14 @@ function DiscoveryPage() {
           </span>
         </a>
 
-        {/* Property */}
+        {/* PROPERTY */}
         <Link
           to="/property"
-          className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
+          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="grid size-12 place-items-center rounded-full bg-slate-100 text-slate-700 shadow-md transition-transform group-hover:scale-105 dark:bg-slate-300 dark:text-slate-800">
+          <span className="grid size-14 place-items-center rounded-full bg-card text-foreground shadow-lg ring-2 ring-border transition-all duration-200 group-hover:scale-105 group-hover:shadow-xl">
             <Home
-              className="size-5"
+              className="size-6"
               aria-hidden
             />
           </span>
@@ -612,14 +597,14 @@ function DiscoveryPage() {
           </span>
         </Link>
 
-        {/* People */}
+        {/* PEOPLE */}
         <Link
           to="/network"
-          className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
+          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="grid size-12 place-items-center rounded-full bg-slate-200 text-slate-700 shadow-md transition-transform group-hover:scale-105 dark:bg-slate-300 dark:text-slate-800">
+          <span className="grid size-14 place-items-center rounded-full bg-card text-foreground shadow-lg ring-2 ring-border transition-all duration-200 group-hover:scale-105 group-hover:shadow-xl">
             <Users
-              className="size-5"
+              className="size-6"
               aria-hidden
             />
           </span>
@@ -632,6 +617,7 @@ function DiscoveryPage() {
         </Link>
       </nav>
 
+      {/* CATEGORY FILTERS */}
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
         {(
           [
@@ -705,6 +691,7 @@ function DiscoveryPage() {
         </div>
       ) : null}
 
+      {/* FILTER PANEL */}
       {showFilters ? (
         <div className="grid gap-4 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-1.5">
@@ -745,16 +732,16 @@ function DiscoveryPage() {
                     : "All cities"}
                 </SelectItem>
 
-                {(cities ?? []).map(
-                  (c) => (
-                    <SelectItem
-                      key={c}
-                      value={c}
-                    >
-                      {c}
-                    </SelectItem>
-                  ),
-                )}
+                {(cities ??
+                  []
+                ).map((c) => (
+                  <SelectItem
+                    key={c}
+                    value={c}
+                  >
+                    {c}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -870,8 +857,7 @@ function DiscoveryPage() {
               }
               onValueChange={(v) =>
                 patch({
-                  sort:
-                    v as DiscoverySort,
+                  sort: v as DiscoverySort,
                 })
               }
             >
@@ -987,6 +973,7 @@ function DiscoveryPage() {
         </div>
       ) : null}
 
+      {/* LOCATION */}
       {location ? (
         <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <MapPin
@@ -1004,8 +991,10 @@ function DiscoveryPage() {
         </p>
       ) : null}
 
+      {/* RECOMMENDED */}
       {browsing &&
-      recommended.length > 0 ? (
+      recommended.length >
+        0 ? (
         <section
           aria-label={
             fr
@@ -1078,9 +1067,10 @@ function DiscoveryPage() {
         </section>
       ) : null}
 
+      {/* COMMUNITY */}
       {browsing &&
-      (community ?? []).length >
-        0 ? (
+      (community ?? [])
+        .length > 0 ? (
         <section
           aria-label={
             fr
@@ -1096,72 +1086,70 @@ function DiscoveryPage() {
           </h2>
 
           <div className="-mx-1 flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto px-1 pb-1">
-            {(community ?? []).map(
-              (post) => (
-                <Link
-                  key={post.id}
-                  to="/services/$providerId"
-                  params={{
-                    providerId:
+            {(community ??
+              []
+            ).map((post) => (
+              <Link
+                key={post.id}
+                to="/services/$providerId"
+                params={{
+                  providerId:
+                    post.provider.id,
+                }}
+                className="group w-56 shrink-0 snap-start overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]"
+              >
+                <div className="aspect-[4/3] overflow-hidden bg-muted">
+                  <img
+                    src={post.url}
+                    alt={
+                      post.caption ??
                       post.provider
-                        .id,
-                  }}
-                  className="group w-56 shrink-0 snap-start overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]"
-                >
-                  <div className="aspect-[4/3] overflow-hidden bg-muted">
-                    <img
-                      src={post.url}
-                      alt={
-                        post.caption ??
-                        post
-                          .provider
-                          .business_name
-                      }
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                    />
-                  </div>
+                        .business_name
+                    }
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                  />
+                </div>
 
-                  <div className="space-y-0.5 p-3">
-                    <p className="truncate text-sm font-bold text-foreground">
+                <div className="space-y-0.5 p-3">
+                  <p className="truncate text-sm font-bold text-foreground">
+                    {
+                      post.provider
+                        .business_name
+                    }
+                  </p>
+
+                  {post.caption ? (
+                    <p className="line-clamp-2 text-xs text-muted-foreground">
+                      {
+                        post.caption
+                      }
+                    </p>
+                  ) : null}
+
+                  {post.provider
+                    .city ? (
+                    <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                      <MapPin
+                        className="size-3"
+                        aria-hidden
+                      />
+
                       {
                         post
                           .provider
-                          .business_name
+                          .city
                       }
                     </p>
-
-                    {post.caption ? (
-                      <p className="line-clamp-2 text-xs text-muted-foreground">
-                        {
-                          post.caption
-                        }
-                      </p>
-                    ) : null}
-
-                    {post.provider
-                      .city ? (
-                      <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                        <MapPin
-                          className="size-3"
-                          aria-hidden
-                        />
-
-                        {
-                          post
-                            .provider
-                            .city
-                        }
-                      </p>
-                    ) : null}
-                  </div>
-                </Link>
-              ),
-            )}
+                  ) : null}
+                </div>
+              </Link>
+            ))}
           </div>
         </section>
       ) : null}
 
+      {/* PROVIDERS */}
       {isLoading ? (
         <SkeletonRows rows={4} />
       ) : providers.length ===
@@ -1248,13 +1236,12 @@ function DiscoveryPage() {
           />
 
           {isFetchingNextPage ? (
-            <SkeletonRows
-              rows={1}
-            />
+            <SkeletonRows rows={1} />
           ) : null}
 
           {!hasNextPage &&
-          providers.length > 0 ? (
+          providers.length >
+            0 ? (
             <p className="pb-2 text-center text-xs text-muted-foreground">
               {fr
                 ? "Vous avez tout vu."
