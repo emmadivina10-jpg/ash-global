@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowDownToLine,
@@ -46,12 +47,58 @@ function WalletPage() {
   const active = profile?.account_status === "ACTIVE";
   const { t } = useI18n();
 
+  const [walletTheme, setWalletTheme] = useState(0);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setWalletTheme((current) => (current + 1) % 3);
+    }, 5000);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
+  const walletThemes = [
+    {
+      name: "white",
+      glow:
+        "from-white/70 via-slate-100/50 to-slate-200/30 dark:from-white/10 dark:via-slate-300/5 dark:to-transparent",
+      border: "border-slate-200/80 dark:border-white/10",
+      accent: "from-slate-100 via-white to-slate-300 dark:from-slate-700 dark:via-slate-500 dark:to-slate-800",
+      dot: "bg-slate-400 dark:bg-slate-300",
+      badge:
+        "from-slate-100 via-white to-slate-300 text-slate-700 ring-slate-300/70 dark:from-slate-700 dark:via-slate-500 dark:to-slate-800 dark:text-white dark:ring-slate-400/30",
+    },
+    {
+      name: "charcoal",
+      glow:
+        "from-slate-700/25 via-zinc-800/20 to-slate-950/10 dark:from-slate-400/10 dark:via-zinc-400/5 dark:to-transparent",
+      border: "border-slate-500/30 dark:border-slate-300/15",
+      accent: "from-slate-600 via-zinc-800 to-slate-950",
+      dot: "bg-slate-500 dark:bg-slate-300",
+      badge:
+        "from-slate-500 via-zinc-800 to-slate-950 text-white ring-slate-400/40",
+    },
+    {
+      name: "gold",
+      glow:
+        "from-amber-400/20 via-yellow-500/15 to-orange-400/10 dark:from-amber-300/10 dark:via-yellow-400/5 dark:to-transparent",
+      border: "border-amber-400/30 dark:border-amber-300/20",
+      accent: "from-amber-300 via-yellow-500 to-amber-700",
+      dot: "bg-amber-400",
+      badge:
+        "from-amber-200 via-yellow-500 to-amber-700 text-white ring-amber-300/50",
+    },
+  ] as const;
+
+  const theme = walletThemes[walletTheme];
+
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
       <header>
         <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
           {t("wallet.title")}
         </h1>
+
         <p className="mt-1 text-sm text-muted-foreground">
           {t("wallet.subtitle")}
         </p>
@@ -62,88 +109,102 @@ function WalletPage() {
       ) : (
         <>
           {/* =========================================================
-              PREMIUM ASH GLO WALLET CARD
+              PREMIUM ASH GLO WALLET
               ========================================================= */}
           <div className="relative">
-            {/* Soft branded glow behind the wallet */}
+            {/* Soft ambient light */}
             <div
               aria-hidden
-              className="pointer-events-none absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-to-r from-fuchsia-500/10 via-violet-500/15 to-sky-500/10 blur-2xl"
+              className={`pointer-events-none absolute -inset-2 -z-10 rounded-[2rem] bg-gradient-to-br ${theme.glow} opacity-90 blur-2xl transition-all duration-[1800ms] ease-in-out`}
             />
 
-            {/* Premium floating badge */}
+            {/* Animated premium top accent */}
             <div
-              className="pointer-events-none absolute right-4 top-4 z-10 sm:right-6 sm:top-5"
               aria-hidden
+              className={`pointer-events-none absolute left-8 right-8 top-0 z-20 h-[2px] overflow-hidden rounded-full bg-gradient-to-r ${theme.accent} opacity-80 transition-all duration-[1800ms] ease-in-out`}
+            />
+
+            {/* Small premium badge — deliberately kept away from the balance text */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute right-3 top-3 z-20 sm:right-5 sm:top-4"
             >
-              {/* Small floating highlight */}
-              <div className="absolute -right-1 -top-1 size-3 rounded-full bg-white/80 shadow-[0_0_14px_rgba(255,255,255,0.8)] dark:bg-white/70" />
-
-              {/* Main badge */}
-              <div className="relative grid size-[58px] place-items-center rounded-full bg-gradient-to-br from-fuchsia-500 via-violet-600 to-sky-500 p-[2px] shadow-[0_10px_30px_rgba(124,58,237,0.35)] ring-2 ring-white/40 dark:ring-white/10">
-                <div className="grid size-full place-items-center rounded-full bg-background/95 backdrop-blur">
-                  <div className="relative grid size-9 place-items-center rounded-full bg-gradient-to-br from-fuchsia-500/20 via-violet-500/20 to-sky-500/20">
-                    <Sparkles
-                      className="size-4.5 text-violet-500"
-                      aria-hidden
-                    />
-
-                    {/* Tiny orbit dot */}
-                    <span className="absolute -right-0.5 top-0.5 size-1.5 rounded-full bg-fuchsia-400 shadow-[0_0_8px_rgba(217,70,239,0.9)]" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Hanging branded material */}
-              <div className="absolute left-1/2 top-[53px] -z-10 -translate-x-1/2">
-                <div className="relative h-10 w-9 overflow-hidden">
-                  {/* Back layer */}
-                  <div className="absolute left-1/2 top-0 h-9 w-7 -translate-x-1/2 rounded-b-xl bg-gradient-to-b from-violet-500/80 to-fuchsia-500/80 shadow-lg" />
-
-                  {/* Front ribbon */}
-                  <div
-                    className="absolute left-1/2 top-0 h-10 w-5 -translate-x-1/2 bg-gradient-to-b from-fuchsia-500 via-violet-600 to-sky-500 shadow-md"
-                    style={{
-                      clipPath:
-                        "polygon(0 0, 100% 0, 100% 78%, 50% 100%, 0 78%)",
-                    }}
+              <div
+                className={`relative grid size-9 place-items-center rounded-full bg-gradient-to-br ${theme.badge} p-[1.5px] shadow-md transition-all duration-[1800ms] ease-in-out`}
+              >
+                <div className="grid size-full place-items-center rounded-full bg-background/90 backdrop-blur-sm">
+                  <Sparkles
+                    className={`size-3.5 ${
+                      walletTheme === 2
+                        ? "text-amber-500"
+                        : walletTheme === 1
+                          ? "text-slate-500 dark:text-slate-200"
+                          : "text-slate-500"
+                    }`}
+                    aria-hidden
                   />
-
-                  {/* Ribbon shine */}
-                  <div className="absolute left-1/2 top-1 h-7 w-px -translate-x-1/2 bg-white/40" />
                 </div>
+
+                {/* Tiny orbit dot */}
+                <span
+                  className={`absolute -right-0.5 -top-0.5 size-1.5 rounded-full ${theme.dot} shadow-sm transition-all duration-[1800ms]`}
+                />
               </div>
 
-              {/* Bottom jewel */}
-              <div className="absolute -bottom-2 left-1/2 grid size-3 -translate-x-1/2 place-items-center rounded-full bg-gradient-to-br from-fuchsia-400 to-violet-600 shadow-[0_0_12px_rgba(168,85,247,0.65)]">
-                <span className="size-1 rounded-full bg-white/80" />
+              {/* Very small hanging accent */}
+              <div className="absolute left-1/2 top-[34px] -translate-x-1/2">
+                <div
+                  className={`h-3 w-2 rounded-b-md bg-gradient-to-b ${theme.accent} opacity-80 shadow-sm transition-all duration-[1800ms] ease-in-out`}
+                />
               </div>
             </div>
 
-            {/* Wallet card */}
-            <BalanceCard
-              label={t("dash.availableBalance")}
-              amount={formatXAF(wallet?.available_balance ?? 0)}
-              action={
-                active ? (
-                  <Button asChild variant="secondary">
-                    <Link to="/withdraw">
-                      <ArrowDownToLine className="size-4" aria-hidden />
-                      {t("wallet.withdraw")}
-                    </Link>
-                  </Button>
-                ) : null
-              }
-            />
+            {/* Existing balance card — functionality untouched */}
+            <div
+              className={`relative overflow-hidden rounded-[inherit] transition-all duration-[1800ms] ease-in-out`}
+            >
+              <BalanceCard
+                label={t("dash.availableBalance")}
+                amount={formatXAF(wallet?.available_balance ?? 0)}
+                action={
+                  active ? (
+                    <Button asChild variant="secondary">
+                      <Link to="/withdraw">
+                        <ArrowDownToLine
+                          className="size-4"
+                          aria-hidden
+                        />
+                        {t("wallet.withdraw")}
+                      </Link>
+                    </Button>
+                  ) : null
+                }
+              />
 
-            {/* Tiny branded status strip */}
-            <div className="pointer-events-none absolute bottom-3 left-5 flex items-center gap-1.5 rounded-full border border-white/10 bg-black/10 px-2.5 py-1 backdrop-blur-sm sm:left-7">
-              <span className="relative flex size-1.5">
-                <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-                <span className="relative inline-flex size-1.5 rounded-full bg-emerald-400" />
-              </span>
-              <span className="text-[9px] font-semibold tracking-[0.12em] text-muted-foreground">
-                ASH GLO WALLET
+              {/* Decorative light reflection */}
+              <div
+                aria-hidden
+                className={`pointer-events-none absolute -right-16 -top-20 size-40 rounded-full bg-gradient-to-br ${theme.glow} opacity-70 blur-3xl transition-all duration-[1800ms] ease-in-out`}
+              />
+
+              {/* Bottom premium line */}
+              <div
+                aria-hidden
+                className={`pointer-events-none absolute bottom-0 left-1/2 h-[2px] w-24 -translate-x-1/2 rounded-full bg-gradient-to-r ${theme.accent} opacity-60 transition-all duration-[1800ms] ease-in-out`}
+              />
+            </div>
+
+            {/* Tiny ASH GLO label */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute bottom-3 left-4 z-10 flex items-center gap-1.5 rounded-full border border-white/10 bg-background/40 px-2 py-1 shadow-sm backdrop-blur-md"
+            >
+              <span
+                className={`size-1.5 rounded-full ${theme.dot} shadow-sm transition-all duration-[1800ms]`}
+              />
+
+              <span className="text-[8px] font-bold tracking-[0.16em] text-muted-foreground">
+                ASH GLO
               </span>
             </div>
           </div>
@@ -205,7 +266,9 @@ function WalletPage() {
             title={t("wallet.history")}
             action={
               <Button asChild variant="ghost" size="sm">
-                <Link to="/transactions">{t("common.viewAll")}</Link>
+                <Link to="/transactions">
+                  {t("common.viewAll")}
+                </Link>
               </Button>
             }
           >
