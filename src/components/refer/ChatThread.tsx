@@ -1,6 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { AlertCircle, Check, CheckCheck, Loader2, ReceiptText, Send, Trash2 } from "lucide-react";
+import {
+  AlertCircle,
+  Check,
+  CheckCheck,
+  Loader2,
+  ReceiptText,
+  Send,
+  Trash2,
+} from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMessages } from "@/lib/marketplace.queries";
@@ -29,13 +37,25 @@ function dayLabel(iso: string, fr: boolean) {
   const date = new Date(iso);
   const today = new Date();
   const yesterday = new Date(today.getTime() - 86400000);
-  if (date.toDateString() === today.toDateString()) return fr ? "Aujourd'hui" : "Today";
-  if (date.toDateString() === yesterday.toDateString()) return fr ? "Hier" : "Yesterday";
-  return date.toLocaleDateString(fr ? "fr-FR" : "en-GB", { day: "numeric", month: "short", year: "numeric" });
+
+  if (date.toDateString() === today.toDateString())
+    return fr ? "Aujourd'hui" : "Today";
+
+  if (date.toDateString() === yesterday.toDateString())
+    return fr ? "Hier" : "Yesterday";
+
+  return date.toLocaleDateString(fr ? "fr-FR" : "en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 function timeLabel(iso: string, fr: boolean) {
-  return new Date(iso).toLocaleTimeString(fr ? "fr-FR" : "en-GB", { hour: "2-digit", minute: "2-digit" });
+  return new Date(iso).toLocaleTimeString(fr ? "fr-FR" : "en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 export function ChatThread({
@@ -57,11 +77,13 @@ export function ChatThread({
   const fr = lang === "fr";
   const queryClient = useQueryClient();
   const { data, isLoading } = useMessages(conversationId);
+
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
   const [pending, setPending] = useState<string[]>([]);
   const [failed, setFailed] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+
   const endRef = useRef<HTMLDivElement>(null);
   const pressRef = useRef<number | null>(null);
 
@@ -69,66 +91,112 @@ export function ChatThread({
   const peerInitials = (peerName ?? "ASH").trim().slice(0, 2).toUpperCase();
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ block: "end", behavior: "smooth" });
+    endRef.current?.scrollIntoView({
+      block: "end",
+      behavior: "smooth",
+    });
   }, [messages.length, pending.length]);
 
   // Mark the other side's messages as read once the thread is open.
   useEffect(() => {
     if (!currentUserId || messages.length === 0) return;
-    const unread = messages.filter((m) => m.sender_id !== currentUserId && !m.read_at).map((m) => m.id);
+
+    const unread = messages
+      .filter((m) => m.sender_id !== currentUserId && !m.read_at)
+      .map((m) => m.id);
+
     if (unread.length === 0) return;
+
     void supabase
       .from("messages")
       .update({ read_at: new Date().toISOString() })
       .in("id", unread)
-      .then(() => queryClient.invalidateQueries({ queryKey: ["messages", conversationId] }));
+      .then(() =>
+        queryClient.invalidateQueries({
+          queryKey: ["messages", conversationId],
+        }),
+      );
   }, [messages, currentUserId, conversationId, queryClient]);
 
   const grouped = useMemo(() => {
     const out: { day: string; items: ChatMessage[] }[] = [];
+
     for (const m of messages) {
       const key = dayKey(m.created_at);
       const last = out[out.length - 1];
+
       if (last && last.day === key) last.items.push(m);
       else out.push({ day: key, items: [m] });
     }
+
     return out;
   }, [messages]);
 
   async function submit(text: string) {
     const value = text.trim();
+
     if (!value || !currentUserId || sending) return;
+
     setSending(true);
     setFailed(null);
     setPending((p) => [...p, value]);
+
     const { error } = await supabase
       .from("messages")
-      .insert({ conversation_id: conversationId, sender_id: currentUserId, body: value });
+      .insert({
+        conversation_id: conversationId,
+        sender_id: currentUserId,
+        body: value,
+      });
+
     setSending(false);
     setPending((p) => p.filter((v) => v !== value));
+
     if (error) {
       console.error("chat send failed", error);
       toast.error(error.message || "Message not sent — tap to retry");
       setFailed(value);
       return;
     }
+
     setBody("");
-    void queryClient.invalidateQueries({ queryKey: ["messages", conversationId] });
-    void queryClient.invalidateQueries({ queryKey: ["conversations"] });
+
+    void queryClient.invalidateQueries({
+      queryKey: ["messages", conversationId],
+    });
+
+    void queryClient.invalidateQueries({
+      queryKey: ["conversations"],
+    });
   }
 
   /** Remove one of my own messages for everybody in the thread. */
   async function remove(id: string) {
     setConfirmDelete(null);
-    const { error } = await supabase.from("messages").delete().eq("id", id);
+
+    const { error } = await supabase
+      .from("messages")
+      .delete()
+      .eq("id", id);
+
     if (error) {
       console.error("chat delete failed", error);
-      toast.error(error.message || (fr ? "Message non supprimé" : "Message not deleted"));
+      toast.error(
+        error.message ||
+          (fr ? "Message non supprimé" : "Message not deleted"),
+      );
       return;
     }
+
     toast.success(fr ? "Message supprimé" : "Message deleted");
-    void queryClient.invalidateQueries({ queryKey: ["messages", conversationId] });
-    void queryClient.invalidateQueries({ queryKey: ["conversations"] });
+
+    void queryClient.invalidateQueries({
+      queryKey: ["messages", conversationId],
+    });
+
+    void queryClient.invalidateQueries({
+      queryKey: ["conversations"],
+    });
   }
 
   return (
@@ -142,6 +210,7 @@ export function ChatThread({
           compact
         />
       </div>
+
       <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-1 py-2">
         {isLoading ? (
           <div className="space-y-3 py-4">
@@ -157,8 +226,12 @@ export function ChatThread({
           </div>
         ) : messages.length === 0 ? (
           <div className="py-8 text-center">
-            <p className="text-sm font-semibold text-foreground">{t("chat.none")}</p>
-            <p className="mt-1 text-xs text-muted-foreground">{t("chat.noneCopy")}</p>
+            <p className="text-sm font-semibold text-foreground">
+              {t("chat.none")}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {t("chat.noneCopy")}
+            </p>
           </div>
         ) : (
           grouped.map((group) => (
@@ -166,20 +239,43 @@ export function ChatThread({
               <p className="sticky top-0 z-10 mx-auto w-fit rounded-full bg-muted/90 px-3 py-0.5 text-[11px] font-semibold text-muted-foreground backdrop-blur">
                 {dayLabel(group.items[0]!.created_at, fr)}
               </p>
+
               {group.items.map((m, index) => {
                 const kind = m.kind ?? "TEXT";
+
                 if (kind === "INVOICE" || kind === "SYSTEM") {
-                  return <InvoiceMessage key={m.id} kind={kind} body={m.body} metadata={m.metadata ?? {}} />;
+                  return (
+                    <InvoiceMessage
+                      key={m.id}
+                      kind={kind}
+                      body={m.body}
+                      metadata={m.metadata ?? {}}
+                    />
+                  );
                 }
+
                 const mine = m.sender_id === currentUserId;
                 const prev = group.items[index - 1];
                 const next = group.items[index + 1];
-                const startsRun = !prev || prev.sender_id !== m.sender_id || (prev.kind ?? "TEXT") !== "TEXT";
-                const endsRun = !next || next.sender_id !== m.sender_id || (next.kind ?? "TEXT") !== "TEXT";
+
+                const startsRun =
+                  !prev ||
+                  prev.sender_id !== m.sender_id ||
+                  (prev.kind ?? "TEXT") !== "TEXT";
+
+                const endsRun =
+                  !next ||
+                  next.sender_id !== m.sender_id ||
+                  (next.kind ?? "TEXT") !== "TEXT";
+
                 return (
                   <div
                     key={m.id}
-                    className={cn("flex items-end gap-2", mine ? "justify-end" : "justify-start", startsRun && "mt-2.5")}
+                    className={cn(
+                      "flex items-end gap-2",
+                      mine ? "justify-end" : "justify-start",
+                      startsRun && "mt-2.5",
+                    )}
                   >
                     {!mine ? (
                       <span
@@ -192,6 +288,7 @@ export function ChatThread({
                         {peerInitials}
                       </span>
                     ) : null}
+
                     <div
                       onContextMenu={(e) => {
                         if (!mine) return;
@@ -200,13 +297,19 @@ export function ChatThread({
                       }}
                       onPointerDown={() => {
                         if (!mine) return;
-                        pressRef.current = window.setTimeout(() => setConfirmDelete(m.id), 500);
+
+                        pressRef.current = window.setTimeout(
+                          () => setConfirmDelete(m.id),
+                          500,
+                        );
                       }}
                       onPointerUp={() => {
-                        if (pressRef.current) window.clearTimeout(pressRef.current);
+                        if (pressRef.current)
+                          window.clearTimeout(pressRef.current);
                       }}
                       onPointerLeave={() => {
-                        if (pressRef.current) window.clearTimeout(pressRef.current);
+                        if (pressRef.current)
+                          window.clearTimeout(pressRef.current);
                       }}
                       className={cn(
                         "group relative max-w-[78%] px-3.5 py-2 shadow-sm transition-colors",
@@ -223,22 +326,39 @@ export function ChatThread({
                         <button
                           type="button"
                           onClick={() => setConfirmDelete(m.id)}
-                          aria-label={fr ? "Supprimer le message" : "Delete message"}
+                          aria-label={
+                            fr
+                              ? "Supprimer le message"
+                              : "Delete message"
+                          }
                           className="absolute -left-8 top-1/2 hidden size-7 -translate-y-1/2 place-items-center rounded-full bg-card text-muted-foreground shadow-sm group-hover:grid hover:text-destructive"
                         >
-                          <Trash2 className="size-3.5" aria-hidden />
+                          <Trash2
+                            className="size-3.5"
+                            aria-hidden
+                          />
                         </button>
                       ) : null}
-                      <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">{m.body}</p>
+
+                      <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+                        {m.body}
+                      </p>
+
                       {confirmDelete === m.id ? (
                         <span className="mt-2 flex items-center justify-end gap-2 text-[11px] font-semibold">
                           <button
                             type="button"
                             onClick={() => setConfirmDelete(null)}
-                            className={cn("rounded-full px-2 py-0.5", mine ? "bg-primary-foreground/20" : "bg-background")}
+                            className={cn(
+                              "rounded-full px-2 py-0.5",
+                              mine
+                                ? "bg-primary-foreground/20"
+                                : "bg-background",
+                            )}
                           >
                             {fr ? "Annuler" : "Cancel"}
                           </button>
+
                           <button
                             type="button"
                             onClick={() => void remove(m.id)}
@@ -248,19 +368,29 @@ export function ChatThread({
                           </button>
                         </span>
                       ) : null}
+
                       {endsRun ? (
                         <span
                           className={cn(
                             "mt-1 flex items-center justify-end gap-1 text-[10px]",
-                            mine ? "text-primary-foreground/75" : "text-muted-foreground",
+                            mine
+                              ? "text-primary-foreground/75"
+                              : "text-muted-foreground",
                           )}
                         >
                           {timeLabel(m.created_at, fr)}
+
                           {mine ? (
                             m.read_at ? (
-                              <CheckCheck className="size-3" aria-hidden />
+                              <CheckCheck
+                                className="size-3"
+                                aria-hidden
+                              />
                             ) : (
-                              <Check className="size-3" aria-hidden />
+                              <Check
+                                className="size-3"
+                                aria-hidden
+                              />
                             )
                           ) : null}
                         </span>
@@ -274,11 +404,20 @@ export function ChatThread({
         )}
 
         {pending.map((text, i) => (
-          <div key={`pending-${i}`} className="flex justify-end">
+          <div
+            key={`pending-${i}`}
+            className="flex justify-end"
+          >
             <div className="max-w-[78%] rounded-2xl rounded-br-sm bg-primary/70 px-3.5 py-2 text-primary-foreground">
-              <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">{text}</p>
+              <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+                {text}
+              </p>
+
               <span className="mt-1 flex items-center justify-end gap-1 text-[10px] text-primary-foreground/80">
-                <Loader2 className="size-3 animate-spin" aria-hidden />
+                <Loader2
+                  className="size-3 animate-spin"
+                  aria-hidden
+                />
                 {fr ? "Envoi…" : "Sending…"}
               </span>
             </div>
@@ -292,8 +431,13 @@ export function ChatThread({
               onClick={() => void submit(failed)}
               className="flex items-center gap-1.5 rounded-full border border-destructive/40 px-3 py-1 text-[11px] font-semibold text-destructive"
             >
-              <AlertCircle className="size-3" aria-hidden />
-              {fr ? "Échec — réessayer" : "Failed — tap to retry"}
+              <AlertCircle
+                className="size-3"
+                aria-hidden
+              />
+              {fr
+                ? "Échec — réessayer"
+                : "Failed — tap to retry"}
             </button>
           </div>
         ) : null}
@@ -321,13 +465,15 @@ export function ChatThread({
           e.preventDefault();
           void submit(body);
         }}
-        className="flex items-end gap-2 border-t border-border pt-3"
+        className="flex items-end gap-2 border-t border-border pt-3 pb-[env(safe-area-inset-bottom)]"
       >
         <div className="flex min-w-0 flex-1 flex-col">
           <Textarea
             rows={1}
             value={body}
-            onChange={(e) => setBody(e.target.value.slice(0, 1000))}
+            onChange={(e) =>
+              setBody(e.target.value.slice(0, 1000))
+            }
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
@@ -338,24 +484,41 @@ export function ChatThread({
             aria-label={t("chat.placeholder")}
             className="max-h-32 min-h-10 resize-none rounded-2xl"
           />
+
           <span className="mt-1 px-1 text-[10px] text-muted-foreground">
-            {body.length > 800 ? `${body.length}/1000` : fr ? "Entrée pour envoyer · Maj+Entrée = nouvelle ligne" : "Enter to send · Shift+Enter for a new line"}
+            {body.length > 800
+              ? `${body.length}/1000`
+              : fr
+                ? "Entrée pour envoyer · Maj+Entrée = nouvelle ligne"
+                : "Enter to send · Shift+Enter = new line"}
           </span>
         </div>
+
         <Button
           type="submit"
           size="icon"
           className="mb-5 size-10 shrink-0 rounded-full"
-          disabled={sending || body.trim().length === 0}
+          disabled={
+            sending || body.trim().length === 0
+          }
           aria-label={t("chat.send")}
         >
-          {sending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Send className="size-4" aria-hidden />}
+          {sending ? (
+            <Loader2
+              className="size-4 animate-spin"
+              aria-hidden
+            />
+          ) : (
+            <Send
+              className="size-4"
+              aria-hidden
+            />
+          )}
         </Button>
       </form>
     </div>
   );
 }
-
 
 /** ASH invoice / system event rendered inline in the booking thread. */
 function InvoiceMessage({
@@ -369,6 +532,7 @@ function InvoiceMessage({
 }) {
   const { lang } = useI18n();
   const fr = lang === "fr";
+
   if (kind === "SYSTEM") {
     return (
       <p className="mx-auto max-w-[90%] rounded-full bg-muted px-3 py-1 text-center text-[11px] text-muted-foreground">
@@ -377,41 +541,84 @@ function InvoiceMessage({
     );
   }
 
-  const invoice = String(metadata["invoice_number"] ?? "");
-  const total = Number(metadata["total"] ?? metadata["price"] ?? 0);
-  const fee = Number(metadata["platform_fee"] ?? 0);
-  const net = Number(metadata["provider_amount"] ?? 0);
-  const service = String(metadata["service_title"] ?? "");
+  const invoice = String(
+    metadata["invoice_number"] ?? "",
+  );
+  const total = Number(
+    metadata["total"] ?? metadata["price"] ?? 0,
+  );
+  const fee = Number(
+    metadata["platform_fee"] ?? 0,
+  );
+  const net = Number(
+    metadata["provider_amount"] ?? 0,
+  );
+  const service = String(
+    metadata["service_title"] ?? "",
+  );
 
   return (
     <article className="mx-auto w-full max-w-[92%] rounded-2xl border border-primary/30 bg-primary/5 p-3">
       <header className="flex items-center justify-between gap-2">
         <span className="flex items-center gap-1.5 text-xs font-bold text-primary">
-          <ReceiptText className="size-4" aria-hidden />
+          <ReceiptText
+            className="size-4"
+            aria-hidden
+          />
           {fr ? "Facture ASH" : "ASH invoice"}
         </span>
-        {invoice ? <span className="tabular text-[11px] font-semibold text-muted-foreground">{invoice}</span> : null}
+
+        {invoice ? (
+          <span className="tabular text-[11px] font-semibold text-muted-foreground">
+            {invoice}
+          </span>
+        ) : null}
       </header>
-      {service ? <p className="mt-1 truncate text-sm font-semibold text-foreground">{service}</p> : null}
+
+      {service ? (
+        <p className="mt-1 truncate text-sm font-semibold text-foreground">
+          {service}
+        </p>
+      ) : null}
+
       <dl className="mt-2 space-y-1 text-xs">
         <div className="flex justify-between gap-3">
-          <dt className="text-muted-foreground">{fr ? "Total payé" : "Total paid"}</dt>
-          <dd className="tabular font-bold text-foreground">{formatXAF(total)}</dd>
+          <dt className="text-muted-foreground">
+            {fr ? "Total payé" : "Total paid"}
+          </dt>
+          <dd className="tabular font-bold text-foreground">
+            {formatXAF(total)}
+          </dd>
         </div>
+
         {fee > 0 ? (
           <div className="flex justify-between gap-3">
-            <dt className="text-muted-foreground">{fr ? "Frais ASH" : "ASH fee"}</dt>
-            <dd className="tabular text-foreground">{formatXAF(fee)}</dd>
+            <dt className="text-muted-foreground">
+              {fr ? "Frais ASH" : "ASH fee"}
+            </dt>
+            <dd className="tabular text-foreground">
+              {formatXAF(fee)}
+            </dd>
           </div>
         ) : null}
+
         {net > 0 ? (
           <div className="flex justify-between gap-3">
-            <dt className="text-muted-foreground">{fr ? "Reçu par le pro" : "Provider receives"}</dt>
-            <dd className="tabular text-foreground">{formatXAF(net)}</dd>
+            <dt className="text-muted-foreground">
+              {fr ? "Reçu par le pro" : "Provider receives"}
+            </dt>
+            <dd className="tabular text-foreground">
+              {formatXAF(net)}
+            </dd>
           </div>
         ) : null}
       </dl>
-      {body ? <p className="mt-2 text-[11px] text-muted-foreground">{body}</p> : null}
+
+      {body ? (
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          {body}
+        </p>
+      ) : null}
     </article>
   );
 }
