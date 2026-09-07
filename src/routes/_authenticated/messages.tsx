@@ -64,6 +64,73 @@ function stamp(iso: string | null | undefined, fr: boolean) {
   });
 }
 
+/**
+ * ASH profile colors.
+ *
+ * The colors are intentionally soft enough for both light and dark mode.
+ * Each conversation receives a stable color based on its ID.
+ */
+const avatarColors = [
+  {
+    wrapper:
+      "bg-gradient-to-br from-fuchsia-500 via-pink-500 to-rose-500",
+    ring: "ring-fuchsia-300/60 dark:ring-fuchsia-400/40",
+  },
+  {
+    wrapper:
+      "bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-500",
+    ring: "ring-violet-300/60 dark:ring-violet-400/40",
+  },
+  {
+    wrapper:
+      "bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500",
+    ring: "ring-emerald-300/60 dark:ring-emerald-400/40",
+  },
+  {
+    wrapper:
+      "bg-gradient-to-br from-red-500 via-rose-500 to-pink-500",
+    ring: "ring-red-300/60 dark:ring-red-400/40",
+  },
+  {
+    wrapper:
+      "bg-gradient-to-br from-blue-500 via-sky-500 to-cyan-500",
+    ring: "ring-blue-300/60 dark:ring-blue-400/40",
+  },
+  {
+    wrapper:
+      "bg-gradient-to-br from-slate-500 via-gray-500 to-zinc-500",
+    ring: "ring-slate-300/60 dark:ring-slate-400/40",
+  },
+  {
+    wrapper:
+      "bg-gradient-to-br from-orange-400 via-amber-500 to-yellow-500",
+    ring: "ring-orange-300/60 dark:ring-orange-400/40",
+  },
+  {
+    wrapper:
+      "bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-500",
+    ring: "ring-cyan-300/60 dark:ring-cyan-400/40",
+  },
+] as const;
+
+/**
+ * Generate a stable color index from a conversation ID.
+ * The same conversation always gets the same color.
+ */
+function avatarColorIndex(id: string) {
+  let hash = 0;
+
+  for (let index = 0; index < id.length; index += 1) {
+    hash = (hash * 31 + id.charCodeAt(index)) | 0;
+  }
+
+  return Math.abs(hash) % avatarColors.length;
+}
+
+function getAvatarColor(id: string) {
+  return avatarColors[avatarColorIndex(id)];
+}
+
 function MessagesPage() {
   const { t, lang } = useI18n();
   const fr = lang === "fr";
@@ -111,7 +178,9 @@ function MessagesPage() {
       const viewerIsOwner =
         Boolean(user?.id) && conv.owner_id === user?.id;
 
-      return viewerIsOwner ? (conv.client?.avatar_url ?? null) : null;
+      return viewerIsOwner
+        ? (conv.client?.avatar_url ?? null)
+        : null;
     }
 
     const viewerIsProvider =
@@ -286,6 +355,7 @@ function MessagesPage() {
               {filtered.map((conv) => {
                 const label = peerOf(conv);
                 const unread = conv.unread_count ?? 0;
+                const avatarColor = getAvatarColor(conv.id);
 
                 return (
                   <button
@@ -303,11 +373,22 @@ function MessagesPage() {
                         : "hover:bg-muted/70 active:bg-muted",
                     )}
                   >
-                    <Avatar
-                      path={peerAvatarOf(conv)}
-                      name={label}
-                      className="size-12"
-                    />
+                    {/* COLORED PROFILE CIRCLE */}
+                    <span
+                      className={cn(
+                        "grid size-12 shrink-0 place-items-center rounded-full p-[2px] shadow-sm ring-2",
+                        avatarColor.wrapper,
+                        avatarColor.ring,
+                      )}
+                    >
+                      <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
+                        <Avatar
+                          path={peerAvatarOf(conv)}
+                          name={label}
+                          className="size-full rounded-full border-0 shadow-none"
+                        />
+                      </span>
+                    </span>
 
                     <span className="min-w-0 flex-1">
                       <span className="flex items-baseline justify-between gap-2">
@@ -395,11 +476,21 @@ function MessagesPage() {
                 className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl px-1 py-0.5 text-left transition-colors enabled:hover:bg-muted/60"
               >
                 {active ? (
-                  <Avatar
-                    path={peerAvatarOf(active)}
-                    name={peerOf(active)}
-                    className="size-10"
-                  />
+                  <span
+                    className={cn(
+                      "grid size-10 shrink-0 place-items-center rounded-full p-[2px] shadow-sm ring-2",
+                      getAvatarColor(active.id).wrapper,
+                      getAvatarColor(active.id).ring,
+                    )}
+                  >
+                    <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
+                      <Avatar
+                        path={peerAvatarOf(active)}
+                        name={peerOf(active)}
+                        className="size-full rounded-full border-0 shadow-none"
+                      />
+                    </span>
+                  </span>
                 ) : null}
 
                 <div className="min-w-0 flex-1">
