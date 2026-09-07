@@ -58,7 +58,7 @@ workflows:
           npx cap sync ios
 
       # ============================================================
-      # INCREMENT IOS BUILD NUMBER
+      # SET IOS BUILD NUMBER
       # ============================================================
       - name: Set build number
         script: |
@@ -70,25 +70,20 @@ workflows:
 
           cd ios/App
 
-          echo "Current build settings:"
-          agvtool what-version -terse
+          echo "Codemagic workflow build number: $BUILD_NUMBER"
 
-          CURRENT_BUILD=$(
-            agvtool what-version -terse 2>/dev/null \
-            | head -n 1 \
-            | tr -d '[:space:]'
-          )
-
-          if ! [[ "$CURRENT_BUILD" =~ ^[0-9]+$ ]]; then
-            CURRENT_BUILD=0
+          if ! [[ "$BUILD_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "ERROR: BUILD_NUMBER is not numeric: $BUILD_NUMBER"
+            exit 1
           fi
 
-          NEW_BUILD_NUMBER=$((CURRENT_BUILD + 1))
+          # Use Codemagic's workflow build number.
+          # This guarantees that every new Codemagic build
+          # receives a higher iOS CFBundleVersion.
+          agvtool new-version -all "$BUILD_NUMBER"
 
-          echo "Current build number: $CURRENT_BUILD"
-          echo "New build number: $NEW_BUILD_NUMBER"
-
-          agvtool new-version -all "$NEW_BUILD_NUMBER"
+          echo "Final iOS build number:"
+          agvtool what-version -terse
 
       # ============================================================
       # INITIALIZE KEYCHAIN + APPLY CODE SIGNING
@@ -145,7 +140,7 @@ workflows:
             -destination "generic/platform=iOS" \
             -showBuildSettings \
             | grep -E \
-              "^[[:space:]]*(CODE_SIGN|DEVELOPMENT_TEAM|PRODUCT_BUNDLE_IDENTIFIER|PROVISIONING_PROFILE|SUPPORTED_PLATFORMS)" \
+              "^[[:space:]]*(CODE_SIGN|DEVELOPMENT_TEAM|PRODUCT_BUNDLE_IDENTIFIER|PROVISIONING_PROFILE|SUPPORTED_PLATFORMS|CURRENT_PROJECT_VERSION)" \
             || true
 
           echo
@@ -233,6 +228,8 @@ workflows:
           echo " BUILDING IOS ARCHIVE"
           echo "========================================"
 
+          echo "Using iOS build number: $BUILD_NUMBER"
+
           set +e
 
           xcodebuild \
@@ -244,6 +241,7 @@ workflows:
             -resultBundlePath /tmp/xcodebuild_logs/archive.xcresult \
             clean archive \
             COMPILER_INDEX_STORE_ENABLE=NO \
+            CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             CODE_SIGN_STYLE=Manual \
             "CODE_SIGN_IDENTITY=Apple Distribution" \
             2>&1 \
@@ -404,6 +402,71 @@ workflows:
           echo "========================================"
           echo " IPA READY"
           echo "========================================"
+
+      # ============================================================
+      # VERIFY FINAL IOS BUILD NUMBER
+      # ============================================================
+      - name: Verify final iOS build number
+        script: |
+          set -e
+
+          echo "========================================"
+          echo " VERIFYING FINAL IOS BUILD NUMBER"
+          echo "========================================"
+
+          IPA_FILE=$(find "$CM_BUILD_DIR/build/ios/ipa" -name "*.ipa" | head -n 1)
+
+          if [ -z "$IPA_FILE" ]; then
+            echo "ERROR: IPA not found."
+            exit 1
+          fi
+
+          TEMP_DIR=$(mktemp -d)
+
+          unzip -q "$IPA_FILE" -d "$TEMP_DIR"
+
+          APP_PATH=$(find "$TEMP_DIR/Payload" -maxdepth 1 -name "*.app" | head -n 1)
+
+          if [ -z "$APP_PATH" ]; then
+            echo "ERROR: App bundle not found inside IPA."
+            rm -rf "$TEMP_DIR"
+            exit 1
+          fi
+
+          FINAL_BUILD_NUMBER=$(
+            /usr/libexec/PlistBuddy \
+              -c "Print :CFBundleVersion" \
+              "$APP_PATH/Info.plist"
+          )
+
+          FINAL_BUNDLE_ID=$(
+            /usr/libexec/PlistBuddy \
+              -c "Print :CFBundleIdentifier" \
+              "$APP_PATH/Info.plist"
+          )
+
+          echo "Expected build number: $BUILD_NUMBER"
+          echo "Actual build number:   $FINAL_BUILD_NUMBER"
+          echo "Bundle identifier:     $FINAL_BUNDLE_ID"
+
+          if [ "$FINAL_BUILD_NUMBER" != "$BUILD_NUMBER" ]; then
+            echo "ERROR: Final IPA build number does not match Codemagic BUILD_NUMBER."
+            rm -rf "$TEMP_DIR"
+            exit 1
+          fi
+
+          if [ "$FINAL_BUNDLE_ID" != "$BUNDLE_ID" ]; then
+            echo "ERROR: Final IPA bundle identifier does not match BUNDLE_ID."
+            rm -rf "$TEMP_DIR"
+            exit 1
+          fi
+
+          echo
+          echo "========================================"
+          echo " FINAL IPA VERIFICATION PASSED"
+          echo "========================================"
+
+          rm -rf "$TEMP_DIR"
 
     artifacts:
       - build/ios/ipa/*.ipa
