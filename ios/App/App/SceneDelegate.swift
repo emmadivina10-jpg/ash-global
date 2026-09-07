@@ -20,8 +20,6 @@ final class ASHBridgeViewController: CAPBridgeViewController {
         super.viewDidLayoutSubviews()
         webView?.frame = view.bounds
     }
-
-    override var prefersHomeIndicatorAutoHidden: Bool { false }
 }
 
 
