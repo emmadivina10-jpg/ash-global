@@ -21,12 +21,17 @@ export const Route = createFileRoute("/_authenticated/messages")({
       { title: "Messages — ASH Glo" },
       {
         name: "description",
-        content: "Chat live with your beauty pro or your clients about upcoming bookings.",
+        content:
+          "Chat live with your beauty pro or your clients about upcoming bookings.",
       },
-      { property: "og:title", content: "Messages — ASH Glo" },
+      {
+        property: "og:title",
+        content: "Messages — ASH Glo",
+      },
       {
         property: "og:description",
-        content: "Live chat between clients and beauty providers on ASH Glo.",
+        content:
+          "Live chat between clients and beauty providers on ASH Glo.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -129,7 +134,9 @@ function MessagesPage() {
     const viewerIsProvider =
       Boolean(user?.id) && conv.provider?.user_id === user?.id;
 
-    return (viewerIsProvider ? conv.client_id : conv.provider?.user_id) ?? null;
+    return (
+      (viewerIsProvider ? conv.client_id : conv.provider?.user_id) ?? null
+    );
   }
 
   /** Where the other side's public page lives, when they have one. */
@@ -177,6 +184,7 @@ function MessagesPage() {
 
     if (!last) {
       if (conv.booking) return conv.booking.service_title;
+
       if (conv.listing)
         return `ASH Property · ${conv.listing.city}`;
 
@@ -184,6 +192,7 @@ function MessagesPage() {
     }
 
     const mine = last.sender_id === user?.id;
+
     const text =
       last.kind === "INVOICE"
         ? fr
@@ -210,6 +219,7 @@ function MessagesPage() {
         <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
           {t("chat.title")}
         </h1>
+
         <p className="mt-1 text-sm text-muted-foreground">
           {t("chat.pick")}
         </p>
@@ -225,6 +235,7 @@ function MessagesPage() {
         />
       ) : (
         <div className="grid md:gap-4 md:grid-cols-[320px_minmax(0,1fr)]">
+          {/* CHAT LIST */}
           <div
             className={cn(
               "tile flex flex-col overflow-hidden bg-background p-0 max-md:rounded-none max-md:border-0",
@@ -281,7 +292,9 @@ function MessagesPage() {
                     key={conv.id}
                     type="button"
                     onClick={() =>
-                      void navigate({ search: { c: conv.id } })
+                      void navigate({
+                        search: { c: conv.id },
+                      })
                     }
                     className={cn(
                       "flex w-full items-center gap-3 px-3 py-3 text-left transition-colors",
@@ -343,14 +356,16 @@ function MessagesPage() {
             </nav>
           </div>
 
+          {/* ACTIVE CHAT */}
           <div
             className={cn(
               "tile chat-surface flex flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-0",
               mobileView === "list"
                 ? "hidden md:flex"
-                : "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:z-[70] max-md:h-[calc(var(--ash-vh,100dvh)-env(safe-area-inset-bottom))] max-md:w-screen md:h-[72vh]",
+                : "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:z-[70] max-md:h-[calc(var(--ash-vh,100dvh)-env(safe-area-inset-top)-env(safe-area-inset-bottom))] max-md:w-screen md:h-[72vh]",
             )}
           >
+            {/* CHAT HEADER */}
             <div className="flex items-center gap-2.5 border-b border-border bg-card/95 px-2.5 py-2 backdrop-blur max-md:pt-[calc(0.5rem+env(safe-area-inset-top))]">
               <button
                 type="button"
@@ -431,6 +446,7 @@ function MessagesPage() {
               ) : null}
             </div>
 
+            {/* CHAT THREAD */}
             {activeId ? (
               <ChatThread
                 conversationId={activeId}
@@ -443,7 +459,7 @@ function MessagesPage() {
                     ? peerUserIdOf(active)
                     : null
                 }
-                className="min-h-0 flex-1 px-2 pb-2 max-md:pb-[calc(0.5rem+env(safe-area-inset-bottom))]"
+                className="min-h-0 flex-1 px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]"
                 quickReplies={
                   lang === "fr"
                     ? [
