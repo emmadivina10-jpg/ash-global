@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, MessageCircle, Search } from "lucide-react";
+import { ArrowLeft, Bot, MessageCircle, Search } from "lucide-react";
 
 import { useConversations } from "@/lib/marketplace.queries";
 import { useUser } from "@/lib/queries";
@@ -131,6 +131,14 @@ function getAvatarColor(id: string) {
   return avatarColors[avatarColorIndex(id)];
 }
 
+const CHATGPT_ID = "ash-chatgpt";
+
+const chatGPTConversation = {
+  id: CHATGPT_ID,
+  label: "ChatGPT",
+  preview: "Ask ChatGPT anything…",
+};
+
 function MessagesPage() {
   const { t, lang } = useI18n();
   const fr = lang === "fr";
@@ -149,7 +157,7 @@ function MessagesPage() {
   const activeId =
     c ??
     (typeof window !== "undefined" && window.innerWidth >= 768
-      ? list[0]?.id
+      ? CHATGPT_ID
       : undefined);
 
   const active = list.find((conv) => conv.id === activeId);
@@ -301,13 +309,8 @@ function MessagesPage() {
 
       {isLoading ? (
         <SkeletonRows rows={3} />
-      ) : list.length === 0 ? (
-        <EmptyState
-          title={t("chat.none")}
-          description={t("chat.noneCopy")}
-          icon={<MessageCircle className="size-5" aria-hidden />}
-        />
       ) : (
+
         <div className="grid md:gap-4 md:grid-cols-[320px_minmax(0,1fr)]">
           {/* =========================================================
               CHAT LIST
@@ -351,13 +354,63 @@ function MessagesPage() {
             </div>
 
             <nav className="min-h-0 flex-1 divide-y divide-border overflow-y-auto">
-              {filtered.length === 0 ? (
+              {term.trim() &&
+              !`${chatGPTConversation.label} ${chatGPTConversation.preview}`
+                .toLowerCase()
+                .includes(term.trim().toLowerCase()) &&
+              filtered.length === 0 ? (
                 <p className="p-6 text-center text-sm text-muted-foreground">
                   {fr
                     ? "Aucune discussion trouvée."
                     : "No chats found."}
                 </p>
               ) : null}
+
+              {(!term.trim() ||
+                `${chatGPTConversation.label} ${chatGPTConversation.preview}`
+                  .toLowerCase()
+                  .includes(term.trim().toLowerCase())) && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    void navigate({
+                      search: { c: CHATGPT_ID },
+                    })
+                  }
+                  className={cn(
+                    "flex w-full items-center gap-3 border-b border-border px-3 py-3 text-left transition-colors",
+                    activeId === CHATGPT_ID
+                      ? "bg-primary/10"
+                      : "hover:bg-muted/70 active:bg-muted",
+                  )}
+                >
+                  <span className="grid size-12 shrink-0 place-items-center rounded-full bg-gradient-to-br from-violet-600 via-fuchsia-500 to-pink-500 p-[2px] shadow-sm ring-2 ring-violet-300/60 dark:ring-violet-400/40">
+                    <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
+                      <img
+                        src="https://chatgpt.com/favicon.ico"
+                        alt="ChatGPT"
+                        className="size-full rounded-full object-cover"
+                        loading="lazy"
+                      />
+                    </span>
+                  </span>
+
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-baseline justify-between gap-2">
+                      <span className="truncate text-[15px] font-bold text-foreground">
+                        ChatGPT
+                      </span>
+                      <span className="shrink-0 text-[11px] font-medium text-primary">
+                        AI
+                      </span>
+                    </span>
+
+                    <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">
+                      {chatGPTConversation.preview}
+                    </span>
+                  </span>
+                </button>
+              )}
 
               {filtered.map((conv) => {
                 const label = peerOf(conv);
@@ -562,7 +615,77 @@ function MessagesPage() {
             {/* =======================================================
                 CHAT CONTENT
                 ======================================================= */}
-            {activeId ? (
+            {activeId === CHATGPT_ID ? (
+              <div className="flex min-h-0 flex-1 flex-col">
+                <div className="flex-1 overflow-y-auto px-4 py-6">
+                  <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
+                    <span className="grid size-16 place-items-center rounded-full bg-gradient-to-br from-violet-600 via-fuchsia-500 to-pink-500 p-[2px] shadow-lg ring-2 ring-violet-300/60 dark:ring-violet-400/40">
+                      <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
+                        <img
+                          src="https://chatgpt.com/favicon.ico"
+                          alt="ChatGPT"
+                          className="size-full rounded-full object-cover"
+                        />
+                      </span>
+                    </span>
+
+                    <h3 className="mt-4 font-display text-xl font-bold text-foreground">
+                      ChatGPT
+                    </h3>
+
+                    <p className="mt-1 max-w-md text-sm text-muted-foreground">
+                      {fr
+                        ? "Votre assistant IA. Posez une question, demandez une idée ou obtenez de l’aide."
+                        : "Your AI assistant. Ask a question, get an idea, or get help with anything."}
+                    </p>
+
+                    <div className="mt-6 grid w-full max-w-lg gap-2 sm:grid-cols-2">
+                      {(fr
+                        ? [
+                            "Aide-moi à trouver un service",
+                            "Aide-moi à rédiger un CV",
+                            "Explique-moi cette annonce",
+                            "Donne-moi une idée de business",
+                          ]
+                        : [
+                            "Help me find a service",
+                            "Help me write a CV",
+                            "Explain this listing",
+                            "Give me a business idea",
+                          ]
+                      ).map((prompt) => (
+                        <button
+                          key={prompt}
+                          type="button"
+                          className="rounded-xl border border-border bg-card px-3 py-3 text-left text-sm text-foreground transition-colors hover:bg-muted active:scale-[0.99]"
+                        >
+                          {prompt}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t border-border bg-card/95 p-3 backdrop-blur">
+                  <div className="mx-auto flex max-w-2xl items-center gap-2 rounded-2xl border border-border bg-background px-3 py-2">
+                    <input
+                      type="text"
+                      placeholder={
+                        fr ? "Écrivez à ChatGPT…" : "Message ChatGPT…"
+                      }
+                      className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+                      disabled
+                    />
+                    <Bot className="size-5 shrink-0 text-primary" aria-hidden />
+                  </div>
+                  <p className="mx-auto mt-2 max-w-2xl text-center text-[10px] text-muted-foreground">
+                    {fr
+                      ? "L’IA sera connectée à cette interface dans une prochaine étape."
+                      : "AI will be connected to this interface in a later step."}
+                  </p>
+                </div>
+              </div>
+            ) : activeId ? (
               <ChatThread
                 conversationId={activeId}
                 currentUserId={user?.id}
