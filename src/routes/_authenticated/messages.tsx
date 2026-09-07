@@ -1,596 +1,751 @@
-import { useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { z } from "zod";
-import { ArrowLeft, MessageCircle, Search } from "lucide-react";
-import { useConversations } from "@/lib/marketplace.queries";
-import { useUser } from "@/lib/queries";
-import { ChatThread } from "@/components/refer/ChatThread";
-import { Avatar } from "@/components/refer/AvatarUpload";
-import { EmptyState, SkeletonRows } from "@/components/refer/states";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  AlertCircle,
+  Check,
+  CheckCheck,
+  Loader2,
+  ReceiptText,
+  Send,
+  Trash2,
+} from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useMessages } from "@/lib/marketplace.queries";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { ReportDialog } from "@/components/refer/ReportDialog";
 import { useI18n } from "@/lib/i18n";
-import { formatDateTime, formatXAF } from "@/lib/format";
-import { bookingStatusLabel } from "@/lib/booking";
+import { formatXAF } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-const searchSchema = z.object({ c: z.string().optional() });
+type ChatMessage = {
+  id: string;
+  sender_id: string;
+  body: string;
+  created_at: string;
+  read_at?: string | null;
+  kind?: string;
+  metadata?: Record<string, unknown>;
+};
 
-export const Route = createFileRoute("/_authenticated/messages")({
-  validateSearch: searchSchema,
-  head: () => ({
-    meta: [
-      { title: "Messages — ASH Glo" },
-      {
-        name: "description",
-        content:
-          "Chat live with your beauty pro or your clients about upcoming bookings.",
-      },
-      {
-        property: "og:title",
-        content: "Messages — ASH Glo",
-      },
-      {
-        property: "og:description",
-        content:
-          "Live chat between clients and beauty providers on ASH Glo.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
-  component: MessagesPage,
-});
+function dayKey(iso: string) {
+  return new Date(iso).toDateString();
+}
 
-/** Short WhatsApp-style stamp: time today, "Yesterday", else a short date. */
-function stamp(iso: string | null | undefined, fr: boolean) {
-  if (!iso) return "";
-
+function dayLabel(iso: string, fr: boolean) {
   const date = new Date(iso);
-  const now = new Date();
-  const yesterday = new Date(now.getTime() - 86400000);
+  const today = new Date();
+  const yesterday = new Date(today.getTime() - 86400000);
 
-  if (date.toDateString() === now.toDateString())
-    return date.toLocaleTimeString(fr ? "fr-FR" : "en-GB", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+  if (date.toDateString() === today.toDateString())
+    return fr ? "Aujourd'hui" : "Today";
 
   if (date.toDateString() === yesterday.toDateString())
     return fr ? "Hier" : "Yesterday";
 
   return date.toLocaleDateString(fr ? "fr-FR" : "en-GB", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "2-digit",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
   });
 }
 
-/**
- * ASH profile colors.
- *
- * Each conversation receives a stable color based on its conversation ID.
- * This means the same conversation keeps the same profile color.
- */
-const avatarColors = [
-  {
-    wrapper:
-      "bg-gradient-to-br from-fuchsia-500 via-pink-500 to-rose-500",
-    ring: "ring-fuchsia-300/60 dark:ring-fuchsia-400/40",
-  },
-  {
-    wrapper:
-      "bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-500",
-    ring: "ring-violet-300/60 dark:ring-violet-400/40",
-  },
-  {
-    wrapper:
-      "bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500",
-    ring: "ring-emerald-300/60 dark:ring-emerald-400/40",
-  },
-  {
-    wrapper:
-      "bg-gradient-to-br from-red-500 via-rose-500 to-pink-500",
-    ring: "ring-red-300/60 dark:ring-red-400/40",
-  },
-  {
-    wrapper:
-      "bg-gradient-to-br from-blue-500 via-sky-500 to-cyan-500",
-    ring: "ring-blue-300/60 dark:ring-blue-400/40",
-  },
-  {
-    wrapper:
-      "bg-gradient-to-br from-slate-500 via-gray-500 to-zinc-500",
-    ring: "ring-slate-300/60 dark:ring-slate-400/40",
-  },
-  {
-    wrapper:
-      "bg-gradient-to-br from-orange-400 via-amber-500 to-yellow-500",
-    ring: "ring-orange-300/60 dark:ring-orange-400/40",
-  },
-  {
-    wrapper:
-      "bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-500",
-    ring: "ring-cyan-300/60 dark:ring-cyan-400/40",
-  },
-] as const;
-
-/**
- * Generate a stable color index from a conversation ID.
- */
-function avatarColorIndex(id: string) {
-  let hash = 0;
-
-  for (let index = 0; index < id.length; index += 1) {
-    hash = (hash * 31 + id.charCodeAt(index)) | 0;
-  }
-
-  return Math.abs(hash) % avatarColors.length;
+function timeLabel(iso: string, fr: boolean) {
+  return new Date(iso).toLocaleTimeString(fr ? "fr-FR" : "en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
-function getAvatarColor(id: string) {
-  return avatarColors[avatarColorIndex(id)];
-}
-
-function MessagesPage() {
+export function ChatThread({
+  conversationId,
+  currentUserId,
+  className,
+  quickReplies = [],
+  peerName,
+  peerUserId,
+}: {
+  conversationId: string;
+  currentUserId: string | undefined;
+  className?: string;
+  quickReplies?: string[];
+  peerName?: string;
+  peerUserId?: string | null;
+}) {
   const { t, lang } = useI18n();
   const fr = lang === "fr";
-  const { user } = useUser();
-  const { c } = Route.useSearch();
-  const navigate = Route.useNavigate();
-  const routerNavigate = useNavigate();
-  const { data: conversations, isLoading } = useConversations();
-  const [term, setTerm] = useState("");
+  const queryClient = useQueryClient();
+  const { data, isLoading } = useMessages(conversationId);
 
-  const list = conversations ?? [];
+  const [body, setBody] = useState("");
+  const [sending, setSending] = useState(false);
+  const [pending, setPending] = useState<string[]>([]);
+  const [failed, setFailed] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
-  // Desktop falls back to the first conversation;
-  // mobile requires an explicit conversation pick.
-  const activeId =
-    c ??
-    (typeof window !== "undefined" && window.innerWidth >= 768
-      ? list[0]?.id
-      : undefined);
+  const endRef = useRef<HTMLDivElement>(null);
+  const pressRef = useRef<number | null>(null);
 
-  const active = list.find((conv) => conv.id === activeId);
-  const mobileView = c ? "thread" : "list";
+  const messages = (data ?? []) as unknown as ChatMessage[];
+  const peerInitials = (peerName ?? "ASH")
+    .trim()
+    .slice(0, 2)
+    .toUpperCase();
 
-  /** Providers see the client; clients see the business.
-   * Property threads show the listing/owner.
-   */
-  function peerOf(conv: (typeof list)[number]): string {
-    if (conv.listing_id) {
-      const viewerIsOwner =
-        Boolean(user?.id) && conv.owner_id === user?.id;
+  useEffect(() => {
+    endRef.current?.scrollIntoView({
+      block: "end",
+      behavior: "smooth",
+    });
+  }, [messages.length, pending.length]);
 
-      return viewerIsOwner
-        ? (conv.client?.full_name ?? "ASH client")
-        : (conv.listing?.title ?? "ASH Property");
+  // Mark the other side's messages as read once the thread is open.
+  useEffect(() => {
+    if (!currentUserId || messages.length === 0) return;
+
+    const unread = messages
+      .filter((m) => m.sender_id !== currentUserId && !m.read_at)
+      .map((m) => m.id);
+
+    if (unread.length === 0) return;
+
+    void supabase
+      .from("messages")
+      .update({ read_at: new Date().toISOString() })
+      .in("id", unread)
+      .then(() =>
+        queryClient.invalidateQueries({
+          queryKey: ["messages", conversationId],
+        }),
+      );
+  }, [messages, currentUserId, conversationId, queryClient]);
+
+  const grouped = useMemo(() => {
+    const out: { day: string; items: ChatMessage[] }[] = [];
+
+    for (const m of messages) {
+      const key = dayKey(m.created_at);
+      const last = out[out.length - 1];
+
+      if (last && last.day === key) {
+        last.items.push(m);
+      } else {
+        out.push({
+          day: key,
+          items: [m],
+        });
+      }
     }
 
-    const viewerIsProvider =
-      Boolean(user?.id) && conv.provider?.user_id === user?.id;
+    return out;
+  }, [messages]);
 
-    return viewerIsProvider
-      ? (conv.client?.full_name ?? "ASH client")
-      : (conv.provider?.business_name ?? t("chat.title"));
+  async function submit(text: string) {
+    const value = text.trim();
+
+    if (!value || !currentUserId || sending) return;
+
+    setSending(true);
+    setFailed(null);
+    setPending((p) => [...p, value]);
+
+    const { error } = await supabase
+      .from("messages")
+      .insert({
+        conversation_id: conversationId,
+        sender_id: currentUserId,
+        body: value,
+      });
+
+    setSending(false);
+    setPending((p) => p.filter((v) => v !== value));
+
+    if (error) {
+      console.error("chat send failed", error);
+      toast.error(
+        error.message || "Message not sent — tap to retry",
+      );
+      setFailed(value);
+      return;
+    }
+
+    setBody("");
+
+    void queryClient.invalidateQueries({
+      queryKey: ["messages", conversationId],
+    });
+
+    void queryClient.invalidateQueries({
+      queryKey: ["conversations"],
+    });
   }
 
-  /** Picture of the other side, when we have one. */
-  function peerAvatarOf(conv: (typeof list)[number]): string | null {
-    if (conv.listing_id) {
-      const viewerIsOwner =
-        Boolean(user?.id) && conv.owner_id === user?.id;
+  /** Remove one of my own messages for everybody in the thread. */
+  async function remove(id: string) {
+    setConfirmDelete(null);
 
-      return viewerIsOwner
-        ? (conv.client?.avatar_url ?? null)
-        : null;
+    const { error } = await supabase
+      .from("messages")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.error("chat delete failed", error);
+
+      toast.error(
+        error.message ||
+          (fr
+            ? "Message non supprimé"
+            : "Message not deleted"),
+      );
+
+      return;
     }
 
-    const viewerIsProvider =
-      Boolean(user?.id) && conv.provider?.user_id === user?.id;
+    toast.success(
+      fr ? "Message supprimé" : "Message deleted",
+    );
 
-    return viewerIsProvider
-      ? (conv.client?.avatar_url ?? null)
-      : (conv.provider?.avatar_url ?? null);
+    void queryClient.invalidateQueries({
+      queryKey: ["messages", conversationId],
+    });
+
+    void queryClient.invalidateQueries({
+      queryKey: ["conversations"],
+    });
   }
 
-  /** The other person's auth id — used for reporting and blocking. */
-  function peerUserIdOf(conv: (typeof list)[number]): string | null {
-    if (conv.listing_id) {
-      const viewerIsOwner =
-        Boolean(user?.id) && conv.owner_id === user?.id;
+  return (
+    <div
+      className={cn(
+        "relative flex min-h-0 flex-col overflow-hidden",
 
-      return (viewerIsOwner ? conv.client_id : conv.owner_id) ?? null;
-    }
+        /*
+         * ASH GLO CHAT BACKGROUND
+         *
+         * Light mode:
+         * - soft pink glow in the upper-left
+         * - soft purple glow in the lower-right
+         * - clean neutral base
+         *
+         * Dark mode:
+         * - slightly stronger ASH glow
+         * - still intentionally soft so the screen
+         *   does not become overwhelmingly dark.
+         */
+        "bg-[radial-gradient(circle_at_15%_15%,rgba(236,72,153,0.10),transparent_32%),radial-gradient(circle_at_85%_85%,rgba(139,92,246,0.10),transparent_32%),linear-gradient(135deg,hsl(var(--background)),hsl(var(--muted)/0.35))]",
 
-    const viewerIsProvider =
-      Boolean(user?.id) && conv.provider?.user_id === user?.id;
+        "dark:bg-[radial-gradient(circle_at_15%_15%,rgba(236,72,153,0.14),transparent_32%),radial-gradient(circle_at_85%_85%,rgba(139,92,246,0.14),transparent_32%),linear-gradient(135deg,hsl(var(--background)),hsl(var(--card)/0.55))]",
 
+        className,
+      )}
+    >
+      {/* Very subtle decorative ASH glow */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -left-16 -top-16 size-40 rounded-full bg-fuchsia-500/5 blur-3xl"
+      />
+
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-16 -right-16 size-40 rounded-full bg-violet-500/5 blur-3xl"
+      />
+
+      {/* REPORT ACTION */}
+      <div className="relative z-10 flex items-center justify-end px-1">
+        <ReportDialog
+          targetType="MESSAGE"
+          targetId={conversationId}
+          targetUserId={peerUserId ?? null}
+          targetLabel={peerName}
+          compact
+        />
+      </div>
+
+      {/* MESSAGE AREA */}
+      <div className="relative z-0 min-h-0 flex-1 space-y-3 overflow-y-auto px-1 py-2">
+        {isLoading ? (
+          <div className="space-y-3 py-4">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className={cn(
+                  "h-9 max-w-[60%] animate-pulse rounded-2xl bg-muted/70 backdrop-blur-sm",
+                  i % 2 === 1 ? "ml-auto" : "",
+                )}
+              />
+            ))}
+          </div>
+        ) : messages.length === 0 ? (
+          <div className="py-8 text-center">
+            <div className="mx-auto mb-3 grid size-12 place-items-center rounded-full bg-gradient-to-br from-fuchsia-500/15 to-violet-500/15">
+              <Send
+                className="size-5 text-primary"
+                aria-hidden
+              />
+            </div>
+
+            <p className="text-sm font-semibold text-foreground">
+              {t("chat.none")}
+            </p>
+
+            <p className="mt-1 text-xs text-muted-foreground">
+              {t("chat.noneCopy")}
+            </p>
+          </div>
+        ) : (
+          grouped.map((group) => (
+            <div
+              key={group.day}
+              className="space-y-1.5"
+            >
+              {/* DATE DIVIDER */}
+              <p className="sticky top-0 z-10 mx-auto w-fit rounded-full bg-background/70 px-3 py-0.5 text-[11px] font-semibold text-muted-foreground shadow-sm backdrop-blur-md">
+                {dayLabel(
+                  group.items[0]!.created_at,
+                  fr,
+                )}
+              </p>
+
+              {group.items.map((m, index) => {
+                const kind = m.kind ?? "TEXT";
+
+                if (
+                  kind === "INVOICE" ||
+                  kind === "SYSTEM"
+                ) {
+                  return (
+                    <InvoiceMessage
+                      key={m.id}
+                      kind={kind}
+                      body={m.body}
+                      metadata={m.metadata ?? {}}
+                    />
+                  );
+                }
+
+                const mine =
+                  m.sender_id === currentUserId;
+
+                const prev = group.items[index - 1];
+                const next = group.items[index + 1];
+
+                const startsRun =
+                  !prev ||
+                  prev.sender_id !== m.sender_id ||
+                  (prev.kind ?? "TEXT") !== "TEXT";
+
+                const endsRun =
+                  !next ||
+                  next.sender_id !== m.sender_id ||
+                  (next.kind ?? "TEXT") !== "TEXT";
+
+                return (
+                  <div
+                    key={m.id}
+                    className={cn(
+                      "flex items-end gap-2",
+                      mine
+                        ? "justify-end"
+                        : "justify-start",
+                      startsRun && "mt-2.5",
+                    )}
+                  >
+                    {!mine ? (
+                      <span
+                        className={cn(
+                          "grid size-7 shrink-0 place-items-center rounded-full bg-gradient-to-br from-fuchsia-500/20 to-violet-500/20 text-[10px] font-bold text-primary ring-1 ring-primary/10",
+                          !endsRun && "invisible",
+                        )}
+                        aria-hidden
+                      >
+                        {peerInitials}
+                      </span>
+                    ) : null}
+
+                    <div
+                      onContextMenu={(e) => {
+                        if (!mine) return;
+
+                        e.preventDefault();
+                        setConfirmDelete(m.id);
+                      }}
+                      onPointerDown={() => {
+                        if (!mine) return;
+
+                        pressRef.current =
+                          window.setTimeout(
+                            () =>
+                              setConfirmDelete(m.id),
+                            500,
+                          );
+                      }}
+                      onPointerUp={() => {
+                        if (pressRef.current)
+                          window.clearTimeout(
+                            pressRef.current,
+                          );
+                      }}
+                      onPointerLeave={() => {
+                        if (pressRef.current)
+                          window.clearTimeout(
+                            pressRef.current,
+                          );
+                      }}
+                      className={cn(
+                        "group relative max-w-[78%] px-3.5 py-2 shadow-sm transition-colors",
+                        mine
+                          ? "rounded-2xl bg-primary text-primary-foreground"
+                          : "rounded-2xl border border-border/60 bg-background/85 text-foreground backdrop-blur-sm",
+                        mine &&
+                          !endsRun &&
+                          "rounded-br-md",
+                        mine &&
+                          endsRun &&
+                          "rounded-br-sm",
+                        !mine &&
+                          !endsRun &&
+                          "rounded-bl-md",
+                        !mine &&
+                          endsRun &&
+                          "rounded-bl-sm",
+                      )}
+                    >
+                      {mine ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setConfirmDelete(m.id)
+                          }
+                          aria-label={
+                            fr
+                              ? "Supprimer le message"
+                              : "Delete message"
+                          }
+                          className="absolute -left-8 top-1/2 hidden size-7 -translate-y-1/2 place-items-center rounded-full bg-card text-muted-foreground shadow-sm group-hover:grid hover:text-destructive"
+                        >
+                          <Trash2
+                            className="size-3.5"
+                            aria-hidden
+                          />
+                        </button>
+                      ) : null}
+
+                      <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+                        {m.body}
+                      </p>
+
+                      {confirmDelete === m.id ? (
+                        <span className="mt-2 flex items-center justify-end gap-2 text-[11px] font-semibold">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setConfirmDelete(null)
+                            }
+                            className={cn(
+                              "rounded-full px-2 py-0.5",
+                              mine
+                                ? "bg-primary-foreground/20"
+                                : "bg-background",
+                            )}
+                          >
+                            {fr
+                              ? "Annuler"
+                              : "Cancel"}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void remove(m.id)
+                            }
+                            className="rounded-full bg-destructive px-2 py-0.5 text-destructive-foreground"
+                          >
+                            {fr
+                              ? "Supprimer"
+                              : "Delete"}
+                          </button>
+                        </span>
+                      ) : null}
+
+                      {endsRun ? (
+                        <span
+                          className={cn(
+                            "mt-1 flex items-center justify-end gap-1 text-[10px]",
+                            mine
+                              ? "text-primary-foreground/75"
+                              : "text-muted-foreground",
+                          )}
+                        >
+                          {timeLabel(
+                            m.created_at,
+                            fr,
+                          )}
+
+                          {mine ? (
+                            m.read_at ? (
+                              <CheckCheck
+                                className="size-3"
+                                aria-hidden
+                              />
+                            ) : (
+                              <Check
+                                className="size-3"
+                                aria-hidden
+                              />
+                            )
+                          ) : null}
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ))
+        )}
+
+        {/* PENDING MESSAGES */}
+        {pending.map((text, i) => (
+          <div
+            key={`pending-${i}`}
+            className="flex justify-end"
+          >
+            <div className="max-w-[78%] rounded-2xl rounded-br-sm bg-primary/70 px-3.5 py-2 text-primary-foreground shadow-sm">
+              <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+                {text}
+              </p>
+
+              <span className="mt-1 flex items-center justify-end gap-1 text-[10px] text-primary-foreground/80">
+                <Loader2
+                  className="size-3 animate-spin"
+                  aria-hidden
+                />
+
+                {fr ? "Envoi…" : "Sending…"}
+              </span>
+            </div>
+          </div>
+        ))}
+
+        {/* FAILED MESSAGE */}
+        {failed ? (
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => void submit(failed)}
+              className="flex items-center gap-1.5 rounded-full border border-destructive/40 bg-background/70 px-3 py-1 text-[11px] font-semibold text-destructive backdrop-blur-sm"
+            >
+              <AlertCircle
+                className="size-3"
+                aria-hidden
+              />
+
+              {fr
+                ? "Échec — réessayer"
+                : "Failed — tap to retry"}
+            </button>
+          </div>
+        ) : null}
+
+        <div ref={endRef} />
+      </div>
+
+      {/* QUICK REPLIES */}
+      {quickReplies.length > 0 ? (
+        <div className="relative z-10 -mx-1 flex gap-2 overflow-x-auto px-1 pb-2">
+          {quickReplies.map((q) => (
+            <button
+              key={q}
+              type="button"
+              onClick={() => void submit(q)}
+              className="shrink-0 rounded-full border border-border/70 bg-background/80 px-3 py-1.5 text-xs font-semibold text-muted-foreground shadow-sm backdrop-blur-sm transition-colors hover:border-primary/40 hover:bg-muted hover:text-foreground active:scale-[0.98]"
+            >
+              {q}
+            </button>
+          ))}
+        </div>
+      ) : null}
+
+      {/* MESSAGE COMPOSER */}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          void submit(body);
+        }}
+        className="sticky bottom-0 z-20 flex items-end gap-2 border-t border-border/70 bg-background/95 pt-3 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] backdrop-blur-md"
+      >
+        <div className="flex min-w-0 flex-1 flex-col">
+          <Textarea
+            rows={1}
+            value={body}
+            onChange={(e) =>
+              setBody(
+                e.target.value.slice(0, 1000),
+              )
+            }
+            onKeyDown={(e) => {
+              if (
+                e.key === "Enter" &&
+                !e.shiftKey
+              ) {
+                e.preventDefault();
+                void submit(body);
+              }
+            }}
+            placeholder={t("chat.placeholder")}
+            aria-label={t("chat.placeholder")}
+            className="max-h-32 min-h-10 resize-none rounded-2xl bg-background/90 backdrop-blur-sm"
+          />
+
+          <span className="mt-1 px-1 text-[10px] text-muted-foreground">
+            {body.length > 800
+              ? `${body.length}/1000`
+              : fr
+                ? "Entrée pour envoyer · Maj+Entrée = nouvelle ligne"
+                : "Enter to send · Shift+Enter = new line"}
+          </span>
+        </div>
+
+        <Button
+          type="submit"
+          size="icon"
+          className="mb-5 size-10 shrink-0 rounded-full shadow-sm"
+          disabled={
+            sending ||
+            body.trim().length === 0
+          }
+          aria-label={t("chat.send")}
+        >
+          {sending ? (
+            <Loader2
+              className="size-4 animate-spin"
+              aria-hidden
+            />
+          ) : (
+            <Send
+              className="size-4"
+              aria-hidden
+            />
+          )}
+        </Button>
+      </form>
+    </div>
+  );
+}
+
+/** ASH invoice / system event rendered inline in the booking thread. */
+function InvoiceMessage({
+  kind,
+  body,
+  metadata,
+}: {
+  kind: string;
+  body: string;
+  metadata: Record<string, unknown>;
+}) {
+  const { lang } = useI18n();
+  const fr = lang === "fr";
+
+  if (kind === "SYSTEM") {
     return (
-      (viewerIsProvider ? conv.client_id : conv.provider?.user_id) ?? null
+      <p className="mx-auto max-w-[90%] rounded-full bg-background/70 px-3 py-1 text-center text-[11px] text-muted-foreground shadow-sm backdrop-blur-sm">
+        {body}
+      </p>
     );
   }
 
-  /** Where the other side's public page lives, when they have one. */
-  function peerProfileOf(conv: (typeof list)[number] | undefined) {
-    if (!conv) return null;
+  const invoice = String(
+    metadata["invoice_number"] ?? "",
+  );
 
-    if (conv.listing_id) {
-      const viewerIsOwner =
-        Boolean(user?.id) && conv.owner_id === user?.id;
+  const total = Number(
+    metadata["total"] ??
+      metadata["price"] ??
+      0,
+  );
 
-      return viewerIsOwner || !conv.listing
-        ? null
-        : {
-            to: "/property/$listingId",
-            params: { listingId: conv.listing.id },
-          };
-    }
+  const fee = Number(
+    metadata["platform_fee"] ?? 0,
+  );
 
-    const viewerIsProvider =
-      Boolean(user?.id) && conv.provider?.user_id === user?.id;
+  const net = Number(
+    metadata["provider_amount"] ?? 0,
+  );
 
-    if (viewerIsProvider || !conv.provider) return null;
-
-    return {
-      to: "/services/$providerId",
-      params: { providerId: conv.provider.id },
-    };
-  }
-
-  /** Open the other side's public page from the chat header. */
-  function openPeerProfile(conv: (typeof list)[number]) {
-    const target = peerProfileOf(conv);
-
-    if (!target) return;
-
-    void routerNavigate({
-      to: target.to,
-      params: target.params,
-    } as never);
-  }
-
-  /** One-line preview of the newest message. */
-  function previewOf(conv: (typeof list)[number]): string {
-    const last = conv.last_message;
-
-    if (!last) {
-      if (conv.booking) return conv.booking.service_title;
-
-      if (conv.listing)
-        return `ASH Property · ${conv.listing.city}`;
-
-      return t("chat.pick");
-    }
-
-    const mine = last.sender_id === user?.id;
-
-    const text =
-      last.kind === "INVOICE"
-        ? fr
-          ? "Facture"
-          : "Invoice"
-        : last.body;
-
-    return `${mine ? (fr ? "Vous : " : "You: ") : ""}${text}`
-      .replace(/\s+/g, " ")
-      .trim();
-  }
-
-  const filtered = term.trim()
-    ? list.filter((conv) =>
-        `${peerOf(conv)} ${previewOf(conv)}`
-          .toLowerCase()
-          .includes(term.trim().toLowerCase()),
-      )
-    : list;
+  const service = String(
+    metadata["service_title"] ?? "",
+  );
 
   return (
-    <div className="mx-auto w-full max-w-5xl md:space-y-4">
-      {/* DESKTOP PAGE HEADER */}
-      <header className="hidden md:block">
-        <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
-          {t("chat.title")}
-        </h1>
+    <article className="mx-auto w-full max-w-[92%] rounded-2xl border border-primary/30 bg-background/80 p-3 shadow-sm backdrop-blur-sm">
+      <header className="flex items-center justify-between gap-2">
+        <span className="flex items-center gap-1.5 text-xs font-bold text-primary">
+          <ReceiptText
+            className="size-4"
+            aria-hidden
+          />
 
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("chat.pick")}
-        </p>
+          {fr ? "Facture ASH" : "ASH invoice"}
+        </span>
+
+        {invoice ? (
+          <span className="tabular text-[11px] font-semibold text-muted-foreground">
+            {invoice}
+          </span>
+        ) : null}
       </header>
 
-      {isLoading ? (
-        <SkeletonRows rows={3} />
-      ) : list.length === 0 ? (
-        <EmptyState
-          title={t("chat.none")}
-          description={t("chat.noneCopy")}
-          icon={<MessageCircle className="size-5" aria-hidden />}
-        />
-      ) : (
-        <div className="grid md:gap-4 md:grid-cols-[320px_minmax(0,1fr)]">
-          {/* =========================================================
-              CHAT LIST
-              ========================================================= */}
-          <div
-            className={cn(
-              "tile flex flex-col overflow-hidden bg-background p-0 max-md:rounded-none max-md:border-0",
-              mobileView === "thread"
-                ? "hidden md:flex"
-                : "max-md:-mx-4 max-md:-mt-5 max-md:h-[calc(var(--ash-vh,100dvh)-3.5rem-4.75rem)]",
-              "md:max-h-[72vh]",
-            )}
-          >
-            <div className="border-b border-border bg-card/95 px-3 pb-2.5 pt-2.5 backdrop-blur">
-              <h2 className="mb-2 font-display text-xl font-bold text-foreground md:hidden">
-                {t("chat.title")}
-              </h2>
+      {service ? (
+        <p className="mt-1 truncate text-sm font-semibold text-foreground">
+          {service}
+        </p>
+      ) : null}
 
-              <div className="flex items-center gap-2 rounded-full bg-muted px-3 py-2">
-                <Search
-                  className="size-4 shrink-0 text-muted-foreground"
-                  aria-hidden
-                />
+      <dl className="mt-2 space-y-1 text-xs">
+        <div className="flex justify-between gap-3">
+          <dt className="text-muted-foreground">
+            {fr ? "Total payé" : "Total paid"}
+          </dt>
 
-                <input
-                  value={term}
-                  onChange={(event) => setTerm(event.target.value)}
-                  placeholder={
-                    fr
-                      ? "Rechercher une discussion"
-                      : "Search chats"
-                  }
-                  aria-label={
-                    fr
-                      ? "Rechercher une discussion"
-                      : "Search chats"
-                  }
-                  className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                />
-              </div>
-            </div>
-
-            <nav className="min-h-0 flex-1 divide-y divide-border overflow-y-auto">
-              {filtered.length === 0 ? (
-                <p className="p-6 text-center text-sm text-muted-foreground">
-                  {fr
-                    ? "Aucune discussion trouvée."
-                    : "No chats found."}
-                </p>
-              ) : null}
-
-              {filtered.map((conv) => {
-                const label = peerOf(conv);
-                const unread = conv.unread_count ?? 0;
-                const avatarColor = getAvatarColor(conv.id);
-
-                return (
-                  <button
-                    key={conv.id}
-                    type="button"
-                    onClick={() =>
-                      void navigate({
-                        search: { c: conv.id },
-                      })
-                    }
-                    className={cn(
-                      "flex w-full items-center gap-3 px-3 py-3 text-left transition-colors",
-                      conv.id === activeId
-                        ? "bg-primary/10"
-                        : "hover:bg-muted/70 active:bg-muted",
-                    )}
-                  >
-                    {/* COLORED ASH PROFILE CIRCLE */}
-                    <span
-                      className={cn(
-                        "grid size-12 shrink-0 place-items-center rounded-full p-[2px] shadow-sm ring-2",
-                        avatarColor.wrapper,
-                        avatarColor.ring,
-                      )}
-                    >
-                      <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
-                        <Avatar
-                          path={peerAvatarOf(conv)}
-                          name={label}
-                          className="size-full rounded-full border-0 shadow-none"
-                        />
-                      </span>
-                    </span>
-
-                    <span className="min-w-0 flex-1">
-                      <span className="flex items-baseline justify-between gap-2">
-                        <span className="truncate text-[15px] font-semibold text-foreground">
-                          {label}
-                        </span>
-
-                        <span
-                          className={cn(
-                            "shrink-0 text-[11px]",
-                            unread > 0
-                              ? "font-semibold text-primary"
-                              : "text-muted-foreground",
-                          )}
-                        >
-                          {stamp(
-                            conv.last_message?.created_at ??
-                              conv.last_message_at,
-                            fr,
-                          )}
-                        </span>
-                      </span>
-
-                      <span className="mt-0.5 flex items-center justify-between gap-2">
-                        <span
-                          className={cn(
-                            "truncate text-[13px]",
-                            unread > 0
-                              ? "font-medium text-foreground"
-                              : "text-muted-foreground",
-                          )}
-                        >
-                          {previewOf(conv)}
-                        </span>
-
-                        {unread > 0 ? (
-                          <span className="grid min-w-5 shrink-0 place-items-center rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground">
-                            {unread > 99 ? "99+" : unread}
-                          </span>
-                        ) : null}
-                      </span>
-                    </span>
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
-
-          {/* =========================================================
-              ACTIVE CHAT
-              ========================================================= */}
-          <div
-            className={cn(
-              "tile chat-surface flex flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-0",
-              mobileView === "list"
-                ? "hidden md:flex"
-                : "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:z-[70] max-md:h-[calc(var(--ash-vh,100dvh)-env(safe-area-inset-top)-env(safe-area-inset-bottom))] max-md:w-screen md:h-[72vh]",
-            )}
-          >
-            {/* CHAT HEADER */}
-            <div className="flex items-center gap-2.5 border-b border-border bg-card/95 px-2.5 py-2 backdrop-blur max-md:pt-[calc(0.5rem+env(safe-area-inset-top))]">
-              {/* BACK TO MESSAGES */}
-              <button
-                type="button"
-                onClick={() => void navigate({ search: {} })}
-                aria-label={
-                  fr
-                    ? "Retour aux messages"
-                    : "Back to messages"
-                }
-                className="grid size-10 shrink-0 place-items-center rounded-full bg-muted/70 text-foreground shadow-sm transition-all hover:bg-muted active:scale-95 md:hidden"
-              >
-                <ArrowLeft
-                  className="size-5"
-                  aria-hidden
-                />
-              </button>
-
-              {/* ACTIVE PROFILE */}
-              <button
-                type="button"
-                onClick={() =>
-                  active && openPeerProfile(active)
-                }
-                disabled={
-                  !active || !peerProfileOf(active)
-                }
-                aria-label={
-                  fr
-                    ? "Voir le profil"
-                    : "View profile"
-                }
-                className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl px-1 py-0.5 text-left transition-colors enabled:hover:bg-muted/60"
-              >
-                {active ? (
-                  <span
-                    className={cn(
-                      "grid size-10 shrink-0 place-items-center rounded-full p-[2px] shadow-sm ring-2",
-                      getAvatarColor(active.id).wrapper,
-                      getAvatarColor(active.id).ring,
-                    )}
-                  >
-                    <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
-                      <Avatar
-                        path={peerAvatarOf(active)}
-                        name={peerOf(active)}
-                        className="size-full rounded-full border-0 shadow-none"
-                      />
-                    </span>
-                  </span>
-                ) : null}
-
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-display text-[15px] font-semibold text-foreground">
-                    {active
-                      ? peerOf(active)
-                      : t("chat.title")}
-                  </p>
-
-                  {active?.booking ? (
-                    <p className="truncate text-[11px] text-muted-foreground">
-                      {active.booking.service_title} ·{" "}
-                      {formatDateTime(
-                        active.booking.scheduled_at,
-                      )}
-                      {active.booking.invoice_number
-                        ? ` · ${active.booking.invoice_number}`
-                        : ""}
-                    </p>
-                  ) : active?.listing ? (
-                    <p className="truncate text-[11px] text-muted-foreground">
-                      ASH Property ·{" "}
-                      {active.listing.city}
-                    </p>
-                  ) : null}
-                </div>
-              </button>
-
-              {/* BOOKING STATUS */}
-              {active?.booking ? (
-                <div className="shrink-0 text-right">
-                  <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
-                    {bookingStatusLabel(
-                      active.booking.status,
-                      lang,
-                    )}
-                  </span>
-
-                  <p className="tabular mt-1 text-xs font-bold text-foreground">
-                    {formatXAF(
-                      Number(active.booking.price),
-                    )}
-                  </p>
-                </div>
-              ) : null}
-            </div>
-
-            {/* =======================================================
-                CHAT CONTENT
-                ======================================================= */}
-            {activeId ? (
-              <ChatThread
-                conversationId={activeId}
-                currentUserId={user?.id}
-                peerName={
-                  active ? peerOf(active) : "ASH"
-                }
-                peerUserId={
-                  active
-                    ? peerUserIdOf(active)
-                    : null
-                }
-                className="min-h-0 flex-1 px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]"
-                quickReplies={
-                  lang === "fr"
-                    ? [
-                        "Bonjour 👋",
-                        "Quelle est votre disponibilité ?",
-                        "Je confirme le rendez-vous",
-                        "Je suis en route",
-                      ]
-                    : [
-                        "Hello 👋",
-                        "What is your availability?",
-                        "I confirm the appointment",
-                        "I'm on my way",
-                      ]
-                }
-              />
-            ) : (
-              <div className="grid flex-1 place-items-center p-6 text-center text-sm text-muted-foreground">
-                {t("chat.pick")}
-              </div>
-            )}
-          </div>
+          <dd className="tabular font-bold text-foreground">
+            {formatXAF(total)}
+          </dd>
         </div>
-      )}
-    </div>
+
+        {fee > 0 ? (
+          <div className="flex justify-between gap-3">
+            <dt className="text-muted-foreground">
+              {fr ? "Frais ASH" : "ASH fee"}
+            </dt>
+
+            <dd className="tabular text-foreground">
+              {formatXAF(fee)}
+            </dd>
+          </div>
+        ) : null}
+
+        {net > 0 ? (
+          <div className="flex justify-between gap-3">
+            <dt className="text-muted-foreground">
+              {fr
+                ? "Reçu par le pro"
+                : "Provider receives"}
+            </dt>
+
+            <dd className="tabular text-foreground">
+              {formatXAF(net)}
+            </dd>
+          </div>
+        ) : null}
+      </dl>
+
+      {body ? (
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          {body}
+        </p>
+      ) : null}
+    </article>
   );
 }
