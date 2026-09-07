@@ -67,8 +67,8 @@ function stamp(iso: string | null | undefined, fr: boolean) {
 /**
  * ASH profile colors.
  *
- * The colors are intentionally soft enough for both light and dark mode.
- * Each conversation receives a stable color based on its ID.
+ * Each conversation receives a stable color based on its conversation ID.
+ * This means the same conversation keeps the same profile color.
  */
 const avatarColors = [
   {
@@ -115,7 +115,6 @@ const avatarColors = [
 
 /**
  * Generate a stable color index from a conversation ID.
- * The same conversation always gets the same color.
  */
 function avatarColorIndex(id: string) {
   let hash = 0;
@@ -143,7 +142,8 @@ function MessagesPage() {
 
   const list = conversations ?? [];
 
-  // Desktop falls back to the first conversation; mobile requires an explicit pick.
+  // Desktop falls back to the first conversation;
+  // mobile requires an explicit conversation pick.
   const activeId =
     c ??
     (typeof window !== "undefined" && window.innerWidth >= 768
@@ -153,7 +153,9 @@ function MessagesPage() {
   const active = list.find((conv) => conv.id === activeId);
   const mobileView = c ? "thread" : "list";
 
-  /** Providers see the client; clients see the business. Property threads show the listing/owner. */
+  /** Providers see the client; clients see the business.
+   * Property threads show the listing/owner.
+   */
   function peerOf(conv: (typeof list)[number]): string {
     if (conv.listing_id) {
       const viewerIsOwner =
@@ -235,7 +237,7 @@ function MessagesPage() {
     };
   }
 
-  /** Open the other side's page from the chat header. */
+  /** Open the other side's public page from the chat header. */
   function openPeerProfile(conv: (typeof list)[number]) {
     const target = peerProfileOf(conv);
 
@@ -247,7 +249,7 @@ function MessagesPage() {
     } as never);
   }
 
-  /** One-line preview of the newest message, like the WhatsApp chat list. */
+  /** One-line preview of the newest message. */
   function previewOf(conv: (typeof list)[number]): string {
     const last = conv.last_message;
 
@@ -284,6 +286,7 @@ function MessagesPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl md:space-y-4">
+      {/* DESKTOP PAGE HEADER */}
       <header className="hidden md:block">
         <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
           {t("chat.title")}
@@ -304,7 +307,9 @@ function MessagesPage() {
         />
       ) : (
         <div className="grid md:gap-4 md:grid-cols-[320px_minmax(0,1fr)]">
-          {/* CHAT LIST */}
+          {/* =========================================================
+              CHAT LIST
+              ========================================================= */}
           <div
             className={cn(
               "tile flex flex-col overflow-hidden bg-background p-0 max-md:rounded-none max-md:border-0",
@@ -373,7 +378,7 @@ function MessagesPage() {
                         : "hover:bg-muted/70 active:bg-muted",
                     )}
                   >
-                    {/* COLORED PROFILE CIRCLE */}
+                    {/* COLORED ASH PROFILE CIRCLE */}
                     <span
                       className={cn(
                         "grid size-12 shrink-0 place-items-center rounded-full p-[2px] shadow-sm ring-2",
@@ -437,7 +442,9 @@ function MessagesPage() {
             </nav>
           </div>
 
-          {/* ACTIVE CHAT */}
+          {/* =========================================================
+              ACTIVE CHAT
+              ========================================================= */}
           <div
             className={cn(
               "tile chat-surface flex flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-0",
@@ -448,11 +455,16 @@ function MessagesPage() {
           >
             {/* CHAT HEADER */}
             <div className="flex items-center gap-2.5 border-b border-border bg-card/95 px-2.5 py-2 backdrop-blur max-md:pt-[calc(0.5rem+env(safe-area-inset-top))]">
+              {/* BACK TO MESSAGES */}
               <button
                 type="button"
                 onClick={() => void navigate({ search: {} })}
-                aria-label={t("chat.title")}
-                className="grid size-9 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-muted md:hidden"
+                aria-label={
+                  fr
+                    ? "Retour aux messages"
+                    : "Back to messages"
+                }
+                className="grid size-10 shrink-0 place-items-center rounded-full bg-muted/70 text-foreground shadow-sm transition-all hover:bg-muted active:scale-95 md:hidden"
               >
                 <ArrowLeft
                   className="size-5"
@@ -460,6 +472,7 @@ function MessagesPage() {
                 />
               </button>
 
+              {/* ACTIVE PROFILE */}
               <button
                 type="button"
                 onClick={() =>
@@ -519,6 +532,7 @@ function MessagesPage() {
                 </div>
               </button>
 
+              {/* BOOKING STATUS */}
               {active?.booking ? (
                 <div className="shrink-0 text-right">
                   <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
@@ -537,7 +551,9 @@ function MessagesPage() {
               ) : null}
             </div>
 
-            {/* CHAT THREAD */}
+            {/* =======================================================
+                CHAT CONTENT
+                ======================================================= */}
             {activeId ? (
               <ChatThread
                 conversationId={activeId}
