@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Browser } from "@capacitor/browser";
 import {
   Briefcase,
   Calendar,
@@ -289,6 +290,17 @@ function DiscoveryPage() {
     (filters.verifiedOnly ? 1 : 0) +
     (filters.availableOnly ? 1 : 0);
 
+  async function openNetflix() {
+    try {
+      await Browser.open({
+        url: "https://www.netflix.com/",
+        presentationStyle: "popover",
+      });
+    } catch {
+      window.open("https://www.netflix.com/", "_blank", "noopener,noreferrer");
+    }
+  }
+
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
       <header className="pt-1 sm:pt-2">
@@ -452,13 +464,14 @@ function DiscoveryPage() {
           rel="noopener noreferrer"
           className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="grid size-14 place-items-center overflow-hidden rounded-full border-2 border-border bg-card shadow-lg transition-all duration-200 group-hover:scale-105 group-hover:shadow-xl">
+          <span className="relative grid size-14 place-items-center overflow-hidden rounded-full border-2 border-border bg-card shadow-lg transition-all duration-200 group-hover:scale-105 group-hover:shadow-xl">
             <img
               src="https://www.tchokopay.com/favicon.ico"
               alt="TchokoPay"
               className="size-7 object-contain"
               loading="lazy"
             />
+
           </span>
 
           <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
@@ -473,19 +486,41 @@ function DiscoveryPage() {
           rel="noopener noreferrer"
           className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="grid size-14 place-items-center overflow-hidden rounded-full border-2 border-border bg-card shadow-lg transition-all duration-200 group-hover:scale-105 group-hover:shadow-xl">
+          <span className="relative grid size-14 place-items-center overflow-hidden rounded-full border-2 border-border bg-card shadow-lg transition-all duration-200 group-hover:scale-105 group-hover:shadow-xl">
             <img
               src="https://cdn.simpleicons.org/stripe"
               alt="Stripe"
               className="size-7 object-contain"
               loading="lazy"
             />
+
           </span>
 
           <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
             Stripe
           </span>
         </a>
+
+        {/* NETFLIX */}
+        <button
+          type="button"
+          onClick={() => void openNetflix()}
+          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
+          aria-label="Open Netflix"
+        >
+          <span className="grid size-14 place-items-center overflow-hidden rounded-full border-2 border-border bg-black shadow-lg ring-2 ring-red-500/20 transition-all duration-200 group-hover:scale-105 group-hover:shadow-xl dark:border-zinc-700">
+            <img
+              src="https://www.netflix.com/favicon.ico"
+              alt="Netflix"
+              className="size-8 object-contain"
+              loading="lazy"
+            />
+          </span>
+
+          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
+            Netflix
+          </span>
+        </button>
 
         {/* JOBS */}
         <Link
@@ -551,13 +586,14 @@ function DiscoveryPage() {
           rel="noopener noreferrer"
           className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="grid size-14 place-items-center overflow-hidden rounded-full border-2 border-border bg-card shadow-lg transition-all duration-200 group-hover:scale-105 group-hover:shadow-xl">
+          <span className="relative grid size-14 place-items-center overflow-hidden rounded-full border-2 border-border bg-card shadow-lg transition-all duration-200 group-hover:scale-105 group-hover:shadow-xl">
             <img
               src="https://www.metatrader5.com/favicon.ico"
               alt="MetaTrader 5"
               className="size-7 object-contain"
               loading="lazy"
             />
+
           </span>
 
           <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
