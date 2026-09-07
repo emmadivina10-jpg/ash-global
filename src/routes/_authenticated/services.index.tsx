@@ -402,7 +402,7 @@ function DiscoveryPage() {
               {fr ? "Recommandé pour vous" : "Recommended for you"}
             </h2>
           </div>
-          <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1">
+          <div className="-mx-1 flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto px-1 pb-1">
             {recommended.map((provider) => (
               <div key={provider.id} className="w-64 shrink-0 snap-start sm:w-72">
                 <ProviderCard
@@ -429,7 +429,7 @@ function DiscoveryPage() {
           <h2 className="font-display text-lg font-bold text-foreground">
             {fr ? "Dernières nouvelles de la communauté" : "Latest from the community"}
           </h2>
-          <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1">
+          <div className="-mx-1 flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto px-1 pb-1">
             {(community ?? []).map((post) => (
               <Link
                 key={post.id}
@@ -478,7 +478,7 @@ function DiscoveryPage() {
         />
       ) : (
         <>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid items-stretch gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {providers.map((provider) => (
               <ProviderCard
                 key={provider.id}

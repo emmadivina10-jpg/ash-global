@@ -52,12 +52,12 @@ export function ProviderCard({
     <Link
       to="/services/$providerId"
       params={{ providerId: provider.id }}
-      className="tile group flex flex-col overflow-hidden transition-transform duration-300 hover:-translate-y-1"
+      className="tile group flex h-full min-h-[24rem] flex-col overflow-hidden transition-transform duration-300 hover:-translate-y-1 sm:min-h-[26rem]"
     >
       {/* Media */}
       <div className="relative">
         <div className="grid grid-cols-[minmax(0,1fr)] gap-1 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-          <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted sm:aspect-[4/3]">
+          <div className="relative h-40 w-full overflow-hidden bg-muted sm:h-44">
             {cover ? (
               <img
                 src={cover.url}
@@ -132,7 +132,7 @@ export function ProviderCard({
             <h3 className="line-clamp-1 font-display text-base font-semibold text-foreground sm:text-lg">
               {provider.business_name}
             </h3>
-            <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+            <p className="line-clamp-2 min-h-[2.6rem] text-sm leading-relaxed text-muted-foreground">
               {provider.bio ?? t("svc.byProvider", { name: provider.business_name })}
             </p>
           </div>
@@ -163,7 +163,7 @@ export function ProviderCard({
         </div>
 
         {categories.length > 0 ? (
-          <div className="flex flex-wrap gap-1">
+          <div className="flex h-5 flex-nowrap gap-1 overflow-hidden">
             {categories.slice(0, 3).map((c) => (
               <span
                 key={c}
@@ -177,7 +177,7 @@ export function ProviderCard({
 
         {/* A light catalogue preview keeps comparison quick without nesting a card. */}
         {topServices.length > 0 ? (
-          <ul className="mt-0.5 divide-y divide-border border-y border-border">
+          <ul className="mt-0.5 h-[5.25rem] divide-y divide-border overflow-hidden border-y border-border">
             {topServices.map((s) => (
               <li key={s.id} className="flex items-center justify-between gap-3 py-2">
                 <span className="truncate text-[13px] font-medium text-foreground">{s.title}</span>
@@ -190,7 +190,9 @@ export function ProviderCard({
               </li>
             ) : null}
           </ul>
-        ) : null}
+        ) : (
+          <div className="h-[5.25rem]" aria-hidden />
+        )}
 
         <div className="mt-auto flex items-center justify-between gap-2 pt-2">
           <span className="tabular text-sm font-bold text-foreground">
