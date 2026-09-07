@@ -2555,6 +2555,7 @@ export type Database = {
         Args: { _date: string; _duration?: number; _provider_id: string }
         Returns: string[]
       }
+      provider_zone: { Args: { _country: string }; Returns: string }
       rate_limit_check: {
         Args: {
           _bucket: string
