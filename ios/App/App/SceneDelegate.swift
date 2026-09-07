@@ -11,7 +11,7 @@ final class ASHBridgeViewController: CAPBridgeViewController {
         webView?.scrollView.backgroundColor = ashBackground
         webView?.scrollView.bounces = false
         webView?.scrollView.alwaysBounceVertical = false
-        webView?.scrollView.contentInsetAdjustmentBehavior = .never
+        
     }
 
 }
