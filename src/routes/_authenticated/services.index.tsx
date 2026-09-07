@@ -450,7 +450,7 @@ function DiscoveryPage() {
         className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 pt-1 scrollbar-none"
       >
         {/* =======================================================
-            LINKEDIN — BLUE PROFESSIONAL HALO
+            LINKEDIN — BLUE / INDIGO HALO
             ======================================================= */}
         <button
           type="button"
@@ -462,7 +462,7 @@ function DiscoveryPage() {
           className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
           aria-label="Open LinkedIn"
         >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-blue-500 via-blue-700 to-indigo-800 p-[2px] shadow-lg ring-2 ring-blue-400/40 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
+          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-sky-300 via-blue-600 to-indigo-900 p-[2px] shadow-lg shadow-blue-500/20 ring-2 ring-blue-400/40 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
             <span className="grid size-full place-items-center rounded-full bg-[#0A66C2] shadow-inner">
               <span className="text-lg font-black tracking-tight text-white">
                 in
@@ -476,7 +476,7 @@ function DiscoveryPage() {
         </button>
 
         {/* =======================================================
-            YOUTUBE — RED / PINK HALO
+            YOUTUBE — RED / CRIMSON HALO
             ======================================================= */}
         <button
           type="button"
@@ -488,10 +488,10 @@ function DiscoveryPage() {
           className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
           aria-label="Open YouTube"
         >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-red-400 via-red-600 to-rose-700 p-[2px] shadow-lg ring-2 ring-red-400/40 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
-            <span className="grid size-full place-items-center overflow-hidden rounded-full bg-white shadow-inner">
+          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-red-300 via-red-600 to-rose-900 p-[2px] shadow-lg shadow-red-500/20 ring-2 ring-red-400/40 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
+            <span className="grid size-full place-items-center rounded-full bg-white shadow-inner">
               <img
-                src="https://www.youtube.com/s/desktop/28f3f6d8/img/favicon_144x144.png"
+                src="https://cdn.simpleicons.org/youtube/FF0000"
                 alt="YouTube"
                 className="size-8 object-contain"
                 loading="lazy"
@@ -505,7 +505,7 @@ function DiscoveryPage() {
         </button>
 
         {/* =======================================================
-            NETFLIX — BLACK / RED PREMIUM HALO
+            NETFLIX — RED / BLACK HALO
             ======================================================= */}
         <button
           type="button"
@@ -517,7 +517,7 @@ function DiscoveryPage() {
           className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
           aria-label="Open Netflix"
         >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-red-400 via-red-700 to-zinc-950 p-[2px] shadow-lg ring-2 ring-red-500/35 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
+          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-red-300 via-red-700 to-zinc-950 p-[2px] shadow-lg shadow-red-500/20 ring-2 ring-red-500/35 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
             <span className="grid size-full place-items-center overflow-hidden rounded-full bg-black shadow-inner">
               <img
                 src="https://www.netflix.com/favicon.ico"
@@ -534,7 +534,7 @@ function DiscoveryPage() {
         </button>
 
         {/* =======================================================
-            TCHOKOPAY — GREEN / EMERALD HALO
+            TCHOKOPAY — EMERALD / TEAL HALO
             ======================================================= */}
         <button
           type="button"
@@ -546,7 +546,7 @@ function DiscoveryPage() {
           className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
           aria-label="Open TchokoPay"
         >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-emerald-300 via-emerald-500 to-teal-700 p-[2px] shadow-lg ring-2 ring-emerald-400/35 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
+          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-emerald-200 via-emerald-500 to-teal-800 p-[2px] shadow-lg shadow-emerald-500/20 ring-2 ring-emerald-400/35 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
             <span className="grid size-full place-items-center overflow-hidden rounded-full bg-card shadow-inner">
               <img
                 src="https://www.tchokopay.com/favicon.ico"
@@ -575,7 +575,7 @@ function DiscoveryPage() {
           className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
           aria-label="Open Stripe"
         >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-violet-400 via-violet-600 to-indigo-800 p-[2px] shadow-lg ring-2 ring-violet-400/35 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
+          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-violet-300 via-violet-600 to-indigo-900 p-[2px] shadow-lg shadow-violet-500/20 ring-2 ring-violet-400/35 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
             <span className="grid size-full place-items-center overflow-hidden rounded-full bg-white shadow-inner dark:bg-zinc-950">
               <img
                 src="https://cdn.simpleicons.org/stripe"
@@ -592,7 +592,7 @@ function DiscoveryPage() {
         </button>
 
         {/* =======================================================
-            INSTAGRAM — PINK / PURPLE / ORANGE HALO
+            INSTAGRAM — ORANGE / PINK / PURPLE HALO
             ======================================================= */}
         <button
           type="button"
@@ -604,10 +604,10 @@ function DiscoveryPage() {
           className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
           aria-label="Open Instagram"
         >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-pink-400 via-fuchsia-600 to-orange-500 p-[2px] shadow-lg ring-2 ring-pink-400/35 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
+          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-orange-300 via-fuchsia-600 to-purple-800 p-[2px] shadow-lg shadow-fuchsia-500/20 ring-2 ring-pink-400/35 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
             <span className="grid size-full place-items-center overflow-hidden rounded-full bg-white shadow-inner">
               <img
-                src="https://www.instagram.com/favicon.ico"
+                src="https://cdn.simpleicons.org/instagram/E4405F"
                 alt="Instagram"
                 className="size-8 object-contain"
                 loading="lazy"
@@ -621,17 +621,17 @@ function DiscoveryPage() {
         </button>
 
         {/* =======================================================
-            PROPERTY — PREMIUM ASH GOLD / PURPLE DESIGN
+            PROPERTY — PREMIUM GOLD / VIOLET HALO
             INTERNAL ASH ROUTE
             ======================================================= */}
         <Link
           to="/property"
           className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-amber-200 via-yellow-500 to-violet-700 p-[2px] shadow-[0_8px_25px_rgba(234,179,8,0.25)] ring-2 ring-amber-400/40 transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_10px_30px_rgba(234,179,8,0.35)] group-active:scale-95">
+          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-amber-200 via-yellow-500 to-violet-800 p-[2px] shadow-[0_8px_28px_rgba(234,179,8,0.28)] ring-2 ring-amber-400/45 transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_12px_35px_rgba(234,179,8,0.4)] group-active:scale-95">
             <span className="grid size-full place-items-center rounded-full bg-gradient-to-br from-zinc-950 via-slate-900 to-violet-950 text-white shadow-inner">
               <Home
-                className="size-6 drop-shadow-[0_0_8px_rgba(250,204,21,0.55)]"
+                className="size-6 text-yellow-100 drop-shadow-[0_0_8px_rgba(254,240,138,0.75)]"
                 aria-hidden
               />
             </span>
@@ -657,10 +657,10 @@ function DiscoveryPage() {
           className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
           aria-label="Open Telegram"
         >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-sky-300 via-sky-500 to-blue-700 p-[2px] shadow-lg ring-2 ring-sky-400/35 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
+          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-cyan-200 via-sky-500 to-blue-800 p-[2px] shadow-lg shadow-sky-500/20 ring-2 ring-sky-400/35 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
             <span className="grid size-full place-items-center overflow-hidden rounded-full bg-white shadow-inner">
               <img
-                src="https://telegram.org/img/t_logo.svg"
+                src="https://cdn.simpleicons.org/telegram/229ED9"
                 alt="Telegram"
                 className="size-8 object-contain"
                 loading="lazy"
@@ -674,8 +674,7 @@ function DiscoveryPage() {
         </button>
 
         {/* =======================================================
-            LINKEDIN — SECOND LINKEDIN AS REQUESTED
-            GOLD / BLUE ACCENT HALO
+            LINKEDIN — SECOND INSTANCE, GOLD / BLUE HALO
             ======================================================= */}
         <button
           type="button"
@@ -687,7 +686,7 @@ function DiscoveryPage() {
           className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
           aria-label="Open LinkedIn"
         >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-amber-300 via-blue-600 to-indigo-900 p-[2px] shadow-lg ring-2 ring-blue-400/30 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
+          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-amber-300 via-blue-600 to-indigo-900 p-[2px] shadow-lg shadow-blue-500/20 ring-2 ring-blue-400/30 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
             <span className="grid size-full place-items-center rounded-full bg-[#0A66C2] shadow-inner">
               <span className="text-lg font-black tracking-tight text-white">
                 in
@@ -713,10 +712,10 @@ function DiscoveryPage() {
           className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
           aria-label="Open Snapchat"
         >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-yellow-200 via-yellow-400 to-amber-600 p-[2px] shadow-lg ring-2 ring-yellow-400/40 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
-            <span className="grid size-full place-items-center overflow-hidden rounded-full bg-yellow-400 shadow-inner">
+          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-yellow-100 via-yellow-400 to-amber-700 p-[2px] shadow-lg shadow-yellow-500/20 ring-2 ring-yellow-400/40 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
+            <span className="grid size-full place-items-center rounded-full bg-yellow-400 shadow-inner">
               <img
-                src="https://www.snapchat.com/favicon.ico"
+                src="https://cdn.simpleicons.org/snapchat/FFFC00"
                 alt="Snapchat"
                 className="size-8 object-contain"
                 loading="lazy"
@@ -730,7 +729,7 @@ function DiscoveryPage() {
         </button>
 
         {/* =======================================================
-            X — BLACK / SILVER PREMIUM HALO
+            X — BLACK / SILVER HALO
             ======================================================= */}
         <button
           type="button"
@@ -742,7 +741,7 @@ function DiscoveryPage() {
           className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
           aria-label="Open X"
         >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-zinc-100 via-zinc-500 to-zinc-950 p-[2px] shadow-lg ring-2 ring-zinc-400/35 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
+          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-zinc-100 via-zinc-500 to-zinc-950 p-[2px] shadow-lg shadow-zinc-500/20 ring-2 ring-zinc-400/35 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
             <span className="grid size-full place-items-center rounded-full bg-black shadow-inner">
               <span className="text-xl font-bold text-white">
                 𝕏
@@ -768,7 +767,7 @@ function DiscoveryPage() {
           className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
           aria-label="Open MetaTrader 5"
         >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-emerald-300 via-green-500 to-emerald-800 p-[2px] shadow-lg ring-2 ring-emerald-400/35 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
+          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-emerald-200 via-green-500 to-emerald-900 p-[2px] shadow-lg shadow-emerald-500/20 ring-2 ring-emerald-400/35 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
             <span className="grid size-full place-items-center overflow-hidden rounded-full bg-white shadow-inner">
               <img
                 src="https://www.metatrader5.com/favicon.ico"
@@ -785,17 +784,17 @@ function DiscoveryPage() {
         </button>
 
         {/* =======================================================
-            EVENTS — LUXURY GOLD PREMIUM DESIGN
+            EVENTS — LUXURY GOLD PREMIUM HALO
             INTERNAL ASH ROUTE
             ======================================================= */}
         <Link
           to="/events"
           className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-yellow-200 via-amber-400 to-orange-700 p-[2px] shadow-[0_8px_28px_rgba(245,158,11,0.28)] ring-2 ring-amber-400/45 transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_12px_34px_rgba(245,158,11,0.38)] group-active:scale-95">
-            <span className="grid size-full place-items-center rounded-full bg-gradient-to-br from-amber-950 via-yellow-700 to-amber-950 text-white shadow-inner">
+          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-yellow-100 via-amber-400 to-orange-800 p-[2px] shadow-[0_8px_28px_rgba(245,158,11,0.3)] ring-2 ring-amber-400/50 transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_12px_35px_rgba(245,158,11,0.42)] group-active:scale-95">
+            <span className="grid size-full place-items-center rounded-full bg-gradient-to-br from-amber-950 via-yellow-700 to-amber-950 shadow-inner">
               <Calendar
-                className="size-6 text-yellow-100 drop-shadow-[0_0_8px_rgba(254,240,138,0.65)]"
+                className="size-6 text-yellow-100 drop-shadow-[0_0_8px_rgba(254,240,138,0.75)]"
                 aria-hidden
               />
             </span>
