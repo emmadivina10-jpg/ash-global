@@ -180,7 +180,6 @@
     border-color: var(--color-border);
   }
 
-
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -573,10 +572,6 @@ html.native {
   -webkit-tap-highlight-color: transparent;
 }
 
-html.native body {
-  overscroll-behavior-y: none;
-}
-
 /* Keep the installed app inside the visual viewport. The authenticated page
    scrolls inside this frame, so WKWebView never reveals its backing view below
    the document when a member reaches the end of a page. */
@@ -631,9 +626,8 @@ html.native .app-shell > nav {
    status bar does not overlay it. Adding the CSS inset again created the
    visible top strip on mobile browsers and duplicated native spacing. */
 .safe-top {
-  padding-top: 0;
+  padding-top: env(safe-area-inset-top);
 }
-
 
 /* WhatsApp-style chat surface: a soft patterned backdrop behind the bubbles. */
 .chat-surface {
