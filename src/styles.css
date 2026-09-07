@@ -658,11 +658,13 @@ html.native .app-shell > nav {
 
 .nav-bar-fill::after {
   content: "";
-  position: absolute;
-  top: 100%;
+  position: fixed;
+  top: auto;
+  bottom: 0;
   left: 0;
   right: 0;
-  height: 8rem;
+  height: calc(env(safe-area-inset-bottom) + 6rem);
+  z-index: -1;
   background-color: color-mix(in oklab, var(--color-card) 92%, var(--color-background));
   pointer-events: none;
 }
