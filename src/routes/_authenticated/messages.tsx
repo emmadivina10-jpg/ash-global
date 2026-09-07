@@ -138,6 +138,7 @@ const chatGPTConversation = {
   label: "ChatGPT",
   preview: "Ask ChatGPT anything…",
 };
+const ASH_CHAT_BACKGROUND = "/images/ash-chat-background.png";
 
 function MessagesPage() {
   const { t, lang } = useI18n();
@@ -616,8 +617,22 @@ function MessagesPage() {
                 CHAT CONTENT
                 ======================================================= */}
             {activeId === CHATGPT_ID ? (
-              <div className="flex min-h-0 flex-1 flex-col">
-                <div className="flex-1 overflow-y-auto px-4 py-6">
+              <div
+                className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-background"
+                style={{
+                  backgroundImage: `url(${ASH_CHAT_BACKGROUND})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                }}
+              >
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 bg-background/65 backdrop-blur-[1px] dark:bg-slate-950/72"
+                />
+
+                <div className="relative flex min-h-0 flex-1 flex-col">
+                  <div className="flex-1 overflow-y-auto px-4 py-6">
                   <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
                     <span className="grid size-16 place-items-center rounded-full bg-gradient-to-br from-violet-600 via-fuchsia-500 to-pink-500 p-[2px] shadow-lg ring-2 ring-violet-300/60 dark:ring-violet-400/40">
                       <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
@@ -666,7 +681,7 @@ function MessagesPage() {
                   </div>
                 </div>
 
-                <div className="border-t border-border bg-card/95 p-3 backdrop-blur">
+                  <div className="border-t border-border bg-card/90 p-3 backdrop-blur-xl">
                   <div className="mx-auto flex max-w-2xl items-center gap-2 rounded-2xl border border-border bg-background px-3 py-2">
                     <input
                       type="text"
@@ -683,10 +698,26 @@ function MessagesPage() {
                       ? "L’IA sera connectée à cette interface dans une prochaine étape."
                       : "AI will be connected to this interface in a later step."}
                   </p>
+                  </div>
                 </div>
               </div>
             ) : activeId ? (
-              <ChatThread
+              <div
+                className="relative min-h-0 flex-1 overflow-hidden bg-background"
+                style={{
+                  backgroundImage: `url(${ASH_CHAT_BACKGROUND})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                }}
+              >
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 bg-background/62 backdrop-blur-[1px] dark:bg-slate-950/70"
+                />
+
+                <div className="relative flex h-full min-h-0 flex-col">
+                  <ChatThread
                 conversationId={activeId}
                 currentUserId={user?.id}
                 peerName={
@@ -698,22 +729,24 @@ function MessagesPage() {
                     : null
                 }
                 className="min-h-0 flex-1 px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]"
-                quickReplies={
-                  lang === "fr"
-                    ? [
-                        "Bonjour 👋",
-                        "Quelle est votre disponibilité ?",
-                        "Je confirme le rendez-vous",
-                        "Je suis en route",
-                      ]
-                    : [
-                        "Hello 👋",
-                        "What is your availability?",
-                        "I confirm the appointment",
-                        "I'm on my way",
-                      ]
-                }
-              />
+                    quickReplies={
+                      lang === "fr"
+                        ? [
+                            "Bonjour 👋",
+                            "Quelle est votre disponibilité ?",
+                            "Je confirme le rendez-vous",
+                            "Je suis en route",
+                          ]
+                        : [
+                            "Hello 👋",
+                            "What is your availability?",
+                            "I confirm the appointment",
+                            "I'm on my way",
+                          ]
+                    }
+                  />
+                </div>
+              </div>
             ) : (
               <div className="grid flex-1 place-items-center p-6 text-center text-sm text-muted-foreground">
                 {t("chat.pick")}
