@@ -3,7 +3,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Briefcase,
   Calendar,
-  Cloud,
   Home,
   MapPin,
   Search,
@@ -28,7 +27,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { type ServiceCategory } from "@/lib/marketplace";
-import { CATEGORY_GROUPS, categoryLabel, type GroupId } from "@/lib/taxonomy";
+import {
+  CATEGORY_GROUPS,
+  categoryLabel,
+  type GroupId,
+} from "@/lib/taxonomy";
 import {
   DEFAULT_FILTERS,
   useDiscovery,
@@ -45,7 +48,9 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/services/")({
   head: () => ({
     meta: [
-      { title: "Discover beauty, tech, home & event pros — ASH Glo" },
+      {
+        title: "Discover beauty, tech, home & event pros — ASH Glo",
+      },
       {
         name: "description",
         content:
@@ -53,47 +58,87 @@ export const Route = createFileRoute("/_authenticated/services/")({
       },
       {
         property: "og:title",
-        content: "Discover beauty, tech, home & event pros — ASH Glo",
+        content:
+          "Discover beauty, tech, home & event pros — ASH Glo",
       },
       {
         property: "og:description",
         content:
           "Browse verified ASH Glo providers by category, view portfolios and book in a few taps.",
       },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      {
+        property: "og:type",
+        content: "website",
+      },
+      {
+        name: "twitter:card",
+        content: "summary_large_image",
+      },
     ],
   }),
   component: DiscoveryPage,
 });
 
-const PRICE_STEPS = [5000, 10000, 25000, 50000, 100000];
+const PRICE_STEPS = [
+  5000,
+  10000,
+  25000,
+  50000,
+  100000,
+];
 
 function DiscoveryPage() {
   const { t, lang } = useI18n();
   const fr = lang === "fr";
-  const { location, asked, request, dismiss } = useLocation();
+
+  const {
+    location,
+    asked,
+    request,
+    dismiss,
+  } = useLocation();
+
   const { data: cities } = useProviderCities();
 
   const region = useRegion();
-  const [group, setGroup] = useState<GroupId | "ALL">("ALL");
-  const [category, setCategory] = useState<ServiceCategory | "ALL">("ALL");
-  const [searchInput, setSearchInput] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState<DiscoveryFilters>(DEFAULT_FILTERS);
+
+  const [group, setGroup] =
+    useState<GroupId | "ALL">("ALL");
+
+  const [category, setCategory] =
+    useState<ServiceCategory | "ALL">("ALL");
+
+  const [searchInput, setSearchInput] =
+    useState("");
+
+  const [showFilters, setShowFilters] =
+    useState(false);
+
+  const [filters, setFilters] =
+    useState<DiscoveryFilters>(
+      DEFAULT_FILTERS,
+    );
 
   const groupCategories = useMemo(
     () =>
       group === "ALL"
         ? []
-        : (CATEGORY_GROUPS.find((g) => g.id === group)?.categories ?? []),
+        : (
+            CATEGORY_GROUPS.find(
+              (g) => g.id === group,
+            )?.categories ?? []
+          ),
     [group],
   );
 
-  // Debounce the free-text search so typing does not hit the database per keystroke.
+  // Debounce the free-text search so typing does not hit
+  // the database per keystroke.
   useEffect(() => {
     const id = setTimeout(() => {
-      setFilters((f) => ({ ...f, search: searchInput }));
+      setFilters((f) => ({
+        ...f,
+        search: searchInput,
+      }));
     }, 350);
 
     return () => clearTimeout(id);
@@ -107,27 +152,52 @@ function DiscoveryPage() {
           ? [...groupCategories]
           : [];
 
-    setFilters((f) => ({ ...f, categories: cats }));
-  }, [category, group, groupCategories]);
+    setFilters((f) => ({
+      ...f,
+      categories: cats,
+    }));
+  }, [
+    category,
+    group,
+    groupCategories,
+  ]);
 
-  // Location-first: once we know the member's city, it leads the feed.
+  // Location-first: once we know the member's city,
+  // it leads the feed.
   useEffect(() => {
-    const city = location?.label ?? null;
+    const city =
+      location?.label ?? null;
 
     setFilters((f) =>
-      f.nearCity === city ? f : { ...f, nearCity: city },
+      f.nearCity === city
+        ? f
+        : {
+            ...f,
+            nearCity: city,
+          },
     );
   }, [location?.label]);
 
-  // Country-scoped catalogue: you only see storefronts in your own country
-  // (admins in "all regions" mode see everything).
+  // Country-scoped catalogue: you only see storefronts
+  // in your own country.
   useEffect(() => {
-    const scope = region.seesEverything ? null : region.country;
+    const scope =
+      region.seesEverything
+        ? null
+        : region.country;
 
     setFilters((f) =>
-      f.country === scope ? f : { ...f, country: scope },
+      f.country === scope
+        ? f
+        : {
+            ...f,
+            country: scope,
+          },
     );
-  }, [region.country, region.seesEverything]);
+  }, [
+    region.country,
+    region.seesEverything,
+  ]);
 
   const {
     data,
@@ -150,53 +220,73 @@ function DiscoveryPage() {
   const recommended = useMemo(
     () =>
       [...providers]
-        .sort((a, b) => b.rating_avg - a.rating_avg)
+        .sort(
+          (a, b) =>
+            b.rating_avg -
+            a.rating_avg,
+        )
         .slice(0, 8),
     [providers],
   );
 
-  const { data: community } = useCommunityFeed();
+  const { data: community } =
+    useCommunityFeed();
 
   // Infinite scroll sentinel.
-  const sentinel = useRef<HTMLDivElement>(null);
+  const sentinel =
+    useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const node = sentinel.current;
+    const node =
+      sentinel.current;
 
     if (!node) return;
 
-    const observer = new IntersectionObserver((entries) => {
-      if (
-        entries[0]?.isIntersecting &&
-        hasNextPage &&
-        !isFetchingNextPage
-      ) {
-        void fetchNextPage();
-      }
-    });
+    const observer =
+      new IntersectionObserver(
+        (entries) => {
+          if (
+            entries[0]?.isIntersecting &&
+            hasNextPage &&
+            !isFetchingNextPage
+          ) {
+            void fetchNextPage();
+          }
+        },
+      );
 
     observer.observe(node);
 
-    return () => observer.disconnect();
+    return () =>
+      observer.disconnect();
   }, [
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
   ]);
 
-  function selectGroup(next: GroupId | "ALL") {
+  function selectGroup(
+    next: GroupId | "ALL",
+  ) {
     setGroup(next);
     setCategory("ALL");
   }
 
-  function patch(next: Partial<DiscoveryFilters>) {
-    setFilters((f) => ({ ...f, ...next }));
+  function patch(
+    next: Partial<DiscoveryFilters>,
+  ) {
+    setFilters((f) => ({
+      ...f,
+      ...next,
+    }));
   }
 
   const activeFilterCount =
     (filters.city ? 1 : 0) +
     (filters.minRating > 0 ? 1 : 0) +
-    (filters.maxPrice !== null ? 1 : 0) +
+    (filters.maxPrice !== null
+      ? 1
+      : 0) +
     (filters.verifiedOnly ? 1 : 0) +
     (filters.availableOnly ? 1 : 0);
 
@@ -204,7 +294,9 @@ function DiscoveryPage() {
     <div className="mx-auto w-full max-w-5xl space-y-5">
       <header className="pt-1 sm:pt-2">
         <p className="text-sm font-semibold text-primary">
-          {fr ? "Place de marché ASH" : "ASH Marketplace"}
+          {fr
+            ? "Place de marché ASH"
+            : "ASH Marketplace"}
         </p>
 
         <h1 className="mt-1 font-display text-2xl font-bold leading-tight text-foreground sm:text-3xl">
@@ -223,7 +315,10 @@ function DiscoveryPage() {
       {!asked && !location ? (
         <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-2xl border border-border bg-card p-4 sm:flex sm:justify-between">
           <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-            <MapPin className="size-5" aria-hidden />
+            <MapPin
+              className="size-5"
+              aria-hidden
+            />
           </span>
 
           <p className="min-w-0 text-sm text-muted-foreground">
@@ -233,8 +328,15 @@ function DiscoveryPage() {
           </p>
 
           <div className="col-span-2 flex gap-2 sm:col-span-1">
-            <Button size="sm" onClick={() => void request()}>
-              {fr ? "Activer" : "Enable"}
+            <Button
+              size="sm"
+              onClick={() =>
+                void request()
+              }
+            >
+              {fr
+                ? "Activer"
+                : "Enable"}
             </Button>
 
             <Button
@@ -242,7 +344,9 @@ function DiscoveryPage() {
               variant="ghost"
               onClick={dismiss}
             >
-              {fr ? "Plus tard" : "Later"}
+              {fr
+                ? "Plus tard"
+                : "Later"}
             </Button>
           </div>
         </div>
@@ -257,25 +361,38 @@ function DiscoveryPage() {
 
           <Input
             value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
+            onChange={(e) =>
+              setSearchInput(
+                e.target.value,
+              )
+            }
             placeholder={
               fr
                 ? "Rechercher un pro, une ville…"
                 : "Search a pro, a city…"
             }
             className="h-11 rounded-full pl-9 shadow-[var(--shadow-card)]"
-            aria-label={t("svc.search")}
+            aria-label={t(
+              "svc.search",
+            )}
           />
         </div>
 
         <Button
           variant={
-            showFilters || activeFilterCount > 0
+            showFilters ||
+            activeFilterCount > 0
               ? "default"
               : "outline"
           }
-          onClick={() => setShowFilters((v) => !v)}
-          aria-expanded={showFilters}
+          onClick={() =>
+            setShowFilters(
+              (v) => !v,
+            )
+          }
+          aria-expanded={
+            showFilters
+          }
           className="h-11 rounded-full"
         >
           <SlidersHorizontal
@@ -284,10 +401,13 @@ function DiscoveryPage() {
           />
 
           <span className="hidden sm:inline">
-            {fr ? "Filtres" : "Filters"}
+            {fr
+              ? "Filtres"
+              : "Filters"}
           </span>
 
-          {activeFilterCount > 0 ? (
+          {activeFilterCount >
+          0 ? (
             <span className="tabular text-xs">
               ({activeFilterCount})
             </span>
@@ -297,7 +417,11 @@ function DiscoveryPage() {
 
       {/* ASH ecosystem navigation */}
       <nav
-        aria-label={fr ? "Sections ASH" : "ASH sections"}
+        aria-label={
+          fr
+            ? "Sections ASH"
+            : "ASH sections"
+        }
         className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-1 pt-1"
       >
         {/* Services */}
@@ -305,7 +429,7 @@ function DiscoveryPage() {
           to="/services"
           className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="grid size-12 place-items-center rounded-full brand-gradient text-on-dark shadow-[var(--shadow-brand)] transition-transform group-hover:scale-105">
+          <span className="grid size-12 place-items-center rounded-full bg-slate-700 text-white shadow-md transition-transform group-hover:scale-105 dark:bg-slate-500 dark:text-white">
             <Wrench
               className="size-5"
               aria-hidden
@@ -313,7 +437,9 @@ function DiscoveryPage() {
           </span>
 
           <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-            {fr ? "Services" : "Services"}
+            {fr
+              ? "Services"
+              : "Services"}
           </span>
         </Link>
 
@@ -384,7 +510,7 @@ function DiscoveryPage() {
           to="/freelance"
           className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="grid size-12 place-items-center rounded-full brand-gradient text-on-dark shadow-[var(--shadow-brand)] transition-transform group-hover:scale-105">
+          <span className="grid size-12 place-items-center rounded-full bg-violet-500 text-white shadow-md transition-transform group-hover:scale-105 dark:bg-violet-400 dark:text-white">
             <Briefcase
               className="size-5"
               aria-hidden
@@ -392,7 +518,9 @@ function DiscoveryPage() {
           </span>
 
           <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-            {fr ? "Emplois" : "Jobs"}
+            {fr
+              ? "Emplois"
+              : "Jobs"}
           </span>
         </Link>
 
@@ -401,7 +529,7 @@ function DiscoveryPage() {
           to="/deals"
           className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="grid size-12 place-items-center rounded-full bg-[#07152f] text-white shadow-md transition-transform group-hover:scale-105">
+          <span className="grid size-12 place-items-center rounded-full bg-blue-700 text-white shadow-md transition-transform group-hover:scale-105 dark:bg-blue-600 dark:text-white">
             <Tag
               className="size-5"
               aria-hidden
@@ -409,7 +537,9 @@ function DiscoveryPage() {
           </span>
 
           <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-            {fr ? "Promos" : "Deals"}
+            {fr
+              ? "Promos"
+              : "Deals"}
           </span>
         </Link>
 
@@ -418,7 +548,7 @@ function DiscoveryPage() {
           to="/events"
           className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="grid size-12 place-items-center rounded-full bg-[#07152f] text-white shadow-md transition-transform group-hover:scale-105">
+          <span className="grid size-12 place-items-center rounded-full bg-sky-600 text-white shadow-md transition-transform group-hover:scale-105 dark:bg-sky-500 dark:text-white">
             <Calendar
               className="size-5"
               aria-hidden
@@ -426,7 +556,9 @@ function DiscoveryPage() {
           </span>
 
           <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-            {fr ? "Événements" : "Events"}
+            {fr
+              ? "Événements"
+              : "Events"}
           </span>
         </Link>
 
@@ -466,7 +598,7 @@ function DiscoveryPage() {
           to="/property"
           className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="grid size-12 place-items-center rounded-full bg-slate-200 text-slate-800 shadow-md transition-transform group-hover:scale-105 dark:bg-slate-300 dark:text-slate-900">
+          <span className="grid size-12 place-items-center rounded-full bg-slate-100 text-slate-700 shadow-md transition-transform group-hover:scale-105 dark:bg-slate-300 dark:text-slate-800">
             <Home
               className="size-5"
               aria-hidden
@@ -474,43 +606,18 @@ function DiscoveryPage() {
           </span>
 
           <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-            {fr ? "Immobilier" : "Property"}
+            {fr
+              ? "Immobilier"
+              : "Property"}
           </span>
         </Link>
-
-        {/* Cloud */}
-        <a
-          href="https://cloud.google.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
-          aria-label="Cloud - external website"
-        >
-          <span className="relative grid size-12 place-items-center rounded-full bg-slate-100 text-slate-700 shadow-md transition-transform group-hover:scale-105 dark:bg-slate-200 dark:text-slate-800">
-            <Cloud
-              className="size-6"
-              aria-hidden
-            />
-
-            <span
-              className="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-background text-[9px] font-bold text-muted-foreground ring-1 ring-border"
-              aria-hidden
-            >
-              ↗
-            </span>
-          </span>
-
-          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-            Cloud
-          </span>
-        </a>
 
         {/* People */}
         <Link
           to="/network"
           className="group flex w-16 shrink-0 flex-col items-center gap-1.5"
         >
-          <span className="grid size-12 place-items-center rounded-full bg-slate-200 text-slate-800 shadow-md transition-transform group-hover:scale-105 dark:bg-slate-300 dark:text-slate-900">
+          <span className="grid size-12 place-items-center rounded-full bg-slate-200 text-slate-700 shadow-md transition-transform group-hover:scale-105 dark:bg-slate-300 dark:text-slate-800">
             <Users
               className="size-5"
               aria-hidden
@@ -518,62 +625,83 @@ function DiscoveryPage() {
           </span>
 
           <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-            {fr ? "Personnes" : "People"}
+            {fr
+              ? "Personnes"
+              : "People"}
           </span>
         </Link>
       </nav>
 
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-        {(["ALL", ...CATEGORY_GROUPS.map((g) => g.id)] as const).map(
-          (id) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() =>
-                selectGroup(id as GroupId | "ALL")
-              }
-              className={cn(
-                "shrink-0 rounded-full px-4 py-2 text-sm font-bold transition-all",
-                group === id
-                  ? "brand-gradient text-on-dark shadow-[var(--shadow-brand)]"
-                  : "border border-border text-muted-foreground hover:bg-muted",
-              )}
-            >
-              {id === "ALL"
-                ? t("svc.all")
-                : CATEGORY_GROUPS.find(
-                    (g) => g.id === id,
-                  )!.label[lang]}
-            </button>
-          ),
-        )}
+        {(
+          [
+            "ALL",
+            ...CATEGORY_GROUPS.map(
+              (g) => g.id,
+            ),
+          ] as const
+        ).map((id) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() =>
+              selectGroup(
+                id as
+                  | GroupId
+                  | "ALL",
+              )
+            }
+            className={cn(
+              "shrink-0 rounded-full px-4 py-2 text-sm font-bold transition-all",
+              group === id
+                ? "brand-gradient text-on-dark shadow-[var(--shadow-brand)]"
+                : "border border-border text-muted-foreground hover:bg-muted",
+            )}
+          >
+            {id === "ALL"
+              ? t("svc.all")
+              : CATEGORY_GROUPS.find(
+                  (g) =>
+                    g.id === id,
+                )!.label[lang]}
+          </button>
+        ))}
       </div>
 
-      {groupCategories.length > 0 ? (
+      {groupCategories.length >
+      0 ? (
         <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-          {(["ALL", ...groupCategories] as const).map(
-            (c) => (
-              <button
-                key={c}
-                type="button"
-                onClick={() =>
-                  setCategory(
-                    c as ServiceCategory | "ALL",
-                  )
-                }
-                className={cn(
-                  "shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors",
-                  category === c
-                    ? "border-primary bg-primary/10 text-primary"
-                    : "border-border text-muted-foreground hover:bg-muted",
-                )}
-              >
-                {c === "ALL"
-                  ? t("svc.all")
-                  : categoryLabel(c, lang)}
-              </button>
-            ),
-          )}
+          {(
+            [
+              "ALL",
+              ...groupCategories,
+            ] as const
+          ).map((c) => (
+            <button
+              key={c}
+              type="button"
+              onClick={() =>
+                setCategory(
+                  c as
+                    | ServiceCategory
+                    | "ALL",
+                )
+              }
+              className={cn(
+                "shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors",
+                category === c
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground hover:bg-muted",
+              )}
+            >
+              {c === "ALL"
+                ? t("svc.all")
+                : categoryLabel(
+                    c,
+                    lang,
+                  )}
+            </button>
+          ))}
         </div>
       ) : null}
 
@@ -581,21 +709,31 @@ function DiscoveryPage() {
         <div className="grid gap-4 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-1.5">
             <Label>
-              {fr ? "Ville" : "City"}
+              {fr
+                ? "Ville"
+                : "City"}
             </Label>
 
             <Select
-              value={filters.city || "ALL"}
+              value={
+                filters.city ||
+                "ALL"
+              }
               onValueChange={(v) =>
                 patch({
-                  city: v === "ALL" ? "" : v,
+                  city:
+                    v === "ALL"
+                      ? ""
+                      : v,
                 })
               }
             >
               <SelectTrigger>
                 <SelectValue
                   placeholder={
-                    fr ? "Toutes" : "All"
+                    fr
+                      ? "Toutes"
+                      : "All"
                   }
                 />
               </SelectTrigger>
@@ -607,11 +745,16 @@ function DiscoveryPage() {
                     : "All cities"}
                 </SelectItem>
 
-                {(cities ?? []).map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {c}
-                  </SelectItem>
-                ))}
+                {(cities ?? []).map(
+                  (c) => (
+                    <SelectItem
+                      key={c}
+                      value={c}
+                    >
+                      {c}
+                    </SelectItem>
+                  ),
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -624,10 +767,13 @@ function DiscoveryPage() {
             </Label>
 
             <Select
-              value={String(filters.minRating)}
+              value={String(
+                filters.minRating,
+              )}
               onValueChange={(v) =>
                 patch({
-                  minRating: Number(v),
+                  minRating:
+                    Number(v),
                 })
               }
             >
@@ -636,32 +782,41 @@ function DiscoveryPage() {
               </SelectTrigger>
 
               <SelectContent>
-                {[0, 3, 4, 4.5].map((r) => (
-                  <SelectItem
-                    key={r}
-                    value={String(r)}
-                  >
-                    {r === 0
-                      ? fr
-                        ? "Toutes"
-                        : "Any"
-                      : `${r}+ ★`}
-                  </SelectItem>
-                ))}
+                {[0, 3, 4, 4.5].map(
+                  (r) => (
+                    <SelectItem
+                      key={r}
+                      value={String(
+                        r,
+                      )}
+                    >
+                      {r === 0
+                        ? fr
+                          ? "Toutes"
+                          : "Any"
+                        : `${r}+ ★`}
+                    </SelectItem>
+                  ),
+                )}
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-1.5">
             <Label>
-              {fr ? "Prix max" : "Max price"}
+              {fr
+                ? "Prix max"
+                : "Max price"}
             </Label>
 
             <Select
               value={
-                filters.maxPrice === null
+                filters.maxPrice ===
+                null
                   ? "ALL"
-                  : String(filters.maxPrice)
+                  : String(
+                      filters.maxPrice,
+                    )
               }
               onValueChange={(v) =>
                 patch({
@@ -683,28 +838,40 @@ function DiscoveryPage() {
                     : "Any price"}
                 </SelectItem>
 
-                {PRICE_STEPS.map((p) => (
-                  <SelectItem
-                    key={p}
-                    value={String(p)}
-                  >
-                    ≤ {formatXAF(p)}
-                  </SelectItem>
-                ))}
+                {PRICE_STEPS.map(
+                  (p) => (
+                    <SelectItem
+                      key={p}
+                      value={String(
+                        p,
+                      )}
+                    >
+                      ≤{" "}
+                      {formatXAF(
+                        p,
+                      )}
+                    </SelectItem>
+                  ),
+                )}
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-1.5">
             <Label>
-              {fr ? "Trier par" : "Sort by"}
+              {fr
+                ? "Trier par"
+                : "Sort by"}
             </Label>
 
             <Select
-              value={filters.sort}
+              value={
+                filters.sort
+              }
               onValueChange={(v) =>
                 patch({
-                  sort: v as DiscoverySort,
+                  sort:
+                    v as DiscoverySort,
                 })
               }
             >
@@ -758,7 +925,9 @@ function DiscoveryPage() {
 
             <Switch
               id="verified-only"
-              checked={filters.verifiedOnly}
+              checked={
+                filters.verifiedOnly
+              }
               onCheckedChange={(v) =>
                 patch({
                   verifiedOnly: v,
@@ -779,7 +948,9 @@ function DiscoveryPage() {
 
             <Switch
               id="available-only"
-              checked={filters.availableOnly}
+              checked={
+                filters.availableOnly
+              }
               onCheckedChange={(v) =>
                 patch({
                   availableOnly: v,
@@ -794,12 +965,17 @@ function DiscoveryPage() {
               onClick={() => {
                 setFilters({
                   ...DEFAULT_FILTERS,
-                  search: searchInput,
+                  search:
+                    searchInput,
                   nearCity:
-                    location?.label ?? null,
+                    location?.label ??
+                    null,
                 });
 
-                setCategory("ALL");
+                setCategory(
+                  "ALL",
+                );
+
                 setGroup("ALL");
               }}
             >
@@ -847,45 +1023,64 @@ function DiscoveryPage() {
           </div>
 
           <div className="-mx-1 flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto px-1 pb-1">
-            {recommended.map((provider) => (
-              <div
-                key={provider.id}
-                className="w-64 shrink-0 snap-start sm:w-72"
-              >
-                <ProviderCard
-                  provider={provider}
-                  photos={provider.photos}
-                  services={provider.services}
-                  fromPrice={provider.fromPrice}
-                  isVerified={
-                    provider.is_verified
+            {recommended.map(
+              (provider) => (
+                <div
+                  key={
+                    provider.id
                   }
-                  acceptingBookings={
-                    provider.accepting_bookings
-                  }
-                  completedBookings={
-                    provider.completed_bookings
-                  }
-                  nearby={
-                    Boolean(filters.nearCity) &&
-                    (provider.city ?? "")
-                      .trim()
-                      .toLowerCase() ===
+                  className="w-64 shrink-0 snap-start sm:w-72"
+                >
+                  <ProviderCard
+                    provider={
+                      provider
+                    }
+                    photos={
+                      provider.photos
+                    }
+                    services={
+                      provider.services
+                    }
+                    fromPrice={
+                      provider.fromPrice
+                    }
+                    isVerified={
+                      provider.is_verified
+                    }
+                    acceptingBookings={
+                      provider.accepting_bookings
+                    }
+                    completedBookings={
+                      provider.completed_bookings
+                    }
+                    nearby={
+                      Boolean(
+                        filters.nearCity,
+                      ) &&
                       (
-                        filters.nearCity ?? ""
+                        provider.city ??
+                        ""
                       )
                         .trim()
-                        .toLowerCase()
-                  }
-                />
-              </div>
-            ))}
+                        .toLowerCase() ===
+                        (
+                          filters.nearCity ??
+                          ""
+                        )
+                          .trim()
+                          .toLowerCase()
+                    }
+                  />
+                </div>
+              ),
+            )}
           </div>
         </section>
       ) : null}
 
       {browsing &&
-      (community ?? []).length > 0 ? (
+      (community ?? []).length >
+        0 ? (
         <section
           aria-label={
             fr
@@ -901,65 +1096,83 @@ function DiscoveryPage() {
           </h2>
 
           <div className="-mx-1 flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto px-1 pb-1">
-            {(community ?? []).map((post) => (
-              <Link
-                key={post.id}
-                to="/services/$providerId"
-                params={{
-                  providerId:
-                    post.provider.id,
-                }}
-                className="group w-56 shrink-0 snap-start overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]"
-              >
-                <div className="aspect-[4/3] overflow-hidden bg-muted">
-                  <img
-                    src={post.url}
-                    alt={
-                      post.caption ??
-                      post.provider.business_name
-                    }
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                  />
-                </div>
-
-                <div className="space-y-0.5 p-3">
-                  <p className="truncate text-sm font-bold text-foreground">
-                    {
+            {(community ?? []).map(
+              (post) => (
+                <Link
+                  key={post.id}
+                  to="/services/$providerId"
+                  params={{
+                    providerId:
                       post.provider
-                        .business_name
-                    }
-                  </p>
+                        .id,
+                  }}
+                  className="group w-56 shrink-0 snap-start overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]"
+                >
+                  <div className="aspect-[4/3] overflow-hidden bg-muted">
+                    <img
+                      src={post.url}
+                      alt={
+                        post.caption ??
+                        post
+                          .provider
+                          .business_name
+                      }
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                    />
+                  </div>
 
-                  {post.caption ? (
-                    <p className="line-clamp-2 text-xs text-muted-foreground">
-                      {post.caption}
+                  <div className="space-y-0.5 p-3">
+                    <p className="truncate text-sm font-bold text-foreground">
+                      {
+                        post
+                          .provider
+                          .business_name
+                      }
                     </p>
-                  ) : null}
 
-                  {post.provider.city ? (
-                    <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                      <MapPin
-                        className="size-3"
-                        aria-hidden
-                      />
+                    {post.caption ? (
+                      <p className="line-clamp-2 text-xs text-muted-foreground">
+                        {
+                          post.caption
+                        }
+                      </p>
+                    ) : null}
 
-                      {post.provider.city}
-                    </p>
-                  ) : null}
-                </div>
-              </Link>
-            ))}
+                    {post.provider
+                      .city ? (
+                      <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                        <MapPin
+                          className="size-3"
+                          aria-hidden
+                        />
+
+                        {
+                          post
+                            .provider
+                            .city
+                        }
+                      </p>
+                    ) : null}
+                  </div>
+                </Link>
+              ),
+            )}
           </div>
         </section>
       ) : null}
 
       {isLoading ? (
         <SkeletonRows rows={4} />
-      ) : providers.length === 0 ? (
+      ) : providers.length ===
+        0 ? (
         <EmptyState
-          title={t("svc.empty")}
-          description={t("svc.emptyCopy")}
+          title={t(
+            "svc.empty",
+          )}
+          description={t(
+            "svc.emptyCopy",
+          )}
           icon={
             <Users
               className="size-5"
@@ -969,7 +1182,9 @@ function DiscoveryPage() {
           action={
             <Button asChild>
               <Link to="/studio">
-                {t("svc.becomePro")}
+                {t(
+                  "svc.becomePro",
+                )}
               </Link>
             </Button>
           }
@@ -977,35 +1192,53 @@ function DiscoveryPage() {
       ) : (
         <>
           <div className="grid items-stretch gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {providers.map((provider) => (
-              <ProviderCard
-                key={provider.id}
-                provider={provider}
-                photos={provider.photos}
-                services={provider.services}
-                fromPrice={provider.fromPrice}
-                isVerified={
-                  provider.is_verified
-                }
-                acceptingBookings={
-                  provider.accepting_bookings
-                }
-                completedBookings={
-                  provider.completed_bookings
-                }
-                nearby={
-                  Boolean(filters.nearCity) &&
-                  (provider.city ?? "")
-                    .trim()
-                    .toLowerCase() ===
+            {providers.map(
+              (provider) => (
+                <ProviderCard
+                  key={
+                    provider.id
+                  }
+                  provider={
+                    provider
+                  }
+                  photos={
+                    provider.photos
+                  }
+                  services={
+                    provider.services
+                  }
+                  fromPrice={
+                    provider.fromPrice
+                  }
+                  isVerified={
+                    provider.is_verified
+                  }
+                  acceptingBookings={
+                    provider.accepting_bookings
+                  }
+                  completedBookings={
+                    provider.completed_bookings
+                  }
+                  nearby={
+                    Boolean(
+                      filters.nearCity,
+                    ) &&
                     (
-                      filters.nearCity ?? ""
+                      provider.city ??
+                      ""
                     )
                       .trim()
-                      .toLowerCase()
-                }
-              />
-            ))}
+                      .toLowerCase() ===
+                      (
+                        filters.nearCity ??
+                        ""
+                      )
+                        .trim()
+                        .toLowerCase()
+                  }
+                />
+              ),
+            )}
           </div>
 
           <div
@@ -1015,7 +1248,9 @@ function DiscoveryPage() {
           />
 
           {isFetchingNextPage ? (
-            <SkeletonRows rows={1} />
+            <SkeletonRows
+              rows={1}
+            />
           ) : null}
 
           {!hasNextPage &&
