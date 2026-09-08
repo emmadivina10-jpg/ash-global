@@ -90,7 +90,7 @@ function WalletPage() {
     },
   ] as const;
 
-  const theme = walletThemes[walletTheme];
+  const theme = walletThemes[walletTheme] ?? walletThemes[0];
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">

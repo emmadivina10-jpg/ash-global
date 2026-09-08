@@ -402,7 +402,7 @@ export function useUniversalSearch(term: string) {
           .select("id, title, category, city, neighborhood, price, currency, price_period")
           .eq("status", "ACTIVE")
           .gt("expires_at", nowIso)
-          .or(`title.ilike.${like},description.ilike.${like},city.ilike.${like},neighborhood.ilike.${like},university_name.ilike.${like}`)
+          .or(`title.ilike.${like},description.ilike.${like},city.ilike.${like},neighborhood.ilike.${like},university.ilike.${like}`)
           .order("created_at", { ascending: false })
           .limit(12),
       ]);

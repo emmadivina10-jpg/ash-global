@@ -110,6 +110,8 @@ export interface WebhookResult {
   valid: boolean;
   /** True only when the HMAC signature was cryptographically verified. */
   signatureVerified: boolean;
+  /** Machine-readable reason when the delivery was rejected. */
+  error?: string | undefined;
   event?: string | undefined;
   /** TchokoPay's REQ-/PO- reference (webhook field `invoiceReference`). */
   providerReference?: string | undefined;

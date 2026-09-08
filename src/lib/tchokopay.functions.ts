@@ -46,10 +46,10 @@ export type DisburseResult = {
   ok: boolean;
   configured: boolean;
   status: "PENDING" | "PROCESSING" | "PAID" | "FAILED" | "CANCELLED";
-  providerReference?: string;
-  error?: string;
-  message?: string;
-  param?: string;
+  providerReference?: string | undefined;
+  error?: string | undefined;
+  message?: string | undefined;
+  param?: string | undefined;
 };
 
 /**
