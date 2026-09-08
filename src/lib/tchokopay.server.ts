@@ -843,15 +843,51 @@ export const tchokoPay = {
     );
 
     // Disbursement deliveries wrap their fields in `data` and use `reference`.
+    //
+    // TchokoPay's terminal event name is authoritative for terminal payouts:
+    // - disburse.succeeded / payout.succeeded => PAID
+    // - disburse.failed / payout.failed       => FAILED
+    // - disburse.cancelled / payout.cancelled => CANCELLED
+    //
+    // This prevents ASH from remaining PROCESSING when the recipient has
+    // already been credited but the provider payload's status field is
+    // missing or still contains an intermediate value.
     if (
-      name.startsWith("disburse.") ||
-      name.startsWith("payout.")
+      name.toLowerCase().startsWith("disburse.") ||
+      name.toLowerCase().startsWith("payout.")
     ) {
       const body =
         (payload["data"] as
           | Record<string, unknown>
           | undefined) ??
         payload;
+
+      const eventName = name.toLowerCase();
+
+      let status: PaymentStatus;
+
+      if (
+        eventName === "disburse.succeeded" ||
+        eventName === "payout.succeeded"
+      ) {
+        status = "PAID";
+      } else if (
+        eventName === "disburse.failed" ||
+        eventName === "payout.failed" ||
+        eventName === "disburse.declined" ||
+        eventName === "payout.declined"
+      ) {
+        status = "FAILED";
+      } else if (
+        eventName === "disburse.cancelled" ||
+        eventName === "disburse.canceled" ||
+        eventName === "payout.cancelled" ||
+        eventName === "payout.canceled"
+      ) {
+        status = "CANCELLED";
+      } else {
+        status = mapStatus(body["status"]);
+      }
 
       return {
         valid: true,
@@ -868,9 +904,12 @@ export const tchokoPay = {
             | string
             | undefined) ??
           undefined,
-        status: mapStatus(
-          body["status"],
-        ),
+        status,
+        failureReason:
+          (body["failureReason"] as
+            | string
+            | undefined) ??
+          undefined,
       };
     }
 
