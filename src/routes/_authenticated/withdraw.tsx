@@ -11,9 +11,7 @@ import {
   useWallet,
   useWithdrawals,
 } from "@/lib/queries";
-import {
-  disburseWithdrawal,
-} from "@/lib/tchokopay.functions";
+import { disburseWithdrawal } from "@/lib/tchokopay.functions";
 import { PayoutAccountCard } from "@/components/refer/PayoutAccountCard";
 import { useRegion } from "@/lib/region-context";
 import { SectionCard } from "@/components/refer/cards";
@@ -58,7 +56,10 @@ const ERRORS: Record<string, string> = {
     "The payout information is invalid. Please check your details and try again.",
 };
 
-type Method = "MTN_MOMO" | "ORANGE_MONEY" | "STRIPE_BANK";
+type Method =
+  | "MTN_MOMO"
+  | "ORANGE_MONEY"
+  | "STRIPE_BANK";
 
 const METHOD_LABEL: Record<Method, string> = {
   MTN_MOMO: "MTN Mobile Money",
@@ -66,7 +67,9 @@ const METHOD_LABEL: Record<Method, string> = {
   STRIPE_BANK: "Bank account",
 };
 
-export const Route = createFileRoute("/_authenticated/withdraw")({
+export const Route = createFileRoute(
+  "/_authenticated/withdraw",
+)({
   head: () => ({
     meta: [
       { title: "Withdraw — ASH Glo" },
@@ -82,25 +85,35 @@ export const Route = createFileRoute("/_authenticated/withdraw")({
 
 function WithdrawPage() {
   const queryClient = useQueryClient();
-  const disburse = useServerFn(disburseWithdrawal);
+  const disburse =
+    useServerFn(disburseWithdrawal);
 
   const { data: wallet } = useWallet();
   const { data: profile } = useProfile();
-  const { data: withdrawals, isLoading } = useWithdrawals();
-  const { data: transactions } = useTransactions(300);
-  const { country, mobileMoneyEnabled } = useRegion();
+  const {
+    data: withdrawals,
+    isLoading,
+  } = useWithdrawals();
+  const { data: transactions } =
+    useTransactions(300);
+  const {
+    country,
+    mobileMoneyEnabled,
+  } = useRegion();
 
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] =
+    useState("");
   const [method, setMethod] =
     useState<Method>("MTN_MOMO");
-  const [phone, setPhone] = useState(
-    profile?.phone ?? "",
-  );
-  const [error, setError] = useState<string | null>(
-    null,
-  );
+  const [phone, setPhone] =
+    useState(profile?.phone ?? "");
+
+  const [error, setError] =
+    useState<string | null>(null);
+
   const [confirming, setConfirming] =
     useState(false);
+
   const [submitting, setSubmitting] =
     useState(false);
 
@@ -115,10 +128,12 @@ function WithdrawPage() {
     wallet?.pending_balance ?? 0,
   );
 
-  // Show people where their money came from:
-  // referral commissions vs money earned delivering
-  // services on the marketplace.
-  const split = (transactions ?? []).reduce(
+  /*
+   * Show where the user's withdrawable money came from.
+   */
+  const split = (
+    transactions ?? []
+  ).reduce(
     (acc, row) => {
       if (
         row.status !== "SUCCESS" &&
@@ -127,25 +142,35 @@ function WithdrawPage() {
         return acc;
       }
 
-      const value = Number(row.amount ?? 0);
+      const value = Number(
+        row.amount ?? 0,
+      );
 
-      if (value <= 0) return acc;
+      if (value <= 0) {
+        return acc;
+      }
 
       if (
         row.type === "COMMISSION" ||
-        row.type === "REFERRAL_COMMISSION"
+        row.type ===
+          "REFERRAL_COMMISSION"
       ) {
         acc.referral += value;
       } else if (
-        row.type === "SERVICE_EARNING" ||
-        row.type === "BOOKING_EARNING"
+        row.type ===
+          "SERVICE_EARNING" ||
+        row.type ===
+          "BOOKING_EARNING"
       ) {
         acc.service += value;
       }
 
       return acc;
     },
-    { referral: 0, service: 0 },
+    {
+      referral: 0,
+      service: 0,
+    },
   );
 
   const isBank =
@@ -164,12 +189,16 @@ function WithdrawPage() {
       : ["STRIPE_BANK"];
 
   useEffect(() => {
-    if (!methodOptions.includes(method)) {
+    if (
+      !methodOptions.includes(method)
+    ) {
       setMethod("STRIPE_BANK");
     }
   }, [method, momoAvailable]);
 
-  function review(event: React.FormEvent) {
+  function review(
+    event: React.FormEvent,
+  ) {
     event.preventDefault();
 
     const value = Number(amount);
@@ -179,14 +208,16 @@ function WithdrawPage() {
       value < MIN_WITHDRAWAL
     ) {
       setError(
-        ERRORS["MIN_AMOUNT_1000"] ?? null,
+        ERRORS["MIN_AMOUNT_1000"] ??
+          null,
       );
       return;
     }
 
     if (value > available) {
       setError(
-        ERRORS["INSUFFICIENT_BALANCE"] ?? null,
+        ERRORS["INSUFFICIENT_BALANCE"] ??
+          null,
       );
       return;
     }
@@ -198,7 +229,8 @@ function WithdrawPage() {
       )
     ) {
       setError(
-        ERRORS["INVALID_PHONE"] ?? null,
+        ERRORS["INVALID_PHONE"] ??
+          null,
       );
       return;
     }
@@ -213,24 +245,28 @@ function WithdrawPage() {
 
     try {
       /*
-       * STEP 1:
-       * Reserve the user's money in the database.
+       * STEP 1
+       * Create the user's withdrawal and reserve the money.
        *
-       * request_withdrawal() moves the amount from
-       * available_balance -> pending_balance and
-       * creates the withdrawal record.
+       * request_withdrawal() moves:
+       *
+       * available_balance
+       *        ↓
+       * pending_balance
        */
-      const { data, error: rpcError } =
-        await supabase.rpc(
-          "request_withdrawal",
-          {
-            _amount: Number(amount),
-            _method: method,
-            _phone: isBank
-              ? "BANK"
-              : normalizePhone(phone),
-          },
-        );
+      const {
+        data,
+        error: rpcError,
+      } = await supabase.rpc(
+        "request_withdrawal",
+        {
+          _amount: Number(amount),
+          _method: method,
+          _phone: isBank
+            ? "BANK"
+            : normalizePhone(phone),
+        },
+      );
 
       const result = data as
         | {
@@ -240,8 +276,12 @@ function WithdrawPage() {
           }
         | null;
 
-      if (rpcError || !result?.ok) {
-        const key = result?.error ?? "";
+      if (
+        rpcError ||
+        !result?.ok
+      ) {
+        const key =
+          result?.error ?? "";
 
         setSubmitting(false);
         setConfirming(false);
@@ -259,10 +299,14 @@ function WithdrawPage() {
       }
 
       /*
-       * Bank payouts are still handled by the
-       * existing Stripe flow. Mobile-money
-       * withdrawals are sent automatically to
-       * TchokoPay.
+       * STEP 2
+       *
+       * Bank payouts continue through the existing Stripe flow.
+       *
+       * MTN Mobile Money and Orange Money are sent automatically
+       * to TchokoPay immediately after the withdrawal is created.
+       *
+       * There is NO admin approval step here.
        */
       if (
         !isBank &&
@@ -273,23 +317,24 @@ function WithdrawPage() {
             data: {
               amount: Number(amount),
               method,
-              phone: normalizePhone(phone),
+              phone: normalizePhone(
+                phone,
+              ),
               reference:
                 result.reference,
             },
           });
 
+        /*
+         * The withdrawal already exists and its funds are reserved.
+         *
+         * Do NOT create another withdrawal.
+         *
+         * If TchokoPay is unreachable, the existing withdrawal
+         * remains pending so the same reference/idempotency key
+         * can safely be retried.
+         */
         if (!payout.ok) {
-          /*
-           * Important:
-           * We do NOT create another withdrawal.
-           * The database withdrawal already exists
-           * and the funds are reserved.
-           *
-           * A provider-unreachable case remains
-           * pending so a retry can safely reuse the
-           * same withdrawal reference/idempotency key.
-           */
           setSubmitting(false);
           setConfirming(false);
 
@@ -339,7 +384,7 @@ function WithdrawPage() {
       toast.success(
         isBank
           ? "Withdrawal request submitted successfully."
-          : "Withdrawal submitted. Your mobile-money payout is now being processed.",
+          : "Withdrawal submitted. Your mobile-money payout is now being processed automatically.",
       );
 
       setAmount("");
@@ -356,6 +401,7 @@ function WithdrawPage() {
           : "We could not process your withdrawal.";
 
       setError(message);
+
       toast.error(
         "Withdrawal request failed",
       );
@@ -384,7 +430,7 @@ function WithdrawPage() {
     <div className="mx-auto w-full max-w-3xl space-y-5">
       <header>
         <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
-          Withdraw
+          Withdraw Funds
         </h1>
 
         <p className="mt-1 text-sm text-muted-foreground">
@@ -399,24 +445,34 @@ function WithdrawPage() {
         <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[
             {
-              label: "Ready to withdraw",
+              label:
+                "Ready to withdraw",
               value: available,
-              tone: "text-primary",
+              tone:
+                "text-primary",
             },
             {
-              label: "Pending clearance",
+              label:
+                "Pending clearance",
               value: pending,
-              tone: "text-foreground",
+              tone:
+                "text-foreground",
             },
             {
-              label: "Service earnings",
-              value: split.service,
-              tone: "text-foreground",
+              label:
+                "Service earnings",
+              value:
+                split.service,
+              tone:
+                "text-foreground",
             },
             {
-              label: "Referral commissions",
-              value: split.referral,
-              tone: "text-foreground",
+              label:
+                "Referral commissions",
+              value:
+                split.referral,
+              tone:
+                "text-foreground",
             },
           ].map((item) => (
             <div
@@ -430,22 +486,30 @@ function WithdrawPage() {
               <dd
                 className={`tabular mt-1 text-base font-bold ${item.tone}`}
               >
-                {formatXAF(item.value)}
+                {formatXAF(
+                  item.value,
+                )}
               </dd>
             </div>
           ))}
         </dl>
 
         <p className="mt-3 text-xs text-muted-foreground">
-          Only the “ready to withdraw” balance can
-          be paid out. Pending amounts clear once
+          Only the “ready to withdraw”
+          balance can be paid out.
+          Pending amounts clear once
           bookings are completed.
         </p>
       </SectionCard>
 
-      <PayoutAccountCard country={country} />
+      <PayoutAccountCard
+        country={country}
+      />
 
-      <SectionCard title="Request a payout">
+      <SectionCard
+        title="Withdraw funds"
+        description="Choose your destination and amount. You control the withdrawal yourself; mobile-money payouts are processed automatically by TchokoPay."
+      >
         <form
           onSubmit={review}
           className="space-y-5"
@@ -476,7 +540,10 @@ function WithdrawPage() {
 
             <p className="text-xs text-muted-foreground">
               Minimum{" "}
-              {formatXAF(MIN_WITHDRAWAL)}.
+              {formatXAF(
+                MIN_WITHDRAWAL,
+              )}
+              .
             </p>
           </div>
 
@@ -492,7 +559,9 @@ function WithdrawPage() {
                     key={option}
                     type="button"
                     onClick={() =>
-                      setMethod(option)
+                      setMethod(
+                        option,
+                      )
                     }
                     className={cn(
                       "min-h-14 rounded-xl border px-4 py-3 text-sm font-semibold transition-colors",
@@ -501,7 +570,11 @@ function WithdrawPage() {
                         : "border-border bg-card text-muted-foreground hover:bg-muted",
                     )}
                   >
-                    {METHOD_LABEL[option]}
+                    {
+                      METHOD_LABEL[
+                        option
+                      ]
+                    }
                   </button>
                 ),
               )}
@@ -510,8 +583,9 @@ function WithdrawPage() {
 
           {isBank ? (
             <p className="rounded-xl bg-muted/60 p-3 text-xs text-muted-foreground">
-              Funds are sent to the bank account
-              you verified with Stripe above.
+              Funds are sent to the
+              bank account you verified
+              with Stripe above.
             </p>
           ) : (
             <div className="space-y-2">
@@ -524,7 +598,10 @@ function WithdrawPage() {
                 inputMode="tel"
                 value={phone}
                 onChange={(event) =>
-                  setPhone(event.target.value)
+                  setPhone(
+                    event.target
+                      .value,
+                  )
                 }
                 placeholder="6XX XXX XXX"
                 className="h-12"
@@ -545,7 +622,7 @@ function WithdrawPage() {
             type="submit"
             className="h-12 w-full"
           >
-            Review withdrawal
+            Withdraw
           </Button>
         </form>
       </SectionCard>
@@ -553,108 +630,151 @@ function WithdrawPage() {
       <SectionCard title="Withdrawal history">
         {isLoading ? (
           <SkeletonRows rows={3} />
-        ) : (withdrawals ?? []).length ===
-          0 ? (
-          <EmptyState
-            title="No withdrawals yet"
-            description="Your payout requests will appear here."
-          />
         ) : (
-          <ul className="divide-y divide-border">
-            {(withdrawals ?? []).map(
-              (item) => (
-                <li
-                  key={item.id}
-                  className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 py-3.5"
-                >
-                  <div className="min-w-0">
-                    <p className="tabular text-sm font-bold text-foreground">
-                      {formatXAF(
-                        item.amount,
-                      )}
-                    </p>
+          (withdrawals ?? []).length ===
+          0 ? (
+            <EmptyState
+              title="No withdrawals yet"
+              description="Your payout requests will appear here."
+            />
+          ) : (
+            <ul className="divide-y divide-border">
+              {(withdrawals ?? []).map(
+                (item) => (
+                  <li
+                    key={item.id}
+                    className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 py-3.5"
+                  >
+                    <div className="min-w-0">
+                      <p className="tabular text-sm font-bold text-foreground">
+                        {formatXAF(
+                          item.amount,
+                        )}
+                      </p>
 
-                    <p className="truncate text-xs text-muted-foreground">
-                      {
-                        METHOD_LABEL[
-                          item.payment_method as Method
-                        ]
+                      <p className="truncate text-xs text-muted-foreground">
+                        {
+                          METHOD_LABEL[
+                            item
+                              .payment_method as Method
+                          ]
+                        }
+                        {item.payment_method ===
+                        "STRIPE_BANK"
+                          ? ""
+                          : ` · ${item.phone_number}`}
+                      </p>
+
+                      <p className="truncate text-xs text-muted-foreground">
+                        {formatDateTime(
+                          item.requested_at,
+                        )}{" "}
+                        ·{" "}
+                        {item.reference}
+                      </p>
+
+                      {item.provider_reference ? (
+                        <p className="truncate text-[11px] font-medium text-primary/80">
+                          TchokoPay ref:{" "}
+                          {
+                            item.provider_reference
+                          }
+                        </p>
+                      ) : null}
+                    </div>
+
+                    <StatusBadge
+                      status={
+                        item.status
                       }
-                      {item.payment_method ===
-                      "STRIPE_BANK"
-                        ? ""
-                        : ` · ${item.phone_number}`}
-                    </p>
-
-                    <p className="truncate text-xs text-muted-foreground">
-                      {formatDateTime(
-                        item.requested_at,
-                      )}{" "}
-                      · {item.reference}
-                    </p>
-                  </div>
-
-                  <StatusBadge
-                    status={item.status}
-                  />
-                </li>
-              ),
-            )}
-          </ul>
+                    />
+                  </li>
+                ),
+              )}
+            </ul>
+          )
         )}
       </SectionCard>
 
       <ConfirmationModal
         open={confirming}
-        onOpenChange={setConfirming}
+        onOpenChange={(open) => {
+          if (!submitting) {
+            setConfirming(
+              open,
+            );
+          }
+        }}
         title="Confirm withdrawal"
         description={
           isBank
-            ? "Please check these details before submitting your bank payout request."
-            : "Please check these details. Your mobile-money payout will be sent automatically after the withdrawal is created."
+            ? "Confirm the amount and bank destination. Your withdrawal request will be submitted immediately."
+            : "Confirm the amount and mobile-money number. Your withdrawal will be submitted immediately and TchokoPay will process the payout automatically."
         }
         loading={submitting}
         confirmLabel={
           submitting
-            ? "Processing..."
-            : "Submit request"
+            ? "Withdrawing..."
+            : "Withdraw"
         }
         onConfirm={submit}
         details={
           <dl className="space-y-2">
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-4">
               <dt className="text-muted-foreground">
                 Amount
               </dt>
 
               <dd className="tabular font-bold">
                 {formatXAF(
-                  Number(amount || 0),
+                  Number(
+                    amount || 0,
+                  ),
                 )}
               </dd>
             </div>
 
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-4">
               <dt className="text-muted-foreground">
                 Destination
               </dt>
 
-              <dd className="font-semibold">
-                {METHOD_LABEL[method]}
+              <dd className="font-semibold text-right">
+                {
+                  METHOD_LABEL[
+                    method
+                  ]
+                }
               </dd>
             </div>
 
             {isBank ? null : (
-              <div className="flex justify-between">
+              <div className="flex justify-between gap-4">
                 <dt className="text-muted-foreground">
                   Number
                 </dt>
 
                 <dd className="font-semibold">
-                  {normalizePhone(phone)}
+                  {normalizePhone(
+                    phone,
+                  )}
                 </dd>
               </div>
             )}
+
+            {!isBank ? (
+              <div className="mt-3 rounded-xl border border-primary/20 bg-primary/5 p-3">
+                <p className="text-xs font-medium text-primary">
+                  Automatic payout
+                </p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  No administrator approval
+                  is required. TchokoPay will
+                  process the mobile-money payout
+                  automatically.
+                </p>
+              </div>
+            ) : null}
           </dl>
         }
       />
