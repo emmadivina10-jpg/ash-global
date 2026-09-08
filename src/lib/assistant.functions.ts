@@ -126,7 +126,7 @@ async function buildContext(supabase: unknown, userId: string): Promise<string> 
     db.from("property_listings").select("title, category, city, price, currency, price_period, status, view_count, inquiry_count").eq("owner_id", userId).limit(10),
     db
       .from("property_listings")
-      .select("title, category, city, neighborhood, price, currency, price_period, bedrooms, furnished, university_name, verification_status")
+      .select("title, category, city, neighborhood, price, currency, price_period, bedrooms, furnished, university, verification_status")
       .eq("status", "ACTIVE")
       .order("created_at", { ascending: false })
       .limit(12),
@@ -140,7 +140,7 @@ async function buildContext(supabase: unknown, userId: string): Promise<string> 
   );
   lines.push(
     lp.length > 0
-      ? `PROPERTY DATA — newest active listings on ASH (real, do not invent others): ${lp.map((r) => `${r["title"]} (${r["category"]}, ${r["neighborhood"] ? r["neighborhood"] + ", " : ""}${r["city"]}, ${r["price"]} ${r["currency"]}${r["price_period"] ? "/" + r["price_period"] : ""}${r["bedrooms"] ? ", " + r["bedrooms"] + " bed" : ""}${r["furnished"] ? ", furnished" : ""}${r["university_name"] ? ", near " + r["university_name"] : ""}, verification ${r["verification_status"]})`).join("; ")}`
+      ? `PROPERTY DATA — newest active listings on ASH (real, do not invent others): ${lp.map((r) => `${r["title"]} (${r["category"]}, ${r["neighborhood"] ? r["neighborhood"] + ", " : ""}${r["city"]}, ${r["price"]} ${r["currency"]}${r["price_period"] ? "/" + r["price_period"] : ""}${r["bedrooms"] ? ", " + r["bedrooms"] + " bed" : ""}${r["furnished"] ? ", furnished" : ""}${r["university"] ? ", near " + r["university"] : ""}, verification ${r["verification_status"]})`).join("; ")}`
       : "PROPERTY DATA: no active listings on ASH right now.",
   );
 
