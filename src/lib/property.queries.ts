@@ -125,6 +125,7 @@ export function usePropertyListings(filters: PropertyFilters) {
   return useQuery({
     queryKey: ["property", "list", filters],
     queryFn: async (): Promise<ListingWithCover[]> => {
+      await assertFreshSession();
       let query = supabase
         .from("property_listings")
         .select("*")
@@ -166,6 +167,7 @@ export function useProperty(listingId: string) {
     queryKey: ["property", "detail", listingId],
     enabled: Boolean(listingId),
     queryFn: async () => {
+      await assertFreshSession();
       const [{ data: listing, error }, { data: images }] = await Promise.all([
         supabase.from("property_listings").select("*").eq("id", listingId).maybeSingle(),
         supabase
