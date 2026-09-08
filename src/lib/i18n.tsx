@@ -22,7 +22,7 @@ const EN = {
 
   // Landing
   "landing.signIn": "Sign in",
-  "landing.getStarted": "Get started",
+  "landing.getStarted": "Get starteddddd",
   "landing.badge": "Built for Cameroon · Paid in XAF",
   "landing.h1a": "Refer friends.",
   "landing.h1b": "Earn",
@@ -75,7 +75,8 @@ const EN = {
   "landing.footer": "© {year} ASH Glo. All amounts in XAF.",
   "landing.services.eyebrow": "ASH Marketplace",
   "landing.services.title": "Find services, products and professionals near you",
-  "landing.services.copy": "Browse listings, compare portfolios, read reviews and connect with verified sellers and providers across Cameroon.",
+  "landing.services.copy":
+    "Browse listings, compare portfolios, read reviews and connect with verified sellers and providers across Cameroon.",
   "landing.services.cta": "Find what you need",
   "landing.services.reviews": "Verified reviews",
   "landing.services.secure": "Secure mobile money",
@@ -89,7 +90,8 @@ const EN = {
   "landing.cat.tech.title": "Tech & digital",
   "landing.cat.tech.copy": "Developers, designers, IT support and cybersecurity pros.",
   "landing.property.title": "Rooms, apartments, houses and land — ASH Property",
-  "landing.property.copy": "Student housing near campus, rentals, homes for sale and land. Free to browse, free to list, with verification badges and direct chat with the owner.",
+  "landing.property.copy":
+    "Student housing near campus, rentals, homes for sale and land. Free to browse, free to list, with verification badges and direct chat with the owner.",
   "landing.property.browse": "Browse properties",
   "landing.property.list": "List your property free",
   "landing.services.chat": "Instant chat",
@@ -97,7 +99,6 @@ const EN = {
   "landing.services.hero.title": "Services, products & opportunities",
   "landing.services.hero.copy": "Discover trusted providers, shop local and pay securely — all from one place.",
   "landing.services.hero.cta": "Explore marketplace",
-
 
   // Dashboard
   "dash.welcome": "Welcome back",
@@ -136,7 +137,6 @@ const EN = {
   "net.tree.empty": "No members match this filter.",
   "net.tree.you": "You",
   "net.tree.rootLabel": "Your account",
-
 
   // Wallet
   "wallet.title": "Wallet",
@@ -182,7 +182,8 @@ const EN = {
   "net.pendingActivation": "Pending activation",
   "net.pendingCommission": "Pending commission",
   "wallet.pendingTitle": "{amount} waiting on referral activations",
-  "wallet.pendingBody": "These commissions are not withdrawable yet. They are credited automatically the moment each referred member's 5,000 XAF activation payment is verified.",
+  "wallet.pendingBody":
+    "These commissions are not withdrawable yet. They are credited automatically the moment each referred member's 5,000 XAF activation payment is verified.",
   "nav.services": "Market",
   "nav.bookings": "Bookings",
   "nav.messages": "Messages",
@@ -313,7 +314,8 @@ const EN = {
   "pro.billing.freePoint1": "Unlimited services and portfolio photos",
   "pro.billing.freePoint2": "Secure mobile money payments handled for you",
   "pro.billing.freePoint3": "1% platform fee on paid bookings — nothing else",
-  "pro.billing.copy": "Setting up your studio is free. Choose a plan when you are ready to accept bookings from clients.",
+  "pro.billing.copy":
+    "Setting up your studio is free. Choose a plan when you are ready to accept bookings from clients.",
   "pro.billing.sub": "Monthly subscription",
   "pro.billing.subDesc": "{fee} per month. Keep 100% of what you earn from each service.",
   "pro.billing.com": "Pay as you earn",
@@ -330,7 +332,8 @@ const EN = {
   "card.title": "The ASH Card",
   "card.soon": "Coming soon",
   "card.tagline": "Premium virtual card",
-  "card.desc": "Your ASH virtual card is on the way. Spend your referral and service earnings directly, without waiting for a payout.",
+  "card.desc":
+    "Your ASH virtual card is on the way. Spend your referral and service earnings directly, without waiting for a payout.",
   "card.f1": "Spend your wallet balance online, anywhere.",
   "card.f2": "Instant top-up from your ASH Glo wallet.",
   "card.f3": "Gold-tier perks for active members and providers.",
@@ -342,30 +345,44 @@ const EN = {
   "settings.title": "Settings",
   "settings.subtitle": "ASH — Where Opportunities Connect. About the platform, your privacy, and account controls.",
   "settings.about": "About ASH",
-  "settings.about.1": "ASH is a digital opportunity, commerce, services, freelance, community, and events platform that connects people, businesses, freelancers, service providers, communities, and event organizers in one ecosystem — where opportunities connect.",
-  "settings.about.2": "ASH Refer: activate your account once for {fee} via MTN Mobile Money or Orange Money, share your referral link, and earn 1,500 XAF on level 1, 750 XAF on level 2 and 250 XAF on level 3 as your network activates.",
-  "settings.about.3": "ASH Services, Marketplace & Freelance: providers (braiders, nail/lash techs, barbers, artists) run studio profiles with portfolios, bookings, chat and reviews; sellers open free storefronts; freelancers bid on projects.",
-  "settings.about.4": "ASH Property, Events & Deals: find student housing, rentals, sales and land; publish events and sell tickets; claim promotions with codes. ASH keeps just 1% on completed bookings, ticket sales and payment links — provider funds and member commissions stay separate from platform revenue.",
-  "settings.about.5": "Everything you earn lands in one ASH Wallet and can be withdrawn to MTN Mobile Money or Orange Money once you reach the minimum payout. ASH AI is always there to guide you.",
+  "settings.about.1":
+    "ASH is a digital opportunity, commerce, services, freelance, community, and events platform that connects people, businesses, freelancers, service providers, communities, and event organizers in one ecosystem — where opportunities connect.",
+  "settings.about.2":
+    "ASH Refer: activate your account once for {fee} via MTN Mobile Money or Orange Money, share your referral link, and earn 1,500 XAF on level 1, 750 XAF on level 2 and 250 XAF on level 3 as your network activates.",
+  "settings.about.3":
+    "ASH Services, Marketplace & Freelance: providers (braiders, nail/lash techs, barbers, artists) run studio profiles with portfolios, bookings, chat and reviews; sellers open free storefronts; freelancers bid on projects.",
+  "settings.about.4":
+    "ASH Property, Events & Deals: find student housing, rentals, sales and land; publish events and sell tickets; claim promotions with codes. ASH keeps just 1% on completed bookings, ticket sales and payment links — provider funds and member commissions stay separate from platform revenue.",
+  "settings.about.5":
+    "Everything you earn lands in one ASH Wallet and can be withdrawn to MTN Mobile Money or Orange Money once you reach the minimum payout. ASH AI is always there to guide you.",
   "settings.privacy": "Privacy policy",
-  "settings.privacy.1": "We collect only what the platform needs: your name, email, phone number, referral relationships, payment references and any content you publish as a provider.",
-  "settings.privacy.2": "Payment details are handled by our licensed payment partner. We never store your mobile money PIN or full card data.",
-  "settings.privacy.3": "Your data is protected by row-level security: you can only read your own wallet, transactions and messages. Providers only see bookings and chats that involve them.",
-  "settings.privacy.4": "We never sell your personal data. Data is shared only with the payment provider and where the law requires it.",
+  "settings.privacy.1":
+    "We collect only what the platform needs: your name, email, phone number, referral relationships, payment references and any content you publish as a provider.",
+  "settings.privacy.2":
+    "Payment details are handled by our licensed payment partner. We never store your mobile money PIN or full card data.",
+  "settings.privacy.3":
+    "Your data is protected by row-level security: you can only read your own wallet, transactions and messages. Providers only see bookings and chats that involve them.",
+  "settings.privacy.4":
+    "We never sell your personal data. Data is shared only with the payment provider and where the law requires it.",
   "settings.privacy.5": "You may request a copy or deletion of your data at any time from this page.",
   "settings.terms": "Terms & fair use",
-  "settings.terms.1": "One account per person. Fake accounts, self-referrals and fraudulent payments lead to suspension and forfeited commissions.",
-  "settings.terms.2": "Commissions are only final once the related payment is confirmed. Cancelled, refunded or disputed bookings are reversed in the ledger.",
+  "settings.terms.1":
+    "One account per person. Fake accounts, self-referrals and fraudulent payments lead to suspension and forfeited commissions.",
+  "settings.terms.2":
+    "Commissions are only final once the related payment is confirmed. Cancelled, refunded or disputed bookings are reversed in the ledger.",
   "settings.terms.3": "Providers are responsible for the services they deliver to clients.",
   "settings.support": "Support",
-  "settings.support.copy": "Questions about payments, bookings or your account? Ask the ASH Assistant in the app, or send our team a message and we will reply by email within 24 hours.",
+  "settings.support.copy":
+    "Questions about payments, bookings or your account? Ask the ASH Assistant in the app, or send our team a message and we will reply by email within 24 hours.",
   "settings.support.cta": "Contact support",
   "settings.danger": "Delete account",
-  "settings.delete.copy": "Account deletion is reviewed and approved by an administrator. Any pending balance or withdrawal must be settled first.",
+  "settings.delete.copy":
+    "Account deletion is reviewed and approved by an administrator. Any pending balance or withdrawal must be settled first.",
   "settings.delete.reason": "Why do you want to delete your account? (optional)",
   "settings.delete.submit": "Request account deletion",
   "settings.delete.confirm": "Request account deletion?",
-  "settings.delete.confirmDesc": "An administrator will review your request. Your account stays active until it is approved.",
+  "settings.delete.confirmDesc":
+    "An administrator will review your request. Your account stays active until it is approved.",
   "settings.delete.sent": "Deletion request sent for admin approval.",
   "settings.delete.pending": "Your deletion request is pending admin approval.",
   "settings.delete.rejected": "Your last deletion request was declined by an administrator.",
@@ -379,7 +396,8 @@ const EN = {
   "auth.login.submitting": "Signing in\u2026",
   "auth.login.welcome": "Welcome back",
   "auth.login.invalid": "Incorrect email or password.",
-  "auth.login.unconfirmed": "Your email address is not confirmed yet. Check your inbox for the confirmation link, or request a new one below.",
+  "auth.login.unconfirmed":
+    "Your email address is not confirmed yet. Check your inbox for the confirmation link, or request a new one below.",
   "auth.login.resend": "Resend confirmation email",
   "auth.login.resending": "Sending…",
   "auth.login.resent": "Confirmation email sent — check your inbox and spam folder.",
@@ -407,7 +425,8 @@ const EN = {
   "auth.register.exists": "An account with this email already exists.",
   "auth.register.checkEmail": "Check your email",
   "auth.register.checkEmailSub": "One last step before you can sign in.",
-  "auth.register.checkEmailCopy": "We sent a confirmation link to {email}. Confirm your email, then sign in to activate your account.",
+  "auth.register.checkEmailCopy":
+    "We sent a confirmation link to {email}. Confirm your email, then sign in to activate your account.",
   "auth.register.goLogin": "Go to login",
   "auth.err.name": "Enter your full name",
   "auth.err.email": "Enter a valid email",
@@ -502,7 +521,8 @@ const FR: Record<TKey, string> = {
   "landing.footer": "© {year} ASH Glo. Tous les montants en XAF.",
   "landing.services.eyebrow": "ASH Marketplace",
   "landing.services.title": "Trouvez des services, des produits et des professionnels près de chez vous",
-  "landing.services.copy": "Parcourez les annonces, comparez les portfolios, lisez les avis et contactez des vendeurs et prestataires vérifiés au Cameroun.",
+  "landing.services.copy":
+    "Parcourez les annonces, comparez les portfolios, lisez les avis et contactez des vendeurs et prestataires vérifiés au Cameroun.",
   "landing.services.cta": "Trouvez ce qu'il vous faut",
   "landing.services.reviews": "Avis vérifiés",
   "landing.services.secure": "Mobile money sécurisé",
@@ -516,15 +536,16 @@ const FR: Record<TKey, string> = {
   "landing.cat.tech.title": "Tech & numérique",
   "landing.cat.tech.copy": "Développeurs, designers, support IT et cybersécurité.",
   "landing.property.title": "Chambres, appartements, maisons et terrains — ASH Property",
-  "landing.property.copy": "Logement étudiant près du campus, locations, maisons à vendre et terrains. Recherche gratuite, publication gratuite, badges de vérification et discussion directe avec le propriétaire.",
+  "landing.property.copy":
+    "Logement étudiant près du campus, locations, maisons à vendre et terrains. Recherche gratuite, publication gratuite, badges de vérification et discussion directe avec le propriétaire.",
   "landing.property.browse": "Voir les biens",
   "landing.property.list": "Publier gratuitement",
   "landing.services.chat": "Chat instantané",
   "landing.services.hero.eyebrow": "Marché digital",
   "landing.services.hero.title": "Services, produits & opportunités",
-  "landing.services.hero.copy": "Découvrez des prestataires de confiance, achetez local et payez en toute sécurité — tout en un seul endroit.",
+  "landing.services.hero.copy":
+    "Découvrez des prestataires de confiance, achetez local et payez en toute sécurité — tout en un seul endroit.",
   "landing.services.hero.cta": "Explorer le marché",
-
 
   "dash.welcome": "Bon retour",
   "dash.availableBalance": "Solde disponible",
@@ -554,7 +575,8 @@ const FR: Record<TKey, string> = {
   "net.activeMembers": "Membres actifs",
   "net.commissions": "Commissions générées",
   "net.tree.title": "Carte du réseau",
-  "net.tree.subtitle": "Développez votre arbre pour voir qui a rejoint, qui a activé et ce que chaque branche rapporte.",
+  "net.tree.subtitle":
+    "Développez votre arbre pour voir qui a rejoint, qui a activé et ce que chaque branche rapporte.",
   "net.tree.filter.all": "Tous les niveaux",
   "net.tree.earnings": "Gains de la branche",
   "net.tree.member": "Membre",
@@ -562,7 +584,6 @@ const FR: Record<TKey, string> = {
   "net.tree.empty": "Aucun membre ne correspond à ce filtre.",
   "net.tree.you": "Vous",
   "net.tree.rootLabel": "Votre compte",
-
 
   "wallet.title": "Portefeuille",
   "wallet.subtitle": "Les soldes proviennent de votre registre de transactions.",
@@ -604,7 +625,8 @@ const FR: Record<TKey, string> = {
   "net.pendingActivation": "Activation en attente",
   "net.pendingCommission": "Commission en attente",
   "wallet.pendingTitle": "{amount} en attente d'activations de filleuls",
-  "wallet.pendingBody": "Ces commissions ne sont pas encore retirables. Elles sont créditées automatiquement dès que le paiement d'activation de 5 000 XAF de chaque filleul est vérifié.",
+  "wallet.pendingBody":
+    "Ces commissions ne sont pas encore retirables. Elles sont créditées automatiquement dès que le paiement d'activation de 5 000 XAF de chaque filleul est vérifié.",
   "nav.services": "Marché",
   "nav.bookings": "Réservations",
   "nav.messages": "Messages",
@@ -729,13 +751,15 @@ const FR: Record<TKey, string> = {
   "ai.open": "Ouvrir ASH AI",
   "ai.close": "Fermer l'assistant",
   "pro.billing.title": "Comment vous payez la plateforme",
-  "pro.createCopyFree": "Créer votre studio est gratuit. Ajoutez vos prestations et vos photos, vous passez en ligne immédiatement.",
+  "pro.createCopyFree":
+    "Créer votre studio est gratuit. Ajoutez vos prestations et vos photos, vous passez en ligne immédiatement.",
   "pro.billing.freeTitle": "Inscription gratuite",
   "pro.billing.freeCopy": "Aucun frais mensuel. ASH prend seulement 1 % de chaque réservation payée.",
   "pro.billing.freePoint1": "Prestations et photos illimitées",
   "pro.billing.freePoint2": "Paiements mobile money sécurisés gérés pour vous",
   "pro.billing.freePoint3": "1 % de frais sur les réservations payées — rien d'autre",
-  "pro.billing.copy": "Créer votre studio est gratuit. Choisissez une formule quand vous êtes prêt à accepter des réservations.",
+  "pro.billing.copy":
+    "Créer votre studio est gratuit. Choisissez une formule quand vous êtes prêt à accepter des réservations.",
   "pro.billing.sub": "Abonnement mensuel",
   "pro.billing.subDesc": "{fee} par mois. Vous gardez 100 % de vos revenus de prestation.",
   "pro.billing.com": "Payer selon vos gains",
@@ -744,14 +768,16 @@ const FR: Record<TKey, string> = {
   "pro.billing.current": "Formule actuelle",
   "pro.billing.saved": "Formule mise à jour.",
   "pro.billing.comLive": "Vous êtes en ligne en mode 1 %. 1 % est déduit de chaque réservation terminée.",
-  "pro.activatePrompt": "Votre studio est enregistré mais hors ligne. Choisissez une formule pour accepter des réservations.",
+  "pro.activatePrompt":
+    "Votre studio est enregistré mais hors ligne. Choisissez une formule pour accepter des réservations.",
 
   "card.open": "Carte ASH — bientôt disponible",
   "card.close": "Fermer",
   "card.title": "La carte ASH",
   "card.soon": "Bientôt disponible",
   "card.tagline": "Carte virtuelle premium",
-  "card.desc": "Votre carte virtuelle ASH arrive bientôt. Dépensez vos gains de parrainage et de prestations directement, sans attendre un retrait.",
+  "card.desc":
+    "Votre carte virtuelle ASH arrive bientôt. Dépensez vos gains de parrainage et de prestations directement, sans attendre un retrait.",
   "card.f1": "Payez en ligne avec le solde de votre portefeuille.",
   "card.f2": "Rechargement instantané depuis votre portefeuille ASH Glo.",
   "card.f3": "Avantages Gold pour les membres et prestataires actifs.",
@@ -760,32 +786,47 @@ const FR: Record<TKey, string> = {
   "nav.settings": "Paramètres",
   "nav.more": "Plus",
   "settings.title": "Paramètres",
-  "settings.subtitle": "ASH — Là où les opportunités se connectent. À propos de la plateforme, votre vie privée et votre compte.",
+  "settings.subtitle":
+    "ASH — Là où les opportunités se connectent. À propos de la plateforme, votre vie privée et votre compte.",
   "settings.about": "À propos d'ASH",
-  "settings.about.1": "ASH est une plateforme d'opportunités, de commerce, de services, de freelance, de communautés et d'événements qui connecte les personnes, les entreprises, les freelances, les prestataires, les communautés et les organisateurs d'événements dans un seul écosystème.",
-  "settings.about.2": "ASH Refer : activez votre compte une fois pour {fee} via MTN Mobile Money ou Orange Money, partagez votre lien et gagnez 1 500 XAF au niveau 1, 750 XAF au niveau 2 et 250 XAF au niveau 3 à chaque activation de votre réseau.",
-  "settings.about.3": "ASH Services, Marketplace & Freelance : les prestataires (coiffure, ongles, cils, barbier, artistes) gèrent un studio avec portfolio, réservations, messagerie et avis ; les vendeurs ouvrent des boutiques gratuites ; les freelances répondent à des projets.",
-  "settings.about.4": "ASH Property, Events & Deals : logements étudiants, locations, ventes et terrains ; publiez des événements et vendez des billets ; profitez de promotions avec codes. ASH ne garde que 1 % sur les réservations, billetteries et liens de paiement terminés — fonds des prestataires et commissions restent séparés des revenus de la plateforme.",
-  "settings.about.5": "Tous vos gains arrivent dans un seul portefeuille ASH, retirable vers MTN Mobile Money ou Orange Money dès le montant minimum atteint. L'assistant ASH AI vous accompagne partout.",
+  "settings.about.1":
+    "ASH est une plateforme d'opportunités, de commerce, de services, de freelance, de communautés et d'événements qui connecte les personnes, les entreprises, les freelances, les prestataires, les communautés et les organisateurs d'événements dans un seul écosystème.",
+  "settings.about.2":
+    "ASH Refer : activez votre compte une fois pour {fee} via MTN Mobile Money ou Orange Money, partagez votre lien et gagnez 1 500 XAF au niveau 1, 750 XAF au niveau 2 et 250 XAF au niveau 3 à chaque activation de votre réseau.",
+  "settings.about.3":
+    "ASH Services, Marketplace & Freelance : les prestataires (coiffure, ongles, cils, barbier, artistes) gèrent un studio avec portfolio, réservations, messagerie et avis ; les vendeurs ouvrent des boutiques gratuites ; les freelances répondent à des projets.",
+  "settings.about.4":
+    "ASH Property, Events & Deals : logements étudiants, locations, ventes et terrains ; publiez des événements et vendez des billets ; profitez de promotions avec codes. ASH ne garde que 1 % sur les réservations, billetteries et liens de paiement terminés — fonds des prestataires et commissions restent séparés des revenus de la plateforme.",
+  "settings.about.5":
+    "Tous vos gains arrivent dans un seul portefeuille ASH, retirable vers MTN Mobile Money ou Orange Money dès le montant minimum atteint. L'assistant ASH AI vous accompagne partout.",
   "settings.privacy": "Politique de confidentialité",
-  "settings.privacy.1": "Nous collectons uniquement le nécessaire : nom, e-mail, téléphone, liens de parrainage, références de paiement et le contenu publié en tant que prestataire.",
-  "settings.privacy.2": "Les paiements sont traités par notre partenaire agréé. Nous ne stockons jamais votre code mobile money ni vos données bancaires complètes.",
-  "settings.privacy.3": "Vos données sont protégées au niveau des lignes : vous ne pouvez lire que votre portefeuille, vos transactions et vos messages. Les prestataires ne voient que leurs propres réservations et conversations.",
-  "settings.privacy.4": "Nous ne vendons jamais vos données. Elles ne sont partagées qu'avec le prestataire de paiement ou si la loi l'exige.",
+  "settings.privacy.1":
+    "Nous collectons uniquement le nécessaire : nom, e-mail, téléphone, liens de parrainage, références de paiement et le contenu publié en tant que prestataire.",
+  "settings.privacy.2":
+    "Les paiements sont traités par notre partenaire agréé. Nous ne stockons jamais votre code mobile money ni vos données bancaires complètes.",
+  "settings.privacy.3":
+    "Vos données sont protégées au niveau des lignes : vous ne pouvez lire que votre portefeuille, vos transactions et vos messages. Les prestataires ne voient que leurs propres réservations et conversations.",
+  "settings.privacy.4":
+    "Nous ne vendons jamais vos données. Elles ne sont partagées qu'avec le prestataire de paiement ou si la loi l'exige.",
   "settings.privacy.5": "Vous pouvez demander une copie ou la suppression de vos données depuis cette page.",
   "settings.terms": "Conditions et bon usage",
-  "settings.terms.1": "Un seul compte par personne. Les faux comptes, auto-parrainages et paiements frauduleux entraînent une suspension et la perte des commissions.",
-  "settings.terms.2": "Les commissions ne sont définitives qu'après confirmation du paiement. Les réservations annulées, remboursées ou contestées sont annulées au grand livre.",
+  "settings.terms.1":
+    "Un seul compte par personne. Les faux comptes, auto-parrainages et paiements frauduleux entraînent une suspension et la perte des commissions.",
+  "settings.terms.2":
+    "Les commissions ne sont définitives qu'après confirmation du paiement. Les réservations annulées, remboursées ou contestées sont annulées au grand livre.",
   "settings.terms.3": "Les prestataires sont responsables des services rendus à leurs clients.",
   "settings.support": "Assistance",
-  "settings.support.copy": "Des questions sur les paiements, les réservations ou votre compte ? Utilisez l'assistant ASH ou envoyez-nous un message : réponse par e-mail sous 24 h.",
+  "settings.support.copy":
+    "Des questions sur les paiements, les réservations ou votre compte ? Utilisez l'assistant ASH ou envoyez-nous un message : réponse par e-mail sous 24 h.",
   "settings.support.cta": "Contacter le support",
   "settings.danger": "Supprimer le compte",
-  "settings.delete.copy": "La suppression du compte est examinée et approuvée par un administrateur. Tout solde ou retrait en attente doit d'abord être réglé.",
+  "settings.delete.copy":
+    "La suppression du compte est examinée et approuvée par un administrateur. Tout solde ou retrait en attente doit d'abord être réglé.",
   "settings.delete.reason": "Pourquoi souhaitez-vous supprimer votre compte ? (facultatif)",
   "settings.delete.submit": "Demander la suppression du compte",
   "settings.delete.confirm": "Demander la suppression du compte ?",
-  "settings.delete.confirmDesc": "Un administrateur examinera votre demande. Votre compte reste actif jusqu'à approbation.",
+  "settings.delete.confirmDesc":
+    "Un administrateur examinera votre demande. Votre compte reste actif jusqu'à approbation.",
   "settings.delete.sent": "Demande de suppression envoyée pour approbation.",
   "settings.delete.pending": "Votre demande de suppression est en attente d'approbation.",
   "settings.delete.rejected": "Votre dernière demande de suppression a été refusée par un administrateur.",
@@ -799,7 +840,8 @@ const FR: Record<TKey, string> = {
   "auth.login.submitting": "Connexion\u2026",
   "auth.login.welcome": "Bon retour",
   "auth.login.invalid": "E-mail ou mot de passe incorrect.",
-  "auth.login.unconfirmed": "Votre adresse e-mail n'est pas encore confirmée. Vérifiez votre boîte de réception, ou demandez un nouveau lien ci-dessous.",
+  "auth.login.unconfirmed":
+    "Votre adresse e-mail n'est pas encore confirmée. Vérifiez votre boîte de réception, ou demandez un nouveau lien ci-dessous.",
   "auth.login.resend": "Renvoyer l'e-mail de confirmation",
   "auth.login.resending": "Envoi…",
   "auth.login.resent": "E-mail de confirmation envoyé — vérifiez votre boîte de réception et vos spams.",
@@ -827,7 +869,8 @@ const FR: Record<TKey, string> = {
   "auth.register.exists": "Un compte existe d\u00e9j\u00e0 avec cet e-mail.",
   "auth.register.checkEmail": "V\u00e9rifiez votre e-mail",
   "auth.register.checkEmailSub": "Une derni\u00e8re \u00e9tape avant de vous connecter.",
-  "auth.register.checkEmailCopy": "Nous avons envoy\u00e9 un lien de confirmation \u00e0 {email}. Confirmez votre e-mail, puis connectez-vous pour activer votre compte.",
+  "auth.register.checkEmailCopy":
+    "Nous avons envoy\u00e9 un lien de confirmation \u00e0 {email}. Confirmez votre e-mail, puis connectez-vous pour activer votre compte.",
   "auth.register.goLogin": "Aller \u00e0 la connexion",
   "auth.err.name": "Saisissez votre nom complet",
   "auth.err.email": "Saisissez un e-mail valide",
@@ -887,10 +930,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     setLangState(l);
   }, []);
 
-  const value = useMemo(
-    () => ({ lang, setLang, t: (k: TKey, v?: Vars) => translate(lang, k, v) }),
-    [lang, setLang],
-  );
+  const value = useMemo(() => ({ lang, setLang, t: (k: TKey, v?: Vars) => translate(lang, k, v) }), [lang, setLang]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
