@@ -74,7 +74,7 @@ const EN = {
   "landing.final.cta": "Create your account",
   "landing.footer": "© {year} ASH Glo. All amounts in XAF.",
   "landing.services.eyebrow": "ASH Marketplace",
-  "landing.services.title": "Find services, products and professionals near you",
+  "landing.services.title": "",
   "landing.services.copy":
     "Browse listings, compare portfolios, read reviews and connect with verified sellers and providers across Cameroon.",
   "landing.services.cta": "Find what you need",
