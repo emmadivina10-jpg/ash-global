@@ -1544,7 +1544,9 @@ export const getConsolePayouts = createServerFn({
 
     db
       .from("platform_payouts")
-      .select("id, amount, currency, destination, note, created_at")
+      .select(
+        "id, amount, currency, destination, note, reference, status, provider, provider_reference, processed_at, failure_reason, created_at",
+      )
       .order("created_at", {
         ascending: false,
       })
@@ -1552,7 +1554,9 @@ export const getConsolePayouts = createServerFn({
 
     db
       .from("bookings")
-      .select("id, provider_id, service_title, price, status, platform_fee, provider_amount, paid_at, created_at")
+      .select(
+        "id, provider_id, service_title, price, status, platform_fee, provider_amount, paid_at, created_at",
+      )
       .order("created_at", {
         ascending: false,
       })
@@ -1561,25 +1565,38 @@ export const getConsolePayouts = createServerFn({
     db.from("provider_profiles").select("id, business_name"),
   ]);
 
-  const taken = (payouts.data ?? []).reduce((sum, p) => sum + Number(p.amount), 0);
+  const taken = (payouts.data ?? [])
+    .filter((p) =>
+      ["PENDING", "PROCESSING", "COMPLETED"].includes(
+        String(p.status ?? ""),
+      ),
+    )
+    .reduce((sum, p) => sum + Number(p.amount ?? 0), 0);
 
   const f = (fin.data ?? {}) as Record<string, number>;
 
-  const pMap = new Map((providers.data ?? []).map((p) => [p.id, p.business_name]));
+  const pMap = new Map(
+    (providers.data ?? []).map((p) => [p.id, p.business_name]),
+  );
 
   return {
     financials: (fin.data ?? null) as Financials | null,
 
     taken,
 
-    available: Math.max(Number(f["safe_to_withdraw"] ?? 0) - taken, 0),
+    available: Math.max(
+      Number(f["safe_to_withdraw"] ?? 0) - taken,
+      0,
+    ),
 
     payouts: payouts.data ?? [],
 
     bookings: (bookings.data ?? []).map((b) => ({
       ...b,
       providerName: pMap.get(b.provider_id) ?? "—",
-      fee: Number(b.platform_fee ?? Math.round(Number(b.price) * 0.01)),
+      fee: Number(
+        b.platform_fee ?? Math.round(Number(b.price) * 0.01),
+      ),
     })),
   };
 });
@@ -1587,39 +1604,187 @@ export const getConsolePayouts = createServerFn({
 export const requestConsolePayout = createServerFn({
   method: "POST",
 })
-  .inputValidator((data: { amount: number; destination: string; note?: string }) => data)
+  .inputValidator(
+    (data: {
+      amount: number;
+      destination: string;
+      provider: "mtn_cm" | "orange_cm";
+      note?: string;
+    }) => ({
+      amount: Number(data?.amount),
+      destination: String(data?.destination ?? ""),
+      provider:
+        data?.provider === "orange_cm"
+          ? "orange_cm"
+          : "mtn_cm",
+      note: data?.note ? String(data.note) : "",
+    }),
+  )
   .handler(async ({ data }) => {
-    const { requireDepartment, adminClient } = await import("./console.server");
+    const {
+      requireDepartment,
+      adminClient,
+    } = await import("./console.server");
 
     await requireDepartment("REVENUE");
 
+    const amount = Math.round(data.amount);
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return {
+        ok: false as const,
+        error: "INVALID_AMOUNT",
+      };
+    }
+
+    const rawPhone = data.destination.trim();
+
+    let phone = rawPhone.replace(/[^\d+]/g, "");
+
+    if (phone.startsWith("+237")) {
+      phone = phone.slice(4);
+    } else if (phone.startsWith("237") && phone.length === 12) {
+      phone = phone.slice(3);
+    }
+
+    phone = phone.replace(/\D/g, "");
+
+    if (!/^6\d{8}$/.test(phone)) {
+      return {
+        ok: false as const,
+        error: "INVALID_CAMEROON_PHONE",
+      };
+    }
+
     const db = await adminClient();
 
-    const { data: result, error } = await db.rpc("console_platform_payout", {
-      _amount: Math.round(Number(data.amount)),
-      _destination: String(data.destination ?? ""),
+    const {
+      data: result,
+      error,
+    } = await db.rpc("console_platform_payout", {
+      _amount: amount,
+      _destination: phone,
       ...(data.note
         ? {
-            _note: String(data.note),
+            _note: data.note.trim(),
           }
         : {}),
     });
 
     const payload = result as {
       ok?: boolean;
+      id?: string;
+      reference?: string;
+      status?: string;
       error?: string;
       available?: number;
+      remaining?: number;
     } | null;
 
-    if (error || !payload?.ok) {
+    if (error || !payload?.ok || !payload.id || !payload.reference) {
       return {
         ok: false as const,
-        error: payload?.error ?? error?.message ?? "FAILED",
+        error:
+          payload?.error ??
+          error?.message ??
+          "PAYOUT_RECORD_FAILED",
         available: payload?.available ?? null,
       };
     }
 
+    const { tchokoPay } = await import("./tchokopay.server");
+
+    if (!tchokoPay.isConfigured()) {
+      await db
+        .from("platform_payouts")
+        .update({
+          failure_reason: "PAYMENT_PROVIDER_NOT_CONFIGURED",
+        })
+        .eq("id", payload.id);
+
+      return {
+        ok: false as const,
+        error: "PAYMENT_PROVIDER_NOT_CONFIGURED",
+        reference: payload.reference,
+      };
+    }
+
+    const disbursement = await tchokoPay.disburse({
+      amount,
+      currency: "XAF",
+      country: "CM",
+      provider: data.provider,
+      phone,
+      merchantReference: payload.reference,
+    });
+
+    if (disbursement.ok) {
+      const status =
+        disbursement.status === "PAID"
+          ? "COMPLETED"
+          : "PROCESSING";
+
+      const { error: updateError } = await db
+        .from("platform_payouts")
+        .update({
+          status,
+          provider: data.provider,
+          provider_reference:
+            disbursement.providerReference ?? null,
+          processed_at:
+            status === "COMPLETED"
+              ? new Date().toISOString()
+              : null,
+          failure_reason: null,
+        })
+        .eq("id", payload.id);
+
+      if (updateError) {
+        return {
+          ok: false as const,
+          error: "PAYOUT_STATE_UPDATE_FAILED",
+          reference: payload.reference,
+          providerReference:
+            disbursement.providerReference ?? null,
+        };
+      }
+
+      return {
+        ok: true as const,
+        reference: payload.reference,
+        status,
+        provider: data.provider,
+        providerReference:
+          disbursement.providerReference ?? null,
+        remaining: payload.remaining ?? null,
+      };
+    }
+
+    const uncertainProviderFailure =
+      disbursement.error === "PROVIDER_UNREACHABLE" ||
+      disbursement.error === "NETWORK_ERROR" ||
+      disbursement.error === "TIMEOUT";
+
+    await db
+      .from("platform_payouts")
+      .update({
+        provider: data.provider,
+        failure_reason:
+          disbursement.error ?? "DISBURSEMENT_FAILED",
+        status: uncertainProviderFailure
+          ? "PENDING"
+          : "FAILED",
+        processed_at: uncertainProviderFailure
+          ? null
+          : new Date().toISOString(),
+      })
+      .eq("id", payload.id);
+
     return {
-      ok: true as const,
+      ok: false as const,
+      error:
+        disbursement.error ??
+        "DISBURSEMENT_FAILED",
+      reference: payload.reference,
     };
   });
