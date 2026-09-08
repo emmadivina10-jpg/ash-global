@@ -66,6 +66,22 @@ export type PropertyFilters = {
   sort?: "recent" | "price_asc" | "price_desc";
 };
 
+/**
+ * Property reads need a live authenticated session. When the stored session
+ * is expired and cannot be refreshed, the route guard's cached session can
+ * still let the page render and then fail on protected property_images
+ * requests. Detect that here and send the member back to login instead of
+ * leaving them on a broken page.
+ */
+async function assertFreshSession(): Promise<void> {
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data.user) {
+    await supabase.auth.signOut().catch(() => undefined);
+    if (typeof window !== "undefined") window.location.replace("/login");
+    throw new Error("SESSION_EXPIRED");
+  }
+}
+
 /** Signed URLs for the private property bucket, keyed by storage path. */
 export async function signPropertyPaths(paths: string[]): Promise<Record<string, string>> {
   const unique = Array.from(new Set(paths.filter(Boolean)));
