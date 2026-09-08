@@ -1,8 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  createFileRoute,
-  useNavigate,
-} from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   ArrowRight,
   BriefcaseBusiness,
@@ -31,8 +28,7 @@ export const Route = createFileRoute("/onboarding")({
       },
       {
         name: "description",
-        content:
-          "Discover services, jobs, products, property and opportunities with ASH Glo.",
+        content: "Discover services, jobs, products, property and opportunities with ASH Glo.",
       },
     ],
   }),
@@ -60,9 +56,7 @@ function Mark() {
   return (
     <div className="flex items-center gap-3">
       <div className="grid size-11 place-items-center rounded-2xl bg-gradient-to-br from-pink-500 via-fuchsia-500 to-violet-600 shadow-[0_0_30px_rgba(236,72,153,0.28)]">
-        <span className="font-display text-2xl font-black text-white">
-          A
-        </span>
+        <span className="font-display text-2xl font-black text-white">A</span>
       </div>
 
       <div>
@@ -70,21 +64,13 @@ function Mark() {
           ASH <span className="text-pink-400">Glo</span>
         </div>
 
-        <div className="text-[10px] font-medium tracking-wide text-white/45">
-          Where Opportunities Connect
-        </div>
+        <div className="text-[10px] font-medium tracking-wide text-white/45">Where Opportunities Connect</div>
       </div>
     </div>
   );
 }
 
-function Pill({
-  item,
-  active,
-}: {
-  item: OnboardingItem;
-  active?: boolean;
-}) {
+function Pill({ item, active }: { item: OnboardingItem; active?: boolean }) {
   const Icon = item.icon;
 
   return (
@@ -96,22 +82,13 @@ function Pill({
           : "border-white/[0.07] bg-white/[0.035]",
       )}
     >
-      <div
-        className={cn(
-          "grid size-9 shrink-0 place-items-center rounded-full",
-          item.accent,
-        )}
-      >
+      <div className={cn("grid size-9 shrink-0 place-items-center rounded-full", item.accent)}>
         <Icon className="size-4 text-white" strokeWidth={2.2} />
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[13px] font-semibold text-white">
-          {item.title}
-        </p>
-        <p className="truncate text-[10px] text-white/45">
-          {item.description}
-        </p>
+        <p className="truncate text-[13px] font-semibold text-white">{item.title}</p>
+        <p className="truncate text-[10px] text-white/45">{item.description}</p>
       </div>
 
       <div className="grid size-7 shrink-0 place-items-center rounded-full bg-white/[0.05]">
@@ -129,9 +106,7 @@ function SearchVisual() {
       <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.035] p-4 shadow-[0_20px_80px_rgba(0,0,0,0.35)]">
         <div className="mb-3 flex items-center gap-2 rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
           <Search className="size-4 text-white/45" />
-          <span className="text-xs text-white/40">
-            Search ASH Glo
-          </span>
+          <span className="text-xs text-white/40">Search ASH Glo</span>
         </div>
 
         <div className="space-y-2">
@@ -139,12 +114,8 @@ function SearchVisual() {
             <div className="flex items-center gap-3">
               <ShoppingBag className="size-4 text-pink-300" />
               <div>
-                <p className="text-xs font-semibold text-white">
-                  Laptop repair
-                </p>
-                <p className="text-[10px] text-white/40">
-                  Douala · Services
-                </p>
+                <p className="text-xs font-semibold text-white">Laptop repair</p>
+                <p className="text-[10px] text-white/40">Douala · Services</p>
               </div>
             </div>
             <ChevronRight className="size-4 text-white/30" />
@@ -154,12 +125,8 @@ function SearchVisual() {
             <div className="flex items-center gap-3">
               <BriefcaseBusiness className="size-4 text-violet-300" />
               <div>
-                <p className="text-xs font-semibold text-white">
-                  Frontend Developer
-                </p>
-                <p className="text-[10px] text-white/40">
-                  Yaoundé · Jobs
-                </p>
+                <p className="text-xs font-semibold text-white">Frontend Developer</p>
+                <p className="text-[10px] text-white/40">Yaoundé · Jobs</p>
               </div>
             </div>
             <ChevronRight className="size-4 text-white/30" />
@@ -169,12 +136,8 @@ function SearchVisual() {
             <div className="flex items-center gap-3">
               <House className="size-4 text-emerald-300" />
               <div>
-                <p className="text-xs font-semibold text-white">
-                  Student apartment
-                </p>
-                <p className="text-[10px] text-white/40">
-                  Buea · Property
-                </p>
+                <p className="text-xs font-semibold text-white">Student apartment</p>
+                <p className="text-[10px] text-white/40">Buea · Property</p>
               </div>
             </div>
             <ChevronRight className="size-4 text-white/30" />
@@ -194,13 +157,9 @@ function EverydayVisual() {
             <CreditCard className="size-5 text-blue-300" />
           </div>
 
-          <p className="text-xs font-semibold text-white">
-            Utilities
-          </p>
+          <p className="text-xs font-semibold text-white">Utilities</p>
 
-          <p className="mt-1 text-[10px] leading-4 text-white/40">
-            Electricity, water, internet and more.
-          </p>
+          <p className="mt-1 text-[10px] leading-4 text-white/40">Electricity, water, internet and more.</p>
 
           <div className="mt-5 rounded-full bg-blue-500/10 px-3 py-1.5 text-[9px] font-semibold text-blue-200">
             Pay securely
@@ -212,13 +171,9 @@ function EverydayVisual() {
             <CalendarDays className="size-5 text-pink-300" />
           </div>
 
-          <p className="text-xs font-semibold text-white">
-            Book
-          </p>
+          <p className="text-xs font-semibold text-white">Book</p>
 
-          <p className="mt-1 text-[10px] leading-4 text-white/40">
-            Connect with providers and schedule services.
-          </p>
+          <p className="mt-1 text-[10px] leading-4 text-white/40">Connect with providers and schedule services.</p>
 
           <div className="mt-5 rounded-full bg-pink-500/10 px-3 py-1.5 text-[9px] font-semibold text-pink-200">
             Book a service
@@ -233,9 +188,7 @@ function EverydayVisual() {
           </div>
 
           <div>
-            <p className="text-xs font-semibold text-white">
-              Everything connected
-            </p>
+            <p className="text-xs font-semibold text-white">Everything connectedhhhhhhhhhh</p>
             <p className="mt-1 text-[10px] leading-4 text-white/40">
               People, services, places and everyday needs in one ecosystem.
             </p>
@@ -254,9 +207,7 @@ function EarnVisual() {
 
         <div className="relative flex items-start justify-between">
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-pink-300">
-              Your opportunity
-            </p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-pink-300">Your opportunity</p>
             <p className="mt-2 font-display text-2xl font-black text-white">
               Turn skills
               <br />
@@ -273,9 +224,7 @@ function EarnVisual() {
           <div className="flex items-center justify-between rounded-2xl bg-black/20 px-4 py-3">
             <div className="flex items-center gap-3">
               <Store className="size-4 text-pink-300" />
-              <span className="text-xs font-medium text-white">
-                Offer a service
-              </span>
+              <span className="text-xs font-medium text-white">Offer a service</span>
             </div>
             <ArrowRight className="size-4 text-white/25" />
           </div>
@@ -283,9 +232,7 @@ function EarnVisual() {
           <div className="flex items-center justify-between rounded-2xl bg-black/20 px-4 py-3">
             <div className="flex items-center gap-3">
               <ShoppingBag className="size-4 text-violet-300" />
-              <span className="text-xs font-medium text-white">
-                Sell products
-              </span>
+              <span className="text-xs font-medium text-white">Sell products</span>
             </div>
             <ArrowRight className="size-4 text-white/25" />
           </div>
@@ -293,9 +240,7 @@ function EarnVisual() {
           <div className="flex items-center justify-between rounded-2xl bg-black/20 px-4 py-3">
             <div className="flex items-center gap-3">
               <HandCoins className="size-4 text-emerald-300" />
-              <span className="text-xs font-medium text-white">
-                Eligible referral earnings
-              </span>
+              <span className="text-xs font-medium text-white">Eligible referral earnings</span>
             </div>
             <ArrowRight className="size-4 text-white/25" />
           </div>
@@ -314,13 +259,9 @@ function OpportunityVisual() {
             <Building2 className="size-5 text-orange-300" />
           </div>
 
-          <p className="mt-5 text-xs font-semibold text-white">
-            Property
-          </p>
+          <p className="mt-5 text-xs font-semibold text-white">Property</p>
 
-          <p className="mt-1 text-[10px] leading-4 text-white/40">
-            Find homes, rentals, land and student housing.
-          </p>
+          <p className="mt-1 text-[10px] leading-4 text-white/40">Find homes, rentals, land and student housing.</p>
         </div>
 
         <div className="rounded-[26px] border border-white/10 bg-white/[0.035] p-5">
@@ -328,9 +269,7 @@ function OpportunityVisual() {
             <BriefcaseBusiness className="size-5 text-violet-300" />
           </div>
 
-          <p className="mt-5 text-xs font-semibold text-white">
-            Jobs
-          </p>
+          <p className="mt-5 text-xs font-semibold text-white">Jobs</p>
 
           <p className="mt-1 text-[10px] leading-4 text-white/40">
             Discover work, freelance and business opportunities.
@@ -345,9 +284,7 @@ function OpportunityVisual() {
           </div>
 
           <div className="flex-1">
-            <p className="text-xs font-semibold text-white">
-              People & businesses
-            </p>
+            <p className="text-xs font-semibold text-white">People & businesses</p>
             <p className="mt-1 text-[10px] leading-4 text-white/40">
               Discover the people behind the opportunity and connect directly.
             </p>
@@ -372,8 +309,7 @@ const SLIDES: OnboardingSlide[] = [
         </span>
       </>
     ),
-    description:
-      "Find services, products, jobs, property, people and opportunities in one place.",
+    description: "Find services, products, jobs, property, people and opportunities in one place.",
     items: [
       {
         title: "Marketplace",
@@ -409,13 +345,10 @@ const SLIDES: OnboardingSlide[] = [
       <>
         Get things done.
         <br />
-        <span className="text-white/55">
-          Without jumping everywhere.
-        </span>
+        <span className="text-white/55">Without jumping everywhere.</span>
       </>
     ),
-    description:
-      "Use one platform to handle useful everyday connections, services and payments.",
+    description: "Use one platform to handle useful everyday connections, services and payments.",
     items: [
       {
         title: "Pay Utility Bills",
@@ -500,8 +433,7 @@ const SLIDES: OnboardingSlide[] = [
         </span>
       </>
     ),
-    description:
-      "Explore property, jobs, events, businesses and people — then connect with the right opportunity.",
+    description: "Explore property, jobs, events, businesses and people — then connect with the right opportunity.",
     items: [
       {
         title: "Real Estate",
@@ -534,10 +466,7 @@ const SLIDES: OnboardingSlide[] = [
 
 function completeOnboarding() {
   try {
-    window.localStorage.setItem(
-      STORAGE_KEY,
-      "true",
-    );
+    window.localStorage.setItem(STORAGE_KEY, "true");
   } catch {
     // Storage can be unavailable in private/restricted contexts.
   }
@@ -554,10 +483,7 @@ function OnboardingPage() {
     setMounted(true);
   }, []);
 
-  const progressLabel = useMemo(
-    () => `${step + 1} / ${SLIDES.length}`,
-    [step],
-  );
+  const progressLabel = useMemo(() => `${step + 1} / ${SLIDES.length}`, [step]);
 
   function skip() {
     completeOnboarding();
@@ -580,9 +506,7 @@ function OnboardingPage() {
   }
 
   if (!mounted) {
-    return (
-      <main className="min-h-[100svh] bg-[#070711]" />
-    );
+    return <main className="min-h-[100svh] bg-[#070711]" />;
   }
 
   return (
@@ -597,9 +521,7 @@ function OnboardingPage() {
           <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white/[0.025] to-transparent" />
         </div>
 
-        <div
-          className="relative mx-auto flex min-h-[100svh] w-full max-w-[460px] flex-col px-5 pb-[calc(env(safe-area-inset-bottom)+18px)] pt-[calc(env(safe-area-inset-top)+18px)]"
-        >
+        <div className="relative mx-auto flex min-h-[100svh] w-full max-w-[460px] flex-col px-5 pb-[calc(env(safe-area-inset-bottom)+18px)] pt-[calc(env(safe-area-inset-top)+18px)]">
           {/* Top */}
           <header className="flex items-center justify-between">
             <Mark />
@@ -624,42 +546,27 @@ function OnboardingPage() {
               />
             </div>
 
-            <span className="text-[10px] font-semibold tracking-wide text-white/35">
-              {progressLabel}
-            </span>
+            <span className="text-[10px] font-semibold tracking-wide text-white/35">{progressLabel}</span>
           </div>
 
           {/* Main scrollable content */}
           <div className="flex-1 overflow-y-auto overscroll-contain pb-3 pt-9 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            <div
-              key={step}
-              className="animate-[ashIn_.45s_ease-out]"
-            >
-              <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-pink-400">
-                {slide.eyebrow}
-              </p>
+            <div key={step} className="animate-[ashIn_.45s_ease-out]">
+              <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-pink-400">{slide.eyebrow}</p>
 
               <h1 className="mt-3 font-display text-[36px] font-black leading-[1.03] tracking-[-0.04em] text-white">
                 {slide.title}
               </h1>
 
-              <p className="mt-4 max-w-[390px] text-[14px] leading-6 text-white/48">
-                {slide.description}
-              </p>
+              <p className="mt-4 max-w-[390px] text-[14px] leading-6 text-white/48">{slide.description}</p>
 
               <div className="mt-7 space-y-2.5">
                 {slide.items.map((item, index) => (
-                  <Pill
-                    key={item.title}
-                    item={item}
-                    active={index === 0}
-                  />
+                  <Pill key={item.title} item={item} active={index === 0} />
                 ))}
               </div>
 
-              <div className="mt-5">
-                {slide.visual}
-              </div>
+              <div className="mt-5">{slide.visual}</div>
             </div>
           </div>
 
@@ -670,11 +577,7 @@ function OnboardingPage() {
               onClick={next}
               className="group flex w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-violet-500 px-5 py-4 text-sm font-bold text-white shadow-[0_14px_40px_rgba(236,72,153,0.22)] transition-all duration-300 hover:shadow-[0_18px_55px_rgba(236,72,153,0.32)] active:scale-[0.985]"
             >
-              <span>
-                {step === SLIDES.length - 1
-                  ? "Create your account"
-                  : "Continue"}
-              </span>
+              <span>{step === SLIDES.length - 1 ? "Create your account" : "Continue"}</span>
 
               <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
             </button>
@@ -688,17 +591,13 @@ function OnboardingPage() {
                   onClick={() => setStep(index)}
                   className={cn(
                     "rounded-full transition-all duration-300",
-                    index === step
-                      ? "h-1.5 w-7 bg-pink-500"
-                      : "size-1.5 bg-white/15",
+                    index === step ? "h-1.5 w-7 bg-pink-500" : "size-1.5 bg-white/15",
                   )}
                 />
               ))}
             </div>
 
-            <p className="mt-3 text-center text-[10px] text-white/25">
-              ASH Glo · Where Opportunities Connect
-            </p>
+            <p className="mt-3 text-center text-[10px] text-white/25">ASH Glo · Where Opportunities Connect</p>
           </div>
         </div>
       </div>
