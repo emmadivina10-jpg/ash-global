@@ -12,6 +12,9 @@ workflows:
         distribution_type: app_store
         bundle_identifier: com.ashglogroup.mobile
 
+      groups:
+        - tchokopay_production
+
       vars:
         XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
