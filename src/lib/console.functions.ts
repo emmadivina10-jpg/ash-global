@@ -256,6 +256,108 @@ export const getConsoleUsers = createServerFn({
   }));
 });
 
+
+/**
+ * Credits a user's withdrawable wallet balance from the admin console.
+ *
+ * The actual financial mutation is performed by the database RPC
+ * `admin_credit_wallet`, which atomically updates the wallet, creates the
+ * ADMIN_CREDIT ledger entry, and notifies the user.
+ */
+export const creditUserWallet = createServerFn({
+  method: "POST",
+})
+  .inputValidator(
+    (data: {
+      userId: string;
+      amount: number;
+      reason: string;
+    }) => ({
+      userId: String(data.userId ?? ""),
+      amount: Number(data.amount),
+      reason: String(data.reason ?? ""),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const {
+      requireDepartment,
+      adminClient,
+    } = await import("./console.server");
+
+    await requireDepartment("REVENUE");
+
+    if (!data.userId) {
+      return {
+        ok: false as const,
+        error: "INVALID_USER",
+      };
+    }
+
+    if (
+      !Number.isFinite(data.amount) ||
+      data.amount <= 0
+    ) {
+      return {
+        ok: false as const,
+        error: "INVALID_AMOUNT",
+      };
+    }
+
+    const reason = data.reason.trim();
+
+    if (reason.length < 5) {
+      return {
+        ok: false as const,
+        error: "REASON_REQUIRED",
+      };
+    }
+
+    const db = await adminClient();
+
+    const {
+      data: result,
+      error,
+    } = await db.rpc(
+      "admin_credit_wallet",
+      {
+        _user_id: data.userId,
+        _amount: Math.round(data.amount),
+        _reason: reason,
+      },
+    );
+
+    const payload = result as {
+      ok?: boolean;
+      error?: string;
+      reference?: string;
+      amount?: number;
+      currency?: string;
+      new_balance?: number;
+    } | null;
+
+    if (error || !payload?.ok) {
+      return {
+        ok: false as const,
+        error:
+          payload?.error ??
+          error?.message ??
+          "WALLET_CREDIT_FAILED",
+      };
+    }
+
+    return {
+      ok: true as const,
+      reference: payload.reference ?? null,
+      amount: Number(
+        payload.amount ?? data.amount,
+      ),
+      currency: payload.currency ?? "XAF",
+      newBalance: Number(
+        payload.new_balance ?? 0,
+      ),
+    };
+  });
+
 export const getConsoleProviders = createServerFn({
   method: "GET",
 }).handler(async () => {
