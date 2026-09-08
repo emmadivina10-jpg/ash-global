@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { getConsoleWithdrawals, settleWithdrawal } from "@/lib/console.functions";
+import { getConsoleWithdrawals, reconcilePaidWithdrawal, settleWithdrawal } from "@/lib/console.functions";
 import { SectionCard } from "@/components/refer/cards";
 import { StatusBadge } from "@/components/refer/StatusBadge";
 import { ConfirmationModal } from "@/components/refer/ConfirmationModal";
@@ -36,6 +36,11 @@ type PendingAction = {
   providerReference?: string;
 } | null;
 
+type PendingReconcile = {
+  id: string;
+  providerReference: string;
+} | null;
+
 export const Route = createFileRoute("/console/withdrawals")({
   component: ConsoleWithdrawals,
 });
@@ -43,8 +48,10 @@ export const Route = createFileRoute("/console/withdrawals")({
 function ConsoleWithdrawals() {
   const fetchWithdrawals = useServerFn(getConsoleWithdrawals);
   const settle = useServerFn(settleWithdrawal);
+  const reconcile = useServerFn(reconcilePaidWithdrawal);
 
   const [pending, setPending] = useState<PendingAction>(null);
+  const [pendingReconcile, setPendingReconcile] = useState<PendingReconcile>(null);
 
   const [providerRef, setProviderRef] = useState("");
 
@@ -54,6 +61,43 @@ function ConsoleWithdrawals() {
     queryKey: ["console", "withdrawals"],
     queryFn: async () => (await fetchWithdrawals()) as WithdrawalRow[],
   });
+
+  async function confirmReconcilePaid() {
+    if (!pendingReconcile) {
+      return;
+    }
+
+    setBusy(true);
+
+    try {
+      const result = await reconcile({
+        data: {
+          id: pendingReconcile.id,
+          providerReference: pendingReconcile.providerReference,
+        },
+      });
+
+      if (!result.ok) {
+        toast.error(
+          result.error === "WITHDRAWAL_NOT_PROCESSING"
+            ? "This withdrawal is no longer in processing. Refresh the console."
+            : result.error === "PROVIDER_REFERENCE_MISMATCH"
+              ? "The TchokoPay reference does not match this withdrawal."
+              : "Could not reconcile this payout.",
+        );
+        return;
+      }
+
+      toast.success(`Payout ${result.reference ?? ""} was reconciled as completed.`);
+
+      setPendingReconcile(null);
+      await refetch();
+    } catch {
+      toast.error("Could not reconcile this payout.");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function confirmException() {
     if (!pending) {
@@ -205,7 +249,26 @@ function ConsoleWithdrawals() {
                     <StatusBadge status={row.status} />
 
                     {automatic ? (
-                      <span className="text-[10px] font-semibold text-muted-foreground">Awaiting TchokoPay</span>
+                      <div className="flex flex-col items-end gap-1.5">
+                        <span className="text-[10px] font-semibold text-muted-foreground">Awaiting TchokoPay</span>
+                        {row.status === "PROCESSING" && row.provider_reference ? (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            className="h-8 text-[11px]"
+                            onClick={() =>
+                              setPendingReconcile({
+                                id: row.id,
+                                providerReference: row.provider_reference as string,
+                              })
+                            }
+                          >
+                            <ShieldCheck className="mr-1.5 size-3.5" aria-hidden />
+                            Reconcile PAID payout
+                          </Button>
+                        ) : null}
+                      </div>
                     ) : null}
                   </div>
                 </div>
@@ -279,6 +342,34 @@ function ConsoleWithdrawals() {
           })}
         </ul>
       )}
+
+      <ConfirmationModal
+        open={pendingReconcile !== null}
+        onOpenChange={(open) => {
+          if (!open && !busy) {
+            setPendingReconcile(null);
+          }
+        }}
+        title="Reconcile paid payout?"
+        description="Use this only when the TchokoPay dashboard already shows this exact payout as PAID. No new payout will be sent."
+        loading={busy}
+        confirmLabel="Reconcile as completed"
+        onConfirm={() => void confirmReconcilePaid()}
+        details={
+          pendingReconcile ? (
+            <div className="space-y-2 text-left">
+              <p className="text-xs text-muted-foreground">Provider reference</p>
+              <p className="break-all rounded-lg border border-border bg-muted/30 px-3 py-2 text-xs font-semibold text-foreground">
+                {pendingReconcile.providerReference}
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                This exceptional recovery only updates the existing ASH withdrawal and wallet ledger. It does not call
+                TchokoPay to create another disbursement.
+              </p>
+            </div>
+          ) : null
+        }
+      />
 
       <ConfirmationModal
         open={pending !== null}
