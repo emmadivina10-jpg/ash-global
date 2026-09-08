@@ -22,7 +22,7 @@ const EN = {
 
   // Landing
   "landing.signIn": "Sign in",
-  "landing.getStarted": "Get starteddddd",
+  "landing.getStarted": "Get started",
   "landing.badge": "Built for Cameroon · Paid in XAF",
   "landing.h1a": "Refer friends.",
   "landing.h1b": "Earn",
