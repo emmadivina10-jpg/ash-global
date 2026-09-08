@@ -128,7 +128,7 @@ function avatarColorIndex(id: string) {
 }
 
 function getAvatarColor(id: string) {
-  return avatarColors[avatarColorIndex(id)];
+  return avatarColors[avatarColorIndex(id)] ?? avatarColors[0];
 }
 
 const CHATGPT_ID = "ash-chatgpt";
