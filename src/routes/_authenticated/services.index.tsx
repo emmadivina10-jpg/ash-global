@@ -3,8 +3,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Briefcase,
   Calendar,
+  CreditCard,
+  Droplets,
+  GraduationCap,
   Home,
   MapPin,
+  Smartphone,
+  Tv,
+  Wifi,
+  Zap,
   Search,
   SlidersHorizontal,
   Sparkles,
@@ -62,9 +69,10 @@ const QUICK_LINKS = [
     en: "TchokoPay",
     fr: "TchokoPay",
     logo: "https://www.tchokopay.com/tchokopay-logo.png",
-    logoClassName: "h-8 w-8 object-contain",
+    logoClassName:
+      "h-8 w-8 rounded-[11px] object-contain p-1.5 brightness-0 saturate-100 invert-[35%] sepia-[88%] saturate-[1200%] hue-rotate-[174deg] brightness-[88%] contrast-[102%]",
     ring:
-      "bg-white ring-yellow-400/60 shadow-yellow-500/20",
+      "bg-white ring-sky-400/60 shadow-sky-500/20",
   },
   {
     href: "https://www.netflix.com/",
@@ -129,6 +137,91 @@ const QUICK_LINKS = [
     tone: "text-emerald-500",
     ring:
       "bg-emerald-500/15 ring-emerald-400/50 shadow-emerald-500/20",
+  },
+] as const;
+
+/*
+ * ============================================================
+ * ASH BILLS & UTILITIES
+ * ============================================================
+ *
+ * Frontend-first utility hub.
+ * Payment processing is intentionally not connected yet.
+ * These cards provide the premium UI/UX foundation for the
+ * future electricity, water, airtime, internet and TV flows.
+ */
+const UTILITY_SERVICES = [
+  {
+    id: "electricity",
+    en: "Electricity",
+    fr: "Électricité",
+    descriptionEn: "Pay your electricity bill",
+    descriptionFr: "Payez votre facture d'électricité",
+    icon: Zap,
+    tone: "text-amber-500",
+    iconBg: "bg-amber-500/12",
+    ring: "ring-amber-400/30",
+    glow: "shadow-amber-500/10",
+  },
+  {
+    id: "water",
+    en: "Water",
+    fr: "Eau",
+    descriptionEn: "Settle your water bill",
+    descriptionFr: "Réglez votre facture d'eau",
+    icon: Droplets,
+    tone: "text-sky-500",
+    iconBg: "bg-sky-500/12",
+    ring: "ring-sky-400/30",
+    glow: "shadow-sky-500/10",
+  },
+  {
+    id: "airtime",
+    en: "Airtime",
+    fr: "Crédit",
+    descriptionEn: "Top up your mobile line",
+    descriptionFr: "Rechargez votre ligne mobile",
+    icon: Smartphone,
+    tone: "text-violet-500",
+    iconBg: "bg-violet-500/12",
+    ring: "ring-violet-400/30",
+    glow: "shadow-violet-500/10",
+  },
+  {
+    id: "internet",
+    en: "Internet",
+    fr: "Internet",
+    descriptionEn: "Renew your internet plan",
+    descriptionFr: "Renouvelez votre forfait internet",
+    icon: Wifi,
+    tone: "text-emerald-500",
+    iconBg: "bg-emerald-500/12",
+    ring: "ring-emerald-400/30",
+    glow: "shadow-emerald-500/10",
+  },
+  {
+    id: "tv",
+    en: "TV",
+    fr: "TV",
+    descriptionEn: "Renew your TV subscription",
+    descriptionFr: "Renouvelez votre abonnement TV",
+    icon: Tv,
+    tone: "text-rose-500",
+    iconBg: "bg-rose-500/12",
+    ring: "ring-rose-400/30",
+    glow: "shadow-rose-500/10",
+  },
+  {
+    id: "school",
+    en: "School fees",
+    fr: "Frais scolaires",
+    descriptionEn: "Pay school and tuition fees",
+    descriptionFr: "Payez les frais scolaires",
+    icon: GraduationCap,
+    tone: "text-indigo-500",
+    iconBg: "bg-indigo-500/12",
+    ring: "ring-indigo-400/30",
+    glow: "shadow-indigo-500/10",
   },
 ] as const;
 
@@ -200,6 +293,12 @@ function DiscoveryPage() {
 
   const [showFilters, setShowFilters] =
     useState(false);
+
+  const [selectedUtility, setSelectedUtility] =
+    useState<string | null>(null);
+
+  const [utilityAccount, setUtilityAccount] =
+    useState("");
 
   const [filters, setFilters] =
     useState<DiscoveryFilters>(
@@ -596,6 +695,203 @@ function DiscoveryPage() {
           );
         })}
       </nav>
+
+      {/* =========================================================
+          BILLS & UTILITIES
+          ========================================================= */}
+      <section
+        aria-labelledby="ash-bills-utilities"
+        className="relative overflow-hidden rounded-[28px] border border-border/70 bg-card shadow-[var(--shadow-card)]"
+      >
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-20 -top-24 size-64 rounded-full bg-primary/10 blur-3xl"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -bottom-24 -left-20 size-56 rounded-full bg-amber-400/10 blur-3xl"
+        />
+
+        <div className="relative p-4 sm:p-5">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-primary">
+                <CreditCard className="size-3.5" aria-hidden />
+                {fr ? "Paiements du quotidien" : "Everyday payments"}
+              </div>
+
+              <h2
+                id="ash-bills-utilities"
+                className="font-display text-xl font-bold tracking-tight text-foreground sm:text-2xl"
+              >
+                {fr ? "Factures & services" : "Bills & Utilities"}
+              </h2>
+
+              <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                {fr
+                  ? "Gérez vos paiements essentiels depuis ASH. Commencez par choisir un service."
+                  : "Manage your essential payments from ASH. Start by choosing a service."}
+              </p>
+            </div>
+
+            <div className="hidden shrink-0 rounded-2xl border border-border/70 bg-background/70 p-3 sm:block">
+              <div className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary">
+                <CreditCard className="size-5" aria-hidden />
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
+            {UTILITY_SERVICES.map((utility) => {
+              const Icon = utility.icon;
+              const selected = selectedUtility === utility.id;
+
+              return (
+                <button
+                  key={utility.id}
+                  type="button"
+                  onClick={() =>
+                    setSelectedUtility(
+                      selected ? null : utility.id,
+                    )
+                  }
+                  aria-pressed={selected}
+                  className={cn(
+                    "group relative overflow-hidden rounded-2xl border p-3 text-left transition-all duration-300",
+                    "hover:-translate-y-0.5 hover:shadow-lg active:scale-[0.98]",
+                    selected
+                      ? "border-primary/50 bg-primary/[0.07] shadow-[0_10px_30px_-18px_hsl(var(--primary))]"
+                      : "border-border/70 bg-background/60 hover:border-primary/25 hover:bg-background",
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "mb-3 grid size-10 place-items-center rounded-xl ring-1 transition-transform duration-300 group-hover:scale-105",
+                      utility.iconBg,
+                      utility.ring,
+                    )}
+                  >
+                    <Icon
+                      className={cn("size-5", utility.tone)}
+                      aria-hidden
+                    />
+                  </div>
+
+                  <p className="text-sm font-bold text-foreground">
+                    {fr ? utility.fr : utility.en}
+                  </p>
+
+                  <p className="mt-0.5 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground">
+                    {fr
+                      ? utility.descriptionFr
+                      : utility.descriptionEn}
+                  </p>
+
+                  <span
+                    className={cn(
+                      "absolute right-3 top-3 size-1.5 rounded-full transition-opacity",
+                      selected
+                        ? "bg-primary opacity-100"
+                        : "bg-muted-foreground/30 opacity-0 group-hover:opacity-100",
+                    )}
+                  />
+                </button>
+              );
+            })}
+          </div>
+
+          {selectedUtility ? (
+            <div className="mt-4 overflow-hidden rounded-2xl border border-border/70 bg-background/75 p-4 backdrop-blur-xl">
+              {(() => {
+                const utility = UTILITY_SERVICES.find(
+                  (item) => item.id === selectedUtility,
+                );
+
+                if (!utility) return null;
+
+                const Icon = utility.icon;
+
+                return (
+                  <div className="grid gap-4 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={cn(
+                          "grid size-12 shrink-0 place-items-center rounded-2xl ring-1",
+                          utility.iconBg,
+                          utility.ring,
+                        )}
+                      >
+                        <Icon
+                          className={cn("size-6", utility.tone)}
+                          aria-hidden
+                        />
+                      </div>
+
+                      <div>
+                        <p className="text-sm font-bold text-foreground">
+                          {fr ? utility.fr : utility.en}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {fr
+                            ? "Préparez votre numéro de compte"
+                            : "Enter your account or customer number"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="relative">
+                      <Input
+                        value={utilityAccount}
+                        onChange={(event) =>
+                          setUtilityAccount(event.target.value)
+                        }
+                        placeholder={
+                          selectedUtility === "electricity"
+                            ? fr
+                              ? "Ex. numéro de compteur / client"
+                              : "e.g. meter / customer number"
+                            : fr
+                              ? "Numéro de compte ou client"
+                              : "Account or customer number"
+                        }
+                        className="h-11 rounded-xl bg-card pl-4"
+                        aria-label={
+                          fr
+                            ? "Numéro de compte"
+                            : "Account number"
+                        }
+                      />
+                    </div>
+
+                    <Button
+                      type="button"
+                      disabled={!utilityAccount.trim()}
+                      className="h-11 rounded-xl px-5 font-bold"
+                      onClick={() => {
+                        // Frontend-only for now. Backend/payment integration
+                        // will be connected in the next phase.
+                      }}
+                    >
+                      {fr ? "Continuer" : "Continue"}
+                    </Button>
+                  </div>
+                );
+              })()}
+            </div>
+          ) : (
+            <div className="mt-4 flex items-center gap-3 rounded-2xl border border-dashed border-border/80 bg-background/45 px-4 py-3">
+              <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-muted text-muted-foreground">
+                <Zap className="size-4" aria-hidden />
+              </div>
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                {fr
+                  ? "Choisissez un service ci-dessus pour commencer."
+                  : "Choose a service above to get started."}
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* CATEGORY FILTERS */}
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
