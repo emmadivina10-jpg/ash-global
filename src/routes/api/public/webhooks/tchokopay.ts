@@ -79,8 +79,9 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
                   {
                     _payment_reference:
                       merchantReference,
-                    _provider_transaction_id:
-                      result.providerReference ?? null,
+                    ...(result.providerReference
+                      ? { _provider_transaction_id: result.providerReference }
+                      : {}),
                   },
                 )
               : isLink
@@ -89,8 +90,9 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
                     {
                       _payment_reference:
                         merchantReference,
-                      _provider_transaction_id:
-                        result.providerReference ?? null,
+                      ...(result.providerReference
+                        ? { _provider_transaction_id: result.providerReference }
+                        : {}),
                     },
                   )
                 : await supabaseAdmin.rpc(
@@ -99,7 +101,7 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
                       _payment_reference:
                         merchantReference,
                       _provider_transaction_id:
-                        result.providerReference ?? null,
+                        result.providerReference ?? "",
                     },
                   );
 
@@ -323,9 +325,12 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
                   withdrawal.id,
                 _status:
                   settlementStatus,
-                _provider_reference:
-                  providerReference ??
-                  withdrawal.provider_reference,
+                ...(providerReference ?? withdrawal.provider_reference
+                  ? {
+                      _provider_reference: (providerReference ??
+                        withdrawal.provider_reference) as string,
+                    }
+                  : {}),
               },
             );
 
@@ -585,7 +590,7 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
         const { error: updateError } =
           await supabaseAdmin
             .from("platform_payouts")
-            .update(updatePayload)
+            .update(updatePayload as never)
             .eq("id", platformPayout.id);
 
         await supabaseAdmin

@@ -558,7 +558,7 @@ function OnboardingPage() {
     return <main className="min-h-[100svh] bg-[#070711]" />;
   }
 
-  const slide = SLIDES[step];
+  const slide = SLIDES[step] ?? SLIDES[0]!;
 
   return (
     <main className="min-h-[100svh] overflow-hidden bg-[#070711] text-white">
