@@ -4,13 +4,8 @@ import {
   Briefcase,
   Calendar,
   CreditCard,
-  Droplets,
-  GraduationCap,
   Home,
   MapPin,
-  Smartphone,
-  Tv,
-  Wifi,
   Zap,
   Search,
   SlidersHorizontal,
@@ -140,30 +135,6 @@ const QUICK_LINKS = [
   },
 ] as const;
 
-/*
- * ============================================================
- * ASH BILLS & UTILITIES
- * ============================================================
- *
- * Frontend-first utility hub.
- * Payment processing is intentionally not connected yet.
- * These cards provide the premium UI/UX foundation for the
- * future electricity, water, airtime, internet and TV flows.
- */
-const UTILITY_SERVICES = [
-  {
-    id: "electricity",
-    en: "Electricity",
-    fr: "Électricité",
-    descriptionEn: "Pay your electricity bill",
-    descriptionFr: "Payez votre facture d'électricité",
-    icon: Zap,
-    tone: "text-amber-500",
-    iconBg: "bg-amber-500/12",
-    ring: "ring-amber-400/30",
-    glow: "shadow-amber-500/10",
-  },
-] as const;
 
 export const Route = createFileRoute("/_authenticated/services/")({
   head: () => ({
@@ -233,12 +204,6 @@ function DiscoveryPage() {
 
   const [showFilters, setShowFilters] =
     useState(false);
-
-  const [selectedUtility, setSelectedUtility] =
-    useState<string | null>(null);
-
-  const [utilityAccount, setUtilityAccount] =
-    useState("");
 
   const [filters, setFilters] =
     useState<DiscoveryFilters>(
@@ -641,144 +606,45 @@ function DiscoveryPage() {
           ========================================================= */}
       <section
         aria-labelledby="ash-electricity"
-        className="relative overflow-hidden rounded-[30px] border border-border/70 bg-card shadow-[var(--shadow-card)]"
+        className="relative overflow-hidden rounded-[28px] border border-border/70 bg-card shadow-[var(--shadow-card)]"
       >
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-24 -top-28 size-80 rounded-full bg-amber-400/10 blur-3xl"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -bottom-32 -left-24 size-72 rounded-full bg-primary/10 blur-3xl"
+          className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-amber-400/10 blur-3xl"
         />
 
-        <div className="relative p-4 sm:p-6">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="min-w-0">
-              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-600 dark:text-amber-400">
-                <Zap className="size-3.5" aria-hidden />
-                {fr ? "ASH Pay" : "ASH Pay"}
-              </div>
+        <div className="relative flex items-center gap-4 p-4 sm:p-5">
+          <div className="grid size-14 shrink-0 place-items-center rounded-2xl bg-amber-400/12 ring-1 ring-amber-400/30">
+            <Zap className="size-7 text-amber-500" aria-hidden />
+          </div>
 
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
               <h2
                 id="ash-electricity"
-                className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl"
+                className="font-display text-lg font-bold tracking-tight text-foreground sm:text-xl"
               >
-                {fr ? "Payez votre électricité avec ASH" : "Pay your electricity bill with ASH"}
+                {fr ? "Électricité" : "Electricity"}
               </h2>
-
-              <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                {fr
-                  ? "Entrez votre numéro de compteur ou de client et commencez votre paiement."
-                  : "Enter your meter or customer number and start your payment."}
-              </p>
-            </div>
-
-            <div className="flex shrink-0 items-center gap-3 rounded-2xl border border-border/70 bg-background/70 px-4 py-3 backdrop-blur-xl">
-              <div className="grid size-11 place-items-center rounded-2xl bg-amber-400/12 ring-1 ring-amber-400/30">
-                <Zap className="size-5 text-amber-500" aria-hidden />
-              </div>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                  {fr ? "Service disponible" : "Available service"}
-                </p>
-                <p className="mt-0.5 text-sm font-bold text-foreground">
-                  {fr ? "Facture d'électricité" : "Electricity bill"}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-5 overflow-hidden rounded-[24px] border border-amber-400/15 bg-background/75 p-4 backdrop-blur-xl sm:p-5">
-            <div className="flex items-center gap-3">
-              <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-amber-400/12 ring-1 ring-amber-400/30">
-                <Zap className="size-6 text-amber-500" aria-hidden />
-              </div>
-
-              <div>
-                <p className="text-sm font-bold text-foreground">
-                  {fr ? "Électricité" : "Electricity"}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {fr
-                    ? "Commencez par identifier votre compteur."
-                    : "Start by identifying your meter."}
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px_auto] lg:items-end">
-              <div className="space-y-1.5">
-                <Label htmlFor="electricity-account">
-                  {fr ? "Numéro de compteur / client" : "Meter / customer number"}
-                </Label>
-
-                <Input
-                  id="electricity-account"
-                  value={utilityAccount}
-                  onChange={(event) => setUtilityAccount(event.target.value)}
-                  placeholder={
-                    fr
-                      ? "Entrez votre numéro de compteur ou client"
-                      : "Enter your meter or customer number"
-                  }
-                  className="h-12 rounded-xl bg-card"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label>{fr ? "Montant" : "Amount"}</Label>
-
-                <Select defaultValue="5000">
-                  <SelectTrigger className="h-12 rounded-xl bg-card">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PRICE_STEPS.map((amount) => (
-                      <SelectItem key={amount} value={String(amount)}>
-                        {formatXAF(amount)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Button
-                type="button"
-                disabled={!utilityAccount.trim()}
-                className="h-12 rounded-xl px-6 font-bold shadow-[var(--shadow-brand)]"
-                onClick={() => {
-                  // Frontend-only for now.
-                  // Next phase: validate the meter/customer number,
-                  // retrieve the bill, select a payment method,
-                  // confirm payment, and generate a receipt.
-                }}
-              >
-                {fr ? "Continuer" : "Continue"}
-              </Button>
-            </div>
-
-            <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
-              <span className="rounded-full border border-border bg-card px-3 py-1.5">
-                {fr ? "1. Vérifier le compteur" : "1. Verify meter"}
-              </span>
-              <span className="rounded-full border border-border bg-card px-3 py-1.5">
-                {fr ? "2. Choisir le paiement" : "2. Choose payment"}
-              </span>
-              <span className="rounded-full border border-border bg-card px-3 py-1.5">
-                {fr ? "3. Confirmer" : "3. Confirm"}
+              <span className="rounded-full border border-emerald-500/15 bg-emerald-500/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-600 dark:text-emerald-400">
+                ASH Pay
               </span>
             </div>
-          </div>
-
-          <div className="mt-3 flex items-center gap-2 px-1 text-[11px] text-muted-foreground">
-            <span className="size-1.5 rounded-full bg-emerald-500" />
-            <span>
+            <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground sm:text-sm">
               {fr
-                ? "Paiement sécurisé — l'intégration du paiement sera connectée ensuite."
-                : "Secure payment flow — payment integration will be connected next."}
-            </span>
+                ? "Payez votre facture d'électricité en quelques étapes."
+                : "Pay your electricity bill in a few simple steps."}
+            </p>
           </div>
+
+          <Link
+            to="/electricity"
+            className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-foreground px-4 text-sm font-bold text-background shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.98]"
+          >
+            <span className="hidden sm:inline">{fr ? "Continuer" : "Continue"}</span>
+            <span className="sm:hidden">{fr ? "Payer" : "Pay"}</span>
+            <span aria-hidden>→</span>
+          </Link>
         </div>
       </section>
 
