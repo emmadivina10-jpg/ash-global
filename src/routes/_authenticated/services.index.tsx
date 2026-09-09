@@ -1,14 +1,67 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Browser } from "@capacitor/browser";
 import {
+  Briefcase,
   Calendar,
   Home,
   MapPin,
   Search,
   SlidersHorizontal,
+  Sparkles,
+  Tag,
   Users,
 } from "lucide-react";
+
+const QUICK_LINKS = [
+  {
+    to: "/services",
+    en: "Services",
+    fr: "Services",
+    icon: Sparkles,
+    tone: "text-emerald-500",
+    ring: "bg-emerald-500/15 ring-emerald-400/50 shadow-emerald-500/20",
+  },
+  {
+    to: "/freelance",
+    en: "Jobs",
+    fr: "Missions",
+    icon: Briefcase,
+    tone: "text-red-500",
+    ring: "bg-red-500/15 ring-red-400/50 shadow-red-500/20",
+  },
+  {
+    to: "/deals",
+    en: "Deals",
+    fr: "Offres",
+    icon: Tag,
+    tone: "text-yellow-500",
+    ring: "bg-yellow-500/15 ring-yellow-400/50 shadow-yellow-500/20",
+  },
+  {
+    to: "/events",
+    en: "Events",
+    fr: "Événements",
+    icon: Calendar,
+    tone: "text-emerald-500",
+    ring: "bg-emerald-500/15 ring-emerald-400/50 shadow-emerald-500/20",
+  },
+  {
+    to: "/property",
+    en: "Property",
+    fr: "Immobilier",
+    icon: Home,
+    tone: "text-foreground",
+    ring: "bg-foreground/10 ring-foreground/30 shadow-black/10",
+  },
+  {
+    to: "/network",
+    en: "People",
+    fr: "Personnes",
+    icon: Users,
+    tone: "text-emerald-500",
+    ring: "bg-emerald-500/15 ring-emerald-400/50 shadow-emerald-500/20",
+  },
+] as const;
 
 import { ProviderCard } from "@/components/refer/ProviderCard";
 import { useCommunityFeed } from "@/lib/marketplace.queries";
