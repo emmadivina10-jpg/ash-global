@@ -7,16 +7,14 @@ import {
   MapPin,
   Search,
   SlidersHorizontal,
+  Sparkles,
   Tag,
   Users,
 } from "lucide-react";
 
 import { ProviderCard } from "@/components/refer/ProviderCard";
 import { useCommunityFeed } from "@/lib/marketplace.queries";
-import {
-  EmptyState,
-  SkeletonRows,
-} from "@/components/refer/states";
+import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -49,64 +47,45 @@ import { cn } from "@/lib/utils";
 
 /*
  * ============================================================
- * ASH MARKETPLACE QUICK LINKS
+ * ASH MARKETPLACE QUICK NAVIGATION
  * ============================================================
  *
- * Order:
- * 1. TchokoPay
- * 2. Netflix
- * 3. TikTok
- * 4. Jobs
- * 5. Deals
- * 6. Events
- * 7. Property
- * 8. People
+ * TchokoPay, Netflix and TikTok are external destinations,
+ * but they intentionally open in the SAME browser tab/screen.
  *
- * The external branded links are intentionally kept separate
- * from the internal ASH routes.
+ * Jobs, Deals, Events, Property and People remain internal
+ * ASH Marketplace routes.
  */
-
 const QUICK_LINKS = [
   {
-    id: "tchokopay",
-    external: true,
     href: "https://www.tchokopay.com/",
     en: "TchokoPay",
     fr: "TchokoPay",
-    logo:
-      "https://www.tchokopay.com/tchokopay-logo.png",
+    logo: "https://www.tchokopay.com/tchokopay-logo.png",
     logoClassName: "h-8 w-8 object-contain",
     ring:
-      "bg-white ring-[#D4AF37]/80 shadow-[#D4AF37]/25",
+      "bg-white ring-yellow-400/60 shadow-yellow-500/20",
   },
   {
-    id: "netflix",
-    external: true,
     href: "https://www.netflix.com/",
     en: "Netflix",
     fr: "Netflix",
     logo:
       "https://assets.nflxext.com/us/ffe/siteui/common/icons/nficon2023.ico",
-    logoClassName: "h-9 w-9 object-contain",
+    logoClassName: "h-8 w-8 object-contain",
     ring:
-      "bg-black ring-[#D4AF37]/80 shadow-[#D4AF37]/25",
+      "bg-white ring-red-500/60 shadow-red-500/20",
   },
   {
-    id: "tiktok",
-    external: true,
     href: "https://www.tiktok.com/",
     en: "TikTok",
     fr: "TikTok",
-    logo:
-      "https://cdn.simpleicons.org/tiktok",
-    logoClassName:
-      "h-8 w-8 object-contain invert",
+    logo: "https://cdn.simpleicons.org/tiktok",
+    logoClassName: "h-8 w-8 object-contain",
     ring:
-      "bg-black ring-[#D4AF37]/80 shadow-[#D4AF37]/25",
+      "bg-white ring-black/30 shadow-black/20",
   },
   {
-    id: "jobs",
-    external: false,
     to: "/freelance",
     en: "Jobs",
     fr: "Missions",
@@ -116,8 +95,6 @@ const QUICK_LINKS = [
       "bg-red-500/15 ring-red-400/50 shadow-red-500/20",
   },
   {
-    id: "deals",
-    external: false,
     to: "/deals",
     en: "Deals",
     fr: "Offres",
@@ -127,8 +104,6 @@ const QUICK_LINKS = [
       "bg-yellow-500/15 ring-yellow-400/50 shadow-yellow-500/20",
   },
   {
-    id: "events",
-    external: false,
     to: "/events",
     en: "Events",
     fr: "Événements",
@@ -138,8 +113,6 @@ const QUICK_LINKS = [
       "bg-emerald-500/15 ring-emerald-400/50 shadow-emerald-500/20",
   },
   {
-    id: "property",
-    external: false,
     to: "/property",
     en: "Property",
     fr: "Immobilier",
@@ -149,8 +122,6 @@ const QUICK_LINKS = [
       "bg-foreground/10 ring-foreground/30 shadow-black/10",
   },
   {
-    id: "people",
-    external: false,
     to: "/network",
     en: "People",
     fr: "Personnes",
@@ -161,14 +132,11 @@ const QUICK_LINKS = [
   },
 ] as const;
 
-export const Route = createFileRoute(
-  "/_authenticated/services/",
-)({
+export const Route = createFileRoute("/_authenticated/services/")({
   head: () => ({
     meta: [
       {
-        title:
-          "Discover beauty, tech, home & event pros — ASH Glo",
+        title: "Discover beauty, tech, home & event pros — ASH Glo",
       },
       {
         name: "description",
@@ -217,8 +185,7 @@ function DiscoveryPage() {
     dismiss,
   } = useLocation();
 
-  const { data: cities } =
-    useProviderCities();
+  const { data: cities } = useProviderCities();
 
   const region = useRegion();
 
@@ -251,8 +218,8 @@ function DiscoveryPage() {
     [group],
   );
 
-  // Debounce the free-text search so typing
-  // does not hit the database per keystroke.
+  // Debounce the free-text search so typing does not hit
+  // the database per keystroke.
   useEffect(() => {
     const id = setTimeout(
       () =>
@@ -537,10 +504,7 @@ function DiscoveryPage() {
 
       {/* =========================================================
           ASH MARKETPLACE QUICK NAVIGATION
-          TchokoPay → Netflix → TikTok → Jobs → Deals →
-          Events → Property → People
           ========================================================= */}
-
       <nav
         aria-label={
           fr
@@ -550,70 +514,84 @@ function DiscoveryPage() {
         className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 pt-1 scrollbar-none"
       >
         {QUICK_LINKS.map((item) => {
-          const content = (
-            <>
+          /*
+           * External items:
+           *
+           * IMPORTANT:
+           * No target="_blank".
+           * They open in the CURRENT browser tab/screen.
+           */
+          if ("href" in item) {
+            return (
+              <a
+                key={item.en}
+                href={item.href}
+                className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
+              >
+                <span
+                  className={cn(
+                    "grid size-14 place-items-center rounded-full p-[2px] shadow-lg ring-2 transition-all duration-300 group-hover:scale-105 group-active:scale-95",
+                    item.ring,
+                  )}
+                >
+                  <span className="grid size-full place-items-center rounded-full bg-card shadow-inner">
+                    <img
+                      src={item.logo}
+                      alt={item.en}
+                      className={cn(
+                        item.logoClassName,
+                      )}
+                      loading="lazy"
+                      onError={(event) => {
+                        event.currentTarget.style.display =
+                          "none";
+                      }}
+                    />
+                  </span>
+                </span>
+
+                <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
+                  {fr
+                    ? item.fr
+                    : item.en}
+                </span>
+              </a>
+            );
+          }
+
+          /*
+           * Internal ASH Marketplace sections.
+           */
+          const Icon = item.icon;
+
+          return (
+            <Link
+              key={item.to}
+              to={item.to}
+              className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
+            >
               <span
                 className={cn(
                   "grid size-14 place-items-center rounded-full p-[2px] shadow-lg ring-2 transition-all duration-300 group-hover:scale-105 group-active:scale-95",
                   item.ring,
                 )}
               >
-                <span className="grid size-full place-items-center overflow-hidden rounded-full bg-card shadow-inner">
-                  {"logo" in item ? (
-                    <img
-                      src={item.logo}
-                      alt={`${item.en} logo`}
-                      loading="eager"
-                      className={cn(
-                        item.logoClassName,
-                        "max-h-10 max-w-10",
-                      )}
-                      onError={(event) => {
-                        event.currentTarget.style.display =
-                          "none";
-                      }}
-                    />
-                  ) : (
-                    <item.icon
-                      className={cn(
-                        "size-6",
-                        item.tone,
-                      )}
-                      aria-hidden
-                    />
-                  )}
+                <span className="grid size-full place-items-center rounded-full bg-card shadow-inner">
+                  <Icon
+                    className={cn(
+                      "size-6",
+                      item.tone,
+                    )}
+                    aria-hidden
+                  />
                 </span>
               </span>
 
-              <span className="text-center text-xs font-semibold text-muted-foreground transition-colors group-hover:text-foreground">
+              <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
                 {fr
                   ? item.fr
                   : item.en}
               </span>
-            </>
-          );
-
-          if (item.external) {
-            return (
-              <a
-                key={item.id}
-                href={item.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
-              >
-                {content}
-              </a>
-            );
-          }
-
-          return (
-            <Link
-              key={item.id}
-              to={item.to}
-              className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
-            >
-              {content}
             </Link>
           );
         })}
@@ -859,8 +837,7 @@ function DiscoveryPage() {
               }
               onValueChange={(v) =>
                 patch({
-                  sort:
-                    v as DiscoverySort,
+                  sort: v as DiscoverySort,
                 })
               }
             >
@@ -1055,12 +1032,12 @@ function DiscoveryPage() {
                       )
                         .trim()
                         .toLowerCase() ===
-                        (
-                          filters.nearCity ??
-                          ""
-                        )
-                          .trim()
-                          .toLowerCase()
+                      (
+                        filters.nearCity ??
+                        ""
+                      )
+                        .trim()
+                        .toLowerCase()
                     }
                   />
                 </div>
@@ -1072,8 +1049,8 @@ function DiscoveryPage() {
 
       {/* COMMUNITY */}
       {browsing &&
-      (community ??
-        []).length > 0 ? (
+      (community ?? [])
+        .length > 0 ? (
         <section
           aria-label={
             fr
@@ -1220,12 +1197,12 @@ function DiscoveryPage() {
                     )
                       .trim()
                       .toLowerCase() ===
-                      (
-                        filters.nearCity ??
-                        ""
-                      )
-                        .trim()
-                        .toLowerCase()
+                    (
+                      filters.nearCity ??
+                      ""
+                    )
+                      .trim()
+                      .toLowerCase()
                   }
                 />
               ),
