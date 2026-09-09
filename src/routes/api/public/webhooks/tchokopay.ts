@@ -100,9 +100,8 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
                     {
                       _payment_reference:
                         merchantReference,
-                      ...(result.providerReference
-                        ? { _provider_transaction_id: result.providerReference }
-                        : {}),
+                      _provider_transaction_id:
+                        result.providerReference ?? "",
                     },
                   );
 
