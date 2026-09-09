@@ -287,30 +287,8 @@ function DiscoveryPage() {
     (filters.verifiedOnly ? 1 : 0) +
     (filters.availableOnly ? 1 : 0);
 
-  /**
-   * Opens an external service using the native Capacitor
-   * in-app browser experience.
-   *
-   * On native iOS/Android, Browser.open() handles the
-   * experience without sending the user directly into
-   * the device's normal browser app.
-   *
-   * On web, fall back to a normal new tab.
-   */
-  async function openExternal(url: string) {
-    try {
-      await Browser.open({
-        url,
-        presentationStyle: "popover",
-      });
-    } catch {
-      window.open(
-        url,
-        "_blank",
-        "noopener,noreferrer",
-      );
-    }
-  }
+
+
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
