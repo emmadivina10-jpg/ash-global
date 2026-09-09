@@ -163,66 +163,6 @@ const UTILITY_SERVICES = [
     ring: "ring-amber-400/30",
     glow: "shadow-amber-500/10",
   },
-  {
-    id: "water",
-    en: "Water",
-    fr: "Eau",
-    descriptionEn: "Settle your water bill",
-    descriptionFr: "Réglez votre facture d'eau",
-    icon: Droplets,
-    tone: "text-sky-500",
-    iconBg: "bg-sky-500/12",
-    ring: "ring-sky-400/30",
-    glow: "shadow-sky-500/10",
-  },
-  {
-    id: "airtime",
-    en: "Airtime",
-    fr: "Crédit",
-    descriptionEn: "Top up your mobile line",
-    descriptionFr: "Rechargez votre ligne mobile",
-    icon: Smartphone,
-    tone: "text-violet-500",
-    iconBg: "bg-violet-500/12",
-    ring: "ring-violet-400/30",
-    glow: "shadow-violet-500/10",
-  },
-  {
-    id: "internet",
-    en: "Internet",
-    fr: "Internet",
-    descriptionEn: "Renew your internet plan",
-    descriptionFr: "Renouvelez votre forfait internet",
-    icon: Wifi,
-    tone: "text-emerald-500",
-    iconBg: "bg-emerald-500/12",
-    ring: "ring-emerald-400/30",
-    glow: "shadow-emerald-500/10",
-  },
-  {
-    id: "tv",
-    en: "TV",
-    fr: "TV",
-    descriptionEn: "Renew your TV subscription",
-    descriptionFr: "Renouvelez votre abonnement TV",
-    icon: Tv,
-    tone: "text-rose-500",
-    iconBg: "bg-rose-500/12",
-    ring: "ring-rose-400/30",
-    glow: "shadow-rose-500/10",
-  },
-  {
-    id: "school",
-    en: "School fees",
-    fr: "Frais scolaires",
-    descriptionEn: "Pay school and tuition fees",
-    descriptionFr: "Payez les frais scolaires",
-    icon: GraduationCap,
-    tone: "text-indigo-500",
-    iconBg: "bg-indigo-500/12",
-    ring: "ring-indigo-400/30",
-    glow: "shadow-indigo-500/10",
-  },
 ] as const;
 
 export const Route = createFileRoute("/_authenticated/services/")({
@@ -697,253 +637,148 @@ function DiscoveryPage() {
       </nav>
 
       {/* =========================================================
-          ASH PAY / BILLS & UTILITIES
+          ASH PAY / ELECTRICITY
           ========================================================= */}
       <section
-        aria-labelledby="ash-bills-utilities"
+        aria-labelledby="ash-electricity"
         className="relative overflow-hidden rounded-[30px] border border-border/70 bg-card shadow-[var(--shadow-card)]"
       >
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-24 -top-28 size-80 rounded-full bg-primary/10 blur-3xl"
+          className="pointer-events-none absolute -right-24 -top-28 size-80 rounded-full bg-amber-400/10 blur-3xl"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute -bottom-32 -left-24 size-72 rounded-full bg-amber-400/10 blur-3xl"
+          className="pointer-events-none absolute -bottom-32 -left-24 size-72 rounded-full bg-primary/10 blur-3xl"
         />
 
         <div className="relative p-4 sm:p-6">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-primary">
-                <CreditCard className="size-3.5" aria-hidden />
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-600 dark:text-amber-400">
+                <Zap className="size-3.5" aria-hidden />
                 {fr ? "ASH Pay" : "ASH Pay"}
               </div>
 
               <h2
-                id="ash-bills-utilities"
+                id="ash-electricity"
                 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl"
               >
-                {fr ? "Payez simplement. Vivez plus facilement." : "Pay simply. Live easier."}
+                {fr ? "Payez votre électricité avec ASH" : "Pay your electricity bill with ASH"}
               </h2>
 
               <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
                 {fr
-                  ? "Réglez vos factures, rechargez vos services essentiels et gardez vos paiements quotidiens au même endroit."
-                  : "Pay bills, recharge essential services, and keep your everyday payments in one place."}
+                  ? "Entrez votre numéro de compteur ou de client et commencez votre paiement."
+                  : "Enter your meter or customer number and start your payment."}
               </p>
             </div>
 
-            <div className="shrink-0 rounded-2xl border border-border/70 bg-background/70 px-4 py-3 backdrop-blur-xl">
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                {fr ? "Paiements du quotidien" : "Everyday payments"}
-              </p>
-              <p className="mt-0.5 text-sm font-bold text-foreground">
-                {fr ? "Rapide • Simple • Sécurisé" : "Fast • Simple • Secure"}
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-6 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
-            {UTILITY_SERVICES.map((utility) => {
-              const Icon = utility.icon;
-              const selected = selectedUtility === utility.id;
-
-              return (
-                <button
-                  key={utility.id}
-                  type="button"
-                  onClick={() => {
-                    setSelectedUtility(selected ? null : utility.id);
-                    setUtilityAccount("");
-                  }}
-                  aria-pressed={selected}
-                  className={cn(
-                    "group relative overflow-hidden rounded-[22px] border p-3.5 text-left transition-all duration-300",
-                    "hover:-translate-y-1 hover:shadow-xl active:scale-[0.98]",
-                    selected
-                      ? "border-primary/50 bg-primary/[0.07] shadow-[0_14px_38px_-20px_hsl(var(--primary))]"
-                      : "border-border/70 bg-background/60 hover:border-primary/25 hover:bg-background",
-                  )}
-                >
-                  <div
-                    className={cn(
-                      "mb-3 grid size-11 place-items-center rounded-2xl ring-1 transition-transform duration-300 group-hover:scale-105",
-                      utility.iconBg,
-                      utility.ring,
-                    )}
-                  >
-                    <Icon className={cn("size-5", utility.tone)} aria-hidden />
-                  </div>
-
-                  <p className="text-sm font-bold text-foreground">
-                    {fr ? utility.fr : utility.en}
-                  </p>
-
-                  <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground">
-                    {fr ? utility.descriptionFr : utility.descriptionEn}
-                  </p>
-
-                  <span
-                    className={cn(
-                      "absolute right-3.5 top-3.5 size-1.5 rounded-full transition-opacity",
-                      selected
-                        ? "bg-primary opacity-100"
-                        : "bg-muted-foreground/30 opacity-0 group-hover:opacity-100",
-                    )}
-                  />
-                </button>
-              );
-            })}
-          </div>
-
-          {selectedUtility ? (
-            <div className="mt-4 overflow-hidden rounded-[24px] border border-primary/15 bg-background/80 p-4 shadow-inner backdrop-blur-xl sm:p-5">
-              {(() => {
-                const utility = UTILITY_SERVICES.find(
-                  (item) => item.id === selectedUtility,
-                );
-
-                if (!utility) return null;
-
-                const Icon = utility.icon;
-
-                return (
-                  <div className="space-y-5">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={cn(
-                            "grid size-12 shrink-0 place-items-center rounded-2xl ring-1",
-                            utility.iconBg,
-                            utility.ring,
-                          )}
-                        >
-                          <Icon className={cn("size-6", utility.tone)} aria-hidden />
-                        </div>
-
-                        <div>
-                          <p className="text-sm font-bold text-foreground">
-                            {fr ? utility.fr : utility.en}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {fr
-                              ? "Commencez votre paiement"
-                              : "Start your payment"}
-                          </p>
-                        </div>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedUtility(null);
-                          setUtilityAccount("");
-                        }}
-                        className="rounded-full px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                      >
-                        {fr ? "Fermer" : "Close"}
-                      </button>
-                    </div>
-
-                    <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(180px,220px)_auto] lg:items-end">
-                      <div className="space-y-1.5">
-                        <Label htmlFor={`utility-account-${utility.id}`}>
-                          {utility.id === "electricity"
-                            ? fr
-                              ? "Numéro de compteur / client"
-                              : "Meter / customer number"
-                            : fr
-                              ? "Numéro de compte / client"
-                              : "Account / customer number"}
-                        </Label>
-
-                        <Input
-                          id={`utility-account-${utility.id}`}
-                          value={utilityAccount}
-                          onChange={(event) =>
-                            setUtilityAccount(event.target.value)
-                          }
-                          placeholder={
-                            utility.id === "electricity"
-                              ? fr
-                                ? "Ex. numéro de compteur"
-                                : "e.g. meter number"
-                              : fr
-                                ? "Entrez votre numéro"
-                                : "Enter your number"
-                          }
-                          className="h-11 rounded-xl bg-card"
-                        />
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <Label>
-                          {fr ? "Montant" : "Amount"}
-                        </Label>
-
-                        <Select defaultValue="5000">
-                          <SelectTrigger className="h-11 rounded-xl bg-card">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {PRICE_STEPS.map((amount) => (
-                              <SelectItem
-                                key={amount}
-                                value={String(amount)}
-                              >
-                                {formatXAF(amount)}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <Button
-                        type="button"
-                        disabled={!utilityAccount.trim()}
-                        className="h-11 rounded-xl px-6 font-bold"
-                        onClick={() => {
-                          // Frontend-only flow for now.
-                          // Connect provider lookup and payment processing here later.
-                        }}
-                      >
-                        {fr ? "Continuer" : "Continue"}
-                      </Button>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
-                      <span className="rounded-full border border-border bg-card px-3 py-1.5">
-                        {fr ? "1. Vérifier" : "1. Verify"}
-                      </span>
-                      <span className="rounded-full border border-border bg-card px-3 py-1.5">
-                        {fr ? "2. Choisir le paiement" : "2. Choose payment"}
-                      </span>
-                      <span className="rounded-full border border-border bg-card px-3 py-1.5">
-                        {fr ? "3. Confirmer" : "3. Confirm"}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
-          ) : (
-            <div className="mt-4 grid gap-3 rounded-[22px] border border-dashed border-border/80 bg-background/45 p-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center">
-              <div className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary">
-                <CreditCard className="size-5" aria-hidden />
+            <div className="flex shrink-0 items-center gap-3 rounded-2xl border border-border/70 bg-background/70 px-4 py-3 backdrop-blur-xl">
+              <div className="grid size-11 place-items-center rounded-2xl bg-amber-400/12 ring-1 ring-amber-400/30">
+                <Zap className="size-5 text-amber-500" aria-hidden />
               </div>
               <div>
-                <p className="text-sm font-bold text-foreground">
-                  {fr ? "Tout commence ici." : "It starts here."}
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                  {fr ? "Service disponible" : "Available service"}
                 </p>
-                <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                  {fr
-                    ? "Choisissez une facture ou une recharge pour ouvrir son parcours de paiement."
-                    : "Choose a bill or recharge to open its payment journey."}
+                <p className="mt-0.5 text-sm font-bold text-foreground">
+                  {fr ? "Facture d'électricité" : "Electricity bill"}
                 </p>
               </div>
             </div>
-          )}
+          </div>
+
+          <div className="mt-5 overflow-hidden rounded-[24px] border border-amber-400/15 bg-background/75 p-4 backdrop-blur-xl sm:p-5">
+            <div className="flex items-center gap-3">
+              <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-amber-400/12 ring-1 ring-amber-400/30">
+                <Zap className="size-6 text-amber-500" aria-hidden />
+              </div>
+
+              <div>
+                <p className="text-sm font-bold text-foreground">
+                  {fr ? "Électricité" : "Electricity"}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {fr
+                    ? "Commencez par identifier votre compteur."
+                    : "Start by identifying your meter."}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px_auto] lg:items-end">
+              <div className="space-y-1.5">
+                <Label htmlFor="electricity-account">
+                  {fr ? "Numéro de compteur / client" : "Meter / customer number"}
+                </Label>
+
+                <Input
+                  id="electricity-account"
+                  value={utilityAccount}
+                  onChange={(event) => setUtilityAccount(event.target.value)}
+                  placeholder={
+                    fr
+                      ? "Entrez votre numéro de compteur ou client"
+                      : "Enter your meter or customer number"
+                  }
+                  className="h-12 rounded-xl bg-card"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label>{fr ? "Montant" : "Amount"}</Label>
+
+                <Select defaultValue="5000">
+                  <SelectTrigger className="h-12 rounded-xl bg-card">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PRICE_STEPS.map((amount) => (
+                      <SelectItem key={amount} value={String(amount)}>
+                        {formatXAF(amount)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Button
+                type="button"
+                disabled={!utilityAccount.trim()}
+                className="h-12 rounded-xl px-6 font-bold shadow-[var(--shadow-brand)]"
+                onClick={() => {
+                  // Frontend-only for now.
+                  // Next phase: validate the meter/customer number,
+                  // retrieve the bill, select a payment method,
+                  // confirm payment, and generate a receipt.
+                }}
+              >
+                {fr ? "Continuer" : "Continue"}
+              </Button>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+              <span className="rounded-full border border-border bg-card px-3 py-1.5">
+                {fr ? "1. Vérifier le compteur" : "1. Verify meter"}
+              </span>
+              <span className="rounded-full border border-border bg-card px-3 py-1.5">
+                {fr ? "2. Choisir le paiement" : "2. Choose payment"}
+              </span>
+              <span className="rounded-full border border-border bg-card px-3 py-1.5">
+                {fr ? "3. Confirmer" : "3. Confirm"}
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-3 flex items-center gap-2 px-1 text-[11px] text-muted-foreground">
+            <span className="size-1.5 rounded-full bg-emerald-500" />
+            <span>
+              {fr
+                ? "Paiement sécurisé — l'intégration du paiement sera connectée ensuite."
+                : "Secure payment flow — payment integration will be connected next."}
+            </span>
+          </div>
         </div>
       </section>
 
