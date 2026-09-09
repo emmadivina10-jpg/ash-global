@@ -1157,24 +1157,42 @@ export type Database = {
           created_at: string
           currency: string
           destination: string
+          failure_reason: string | null
           id: string
           note: string | null
+          processed_at: string | null
+          provider: string | null
+          provider_reference: string | null
+          reference: string
+          status: string
         }
         Insert: {
           amount: number
           created_at?: string
           currency?: string
           destination: string
+          failure_reason?: string | null
           id?: string
           note?: string | null
+          processed_at?: string | null
+          provider?: string | null
+          provider_reference?: string | null
+          reference: string
+          status?: string
         }
         Update: {
           amount?: number
           created_at?: string
           currency?: string
           destination?: string
+          failure_reason?: string | null
           id?: string
           note?: string | null
+          processed_at?: string | null
+          provider?: string | null
+          provider_reference?: string | null
+          reference?: string
+          status?: string
         }
         Relationships: []
       }
@@ -2389,6 +2407,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_credit_wallet: {
+        Args: { _amount: number; _reason: string; _user_id: string }
+        Returns: Json
+      }
       admin_manual_activate: {
         Args: { _actor?: string; _reason: string; _user_id: string }
         Returns: Json
