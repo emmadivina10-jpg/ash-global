@@ -697,51 +697,54 @@ function DiscoveryPage() {
       </nav>
 
       {/* =========================================================
-          BILLS & UTILITIES
+          ASH PAY / BILLS & UTILITIES
           ========================================================= */}
       <section
         aria-labelledby="ash-bills-utilities"
-        className="relative overflow-hidden rounded-[28px] border border-border/70 bg-card shadow-[var(--shadow-card)]"
+        className="relative overflow-hidden rounded-[30px] border border-border/70 bg-card shadow-[var(--shadow-card)]"
       >
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-20 -top-24 size-64 rounded-full bg-primary/10 blur-3xl"
+          className="pointer-events-none absolute -right-24 -top-28 size-80 rounded-full bg-primary/10 blur-3xl"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute -bottom-24 -left-20 size-56 rounded-full bg-amber-400/10 blur-3xl"
+          className="pointer-events-none absolute -bottom-32 -left-24 size-72 rounded-full bg-amber-400/10 blur-3xl"
         />
 
-        <div className="relative p-4 sm:p-5">
-          <div className="flex items-start justify-between gap-4">
+        <div className="relative p-4 sm:p-6">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="min-w-0">
-              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-primary">
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-primary">
                 <CreditCard className="size-3.5" aria-hidden />
-                {fr ? "Paiements du quotidien" : "Everyday payments"}
+                {fr ? "ASH Pay" : "ASH Pay"}
               </div>
 
               <h2
                 id="ash-bills-utilities"
-                className="font-display text-xl font-bold tracking-tight text-foreground sm:text-2xl"
+                className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl"
               >
-                {fr ? "Factures & services" : "Bills & Utilities"}
+                {fr ? "Payez simplement. Vivez plus facilement." : "Pay simply. Live easier."}
               </h2>
 
-              <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
                 {fr
-                  ? "Gérez vos paiements essentiels depuis ASH. Commencez par choisir un service."
-                  : "Manage your essential payments from ASH. Start by choosing a service."}
+                  ? "Réglez vos factures, rechargez vos services essentiels et gardez vos paiements quotidiens au même endroit."
+                  : "Pay bills, recharge essential services, and keep your everyday payments in one place."}
               </p>
             </div>
 
-            <div className="hidden shrink-0 rounded-2xl border border-border/70 bg-background/70 p-3 sm:block">
-              <div className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary">
-                <CreditCard className="size-5" aria-hidden />
-              </div>
+            <div className="shrink-0 rounded-2xl border border-border/70 bg-background/70 px-4 py-3 backdrop-blur-xl">
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                {fr ? "Paiements du quotidien" : "Everyday payments"}
+              </p>
+              <p className="mt-0.5 text-sm font-bold text-foreground">
+                {fr ? "Rapide • Simple • Sécurisé" : "Fast • Simple • Secure"}
+              </p>
             </div>
           </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
+          <div className="mt-6 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
             {UTILITY_SERVICES.map((utility) => {
               const Icon = utility.icon;
               const selected = selectedUtility === utility.id;
@@ -750,46 +753,40 @@ function DiscoveryPage() {
                 <button
                   key={utility.id}
                   type="button"
-                  onClick={() =>
-                    setSelectedUtility(
-                      selected ? null : utility.id,
-                    )
-                  }
+                  onClick={() => {
+                    setSelectedUtility(selected ? null : utility.id);
+                    setUtilityAccount("");
+                  }}
                   aria-pressed={selected}
                   className={cn(
-                    "group relative overflow-hidden rounded-2xl border p-3 text-left transition-all duration-300",
-                    "hover:-translate-y-0.5 hover:shadow-lg active:scale-[0.98]",
+                    "group relative overflow-hidden rounded-[22px] border p-3.5 text-left transition-all duration-300",
+                    "hover:-translate-y-1 hover:shadow-xl active:scale-[0.98]",
                     selected
-                      ? "border-primary/50 bg-primary/[0.07] shadow-[0_10px_30px_-18px_hsl(var(--primary))]"
+                      ? "border-primary/50 bg-primary/[0.07] shadow-[0_14px_38px_-20px_hsl(var(--primary))]"
                       : "border-border/70 bg-background/60 hover:border-primary/25 hover:bg-background",
                   )}
                 >
                   <div
                     className={cn(
-                      "mb-3 grid size-10 place-items-center rounded-xl ring-1 transition-transform duration-300 group-hover:scale-105",
+                      "mb-3 grid size-11 place-items-center rounded-2xl ring-1 transition-transform duration-300 group-hover:scale-105",
                       utility.iconBg,
                       utility.ring,
                     )}
                   >
-                    <Icon
-                      className={cn("size-5", utility.tone)}
-                      aria-hidden
-                    />
+                    <Icon className={cn("size-5", utility.tone)} aria-hidden />
                   </div>
 
                   <p className="text-sm font-bold text-foreground">
                     {fr ? utility.fr : utility.en}
                   </p>
 
-                  <p className="mt-0.5 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground">
-                    {fr
-                      ? utility.descriptionFr
-                      : utility.descriptionEn}
+                  <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground">
+                    {fr ? utility.descriptionFr : utility.descriptionEn}
                   </p>
 
                   <span
                     className={cn(
-                      "absolute right-3 top-3 size-1.5 rounded-full transition-opacity",
+                      "absolute right-3.5 top-3.5 size-1.5 rounded-full transition-opacity",
                       selected
                         ? "bg-primary opacity-100"
                         : "bg-muted-foreground/30 opacity-0 group-hover:opacity-100",
@@ -801,7 +798,7 @@ function DiscoveryPage() {
           </div>
 
           {selectedUtility ? (
-            <div className="mt-4 overflow-hidden rounded-2xl border border-border/70 bg-background/75 p-4 backdrop-blur-xl">
+            <div className="mt-4 overflow-hidden rounded-[24px] border border-primary/15 bg-background/80 p-4 shadow-inner backdrop-blur-xl sm:p-5">
               {(() => {
                 const utility = UTILITY_SERVICES.find(
                   (item) => item.id === selectedUtility,
@@ -812,82 +809,139 @@ function DiscoveryPage() {
                 const Icon = utility.icon;
 
                 return (
-                  <div className="grid gap-4 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={cn(
-                          "grid size-12 shrink-0 place-items-center rounded-2xl ring-1",
-                          utility.iconBg,
-                          utility.ring,
-                        )}
+                  <div className="space-y-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={cn(
+                            "grid size-12 shrink-0 place-items-center rounded-2xl ring-1",
+                            utility.iconBg,
+                            utility.ring,
+                          )}
+                        >
+                          <Icon className={cn("size-6", utility.tone)} aria-hidden />
+                        </div>
+
+                        <div>
+                          <p className="text-sm font-bold text-foreground">
+                            {fr ? utility.fr : utility.en}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {fr
+                              ? "Commencez votre paiement"
+                              : "Start your payment"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedUtility(null);
+                          setUtilityAccount("");
+                        }}
+                        className="rounded-full px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                       >
-                        <Icon
-                          className={cn("size-6", utility.tone)}
-                          aria-hidden
+                        {fr ? "Fermer" : "Close"}
+                      </button>
+                    </div>
+
+                    <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(180px,220px)_auto] lg:items-end">
+                      <div className="space-y-1.5">
+                        <Label htmlFor={`utility-account-${utility.id}`}>
+                          {utility.id === "electricity"
+                            ? fr
+                              ? "Numéro de compteur / client"
+                              : "Meter / customer number"
+                            : fr
+                              ? "Numéro de compte / client"
+                              : "Account / customer number"}
+                        </Label>
+
+                        <Input
+                          id={`utility-account-${utility.id}`}
+                          value={utilityAccount}
+                          onChange={(event) =>
+                            setUtilityAccount(event.target.value)
+                          }
+                          placeholder={
+                            utility.id === "electricity"
+                              ? fr
+                                ? "Ex. numéro de compteur"
+                                : "e.g. meter number"
+                              : fr
+                                ? "Entrez votre numéro"
+                                : "Enter your number"
+                          }
+                          className="h-11 rounded-xl bg-card"
                         />
                       </div>
 
-                      <div>
-                        <p className="text-sm font-bold text-foreground">
-                          {fr ? utility.fr : utility.en}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {fr
-                            ? "Préparez votre numéro de compte"
-                            : "Enter your account or customer number"}
-                        </p>
+                      <div className="space-y-1.5">
+                        <Label>
+                          {fr ? "Montant" : "Amount"}
+                        </Label>
+
+                        <Select defaultValue="5000">
+                          <SelectTrigger className="h-11 rounded-xl bg-card">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {PRICE_STEPS.map((amount) => (
+                              <SelectItem
+                                key={amount}
+                                value={String(amount)}
+                              >
+                                {formatXAF(amount)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
+
+                      <Button
+                        type="button"
+                        disabled={!utilityAccount.trim()}
+                        className="h-11 rounded-xl px-6 font-bold"
+                        onClick={() => {
+                          // Frontend-only flow for now.
+                          // Connect provider lookup and payment processing here later.
+                        }}
+                      >
+                        {fr ? "Continuer" : "Continue"}
+                      </Button>
                     </div>
 
-                    <div className="relative">
-                      <Input
-                        value={utilityAccount}
-                        onChange={(event) =>
-                          setUtilityAccount(event.target.value)
-                        }
-                        placeholder={
-                          selectedUtility === "electricity"
-                            ? fr
-                              ? "Ex. numéro de compteur / client"
-                              : "e.g. meter / customer number"
-                            : fr
-                              ? "Numéro de compte ou client"
-                              : "Account or customer number"
-                        }
-                        className="h-11 rounded-xl bg-card pl-4"
-                        aria-label={
-                          fr
-                            ? "Numéro de compte"
-                            : "Account number"
-                        }
-                      />
+                    <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+                      <span className="rounded-full border border-border bg-card px-3 py-1.5">
+                        {fr ? "1. Vérifier" : "1. Verify"}
+                      </span>
+                      <span className="rounded-full border border-border bg-card px-3 py-1.5">
+                        {fr ? "2. Choisir le paiement" : "2. Choose payment"}
+                      </span>
+                      <span className="rounded-full border border-border bg-card px-3 py-1.5">
+                        {fr ? "3. Confirmer" : "3. Confirm"}
+                      </span>
                     </div>
-
-                    <Button
-                      type="button"
-                      disabled={!utilityAccount.trim()}
-                      className="h-11 rounded-xl px-5 font-bold"
-                      onClick={() => {
-                        // Frontend-only for now. Backend/payment integration
-                        // will be connected in the next phase.
-                      }}
-                    >
-                      {fr ? "Continuer" : "Continue"}
-                    </Button>
                   </div>
                 );
               })()}
             </div>
           ) : (
-            <div className="mt-4 flex items-center gap-3 rounded-2xl border border-dashed border-border/80 bg-background/45 px-4 py-3">
-              <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-muted text-muted-foreground">
-                <Zap className="size-4" aria-hidden />
+            <div className="mt-4 grid gap-3 rounded-[22px] border border-dashed border-border/80 bg-background/45 p-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center">
+              <div className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary">
+                <CreditCard className="size-5" aria-hidden />
               </div>
-              <p className="text-xs leading-relaxed text-muted-foreground">
-                {fr
-                  ? "Choisissez un service ci-dessus pour commencer."
-                  : "Choose a service above to get started."}
-              </p>
+              <div>
+                <p className="text-sm font-bold text-foreground">
+                  {fr ? "Tout commence ici." : "It starts here."}
+                </p>
+                <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                  {fr
+                    ? "Choisissez une facture ou une recharge pour ouvrir son parcours de paiement."
+                    : "Choose a bill or recharge to open its payment journey."}
+                </p>
+              </div>
             </div>
           )}
         </div>
