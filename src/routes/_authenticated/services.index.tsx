@@ -70,7 +70,7 @@ const QUICK_LINKS = [
     fr: "TchokoPay",
     logo: "https://www.tchokopay.com/tchokopay-logo.png",
     logoClassName:
-      "h-8 w-8 rounded-[11px] object-contain p-1.5 brightness-0 saturate-100 invert-[35%] sepia-[88%] saturate-[1200%] hue-rotate-[174deg] brightness-[88%] contrast-[102%]",
+      "h-8 w-8 rounded-[11px] object-contain p-1.5",
     ring:
       "bg-white ring-sky-400/60 shadow-sky-500/20",
   },
@@ -88,7 +88,7 @@ const QUICK_LINKS = [
     href: "https://www.tiktok.com/",
     en: "TikTok",
     fr: "TikTok",
-    logo: "https://cdn.simpleicons.org/tiktok",
+    logo: "https://sf16-sg.tiktokcdn.com/obj/eden-sg/uvkuhyieh7lpqpbj/logo_tiktok1.svg",
     logoClassName: "h-8 w-8 object-contain",
     ring:
       "bg-white ring-black/30 shadow-black/20",
