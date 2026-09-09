@@ -79,8 +79,9 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
                   {
                     _payment_reference:
                       merchantReference,
-                    _provider_transaction_id:
-                      result.providerReference ?? undefined,
+                    ...(result.providerReference
+                      ? { _provider_transaction_id: result.providerReference }
+                      : {}),
                   },
                 )
               : isLink
@@ -89,8 +90,9 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
                     {
                       _payment_reference:
                         merchantReference,
-                      _provider_transaction_id:
-                        result.providerReference ?? undefined,
+                      ...(result.providerReference
+                        ? { _provider_transaction_id: result.providerReference }
+                        : {}),
                     },
                   )
                 : await supabaseAdmin.rpc(
@@ -98,8 +100,9 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
                     {
                       _payment_reference:
                         merchantReference,
-                      _provider_transaction_id:
-                        result.providerReference ?? undefined,
+                      ...(result.providerReference
+                        ? { _provider_transaction_id: result.providerReference }
+                        : {}),
                     },
                   );
 
@@ -323,10 +326,12 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
                   withdrawal.id,
                 _status:
                   settlementStatus,
-                _provider_reference:
-                  providerReference ??
-                  withdrawal.provider_reference ??
-                  undefined,
+                ...(providerReference ?? withdrawal.provider_reference
+                  ? {
+                      _provider_reference: (providerReference ??
+                        withdrawal.provider_reference) as string,
+                    }
+                  : {}),
               },
             );
 
