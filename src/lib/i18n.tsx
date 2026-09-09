@@ -1,940 +1,908 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import React from "react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  BriefcaseBusiness,
+  Building2,
+  CalendarDays,
+  ChevronDown,
+  CircleDollarSign,
+  Compass,
+  Gift,
+  Hammer,
+  Heart,
+  Menu,
+  MessageCircle,
+  Network,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  Store,
+  Users,
+  Wallet,
+  X,
+} from "lucide-react";
+import { useI18n } from "./i18n";
 
-export type Lang = "en" | "fr";
-
-const KEY = "refer.lang";
-
-const EN = {
-  "nav.home": "Earnings",
-  "nav.network": "Network",
-  "nav.wallet": "Wallet",
-  "nav.profile": "Profile",
-  "nav.transactions": "Transactions",
-  "nav.withdraw": "Withdraw",
-  "nav.admin": "Admin",
-  "shell.member": "Member",
-  "shell.active": "Active",
-  "shell.pending": "Pending activation",
-  "shell.signOut": "Sign out",
-  "shell.theme.dark": "Dark mode",
-  "shell.theme.light": "Light mode",
-  "shell.language": "Language",
-
-  // Landing
-  "landing.signIn": "Sign in",
-  "landing.getStarted": "Get started",
-  "landing.badge": "Built for Cameroon · Paid in XAF",
-  "landing.h1a": "Refer friends.",
-  "landing.h1b": "Earn",
-  "landing.h1c": "real money",
-  "landing.hero.copy":
-    "Activate your account once, share your link, and earn commissions across three levels of your network — withdrawn straight to mobile money.",
-  "landing.cta.signup": "Sign up for free",
-  "landing.cta.haveAccount": "I have an account",
-  "landing.balance": "Available balance",
-  "landing.row.l1": "Referral commission · L1",
-  "landing.row.l2": "Referral commission · L2",
-  "landing.row.withdrawal": "Withdrawal · MTN MoMo",
-  "landing.level1.label": "Direct referrals",
-  "landing.level1.copy": "Everyone who joins with your link and activates.",
-  "landing.level2.label": "Second level",
-  "landing.level2.copy": "The people your referrals bring in.",
-  "landing.level3.label": "Third level",
-  "landing.level3.copy": "Your network keeps paying, three levels deep.",
-  "landing.how.eyebrow": "How it works",
-  "landing.how.title": "Get started in four steps",
-  "landing.how.copy":
-    "A one-time activation of {fee} unlocks your earning position. After that, every activated member in your first three levels pays you a fixed commission.",
-  "landing.step1.title": "Create your account",
-  "landing.step1.copy": "Sign up in under a minute with your name, email and phone number.",
-  "landing.step2.title": "Activate for {fee}",
-  "landing.step2.copy": "A single verified mobile money payment unlocks earning.",
-  "landing.step3.title": "Share your link",
-  "landing.step3.copy": "Every member gets a unique referral code and shareable link.",
-  "landing.step4.title": "Earn and withdraw",
-  "landing.step4.copy": "Commissions land in your wallet the moment a referral activates.",
-  "landing.platform.eyebrow": "The platform",
-  "landing.platform.title": "Everything you need to grow a network",
-  "landing.f1.title": "Mobile money native",
-  "landing.f1.copy": "Pay and get paid with MTN Mobile Money or Orange Money.",
-  "landing.f2.title": "Three earning levels",
-  "landing.f2.copy": "Commissions from your referrals, and theirs, and theirs.",
-  "landing.f3.title": "Live wallet",
-  "landing.f3.copy": "Available balance, pending payouts and a full transaction ledger.",
-  "landing.f4.title": "Verified payments",
-  "landing.f4.copy": "Every activation is confirmed by the payment provider before rewards drop.",
-  "landing.f5.title": "Network insights",
-  "landing.f5.copy": "See exactly who joined, who activated and what each level earns.",
-  "landing.f6.title": "Fast withdrawals",
-  "landing.f6.copy": "Cash out from {min} straight to your mobile wallet.",
-  "landing.final.eyebrow": "Start earning",
-  "landing.final.title": "Your network is worth money",
-  "landing.final.copy":
-    "Join ASH Glo today, activate your account and start earning from every person you bring on board.",
-  "landing.final.cta": "Create your account",
-  "landing.footer": "© {year} ASH Glo. All amounts in XAF.",
-  "landing.services.eyebrow": "ASH Marketplace",
-  "landing.services.title": "",
-  "landing.services.copy":
-    "Browse listings, compare portfolios, read reviews and connect with verified sellers and providers across Cameroon.",
-  "landing.services.cta": "Find what you need",
-  "landing.services.reviews": "Verified reviews",
-  "landing.services.secure": "Secure mobile money",
-  "landing.services.sell": "Start selling on ASH",
-  "landing.cat.beauty.title": "Beauty & grooming",
-  "landing.cat.beauty.copy": "Braiders, nail & lash techs, barbers and makeup artists.",
-  "landing.cat.home.title": "Home & trades",
-  "landing.cat.home.copy": "Electricians, plumbers, cleaners and handymen near you.",
-  "landing.cat.health.title": "Health & wellness",
-  "landing.cat.health.copy": "Nurses, caregivers, massage and wellness professionals.",
-  "landing.cat.tech.title": "Tech & digital",
-  "landing.cat.tech.copy": "Developers, designers, IT support and cybersecurity pros.",
-  "landing.property.title": "Rooms, apartments, houses and land — ASH Property",
-  "landing.property.copy":
-    "Student housing near campus, rentals, homes for sale and land. Free to browse, free to list, with verification badges and direct chat with the owner.",
-  "landing.property.browse": "Browse properties",
-  "landing.property.list": "List your property free",
-  "landing.services.chat": "Instant chat",
-  "landing.services.hero.eyebrow": "Digital marketplace",
-  "landing.services.hero.title": "Services, products & opportunities",
-  "landing.services.hero.copy": "Discover trusted providers, shop local and pay securely — all from one place.",
-  "landing.services.hero.cta": "Explore marketplace",
-
-  // Dashboard
-  "dash.welcome": "Welcome back",
-  "dash.availableBalance": "Available Balance",
-  "dash.totalEarned": "Total earned",
-  "dash.totalWithdrawn": "Total withdrawn",
-  "dash.withdrawFunds": "Withdraw funds",
-  "dash.activateTitle": "Activate your account",
-  "dash.activateCopy": "Pay the one-time {fee} activation fee to unlock referral earnings.",
-  "dash.activateCta": "Activate for {fee}",
-  "dash.stat.earned": "Total Earned",
-  "dash.stat.withdrawn": "Total Withdrawn",
-  "dash.stat.direct": "Direct Referrals",
-  "dash.stat.network": "Total Network",
-  "dash.recent": "Recent activity",
-  "common.viewAll": "View all",
-  "common.there": "there",
-
-  // Network
-  "net.title": "Referral Network",
-  "net.subtitle": "Your network across three levels. Member identities stay private.",
-  "net.empty.title": "Your network is empty",
-  "net.empty.copy": "Share your referral link to add your first member. Commissions are paid once they activate.",
-  "net.empty.cta": "Get your referral link",
-  "net.level": "Level {n}",
-  "net.each": "{amount} each",
-  "net.members": "Members",
-  "net.activeMembers": "Active members",
-  "net.commissions": "Commissions generated",
-  "net.tree.title": "Network map",
-  "net.tree.subtitle": "Expand your tree to see who joined, who activated, and what each branch earns.",
-  "net.tree.filter.all": "All levels",
-  "net.tree.earnings": "Earnings from branch",
-  "net.tree.member": "Member",
-  "net.tree.joined": "Joined {date}",
-  "net.tree.empty": "No members match this filter.",
-  "net.tree.you": "You",
-  "net.tree.rootLabel": "Your account",
-
-  // Wallet
-  "wallet.title": "Wallet",
-  "wallet.subtitle": "Balances update from your transaction ledger.",
-  "wallet.withdraw": "Withdraw",
-  "wallet.pending": "Pending Balance",
-  "wallet.pendingHint": "Held while a withdrawal is processed",
-  "wallet.history": "Transaction history",
-
-  // Transactions
-  "tx.title": "Transactions",
-  "tx.subtitle": "Every financial event on your account.",
-  "tx.filter.all": "All",
-  "tx.filter.commissions": "Commissions",
-  "tx.filter.activation": "Activation",
-  "tx.filter.withdrawals": "Withdrawals",
-
-  // Profile
-  "profile.title": "Profile",
-  "profile.pendingCopy": "Your account is pending activation. Pay {fee} once to start earning.",
-  "profile.activateNow": "Activate now",
-  "profile.accountDetails": "Account details",
-  "profile.fullName": "Full name",
-  "profile.email": "Email",
-  "profile.phone": "Phone number",
-  "profile.save": "Save changes",
-  "profile.saved": "Profile updated",
-  "profile.err.name": "Enter your full name.",
-  "profile.err.phone": "Enter a valid phone number with country code.",
-  "profile.err.save": "We could not save your changes. Please try again.",
-  "profile.referralDetails": "Referral details",
-  "profile.referralCode": "Referral code",
-  "profile.memberSince": "Member since",
-
-  // States / shared
-  "state.emptyTx": "No transactions yet",
-  "state.error": "Something went wrong",
-  "state.retry": "Try again",
-  "referral.title": "Your referral link",
-  "referral.copy": "Copy link",
-  "referral.copied": "Link copied",
-  "referral.share": "Share",
-  "net.pendingActivation": "Pending activation",
-  "net.pendingCommission": "Pending commission",
-  "wallet.pendingTitle": "{amount} waiting on referral activations",
-  "wallet.pendingBody":
-    "These commissions are not withdrawable yet. They are credited automatically the moment each referred member's 5,000 XAF activation payment is verified.",
-  "nav.services": "Market",
-  "nav.bookings": "Bookings",
-  "nav.messages": "Messages",
-  "nav.pro": "My studio",
-  "nav.assistant": "ASH AI",
-  "nav.search": "Search",
-  "nav.create": "Create",
-  "nav.deals": "Deals",
-  "nav.events": "Events",
-  "nav.freelance": "Freelance",
-  "nav.analytics": "Analytics",
-  "nav.property": "Property",
-  "cat.BRAIDER": "Braider",
-  "cat.NAIL_TECH": "Nail tech",
-  "cat.LASH_TECH": "Lash tech",
-  "cat.MAKEUP": "Makeup artist",
-  "cat.BARBER": "Barber",
-  "cat.OTHER": "Other",
-  "booking.status.PENDING": "Pending",
-  "booking.status.CONFIRMED": "Confirmed",
-  "booking.status.COMPLETED": "Completed",
-  "booking.status.CANCELLED": "Cancelled",
-  "booking.status.DECLINED": "Declined",
-  "svc.title": "Book a pro",
-  "svc.subtitle": "Braiders, nail and lash techs near you. Browse their work, book a slot and chat live.",
-  "svc.search": "Search by name, city or service",
-  "svc.all": "All",
-  "svc.empty": "No providers yet",
-  "svc.emptyCopy": "Be the first to go live in your category.",
-  "svc.becomePro": "Become a provider",
-  "svc.reviews": "{count} reviews",
-  "svc.noRating": "New",
-  "svc.from": "From {price}",
-  "svc.viewProfile": "View profile",
-  "svc.viewService": "View Service",
-  "svc.verifiedBadge": "Verified",
-  "svc.unavailable": "Not accepting bookings",
-  "svc.byProvider": "Services by {name}",
-  "svc.book": "Book",
-  "svc.chat": "Chat",
-  "svc.portfolio": "Portfolio",
-  "svc.services": "Services",
-  "svc.reviewsTitle": "Reviews",
-  "svc.noReviews": "No reviews yet",
-  "svc.noPortfolio": "No photos yet",
-  "svc.noServices": "No services listed yet",
-  "svc.notFound": "Provider not found",
-  "svc.duration": "{minutes} min",
-  "book.title": "Book {name}",
-  "book.service": "Service",
-  "book.when": "Date & time",
-  "book.notes": "Notes (style, length, address…)",
-  "book.confirm": "Confirm booking",
-  "book.sent": "Booking request sent",
-  "book.err": "Could not create the booking. Try again.",
-  "book.errDate": "Pick a date and time in the future.",
-  "book.mine": "My bookings",
-  "book.received": "Client bookings",
-  "book.none": "No bookings yet",
-  "book.accept": "Accept",
-  "book.decline": "Decline",
-  "book.complete": "Mark completed",
-  "book.cancel": "Cancel",
-  "book.review": "Leave a review",
-  "book.reviewSent": "Thanks for your review",
-  "book.reviewErr": "Could not save your review.",
-  "book.comment": "How was the work?",
-  "book.submitReview": "Submit review",
-  "chat.title": "Messages",
-  "chat.none": "No conversations yet",
-  "chat.noneCopy": "Start a chat from a provider profile.",
-  "chat.placeholder": "Write a message…",
-  "chat.send": "Send",
-  "chat.pick": "Select a conversation",
-  "pro.title": "My studio",
-  "pro.subtitle": "Manage your profile, services, portfolio and bookings.",
-  "pro.create": "Create your provider profile",
-  "pro.createCopy": "Set up your studio, add your work, and go live for {fee} per month.",
-  "pro.businessName": "Business name",
-  "pro.bio": "About your work",
-  "pro.city": "City",
-  "pro.phone": "Phone",
-  "pro.whatsapp": "WhatsApp",
-  "pro.categories": "Categories",
-  "pro.save": "Save profile",
-  "pro.saved": "Studio profile saved",
-  "pro.saveErr": "Could not save your studio profile.",
-  "pro.live": "Live",
-  "pro.offline": "Offline",
-  "pro.subTitle": "Subscription",
-  "pro.subCopy": "Pay {fee} per month to stay visible to clients and receive bookings.",
-  "pro.subActive": "Active until {date}",
-  "pro.subPay": "Pay {fee} & go live",
-  "pro.subStarting": "Opening secure checkout…",
-  "pro.subErr": "Could not start the subscription payment.",
-  "pro.subVerify": "I have paid — verify",
-  "pro.subVerified": "You are live. Clients can now find you.",
-  "pro.subPending": "Payment not confirmed yet. Try again in a moment.",
-  "pro.addService": "Add service",
-  "pro.serviceAdded": "Service added",
-  "pro.serviceTitle": "Service name",
-  "pro.price": "Price (XAF)",
-  "pro.durationMin": "Duration (minutes)",
-  "pro.description": "Description",
-  "pro.delete": "Delete",
-  "pro.upload": "Upload photos or videos",
-  "pro.uploading": "Uploading…",
-  "pro.uploadErr": "Upload failed. Images under 5 MB, videos under 50 MB.",
-  "pro.caption": "Caption",
-  "pro.stat.bookings": "Bookings",
-  "pro.stat.upcoming": "Upcoming",
-  "pro.stat.revenue": "Revenue (completed)",
-  "pro.stat.rating": "Rating",
-  "ai.title": "ASH AI",
-  "ai.subtitle": "Ask for anything — a plumber, a deal, an event, a freelancer, or how your earnings are doing.",
-  "ai.placeholder": "Ask about your earnings, bookings or how to grow…",
-  "ai.hint1": "How do referral commissions work?",
-  "ai.hint2": "How is my studio performing this month?",
-  "ai.hint3": "How can I get more bookings?",
-  "ai.err": "The assistant is unavailable right now.",
-  "ai.busy": "Thinking…",
-  "ai.open": "Open ASH AI",
-  "ai.close": "Close assistant",
-  "pro.billing.title": "How you pay the platform",
-  "pro.createCopyFree": "Setting up your studio is free. Add your services and photos, and you go live instantly.",
-  "pro.billing.freeTitle": "Free to join",
-  "pro.billing.freeCopy": "There is no monthly fee. ASH only takes 1% of each paid booking.",
-  "pro.billing.freePoint1": "Unlimited services and portfolio photos",
-  "pro.billing.freePoint2": "Secure mobile money payments handled for you",
-  "pro.billing.freePoint3": "1% platform fee on paid bookings — nothing else",
-  "pro.billing.copy":
-    "Setting up your studio is free. Choose a plan when you are ready to accept bookings from clients.",
-  "pro.billing.sub": "Monthly subscription",
-  "pro.billing.subDesc": "{fee} per month. Keep 100% of what you earn from each service.",
-  "pro.billing.com": "Pay as you earn",
-  "pro.billing.comDesc": "No monthly fee. The platform takes 1% of every completed paid service.",
-  "pro.billing.choose": "Choose this plan",
-  "pro.billing.current": "Current plan",
-  "pro.billing.saved": "Plan updated.",
-  "pro.billing.comLive": "You are live on pay-as-you-earn. 1% is deducted from each completed booking.",
-  "pro.activatePrompt": "Your studio is saved but offline. Pick a plan below to start accepting bookings.",
-
-  // ASH Card
-  "card.open": "ASH Card — coming soon",
-  "card.close": "Close",
-  "card.title": "The ASH Card",
-  "card.soon": "Coming soon",
-  "card.tagline": "Premium virtual card",
-  "card.desc":
-    "Your ASH virtual card is on the way. Spend your referral and service earnings directly, without waiting for a payout.",
-  "card.f1": "Spend your wallet balance online, anywhere.",
-  "card.f2": "Instant top-up from your ASH Glo wallet.",
-  "card.f3": "Gold-tier perks for active members and providers.",
-  "card.notify": "No action needed — your card will appear here automatically when it launches.",
-
-  // Settings
-  "nav.settings": "Settings",
-  "nav.more": "More",
-  "settings.title": "Settings",
-  "settings.subtitle": "ASH — Where Opportunities Connect. About the platform, your privacy, and account controls.",
-  "settings.about": "About ASH",
-  "settings.about.1":
-    "ASH is a digital opportunity, commerce, services, freelance, community, and events platform that connects people, businesses, freelancers, service providers, communities, and event organizers in one ecosystem — where opportunities connect.",
-  "settings.about.2":
-    "ASH Refer: activate your account once for {fee} via MTN Mobile Money or Orange Money, share your referral link, and earn 1,500 XAF on level 1, 750 XAF on level 2 and 250 XAF on level 3 as your network activates.",
-  "settings.about.3":
-    "ASH Services, Marketplace & Freelance: providers (braiders, nail/lash techs, barbers, artists) run studio profiles with portfolios, bookings, chat and reviews; sellers open free storefronts; freelancers bid on projects.",
-  "settings.about.4":
-    "ASH Property, Events & Deals: find student housing, rentals, sales and land; publish events and sell tickets; claim promotions with codes. ASH keeps just 1% on completed bookings, ticket sales and payment links — provider funds and member commissions stay separate from platform revenue.",
-  "settings.about.5":
-    "Everything you earn lands in one ASH Wallet and can be withdrawn to MTN Mobile Money or Orange Money once you reach the minimum payout. ASH AI is always there to guide you.",
-  "settings.privacy": "Privacy policy",
-  "settings.privacy.1":
-    "We collect only what the platform needs: your name, email, phone number, referral relationships, payment references and any content you publish as a provider.",
-  "settings.privacy.2":
-    "Payment details are handled by our licensed payment partner. We never store your mobile money PIN or full card data.",
-  "settings.privacy.3":
-    "Your data is protected by row-level security: you can only read your own wallet, transactions and messages. Providers only see bookings and chats that involve them.",
-  "settings.privacy.4":
-    "We never sell your personal data. Data is shared only with the payment provider and where the law requires it.",
-  "settings.privacy.5": "You may request a copy or deletion of your data at any time from this page.",
-  "settings.terms": "Terms & fair use",
-  "settings.terms.1":
-    "One account per person. Fake accounts, self-referrals and fraudulent payments lead to suspension and forfeited commissions.",
-  "settings.terms.2":
-    "Commissions are only final once the related payment is confirmed. Cancelled, refunded or disputed bookings are reversed in the ledger.",
-  "settings.terms.3": "Providers are responsible for the services they deliver to clients.",
-  "settings.support": "Support",
-  "settings.support.copy":
-    "Questions about payments, bookings or your account? Ask the ASH Assistant in the app, or send our team a message and we will reply by email within 24 hours.",
-  "settings.support.cta": "Contact support",
-  "settings.danger": "Delete account",
-  "settings.delete.copy":
-    "Account deletion is reviewed and approved by an administrator. Any pending balance or withdrawal must be settled first.",
-  "settings.delete.reason": "Why do you want to delete your account? (optional)",
-  "settings.delete.submit": "Request account deletion",
-  "settings.delete.confirm": "Request account deletion?",
-  "settings.delete.confirmDesc":
-    "An administrator will review your request. Your account stays active until it is approved.",
-  "settings.delete.sent": "Deletion request sent for admin approval.",
-  "settings.delete.pending": "Your deletion request is pending admin approval.",
-  "settings.delete.rejected": "Your last deletion request was declined by an administrator.",
-  "settings.delete.err": "Could not send the request. Please try again.",
-  "auth.email": "Email",
-  "auth.password": "Password",
-  "auth.login.title": "Welcome back",
-  "auth.login.subtitle": "Sign in to continue growing your network.",
-  "auth.login.forgot": "Forgot password?",
-  "auth.login.submit": "Sign In",
-  "auth.login.submitting": "Signing in\u2026",
-  "auth.login.welcome": "Welcome back",
-  "auth.login.invalid": "Incorrect email or password.",
-  "auth.login.unconfirmed":
-    "Your email address is not confirmed yet. Check your inbox for the confirmation link, or request a new one below.",
-  "auth.login.resend": "Resend confirmation email",
-  "auth.login.resending": "Sending…",
-  "auth.login.resent": "Confirmation email sent — check your inbox and spam folder.",
-  "auth.login.orContinue": "Or continue with",
-  "auth.login.noAccount": "New to ASH Glo?",
-  "auth.login.createAccount": "Create an account",
-  "auth.register.title": "Create your account",
-  "auth.register.subtitle": "Join ASH Glo and start building your network.",
-  "auth.register.fullName": "Full name",
-  "auth.register.phone": "Phone number",
-  "auth.register.phoneHint": "Cameroon number, e.g. 677 000 000",
-  "auth.register.confirmPassword": "Confirm password",
-  "auth.register.referral": "Referral code (optional)",
-  "auth.register.refChecking": "Checking code\u2026",
-  "auth.register.refValid": "Valid referral code",
-  "auth.register.refInvalid": "Code not recognised",
-  "auth.register.refMissing": "This referral code does not exist.",
-  "auth.register.submit": "Create an account",
-  "auth.register.submitting": "Creating account\u2026",
-  "auth.register.activationNote": "Activation costs a one-time 5,000 XAF after registration.",
-  "auth.register.orSignUp": "Or sign up with",
-  "auth.register.haveAccount": "Already have an account?",
-  "auth.register.signIn": "Sign in",
-  "auth.register.created": "Account created",
-  "auth.register.exists": "An account with this email already exists.",
-  "auth.register.checkEmail": "Check your email",
-  "auth.register.checkEmailSub": "One last step before you can sign in.",
-  "auth.register.checkEmailCopy":
-    "We sent a confirmation link to {email}. Confirm your email, then sign in to activate your account.",
-  "auth.register.goLogin": "Go to login",
-  "auth.err.name": "Enter your full name",
-  "auth.err.email": "Enter a valid email",
-  "auth.err.phone": "Enter a valid Cameroon number (e.g. 6XX XXX XXX)",
-  "auth.err.passwordMin": "Password must be at least 8 characters",
-  "auth.err.passwordMatch": "Passwords do not match",
-  "auth.forgot.title": "Forgot password",
-  "auth.forgot.subtitle": "We'll email you a secure reset link.",
-  "auth.forgot.submit": "Send reset link",
-  "auth.forgot.back": "Back to login",
-  "auth.forgot.sentTitle": "Check your inbox",
-  "auth.forgot.sentSub": "If that email is registered, a reset link is on its way.",
-  "auth.forgot.sentCopy": "Open the link on this device to set a new password.",
-  "auth.reset.title": "Set a new password",
-  "auth.reset.subtitle": "Choose a strong password you don't use elsewhere.",
-  "auth.reset.new": "New password",
-  "auth.reset.confirm": "Confirm password",
-  "auth.reset.submit": "Update password",
-  "auth.reset.updated": "Password updated",
-  "settings.version": "ASH — Where Opportunities Connect · v1.0",
-} as const;
-
-export type TKey = keyof typeof EN;
-
-const FR: Record<TKey, string> = {
-  "nav.home": "Gains",
-  "nav.network": "Réseau",
-  "nav.wallet": "Portefeuille",
-  "nav.profile": "Profil",
-  "nav.transactions": "Transactions",
-  "nav.withdraw": "Retrait",
-  "nav.admin": "Admin",
-  "shell.member": "Membre",
-  "shell.active": "Actif",
-  "shell.pending": "Activation en attente",
-  "shell.signOut": "Déconnexion",
-  "shell.theme.dark": "Mode sombre",
-  "shell.theme.light": "Mode clair",
-  "shell.language": "Langue",
-
-  "landing.signIn": "Se connecter",
-  "landing.getStarted": "Commencer",
-  "landing.badge": "Conçu pour le Cameroun · Payé en XAF",
-  "landing.h1a": "Parrainez vos amis.",
-  "landing.h1b": "Gagnez de",
-  "landing.h1c": "l'argent réel",
-  "landing.hero.copy":
-    "Activez votre compte une seule fois, partagez votre lien et gagnez des commissions sur trois niveaux de votre réseau — retirées directement en mobile money.",
-  "landing.cta.signup": "Inscription gratuite",
-  "landing.cta.haveAccount": "J'ai déjà un compte",
-  "landing.balance": "Solde disponible",
-  "landing.row.l1": "Commission de parrainage · N1",
-  "landing.row.l2": "Commission de parrainage · N2",
-  "landing.row.withdrawal": "Retrait · MTN MoMo",
-  "landing.level1.label": "Filleuls directs",
-  "landing.level1.copy": "Toute personne qui s'inscrit avec votre lien et active son compte.",
-  "landing.level2.label": "Deuxième niveau",
-  "landing.level2.copy": "Les personnes que vos filleuls font venir.",
-  "landing.level3.label": "Troisième niveau",
-  "landing.level3.copy": "Votre réseau continue de payer, sur trois niveaux.",
-  "landing.how.eyebrow": "Comment ça marche",
-  "landing.how.title": "Démarrez en quatre étapes",
-  "landing.how.copy":
-    "Une activation unique de {fee} débloque votre position. Ensuite, chaque membre activé dans vos trois premiers niveaux vous verse une commission fixe.",
-  "landing.step1.title": "Créez votre compte",
-  "landing.step1.copy": "Inscrivez-vous en moins d'une minute avec votre nom, e-mail et téléphone.",
-  "landing.step2.title": "Activez pour {fee}",
-  "landing.step2.copy": "Un seul paiement mobile money vérifié débloque vos gains.",
-  "landing.step3.title": "Partagez votre lien",
-  "landing.step3.copy": "Chaque membre reçoit un code de parrainage unique et un lien à partager.",
-  "landing.step4.title": "Gagnez et retirez",
-  "landing.step4.copy": "Les commissions arrivent dans votre portefeuille dès qu'un filleul active son compte.",
-  "landing.platform.eyebrow": "La plateforme",
-  "landing.platform.title": "Tout pour développer votre réseau",
-  "landing.f1.title": "100 % mobile money",
-  "landing.f1.copy": "Payez et soyez payé avec MTN Mobile Money ou Orange Money.",
-  "landing.f2.title": "Trois niveaux de gains",
-  "landing.f2.copy": "Des commissions de vos filleuls, des leurs, et encore des leurs.",
-  "landing.f3.title": "Portefeuille en direct",
-  "landing.f3.copy": "Solde disponible, paiements en attente et registre complet des transactions.",
-  "landing.f4.title": "Paiements vérifiés",
-  "landing.f4.copy": "Chaque activation est confirmée par le prestataire avant le versement des gains.",
-  "landing.f5.title": "Vision du réseau",
-  "landing.f5.copy": "Voyez qui a rejoint, qui a activé et ce que chaque niveau rapporte.",
-  "landing.f6.title": "Retraits rapides",
-  "landing.f6.copy": "Retirez dès {min} directement sur votre portefeuille mobile.",
-  "landing.final.eyebrow": "Commencez à gagner",
-  "landing.final.title": "Votre réseau a de la valeur",
-  "landing.final.copy":
-    "Rejoignez ASH Glo aujourd'hui, activez votre compte et gagnez sur chaque personne que vous amenez.",
-  "landing.final.cta": "Créer mon compte",
-  "landing.footer": "© {year} ASH Glo. Tous les montants en XAF.",
-  "landing.services.eyebrow": "ASH Marketplace",
-  "landing.services.title": "Trouvez des services, des produits et des professionnels près de chez vous",
-  "landing.services.copy":
-    "Parcourez les annonces, comparez les portfolios, lisez les avis et contactez des vendeurs et prestataires vérifiés au Cameroun.",
-  "landing.services.cta": "Trouvez ce qu'il vous faut",
-  "landing.services.reviews": "Avis vérifiés",
-  "landing.services.secure": "Mobile money sécurisé",
-  "landing.services.sell": "Vendre sur ASH",
-  "landing.cat.beauty.title": "Beauté & soins",
-  "landing.cat.beauty.copy": "Tresseuses, prothésistes ongulaires, barbiers et maquilleurs.",
-  "landing.cat.home.title": "Maison & métiers",
-  "landing.cat.home.copy": "Électriciens, plombiers, agents d'entretien et bricoleurs.",
-  "landing.cat.health.title": "Santé & bien-être",
-  "landing.cat.health.copy": "Infirmiers, aides-soignants, massage et bien-être.",
-  "landing.cat.tech.title": "Tech & numérique",
-  "landing.cat.tech.copy": "Développeurs, designers, support IT et cybersécurité.",
-  "landing.property.title": "Chambres, appartements, maisons et terrains — ASH Property",
-  "landing.property.copy":
-    "Logement étudiant près du campus, locations, maisons à vendre et terrains. Recherche gratuite, publication gratuite, badges de vérification et discussion directe avec le propriétaire.",
-  "landing.property.browse": "Voir les biens",
-  "landing.property.list": "Publier gratuitement",
-  "landing.services.chat": "Chat instantané",
-  "landing.services.hero.eyebrow": "Marché digital",
-  "landing.services.hero.title": "Services, produits & opportunités",
-  "landing.services.hero.copy":
-    "Découvrez des prestataires de confiance, achetez local et payez en toute sécurité — tout en un seul endroit.",
-  "landing.services.hero.cta": "Explorer le marché",
-
-  "dash.welcome": "Bon retour",
-  "dash.availableBalance": "Solde disponible",
-  "dash.totalEarned": "Total gagné",
-  "dash.totalWithdrawn": "Total retiré",
-  "dash.withdrawFunds": "Retirer des fonds",
-  "dash.activateTitle": "Activez votre compte",
-  "dash.activateCopy": "Payez les frais d'activation uniques de {fee} pour débloquer vos gains.",
-  "dash.activateCta": "Activer pour {fee}",
-  "dash.stat.earned": "Total gagné",
-  "dash.stat.withdrawn": "Total retiré",
-  "dash.stat.direct": "Filleuls directs",
-  "dash.stat.network": "Réseau total",
-  "dash.recent": "Activité récente",
-  "common.viewAll": "Tout voir",
-  "common.there": "vous",
-
-  "net.title": "Réseau de parrainage",
-  "net.subtitle": "Votre réseau sur trois niveaux. L'identité des membres reste privée.",
-  "net.empty.title": "Votre réseau est vide",
-  "net.empty.copy":
-    "Partagez votre lien de parrainage pour ajouter votre premier membre. Les commissions sont versées après activation.",
-  "net.empty.cta": "Obtenir mon lien de parrainage",
-  "net.level": "Niveau {n}",
-  "net.each": "{amount} chacun",
-  "net.members": "Membres",
-  "net.activeMembers": "Membres actifs",
-  "net.commissions": "Commissions générées",
-  "net.tree.title": "Carte du réseau",
-  "net.tree.subtitle":
-    "Développez votre arbre pour voir qui a rejoint, qui a activé et ce que chaque branche rapporte.",
-  "net.tree.filter.all": "Tous les niveaux",
-  "net.tree.earnings": "Gains de la branche",
-  "net.tree.member": "Membre",
-  "net.tree.joined": "Rejoint le {date}",
-  "net.tree.empty": "Aucun membre ne correspond à ce filtre.",
-  "net.tree.you": "Vous",
-  "net.tree.rootLabel": "Votre compte",
-
-  "wallet.title": "Portefeuille",
-  "wallet.subtitle": "Les soldes proviennent de votre registre de transactions.",
-  "wallet.withdraw": "Retirer",
-  "wallet.pending": "Solde en attente",
-  "wallet.pendingHint": "Retenu pendant le traitement d'un retrait",
-  "wallet.history": "Historique des transactions",
-
-  "tx.title": "Transactions",
-  "tx.subtitle": "Chaque évènement financier de votre compte.",
-  "tx.filter.all": "Tout",
-  "tx.filter.commissions": "Commissions",
-  "tx.filter.activation": "Activation",
-  "tx.filter.withdrawals": "Retraits",
-
-  "profile.title": "Profil",
-  "profile.pendingCopy": "Votre compte est en attente d'activation. Payez {fee} une fois pour commencer à gagner.",
-  "profile.activateNow": "Activer maintenant",
-  "profile.accountDetails": "Détails du compte",
-  "profile.fullName": "Nom complet",
-  "profile.email": "E-mail",
-  "profile.phone": "Numéro de téléphone",
-  "profile.save": "Enregistrer",
-  "profile.saved": "Profil mis à jour",
-  "profile.err.name": "Entrez votre nom complet.",
-  "profile.err.phone": "Entrez un numéro de téléphone valide avec indicatif.",
-  "profile.err.save": "Impossible d'enregistrer vos modifications. Réessayez.",
-  "profile.referralDetails": "Détails de parrainage",
-  "profile.referralCode": "Code de parrainage",
-  "profile.memberSince": "Membre depuis",
-
-  "state.emptyTx": "Aucune transaction pour le moment",
-  "state.error": "Une erreur est survenue",
-  "state.retry": "Réessayer",
-  "referral.title": "Votre lien de parrainage",
-  "referral.copy": "Copier le lien",
-  "referral.copied": "Lien copié",
-  "referral.share": "Partager",
-  "net.pendingActivation": "Activation en attente",
-  "net.pendingCommission": "Commission en attente",
-  "wallet.pendingTitle": "{amount} en attente d'activations de filleuls",
-  "wallet.pendingBody":
-    "Ces commissions ne sont pas encore retirables. Elles sont créditées automatiquement dès que le paiement d'activation de 5 000 XAF de chaque filleul est vérifié.",
-  "nav.services": "Marché",
-  "nav.bookings": "Réservations",
-  "nav.messages": "Messages",
-  "nav.pro": "Mon studio",
-  "nav.assistant": "ASH AI",
-  "nav.search": "Recherche",
-  "nav.create": "Créer",
-  "nav.deals": "Bons plans",
-  "nav.events": "Événements",
-  "nav.freelance": "Freelance",
-  "nav.analytics": "Statistiques",
-  "nav.property": "Immobilier",
-  "cat.BRAIDER": "Coiffeuse tresses",
-  "cat.NAIL_TECH": "Prothésiste ongulaire",
-  "cat.LASH_TECH": "Technicienne cils",
-  "cat.MAKEUP": "Maquilleuse",
-  "cat.BARBER": "Barbier",
-  "cat.OTHER": "Autre",
-  "booking.status.PENDING": "En attente",
-  "booking.status.CONFIRMED": "Confirmée",
-  "booking.status.COMPLETED": "Terminée",
-  "booking.status.CANCELLED": "Annulée",
-  "booking.status.DECLINED": "Refusée",
-  "svc.title": "Réserver un pro",
-  "svc.subtitle": "Tresses, ongles et cils près de chez vous. Voyez leur travail, réservez et discutez en direct.",
-  "svc.search": "Rechercher par nom, ville ou prestation",
-  "svc.all": "Tous",
-  "svc.empty": "Aucun prestataire pour le moment",
-  "svc.emptyCopy": "Soyez le premier à être en ligne dans votre catégorie.",
-  "svc.becomePro": "Devenir prestataire",
-  "svc.reviews": "{count} avis",
-  "svc.noRating": "Nouveau",
-  "svc.from": "À partir de {price}",
-  "svc.viewProfile": "Voir le profil",
-  "svc.viewService": "Voir le service",
-  "svc.verifiedBadge": "Vérifié",
-  "svc.unavailable": "Réservations fermées",
-  "svc.byProvider": "Prestations de {name}",
-  "svc.book": "Réserver",
-  "svc.chat": "Discuter",
-  "svc.portfolio": "Portfolio",
-  "svc.services": "Prestations",
-  "svc.reviewsTitle": "Avis",
-  "svc.noReviews": "Pas encore d'avis",
-  "svc.noPortfolio": "Pas encore de photos",
-  "svc.noServices": "Aucune prestation publiée",
-  "svc.notFound": "Prestataire introuvable",
-  "svc.duration": "{minutes} min",
-  "book.title": "Réserver {name}",
-  "book.service": "Prestation",
-  "book.when": "Date et heure",
-  "book.notes": "Notes (style, longueur, adresse…)",
-  "book.confirm": "Confirmer la réservation",
-  "book.sent": "Demande de réservation envoyée",
-  "book.err": "Impossible de créer la réservation. Réessayez.",
-  "book.errDate": "Choisissez une date et une heure futures.",
-  "book.mine": "Mes réservations",
-  "book.received": "Réservations clients",
-  "book.none": "Aucune réservation",
-  "book.accept": "Accepter",
-  "book.decline": "Refuser",
-  "book.complete": "Marquer terminée",
-  "book.cancel": "Annuler",
-  "book.review": "Laisser un avis",
-  "book.reviewSent": "Merci pour votre avis",
-  "book.reviewErr": "Impossible d'enregistrer votre avis.",
-  "book.comment": "Comment était la prestation ?",
-  "book.submitReview": "Envoyer l'avis",
-  "chat.title": "Messages",
-  "chat.none": "Aucune conversation",
-  "chat.noneCopy": "Démarrez une discussion depuis un profil de prestataire.",
-  "chat.placeholder": "Écrire un message…",
-  "chat.send": "Envoyer",
-  "chat.pick": "Sélectionnez une conversation",
-  "pro.title": "Mon studio",
-  "pro.subtitle": "Gérez votre profil, vos prestations, votre portfolio et vos réservations.",
-  "pro.create": "Créez votre profil prestataire",
-  "pro.createCopy": "Configurez votre studio, ajoutez vos réalisations et passez en ligne pour {fee} par mois.",
-  "pro.businessName": "Nom de l'activité",
-  "pro.bio": "À propos de votre travail",
-  "pro.city": "Ville",
-  "pro.phone": "Téléphone",
-  "pro.whatsapp": "WhatsApp",
-  "pro.categories": "Catégories",
-  "pro.save": "Enregistrer le profil",
-  "pro.saved": "Profil studio enregistré",
-  "pro.saveErr": "Impossible d'enregistrer votre profil studio.",
-  "pro.live": "En ligne",
-  "pro.offline": "Hors ligne",
-  "pro.subTitle": "Abonnement",
-  "pro.subCopy": "Payez {fee} par mois pour rester visible et recevoir des réservations.",
-  "pro.subActive": "Actif jusqu'au {date}",
-  "pro.subPay": "Payer {fee} et passer en ligne",
-  "pro.subStarting": "Ouverture du paiement sécurisé…",
-  "pro.subErr": "Impossible de démarrer le paiement de l'abonnement.",
-  "pro.subVerify": "J'ai payé — vérifier",
-  "pro.subVerified": "Vous êtes en ligne. Les clients peuvent vous trouver.",
-  "pro.subPending": "Paiement pas encore confirmé. Réessayez dans un instant.",
-  "pro.addService": "Ajouter une prestation",
-  "pro.serviceAdded": "Prestation ajoutée",
-  "pro.serviceTitle": "Nom de la prestation",
-  "pro.price": "Prix (XAF)",
-  "pro.durationMin": "Durée (minutes)",
-  "pro.description": "Description",
-  "pro.delete": "Supprimer",
-  "pro.upload": "Ajouter photos ou vidéos",
-  "pro.uploading": "Envoi…",
-  "pro.uploadErr": "Échec de l'envoi. Images < 5 Mo, vidéos < 50 Mo.",
-  "pro.caption": "Légende",
-  "pro.stat.bookings": "Réservations",
-  "pro.stat.upcoming": "À venir",
-  "pro.stat.revenue": "Revenus (terminées)",
-  "pro.stat.rating": "Note",
-  "ai.title": "ASH AI",
-  "ai.subtitle": "Demandez tout — un plombier, un bon plan, un événement, un freelance ou vos gains.",
-  "ai.placeholder": "Demandez vos gains, réservations ou conseils de croissance…",
-  "ai.hint1": "Comment fonctionnent les commissions de parrainage ?",
-  "ai.hint2": "Comment se porte mon studio ce mois-ci ?",
-  "ai.hint3": "Comment obtenir plus de réservations ?",
-  "ai.err": "L'assistant est indisponible pour le moment.",
-  "ai.busy": "Réflexion…",
-  "ai.open": "Ouvrir ASH AI",
-  "ai.close": "Fermer l'assistant",
-  "pro.billing.title": "Comment vous payez la plateforme",
-  "pro.createCopyFree":
-    "Créer votre studio est gratuit. Ajoutez vos prestations et vos photos, vous passez en ligne immédiatement.",
-  "pro.billing.freeTitle": "Inscription gratuite",
-  "pro.billing.freeCopy": "Aucun frais mensuel. ASH prend seulement 1 % de chaque réservation payée.",
-  "pro.billing.freePoint1": "Prestations et photos illimitées",
-  "pro.billing.freePoint2": "Paiements mobile money sécurisés gérés pour vous",
-  "pro.billing.freePoint3": "1 % de frais sur les réservations payées — rien d'autre",
-  "pro.billing.copy":
-    "Créer votre studio est gratuit. Choisissez une formule quand vous êtes prêt à accepter des réservations.",
-  "pro.billing.sub": "Abonnement mensuel",
-  "pro.billing.subDesc": "{fee} par mois. Vous gardez 100 % de vos revenus de prestation.",
-  "pro.billing.com": "Payer selon vos gains",
-  "pro.billing.comDesc": "Aucun frais mensuel. La plateforme prend 1 % de chaque prestation payée terminée.",
-  "pro.billing.choose": "Choisir cette formule",
-  "pro.billing.current": "Formule actuelle",
-  "pro.billing.saved": "Formule mise à jour.",
-  "pro.billing.comLive": "Vous êtes en ligne en mode 1 %. 1 % est déduit de chaque réservation terminée.",
-  "pro.activatePrompt":
-    "Votre studio est enregistré mais hors ligne. Choisissez une formule pour accepter des réservations.",
-
-  "card.open": "Carte ASH — bientôt disponible",
-  "card.close": "Fermer",
-  "card.title": "La carte ASH",
-  "card.soon": "Bientôt disponible",
-  "card.tagline": "Carte virtuelle premium",
-  "card.desc":
-    "Votre carte virtuelle ASH arrive bientôt. Dépensez vos gains de parrainage et de prestations directement, sans attendre un retrait.",
-  "card.f1": "Payez en ligne avec le solde de votre portefeuille.",
-  "card.f2": "Rechargement instantané depuis votre portefeuille ASH Glo.",
-  "card.f3": "Avantages Gold pour les membres et prestataires actifs.",
-  "card.notify": "Aucune action requise — votre carte apparaîtra ici automatiquement au lancement.",
-
-  "nav.settings": "Paramètres",
-  "nav.more": "Plus",
-  "settings.title": "Paramètres",
-  "settings.subtitle":
-    "ASH — Là où les opportunités se connectent. À propos de la plateforme, votre vie privée et votre compte.",
-  "settings.about": "À propos d'ASH",
-  "settings.about.1":
-    "ASH est une plateforme d'opportunités, de commerce, de services, de freelance, de communautés et d'événements qui connecte les personnes, les entreprises, les freelances, les prestataires, les communautés et les organisateurs d'événements dans un seul écosystème.",
-  "settings.about.2":
-    "ASH Refer : activez votre compte une fois pour {fee} via MTN Mobile Money ou Orange Money, partagez votre lien et gagnez 1 500 XAF au niveau 1, 750 XAF au niveau 2 et 250 XAF au niveau 3 à chaque activation de votre réseau.",
-  "settings.about.3":
-    "ASH Services, Marketplace & Freelance : les prestataires (coiffure, ongles, cils, barbier, artistes) gèrent un studio avec portfolio, réservations, messagerie et avis ; les vendeurs ouvrent des boutiques gratuites ; les freelances répondent à des projets.",
-  "settings.about.4":
-    "ASH Property, Events & Deals : logements étudiants, locations, ventes et terrains ; publiez des événements et vendez des billets ; profitez de promotions avec codes. ASH ne garde que 1 % sur les réservations, billetteries et liens de paiement terminés — fonds des prestataires et commissions restent séparés des revenus de la plateforme.",
-  "settings.about.5":
-    "Tous vos gains arrivent dans un seul portefeuille ASH, retirable vers MTN Mobile Money ou Orange Money dès le montant minimum atteint. L'assistant ASH AI vous accompagne partout.",
-  "settings.privacy": "Politique de confidentialité",
-  "settings.privacy.1":
-    "Nous collectons uniquement le nécessaire : nom, e-mail, téléphone, liens de parrainage, références de paiement et le contenu publié en tant que prestataire.",
-  "settings.privacy.2":
-    "Les paiements sont traités par notre partenaire agréé. Nous ne stockons jamais votre code mobile money ni vos données bancaires complètes.",
-  "settings.privacy.3":
-    "Vos données sont protégées au niveau des lignes : vous ne pouvez lire que votre portefeuille, vos transactions et vos messages. Les prestataires ne voient que leurs propres réservations et conversations.",
-  "settings.privacy.4":
-    "Nous ne vendons jamais vos données. Elles ne sont partagées qu'avec le prestataire de paiement ou si la loi l'exige.",
-  "settings.privacy.5": "Vous pouvez demander une copie ou la suppression de vos données depuis cette page.",
-  "settings.terms": "Conditions et bon usage",
-  "settings.terms.1":
-    "Un seul compte par personne. Les faux comptes, auto-parrainages et paiements frauduleux entraînent une suspension et la perte des commissions.",
-  "settings.terms.2":
-    "Les commissions ne sont définitives qu'après confirmation du paiement. Les réservations annulées, remboursées ou contestées sont annulées au grand livre.",
-  "settings.terms.3": "Les prestataires sont responsables des services rendus à leurs clients.",
-  "settings.support": "Assistance",
-  "settings.support.copy":
-    "Des questions sur les paiements, les réservations ou votre compte ? Utilisez l'assistant ASH ou envoyez-nous un message : réponse par e-mail sous 24 h.",
-  "settings.support.cta": "Contacter le support",
-  "settings.danger": "Supprimer le compte",
-  "settings.delete.copy":
-    "La suppression du compte est examinée et approuvée par un administrateur. Tout solde ou retrait en attente doit d'abord être réglé.",
-  "settings.delete.reason": "Pourquoi souhaitez-vous supprimer votre compte ? (facultatif)",
-  "settings.delete.submit": "Demander la suppression du compte",
-  "settings.delete.confirm": "Demander la suppression du compte ?",
-  "settings.delete.confirmDesc":
-    "Un administrateur examinera votre demande. Votre compte reste actif jusqu'à approbation.",
-  "settings.delete.sent": "Demande de suppression envoyée pour approbation.",
-  "settings.delete.pending": "Votre demande de suppression est en attente d'approbation.",
-  "settings.delete.rejected": "Votre dernière demande de suppression a été refusée par un administrateur.",
-  "settings.delete.err": "Impossible d'envoyer la demande. Veuillez réessayer.",
-  "auth.email": "E-mail",
-  "auth.password": "Mot de passe",
-  "auth.login.title": "Bon retour",
-  "auth.login.subtitle": "Connectez-vous pour continuer \u00e0 d\u00e9velopper votre r\u00e9seau.",
-  "auth.login.forgot": "Mot de passe oubli\u00e9 ?",
-  "auth.login.submit": "Se connecter",
-  "auth.login.submitting": "Connexion\u2026",
-  "auth.login.welcome": "Bon retour",
-  "auth.login.invalid": "E-mail ou mot de passe incorrect.",
-  "auth.login.unconfirmed":
-    "Votre adresse e-mail n'est pas encore confirmée. Vérifiez votre boîte de réception, ou demandez un nouveau lien ci-dessous.",
-  "auth.login.resend": "Renvoyer l'e-mail de confirmation",
-  "auth.login.resending": "Envoi…",
-  "auth.login.resent": "E-mail de confirmation envoyé — vérifiez votre boîte de réception et vos spams.",
-  "auth.login.orContinue": "Ou continuer avec",
-  "auth.login.noAccount": "Nouveau sur ASH Glo ?",
-  "auth.login.createAccount": "Cr\u00e9er un compte",
-  "auth.register.title": "Cr\u00e9er votre compte",
-  "auth.register.subtitle": "Rejoignez ASH Glo et commencez \u00e0 b\u00e2tir votre r\u00e9seau.",
-  "auth.register.fullName": "Nom complet",
-  "auth.register.phone": "Num\u00e9ro de t\u00e9l\u00e9phone",
-  "auth.register.phoneHint": "Num\u00e9ro camerounais, ex. 677 000 000",
-  "auth.register.confirmPassword": "Confirmer le mot de passe",
-  "auth.register.referral": "Code de parrainage (facultatif)",
-  "auth.register.refChecking": "V\u00e9rification du code\u2026",
-  "auth.register.refValid": "Code de parrainage valide",
-  "auth.register.refInvalid": "Code non reconnu",
-  "auth.register.refMissing": "Ce code de parrainage n'existe pas.",
-  "auth.register.submit": "Cr\u00e9er un compte",
-  "auth.register.submitting": "Cr\u00e9ation du compte\u2026",
-  "auth.register.activationNote": "L'activation co\u00fbte 5\u202f000 XAF, une seule fois, apr\u00e8s l'inscription.",
-  "auth.register.orSignUp": "Ou s'inscrire avec",
-  "auth.register.haveAccount": "Vous avez d\u00e9j\u00e0 un compte ?",
-  "auth.register.signIn": "Se connecter",
-  "auth.register.created": "Compte cr\u00e9\u00e9",
-  "auth.register.exists": "Un compte existe d\u00e9j\u00e0 avec cet e-mail.",
-  "auth.register.checkEmail": "V\u00e9rifiez votre e-mail",
-  "auth.register.checkEmailSub": "Une derni\u00e8re \u00e9tape avant de vous connecter.",
-  "auth.register.checkEmailCopy":
-    "Nous avons envoy\u00e9 un lien de confirmation \u00e0 {email}. Confirmez votre e-mail, puis connectez-vous pour activer votre compte.",
-  "auth.register.goLogin": "Aller \u00e0 la connexion",
-  "auth.err.name": "Saisissez votre nom complet",
-  "auth.err.email": "Saisissez un e-mail valide",
-  "auth.err.phone": "Saisissez un num\u00e9ro camerounais valide (ex. 6XX XXX XXX)",
-  "auth.err.passwordMin": "Le mot de passe doit contenir au moins 8 caract\u00e8res",
-  "auth.err.passwordMatch": "Les mots de passe ne correspondent pas",
-  "auth.forgot.title": "Mot de passe oubli\u00e9",
-  "auth.forgot.subtitle": "Nous vous enverrons un lien de r\u00e9initialisation s\u00e9curis\u00e9.",
-  "auth.forgot.submit": "Envoyer le lien",
-  "auth.forgot.back": "Retour \u00e0 la connexion",
-  "auth.forgot.sentTitle": "V\u00e9rifiez votre bo\u00eete mail",
-  "auth.forgot.sentSub": "Si cet e-mail est enregistr\u00e9, un lien est en route.",
-  "auth.forgot.sentCopy": "Ouvrez le lien sur cet appareil pour d\u00e9finir un nouveau mot de passe.",
-  "auth.reset.title": "D\u00e9finir un nouveau mot de passe",
-  "auth.reset.subtitle": "Choisissez un mot de passe fort que vous n'utilisez pas ailleurs.",
-  "auth.reset.new": "Nouveau mot de passe",
-  "auth.reset.confirm": "Confirmer le mot de passe",
-  "auth.reset.submit": "Mettre \u00e0 jour",
-  "auth.reset.updated": "Mot de passe mis \u00e0 jour",
-  "settings.version": "ASH — Where Opportunities Connect · v1.0",
+type LandingProps = {
+  onSignIn?: () => void;
+  onGetStarted?: () => void;
 };
 
-const DICT: Record<Lang, Record<TKey, string>> = { en: EN, fr: FR };
+const categories = [
+  {
+    title: "Beauty & Grooming",
+    description: "Book trusted beauty professionals near you.",
+    icon: Heart,
+  },
+  {
+    title: "Home & Trades",
+    description: "Find electricians, plumbers, cleaners and more.",
+    icon: Hammer,
+  },
+  {
+    title: "Tech & Digital",
+    description: "Connect with developers, designers and IT experts.",
+    icon: Sparkles,
+  },
+  {
+    title: "Health & Wellness",
+    description: "Discover wellness and care professionals.",
+    icon: ShieldCheck,
+  },
+];
 
-type Vars = Record<string, string | number>;
+const ecosystem = [
+  {
+    title: "Marketplace",
+    description: "Discover products, sellers and local businesses.",
+    icon: Store,
+  },
+  {
+    title: "Services",
+    description: "Book verified professionals and chat directly.",
+    icon: Users,
+  },
+  {
+    title: "Property",
+    description: "Find rooms, apartments, houses and land.",
+    icon: Building2,
+  },
+  {
+    title: "Freelance",
+    description: "Find talent or discover your next project.",
+    icon: BriefcaseBusiness,
+  },
+  {
+    title: "Events",
+    description: "Discover events, experiences and opportunities.",
+    icon: CalendarDays,
+  },
+  {
+    title: "Deals",
+    description: "Find promotions and exclusive local offers.",
+    icon: Gift,
+  },
+];
 
-function translate(lang: Lang, key: TKey, vars?: Vars) {
-  const raw = DICT[lang][key] ?? EN[key] ?? key;
-  if (!vars) return raw;
-  return raw.replace(/\{(\w+)\}/g, (_m, name: string) => String(vars[name] ?? `{${name}}`));
-}
+const referralLevels = [
+  {
+    level: "01",
+    amount: "1,500",
+    title: "Direct referrals",
+    description: "People who join ASH through your referral link.",
+  },
+  {
+    level: "02",
+    amount: "750",
+    title: "Second level",
+    description: "People brought into ASH by your direct referrals.",
+  },
+  {
+    level: "03",
+    amount: "250",
+    title: "Third level",
+    description: "Your network continues to grow three levels deep.",
+  },
+];
 
-const I18nContext = createContext<{ lang: Lang; setLang: (l: Lang) => void; t: (k: TKey, v?: Vars) => string }>({
-  lang: "en",
-  setLang: () => {},
-  t: (k, v) => translate("en", k, v),
-});
+export default function Landing({ onSignIn, onGetStarted }: LandingProps) {
+  const { t } = useI18n();
 
-export function I18nProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("en");
+  const [menuOpen, setMenuOpen] = React.useState(false);
 
-  useEffect(() => {
-    const stored = localStorage.getItem(KEY) as Lang | null;
-    if (stored === "en" || stored === "fr") {
-      setLangState(stored);
-      return;
-    }
-    if (navigator.language?.toLowerCase().startsWith("fr")) setLangState("fr");
-  }, []);
+  const scrollTo = (id: string) => {
+    setMenuOpen(false);
 
-  useEffect(() => {
-    document.documentElement.lang = lang;
-  }, [lang]);
+    document.getElementById(id)?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
 
-  const setLang = useCallback((l: Lang) => {
-    localStorage.setItem(KEY, l);
-    setLangState(l);
-  }, []);
+  return (
+    <main className="min-h-screen overflow-x-hidden bg-[#050505] text-white selection:bg-[#D4AF37] selection:text-black">
+      {/* =========================================================
+          NAVIGATION
+      ========================================================= */}
+      <header className="fixed left-0 right-0 top-0 z-50">
+        <div className="mx-auto max-w-7xl px-5 pt-5 md:px-8">
+          <nav className="border border-white/10 bg-black/65 px-4 py-3 backdrop-blur-2xl md:px-6">
+            <div className="flex items-center justify-between">
+              {/* LOGO */}
+              <button onClick={() => scrollTo("home")} className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center border border-[#D4AF37]/50 bg-[#D4AF37]/10">
+                  <span className="text-xl font-black tracking-tighter text-[#D4AF37]">A</span>
+                </div>
 
-  const value = useMemo(() => ({ lang, setLang, t: (k: TKey, v?: Vars) => translate(lang, k, v) }), [lang, setLang]);
+                <div className="text-left">
+                  <div className="text-lg font-black tracking-[0.18em]">ASH</div>
+                  <div className="-mt-1 text-[8px] uppercase tracking-[0.28em] text-white/45">
+                    Where Opportunities Connect
+                  </div>
+                </div>
+              </button>
 
-  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
-}
+              {/* DESKTOP NAV */}
+              <div className="hidden items-center gap-7 lg:flex">
+                <button
+                  onClick={() => scrollTo("discover")}
+                  className="text-sm text-white/65 transition hover:text-white"
+                >
+                  Discover
+                </button>
 
-export function useI18n() {
-  return useContext(I18nContext);
+                <button
+                  onClick={() => scrollTo("ecosystem")}
+                  className="text-sm text-white/65 transition hover:text-white"
+                >
+                  Marketplace
+                </button>
+
+                <button
+                  onClick={() => scrollTo("services")}
+                  className="text-sm text-white/65 transition hover:text-white"
+                >
+                  Services
+                </button>
+
+                <button
+                  onClick={() => scrollTo("property")}
+                  className="text-sm text-white/65 transition hover:text-white"
+                >
+                  Property
+                </button>
+
+                <button onClick={() => scrollTo("refer")} className="text-sm text-white/65 transition hover:text-white">
+                  Refer & Earn
+                </button>
+              </div>
+
+              {/* ACTIONS */}
+              <div className="hidden items-center gap-3 md:flex">
+                <button
+                  onClick={onSignIn}
+                  className="px-4 py-2.5 text-sm font-medium text-white/75 transition hover:text-white"
+                >
+                  {t("landing.signIn")}
+                </button>
+
+                <button
+                  onClick={onGetStarted}
+                  className="group flex items-center gap-2 bg-[#D4AF37] px-5 py-2.5 text-sm font-bold text-black transition hover:bg-[#E5C45A]"
+                >
+                  {t("landing.getStarted")}
+                  <ArrowUpRight
+                    size={16}
+                    className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                  />
+                </button>
+              </div>
+
+              {/* MOBILE MENU */}
+              <button
+                onClick={() => setMenuOpen((v) => !v)}
+                className="flex h-10 w-10 items-center justify-center border border-white/10 md:hidden"
+              >
+                {menuOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
+            </div>
+
+            {menuOpen && (
+              <div className="mt-4 border-t border-white/10 pt-4 md:hidden">
+                <div className="flex flex-col gap-1">
+                  {[
+                    ["discover", "Discover"],
+                    ["ecosystem", "Marketplace"],
+                    ["services", "Services"],
+                    ["property", "Property"],
+                    ["refer", "Refer & Earn"],
+                  ].map(([id, label]) => (
+                    <button
+                      key={id}
+                      onClick={() => scrollTo(id)}
+                      className="px-3 py-3 text-left text-sm text-white/70 hover:bg-white/5 hover:text-white"
+                    >
+                      {label}
+                    </button>
+                  ))}
+
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <button onClick={onSignIn} className="border border-white/10 py-3 text-sm">
+                      {t("landing.signIn")}
+                    </button>
+
+                    <button onClick={onGetStarted} className="bg-[#D4AF37] py-3 text-sm font-bold text-black">
+                      {t("landing.getStarted")}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </nav>
+        </div>
+      </header>
+
+      {/* =========================================================
+          HERO
+      ========================================================= */}
+      <section id="home" className="relative min-h-screen overflow-hidden pt-32">
+        {/* Background glow */}
+        <div className="pointer-events-none absolute left-1/2 top-1/3 h-[650px] w-[650px] -translate-x-1/2 rounded-full bg-[#D4AF37]/[0.07] blur-[140px]" />
+
+        <div className="pointer-events-none absolute -right-40 top-20 h-[450px] w-[450px] rounded-full bg-[#4B0082]/20 blur-[120px]" />
+
+        <div className="mx-auto grid min-h-[calc(100vh-8rem)] max-w-7xl items-center gap-14 px-5 pb-20 md:px-8 lg:grid-cols-[1.05fr_.95fr]">
+          {/* LEFT */}
+          <div className="relative z-10">
+            <div className="mb-7 inline-flex items-center gap-2 border border-[#D4AF37]/25 bg-[#D4AF37]/[0.06] px-4 py-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#D4AF37]" />
+              <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#D4AF37]">
+                Built for Cameroon · Powered by opportunity
+              </span>
+            </div>
+
+            <h1 className="max-w-4xl text-5xl font-black leading-[0.94] tracking-[-0.055em] sm:text-6xl md:text-7xl lg:text-[82px]">
+              Where
+              <br />
+              <span className="text-[#D4AF37]">opportunities</span>
+              <br />
+              connect.
+            </h1>
+
+            <p className="mt-8 max-w-2xl text-base leading-7 text-white/55 md:text-lg md:leading-8">
+              Discover services, products, properties, freelancers, events and opportunities — all in one growing
+              digital ecosystem.
+            </p>
+
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <button
+                onClick={onGetStarted}
+                className="group flex items-center justify-center gap-3 bg-[#D4AF37] px-7 py-4 font-bold text-black transition hover:bg-[#E5C45A]"
+              >
+                Explore ASH
+                <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+              </button>
+
+              <button
+                onClick={() => scrollTo("ecosystem")}
+                className="flex items-center justify-center gap-2 border border-white/15 px-7 py-4 font-medium text-white transition hover:border-white/30 hover:bg-white/5"
+              >
+                Discover the ecosystem
+                <ChevronDown size={17} />
+              </button>
+            </div>
+
+            <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-xs text-white/40">
+              <span className="flex items-center gap-2">
+                <ShieldCheck size={15} className="text-[#D4AF37]" />
+                Built around trust
+              </span>
+
+              <span className="flex items-center gap-2">
+                <Wallet size={15} className="text-[#D4AF37]" />
+                Mobile money ready
+              </span>
+
+              <span className="flex items-center gap-2">
+                <Sparkles size={15} className="text-[#D4AF37]" />
+                ASH AI
+              </span>
+            </div>
+          </div>
+
+          {/* RIGHT — ASH ORB */}
+          <div className="relative mx-auto flex w-full max-w-[550px] items-center justify-center">
+            <div className="absolute h-[430px] w-[430px] rounded-full border border-[#D4AF37]/10" />
+            <div className="absolute h-[350px] w-[350px] rounded-full border border-[#D4AF37]/10" />
+            <div className="absolute h-[275px] w-[275px] rounded-full bg-[#D4AF37]/5 blur-2xl" />
+
+            {/* orbit points */}
+            <div className="absolute right-[12%] top-[18%] flex h-12 w-12 items-center justify-center rounded-full border border-[#D4AF37]/25 bg-black/80 text-[#D4AF37] backdrop-blur-xl">
+              <Store size={19} />
+            </div>
+
+            <div className="absolute bottom-[17%] left-[13%] flex h-12 w-12 items-center justify-center rounded-full border border-[#D4AF37]/25 bg-black/80 text-[#D4AF37] backdrop-blur-xl">
+              <Building2 size={19} />
+            </div>
+
+            <div className="absolute bottom-[12%] right-[18%] flex h-12 w-12 items-center justify-center rounded-full border border-[#D4AF37]/25 bg-black/80 text-[#D4AF37] backdrop-blur-xl">
+              <BriefcaseBusiness size={19} />
+            </div>
+
+            {/* MAIN ORB */}
+            <div className="relative flex h-[260px] w-[260px] items-center justify-center rounded-full border border-[#D4AF37]/40 bg-gradient-to-br from-[#17120A] via-black to-[#0C0614] shadow-[0_0_100px_rgba(212,175,55,0.14)]">
+              <div className="absolute inset-[20px] rounded-full border border-white/5" />
+
+              <div className="text-center">
+                <div className="text-7xl font-black tracking-[-0.08em] text-[#D4AF37]">A</div>
+
+                <div className="mt-1 text-[10px] uppercase tracking-[0.45em] text-white/40">ASH</div>
+
+                <div className="mt-4 text-xs text-white/40">One ecosystem</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Scroll cue */}
+        <div className="absolute bottom-7 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-[9px] uppercase tracking-[0.3em] text-white/25 md:flex">
+          Scroll to explore
+          <div className="h-8 w-px bg-gradient-to-b from-[#D4AF37]/50 to-transparent" />
+        </div>
+      </section>
+
+      {/* =========================================================
+          DISCOVERY STRIP
+      ========================================================= */}
+      <section id="discover" className="border-y border-white/10 bg-[#090909]">
+        <div className="mx-auto max-w-7xl px-5 py-7 md:px-8">
+          <div className="grid gap-5 md:grid-cols-4">
+            {[
+              ["01", "Discover", "Find opportunities around you."],
+              ["02", "Connect", "Meet people, businesses and professionals."],
+              ["03", "Create", "Sell, offer services or build projects."],
+              ["04", "Earn", "Turn connections into opportunity."],
+            ].map(([number, title, description]) => (
+              <div key={number} className="flex gap-4 border-l border-white/10 pl-4">
+                <span className="text-xs text-[#D4AF37]">{number}</span>
+
+                <div>
+                  <h3 className="text-sm font-bold">{title}</h3>
+                  <p className="mt-1 text-xs leading-5 text-white/35">{description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================
+          ECOSYSTEM
+      ========================================================= */}
+      <section id="ecosystem" className="relative px-5 py-28 md:px-8 md:py-36">
+        <div className="mx-auto max-w-7xl">
+          <div className="max-w-3xl">
+            <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#D4AF37]">The ASH ecosystem</p>
+
+            <h2 className="mt-5 text-4xl font-black tracking-[-0.04em] md:text-6xl">
+              More than a marketplace.
+              <br />
+              <span className="text-white/35">A connected ecosystem.</span>
+            </h2>
+
+            <p className="mt-6 max-w-2xl text-base leading-7 text-white/45">
+              ASH brings everyday services, commerce, property, freelance, events and earning opportunities into one
+              digital environment.
+            </p>
+          </div>
+
+          <div className="mt-16 grid gap-px border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-3">
+            {ecosystem.map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <button
+                  key={item.title}
+                  className="group relative min-h-[230px] bg-[#080808] p-7 text-left transition hover:bg-[#0D0D0D]"
+                >
+                  <div className="flex h-11 w-11 items-center justify-center border border-white/10 text-[#D4AF37] transition group-hover:border-[#D4AF37]/40 group-hover:bg-[#D4AF37]/10">
+                    <Icon size={20} />
+                  </div>
+
+                  <h3 className="mt-8 text-xl font-bold">{item.title}</h3>
+
+                  <p className="mt-3 max-w-xs text-sm leading-6 text-white/40">{item.description}</p>
+
+                  <ArrowUpRight
+                    size={18}
+                    className="absolute right-7 top-7 text-white/20 transition group-hover:text-[#D4AF37]"
+                  />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================
+          MARKETPLACE / SERVICES
+      ========================================================= */}
+      <section
+        id="services"
+        className="relative overflow-hidden border-y border-white/10 bg-[#080808] px-5 py-28 md:px-8 md:py-36"
+      >
+        <div className="pointer-events-none absolute right-0 top-1/2 h-[500px] w-[500px] -translate-y-1/2 rounded-full bg-[#4B0082]/10 blur-[120px]" />
+
+        <div className="relative mx-auto max-w-7xl">
+          <div className="grid items-end gap-10 lg:grid-cols-[1fr_auto]">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#D4AF37]">ASH Marketplace</p>
+
+              <h2 className="mt-5 max-w-3xl text-4xl font-black tracking-[-0.04em] md:text-6xl">
+                Find someone who
+                <br />
+                <span className="text-[#D4AF37]">can do it.</span>
+              </h2>
+
+              <p className="mt-6 max-w-2xl text-base leading-7 text-white/45">
+                Browse trusted professionals, explore their work, compare services and connect directly.
+              </p>
+            </div>
+
+            <button
+              onClick={onGetStarted}
+              className="group flex items-center gap-3 border border-white/15 px-6 py-3 text-sm font-semibold transition hover:border-[#D4AF37]/50 hover:bg-[#D4AF37]/5"
+            >
+              Explore marketplace
+              <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+            </button>
+          </div>
+
+          <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {categories.map((category, index) => {
+              const Icon = category.icon;
+
+              return (
+                <div
+                  key={category.title}
+                  className="group relative overflow-hidden border border-white/10 bg-black p-6 transition hover:-translate-y-1 hover:border-[#D4AF37]/30"
+                >
+                  <div className="absolute right-0 top-0 h-28 w-28 rounded-full bg-[#D4AF37]/5 blur-2xl transition group-hover:bg-[#D4AF37]/10" />
+
+                  <div className="relative">
+                    <div className="flex items-center justify-between">
+                      <Icon size={22} className="text-[#D4AF37]" />
+
+                      <span className="text-[10px] text-white/20">0{index + 1}</span>
+                    </div>
+
+                    <h3 className="mt-16 text-lg font-bold">{category.title}</h3>
+
+                    <p className="mt-3 text-sm leading-6 text-white/35">{category.description}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================
+          PROPERTY
+      ========================================================= */}
+      <section id="property" className="px-5 py-28 md:px-8 md:py-36">
+        <div className="mx-auto max-w-7xl">
+          <div className="relative overflow-hidden border border-white/10 bg-gradient-to-br from-[#17120A] via-[#090909] to-[#100818] p-8 md:p-14 lg:p-20">
+            <div className="absolute right-[-120px] top-[-120px] h-[400px] w-[400px] rounded-full bg-[#D4AF37]/10 blur-[100px]" />
+
+            <div className="relative grid gap-12 lg:grid-cols-[1fr_.7fr] lg:items-end">
+              <div>
+                <div className="mb-6 flex h-12 w-12 items-center justify-center border border-[#D4AF37]/30 bg-[#D4AF37]/10 text-[#D4AF37]">
+                  <Building2 size={22} />
+                </div>
+
+                <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#D4AF37]">ASH Property</p>
+
+                <h2 className="mt-5 max-w-3xl text-4xl font-black tracking-[-0.04em] md:text-6xl">
+                  Find your
+                  <br />
+                  <span className="text-white/40">next place.</span>
+                </h2>
+
+                <p className="mt-6 max-w-xl text-base leading-7 text-white/45">
+                  Student housing, apartments, houses, rentals, property for sale and land — discover it all in one
+                  place.
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                {["Student housing", "Apartments & rentals", "Houses for sale", "Land & opportunities"].map((item) => (
+                  <button
+                    key={item}
+                    onClick={onGetStarted}
+                    className="group flex items-center justify-between border border-white/10 bg-black/30 px-5 py-4 text-left transition hover:border-[#D4AF37]/30 hover:bg-black/50"
+                  >
+                    <span className="text-sm text-white/65">{item}</span>
+
+                    <ArrowUpRight size={16} className="text-white/25 transition group-hover:text-[#D4AF37]" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================
+          REFER & EARN
+      ========================================================= */}
+      <section id="refer" className="border-y border-white/10 bg-[#070707] px-5 py-28 md:px-8 md:py-36">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid gap-16 lg:grid-cols-[.8fr_1.2fr] lg:items-center">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#D4AF37]">ASH Refer</p>
+
+              <h2 className="mt-5 text-4xl font-black tracking-[-0.04em] md:text-6xl">
+                Your network
+                <br />
+                <span className="text-[#D4AF37]">can earn with you.</span>
+              </h2>
+
+              <p className="mt-6 max-w-xl text-base leading-7 text-white/45">
+                Activate your ASH account once, share your unique referral link and earn commissions as your network
+                grows.
+              </p>
+
+              <div className="mt-8 border border-[#D4AF37]/20 bg-[#D4AF37]/[0.04] p-5">
+                <div className="flex items-start gap-4">
+                  <CircleDollarSign className="mt-0.5 shrink-0 text-[#D4AF37]" size={22} />
+
+                  <div>
+                    <p className="text-sm font-bold">One-time activation</p>
+
+                    <p className="mt-1 text-2xl font-black text-[#D4AF37]">5,000 XAF</p>
+
+                    <p className="mt-1 text-xs leading-5 text-white/35">Activate once to unlock referral earnings.</p>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={onGetStarted}
+                className="mt-8 group flex items-center gap-3 bg-[#D4AF37] px-7 py-4 font-bold text-black transition hover:bg-[#E5C45A]"
+              >
+                Start earning
+                <ArrowRight size={17} className="transition-transform group-hover:translate-x-1" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {referralLevels.map((item) => (
+                <div
+                  key={item.level}
+                  className="group grid grid-cols-[55px_1fr_auto] items-center gap-5 border border-white/10 bg-black p-5 transition hover:border-[#D4AF37]/30 md:p-6"
+                >
+                  <div className="flex h-12 w-12 items-center justify-center border border-[#D4AF37]/20 bg-[#D4AF37]/5 text-sm font-bold text-[#D4AF37]">
+                    {item.level}
+                  </div>
+
+                  <div>
+                    <h3 className="font-bold">{item.title}</h3>
+
+                    <p className="mt-1 text-xs leading-5 text-white/35">{item.description}</p>
+                  </div>
+
+                  <div className="text-right">
+                    <div className="text-2xl font-black text-[#D4AF37]">{item.amount}</div>
+
+                    <div className="text-[9px] uppercase tracking-wider text-white/25">XAF</div>
+                  </div>
+                </div>
+              ))}
+
+              <div className="mt-5 flex items-center gap-3 px-2 text-xs text-white/30">
+                <Network size={15} className="text-[#D4AF37]" />
+                Three levels. One connected network.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================
+          HOW IT WORKS
+      ========================================================= */}
+      <section className="px-5 py-28 md:px-8 md:py-36">
+        <div className="mx-auto max-w-7xl">
+          <div className="text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#D4AF37]">Simple by design</p>
+
+            <h2 className="mt-5 text-4xl font-black tracking-[-0.04em] md:text-6xl">
+              One place.
+              <br />
+              <span className="text-white/35">Endless possibilities.</span>
+            </h2>
+          </div>
+
+          <div className="mt-16 grid gap-4 md:grid-cols-4">
+            {[
+              {
+                number: "01",
+                title: "Create",
+                copy: "Create your ASH account in minutes.",
+              },
+              {
+                number: "02",
+                title: "Discover",
+                copy: "Explore people, services, products and opportunities.",
+              },
+              {
+                number: "03",
+                title: "Connect",
+                copy: "Chat, book, buy, sell or collaborate.",
+              },
+              {
+                number: "04",
+                title: "Grow",
+                copy: "Build your network and unlock new opportunities.",
+              },
+            ].map((step) => (
+              <div key={step.number} className="border border-white/10 bg-[#080808] p-7">
+                <div className="text-sm font-bold text-[#D4AF37]">{step.number}</div>
+
+                <h3 className="mt-14 text-xl font-bold">{step.title}</h3>
+
+                <p className="mt-3 text-sm leading-6 text-white/35">{step.copy}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================
+          ASH AI
+      ========================================================= */}
+      <section className="overflow-hidden border-y border-white/10 bg-[#080808] px-5 py-28 md:px-8 md:py-36">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid gap-14 lg:grid-cols-[.85fr_1.15fr] lg:items-center">
+            <div>
+              <div className="flex h-12 w-12 items-center justify-center border border-[#D4AF37]/30 bg-[#D4AF37]/10 text-[#D4AF37]">
+                <Sparkles size={22} />
+              </div>
+
+              <p className="mt-7 text-xs font-bold uppercase tracking-[0.25em] text-[#D4AF37]">ASH AI</p>
+
+              <h2 className="mt-5 text-4xl font-black tracking-[-0.04em] md:text-6xl">
+                Ask.
+                <br />
+                <span className="text-white/35">ASH knows where to look.</span>
+              </h2>
+
+              <p className="mt-6 max-w-xl text-base leading-7 text-white/45">
+                Your intelligent guide through the ASH ecosystem. Ask about services, opportunities, bookings, earnings,
+                events and more.
+              </p>
+            </div>
+
+            {/* AI MOCKUP */}
+            <div className="relative">
+              <div className="absolute -inset-10 rounded-full bg-[#4B0082]/10 blur-[100px]" />
+
+              <div className="relative border border-white/10 bg-black shadow-2xl">
+                <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#D4AF37] text-black">
+                      <Sparkles size={15} />
+                    </div>
+
+                    <div>
+                      <div className="text-sm font-bold">ASH AI</div>
+
+                      <div className="text-[10px] text-white/30">Your opportunity assistant</div>
+                    </div>
+                  </div>
+
+                  <div className="h-2 w-2 rounded-full bg-[#D4AF37]" />
+                </div>
+
+                <div className="space-y-5 p-5 md:p-7">
+                  <div className="max-w-[80%] border border-white/10 bg-white/[0.03] p-4">
+                    <p className="text-xs leading-6 text-white/55">Find me a trusted beauty professional near me.</p>
+                  </div>
+
+                  <div className="ml-auto max-w-[85%] border border-[#D4AF37]/20 bg-[#D4AF37]/[0.06] p-4">
+                    <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-[#D4AF37]">
+                      <ShieldCheck size={12} />
+                      ASH recommendation
+                    </div>
+
+                    <p className="text-xs leading-6 text-white/65">
+                      I found verified professionals matching your request. You can compare their services, reviews and
+                      availability before booking.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {["Find a service", "Explore deals", "Check my earnings", "Find property"].map((item) => (
+                      <button
+                        key={item}
+                        className="border border-white/10 px-3 py-2 text-[10px] text-white/40 transition hover:border-[#D4AF37]/30 hover:text-white"
+                      >
+                        {item}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-3 border-t border-white/10 pt-5">
+                    <div className="flex-1 border border-white/10 px-4 py-3 text-xs text-white/20">
+                      Ask ASH anything…
+                    </div>
+
+                    <button className="flex h-11 w-11 items-center justify-center bg-[#D4AF37] text-black">
+                      <ArrowUpRight size={18} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================
+          TRUST
+      ========================================================= */}
+      <section className="px-5 py-24 md:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid gap-px border border-white/10 bg-white/10 md:grid-cols-3">
+            {[
+              {
+                icon: ShieldCheck,
+                title: "Built around trust",
+                copy: "Verified profiles, reviews and safer transactions help people connect with confidence.",
+              },
+              {
+                icon: Wallet,
+                title: "Mobile money native",
+                copy: "ASH is designed around the payment methods people already use every day.",
+              },
+              {
+                icon: MessageCircle,
+                title: "Direct connection",
+                copy: "Chat with providers, sellers, property owners and collaborators without unnecessary barriers.",
+              },
+            ].map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <div key={item.title} className="bg-[#080808] p-7 md:p-9">
+                  <Icon size={22} className="text-[#D4AF37]" />
+
+                  <h3 className="mt-7 text-lg font-bold">{item.title}</h3>
+
+                  <p className="mt-3 text-sm leading-6 text-white/35">{item.copy}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================
+          FINAL CTA
+      ========================================================= */}
+      <section className="relative overflow-hidden px-5 pb-20 pt-10 md:px-8 md:pb-32">
+        <div className="mx-auto max-w-7xl">
+          <div className="relative overflow-hidden border border-[#D4AF37]/20 bg-gradient-to-br from-[#17120A] via-[#0B0B0B] to-[#100818] px-6 py-20 text-center md:px-12 md:py-28">
+            <div className="pointer-events-none absolute left-1/2 top-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#D4AF37]/10 blur-[110px]" />
+
+            <div className="relative">
+              <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#D4AF37]">Welcome to ASH</p>
+
+              <h2 className="mx-auto mt-6 max-w-4xl text-4xl font-black tracking-[-0.05em] md:text-7xl">
+                Your next opportunity
+                <br />
+                could be one connection away.
+              </h2>
+
+              <p className="mx-auto mt-7 max-w-2xl text-sm leading-7 text-white/40 md:text-base">
+                Discover what is possible when people, businesses, professionals and opportunities come together.
+              </p>
+
+              <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+                <button
+                  onClick={onGetStarted}
+                  className="group flex items-center justify-center gap-3 bg-[#D4AF37] px-8 py-4 font-bold text-black transition hover:bg-[#E5C45A]"
+                >
+                  Create your ASH account
+                  <ArrowRight size={17} className="transition-transform group-hover:translate-x-1" />
+                </button>
+
+                <button
+                  onClick={() => scrollTo("ecosystem")}
+                  className="border border-white/15 px-8 py-4 font-medium text-white transition hover:bg-white/5"
+                >
+                  Explore ASH
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================
+          FOOTER
+      ========================================================= */}
+      <footer className="border-t border-white/10 bg-black px-5 py-12 md:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid gap-10 md:grid-cols-[1fr_auto_auto_auto]">
+            <div>
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center border border-[#D4AF37]/40 text-[#D4AF37]">
+                  <span className="font-black">A</span>
+                </div>
+
+                <span className="font-black tracking-[0.18em]">ASH</span>
+              </div>
+
+              <p className="mt-5 max-w-sm text-xs leading-6 text-white/30">
+                Where opportunities connect. Discover, connect, create and grow with ASH.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-white/60">Explore</h4>
+
+              <div className="mt-4 space-y-3 text-xs text-white/30">
+                <button onClick={() => scrollTo("ecosystem")} className="block hover:text-white">
+                  Marketplace
+                </button>
+
+                <button onClick={() => scrollTo("services")} className="block hover:text-white">
+                  Services
+                </button>
+
+                <button onClick={() => scrollTo("property")} className="block hover:text-white">
+                  Property
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-white/60">Opportunities</h4>
+
+              <div className="mt-4 space-y-3 text-xs text-white/30">
+                <button className="block hover:text-white">Freelance</button>
+
+                <button className="block hover:text-white">Events</button>
+
+                <button className="block hover:text-white">Deals</button>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-white/60">Account</h4>
+
+              <div className="mt-4 space-y-3 text-xs text-white/30">
+                <button onClick={onSignIn} className="block hover:text-white">
+                  Sign in
+                </button>
+
+                <button onClick={onGetStarted} className="block hover:text-white">
+                  Create account
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-12 flex flex-col justify-between gap-3 border-t border-white/10 pt-6 text-[10px] text-white/20 sm:flex-row">
+            <span>© {new Date().getFullYear()} ASH Glo. All rights reserved.</span>
+
+            <span>ASH — Where Opportunities Connect.</span>
+          </div>
+        </div>
+      </footer>
+    </main>
+  );
 }
