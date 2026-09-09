@@ -156,7 +156,7 @@ function ElectricityPage() {
 
   return (
     <div className="mx-auto w-full max-w-4xl pb-10">
-      <div className="mb-5 flex items-center justify-between gap-3">
+      <div className="mb-6 flex items-center justify-between gap-3">
         <Link
           to="/services"
           className="inline-flex items-center gap-2 rounded-full px-2 py-1.5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -176,25 +176,25 @@ function ElectricityPage() {
         ) : null}
       </div>
 
-      <header className="mb-6">
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-600 dark:text-amber-400">
+      <header className="mb-8">
+        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-400/25 bg-amber-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-amber-600 shadow-sm dark:text-amber-400">
           <Zap className="size-3.5" aria-hidden />
           ASH Pay
         </div>
 
         <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
           <div>
-            <h1 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            <h1 className="font-display text-4xl font-black tracking-[-0.035em] text-foreground sm:text-5xl">
               {fr ? "Électricité" : "Electricity"}
             </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            <p className="mt-2 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-[15px]">
               {fr
                 ? "Vérifiez votre compte, consultez votre facture, choisissez votre paiement et recevez votre reçu ASH."
                 : "Verify your account, review your bill, choose how to pay, and receive your ASH receipt."}
             </p>
           </div>
 
-          <div className="flex items-center gap-2 rounded-2xl border border-border/70 bg-card px-3 py-2 text-xs">
+          <div className="flex items-center gap-2 rounded-full border border-border/70 bg-card px-3.5 py-2.5 text-xs shadow-sm">
             <ShieldCheck className="size-4 text-emerald-500" aria-hidden />
             <span className="font-semibold">
               {fr ? "Paiement sécurisé" : "Secure payment"}
@@ -203,7 +203,7 @@ function ElectricityPage() {
         </div>
       </header>
 
-      <div className="mb-5 grid grid-cols-4 gap-2">
+      <div className="mb-6 grid grid-cols-4 gap-1.5 rounded-[26px] border border-border/70 bg-muted/30 p-1.5 shadow-sm">
         {[
           { number: "1", label: fr ? "Compte" : "Account" },
           { number: "2", label: fr ? "Vérification" : "Review" },
@@ -217,9 +217,9 @@ function ElectricityPage() {
             <div
               key={step.number}
               className={cn(
-                "rounded-2xl border px-2.5 py-2.5 sm:px-3",
+                "rounded-[20px] border px-2.5 py-2.5 transition-all sm:px-3",
                 active
-                  ? "border-primary/25 bg-primary/5"
+                  ? "border-primary/30 bg-card shadow-sm ring-1 ring-primary/10"
                   : complete
                     ? "border-emerald-500/20 bg-emerald-500/5"
                     : "border-border/70 bg-card",
@@ -248,15 +248,15 @@ function ElectricityPage() {
       </div>
 
       {flowStep === "ACCOUNT" ? (
-        <main className="overflow-hidden rounded-[30px] border border-border/70 bg-card shadow-[var(--shadow-card)]">
-          <div className="relative overflow-hidden border-b border-border/70 p-5 sm:p-7">
+        <main className="overflow-hidden rounded-[32px] border border-border/70 bg-card shadow-[var(--shadow-card)]">
+          <div className="relative overflow-hidden border-b border-border/70 bg-gradient-to-br from-amber-400/[0.08] via-card to-card p-5 sm:p-8">
             <div aria-hidden className="pointer-events-none absolute -right-20 -top-24 size-64 rounded-full bg-amber-400/10 blur-3xl" />
             <div className="relative flex items-start gap-4">
-              <div className="grid size-14 shrink-0 place-items-center rounded-2xl bg-amber-400/12 ring-1 ring-amber-400/30">
-                <Gauge className="size-7 text-amber-500" aria-hidden />
+              <div className="grid size-14 shrink-0 place-items-center rounded-[20px] bg-amber-400/12 shadow-sm ring-1 ring-amber-400/30 sm:size-16">
+                <Gauge className="size-7 text-amber-500 sm:size-8" aria-hidden />
               </div>
               <div>
-                <h2 className="font-display text-xl font-bold text-foreground">
+                <h2 className="font-display text-xl font-black tracking-tight text-foreground sm:text-2xl">
                   {fr ? "Identifiez votre compte" : "Identify your account"}
                 </h2>
                 <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
@@ -268,12 +268,27 @@ function ElectricityPage() {
             </div>
           </div>
 
-          <div className="space-y-6 p-5 sm:p-7">
+          <div className="space-y-7 p-5 sm:p-8">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-muted-foreground">
+                  {fr ? "Informations du compte" : "Account information"}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {fr ? "Quelques secondes pour commencer." : "A few seconds to get started."}
+                </p>
+              </div>
+              <div className="hidden items-center gap-1.5 rounded-full border border-emerald-500/15 bg-emerald-500/5 px-3 py-1.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 sm:flex">
+                <ShieldCheck className="size-3.5" aria-hidden />
+                {fr ? "Vérifié" : "Protected"}
+              </div>
+            </div>
+
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label>{fr ? "Fournisseur d'électricité" : "Electricity provider"}</Label>
                 <Select value={provider} onValueChange={setProvider}>
-                  <SelectTrigger className="h-12 rounded-2xl bg-background">
+                  <SelectTrigger className="h-13 rounded-2xl border-border/70 bg-background/80 shadow-sm transition focus-visible:ring-2">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -468,7 +483,7 @@ function ElectricityPage() {
             <Button
               type="button"
               disabled={!validAccount || !validAmount || isVerifying}
-              className="h-13 w-full rounded-2xl text-sm font-bold"
+              className="h-13 w-full rounded-2xl text-sm font-black shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
               onClick={verifyAccount}
             >
               {isVerifying ? (
@@ -495,7 +510,7 @@ function ElectricityPage() {
 
       {flowStep === "REVIEW" && verifiedAccount ? (
         <main className="space-y-4">
-          <section className="overflow-hidden rounded-[30px] border border-border/70 bg-card shadow-[var(--shadow-card)]">
+          <section className="overflow-hidden rounded-[32px] border border-border/70 bg-card shadow-[var(--shadow-card)]">
             <div className="border-b border-border/70 bg-muted/20 p-5 sm:p-7">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3">
@@ -518,6 +533,29 @@ function ElectricityPage() {
                 >
                   {fr ? "Modifier" : "Change"}
                 </button>
+              </div>
+            </div>
+
+            <div className="border-b border-border/70 p-5 sm:p-7">
+              <div className="rounded-[26px] bg-foreground p-5 text-background shadow-lg sm:p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.16em] opacity-60">
+                      {paymentType === "POSTPAID" ? (fr ? "Montant dû" : "Amount due") : (fr ? "Recharge" : "Recharge")}
+                    </p>
+                    <p className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
+                      {paymentType === "POSTPAID" ? formatXAF(verifiedAccount.outstanding) : formatXAF(numericAmount)}
+                    </p>
+                  </div>
+                  <div className="grid size-11 place-items-center rounded-2xl bg-background/10 ring-1 ring-background/10">
+                    <Zap className="size-5" aria-hidden />
+                  </div>
+                </div>
+                <p className="mt-3 text-xs leading-relaxed opacity-70">
+                  {paymentType === "POSTPAID"
+                    ? (fr ? `Échéance : ${verifiedAccount.dueDate}` : `Due date: ${verifiedAccount.dueDate}`)
+                    : (fr ? "Le montant sera appliqué au compteur vérifié." : "The amount will be applied to the verified meter.")}
+                </p>
               </div>
             </div>
 
@@ -637,9 +675,9 @@ function ElectricityPage() {
 
       {flowStep === "PAYMENT" ? (
         <main className="space-y-4">
-          <section className="overflow-hidden rounded-[30px] border border-border/70 bg-card shadow-[var(--shadow-card)]">
-            <div className="border-b border-border/70 p-5 sm:p-7">
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
+          <section className="overflow-hidden rounded-[32px] border border-border/70 bg-card shadow-[var(--shadow-card)]">
+            <div className="border-b border-border/70 bg-gradient-to-br from-primary/[0.06] via-card to-card p-5 sm:p-8">
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">
                 {fr ? "Étape 3" : "Step 3"}
               </p>
               <h2 className="mt-1 font-display text-xl font-bold">
