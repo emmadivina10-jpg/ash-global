@@ -900,7 +900,7 @@ type Vars = Record<string, string | number>;
 function translate(lang: Lang, key: TKey, vars?: Vars) {
 const raw = DICT[lang][key] ?? EN[key] ?? key;
 if (!vars) return raw;
-return raw.replace(/{(\w+)}/g, (_m, name: string) => String(vars[name] ?? `{${name}}`));
+return raw.replace(/{(\w+)}/g, (_m, name: string) => String(vars[name] ?? {${name}}));
 }
 
 const I18nContext = createContext<{ lang: Lang; setLang: (l: Lang) => void; t: (k: TKey, v?: Vars) => string }>({
