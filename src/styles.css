@@ -626,7 +626,7 @@ html.native .app-shell > nav {
    status bar does not overlay it. Adding the CSS inset again created the
    visible top strip on mobile browsers and duplicated native spacing. */
 .safe-top {
-  padding-top: env(safe-area-inset-top);
+  padding-top: 0;
 }
 
 /* WhatsApp-style chat surface: a soft patterned backdrop behind the bubbles. */

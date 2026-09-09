@@ -73,13 +73,33 @@ export type PropertyFilters = {
  * requests. Detect that here and send the member back to login instead of
  * leaving them on a broken page.
  */
+export function isExpiredSessionError(error: unknown): boolean {
+  const status = (error as { status?: number } | null)?.status;
+  const message = String((error as { message?: string } | null)?.message ?? "").toLowerCase();
+  return (
+    status === 401 ||
+    status === 403 ||
+    message.includes("refresh_token_not_found") ||
+    message.includes("refresh token not found") ||
+    message.includes("session_not_found") ||
+    message.includes("session from session_id claim in jwt does not exist") ||
+    message.includes("jwt expired") ||
+    message.includes("permission denied for table")
+  );
+}
+
+async function signOutToLogin(): Promise<never> {
+  await supabase.auth.signOut().catch(() => undefined);
+  if (typeof window !== "undefined") window.location.replace("/login");
+  throw new Error("SESSION_EXPIRED");
+}
+
 async function assertFreshSession(): Promise<void> {
   const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) {
-    await supabase.auth.signOut().catch(() => undefined);
-    if (typeof window !== "undefined") window.location.replace("/login");
-    throw new Error("SESSION_EXPIRED");
-  }
+  if (data.user) return;
+  // Only bounce members out when the session itself is invalid — a network
+  // hiccup must not sign anyone out.
+  if (!error || isExpiredSessionError(error)) await signOutToLogin();
 }
 
 /** Signed URLs for the private property bucket, keyed by storage path. */

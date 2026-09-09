@@ -158,7 +158,7 @@ function MessagesPage() {
   const activeId =
     c ??
     (typeof window !== "undefined" && window.innerWidth >= 768
-      ? CHATGPT_ID
+      ? list[0]?.id
       : undefined);
 
   const active = list.find((conv) => conv.id === activeId);

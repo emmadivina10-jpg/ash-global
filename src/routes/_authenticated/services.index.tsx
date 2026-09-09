@@ -1,14 +1,67 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Browser } from "@capacitor/browser";
 import {
+  Briefcase,
   Calendar,
   Home,
   MapPin,
   Search,
   SlidersHorizontal,
+  Sparkles,
+  Tag,
   Users,
 } from "lucide-react";
+
+const QUICK_LINKS = [
+  {
+    to: "/services",
+    en: "Services",
+    fr: "Services",
+    icon: Sparkles,
+    tone: "text-emerald-500",
+    ring: "bg-emerald-500/15 ring-emerald-400/50 shadow-emerald-500/20",
+  },
+  {
+    to: "/freelance",
+    en: "Jobs",
+    fr: "Missions",
+    icon: Briefcase,
+    tone: "text-red-500",
+    ring: "bg-red-500/15 ring-red-400/50 shadow-red-500/20",
+  },
+  {
+    to: "/deals",
+    en: "Deals",
+    fr: "Offres",
+    icon: Tag,
+    tone: "text-yellow-500",
+    ring: "bg-yellow-500/15 ring-yellow-400/50 shadow-yellow-500/20",
+  },
+  {
+    to: "/events",
+    en: "Events",
+    fr: "Événements",
+    icon: Calendar,
+    tone: "text-emerald-500",
+    ring: "bg-emerald-500/15 ring-emerald-400/50 shadow-emerald-500/20",
+  },
+  {
+    to: "/property",
+    en: "Property",
+    fr: "Immobilier",
+    icon: Home,
+    tone: "text-foreground",
+    ring: "bg-foreground/10 ring-foreground/30 shadow-black/10",
+  },
+  {
+    to: "/network",
+    en: "People",
+    fr: "Personnes",
+    icon: Users,
+    tone: "text-emerald-500",
+    ring: "bg-emerald-500/15 ring-emerald-400/50 shadow-emerald-500/20",
+  },
+] as const;
 
 import { ProviderCard } from "@/components/refer/ProviderCard";
 import { useCommunityFeed } from "@/lib/marketplace.queries";
@@ -287,30 +340,8 @@ function DiscoveryPage() {
     (filters.verifiedOnly ? 1 : 0) +
     (filters.availableOnly ? 1 : 0);
 
-  /**
-   * Opens an external service using the native Capacitor
-   * in-app browser experience.
-   *
-   * On native iOS/Android, Browser.open() handles the
-   * experience without sending the user directly into
-   * the device's normal browser app.
-   *
-   * On web, fall back to a normal new tab.
-   */
-  async function openExternal(url: string) {
-    try {
-      await Browser.open({
-        url,
-        presentationStyle: "popover",
-      });
-    } catch {
-      window.open(
-        url,
-        "_blank",
-        "noopener,noreferrer",
-      );
-    }
-  }
+
+
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
@@ -439,374 +470,46 @@ function DiscoveryPage() {
       </div>
 
       {/* =========================================================
-          ASH MARKETPLACE QUICK NAVIGATION
+          ASH MARKETPLACE QUICK NAVIGATION — INTERNAL SECTIONS
           ========================================================= */}
       <nav
         aria-label={
           fr
-            ? "Services numériques et sections ASH"
-            : "Digital services and ASH sections"
+            ? "Sections ASH"
+            : "ASH sections"
         }
         className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 pt-1 scrollbar-none"
       >
-        {/* =======================================================
-            LINKEDIN — BLUE / INDIGO HALO
-            ======================================================= */}
-        <button
-          type="button"
-          onClick={() =>
-            void openExternal(
-              "https://www.linkedin.com/",
-            )
-          }
-          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
-          aria-label="Open LinkedIn"
-        >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-sky-300 via-blue-600 to-indigo-900 p-[2px] shadow-lg shadow-blue-500/20 ring-2 ring-blue-400/40 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
-            <span className="grid size-full place-items-center rounded-full bg-[#0A66C2] shadow-inner">
-              <span className="text-lg font-black tracking-tight text-white">
-                in
+        {QUICK_LINKS.map((item) => {
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.to}
+              to={item.to}
+              className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
+            >
+              <span
+                className={cn(
+                  "grid size-14 place-items-center rounded-full p-[2px] shadow-lg ring-2 transition-all duration-300 group-hover:scale-105 group-active:scale-95",
+                  item.ring,
+                )}
+              >
+                <span className="grid size-full place-items-center rounded-full bg-card shadow-inner">
+                  <Icon
+                    className={cn("size-6", item.tone)}
+                    aria-hidden
+                  />
+                </span>
               </span>
-            </span>
-          </span>
 
-          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-            LinkedIn
-          </span>
-        </button>
-
-        {/* =======================================================
-            YOUTUBE — RED / CRIMSON HALO
-            ======================================================= */}
-        <button
-          type="button"
-          onClick={() =>
-            void openExternal(
-              "https://www.youtube.com/",
-            )
-          }
-          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
-          aria-label="Open YouTube"
-        >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-red-300 via-red-600 to-rose-900 p-[2px] shadow-lg shadow-red-500/20 ring-2 ring-red-400/40 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
-            <span className="grid size-full place-items-center rounded-full bg-white shadow-inner">
-              <img
-                src="https://cdn.simpleicons.org/youtube/FF0000"
-                alt="YouTube"
-                className="size-8 object-contain"
-                loading="lazy"
-              />
-            </span>
-          </span>
-
-          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-            YouTube
-          </span>
-        </button>
-
-        {/* =======================================================
-            NETFLIX — RED / BLACK HALO
-            ======================================================= */}
-        <button
-          type="button"
-          onClick={() =>
-            void openExternal(
-              "https://www.netflix.com/",
-            )
-          }
-          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
-          aria-label="Open Netflix"
-        >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-red-300 via-red-700 to-zinc-950 p-[2px] shadow-lg shadow-red-500/20 ring-2 ring-red-500/35 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
-            <span className="grid size-full place-items-center overflow-hidden rounded-full bg-black shadow-inner">
-              <img
-                src="https://www.netflix.com/favicon.ico"
-                alt="Netflix"
-                className="size-8 object-contain"
-                loading="lazy"
-              />
-            </span>
-          </span>
-
-          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-            Netflix
-          </span>
-        </button>
-
-        {/* =======================================================
-            TCHOKOPAY — EMERALD / TEAL HALO
-            ======================================================= */}
-        <button
-          type="button"
-          onClick={() =>
-            void openExternal(
-              "https://www.tchokopay.com/",
-            )
-          }
-          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
-          aria-label="Open TchokoPay"
-        >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-emerald-200 via-emerald-500 to-teal-800 p-[2px] shadow-lg shadow-emerald-500/20 ring-2 ring-emerald-400/35 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
-            <span className="grid size-full place-items-center overflow-hidden rounded-full bg-card shadow-inner">
-              <img
-                src="https://www.tchokopay.com/favicon.ico"
-                alt="TchokoPay"
-                className="size-7 object-contain"
-                loading="lazy"
-              />
-            </span>
-          </span>
-
-          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-            TchokoPay
-          </span>
-        </button>
-
-        {/* =======================================================
-            STRIPE — VIOLET / INDIGO HALO
-            ======================================================= */}
-        <button
-          type="button"
-          onClick={() =>
-            void openExternal(
-              "https://stripe.com/",
-            )
-          }
-          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
-          aria-label="Open Stripe"
-        >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-violet-300 via-violet-600 to-indigo-900 p-[2px] shadow-lg shadow-violet-500/20 ring-2 ring-violet-400/35 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
-            <span className="grid size-full place-items-center overflow-hidden rounded-full bg-white shadow-inner dark:bg-zinc-950">
-              <img
-                src="https://cdn.simpleicons.org/stripe"
-                alt="Stripe"
-                className="size-7 object-contain"
-                loading="lazy"
-              />
-            </span>
-          </span>
-
-          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-            Stripe
-          </span>
-        </button>
-
-        {/* =======================================================
-            INSTAGRAM — ORANGE / PINK / PURPLE HALO
-            ======================================================= */}
-        <button
-          type="button"
-          onClick={() =>
-            void openExternal(
-              "https://www.instagram.com/",
-            )
-          }
-          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
-          aria-label="Open Instagram"
-        >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-orange-300 via-fuchsia-600 to-purple-800 p-[2px] shadow-lg shadow-fuchsia-500/20 ring-2 ring-pink-400/35 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
-            <span className="grid size-full place-items-center overflow-hidden rounded-full bg-white shadow-inner">
-              <img
-                src="https://cdn.simpleicons.org/instagram/E4405F"
-                alt="Instagram"
-                className="size-8 object-contain"
-                loading="lazy"
-              />
-            </span>
-          </span>
-
-          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-            Instagram
-          </span>
-        </button>
-
-        {/* =======================================================
-            PROPERTY — PREMIUM GOLD / VIOLET HALO
-            INTERNAL ASH ROUTE
-            ======================================================= */}
-        <Link
-          to="/property"
-          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
-        >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-amber-200 via-yellow-500 to-violet-800 p-[2px] shadow-[0_8px_28px_rgba(234,179,8,0.28)] ring-2 ring-amber-400/45 transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_12px_35px_rgba(234,179,8,0.4)] group-active:scale-95">
-            <span className="grid size-full place-items-center rounded-full bg-gradient-to-br from-zinc-950 via-slate-900 to-violet-950 text-white shadow-inner">
-              <Home
-                className="size-6 text-yellow-100 drop-shadow-[0_0_8px_rgba(254,240,138,0.75)]"
-                aria-hidden
-              />
-            </span>
-          </span>
-
-          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-            {fr
-              ? "Immobilier"
-              : "Property"}
-          </span>
-        </Link>
-
-        {/* =======================================================
-            TELEGRAM — CYAN / BLUE HALO
-            ======================================================= */}
-        <button
-          type="button"
-          onClick={() =>
-            void openExternal(
-              "https://telegram.org/",
-            )
-          }
-          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
-          aria-label="Open Telegram"
-        >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-cyan-200 via-sky-500 to-blue-800 p-[2px] shadow-lg shadow-sky-500/20 ring-2 ring-sky-400/35 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
-            <span className="grid size-full place-items-center overflow-hidden rounded-full bg-white shadow-inner">
-              <img
-                src="https://cdn.simpleicons.org/telegram/229ED9"
-                alt="Telegram"
-                className="size-8 object-contain"
-                loading="lazy"
-              />
-            </span>
-          </span>
-
-          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-            Telegram
-          </span>
-        </button>
-
-        {/* =======================================================
-            LINKEDIN — SECOND INSTANCE, GOLD / BLUE HALO
-            ======================================================= */}
-        <button
-          type="button"
-          onClick={() =>
-            void openExternal(
-              "https://www.linkedin.com/",
-            )
-          }
-          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
-          aria-label="Open LinkedIn"
-        >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-amber-300 via-blue-600 to-indigo-900 p-[2px] shadow-lg shadow-blue-500/20 ring-2 ring-blue-400/30 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
-            <span className="grid size-full place-items-center rounded-full bg-[#0A66C2] shadow-inner">
-              <span className="text-lg font-black tracking-tight text-white">
-                in
+              <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
+                {fr ? item.fr : item.en}
               </span>
-            </span>
-          </span>
-
-          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-            LinkedIn
-          </span>
-        </button>
-
-        {/* =======================================================
-            SNAPCHAT — YELLOW / GOLD HALO
-            ======================================================= */}
-        <button
-          type="button"
-          onClick={() =>
-            void openExternal(
-              "https://www.snapchat.com/",
-            )
-          }
-          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
-          aria-label="Open Snapchat"
-        >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-yellow-100 via-yellow-400 to-amber-700 p-[2px] shadow-lg shadow-yellow-500/20 ring-2 ring-yellow-400/40 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
-            <span className="grid size-full place-items-center rounded-full bg-yellow-400 shadow-inner">
-              <img
-                src="https://cdn.simpleicons.org/snapchat/FFFC00"
-                alt="Snapchat"
-                className="size-8 object-contain"
-                loading="lazy"
-              />
-            </span>
-          </span>
-
-          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-            Snapchat
-          </span>
-        </button>
-
-        {/* =======================================================
-            X — BLACK / SILVER HALO
-            ======================================================= */}
-        <button
-          type="button"
-          onClick={() =>
-            void openExternal(
-              "https://x.com/",
-            )
-          }
-          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
-          aria-label="Open X"
-        >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-zinc-100 via-zinc-500 to-zinc-950 p-[2px] shadow-lg shadow-zinc-500/20 ring-2 ring-zinc-400/35 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
-            <span className="grid size-full place-items-center rounded-full bg-black shadow-inner">
-              <span className="text-xl font-bold text-white">
-                𝕏
-              </span>
-            </span>
-          </span>
-
-          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-            X
-          </span>
-        </button>
-
-        {/* =======================================================
-            MT5 — GREEN / EMERALD HALO
-            ======================================================= */}
-        <button
-          type="button"
-          onClick={() =>
-            void openExternal(
-              "https://www.metatrader5.com/",
-            )
-          }
-          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
-          aria-label="Open MetaTrader 5"
-        >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-emerald-200 via-green-500 to-emerald-900 p-[2px] shadow-lg shadow-emerald-500/20 ring-2 ring-emerald-400/35 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl group-active:scale-95">
-            <span className="grid size-full place-items-center overflow-hidden rounded-full bg-white shadow-inner">
-              <img
-                src="https://www.metatrader5.com/favicon.ico"
-                alt="MetaTrader 5"
-                className="size-8 object-contain"
-                loading="lazy"
-              />
-            </span>
-          </span>
-
-          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-            MT5
-          </span>
-        </button>
-
-        {/* =======================================================
-            EVENTS — LUXURY GOLD PREMIUM HALO
-            INTERNAL ASH ROUTE
-            ======================================================= */}
-        <Link
-          to="/events"
-          className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
-        >
-          <span className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-yellow-100 via-amber-400 to-orange-800 p-[2px] shadow-[0_8px_28px_rgba(245,158,11,0.3)] ring-2 ring-amber-400/50 transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_12px_35px_rgba(245,158,11,0.42)] group-active:scale-95">
-            <span className="grid size-full place-items-center rounded-full bg-gradient-to-br from-amber-950 via-yellow-700 to-amber-950 shadow-inner">
-              <Calendar
-                className="size-6 text-yellow-100 drop-shadow-[0_0_8px_rgba(254,240,138,0.75)]"
-                aria-hidden
-              />
-            </span>
-          </span>
-
-          <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-            {fr
-              ? "Événements"
-              : "Events"}
-          </span>
-        </Link>
+            </Link>
+          );
+        })}
       </nav>
+
 
       {/* CATEGORY FILTERS */}
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
