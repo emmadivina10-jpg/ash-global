@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
@@ -160,17 +160,56 @@ const QUICK_LINKS = [
  * No iframe is used. This lets TchokoPay, Netflix and TikTok behave as their
  * normal websites while still being launched from ASH.
  */
+/**
+ * Preserve the Marketplace viewport when the native in-app browser opens
+ * and when it is dismissed.
+ *
+ * The saved position is kept outside React state so opening an external
+ * service never causes a render just to remember scrollY.
+ */
+let marketplaceScrollY = 0;
+let restoreMarketplaceScroll = false;
+
+function rememberMarketplaceScroll() {
+  marketplaceScrollY = window.scrollY;
+  restoreMarketplaceScroll = true;
+}
+
+function restoreMarketplaceScrollPosition() {
+  if (!restoreMarketplaceScroll) return;
+
+  restoreMarketplaceScroll = false;
+
+  // Restore after the native browser has released its viewport/insets.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      window.scrollTo({
+        top: marketplaceScrollY,
+        left: 0,
+        behavior: "instant" as ScrollBehavior,
+      });
+    });
+  });
+}
+
 async function openExternalService(url: string) {
+  rememberMarketplaceScroll();
+
   try {
     if (Capacitor.isNativePlatform()) {
       await Browser.open({
         url,
         presentationStyle: "fullscreen",
       });
+
+      restoreMarketplaceScrollPosition();
       return;
     }
 
     window.open(url, "_blank", "noopener,noreferrer");
+
+    // The ASH web page remains open in the original tab.
+    restoreMarketplaceScrollPosition();
   } catch (error) {
     console.error("Failed to open external service:", error);
 
@@ -257,6 +296,44 @@ const PRICE_STEPS = [
 function DiscoveryPage() {
   const { t, lang } = useI18n();
   const fr = lang === "fr";
+
+  // Native Browser dismissal can trigger visibility/focus/page-show events
+  // in slightly different orders on iOS and Android. Listen to all relevant
+  // lifecycle events and restore only when we actually opened an external
+  // service from Marketplace.
+  useEffect(() => {
+    const restore = () => {
+      restoreMarketplaceScrollPosition();
+    };
+
+    window.addEventListener("pageshow", restore);
+    window.addEventListener("focus", restore);
+    document.addEventListener("visibilitychange", restore);
+
+    return () => {
+      window.removeEventListener("pageshow", restore);
+      window.removeEventListener("focus", restore);
+      document.removeEventListener("visibilitychange", restore);
+    };
+  }, []);
+
+  // Prevent a transient safe-area/viewport recalculation from visually
+  // shifting the Marketplace immediately after returning from Browser.
+  useLayoutEffect(() => {
+    if (!restoreMarketplaceScroll) return;
+
+    const id = requestAnimationFrame(() => {
+      if (restoreMarketplaceScroll) {
+        window.scrollTo({
+          top: marketplaceScrollY,
+          left: 0,
+          behavior: "instant" as ScrollBehavior,
+        });
+      }
+    });
+
+    return () => cancelAnimationFrame(id);
+  });
 
   const {
     location,
