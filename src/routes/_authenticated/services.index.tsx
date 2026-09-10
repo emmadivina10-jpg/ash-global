@@ -11,6 +11,8 @@ import {
   Sparkles,
   Tag,
   Users,
+  ArrowLeft,
+  X,
 } from "lucide-react";
 
 import { ProviderCard } from "@/components/refer/ProviderCard";
@@ -62,8 +64,7 @@ const QUICK_LINKS = [
     to: "/electricity",
     en: "Pay Eneo Bills",
     fr: "Payer facture Eneo",
-    logo: "https://my.eneo.cm/favicon.ico",
-    logoClassName: "h-8 w-8 object-contain",
+    kind: "eneo",
     ring:
       "bg-white ring-emerald-500/60 shadow-emerald-500/20",
   },
@@ -71,6 +72,7 @@ const QUICK_LINKS = [
     href: "https://www.tchokopay.com/",
     en: "TchokoPay",
     fr: "TchokoPay",
+    kind: "tchokopay",
     logo: "https://www.tchokopay.com/tchokopay-logo.png",
     logoClassName:
       "h-8 w-8 rounded-[11px] object-contain p-1.5",
@@ -81,6 +83,7 @@ const QUICK_LINKS = [
     href: "https://www.netflix.com/",
     en: "Netflix",
     fr: "Netflix",
+    kind: "netflix",
     logo:
       "https://assets.nflxext.com/us/ffe/siteui/common/icons/nficon2023.ico",
     logoClassName: "h-8 w-8 object-contain",
@@ -91,6 +94,7 @@ const QUICK_LINKS = [
     href: "https://www.tiktok.com/",
     en: "TikTok",
     fr: "TikTok",
+    kind: "tiktok",
     logo:
       "https://sf16-sg.tiktokcdn.com/obj/eden-sg/uvkuhyieh7lpqpbj/logo_tiktok1.svg",
     logoClassName: "h-8 w-8 object-contain",
@@ -218,6 +222,13 @@ function DiscoveryPage() {
     useState<DiscoveryFilters>(
       DEFAULT_FILTERS,
     );
+
+  // External services are presented inside an ASH in-app surface.
+  // This prevents the quick-service tap from navigating away from ASH.
+  const [embeddedService, setEmbeddedService] = useState<{
+    url: string;
+    title: string;
+  } | null>(null);
 
   const groupCategories = useMemo(
     () =>
@@ -390,26 +401,54 @@ function DiscoveryPage() {
     (filters.availableOnly ? 1 : 0);
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-5">
-      <header className="pt-1 sm:pt-2">
-        <p className="text-sm font-semibold text-primary">
-          {fr
-            ? "Place de marché ASH"
-            : "ASH Marketplace"}
-        </p>
+    <>
+      {embeddedService ? (
+        <div className="fixed inset-0 z-[100] flex flex-col bg-background">
+          <div className="flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background/95 px-4 backdrop-blur-xl">
+            <button
+              type="button"
+              onClick={() => setEmbeddedService(null)}
+              className="grid size-9 place-items-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-muted active:scale-95"
+              aria-label={fr ? "Retour à ASH" : "Back to ASH"}
+            >
+              <ArrowLeft className="size-5" aria-hidden />
+            </button>
 
-        <h1 className="mt-1 font-display text-2xl font-bold leading-tight text-foreground sm:text-3xl">
-          {fr
-            ? "Trouvez des services près de vous"
-            : "Find services near you"}
-        </h1>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-bold text-foreground">
+                {embeddedService.title}
+              </p>
+              <p className="text-[10px] text-muted-foreground">
+                {fr
+                  ? "Service ouvert dans ASH"
+                  : "Service opened inside ASH"}
+              </p>
+            </div>
 
-        <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          {fr
-            ? "Parcourez les professionnels vérifiés, comparez leur travail et réservez en toute confiance."
-            : "Browse verified providers, compare their work, and book with confidence."}
-        </p>
-      </header>
+            <button
+              type="button"
+              onClick={() => setEmbeddedService(null)}
+              className="grid size-9 place-items-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:bg-muted active:scale-95"
+              aria-label={fr ? "Fermer" : "Close"}
+            >
+              <X className="size-5" aria-hidden />
+            </button>
+          </div>
+
+          <div className="relative min-h-0 flex-1 bg-white">
+            <iframe
+              src={embeddedService.url}
+              title={embeddedService.title}
+              className="h-full w-full border-0 bg-white"
+              allow="autoplay; fullscreen; payment; clipboard-read; clipboard-write"
+              referrerPolicy="strict-origin-when-cross-origin"
+            />
+          </div>
+        </div>
+      ) : null}
+
+      <div className="mx-auto w-full max-w-5xl space-y-5">
+
 
       {!asked && !location ? (
         <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-2xl border border-border bg-card p-4 sm:flex sm:justify-between">
@@ -528,10 +567,10 @@ function DiscoveryPage() {
       >
         {QUICK_LINKS.map((item) => {
           /*
-           * Eneo is an internal ASH destination but uses the Eneo logo.
-           * It must use TanStack Router's <Link>, not an external <a>.
+           * Eneo is an internal ASH route. We render a reliable local
+           * text/logo mark instead of depending on a remote favicon.
            */
-          if ("to" in item && "logo" in item) {
+          if ("to" in item && item.kind === "eneo") {
             return (
               <Link
                 key={item.en}
@@ -544,16 +583,17 @@ function DiscoveryPage() {
                     item.ring,
                   )}
                 >
-                  <span className="grid size-full place-items-center rounded-full bg-card shadow-inner">
-                    <img
-                      src={item.logo}
-                      alt="Eneo"
-                      className={cn(item.logoClassName)}
-                      loading="eager"
-                      onError={(event) => {
-                        event.currentTarget.style.display = "none";
+                  <span className="grid size-full place-items-center rounded-full bg-white shadow-inner">
+                    <span
+                      className="select-none text-[10px] font-black tracking-[-0.06em]"
+                      style={{
+                        color: "#1B9A59",
+                        fontFamily: "Arial, Helvetica, sans-serif",
                       }}
-                    />
+                      aria-label="Eneo"
+                    >
+                      eneo
+                    </span>
                   </span>
                 </span>
 
@@ -565,29 +605,52 @@ function DiscoveryPage() {
           }
 
           /*
-           * External items intentionally remain normal same-tab anchors.
-           * No target="_blank" is used, so TchokoPay, Netflix and TikTok
-           * open in the current app/browser surface.
+           * TchokoPay, Netflix and TikTok are external services, but they
+           * are deliberately NOT normal <a href> navigations. They open
+           * inside an ASH overlay containing an iframe.
            */
           if ("href" in item) {
+            const serviceTitle =
+              fr ? item.fr : item.en;
+
             return (
-              <a
+              <button
                 key={item.en}
-                href={item.href}
+                type="button"
+                onClick={() =>
+                  setEmbeddedService({
+                    url: item.href,
+                    title: serviceTitle,
+                  })
+                }
                 className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
+                aria-label={serviceTitle}
               >
                 <span
                   className={cn(
                     "grid size-14 place-items-center rounded-full p-[2px] shadow-lg ring-2 transition-all duration-300 group-hover:scale-105 group-active:scale-95",
                     item.ring,
+                    item.kind === "tiktok" &&
+                      "bg-black ring-zinc-500/80 dark:bg-black",
                   )}
                 >
-                  <span className="grid size-full place-items-center rounded-full bg-card shadow-inner">
+                  <span
+                    className={cn(
+                      "grid size-full place-items-center rounded-full shadow-inner",
+                      item.kind === "tiktok"
+                        ? "bg-white dark:bg-zinc-950"
+                        : "bg-card",
+                    )}
+                  >
                     <img
                       src={item.logo}
                       alt={item.en}
-                      className={cn(item.logoClassName)}
-                      loading="lazy"
+                      className={cn(
+                        item.logoClassName,
+                        item.kind === "tiktok" &&
+                          "brightness-110 contrast-125",
+                      )}
+                      loading="eager"
                       onError={(event) => {
                         event.currentTarget.style.display = "none";
                       }}
@@ -596,13 +659,12 @@ function DiscoveryPage() {
                 </span>
 
                 <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-                  {fr ? item.fr : item.en}
+                  {serviceTitle}
                 </span>
-              </a>
+              </button>
             );
           }
 
-          /* Normal internal ASH Marketplace sections. */
           const Icon = item.icon;
 
           return (
@@ -1267,5 +1329,6 @@ function DiscoveryPage() {
         </>
       )}
     </div>
+    </>
   );
 }
