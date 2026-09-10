@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
@@ -64,8 +64,10 @@ const QUICK_LINKS = [
     to: "/electricity",
     en: "Pay Eneo Bills",
     fr: "Payer facture Eneo",
-    logo: "https://my.eneo.cm/favicon.ico",
-    logoClassName: "h-8 w-8 object-contain",
+    logo:
+      "https://my.eneo.cm/favicon.ico",
+    logoClassName:
+      "h-8 w-8 object-contain",
     ring:
       "bg-white ring-emerald-500/60 shadow-emerald-500/20",
   },
@@ -73,7 +75,8 @@ const QUICK_LINKS = [
     href: "https://www.tchokopay.com/",
     en: "TchokoPay",
     fr: "TchokoPay",
-    logo: "https://www.tchokopay.com/tchokopay-logo.png",
+    logo:
+      "https://www.tchokopay.com/tchokopay-logo.png",
     logoClassName:
       "h-8 w-8 rounded-[11px] object-contain p-1.5",
     ring:
@@ -85,7 +88,8 @@ const QUICK_LINKS = [
     fr: "Netflix",
     logo:
       "https://assets.nflxext.com/us/ffe/siteui/common/icons/nficon2023.ico",
-    logoClassName: "h-8 w-8 object-contain",
+    logoClassName:
+      "h-8 w-8 object-contain",
     ring:
       "bg-white ring-red-500/60 shadow-red-500/20",
   },
@@ -95,7 +99,8 @@ const QUICK_LINKS = [
     fr: "TikTok",
     logo:
       "https://sf16-sg.tiktokcdn.com/obj/eden-sg/uvkuhyieh7lpqpbj/logo_tiktok1.svg",
-    logoClassName: "h-8 w-8 object-contain brightness-125 contrast-125",
+    logoClassName:
+      "h-8 w-8 object-contain brightness-125 contrast-125",
     ring:
       "bg-white dark:bg-zinc-950 ring-black/30 dark:ring-white/30 shadow-black/20 dark:shadow-white/10",
   },
@@ -147,91 +152,39 @@ const QUICK_LINKS = [
 ] as const;
 
 /**
- * Opens an external service without navigating the ASH web app away.
+ * Opens third-party services without navigating ASH itself away.
  *
- * Native iOS/Android (Capacitor):
- * - Opens the URL in the native in-app browser surface (Safari View Controller /
- *   Chrome Custom Tab depending on platform).
- * - Closing/back returns the user to ASH.
+ * Native Capacitor app:
+ *   Uses the OS in-app browser surface. We intentionally do not set a
+ *   presentationStyle or manipulate scroll/viewport state; the native
+ *   browser owns its own presentation and closing it returns to ASH.
  *
- * Normal web browser:
- * - Opens a separate browser tab and keeps ASH open in the original tab.
- *
- * No iframe is used. This lets TchokoPay, Netflix and TikTok behave as their
- * normal websites while still being launched from ASH.
+ * Normal web:
+ *   Opens a new tab and leaves the ASH tab untouched.
  */
-/**
- * Preserve the Marketplace viewport when the native in-app browser opens
- * and when it is dismissed.
- *
- * The saved position is kept outside React state so opening an external
- * service never causes a render just to remember scrollY.
- */
-let marketplaceScrollY = 0;
-let restoreMarketplaceScroll = false;
-
-function rememberMarketplaceScroll() {
-  marketplaceScrollY = window.scrollY;
-  restoreMarketplaceScroll = true;
-}
-
-function restoreMarketplaceScrollPosition() {
-  if (!restoreMarketplaceScroll) return;
-
-  restoreMarketplaceScroll = false;
-
-  // Restore after the native browser has released its viewport/insets.
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      window.scrollTo({
-        top: marketplaceScrollY,
-        left: 0,
-        behavior: "instant" as ScrollBehavior,
-      });
-    });
-  });
-}
-
 async function openExternalService(url: string) {
-  rememberMarketplaceScroll();
-
   try {
     if (Capacitor.isNativePlatform()) {
-      await Browser.open({
-        url,
-        presentationStyle: "fullscreen",
-      });
-
-      restoreMarketplaceScrollPosition();
+      await Browser.open({ url });
       return;
     }
 
     window.open(url, "_blank", "noopener,noreferrer");
-
-    // The ASH web page remains open in the original tab.
-    restoreMarketplaceScrollPosition();
   } catch (error) {
-    console.error("Failed to open external service:", error);
-
-    // Last-resort web fallback.
-    window.location.assign(url);
+    console.error("Unable to open external service:", error);
   }
 }
 
 /**
- * Eneo wordmark fallback.
- *
- * MyEneo may change the location/name of its favicon/logo asset. The visible
- * wordmark keeps the ASH button branded and usable even if the remote image
- * is unavailable.
+ * Eneo logo with a reliable text fallback if the remote image is unavailable.
  */
 function EneoLogo() {
-  const [imageFailed, setImageFailed] = useState(false);
+  const [failed, setFailed] = useState(false);
 
-  if (imageFailed) {
+  if (failed) {
     return (
       <span
-        className="select-none text-[17px] font-black tracking-[-0.08em] text-[#00A651]"
+        className="select-none text-[18px] font-black tracking-[-0.08em] text-[#00A651]"
         aria-hidden
       >
         eneo
@@ -245,7 +198,7 @@ function EneoLogo() {
       alt="Eneo"
       className="h-8 w-8 object-contain"
       loading="eager"
-      onError={() => setImageFailed(true)}
+      onError={() => setFailed(true)}
     />
   );
 }
@@ -296,44 +249,6 @@ const PRICE_STEPS = [
 function DiscoveryPage() {
   const { t, lang } = useI18n();
   const fr = lang === "fr";
-
-  // Native Browser dismissal can trigger visibility/focus/page-show events
-  // in slightly different orders on iOS and Android. Listen to all relevant
-  // lifecycle events and restore only when we actually opened an external
-  // service from Marketplace.
-  useEffect(() => {
-    const restore = () => {
-      restoreMarketplaceScrollPosition();
-    };
-
-    window.addEventListener("pageshow", restore);
-    window.addEventListener("focus", restore);
-    document.addEventListener("visibilitychange", restore);
-
-    return () => {
-      window.removeEventListener("pageshow", restore);
-      window.removeEventListener("focus", restore);
-      document.removeEventListener("visibilitychange", restore);
-    };
-  }, []);
-
-  // Prevent a transient safe-area/viewport recalculation from visually
-  // shifting the Marketplace immediately after returning from Browser.
-  useLayoutEffect(() => {
-    if (!restoreMarketplaceScroll) return;
-
-    const id = requestAnimationFrame(() => {
-      if (restoreMarketplaceScroll) {
-        window.scrollTo({
-          top: marketplaceScrollY,
-          left: 0,
-          behavior: "instant" as ScrollBehavior,
-        });
-      }
-    });
-
-    return () => cancelAnimationFrame(id);
-  });
 
   const {
     location,
@@ -652,10 +567,7 @@ function DiscoveryPage() {
         className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 pt-1 scrollbar-none"
       >
         {QUICK_LINKS.map((item) => {
-          /*
-           * Eneo is the first internal ASH action.
-           * It uses the dedicated /electricity route.
-           */
+          // Eneo is an internal ASH route and is always first.
           if ("to" in item && "logo" in item) {
             return (
               <Link
@@ -674,26 +586,21 @@ function DiscoveryPage() {
                   </span>
                 </span>
 
-                <span className="text-center text-xs font-semibold leading-tight text-muted-foreground group-hover:text-foreground">
+                <span className="w-full text-center text-xs font-semibold leading-tight text-muted-foreground group-hover:text-foreground">
                   {fr ? item.fr : item.en}
                 </span>
               </Link>
             );
           }
 
-          /*
-           * External services:
-           * - Native ASH app: Capacitor Browser opens them as an in-app browser
-           *   surface, keeping the user in the ASH application experience.
-           * - Web: a new browser tab opens while ASH remains in its tab.
-           */
+          // Third-party services use the native in-app browser on mobile.
           if ("href" in item) {
             return (
               <button
                 key={item.en}
                 type="button"
                 onClick={() => void openExternalService(item.href)}
-                className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5 text-left"
+                className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
                 aria-label={fr ? item.fr : item.en}
               >
                 <span
@@ -722,7 +629,6 @@ function DiscoveryPage() {
             );
           }
 
-          /* Normal internal ASH Marketplace sections. */
           const Icon = item.icon;
 
           return (
@@ -745,7 +651,7 @@ function DiscoveryPage() {
                 </span>
               </span>
 
-              <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
+              <span className="w-full text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
                 {fr ? item.fr : item.en}
               </span>
             </Link>
