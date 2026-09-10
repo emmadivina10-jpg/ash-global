@@ -144,17 +144,6 @@ const QUICK_LINKS = [
   },
 ] as const;
 
-/**
- * Open an external service in the current ASH app surface.
- *
- * We intentionally do not use target="_blank". In the Capacitor build this
- * keeps the destination inside the app's WebView. The user can use the
- * platform back gesture/button to return to ASH.
- */
-function openExternalInApp(url: string) {
-  window.location.assign(url);
-}
-
 
 export const Route = createFileRoute("/_authenticated/services/")({
   head: () => ({
@@ -539,21 +528,52 @@ function DiscoveryPage() {
       >
         {QUICK_LINKS.map((item) => {
           /*
-           * External items:
-           *
-           * IMPORTANT:
-           * No target="_blank".
-           * They open in the CURRENT browser tab/screen.
+           * Eneo is an internal ASH destination but uses the Eneo logo.
+           * It must use TanStack Router's <Link>, not an external <a>.
+           */
+          if ("to" in item && "logo" in item) {
+            return (
+              <Link
+                key={item.en}
+                to={item.to}
+                className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
+              >
+                <span
+                  className={cn(
+                    "grid size-14 place-items-center rounded-full p-[2px] shadow-lg ring-2 transition-all duration-300 group-hover:scale-105 group-active:scale-95",
+                    item.ring,
+                  )}
+                >
+                  <span className="grid size-full place-items-center rounded-full bg-card shadow-inner">
+                    <img
+                      src={item.logo}
+                      alt="Eneo"
+                      className={cn(item.logoClassName)}
+                      loading="eager"
+                      onError={(event) => {
+                        event.currentTarget.style.display = "none";
+                      }}
+                    />
+                  </span>
+                </span>
+
+                <span className="text-center text-xs font-semibold leading-tight text-muted-foreground group-hover:text-foreground">
+                  {fr ? item.fr : item.en}
+                </span>
+              </Link>
+            );
+          }
+
+          /*
+           * External items intentionally remain normal same-tab anchors.
+           * No target="_blank" is used, so TchokoPay, Netflix and TikTok
+           * open in the current app/browser surface.
            */
           if ("href" in item) {
             return (
               <a
                 key={item.en}
                 href={item.href}
-                onClick={(event) => {
-                  event.preventDefault();
-                  openExternalInApp(item.href);
-                }}
                 className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
               >
                 <span
@@ -566,30 +586,23 @@ function DiscoveryPage() {
                     <img
                       src={item.logo}
                       alt={item.en}
-                      className={cn(
-                        item.logoClassName,
-                      )}
+                      className={cn(item.logoClassName)}
                       loading="lazy"
                       onError={(event) => {
-                        event.currentTarget.style.display =
-                          "none";
+                        event.currentTarget.style.display = "none";
                       }}
                     />
                   </span>
                 </span>
 
                 <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-                  {fr
-                    ? item.fr
-                    : item.en}
+                  {fr ? item.fr : item.en}
                 </span>
               </a>
             );
           }
 
-          /*
-           * Internal ASH Marketplace sections.
-           */
+          /* Normal internal ASH Marketplace sections. */
           const Icon = item.icon;
 
           return (
@@ -606,19 +619,14 @@ function DiscoveryPage() {
               >
                 <span className="grid size-full place-items-center rounded-full bg-card shadow-inner">
                   <Icon
-                    className={cn(
-                      "size-6",
-                      item.tone,
-                    )}
+                    className={cn("size-6", item.tone)}
                     aria-hidden
                   />
                 </span>
               </span>
 
               <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-                {fr
-                  ? item.fr
-                  : item.en}
+                {fr ? item.fr : item.en}
               </span>
             </Link>
           );
