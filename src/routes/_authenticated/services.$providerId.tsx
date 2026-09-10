@@ -529,31 +529,113 @@ function BookingRequestDialog({
   }, [day, provider.id, selected.duration_minutes]);
 
   async function submit() {
-    if (sending.current) return; // double-tap guard: one request, one booking
-    sending.current = true;
-    setBusy(true);
-    const { data, error } = await supabase.rpc("request_booking", {
-      _provider_id: provider.id,
-      _service_id: isCustom ? (null as unknown as string) : serviceId,
-      _scheduled_at: new Date(when).toISOString(),
-      _notes: notes,
-      _address: address,
-      ...(isCustom ? { _custom_title: effTitle, _custom_price: effPrice } : {}),
-    });
+    // Prevent duplicate submissions from double taps or repeated clicks.
+    if (sending.current || busy) return;
 
-    setBusy(false);
-    const result = data as { ok?: boolean; error?: string } | null;
-    if (error || !result?.ok) {
-      sending.current = false;
-      const code = error ? "REQUEST_FAILED" : (result?.error ?? "REQUEST_FAILED");
-      if (error) console.error("request_booking failed", error);
-      toast.error(bookingRequestError(code, fr));
+    const scheduledAt = new Date(when);
+    if (!when || Number.isNaN(scheduledAt.getTime())) {
+      toast.error(fr ? "Choisissez une date et une heure valides." : "Please choose a valid date and time.");
       return;
     }
-    toast.success(
-      fr ? "Demande envoyée. Le pro a 24 h pour répondre." : "Request sent. The pro has 24 hours to respond.",
-    );
-    onDone();
+
+    if (isCustom && !customTitle.trim()) {
+      toast.error(fr ? "Décrivez le service demandé." : "Please describe the service you need.");
+      return;
+    }
+
+    if (isCustom && effPrice < 0) {
+      toast.error(fr ? "Le budget est invalide." : "The budget is invalid.");
+      return;
+    }
+
+    sending.current = true;
+    setBusy(true);
+
+    try {
+      /*
+       * Keep booking creation server-side through the existing RPC.
+       * Provider availability, ownership, pricing and notifications must
+       * remain enforced by the database function.
+       */
+      const payload = {
+        _provider_id: provider.id,
+        _service_id: isCustom ? null : serviceId,
+        _scheduled_at: scheduledAt.toISOString(),
+        _notes: notes.trim(),
+        _address: address.trim(),
+        ...(isCustom
+          ? {
+              _custom_title: effTitle,
+              _custom_price: effPrice,
+            }
+          : {}),
+      };
+
+      const { data, error } = await supabase.rpc("request_booking", payload);
+
+      if (error) {
+        console.error("request_booking failed", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+        });
+
+        toast.error(bookingRequestError("REQUEST_FAILED", fr));
+        return;
+      }
+
+      /*
+       * The RPC's `error` is the authoritative Supabase failure signal.
+       * Older/newer versions of the function may return an object, id, or
+       * NULL on success. Only reject an explicitly negative result.
+       */
+      if (
+        typeof data === "object" &&
+        data !== null &&
+        "ok" in data &&
+        (data as { ok?: unknown }).ok === false
+      ) {
+        const code =
+          "error" in data &&
+          typeof (data as { error?: unknown }).error === "string"
+            ? (data as { error: string }).error
+            : "REQUEST_FAILED";
+
+        console.error("request_booking returned a negative result:", data);
+        toast.error(bookingRequestError(code, fr));
+        return;
+      }
+
+      if (
+        typeof data === "object" &&
+        data !== null &&
+        "success" in data &&
+        (data as { success?: unknown }).success === false
+      ) {
+        console.error("request_booking returned success=false:", data);
+        toast.error(bookingRequestError("REQUEST_FAILED", fr));
+        return;
+      }
+
+      toast.success(
+        fr
+          ? "Demande envoyée. Le pro a 24 h pour répondre."
+          : "Request sent. The pro has 24 hours to respond.",
+      );
+
+      onDone();
+    } catch (err) {
+      console.error("Unexpected request_booking error:", err);
+      toast.error(
+        fr
+          ? "Une erreur inattendue est survenue. Réessayez."
+          : "Something went wrong while sending the request. Please try again.",
+      );
+    } finally {
+      setBusy(false);
+      sending.current = false;
+    }
   }
 
   return (
@@ -569,7 +651,23 @@ function BookingRequestDialog({
             className="space-y-3"
             onSubmit={(e) => {
               e.preventDefault();
-              if (!when) return;
+
+              if (!when) {
+                toast.error(fr ? "Choisissez une date et une heure." : "Please choose a date and time.");
+                return;
+              }
+
+              const selectedDate = new Date(when);
+              if (Number.isNaN(selectedDate.getTime())) {
+                toast.error(fr ? "Date ou heure invalide." : "Invalid date or time.");
+                return;
+              }
+
+              if (isCustom && !customTitle.trim()) {
+                toast.error(fr ? "Décrivez le service demandé." : "Please describe the service you need.");
+                return;
+              }
+
               setStep("confirm");
             }}
           >
@@ -723,8 +821,20 @@ function BookingRequestDialog({
               <Button variant="ghost" className="flex-1" onClick={() => setStep("form")} disabled={busy}>
                 {fr ? "Retour" : "Back"}
               </Button>
-              <Button className="flex-1" onClick={() => void submit()} disabled={busy}>
-                {fr ? "Envoyer la demande" : "Send request"}
+              <Button
+                type="button"
+                className="flex-1"
+                onClick={() => void submit()}
+                disabled={busy}
+                aria-busy={busy}
+              >
+                {busy
+                  ? fr
+                    ? "Envoi…"
+                    : "Sending…"
+                  : fr
+                    ? "Envoyer la demande"
+                    : "Send request"}
               </Button>
             </div>
           </div>
