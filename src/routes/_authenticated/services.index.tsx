@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Capacitor } from "@capacitor/core";
+import { Browser } from "@capacitor/browser";
 import {
   Briefcase,
   Calendar,
@@ -11,8 +13,6 @@ import {
   Sparkles,
   Tag,
   Users,
-  ArrowLeft,
-  X,
 } from "lucide-react";
 
 import { ProviderCard } from "@/components/refer/ProviderCard";
@@ -64,7 +64,8 @@ const QUICK_LINKS = [
     to: "/electricity",
     en: "Pay Eneo Bills",
     fr: "Payer facture Eneo",
-    kind: "eneo",
+    logo: "https://my.eneo.cm/favicon.ico",
+    logoClassName: "h-8 w-8 object-contain",
     ring:
       "bg-white ring-emerald-500/60 shadow-emerald-500/20",
   },
@@ -72,7 +73,6 @@ const QUICK_LINKS = [
     href: "https://www.tchokopay.com/",
     en: "TchokoPay",
     fr: "TchokoPay",
-    kind: "tchokopay",
     logo: "https://www.tchokopay.com/tchokopay-logo.png",
     logoClassName:
       "h-8 w-8 rounded-[11px] object-contain p-1.5",
@@ -83,7 +83,6 @@ const QUICK_LINKS = [
     href: "https://www.netflix.com/",
     en: "Netflix",
     fr: "Netflix",
-    kind: "netflix",
     logo:
       "https://assets.nflxext.com/us/ffe/siteui/common/icons/nficon2023.ico",
     logoClassName: "h-8 w-8 object-contain",
@@ -94,12 +93,11 @@ const QUICK_LINKS = [
     href: "https://www.tiktok.com/",
     en: "TikTok",
     fr: "TikTok",
-    kind: "tiktok",
     logo:
       "https://sf16-sg.tiktokcdn.com/obj/eden-sg/uvkuhyieh7lpqpbj/logo_tiktok1.svg",
-    logoClassName: "h-8 w-8 object-contain",
+    logoClassName: "h-8 w-8 object-contain brightness-125 contrast-125",
     ring:
-      "bg-white ring-black/30 shadow-black/20",
+      "bg-white dark:bg-zinc-950 ring-black/30 dark:ring-white/30 shadow-black/20 dark:shadow-white/10",
   },
   {
     to: "/freelance",
@@ -147,6 +145,71 @@ const QUICK_LINKS = [
       "bg-emerald-500/15 ring-emerald-400/50 shadow-emerald-500/20",
   },
 ] as const;
+
+/**
+ * Opens an external service without navigating the ASH web app away.
+ *
+ * Native iOS/Android (Capacitor):
+ * - Opens the URL in the native in-app browser surface (Safari View Controller /
+ *   Chrome Custom Tab depending on platform).
+ * - Closing/back returns the user to ASH.
+ *
+ * Normal web browser:
+ * - Opens a separate browser tab and keeps ASH open in the original tab.
+ *
+ * No iframe is used. This lets TchokoPay, Netflix and TikTok behave as their
+ * normal websites while still being launched from ASH.
+ */
+async function openExternalService(url: string) {
+  try {
+    if (Capacitor.isNativePlatform()) {
+      await Browser.open({
+        url,
+        presentationStyle: "fullscreen",
+      });
+      return;
+    }
+
+    window.open(url, "_blank", "noopener,noreferrer");
+  } catch (error) {
+    console.error("Failed to open external service:", error);
+
+    // Last-resort web fallback.
+    window.location.assign(url);
+  }
+}
+
+/**
+ * Eneo wordmark fallback.
+ *
+ * MyEneo may change the location/name of its favicon/logo asset. The visible
+ * wordmark keeps the ASH button branded and usable even if the remote image
+ * is unavailable.
+ */
+function EneoLogo() {
+  const [imageFailed, setImageFailed] = useState(false);
+
+  if (imageFailed) {
+    return (
+      <span
+        className="select-none text-[17px] font-black tracking-[-0.08em] text-[#00A651]"
+        aria-hidden
+      >
+        eneo
+      </span>
+    );
+  }
+
+  return (
+    <img
+      src="https://my.eneo.cm/favicon.ico"
+      alt="Eneo"
+      className="h-8 w-8 object-contain"
+      loading="eager"
+      onError={() => setImageFailed(true)}
+    />
+  );
+}
 
 
 export const Route = createFileRoute("/_authenticated/services/")({
@@ -222,13 +285,6 @@ function DiscoveryPage() {
     useState<DiscoveryFilters>(
       DEFAULT_FILTERS,
     );
-
-  // External services are presented inside an ASH in-app surface.
-  // This prevents the quick-service tap from navigating away from ASH.
-  const [embeddedService, setEmbeddedService] = useState<{
-    url: string;
-    title: string;
-  } | null>(null);
 
   const groupCategories = useMemo(
     () =>
@@ -401,54 +457,7 @@ function DiscoveryPage() {
     (filters.availableOnly ? 1 : 0);
 
   return (
-    <>
-      {embeddedService ? (
-        <div className="fixed inset-0 z-[100] flex flex-col bg-background">
-          <div className="flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background/95 px-4 backdrop-blur-xl">
-            <button
-              type="button"
-              onClick={() => setEmbeddedService(null)}
-              className="grid size-9 place-items-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-muted active:scale-95"
-              aria-label={fr ? "Retour à ASH" : "Back to ASH"}
-            >
-              <ArrowLeft className="size-5" aria-hidden />
-            </button>
-
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-bold text-foreground">
-                {embeddedService.title}
-              </p>
-              <p className="text-[10px] text-muted-foreground">
-                {fr
-                  ? "Service ouvert dans ASH"
-                  : "Service opened inside ASH"}
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setEmbeddedService(null)}
-              className="grid size-9 place-items-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:bg-muted active:scale-95"
-              aria-label={fr ? "Fermer" : "Close"}
-            >
-              <X className="size-5" aria-hidden />
-            </button>
-          </div>
-
-          <div className="relative min-h-0 flex-1 bg-white">
-            <iframe
-              src={embeddedService.url}
-              title={embeddedService.title}
-              className="h-full w-full border-0 bg-white"
-              allow="autoplay; fullscreen; payment; clipboard-read; clipboard-write"
-              referrerPolicy="strict-origin-when-cross-origin"
-            />
-          </div>
-        </div>
-      ) : null}
-
-      <div className="mx-auto w-full max-w-5xl space-y-5">
-
+    <div className="mx-auto w-full max-w-5xl space-y-5">
 
       {!asked && !location ? (
         <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-2xl border border-border bg-card p-4 sm:flex sm:justify-between">
@@ -567,10 +576,10 @@ function DiscoveryPage() {
       >
         {QUICK_LINKS.map((item) => {
           /*
-           * Eneo is an internal ASH route. We render a reliable local
-           * text/logo mark instead of depending on a remote favicon.
+           * Eneo is the first internal ASH action.
+           * It uses the dedicated /electricity route.
            */
-          if ("to" in item && item.kind === "eneo") {
+          if ("to" in item && "logo" in item) {
             return (
               <Link
                 key={item.en}
@@ -583,17 +592,8 @@ function DiscoveryPage() {
                     item.ring,
                   )}
                 >
-                  <span className="grid size-full place-items-center rounded-full bg-white shadow-inner">
-                    <span
-                      className="select-none text-[10px] font-black tracking-[-0.06em]"
-                      style={{
-                        color: "#1B9A59",
-                        fontFamily: "Arial, Helvetica, sans-serif",
-                      }}
-                      aria-label="Eneo"
-                    >
-                      eneo
-                    </span>
+                  <span className="grid size-full place-items-center rounded-full bg-white dark:bg-zinc-950 shadow-inner">
+                    <EneoLogo />
                   </span>
                 </span>
 
@@ -605,51 +605,31 @@ function DiscoveryPage() {
           }
 
           /*
-           * TchokoPay, Netflix and TikTok are external services, but they
-           * are deliberately NOT normal <a href> navigations. They open
-           * inside an ASH overlay containing an iframe.
+           * External services:
+           * - Native ASH app: Capacitor Browser opens them as an in-app browser
+           *   surface, keeping the user in the ASH application experience.
+           * - Web: a new browser tab opens while ASH remains in its tab.
            */
           if ("href" in item) {
-            const serviceTitle =
-              fr ? item.fr : item.en;
-
             return (
               <button
                 key={item.en}
                 type="button"
-                onClick={() =>
-                  setEmbeddedService({
-                    url: item.href,
-                    title: serviceTitle,
-                  })
-                }
-                className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
-                aria-label={serviceTitle}
+                onClick={() => void openExternalService(item.href)}
+                className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5 text-left"
+                aria-label={fr ? item.fr : item.en}
               >
                 <span
                   className={cn(
                     "grid size-14 place-items-center rounded-full p-[2px] shadow-lg ring-2 transition-all duration-300 group-hover:scale-105 group-active:scale-95",
                     item.ring,
-                    item.kind === "tiktok" &&
-                      "bg-black ring-zinc-500/80 dark:bg-black",
                   )}
                 >
-                  <span
-                    className={cn(
-                      "grid size-full place-items-center rounded-full shadow-inner",
-                      item.kind === "tiktok"
-                        ? "bg-white dark:bg-zinc-950"
-                        : "bg-card",
-                    )}
-                  >
+                  <span className="grid size-full place-items-center rounded-full bg-card shadow-inner">
                     <img
                       src={item.logo}
                       alt={item.en}
-                      className={cn(
-                        item.logoClassName,
-                        item.kind === "tiktok" &&
-                          "brightness-110 contrast-125",
-                      )}
+                      className={cn(item.logoClassName)}
                       loading="eager"
                       onError={(event) => {
                         event.currentTarget.style.display = "none";
@@ -658,13 +638,14 @@ function DiscoveryPage() {
                   </span>
                 </span>
 
-                <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-                  {serviceTitle}
+                <span className="w-full text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
+                  {fr ? item.fr : item.en}
                 </span>
               </button>
             );
           }
 
+          /* Normal internal ASH Marketplace sections. */
           const Icon = item.icon;
 
           return (
@@ -1329,6 +1310,5 @@ function DiscoveryPage() {
         </>
       )}
     </div>
-    </>
   );
 }
