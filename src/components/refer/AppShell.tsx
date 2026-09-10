@@ -31,7 +31,6 @@ import { AshOrb } from "./AshOrb";
 import { StatusBadge } from "./StatusBadge";
 import { NotificationBell } from "./NotificationBell";
 import { PushBridge } from "./PushBridge";
-import { MobileOnboarding } from "./MobileOnboarding";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAvatarUrl } from "./AvatarUpload";
 import {
@@ -324,7 +323,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       })()}
 
       <AshOrb />
-      <MobileOnboarding />
     </div>
   );
 }

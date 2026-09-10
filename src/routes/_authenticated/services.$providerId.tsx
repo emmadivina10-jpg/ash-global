@@ -559,7 +559,7 @@ function BookingRequestDialog({
        */
       const payload = {
         _provider_id: provider.id,
-        _service_id: isCustom ? null : serviceId,
+        _service_id: isCustom ? "" : serviceId!,
         _scheduled_at: scheduledAt.toISOString(),
         _notes: notes.trim(),
         _address: address.trim(),

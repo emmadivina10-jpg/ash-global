@@ -81,8 +81,8 @@ function ElectricityPage() {
     outstanding: number;
     dueDate: string;
     invoiceNumber: string;
-    currentBalance?: number;
-    estimatedKwh?: number;
+    currentBalance: number | undefined;
+    estimatedKwh: number | undefined;
   } | null>(null);
 
   const numericAmount = Number(amount.replace(/\D/g, ""));
