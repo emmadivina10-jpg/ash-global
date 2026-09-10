@@ -15,7 +15,6 @@ import { ThemeProvider } from "@/lib/theme";
 import { RegionProvider } from "@/lib/region-context";
 import { I18nProvider } from "@/lib/i18n";
 import { NativeBridge } from "@/components/refer/NativeBridge";
-import { WelcomeIntro } from "@/components/refer/WelcomeIntro";
 
 
 function NotFoundComponent() {
@@ -172,7 +171,6 @@ function RootComponent() {
         <I18nProvider>
           <RegionProvider>
             <NativeBridge />
-            <WelcomeIntro />
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />
           </RegionProvider>
