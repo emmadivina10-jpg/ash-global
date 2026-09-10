@@ -6,7 +6,6 @@ import {
   CreditCard,
   Home,
   MapPin,
-  Zap,
   Search,
   SlidersHorizontal,
   Sparkles,
@@ -60,6 +59,15 @@ import { cn } from "@/lib/utils";
  */
 const QUICK_LINKS = [
   {
+    to: "/electricity",
+    en: "Pay Eneo Bills",
+    fr: "Payer facture Eneo",
+    logo: "https://my.eneo.cm/favicon.ico",
+    logoClassName: "h-8 w-8 object-contain",
+    ring:
+      "bg-white ring-emerald-500/60 shadow-emerald-500/20",
+  },
+  {
     href: "https://www.tchokopay.com/",
     en: "TchokoPay",
     fr: "TchokoPay",
@@ -83,7 +91,8 @@ const QUICK_LINKS = [
     href: "https://www.tiktok.com/",
     en: "TikTok",
     fr: "TikTok",
-    logo: "https://sf16-sg.tiktokcdn.com/obj/eden-sg/uvkuhyieh7lpqpbj/logo_tiktok1.svg",
+    logo:
+      "https://sf16-sg.tiktokcdn.com/obj/eden-sg/uvkuhyieh7lpqpbj/logo_tiktok1.svg",
     logoClassName: "h-8 w-8 object-contain",
     ring:
       "bg-white ring-black/30 shadow-black/20",
@@ -134,6 +143,17 @@ const QUICK_LINKS = [
       "bg-emerald-500/15 ring-emerald-400/50 shadow-emerald-500/20",
   },
 ] as const;
+
+/**
+ * Open an external service in the current ASH app surface.
+ *
+ * We intentionally do not use target="_blank". In the Capacitor build this
+ * keeps the destination inside the app's WebView. The user can use the
+ * platform back gesture/button to return to ASH.
+ */
+function openExternalInApp(url: string) {
+  window.location.assign(url);
+}
 
 
 export const Route = createFileRoute("/_authenticated/services/")({
@@ -530,6 +550,10 @@ function DiscoveryPage() {
               <a
                 key={item.en}
                 href={item.href}
+                onClick={(event) => {
+                  event.preventDefault();
+                  openExternalInApp(item.href);
+                }}
                 className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
               >
                 <span
@@ -600,53 +624,6 @@ function DiscoveryPage() {
           );
         })}
       </nav>
-
-      {/* =========================================================
-          ASH PAY / ELECTRICITY
-          ========================================================= */}
-      <section
-        aria-labelledby="ash-electricity"
-        className="relative overflow-hidden rounded-[28px] border border-border/70 bg-card shadow-[var(--shadow-card)]"
-      >
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-amber-400/10 blur-3xl"
-        />
-
-        <div className="relative flex items-center gap-4 p-4 sm:p-5">
-          <div className="grid size-14 shrink-0 place-items-center rounded-2xl bg-amber-400/12 ring-1 ring-amber-400/30">
-            <Zap className="size-7 text-amber-500" aria-hidden />
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <h2
-                id="ash-electricity"
-                className="font-display text-lg font-bold tracking-tight text-foreground sm:text-xl"
-              >
-                {fr ? "Électricité" : "Electricity"}
-              </h2>
-              <span className="rounded-full border border-emerald-500/15 bg-emerald-500/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-600 dark:text-emerald-400">
-                ASH Pay
-              </span>
-            </div>
-            <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground sm:text-sm">
-              {fr
-                ? "Payez votre facture d'électricité en quelques étapes."
-                : "Pay your electricity bill in a few simple steps."}
-            </p>
-          </div>
-
-          <Link
-            to="/electricity"
-            className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-foreground px-4 text-sm font-bold text-background shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.98]"
-          >
-            <span className="hidden sm:inline">{fr ? "Continuer" : "Continue"}</span>
-            <span className="sm:hidden">{fr ? "Payer" : "Pay"}</span>
-            <span aria-hidden>→</span>
-          </Link>
-        </div>
-      </section>
 
       {/* CATEGORY FILTERS */}
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
