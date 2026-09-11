@@ -142,41 +142,59 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
             rows={[
               [
                 "Account identity",
-                "Full name, email address, phone number, password (hashed, never stored in plain text)",
-                "Create and secure your account",
+                "Full name, email address, phone number, password (hashed by our authentication provider, never stored in plain text)",
+                "Create your account, sign you in, secure it and contact you about your bookings, payments and payouts",
+              ],
+              [
+                "Account / user identifiers",
+                "Your ASH Glo account ID, profile ID, provider ID, referral code, booking and transaction references",
+                "Link your data to your account, attribute referrals, reconcile payments and provide support",
               ],
               [
                 "Profile",
-                "Display name, business name, avatar, bio, city/region, categories",
-                "Show your profile and match you to nearby users",
+                "Display name, business name, avatar photo, bio, city/region, service areas, categories",
+                "Show your profile to the people you deal with and match you with providers in your area",
               ],
               [
                 "Provider content",
-                "Service listings, prices, availability slots, portfolio photos, storefront details",
-                "Publish your storefront",
+                "Service listings, prices, availability slots, portfolio photos and videos, storefront details, property and event listings",
+                "Publish your storefront and listings in the marketplace",
               ],
               [
                 "Referral data",
-                "Referral code you enter at sign-up, referral link you share",
+                "Referral code you enter at sign-up, the referral link you share, your position in the referral network",
                 "Attribute referrals and calculate commissions",
               ],
-              ["Bookings", "Service requested, date/time, notes, status history", "Deliver and support bookings"],
               [
-                "Messages",
-                "Text and attachments you send in booking conversations",
-                "Enable communication between client and provider",
+                "Booking and service information",
+                "Service requested, date and time, address or meeting details you supply, notes, status history, cancellations, reviews",
+                "Create, deliver, support and settle bookings between clients and providers",
               ],
               [
-                "Reviews",
-                "Rating, review text, whether it is tied to a completed booking",
-                "Community trust",
+                "Messages and chat content",
+                "Text and attachments you send in ASH Glo conversations, and the questions you send the in-app ASH Assistant",
+                "Enable communication between clients, providers and support, and answer assistant requests",
+              ],
+              [
+                "Reviews and other user-generated content",
+                "Rating, review text, review photos, whether the review is tied to a completed booking, reports you file",
+                "Community trust, moderation and safety",
+              ],
+              [
+                "Financial information",
+                "Wallet balance, earnings, referral commissions, transaction history, invoices, platform fees, withdrawal requests and their status",
+                "Run your wallet and earnings ledger, pay you, charge platform fees, prevent fraud and meet accounting obligations",
               ],
               [
                 "Payout details",
-                "Mobile Money number (MTN MoMo / Orange Money), bank or Stripe Connect account identifiers",
-                "Pay you",
+                "Mobile Money number (MTN MoMo / Orange Money) and, where used, Stripe Connect account identifiers",
+                "Send your withdrawals to the destination you choose",
               ],
-              ["Support", "Anything you send us by email or in-app", "Answer you"],
+              [
+                "Support",
+                "Your name, email, category, subject and the message you send us in-app or by email",
+                "Answer you and keep a record of the issue",
+              ],
             ]}
           />
 
@@ -185,16 +203,19 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
             head={["Category", "Examples"]}
             rows={[
               [
-                "Device and app",
-                "Device model, OS version, app version, language, time zone, crash diagnostics, push notification token",
+                "Device and diagnostics",
+                "Device platform (iOS, Android, web), app version, language, time zone and crash/error diagnostics. If you enable notifications, the push token issued by Apple or Google is stored so we can deliver booking, message and payment alerts.",
               ],
-              ["Usage", "Screens viewed, features used, search terms, timestamps"],
               [
-                "Approximate location",
-                "City/region derived from your device or IP — only if you grant location permission, used to rank nearby providers. You can decline and still use the app.",
+                "App usage",
+                "Actions you take that the product needs to record: listing and storefront view counts, booking and payment status changes, notification reads, and support/rate-limit timestamps. Search terms you type are used to run the search and are not stored against your profile.",
               ],
-              ["Network", "IP address, request logs, rate-limit counters (abuse prevention)"],
-              ["Security", "Sign-in events, session tokens, audit records of privileged actions"],
+              [
+                "Location",
+                "Only if you tap “use my location” and grant the permission, your device supplies your coordinates. They are used on your device to work out your nearest city and rank nearby providers, and are kept in your device's local storage. We do not transmit or store your GPS coordinates on our servers, and we never track your location in the background. You can decline and simply type your city instead.",
+              ],
+              ["Network", "IP address, request logs and rate-limit counters, used for abuse prevention (IP addresses are stored only as a salted hash in the throttling counters)"],
+              ["Security", "Sign-in events, session tokens, and audit records of privileged and financial actions"],
             ]}
           />
 
