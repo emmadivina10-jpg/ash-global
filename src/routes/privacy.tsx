@@ -455,14 +455,56 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
           </p>
         </Section>
 
-        <Section id="store-disclosures" title="12. Store privacy disclosures">
-          <p>For Apple’s App Privacy and Google Play’s Data Safety forms, ASH Glo declares:</p>
+        <Section id="store-disclosures" title="12. App Store and Google Play privacy disclosures">
+          <p>
+            This is what ASH Glo declares on Apple’s App Privacy form and Google Play’s Data Safety form for app
+            version {APP_VERSION}. All of it is <strong className="text-foreground">linked to your identity</strong>,
+            because the app is account-based:
+          </p>
+          <Table
+            head={["Data type", "Collected", "Purpose"]}
+            rows={[
+              ["Contact info — name, email address, phone number", "Yes", "App functionality, account management, customer support"],
+              ["Identifiers — account/user ID", "Yes", "App functionality, account management, fraud prevention"],
+              [
+                "User content — photos, videos, listings, reviews, messages and other content you create",
+                "Yes",
+                "App functionality (storefronts, bookings, chat), customer support, safety and moderation",
+              ],
+              [
+                "Financial info — wallet balance, earnings, commissions, transaction and payout information",
+                "Yes",
+                "App functionality (payments, wallet, withdrawals), fraud prevention, legal and accounting obligations",
+              ],
+              [
+                "Purchases / bookings — services requested, schedule, status",
+                "Yes",
+                "App functionality, customer support",
+              ],
+              [
+                "Location — precise location",
+                "Not collected by us",
+                "Used only on your device, with your permission, to find your nearest city and rank nearby providers. Coordinates are not sent to or stored on our servers.",
+              ],
+              [
+                "Usage data — product interaction such as views, bookings and notification activity",
+                "Yes",
+                "App functionality and analytics of your own account activity; never for advertising",
+              ],
+              ["Diagnostics — crash and performance data", "Yes", "App functionality and stability"],
+              [
+                "Search history, browsing history, contacts, health, sensitive info, advertising data",
+                "No",
+                "Not collected",
+              ],
+            ]}
+          />
           <Bullets
             items={[
-              "Linked to you: contact info (name, email, phone), user content (photos, messages, reviews), identifiers (account ID), financial info (transaction history, payout destination), coarse location (optional), usage data, diagnostics.",
-              "Used for tracking across apps or sites: none.",
-              "Purposes: app functionality, analytics, and fraud prevention/security only.",
-              "Data deletion: in-app account deletion is provided, plus a web request path at " + PRIVACY_EMAIL + ".",
+              "Used for tracking across other companies’ apps or websites: none.",
+              "Used for third-party advertising or targeted advertising: none.",
+              "Data sold or shared for advertising: none.",
+              "Account deletion: available in-app under Settings → Delete account, and on the public web page ashglogroup.company/account-deletion.",
               "Data encrypted in transit: yes.",
             ]}
           />
