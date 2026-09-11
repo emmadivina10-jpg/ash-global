@@ -91,11 +91,12 @@ function PrivacyPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl space-y-10 px-4 py-10 sm:px-6">
+      <main className="mx-auto max-w-3xl space-y-10 px-4 py-10 pb-[calc(2.5rem+env(safe-area-inset-bottom))] sm:px-6">
         <div className="space-y-2">
           <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Privacy Policy</h1>
           <p className="text-sm text-muted-foreground">
-            Last updated: {LAST_UPDATED} · Effective: {LAST_UPDATED}
+            Effective: {EFFECTIVE} · Last updated: {LAST_UPDATED} · Applies to ASH Glo app version {APP_VERSION} (iOS
+            and Android) and the ASH Glo website
           </p>
         </div>
 
