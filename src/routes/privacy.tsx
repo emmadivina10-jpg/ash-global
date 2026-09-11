@@ -23,8 +23,11 @@ export const Route = createFileRoute("/privacy")({
   component: PrivacyPage,
 });
 
-const LAST_UPDATED = "26 August 2026";
+const LAST_UPDATED = "11 September 2026";
+const EFFECTIVE = "11 September 2026";
+const APP_VERSION = "1.0";
 const PRIVACY_EMAIL = "privacy@ashglogroup.company";
+const SUPPORT_EMAIL = "support@ashglogroup.company";
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
@@ -88,11 +91,12 @@ function PrivacyPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl space-y-10 px-4 py-10 sm:px-6">
+      <main className="mx-auto max-w-3xl space-y-10 px-4 py-10 pb-[calc(2.5rem+env(safe-area-inset-bottom))] sm:px-6">
         <div className="space-y-2">
           <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Privacy Policy</h1>
           <p className="text-sm text-muted-foreground">
-            Last updated: {LAST_UPDATED} · Effective: {LAST_UPDATED}
+            Effective: {EFFECTIVE} · Last updated: {LAST_UPDATED} · Applies to ASH Glo app version {APP_VERSION} (iOS
+            and Android) and the ASH Glo website
           </p>
         </div>
 
@@ -138,41 +142,59 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
             rows={[
               [
                 "Account identity",
-                "Full name, email address, phone number, password (hashed, never stored in plain text)",
-                "Create and secure your account",
+                "Full name, email address, phone number, password (hashed by our authentication provider, never stored in plain text)",
+                "Create your account, sign you in, secure it and contact you about your bookings, payments and payouts",
+              ],
+              [
+                "Account / user identifiers",
+                "Your ASH Glo account ID, profile ID, provider ID, referral code, booking and transaction references",
+                "Link your data to your account, attribute referrals, reconcile payments and provide support",
               ],
               [
                 "Profile",
-                "Display name, business name, avatar, bio, city/region, categories",
-                "Show your profile and match you to nearby users",
+                "Display name, business name, avatar photo, bio, city/region, service areas, categories",
+                "Show your profile to the people you deal with and match you with providers in your area",
               ],
               [
                 "Provider content",
-                "Service listings, prices, availability slots, portfolio photos, storefront details",
-                "Publish your storefront",
+                "Service listings, prices, availability slots, portfolio photos and videos, storefront details, property and event listings",
+                "Publish your storefront and listings in the marketplace",
               ],
               [
                 "Referral data",
-                "Referral code you enter at sign-up, referral link you share",
+                "Referral code you enter at sign-up, the referral link you share, your position in the referral network",
                 "Attribute referrals and calculate commissions",
               ],
-              ["Bookings", "Service requested, date/time, notes, status history", "Deliver and support bookings"],
               [
-                "Messages",
-                "Text and attachments you send in booking conversations",
-                "Enable communication between client and provider",
+                "Booking and service information",
+                "Service requested, date and time, address or meeting details you supply, notes, status history, cancellations, reviews",
+                "Create, deliver, support and settle bookings between clients and providers",
               ],
               [
-                "Reviews",
-                "Rating, review text, whether it is tied to a completed booking",
-                "Community trust",
+                "Messages and chat content",
+                "Text and attachments you send in ASH Glo conversations, and the questions you send the in-app ASH Assistant",
+                "Enable communication between clients, providers and support, and answer assistant requests",
+              ],
+              [
+                "Reviews and other user-generated content",
+                "Rating, review text, review photos, whether the review is tied to a completed booking, reports you file",
+                "Community trust, moderation and safety",
+              ],
+              [
+                "Financial information",
+                "Wallet balance, earnings, referral commissions, transaction history, invoices, platform fees, withdrawal requests and their status",
+                "Run your wallet and earnings ledger, pay you, charge platform fees, prevent fraud and meet accounting obligations",
               ],
               [
                 "Payout details",
-                "Mobile Money number (MTN MoMo / Orange Money), bank or Stripe Connect account identifiers",
-                "Pay you",
+                "Mobile Money number (MTN MoMo / Orange Money) and, where used, Stripe Connect account identifiers",
+                "Send your withdrawals to the destination you choose",
               ],
-              ["Support", "Anything you send us by email or in-app", "Answer you"],
+              [
+                "Support",
+                "Your name, email, category, subject and the message you send us in-app or by email",
+                "Answer you and keep a record of the issue",
+              ],
             ]}
           />
 
@@ -181,16 +203,19 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
             head={["Category", "Examples"]}
             rows={[
               [
-                "Device and app",
-                "Device model, OS version, app version, language, time zone, crash diagnostics, push notification token",
+                "Device and diagnostics",
+                "Device platform (iOS, Android, web), app version, language, time zone and crash/error diagnostics. If you enable notifications, the push token issued by Apple or Google is stored so we can deliver booking, message and payment alerts.",
               ],
-              ["Usage", "Screens viewed, features used, search terms, timestamps"],
               [
-                "Approximate location",
-                "City/region derived from your device or IP — only if you grant location permission, used to rank nearby providers. You can decline and still use the app.",
+                "App usage",
+                "Actions you take that the product needs to record: listing and storefront view counts, booking and payment status changes, notification reads, and support/rate-limit timestamps. Search terms you type are used to run the search and are not stored against your profile.",
               ],
-              ["Network", "IP address, request logs, rate-limit counters (abuse prevention)"],
-              ["Security", "Sign-in events, session tokens, audit records of privileged actions"],
+              [
+                "Location",
+                "Only if you tap “use my location” and grant the permission, your device supplies your coordinates. They are used on your device to work out your nearest city and rank nearby providers, and are kept in your device's local storage. We do not transmit or store your GPS coordinates on our servers, and we never track your location in the background. You can decline and simply type your city instead.",
+              ],
+              ["Network", "IP address, request logs and rate-limit counters, used for abuse prevention (IP addresses are stored only as a salted hash in the throttling counters)"],
+              ["Security", "Sign-in events, session tokens, and audit records of privileged and financial actions"],
             ]}
           />
 
@@ -198,19 +223,29 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
           <Bullets
             items={[
               "Social sign-in (Google, Apple): your name, email and a provider user ID, if you sign in that way. Apple’s “Hide My Email” relay is supported.",
-              "Payment processors: transaction status, reference, amount, currency, masked payment identifiers, payout status.",
-              "No data brokers. We do not buy personal data, and we do not run third-party advertising SDKs.",
+              "Payment processors (TchokoPay, Stripe): transaction status, reference, amount, currency, masked payment identifiers and payout status.",
+              "No data brokers. We do not buy personal data, we do not run third-party advertising or analytics SDKs, and we do not use the advertising identifier (IDFA/AAID).",
             ]}
           />
 
-          <h3 className="pt-2 text-sm font-semibold text-foreground">3.4 What we never store</h3>
+          <h3 className="pt-2 text-sm font-semibold text-foreground">3.4 No tracking, no targeted advertising</h3>
+          <p>
+            ASH Glo does <strong className="text-foreground">not</strong> use your personal information to track you
+            across other companies’ apps or websites, does not sell or share it for cross-context behavioural
+            advertising, and does not serve targeted ads. There is no advertising SDK, no analytics SDK and no data
+            broker in the app. Promotions you see inside ASH Glo are placed by ASH providers and are matched only to
+            the city or category you are already browsing.
+          </p>
+
+
+          <h3 className="pt-2 text-sm font-semibold text-foreground">3.5 What we never store</h3>
           <p>
             We never receive or store your Mobile Money PIN, your full card number, CVV or your bank
             login. Card details are entered directly with our payment processor. We only receive a
             reference and a status.
           </p>
 
-          <h3 className="pt-2 text-sm font-semibold text-foreground">3.5 Children</h3>
+          <h3 className="pt-2 text-sm font-semibold text-foreground">3.6 Children</h3>
           <p>
             ASH Glo is not intended for anyone under 18. We do not knowingly collect data from
             children. If we learn we have, we delete it — contact {PRIVACY_EMAIL}.
@@ -292,36 +327,50 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
         </Section>
 
         <Section id="sharing" title="6. Who we share data with">
-          <p>We do not sell your personal data. We share it only with:</p>
+          <p>
+            We do not sell your personal data and we do not share it with advertisers. These are the only
+            third parties that receive data, and each receives only what its role requires:
+          </p>
           <Table
-            head={["Recipient", "Role", "Data shared"]}
+            head={["Recipient", "Role", "Data it receives"]}
             rows={[
               [
-                "Supabase",
-                "Processor — database, authentication and storage",
-                "Account, booking, message and ledger data",
+                "Supabase (via Lovable Cloud)",
+                "Processor — database, authentication and file storage",
+                "Account and profile data, listings, bookings, messages, reviews, wallet and ledger records, uploaded photos and videos",
               ],
-              ["TchokoPay", "Processor — Mobile Money collection and payout", "Name, phone number, amount, reference"],
+              [
+                "TchokoPay",
+                "Processor — Mobile Money collection (MTN MoMo, Orange Money) and payouts",
+                "Name, phone number, amount, currency and payment reference",
+              ],
               [
                 "Stripe (incl. Stripe Connect)",
-                "Card payments and international payouts",
-                "Name, email, payout account details, transaction data",
-              ],
-              ["Cloudflare", "Processor — hosting, CDN, DDoS protection", "IP address, request metadata"],
-              [
-                "Google / Apple",
-                "Independent controllers — sign-in, app distribution, push delivery",
-                "Sign-in identifiers, device push tokens",
+                "Processor — card payments and international payouts, where used",
+                "Name, email, payout account identifiers and transaction data",
               ],
               [
-                "AI assistant provider",
+                "Lovable (hosting and platform)",
+                "Processor — application hosting, edge delivery and transactional email sending",
+                "IP address and request metadata; for email, your email address and the message content",
+              ],
+              [
+                "Lovable AI Gateway (Google Gemini model)",
                 "Processor — powers the in-app ASH Assistant",
-                "Your assistant messages and minimal account context. Do not paste sensitive data into the assistant.",
+                "Only the questions you type into the assistant and minimal account context. Please do not paste payment credentials or other sensitive data into the assistant.",
               ],
-              ["Email delivery provider", "Processor — transactional email", "Email address, message content"],
-              ["Advisers, auditors, law enforcement", "As required", "Only what is legally necessary"],
+              [
+                "Apple / Google",
+                "Independent controllers — sign-in, app distribution and push notification delivery",
+                "Sign-in identifiers (if you use Apple or Google sign-in) and your device push token",
+              ],
+              ["Advisers, auditors, law enforcement", "As required by law", "Only what is legally necessary"],
             ]}
           />
+          <p>
+            We do not use any advertising network, attribution SDK or third-party analytics provider. The usage
+            figures in the app (views, bookings, earnings) are calculated from our own database.
+          </p>
           <p>
             Between users: when you book a provider (or a client books you), the other party sees your
             display name, avatar, the booking details and your messages. Reviews you publish are visible
@@ -406,14 +455,56 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
           </p>
         </Section>
 
-        <Section id="store-disclosures" title="12. Store privacy disclosures">
-          <p>For Apple’s App Privacy and Google Play’s Data Safety forms, ASH Glo declares:</p>
+        <Section id="store-disclosures" title="12. App Store and Google Play privacy disclosures">
+          <p>
+            This is what ASH Glo declares on Apple’s App Privacy form and Google Play’s Data Safety form for app
+            version {APP_VERSION}. All of it is <strong className="text-foreground">linked to your identity</strong>,
+            because the app is account-based:
+          </p>
+          <Table
+            head={["Data type", "Collected", "Purpose"]}
+            rows={[
+              ["Contact info — name, email address, phone number", "Yes", "App functionality, account management, customer support"],
+              ["Identifiers — account/user ID", "Yes", "App functionality, account management, fraud prevention"],
+              [
+                "User content — photos, videos, listings, reviews, messages and other content you create",
+                "Yes",
+                "App functionality (storefronts, bookings, chat), customer support, safety and moderation",
+              ],
+              [
+                "Financial info — wallet balance, earnings, commissions, transaction and payout information",
+                "Yes",
+                "App functionality (payments, wallet, withdrawals), fraud prevention, legal and accounting obligations",
+              ],
+              [
+                "Purchases / bookings — services requested, schedule, status",
+                "Yes",
+                "App functionality, customer support",
+              ],
+              [
+                "Location — precise location",
+                "Not collected by us",
+                "Used only on your device, with your permission, to find your nearest city and rank nearby providers. Coordinates are not sent to or stored on our servers.",
+              ],
+              [
+                "Usage data — product interaction such as views, bookings and notification activity",
+                "Yes",
+                "App functionality and analytics of your own account activity; never for advertising",
+              ],
+              ["Diagnostics — crash and performance data", "Yes", "App functionality and stability"],
+              [
+                "Search history, browsing history, contacts, health, sensitive info, advertising data",
+                "No",
+                "Not collected",
+              ],
+            ]}
+          />
           <Bullets
             items={[
-              "Linked to you: contact info (name, email, phone), user content (photos, messages, reviews), identifiers (account ID), financial info (transaction history, payout destination), coarse location (optional), usage data, diagnostics.",
-              "Used for tracking across apps or sites: none.",
-              "Purposes: app functionality, analytics, and fraud prevention/security only.",
-              "Data deletion: in-app account deletion is provided, plus a web request path at " + PRIVACY_EMAIL + ".",
+              "Used for tracking across other companies’ apps or websites: none.",
+              "Used for third-party advertising or targeted advertising: none.",
+              "Data sold or shared for advertising: none.",
+              "Account deletion: available in-app under Settings → Delete account, and on the public web page ashglogroup.company/account-deletion.",
               "Data encrypted in transit: yes.",
             ]}
           />
