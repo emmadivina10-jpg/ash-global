@@ -23,8 +23,11 @@ export const Route = createFileRoute("/privacy")({
   component: PrivacyPage,
 });
 
-const LAST_UPDATED = "26 August 2026";
+const LAST_UPDATED = "11 September 2026";
+const EFFECTIVE = "11 September 2026";
+const APP_VERSION = "1.0";
 const PRIVACY_EMAIL = "privacy@ashglogroup.company";
+const SUPPORT_EMAIL = "support@ashglogroup.company";
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
