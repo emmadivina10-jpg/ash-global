@@ -327,36 +327,50 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
         </Section>
 
         <Section id="sharing" title="6. Who we share data with">
-          <p>We do not sell your personal data. We share it only with:</p>
+          <p>
+            We do not sell your personal data and we do not share it with advertisers. These are the only
+            third parties that receive data, and each receives only what its role requires:
+          </p>
           <Table
-            head={["Recipient", "Role", "Data shared"]}
+            head={["Recipient", "Role", "Data it receives"]}
             rows={[
               [
-                "Supabase",
-                "Processor — database, authentication and storage",
-                "Account, booking, message and ledger data",
+                "Supabase (via Lovable Cloud)",
+                "Processor — database, authentication and file storage",
+                "Account and profile data, listings, bookings, messages, reviews, wallet and ledger records, uploaded photos and videos",
               ],
-              ["TchokoPay", "Processor — Mobile Money collection and payout", "Name, phone number, amount, reference"],
+              [
+                "TchokoPay",
+                "Processor — Mobile Money collection (MTN MoMo, Orange Money) and payouts",
+                "Name, phone number, amount, currency and payment reference",
+              ],
               [
                 "Stripe (incl. Stripe Connect)",
-                "Card payments and international payouts",
-                "Name, email, payout account details, transaction data",
-              ],
-              ["Cloudflare", "Processor — hosting, CDN, DDoS protection", "IP address, request metadata"],
-              [
-                "Google / Apple",
-                "Independent controllers — sign-in, app distribution, push delivery",
-                "Sign-in identifiers, device push tokens",
+                "Processor — card payments and international payouts, where used",
+                "Name, email, payout account identifiers and transaction data",
               ],
               [
-                "AI assistant provider",
+                "Lovable (hosting and platform)",
+                "Processor — application hosting, edge delivery and transactional email sending",
+                "IP address and request metadata; for email, your email address and the message content",
+              ],
+              [
+                "Lovable AI Gateway (Google Gemini model)",
                 "Processor — powers the in-app ASH Assistant",
-                "Your assistant messages and minimal account context. Do not paste sensitive data into the assistant.",
+                "Only the questions you type into the assistant and minimal account context. Please do not paste payment credentials or other sensitive data into the assistant.",
               ],
-              ["Email delivery provider", "Processor — transactional email", "Email address, message content"],
-              ["Advisers, auditors, law enforcement", "As required", "Only what is legally necessary"],
+              [
+                "Apple / Google",
+                "Independent controllers — sign-in, app distribution and push notification delivery",
+                "Sign-in identifiers (if you use Apple or Google sign-in) and your device push token",
+              ],
+              ["Advisers, auditors, law enforcement", "As required by law", "Only what is legally necessary"],
             ]}
           />
+          <p>
+            We do not use any advertising network, attribution SDK or third-party analytics provider. The usage
+            figures in the app (views, bookings, earnings) are calculated from our own database.
+          </p>
           <p>
             Between users: when you book a provider (or a client books you), the other party sees your
             display name, avatar, the booking details and your messages. Reviews you publish are visible
