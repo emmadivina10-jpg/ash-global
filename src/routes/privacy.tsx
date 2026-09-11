@@ -238,14 +238,14 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
           </p>
 
 
-          <h3 className="pt-2 text-sm font-semibold text-foreground">3.4 What we never store</h3>
+          <h3 className="pt-2 text-sm font-semibold text-foreground">3.5 What we never store</h3>
           <p>
             We never receive or store your Mobile Money PIN, your full card number, CVV or your bank
             login. Card details are entered directly with our payment processor. We only receive a
             reference and a status.
           </p>
 
-          <h3 className="pt-2 text-sm font-semibold text-foreground">3.5 Children</h3>
+          <h3 className="pt-2 text-sm font-semibold text-foreground">3.6 Children</h3>
           <p>
             ASH Glo is not intended for anyone under 18. We do not knowingly collect data from
             children. If we learn we have, we delete it — contact {PRIVACY_EMAIL}.
