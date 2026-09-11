@@ -223,10 +223,20 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
           <Bullets
             items={[
               "Social sign-in (Google, Apple): your name, email and a provider user ID, if you sign in that way. Apple’s “Hide My Email” relay is supported.",
-              "Payment processors: transaction status, reference, amount, currency, masked payment identifiers, payout status.",
-              "No data brokers. We do not buy personal data, and we do not run third-party advertising SDKs.",
+              "Payment processors (TchokoPay, Stripe): transaction status, reference, amount, currency, masked payment identifiers and payout status.",
+              "No data brokers. We do not buy personal data, we do not run third-party advertising or analytics SDKs, and we do not use the advertising identifier (IDFA/AAID).",
             ]}
           />
+
+          <h3 className="pt-2 text-sm font-semibold text-foreground">3.4 No tracking, no targeted advertising</h3>
+          <p>
+            ASH Glo does <strong className="text-foreground">not</strong> use your personal information to track you
+            across other companies’ apps or websites, does not sell or share it for cross-context behavioural
+            advertising, and does not serve targeted ads. There is no advertising SDK, no analytics SDK and no data
+            broker in the app. Promotions you see inside ASH Glo are placed by ASH providers and are matched only to
+            the city or category you are already browsing.
+          </p>
+
 
           <h3 className="pt-2 text-sm font-semibold text-foreground">3.4 What we never store</h3>
           <p>
