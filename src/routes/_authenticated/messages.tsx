@@ -1,4 +1,11 @@
-import { type CSSProperties, type TouchEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  type TouchEvent,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import { ArrowLeft, Bot, MessageCircle, Search } from "lucide-react";
@@ -194,11 +201,14 @@ function MessagesPage() {
         active instanceof HTMLInputElement ||
         active instanceof HTMLTextAreaElement ||
         (active instanceof HTMLElement && active.isContentEditable);
+      // iOS Safari can change visualViewport.height for browser chrome too.
+      // A real keyboard causes a much larger reduction; use that stable
+      // threshold so dismissing the keyboard reliably returns to the normal
+      // bottom-nav layout even while the textarea remains focused.
       const keyboard =
         editing &&
         height > 0 &&
-        (height < window.innerHeight - 120 ||
-          height < window.screen.height * 0.75);
+        window.innerHeight - height > 180;
 
       setKeyboardOpen(keyboard);
     };
@@ -219,9 +229,9 @@ function MessagesPage() {
     };
   }, []);
 
-  // While a mobile chat is open, the outer authenticated shell must not scroll.
-  // The chat thread owns its own scroll area; otherwise scrollIntoView/keyboard
-  // adjustments can move the whole page and make the header/composer disappear.
+  // Mobile chat is a viewport-locked surface. The message list itself owns
+  // scrolling; the authenticated shell must never be allowed to retain a
+  // scroll offset from the previous page or from iOS keyboard adjustments.
   useEffect(() => {
     if (typeof window === "undefined" || window.innerWidth >= 768) return;
 
@@ -236,14 +246,41 @@ function MessagesPage() {
     if (!shellScroll) return;
 
     const previousOverflow = shellScroll.style.overflow;
-    const previousTouchAction = shellScroll.style.touchAction;
     const previousOverscroll = shellScroll.style.overscrollBehavior;
+    const previousScrollRestoration = window.history.scrollRestoration;
+
+    // iOS can restore the document/shell scroll position after returning from
+    // another route. Do this in a few animation frames so Safari has time to
+    // finish its back-navigation and keyboard restoration before we reset it.
+    const restoreShellPosition = () => {
+      shellScroll.scrollTop = 0;
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+
+    const restoreAfterNavigation = () => {
+      restoreShellPosition();
+      requestAnimationFrame(restoreShellPosition);
+      window.setTimeout(restoreShellPosition, 60);
+      window.setTimeout(restoreShellPosition, 180);
+    };
 
     if (mobileView === "thread") {
-      shellScroll.scrollTop = 0;
+      window.history.scrollRestoration = "manual";
+      restoreAfterNavigation();
+
+      // IMPORTANT: do not set touch-action:none here. touch-action on an
+      // ancestor participates in gesture negotiation and can disable the
+      // inner message scroller on iOS. overflow:hidden is enough to stop the
+      // outer shell from scrolling.
       shellScroll.style.overflow = "hidden";
-      shellScroll.style.touchAction = "none";
       shellScroll.style.overscrollBehavior = "none";
+
+      window.addEventListener("pageshow", restoreAfterNavigation);
+      window.addEventListener("popstate", restoreAfterNavigation);
+      window.addEventListener("focus", restoreAfterNavigation);
+      document.addEventListener("visibilitychange", restoreAfterNavigation);
     }
 
     if (nav) {
@@ -258,8 +295,8 @@ function MessagesPage() {
       }
     }
 
-    // The floating ASH orb is another fixed/absolute element. It should not
-    // cover the conversation while the keyboard is occupying the viewport.
+    // Hide the floating ASH orb while the keyboard is visible so it can never
+    // sit on top of the composer or the keyboard transition.
     for (const orb of orbs) {
       if (mobileView === "thread" && keyboardOpen) {
         orb.dataset.ashChatKeyboardHidden = "true";
@@ -274,8 +311,13 @@ function MessagesPage() {
 
     return () => {
       shellScroll.style.overflow = previousOverflow;
-      shellScroll.style.touchAction = previousTouchAction;
       shellScroll.style.overscrollBehavior = previousOverscroll;
+      window.history.scrollRestoration = previousScrollRestoration;
+
+      window.removeEventListener("pageshow", restoreAfterNavigation);
+      window.removeEventListener("popstate", restoreAfterNavigation);
+      window.removeEventListener("focus", restoreAfterNavigation);
+      document.removeEventListener("visibilitychange", restoreAfterNavigation);
 
       if (nav?.dataset.ashChatKeyboardHidden === "true") {
         delete nav.dataset.ashChatKeyboardHidden;
@@ -679,6 +721,9 @@ function MessagesPage() {
                 "--ash-visual-height": visualViewportHeight
                   ? `${visualViewportHeight}px`
                   : "100dvh",
+                "--ash-chat-height": visualViewportHeight
+                  ? `${Math.max(0, visualViewportHeight - (keyboardOpen ? 0 : mobileNavHeight))}px`
+                  : `calc(100dvh - var(--ash-mobile-nav-height, 0px))`,
               } as CSSProperties
             }
             className={cn(
@@ -687,9 +732,7 @@ function MessagesPage() {
                 ? "hidden md:flex"
                 : cn(
                     "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:z-[70] max-md:w-screen max-md:touch-pan-y",
-                    keyboardOpen
-                      ? "max-md:h-[var(--ash-visual-height,100dvh)]"
-                      : "max-md:h-[calc(var(--ash-vh,100dvh)-var(--ash-mobile-nav-height,0px))]",
+                    "max-md:h-[var(--ash-chat-height,calc(100dvh-var(--ash-mobile-nav-height,0px)))]",
                   ),
               "md:h-[72vh]",
             )}
