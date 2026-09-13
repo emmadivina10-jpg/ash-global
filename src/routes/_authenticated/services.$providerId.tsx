@@ -757,14 +757,15 @@ function BookingRequestDialog({
                     />
                   </div>
                 ) : (
-                  {showZone ? (
-                    <p className="text-xs text-muted-foreground">
-                      {fr
-                        ? `Heures affichées dans le fuseau du pro (${zoneLabel(zone, lang)}).`
-                        : `Times shown in the pro's timezone (${zoneLabel(zone, lang)}).`}
-                    </p>
-                  ) : null}
-                  <div className="flex flex-wrap gap-2">
+                  <>
+                    {showZone ? (
+                      <p className="text-xs text-muted-foreground">
+                        {fr
+                          ? `Heures affichées dans le fuseau du pro (${zoneLabel(zone, lang)}).`
+                          : `Times shown in the pro's timezone (${zoneLabel(zone, lang)}).`}
+                      </p>
+                    ) : null}
+                    <div className="flex flex-wrap gap-2">
                     {(slots ?? []).map((slot) => {
                       const local = formatTimeInZone(slot, zone, lang);
                       const value = toLocalInput(slot);
