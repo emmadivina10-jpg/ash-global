@@ -84,15 +84,21 @@ export function ChatThread({
   const [failed, setFailed] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
-  const endRef = useRef<HTMLDivElement>(null);
+  const messagesScrollRef = useRef<HTMLDivElement>(null);
   const pressRef = useRef<number | null>(null);
 
   const messages = (data ?? []) as unknown as ChatMessage[];
   const peerInitials = (peerName ?? "ASH").trim().slice(0, 2).toUpperCase();
 
+  // Scroll only the message list itself. Using scrollIntoView() here can
+  // scroll the authenticated app-shell on iOS/web, which makes the entire
+  // chat page jump away from its header when the keyboard opens.
   useEffect(() => {
-    endRef.current?.scrollIntoView({
-      block: "end",
+    const node = messagesScrollRef.current;
+    if (!node) return;
+
+    node.scrollTo({
+      top: node.scrollHeight,
       behavior: "smooth",
     });
   }, [messages.length, pending.length]);
@@ -211,7 +217,10 @@ export function ChatThread({
         />
       </div>
 
-      <div className="min-h-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto overscroll-contain px-1 py-2">
+      <div
+        ref={messagesScrollRef}
+        className="min-h-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto overscroll-contain px-1 py-2"
+      >
         {isLoading ? (
           <div className="space-y-3 py-4">
             {[0, 1, 2].map((i) => (
@@ -442,7 +451,6 @@ export function ChatThread({
           </div>
         ) : null}
 
-        <div ref={endRef} />
       </div>
 
       {quickReplies.length > 0 ? (
@@ -465,7 +473,7 @@ export function ChatThread({
           e.preventDefault();
           void submit(body);
         }}
-        className="shrink-0 flex items-end gap-2 border-t border-border bg-background pt-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)]"
+        className="shrink-0 flex items-end gap-2 border-t border-border bg-background pt-2 pb-2"
       >
         <div className="flex min-w-0 flex-1 flex-col">
           <Textarea
