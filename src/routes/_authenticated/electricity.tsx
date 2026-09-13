@@ -201,6 +201,27 @@ function ElectricityPage() {
             </span>
           </div>
         </div>
+
+        <div className="mt-5 rounded-2xl border border-amber-500/25 bg-amber-500/5 p-4 sm:p-5">
+          <div className="flex items-start gap-3">
+            <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-amber-500/10">
+              <Clock3 className="size-5 text-amber-500" aria-hidden />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-black text-foreground">
+                {fr ? "Bientôt disponible" : "Coming soon"}
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                {fr
+                  ? "Les paiements d'électricité ne sont pas encore disponibles sur ASH. Nous finalisons l'intégration avec le fournisseur pour vous offrir un service sécurisé et fiable."
+                  : "Electricity payments are not yet available on ASH. We are finalizing the provider integration to deliver a secure and reliable service."}
+              </p>
+              <div className="mt-3 inline-flex items-center rounded-full border border-amber-500/20 bg-background/60 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-amber-600 dark:text-amber-400">
+                {fr ? "Service non disponible" : "Service not yet available"}
+              </div>
+            </div>
+          </div>
+        </div>
       </header>
 
       <div className="mb-6 grid grid-cols-4 gap-1.5 rounded-[26px] border border-border/70 bg-muted/30 p-1.5 shadow-sm">
@@ -247,7 +268,55 @@ function ElectricityPage() {
         })}
       </div>
 
-      {flowStep === "ACCOUNT" ? (
+      <main className="overflow-hidden rounded-[32px] border border-border/70 bg-card shadow-[var(--shadow-card)]">
+        <div className="relative overflow-hidden bg-gradient-to-br from-amber-400/[0.08] via-card to-card p-6 sm:p-10">
+          <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-amber-400/10 blur-3xl" />
+          <div className="relative mx-auto max-w-2xl text-center">
+            <div className="mx-auto grid size-20 place-items-center rounded-[26px] bg-amber-400/10 ring-1 ring-amber-400/20 shadow-sm">
+              <Zap className="size-10 text-amber-500" aria-hidden />
+            </div>
+            <p className="mt-6 text-[10px] font-black uppercase tracking-[0.18em] text-amber-600 dark:text-amber-400">ASH Pay</p>
+            <h2 className="mt-2 font-display text-2xl font-black tracking-tight text-foreground sm:text-3xl">
+              {fr ? "Paiement d'électricité bientôt disponible" : "Electricity payments are coming soon"}
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-muted-foreground">
+              {fr
+                ? "Vous pourrez bientôt payer vos factures Eneo et acheter du crédit prépayé directement avec ASH. Le service sera activé dès que l'intégration officielle sera prête."
+                : "Soon you will be able to pay Eneo bills and purchase prepaid electricity directly through ASH. The service will be activated once the official integration is ready."}
+            </p>
+            <div className="mt-6 grid gap-3 text-left sm:grid-cols-2">
+              <div className="rounded-2xl border border-border/70 bg-muted/20 p-4">
+                <div className="flex items-center gap-3">
+                  <FileText className="size-5 shrink-0 text-primary" aria-hidden />
+                  <div>
+                    <p className="text-sm font-bold text-foreground">{fr ? "Factures Eneo" : "Eneo bills"}</p>
+                    <p className="mt-0.5 text-[11px] text-muted-foreground">{fr ? "Bientôt disponible" : "Coming soon"}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="rounded-2xl border border-border/70 bg-muted/20 p-4">
+                <div className="flex items-center gap-3">
+                  <Zap className="size-5 shrink-0 text-amber-500" aria-hidden />
+                  <div>
+                    <p className="text-sm font-bold text-foreground">{fr ? "Électricité prépayée" : "Prepaid electricity"}</p>
+                    <p className="mt-0.5 text-[11px] text-muted-foreground">{fr ? "Bientôt disponible" : "Coming soon"}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="mt-6 flex items-start gap-3 rounded-2xl border border-border/70 bg-muted/30 p-4 text-left">
+              <ShieldCheck className="mt-0.5 size-5 shrink-0 text-emerald-500" aria-hidden />
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                {fr
+                  ? "Aucun paiement réel ne peut être effectué depuis cette page pour le moment. Nous ne vous demanderons jamais votre code PIN Mobile Money."
+                  : "No real payment can be made from this page yet. We will never ask you for your Mobile Money PIN."}
+              </p>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {false && flowStep === "ACCOUNT" ? (
         <main className="overflow-hidden rounded-[32px] border border-border/70 bg-card shadow-[var(--shadow-card)]">
           <div className="relative overflow-hidden border-b border-border/70 bg-gradient-to-br from-amber-400/[0.08] via-card to-card p-5 sm:p-8">
             <div aria-hidden className="pointer-events-none absolute -right-20 -top-24 size-64 rounded-full bg-amber-400/10 blur-3xl" />
@@ -958,8 +1027,8 @@ function ElectricityPage() {
 
       <p className="mt-5 text-center text-[10px] leading-relaxed text-muted-foreground">
         {fr
-          ? "Les informations affichées dans cette version sont une maquette frontend. Les montants, factures, tokens, frais et statuts réels doivent provenir des services backend autorisés."
-          : "Information shown in this version is frontend mock data. Real amounts, bills, tokens, fees, and statuses must come from authorized backend services."}
+          ? "Le service de paiement d'électricité sera activé après finalisation de l'intégration officielle avec le fournisseur."
+          : "Electricity payment will be enabled after the official provider integration is finalized."}
       </p>
     </div>
   );
