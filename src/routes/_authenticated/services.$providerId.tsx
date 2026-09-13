@@ -785,7 +785,8 @@ function BookingRequestDialog({
                         </button>
                       );
                     })}
-                  </div>
+                    </div>
+                  </>
                 )}
               </div>
             ) : null}
