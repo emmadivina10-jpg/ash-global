@@ -560,7 +560,7 @@ function BookingRequestDialog({
        */
       const payload = {
         _provider_id: provider.id,
-        _service_id: isCustom ? "" : serviceId!,
+        _service_id: isCustom ? null : serviceId!,
         _scheduled_at: scheduledAt.toISOString(),
         _notes: notes.trim(),
         _address: address.trim(),
@@ -757,9 +757,16 @@ function BookingRequestDialog({
                     />
                   </div>
                 ) : (
+                  {showZone ? (
+                    <p className="text-xs text-muted-foreground">
+                      {fr
+                        ? `Heures affichées dans le fuseau du pro (${zoneLabel(zone, lang)}).`
+                        : `Times shown in the pro's timezone (${zoneLabel(zone, lang)}).`}
+                    </p>
+                  ) : null}
                   <div className="flex flex-wrap gap-2">
                     {(slots ?? []).map((slot) => {
-                      const local = new Date(slot).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+                      const local = formatTimeInZone(slot, zone, lang);
                       const value = toLocalInput(slot);
                       const active = when === value;
                       return (
