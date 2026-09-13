@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import { ArrowLeft, Bot, MessageCircle, Search } from "lucide-react";
@@ -147,6 +147,37 @@ function MessagesPage() {
   const { c } = Route.useSearch();
   const navigate = Route.useNavigate();
   const routerNavigate = useNavigate();
+
+  // Mobile swipe-back gesture: when a chat room is open, a horizontal
+  // swipe from left to right returns to the main Messages list.
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+
+  function handleChatTouchStart(event: React.TouchEvent<HTMLDivElement>) {
+    const touch = event.touches[0];
+    if (!touch) return;
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  }
+
+  function handleChatTouchEnd(event: React.TouchEvent<HTMLDivElement>) {
+    const start = touchStartRef.current;
+    touchStartRef.current = null;
+    if (!start) return;
+
+    const touch = event.changedTouches[0];
+    if (!touch) return;
+
+    const deltaX = touch.clientX - start.x;
+    const deltaY = touch.clientY - start.y;
+
+    // Only treat a clearly horizontal right swipe as "back", so normal
+    // vertical message scrolling is not interrupted.
+    if (deltaX >= 80 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
+      void navigate({
+        to: "/messages",
+        search: {},
+      });
+    }
+  }
 
   const { data: conversations, isLoading } = useConversations();
   const [term, setTerm] = useState("");
@@ -502,6 +533,8 @@ function MessagesPage() {
               ACTIVE CHAT
               ========================================================= */}
           <div
+            onTouchStart={mobileView === "thread" ? handleChatTouchStart : undefined}
+            onTouchEnd={mobileView === "thread" ? handleChatTouchEnd : undefined}
             className={cn(
               "tile chat-surface flex flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-0",
               mobileView === "list"
