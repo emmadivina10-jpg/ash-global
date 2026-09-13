@@ -226,6 +226,7 @@ function ProviderPage() {
 
             <div className="mt-4 flex flex-wrap gap-2">
               <Button
+                className="touch-manipulation"
                 disabled={Boolean(blockedReason)}
                 onClick={() => setBooking(activeServices[0] ?? customService(fr))}
               >
@@ -268,7 +269,7 @@ function ProviderPage() {
                 </button>
                 <div className="flex shrink-0 items-center gap-2">
                   <span className="tabular text-sm font-bold">{formatXAF(service.price)}</span>
-                  <Button size="sm" disabled={Boolean(blockedReason)} onClick={() => setBooking(service)}>
+                  <Button size="sm" className="touch-manipulation" disabled={Boolean(blockedReason)} onClick={() => setBooking(service)}>
                     {t("svc.book")}
                   </Button>
                 </div>
@@ -640,7 +641,7 @@ function BookingRequestDialog({
 
   return (
     <Dialog open onOpenChange={(v) => !v && !busy && onClose()}>
-      <DialogContent>
+      <DialogContent className="max-h-[calc(100dvh-2rem-env(safe-area-inset-bottom,0px))] overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]">
         <DialogHeader>
           <DialogTitle>{step === "form" ? (fr ? "Demander une réservation" : "Request a booking") : fr ? "Confirmer" : "Confirm"}</DialogTitle>
         </DialogHeader>
@@ -793,7 +794,7 @@ function BookingRequestDialog({
               <Label htmlFor="notes">{fr ? "Détails" : "Details"}</Label>
               <Textarea id="notes" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
             </div>
-            <Button type="submit" className="w-full" disabled={!when || (isCustom && !customTitle.trim())}>
+            <Button type="submit" className="w-full touch-manipulation" disabled={!when || (isCustom && !customTitle.trim())}>
               {fr ? "Continuer" : "Continue"}
             </Button>
           </form>
@@ -823,7 +824,7 @@ function BookingRequestDialog({
               </Button>
               <Button
                 type="button"
-                className="flex-1"
+                className="flex-1 touch-manipulation"
                 onClick={() => void submit()}
                 disabled={busy}
                 aria-busy={busy}
