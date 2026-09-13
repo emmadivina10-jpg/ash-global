@@ -2,544 +2,941 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
   Award,
-  Bell,
   BookOpen,
   BriefcaseBusiness,
+  CalendarDays,
   CheckCircle2,
   ChevronRight,
-  FileText,
+  CircleUserRound,
+  Code2,
+  Crown,
+  FileCheck2,
   GraduationCap,
   Lightbulb,
-  MoreHorizontal,
+  LockKeyhole,
+  MessageCircle,
   Rocket,
+  ShieldCheck,
   Sparkles,
   Target,
   Users,
-  Zap,
+  Verified,
 } from "lucide-react";
-import { useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/incubator/")({
   component: IncubatorPage,
 });
 
-const stats = [
+const BRAND_GOLD = "#D4AF37";
+const BRAND_PURPLE = "#4B0082";
+
+const quickActions = [
   {
-    label: "Program Progress",
-    value: "18%",
-    detail: "+6% this week",
-    icon: Target,
+    title: "My Program",
+    description: "Track your cohort and learning journey.",
+    href: "/incubator/program",
+    icon: GraduationCap,
   },
   {
-    label: "Tasks Completed",
-    value: "4 / 22",
-    detail: "18 remaining",
-    icon: CheckCircle2,
-  },
-  {
-    label: "Project Status",
-    value: "Planning",
-    detail: "On track",
+    title: "Projects",
+    description: "Build, document and showcase your work.",
+    href: "/incubator/projects",
     icon: Rocket,
   },
   {
-    label: "Active Cohort",
-    value: "2026 · 01",
-    detail: "8-week program",
-    icon: Users,
+    title: "Documents",
+    description: "Access your official ASH records.",
+    href: "/incubator/documents",
+    icon: FileCheck2,
+  },
+  {
+    title: "Certificates",
+    description: "View your verified achievements.",
+    href: "/incubator/certificates",
+    icon: Award,
   },
 ];
 
-const modules = [
+const journey = [
   {
-    number: "01",
-    title: "Problem Discovery",
+    week: "01",
+    title: "Discover",
     description:
-      "Identify a meaningful problem and understand the people experiencing it.",
-    status: "current",
-    progress: 72,
+      "Identify a real problem, understand the people affected and define the opportunity.",
     icon: Lightbulb,
   },
   {
-    number: "02",
-    title: "Build Your MVP",
+    week: "02",
+    title: "Validate",
     description:
-      "Turn your validated idea into a practical minimum viable product.",
-    status: "upcoming",
-    progress: 0,
-    icon: Rocket,
+      "Research your market, test assumptions and turn your idea into a clear problem statement.",
+    icon: Target,
   },
   {
-    number: "03",
-    title: "Business Model",
+    week: "03",
+    title: "Build",
     description:
-      "Define your customers, value proposition, revenue and growth model.",
-    status: "upcoming",
-    progress: 0,
+      "Design your solution and begin transforming the idea into a working MVP.",
+    icon: Code2,
+  },
+  {
+    week: "04",
+    title: "Technology",
+    description:
+      "Choose the right technology, architecture and tools to bring your product to life.",
     icon: BriefcaseBusiness,
   },
   {
-    number: "04",
-    title: "Go-To-Market",
+    week: "05",
+    title: "Business",
     description:
-      "Prepare your product for launch, positioning and customer acquisition.",
-    status: "upcoming",
-    progress: 0,
-    icon: Target,
+      "Develop your business model, pricing strategy and path toward sustainability.",
+    icon: Crown,
+  },
+  {
+    week: "06",
+    title: "Launch",
+    description:
+      "Build your go-to-market strategy and prepare your product for real users.",
+    icon: Rocket,
+  },
+  {
+    week: "07",
+    title: "Trust & Security",
+    description:
+      "Learn the principles of cybersecurity, privacy, trust and responsible technology.",
+    icon: ShieldCheck,
+  },
+  {
+    week: "08",
+    title: "Demo Day",
+    description:
+      "Present your work, receive feedback and showcase what you have built.",
+    icon: Sparkles,
   },
 ];
 
-const events = [
+const opportunities = [
   {
-    day: "18",
-    month: "SEP",
-    title: "Incubator Orientation",
-    type: "Live Session",
-    time: "6:00 PM",
+    title: "Startup Pitch Challenge",
+    description:
+      "Present your startup, product or business concept to mentors and judges.",
+    label: "Pitch",
+    icon: Rocket,
   },
   {
-    day: "24",
-    month: "SEP",
-    title: "Problem Discovery Workshop",
-    type: "Workshop",
-    time: "7:00 PM",
+    title: "Mentorship Network",
+    description:
+      "Connect with builders, founders and professionals across the ASH ecosystem.",
+    label: "Community",
+    icon: Users,
   },
   {
-    day: "01",
-    month: "OCT",
-    title: "Mentor Office Hours",
-    type: "Mentorship",
-    time: "5:00 PM",
+    title: "ASH Tech Summit",
+    description:
+      "A future platform for innovation, technology, startups and cybersecurity.",
+    label: "Event",
+    icon: CalendarDays,
   },
 ];
 
-function QuickAction({
-  href,
-  icon: Icon,
-  label,
-  description,
-}: {
-  href: string;
-  icon: React.ElementType;
-  label: string;
-  description: string;
-}) {
+function IncubatorPage() {
   return (
-    <Link
-      to={href}
-      className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-zinc-800/60 bg-zinc-900/40 p-4 transition-all duration-200 hover:border-amber-500/40 hover:bg-zinc-900/80 active:scale-[0.98]"
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-400 group-hover:bg-amber-500/20 transition-all">
-          <Icon className="h-4 w-4" />
-        </div>
-        <ChevronRight className="h-4 w-4 text-zinc-600 transition-transform group-hover:translate-x-0.5 group-hover:text-zinc-300" />
+    <main className="relative min-h-screen overflow-hidden bg-[#030303] text-white">
+      {/* ============================================================
+          AMBIENT ASH BACKGROUND
+      ============================================================ */}
+
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          className="absolute -left-40 -top-40 h-[500px] w-[500px] rounded-full blur-[140px]"
+          style={{
+            background: "rgba(75, 0, 130, 0.20)",
+          }}
+        />
+
+        <div
+          className="absolute right-[-180px] top-[12%] h-[500px] w-[500px] rounded-full blur-[150px]"
+          style={{
+            background: "rgba(212, 175, 55, 0.10)",
+          }}
+        />
+
+        <div
+          className="absolute bottom-[-200px] left-[25%] h-[500px] w-[500px] rounded-full blur-[160px]"
+          style={{
+            background: "rgba(75, 0, 130, 0.14)",
+          }}
+        />
+
+        <div
+          className="absolute inset-0 opacity-[0.035]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)",
+            backgroundSize: "42px 42px",
+          }}
+        />
+
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#D4AF37]/40 to-transparent" />
       </div>
 
-      <div className="mt-4">
-        <p className="text-xs font-bold text-zinc-100 group-hover:text-amber-300 transition-colors">
-          {label}
-        </p>
-        <p className="mt-0.5 text-[11px] text-zinc-500">{description}</p>
-      </div>
-    </Link>
-  );
-}
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-20 pt-6 sm:px-6 lg:px-8">
+        {/* ============================================================
+            TOP BAR
+        ============================================================ */}
 
-export function IncubatorPage() {
-  const [showAnnouncement, setShowAnnouncement] = useState(true);
-
-  return (
-    <div className="min-h-screen overflow-x-hidden bg-zinc-950 text-zinc-100 selection:bg-amber-500/20 selection:text-amber-300 font-sans antialiased">
-      {/* Precision Ambient Lighting */}
-      <div
-        className="pointer-events-none fixed inset-0 overflow-hidden"
-        aria-hidden="true"
-      >
-        <div className="absolute -left-48 -top-48 h-[600px] w-[600px] rounded-full bg-amber-600/[0.04] blur-[140px]" />
-        <div className="absolute -right-48 top-[20%] h-[600px] w-[600px] rounded-full bg-zinc-700/[0.03] blur-[150px]" />
-      </div>
-
-      <main className="relative mx-auto w-full max-w-7xl px-4 pb-28 pt-8 sm:px-6 lg:px-8">
-        {/* Navigation Bar Header */}
-        <header className="mb-10 flex items-center justify-between border-b border-zinc-800/50 pb-6">
-          <div className="flex items-center gap-3.5">
-            <div className="relative">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-zinc-900 shadow-inner">
-                <GraduationCap className="h-5 w-5 text-amber-400" strokeWidth={1.75} />
-              </div>
+        <div className="mb-8 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div
+              className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#D4AF37]/30"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(212,175,55,0.16), rgba(75,0,130,0.24))",
+                boxShadow: "0 10px 40px rgba(75,0,130,0.18)",
+              }}
+            >
+              <GraduationCap
+                className="h-5 w-5"
+                style={{ color: BRAND_GOLD }}
+              />
             </div>
 
             <div>
-              <p className="text-[10px] font-bold tracking-widest uppercase text-amber-500/90">
-                ASH ECOSYSTEM
+              <p className="text-xs font-medium uppercase tracking-[0.22em] text-white/40">
+                ASH
               </p>
-              <h1 className="text-lg font-extrabold tracking-tight text-white">
+
+              <h1 className="text-lg font-semibold tracking-tight">
                 Incubator
               </h1>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              aria-label="Notifications"
-              className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900/60 text-zinc-400 transition hover:border-zinc-700 hover:text-white"
-            >
-              <Bell className="h-4 w-4" strokeWidth={1.8} />
-              <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_#fbbf24]" />
-            </button>
+          <div className="hidden items-center gap-2 sm:flex">
+            <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.035] px-3 py-2">
+              <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.7)]" />
 
-            <div className="hidden items-center gap-2.5 rounded-xl border border-zinc-800 bg-zinc-900/60 py-1 pl-1.5 pr-3.5 sm:flex">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-800 text-[11px] font-bold text-amber-400 border border-zinc-700/50">
-                AD
-              </div>
-              <span className="text-xs font-semibold text-zinc-300">
-                My Workspace
+              <span className="text-xs text-white/60">
+                Incubator platform online
               </span>
             </div>
           </div>
-        </header>
+        </div>
 
-        {/* Professional Hero Section */}
-        <section className="relative mb-8 overflow-hidden rounded-3xl border border-zinc-800 bg-gradient-to-b from-zinc-900/90 via-zinc-900/50 to-zinc-950 p-8 shadow-2xl lg:p-12">
-          <div className="pointer-events-none absolute right-0 top-0 h-full w-1/2 opacity-30 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-500/20 via-zinc-800/10 to-transparent" />
+        {/* ============================================================
+            HERO
+        ============================================================ */}
 
-          <div className="relative z-10 max-w-2xl">
-            <div className="mb-5 flex flex-wrap items-center gap-2.5">
-              <span className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-[10px] font-bold tracking-wider text-amber-400 uppercase">
-                <Sparkles className="h-3 w-3" />
-                COHORT 2026 · 01
-              </span>
-              <span className="rounded-md border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-[10px] font-medium tracking-wider text-zinc-400 uppercase">
-                8-Week Venture Track
-              </span>
+        <section className="relative mb-8 overflow-hidden rounded-[30px] border border-white/10 bg-white/[0.035] shadow-2xl shadow-black/40">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#4B0082]/20 via-transparent to-[#D4AF37]/10" />
+
+          <div className="absolute right-[-100px] top-[-140px] h-[340px] w-[340px] rounded-full bg-[#4B0082]/20 blur-[100px]" />
+
+          <div className="absolute bottom-[-160px] left-[25%] h-[300px] w-[300px] rounded-full bg-[#D4AF37]/10 blur-[110px]" />
+
+          <div className="relative grid gap-10 p-6 sm:p-8 lg:grid-cols-[1.25fr_0.75fr] lg:p-12">
+            <div>
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/20 bg-[#D4AF37]/[0.06] px-3 py-1.5">
+                <Sparkles
+                  className="h-3.5 w-3.5"
+                  style={{ color: BRAND_GOLD }}
+                />
+
+                <span className="text-xs font-medium text-[#D4AF37]">
+                  BUILD • CONNECT • LAUNCH
+                </span>
+              </div>
+
+              <h2 className="max-w-3xl text-4xl font-bold leading-[1.05] tracking-[-0.04em] sm:text-5xl lg:text-6xl">
+                Build something
+                <span
+                  className="block bg-clip-text text-transparent"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(135deg, #D4AF37 0%, #B58C22 32%, #4B0082 100%)",
+                  }}
+                >
+                  that matters.
+                </span>
+              </h2>
+
+              <p className="mt-6 max-w-2xl text-base leading-7 text-white/55 sm:text-lg">
+                ASH Incubator is a structured environment for students,
+                creators, developers, founders and early-stage teams to turn
+                ideas into real products, businesses and opportunities.
+              </p>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  to="/incubator/program"
+                  className="group inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-semibold text-black transition hover:scale-[1.01]"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #D4AF37 0%, #B58C22 45%, #4B0082 100%)",
+                    boxShadow: "0 12px 35px rgba(75,0,130,0.25)",
+                  }}
+                >
+                  Explore the Program
+
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+
+                <Link
+                  to="/incubator/projects"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3.5 text-sm font-medium text-white transition hover:border-[#D4AF37]/30 hover:bg-white/[0.07]"
+                >
+                  View Projects
+                </Link>
+              </div>
             </div>
 
-            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
-              Turn validated concepts into{" "}
-              <span className="bg-gradient-to-r from-zinc-100 via-amber-200 to-amber-400 bg-clip-text text-transparent">
-                scalable products.
-              </span>
-            </h2>
+            {/* HERO VISUAL */}
 
-            <p className="mt-4 text-sm leading-relaxed text-zinc-400 sm:text-base">
-              A structured venture builder framework providing founders with real-time feedback, operational milestones, and go-to-market guidance.
-            </p>
+            <div className="relative hidden min-h-[300px] lg:block">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="relative h-64 w-64">
+                  <div className="absolute inset-0 rounded-full border border-[#4B0082]/40" />
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link
-                to="/incubator/program"
-                className="group inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 text-xs font-bold text-zinc-950 transition hover:bg-amber-300 active:scale-[0.99]"
-              >
-                Continue Program
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Link>
+                  <div className="absolute inset-6 rounded-full border border-[#D4AF37]/20" />
 
-              <Link
-                to="/incubator/projects"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900/80 px-6 text-xs font-semibold text-zinc-200 transition hover:border-zinc-700 hover:bg-zinc-800"
-              >
-                <Rocket className="h-4 w-4 text-amber-400" />
-                View Project Dashboard
-              </Link>
+                  <div className="absolute inset-12 rounded-full border border-white/10" />
+
+                  <div
+                    className="absolute inset-[72px] flex items-center justify-center rounded-full"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, rgba(212,175,55,0.18), rgba(75,0,130,0.38))",
+                      boxShadow:
+                        "0 0 70px rgba(75,0,130,0.25), inset 0 0 30px rgba(212,175,55,0.08)",
+                    }}
+                  >
+                    <div className="text-center">
+                      <div
+                        className="text-3xl font-bold"
+                        style={{ color: BRAND_GOLD }}
+                      >
+                        ASH
+                      </div>
+
+                      <div className="mt-1 text-[10px] uppercase tracking-[0.28em] text-white/40">
+                        Incubator
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    className="absolute left-2 top-16 flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-[#080808]/90"
+                    style={{
+                      boxShadow: "0 10px 30px rgba(0,0,0,0.4)",
+                    }}
+                  >
+                    <Lightbulb
+                      className="h-5 w-5"
+                      style={{ color: BRAND_GOLD }}
+                    />
+                  </div>
+
+                  <div
+                    className="absolute right-1 top-8 flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-[#080808]/90"
+                    style={{
+                      boxShadow: "0 10px 30px rgba(0,0,0,0.4)",
+                    }}
+                  >
+                    <Code2 className="h-5 w-5 text-[#8F72B5]" />
+                  </div>
+
+                  <div
+                    className="absolute bottom-10 right-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-[#080808]/90"
+                    style={{
+                      boxShadow: "0 10px 30px rgba(0,0,0,0.4)",
+                    }}
+                  >
+                    <Rocket
+                      className="h-5 w-5"
+                      style={{ color: BRAND_GOLD }}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Announcement Banner */}
-        {showAnnouncement && (
-          <section className="mb-8 flex items-center justify-between gap-4 rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4 backdrop-blur-md">
-            <div className="flex items-center gap-3.5">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-400">
-                <Zap className="h-4 w-4" />
-              </div>
+        {/* ============================================================
+            QUICK ACCESS
+        ============================================================ */}
 
-              <div>
-                <p className="text-xs font-bold text-zinc-200">
-                  Sprint Milestone Pending
-                </p>
-                <p className="text-[11px] text-zinc-400">
-                  Complete your market assessment to unlock Module 02.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <Link
-                to="/incubator/program"
-                className="hidden text-xs font-semibold text-amber-400 hover:text-amber-300 sm:block"
-              >
-                View roadmap →
-              </Link>
-
-              <button
-                type="button"
-                onClick={() => setShowAnnouncement(false)}
-                className="rounded-lg p-1 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
-                aria-label="Dismiss notification"
-              >
-                ✕
-              </button>
-            </div>
-          </section>
-        )}
-
-        {/* Workspace Quick Actions */}
         <section className="mb-8">
           <div className="mb-4">
-            <h2 className="text-xs font-bold tracking-widest text-zinc-400 uppercase">Workspace Tools</h2>
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-white/35">
+              Your workspace
+            </p>
+
+            <h3 className="mt-1 text-xl font-semibold tracking-tight">
+              Quick access
+            </h3>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <QuickAction
-              href="/incubator/program"
-              icon={BookOpen}
-              label="Curriculum"
-              description="Syllabus & modules"
-            />
-            <QuickAction
-              href="/incubator/projects"
-              icon={Rocket}
-              label="My Venture"
-              description="Build & submit"
-            />
-            <QuickAction
-              href="/incubator/documents"
-              icon={FileText}
-              label="Resources"
-              description="Templates & guides"
-            />
-            <QuickAction
-              href="/incubator/certificates"
-              icon={Award}
-              label="Certifications"
-              description="Verified credentials"
-            />
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            {quickActions.map((action) => (
+              <QuickAction
+                key={action.title}
+                title={action.title}
+                description={action.description}
+                href={action.href}
+                icon={action.icon}
+              />
+            ))}
           </div>
         </section>
 
-        {/* Stat Cards */}
-        <section className="mb-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <div
-                key={stat.label}
-                className="relative overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5 transition hover:border-zinc-700/80"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 text-amber-400">
-                    <Icon className="h-4 w-4" />
-                  </div>
-                  {index === 0 && (
-                    <span className="text-[11px] font-bold text-emerald-400">
-                      +6% this week
-                    </span>
-                  )}
-                </div>
+        {/* ============================================================
+            STATS
+        ============================================================ */}
 
-                <div className="mt-4">
-                  <p className="text-2xl font-black text-white">
-                    {stat.value}
-                  </p>
-                  <p className="mt-0.5 text-xs font-semibold text-zinc-400">
-                    {stat.label}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
+        <section className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            value="08"
+            label="Weeks"
+            description="Structured journey"
+            icon={CalendarDays}
+          />
+
+          <StatCard
+            value="04"
+            label="Tracks"
+            description="Different pathways"
+            icon={Target}
+          />
+
+          <StatCard
+            value="01"
+            label="Portfolio"
+            description="Your project record"
+            icon={BriefcaseBusiness}
+          />
+
+          <StatCard
+            value="∞"
+            label="Opportunities"
+            description="Beyond the cohort"
+            icon={Sparkles}
+          />
         </section>
 
-        {/* Layout Split */}
-        <div className="grid gap-8 lg:grid-cols-12">
-          {/* Main Program Column */}
-          <section className="lg:col-span-7 rounded-3xl border border-zinc-800/80 bg-zinc-900/30 p-6 sm:p-8">
-            <div className="mb-6 flex items-center justify-between">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-amber-500">
-                  ROADMAP
-                </p>
-                <h2 className="text-lg font-bold text-white">Program Architecture</h2>
+        {/* ============================================================
+            YOUR NEXT MOVE
+        ============================================================ */}
+
+        <section className="mb-8 overflow-hidden rounded-[26px] border border-white/10 bg-white/[0.035]">
+          <div className="relative p-6 sm:p-8">
+            <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-[#4B0082]/10 blur-[80px]" />
+
+            <div className="relative flex flex-col justify-between gap-6 md:flex-row md:items-center">
+              <div className="flex gap-4">
+                <div
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#D4AF37]/20"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(212,175,55,0.10), rgba(75,0,130,0.18))",
+                  }}
+                >
+                  <Target
+                    className="h-5 w-5"
+                    style={{ color: BRAND_GOLD }}
+                  />
+                </div>
+
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-[0.16em] text-[#D4AF37]">
+                    Your next move
+                  </p>
+
+                  <h3 className="mt-1 text-xl font-semibold">
+                    Start building your idea.
+                  </h3>
+
+                  <p className="mt-2 max-w-xl text-sm leading-6 text-white/45">
+                    Your Incubator workspace will become the central record of
+                    your progress, projects, documents and achievements.
+                  </p>
+                </div>
               </div>
 
               <Link
                 to="/incubator/program"
-                className="flex items-center gap-1 text-xs font-semibold text-zinc-400 transition hover:text-amber-400"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-[#D4AF37]/20 bg-[#D4AF37]/[0.06] px-4 py-3 text-sm font-medium text-[#D4AF37] transition hover:bg-[#D4AF37]/[0.10]"
               >
-                Full Syllabus
+                Open workspace
                 <ChevronRight className="h-4 w-4" />
               </Link>
             </div>
+          </div>
+        </section>
 
-            {/* Overall Progress Progress Bar */}
-            <div className="mb-6 rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5">
-              <div className="flex items-end justify-between">
-                <div>
-                  <p className="text-xs font-semibold text-zinc-400">
-                    Overall Curriculum Completion
-                  </p>
-                  <p className="mt-1 text-2xl font-black text-white">18%</p>
-                </div>
-                <div className="text-right text-xs">
-                  <p className="font-semibold text-zinc-300">Phase 1: Week 2 of 8</p>
-                  <p className="text-[11px] text-zinc-500">6 Weeks Remaining</p>
-                </div>
-              </div>
+        {/* ============================================================
+            THE JOURNEY
+        ============================================================ */}
 
-              <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-zinc-800">
+        <section className="mb-8">
+          <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-white/35">
+                The journey
+              </p>
+
+              <h3 className="mt-1 text-2xl font-semibold tracking-tight">
+                From idea to launch
+              </h3>
+
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-white/45">
+                A practical progression designed to move you from an early
+                idea toward something you can demonstrate in the real world.
+              </p>
+            </div>
+
+            <Link
+              to="/incubator/program"
+              className="inline-flex items-center gap-1 text-sm font-medium text-[#D4AF37]"
+            >
+              View full program
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            {journey.map((item) => {
+              const Icon = item.icon;
+
+              return (
                 <div
-                  className="h-full rounded-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.3)]"
-                  style={{ width: "18%" }}
-                />
-              </div>
-            </div>
-
-            {/* Modules List */}
-            <div className="space-y-3">
-              {modules.map((module) => {
-                const Icon = module.icon;
-                const isCurrent = module.status === "current";
-
-                return (
-                  <div
-                    key={module.number}
-                    className={`relative overflow-hidden rounded-2xl border p-4 transition ${
-                      isCurrent
-                        ? "border-amber-500/30 bg-zinc-900/90"
-                        : "border-zinc-800/50 bg-zinc-950/30 hover:border-zinc-700"
-                    }`}
-                  >
-                    <div className="flex gap-4">
-                      <div
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${
-                          isCurrent
-                            ? "border-amber-500/30 bg-amber-500/10 text-amber-400"
-                            : "border-zinc-800 bg-zinc-900 text-zinc-500"
-                        }`}
-                      >
-                        <Icon className="h-4 w-4" />
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold text-zinc-500 tracking-wider">
-                            MODULE {module.number}
-                          </span>
-                          {isCurrent && (
-                            <span className="rounded border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[9px] font-bold text-amber-400 uppercase">
-                              Active Stage
-                            </span>
-                          )}
-                        </div>
-
-                        <h3 className="mt-1 text-xs font-bold text-zinc-100">
-                          {module.title}
-                        </h3>
-                        <p className="mt-0.5 text-xs text-zinc-400">
-                          {module.description}
-                        </p>
-
-                        {isCurrent && (
-                          <div className="mt-3">
-                            <div className="mb-1.5 flex justify-between text-[10px] font-bold">
-                              <span className="text-zinc-500">Module Progress</span>
-                              <span className="text-amber-400">{module.progress}%</span>
-                            </div>
-                            <div className="h-1 overflow-hidden rounded-full bg-zinc-800">
-                              <div
-                                className="h-full bg-amber-400"
-                                style={{ width: `${module.progress}%` }}
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Right Column / Events Sidebar */}
-          <div className="lg:col-span-5 space-y-6">
-            {/* Active Venture Slate */}
-            <section className="rounded-3xl border border-zinc-800/80 bg-zinc-900/40 p-6">
-              <div className="mb-4 flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-amber-500">
-                    PORTFOLIO
-                  </p>
-                  <h2 className="text-base font-bold text-white">Active Venture</h2>
-                </div>
-
-                <button
-                  type="button"
-                  aria-label="Options"
-                  className="rounded-lg p-1.5 text-zinc-500 hover:bg-zinc-800 hover:text-white"
+                  key={item.week}
+                  className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5 transition duration-300 hover:-translate-y-0.5 hover:border-[#D4AF37]/20 hover:bg-white/[0.04]"
                 >
-                  <MoreHorizontal className="h-4 w-4" />
-                </button>
-              </div>
+                  <div className="absolute right-[-30px] top-[-30px] h-24 w-24 rounded-full bg-[#4B0082]/10 blur-2xl transition group-hover:bg-[#4B0082]/20" />
 
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-4">
-                <div className="flex items-center gap-3.5">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-700 bg-zinc-800 text-zinc-300">
-                    <Rocket className="h-4 w-4 text-amber-400" />
-                  </div>
+                  <div className="relative flex gap-4">
+                    <div className="flex flex-col items-center">
+                      <span className="text-[10px] font-semibold tracking-[0.18em] text-white/25">
+                        WEEK
+                      </span>
 
-                  <div>
-                    <h3 className="text-xs font-bold text-zinc-100">
-                      Project Vanguard
-                    </h3>
-                    <p className="text-[11px] text-zinc-500">B2B SaaS • Validation Phase</p>
-                  </div>
-                </div>
-
-                <div className="mt-4 grid grid-cols-2 gap-3 border-t border-zinc-800/80 pt-3">
-                  <div>
-                    <p className="text-[9px] font-bold tracking-wider text-zinc-500 uppercase">Status</p>
-                    <p className="text-xs font-bold text-amber-400">On Schedule</p>
-                  </div>
-
-                  <div>
-                    <p className="text-[9px] font-bold tracking-wider text-zinc-500 uppercase">Team Size</p>
-                    <p className="text-xs font-semibold text-zinc-300">2 Co-founders</p>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Live Sessions Agenda */}
-            <section className="rounded-3xl border border-zinc-800/80 bg-zinc-900/40 p-6">
-              <h2 className="mb-4 text-xs font-bold tracking-widest text-zinc-400 uppercase">
-                Cohort Schedule
-              </h2>
-
-              <div className="space-y-2.5">
-                {events.map((evt) => (
-                  <div
-                    key={evt.title}
-                    className="flex items-center gap-3.5 rounded-xl border border-zinc-800/60 bg-zinc-950/40 p-3 transition hover:border-zinc-700"
-                  >
-                    <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-200">
-                      <span className="text-xs font-bold leading-none">{evt.day}</span>
-                      <span className="mt-0.5 text-[8px] font-bold uppercase text-zinc-500">{evt.month}</span>
+                      <span
+                        className="mt-1 text-xl font-bold"
+                        style={{ color: BRAND_GOLD }}
+                      >
+                        {item.week}
+                      </span>
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs font-bold text-zinc-200 truncate">{evt.title}</p>
-                      <p className="text-[11px] text-zinc-500">{evt.type} • {evt.time}</p>
+                      <div className="flex items-center justify-between gap-3">
+                        <h4 className="font-semibold">{item.title}</h4>
+
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#4B0082]/15">
+                          <Icon className="h-4 w-4 text-[#9B7BC1]" />
+                        </div>
+                      </div>
+
+                      <p className="mt-2 text-sm leading-6 text-white/40">
+                        {item.description}
+                      </p>
                     </div>
                   </div>
-                ))}
-              </div>
-            </section>
+                </div>
+              );
+            })}
           </div>
+        </section>
+
+        {/* ============================================================
+            PROJECT WORKSPACE
+        ============================================================ */}
+
+        <section className="mb-8 overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.035]">
+          <div className="grid lg:grid-cols-[0.8fr_1.2fr]">
+            <div className="relative overflow-hidden p-7 sm:p-9">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#4B0082]/20 via-transparent to-[#D4AF37]/[0.04]" />
+
+              <div className="relative">
+                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#4B0082]/20">
+                  <Rocket className="h-5 w-5 text-[#A384C6]" />
+                </div>
+
+                <h3 className="text-2xl font-semibold">
+                  Your project becomes your proof.
+                </h3>
+
+                <p className="mt-3 text-sm leading-6 text-white/45">
+                  Keep your idea, research, milestones, documentation and
+                  progress in one structured workspace.
+                </p>
+
+                <Link
+                  to="/incubator/projects"
+                  className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-[#D4AF37]"
+                >
+                  Open project workspace
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </div>
+
+            <div className="border-t border-white/10 p-7 sm:p-9 lg:border-l lg:border-t-0">
+              <div className="space-y-3">
+                <WorkspaceRow
+                  icon={Lightbulb}
+                  title="Problem statement"
+                  description="Define what you are solving."
+                  status="Start"
+                />
+
+                <WorkspaceRow
+                  icon={Target}
+                  title="Validation"
+                  description="Record research and user feedback."
+                  status="Pending"
+                />
+
+                <WorkspaceRow
+                  icon={Code2}
+                  title="MVP"
+                  description="Document the first working version."
+                  status="Pending"
+                />
+
+                <WorkspaceRow
+                  icon={Rocket}
+                  title="Launch plan"
+                  description="Prepare your route to real users."
+                  status="Pending"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ============================================================
+            OPPORTUNITIES
+        ============================================================ */}
+
+        <section className="mb-8">
+          <div className="mb-5">
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-white/35">
+              Beyond the program
+            </p>
+
+            <h3 className="mt-1 text-2xl font-semibold tracking-tight">
+              Where this can lead
+            </h3>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-3">
+            {opportunities.map((item) => (
+              <Opportunity
+                key={item.title}
+                title={item.title}
+                description={item.description}
+                label={item.label}
+                icon={item.icon}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* ============================================================
+            COMMUNITY
+        ============================================================ */}
+
+        <section className="mb-8 rounded-[26px] border border-white/10 bg-white/[0.025] p-6 sm:p-8">
+          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
+            <div className="flex gap-4">
+              <div
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#4B0082]/40 bg-[#4B0082]/15"
+              >
+                <Users className="h-5 w-5 text-[#A384C6]" />
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold">
+                  You are not building alone.
+                </h3>
+
+                <p className="mt-1 max-w-xl text-sm leading-6 text-white/40">
+                  Connect with other participants, founders, developers,
+                  mentors and members of the wider ASH community.
+                </p>
+              </div>
+            </div>
+
+            <Link
+              to="/network"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-medium text-white transition hover:border-[#4B0082]/40 hover:bg-[#4B0082]/10"
+            >
+              Explore community
+              <Users className="h-4 w-4" />
+            </Link>
+          </div>
+        </section>
+
+        {/* ============================================================
+            VERIFIED RECORDS
+        ============================================================ */}
+
+        <section
+          className="relative overflow-hidden rounded-[28px] border border-[#D4AF37]/15"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(212,175,55,0.07), rgba(75,0,130,0.13), rgba(255,255,255,0.02))",
+          }}
+        >
+          <div className="absolute right-[-100px] top-[-100px] h-64 w-64 rounded-full bg-[#4B0082]/15 blur-[100px]" />
+
+          <div className="relative p-7 sm:p-9">
+            <div className="flex flex-col gap-7 md:flex-row md:items-center md:justify-between">
+              <div className="flex gap-4">
+                <div
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(212,175,55,0.18), rgba(75,0,130,0.25))",
+                  }}
+                >
+                  <Verified
+                    className="h-5 w-5"
+                    style={{ color: BRAND_GOLD }}
+                  />
+                </div>
+
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-[0.18em] text-[#D4AF37]">
+                    Your official record
+                  </p>
+
+                  <h3 className="mt-1 text-2xl font-semibold">
+                    Build a portfolio that can be verified.
+                  </h3>
+
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-white/45">
+                    Your completed program activities, documents,
+                    achievements and certificates can become part of your ASH
+                    digital record.
+                  </p>
+                </div>
+              </div>
+
+              <Link
+                to="/incubator/certificates"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-black"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #D4AF37, #B58C22 45%, #4B0082)",
+                }}
+              >
+                View certificates
+                <Award className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ============================================================
+            FOOTER
+        ============================================================ */}
+
+        <footer className="mt-10 border-t border-white/[0.06] pt-6">
+          <div className="flex flex-col gap-3 text-xs text-white/25 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-white/45">ASH</span>
+              <span>Incubator</span>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <span className="flex items-center gap-1.5">
+                <LockKeyhole className="h-3.5 w-3.5" />
+                Secure workspace
+              </span>
+
+              <span className="flex items-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                Trust focused
+              </span>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </main>
+  );
+}
+
+/* ================================================================
+   QUICK ACTION
+================================================================ */
+
+function QuickAction({
+  title,
+  description,
+  href,
+  icon: Icon,
+}: {
+  title: string;
+  description: string;
+  href: string;
+  icon: typeof GraduationCap;
+}) {
+  return (
+    <Link
+      to={href}
+      className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.025] p-4 transition duration-300 hover:-translate-y-0.5 hover:border-[#D4AF37]/20 hover:bg-white/[0.045]"
+    >
+      <div className="absolute right-[-25px] top-[-25px] h-20 w-20 rounded-full bg-[#4B0082]/10 blur-2xl transition group-hover:bg-[#4B0082]/20" />
+
+      <div className="relative">
+        <div
+          className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(212,175,55,0.09), rgba(75,0,130,0.18))",
+          }}
+        >
+          <Icon className="h-5 w-5" style={{ color: BRAND_GOLD }} />
         </div>
-      </main>
+
+        <h4 className="text-sm font-semibold">{title}</h4>
+
+        <p className="mt-1 text-xs leading-5 text-white/35">
+          {description}
+        </p>
+
+        <div className="mt-4 flex items-center gap-1 text-xs font-medium text-white/35 transition group-hover:text-[#D4AF37]">
+          Open
+          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+/* ================================================================
+   STAT CARD
+================================================================ */
+
+function StatCard({
+  value,
+  label,
+  description,
+  icon: Icon,
+}: {
+  value: string;
+  label: string;
+  description: string;
+  icon: typeof CalendarDays;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5">
+      <div className="flex items-start justify-between">
+        <div>
+          <div className="text-2xl font-bold tracking-tight text-white">
+            {value}
+          </div>
+
+          <div className="mt-1 text-sm font-medium text-white/70">
+            {label}
+          </div>
+
+          <div className="mt-1 text-xs text-white/30">{description}</div>
+        </div>
+
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#4B0082]/15">
+          <Icon className="h-4 w-4 text-[#9B7BC1]" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================
+   WORKSPACE ROW
+================================================================ */
+
+function WorkspaceRow({
+  icon: Icon,
+  title,
+  description,
+  status,
+}: {
+  icon: typeof Lightbulb;
+  title: string;
+  description: string;
+  status: string;
+}) {
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-white/[0.06] bg-black/20 p-3">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.04]">
+        <Icon className="h-4 w-4 text-white/50" />
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-medium">{title}</p>
+        <p className="truncate text-xs text-white/30">{description}</p>
+      </div>
+
+      <span className="rounded-full border border-white/[0.07] bg-white/[0.03] px-2.5 py-1 text-[10px] font-medium text-white/35">
+        {status}
+      </span>
+    </div>
+  );
+}
+
+/* ================================================================
+   OPPORTUNITY
+================================================================ */
+
+function Opportunity({
+  title,
+  description,
+  label,
+  icon: Icon,
+}: {
+  title: string;
+  description: string;
+  label: string;
+  icon: typeof Rocket;
+}) {
+  return (
+    <div className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5 transition duration-300 hover:-translate-y-0.5 hover:border-[#4B0082]/40">
+      <div className="absolute right-[-40px] top-[-40px] h-28 w-28 rounded-full bg-[#4B0082]/10 blur-3xl transition group-hover:bg-[#4B0082]/20" />
+
+      <div className="relative">
+        <div className="flex items-start justify-between">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#4B0082]/15">
+            <Icon className="h-4.5 w-4.5 text-[#A384C6]" />
+          </div>
+
+          <span
+            className="rounded-full border px-2.5 py-1 text-[10px] font-medium"
+            style={{
+              color: BRAND_GOLD,
+              borderColor: "rgba(212,175,55,0.18)",
+              backgroundColor: "rgba(212,175,55,0.05)",
+            }}
+          >
+            {label}
+          </span>
+        </div>
+
+        <h4 className="mt-5 text-sm font-semibold">{title}</h4>
+
+        <p className="mt-2 text-sm leading-6 text-white/35">
+          {description}
+        </p>
+
+        <div className="mt-5 flex items-center gap-1 text-xs text-white/30 transition group-hover:text-[#D4AF37]">
+          Learn more
+          <ChevronRight className="h-3.5 w-3.5" />
+        </div>
+      </div>
     </div>
   );
 }
