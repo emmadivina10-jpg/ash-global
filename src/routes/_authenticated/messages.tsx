@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { type CSSProperties, type TouchEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import { ArrowLeft, Bot, MessageCircle, Search } from "lucide-react";
@@ -148,17 +148,38 @@ function MessagesPage() {
   const navigate = Route.useNavigate();
   const routerNavigate = useNavigate();
 
-  // iOS-style edge swipe: only a horizontal gesture that starts near
-  // the left edge of the open chat returns to the Messages list.
+  // Measure the real mobile tab-bar height. Never guess its size with rems:
+  // the authenticated shell includes the iOS safe-area and the central orb.
+  const [mobileNavHeight, setMobileNavHeight] = useState(0);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
-  function handleChatTouchStart(event: React.TouchEvent<HTMLDivElement>) {
+  const useIsoLayoutEffect =
+    typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+  useIsoLayoutEffect(() => {
+    const nav = document.querySelector<HTMLElement>(".app-shell > nav");
+    if (!nav) return;
+
+    const updateNavHeight = () => {
+      const height = Math.ceil(nav.getBoundingClientRect().height);
+      setMobileNavHeight((current) =>
+        current === height ? current : height,
+      );
+    };
+
+    updateNavHeight();
+    const observer = new ResizeObserver(updateNavHeight);
+    observer.observe(nav);
+    return () => observer.disconnect();
+  }, []);
+
+  function handleChatTouchStart(event: TouchEvent<HTMLDivElement>) {
     const touch = event.touches[0];
     if (!touch || touch.clientX > 32) return;
     touchStartRef.current = { x: touch.clientX, y: touch.clientY };
   }
 
-  function handleChatTouchEnd(event: React.TouchEvent<HTMLDivElement>) {
+  function handleChatTouchEnd(event: TouchEvent<HTMLDivElement>) {
     const start = touchStartRef.current;
     touchStartRef.current = null;
     if (!start) return;
@@ -169,13 +190,8 @@ function MessagesPage() {
     const deltaX = touch.clientX - start.x;
     const deltaY = touch.clientY - start.y;
 
-    // Require a clear rightward horizontal gesture so normal vertical
-    // message scrolling is never interpreted as "back".
     if (deltaX >= 72 && Math.abs(deltaX) > Math.abs(deltaY) * 1.25) {
-      void navigate({
-        to: "/messages",
-        search: {},
-      });
+      void navigate({ to: "/messages", search: {} });
     }
   }
 
@@ -533,13 +549,22 @@ function MessagesPage() {
               ACTIVE CHAT
               ========================================================= */}
           <div
-            onTouchStart={mobileView === "thread" ? handleChatTouchStart : undefined}
-            onTouchEnd={mobileView === "thread" ? handleChatTouchEnd : undefined}
+            onTouchStart={
+              mobileView === "thread" ? handleChatTouchStart : undefined
+            }
+            onTouchEnd={
+              mobileView === "thread" ? handleChatTouchEnd : undefined
+            }
+            style={
+              {
+                "--ash-mobile-nav-height": `${mobileNavHeight}px`,
+              } as CSSProperties
+            }
             className={cn(
               "tile chat-surface flex flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-0",
               mobileView === "list"
                 ? "hidden md:flex"
-                : "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:z-[70] max-md:h-[var(--ash-vh,100dvh)] max-md:w-screen max-md:touch-pan-y",
+                : "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:z-[70] max-md:h-[calc(var(--ash-vh,100dvh)-var(--ash-mobile-nav-height,0px))] max-md:w-screen max-md:touch-pan-y",
               "md:h-[72vh]",
             )}
           >
