@@ -201,7 +201,7 @@ export function ChatThread({
 
   return (
     <div className={cn("flex min-h-0 flex-col", className)}>
-      <div className="flex items-center justify-end px-1">
+      <div className="flex shrink-0 items-center justify-end px-1">
         <ReportDialog
           targetType="MESSAGE"
           targetId={conversationId}
@@ -211,7 +211,7 @@ export function ChatThread({
         />
       </div>
 
-      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-1 py-2">
+      <div className="min-h-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto overscroll-contain px-1 py-2">
         {isLoading ? (
           <div className="space-y-3 py-4">
             {[0, 1, 2].map((i) => (
@@ -446,7 +446,7 @@ export function ChatThread({
       </div>
 
       {quickReplies.length > 0 ? (
-        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-2">
+        <div className="flex shrink-0 gap-2 overflow-x-auto px-1 pb-2">
           {quickReplies.map((q) => (
             <button
               key={q}
@@ -465,7 +465,7 @@ export function ChatThread({
           e.preventDefault();
           void submit(body);
         }}
-        className="sticky bottom-0 z-20 flex items-end gap-2 border-t border-border bg-background pt-3 pb-[calc(env(safe-area-inset-bottom)+0.5rem)]"
+        className="shrink-0 flex items-end gap-2 border-t border-border bg-background pt-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)]"
       >
         <div className="flex min-w-0 flex-1 flex-col">
           <Textarea
@@ -482,7 +482,7 @@ export function ChatThread({
             }}
             placeholder={t("chat.placeholder")}
             aria-label={t("chat.placeholder")}
-            className="max-h-32 min-h-10 resize-none rounded-2xl"
+            className="min-h-10 max-h-32 resize-none overflow-y-auto rounded-2xl overscroll-contain"
           />
 
           <span className="mt-1 px-1 text-[10px] text-muted-foreground">
