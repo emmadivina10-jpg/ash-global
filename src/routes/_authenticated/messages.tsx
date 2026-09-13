@@ -148,13 +148,13 @@ function MessagesPage() {
   const navigate = Route.useNavigate();
   const routerNavigate = useNavigate();
 
-  // Mobile swipe-back gesture: when a chat room is open, a horizontal
-  // swipe from left to right returns to the main Messages list.
+  // iOS-style edge swipe: only a horizontal gesture that starts near
+  // the left edge of the open chat returns to the Messages list.
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   function handleChatTouchStart(event: React.TouchEvent<HTMLDivElement>) {
     const touch = event.touches[0];
-    if (!touch) return;
+    if (!touch || touch.clientX > 32) return;
     touchStartRef.current = { x: touch.clientX, y: touch.clientY };
   }
 
@@ -169,9 +169,9 @@ function MessagesPage() {
     const deltaX = touch.clientX - start.x;
     const deltaY = touch.clientY - start.y;
 
-    // Only treat a clearly horizontal right swipe as "back", so normal
-    // vertical message scrolling is not interrupted.
-    if (deltaX >= 80 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
+    // Require a clear rightward horizontal gesture so normal vertical
+    // message scrolling is never interpreted as "back".
+    if (deltaX >= 72 && Math.abs(deltaX) > Math.abs(deltaY) * 1.25) {
       void navigate({
         to: "/messages",
         search: {},
@@ -539,7 +539,7 @@ function MessagesPage() {
               "tile chat-surface flex flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-0",
               mobileView === "list"
                 ? "hidden md:flex"
-                : "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:z-[70] max-md:h-[calc(var(--ash-vh,100dvh)-env(safe-area-inset-top)-4.75rem)] max-md:w-screen",
+                : "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:z-[70] max-md:h-[var(--ash-vh,100dvh)] max-md:w-screen max-md:touch-pan-y",
               "md:h-[72vh]",
             )}
           >
