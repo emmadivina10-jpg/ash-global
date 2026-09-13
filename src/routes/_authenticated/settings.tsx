@@ -185,6 +185,17 @@ function SettingsPage() {
             <Link to="/terms">Terms of Service</Link>
           </Button>
         </div>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Need help?{" "}
+          <a
+            href="https://ash-glo-support.base44.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-primary hover:underline"
+          >
+            Visit Help & Support
+          </a>
+        </p>
 
       </SectionCard>
 
