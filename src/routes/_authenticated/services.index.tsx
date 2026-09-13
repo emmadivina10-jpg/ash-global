@@ -6,6 +6,7 @@ import {
   Briefcase,
   Calendar,
   CreditCard,
+  GraduationCap,
   Home,
   MapPin,
   Search,
@@ -148,6 +149,15 @@ const QUICK_LINKS = [
     tone: "text-emerald-500",
     ring:
       "bg-emerald-500/15 ring-emerald-400/50 shadow-emerald-500/20",
+  },
+  {
+    to: "/incubator",
+    en: "ASH Incubator",
+    fr: "ASH Incubateur",
+    icon: GraduationCap,
+    tone: "text-[#D4AF37]",
+    ring:
+      "bg-[#D4AF37]/15 ring-[#D4AF37]/60 shadow-[#D4AF37]/20",
   },
 ] as const;
 
