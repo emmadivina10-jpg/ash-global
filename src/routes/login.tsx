@@ -142,6 +142,16 @@ function LoginPage() {
           {t("auth.login.createAccount")}
         </Link>
       </p>
+      <p className="mt-3 text-center text-xs text-muted-foreground">
+        <a
+          href="https://ash-glo-support.base44.app"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-primary hover:underline"
+        >
+          Help & Support
+        </a>
+      </p>
     </AuthLayout>
   );
 }
