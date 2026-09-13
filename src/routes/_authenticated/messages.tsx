@@ -147,10 +147,13 @@ function MessagesPage() {
   const { c } = Route.useSearch();
   const navigate = Route.useNavigate();
   const routerNavigate = useNavigate();
+  const mobileView = c ? "thread" : "list";
 
   // Measure the real mobile tab-bar height. Never guess its size with rems:
   // the authenticated shell includes the iOS safe-area and the central orb.
   const [mobileNavHeight, setMobileNavHeight] = useState(0);
+  const [visualViewportHeight, setVisualViewportHeight] = useState<number | null>(null);
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const useIsoLayoutEffect =
@@ -172,6 +175,123 @@ function MessagesPage() {
     observer.observe(nav);
     return () => observer.disconnect();
   }, []);
+
+  // iOS Safari/WKWebView changes the visual viewport when the keyboard opens.
+  // Track that viewport instead of relying on 100vh/100dvh, which can leave a
+  // large dead area between the composer and the keyboard.
+  useIsoLayoutEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+
+    const updateViewport = () => {
+      const height = Math.max(0, Math.round(viewport.height));
+      setVisualViewportHeight(height);
+
+      const active = document.activeElement;
+      const editing =
+        active instanceof HTMLInputElement ||
+        active instanceof HTMLTextAreaElement ||
+        (active instanceof HTMLElement && active.isContentEditable);
+      const keyboard =
+        editing &&
+        height > 0 &&
+        (height < window.innerHeight - 120 ||
+          height < window.screen.height * 0.75);
+
+      setKeyboardOpen(keyboard);
+    };
+
+    updateViewport();
+    viewport.addEventListener("resize", updateViewport);
+    viewport.addEventListener("scroll", updateViewport);
+    window.addEventListener("focusin", updateViewport);
+    window.addEventListener("focusout", updateViewport);
+    window.addEventListener("resize", updateViewport);
+
+    return () => {
+      viewport.removeEventListener("resize", updateViewport);
+      viewport.removeEventListener("scroll", updateViewport);
+      window.removeEventListener("focusin", updateViewport);
+      window.removeEventListener("focusout", updateViewport);
+      window.removeEventListener("resize", updateViewport);
+    };
+  }, []);
+
+  // While a mobile chat is open, the outer authenticated shell must not scroll.
+  // The chat thread owns its own scroll area; otherwise scrollIntoView/keyboard
+  // adjustments can move the whole page and make the header/composer disappear.
+  useEffect(() => {
+    if (typeof window === "undefined" || window.innerWidth >= 768) return;
+
+    const shellScroll = document.querySelector<HTMLElement>(
+      ".app-shell-scroll",
+    );
+    const nav = document.querySelector<HTMLElement>(".app-shell > nav");
+    const orbs = Array.from(
+      document.querySelectorAll<HTMLElement>(".orb-surface"),
+    );
+
+    if (!shellScroll) return;
+
+    const previousOverflow = shellScroll.style.overflow;
+    const previousTouchAction = shellScroll.style.touchAction;
+    const previousOverscroll = shellScroll.style.overscrollBehavior;
+
+    if (mobileView === "thread") {
+      shellScroll.scrollTop = 0;
+      shellScroll.style.overflow = "hidden";
+      shellScroll.style.touchAction = "none";
+      shellScroll.style.overscrollBehavior = "none";
+    }
+
+    if (nav) {
+      if (mobileView === "thread" && keyboardOpen) {
+        nav.dataset.ashChatKeyboardHidden = "true";
+        nav.style.visibility = "hidden";
+        nav.style.pointerEvents = "none";
+      } else if (nav.dataset.ashChatKeyboardHidden === "true") {
+        delete nav.dataset.ashChatKeyboardHidden;
+        nav.style.visibility = "";
+        nav.style.pointerEvents = "";
+      }
+    }
+
+    // The floating ASH orb is another fixed/absolute element. It should not
+    // cover the conversation while the keyboard is occupying the viewport.
+    for (const orb of orbs) {
+      if (mobileView === "thread" && keyboardOpen) {
+        orb.dataset.ashChatKeyboardHidden = "true";
+        orb.style.visibility = "hidden";
+        orb.style.pointerEvents = "none";
+      } else if (orb.dataset.ashChatKeyboardHidden === "true") {
+        delete orb.dataset.ashChatKeyboardHidden;
+        orb.style.visibility = "";
+        orb.style.pointerEvents = "";
+      }
+    }
+
+    return () => {
+      shellScroll.style.overflow = previousOverflow;
+      shellScroll.style.touchAction = previousTouchAction;
+      shellScroll.style.overscrollBehavior = previousOverscroll;
+
+      if (nav?.dataset.ashChatKeyboardHidden === "true") {
+        delete nav.dataset.ashChatKeyboardHidden;
+        nav.style.visibility = "";
+        nav.style.pointerEvents = "";
+      }
+
+      for (const orb of orbs) {
+        if (orb.dataset.ashChatKeyboardHidden === "true") {
+          delete orb.dataset.ashChatKeyboardHidden;
+          orb.style.visibility = "";
+          orb.style.pointerEvents = "";
+        }
+      }
+    };
+  }, [mobileView, keyboardOpen]);
 
   function handleChatTouchStart(event: TouchEvent<HTMLDivElement>) {
     const touch = event.touches[0];
@@ -209,8 +329,6 @@ function MessagesPage() {
       : undefined);
 
   const active = list.find((conv) => conv.id === activeId);
-  const mobileView = c ? "thread" : "list";
-
   /** Providers see the client; clients see the business.
    * Property threads show the listing/owner.
    */
@@ -558,13 +676,21 @@ function MessagesPage() {
             style={
               {
                 "--ash-mobile-nav-height": `${mobileNavHeight}px`,
+                "--ash-visual-height": visualViewportHeight
+                  ? `${visualViewportHeight}px`
+                  : "100dvh",
               } as CSSProperties
             }
             className={cn(
               "tile chat-surface flex flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-0",
               mobileView === "list"
                 ? "hidden md:flex"
-                : "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:z-[70] max-md:h-[calc(var(--ash-vh,100dvh)-var(--ash-mobile-nav-height,0px))] max-md:w-screen max-md:touch-pan-y",
+                : cn(
+                    "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:z-[70] max-md:w-screen max-md:touch-pan-y",
+                    keyboardOpen
+                      ? "max-md:h-[var(--ash-visual-height,100dvh)]"
+                      : "max-md:h-[calc(var(--ash-vh,100dvh)-var(--ash-mobile-nav-height,0px))]",
+                  ),
               "md:h-[72vh]",
             )}
           >
@@ -786,7 +912,7 @@ function MessagesPage() {
                     ? peerUserIdOf(active)
                     : null
                 }
-                className="min-h-0 flex-1 px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]"
+                className="min-h-0 flex-1 px-2"
                     quickReplies={
                       lang === "fr"
                         ? [
