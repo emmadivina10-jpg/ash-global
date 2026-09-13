@@ -506,7 +506,7 @@ function MessagesPage() {
               "tile chat-surface flex flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-0",
               mobileView === "list"
                 ? "hidden md:flex"
-                : "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:z-[70] max-md:h-[calc(var(--ash-vh,100dvh)-env(safe-area-inset-top)-env(safe-area-inset-bottom))] max-md:w-screen",
+                : "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:z-[70] max-md:h-[calc(var(--ash-vh,100dvh)-env(safe-area-inset-top)-4.75rem)] max-md:w-screen",
               "md:h-[72vh]",
             )}
           >
