@@ -220,6 +220,118 @@ function EneoLogo() {
 
 
 
+
+/** Normalize marketplace text so free-text search is forgiving.
+ * Searches every nested provider field returned by the marketplace query,
+ * including service selections, categories, descriptions, prices, portfolio
+ * metadata and any future fields without needing a new UI mapping each time.
+ */
+function normalizeMarketplaceText(value: unknown): string {
+  if (value == null) return "";
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+    return String(value)
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(normalizeMarketplaceText).filter(Boolean).join(" ");
+  }
+
+  if (typeof value === "object") {
+    return Object.values(value as Record<string, unknown>)
+      .map(normalizeMarketplaceText)
+      .filter(Boolean)
+      .join(" ");
+  }
+
+  return "";
+}
+
+function marketplaceSearchTokens(value: string): string[] {
+  return normalizeMarketplaceText(value)
+    .split(" ")
+    .map((token) => token.trim())
+    .filter((token) => token.length >= 2);
+}
+
+/**
+ * Facebook-Marketplace-style forgiving matching:
+ * - matches the whole phrase
+ * - every typed word can match inside any provider field
+ * - tolerates simple singular/plural and prefix forms
+ * - rewards stronger/exact matches for result ordering
+ */
+function marketplaceSearchScore(item: unknown, query: string): number {
+  const haystack = normalizeMarketplaceText(item);
+  const normalizedQuery = normalizeMarketplaceText(query);
+  if (!haystack || !normalizedQuery) return 0;
+
+  let score = 0;
+  if (haystack.includes(normalizedQuery)) score += 100;
+
+  const haystackWords = new Set(haystack.split(" ").filter(Boolean));
+  const tokens = marketplaceSearchTokens(query);
+
+  for (const token of tokens) {
+    if (haystackWords.has(token)) {
+      score += 30;
+      continue;
+    }
+
+    const singular = token.endsWith("ies")
+      ? `${token.slice(0, -3)}y`
+      : token.endsWith("s") && token.length > 3
+        ? token.slice(0, -1)
+        : token;
+
+    const plural = singular.endsWith("y")
+      ? `${singular.slice(0, -1)}ies`
+      : `${singular}s`;
+
+    if (haystackWords.has(singular) || haystackWords.has(plural)) {
+      score += 22;
+      continue;
+    }
+
+    if (haystackWords.some((word) => word.startsWith(token) || token.startsWith(word))) {
+      score += 16;
+      continue;
+    }
+
+    if (haystack.includes(` ${token}`) || haystack.startsWith(token)) {
+      score += 10;
+    } else if (haystack.includes(token)) {
+      score += 6;
+    }
+  }
+
+  // Require every meaningful search word to have a plausible match. This keeps
+  // a query like "black leather chair" from returning an unrelated "black" item.
+  const matchedAllTokens = tokens.every((token) => {
+    const singular = token.endsWith("ies")
+      ? `${token.slice(0, -3)}y`
+      : token.endsWith("s") && token.length > 3
+        ? token.slice(0, -1)
+        : token;
+    return (
+      haystack.includes(token) ||
+      haystack.includes(singular) ||
+      haystack.includes(` ${token}`) ||
+      haystackWords.has(token) ||
+      haystackWords.has(singular) ||
+      haystackWords.has(`${singular}s`) ||
+      haystackWords.some((word) => word.startsWith(token) || token.startsWith(word))
+    );
+  });
+
+  return matchedAllTokens ? score : 0;
+}
+
 function isVideoSource(url: string | null | undefined) {
   if (!url) return false;
   return /\.(mp4|webm|mov|m4v|ogg)(?:\?|#|$)/i.test(url);
@@ -399,6 +511,20 @@ function DiscoveryPage() {
     [data],
   );
 
+  const displayedProviders = useMemo(() => {
+    const query = searchInput.trim();
+    if (!query) return providers;
+
+    return [...providers]
+      .map((provider) => ({
+        provider,
+        score: marketplaceSearchScore(provider, query),
+      }))
+      .filter((entry) => entry.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map((entry) => entry.provider);
+  }, [providers, searchInput]);
+
   const browsing =
     !searchInput.trim() &&
     category === "ALL" &&
@@ -425,7 +551,7 @@ function DiscoveryPage() {
   );
 
   const filteredSpotlightPosts = useMemo(() => {
-    const term = spotlightSearch.trim().toLowerCase();
+    const term = (spotlightSearch.trim() || searchInput.trim()).toLowerCase();
     if (!term) return spotlightPosts;
 
     return spotlightPosts.filter((post) => {
@@ -437,14 +563,6 @@ function DiscoveryPage() {
         category?: unknown;
       };
 
-      // The discovery dataset contains the vendor's selected services and
-      // categories. Merge it with the Spotlight post so search can find terms
-      // such as barber, braider, nail tech, cybersecurity, electrician, etc.,
-      // even when those words are not written in the video caption.
-      const discoveryProvider = providers.find(
-        (item) => item.id === post.provider.id,
-      ) as (typeof providers)[number] | undefined;
-
       const searchableText = [
         provider.business_name,
         provider.city,
@@ -455,8 +573,6 @@ function DiscoveryPage() {
         JSON.stringify(provider.categories ?? []),
         JSON.stringify(provider.service_categories ?? []),
         JSON.stringify(provider.category ?? ""),
-        JSON.stringify(discoveryProvider?.services ?? []),
-        JSON.stringify(discoveryProvider ?? {}),
       ]
         .filter(Boolean)
         .join(" ")
@@ -464,7 +580,7 @@ function DiscoveryPage() {
 
       return searchableText.includes(term);
     });
-  }, [providers, spotlightPosts, spotlightSearch]);
+  }, [searchInput, spotlightPosts, spotlightSearch]);
 
   useEffect(() => {
     if (!spotlightFeedOpen && !spotlightOpen) return;
@@ -496,10 +612,58 @@ function DiscoveryPage() {
     });
   }, [spotlightFeedOpen, spotlightOpen, spotlightIndex]);
 
-  async function contactSpotlightVendor(providerId: string) {
+  async function contactSpotlightVendor(
+    providerId: string,
+    context?: {
+      businessName?: string | null;
+      offerDescription?: string | null;
+      searchedFor?: string;
+    },
+  ) {
     const conversationId = await openConversation(providerId);
 
     if (!conversationId) return;
+
+    // Seed genuinely new vendor conversations with a useful entrance message.
+    // Existing conversations are left untouched so customers never receive
+    // duplicate automatic messages on every visit.
+    try {
+      const { data: existingMessages, error: existingMessagesError } = await supabase
+        .from("messages")
+        .select("id")
+        .eq("conversation_id", conversationId)
+        .order("created_at", { ascending: true })
+        .limit(1);
+
+      if (!existingMessagesError && (existingMessages ?? []).length === 0) {
+        const { data: authData } = await supabase.auth.getUser();
+        const senderId = authData.user?.id;
+
+        if (senderId) {
+          const businessName = context?.businessName?.trim() || "your business";
+          const searchedFor = context?.searchedFor?.trim();
+          const offer = context?.offerDescription?.trim();
+          const subject = searchedFor || offer || "your service";
+          const entranceMessage = fr
+            ? `Bonjour ${businessName} ! J’ai trouvé votre offre « ${subject} » sur ASH Glo. Je suis intéressé(e) et j’aimerais en savoir plus sur le prix, la disponibilité et la façon de procéder.`
+            : `Hi ${businessName}! I found your ${subject} on ASH Glo. I’m interested and would like to know more about the price, availability, and how to proceed.`;
+
+          await supabase.from("messages").insert({
+            conversation_id: conversationId,
+            sender_id: senderId,
+            body: entranceMessage,
+            metadata: {
+              source: "ash_spotlight_contact",
+              search_term: searchedFor ?? null,
+              offer_description: offer ?? null,
+            },
+          });
+        }
+      }
+    } catch {
+      // Opening the conversation must still succeed even if the seed message
+      // cannot be written (for example because the network briefly fails).
+    }
 
     setSpotlightOpen(false);
     setSpotlightVendorInfoOpen(false);
@@ -626,8 +790,8 @@ function DiscoveryPage() {
             }
             placeholder={
               fr
-                ? "Rechercher un pro, une ville…"
-                : "Search a pro, a city…"
+                ? "Rechercher n’importe quoi : produit, service, vendeur, ville…"
+                : "Search anything: product, service, seller, city…"
             }
             className="h-11 rounded-full pl-9 shadow-[var(--shadow-card)]"
             aria-label={t(
@@ -806,7 +970,7 @@ function DiscoveryPage() {
               type="button"
               onClick={() => {
                 setSpotlightIndex(0);
-                setSpotlightSearch("");
+                setSpotlightSearch(searchInput);
                 setSpotlightFeedOpen(true);
               }}
               className="shrink-0 rounded-full px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/10"
@@ -1237,6 +1401,11 @@ function DiscoveryPage() {
                               onClick={() =>
                                 void contactSpotlightVendor(
                                   post.provider.id,
+                                  {
+                                    businessName,
+                                    offerDescription,
+                                    searchedFor: spotlightSearch || searchInput,
+                                  },
                                 )
                               }
                               className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#D4AF37] via-[#a77f1b] to-[#4B0082] px-4 py-3.5 text-sm font-extrabold text-white shadow-2xl shadow-black/35 transition-transform active:scale-[0.98]"
@@ -1799,7 +1968,7 @@ function DiscoveryPage() {
       {/* PROVIDERS */}
       {isLoading ? (
         <SkeletonRows rows={4} />
-      ) : providers.length ===
+      ) : displayedProviders.length ===
         0 ? (
         <EmptyState
           title={t(
@@ -1827,7 +1996,7 @@ function DiscoveryPage() {
       ) : (
         <>
           <div className="grid items-stretch gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {providers.map(
+            {displayedProviders.map(
               (provider) => (
                 <ProviderCard
                   key={
@@ -1887,7 +2056,7 @@ function DiscoveryPage() {
           ) : null}
 
           {!hasNextPage &&
-          providers.length >
+          displayedProviders.length >
             0 ? (
             <p className="pb-2 text-center text-xs text-muted-foreground">
               {fr
