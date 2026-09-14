@@ -8,7 +8,7 @@ import {
 } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, Bot, MessageCircle, Search } from "lucide-react";
+import { ArrowLeft, Search } from "lucide-react";
 
 import { useConversations } from "@/lib/marketplace.queries";
 import { useUser } from "@/lib/queries";
@@ -138,12 +138,12 @@ function getAvatarColor(id: string) {
   return avatarColors[avatarColorIndex(id)] ?? avatarColors[0];
 }
 
-const CHATGPT_ID = "ash-chatgpt";
+const ASH_AI_ID = "ash-ai";
 
-const chatGPTConversation = {
-  id: CHATGPT_ID,
-  label: "ChatGPT",
-  preview: "Ask ChatGPT anything…",
+const ashAiConversation = {
+  id: ASH_AI_ID,
+  label: "ASH AI",
+  preview: "Your intelligent ASH assistant is coming soon.",
 };
 const ASH_CHAT_BACKGROUND = "/images/ash-chat-background.png";
 
@@ -156,8 +156,8 @@ function MessagesPage() {
   const routerNavigate = useNavigate();
   const mobileView = c ? "thread" : "list";
 
-  // Measure the real mobile tab-bar height. Never guess its size with rems:
-  // the authenticated shell includes the iOS safe-area and the central orb.
+  // iOS/WKWebView visual viewport. The chat becomes a true fullscreen surface
+  // while a thread is open, so the shell navigation/orb cannot overlap it.
   const [visualViewportHeight, setVisualViewportHeight] = useState<number | null>(null);
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -185,8 +185,8 @@ function MessagesPage() {
         (active instanceof HTMLElement && active.isContentEditable);
       // iOS Safari can change visualViewport.height for browser chrome too.
       // A real keyboard causes a much larger reduction; use that stable
-      // threshold so keyboard state remains stable while the conversation is
-      // open. The global bottom navigation is already hidden for the thread.
+      // threshold so dismissing the keyboard reliably returns to the normal
+      // bottom-nav layout even while the textarea remains focused.
       const keyboard =
         editing &&
         height > 0 &&
@@ -265,9 +265,6 @@ function MessagesPage() {
       document.addEventListener("visibilitychange", restoreAfterNavigation);
     }
 
-    // WhatsApp-style conversation mode: once a chat is open, the global
-    // bottom navigation stays completely out of the conversation. It is
-    // restored only when the user returns to the messages list.
     if (nav) {
       if (mobileView === "thread") {
         nav.dataset.ashChatHidden = "true";
@@ -280,9 +277,8 @@ function MessagesPage() {
       }
     }
 
-    // The floating ASH Orb also belongs to the global navigation layer, so it
-    // stays hidden for the entire conversation, not only while the keyboard
-    // is visible.
+    // Hide the floating ASH orb while the keyboard is visible so it can never
+    // sit on top of the composer or the keyboard transition.
     for (const orb of orbs) {
       if (mobileView === "thread") {
         orb.dataset.ashChatHidden = "true";
@@ -549,7 +545,7 @@ function MessagesPage() {
 
             <nav className="min-h-0 flex-1 divide-y divide-border overflow-y-auto">
               {term.trim() &&
-              !`${chatGPTConversation.label} ${chatGPTConversation.preview}`
+              !`${ashAiConversation.label} ${ashAiConversation.preview}`
                 .toLowerCase()
                 .includes(term.trim().toLowerCase()) &&
               filtered.length === 0 ? (
@@ -561,46 +557,41 @@ function MessagesPage() {
               ) : null}
 
               {(!term.trim() ||
-                `${chatGPTConversation.label} ${chatGPTConversation.preview}`
+                `${ashAiConversation.label} ${ashAiConversation.preview}`
                   .toLowerCase()
                   .includes(term.trim().toLowerCase())) && (
                 <button
                   type="button"
                   onClick={() =>
                     void navigate({
-                      search: { c: CHATGPT_ID },
+                      search: { c: ASH_AI_ID },
                     })
                   }
                   className={cn(
                     "flex w-full items-center gap-3 border-b border-border px-3 py-3 text-left transition-colors",
-                    activeId === CHATGPT_ID
+                    activeId === ASH_AI_ID
                       ? "bg-primary/10"
                       : "hover:bg-muted/70 active:bg-muted",
                   )}
                 >
-                  <span className="grid size-12 shrink-0 place-items-center rounded-full bg-gradient-to-br from-violet-600 via-fuchsia-500 to-pink-500 p-[2px] shadow-sm ring-2 ring-violet-300/60 dark:ring-violet-400/40">
-                    <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
-                      <img
-                        src="https://chatgpt.com/favicon.ico"
-                        alt="ChatGPT"
-                        className="size-full rounded-full object-cover"
-                        loading="lazy"
-                      />
+                  <span className="grid size-12 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#D4AF37] via-[#8B6914] to-[#4B0082] p-[2px] shadow-lg shadow-[#4B0082]/20 ring-2 ring-[#D4AF37]/50">
+                    <span className="grid size-full place-items-center overflow-hidden rounded-full bg-[#0b0712]">
+                      <span className="font-display text-sm font-black tracking-tight text-[#D4AF37]">ASH</span>
                     </span>
                   </span>
 
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline justify-between gap-2">
                       <span className="truncate text-[15px] font-bold text-foreground">
-                        ChatGPT
+                        ASH AI
                       </span>
-                      <span className="shrink-0 text-[11px] font-medium text-primary">
-                        AI
+                      <span className="shrink-0 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#4B0082] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-white shadow-sm">
+                        Coming Soon
                       </span>
                     </span>
 
                     <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">
-                      {chatGPTConversation.preview}
+                      {ashAiConversation.preview}
                     </span>
                   </span>
                 </button>
@@ -706,8 +697,6 @@ function MessagesPage() {
                 "--ash-visual-height": visualViewportHeight
                   ? `${visualViewportHeight}px`
                   : "100dvh",
-                // The conversation owns the entire mobile viewport. There is
-                // no bottom navigation height to subtract in chat mode.
                 "--ash-chat-height": visualViewportHeight
                   ? `${Math.max(0, visualViewportHeight)}px`
                   : "100dvh",
@@ -764,7 +753,11 @@ function MessagesPage() {
                 }
                 className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl px-1 py-0.5 text-left transition-colors enabled:hover:bg-muted/60"
               >
-                {active ? (
+                {activeId === ASH_AI_ID ? (
+                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#D4AF37] via-[#8B6914] to-[#4B0082] p-[2px] shadow-lg ring-2 ring-[#D4AF37]/50">
+                    <span className="grid size-full place-items-center rounded-full bg-[#0b0712] font-display text-[9px] font-black text-[#D4AF37]">ASH</span>
+                  </span>
+                ) : active ? (
                   <span
                     className={cn(
                       "grid size-10 shrink-0 place-items-center rounded-full p-[2px] shadow-sm ring-2",
@@ -784,9 +777,7 @@ function MessagesPage() {
 
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-display text-[15px] font-semibold text-foreground">
-                    {active
-                      ? peerOf(active)
-                      : t("chat.title")}
+                    {activeId === ASH_AI_ID ? "ASH AI" : active ? peerOf(active) : t("chat.title")}
                   </p>
 
                   {active?.booking ? (
@@ -830,7 +821,7 @@ function MessagesPage() {
             {/* =======================================================
                 CHAT CONTENT
                 ======================================================= */}
-            {activeId === CHATGPT_ID ? (
+            {activeId === ASH_AI_ID ? (
               <div
                 className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-background"
                 style={{
@@ -848,24 +839,24 @@ function MessagesPage() {
                 <div className="relative flex min-h-0 flex-1 flex-col">
                   <div className="flex-1 overflow-y-auto px-4 py-6">
                   <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
-                    <span className="grid size-16 place-items-center rounded-full bg-gradient-to-br from-violet-600 via-fuchsia-500 to-pink-500 p-[2px] shadow-lg ring-2 ring-violet-300/60 dark:ring-violet-400/40">
-                      <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
-                        <img
-                          src="https://chatgpt.com/favicon.ico"
-                          alt="ChatGPT"
-                          className="size-full rounded-full object-cover"
-                        />
+                    <span className="grid size-20 place-items-center rounded-full bg-gradient-to-br from-[#D4AF37] via-[#8B6914] to-[#4B0082] p-[2px] shadow-xl shadow-[#4B0082]/25 ring-2 ring-[#D4AF37]/50">
+                      <span className="grid size-full place-items-center overflow-hidden rounded-full bg-[#0b0712]">
+                        <span className="font-display text-xl font-black tracking-tight text-[#D4AF37]">ASH</span>
                       </span>
                     </span>
 
-                    <h3 className="mt-4 font-display text-xl font-bold text-foreground">
-                      ChatGPT
+                    <h3 className="mt-4 font-display text-2xl font-black text-foreground">
+                      ASH AI
                     </h3>
 
-                    <p className="mt-1 max-w-md text-sm text-muted-foreground">
+                    <span className="mt-2 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#4B0082] px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-white shadow-md">
+                      {fr ? "Bientôt disponible" : "Coming Soon"}
+                    </span>
+
+                    <p className="mt-3 max-w-md text-sm leading-6 text-muted-foreground">
                       {fr
-                        ? "Votre assistant IA. Posez une question, demandez une idée ou obtenez de l’aide."
-                        : "Your AI assistant. Ask a question, get an idea, or get help with anything."}
+                        ? "Votre assistant intelligent ASH arrive bientôt. Il vous aidera à découvrir les services, comprendre les annonces, obtenir des idées et bien plus."
+                        : "Your intelligent ASH assistant is coming soon. It will help you discover services, understand listings, get ideas, and much more."}
                     </p>
 
                     <div className="mt-6 grid w-full max-w-lg gap-2 sm:grid-cols-2">
@@ -886,7 +877,7 @@ function MessagesPage() {
                         <button
                           key={prompt}
                           type="button"
-                          className="rounded-xl border border-border bg-card px-3 py-3 text-left text-sm text-foreground transition-colors hover:bg-muted active:scale-[0.99]"
+                          className="rounded-xl border border-[#D4AF37]/20 bg-card/80 px-3 py-3 text-left text-sm text-foreground opacity-70" disabled
                         >
                           {prompt}
                         </button>
@@ -900,17 +891,17 @@ function MessagesPage() {
                     <input
                       type="text"
                       placeholder={
-                        fr ? "Écrivez à ChatGPT…" : "Message ChatGPT…"
+                        fr ? "ASH AI sera bientôt disponible…" : "ASH AI is coming soon…"
                       }
                       className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
                       disabled
                     />
-                    <Bot className="size-5 shrink-0 text-primary" aria-hidden />
+                    <span className="grid size-7 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#D4AF37] to-[#4B0082] text-[8px] font-black text-white">ASH</span>
                   </div>
                   <p className="mx-auto mt-2 max-w-2xl text-center text-[10px] text-muted-foreground">
                     {fr
-                      ? "L’IA sera connectée à cette interface dans une prochaine étape."
-                      : "AI will be connected to this interface in a later step."}
+                      ? "ASH AI est en préparation. Cette fonctionnalité sera activée dans une prochaine mise à jour."
+                      : "ASH AI is being prepared. This feature will be enabled in a future update."}
                   </p>
                   </div>
                 </div>
