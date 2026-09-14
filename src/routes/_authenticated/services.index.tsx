@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 
 import { ProviderCard } from "@/components/refer/ProviderCard";
+import { supabase } from "@/integrations/supabase/client";
 import { openConversation, useCommunityFeed } from "@/lib/marketplace.queries";
 import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { Input } from "@/components/ui/input";
@@ -220,12 +221,6 @@ function EneoLogo() {
 
 
 
-
-/** Normalize marketplace text so free-text search is forgiving.
- * Searches every nested provider field returned by the marketplace query,
- * including service selections, categories, descriptions, prices, portfolio
- * metadata and any future fields without needing a new UI mapping each time.
- */
 function normalizeMarketplaceText(value: unknown): string {
   if (value == null) return "";
   if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
@@ -237,99 +232,65 @@ function normalizeMarketplaceText(value: unknown): string {
       .replace(/\s+/g, " ")
       .trim();
   }
-
-  if (Array.isArray(value)) {
-    return value.map(normalizeMarketplaceText).filter(Boolean).join(" ");
-  }
-
+  if (Array.isArray(value)) return value.map(normalizeMarketplaceText).filter(Boolean).join(" ");
   if (typeof value === "object") {
     return Object.values(value as Record<string, unknown>)
       .map(normalizeMarketplaceText)
       .filter(Boolean)
       .join(" ");
   }
-
   return "";
 }
 
-function marketplaceSearchTokens(value: string): string[] {
-  return normalizeMarketplaceText(value)
+function marketplaceSearchTokens(query: string): string[] {
+  return normalizeMarketplaceText(query)
     .split(" ")
     .map((token) => token.trim())
     .filter((token) => token.length >= 2);
 }
 
-/**
- * Facebook-Marketplace-style forgiving matching:
- * - matches the whole phrase
- * - every typed word can match inside any provider field
- * - tolerates simple singular/plural and prefix forms
- * - rewards stronger/exact matches for result ordering
- */
 function marketplaceSearchScore(item: unknown, query: string): number {
   const haystack = normalizeMarketplaceText(item);
   const normalizedQuery = normalizeMarketplaceText(query);
   if (!haystack || !normalizedQuery) return 0;
+  const tokens = marketplaceSearchTokens(query);
+  if (tokens.length === 0) return 0;
 
   let score = 0;
-  if (haystack.includes(normalizedQuery)) score += 100;
+  if (haystack.includes(normalizedQuery)) score += 120;
 
-  const haystackWords = new Set(haystack.split(" ").filter(Boolean));
-  const tokens = marketplaceSearchTokens(query);
-
-  for (const token of tokens) {
-    if (haystackWords.has(token)) {
-      score += 30;
-      continue;
-    }
-
+  const words = haystack.split(" ").filter(Boolean);
+  const wordSet = new Set(words);
+  const matches = tokens.reduce((count, token) => {
     const singular = token.endsWith("ies")
       ? `${token.slice(0, -3)}y`
       : token.endsWith("s") && token.length > 3
         ? token.slice(0, -1)
         : token;
-
     const plural = singular.endsWith("y")
       ? `${singular.slice(0, -1)}ies`
       : `${singular}s`;
 
-    if (haystackWords.has(singular) || haystackWords.has(plural)) {
-      score += 22;
-      continue;
+    if (wordSet.has(token)) {
+      score += 40;
+      return count + 1;
     }
-
-    if (haystackWords.some((word) => word.startsWith(token) || token.startsWith(word))) {
-      score += 16;
-      continue;
+    if (wordSet.has(singular) || wordSet.has(plural)) {
+      score += 32;
+      return count + 1;
     }
-
-    if (haystack.includes(` ${token}`) || haystack.startsWith(token)) {
+    if (words.some((word) => word.startsWith(token) || token.startsWith(word))) {
+      score += 20;
+      return count + 1;
+    }
+    if (haystack.includes(token) || haystack.includes(singular)) {
       score += 10;
-    } else if (haystack.includes(token)) {
-      score += 6;
+      return count + 1;
     }
-  }
+    return count;
+  }, 0);
 
-  // Require every meaningful search word to have a plausible match. This keeps
-  // a query like "black leather chair" from returning an unrelated "black" item.
-  const matchedAllTokens = tokens.every((token) => {
-    const singular = token.endsWith("ies")
-      ? `${token.slice(0, -3)}y`
-      : token.endsWith("s") && token.length > 3
-        ? token.slice(0, -1)
-        : token;
-    return (
-      haystack.includes(token) ||
-      haystack.includes(singular) ||
-      haystack.includes(` ${token}`) ||
-      haystackWords.has(token) ||
-      haystackWords.has(singular) ||
-      haystackWords.has(`${singular}s`) ||
-      haystackWords.some((word) => word.startsWith(token) || token.startsWith(word))
-    );
-  });
-
-  return matchedAllTokens ? score : 0;
+  return matches === tokens.length ? score : 0;
 }
 
 function isVideoSource(url: string | null | undefined) {
@@ -551,36 +512,34 @@ function DiscoveryPage() {
   );
 
   const filteredSpotlightPosts = useMemo(() => {
-    const term = (spotlightSearch.trim() || searchInput.trim()).toLowerCase();
-    if (!term) return spotlightPosts;
+    const query = spotlightSearch.trim() || searchInput.trim();
+    if (!query) return spotlightPosts;
 
-    return spotlightPosts.filter((post) => {
-      const provider = post.provider as typeof post.provider & {
-        description?: string | null;
-        bio?: string | null;
-        categories?: unknown;
-        service_categories?: unknown;
-        category?: unknown;
-      };
-
-      const searchableText = [
-        provider.business_name,
-        provider.city,
-        provider.description,
-        provider.bio,
-        post.caption,
-        JSON.stringify(provider.services ?? []),
-        JSON.stringify(provider.categories ?? []),
-        JSON.stringify(provider.service_categories ?? []),
-        JSON.stringify(provider.category ?? ""),
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-
-      return searchableText.includes(term);
-    });
-  }, [searchInput, spotlightPosts, spotlightSearch]);
+    return spotlightPosts
+      .map((post) => {
+        const provider = post.provider as typeof post.provider & {
+          description?: string | null;
+          bio?: string | null;
+          categories?: unknown;
+          service_categories?: unknown;
+          category?: unknown;
+          services?: unknown;
+        };
+        const discoveryProvider = providers.find((item) => item.id === post.provider.id);
+        const searchableRecord = {
+          provider,
+          post,
+          discoveryProvider,
+        };
+        return {
+          post,
+          score: marketplaceSearchScore(searchableRecord, query),
+        };
+      })
+      .filter((entry) => entry.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map((entry) => entry.post);
+  }, [providers, searchInput, spotlightPosts, spotlightSearch]);
 
   useEffect(() => {
     if (!spotlightFeedOpen && !spotlightOpen) return;
@@ -621,12 +580,8 @@ function DiscoveryPage() {
     },
   ) {
     const conversationId = await openConversation(providerId);
-
     if (!conversationId) return;
 
-    // Seed genuinely new vendor conversations with a useful entrance message.
-    // Existing conversations are left untouched so customers never receive
-    // duplicate automatic messages on every visit.
     try {
       const { data: existingMessages, error: existingMessagesError } = await supabase
         .from("messages")
@@ -638,22 +593,21 @@ function DiscoveryPage() {
       if (!existingMessagesError && (existingMessages ?? []).length === 0) {
         const { data: authData } = await supabase.auth.getUser();
         const senderId = authData.user?.id;
-
         if (senderId) {
           const businessName = context?.businessName?.trim() || "your business";
           const searchedFor = context?.searchedFor?.trim();
           const offer = context?.offerDescription?.trim();
           const subject = searchedFor || offer || "your service";
           const entranceMessage = fr
-            ? `Bonjour ${businessName} ! J’ai trouvé votre offre « ${subject} » sur ASH Glo. Je suis intéressé(e) et j’aimerais en savoir plus sur le prix, la disponibilité et la façon de procéder.`
-            : `Hi ${businessName}! I found your ${subject} on ASH Glo. I’m interested and would like to know more about the price, availability, and how to proceed.`;
+            ? `Bonjour ${businessName} ! J’ai trouvé votre offre « ${subject} » sur ASH Glo. Je suis intéressé(e) et j’aimerais connaître le prix, la disponibilité et la façon de procéder.`
+            : `Hi ${businessName}! I found your ${subject} on ASH Glo. I’m interested and would like to know the price, availability, and how to proceed.`;
 
           await supabase.from("messages").insert({
             conversation_id: conversationId,
             sender_id: senderId,
             body: entranceMessage,
             metadata: {
-              source: "ash_spotlight_contact",
+              source: "ash_marketplace_contact",
               search_term: searchedFor ?? null,
               offer_description: offer ?? null,
             },
@@ -661,8 +615,8 @@ function DiscoveryPage() {
         }
       }
     } catch {
-      // Opening the conversation must still succeed even if the seed message
-      // cannot be written (for example because the network briefly fails).
+      // Opening the conversation must remain successful even if the optional
+      // entrance-message insert fails.
     }
 
     setSpotlightOpen(false);
@@ -790,8 +744,8 @@ function DiscoveryPage() {
             }
             placeholder={
               fr
-                ? "Rechercher n’importe quoi : produit, service, vendeur, ville…"
-                : "Search anything: product, service, seller, city…"
+                ? "Rechercher un pro, une ville…"
+                : "Search a pro, a city…"
             }
             className="h-11 rounded-full pl-9 shadow-[var(--shadow-card)]"
             aria-label={t(
@@ -970,7 +924,7 @@ function DiscoveryPage() {
               type="button"
               onClick={() => {
                 setSpotlightIndex(0);
-                setSpotlightSearch(searchInput);
+                setSpotlightSearch("");
                 setSpotlightFeedOpen(true);
               }}
               className="shrink-0 rounded-full px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/10"
@@ -1404,7 +1358,7 @@ function DiscoveryPage() {
                                   {
                                     businessName,
                                     offerDescription,
-                                    searchedFor: spotlightSearch || searchInput,
+                                    searchedFor: spotlightSearch.trim() || searchInput.trim(),
                                   },
                                 )
                               }
