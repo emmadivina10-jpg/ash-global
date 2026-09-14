@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import {
@@ -8,6 +8,9 @@ import {
   CreditCard,
   GraduationCap,
   Home,
+  MessageCircle,
+  Play,
+  X,
   MapPin,
   Search,
   SlidersHorizontal,
@@ -17,7 +20,7 @@ import {
 } from "lucide-react";
 
 import { ProviderCard } from "@/components/refer/ProviderCard";
-import { useCommunityFeed } from "@/lib/marketplace.queries";
+import { openConversation, useCommunityFeed } from "@/lib/marketplace.queries";
 import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -214,6 +217,12 @@ function EneoLogo() {
 }
 
 
+
+function isVideoSource(url: string | null | undefined) {
+  if (!url) return false;
+  return /\.(mp4|webm|mov|m4v|ogg)(?:\?|#|$)/i.test(url);
+}
+
 export const Route = createFileRoute("/_authenticated/services/")({
   head: () => ({
     meta: [
@@ -259,6 +268,7 @@ const PRICE_STEPS = [
 function DiscoveryPage() {
   const { t, lang } = useI18n();
   const fr = lang === "fr";
+  const navigate = useNavigate();
 
   const {
     location,
@@ -282,6 +292,9 @@ function DiscoveryPage() {
 
   const [showFilters, setShowFilters] =
     useState(false);
+  const [spotlightOpen, setSpotlightOpen] = useState(false);
+  const [spotlightIndex, setSpotlightIndex] = useState(0);
+  const spotlightContainerRef = useRef<HTMLDivElement>(null);
 
   const [filters, setFilters] =
     useState<DiscoveryFilters>(
@@ -400,6 +413,50 @@ function DiscoveryPage() {
 
   const { data: community } =
     useCommunityFeed();
+
+  const spotlightPosts = useMemo(
+    () => (community ?? []).slice(0, 12),
+    [community],
+  );
+
+  useEffect(() => {
+    if (!spotlightOpen) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSpotlightOpen(false);
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [spotlightOpen]);
+
+  useEffect(() => {
+    if (!spotlightOpen) return;
+
+    requestAnimationFrame(() => {
+      const node = spotlightContainerRef.current;
+      const target = node?.children[spotlightIndex] as HTMLElement | undefined;
+      target?.scrollIntoView({ block: "start", behavior: "instant" });
+    });
+  }, [spotlightOpen, spotlightIndex]);
+
+  async function contactSpotlightVendor(providerId: string) {
+    const conversationId = await openConversation(providerId);
+
+    if (!conversationId) return;
+
+    setSpotlightOpen(false);
+    void navigate({
+      to: "/messages",
+      search: { c: conversationId },
+    });
+  }
 
   // Infinite scroll sentinel.
   const sentinel =
@@ -668,6 +725,238 @@ function DiscoveryPage() {
           );
         })}
       </nav>
+
+      {/* =========================================================
+          ASH SPOTLIGHT — VERTICAL BUSINESS STORIES
+          ========================================================= */}
+      <section
+        aria-label={fr ? "ASH Spotlight" : "ASH Spotlight"}
+        className="space-y-2.5"
+      >
+        <div className="flex items-end justify-between gap-3 px-0.5">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="grid size-7 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#D4AF37] via-[#9f7b18] to-[#4B0082] text-white shadow-md">
+                <Play className="size-3.5 fill-current" aria-hidden />
+              </span>
+              <h2 className="font-display text-lg font-bold text-foreground">
+                ASH Spotlight
+              </h2>
+            </div>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {fr
+                ? "Découvrez les offres, produits et nouveautés des vendeurs près de vous."
+                : "Discover products, offers and new drops from vendors around you."}
+            </p>
+          </div>
+
+          {spotlightPosts.length > 0 ? (
+            <button
+              type="button"
+              onClick={() => {
+                setSpotlightIndex(0);
+                setSpotlightOpen(true);
+              }}
+              className="shrink-0 rounded-full px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/10"
+            >
+              {fr ? "Voir tout" : "View all"}
+            </button>
+          ) : null}
+        </div>
+
+        {spotlightPosts.length > 0 ? (
+          <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1 scrollbar-none">
+            {spotlightPosts.map((post, index) => {
+              const mediaIsVideo = isVideoSource(post.url);
+              const businessName = post.provider.business_name;
+              const city = post.provider.city;
+
+              return (
+                <button
+                  key={post.id}
+                  type="button"
+                  onClick={() => {
+                    setSpotlightIndex(index);
+                    setSpotlightOpen(true);
+                  }}
+                  className="group relative h-48 w-[118px] shrink-0 snap-start overflow-hidden rounded-[22px] border border-border bg-slate-950 text-left shadow-[var(--shadow-card)] ring-1 ring-black/5 transition-transform duration-300 active:scale-[0.98] sm:h-56 sm:w-[138px]"
+                >
+                  <span className="absolute inset-0 z-10 bg-gradient-to-t from-black via-black/15 to-transparent" />
+
+                  {mediaIsVideo ? (
+                    <video
+                      src={post.url}
+                      muted
+                      loop
+                      autoPlay
+                      playsInline
+                      preload="metadata"
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <img
+                      src={post.url}
+                      alt={post.caption ?? businessName}
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  )}
+
+                  <span className="absolute left-2.5 top-2.5 z-20 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/40 px-2 py-1 text-[9px] font-bold text-white backdrop-blur-md">
+                    <span className="size-1.5 rounded-full bg-[#D4AF37] shadow-[0_0_10px_rgba(212,175,55,0.85)]" />
+                    ASH Spotlight
+                  </span>
+
+                  {mediaIsVideo ? (
+                    <span className="absolute right-2.5 top-2.5 z-20 grid size-7 place-items-center rounded-full bg-white/15 text-white backdrop-blur-md">
+                      <Play className="size-3.5 fill-current" aria-hidden />
+                    </span>
+                  ) : null}
+
+                  <span className="absolute inset-x-0 bottom-0 z-20 p-2.5 text-white">
+                    <span className="block truncate text-[12px] font-extrabold">
+                      {businessName}
+                    </span>
+                    {city ? (
+                      <span className="mt-0.5 flex items-center gap-1 text-[10px] text-white/75">
+                        <MapPin className="size-2.5" aria-hidden />
+                        {city}
+                      </span>
+                    ) : null}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-border bg-card/70 px-4 py-4 text-sm text-muted-foreground">
+            {fr
+              ? "Les vidéos des vendeurs apparaîtront ici."
+              : "Vendor videos and offers will appear here."}
+          </div>
+        )}
+      </section>
+
+      {/* ASH SPOTLIGHT REELS VIEWER */}
+      {spotlightOpen && spotlightPosts.length > 0 ? (
+        <div
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/90 backdrop-blur-xl"
+          role="dialog"
+          aria-modal="true"
+          aria-label="ASH Spotlight"
+        >
+          <div className="relative h-dvh w-full max-w-[560px] overflow-hidden bg-black">
+            <div className="pointer-events-none absolute inset-x-0 top-0 z-40 h-28 bg-gradient-to-b from-black/80 to-transparent" />
+
+            <div className="absolute left-4 right-4 top-4 z-50 flex items-center justify-between gap-3 pt-[env(safe-area-inset-top)]">
+              <div className="flex items-center gap-2.5">
+                <span className="grid size-9 place-items-center rounded-full bg-gradient-to-br from-[#D4AF37] via-[#9f7b18] to-[#4B0082] text-white shadow-lg">
+                  <Play className="size-4 fill-current" aria-hidden />
+                </span>
+                <div>
+                  <p className="text-sm font-extrabold text-white">ASH Spotlight</p>
+                  <p className="text-[10px] font-semibold text-white/60">
+                    {fr ? "Découvrez. Contactez. Commandez." : "Discover. Contact. Order."}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSpotlightOpen(false)}
+                className="grid size-10 place-items-center rounded-full bg-white/10 text-white backdrop-blur-md transition-colors hover:bg-white/15"
+                aria-label={fr ? "Fermer" : "Close"}
+              >
+                <X className="size-5" aria-hidden />
+              </button>
+            </div>
+
+            <div
+              ref={spotlightContainerRef}
+              className="h-full snap-y snap-mandatory overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {spotlightPosts.map((post) => {
+                const mediaIsVideo = isVideoSource(post.url);
+                const businessName = post.provider.business_name;
+
+                return (
+                  <article
+                    key={post.id}
+                    className="relative h-full w-full snap-start bg-slate-950"
+                  >
+                    {mediaIsVideo ? (
+                      <video
+                        src={post.url}
+                        muted
+                        loop
+                        autoPlay
+                        playsInline
+                        preload="metadata"
+                        className="absolute inset-0 h-full w-full object-cover"
+                      />
+                    ) : (
+                      <img
+                        src={post.url}
+                        alt={post.caption ?? businessName}
+                        className="absolute inset-0 h-full w-full object-cover"
+                      />
+                    )}
+
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-black/25" />
+
+                    <div className="absolute inset-x-0 bottom-0 z-20 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] text-white">
+                      <div className="mb-3 flex items-center gap-2.5">
+                        <span className="grid size-11 place-items-center overflow-hidden rounded-full border border-white/30 bg-gradient-to-br from-[#D4AF37] to-[#4B0082] shadow-lg">
+                          {post.provider.avatar_url ? (
+                            <img
+                              src={post.provider.avatar_url}
+                              alt=""
+                              className="size-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-xs font-black">
+                              {businessName.trim().slice(0, 2).toUpperCase()}
+                            </span>
+                          )}
+                        </span>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-extrabold">{businessName}</p>
+                          {post.provider.city ? (
+                            <p className="text-[11px] text-white/65">{post.provider.city}</p>
+                          ) : null}
+                        </div>
+                      </div>
+
+                      {post.caption ? (
+                        <p className="max-w-[92%] text-sm leading-relaxed text-white/90">
+                          {post.caption}
+                        </p>
+                      ) : null}
+
+                      <div className="mt-4 flex gap-2.5">
+                        <button
+                          type="button"
+                          onClick={() => void contactSpotlightVendor(post.provider.id)}
+                          className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#D4AF37] via-[#a77f1b] to-[#4B0082] px-4 py-3 text-sm font-extrabold text-white shadow-xl shadow-black/25 transition-transform active:scale-[0.98]"
+                        >
+                          <MessageCircle className="size-4" aria-hidden />
+                          {fr ? "Contacter le vendeur" : "Contact Vendor"}
+                        </button>
+                      </div>
+
+                      <p className="mt-2 text-center text-[10px] text-white/45">
+                        {fr
+                          ? "Pas de likes. Une action directe vers le vendeur."
+                          : "No likes. Just a direct action to the vendor."}
+                      </p>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {/* CATEGORY FILTERS */}
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
