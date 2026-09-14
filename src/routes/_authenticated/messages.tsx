@@ -1,10 +1,10 @@
 import {
-type CSSProperties,
-type TouchEvent,
-useEffect,
-useLayoutEffect,
-useRef,
-useState,
+  type CSSProperties,
+  type TouchEvent,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
 } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
@@ -23,983 +23,952 @@ import { cn } from "@/lib/utils";
 const searchSchema = z.object({ c: z.string().optional() });
 
 export const Route = createFileRoute("/_authenticated/messages")({
-validateSearch: searchSchema,
-head: () => ({
-meta: [
-{ title: "Messages — ASH Glo" },
-{
-name: "description",
-content:
-"Chat live with your beauty pro or your clients about upcoming bookings.",
-},
-{
-property: "og",
-content: "Messages — ASH Glo",
-},
-{
-property: "og",
-content:
-"Live chat between clients and beauty providers on ASH Glo.",
-},
-{ property: "og", content: "website" },
-{ name: "twitter", content: "summary" },
-],
-}),
-component: MessagesPage,
+  validateSearch: searchSchema,
+  head: () => ({
+    meta: [
+      { title: "Messages — ASH Glo" },
+      {
+        name: "description",
+        content:
+          "Chat live with your beauty pro or your clients about upcoming bookings.",
+      },
+      {
+        property: "og:title",
+        content: "Messages — ASH Glo",
+      },
+      {
+        property: "og:description",
+        content:
+          "Live chat between clients and beauty providers on ASH Glo.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: MessagesPage,
 });
 
 /** Short WhatsApp-style stamp: time today, "Yesterday", else a short date. */
 function stamp(iso: string | null | undefined, fr: boolean) {
-if (!iso) return "";
+  if (!iso) return "";
 
-const date = new Date(iso);
-const now = new Date();
-const yesterday = new Date(now.getTime() - 86400000);
+  const date = new Date(iso);
+  const now = new Date();
+  const yesterday = new Date(now.getTime() - 86400000);
 
-if (date.toDateString() === now.toDateString())
-return date.toLocaleTimeString(fr ? "fr-FR" : "en-GB", {
-hour: "2-digit",
-minute: "2-digit",
-});
+  if (date.toDateString() === now.toDateString())
+    return date.toLocaleTimeString(fr ? "fr-FR" : "en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
-if (date.toDateString() === yesterday.toDateString())
-return fr ? "Hier" : "Yesterday";
+  if (date.toDateString() === yesterday.toDateString())
+    return fr ? "Hier" : "Yesterday";
 
-return date.toLocaleDateString(fr ? "fr-FR" : "en-GB", {
-day: "2-digit",
-month: "2-digit",
-year: "2-digit",
-});
+  return date.toLocaleDateString(fr ? "fr-FR" : "en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+  });
 }
 
 /**
-
-ASH profile colors.
-
-
-
-Each conversation receives a stable color based on its conversation ID.
-
-This means the same conversation keeps the same profile color.
-*/
+ * ASH profile colors.
+ *
+ * Each conversation receives a stable color based on its conversation ID.
+ * This means the same conversation keeps the same profile color.
+ */
 const avatarColors = [
-{
-wrapper:
-"bg-gradient-to-br from-fuchsia-500 via-pink-500 to-rose-500",
-ring: "ring-fuchsia-300/60 dark/40",
-},
-{
-wrapper:
-"bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-500",
-ring: "ring-violet-300/60 dark/40",
-},
-{
-wrapper:
-"bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500",
-ring: "ring-emerald-300/60 dark/40",
-},
-{
-wrapper:
-"bg-gradient-to-br from-red-500 via-rose-500 to-pink-500",
-ring: "ring-red-300/60 dark/40",
-},
-{
-wrapper:
-"bg-gradient-to-br from-blue-500 via-sky-500 to-cyan-500",
-ring: "ring-blue-300/60 dark/40",
-},
-{
-wrapper:
-"bg-gradient-to-br from-slate-500 via-gray-500 to-zinc-500",
-ring: "ring-slate-300/60 dark/40",
-},
-{
-wrapper:
-"bg-gradient-to-br from-orange-400 via-amber-500 to-yellow-500",
-ring: "ring-orange-300/60 dark/40",
-},
-{
-wrapper:
-"bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-500",
-ring: "ring-cyan-300/60 dark/40",
-},
+  {
+    wrapper:
+      "bg-gradient-to-br from-fuchsia-500 via-pink-500 to-rose-500",
+    ring: "ring-fuchsia-300/60 dark:ring-fuchsia-400/40",
+  },
+  {
+    wrapper:
+      "bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-500",
+    ring: "ring-violet-300/60 dark:ring-violet-400/40",
+  },
+  {
+    wrapper:
+      "bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500",
+    ring: "ring-emerald-300/60 dark:ring-emerald-400/40",
+  },
+  {
+    wrapper:
+      "bg-gradient-to-br from-red-500 via-rose-500 to-pink-500",
+    ring: "ring-red-300/60 dark:ring-red-400/40",
+  },
+  {
+    wrapper:
+      "bg-gradient-to-br from-blue-500 via-sky-500 to-cyan-500",
+    ring: "ring-blue-300/60 dark:ring-blue-400/40",
+  },
+  {
+    wrapper:
+      "bg-gradient-to-br from-slate-500 via-gray-500 to-zinc-500",
+    ring: "ring-slate-300/60 dark:ring-slate-400/40",
+  },
+  {
+    wrapper:
+      "bg-gradient-to-br from-orange-400 via-amber-500 to-yellow-500",
+    ring: "ring-orange-300/60 dark:ring-orange-400/40",
+  },
+  {
+    wrapper:
+      "bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-500",
+    ring: "ring-cyan-300/60 dark:ring-cyan-400/40",
+  },
 ] as const;
 
 /**
-
-Generate a stable color index from a conversation ID.
-*/
+ * Generate a stable color index from a conversation ID.
+ */
 function avatarColorIndex(id: string) {
-let hash = 0;
+  let hash = 0;
 
-for (let index = 0; index < id.length; index += 1) {
-hash = (hash * 31 + id.charCodeAt(index)) | 0;
-}
+  for (let index = 0; index < id.length; index += 1) {
+    hash = (hash * 31 + id.charCodeAt(index)) | 0;
+  }
 
-return Math.abs(hash) % avatarColors.length;
+  return Math.abs(hash) % avatarColors.length;
 }
 
 function getAvatarColor(id: string) {
-return avatarColors[avatarColorIndex(id)] ?? avatarColors[0];
+  return avatarColors[avatarColorIndex(id)] ?? avatarColors[0];
 }
 
 const CHATGPT_ID = "ash-chatgpt";
 
 const chatGPTConversation = {
-id: CHATGPT_ID,
-label: "ChatGPT",
-preview: "Ask ChatGPT anything…",
+  id: CHATGPT_ID,
+  label: "ChatGPT",
+  preview: "Ask ChatGPT anything…",
 };
 const ASH_CHAT_BACKGROUND = "/images/ash-chat-background.png";
 
 function MessagesPage() {
-const { t, lang } = useI18n();
-const fr = lang === "fr";
-const { user } = useUser();
-const { c } = Route.useSearch();
-const navigate = Route.useNavigate();
-const routerNavigate = useNavigate();
-const mobileView = c ? "thread" : "list";
+  const { t, lang } = useI18n();
+  const fr = lang === "fr";
+  const { user } = useUser();
+  const { c } = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const routerNavigate = useNavigate();
+  const mobileView = c ? "thread" : "list";
 
-// Measure the real mobile tab-bar height. Never guess its size with rems:
-// the authenticated shell includes the iOS safe-area and the central orb.
-const [mobileNavHeight, setMobileNavHeight] = useState(0);
-const [visualViewportHeight, setVisualViewportHeight] = useState<number | null>(null);
-const [keyboardOpen, setKeyboardOpen] = useState(false);
-const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  // Measure the real mobile tab-bar height. Never guess its size with rems:
+  // the authenticated shell includes the iOS safe-area and the central orb.
+  const [visualViewportHeight, setVisualViewportHeight] = useState<number | null>(null);
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
-const useIsoLayoutEffect =
-typeof window !== "undefined" ? useLayoutEffect : useEffect;
+  const useIsoLayoutEffect =
+    typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
-useIsoLayoutEffect(() => {
-const nav = document.querySelector<HTMLElement>(".app-shell > nav");
-if (!nav) return;
+  // iOS Safari/WKWebView changes the visual viewport when the keyboard opens.
+  // Track that viewport instead of relying on 100vh/100dvh, which can leave a
+  // large dead area between the composer and the keyboard.
+  useIsoLayoutEffect(() => {
+    if (typeof window === "undefined") return;
 
-const updateNavHeight = () => {
-  const height = Math.ceil(nav.getBoundingClientRect().height);
-  setMobileNavHeight((current) =>
-    current === height ? current : height,
-  );
-};
+    const viewport = window.visualViewport;
+    if (!viewport) return;
 
-updateNavHeight();
-const observer = new ResizeObserver(updateNavHeight);
-observer.observe(nav);
-return () => observer.disconnect();
+    const updateViewport = () => {
+      const height = Math.max(0, Math.round(viewport.height));
+      setVisualViewportHeight(height);
 
-}, []);
+      const active = document.activeElement;
+      const editing =
+        active instanceof HTMLInputElement ||
+        active instanceof HTMLTextAreaElement ||
+        (active instanceof HTMLElement && active.isContentEditable);
+      // iOS Safari can change visualViewport.height for browser chrome too.
+      // A real keyboard causes a much larger reduction; use that stable
+      // threshold so keyboard state remains stable while the conversation is
+      // open. The global bottom navigation is already hidden for the thread.
+      const keyboard =
+        editing &&
+        height > 0 &&
+        window.innerHeight - height > 180;
 
-// iOS Safari/WKWebView changes the visual viewport when the keyboard opens.
-// Track that viewport instead of relying on 100vh/100dvh, which can leave a
-// large dead area between the composer and the keyboard.
-useIsoLayoutEffect(() => {
-if (typeof window === "undefined") return;
+      setKeyboardOpen(keyboard);
+    };
 
-const viewport = window.visualViewport;
-if (!viewport) return;
+    updateViewport();
+    viewport.addEventListener("resize", updateViewport);
+    viewport.addEventListener("scroll", updateViewport);
+    window.addEventListener("focusin", updateViewport);
+    window.addEventListener("focusout", updateViewport);
+    window.addEventListener("resize", updateViewport);
 
-const updateViewport = () => {
-  const height = Math.max(0, Math.round(viewport.height));
-  setVisualViewportHeight(height);
+    return () => {
+      viewport.removeEventListener("resize", updateViewport);
+      viewport.removeEventListener("scroll", updateViewport);
+      window.removeEventListener("focusin", updateViewport);
+      window.removeEventListener("focusout", updateViewport);
+      window.removeEventListener("resize", updateViewport);
+    };
+  }, []);
 
-  const active = document.activeElement;
-  const editing =
-    active instanceof HTMLInputElement ||
-    active instanceof HTMLTextAreaElement ||
-    (active instanceof HTMLElement && active.isContentEditable);
-  // iOS Safari can change visualViewport.height for browser chrome too.
-  // A real keyboard causes a much larger reduction; use that stable
-  // threshold so dismissing the keyboard reliably returns to the normal
-  // bottom-nav layout even while the textarea remains focused.
-  const keyboard =
-    editing &&
-    height > 0 &&
-    window.innerHeight - height > 180;
+  // Mobile chat is a viewport-locked surface. The message list itself owns
+  // scrolling; the authenticated shell must never be allowed to retain a
+  // scroll offset from the previous page or from iOS keyboard adjustments.
+  useEffect(() => {
+    if (typeof window === "undefined" || window.innerWidth >= 768) return;
 
-  setKeyboardOpen(keyboard);
-};
+    const shellScroll = document.querySelector<HTMLElement>(
+      ".app-shell-scroll",
+    );
+    const nav = document.querySelector<HTMLElement>(".app-shell > nav");
+    const orbs = Array.from(
+      document.querySelectorAll<HTMLElement>(".orb-surface"),
+    );
 
-updateViewport();
-viewport.addEventListener("resize", updateViewport);
-viewport.addEventListener("scroll", updateViewport);
-window.addEventListener("focusin", updateViewport);
-window.addEventListener("focusout", updateViewport);
-window.addEventListener("resize", updateViewport);
+    if (!shellScroll) return;
 
-return () => {
-  viewport.removeEventListener("resize", updateViewport);
-  viewport.removeEventListener("scroll", updateViewport);
-  window.removeEventListener("focusin", updateViewport);
-  window.removeEventListener("focusout", updateViewport);
-  window.removeEventListener("resize", updateViewport);
-};
+    const previousOverflow = shellScroll.style.overflow;
+    const previousOverscroll = shellScroll.style.overscrollBehavior;
+    const previousScrollRestoration = window.history.scrollRestoration;
 
-}, []);
+    // iOS can restore the document/shell scroll position after returning from
+    // another route. Do this in a few animation frames so Safari has time to
+    // finish its back-navigation and keyboard restoration before we reset it.
+    const restoreShellPosition = () => {
+      shellScroll.scrollTop = 0;
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
 
-// Mobile chat is a viewport-locked surface. The message list itself owns
-// scrolling; the authenticated shell must never be allowed to retain a
-// scroll offset from the previous page or from iOS keyboard adjustments.
-useEffect(() => {
-if (typeof window === "undefined" || window.innerWidth >= 768) return;
+    const restoreAfterNavigation = () => {
+      restoreShellPosition();
+      requestAnimationFrame(restoreShellPosition);
+      window.setTimeout(restoreShellPosition, 60);
+      window.setTimeout(restoreShellPosition, 180);
+    };
 
-const shellScroll = document.querySelector<HTMLElement>(
-  ".app-shell-scroll",
-);
-const nav = document.querySelector<HTMLElement>(".app-shell > nav");
-const orbs = Array.from(
-  document.querySelectorAll<HTMLElement>(".orb-surface"),
-);
+    if (mobileView === "thread") {
+      window.history.scrollRestoration = "manual";
+      restoreAfterNavigation();
 
-if (!shellScroll) return;
+      // IMPORTANT: do not set touch-action:none here. touch-action on an
+      // ancestor participates in gesture negotiation and can disable the
+      // inner message scroller on iOS. overflow:hidden is enough to stop the
+      // outer shell from scrolling.
+      shellScroll.style.overflow = "hidden";
+      shellScroll.style.overscrollBehavior = "none";
 
-const previousOverflow = shellScroll.style.overflow;
-const previousOverscroll = shellScroll.style.overscrollBehavior;
-const previousScrollRestoration = window.history.scrollRestoration;
+      window.addEventListener("pageshow", restoreAfterNavigation);
+      window.addEventListener("popstate", restoreAfterNavigation);
+      window.addEventListener("focus", restoreAfterNavigation);
+      document.addEventListener("visibilitychange", restoreAfterNavigation);
+    }
 
-// iOS can restore the document/shell scroll position after returning from
-// another route. Do this in a few animation frames so Safari has time to
-// finish its back-navigation and keyboard restoration before we reset it.
-const restoreShellPosition = () => {
-  shellScroll.scrollTop = 0;
-  window.scrollTo(0, 0);
-  document.documentElement.scrollTop = 0;
-  document.body.scrollTop = 0;
-};
+    // WhatsApp-style conversation mode: once a chat is open, the global
+    // bottom navigation stays completely out of the conversation. It is
+    // restored only when the user returns to the messages list.
+    if (nav) {
+      if (mobileView === "thread") {
+        nav.dataset.ashChatHidden = "true";
+        nav.style.visibility = "hidden";
+        nav.style.pointerEvents = "none";
+      } else if (nav.dataset.ashChatHidden === "true") {
+        delete nav.dataset.ashChatHidden;
+        nav.style.visibility = "";
+        nav.style.pointerEvents = "";
+      }
+    }
 
-const restoreAfterNavigation = () => {
-  restoreShellPosition();
-  requestAnimationFrame(restoreShellPosition);
-  window.setTimeout(restoreShellPosition, 60);
-  window.setTimeout(restoreShellPosition, 180);
-};
+    // The floating ASH Orb also belongs to the global navigation layer, so it
+    // stays hidden for the entire conversation, not only while the keyboard
+    // is visible.
+    for (const orb of orbs) {
+      if (mobileView === "thread") {
+        orb.dataset.ashChatHidden = "true";
+        orb.style.visibility = "hidden";
+        orb.style.pointerEvents = "none";
+      } else if (orb.dataset.ashChatHidden === "true") {
+        delete orb.dataset.ashChatHidden;
+        orb.style.visibility = "";
+        orb.style.pointerEvents = "";
+      }
+    }
 
-if (mobileView === "thread") {
-  window.history.scrollRestoration = "manual";
-  restoreAfterNavigation();
+    return () => {
+      shellScroll.style.overflow = previousOverflow;
+      shellScroll.style.overscrollBehavior = previousOverscroll;
+      window.history.scrollRestoration = previousScrollRestoration;
 
-  // IMPORTANT: do not set touch-action:none here. touch-action on an
-  // ancestor participates in gesture negotiation and can disable the
-  // inner message scroller on iOS. overflow:hidden is enough to stop the
-  // outer shell from scrolling.
-  shellScroll.style.overflow = "hidden";
-  shellScroll.style.overscrollBehavior = "none";
+      window.removeEventListener("pageshow", restoreAfterNavigation);
+      window.removeEventListener("popstate", restoreAfterNavigation);
+      window.removeEventListener("focus", restoreAfterNavigation);
+      document.removeEventListener("visibilitychange", restoreAfterNavigation);
 
-  window.addEventListener("pageshow", restoreAfterNavigation);
-  window.addEventListener("popstate", restoreAfterNavigation);
-  window.addEventListener("focus", restoreAfterNavigation);
-  document.addEventListener("visibilitychange", restoreAfterNavigation);
-}
+      if (nav?.dataset.ashChatHidden === "true") {
+        delete nav.dataset.ashChatHidden;
+        nav.style.visibility = "";
+        nav.style.pointerEvents = "";
+      }
 
-if (nav) {
-  if (mobileView === "thread" && keyboardOpen) {
-    nav.dataset.ashChatKeyboardHidden = "true";
-    nav.style.visibility = "hidden";
-    nav.style.pointerEvents = "none";
-  } else if (nav.dataset.ashChatKeyboardHidden === "true") {
-    delete nav.dataset.ashChatKeyboardHidden;
-    nav.style.visibility = "";
-    nav.style.pointerEvents = "";
+      for (const orb of orbs) {
+        if (orb.dataset.ashChatHidden === "true") {
+          delete orb.dataset.ashChatHidden;
+          orb.style.visibility = "";
+          orb.style.pointerEvents = "";
+        }
+      }
+    };
+  }, [mobileView, keyboardOpen]);
+
+  function handleChatTouchStart(event: TouchEvent<HTMLDivElement>) {
+    const touch = event.touches[0];
+    if (!touch || touch.clientX > 32) return;
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
   }
-}
 
-// Hide the floating ASH orb while the keyboard is visible so it can never
-// sit on top of the composer or the keyboard transition.
-for (const orb of orbs) {
-  if (mobileView === "thread" && keyboardOpen) {
-    orb.dataset.ashChatKeyboardHidden = "true";
-    orb.style.visibility = "hidden";
-    orb.style.pointerEvents = "none";
-  } else if (orb.dataset.ashChatKeyboardHidden === "true") {
-    delete orb.dataset.ashChatKeyboardHidden;
-    orb.style.visibility = "";
-    orb.style.pointerEvents = "";
-  }
-}
+  function handleChatTouchEnd(event: TouchEvent<HTMLDivElement>) {
+    const start = touchStartRef.current;
+    touchStartRef.current = null;
+    if (!start) return;
 
-return () => {
-  shellScroll.style.overflow = previousOverflow;
-  shellScroll.style.overscrollBehavior = previousOverscroll;
-  window.history.scrollRestoration = previousScrollRestoration;
+    const touch = event.changedTouches[0];
+    if (!touch) return;
 
-  window.removeEventListener("pageshow", restoreAfterNavigation);
-  window.removeEventListener("popstate", restoreAfterNavigation);
-  window.removeEventListener("focus", restoreAfterNavigation);
-  document.removeEventListener("visibilitychange", restoreAfterNavigation);
+    const deltaX = touch.clientX - start.x;
+    const deltaY = touch.clientY - start.y;
 
-  if (nav?.dataset.ashChatKeyboardHidden === "true") {
-    delete nav.dataset.ashChatKeyboardHidden;
-    nav.style.visibility = "";
-    nav.style.pointerEvents = "";
-  }
-
-  for (const orb of orbs) {
-    if (orb.dataset.ashChatKeyboardHidden === "true") {
-      delete orb.dataset.ashChatKeyboardHidden;
-      orb.style.visibility = "";
-      orb.style.pointerEvents = "";
+    if (deltaX >= 72 && Math.abs(deltaX) > Math.abs(deltaY) * 1.25) {
+      void navigate({ to: "/messages", search: {} });
     }
   }
-};
 
-}, [mobileView, keyboardOpen]);
+  const { data: conversations, isLoading } = useConversations();
+  const [term, setTerm] = useState("");
 
-function handleChatTouchStart(event: TouchEvent<HTMLDivElement>) {
-const touch = event.touches[0];
-if (!touch || touch.clientX > 32) return;
-touchStartRef.current = { x: touch.clientX, y: touch.clientY };
-}
+  const list = conversations ?? [];
 
-function handleChatTouchEnd(event: TouchEvent<HTMLDivElement>) {
-const start = touchStartRef.current;
-touchStartRef.current = null;
-if (!start) return;
+  // Desktop falls back to the first conversation;
+  // mobile requires an explicit conversation pick.
+  const activeId =
+    c ??
+    (typeof window !== "undefined" && window.innerWidth >= 768
+      ? list[0]?.id
+      : undefined);
 
-const touch = event.changedTouches[0];
-if (!touch) return;
+  const active = list.find((conv) => conv.id === activeId);
+  /** Providers see the client; clients see the business.
+   * Property threads show the listing/owner.
+   */
+  function peerOf(conv: (typeof list)[number]): string {
+    if (conv.listing_id) {
+      const viewerIsOwner =
+        Boolean(user?.id) && conv.owner_id === user?.id;
 
-const deltaX = touch.clientX - start.x;
-const deltaY = touch.clientY - start.y;
+      return viewerIsOwner
+        ? (conv.client?.full_name ?? "ASH client")
+        : (conv.listing?.title ?? "ASH Property");
+    }
 
-if (deltaX >= 72 && Math.abs(deltaX) > Math.abs(deltaY) * 1.25) {
-  void navigate({ to: "/messages", search: {} });
-}
+    const viewerIsProvider =
+      Boolean(user?.id) && conv.provider?.user_id === user?.id;
 
-}
+    return viewerIsProvider
+      ? (conv.client?.full_name ?? "ASH client")
+      : (conv.provider?.business_name ?? t("chat.title"));
+  }
 
-const { data: conversations, isLoading } = useConversations();
-const [term, setTerm] = useState("");
+  /** Picture of the other side, when we have one. */
+  function peerAvatarOf(conv: (typeof list)[number]): string | null {
+    if (conv.listing_id) {
+      const viewerIsOwner =
+        Boolean(user?.id) && conv.owner_id === user?.id;
 
-const list = conversations ?? [];
+      return viewerIsOwner
+        ? (conv.client?.avatar_url ?? null)
+        : null;
+    }
 
-// Desktop falls back to the first conversation;
-// mobile requires an explicit conversation pick.
-const activeId =
-c ??
-(typeof window !== "undefined" && window.innerWidth >= 768
-? list[0]?.id
-: undefined);
+    const viewerIsProvider =
+      Boolean(user?.id) && conv.provider?.user_id === user?.id;
 
-const active = list.find((conv) => conv.id === activeId);
-/** Providers see the client; clients see the business.
+    return viewerIsProvider
+      ? (conv.client?.avatar_url ?? null)
+      : (conv.provider?.avatar_url ?? null);
+  }
 
-Property threads show the listing/owner.
-*/
-function peerOf(conv: (typeof list)[number]): string {
-if (conv.listing_id) {
-const viewerIsOwner =
-Boolean(user?.id) && conv.owner_id === user?.id;
+  /** The other person's auth id — used for reporting and blocking. */
+  function peerUserIdOf(conv: (typeof list)[number]): string | null {
+    if (conv.listing_id) {
+      const viewerIsOwner =
+        Boolean(user?.id) && conv.owner_id === user?.id;
 
-return viewerIsOwner
-? (conv.client?.full_name ?? "ASH client")
-: (conv.listing?.title ?? "ASH Property");
-}
+      return (viewerIsOwner ? conv.client_id : conv.owner_id) ?? null;
+    }
 
-const viewerIsProvider =
+    const viewerIsProvider =
+      Boolean(user?.id) && conv.provider?.user_id === user?.id;
 
-  Boolean(user?.id) && conv.provider?.user_id === user?.id;
+    return (
+      (viewerIsProvider ? conv.client_id : conv.provider?.user_id) ?? null
+    );
+  }
 
-return viewerIsProvider
-  ? (conv.client?.full_name ?? "ASH client")
-  : (conv.provider?.business_name ?? t("chat.title"));
+  /** Where the other side's public page lives, when they have one. */
+  function peerProfileOf(conv: (typeof list)[number] | undefined) {
+    if (!conv) return null;
 
-}
+    if (conv.listing_id) {
+      const viewerIsOwner =
+        Boolean(user?.id) && conv.owner_id === user?.id;
 
-/** Picture of the other side, when we have one. */
-function peerAvatarOf(conv: (typeof list)[number]): string | null {
-if (conv.listing_id) {
-const viewerIsOwner =
-Boolean(user?.id) && conv.owner_id === user?.id;
+      return viewerIsOwner || !conv.listing
+        ? null
+        : {
+            to: "/property/$listingId",
+            params: { listingId: conv.listing.id },
+          };
+    }
 
-  return viewerIsOwner
-    ? (conv.client?.avatar_url ?? null)
-    : null;
-}
+    const viewerIsProvider =
+      Boolean(user?.id) && conv.provider?.user_id === user?.id;
 
-const viewerIsProvider =
-  Boolean(user?.id) && conv.provider?.user_id === user?.id;
+    if (viewerIsProvider || !conv.provider) return null;
 
-return viewerIsProvider
-  ? (conv.client?.avatar_url ?? null)
-  : (conv.provider?.avatar_url ?? null);
+    return {
+      to: "/services/$providerId",
+      params: { providerId: conv.provider.id },
+    };
+  }
 
-}
+  /** Open the other side's public page from the chat header. */
+  function openPeerProfile(conv: (typeof list)[number]) {
+    const target = peerProfileOf(conv);
 
-/** The other person's auth id — used for reporting and blocking. */
-function peerUserIdOf(conv: (typeof list)[number]): string | null {
-if (conv.listing_id) {
-const viewerIsOwner =
-Boolean(user?.id) && conv.owner_id === user?.id;
+    if (!target) return;
 
-  return (viewerIsOwner ? conv.client_id : conv.owner_id) ?? null;
-}
+    void routerNavigate({
+      to: target.to,
+      params: target.params,
+    } as never);
+  }
 
-const viewerIsProvider =
-  Boolean(user?.id) && conv.provider?.user_id === user?.id;
+  /** One-line preview of the newest message. */
+  function previewOf(conv: (typeof list)[number]): string {
+    const last = conv.last_message;
 
-return (
-  (viewerIsProvider ? conv.client_id : conv.provider?.user_id) ?? null
-);
+    if (!last) {
+      if (conv.booking) return conv.booking.service_title;
 
-}
+      if (conv.listing)
+        return `ASH Property · ${conv.listing.city}`;
 
-/** Where the other side's public page lives, when they have one. */
-function peerProfileOf(conv: (typeof list)[number] | undefined) {
-if (!conv) return null;
+      return t("chat.pick");
+    }
 
-if (conv.listing_id) {
-  const viewerIsOwner =
-    Boolean(user?.id) && conv.owner_id === user?.id;
+    const mine = last.sender_id === user?.id;
 
-  return viewerIsOwner || !conv.listing
-    ? null
-    : {
-        to: "/property/$listingId",
-        params: { listingId: conv.listing.id },
-      };
-}
+    const text =
+      last.kind === "INVOICE"
+        ? fr
+          ? "Facture"
+          : "Invoice"
+        : last.body;
 
-const viewerIsProvider =
-  Boolean(user?.id) && conv.provider?.user_id === user?.id;
+    return `${mine ? (fr ? "Vous : " : "You: ") : ""}${text}`
+      .replace(/\s+/g, " ")
+      .trim();
+  }
 
-if (viewerIsProvider || !conv.provider) return null;
+  const filtered = term.trim()
+    ? list.filter((conv) =>
+        `${peerOf(conv)} ${previewOf(conv)}`
+          .toLowerCase()
+          .includes(term.trim().toLowerCase()),
+      )
+    : list;
 
-return {
-  to: "/services/$providerId",
-  params: { providerId: conv.provider.id },
-};
+  return (
+    <div className="mx-auto w-full max-w-5xl md:space-y-4">
+      {/* DESKTOP PAGE HEADER */}
+      <header className="hidden md:block">
+        <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
+          {t("chat.title")}
+        </h1>
 
-}
+        <p className="mt-1 text-sm text-muted-foreground">
+          {t("chat.pick")}
+        </p>
+      </header>
 
-/** Open the other side's public page from the chat header. */
-function openPeerProfile(conv: (typeof list)[number]) {
-const target = peerProfileOf(conv);
+      {isLoading ? (
+        <SkeletonRows rows={3} />
+      ) : (
 
-if (!target) return;
+        <div className="grid md:gap-4 md:grid-cols-[320px_minmax(0,1fr)]">
+          {/* =========================================================
+              CHAT LIST
+              ========================================================= */}
+          <div
+            className={cn(
+              "tile flex flex-col overflow-hidden bg-background p-0 max-md:rounded-none max-md:border-0",
+              mobileView === "thread"
+                ? "hidden md:flex"
+                : "max-md:-mx-4 max-md:-mt-5 max-md:h-[calc(var(--ash-vh,100dvh)-3.5rem-4.75rem)]",
+              "md:max-h-[72vh]",
+            )}
+          >
+            <div className="border-b border-border bg-card/95 px-3 pb-2.5 pt-2.5 backdrop-blur">
+              <h2 className="mb-2 font-display text-xl font-bold text-foreground md:hidden">
+                {t("chat.title")}
+              </h2>
 
-void routerNavigate({
-  to: target.to,
-  params: target.params,
-} as never);
+              <div className="flex items-center gap-2 rounded-full bg-muted px-3 py-2">
+                <Search
+                  className="size-4 shrink-0 text-muted-foreground"
+                  aria-hidden
+                />
 
-}
+                <input
+                  value={term}
+                  onChange={(event) => setTerm(event.target.value)}
+                  placeholder={
+                    fr
+                      ? "Rechercher une discussion"
+                      : "Search chats"
+                  }
+                  aria-label={
+                    fr
+                      ? "Rechercher une discussion"
+                      : "Search chats"
+                  }
+                  className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                />
+              </div>
+            </div>
 
-/** One-line preview of the newest message. */
-function previewOf(conv: (typeof list)[number]): string {
-const last = conv.last_message;
+            <nav className="min-h-0 flex-1 divide-y divide-border overflow-y-auto">
+              {term.trim() &&
+              !`${chatGPTConversation.label} ${chatGPTConversation.preview}`
+                .toLowerCase()
+                .includes(term.trim().toLowerCase()) &&
+              filtered.length === 0 ? (
+                <p className="p-6 text-center text-sm text-muted-foreground">
+                  {fr
+                    ? "Aucune discussion trouvée."
+                    : "No chats found."}
+                </p>
+              ) : null}
 
-if (!last) {
-  if (conv.booking) return conv.booking.service_title;
+              {(!term.trim() ||
+                `${chatGPTConversation.label} ${chatGPTConversation.preview}`
+                  .toLowerCase()
+                  .includes(term.trim().toLowerCase())) && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    void navigate({
+                      search: { c: CHATGPT_ID },
+                    })
+                  }
+                  className={cn(
+                    "flex w-full items-center gap-3 border-b border-border px-3 py-3 text-left transition-colors",
+                    activeId === CHATGPT_ID
+                      ? "bg-primary/10"
+                      : "hover:bg-muted/70 active:bg-muted",
+                  )}
+                >
+                  <span className="grid size-12 shrink-0 place-items-center rounded-full bg-gradient-to-br from-violet-600 via-fuchsia-500 to-pink-500 p-[2px] shadow-sm ring-2 ring-violet-300/60 dark:ring-violet-400/40">
+                    <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
+                      <img
+                        src="https://chatgpt.com/favicon.ico"
+                        alt="ChatGPT"
+                        className="size-full rounded-full object-cover"
+                        loading="lazy"
+                      />
+                    </span>
+                  </span>
 
-  if (conv.listing)
-    return `ASH Property · ${conv.listing.city}`;
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-baseline justify-between gap-2">
+                      <span className="truncate text-[15px] font-bold text-foreground">
+                        ChatGPT
+                      </span>
+                      <span className="shrink-0 text-[11px] font-medium text-primary">
+                        AI
+                      </span>
+                    </span>
 
-  return t("chat.pick");
-}
-
-const mine = last.sender_id === user?.id;
-
-const text =
-  last.kind === "INVOICE"
-    ? fr
-      ? "Facture"
-      : "Invoice"
-    : last.body;
-
-return `${mine ? (fr ? "Vous : " : "You: ") : ""}${text}`
-  .replace(/\s+/g, " ")
-  .trim();
-
-}
-
-const filtered = term.trim()
-? list.filter((conv) =>
-${peerOf(conv)} ${previewOf(conv)}
-.toLowerCase()
-.includes(term.trim().toLowerCase()),
-)
-: list;
-
-return (
-<div className="mx-auto w-full max-w-5xl md:space-y-4">
-{/* DESKTOP PAGE HEADER */}
-<header className="hidden md:block">
-<h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
-{t("chat.title")}
-</h1>
-
-    <p className="mt-1 text-sm text-muted-foreground">
-      {t("chat.pick")}
-    </p>
-  </header>
-
-  {isLoading ? (
-    <SkeletonRows rows={3} />
-  ) : (
-
-    <div className="grid md:gap-4 md:grid-cols-[320px_minmax(0,1fr)]">
-      {/* =========================================================
-          CHAT LIST
-          ========================================================= */}
-      <div
-        className={cn(
-          "tile flex flex-col overflow-hidden bg-background p-0 max-md:rounded-none max-md:border-0",
-          mobileView === "thread"
-            ? "hidden md:flex"
-            : "max-md:-mx-4 max-md:-mt-5 max-md:h-[calc(var(--ash-vh,100dvh)-3.5rem-4.75rem)]",
-          "md:max-h-[72vh]",
-        )}
-      >
-        <div className="border-b border-border bg-card/95 px-3 pb-2.5 pt-2.5 backdrop-blur">
-          <h2 className="mb-2 font-display text-xl font-bold text-foreground md:hidden">
-            {t("chat.title")}
-          </h2>
-
-          <div className="flex items-center gap-2 rounded-full bg-muted px-3 py-2">
-            <Search
-              className="size-4 shrink-0 text-muted-foreground"
-              aria-hidden
-            />
-
-            <input
-              value={term}
-              onChange={(event) => setTerm(event.target.value)}
-              placeholder={
-                fr
-                  ? "Rechercher une discussion"
-                  : "Search chats"
-              }
-              aria-label={
-                fr
-                  ? "Rechercher une discussion"
-                  : "Search chats"
-              }
-              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-            />
-          </div>
-        </div>
-
-        <nav className="min-h-0 flex-1 divide-y divide-border overflow-y-auto">
-          {term.trim() &&
-          !`${chatGPTConversation.label} ${chatGPTConversation.preview}`
-            .toLowerCase()
-            .includes(term.trim().toLowerCase()) &&
-          filtered.length === 0 ? (
-            <p className="p-6 text-center text-sm text-muted-foreground">
-              {fr
-                ? "Aucune discussion trouvée."
-                : "No chats found."}
-            </p>
-          ) : null}
-
-          {(!term.trim() ||
-            `${chatGPTConversation.label} ${chatGPTConversation.preview}`
-              .toLowerCase()
-              .includes(term.trim().toLowerCase())) && (
-            <button
-              type="button"
-              onClick={() =>
-                void navigate({
-                  search: { c: CHATGPT_ID },
-                })
-              }
-              className={cn(
-                "flex w-full items-center gap-3 border-b border-border px-3 py-3 text-left transition-colors",
-                activeId === CHATGPT_ID
-                  ? "bg-primary/10"
-                  : "hover:bg-muted/70 active:bg-muted",
+                    <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">
+                      {chatGPTConversation.preview}
+                    </span>
+                  </span>
+                </button>
               )}
-            >
-              <span className="grid size-12 shrink-0 place-items-center rounded-full bg-gradient-to-br from-violet-600 via-fuchsia-500 to-pink-500 p-[2px] shadow-sm ring-2 ring-violet-300/60 dark:ring-violet-400/40">
-                <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
-                  <img
-                    src="https://chatgpt.com/favicon.ico"
-                    alt="ChatGPT"
-                    className="size-full rounded-full object-cover"
-                    loading="lazy"
-                  />
-                </span>
-              </span>
 
-              <span className="min-w-0 flex-1">
-                <span className="flex items-baseline justify-between gap-2">
-                  <span className="truncate text-[15px] font-bold text-foreground">
-                    ChatGPT
-                  </span>
-                  <span className="shrink-0 text-[11px] font-medium text-primary">
-                    AI
-                  </span>
-                </span>
+              {filtered.map((conv) => {
+                const label = peerOf(conv);
+                const unread = conv.unread_count ?? 0;
+                const avatarColor = getAvatarColor(conv.id);
 
-                <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">
-                  {chatGPTConversation.preview}
-                </span>
-              </span>
-            </button>
-          )}
+                return (
+                  <button
+                    key={conv.id}
+                    type="button"
+                    onClick={() =>
+                      void navigate({
+                        search: { c: conv.id },
+                      })
+                    }
+                    className={cn(
+                      "flex w-full items-center gap-3 px-3 py-3 text-left transition-colors",
+                      conv.id === activeId
+                        ? "bg-primary/10"
+                        : "hover:bg-muted/70 active:bg-muted",
+                    )}
+                  >
+                    {/* COLORED ASH PROFILE CIRCLE */}
+                    <span
+                      className={cn(
+                        "grid size-12 shrink-0 place-items-center rounded-full p-[2px] shadow-sm ring-2",
+                        avatarColor.wrapper,
+                        avatarColor.ring,
+                      )}
+                    >
+                      <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
+                        <Avatar
+                          path={peerAvatarOf(conv)}
+                          name={label}
+                          className="size-full rounded-full border-0 shadow-none"
+                        />
+                      </span>
+                    </span>
 
-          {filtered.map((conv) => {
-            const label = peerOf(conv);
-            const unread = conv.unread_count ?? 0;
-            const avatarColor = getAvatarColor(conv.id);
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-baseline justify-between gap-2">
+                        <span className="truncate text-[15px] font-semibold text-foreground">
+                          {label}
+                        </span>
 
-            return (
+                        <span
+                          className={cn(
+                            "shrink-0 text-[11px]",
+                            unread > 0
+                              ? "font-semibold text-primary"
+                              : "text-muted-foreground",
+                          )}
+                        >
+                          {stamp(
+                            conv.last_message?.created_at ??
+                              conv.last_message_at,
+                            fr,
+                          )}
+                        </span>
+                      </span>
+
+                      <span className="mt-0.5 flex items-center justify-between gap-2">
+                        <span
+                          className={cn(
+                            "truncate text-[13px]",
+                            unread > 0
+                              ? "font-medium text-foreground"
+                              : "text-muted-foreground",
+                          )}
+                        >
+                          {previewOf(conv)}
+                        </span>
+
+                        {unread > 0 ? (
+                          <span className="grid min-w-5 shrink-0 place-items-center rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground">
+                            {unread > 99 ? "99+" : unread}
+                          </span>
+                        ) : null}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* =========================================================
+              ACTIVE CHAT
+              ========================================================= */}
+          <div
+            onTouchStart={
+              mobileView === "thread" ? handleChatTouchStart : undefined
+            }
+            onTouchEnd={
+              mobileView === "thread" ? handleChatTouchEnd : undefined
+            }
+            style={
+              {
+                "--ash-visual-height": visualViewportHeight
+                  ? `${visualViewportHeight}px`
+                  : "100dvh",
+                // The conversation owns the entire mobile viewport. There is
+                // no bottom navigation height to subtract in chat mode.
+                "--ash-chat-height": visualViewportHeight
+                  ? `${Math.max(0, visualViewportHeight)}px`
+                  : "100dvh",
+              } as CSSProperties
+            }
+            className={cn(
+              "tile chat-surface flex flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-0",
+              mobileView === "list"
+                ? "hidden md:flex"
+                : cn(
+                    "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:z-[70] max-md:w-screen max-md:touch-pan-y",
+                    "max-md:h-[var(--ash-chat-height,100dvh)]",
+                  ),
+              "md:h-[72vh]",
+            )}
+          >
+            {/* CHAT HEADER */}
+            <div className="flex items-center gap-2.5 border-b border-border bg-card/95 px-2.5 py-2 backdrop-blur max-md:pt-[calc(0.5rem+env(safe-area-inset-top))]">
+              {/* BACK TO MESSAGES */}
               <button
-                key={conv.id}
                 type="button"
                 onClick={() =>
                   void navigate({
-                    search: { c: conv.id },
+                    to: "/messages",
+                    search: {},
                   })
                 }
-                className={cn(
-                  "flex w-full items-center gap-3 px-3 py-3 text-left transition-colors",
-                  conv.id === activeId
-                    ? "bg-primary/10"
-                    : "hover:bg-muted/70 active:bg-muted",
-                )}
+                aria-label={
+                  fr
+                    ? "Retour aux messages"
+                    : "Back to messages"
+                }
+                className="grid size-10 shrink-0 place-items-center rounded-full bg-muted/70 text-foreground shadow-sm transition-all hover:bg-muted active:scale-95 md:hidden"
               >
-                {/* COLORED ASH PROFILE CIRCLE */}
-                <span
-                  className={cn(
-                    "grid size-12 shrink-0 place-items-center rounded-full p-[2px] shadow-sm ring-2",
-                    avatarColor.wrapper,
-                    avatarColor.ring,
-                  )}
-                >
-                  <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
-                    <Avatar
-                      path={peerAvatarOf(conv)}
-                      name={label}
-                      className="size-full rounded-full border-0 shadow-none"
-                    />
-                  </span>
-                </span>
-
-                <span className="min-w-0 flex-1">
-                  <span className="flex items-baseline justify-between gap-2">
-                    <span className="truncate text-[15px] font-semibold text-foreground">
-                      {label}
-                    </span>
-
-                    <span
-                      className={cn(
-                        "shrink-0 text-[11px]",
-                        unread > 0
-                          ? "font-semibold text-primary"
-                          : "text-muted-foreground",
-                      )}
-                    >
-                      {stamp(
-                        conv.last_message?.created_at ??
-                          conv.last_message_at,
-                        fr,
-                      )}
-                    </span>
-                  </span>
-
-                  <span className="mt-0.5 flex items-center justify-between gap-2">
-                    <span
-                      className={cn(
-                        "truncate text-[13px]",
-                        unread > 0
-                          ? "font-medium text-foreground"
-                          : "text-muted-foreground",
-                      )}
-                    >
-                      {previewOf(conv)}
-                    </span>
-
-                    {unread > 0 ? (
-                      <span className="grid min-w-5 shrink-0 place-items-center rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground">
-                        {unread > 99 ? "99+" : unread}
-                      </span>
-                    ) : null}
-                  </span>
-                </span>
+                <ArrowLeft
+                  className="size-5"
+                  aria-hidden
+                />
               </button>
-            );
-          })}
-        </nav>
-      </div>
 
-      {/* =========================================================
-          ACTIVE CHAT
-          ========================================================= */}
-      <div
-        onTouchStart={
-          mobileView === "thread" ? handleChatTouchStart : undefined
-        }
-        onTouchEnd={
-          mobileView === "thread" ? handleChatTouchEnd : undefined
-        }
-        style={
-          {
-            "--ash-mobile-nav-height": `${mobileNavHeight}px`,
-            "--ash-visual-height": visualViewportHeight
-              ? `${visualViewportHeight}px`
-              : "100dvh",
-            "--ash-chat-height": visualViewportHeight
-              ? `${Math.max(0, visualViewportHeight - (keyboardOpen ? 0 : mobileNavHeight))}px`
-              : `calc(100dvh - var(--ash-mobile-nav-height, 0px))`,
-          } as CSSProperties
-        }
-        className={cn(
-          "tile chat-surface flex flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-0",
-          mobileView === "list"
-            ? "hidden md:flex"
-            : cn(
-                "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:z-[70] max-md:w-screen max-md:touch-pan-y",
-                "max-md:h-[var(--ash-chat-height,calc(100dvh-var(--ash-mobile-nav-height,0px)))]",
-              ),
-          "md:h-[72vh]",
-        )}
-      >
-        {/* CHAT HEADER */}
-        <div className="flex items-center gap-2.5 border-b border-border bg-card/95 px-2.5 py-2 backdrop-blur max-md:pt-[calc(0.5rem+env(safe-area-inset-top))]">
-          {/* BACK TO MESSAGES */}
-          <button
-            type="button"
-            onClick={() =>
-              void navigate({
-                to: "/messages",
-                search: {},
-              })
-            }
-            aria-label={
-              fr
-                ? "Retour aux messages"
-                : "Back to messages"
-            }
-            className="grid size-10 shrink-0 place-items-center rounded-full bg-muted/70 text-foreground shadow-sm transition-all hover:bg-muted active:scale-95 md:hidden"
-          >
-            <ArrowLeft
-              className="size-5"
-              aria-hidden
-            />
-          </button>
-
-          {/* ACTIVE PROFILE */}
-          <button
-            type="button"
-            onClick={() =>
-              active && openPeerProfile(active)
-            }
-            disabled={
-              !active || !peerProfileOf(active)
-            }
-            aria-label={
-              fr
-                ? "Voir le profil"
-                : "View profile"
-            }
-            className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl px-1 py-0.5 text-left transition-colors enabled:hover:bg-muted/60"
-          >
-            {active ? (
-              <span
-                className={cn(
-                  "grid size-10 shrink-0 place-items-center rounded-full p-[2px] shadow-sm ring-2",
-                  getAvatarColor(active.id).wrapper,
-                  getAvatarColor(active.id).ring,
-                )}
+              {/* ACTIVE PROFILE */}
+              <button
+                type="button"
+                onClick={() =>
+                  active && openPeerProfile(active)
+                }
+                disabled={
+                  !active || !peerProfileOf(active)
+                }
+                aria-label={
+                  fr
+                    ? "Voir le profil"
+                    : "View profile"
+                }
+                className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl px-1 py-0.5 text-left transition-colors enabled:hover:bg-muted/60"
               >
-                <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
-                  <Avatar
-                    path={peerAvatarOf(active)}
-                    name={peerOf(active)}
-                    className="size-full rounded-full border-0 shadow-none"
-                  />
-                </span>
-              </span>
-            ) : null}
+                {active ? (
+                  <span
+                    className={cn(
+                      "grid size-10 shrink-0 place-items-center rounded-full p-[2px] shadow-sm ring-2",
+                      getAvatarColor(active.id).wrapper,
+                      getAvatarColor(active.id).ring,
+                    )}
+                  >
+                    <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
+                      <Avatar
+                        path={peerAvatarOf(active)}
+                        name={peerOf(active)}
+                        className="size-full rounded-full border-0 shadow-none"
+                      />
+                    </span>
+                  </span>
+                ) : null}
 
-            <div className="min-w-0 flex-1">
-              <p className="truncate font-display text-[15px] font-semibold text-foreground">
-                {active
-                  ? peerOf(active)
-                  : t("chat.title")}
-              </p>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-display text-[15px] font-semibold text-foreground">
+                    {active
+                      ? peerOf(active)
+                      : t("chat.title")}
+                  </p>
 
+                  {active?.booking ? (
+                    <p className="truncate text-[11px] text-muted-foreground">
+                      {active.booking.service_title} ·{" "}
+                      {formatDateTime(
+                        active.booking.scheduled_at,
+                      )}
+                      {active.booking.invoice_number
+                        ? ` · ${active.booking.invoice_number}`
+                        : ""}
+                    </p>
+                  ) : active?.listing ? (
+                    <p className="truncate text-[11px] text-muted-foreground">
+                      ASH Property ·{" "}
+                      {active.listing.city}
+                    </p>
+                  ) : null}
+                </div>
+              </button>
+
+              {/* BOOKING STATUS */}
               {active?.booking ? (
-                <p className="truncate text-[11px] text-muted-foreground">
-                  {active.booking.service_title} ·{" "}
-                  {formatDateTime(
-                    active.booking.scheduled_at,
-                  )}
-                  {active.booking.invoice_number
-                    ? ` · ${active.booking.invoice_number}`
-                    : ""}
-                </p>
-              ) : active?.listing ? (
-                <p className="truncate text-[11px] text-muted-foreground">
-                  ASH Property ·{" "}
-                  {active.listing.city}
-                </p>
+                <div className="shrink-0 text-right">
+                  <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+                    {bookingStatusLabel(
+                      active.booking.status,
+                      lang,
+                    )}
+                  </span>
+
+                  <p className="tabular mt-1 text-xs font-bold text-foreground">
+                    {formatXAF(
+                      Number(active.booking.price),
+                    )}
+                  </p>
+                </div>
               ) : null}
             </div>
-          </button>
 
-          {/* BOOKING STATUS */}
-          {active?.booking ? (
-            <div className="shrink-0 text-right">
-              <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
-                {bookingStatusLabel(
-                  active.booking.status,
-                  lang,
-                )}
-              </span>
+            {/* =======================================================
+                CHAT CONTENT
+                ======================================================= */}
+            {activeId === CHATGPT_ID ? (
+              <div
+                className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-background"
+                style={{
+                  backgroundImage: `url(${ASH_CHAT_BACKGROUND})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                }}
+              >
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 bg-background/65 backdrop-blur-[1px] dark:bg-slate-950/72"
+                />
 
-              <p className="tabular mt-1 text-xs font-bold text-foreground">
-                {formatXAF(
-                  Number(active.booking.price),
-                )}
-              </p>
-            </div>
-          ) : null}
-        </div>
+                <div className="relative flex min-h-0 flex-1 flex-col">
+                  <div className="flex-1 overflow-y-auto px-4 py-6">
+                  <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
+                    <span className="grid size-16 place-items-center rounded-full bg-gradient-to-br from-violet-600 via-fuchsia-500 to-pink-500 p-[2px] shadow-lg ring-2 ring-violet-300/60 dark:ring-violet-400/40">
+                      <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
+                        <img
+                          src="https://chatgpt.com/favicon.ico"
+                          alt="ChatGPT"
+                          className="size-full rounded-full object-cover"
+                        />
+                      </span>
+                    </span>
 
-        {/* =======================================================
-            CHAT CONTENT
-            ======================================================= */}
-        {activeId === CHATGPT_ID ? (
-          <div
-            className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-background"
-            style={{
-              backgroundImage: `url(${ASH_CHAT_BACKGROUND})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-            }}
-          >
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-0 bg-background/65 backdrop-blur-[1px] dark:bg-slate-950/72"
-            />
+                    <h3 className="mt-4 font-display text-xl font-bold text-foreground">
+                      ChatGPT
+                    </h3>
 
-            <div className="relative flex min-h-0 flex-1 flex-col">
-              <div className="flex-1 overflow-y-auto px-4 py-6">
-              <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
-                <span className="grid size-16 place-items-center rounded-full bg-gradient-to-br from-violet-600 via-fuchsia-500 to-pink-500 p-[2px] shadow-lg ring-2 ring-violet-300/60 dark:ring-violet-400/40">
-                  <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
-                    <img
-                      src="https://chatgpt.com/favicon.ico"
-                      alt="ChatGPT"
-                      className="size-full rounded-full object-cover"
+                    <p className="mt-1 max-w-md text-sm text-muted-foreground">
+                      {fr
+                        ? "Votre assistant IA. Posez une question, demandez une idée ou obtenez de l’aide."
+                        : "Your AI assistant. Ask a question, get an idea, or get help with anything."}
+                    </p>
+
+                    <div className="mt-6 grid w-full max-w-lg gap-2 sm:grid-cols-2">
+                      {(fr
+                        ? [
+                            "Aide-moi à trouver un service",
+                            "Aide-moi à rédiger un CV",
+                            "Explique-moi cette annonce",
+                            "Donne-moi une idée de business",
+                          ]
+                        : [
+                            "Help me find a service",
+                            "Help me write a CV",
+                            "Explain this listing",
+                            "Give me a business idea",
+                          ]
+                      ).map((prompt) => (
+                        <button
+                          key={prompt}
+                          type="button"
+                          className="rounded-xl border border-border bg-card px-3 py-3 text-left text-sm text-foreground transition-colors hover:bg-muted active:scale-[0.99]"
+                        >
+                          {prompt}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                  <div className="border-t border-border bg-card/90 p-3 backdrop-blur-xl">
+                  <div className="mx-auto flex max-w-2xl items-center gap-2 rounded-2xl border border-border bg-background px-3 py-2">
+                    <input
+                      type="text"
+                      placeholder={
+                        fr ? "Écrivez à ChatGPT…" : "Message ChatGPT…"
+                      }
+                      className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+                      disabled
                     />
-                  </span>
-                </span>
-
-                <h3 className="mt-4 font-display text-xl font-bold text-foreground">
-                  ChatGPT
-                </h3>
-
-                <p className="mt-1 max-w-md text-sm text-muted-foreground">
-                  {fr
-                    ? "Votre assistant IA. Posez une question, demandez une idée ou obtenez de l’aide."
-                    : "Your AI assistant. Ask a question, get an idea, or get help with anything."}
-                </p>
-
-                <div className="mt-6 grid w-full max-w-lg gap-2 sm:grid-cols-2">
-                  {(fr
-                    ? [
-                        "Aide-moi à trouver un service",
-                        "Aide-moi à rédiger un CV",
-                        "Explique-moi cette annonce",
-                        "Donne-moi une idée de business",
-                      ]
-                    : [
-                        "Help me find a service",
-                        "Help me write a CV",
-                        "Explain this listing",
-                        "Give me a business idea",
-                      ]
-                  ).map((prompt) => (
-                    <button
-                      key={prompt}
-                      type="button"
-                      className="rounded-xl border border-border bg-card px-3 py-3 text-left text-sm text-foreground transition-colors hover:bg-muted active:scale-[0.99]"
-                    >
-                      {prompt}
-                    </button>
-                  ))}
+                    <Bot className="size-5 shrink-0 text-primary" aria-hidden />
+                  </div>
+                  <p className="mx-auto mt-2 max-w-2xl text-center text-[10px] text-muted-foreground">
+                    {fr
+                      ? "L’IA sera connectée à cette interface dans une prochaine étape."
+                      : "AI will be connected to this interface in a later step."}
+                  </p>
+                  </div>
                 </div>
               </div>
-            </div>
-
-              <div className="border-t border-border bg-card/90 p-3 backdrop-blur-xl">
-              <div className="mx-auto flex max-w-2xl items-center gap-2 rounded-2xl border border-border bg-background px-3 py-2">
-                <input
-                  type="text"
-                  placeholder={
-                    fr ? "Écrivez à ChatGPT…" : "Message ChatGPT…"
-                  }
-                  className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
-                  disabled
+            ) : activeId ? (
+              <div
+                className="relative min-h-0 flex-1 overflow-hidden bg-background"
+                style={{
+                  backgroundImage: `url(${ASH_CHAT_BACKGROUND})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                }}
+              >
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 bg-background/62 backdrop-blur-[1px] dark:bg-slate-950/70"
                 />
-                <Bot className="size-5 shrink-0 text-primary" aria-hidden />
-              </div>
-              <p className="mx-auto mt-2 max-w-2xl text-center text-[10px] text-muted-foreground">
-                {fr
-                  ? "L’IA sera connectée à cette interface dans une prochaine étape."
-                  : "AI will be connected to this interface in a later step."}
-              </p>
-              </div>
-            </div>
-          </div>
-        ) : activeId ? (
-          <div
-            className="relative min-h-0 flex-1 overflow-hidden bg-background"
-            style={{
-              backgroundImage: `url(${ASH_CHAT_BACKGROUND})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-            }}
-          >
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-0 bg-background/62 backdrop-blur-[1px] dark:bg-slate-950/70"
-            />
 
-            <div className="relative flex h-full min-h-0 flex-col">
-              <ChatThread
-            conversationId={activeId}
-            currentUserId={user?.id}
-            peerName={
-              active ? peerOf(active) : "ASH"
-            }
-            peerUserId={
-              active
-                ? peerUserIdOf(active)
-                : null
-            }
-            className="min-h-0 flex-1 px-2"
-                quickReplies={
-                  lang === "fr"
-                    ? [
-                        "Bonjour 👋",
-                        "Quelle est votre disponibilité ?",
-                        "Je confirme le rendez-vous",
-                        "Je suis en route",
-                      ]
-                    : [
-                        "Hello 👋",
-                        "What is your availability?",
-                        "I confirm the appointment",
-                        "I'm on my way",
-                      ]
+                <div className="relative flex h-full min-h-0 flex-col">
+                  <ChatThread
+                conversationId={activeId}
+                currentUserId={user?.id}
+                peerName={
+                  active ? peerOf(active) : "ASH"
                 }
-              />
-            </div>
+                peerUserId={
+                  active
+                    ? peerUserIdOf(active)
+                    : null
+                }
+                className="min-h-0 flex-1 px-2"
+                    quickReplies={
+                      lang === "fr"
+                        ? [
+                            "Bonjour 👋",
+                            "Quelle est votre disponibilité ?",
+                            "Je confirme le rendez-vous",
+                            "Je suis en route",
+                          ]
+                        : [
+                            "Hello 👋",
+                            "What is your availability?",
+                            "I confirm the appointment",
+                            "I'm on my way",
+                          ]
+                    }
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="grid flex-1 place-items-center p-6 text-center text-sm text-muted-foreground">
+                {t("chat.pick")}
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="grid flex-1 place-items-center p-6 text-center text-sm text-muted-foreground">
-            {t("chat.pick")}
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
-  )}
-</div>
-
-);
+  );
 }
