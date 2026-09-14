@@ -1,987 +1,1134 @@
 import {
-  type CSSProperties,
-  type TouchEvent,
   useEffect,
-  useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { z } from "zod";
-import { ArrowLeft, Bot, MessageCircle, Search } from "lucide-react";
 
-import { useConversations } from "@/lib/marketplace.queries";
-import { useUser } from "@/lib/queries";
-import { ChatThread } from "@/components/refer/ChatThread";
-import { Avatar } from "@/components/refer/AvatarUpload";
-import { EmptyState, SkeletonRows } from "@/components/refer/states";
+import { useQueryClient } from "@tanstack/react-query";
+
+import {
+  AlertCircle,
+  Check,
+  CheckCheck,
+  Loader2,
+  ReceiptText,
+  Send,
+  Trash2,
+} from "lucide-react";
+
+import { toast } from "sonner";
+
+import { supabase } from "@/integrations/supabase/client";
+import { useMessages } from "@/lib/marketplace.queries";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { ReportDialog } from "@/components/refer/ReportDialog";
 import { useI18n } from "@/lib/i18n";
-import { formatDateTime, formatXAF } from "@/lib/format";
-import { bookingStatusLabel } from "@/lib/booking";
+import { formatXAF } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-const searchSchema = z.object({ c: z.string().optional() });
+type ChatMessage = {
+  id: string;
+  sender_id: string;
+  body: string;
+  created_at: string;
+  read_at?: string | null;
+  kind?: string;
+  metadata?: Record<string, unknown>;
+};
 
-export const Route = createFileRoute("/_authenticated/messages")({
-  validateSearch: searchSchema,
-  head: () => ({
-    meta: [
-      { title: "Messages — ASH Glo" },
-      {
-        name: "description",
-        content:
-          "Chat live with your beauty pro or your clients about upcoming bookings.",
-      },
-      {
-        property: "og:title",
-        content: "Messages — ASH Glo",
-      },
-      {
-        property: "og:description",
-        content:
-          "Live chat between clients and beauty providers on ASH Glo.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
-  component: MessagesPage,
-});
+function dayKey(iso: string) {
+  return new Date(iso).toDateString();
+}
 
-/** Short WhatsApp-style stamp: time today, "Yesterday", else a short date. */
-function stamp(iso: string | null | undefined, fr: boolean) {
-  if (!iso) return "";
-
+function dayLabel(
+  iso: string,
+  fr: boolean,
+) {
   const date = new Date(iso);
-  const now = new Date();
-  const yesterday = new Date(now.getTime() - 86400000);
 
-  if (date.toDateString() === now.toDateString())
-    return date.toLocaleTimeString(fr ? "fr-FR" : "en-GB", {
+  const today = new Date();
+
+  const yesterday = new Date(
+    today.getTime() - 86400000,
+  );
+
+  if (
+    date.toDateString() ===
+    today.toDateString()
+  ) {
+    return fr
+      ? "Aujourd'hui"
+      : "Today";
+  }
+
+  if (
+    date.toDateString() ===
+    yesterday.toDateString()
+  ) {
+    return fr
+      ? "Hier"
+      : "Yesterday";
+  }
+
+  return date.toLocaleDateString(
+    fr ? "fr-FR" : "en-GB",
+    {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    },
+  );
+}
+
+function timeLabel(
+  iso: string,
+  fr: boolean,
+) {
+  return new Date(
+    iso,
+  ).toLocaleTimeString(
+    fr ? "fr-FR" : "en-GB",
+    {
       hour: "2-digit",
       minute: "2-digit",
-    });
-
-  if (date.toDateString() === yesterday.toDateString())
-    return fr ? "Hier" : "Yesterday";
-
-  return date.toLocaleDateString(fr ? "fr-FR" : "en-GB", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "2-digit",
-  });
+    },
+  );
 }
 
-/**
- * ASH profile colors.
- *
- * Each conversation receives a stable color based on its conversation ID.
- * This means the same conversation keeps the same profile color.
- */
-const avatarColors = [
-  {
-    wrapper:
-      "bg-gradient-to-br from-fuchsia-500 via-pink-500 to-rose-500",
-    ring: "ring-fuchsia-300/60 dark:ring-fuchsia-400/40",
-  },
-  {
-    wrapper:
-      "bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-500",
-    ring: "ring-violet-300/60 dark:ring-violet-400/40",
-  },
-  {
-    wrapper:
-      "bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500",
-    ring: "ring-emerald-300/60 dark:ring-emerald-400/40",
-  },
-  {
-    wrapper:
-      "bg-gradient-to-br from-red-500 via-rose-500 to-pink-500",
-    ring: "ring-red-300/60 dark:ring-red-400/40",
-  },
-  {
-    wrapper:
-      "bg-gradient-to-br from-blue-500 via-sky-500 to-cyan-500",
-    ring: "ring-blue-300/60 dark:ring-blue-400/40",
-  },
-  {
-    wrapper:
-      "bg-gradient-to-br from-slate-500 via-gray-500 to-zinc-500",
-    ring: "ring-slate-300/60 dark:ring-slate-400/40",
-  },
-  {
-    wrapper:
-      "bg-gradient-to-br from-orange-400 via-amber-500 to-yellow-500",
-    ring: "ring-orange-300/60 dark:ring-orange-400/40",
-  },
-  {
-    wrapper:
-      "bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-500",
-    ring: "ring-cyan-300/60 dark:ring-cyan-400/40",
-  },
-] as const;
-
-/**
- * Generate a stable color index from a conversation ID.
- */
-function avatarColorIndex(id: string) {
-  let hash = 0;
-
-  for (let index = 0; index < id.length; index += 1) {
-    hash = (hash * 31 + id.charCodeAt(index)) | 0;
-  }
-
-  return Math.abs(hash) % avatarColors.length;
-}
-
-function getAvatarColor(id: string) {
-  return avatarColors[avatarColorIndex(id)] ?? avatarColors[0];
-}
-
-const CHATGPT_ID = "ash-chatgpt";
-
-const chatGPTConversation = {
-  id: CHATGPT_ID,
-  label: "ChatGPT",
-  preview: "Ask ChatGPT anything…",
-};
-const ASH_CHAT_BACKGROUND = "/images/ash-chat-background.png";
-
-function MessagesPage() {
+export function ChatThread({
+  conversationId,
+  currentUserId,
+  className,
+  quickReplies = [],
+  peerName,
+  peerUserId,
+}: {
+  conversationId: string;
+  currentUserId:
+    | string
+    | undefined;
+  className?: string;
+  quickReplies?: string[];
+  peerName?: string;
+  peerUserId?: string | null;
+}) {
   const { t, lang } = useI18n();
+
   const fr = lang === "fr";
-  const { user } = useUser();
-  const { c } = Route.useSearch();
-  const navigate = Route.useNavigate();
-  const routerNavigate = useNavigate();
-  const mobileView = c ? "thread" : "list";
 
-  // Measure the real mobile tab-bar height. Never guess its size with rems:
-  // the authenticated shell includes the iOS safe-area and the central orb.
-  const [mobileNavHeight, setMobileNavHeight] = useState(0);
-  const [visualViewportHeight, setVisualViewportHeight] = useState<number | null>(null);
-  const [keyboardOpen, setKeyboardOpen] = useState(false);
-  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const queryClient =
+    useQueryClient();
 
-  const useIsoLayoutEffect =
-    typeof window !== "undefined" ? useLayoutEffect : useEffect;
+  const {
+    data,
+    isLoading,
+  } =
+    useMessages(
+      conversationId,
+    );
 
-  useIsoLayoutEffect(() => {
-    const nav = document.querySelector<HTMLElement>(".app-shell > nav");
-    if (!nav) return;
+  const [body, setBody] =
+    useState("");
 
-    const updateNavHeight = () => {
-      const height = Math.ceil(nav.getBoundingClientRect().height);
-      setMobileNavHeight((current) =>
-        current === height ? current : height,
-      );
-    };
+  const [sending, setSending] =
+    useState(false);
 
-    updateNavHeight();
-    const observer = new ResizeObserver(updateNavHeight);
-    observer.observe(nav);
-    return () => observer.disconnect();
-  }, []);
+  const [pending, setPending] =
+    useState<string[]>([]);
 
-  // iOS Safari/WKWebView changes the visual viewport when the keyboard opens.
-  // Track that viewport instead of relying on 100vh/100dvh, which can leave a
-  // large dead area between the composer and the keyboard.
-  useIsoLayoutEffect(() => {
-    if (typeof window === "undefined") return;
+  const [failed, setFailed] =
+    useState<string | null>(
+      null,
+    );
 
-    const viewport = window.visualViewport;
-    if (!viewport) return;
+  const [
+    confirmDelete,
+    setConfirmDelete,
+  ] = useState<string | null>(
+    null,
+  );
 
-    const updateViewport = () => {
-      const height = Math.max(0, Math.round(viewport.height));
-      setVisualViewportHeight(height);
+  const messagesScrollRef =
+    useRef<HTMLDivElement>(
+      null,
+    );
 
-      const active = document.activeElement;
-      const editing =
-        active instanceof HTMLInputElement ||
-        active instanceof HTMLTextAreaElement ||
-        (active instanceof HTMLElement && active.isContentEditable);
-      // iOS Safari can change visualViewport.height for browser chrome too.
-      // A real keyboard causes a much larger reduction; use that stable
-      // threshold so dismissing the keyboard reliably returns to the normal
-      // bottom-nav layout even while the textarea remains focused.
-      const keyboard =
-        editing &&
-        height > 0 &&
-        window.innerHeight - height > 180;
+  const pressRef =
+    useRef<number | null>(
+      null,
+    );
 
-      setKeyboardOpen(keyboard);
-    };
+  const messages =
+    (data ?? []) as unknown as ChatMessage[];
 
-    updateViewport();
-    viewport.addEventListener("resize", updateViewport);
-    viewport.addEventListener("scroll", updateViewport);
-    window.addEventListener("focusin", updateViewport);
-    window.addEventListener("focusout", updateViewport);
-    window.addEventListener("resize", updateViewport);
+  const peerInitials = (
+    peerName ?? "ASH"
+  )
+    .trim()
+    .slice(0, 2)
+    .toUpperCase();
 
-    return () => {
-      viewport.removeEventListener("resize", updateViewport);
-      viewport.removeEventListener("scroll", updateViewport);
-      window.removeEventListener("focusin", updateViewport);
-      window.removeEventListener("focusout", updateViewport);
-      window.removeEventListener("resize", updateViewport);
-    };
-  }, []);
+  /* ------------------------------------------------------------------------
+     Keep scrolling inside the message list only.
 
-  // Mobile chat is a viewport-locked surface. The message list itself owns
-  // scrolling; the authenticated shell must never be allowed to retain a
-  // scroll offset from the previous page or from iOS keyboard adjustments.
+     IMPORTANT:
+     Never use scrollIntoView() here.
+
+     scrollIntoView() can cause iOS Safari/WKWebView to scroll the
+     authenticated shell instead of just the conversation.
+  ------------------------------------------------------------------------ */
+
   useEffect(() => {
-    if (typeof window === "undefined" || window.innerWidth >= 768) return;
+    const node =
+      messagesScrollRef.current;
 
-    const shellScroll = document.querySelector<HTMLElement>(
-      ".app-shell-scroll",
+    if (!node) return;
+
+    /*
+     * Do not animate the initial load.
+     * It feels much more like WhatsApp if the conversation opens
+     * already positioned at the latest message.
+     */
+    node.scrollTo({
+      top: node.scrollHeight,
+      behavior:
+        messages.length > 1
+          ? "smooth"
+          : "auto",
+    });
+  }, [
+    messages.length,
+    pending.length,
+  ]);
+
+  /* ------------------------------------------------------------------------
+     Mark incoming messages as read
+  ------------------------------------------------------------------------ */
+
+  useEffect(() => {
+    if (
+      !currentUserId ||
+      messages.length === 0
+    ) {
+      return;
+    }
+
+    const unread =
+      messages
+        .filter(
+          (message) =>
+            message.sender_id !==
+              currentUserId &&
+            !message.read_at,
+        )
+        .map(
+          (message) =>
+            message.id,
+        );
+
+    if (unread.length === 0) {
+      return;
+    }
+
+    void supabase
+      .from("messages")
+      .update({
+        read_at:
+          new Date().toISOString(),
+      })
+      .in("id", unread)
+      .then(() =>
+        queryClient.invalidateQueries(
+          {
+            queryKey: [
+              "messages",
+              conversationId,
+            ],
+          },
+        ),
+      );
+  }, [
+    messages,
+    currentUserId,
+    conversationId,
+    queryClient,
+  ]);
+
+  /* ------------------------------------------------------------------------
+     Group messages by day
+  ------------------------------------------------------------------------ */
+
+  const grouped = useMemo(() => {
+    const out: {
+      day: string;
+      items: ChatMessage[];
+    }[] = [];
+
+    for (const message of messages) {
+      const key =
+        dayKey(
+          message.created_at,
+        );
+
+      const last =
+        out[out.length - 1];
+
+      if (
+        last &&
+        last.day === key
+      ) {
+        last.items.push(
+          message,
+        );
+      } else {
+        out.push({
+          day: key,
+          items: [message],
+        });
+      }
+    }
+
+    return out;
+  }, [messages]);
+
+  /* ------------------------------------------------------------------------
+     Send message
+  ------------------------------------------------------------------------ */
+
+  async function submit(
+    text: string,
+  ) {
+    const value =
+      text.trim();
+
+    if (
+      !value ||
+      !currentUserId ||
+      sending
+    ) {
+      return;
+    }
+
+    setSending(true);
+
+    setFailed(null);
+
+    setPending((previous) => [
+      ...previous,
+      value,
+    ]);
+
+    const { error } =
+      await supabase
+        .from("messages")
+        .insert({
+          conversation_id:
+            conversationId,
+          sender_id:
+            currentUserId,
+          body: value,
+        });
+
+    setSending(false);
+
+    setPending((previous) =>
+      previous.filter(
+        (item) =>
+          item !== value,
+      ),
     );
-    const nav = document.querySelector<HTMLElement>(".app-shell > nav");
-    const orbs = Array.from(
-      document.querySelectorAll<HTMLElement>(".orb-surface"),
+
+    if (error) {
+      console.error(
+        "chat send failed",
+        error,
+      );
+
+      toast.error(
+        error.message ||
+          "Message not sent — tap to retry",
+      );
+
+      setFailed(value);
+
+      return;
+    }
+
+    setBody("");
+
+    void queryClient.invalidateQueries(
+      {
+        queryKey: [
+          "messages",
+          conversationId,
+        ],
+      },
     );
 
-    if (!shellScroll) return;
-
-    const previousOverflow = shellScroll.style.overflow;
-    const previousOverscroll = shellScroll.style.overscrollBehavior;
-    const previousScrollRestoration = window.history.scrollRestoration;
-
-    // iOS can restore the document/shell scroll position after returning from
-    // another route. Do this in a few animation frames so Safari has time to
-    // finish its back-navigation and keyboard restoration before we reset it.
-    const restoreShellPosition = () => {
-      shellScroll.scrollTop = 0;
-      window.scrollTo(0, 0);
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-    };
-
-    const restoreAfterNavigation = () => {
-      restoreShellPosition();
-      requestAnimationFrame(restoreShellPosition);
-      window.setTimeout(restoreShellPosition, 60);
-      window.setTimeout(restoreShellPosition, 180);
-    };
-
-    if (mobileView === "thread") {
-      window.history.scrollRestoration = "manual";
-      restoreAfterNavigation();
-
-      // IMPORTANT: do not set touch-action:none here. touch-action on an
-      // ancestor participates in gesture negotiation and can disable the
-      // inner message scroller on iOS. overflow:hidden is enough to stop the
-      // outer shell from scrolling.
-      shellScroll.style.overflow = "hidden";
-      shellScroll.style.overscrollBehavior = "none";
-
-      window.addEventListener("pageshow", restoreAfterNavigation);
-      window.addEventListener("popstate", restoreAfterNavigation);
-      window.addEventListener("focus", restoreAfterNavigation);
-      document.addEventListener("visibilitychange", restoreAfterNavigation);
-    }
-
-    if (nav) {
-      if (mobileView === "thread" && keyboardOpen) {
-        nav.dataset.ashChatKeyboardHidden = "true";
-        nav.style.visibility = "hidden";
-        nav.style.pointerEvents = "none";
-      } else if (nav.dataset.ashChatKeyboardHidden === "true") {
-        delete nav.dataset.ashChatKeyboardHidden;
-        nav.style.visibility = "";
-        nav.style.pointerEvents = "";
-      }
-    }
-
-    // Hide the floating ASH orb while the keyboard is visible so it can never
-    // sit on top of the composer or the keyboard transition.
-    for (const orb of orbs) {
-      if (mobileView === "thread" && keyboardOpen) {
-        orb.dataset.ashChatKeyboardHidden = "true";
-        orb.style.visibility = "hidden";
-        orb.style.pointerEvents = "none";
-      } else if (orb.dataset.ashChatKeyboardHidden === "true") {
-        delete orb.dataset.ashChatKeyboardHidden;
-        orb.style.visibility = "";
-        orb.style.pointerEvents = "";
-      }
-    }
-
-    return () => {
-      shellScroll.style.overflow = previousOverflow;
-      shellScroll.style.overscrollBehavior = previousOverscroll;
-      window.history.scrollRestoration = previousScrollRestoration;
-
-      window.removeEventListener("pageshow", restoreAfterNavigation);
-      window.removeEventListener("popstate", restoreAfterNavigation);
-      window.removeEventListener("focus", restoreAfterNavigation);
-      document.removeEventListener("visibilitychange", restoreAfterNavigation);
-
-      if (nav?.dataset.ashChatKeyboardHidden === "true") {
-        delete nav.dataset.ashChatKeyboardHidden;
-        nav.style.visibility = "";
-        nav.style.pointerEvents = "";
-      }
-
-      for (const orb of orbs) {
-        if (orb.dataset.ashChatKeyboardHidden === "true") {
-          delete orb.dataset.ashChatKeyboardHidden;
-          orb.style.visibility = "";
-          orb.style.pointerEvents = "";
-        }
-      }
-    };
-  }, [mobileView, keyboardOpen]);
-
-  function handleChatTouchStart(event: TouchEvent<HTMLDivElement>) {
-    const touch = event.touches[0];
-    if (!touch || touch.clientX > 32) return;
-    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
-  }
-
-  function handleChatTouchEnd(event: TouchEvent<HTMLDivElement>) {
-    const start = touchStartRef.current;
-    touchStartRef.current = null;
-    if (!start) return;
-
-    const touch = event.changedTouches[0];
-    if (!touch) return;
-
-    const deltaX = touch.clientX - start.x;
-    const deltaY = touch.clientY - start.y;
-
-    if (deltaX >= 72 && Math.abs(deltaX) > Math.abs(deltaY) * 1.25) {
-      void navigate({ to: "/messages", search: {} });
-    }
-  }
-
-  const { data: conversations, isLoading } = useConversations();
-  const [term, setTerm] = useState("");
-
-  const list = conversations ?? [];
-
-  // Desktop falls back to the first conversation;
-  // mobile requires an explicit conversation pick.
-  const activeId =
-    c ??
-    (typeof window !== "undefined" && window.innerWidth >= 768
-      ? list[0]?.id
-      : undefined);
-
-  const active = list.find((conv) => conv.id === activeId);
-  /** Providers see the client; clients see the business.
-   * Property threads show the listing/owner.
-   */
-  function peerOf(conv: (typeof list)[number]): string {
-    if (conv.listing_id) {
-      const viewerIsOwner =
-        Boolean(user?.id) && conv.owner_id === user?.id;
-
-      return viewerIsOwner
-        ? (conv.client?.full_name ?? "ASH client")
-        : (conv.listing?.title ?? "ASH Property");
-    }
-
-    const viewerIsProvider =
-      Boolean(user?.id) && conv.provider?.user_id === user?.id;
-
-    return viewerIsProvider
-      ? (conv.client?.full_name ?? "ASH client")
-      : (conv.provider?.business_name ?? t("chat.title"));
-  }
-
-  /** Picture of the other side, when we have one. */
-  function peerAvatarOf(conv: (typeof list)[number]): string | null {
-    if (conv.listing_id) {
-      const viewerIsOwner =
-        Boolean(user?.id) && conv.owner_id === user?.id;
-
-      return viewerIsOwner
-        ? (conv.client?.avatar_url ?? null)
-        : null;
-    }
-
-    const viewerIsProvider =
-      Boolean(user?.id) && conv.provider?.user_id === user?.id;
-
-    return viewerIsProvider
-      ? (conv.client?.avatar_url ?? null)
-      : (conv.provider?.avatar_url ?? null);
-  }
-
-  /** The other person's auth id — used for reporting and blocking. */
-  function peerUserIdOf(conv: (typeof list)[number]): string | null {
-    if (conv.listing_id) {
-      const viewerIsOwner =
-        Boolean(user?.id) && conv.owner_id === user?.id;
-
-      return (viewerIsOwner ? conv.client_id : conv.owner_id) ?? null;
-    }
-
-    const viewerIsProvider =
-      Boolean(user?.id) && conv.provider?.user_id === user?.id;
-
-    return (
-      (viewerIsProvider ? conv.client_id : conv.provider?.user_id) ?? null
+    void queryClient.invalidateQueries(
+      {
+        queryKey: [
+          "conversations",
+        ],
+      },
     );
   }
 
-  /** Where the other side's public page lives, when they have one. */
-  function peerProfileOf(conv: (typeof list)[number] | undefined) {
-    if (!conv) return null;
+  /* ------------------------------------------------------------------------
+     Delete own message
+  ------------------------------------------------------------------------ */
 
-    if (conv.listing_id) {
-      const viewerIsOwner =
-        Boolean(user?.id) && conv.owner_id === user?.id;
+  async function remove(
+    id: string,
+  ) {
+    setConfirmDelete(null);
 
-      return viewerIsOwner || !conv.listing
-        ? null
-        : {
-            to: "/property/$listingId",
-            params: { listingId: conv.listing.id },
-          };
+    const { error } =
+      await supabase
+        .from("messages")
+        .delete()
+        .eq("id", id);
+
+    if (error) {
+      console.error(
+        "chat delete failed",
+        error,
+      );
+
+      toast.error(
+        error.message ||
+          (fr
+            ? "Message non supprimé"
+            : "Message not deleted"),
+      );
+
+      return;
     }
 
-    const viewerIsProvider =
-      Boolean(user?.id) && conv.provider?.user_id === user?.id;
+    toast.success(
+      fr
+        ? "Message supprimé"
+        : "Message deleted",
+    );
 
-    if (viewerIsProvider || !conv.provider) return null;
+    void queryClient.invalidateQueries(
+      {
+        queryKey: [
+          "messages",
+          conversationId,
+        ],
+      },
+    );
 
-    return {
-      to: "/services/$providerId",
-      params: { providerId: conv.provider.id },
-    };
+    void queryClient.invalidateQueries(
+      {
+        queryKey: [
+          "conversations",
+        ],
+      },
+    );
   }
 
-  /** Open the other side's public page from the chat header. */
-  function openPeerProfile(conv: (typeof list)[number]) {
-    const target = peerProfileOf(conv);
-
-    if (!target) return;
-
-    void routerNavigate({
-      to: target.to,
-      params: target.params,
-    } as never);
-  }
-
-  /** One-line preview of the newest message. */
-  function previewOf(conv: (typeof list)[number]): string {
-    const last = conv.last_message;
-
-    if (!last) {
-      if (conv.booking) return conv.booking.service_title;
-
-      if (conv.listing)
-        return `ASH Property · ${conv.listing.city}`;
-
-      return t("chat.pick");
-    }
-
-    const mine = last.sender_id === user?.id;
-
-    const text =
-      last.kind === "INVOICE"
-        ? fr
-          ? "Facture"
-          : "Invoice"
-        : last.body;
-
-    return `${mine ? (fr ? "Vous : " : "You: ") : ""}${text}`
-      .replace(/\s+/g, " ")
-      .trim();
-  }
-
-  const filtered = term.trim()
-    ? list.filter((conv) =>
-        `${peerOf(conv)} ${previewOf(conv)}`
-          .toLowerCase()
-          .includes(term.trim().toLowerCase()),
-      )
-    : list;
+  /* ------------------------------------------------------------------------
+     Render
+  ------------------------------------------------------------------------ */
 
   return (
-    <div className="mx-auto w-full max-w-5xl md:space-y-4">
-      {/* DESKTOP PAGE HEADER */}
-      <header className="hidden md:block">
-        <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
-          {t("chat.title")}
-        </h1>
+    <div
+      className={cn(
+        "flex min-h-0 flex-col",
+        className,
+      )}
+    >
+      {/* ---------------------------------------------------------------
+          REPORT
+      --------------------------------------------------------------- */}
 
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("chat.pick")}
-        </p>
-      </header>
+      <div className="flex shrink-0 items-center justify-end px-1">
+        <ReportDialog
+          targetType="MESSAGE"
+          targetId={
+            conversationId
+          }
+          targetUserId={
+            peerUserId ?? null
+          }
+          targetLabel={peerName}
+          compact
+        />
+      </div>
 
-      {isLoading ? (
-        <SkeletonRows rows={3} />
-      ) : (
+      {/* ---------------------------------------------------------------
+          MESSAGE SCROLLER
 
-        <div className="grid md:gap-4 md:grid-cols-[320px_minmax(0,1fr)]">
-          {/* =========================================================
-              CHAT LIST
-              ========================================================= */}
-          <div
-            className={cn(
-              "tile flex flex-col overflow-hidden bg-background p-0 max-md:rounded-none max-md:border-0",
-              mobileView === "thread"
-                ? "hidden md:flex"
-                : "max-md:-mx-4 max-md:-mt-5 max-md:h-[calc(var(--ash-vh,100dvh)-3.5rem-4.75rem)]",
-              "md:max-h-[72vh]",
-            )}
-          >
-            <div className="border-b border-border bg-card/95 px-3 pb-2.5 pt-2.5 backdrop-blur">
-              <h2 className="mb-2 font-display text-xl font-bold text-foreground md:hidden">
-                {t("chat.title")}
-              </h2>
+          This is the ONLY scrolling area in the conversation.
+      --------------------------------------------------------------- */}
 
-              <div className="flex items-center gap-2 rounded-full bg-muted px-3 py-2">
-                <Search
-                  className="size-4 shrink-0 text-muted-foreground"
-                  aria-hidden
-                />
+      <div
+        ref={messagesScrollRef}
+        className={cn(
+          "min-h-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto overscroll-contain px-1 py-2",
 
-                <input
-                  value={term}
-                  onChange={(event) => setTerm(event.target.value)}
-                  placeholder={
-                    fr
-                      ? "Rechercher une discussion"
-                      : "Search chats"
-                  }
-                  aria-label={
-                    fr
-                      ? "Rechercher une discussion"
-                      : "Search chats"
-                  }
-                  className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                />
-              </div>
-            </div>
+          /*
+           * Helps iOS maintain momentum scrolling inside the actual
+           * conversation instead of pushing the shell.
+           */
+          "[-webkit-overflow-scrolling:touch]",
+        )}
+      >
+        {/* Loading */}
 
-            <nav className="min-h-0 flex-1 divide-y divide-border overflow-y-auto">
-              {term.trim() &&
-              !`${chatGPTConversation.label} ${chatGPTConversation.preview}`
-                .toLowerCase()
-                .includes(term.trim().toLowerCase()) &&
-              filtered.length === 0 ? (
-                <p className="p-6 text-center text-sm text-muted-foreground">
-                  {fr
-                    ? "Aucune discussion trouvée."
-                    : "No chats found."}
-                </p>
-              ) : null}
-
-              {(!term.trim() ||
-                `${chatGPTConversation.label} ${chatGPTConversation.preview}`
-                  .toLowerCase()
-                  .includes(term.trim().toLowerCase())) && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    void navigate({
-                      search: { c: CHATGPT_ID },
-                    })
-                  }
+        {isLoading ? (
+          <div className="space-y-3 py-4">
+            {[0, 1, 2].map(
+              (index) => (
+                <div
+                  key={index}
                   className={cn(
-                    "flex w-full items-center gap-3 border-b border-border px-3 py-3 text-left transition-colors",
-                    activeId === CHATGPT_ID
-                      ? "bg-primary/10"
-                      : "hover:bg-muted/70 active:bg-muted",
+                    "h-9 max-w-[60%] animate-pulse rounded-2xl bg-muted",
+
+                    index % 2 === 1
+                      ? "ml-auto"
+                      : "",
                   )}
-                >
-                  <span className="grid size-12 shrink-0 place-items-center rounded-full bg-gradient-to-br from-violet-600 via-fuchsia-500 to-pink-500 p-[2px] shadow-sm ring-2 ring-violet-300/60 dark:ring-violet-400/40">
-                    <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
-                      <img
-                        src="https://chatgpt.com/favicon.ico"
-                        alt="ChatGPT"
-                        className="size-full rounded-full object-cover"
-                        loading="lazy"
-                      />
-                    </span>
-                  </span>
+                />
+              ),
+            )}
+          </div>
+        ) : messages.length ===
+          0 ? (
+          /* Empty */
 
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-baseline justify-between gap-2">
-                      <span className="truncate text-[15px] font-bold text-foreground">
-                        ChatGPT
-                      </span>
-                      <span className="shrink-0 text-[11px] font-medium text-primary">
-                        AI
-                      </span>
-                    </span>
+          <div className="py-8 text-center">
+            <p className="text-sm font-semibold text-foreground">
+              {t("chat.none")}
+            </p>
 
-                    <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">
-                      {chatGPTConversation.preview}
-                    </span>
-                  </span>
-                </button>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {t(
+                "chat.noneCopy",
               )}
+            </p>
+          </div>
+        ) : (
+          /* Messages */
 
-              {filtered.map((conv) => {
-                const label = peerOf(conv);
-                const unread = conv.unread_count ?? 0;
-                const avatarColor = getAvatarColor(conv.id);
+          grouped.map(
+            (group) => (
+              <div
+                key={group.day}
+                className="space-y-1.5"
+              >
+                {/* Date */}
 
-                return (
-                  <button
-                    key={conv.id}
-                    type="button"
-                    onClick={() =>
-                      void navigate({
-                        search: { c: conv.id },
-                      })
-                    }
-                    className={cn(
-                      "flex w-full items-center gap-3 px-3 py-3 text-left transition-colors",
-                      conv.id === activeId
-                        ? "bg-primary/10"
-                        : "hover:bg-muted/70 active:bg-muted",
-                    )}
-                  >
-                    {/* COLORED ASH PROFILE CIRCLE */}
-                    <span
-                      className={cn(
-                        "grid size-12 shrink-0 place-items-center rounded-full p-[2px] shadow-sm ring-2",
-                        avatarColor.wrapper,
-                        avatarColor.ring,
-                      )}
-                    >
-                      <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
-                        <Avatar
-                          path={peerAvatarOf(conv)}
-                          name={label}
-                          className="size-full rounded-full border-0 shadow-none"
+                <p className="sticky top-0 z-10 mx-auto w-fit rounded-full bg-muted/90 px-3 py-0.5 text-[11px] font-semibold text-muted-foreground backdrop-blur">
+                  {dayLabel(
+                    group.items[0]!
+                      .created_at,
+                    fr,
+                  )}
+                </p>
+
+                {group.items.map(
+                  (
+                    message,
+                    index,
+                  ) => {
+                    const kind =
+                      message.kind ??
+                      "TEXT";
+
+                    /* ---------------------------------------------------
+                       Invoice/system messages
+                    --------------------------------------------------- */
+
+                    if (
+                      kind ===
+                        "INVOICE" ||
+                      kind ===
+                        "SYSTEM"
+                    ) {
+                      return (
+                        <InvoiceMessage
+                          key={
+                            message.id
+                          }
+                          kind={kind}
+                          body={
+                            message.body
+                          }
+                          metadata={
+                            message.metadata ??
+                            {}
+                          }
                         />
-                      </span>
-                    </span>
+                      );
+                    }
 
-                    <span className="min-w-0 flex-1">
-                      <span className="flex items-baseline justify-between gap-2">
-                        <span className="truncate text-[15px] font-semibold text-foreground">
-                          {label}
-                        </span>
+                    const mine =
+                      message.sender_id ===
+                      currentUserId;
 
-                        <span
-                          className={cn(
-                            "shrink-0 text-[11px]",
-                            unread > 0
-                              ? "font-semibold text-primary"
-                              : "text-muted-foreground",
-                          )}
-                        >
-                          {stamp(
-                            conv.last_message?.created_at ??
-                              conv.last_message_at,
-                            fr,
-                          )}
-                        </span>
-                      </span>
+                    const previous =
+                      group.items[
+                        index - 1
+                      ];
 
-                      <span className="mt-0.5 flex items-center justify-between gap-2">
-                        <span
-                          className={cn(
-                            "truncate text-[13px]",
-                            unread > 0
-                              ? "font-medium text-foreground"
-                              : "text-muted-foreground",
-                          )}
-                        >
-                          {previewOf(conv)}
-                        </span>
+                    const next =
+                      group.items[
+                        index + 1
+                      ];
 
-                        {unread > 0 ? (
-                          <span className="grid min-w-5 shrink-0 place-items-center rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground">
-                            {unread > 99 ? "99+" : unread}
+                    const startsRun =
+                      !previous ||
+                      previous.sender_id !==
+                        message.sender_id ||
+                      (previous.kind ??
+                        "TEXT") !==
+                        "TEXT";
+
+                    const endsRun =
+                      !next ||
+                      next.sender_id !==
+                        message.sender_id ||
+                      (next.kind ??
+                        "TEXT") !==
+                        "TEXT";
+
+                    return (
+                      <div
+                        key={
+                          message.id
+                        }
+                        className={cn(
+                          "flex items-end gap-2",
+                          mine
+                            ? "justify-end"
+                            : "justify-start",
+                          startsRun &&
+                            "mt-2.5",
+                        )}
+                      >
+                        {/* ------------------------------------------------
+                            Other person's avatar
+                        ------------------------------------------------ */}
+
+                        {!mine ? (
+                          <span
+                            className={cn(
+                              "grid size-7 shrink-0 place-items-center rounded-full bg-primary/15 text-[10px] font-bold text-primary",
+                              !endsRun &&
+                                "invisible",
+                            )}
+                            aria-hidden
+                          >
+                            {
+                              peerInitials
+                            }
                           </span>
                         ) : null}
-                      </span>
-                    </span>
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
 
-          {/* =========================================================
-              ACTIVE CHAT
-              ========================================================= */}
-          <div
-            onTouchStart={
-              mobileView === "thread" ? handleChatTouchStart : undefined
-            }
-            onTouchEnd={
-              mobileView === "thread" ? handleChatTouchEnd : undefined
-            }
-            style={
-              {
-                "--ash-mobile-nav-height": `${mobileNavHeight}px`,
-                "--ash-visual-height": visualViewportHeight
-                  ? `${visualViewportHeight}px`
-                  : "100dvh",
-                "--ash-chat-height": visualViewportHeight
-                  ? `${Math.max(0, visualViewportHeight - (keyboardOpen ? 0 : mobileNavHeight))}px`
-                  : `calc(100dvh - var(--ash-mobile-nav-height, 0px))`,
-              } as CSSProperties
-            }
-            className={cn(
-              "tile chat-surface flex flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-0",
-              mobileView === "list"
-                ? "hidden md:flex"
-                : cn(
-                    "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:z-[70] max-md:w-screen max-md:touch-pan-y",
-                    "max-md:h-[var(--ash-chat-height,calc(100dvh-var(--ash-mobile-nav-height,0px)))]",
-                  ),
-              "md:h-[72vh]",
-            )}
-          >
-            {/* CHAT HEADER */}
-            <div className="flex items-center gap-2.5 border-b border-border bg-card/95 px-2.5 py-2 backdrop-blur max-md:pt-[calc(0.5rem+env(safe-area-inset-top))]">
-              {/* BACK TO MESSAGES */}
-              <button
-                type="button"
-                onClick={() =>
-                  void navigate({
-                    to: "/messages",
-                    search: {},
-                  })
-                }
-                aria-label={
-                  fr
-                    ? "Retour aux messages"
-                    : "Back to messages"
-                }
-                className="grid size-10 shrink-0 place-items-center rounded-full bg-muted/70 text-foreground shadow-sm transition-all hover:bg-muted active:scale-95 md:hidden"
-              >
-                <ArrowLeft
-                  className="size-5"
-                  aria-hidden
-                />
-              </button>
+                        {/* ------------------------------------------------
+                            Message bubble
+                        ------------------------------------------------ */}
 
-              {/* ACTIVE PROFILE */}
-              <button
-                type="button"
-                onClick={() =>
-                  active && openPeerProfile(active)
-                }
-                disabled={
-                  !active || !peerProfileOf(active)
-                }
-                aria-label={
-                  fr
-                    ? "Voir le profil"
-                    : "View profile"
-                }
-                className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl px-1 py-0.5 text-left transition-colors enabled:hover:bg-muted/60"
-              >
-                {active ? (
-                  <span
-                    className={cn(
-                      "grid size-10 shrink-0 place-items-center rounded-full p-[2px] shadow-sm ring-2",
-                      getAvatarColor(active.id).wrapper,
-                      getAvatarColor(active.id).ring,
-                    )}
-                  >
-                    <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
-                      <Avatar
-                        path={peerAvatarOf(active)}
-                        name={peerOf(active)}
-                        className="size-full rounded-full border-0 shadow-none"
-                      />
-                    </span>
-                  </span>
-                ) : null}
+                        <div
+                          onContextMenu={(
+                            event,
+                          ) => {
+                            if (!mine)
+                              return;
 
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-display text-[15px] font-semibold text-foreground">
-                    {active
-                      ? peerOf(active)
-                      : t("chat.title")}
-                  </p>
+                            event.preventDefault();
 
-                  {active?.booking ? (
-                    <p className="truncate text-[11px] text-muted-foreground">
-                      {active.booking.service_title} ·{" "}
-                      {formatDateTime(
-                        active.booking.scheduled_at,
-                      )}
-                      {active.booking.invoice_number
-                        ? ` · ${active.booking.invoice_number}`
-                        : ""}
-                    </p>
-                  ) : active?.listing ? (
-                    <p className="truncate text-[11px] text-muted-foreground">
-                      ASH Property ·{" "}
-                      {active.listing.city}
-                    </p>
-                  ) : null}
-                </div>
-              </button>
+                            setConfirmDelete(
+                              message.id,
+                            );
+                          }}
+                          onPointerDown={() => {
+                            if (!mine)
+                              return;
 
-              {/* BOOKING STATUS */}
-              {active?.booking ? (
-                <div className="shrink-0 text-right">
-                  <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
-                    {bookingStatusLabel(
-                      active.booking.status,
-                      lang,
-                    )}
-                  </span>
+                            pressRef.current =
+                              window.setTimeout(
+                                () =>
+                                  setConfirmDelete(
+                                    message.id,
+                                  ),
+                                500,
+                              );
+                          }}
+                          onPointerUp={() => {
+                            if (
+                              pressRef.current
+                            ) {
+                              window.clearTimeout(
+                                pressRef.current,
+                              );
+                            }
+                          }}
+                          onPointerLeave={() => {
+                            if (
+                              pressRef.current
+                            ) {
+                              window.clearTimeout(
+                                pressRef.current,
+                              );
+                            }
+                          }}
+                          className={cn(
+                            "group relative max-w-[78%] px-3.5 py-2 shadow-sm transition-colors",
 
-                  <p className="tabular mt-1 text-xs font-bold text-foreground">
-                    {formatXAF(
-                      Number(active.booking.price),
-                    )}
-                  </p>
-                </div>
-              ) : null}
-            </div>
+                            mine
+                              ? "rounded-2xl bg-primary text-primary-foreground"
+                              : "rounded-2xl bg-muted text-foreground",
 
-            {/* =======================================================
-                CHAT CONTENT
-                ======================================================= */}
-            {activeId === CHATGPT_ID ? (
-              <div
-                className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-background"
-                style={{
-                  backgroundImage: `url(${ASH_CHAT_BACKGROUND})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
-                }}
-              >
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 bg-background/65 backdrop-blur-[1px] dark:bg-slate-950/72"
-                />
+                            mine &&
+                              !endsRun &&
+                              "rounded-br-md",
 
-                <div className="relative flex min-h-0 flex-1 flex-col">
-                  <div className="flex-1 overflow-y-auto px-4 py-6">
-                  <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
-                    <span className="grid size-16 place-items-center rounded-full bg-gradient-to-br from-violet-600 via-fuchsia-500 to-pink-500 p-[2px] shadow-lg ring-2 ring-violet-300/60 dark:ring-violet-400/40">
-                      <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
-                        <img
-                          src="https://chatgpt.com/favicon.ico"
-                          alt="ChatGPT"
-                          className="size-full rounded-full object-cover"
-                        />
-                      </span>
-                    </span>
+                            mine &&
+                              endsRun &&
+                              "rounded-br-sm",
 
-                    <h3 className="mt-4 font-display text-xl font-bold text-foreground">
-                      ChatGPT
-                    </h3>
+                            !mine &&
+                              !endsRun &&
+                              "rounded-bl-md",
 
-                    <p className="mt-1 max-w-md text-sm text-muted-foreground">
-                      {fr
-                        ? "Votre assistant IA. Posez une question, demandez une idée ou obtenez de l’aide."
-                        : "Your AI assistant. Ask a question, get an idea, or get help with anything."}
-                    </p>
-
-                    <div className="mt-6 grid w-full max-w-lg gap-2 sm:grid-cols-2">
-                      {(fr
-                        ? [
-                            "Aide-moi à trouver un service",
-                            "Aide-moi à rédiger un CV",
-                            "Explique-moi cette annonce",
-                            "Donne-moi une idée de business",
-                          ]
-                        : [
-                            "Help me find a service",
-                            "Help me write a CV",
-                            "Explain this listing",
-                            "Give me a business idea",
-                          ]
-                      ).map((prompt) => (
-                        <button
-                          key={prompt}
-                          type="button"
-                          className="rounded-xl border border-border bg-card px-3 py-3 text-left text-sm text-foreground transition-colors hover:bg-muted active:scale-[0.99]"
+                            !mine &&
+                              endsRun &&
+                              "rounded-bl-sm",
+                          )}
                         >
-                          {prompt}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                          {/* Desktop delete shortcut */}
 
-                  <div className="border-t border-border bg-card/90 p-3 backdrop-blur-xl">
-                  <div className="mx-auto flex max-w-2xl items-center gap-2 rounded-2xl border border-border bg-background px-3 py-2">
-                    <input
-                      type="text"
-                      placeholder={
-                        fr ? "Écrivez à ChatGPT…" : "Message ChatGPT…"
-                      }
-                      className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
-                      disabled
-                    />
-                    <Bot className="size-5 shrink-0 text-primary" aria-hidden />
-                  </div>
-                  <p className="mx-auto mt-2 max-w-2xl text-center text-[10px] text-muted-foreground">
-                    {fr
-                      ? "L’IA sera connectée à cette interface dans une prochaine étape."
-                      : "AI will be connected to this interface in a later step."}
-                  </p>
-                  </div>
-                </div>
+                          {mine ? (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setConfirmDelete(
+                                  message.id,
+                                )
+                              }
+                              aria-label={
+                                fr
+                                  ? "Supprimer le message"
+                                  : "Delete message"
+                              }
+                              className="absolute -left-8 top-1/2 hidden size-7 -translate-y-1/2 place-items-center rounded-full bg-card text-muted-foreground shadow-sm group-hover:grid hover:text-destructive"
+                            >
+                              <Trash2
+                                className="size-3.5"
+                                aria-hidden
+                              />
+                            </button>
+                          ) : null}
+
+                          {/* Message text */}
+
+                          <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+                            {
+                              message.body
+                            }
+                          </p>
+
+                          {/* Delete confirmation */}
+
+                          {confirmDelete ===
+                          message.id ? (
+                            <span className="mt-2 flex items-center justify-end gap-2 text-[11px] font-semibold">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setConfirmDelete(
+                                    null,
+                                  )
+                                }
+                                className={cn(
+                                  "rounded-full px-2 py-0.5",
+
+                                  mine
+                                    ? "bg-primary-foreground/20"
+                                    : "bg-background",
+                                )}
+                              >
+                                {fr
+                                  ? "Annuler"
+                                  : "Cancel"}
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  void remove(
+                                    message.id,
+                                  )
+                                }
+                                className="rounded-full bg-destructive px-2 py-0.5 text-destructive-foreground"
+                              >
+                                {fr
+                                  ? "Supprimer"
+                                  : "Delete"}
+                              </button>
+                            </span>
+                          ) : null}
+
+                          {/* Timestamp */}
+
+                          {endsRun ? (
+                            <span
+                              className={cn(
+                                "mt-1 flex items-center justify-end gap-1 text-[10px]",
+
+                                mine
+                                  ? "text-primary-foreground/75"
+                                  : "text-muted-foreground",
+                              )}
+                            >
+                              {timeLabel(
+                                message.created_at,
+                                fr,
+                              )}
+
+                              {mine ? (
+                                message.read_at ? (
+                                  <CheckCheck
+                                    className="size-3"
+                                    aria-hidden
+                                  />
+                                ) : (
+                                  <Check
+                                    className="size-3"
+                                    aria-hidden
+                                  />
+                                )
+                              ) : null}
+                            </span>
+                          ) : null}
+                        </div>
+                      </div>
+                    );
+                  },
+                )}
               </div>
-            ) : activeId ? (
-              <div
-                className="relative min-h-0 flex-1 overflow-hidden bg-background"
-                style={{
-                  backgroundImage: `url(${ASH_CHAT_BACKGROUND})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
-                }}
-              >
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 bg-background/62 backdrop-blur-[1px] dark:bg-slate-950/70"
-                />
+            ),
+          )
+        )}
 
-                <div className="relative flex h-full min-h-0 flex-col">
-                  <ChatThread
-                conversationId={activeId}
-                currentUserId={user?.id}
-                peerName={
-                  active ? peerOf(active) : "ASH"
-                }
-                peerUserId={
-                  active
-                    ? peerUserIdOf(active)
-                    : null
-                }
-                className="min-h-0 flex-1 px-2"
-                    quickReplies={
-                      lang === "fr"
-                        ? [
-                            "Bonjour 👋",
-                            "Quelle est votre disponibilité ?",
-                            "Je confirme le rendez-vous",
-                            "Je suis en route",
-                          ]
-                        : [
-                            "Hello 👋",
-                            "What is your availability?",
-                            "I confirm the appointment",
-                            "I'm on my way",
-                          ]
-                    }
+        {/* ---------------------------------------------------------------
+            Pending messages
+        --------------------------------------------------------------- */}
+
+        {pending.map(
+          (text, index) => (
+            <div
+              key={`pending-${index}`}
+              className="flex justify-end"
+            >
+              <div className="max-w-[78%] rounded-2xl rounded-br-sm bg-primary/70 px-3.5 py-2 text-primary-foreground">
+                <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+                  {text}
+                </p>
+
+                <span className="mt-1 flex items-center justify-end gap-1 text-[10px] text-primary-foreground/80">
+                  <Loader2
+                    className="size-3 animate-spin"
+                    aria-hidden
                   />
-                </div>
+
+                  {fr
+                    ? "Envoi…"
+                    : "Sending…"}
+                </span>
               </div>
-            ) : (
-              <div className="grid flex-1 place-items-center p-6 text-center text-sm text-muted-foreground">
-                {t("chat.pick")}
-              </div>
-            )}
+            </div>
+          ),
+        )}
+
+        {/* ---------------------------------------------------------------
+            Failed message
+        --------------------------------------------------------------- */}
+
+        {failed ? (
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() =>
+                void submit(
+                  failed,
+                )
+              }
+              className="flex items-center gap-1.5 rounded-full border border-destructive/40 px-3 py-1 text-[11px] font-semibold text-destructive"
+            >
+              <AlertCircle
+                className="size-3"
+                aria-hidden
+              />
+
+              {fr
+                ? "Échec — réessayer"
+                : "Failed — tap to retry"}
+            </button>
           </div>
+        ) : null}
+      </div>
+
+      {/* ---------------------------------------------------------------
+          QUICK REPLIES
+      --------------------------------------------------------------- */}
+
+      {quickReplies.length >
+      0 ? (
+        <div className="flex shrink-0 gap-2 overflow-x-auto px-1 pb-2">
+          {quickReplies.map(
+            (quickReply) => (
+              <button
+                key={quickReply}
+                type="button"
+                onClick={() =>
+                  void submit(
+                    quickReply,
+                  )
+                }
+                className="shrink-0 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:bg-muted hover:text-foreground"
+              >
+                {quickReply}
+              </button>
+            ),
+          )}
         </div>
-      )}
+      ) : null}
+
+      {/* ---------------------------------------------------------------
+          MESSAGE COMPOSER
+
+          No sticky positioning.
+          No bottom nav dependency.
+          It belongs entirely to the chat.
+      --------------------------------------------------------------- */}
+
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+
+          void submit(body);
+        }}
+        className="shrink-0 flex items-end gap-2 border-t border-border bg-background pt-2 pb-2"
+      >
+        <div className="flex min-w-0 flex-1 flex-col">
+          <Textarea
+            rows={1}
+            value={body}
+            onChange={(event) =>
+              setBody(
+                event.target.value.slice(
+                  0,
+                  1000,
+                ),
+              )
+            }
+            onKeyDown={(event) => {
+              if (
+                event.key ===
+                  "Enter" &&
+                !event.shiftKey
+              ) {
+                event.preventDefault();
+
+                void submit(body);
+              }
+            }}
+            placeholder={t(
+              "chat.placeholder",
+            )}
+            aria-label={t(
+              "chat.placeholder",
+            )}
+            className="min-h-10 max-h-32 resize-none overflow-y-auto rounded-2xl overscroll-contain"
+          />
+
+          <span className="mt-1 px-1 text-[10px] text-muted-foreground">
+            {body.length > 800
+              ? `${body.length}/1000`
+              : fr
+                ? "Entrée pour envoyer · Maj+Entrée = nouvelle ligne"
+                : "Enter to send · Shift+Enter = new line"}
+          </span>
+        </div>
+
+        <Button
+          type="submit"
+          size="icon"
+          className="mb-5 size-10 shrink-0 rounded-full"
+          disabled={
+            sending ||
+            body.trim()
+              .length === 0
+          }
+          aria-label={t(
+            "chat.send",
+          )}
+        >
+          {sending ? (
+            <Loader2
+              className="size-4 animate-spin"
+              aria-hidden
+            />
+          ) : (
+            <Send
+              className="size-4"
+              aria-hidden
+            />
+          )}
+        </Button>
+      </form>
     </div>
+  );
+}
+
+/* ==========================================================================
+   ASH INVOICE / SYSTEM MESSAGE
+============================================================================ */
+
+function InvoiceMessage({
+  kind,
+  body,
+  metadata,
+}: {
+  kind: string;
+  body: string;
+  metadata: Record<
+    string,
+    unknown
+  >;
+}) {
+  const { lang } =
+    useI18n();
+
+  const fr = lang === "fr";
+
+  /* ------------------------------------------------------------------------
+     SYSTEM MESSAGE
+  ------------------------------------------------------------------------ */
+
+  if (kind === "SYSTEM") {
+    return (
+      <p className="mx-auto max-w-[90%] rounded-full bg-muted px-3 py-1 text-center text-[11px] text-muted-foreground">
+        {body}
+      </p>
+    );
+  }
+
+  /* ------------------------------------------------------------------------
+     Invoice
+  ------------------------------------------------------------------------ */
+
+  const invoice = String(
+    metadata[
+      "invoice_number"
+    ] ?? "",
+  );
+
+  const total = Number(
+    metadata["total"] ??
+      metadata["price"] ??
+      0,
+  );
+
+  const fee = Number(
+    metadata[
+      "platform_fee"
+    ] ?? 0,
+  );
+
+  const net = Number(
+    metadata[
+      "provider_amount"
+    ] ?? 0,
+  );
+
+  const service = String(
+    metadata[
+      "service_title"
+    ] ?? "",
+  );
+
+  return (
+    <article className="mx-auto w-full max-w-[92%] rounded-2xl border border-primary/30 bg-primary/5 p-3">
+      <header className="flex items-center justify-between gap-2">
+        <span className="flex items-center gap-1.5 text-xs font-bold text-primary">
+          <ReceiptText
+            className="size-4"
+            aria-hidden
+          />
+
+          {fr
+            ? "Facture ASH"
+            : "ASH invoice"}
+        </span>
+
+        {invoice ? (
+          <span className="tabular text-[11px] font-semibold text-muted-foreground">
+            {invoice}
+          </span>
+        ) : null}
+      </header>
+
+      {service ? (
+        <p className="mt-1 truncate text-sm font-semibold text-foreground">
+          {service}
+        </p>
+      ) : null}
+
+      <dl className="mt-2 space-y-1 text-xs">
+        <div className="flex justify-between gap-3">
+          <dt className="text-muted-foreground">
+            {fr
+              ? "Total payé"
+              : "Total paid"}
+          </dt>
+
+          <dd className="tabular font-bold text-foreground">
+            {formatXAF(total)}
+          </dd>
+        </div>
+
+        {fee > 0 ? (
+          <div className="flex justify-between gap-3">
+            <dt className="text-muted-foreground">
+              {fr
+                ? "Frais ASH"
+                : "ASH fee"}
+            </dt>
+
+            <dd className="tabular text-foreground">
+              {formatXAF(fee)}
+            </dd>
+          </div>
+        ) : null}
+
+        {net > 0 ? (
+          <div className="flex justify-between gap-3">
+            <dt className="text-muted-foreground">
+              {fr
+                ? "Reçu par le pro"
+                : "Provider receives"}
+            </dt>
+
+            <dd className="tabular text-foreground">
+              {formatXAF(net)}
+            </dd>
+          </div>
+        ) : null}
+      </dl>
+
+      {body ? (
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          {body}
+        </p>
+      ) : null}
+    </article>
   );
 }
