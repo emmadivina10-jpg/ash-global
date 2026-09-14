@@ -297,6 +297,8 @@ function DiscoveryPage() {
   const [spotlightFeedOpen, setSpotlightFeedOpen] = useState(false);
   const [spotlightOpen, setSpotlightOpen] = useState(false);
   const [spotlightIndex, setSpotlightIndex] = useState(0);
+  const [spotlightSearch, setSpotlightSearch] = useState("");
+  const [spotlightVendorInfoOpen, setSpotlightVendorInfoOpen] = useState(false);
   const spotlightContainerRef = useRef<HTMLDivElement>(null);
 
   const [filters, setFilters] =
@@ -422,11 +424,31 @@ function DiscoveryPage() {
     [community],
   );
 
+  const filteredSpotlightPosts = useMemo(() => {
+    const term = spotlightSearch.trim().toLowerCase();
+    if (!term) return spotlightPosts;
+
+    return spotlightPosts.filter((post) =>
+      [
+        post.provider.business_name,
+        post.provider.city,
+        post.caption,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(term),
+    );
+  }, [spotlightPosts, spotlightSearch]);
+
   useEffect(() => {
     if (!spotlightFeedOpen && !spotlightOpen) return;
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setSpotlightOpen(false);
+      if (event.key === "Escape") {
+        setSpotlightOpen(false);
+        setSpotlightVendorInfoOpen(false);
+      }
     };
 
     const previousOverflow = document.body.style.overflow;
@@ -455,6 +477,7 @@ function DiscoveryPage() {
     if (!conversationId) return;
 
     setSpotlightOpen(false);
+    setSpotlightVendorInfoOpen(false);
     void navigate({
       to: "/messages",
       search: { c: conversationId },
@@ -758,6 +781,7 @@ function DiscoveryPage() {
               type="button"
               onClick={() => {
                 setSpotlightIndex(0);
+                setSpotlightSearch("");
                 setSpotlightFeedOpen(true);
               }}
               className="shrink-0 rounded-full px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/10"
@@ -769,7 +793,7 @@ function DiscoveryPage() {
 
         {spotlightPosts.length > 0 ? (
           <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1 scrollbar-none">
-            {spotlightPosts.map((post, index) => {
+            {filteredSpotlightPosts.map((post, index) => {
               const mediaIsVideo = isVideoSource(post.url);
               const businessName = post.provider.business_name;
               const city = post.provider.city;
@@ -780,11 +804,37 @@ function DiscoveryPage() {
                   type="button"
                   onClick={() => {
                     setSpotlightIndex(index);
+                    setSpotlightSearch("");
                     setSpotlightFeedOpen(true);
                   }}
                   className="group relative h-48 w-[118px] shrink-0 snap-start overflow-hidden rounded-[22px] border border-border bg-slate-950 text-left shadow-[var(--shadow-card)] ring-1 ring-black/5 transition-transform duration-300 active:scale-[0.98] sm:h-56 sm:w-[138px]"
                 >
                   <span className="absolute inset-0 z-10 bg-gradient-to-t from-black via-black/15 to-transparent" />
+
+                  <span className="absolute left-2.5 top-2.5 z-20 flex max-w-[calc(100%-1.25rem)] items-center gap-1.5">
+                    <span
+                      className="grid size-8 shrink-0 place-items-center overflow-hidden rounded-full border border-white/60 bg-gradient-to-br from-[#D4AF37] to-[#4B0082] shadow-lg ring-1 ring-black/20"
+                      aria-label={businessName}
+                    >
+                      {post.provider.avatar_url ? (
+                        <img
+                          src={post.provider.avatar_url}
+                          alt=""
+                          className="size-full object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <span className="text-[9px] font-black text-white">
+                          {businessName.trim().slice(0, 2).toUpperCase()}
+                        </span>
+                      )}
+                    </span>
+
+                    <span className="inline-flex min-w-0 items-center gap-1.5 rounded-full border border-white/20 bg-black/40 px-2 py-1 text-[9px] font-bold text-white backdrop-blur-md">
+                      <span className="size-1.5 shrink-0 rounded-full bg-[#D4AF37] shadow-[0_0_10px_rgba(212,175,55,0.85)]" />
+                      <span className="truncate">ASH Spotlight</span>
+                    </span>
+                  </span>
 
                   {mediaIsVideo ? (
                     <video
@@ -804,11 +854,6 @@ function DiscoveryPage() {
                       className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   )}
-
-                  <span className="absolute left-2.5 top-2.5 z-20 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/40 px-2 py-1 text-[9px] font-bold text-white backdrop-blur-md">
-                    <span className="size-1.5 rounded-full bg-[#D4AF37] shadow-[0_0_10px_rgba(212,175,55,0.85)]" />
-                    ASH Spotlight
-                  </span>
 
                   {mediaIsVideo ? (
                     <span className="absolute right-2.5 top-2.5 z-20 grid size-7 place-items-center rounded-full bg-white/15 text-white backdrop-blur-md">
@@ -841,7 +886,7 @@ function DiscoveryPage() {
       </section>
 
       {/* ASH SPOTLIGHT — SCROLLABLE FEED */}
-      {spotlightFeedOpen && spotlightPosts.length > 0 ? (
+      {spotlightFeedOpen && filteredSpotlightPosts.length > 0 ? (
         <div
           className="fixed inset-0 z-[110] bg-background/88 backdrop-blur-xl"
           role="dialog"
@@ -898,6 +943,7 @@ function DiscoveryPage() {
                       type="button"
                       onClick={() => {
                         setSpotlightIndex(index);
+                        setSpotlightVendorInfoOpen(false);
                         setSpotlightFeedOpen(false);
                         setSpotlightOpen(true);
                       }}
@@ -989,7 +1035,7 @@ function DiscoveryPage() {
       ) : null}
 
       {/* ASH SPOTLIGHT — TRUE FULLSCREEN REELS VIEWER */}
-      {spotlightOpen && spotlightPosts.length > 0 && typeof document !== "undefined"
+      {spotlightOpen && filteredSpotlightPosts.length > 0 && typeof document !== "undefined"
         ? createPortal(
             <div
               className="fixed inset-0 z-[99999] h-[100dvh] min-h-[100svh] w-screen overflow-hidden bg-black"
@@ -1004,47 +1050,50 @@ function DiscoveryPage() {
               {/* Portal-mounted overlay: deliberately rendered under document.body so
                   it sits above the authenticated shell, top header, bottom nav and orb. */}
               <div className="relative h-full w-full overflow-hidden bg-black">
-                <div className="pointer-events-none absolute inset-x-0 top-0 z-40 h-36 bg-gradient-to-b from-black/90 via-black/45 to-transparent" />
+                <div className="pointer-events-none absolute inset-x-0 top-0 z-40 h-40 bg-gradient-to-b from-black/90 via-black/45 to-transparent" />
 
                 <div className="absolute inset-x-0 top-0 z-50 px-3 pb-2 pt-[calc(0.55rem+env(safe-area-inset-top))] sm:px-4">
-                  <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-3">
-                    <div className="flex min-w-0 items-center gap-2.5">
-                      <button
-                        type="button"
-                        onClick={() => setSpotlightOpen(false)}
-                        className="grid size-11 shrink-0 place-items-center rounded-full border border-white/15 bg-black/45 text-white shadow-lg backdrop-blur-xl transition-all hover:bg-white/10 active:scale-95"
-                        aria-label={
-                          fr
-                            ? "Retour aux vidéos"
-                            : "Back to videos"
-                        }
-                      >
-                        <ArrowLeft className="size-5" aria-hidden />
-                      </button>
+                  <div className="mx-auto flex w-full max-w-3xl items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSpotlightOpen(false)}
+                      className="grid size-11 shrink-0 place-items-center rounded-full border border-white/15 bg-black/45 text-white shadow-lg backdrop-blur-xl transition-all hover:bg-white/10 active:scale-95"
+                      aria-label={fr ? "Retour aux vidéos" : "Back to videos"}
+                    >
+                      <ArrowLeft className="size-5" aria-hidden />
+                    </button>
 
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-extrabold text-white">
-                          ASH Spotlight
-                        </p>
-                        <p className="truncate text-[10px] font-semibold text-white/60">
-                          {fr
-                            ? "Découvrez · contactez · commandez"
-                            : "Discover · contact · order"}
-                        </p>
-                      </div>
+                    <div className="relative min-w-0 flex-1">
+                      <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-white/60" aria-hidden />
+                      <input
+                        value={spotlightSearch}
+                        onChange={(event) => {
+                          setSpotlightSearch(event.target.value);
+                          setSpotlightIndex(0);
+                        }}
+                        placeholder={fr ? "Rechercher un vendeur, une offre, une entreprise…" : "Search vendors, offers, businesses…"}
+                        aria-label={fr ? "Rechercher dans ASH Spotlight" : "Search ASH Spotlight"}
+                        className="h-11 w-full rounded-full border border-white/15 bg-black/45 pl-9 pr-4 text-sm font-medium text-white outline-none backdrop-blur-xl placeholder:text-white/45 focus:border-[#D4AF37]/55 focus:ring-2 focus:ring-[#D4AF37]/20"
+                      />
                     </div>
 
-                    <span className="shrink-0 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-2.5 py-1 text-[9px] font-extrabold tracking-wide text-[#D4AF37] backdrop-blur-md">
+                    <span className="hidden shrink-0 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-2.5 py-1 text-[9px] font-extrabold tracking-wide text-[#D4AF37] backdrop-blur-md sm:inline-flex">
                       ASH
                     </span>
                   </div>
+
+                  {filteredSpotlightPosts.length === 0 && spotlightSearch.trim() ? (
+                    <p className="mx-auto mt-2 max-w-3xl px-14 text-center text-[11px] font-semibold text-white/65">
+                      {fr ? "Aucun Spotlight correspondant." : "No matching Spotlight found."}
+                    </p>
+                  ) : null}
                 </div>
 
                 <div
                   ref={spotlightContainerRef}
                   className="h-full snap-y snap-mandatory overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                 >
-                  {spotlightPosts.map((post) => {
+                  {filteredSpotlightPosts.map((post) => {
                     const mediaIsVideo = isVideoSource(post.url);
                     const businessName = post.provider.business_name;
                     const city = post.provider.city;
@@ -1074,11 +1123,19 @@ function DiscoveryPage() {
 
                         <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/15 to-black/10" />
 
-                        {/* Vendor identity */}
-                        <div className="absolute inset-x-0 top-[calc(4.8rem+env(safe-area-inset-top))] z-30 px-3 sm:px-4">
+                        {/* Compact vendor identity — tap to expand/collapse details. */}
+                        <div className="absolute inset-x-0 top-[calc(4.3rem+env(safe-area-inset-top))] z-30 px-3 sm:px-4">
                           <div className="mx-auto w-full max-w-3xl">
-                            <div className="flex items-center gap-3 rounded-2xl border border-white/15 bg-black/45 px-3 py-2.5 text-white shadow-xl backdrop-blur-xl">
-                              <span className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-full border border-white/20 bg-gradient-to-br from-[#D4AF37] via-[#9f7b18] to-[#4B0082] shadow-lg">
+                            <button
+                              type="button"
+                              onClick={() => setSpotlightVendorInfoOpen((open) => !open)}
+                              className={cn(
+                                "flex w-fit max-w-full items-center gap-2 rounded-full border border-white/15 bg-black/40 text-left text-white shadow-lg backdrop-blur-xl transition-all duration-300",
+                                spotlightVendorInfoOpen ? "px-3 py-2.5" : "px-2 py-1.5",
+                              )}
+                              aria-expanded={spotlightVendorInfoOpen}
+                            >
+                              <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-full border border-white/30 bg-gradient-to-br from-[#D4AF37] to-[#4B0082] shadow-lg">
                                 {post.provider.avatar_url ? (
                                   <img
                                     src={post.provider.avatar_url}
@@ -1086,40 +1143,41 @@ function DiscoveryPage() {
                                     className="size-full object-cover"
                                   />
                                 ) : (
-                                  <span className="text-xs font-black">
-                                    {businessName
-                                      .trim()
-                                      .slice(0, 2)
-                                      .toUpperCase()}
+                                  <span className="text-[9px] font-black">
+                                    {businessName.trim().slice(0, 2).toUpperCase()}
                                   </span>
                                 )}
                               </span>
 
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2">
-                                  <p className="truncate text-sm font-extrabold">
+                              <span className="min-w-0 pr-1">
+                                <span className="flex items-center gap-1.5">
+                                  <span className="max-w-[15rem] truncate text-[12px] font-extrabold">
                                     {businessName}
-                                  </p>
-                                  {post.provider.is_verified ? (
-                                    <span className="shrink-0 rounded-full bg-[#D4AF37]/15 px-1.5 py-0.5 text-[9px] font-bold text-[#D4AF37]">
-                                      {fr ? "VÉRIFIÉ" : "VERIFIED"}
-                                    </span>
-                                  ) : null}
-                                </div>
-
-                                <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-white/65">
-                                  {city ? (
-                                    <span className="inline-flex items-center gap-1">
-                                      <MapPin className="size-3" aria-hidden />
-                                      {city}
-                                    </span>
-                                  ) : null}
-                                  <span>
-                                    {fr ? "Vendeur ASH" : "ASH vendor"}
                                   </span>
-                                </div>
-                              </div>
-                            </div>
+                                  {post.provider.is_verified ? (
+                                    <span className="shrink-0 text-[8px] font-black uppercase tracking-wide text-[#D4AF37]">
+                                      ✓
+                                    </span>
+                                  ) : null}
+                                </span>
+
+                                {spotlightVendorInfoOpen ? (
+                                  <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-white/65">
+                                    {city ? (
+                                      <span className="inline-flex items-center gap-1">
+                                        <MapPin className="size-2.5" aria-hidden />
+                                        {city}
+                                      </span>
+                                    ) : null}
+                                    <span>{fr ? "Vendeur ASH" : "ASH vendor"}</span>
+                                  </span>
+                                ) : null}
+                              </span>
+
+                              <span className="ml-0.5 shrink-0 text-white/55">
+                                <span className={cn("text-xs transition-transform duration-300", spotlightVendorInfoOpen ? "rotate-180" : "")}>⌄</span>
+                              </span>
+                            </button>
                           </div>
                         </div>
 
