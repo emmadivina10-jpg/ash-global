@@ -292,6 +292,7 @@ function DiscoveryPage() {
 
   const [showFilters, setShowFilters] =
     useState(false);
+  const [spotlightFeedOpen, setSpotlightFeedOpen] = useState(false);
   const [spotlightOpen, setSpotlightOpen] = useState(false);
   const [spotlightIndex, setSpotlightIndex] = useState(0);
   const spotlightContainerRef = useRef<HTMLDivElement>(null);
@@ -420,10 +421,13 @@ function DiscoveryPage() {
   );
 
   useEffect(() => {
-    if (!spotlightOpen) return;
+    if (!spotlightFeedOpen && !spotlightOpen) return;
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setSpotlightOpen(false);
+      if (event.key === "Escape") {
+        setSpotlightOpen(false);
+        setSpotlightFeedOpen(false);
+      }
     };
 
     const previousOverflow = document.body.style.overflow;
@@ -434,17 +438,17 @@ function DiscoveryPage() {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [spotlightOpen]);
+  }, [spotlightFeedOpen, spotlightOpen]);
 
   useEffect(() => {
-    if (!spotlightOpen) return;
+    if (!spotlightFeedOpen && !spotlightOpen) return;
 
     requestAnimationFrame(() => {
       const node = spotlightContainerRef.current;
       const target = node?.children[spotlightIndex] as HTMLElement | undefined;
       target?.scrollIntoView({ block: "start", behavior: "instant" });
     });
-  }, [spotlightOpen, spotlightIndex]);
+  }, [spotlightFeedOpen, spotlightOpen, spotlightIndex]);
 
   async function contactSpotlightVendor(providerId: string) {
     const conversationId = await openConversation(providerId);
@@ -755,7 +759,7 @@ function DiscoveryPage() {
               type="button"
               onClick={() => {
                 setSpotlightIndex(0);
-                setSpotlightOpen(true);
+                setSpotlightFeedOpen(true);
               }}
               className="shrink-0 rounded-full px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/10"
             >
@@ -777,7 +781,7 @@ function DiscoveryPage() {
                   type="button"
                   onClick={() => {
                     setSpotlightIndex(index);
-                    setSpotlightOpen(true);
+                    setSpotlightFeedOpen(true);
                   }}
                   className="group relative h-48 w-[118px] shrink-0 snap-start overflow-hidden rounded-[22px] border border-border bg-slate-950 text-left shadow-[var(--shadow-card)] ring-1 ring-black/5 transition-transform duration-300 active:scale-[0.98] sm:h-56 sm:w-[138px]"
                 >
@@ -837,16 +841,164 @@ function DiscoveryPage() {
         )}
       </section>
 
-      {/* ASH SPOTLIGHT REELS VIEWER */}
-      {spotlightOpen && spotlightPosts.length > 0 ? (
+      {/* ASH SPOTLIGHT — SCROLLABLE STORY FEED */}
+      {spotlightFeedOpen && spotlightPosts.length > 0 ? (
         <div
-          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/90 backdrop-blur-xl"
+          className="fixed inset-0 z-[110] bg-background/90 backdrop-blur-xl"
           role="dialog"
           aria-modal="true"
-          aria-label="ASH Spotlight"
+          aria-label={fr ? "Flux ASH Spotlight" : "ASH Spotlight feed"}
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              setSpotlightFeedOpen(false);
+            }
+          }}
+        >
+          <div className="mx-auto flex h-full w-full max-w-5xl flex-col overflow-hidden bg-background shadow-2xl sm:mt-[3vh] sm:h-[94vh] sm:rounded-[30px] sm:border sm:border-border">
+            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border bg-card/95 px-4 py-3 backdrop-blur-xl sm:px-5">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#D4AF37] via-[#9f7b18] to-[#4B0082] text-white shadow-lg">
+                  <Play className="size-4 fill-current" aria-hidden />
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-extrabold text-foreground">
+                    ASH Spotlight
+                  </p>
+                  <p className="truncate text-[10px] font-semibold text-muted-foreground">
+                    {fr
+                      ? "Faites défiler les offres des vendeurs. Touchez une vidéo pour l’ouvrir en plein écran."
+                      : "Scroll through vendor offers. Tap a video to open it fullscreen."}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSpotlightFeedOpen(false)}
+                className="grid size-10 shrink-0 place-items-center rounded-full bg-muted text-foreground transition-colors hover:bg-muted/80 active:scale-95"
+                aria-label={fr ? "Fermer" : "Close"}
+              >
+                <X className="size-5" aria-hidden />
+              </button>
+            </div>
+
+            <div
+              ref={spotlightContainerRef}
+              className="min-h-0 flex-1 snap-y snap-mandatory overflow-y-auto overscroll-contain bg-gradient-to-b from-background via-background to-muted/30 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {spotlightPosts.map((post, index) => {
+                const mediaIsVideo = isVideoSource(post.url);
+                const businessName = post.provider.business_name;
+
+                return (
+                  <article
+                    key={post.id}
+                    className="flex min-h-[78vh] w-full snap-start items-center justify-center border-b border-border p-4 sm:min-h-[88vh] sm:p-6"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSpotlightIndex(index);
+                        setSpotlightFeedOpen(false);
+                        setSpotlightOpen(true);
+                      }}
+                      className="group relative h-[74vh] w-full max-w-md overflow-hidden rounded-[30px] border border-white/10 bg-black text-left shadow-2xl ring-1 ring-black/10 transition-transform duration-300 active:scale-[0.99] sm:h-[80vh]"
+                      aria-label={
+                        fr
+                          ? `Ouvrir ${businessName} en plein écran`
+                          : `Open ${businessName} fullscreen`
+                      }
+                    >
+                      {mediaIsVideo ? (
+                        <video
+                          src={post.url}
+                          muted
+                          loop
+                          autoPlay
+                          playsInline
+                          preload="metadata"
+                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.015]"
+                        />
+                      ) : (
+                        <img
+                          src={post.url}
+                          alt={post.caption ?? businessName}
+                          loading="lazy"
+                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.015]"
+                        />
+                      )}
+
+                      <span className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/20" />
+
+                      <span className="absolute left-3 right-3 top-3 z-20 flex items-center justify-between gap-2">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/35 px-2.5 py-1.5 text-[9px] font-bold text-white backdrop-blur-md">
+                          <span className="size-1.5 rounded-full bg-[#D4AF37] shadow-[0_0_10px_rgba(212,175,55,0.9)]" />
+                          ASH Spotlight
+                        </span>
+
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/35 px-2.5 py-1.5 text-[9px] font-bold text-white backdrop-blur-md">
+                          <Play className="size-3 fill-current" aria-hidden />
+                          {fr ? "Plein écran" : "Fullscreen"}
+                        </span>
+                      </span>
+
+                      <span className="absolute inset-x-0 bottom-0 z-20 p-4 text-white sm:p-5">
+                        <span className="flex items-center gap-2.5">
+                          <span className="grid size-11 place-items-center overflow-hidden rounded-full border border-white/25 bg-gradient-to-br from-[#D4AF37] to-[#4B0082] shadow-lg">
+                            {post.provider.avatar_url ? (
+                              <img
+                                src={post.provider.avatar_url}
+                                alt=""
+                                className="size-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-xs font-black">
+                                {businessName.trim().slice(0, 2).toUpperCase()}
+                              </span>
+                            )}
+                          </span>
+                          <span className="min-w-0">
+                            <span className="block truncate text-sm font-extrabold">
+                              {businessName}
+                            </span>
+                            {post.provider.city ? (
+                              <span className="block text-[11px] text-white/65">
+                                {post.provider.city}
+                              </span>
+                            ) : null}
+                          </span>
+                        </span>
+
+                        {post.caption ? (
+                          <span className="mt-3 block line-clamp-2 text-sm leading-relaxed text-white/90">
+                            {post.caption}
+                          </span>
+                        ) : null}
+
+                        <span className="mt-4 flex items-center justify-center gap-2 rounded-2xl bg-white/10 px-4 py-3 text-xs font-bold text-white backdrop-blur-md ring-1 ring-white/15">
+                          <Play className="size-3.5 fill-current" aria-hidden />
+                          {fr ? "Touchez pour voir en plein écran" : "Tap to view fullscreen"}
+                        </span>
+                      </span>
+                    </button>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {/* ASH SPOTLIGHT — FULLSCREEN REELS VIEWER */}
+      {spotlightOpen && spotlightPosts.length > 0 ? (
+        <div
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/95 backdrop-blur-xl"
+          role="dialog"
+          aria-modal="true"
+          aria-label="ASH Spotlight fullscreen"
         >
           <div className="relative h-dvh w-full max-w-[560px] overflow-hidden bg-black">
-            <div className="pointer-events-none absolute inset-x-0 top-0 z-40 h-28 bg-gradient-to-b from-black/80 to-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 z-40 h-32 bg-gradient-to-b from-black/85 to-transparent" />
 
             <div className="absolute left-4 right-4 top-4 z-50 flex items-center justify-between gap-3 pt-[env(safe-area-inset-top)]">
               <div className="flex items-center gap-2.5">
@@ -864,7 +1016,7 @@ function DiscoveryPage() {
               <button
                 type="button"
                 onClick={() => setSpotlightOpen(false)}
-                className="grid size-10 place-items-center rounded-full bg-white/10 text-white backdrop-blur-md transition-colors hover:bg-white/15"
+                className="grid size-10 place-items-center rounded-full bg-white/10 text-white backdrop-blur-md transition-colors hover:bg-white/15 active:scale-95"
                 aria-label={fr ? "Fermer" : "Close"}
               >
                 <X className="size-5" aria-hidden />
@@ -872,7 +1024,6 @@ function DiscoveryPage() {
             </div>
 
             <div
-              ref={spotlightContainerRef}
               className="h-full snap-y snap-mandatory overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               {spotlightPosts.map((post) => {
