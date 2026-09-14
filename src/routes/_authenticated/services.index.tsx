@@ -893,6 +893,7 @@ function DiscoveryPage() {
           aria-modal="true"
           aria-label={fr ? "Flux ASH Spotlight" : "ASH Spotlight feed"}
           onClick={(event) => {
+            event.stopPropagation();
             if (event.target === event.currentTarget) {
               setSpotlightFeedOpen(false);
             }
@@ -1035,7 +1036,7 @@ function DiscoveryPage() {
       ) : null}
 
       {/* ASH SPOTLIGHT — TRUE FULLSCREEN REELS VIEWER */}
-      {spotlightOpen && filteredSpotlightPosts.length > 0 && typeof document !== "undefined"
+      {spotlightOpen && typeof document !== "undefined"
         ? createPortal(
             <div
               className="fixed inset-0 z-[99999] h-[100dvh] min-h-[100svh] w-screen overflow-hidden bg-black"
@@ -1063,10 +1064,19 @@ function DiscoveryPage() {
                       <ArrowLeft className="size-5" aria-hidden />
                     </button>
 
-                    <div className="relative min-w-0 flex-1">
+                    <div
+                      className="relative min-w-0 flex-1"
+                      onPointerDown={(event) => event.stopPropagation()}
+                      onClick={(event) => event.stopPropagation()}
+                    >
                       <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-white/60" aria-hidden />
                       <input
                         value={spotlightSearch}
+                        type="search"
+                        autoComplete="off"
+                        onPointerDown={(event) => event.stopPropagation()}
+                        onClick={(event) => event.stopPropagation()}
+                        onKeyDown={(event) => event.stopPropagation()}
                         onChange={(event) => {
                           setSpotlightSearch(event.target.value);
                           setSpotlightIndex(0);
@@ -1093,6 +1103,31 @@ function DiscoveryPage() {
                   ref={spotlightContainerRef}
                   className="h-full snap-y snap-mandatory overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                 >
+                  {filteredSpotlightPosts.length === 0 ? (
+                    <div className="flex h-full items-center justify-center px-6 pt-24 text-center text-white">
+                      <div className="max-w-sm rounded-3xl border border-white/10 bg-black/50 px-6 py-7 shadow-2xl backdrop-blur-xl">
+                        <div className="mx-auto grid size-12 place-items-center rounded-full bg-gradient-to-br from-[#D4AF37] to-[#4B0082] shadow-lg">
+                          <Search className="size-5" aria-hidden />
+                        </div>
+                        <h3 className="mt-4 text-base font-extrabold">
+                          {fr ? "Aucun résultat" : "No results found"}
+                        </h3>
+                        <p className="mt-2 text-sm leading-relaxed text-white/65">
+                          {fr
+                            ? "Recherchez un vendeur, une entreprise, une ville ou une offre."
+                            : "Search for a vendor, business, city, or offer."}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setSpotlightSearch("")}
+                          className="mt-5 rounded-full bg-white px-4 py-2 text-xs font-extrabold text-black transition-transform active:scale-95"
+                        >
+                          {fr ? "Effacer la recherche" : "Clear search"}
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+
                   {filteredSpotlightPosts.map((post) => {
                     const mediaIsVideo = isVideoSource(post.url);
                     const businessName = post.provider.business_name;
