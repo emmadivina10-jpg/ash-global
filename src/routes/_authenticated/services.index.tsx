@@ -428,18 +428,43 @@ function DiscoveryPage() {
     const term = spotlightSearch.trim().toLowerCase();
     if (!term) return spotlightPosts;
 
-    return spotlightPosts.filter((post) =>
-      [
-        post.provider.business_name,
-        post.provider.city,
+    return spotlightPosts.filter((post) => {
+      const provider = post.provider as typeof post.provider & {
+        description?: string | null;
+        bio?: string | null;
+        categories?: unknown;
+        service_categories?: unknown;
+        category?: unknown;
+      };
+
+      // The discovery dataset contains the vendor's selected services and
+      // categories. Merge it with the Spotlight post so search can find terms
+      // such as barber, braider, nail tech, cybersecurity, electrician, etc.,
+      // even when those words are not written in the video caption.
+      const discoveryProvider = providers.find(
+        (item) => item.id === post.provider.id,
+      ) as (typeof providers)[number] | undefined;
+
+      const searchableText = [
+        provider.business_name,
+        provider.city,
+        provider.description,
+        provider.bio,
         post.caption,
+        JSON.stringify(provider.services ?? []),
+        JSON.stringify(provider.categories ?? []),
+        JSON.stringify(provider.service_categories ?? []),
+        JSON.stringify(provider.category ?? ""),
+        JSON.stringify(discoveryProvider?.services ?? []),
+        JSON.stringify(discoveryProvider ?? {}),
       ]
         .filter(Boolean)
         .join(" ")
-        .toLowerCase()
-        .includes(term),
-    );
-  }, [spotlightPosts, spotlightSearch]);
+        .toLowerCase();
+
+      return searchableText.includes(term);
+    });
+  }, [providers, spotlightPosts, spotlightSearch]);
 
   useEffect(() => {
     if (!spotlightFeedOpen && !spotlightOpen) return;
@@ -797,6 +822,12 @@ function DiscoveryPage() {
               const mediaIsVideo = isVideoSource(post.url);
               const businessName = post.provider.business_name;
               const city = post.provider.city;
+              const providerMeta = post.provider as typeof post.provider & {
+                description?: string | null;
+                bio?: string | null;
+              };
+              const offerDescription =
+                providerMeta.description ?? providerMeta.bio ?? post.caption ?? null;
 
               return (
                 <button
@@ -893,7 +924,6 @@ function DiscoveryPage() {
           aria-modal="true"
           aria-label={fr ? "Flux ASH Spotlight" : "ASH Spotlight feed"}
           onClick={(event) => {
-            event.stopPropagation();
             if (event.target === event.currentTarget) {
               setSpotlightFeedOpen(false);
             }
@@ -1036,7 +1066,7 @@ function DiscoveryPage() {
       ) : null}
 
       {/* ASH SPOTLIGHT — TRUE FULLSCREEN REELS VIEWER */}
-      {spotlightOpen && typeof document !== "undefined"
+      {spotlightOpen && filteredSpotlightPosts.length > 0 && typeof document !== "undefined"
         ? createPortal(
             <div
               className="fixed inset-0 z-[99999] h-[100dvh] min-h-[100svh] w-screen overflow-hidden bg-black"
@@ -1064,19 +1094,10 @@ function DiscoveryPage() {
                       <ArrowLeft className="size-5" aria-hidden />
                     </button>
 
-                    <div
-                      className="relative min-w-0 flex-1"
-                      onPointerDown={(event) => event.stopPropagation()}
-                      onClick={(event) => event.stopPropagation()}
-                    >
+                    <div className="relative min-w-0 flex-1">
                       <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-white/60" aria-hidden />
                       <input
                         value={spotlightSearch}
-                        type="search"
-                        autoComplete="off"
-                        onPointerDown={(event) => event.stopPropagation()}
-                        onClick={(event) => event.stopPropagation()}
-                        onKeyDown={(event) => event.stopPropagation()}
                         onChange={(event) => {
                           setSpotlightSearch(event.target.value);
                           setSpotlightIndex(0);
@@ -1103,35 +1124,16 @@ function DiscoveryPage() {
                   ref={spotlightContainerRef}
                   className="h-full snap-y snap-mandatory overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                 >
-                  {filteredSpotlightPosts.length === 0 ? (
-                    <div className="flex h-full items-center justify-center px-6 pt-24 text-center text-white">
-                      <div className="max-w-sm rounded-3xl border border-white/10 bg-black/50 px-6 py-7 shadow-2xl backdrop-blur-xl">
-                        <div className="mx-auto grid size-12 place-items-center rounded-full bg-gradient-to-br from-[#D4AF37] to-[#4B0082] shadow-lg">
-                          <Search className="size-5" aria-hidden />
-                        </div>
-                        <h3 className="mt-4 text-base font-extrabold">
-                          {fr ? "Aucun résultat" : "No results found"}
-                        </h3>
-                        <p className="mt-2 text-sm leading-relaxed text-white/65">
-                          {fr
-                            ? "Recherchez un vendeur, une entreprise, une ville ou une offre."
-                            : "Search for a vendor, business, city, or offer."}
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => setSpotlightSearch("")}
-                          className="mt-5 rounded-full bg-white px-4 py-2 text-xs font-extrabold text-black transition-transform active:scale-95"
-                        >
-                          {fr ? "Effacer la recherche" : "Clear search"}
-                        </button>
-                      </div>
-                    </div>
-                  ) : null}
-
                   {filteredSpotlightPosts.map((post) => {
                     const mediaIsVideo = isVideoSource(post.url);
                     const businessName = post.provider.business_name;
                     const city = post.provider.city;
+                    const providerMeta = post.provider as typeof post.provider & {
+                      description?: string | null;
+                      bio?: string | null;
+                    };
+                    const offerDescription =
+                      providerMeta.description ?? providerMeta.bio ?? post.caption ?? null;
 
                     return (
                       <article
@@ -1219,10 +1221,15 @@ function DiscoveryPage() {
                         {/* Bottom vendor message + CTA */}
                         <div className="absolute inset-x-0 bottom-0 z-30">
                           <div className="mx-auto w-full max-w-3xl px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-20 sm:px-5">
-                            {post.caption ? (
-                              <p className="max-w-2xl text-sm leading-relaxed text-white/95 sm:text-[15px]">
-                                {post.caption}
-                              </p>
+                            {offerDescription ? (
+                              <div className="max-w-2xl rounded-2xl border border-white/10 bg-black/25 px-3 py-2.5 backdrop-blur-md">
+                                <p className="text-[9px] font-extrabold uppercase tracking-[0.16em] text-[#D4AF37]">
+                                  {fr ? "Ce que propose ce vendeur" : "What this vendor offers"}
+                                </p>
+                                <p className="mt-1 text-sm leading-relaxed text-white/95 sm:text-[15px]">
+                                  {offerDescription}
+                                </p>
+                              </div>
                             ) : null}
 
                             <button
