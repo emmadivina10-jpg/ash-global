@@ -52,15 +52,25 @@ function WalletPage() {
   const active = profile?.account_status === "ACTIVE";
   const { t, lang } = useI18n();
 
-  const [walletTheme, setWalletTheme] = useState(0);
-
-  useEffect(() => {
-    const interval = window.setInterval(() => {
-      setWalletTheme((current) => (current + 1) % 3);
-    }, 5000);
-
-    return () => window.clearInterval(interval);
-  }, []);
+  const GOLD_KEY = "ash.wallet.gold";
+  const [goldMode, setGoldMode] = useState(() => {
+    try {
+      return window.localStorage.getItem(GOLD_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+  const toggleGold = () => {
+    setGoldMode((current) => {
+      try {
+        window.localStorage.setItem(GOLD_KEY, current ? "0" : "1");
+      } catch {
+        /* private mode */
+      }
+      return !current;
+    });
+  };
+  const walletTheme = goldMode ? 2 : 0;
 
   const walletThemes = [
     {
@@ -110,10 +120,21 @@ function WalletPage() {
           </p>
         </div>
 
-        <Button variant="outline" size="sm" onClick={() => setStatementOpen(true)}>
-          <Printer className="size-4" aria-hidden />
-          {lang === "fr" ? "Relevé" : "Statement"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant={goldMode ? "default" : "outline"}
+            size="sm"
+            onClick={toggleGold}
+            aria-pressed={goldMode}
+          >
+            <Crown className="size-4" aria-hidden />
+            {lang === "fr" ? "Or" : "Gold"}
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setStatementOpen(true)}>
+            <Printer className="size-4" aria-hidden />
+            {lang === "fr" ? "Relevé" : "Statement"}
+          </Button>
+        </div>
       </header>
 
       <StatementDialog
