@@ -10,7 +10,13 @@ export const SOCIAL_BUCKET = "spotlight";
 /** Largest single photo accepted by a story or a feed post. */
 export const SOCIAL_MAX_BYTES = 12 * 1024 * 1024;
 
-export type SocialAuthor = { id: string; name: string; avatar_url: string | null };
+export type SocialAuthor = {
+  id: string;
+  name: string;
+  avatar_url: string | null;
+  verified_tier?: string | null;
+  verified_until?: string | null;
+};
 
 async function currentUserId(): Promise<string | null> {
   const { data } = await supabase.auth.getUser();
@@ -30,9 +36,24 @@ export async function loadAuthors(ids: string[]): Promise<Map<string, SocialAuth
   const unique = Array.from(new Set(ids.filter(Boolean)));
   const map = new Map<string, SocialAuthor>();
   if (unique.length === 0) return map;
-  const { data } = await supabase.from("profiles").select("user_id, full_name, avatar_url").in("user_id", unique);
-  for (const row of (data ?? []) as { user_id: string; full_name: string; avatar_url: string | null }[]) {
-    map.set(row.user_id, { id: row.user_id, name: row.full_name, avatar_url: row.avatar_url });
+  const { data } = await supabase
+    .from("profiles")
+    .select("user_id, full_name, avatar_url, verified_tier, verified_until")
+    .in("user_id", unique);
+  for (const row of (data ?? []) as {
+    user_id: string;
+    full_name: string;
+    avatar_url: string | null;
+    verified_tier: string | null;
+    verified_until: string | null;
+  }[]) {
+    map.set(row.user_id, {
+      id: row.user_id,
+      name: row.full_name,
+      avatar_url: row.avatar_url,
+      verified_tier: row.verified_tier,
+      verified_until: row.verified_until,
+    });
   }
   return map;
 }

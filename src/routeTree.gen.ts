@@ -44,6 +44,7 @@ import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
 import { Route as AuthenticatedTransactionsRouteImport } from './routes/_authenticated/transactions'
+import { Route as AuthenticatedVerifiedRouteImport } from './routes/_authenticated/verified'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedWithdrawRouteImport } from './routes/_authenticated/withdraw'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
@@ -71,6 +72,7 @@ import { Route as ConsoleStaffRouteImport } from './routes/console.staff'
 import { Route as ConsoleSupportRouteImport } from './routes/console.support'
 import { Route as ConsoleTrustRouteImport } from './routes/console.trust'
 import { Route as ConsoleUsersRouteImport } from './routes/console.users'
+import { Route as ConsoleVerificationRouteImport } from './routes/console.verification'
 import { Route as ConsoleWithdrawalsRouteImport } from './routes/console.withdrawals'
 import { Route as PayCodeRouteImport } from './routes/pay.$code'
 import { Route as SSlugRouteImport } from './routes/s.$slug'
@@ -274,6 +276,11 @@ const AuthenticatedTransactionsRoute =
     path: '/transactions',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedVerifiedRoute = AuthenticatedVerifiedRouteImport.update({
+  id: '/verified',
+  path: '/verified',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedWalletRoute = AuthenticatedWalletRouteImport.update({
   id: '/wallet',
   path: '/wallet',
@@ -407,6 +414,11 @@ const ConsoleTrustRoute = ConsoleTrustRouteImport.update({
 const ConsoleUsersRoute = ConsoleUsersRouteImport.update({
   id: '/users',
   path: '/users',
+  getParentRoute: () => ConsoleRoute,
+} as any)
+const ConsoleVerificationRoute = ConsoleVerificationRouteImport.update({
+  id: '/verification',
+  path: '/verification',
   getParentRoute: () => ConsoleRoute,
 } as any)
 const ConsoleWithdrawalsRoute = ConsoleWithdrawalsRouteImport.update({
@@ -587,6 +599,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
+  '/verified': typeof AuthenticatedVerifiedRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -613,6 +626,7 @@ export interface FileRoutesByFullPath {
   '/console/support': typeof ConsoleSupportRoute
   '/console/trust': typeof ConsoleTrustRoute
   '/console/users': typeof ConsoleUsersRoute
+  '/console/verification': typeof ConsoleVerificationRoute
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
   '/pay/$code': typeof PayCodeRoute
   '/s/$slug': typeof SSlugRoute
@@ -674,6 +688,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
+  '/verified': typeof AuthenticatedVerifiedRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -700,6 +715,7 @@ export interface FileRoutesByTo {
   '/console/support': typeof ConsoleSupportRoute
   '/console/trust': typeof ConsoleTrustRoute
   '/console/users': typeof ConsoleUsersRoute
+  '/console/verification': typeof ConsoleVerificationRoute
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
   '/pay/$code': typeof PayCodeRoute
   '/s/$slug': typeof SSlugRoute
@@ -764,6 +780,7 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/studio': typeof AuthenticatedStudioRoute
   '/_authenticated/transactions': typeof AuthenticatedTransactionsRoute
+  '/_authenticated/verified': typeof AuthenticatedVerifiedRoute
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/_authenticated/withdraw': typeof AuthenticatedWithdrawRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -790,6 +807,7 @@ export interface FileRoutesById {
   '/console/support': typeof ConsoleSupportRoute
   '/console/trust': typeof ConsoleTrustRoute
   '/console/users': typeof ConsoleUsersRoute
+  '/console/verification': typeof ConsoleVerificationRoute
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
   '/pay/$code': typeof PayCodeRoute
   '/s/$slug': typeof SSlugRoute
@@ -854,6 +872,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/studio'
     | '/transactions'
+    | '/verified'
     | '/wallet'
     | '/withdraw'
     | '/auth/callback'
@@ -880,6 +899,7 @@ export interface FileRouteTypes {
     | '/console/support'
     | '/console/trust'
     | '/console/users'
+    | '/console/verification'
     | '/console/withdrawals'
     | '/pay/$code'
     | '/s/$slug'
@@ -941,6 +961,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/studio'
     | '/transactions'
+    | '/verified'
     | '/wallet'
     | '/withdraw'
     | '/auth/callback'
@@ -967,6 +988,7 @@ export interface FileRouteTypes {
     | '/console/support'
     | '/console/trust'
     | '/console/users'
+    | '/console/verification'
     | '/console/withdrawals'
     | '/pay/$code'
     | '/s/$slug'
@@ -1030,6 +1052,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/studio'
     | '/_authenticated/transactions'
+    | '/_authenticated/verified'
     | '/_authenticated/wallet'
     | '/_authenticated/withdraw'
     | '/auth/callback'
@@ -1056,6 +1079,7 @@ export interface FileRouteTypes {
     | '/console/support'
     | '/console/trust'
     | '/console/users'
+    | '/console/verification'
     | '/console/withdrawals'
     | '/pay/$code'
     | '/s/$slug'
@@ -1358,6 +1382,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTransactionsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/verified': {
+      id: '/_authenticated/verified'
+      path: '/verified'
+      fullPath: '/verified'
+      preLoaderRoute: typeof AuthenticatedVerifiedRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/wallet': {
       id: '/_authenticated/wallet'
       path: '/wallet'
@@ -1545,6 +1576,13 @@ declare module '@tanstack/react-router' {
       path: '/users'
       fullPath: '/console/users'
       preLoaderRoute: typeof ConsoleUsersRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/verification': {
+      id: '/console/verification'
+      path: '/verification'
+      fullPath: '/console/verification'
+      preLoaderRoute: typeof ConsoleVerificationRouteImport
       parentRoute: typeof ConsoleRoute
     }
     '/console/withdrawals': {
@@ -1746,6 +1784,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
   AuthenticatedTransactionsRoute: typeof AuthenticatedTransactionsRoute
+  AuthenticatedVerifiedRoute: typeof AuthenticatedVerifiedRoute
   AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
   AuthenticatedWithdrawRoute: typeof AuthenticatedWithdrawRoute
   AuthenticatedArticlesArticleIdRoute: typeof AuthenticatedArticlesArticleIdRoute
@@ -1787,6 +1826,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStudioRoute: AuthenticatedStudioRoute,
   AuthenticatedTransactionsRoute: AuthenticatedTransactionsRoute,
+  AuthenticatedVerifiedRoute: AuthenticatedVerifiedRoute,
   AuthenticatedWalletRoute: AuthenticatedWalletRoute,
   AuthenticatedWithdrawRoute: AuthenticatedWithdrawRoute,
   AuthenticatedArticlesArticleIdRoute: AuthenticatedArticlesArticleIdRoute,
@@ -1834,6 +1874,7 @@ interface ConsoleRouteChildren {
   ConsoleSupportRoute: typeof ConsoleSupportRoute
   ConsoleTrustRoute: typeof ConsoleTrustRoute
   ConsoleUsersRoute: typeof ConsoleUsersRoute
+  ConsoleVerificationRoute: typeof ConsoleVerificationRoute
   ConsoleWithdrawalsRoute: typeof ConsoleWithdrawalsRoute
   ConsoleIndexRoute: typeof ConsoleIndexRoute
 }
@@ -1862,6 +1903,7 @@ const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsoleSupportRoute: ConsoleSupportRoute,
   ConsoleTrustRoute: ConsoleTrustRoute,
   ConsoleUsersRoute: ConsoleUsersRoute,
+  ConsoleVerificationRoute: ConsoleVerificationRoute,
   ConsoleWithdrawalsRoute: ConsoleWithdrawalsRoute,
   ConsoleIndexRoute: ConsoleIndexRoute,
 }

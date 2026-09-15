@@ -1,3 +1,4 @@
+import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Heart, MessageCircle, Repeat2, ShieldCheck, Trash2 } from "lucide-react";
@@ -57,7 +58,10 @@ export function PostCard({
       <header className="flex items-center gap-3 p-4 pb-3">
         <Avatar path={post.author.avatar_url} name={post.author.name} className="size-10" />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-bold text-foreground">{post.author.name}</p>
+          <p className="flex items-center gap-1 truncate text-sm font-bold text-foreground">
+            <span className="truncate">{post.author.name}</span>
+            <VerifiedBadge tier={post.author.verified_tier} until={post.author.verified_until} />
+          </p>
           <p className="truncate text-xs text-muted-foreground">
             {timeAgo(post.created_at, fr)}
             {post.city ? ` · ${post.city}` : ""}
@@ -254,7 +258,10 @@ function CommentRow({
       <Avatar path={comment.author.avatar_url} name={comment.author.name} className="size-8" />
       <div className="min-w-0 flex-1">
         <div className="rounded-2xl bg-muted px-3 py-2">
-          <p className="text-xs font-bold text-foreground">{comment.author.name}</p>
+          <p className="flex items-center gap-1 text-xs font-bold text-foreground">
+            <span className="truncate">{comment.author.name}</span>
+            <VerifiedBadge tier={comment.author.verified_tier} until={comment.author.verified_until} size={12} />
+          </p>
           <p className="whitespace-pre-wrap break-words text-sm text-foreground">{comment.body}</p>
         </div>
         <div className="mt-1 flex items-center gap-3 px-2 text-[11px] font-semibold text-muted-foreground">
