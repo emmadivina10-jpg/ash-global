@@ -937,6 +937,9 @@ function DiscoveryPage() {
           ) : null}
         </div>
 
+        {/* 24-hour member stories, with "Create Spotlight" always first. */}
+        <StoriesRail />
+
         <SpotlightComposer />
 
         {spotlightPosts.length > 0 ? (
