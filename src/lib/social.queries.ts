@@ -10,7 +10,13 @@ export const SOCIAL_BUCKET = "spotlight";
 /** Largest single photo accepted by a story or a feed post. */
 export const SOCIAL_MAX_BYTES = 12 * 1024 * 1024;
 
-export type SocialAuthor = { id: string; name: string; avatar_url: string | null };
+export type SocialAuthor = {
+  id: string;
+  name: string;
+  avatar_url: string | null;
+  verified_tier?: string | null;
+  verified_until?: string | null;
+};
 
 async function currentUserId(): Promise<string | null> {
   const { data } = await supabase.auth.getUser();
