@@ -280,6 +280,108 @@ export function StoriesRail({
           <p className="text-xs text-muted-foreground">
             {fr ? "Visible 24 heures. Vous verrez qui l'a regardé." : "Live for 24 hours. You'll see who watched it."}
           </p>
+
+          {/* Who can watch — everyone by default, friends or not. */}
+          <div className="space-y-2 rounded-2xl border border-border bg-card p-3">
+            <p className="text-xs font-bold text-foreground">
+              {fr ? "Qui peut regarder" : "Who can watch"}
+            </p>
+            <div className="flex gap-2">
+              {([
+                { id: "ALL" as const, icon: Globe2, en: "Everyone", fr: "Tout le monde" },
+                { id: "SELECT" as const, icon: Search, en: "Only chosen", fr: "Choisis" },
+              ]).map((option) => {
+                const Icon = option.icon;
+                const active = audience === option.id;
+                return (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => setAudience(option.id)}
+                    className={cn(
+                      "inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border px-3 py-2 text-xs font-bold transition-colors",
+                      active
+                        ? "border-transparent bg-primary text-primary-foreground"
+                        : "border-border bg-background text-muted-foreground",
+                    )}
+                  >
+                    <Icon className="size-3.5" aria-hidden />
+                    {fr ? option.fr : option.en}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              {audience === "ALL"
+                ? fr
+                  ? "Tout membre ASH peut la voir, ami ou non. Vous pouvez bloquer certaines personnes."
+                  : "Any ASH member can watch, friend or not. You can block certain people."
+                : fr
+                  ? "Seules les personnes choisies pourront la voir."
+                  : "Only the people you pick will be able to watch."}
+            </p>
+
+            {picked.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5">
+                {picked.map((person) => (
+                  <button
+                    key={person.id}
+                    type="button"
+                    onClick={() => togglePerson(person)}
+                    className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-[11px] font-semibold text-foreground"
+                  >
+                    {audience === "ALL" ? (
+                      <UserMinus className="size-3" aria-hidden />
+                    ) : null}
+                    {person.name}
+                    <X className="size-3" aria-hidden />
+                  </button>
+                ))}
+              </div>
+            ) : null}
+
+            <Input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder={
+                audience === "ALL"
+                  ? fr
+                    ? "Bloquer quelqu'un — tapez un nom"
+                    : "Block someone — type a name"
+                  : fr
+                    ? "Ajouter quelqu'un — tapez un nom"
+                    : "Add someone — type a name"
+              }
+              aria-label={fr ? "Rechercher un membre" : "Search a member"}
+            />
+            {search.trim().length >= 2 ? (
+              <div className="max-h-40 space-y-1 overflow-y-auto">
+                {(matches ?? []).map((person) => {
+                  const on = picked.some((entry) => entry.id === person.id);
+                  return (
+                    <button
+                      key={person.id}
+                      type="button"
+                      onClick={() => togglePerson(person)}
+                      className={cn(
+                        "flex w-full items-center gap-2 rounded-xl px-2 py-1.5 text-left text-xs font-semibold transition-colors",
+                        on ? "bg-primary/10 text-primary" : "hover:bg-secondary",
+                      )}
+                    >
+                      <Avatar path={person.avatar_url} name={person.name} className="size-7 shrink-0" />
+                      <span className="min-w-0 flex-1 truncate">{person.name}</span>
+                      {on ? <span>{fr ? "Retirer" : "Remove"}</span> : null}
+                    </button>
+                  );
+                })}
+                {(matches ?? []).length === 0 ? (
+                  <p className="px-2 py-1 text-[11px] text-muted-foreground">
+                    {fr ? "Aucun membre trouvé." : "No member found."}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
           <Button onClick={publish} disabled={create.isPending} className="touch-manipulation">
             {create.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
             {fr ? "Publier" : "Share"}
