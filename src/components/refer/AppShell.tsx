@@ -22,6 +22,9 @@ import {
   Users,
   User as UserIcon,
   Wallet,
+  BookOpen,
+  BriefcaseBusiness,
+  GraduationCap,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin, useProfile } from "@/lib/queries";
@@ -79,6 +82,9 @@ const SIDE_EXTRA: NavItem[] = [
   { to: "/deals", key: "nav.deals" as TKey, label: "Deals", icon: Flame },
   { to: "/events", key: "nav.events" as TKey, label: "Events", icon: CalendarDays },
   { to: "/freelance", key: "nav.freelance" as TKey, label: "Freelance", icon: Briefcase },
+  { to: "/articles", key: "nav.articles" as TKey, label: "Articles", icon: BookOpen },
+  { to: "/jobs", key: "nav.jobs" as TKey, label: "Jobs", icon: BriefcaseBusiness },
+  { to: "/mentors", key: "nav.mentors" as TKey, label: "Mentors", icon: GraduationCap },
   { to: "/dashboard", key: "nav.home" as TKey, icon: TrendingUp, referralOnly: true },
   { to: "/network", key: "nav.network" as TKey, icon: Users, referralOnly: true },
   { to: "/analytics", key: "nav.analytics" as TKey, label: "Analytics", icon: BarChart3 },

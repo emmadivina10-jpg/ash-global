@@ -73,7 +73,7 @@ const EN = {
 "Join ASH Glo today, activate your account and start earning from every person you bring on board.",
 "landing.final.cta": "Create your account",
 "landing.footer": "© {year} ASH Glo. All amounts in XAF.",
-"landing.services.eyebrow": "ASH Marketplace",
+"landing.services.eyebrow": "ASH Hub",
 "landing.services.title": "Find services, products and professionals near you",
 "landing.services.copy":
 "Browse listings, compare portfolios, read reviews and connect with verified sellers and providers across Cameroon.",
@@ -95,10 +95,10 @@ const EN = {
 "landing.property.browse": "Browse properties",
 "landing.property.list": "List your property free",
 "landing.services.chat": "Instant chat",
-"landing.services.hero.eyebrow": "Digital marketplace",
+"landing.services.hero.eyebrow": "ASH Hub",
 "landing.services.hero.title": "Services, products & opportunities",
 "landing.services.hero.copy": "Discover trusted providers, shop local and pay securely — all from one place.",
-"landing.services.hero.cta": "Explore marketplace",
+"landing.services.hero.cta": "Explore ASH Hub",
 
 // Dashboard
 "dash.welcome": "Welcome back",
@@ -184,7 +184,10 @@ const EN = {
 "wallet.pendingTitle": "{amount} waiting on referral activations",
 "wallet.pendingBody":
 "These commissions are not withdrawable yet. They are credited automatically the moment each referred member's 5,000 XAF activation payment is verified.",
-"nav.services": "Market",
+"nav.services": "ASH Hub",
+"nav.articles": "Articles",
+"nav.jobs": "Jobs",
+"nav.mentors": "Mentors",
 "nav.bookings": "Bookings",
 "nav.messages": "Messages",
 "nav.pro": "My studio",
@@ -519,7 +522,7 @@ const FR: Record<TKey, string> = {
 "Rejoignez ASH Glo aujourd'hui, activez votre compte et gagnez sur chaque personne que vous amenez.",
 "landing.final.cta": "Créer mon compte",
 "landing.footer": "© {year} ASH Glo. Tous les montants en XAF.",
-"landing.services.eyebrow": "ASH Marketplace",
+"landing.services.eyebrow": "ASH Hub",
 "landing.services.title": "Trouvez des services, des produits et des professionnels près de chez vous",
 "landing.services.copy":
 "Parcourez les annonces, comparez les portfolios, lisez les avis et contactez des vendeurs et prestataires vérifiés au Cameroun.",
@@ -541,11 +544,11 @@ const FR: Record<TKey, string> = {
 "landing.property.browse": "Voir les biens",
 "landing.property.list": "Publier gratuitement",
 "landing.services.chat": "Chat instantané",
-"landing.services.hero.eyebrow": "Marché digital",
+"landing.services.hero.eyebrow": "ASH Hub",
 "landing.services.hero.title": "Services, produits & opportunités",
 "landing.services.hero.copy":
 "Découvrez des prestataires de confiance, achetez local et payez en toute sécurité — tout en un seul endroit.",
-"landing.services.hero.cta": "Explorer le marché",
+"landing.services.hero.cta": "Explorer ASH Hub",
 
 "dash.welcome": "Bon retour",
 "dash.availableBalance": "Solde disponible",
@@ -627,7 +630,10 @@ const FR: Record<TKey, string> = {
 "wallet.pendingTitle": "{amount} en attente d'activations de filleuls",
 "wallet.pendingBody":
 "Ces commissions ne sont pas encore retirables. Elles sont créditées automatiquement dès que le paiement d'activation de 5 000 XAF de chaque filleul est vérifié.",
-"nav.services": "Marché",
+"nav.services": "ASH Hub",
+"nav.articles": "Articles",
+"nav.jobs": "Emplois",
+"nav.mentors": "Mentors",
 "nav.bookings": "Réservations",
 "nav.messages": "Messages",
 "nav.pro": "Mon studio",

@@ -31,6 +31,7 @@ import { Route as AuthenticatedCreateRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedDealsRouteImport } from './routes/_authenticated/deals'
 import { Route as AuthenticatedElectricityRouteImport } from './routes/_authenticated/electricity'
+import { Route as AuthenticatedMentorsRouteImport } from './routes/_authenticated/mentors'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
 import { Route as AuthenticatedNetworkRouteImport } from './routes/_authenticated/network'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
@@ -68,11 +69,15 @@ import { Route as ConsoleUsersRouteImport } from './routes/console.users'
 import { Route as ConsoleWithdrawalsRouteImport } from './routes/console.withdrawals'
 import { Route as PayCodeRouteImport } from './routes/pay.$code'
 import { Route as SSlugRouteImport } from './routes/s.$slug'
+import { Route as AuthenticatedArticlesIndexRouteImport } from './routes/_authenticated/articles.index'
+import { Route as AuthenticatedArticlesArticleIdRouteImport } from './routes/_authenticated/articles.$articleId'
 import { Route as AuthenticatedEventsIndexRouteImport } from './routes/_authenticated/events.index'
 import { Route as AuthenticatedEventsEventIdRouteImport } from './routes/_authenticated/events.$eventId'
 import { Route as AuthenticatedFreelanceIndexRouteImport } from './routes/_authenticated/freelance.index'
 import { Route as AuthenticatedFreelanceProjectIdRouteImport } from './routes/_authenticated/freelance.$projectId'
 import { Route as AuthenticatedIncubatorIndexRouteImport } from './routes/_authenticated/incubator/index'
+import { Route as AuthenticatedJobsIndexRouteImport } from './routes/_authenticated/jobs.index'
+import { Route as AuthenticatedJobsJobIdRouteImport } from './routes/_authenticated/jobs.$jobId'
 import { Route as AuthenticatedPropertyIndexRouteImport } from './routes/_authenticated/property.index'
 import { Route as AuthenticatedPropertyListingIdRouteImport } from './routes/_authenticated/property.$listingId'
 import { Route as AuthenticatedPropertyManageRouteImport } from './routes/_authenticated/property.manage'
@@ -196,6 +201,11 @@ const AuthenticatedElectricityRoute =
     path: '/electricity',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMentorsRoute = AuthenticatedMentorsRouteImport.update({
+  id: '/mentors',
+  path: '/mentors',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
@@ -382,6 +392,18 @@ const SSlugRoute = SSlugRouteImport.update({
   path: '/s/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedArticlesIndexRoute =
+  AuthenticatedArticlesIndexRouteImport.update({
+    id: '/articles/',
+    path: '/articles/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedArticlesArticleIdRoute =
+  AuthenticatedArticlesArticleIdRouteImport.update({
+    id: '/articles/$articleId',
+    path: '/articles/$articleId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedEventsIndexRoute =
   AuthenticatedEventsIndexRouteImport.update({
     id: '/events/',
@@ -412,6 +434,16 @@ const AuthenticatedIncubatorIndexRoute =
     path: '/incubator/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedJobsIndexRoute = AuthenticatedJobsIndexRouteImport.update({
+  id: '/jobs/',
+  path: '/jobs/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedJobsJobIdRoute = AuthenticatedJobsJobIdRouteImport.update({
+  id: '/jobs/$jobId',
+  path: '/jobs/$jobId',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPropertyIndexRoute =
   AuthenticatedPropertyIndexRouteImport.update({
     id: '/property/',
@@ -505,6 +537,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/deals': typeof AuthenticatedDealsRoute
   '/electricity': typeof AuthenticatedElectricityRoute
+  '/mentors': typeof AuthenticatedMentorsRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/network': typeof AuthenticatedNetworkRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -542,17 +575,21 @@ export interface FileRoutesByFullPath {
   '/pay/$code': typeof PayCodeRoute
   '/s/$slug': typeof SSlugRoute
   '/console/': typeof ConsoleIndexRoute
+  '/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
+  '/jobs/$jobId': typeof AuthenticatedJobsJobIdRoute
   '/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
   '/property/manage': typeof AuthenticatedPropertyManageRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
+  '/articles/': typeof AuthenticatedArticlesIndexRoute
   '/events/': typeof AuthenticatedEventsIndexRoute
   '/freelance/': typeof AuthenticatedFreelanceIndexRoute
   '/incubator/': typeof AuthenticatedIncubatorIndexRoute
+  '/jobs/': typeof AuthenticatedJobsIndexRoute
   '/property/': typeof AuthenticatedPropertyIndexRoute
   '/services/': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
@@ -581,6 +618,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/deals': typeof AuthenticatedDealsRoute
   '/electricity': typeof AuthenticatedElectricityRoute
+  '/mentors': typeof AuthenticatedMentorsRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/network': typeof AuthenticatedNetworkRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -618,17 +656,21 @@ export interface FileRoutesByTo {
   '/pay/$code': typeof PayCodeRoute
   '/s/$slug': typeof SSlugRoute
   '/console': typeof ConsoleIndexRoute
+  '/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
+  '/jobs/$jobId': typeof AuthenticatedJobsJobIdRoute
   '/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
   '/property/manage': typeof AuthenticatedPropertyManageRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
+  '/articles': typeof AuthenticatedArticlesIndexRoute
   '/events': typeof AuthenticatedEventsIndexRoute
   '/freelance': typeof AuthenticatedFreelanceIndexRoute
   '/incubator': typeof AuthenticatedIncubatorIndexRoute
+  '/jobs': typeof AuthenticatedJobsIndexRoute
   '/property': typeof AuthenticatedPropertyIndexRoute
   '/services': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
@@ -660,6 +702,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/deals': typeof AuthenticatedDealsRoute
   '/_authenticated/electricity': typeof AuthenticatedElectricityRoute
+  '/_authenticated/mentors': typeof AuthenticatedMentorsRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/network': typeof AuthenticatedNetworkRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
@@ -697,17 +740,21 @@ export interface FileRoutesById {
   '/pay/$code': typeof PayCodeRoute
   '/s/$slug': typeof SSlugRoute
   '/console/': typeof ConsoleIndexRoute
+  '/_authenticated/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
   '/_authenticated/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/_authenticated/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
+  '/_authenticated/jobs/$jobId': typeof AuthenticatedJobsJobIdRoute
   '/_authenticated/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
   '/_authenticated/property/manage': typeof AuthenticatedPropertyManageRoute
   '/_authenticated/property/new': typeof AuthenticatedPropertyNewRoute
   '/_authenticated/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
+  '/_authenticated/articles/': typeof AuthenticatedArticlesIndexRoute
   '/_authenticated/events/': typeof AuthenticatedEventsIndexRoute
   '/_authenticated/freelance/': typeof AuthenticatedFreelanceIndexRoute
   '/_authenticated/incubator/': typeof AuthenticatedIncubatorIndexRoute
+  '/_authenticated/jobs/': typeof AuthenticatedJobsIndexRoute
   '/_authenticated/property/': typeof AuthenticatedPropertyIndexRoute
   '/_authenticated/services/': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
@@ -739,6 +786,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/deals'
     | '/electricity'
+    | '/mentors'
     | '/messages'
     | '/network'
     | '/profile'
@@ -776,17 +824,21 @@ export interface FileRouteTypes {
     | '/pay/$code'
     | '/s/$slug'
     | '/console/'
+    | '/articles/$articleId'
     | '/events/$eventId'
     | '/freelance/$projectId'
+    | '/jobs/$jobId'
     | '/property/$listingId'
     | '/property/manage'
     | '/property/new'
     | '/services/$providerId'
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
+    | '/articles/'
     | '/events/'
     | '/freelance/'
     | '/incubator/'
+    | '/jobs/'
     | '/property/'
     | '/services/'
     | '/api/public/webhooks/tchokopay'
@@ -815,6 +867,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/deals'
     | '/electricity'
+    | '/mentors'
     | '/messages'
     | '/network'
     | '/profile'
@@ -852,17 +905,21 @@ export interface FileRouteTypes {
     | '/pay/$code'
     | '/s/$slug'
     | '/console'
+    | '/articles/$articleId'
     | '/events/$eventId'
     | '/freelance/$projectId'
+    | '/jobs/$jobId'
     | '/property/$listingId'
     | '/property/manage'
     | '/property/new'
     | '/services/$providerId'
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
+    | '/articles'
     | '/events'
     | '/freelance'
     | '/incubator'
+    | '/jobs'
     | '/property'
     | '/services'
     | '/api/public/webhooks/tchokopay'
@@ -893,6 +950,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/deals'
     | '/_authenticated/electricity'
+    | '/_authenticated/mentors'
     | '/_authenticated/messages'
     | '/_authenticated/network'
     | '/_authenticated/profile'
@@ -930,17 +988,21 @@ export interface FileRouteTypes {
     | '/pay/$code'
     | '/s/$slug'
     | '/console/'
+    | '/_authenticated/articles/$articleId'
     | '/_authenticated/events/$eventId'
     | '/_authenticated/freelance/$projectId'
+    | '/_authenticated/jobs/$jobId'
     | '/_authenticated/property/$listingId'
     | '/_authenticated/property/manage'
     | '/_authenticated/property/new'
     | '/_authenticated/services/$providerId'
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
+    | '/_authenticated/articles/'
     | '/_authenticated/events/'
     | '/_authenticated/freelance/'
     | '/_authenticated/incubator/'
+    | '/_authenticated/jobs/'
     | '/_authenticated/property/'
     | '/_authenticated/services/'
     | '/api/public/webhooks/tchokopay'
@@ -1129,6 +1191,13 @@ declare module '@tanstack/react-router' {
       path: '/electricity'
       fullPath: '/electricity'
       preLoaderRoute: typeof AuthenticatedElectricityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/mentors': {
+      id: '/_authenticated/mentors'
+      path: '/mentors'
+      fullPath: '/mentors'
+      preLoaderRoute: typeof AuthenticatedMentorsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/messages': {
@@ -1390,6 +1459,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/articles/': {
+      id: '/_authenticated/articles/'
+      path: '/articles'
+      fullPath: '/articles/'
+      preLoaderRoute: typeof AuthenticatedArticlesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/articles/$articleId': {
+      id: '/_authenticated/articles/$articleId'
+      path: '/articles/$articleId'
+      fullPath: '/articles/$articleId'
+      preLoaderRoute: typeof AuthenticatedArticlesArticleIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/events/': {
       id: '/_authenticated/events/'
       path: '/events'
@@ -1423,6 +1506,20 @@ declare module '@tanstack/react-router' {
       path: '/incubator'
       fullPath: '/incubator/'
       preLoaderRoute: typeof AuthenticatedIncubatorIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/jobs/': {
+      id: '/_authenticated/jobs/'
+      path: '/jobs'
+      fullPath: '/jobs/'
+      preLoaderRoute: typeof AuthenticatedJobsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/jobs/$jobId': {
+      id: '/_authenticated/jobs/$jobId'
+      path: '/jobs/$jobId'
+      fullPath: '/jobs/$jobId'
+      preLoaderRoute: typeof AuthenticatedJobsJobIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/property/': {
@@ -1521,6 +1618,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDealsRoute: typeof AuthenticatedDealsRoute
   AuthenticatedElectricityRoute: typeof AuthenticatedElectricityRoute
+  AuthenticatedMentorsRoute: typeof AuthenticatedMentorsRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
   AuthenticatedNetworkRoute: typeof AuthenticatedNetworkRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
@@ -1530,15 +1628,19 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTransactionsRoute: typeof AuthenticatedTransactionsRoute
   AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
   AuthenticatedWithdrawRoute: typeof AuthenticatedWithdrawRoute
+  AuthenticatedArticlesArticleIdRoute: typeof AuthenticatedArticlesArticleIdRoute
   AuthenticatedEventsEventIdRoute: typeof AuthenticatedEventsEventIdRoute
   AuthenticatedFreelanceProjectIdRoute: typeof AuthenticatedFreelanceProjectIdRoute
+  AuthenticatedJobsJobIdRoute: typeof AuthenticatedJobsJobIdRoute
   AuthenticatedPropertyListingIdRoute: typeof AuthenticatedPropertyListingIdRoute
   AuthenticatedPropertyManageRoute: typeof AuthenticatedPropertyManageRoute
   AuthenticatedPropertyNewRoute: typeof AuthenticatedPropertyNewRoute
   AuthenticatedServicesProviderIdRoute: typeof AuthenticatedServicesProviderIdRoute
+  AuthenticatedArticlesIndexRoute: typeof AuthenticatedArticlesIndexRoute
   AuthenticatedEventsIndexRoute: typeof AuthenticatedEventsIndexRoute
   AuthenticatedFreelanceIndexRoute: typeof AuthenticatedFreelanceIndexRoute
   AuthenticatedIncubatorIndexRoute: typeof AuthenticatedIncubatorIndexRoute
+  AuthenticatedJobsIndexRoute: typeof AuthenticatedJobsIndexRoute
   AuthenticatedPropertyIndexRoute: typeof AuthenticatedPropertyIndexRoute
   AuthenticatedServicesIndexRoute: typeof AuthenticatedServicesIndexRoute
 }
@@ -1552,6 +1654,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDealsRoute: AuthenticatedDealsRoute,
   AuthenticatedElectricityRoute: AuthenticatedElectricityRoute,
+  AuthenticatedMentorsRoute: AuthenticatedMentorsRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
   AuthenticatedNetworkRoute: AuthenticatedNetworkRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
@@ -1561,15 +1664,19 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTransactionsRoute: AuthenticatedTransactionsRoute,
   AuthenticatedWalletRoute: AuthenticatedWalletRoute,
   AuthenticatedWithdrawRoute: AuthenticatedWithdrawRoute,
+  AuthenticatedArticlesArticleIdRoute: AuthenticatedArticlesArticleIdRoute,
   AuthenticatedEventsEventIdRoute: AuthenticatedEventsEventIdRoute,
   AuthenticatedFreelanceProjectIdRoute: AuthenticatedFreelanceProjectIdRoute,
+  AuthenticatedJobsJobIdRoute: AuthenticatedJobsJobIdRoute,
   AuthenticatedPropertyListingIdRoute: AuthenticatedPropertyListingIdRoute,
   AuthenticatedPropertyManageRoute: AuthenticatedPropertyManageRoute,
   AuthenticatedPropertyNewRoute: AuthenticatedPropertyNewRoute,
   AuthenticatedServicesProviderIdRoute: AuthenticatedServicesProviderIdRoute,
+  AuthenticatedArticlesIndexRoute: AuthenticatedArticlesIndexRoute,
   AuthenticatedEventsIndexRoute: AuthenticatedEventsIndexRoute,
   AuthenticatedFreelanceIndexRoute: AuthenticatedFreelanceIndexRoute,
   AuthenticatedIncubatorIndexRoute: AuthenticatedIncubatorIndexRoute,
+  AuthenticatedJobsIndexRoute: AuthenticatedJobsIndexRoute,
   AuthenticatedPropertyIndexRoute: AuthenticatedPropertyIndexRoute,
   AuthenticatedServicesIndexRoute: AuthenticatedServicesIndexRoute,
 }
