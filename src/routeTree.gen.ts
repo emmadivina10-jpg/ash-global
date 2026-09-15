@@ -83,6 +83,7 @@ import { Route as AuthenticatedFreelanceProjectIdRouteImport } from './routes/_a
 import { Route as AuthenticatedIncubatorIndexRouteImport } from './routes/_authenticated/incubator/index'
 import { Route as AuthenticatedJobsIndexRouteImport } from './routes/_authenticated/jobs.index'
 import { Route as AuthenticatedJobsJobIdRouteImport } from './routes/_authenticated/jobs.$jobId'
+import { Route as AuthenticatedPostPostIdRouteImport } from './routes/_authenticated/post.$postId'
 import { Route as AuthenticatedPropertyIndexRouteImport } from './routes/_authenticated/property.index'
 import { Route as AuthenticatedPropertyListingIdRouteImport } from './routes/_authenticated/property.$listingId'
 import { Route as AuthenticatedPropertyManageRouteImport } from './routes/_authenticated/property.manage'
@@ -475,6 +476,11 @@ const AuthenticatedJobsJobIdRoute = AuthenticatedJobsJobIdRouteImport.update({
   path: '/jobs/$jobId',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPostPostIdRoute = AuthenticatedPostPostIdRouteImport.update({
+  id: '/post/$postId',
+  path: '/post/$postId',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPropertyIndexRoute =
   AuthenticatedPropertyIndexRouteImport.update({
     id: '/property/',
@@ -615,6 +621,7 @@ export interface FileRoutesByFullPath {
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/jobs/$jobId': typeof AuthenticatedJobsJobIdRoute
+  '/post/$postId': typeof AuthenticatedPostPostIdRoute
   '/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
   '/property/manage': typeof AuthenticatedPropertyManageRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
@@ -701,6 +708,7 @@ export interface FileRoutesByTo {
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/jobs/$jobId': typeof AuthenticatedJobsJobIdRoute
+  '/post/$postId': typeof AuthenticatedPostPostIdRoute
   '/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
   '/property/manage': typeof AuthenticatedPropertyManageRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
@@ -790,6 +798,7 @@ export interface FileRoutesById {
   '/_authenticated/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/_authenticated/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/_authenticated/jobs/$jobId': typeof AuthenticatedJobsJobIdRoute
+  '/_authenticated/post/$postId': typeof AuthenticatedPostPostIdRoute
   '/_authenticated/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
   '/_authenticated/property/manage': typeof AuthenticatedPropertyManageRoute
   '/_authenticated/property/new': typeof AuthenticatedPropertyNewRoute
@@ -879,6 +888,7 @@ export interface FileRouteTypes {
     | '/events/$eventId'
     | '/freelance/$projectId'
     | '/jobs/$jobId'
+    | '/post/$postId'
     | '/property/$listingId'
     | '/property/manage'
     | '/property/new'
@@ -965,6 +975,7 @@ export interface FileRouteTypes {
     | '/events/$eventId'
     | '/freelance/$projectId'
     | '/jobs/$jobId'
+    | '/post/$postId'
     | '/property/$listingId'
     | '/property/manage'
     | '/property/new'
@@ -1053,6 +1064,7 @@ export interface FileRouteTypes {
     | '/_authenticated/events/$eventId'
     | '/_authenticated/freelance/$projectId'
     | '/_authenticated/jobs/$jobId'
+    | '/_authenticated/post/$postId'
     | '/_authenticated/property/$listingId'
     | '/_authenticated/property/manage'
     | '/_authenticated/property/new'
@@ -1619,6 +1631,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedJobsJobIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/post/$postId': {
+      id: '/_authenticated/post/$postId'
+      path: '/post/$postId'
+      fullPath: '/post/$postId'
+      preLoaderRoute: typeof AuthenticatedPostPostIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/property/': {
       id: '/_authenticated/property/'
       path: '/property'
@@ -1733,6 +1752,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedEventsEventIdRoute: typeof AuthenticatedEventsEventIdRoute
   AuthenticatedFreelanceProjectIdRoute: typeof AuthenticatedFreelanceProjectIdRoute
   AuthenticatedJobsJobIdRoute: typeof AuthenticatedJobsJobIdRoute
+  AuthenticatedPostPostIdRoute: typeof AuthenticatedPostPostIdRoute
   AuthenticatedPropertyListingIdRoute: typeof AuthenticatedPropertyListingIdRoute
   AuthenticatedPropertyManageRoute: typeof AuthenticatedPropertyManageRoute
   AuthenticatedPropertyNewRoute: typeof AuthenticatedPropertyNewRoute
@@ -1773,6 +1793,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEventsEventIdRoute: AuthenticatedEventsEventIdRoute,
   AuthenticatedFreelanceProjectIdRoute: AuthenticatedFreelanceProjectIdRoute,
   AuthenticatedJobsJobIdRoute: AuthenticatedJobsJobIdRoute,
+  AuthenticatedPostPostIdRoute: AuthenticatedPostPostIdRoute,
   AuthenticatedPropertyListingIdRoute: AuthenticatedPropertyListingIdRoute,
   AuthenticatedPropertyManageRoute: AuthenticatedPropertyManageRoute,
   AuthenticatedPropertyNewRoute: AuthenticatedPropertyNewRoute,
