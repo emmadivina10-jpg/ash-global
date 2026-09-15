@@ -176,7 +176,7 @@ export function StoriesRail() {
           <button
             key={entry.id}
             type="button"
-            onClick={() => (onOpenSpotlight ? onOpenSpotlight(index) : setPreviewEntry(entry))}
+            onClick={() => setReelIndex(index)}
             className="relative h-[190px] w-[112px] shrink-0 snap-start overflow-hidden rounded-2xl border border-primary/30 bg-muted text-left shadow-sm"
           >
             {entry.media_type === "video" ? (
