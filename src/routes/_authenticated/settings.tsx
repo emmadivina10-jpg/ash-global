@@ -30,6 +30,7 @@ import { ACTIVATION_FEE, formatXAF } from "@/lib/format";
 import { Switch } from "@/components/ui/switch";
 import { playMessageSound, setSoundMuted, soundMuted } from "@/lib/sound";
 import { useLocation } from "@/lib/location";
+import { useOrbVisible } from "@/lib/orb-visibility";
 import { useI18n, type TKey } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/settings")({
@@ -78,6 +79,7 @@ function SettingsPage() {
   const { t, lang } = useI18n();
   const fr = lang === "fr";
   const { location, request: requestLocation, busy: locationBusy } = useLocation();
+  const { visible: orbVisible, setVisible: setOrbVisible } = useOrbVisible();
   const queryClient = useQueryClient();
   const [reason, setReason] = useState("");
   const [confirming, setConfirming] = useState(false);
@@ -183,6 +185,21 @@ function SettingsPage() {
               if (on) playMessageSound();
             }}
             aria-label={fr ? "Sons de notification" : "Notification sounds"}
+          />
+        </div>
+      </SectionCard>
+
+      <SectionCard title={fr ? "Bouton ASH flottant" : "Floating ASH button"}>
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            {fr
+              ? "Afficher le bouton rond « A » qui ouvre l'assistant, le support et la carte ASH."
+              : "Show the round \u201cA\u201d button that opens the assistant, support and ASH card."}
+          </p>
+          <Switch
+            checked={orbVisible}
+            onCheckedChange={(on) => setOrbVisible(on)}
+            aria-label={fr ? "Bouton ASH flottant" : "Floating ASH button"}
           />
         </div>
       </SectionCard>

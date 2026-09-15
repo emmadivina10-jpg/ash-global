@@ -750,3 +750,24 @@ a {
     min-height: 100vh;
   }
 }
+
+/* Printable financial statements: only the statement sheet reaches paper. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .ash-statement,
+  .ash-statement * {
+    visibility: visible;
+  }
+
+  .ash-statement {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    padding: 0;
+    color: #000;
+    background: #fff;
+  }
+}
