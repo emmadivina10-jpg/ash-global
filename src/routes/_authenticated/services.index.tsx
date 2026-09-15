@@ -23,6 +23,7 @@ import {
 
 import { ProviderCard } from "@/components/refer/ProviderCard";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { openMemberConversation } from "@/lib/contact-vendor";
 import { openConversation } from "@/lib/marketplace.queries";
 import { useSpotlightFeed } from "@/lib/spotlight.queries";
