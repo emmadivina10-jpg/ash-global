@@ -41,6 +41,7 @@ function FeedPage() {
   const cameraRef = useRef<HTMLInputElement>(null);
   const [tab, setTab] = useState<"foryou" | "friends" | "mine">("foryou");
   const [caption, setCaption] = useState("");
+  const [composerOpen, setComposerOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [me, setMe] = useState<string | null>(null);
 
