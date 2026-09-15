@@ -507,6 +507,23 @@ function BookingRequestDialog({
   const effPrice = isCustom ? Math.max(0, Math.round(Number(customPrice) || 0)) : selected.price;
 
 
+  // Load the vendor's published weekly hours so the customer sees exactly the
+  // days and times the vendor set, and cannot land on a closed day by accident.
+  useEffect(() => {
+    let cancelled = false;
+    void supabase
+      .from("provider_availability")
+      .select("weekday, start_minute, end_minute")
+      .eq("provider_id", provider.id)
+      .order("weekday")
+      .then(({ data }) => {
+        if (!cancelled) setHours((data ?? []) as typeof hours);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [provider.id]);
+
   // Real bookable slots come from the provider's weekly hours minus taken times.
   useEffect(() => {
     if (!day) {
