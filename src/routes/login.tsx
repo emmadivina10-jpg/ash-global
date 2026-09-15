@@ -57,6 +57,12 @@ function LoginPage() {
       return;
     }
     toast.success(t("auth.login.welcome"));
+    const { data: session } = await supabase.auth.getSession();
+    const userId = session.session?.user.id;
+    if (userId && (await needsConsent(userId))) {
+      navigate({ to: "/consent" });
+      return;
+    }
     navigate({ to: "/services" });
   }
 

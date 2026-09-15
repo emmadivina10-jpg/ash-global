@@ -20,7 +20,9 @@ function AuthCallback() {
         const { data } = await supabase.auth.getSession();
         if (cancelled) return;
         if (data.session) {
-          navigate({ to: "/services", replace: true });
+          const pending = await needsConsent(data.session.user.id);
+          if (cancelled) return;
+          navigate({ to: pending ? "/consent" : "/services", replace: true });
           return;
         }
         await new Promise((r) => setTimeout(r, 250));
