@@ -63,6 +63,9 @@ export type Story = {
 
 export type StoryGroup = { author: SocialAuthor; stories: Story[]; seen: boolean };
 
+/** Who may watch a story: everyone on ASH, or only hand-picked members. */
+export type StoryAudience = "ALL" | "SELECT";
+
 /** Every live story, grouped by the member who posted it. */
 export function useStories() {
   return useQuery({
@@ -141,13 +144,31 @@ export function useStories() {
 export function useCreateStory() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ file, caption }: { file: File; caption: string }) => {
+    mutationFn: async ({
+      file,
+      caption,
+      audience = "ALL",
+      allowIds = [],
+      blockIds = [],
+    }: {
+      file: File;
+      caption: string;
+      /** ALL = anyone on ASH can watch, SELECT = only the chosen members. */
+      audience?: StoryAudience;
+      allowIds?: string[];
+      blockIds?: string[];
+    }) => {
       const userId = await currentUserId();
       if (!userId) throw new Error("You need to be signed in.");
       const path = await uploadImage(userId, file, "story");
-      const { error } = await supabase
-        .from("stories")
-        .insert({ author_id: userId, media_path: path, caption: caption.trim() });
+      const { error } = await supabase.from("stories").insert({
+        author_id: userId,
+        media_path: path,
+        caption: caption.trim(),
+        audience,
+        allow_ids: audience === "SELECT" ? allowIds : [],
+        block_ids: audience === "ALL" ? blockIds : [],
+      });
       if (error) throw error;
     },
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["stories"] }),
