@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ImagePlus, Loader2, X } from "lucide-react";
+import { Camera, ImagePlus, Loader2, RefreshCw, Sparkles, Users, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/refer/AvatarUpload";
@@ -8,9 +8,10 @@ import { PostCard } from "@/components/refer/PostCard";
 import { StoriesRail } from "@/components/refer/StoriesRail";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useCreateSocialPost, useSocialFeed } from "@/lib/social.queries";
+import { useCreateSocialPost, useFriendships, useSocialFeed } from "@/lib/social.queries";
 import { useProfile } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/feed")({
   head: () => ({
@@ -32,10 +33,13 @@ export const Route = createFileRoute("/_authenticated/feed")({
 function FeedPage() {
   const { lang } = useI18n();
   const fr = lang === "fr";
-  const { data: posts, isLoading } = useSocialFeed();
+  const { data: posts, isLoading, isFetching, refetch } = useSocialFeed();
+  const { data: friendships } = useFriendships();
   const { data: profile } = useProfile();
   const create = useCreateSocialPost();
   const fileRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const [tab, setTab] = useState<"foryou" | "friends" | "mine">("foryou");
   const [caption, setCaption] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [me, setMe] = useState<string | null>(null);
@@ -64,18 +68,69 @@ function FeedPage() {
     );
   }
 
+  const friendIds = new Set(
+    (friendships?.friends ?? []).map((entry) => entry.other.id),
+  );
+
+  const all = posts ?? [];
+  const visible =
+    tab === "friends"
+      ? all.filter((post) => friendIds.has(post.author_id))
+      : tab === "mine"
+        ? all.filter((post) => post.author_id === me)
+        : all;
+
+  const TABS = [
+    { id: "foryou" as const, icon: Sparkles, en: "For you", fr: "Pour vous" },
+    { id: "friends" as const, icon: Users, en: "Friends", fr: "Amis" },
+    { id: "mine" as const, icon: ImagePlus, en: "Mine", fr: "Mes posts" },
+  ];
+
   return (
     <div className="mx-auto w-full max-w-xl space-y-4">
-      <header>
-        <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
-          {fr ? "Fil ASH" : "ASH Feed"}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {fr
-            ? "Des photos de vrais membres ASH. Aimez, commentez, repartagez."
-            : "Photos from real ASH members. Like, comment, repost."}
-        </p>
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+        <div className="min-w-0">
+          <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
+            {fr ? "Fil ASH" : "ASH Feed"}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {fr
+              ? "Des photos de vrais membres ASH. Aimez, commentez, repartagez."
+              : "Photos from real ASH members. Like, comment, repost."}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => void refetch()}
+          aria-label={fr ? "Actualiser" : "Refresh"}
+          className="grid size-10 shrink-0 place-items-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-primary"
+        >
+          <RefreshCw className={cn("size-4", isFetching && "animate-spin")} aria-hidden />
+        </button>
       </header>
+
+      <div className="flex gap-2 overflow-x-auto pb-0.5">
+        {TABS.map((item) => {
+          const Icon = item.icon;
+          const active = tab === item.id;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setTab(item.id)}
+              className={cn(
+                "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-bold transition-colors",
+                active
+                  ? "border-transparent bg-primary text-primary-foreground shadow-sm"
+                  : "border-border bg-card text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <Icon className="size-3.5" aria-hidden />
+              {fr ? item.fr : item.en}
+            </button>
+          );
+        })}
+      </div>
 
       <StoriesRail />
 
@@ -115,10 +170,17 @@ function FeedPage() {
         ) : null}
 
         <div className="mt-3 flex items-center justify-between">
-          <Button type="button" variant="ghost" size="sm" onClick={() => fileRef.current?.click()}>
-            <ImagePlus className="size-4" aria-hidden />
-            {fr ? "Photo" : "Photo"}
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button type="button" variant="ghost" size="sm" onClick={() => fileRef.current?.click()}>
+              <ImagePlus className="size-4" aria-hidden />
+              {fr ? "Galerie" : "Gallery"}
+            </Button>
+            <Button type="button" variant="ghost" size="sm" onClick={() => cameraRef.current?.click()}>
+              <Camera className="size-4" aria-hidden />
+              {fr ? "Caméra" : "Camera"}
+            </Button>
+            <span className="ml-1 text-[11px] tabular-nums text-muted-foreground">{caption.length}/1200</span>
+          </div>
           <Button
             size="sm"
             onClick={publish}
@@ -130,6 +192,14 @@ function FeedPage() {
           </Button>
         </div>
         <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={pick} />
+        <input
+          ref={cameraRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          onChange={pick}
+        />
         <p className="mt-2 text-[11px] text-muted-foreground">
           {fr ? "Photos uniquement pour l'instant — 4 maximum." : "Photos only for now — up to 4."}
         </p>
@@ -141,13 +211,33 @@ function FeedPage() {
             <div key={i} className="h-56 animate-pulse rounded-3xl bg-muted" />
           ))}
         </div>
-      ) : (posts ?? []).length === 0 ? (
-        <p className="tile p-8 text-center text-sm text-muted-foreground">
-          {fr ? "Rien encore. Soyez le premier à publier." : "Nothing yet. Be the first to post."}
-        </p>
+      ) : visible.length === 0 ? (
+        <div className="tile p-8 text-center">
+          <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary">
+            <Sparkles className="size-5" aria-hidden />
+          </span>
+          <p className="mt-3 text-sm font-bold text-foreground">
+            {tab === "friends"
+              ? fr
+                ? "Vos amis n'ont rien publié"
+                : "Your friends haven't posted yet"
+              : tab === "mine"
+                ? fr
+                  ? "Vous n'avez rien publié"
+                  : "You haven't posted yet"
+                : fr
+                  ? "Rien encore"
+                  : "Nothing here yet"}
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {fr
+              ? "Partagez une photo — c'est ainsi que le fil prend vie."
+              : "Share a photo — that is how the feed comes alive."}
+          </p>
+        </div>
       ) : (
         <div className="space-y-4">
-          {(posts ?? []).map((post) => (
+          {visible.map((post) => (
             <PostCard key={post.id} post={post} currentUserId={me} />
           ))}
         </div>
