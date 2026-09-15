@@ -496,6 +496,8 @@ function BookingRequestDialog({
   const [customPrice, setCustomPrice] = useState("");
   const [step, setStep] = useState<"form" | "confirm">("form");
   const [busy, setBusy] = useState(false);
+  /** The vendor's own published weekly hours — the single source of truth. */
+  const [hours, setHours] = useState<{ weekday: number; start_minute: number; end_minute: number }[] | null>(null);
   /** Guards against a double tap firing two `request_booking` calls. */
   const sending = useRef(false);
 
@@ -504,6 +506,23 @@ function BookingRequestDialog({
   const effTitle = isCustom ? customTitle.trim() : selected.title;
   const effPrice = isCustom ? Math.max(0, Math.round(Number(customPrice) || 0)) : selected.price;
 
+
+  // Load the vendor's published weekly hours so the customer sees exactly the
+  // days and times the vendor set, and cannot land on a closed day by accident.
+  useEffect(() => {
+    let cancelled = false;
+    void supabase
+      .from("provider_availability")
+      .select("weekday, start_minute, end_minute")
+      .eq("provider_id", provider.id)
+      .order("weekday")
+      .then(({ data }) => {
+        if (!cancelled) setHours((data ?? []) as typeof hours);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [provider.id]);
 
   // Real bookable slots come from the provider's weekly hours minus taken times.
   useEffect(() => {
@@ -732,6 +751,25 @@ function BookingRequestDialog({
                 </select>
               </div>
             )}
+            {hours && hours.length > 0 ? (
+              <div className="rounded-xl border border-border bg-muted/40 p-3">
+                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                  {fr ? "Horaires du pro" : "Pro's opening hours"}
+                  {showZone ? ` · ${zoneLabel(zone, baseLang(lang))}` : ""}
+                </p>
+                <ul className="mt-2 space-y-1 text-xs text-foreground">
+                  {hours.map((h) => (
+                    <li key={`${h.weekday}-${h.start_minute}`} className="flex justify-between gap-3">
+                      <span>{dayName(h.weekday, fr)}</span>
+                      <span className="tabular font-semibold">
+                        {clock(h.start_minute)} – {clock(h.end_minute)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
             <div className="space-y-1.5">
               <Label htmlFor="day">{fr ? "Date" : "Date"}</Label>
 
@@ -739,13 +777,20 @@ function BookingRequestDialog({
                 id="day"
                 type="date"
                 value={day}
-                min={new Date().toISOString().slice(0, 10)}
+                min={todayInput()}
                 onChange={(e) => {
                   setDay(e.target.value);
                   setWhen("");
                 }}
                 required
               />
+              {day && hours && !hours.some((h) => h.weekday === weekdayOf(day)) ? (
+                <p className="text-xs font-medium text-destructive">
+                  {fr
+                    ? `Fermé le ${dayName(weekdayOf(day), true).toLowerCase()}. Choisissez un jour ouvert ci-dessus.`
+                    : `Closed on ${dayName(weekdayOf(day), false)}. Pick one of the open days listed above.`}
+                </p>
+              ) : null}
             </div>
 
             {day ? (
@@ -756,9 +801,13 @@ function BookingRequestDialog({
                 ) : (slots ?? []).length === 0 ? (
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">
-                      {fr
-                        ? "Aucun créneau ce jour-là. Choisissez une autre date ou proposez une heure."
-                        : "No slot that day. Pick another date or propose a time."}
+                      {slotError
+                        ? fr
+                          ? "Impossible de charger les créneaux. Réessayez."
+                          : "Could not load the slots. Please try again."
+                        : fr
+                          ? "Plus de créneau libre ce jour-là. Choisissez une autre date, ou proposez une heure au pro."
+                          : "No free slot left that day. Pick another date, or propose a time to the pro."}
                     </p>
                     <Input
                       type="datetime-local"
@@ -766,6 +815,11 @@ function BookingRequestDialog({
                       value={when}
                       onChange={(e) => setWhen(e.target.value)}
                     />
+                    <p className="text-xs text-muted-foreground">
+                      {fr
+                        ? "Heure saisie dans votre fuseau ; le pro doit l'accepter."
+                        : "Entered in your own timezone — the pro still has to accept it."}
+                    </p>
                   </div>
                 ) : (
                   <>
@@ -823,7 +877,12 @@ function BookingRequestDialog({
             <dl className="space-y-2 rounded-xl border border-border p-3 text-sm">
               <Row label={fr ? "Pro" : "Provider"} value={provider.name} />
               <Row label={fr ? "Service" : "Service"} value={effTitle} />
-              <Row label={fr ? "Date" : "Date"} value={formatDateTime(new Date(when).toISOString())} />
+              <Row
+                label={fr ? "Date" : "Date"}
+                value={`${formatDateTimeInZone(new Date(when).toISOString(), zone, baseLang(lang))}${
+                  showZone ? ` (${zoneLabel(zone, baseLang(lang))})` : ""
+                }`}
+              />
               <Row label={fr ? "Durée" : "Duration"} value={`${selected.duration_minutes} min`} />
               <Row label={fr ? "Lieu" : "Location"} value={address || provider.city || "—"} />
               <Row
@@ -863,6 +922,33 @@ function BookingRequestDialog({
       </DialogContent>
     </Dialog>
   );
+}
+
+const DAY_NAMES_EN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const DAY_NAMES_FR = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+
+function dayName(weekday: number, fr: boolean): string {
+  return (fr ? DAY_NAMES_FR : DAY_NAMES_EN)[weekday] ?? "";
+}
+
+/** "08:30" from minutes-after-midnight, exactly as the vendor entered it. */
+function clock(minutes: number): string {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+/** Weekday index of a `YYYY-MM-DD` value, read as a plain calendar date. */
+function weekdayOf(day: string): number {
+  const [y, m, d] = day.split("-").map(Number);
+  return new Date(Date.UTC(y ?? 1970, (m ?? 1) - 1, d ?? 1)).getUTCDay();
+}
+
+/** Today's calendar date on the visitor's device, for the date input `min`. */
+function todayInput(): string {
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
 /** datetime-local value for a UTC timestamp, in the visitor's own timezone. */

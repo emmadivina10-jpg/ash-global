@@ -578,6 +578,38 @@ function StudioPage() {
             <MediaLightbox media={lightbox} onClose={() => setLightbox(null)} />
           </SectionCard>
 
+          {/* Wrap-up: one clear finishing action once everything is entered. */}
+          <SectionCard title={lang === "fr" ? "Terminer" : "Finish up"}>
+            <p className="text-sm text-muted-foreground">
+              {lang === "fr"
+                ? "Quand vos services, vos horaires et vos photos sont prêts, terminez ici. Votre vitrine devient visible et réservable."
+                : "When your services, hours and photos are ready, finish here. Your storefront becomes visible and bookable."}
+            </p>
+            <ul className="mt-3 space-y-1.5 text-sm text-foreground">
+              <li>
+                {(services ?? []).length > 0 ? "✓" : "•"}{" "}
+                {lang === "fr" ? "Services" : "Services"}: {(services ?? []).length}
+              </li>
+              <li>
+                {(portfolio ?? []).length > 0 ? "✓" : "•"}{" "}
+                {lang === "fr" ? "Photos & vidéos" : "Photos & videos"}: {(portfolio ?? []).length}
+              </li>
+            </ul>
+            <Button
+              className="mt-4 h-12 w-full sm:w-auto"
+              disabled={(services ?? []).length === 0}
+              onClick={() => setCelebrate("created")}
+            >
+              {lang === "fr" ? "J'ai terminé — publier ma vitrine" : "I'm done — publish my storefront"}
+              <ArrowRight className="size-4" aria-hidden />
+            </Button>
+            {(services ?? []).length === 0 ? (
+              <p className="mt-2 text-xs text-muted-foreground">
+                {lang === "fr" ? "Ajoutez au moins un service d'abord." : "Add at least one service first."}
+              </p>
+            ) : null}
+          </SectionCard>
+
           <SectionCard title={t("book.received")}>
             <ul className="divide-y divide-border">
               {(bookings ?? []).slice(0, 8).map((b) => (
