@@ -70,6 +70,8 @@ function FeedPage() {
     );
   }
 
+  const firstName = (profile?.full_name ?? "").trim().split(" ")[0] ?? "";
+
   const friendIds = new Set(
     (friendships?.friends ?? []).map((entry) => entry.other.id),
   );
