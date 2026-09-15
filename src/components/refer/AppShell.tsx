@@ -142,10 +142,12 @@ export function AppShell({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const { data: profile } = useProfile();
   const { data: isAdmin } = useIsAdmin();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const region = useRegion();
   const visible = (items: NavItem[]) =>
     items.filter((item) => !item.referralOnly || region.referralEnabled);
+  const navLabel = (item: NavItem) =>
+    item.key ? t(item.key) : ((lang === "fr" ? item.fr : item.en) ?? item.label ?? "");
   const [moreOpen, setMoreOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
