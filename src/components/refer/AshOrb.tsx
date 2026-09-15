@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
-import { Banknote, CreditCard, Headphones, Mail, MapPin, Sparkles, X } from "lucide-react";
+import { CreditCard, Headphones, Mail, Sparkles, X } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { AssistantPanel } from "./AssistantPanel";
 import { AshMark } from "./AshMark";
 import { useI18n } from "@/lib/i18n";
-import { useLocation } from "@/lib/location";
 import { cn } from "@/lib/utils";
 
-type OrbAction = "ai" | "support" | "location" | "card" | "bank";
+type OrbAction = "ai" | "support" | "card";
 
 const RADIUS = 118;
 
@@ -17,7 +16,6 @@ export function AshOrb() {
   const fr = lang === "fr";
   const [open, setOpen] = useState(false);
   const [panel, setPanel] = useState<OrbAction | null>(null);
-  const { location, request, busy } = useLocation();
 
   // Draggable orb. The wrapper is anchored bottom-right, so the offset is
   // always negative-or-zero and clamped to the viewport: the button can be
@@ -87,9 +85,7 @@ export function AshOrb() {
   const items: { id: OrbAction; label: string; icon: ReactNode; soon?: boolean }[] = [
     { id: "ai", label: fr ? "Assistant IA" : "AI Assistant", icon: <AshMark className="size-5" /> },
     { id: "support", label: fr ? "Support ASH" : "ASH Support", icon: <Headphones className="size-5" /> },
-    { id: "location", label: fr ? "Localisation" : "Location", icon: <MapPin className="size-5" /> },
     { id: "card", label: fr ? "Carte ASH" : "ASH Card", icon: <CreditCard className="size-5" />, soon: true },
-    { id: "bank", label: fr ? "ASH Bank" : "ASH Bank", icon: <Banknote className="size-5" />, soon: true },
   ];
 
   return (
@@ -172,13 +168,7 @@ export function AshOrb() {
               ? fr
                 ? "Support ASH"
                 : "ASH Support"
-              : panel === "location"
-                ? fr
-                  ? "Votre position"
-                  : "Your location"
-                : panel === "card"
-                  ? "ASH Card"
-                  : "ASH Bank"
+              : "ASH Card"
         }
         subtitle={
           panel === "ai"
@@ -187,13 +177,9 @@ export function AshOrb() {
               ? fr
                 ? "Comment pouvons-nous vous aider ?"
                 : "How can we help you?"
-              : panel === "location"
-                ? fr
-                  ? "Découvrez ce qu'il y a autour de vous."
-                  : "Discover what's around you."
-                : fr
-                  ? "Bientôt disponible"
-                  : "Coming soon"
+              : fr
+                ? "Bientôt disponible"
+                : "Coming soon"
         }
         tall={panel === "ai"}
       >
@@ -244,41 +230,7 @@ export function AshOrb() {
           </div>
         ) : null}
 
-        {panel === "location" ? (
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              {fr
-                ? "Autorisez la localisation pour trouver les prestataires, services et opportunités près de vous."
-                : "Allow location to find nearby services, providers and opportunities."}
-            </p>
-            {location ? (
-              <div className="flex items-center gap-3 rounded-2xl border border-success/25 bg-success/10 p-4">
-                <MapPin className="size-5 shrink-0 text-success" aria-hidden />
-                <p className="text-sm font-semibold text-foreground">
-                  {fr ? "Position enregistrée" : "Location saved"} · {location.lat.toFixed(2)},{" "}
-                  {location.lng.toFixed(2)}
-                </p>
-              </div>
-            ) : null}
-            <div className="flex flex-wrap gap-2">
-              <Button onClick={() => void request()} disabled={busy}>
-                <MapPin className="size-4" aria-hidden />
-                {location
-                  ? fr
-                    ? "Mettre à jour"
-                    : "Update location"
-                  : fr
-                    ? "Activer la localisation"
-                    : "Enable location"}
-              </Button>
-              <Button variant="ghost" onClick={() => setPanel(null)}>
-                {fr ? "Pas maintenant" : "Not now"}
-              </Button>
-            </div>
-          </div>
-        ) : null}
-
-        {panel === "card" || panel === "bank" ? (
+        {panel === "card" ? (
           <div className="space-y-4">
             <div className="virtual-card grain relative p-5">
               <span className="hairline-gold absolute right-4 top-4 rounded-full bg-[oklch(0_0_0_/_0.35)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[color:var(--color-gold-soft)]">
@@ -286,16 +238,12 @@ export function AshOrb() {
               </span>
               <p className="eyebrow text-[color:oklch(0.98_0.004_285_/_0.6)]">ASH</p>
               <p className="mt-2 font-display text-2xl font-extrabold">
-                {panel === "card" ? "ASH Card" : "ASH Bank"}
+                ASH Card
               </p>
               <p className="mt-6 text-sm opacity-80">
-                {panel === "card"
-                  ? fr
-                    ? "Dépensez vos gains directement, en ligne et en magasin."
-                    : "Spend your earnings directly, online and in store."
-                  : fr
-                    ? "Épargne, transferts et paiements, intégrés à votre réseau ASH."
-                    : "Savings, transfers and payments, built into your ASH network."}
+                {fr
+                  ? "Dépensez vos gains directement, en ligne et en magasin."
+                  : "Spend your earnings directly, online and in store."}
               </p>
             </div>
             <p className="flex items-center gap-2 text-xs text-muted-foreground">

@@ -5,6 +5,7 @@ import {
   Check,
   CheckCheck,
   Loader2,
+  ImageIcon,
   ReceiptText,
   Send,
   Trash2,
@@ -15,6 +16,8 @@ import { useMessages } from "@/lib/marketplace.queries";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ReportDialog } from "@/components/refer/ReportDialog";
+import { CHAT_WALLPAPERS, useChatSettings, useSetWallpaper } from "@/lib/social.queries";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useI18n } from "@/lib/i18n";
 import { formatXAF } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -84,6 +87,14 @@ export function ChatThread({
   const [failed, setFailed] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
+  const { data: chatSettings } = useChatSettings();
+  const setWallpaper = useSetWallpaper();
+  const wallpaperRef = useRef<HTMLInputElement>(null);
+  const [wallpaperOpen, setWallpaperOpen] = useState(false);
+  const [peerTyping, setPeerTyping] = useState(false);
+  const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const typingSentAt = useRef(0);
+
   const messagesScrollRef = useRef<HTMLDivElement>(null);
   const pressRef = useRef<number | null>(null);
 
@@ -123,6 +134,47 @@ export function ChatThread({
         }),
       );
   }, [messages, currentUserId, conversationId, queryClient]);
+
+  // Live "typing…" signal between the people in this thread.
+  useEffect(() => {
+    if (!currentUserId) return;
+    let clear: ReturnType<typeof setTimeout> | undefined;
+    const channel = supabase
+      .channel(`typing-${conversationId}`, { config: { broadcast: { self: false } } })
+      .on("broadcast", { event: "typing" }, (payload) => {
+        const from = (payload["payload"] as { userId?: string } | undefined)?.userId;
+        if (!from || from === currentUserId) return;
+        setPeerTyping(true);
+        if (clear) clearTimeout(clear);
+        clear = setTimeout(() => setPeerTyping(false), 3000);
+      })
+      .subscribe();
+    typingChannelRef.current = channel;
+    return () => {
+      if (clear) clearTimeout(clear);
+      typingChannelRef.current = null;
+      void supabase.removeChannel(channel);
+    };
+  }, [conversationId, currentUserId]);
+
+  function signalTyping() {
+    const now = Date.now();
+    if (!currentUserId || now - typingSentAt.current < 1500) return;
+    typingSentAt.current = now;
+    void typingChannelRef.current?.send({
+      type: "broadcast",
+      event: "typing",
+      payload: { userId: currentUserId },
+    });
+  }
+
+  const wallpaperStyle = (() => {
+    if (chatSettings?.wallpaperUrl) {
+      return { backgroundImage: `url(${chatSettings.wallpaperUrl})`, backgroundSize: "cover", backgroundPosition: "center" };
+    }
+    const preset = CHAT_WALLPAPERS.find((w) => w.id === chatSettings?.wallpaper);
+    return preset?.css ? { backgroundImage: preset.css } : undefined;
+  })();
 
   const grouped = useMemo(() => {
     const out: { day: string; items: ChatMessage[] }[] = [];
@@ -207,7 +259,58 @@ export function ChatThread({
 
   return (
     <div className={cn("flex min-h-0 flex-col", className)}>
-      <div className="flex shrink-0 items-center justify-end px-1">
+      <div className="flex shrink-0 items-center justify-end gap-1 px-1">
+        <Dialog open={wallpaperOpen} onOpenChange={setWallpaperOpen}>
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="icon" aria-label={fr ? "Fond d'écran" : "Chat wallpaper"}>
+              <ImageIcon className="size-4" aria-hidden />
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{fr ? "Fond de discussion" : "Chat wallpaper"}</DialogTitle>
+            </DialogHeader>
+            <div className="grid grid-cols-3 gap-3">
+              {CHAT_WALLPAPERS.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => {
+                    setWallpaper.mutate({ wallpaper: option.id, file: null });
+                    setWallpaperOpen(false);
+                  }}
+                  className={cn(
+                    "rounded-2xl border border-border p-1 text-[11px] font-semibold text-foreground",
+                    chatSettings?.wallpaper === option.id && "border-primary",
+                  )}
+                >
+                  <span
+                    className="mb-1 block h-14 w-full rounded-xl bg-muted"
+                    style={option.css ? { backgroundImage: option.css } : undefined}
+                    aria-hidden
+                  />
+                  {fr ? option.fr : option.en}
+                </button>
+              ))}
+            </div>
+            <input
+              ref={wallpaperRef}
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                event.target.value = "";
+                if (!file) return;
+                setWallpaper.mutate({ wallpaper: "custom", file });
+                setWallpaperOpen(false);
+              }}
+            />
+            <Button variant="outline" onClick={() => wallpaperRef.current?.click()}>
+              {fr ? "Choisir dans ma galerie" : "Choose from my gallery"}
+            </Button>
+          </DialogContent>
+        </Dialog>
         <ReportDialog
           targetType="MESSAGE"
           targetId={conversationId}
@@ -219,7 +322,8 @@ export function ChatThread({
 
       <div
         ref={messagesScrollRef}
-        className="min-h-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto overscroll-contain px-1 py-2"
+        className="min-h-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl px-1 py-2"
+        style={wallpaperStyle}
       >
         {isLoading ? (
           <div className="space-y-3 py-4">
@@ -451,7 +555,26 @@ export function ChatThread({
           </div>
         ) : null}
 
+        {peerTyping ? (
+          <div className="flex items-end gap-2">
+            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground">
+              {peerInitials}
+            </span>
+            <span className="flex items-center gap-1 rounded-2xl rounded-bl-sm bg-muted px-3 py-2">
+              {[0, 1, 2].map((dot) => (
+                <span
+                  key={dot}
+                  className="size-1.5 animate-bounce rounded-full bg-muted-foreground"
+                  style={{ animationDelay: `${dot * 120}ms` }}
+                  aria-hidden
+                />
+              ))}
+              <span className="sr-only">{fr ? "En train d'écrire" : "Typing"}</span>
+            </span>
+          </div>
+        ) : null}
       </div>
+
 
       {quickReplies.length > 0 ? (
         <div className="flex shrink-0 gap-2 overflow-x-auto px-1 pb-2">
@@ -479,9 +602,10 @@ export function ChatThread({
           <Textarea
             rows={1}
             value={body}
-            onChange={(e) =>
-              setBody(e.target.value.slice(0, 1000))
-            }
+            onChange={(e) => {
+              setBody(e.target.value.slice(0, 1000));
+              signalTyping();
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();

@@ -587,7 +587,15 @@ export function useMemberSearch(term: string) {
 
 /* ------------------------------------------------------------------ groups */
 
-export type ChatGroup = { id: string; name: string; owner_id: string; created_at: string; members: SocialAuthor[] };
+export type ChatGroup = {
+  id: string;
+  name: string;
+  owner_id: string;
+  created_at: string;
+  members: SocialAuthor[];
+  member_count: number;
+  conversation_id: string | null;
+};
 
 export function useGroups() {
   return useQuery({
@@ -608,12 +616,29 @@ export function useGroups() {
         );
       const rows = (memberRows ?? []) as { group_id: string; user_id: string }[];
       const authors = await loadAuthors(rows.map((r) => r.user_id));
-      return groups.map((g) => ({
-        ...g,
-        members: rows
+      const { data: conversationRows } = await supabase
+        .from("conversations")
+        .select("id, group_id")
+        .in(
+          "group_id",
+          groups.map((g) => g.id),
+        );
+      const conversations = new Map(
+        ((conversationRows ?? []) as { id: string; group_id: string | null }[])
+          .filter((row) => row.group_id)
+          .map((row) => [row.group_id as string, row.id]),
+      );
+      return groups.map((g) => {
+        const members = rows
           .filter((r) => r.group_id === g.id)
-          .map((r) => authors.get(r.user_id) ?? { id: r.user_id, name: "ASH member", avatar_url: null }),
-      }));
+          .map((r) => authors.get(r.user_id) ?? { id: r.user_id, name: "ASH member", avatar_url: null });
+        return {
+          ...g,
+          members,
+          member_count: members.length,
+          conversation_id: conversations.get(g.id) ?? null,
+        };
+      });
     },
   });
 }

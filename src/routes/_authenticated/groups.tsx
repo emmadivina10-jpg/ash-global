@@ -84,19 +84,19 @@ function GroupsPage() {
               ) : (
                 friends.map((entry) => (
                   <button
-                    key={entry.person.id}
+                    key={entry.other.id}
                     type="button"
-                    onClick={() => setSelected((list) => toggle(list, entry.person.id))}
+                    onClick={() => setSelected((list) => toggle(list, entry.other.id))}
                     className={cn(
                       "flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors",
-                      selected.includes(entry.person.id) ? "bg-primary/10" : "hover:bg-muted",
+                      selected.includes(entry.other.id) ? "bg-primary/10" : "hover:bg-muted",
                     )}
                   >
-                    <Avatar path={entry.person.avatar_url} name={entry.person.name} className="size-9" />
+                    <Avatar path={entry.other.avatar_url} name={entry.other.name} className="size-9" />
                     <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
-                      {entry.person.name}
+                      {entry.other.name}
                     </span>
-                    {selected.includes(entry.person.id) ? (
+                    {selected.includes(entry.other.id) ? (
                       <span className="text-xs font-bold text-primary">{fr ? "Ajouté" : "Added"}</span>
                     ) : null}
                   </button>
@@ -188,17 +188,17 @@ function GroupsPage() {
           <div className="max-h-64 space-y-1 overflow-y-auto">
             {friends.map((entry) => (
               <button
-                key={entry.person.id}
+                key={entry.other.id}
                 type="button"
-                onClick={() => setAddSelected((list) => toggle(list, entry.person.id))}
+                onClick={() => setAddSelected((list) => toggle(list, entry.other.id))}
                 className={cn(
                   "flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors",
-                  addSelected.includes(entry.person.id) ? "bg-primary/10" : "hover:bg-muted",
+                  addSelected.includes(entry.other.id) ? "bg-primary/10" : "hover:bg-muted",
                 )}
               >
-                <Avatar path={entry.person.avatar_url} name={entry.person.name} className="size-9" />
+                <Avatar path={entry.other.avatar_url} name={entry.other.name} className="size-9" />
                 <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
-                  {entry.person.name}
+                  {entry.other.name}
                 </span>
               </button>
             ))}

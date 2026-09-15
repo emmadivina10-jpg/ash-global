@@ -10,6 +10,7 @@ import {
   Home,
   Info,
   LifeBuoy,
+  MapPin,
   Loader2,
   ScrollText,
   ShieldCheck,
@@ -28,6 +29,7 @@ import { Label } from "@/components/ui/label";
 import { ACTIVATION_FEE, formatXAF } from "@/lib/format";
 import { Switch } from "@/components/ui/switch";
 import { playMessageSound, setSoundMuted, soundMuted } from "@/lib/sound";
+import { useLocation } from "@/lib/location";
 import { useI18n, type TKey } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/settings")({
@@ -75,6 +77,7 @@ function Paragraphs({ keys, vars }: { keys: TKey[]; vars?: Record<string, string
 function SettingsPage() {
   const { t, lang } = useI18n();
   const fr = lang === "fr";
+  const { location, request: requestLocation, busy: locationBusy } = useLocation();
   const queryClient = useQueryClient();
   const [reason, setReason] = useState("");
   const [confirming, setConfirming] = useState(false);
@@ -181,6 +184,28 @@ function SettingsPage() {
             }}
             aria-label={fr ? "Sons de notification" : "Notification sounds"}
           />
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        title={fr ? "Localisation" : "Location"}
+        action={<MapPin className="size-4 text-muted-foreground" aria-hidden />}
+      >
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          {fr
+            ? "Ajoutez votre position pour voir en priorité les prestataires, services et opportunités près de vous. Elle reste sur cet appareil."
+            : "Add your location so nearby providers, services and opportunities show first. It stays on this device."}
+        </p>
+        {location ? (
+          <p className="mt-3 text-sm font-semibold text-foreground">
+            {location.label ?? `${location.lat.toFixed(2)}, ${location.lng.toFixed(2)}`}
+          </p>
+        ) : null}
+        <div className="mt-3">
+          <Button onClick={() => void requestLocation()} disabled={locationBusy}>
+            <MapPin className="size-4" aria-hidden />
+            {location ? (fr ? "Mettre à jour" : "Update location") : fr ? "Activer la localisation" : "Enable location"}
+          </Button>
         </div>
       </SectionCard>
 
