@@ -473,7 +473,7 @@ export function ChatThread({
           e.preventDefault();
           void submit(body);
         }}
-        className="shrink-0 flex items-end gap-2 border-t border-border bg-background pt-2 pb-2"
+        className="shrink-0 flex items-end gap-2 border-t border-border bg-background pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] md:pb-2"
       >
         <div className="flex min-w-0 flex-1 flex-col">
           <Textarea
