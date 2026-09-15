@@ -307,6 +307,57 @@ export type Database = {
           },
         ]
       }
+      chat_groups: {
+        Row: {
+          avatar_path: string | null
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_path?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_path?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      chat_settings: {
+        Row: {
+          created_at: string
+          updated_at: string
+          user_id: string
+          wallpaper: string
+          wallpaper_path: string | null
+        }
+        Insert: {
+          created_at?: string
+          updated_at?: string
+          user_id: string
+          wallpaper?: string
+          wallpaper_path?: string | null
+        }
+        Update: {
+          created_at?: string
+          updated_at?: string
+          user_id?: string
+          wallpaper?: string
+          wallpaper_path?: string | null
+        }
+        Relationships: []
+      }
       content_reports: {
         Row: {
           created_at: string
@@ -357,6 +408,7 @@ export type Database = {
           booking_id: string | null
           client_id: string
           created_at: string
+          group_id: string | null
           id: string
           last_message_at: string
           listing_id: string | null
@@ -367,6 +419,7 @@ export type Database = {
           booking_id?: string | null
           client_id: string
           created_at?: string
+          group_id?: string | null
           id?: string
           last_message_at?: string
           listing_id?: string | null
@@ -377,6 +430,7 @@ export type Database = {
           booking_id?: string | null
           client_id?: string
           created_at?: string
+          group_id?: string | null
           id?: string
           last_message_at?: string
           listing_id?: string | null
@@ -389,6 +443,13 @@ export type Database = {
             columns: ["booking_id"]
             isOneToOne: false
             referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "chat_groups"
             referencedColumns: ["id"]
           },
           {
@@ -908,6 +969,65 @@ export type Database = {
         }
         Relationships: []
       }
+      friendships: {
+        Row: {
+          addressee_id: string
+          created_at: string
+          id: string
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          addressee_id: string
+          created_at?: string
+          id?: string
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          addressee_id?: string
+          created_at?: string
+          id?: string
+          requester_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      group_members: {
+        Row: {
+          added_by: string | null
+          created_at: string
+          group_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          added_by?: string | null
+          created_at?: string
+          group_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          added_by?: string | null
+          created_at?: string
+          group_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "chat_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_applications: {
         Row: {
           applicant_id: string
@@ -1294,6 +1414,7 @@ export type Database = {
       }
       notifications: {
         Row: {
+          actor_id: string | null
           body: string
           category: string
           created_at: string
@@ -1304,6 +1425,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          actor_id?: string | null
           body?: string
           category: string
           created_at?: string
@@ -1314,6 +1436,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          actor_id?: string | null
           body?: string
           category?: string
           created_at?: string
@@ -1613,6 +1736,109 @@ export type Database = {
             columns: ["service_id"]
             isOneToOne: false
             referencedRelation: "provider_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_comments: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          is_hidden: boolean
+          parent_id: string | null
+          post_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          is_hidden?: boolean
+          parent_id?: string | null
+          post_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          is_hidden?: boolean
+          parent_id?: string | null
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "post_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "social_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_likes: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "social_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_reposts: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_reposts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "social_posts"
             referencedColumns: ["id"]
           },
         ]
@@ -2456,6 +2682,65 @@ export type Database = {
         }
         Relationships: []
       }
+      social_posts: {
+        Row: {
+          author_id: string
+          caption: string
+          city: string | null
+          comment_count: number
+          created_at: string
+          filter_comments: boolean
+          id: string
+          is_published: boolean
+          like_count: number
+          media: Json
+          repost_count: number
+          reposted_from: string | null
+          tags: string[]
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          caption?: string
+          city?: string | null
+          comment_count?: number
+          created_at?: string
+          filter_comments?: boolean
+          id?: string
+          is_published?: boolean
+          like_count?: number
+          media?: Json
+          repost_count?: number
+          reposted_from?: string | null
+          tags?: string[]
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          caption?: string
+          city?: string | null
+          comment_count?: number
+          created_at?: string
+          filter_comments?: boolean
+          id?: string
+          is_published?: boolean
+          like_count?: number
+          media?: Json
+          repost_count?: number
+          reposted_from?: string | null
+          tags?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_posts_reposted_from_fkey"
+            columns: ["reposted_from"]
+            isOneToOne: false
+            referencedRelation: "social_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       spotlight_posts: {
         Row: {
           author_id: string
@@ -2582,6 +2867,68 @@ export type Database = {
             columns: ["staff_id"]
             isOneToOne: false
             referencedRelation: "staff_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stories: {
+        Row: {
+          author_id: string
+          caption: string
+          created_at: string
+          expires_at: string
+          id: string
+          media_path: string
+          media_type: string
+          view_count: number
+        }
+        Insert: {
+          author_id: string
+          caption?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          media_path: string
+          media_type?: string
+          view_count?: number
+        }
+        Update: {
+          author_id?: string
+          caption?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          media_path?: string
+          media_type?: string
+          view_count?: number
+        }
+        Relationships: []
+      }
+      story_views: {
+        Row: {
+          created_at: string
+          id: string
+          story_id: string
+          viewer_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          story_id: string
+          viewer_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          story_id?: string
+          viewer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_views_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "stories"
             referencedColumns: ["id"]
           },
         ]
@@ -2841,6 +3188,7 @@ export type Database = {
         Args: { _actor?: string; _reason: string; _user_id: string }
         Returns: Json
       }
+      are_friends: { Args: { _a: string; _b: string }; Returns: boolean }
       begin_booking_payment: {
         Args: { _booking_id: string; _reference: string }
         Returns: Json
@@ -2970,6 +3318,8 @@ export type Database = {
         Args: { _conversation_id: string }
         Returns: boolean
       }
+      is_group_member: { Args: { _group_id: string }; Returns: boolean }
+      is_group_owner: { Args: { _group_id: string }; Returns: boolean }
       is_provider_owner: { Args: { _provider_id: string }; Returns: boolean }
       is_provider_visible: { Args: { _provider_id: string }; Returns: boolean }
       log_security_event: {
@@ -2980,6 +3330,17 @@ export type Database = {
           _route?: string
           _severity?: string
           _subject?: string
+        }
+        Returns: undefined
+      }
+      notify_actor: {
+        Args: {
+          _actor_id: string
+          _body?: string
+          _category: string
+          _data?: Json
+          _title: string
+          _user_id: string
         }
         Returns: undefined
       }
@@ -3065,6 +3426,25 @@ export type Database = {
         Returns: Json
       }
       slugify: { Args: { _value: string }; Returns: string }
+      social_feed: {
+        Args: { _limit?: number; _offset?: number }
+        Returns: {
+          author_id: string
+          caption: string
+          city: string
+          comment_count: number
+          created_at: string
+          filter_comments: boolean
+          id: string
+          like_count: number
+          liked: boolean
+          media: Json
+          repost_count: number
+          reposted: boolean
+          reposted_from: string
+          score: number
+        }[]
+      }
       submit_community_review: {
         Args: { _comment?: string; _provider_id: string; _rating: number }
         Returns: Json
