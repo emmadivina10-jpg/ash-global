@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { AssistantPanel } from "./AssistantPanel";
 import { AshMark } from "./AshMark";
 import { useI18n } from "@/lib/i18n";
-import { useLocation } from "@/lib/location";
 import { cn } from "@/lib/utils";
 
 type OrbAction = "ai" | "support" | "card";
@@ -17,7 +16,6 @@ export function AshOrb() {
   const fr = lang === "fr";
   const [open, setOpen] = useState(false);
   const [panel, setPanel] = useState<OrbAction | null>(null);
-  const { location, request, busy } = useLocation();
 
   // Draggable orb. The wrapper is anchored bottom-right, so the offset is
   // always negative-or-zero and clamped to the viewport: the button can be
