@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { sendOpeningMessage } from "@/lib/contact-vendor";
 import { EmptyState, LoadingState } from "@/components/refer/states";
 import { PropertyCard } from "@/components/refer/PropertyCard";
 import { ReportDialog } from "@/components/refer/ReportDialog";
@@ -135,6 +136,12 @@ function PropertyDetail() {
     setBusy(true);
     try {
       const conversationId = await openPropertyConversation(listingId);
+      await sendOpeningMessage(
+        conversationId,
+        fr
+          ? `Bonjour ! J’ai vu votre annonce « ${listing?.title ?? "cette propriété"} » sur ASH Glo. Je suis intéressé(e) et j’aimerais en savoir plus sur le prix, la disponibilité et une visite.`
+          : `Hi! I saw your listing "${listing?.title ?? "this property"}" on ASH Glo. I'm interested and would like to know more about the price, availability and arranging a viewing.`,
+      );
       await navigate({ to: "/messages", search: { c: conversationId } });
     } catch (cause) {
       toast.error(

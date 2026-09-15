@@ -15,6 +15,7 @@
 import { useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { isNativeApp, nativePlatform } from "@/lib/native";
+import { playMessageSound } from "@/lib/sound";
 
 /** Categories that are important enough to interrupt the member. */
 export const PUSH_CATEGORIES = [
@@ -270,6 +271,9 @@ export function usePushNotifications(enabled = true) {
           (payload) => {
             const row = payload.new as { category?: string; title?: string; body?: string };
             void vibrateDevice();
+            // Audible chime while the app is open (muted from Settings if the
+            // member prefers silence).
+            playMessageSound();
             if (!row?.title || !isPushCategory(row.category ?? "")) return;
             void showDeviceNotification(row.title, row.body ?? "");
           },

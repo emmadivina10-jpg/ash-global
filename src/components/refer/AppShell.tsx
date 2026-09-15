@@ -31,6 +31,7 @@ import { AshOrb } from "./AshOrb";
 import { StatusBadge } from "./StatusBadge";
 import { NotificationBell } from "./NotificationBell";
 import { PushBridge } from "./PushBridge";
+import { WelcomeIntro } from "./WelcomeIntro";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAvatarUrl } from "./AvatarUpload";
 import {
@@ -114,6 +115,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="app-shell safe-top min-h-dvh bg-background">
       <PushBridge />
+      <WelcomeIntro />
       <div className="app-shell-frame mx-auto flex w-full max-w-7xl">
 
         <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-border bg-sidebar p-5 lg:flex">

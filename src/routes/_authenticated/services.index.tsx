@@ -23,7 +23,9 @@ import {
 
 import { ProviderCard } from "@/components/refer/ProviderCard";
 import { supabase } from "@/integrations/supabase/client";
-import { openConversation, useCommunityFeed } from "@/lib/marketplace.queries";
+import { openConversation } from "@/lib/marketplace.queries";
+import { useSpotlightFeed } from "@/lib/spotlight.queries";
+import { SpotlightComposer } from "@/components/refer/SpotlightComposer";
 import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -503,11 +505,10 @@ function DiscoveryPage() {
     [providers],
   );
 
-  const { data: community } =
-    useCommunityFeed();
+  const { data: community } = useSpotlightFeed();
 
   const spotlightPosts = useMemo(
-    () => (community ?? []).slice(0, 12),
+    () => (community ?? []).slice(0, 18),
     [community],
   );
 
@@ -579,6 +580,8 @@ function DiscoveryPage() {
       searchedFor?: string;
     },
   ) {
+    // Personal spotlights have no storefront to message.
+    if (!providerId) return;
     const conversationId = await openConversation(providerId);
     if (!conversationId) return;
 
@@ -934,10 +937,12 @@ function DiscoveryPage() {
           ) : null}
         </div>
 
+        <SpotlightComposer />
+
         {spotlightPosts.length > 0 ? (
           <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1 scrollbar-none">
             {filteredSpotlightPosts.map((post, index) => {
-              const mediaIsVideo = isVideoSource(post.url);
+              const mediaIsVideo = post.media_type === "video" || isVideoSource(post.url);
               const businessName = post.provider.business_name;
               const city = post.provider.city;
               const providerMeta = post.provider as typeof post.provider & {
@@ -1080,7 +1085,7 @@ function DiscoveryPage() {
               className="min-h-0 flex-1 snap-y snap-mandatory overflow-y-auto overscroll-contain bg-gradient-to-b from-background via-background to-muted/30 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               {spotlightPosts.map((post, index) => {
-                const mediaIsVideo = isVideoSource(post.url);
+                const mediaIsVideo = post.media_type === "video" || isVideoSource(post.url);
                 const businessName = post.provider.business_name;
 
                 return (
@@ -1243,7 +1248,7 @@ function DiscoveryPage() {
                   className="h-full snap-y snap-mandatory overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                 >
                   {filteredSpotlightPosts.map((post) => {
-                    const mediaIsVideo = isVideoSource(post.url);
+                    const mediaIsVideo = post.media_type === "video" || isVideoSource(post.url);
                     const businessName = post.provider.business_name;
                     const city = post.provider.city;
                     const providerMeta = post.provider as typeof post.provider & {

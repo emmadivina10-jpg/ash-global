@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowUpRight,
+  Bell,
+  BellOff,
   Briefcase,
   Calendar,
   Home,
@@ -24,6 +26,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ACTIVATION_FEE, formatXAF } from "@/lib/format";
+import { Switch } from "@/components/ui/switch";
+import { playMessageSound, setSoundMuted, soundMuted } from "@/lib/sound";
 import { useI18n, type TKey } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/settings")({
@@ -75,6 +79,11 @@ function SettingsPage() {
   const [reason, setReason] = useState("");
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [soundOff, setSoundOff] = useState(false);
+
+  useEffect(() => {
+    setSoundOff(soundMuted());
+  }, []);
 
   const { data: request } = useQuery({
     queryKey: ["deletion-request"],
@@ -144,6 +153,34 @@ function SettingsPage() {
               <ArrowUpRight className="size-3 text-muted-foreground" aria-hidden />
             </Link>
           ))}
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        title={fr ? "Sons de notification" : "Notification sounds"}
+        action={
+          soundOff ? (
+            <BellOff className="size-4 text-muted-foreground" aria-hidden />
+          ) : (
+            <Bell className="size-4 text-muted-foreground" aria-hidden />
+          )
+        }
+      >
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            {fr
+              ? "Jouer un son quand un nouveau message arrive pendant que l'application est ouverte."
+              : "Play a sound when a new message arrives while the app is open."}
+          </p>
+          <Switch
+            checked={!soundOff}
+            onCheckedChange={(on) => {
+              setSoundMuted(!on);
+              setSoundOff(!on);
+              if (on) playMessageSound();
+            }}
+            aria-label={fr ? "Sons de notification" : "Notification sounds"}
+          />
         </div>
       </SectionCard>
 

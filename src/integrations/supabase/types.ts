@@ -561,6 +561,106 @@ export type Database = {
         }
         Relationships: []
       }
+      forum_comments: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          post_id: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          post_id: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "forum_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      forum_likes: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "forum_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      forum_posts: {
+        Row: {
+          author_id: string
+          body: string
+          comment_count: number
+          created_at: string
+          id: string
+          image_path: string | null
+          like_count: number
+          space: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          comment_count?: number
+          created_at?: string
+          id?: string
+          image_path?: string | null
+          like_count?: number
+          space?: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          comment_count?: number
+          created_at?: string
+          id?: string
+          image_path?: string | null
+          like_count?: number
+          space?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       freelance_projects: {
         Row: {
           awarded_user_id: string | null
@@ -2073,6 +2173,50 @@ export type Database = {
           subject?: string | null
         }
         Relationships: []
+      }
+      spotlight_posts: {
+        Row: {
+          author_id: string
+          caption: string
+          created_at: string
+          id: string
+          is_published: boolean
+          media: Json
+          provider_id: string | null
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          author_id: string
+          caption?: string
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          media?: Json
+          provider_id?: string | null
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          author_id?: string
+          caption?: string
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          media?: Json
+          provider_id?: string | null
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spotlight_posts_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       staff_accounts: {
         Row: {
