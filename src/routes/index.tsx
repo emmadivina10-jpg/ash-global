@@ -23,7 +23,7 @@ import { useI18n } from "@/lib/i18n";
 
 const TITLE = "ASH — Where Opportunities Connect.";
 const DESCRIPTION =
-  "ASH is a digital opportunity, commerce, services, freelance, property, community and events platform that connects people, businesses, freelancers, service providers, communities and event organizers in one ecosystem.";
+  "ASH is a digital opportunity, commerce, services, freelance, property, community and events platform — live in 175 countries — that connects people, businesses, freelancers, service providers, communities and event organizers in one ecosystem, with a social feed, stories, Spotlight, friends, groups and secure Mobile Money payments.";
 
 const OG_IMAGE = "https://ashglogroup.company/ash-social.png";
 const SUPPORT_URL = "https://ash-glo-support.base44.app";
