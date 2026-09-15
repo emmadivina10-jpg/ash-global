@@ -1019,10 +1019,15 @@ function DiscoveryPage() {
           ) : null}
         </div>
 
-        {/* 24-hour member stories, with "Create Spotlight" always first. */}
-        <StoriesRail />
+        {/* One rail: 24-hour stories first, then lasting Spotlight highlights. */}
+        <StoriesRail
+          onOpenSpotlight={(index) => {
+            setSpotlightIndex(index);
+            setSpotlightSearch("");
+            setSpotlightFeedOpen(true);
+          }}
+        />
 
-        <SpotlightComposer />
 
         {spotlightPosts.length > 0 ? (
           <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1 scrollbar-none">
