@@ -178,7 +178,9 @@ function ProfilePage() {
               value={fullName}
               readOnly={!editing}
               aria-readonly={!editing}
-              className={!editing ? "border-transparent bg-muted/60" : undefined}
+              className={!editing ? "cursor-pointer border-transparent bg-muted/60" : undefined}
+              onFocus={() => setEditing(true)}
+              onClick={() => setEditing(true)}
               onChange={(event) => setFullName(event.target.value)}
             />
           </div>
