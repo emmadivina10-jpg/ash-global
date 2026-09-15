@@ -12,7 +12,6 @@ import {
   useWithdrawals,
 } from "@/lib/queries";
 import { disburseWithdrawal } from "@/lib/tchokopay.functions";
-import { PayoutAccountCard } from "@/components/refer/PayoutAccountCard";
 import { useRegion } from "@/lib/region-context";
 import { SectionCard } from "@/components/refer/cards";
 import { StatusBadge } from "@/components/refer/StatusBadge";
@@ -179,20 +178,18 @@ function WithdrawPage() {
   const momoAvailable =
     mobileMoneyEnabled;
 
-  const methodOptions: Method[] =
-    momoAvailable
-      ? [
-          "MTN_MOMO",
-          "ORANGE_MONEY",
-          "STRIPE_BANK",
-        ]
-      : ["STRIPE_BANK"];
+  // Bank payouts are a coming-soon feature: Mobile Money is the only live
+  // destination anywhere in ASH today.
+  const methodOptions: Method[] = [
+    "MTN_MOMO",
+    "ORANGE_MONEY",
+  ];
 
   useEffect(() => {
     if (
       !methodOptions.includes(method)
     ) {
-      setMethod("STRIPE_BANK");
+      setMethod("MTN_MOMO");
     }
   }, [method, momoAvailable]);
 
@@ -501,10 +498,6 @@ function WithdrawPage() {
           bookings are completed.
         </p>
       </SectionCard>
-
-      <PayoutAccountCard
-        country={country}
-      />
 
       <SectionCard
         title="Withdraw funds"

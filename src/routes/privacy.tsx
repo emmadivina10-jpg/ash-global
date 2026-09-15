@@ -176,6 +176,16 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
                 "Enable communication between clients, providers and support, and answer assistant requests",
               ],
               [
+                "Social posts, Spotlight stories and comments",
+                "Photos you post to the ASH feed, the Spotlight stories you publish (which expire after 24 hours), captions, comments and replies, likes, reposts, who viewed your story, and your friend and group memberships",
+                "Run the ASH social feed, Spotlight stories, comment threads, friend requests and group chats, and recommend posts to people likely to find them relevant",
+              ],
+              [
+                "Camera and photo library access",
+                "Photos or snapshots you choose to capture or upload — including pictures you send to the ASH Assistant so it can answer a question about them",
+                "Only used for the upload or assistant request you started; never accessed in the background",
+              ],
+              [
                 "Reviews and other user-generated content",
                 "Rating, review text, review photos, whether the review is tied to a completed booking, reports you file",
                 "Community trust, moderation and safety",
@@ -263,7 +273,7 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
               ["Verify payments and reconcile them against your account", "Contract / legal obligation"],
               ["Calculate, record and pay referral commissions across three levels", "Contract"],
               [
-                "Review and execute withdrawals to Mobile Money or bank",
+                "Review and execute withdrawals to Mobile Money",
                 "Contract / legal obligation (AML, fraud prevention)",
               ],
               [
@@ -505,7 +515,8 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
               "Used for third-party advertising or targeted advertising: none.",
               "Data sold or shared for advertising: none.",
               "Account deletion: available in-app under Settings → Delete account, and on the public web page ashglogroup.company/account-deletion.",
-              "Data encrypted in transit: yes.",
+              "Data encrypted in transit: yes. Messages are encrypted in transit and at rest on our infrastructure; ASH Glo does not currently offer end-to-end encrypted chat, so we do not claim it.",
+              "Bank withdrawals: not available. Payouts run to Mobile Money only; bank transfers are marked as a coming-soon feature in the app.",
             ]}
           />
         </Section>
@@ -513,7 +524,7 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
         <Section id="safety" title="13. User content, safety and children">
           <p>
             ASH Glo hosts user-generated content: storefront photos and videos, service descriptions,
-            reviews and private chat. We apply a zero-tolerance policy to objectionable content and
+            reviews, social posts, Spotlight stories, comments and private chat. We apply a zero-tolerance policy to objectionable content and
             abusive behaviour, set out in section 3 of our{" "}
             <Link to="/terms" className="text-primary hover:underline">
               Terms of Service
@@ -522,7 +533,8 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
           </p>
           <Bullets
             items={[
-              "Every profile, portfolio item, review and chat thread can be reported in-app with the flag control.",
+              "Every profile, portfolio item, review, social post, comment and chat thread can be reported in-app with the flag control.",
+              "Authors can switch on a comment filter for any post they publish; comments that our moderation check flags as abusive are then blocked before they appear.",
               "Any user can block another user instantly; blocked users can no longer send them messages.",
               "Reports reach the ASH Trust & Safety team and are reviewed within 24 hours; breaching content is removed and accounts suspended or terminated.",
               "ASH Glo is an 18+ service. We do not knowingly collect data from children; child sexual abuse and exploitation material is prohibited, removed and reported to the competent authorities. Contact privacy@ashglogroup.company for child-safety concerns.",

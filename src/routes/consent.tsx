@@ -67,7 +67,7 @@ function ConsentPage() {
       );
       return;
     }
-    navigate({ to: "/services", replace: true });
+    navigate({ to: "/setup-profile", replace: true });
   }
 
   return (
@@ -84,8 +84,8 @@ function ConsentPage() {
           <ShieldCheck className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
           <p className="text-sm text-muted-foreground">
             {fr
-              ? "Vos données restent privées. Les paiements et virements bancaires sont traités par nos partenaires sécurisés — ASH ne voit jamais vos identifiants bancaires."
-              : "Your data stays private. Payments and bank transfers are handled by our secure partners — ASH never sees your banking credentials."}
+              ? "Vos données restent privées. Les paiements Mobile Money sont traités par nos partenaires sécurisés — ASH ne voit jamais vos identifiants de paiement."
+              : "Your data stays private. Mobile Money payments are handled by our secure partners — ASH never sees your payment credentials."}
           </p>
         </div>
 

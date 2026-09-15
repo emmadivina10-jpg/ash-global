@@ -261,6 +261,65 @@ export function useSocialFeed(limit = 40) {
   });
 }
 
+/** One post, so a like/comment notification can open exactly what it is about. */
+export function usePost(postId: string | null | undefined) {
+  return useQuery({
+    queryKey: ["social-post", postId],
+    enabled: Boolean(postId),
+    queryFn: async (): Promise<FeedPost | null> => {
+      const me = await currentUserId();
+      const { data, error } = await supabase
+        .from("social_posts")
+        .select("id, author_id, caption, media, city, like_count, comment_count, repost_count, filter_comments, created_at")
+        .eq("id", postId!)
+        .maybeSingle();
+      if (error) throw error;
+      const row = data as {
+        id: string;
+        author_id: string;
+        caption: string;
+        media: unknown;
+        city: string | null;
+        like_count: number;
+        comment_count: number;
+        repost_count: number;
+        filter_comments: boolean;
+        created_at: string;
+      } | null;
+      if (!row) return null;
+
+      const [signed, authors, liked, reposted] = await Promise.all([
+        signPaths(parseImages(row.media)),
+        loadAuthors([row.author_id]),
+        me
+          ? supabase.from("post_likes").select("post_id").eq("post_id", row.id).eq("user_id", me).maybeSingle()
+          : Promise.resolve({ data: null }),
+        me
+          ? supabase.from("post_reposts").select("post_id").eq("post_id", row.id).eq("user_id", me).maybeSingle()
+          : Promise.resolve({ data: null }),
+      ]);
+
+      return {
+        id: row.id,
+        author_id: row.author_id,
+        caption: row.caption,
+        city: row.city,
+        images: parseImages(row.media)
+          .map((p) => signed[p])
+          .filter((u): u is string => Boolean(u)),
+        like_count: row.like_count,
+        comment_count: row.comment_count,
+        repost_count: row.repost_count,
+        filter_comments: row.filter_comments,
+        liked: Boolean(liked.data),
+        reposted: Boolean(reposted.data),
+        created_at: row.created_at,
+        author: authors.get(row.author_id) ?? { id: row.author_id, name: "ASH member", avatar_url: null },
+      };
+    },
+  });
+}
+
 /** Posts written by one member — used on profiles. */
 export function useMemberPosts(userId: string | null | undefined) {
   return useQuery({
@@ -383,6 +442,8 @@ export type PostComment = {
   body: string;
   created_at: string;
   author: SocialAuthor;
+  like_count: number;
+  liked: boolean;
   replies: PostComment[];
 };
 
@@ -393,7 +454,7 @@ export function useComments(postId: string | null) {
     queryFn: async (): Promise<PostComment[]> => {
       const { data, error } = await supabase
         .from("post_comments")
-        .select("id, post_id, parent_id, author_id, body, created_at")
+        .select("id, post_id, parent_id, author_id, body, created_at, like_count")
         .eq("post_id", postId!)
         .eq("is_hidden", false)
         .order("created_at", { ascending: true });
@@ -405,8 +466,22 @@ export function useComments(postId: string | null) {
         author_id: string;
         body: string;
         created_at: string;
+        like_count: number | null;
       }[];
-      const authors = await loadAuthors(rows.map((r) => r.author_id));
+      const me = await currentUserId();
+      const [authors, likedResult] = await Promise.all([
+        loadAuthors(rows.map((r) => r.author_id)),
+        me && rows.length
+          ? supabase
+              .from("comment_likes")
+              .select("comment_id")
+              .eq("user_id", me)
+              .in("comment_id", rows.map((r) => r.id))
+          : Promise.resolve({ data: [] }),
+      ]);
+      const likedIds = new Set(
+        ((likedResult.data ?? []) as { comment_id: string }[]).map((row) => row.comment_id),
+      );
       const byId = new Map<string, PostComment>();
       const roots: PostComment[] = [];
       for (const row of rows) {
@@ -417,6 +492,8 @@ export function useComments(postId: string | null) {
           body: row.body,
           created_at: row.created_at,
           author: authors.get(row.author_id) ?? { id: row.author_id, name: "ASH member", avatar_url: null },
+          like_count: row.like_count ?? 0,
+          liked: likedIds.has(row.id),
           replies: [],
         });
       }
@@ -427,6 +504,30 @@ export function useComments(postId: string | null) {
       }
       return roots;
     },
+  });
+}
+
+/** Like / unlike a comment or a reply. */
+export function useToggleCommentLike() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ commentId, liked }: { commentId: string; liked: boolean; postId: string }) => {
+      const userId = await currentUserId();
+      if (!userId) throw new Error("You need to be signed in.");
+      if (liked) {
+        const { error } = await supabase
+          .from("comment_likes")
+          .delete()
+          .eq("comment_id", commentId)
+          .eq("user_id", userId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("comment_likes").insert({ comment_id: commentId, user_id: userId });
+        if (error) throw error;
+      }
+    },
+    onSuccess: (_result, variables) =>
+      void queryClient.invalidateQueries({ queryKey: ["post-comments", variables.postId] }),
   });
 }
 

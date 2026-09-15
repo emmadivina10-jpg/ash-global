@@ -14,6 +14,7 @@ import {
   useToggleRepost,
   type FeedPost,
   type PostComment,
+  useToggleCommentLike,
 } from "@/lib/social.queries";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -211,6 +212,7 @@ function CommentRow({
 }) {
   const { lang } = useI18n();
   const fr = lang === "fr";
+  const likeComment = useToggleCommentLike();
   return (
     <div className={cn("flex gap-2.5", depth > 0 && "ml-8")}>
       <Avatar path={comment.author.avatar_url} name={comment.author.name} className="size-8" />
@@ -219,15 +221,25 @@ function CommentRow({
           <p className="text-xs font-bold text-foreground">{comment.author.name}</p>
           <p className="whitespace-pre-wrap break-words text-sm text-foreground">{comment.body}</p>
         </div>
-        {depth === 0 ? (
+        <div className="mt-1 flex items-center gap-3 px-2 text-[11px] font-semibold text-muted-foreground">
           <button
             type="button"
-            onClick={() => onReply(comment)}
-            className="mt-1 px-2 text-[11px] font-semibold text-muted-foreground hover:text-primary"
+            onClick={() =>
+              likeComment.mutate({ commentId: comment.id, liked: comment.liked, postId: comment.post_id })
+            }
+            disabled={!currentUserId || likeComment.isPending}
+            className={cn("transition-colors hover:text-primary", comment.liked && "text-primary")}
           >
-            {fr ? "Répondre" : "Reply"}
+            {fr ? "J'aime" : "Like"}
+            {comment.like_count > 0 ? ` · ${comment.like_count}` : ""}
           </button>
-        ) : null}
+          {depth === 0 ? (
+            <button type="button" onClick={() => onReply(comment)} className="hover:text-primary">
+              {fr ? "Répondre" : "Reply"}
+            </button>
+          ) : null}
+          <span className="font-normal">{new Date(comment.created_at).toLocaleDateString(fr ? "fr-FR" : "en-GB")}</span>
+        </div>
         {comment.replies.map((reply) => (
           <div key={reply.id} className="mt-2">
             <CommentRow comment={reply} onReply={onReply} currentUserId={currentUserId} depth={depth + 1} />

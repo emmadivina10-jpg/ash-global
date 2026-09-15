@@ -54,12 +54,17 @@ export function notificationLink(category: string, data: Record<string, unknown>
     case "SOCIAL_REPOST":
     case "SOCIAL_COMMENT":
     case "SOCIAL_REPLY":
+      // Open the exact post the notification is about whenever we know it.
+      return typeof data["post_id"] === "string" ? `/post/${data["post_id"]}` : "/feed";
+    case "STORY":
       return "/feed";
     case "FRIEND_REQUEST":
     case "FRIEND_ACCEPTED":
       return "/friends";
     case "GROUP_ADDED":
-      return "/messages";
+      return typeof data["conversation_id"] === "string"
+        ? `/messages?c=${data["conversation_id"]}`
+        : "/groups";
     default:
       return "/dashboard";
   }

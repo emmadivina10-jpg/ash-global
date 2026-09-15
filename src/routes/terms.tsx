@@ -73,8 +73,16 @@ function TermsPage() {
 
         <Section id="content" title="3. User content and zero-tolerance policy">
           <p>
-            You keep ownership of the photos, videos, service descriptions, chat messages and reviews you post, and you
-            grant ASH Glo a worldwide, non-exclusive licence to host and display that content inside the product.
+            You keep ownership of the photos, videos, service descriptions, social posts, Spotlight stories, comments,
+            chat messages and reviews you post, and you grant ASH Glo a worldwide, non-exclusive licence to host and
+            display that content inside the product.
+          </p>
+          <p>
+            ASH social features — the photo feed, comments and replies, likes and reposts, friend requests, group chats
+            and Spotlight stories that disappear after 24 hours — are for real members only. Fake accounts, bought
+            engagement and impersonation are prohibited. Video posting is not available in the feed at this time. If you
+            publish a post you may switch on its comment filter; ASH will then block comments an automated check finds
+            abusive, and you remain responsible for moderating your own threads.
           </p>
           <p className="font-medium text-foreground">
             There is zero tolerance for objectionable content or abusive behaviour. You may not post or send content
@@ -82,7 +90,7 @@ function TermsPage() {
             depicts or endangers minors.
           </p>
           <p>
-            Every profile, portfolio item, review and chat message can be reported from inside the app using the flag
+            Every profile, portfolio item, review, social post, comment, story and chat message can be reported from inside the app using the flag
             control, and any user can block another user immediately. Reports are reviewed by the ASH Trust &amp; Safety
             team within 24 hours; content that breaches this policy is removed and the account is suspended or
             terminated without refund. Repeat or severe breaches are reported to the competent authorities.
@@ -97,7 +105,8 @@ function TermsPage() {
           </p>
           <p>
             ASH Glo charges providers a 1% platform commission on completed marketplace transactions. Referral
-            programme fees, where offered, are shown before payment. All prices are shown inclusive of the fees that
+            programme fees, where offered, are shown before payment. Withdrawals from your ASH wallet are paid to Mobile
+            Money; bank transfers are shown in the app as a coming-soon feature and are not available yet. All prices are shown inclusive of the fees that
             apply to you before you confirm.
           </p>
           <p>
