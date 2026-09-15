@@ -181,11 +181,7 @@ function WalletPage() {
                 <div className="grid size-full place-items-center rounded-full bg-background/90 backdrop-blur-sm">
                   <Sparkles
                     className={`size-3.5 ${
-                      walletTheme === 2
-                        ? "text-amber-500"
-                        : walletTheme === 1
-                          ? "text-slate-500 dark:text-slate-200"
-                          : "text-slate-500"
+                      walletTheme === 2 ? "text-amber-500" : "text-slate-500"
                     }`}
                     aria-hidden
                   />
