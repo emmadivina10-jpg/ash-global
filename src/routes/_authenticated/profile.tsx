@@ -34,6 +34,8 @@ function ProfilePage() {
   const { data: profile, isLoading } = useProfile();
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
+  const [birthday, setBirthday] = useState("");
+  const [city, setCity] = useState("");
   const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
