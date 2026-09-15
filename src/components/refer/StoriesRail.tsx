@@ -385,26 +385,14 @@ export function StoriesRail() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={Boolean(previewEntry)} onOpenChange={(open) => (open ? null : setPreviewEntry(null))}>
-        <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="size-4 text-primary" aria-hidden />
-              {previewEntry?.provider.business_name}
-            </DialogTitle>
-          </DialogHeader>
-          {previewEntry ? (
-            previewEntry.media_type === "video" ? (
-              <video src={previewEntry.url} controls playsInline className="w-full rounded-2xl" />
-            ) : (
-              <img src={previewEntry.url} alt="" className="w-full rounded-2xl object-contain" />
-            )
-          ) : null}
-          {previewEntry?.caption ? (
-            <p className="text-sm text-foreground">{previewEntry.caption}</p>
-          ) : null}
-        </DialogContent>
-      </Dialog>
+      {reelIndex !== null ? (
+        <SpotlightReels
+          entries={highlights}
+          startIndex={reelIndex}
+          onClose={() => setReelIndex(null)}
+        />
+      ) : null}
+
 
       {viewerIndex !== null ? (
         <StoryViewer
