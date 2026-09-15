@@ -92,14 +92,22 @@ export function StoriesRail({
 
   function publish() {
     if (!file) return;
+    if (audience === "SELECT" && chosen.length === 0) {
+      toast.error(fr ? "Choisissez au moins une personne." : "Pick at least one person.");
+      return;
+    }
     create.mutate(
-      { file, caption },
+      {
+        file,
+        caption,
+        audience,
+        allowIds: chosen.map((person) => person.id),
+        blockIds: blocked.map((person) => person.id),
+      },
       {
         onSuccess: () => {
           toast.success(fr ? "Story publiée — 24 h" : "Story posted — live for 24 h");
-          setFile(null);
-          setPreview(null);
-          setCaption("");
+          resetStoryComposer();
         },
         onError: (error) => toast.error(error instanceof Error ? error.message : "Could not post."),
       },
