@@ -171,9 +171,15 @@ function ProfilePage() {
         </div>
         <form onSubmit={save} className="space-y-4" noValidate>
           <div className="space-y-2">
-
             <Label htmlFor="fullName">{t("profile.fullName")}</Label>
-            <Input id="fullName" value={fullName} onChange={(event) => setFullName(event.target.value)} />
+            <Input
+              id="fullName"
+              value={fullName}
+              readOnly={!editing}
+              aria-readonly={!editing}
+              className={!editing ? "border-transparent bg-muted/60" : undefined}
+              onChange={(event) => setFullName(event.target.value)}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="email">{t("profile.email")}</Label>
@@ -181,17 +187,55 @@ function ProfilePage() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="phone">{t("profile.phone")}</Label>
-            <Input id="phone" value={phone} onChange={(event) => setPhone(event.target.value)} />
+            <Input
+              id="phone"
+              value={phone}
+              readOnly={!editing}
+              aria-readonly={!editing}
+              className={!editing ? "border-transparent bg-muted/60" : undefined}
+              onChange={(event) => setPhone(event.target.value)}
+            />
           </div>
           {error ? (
             <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
               {error}
             </p>
           ) : null}
-          <Button type="submit" disabled={saving}>
-            {saving ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-            {t("profile.save")}
-          </Button>
+
+          {editing ? (
+            <div className="flex flex-wrap gap-2">
+              <Button type="submit" disabled={saving}>
+                {saving ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+                {t("profile.save")}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={saving}
+                onClick={() => {
+                  setFullName(profile.full_name ?? "");
+                  setPhone(profile.phone ?? "");
+                  setError(null);
+                  setEditing(false);
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-center gap-3">
+              <Button type="button" variant="outline" onClick={() => setEditing(true)}>
+                <Pencil className="size-4" aria-hidden />
+                Edit details
+              </Button>
+              {justSaved ? (
+                <span className="flex items-center gap-1.5 text-sm font-semibold text-success">
+                  <Check className="size-4" aria-hidden />
+                  {t("profile.saved")}
+                </span>
+              ) : null}
+            </div>
+          )}
         </form>
       </SectionCard>
 
