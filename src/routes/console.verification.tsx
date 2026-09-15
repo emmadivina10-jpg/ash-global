@@ -30,7 +30,7 @@ function VerificationConsole() {
     try {
       const result = await setVerification({ data: { userId, tier, days: 30, note: note || undefined } });
       if (!result.ok) {
-        toast.error(result.error === "FORBIDDEN" ? "Admins only." : (result.error ?? "Could not update."));
+        toast.error(result.error === "FORBIDDEN" ? "Admins only." : "Could not update.");
         return;
       }
       toast.success(tier ? "Badge granted." : "Badge revoked.");

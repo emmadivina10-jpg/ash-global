@@ -10,10 +10,10 @@ export function VerifiedBadge({
   className,
   size = 14,
 }: {
-  tier?: string | null;
-  until?: string | null;
-  className?: string;
-  size?: number;
+  tier?: string | null | undefined;
+  until?: string | null | undefined;
+  className?: string | undefined;
+  size?: number | undefined;
 }) {
   if (!tier) return null;
   if (until && new Date(until).getTime() < Date.now()) return null;
@@ -43,7 +43,7 @@ export function VerifiedBadge({
   );
 }
 
-export type VerifiedFields = { verified_tier?: string | null; verified_until?: string | null };
+export type VerifiedFields = { verified_tier?: string | null | undefined; verified_until?: string | null };
 
 /** Convenience: name text followed by the badge when the person is verified. */
 export function NameWithBadge({
@@ -54,8 +54,8 @@ export function NameWithBadge({
 }: {
   name: string;
   person?: VerifiedFields | null;
-  className?: string;
-  size?: number;
+  className?: string | undefined;
+  size?: number | undefined;
 }) {
   return (
     <span className={cn("inline-flex min-w-0 items-center gap-1", className)}>
