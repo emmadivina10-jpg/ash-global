@@ -41,6 +41,7 @@ function FeedPage() {
   const cameraRef = useRef<HTMLInputElement>(null);
   const [tab, setTab] = useState<"foryou" | "friends" | "mine">("foryou");
   const [caption, setCaption] = useState("");
+  const [composerOpen, setComposerOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [me, setMe] = useState<string | null>(null);
 
@@ -61,12 +62,15 @@ function FeedPage() {
         onSuccess: () => {
           setCaption("");
           setFiles([]);
+          setComposerOpen(false);
           toast.success(fr ? "Publié" : "Posted");
         },
         onError: (error) => toast.error(error instanceof Error ? error.message : "Could not post."),
       },
     );
   }
+
+  const firstName = (profile?.full_name ?? "").trim().split(" ")[0] ?? "";
 
   const friendIds = new Set(
     (friendships?.friends ?? []).map((entry) => entry.other.id),
@@ -132,20 +136,60 @@ function FeedPage() {
         })}
       </div>
 
-      <StoriesRail />
-
-      <section className="tile p-4">
-        <div className="flex gap-3">
-          <Avatar path={profile?.avatar_url} name={profile?.full_name} className="size-10" />
-          <Textarea
-            rows={2}
-            value={caption}
-            onChange={(event) => setCaption(event.target.value.slice(0, 1200))}
-            placeholder={fr ? "Quoi de neuf ?" : "What's happening?"}
-            aria-label={fr ? "Votre publication" : "Your post"}
-            className="min-h-11 resize-none rounded-2xl"
-          />
+      <section className="tile p-3">
+        <div className="flex items-center gap-2.5">
+          <Avatar path={profile?.avatar_url} name={profile?.full_name} className="size-10 shrink-0" />
+          {composerOpen ? (
+            <Textarea
+              autoFocus
+              rows={3}
+              value={caption}
+              onChange={(event) => setCaption(event.target.value.slice(0, 1200))}
+              placeholder={firstName ? (fr ? `Quoi de neuf, ${firstName} ?` : `What's on your mind, ${firstName}?`) : fr ? "Quoi de neuf ?" : "What's on your mind?"}
+              aria-label={fr ? "Votre publication" : "Your post"}
+              className="min-h-11 resize-none rounded-2xl"
+            />
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => setComposerOpen(true)}
+                className="min-w-0 flex-1 truncate rounded-full bg-secondary px-4 py-2.5 text-left text-sm text-muted-foreground"
+              >
+                {firstName
+                  ? fr
+                    ? `Quoi de neuf, ${firstName} ?`
+                    : `What's on your mind, ${firstName}?`
+                  : fr
+                    ? "Quoi de neuf ?"
+                    : "What's on your mind?"}
+              </button>
+              <button
+                type="button"
+                aria-label={fr ? "Caméra" : "Camera"}
+                onClick={() => {
+                  setComposerOpen(true);
+                  cameraRef.current?.click();
+                }}
+                className="grid size-9 shrink-0 place-items-center rounded-full text-primary"
+              >
+                <Camera className="size-5" aria-hidden />
+              </button>
+              <button
+                type="button"
+                aria-label={fr ? "Galerie" : "Gallery"}
+                onClick={() => {
+                  setComposerOpen(true);
+                  fileRef.current?.click();
+                }}
+                className="grid size-9 shrink-0 place-items-center rounded-full text-accent"
+              >
+                <ImagePlus className="size-5" aria-hidden />
+              </button>
+            </>
+          )}
         </div>
+
 
         {files.length > 0 ? (
           <div className="mt-3 flex flex-wrap gap-2">
@@ -169,28 +213,30 @@ function FeedPage() {
           </div>
         ) : null}
 
-        <div className="mt-3 flex items-center justify-between">
-          <div className="flex items-center gap-1">
-            <Button type="button" variant="ghost" size="sm" onClick={() => fileRef.current?.click()}>
-              <ImagePlus className="size-4" aria-hidden />
-              {fr ? "Galerie" : "Gallery"}
+        {composerOpen ? (
+          <div className="mt-3 flex items-center justify-between">
+            <div className="flex items-center gap-1">
+              <Button type="button" variant="ghost" size="sm" onClick={() => fileRef.current?.click()}>
+                <ImagePlus className="size-4" aria-hidden />
+                {fr ? "Galerie" : "Gallery"}
+              </Button>
+              <Button type="button" variant="ghost" size="sm" onClick={() => cameraRef.current?.click()}>
+                <Camera className="size-4" aria-hidden />
+                {fr ? "Caméra" : "Camera"}
+              </Button>
+              <span className="ml-1 text-[11px] tabular-nums text-muted-foreground">{caption.length}/1200</span>
+            </div>
+            <Button
+              size="sm"
+              onClick={publish}
+              disabled={create.isPending || (caption.trim().length === 0 && files.length === 0)}
+              className="touch-manipulation"
+            >
+              {create.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+              {fr ? "Publier" : "Post"}
             </Button>
-            <Button type="button" variant="ghost" size="sm" onClick={() => cameraRef.current?.click()}>
-              <Camera className="size-4" aria-hidden />
-              {fr ? "Caméra" : "Camera"}
-            </Button>
-            <span className="ml-1 text-[11px] tabular-nums text-muted-foreground">{caption.length}/1200</span>
           </div>
-          <Button
-            size="sm"
-            onClick={publish}
-            disabled={create.isPending || (caption.trim().length === 0 && files.length === 0)}
-            className="touch-manipulation"
-          >
-            {create.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-            {fr ? "Publier" : "Post"}
-          </Button>
-        </div>
+        ) : null}
         <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={pick} />
         <input
           ref={cameraRef}
@@ -200,10 +246,10 @@ function FeedPage() {
           className="hidden"
           onChange={pick}
         />
-        <p className="mt-2 text-[11px] text-muted-foreground">
-          {fr ? "Photos uniquement pour l'instant — 4 maximum." : "Photos only for now — up to 4."}
-        </p>
       </section>
+
+      <StoriesRail />
+
 
       {isLoading ? (
         <div className="space-y-3">
