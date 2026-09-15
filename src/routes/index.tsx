@@ -64,7 +64,7 @@ export const Route = createFileRoute("/")({
 
 const WORLD = [
   { icon: Store, en: "Services", fr: "Services" },
-  { icon: ShoppingBag, en: "Marketplace", fr: "Marché" },
+  { icon: ShoppingBag, en: "ASH Hub", fr: "ASH Hub" },
   { icon: Briefcase, en: "Freelance", fr: "Freelance" },
   { icon: Building2, en: "Property", fr: "Immobilier" },
   { icon: CalendarDays, en: "Events", fr: "Événements" },
