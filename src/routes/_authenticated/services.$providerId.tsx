@@ -919,6 +919,33 @@ function BookingRequestDialog({
   );
 }
 
+const DAY_NAMES_EN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const DAY_NAMES_FR = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+
+function dayName(weekday: number, fr: boolean): string {
+  return (fr ? DAY_NAMES_FR : DAY_NAMES_EN)[weekday] ?? "";
+}
+
+/** "08:30" from minutes-after-midnight, exactly as the vendor entered it. */
+function clock(minutes: number): string {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+/** Weekday index of a `YYYY-MM-DD` value, read as a plain calendar date. */
+function weekdayOf(day: string): number {
+  const [y, m, d] = day.split("-").map(Number);
+  return new Date(Date.UTC(y ?? 1970, (m ?? 1) - 1, d ?? 1)).getUTCDay();
+}
+
+/** Today's calendar date on the visitor's device, for the date input `min`. */
+function todayInput(): string {
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
 /** datetime-local value for a UTC timestamp, in the visitor's own timezone. */
 function toLocalInput(iso: string): string {
   const d = new Date(iso);
