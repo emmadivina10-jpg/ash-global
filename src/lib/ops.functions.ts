@@ -217,7 +217,7 @@ export const getDailyBriefing = createServerFn({ method: "GET" }).handler(async 
     db.rpc("console_financials"),
     db.from("withdrawals").select("id, status, amount").in("status", ["PENDING", "PROCESSING"]),
     db.from("support_tickets").select("id, status, priority").in("status", ["OPEN", "PENDING"]),
-    db.from("bookings").select("id, status").in("status", ["REQUESTED", "ACCEPTED"]),
+    db.from("bookings").select("id, status").in("status", ["PENDING", "ACCEPTED"]),
     db.from("profiles").select("user_id").gte("created_at", since),
     db.from("provider_profiles").select("id, is_verified").eq("is_verified", false),
   ]);

@@ -13,9 +13,9 @@ const PERIODS = [
 
 export type StatementHolder = {
   name: string;
-  email?: string | null;
-  phone?: string | null;
-  reference?: string | null;
+  email?: string | null | undefined;
+  phone?: string | null | undefined;
+  reference?: string | null | undefined;
 };
 
 function csvEscape(value: string) {
