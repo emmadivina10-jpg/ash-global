@@ -112,20 +112,23 @@ export function SpotlightComposer({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="flex w-full touch-manipulation items-center gap-3 rounded-2xl border border-border bg-card px-3 py-2.5 text-left shadow-[var(--shadow-card)] transition-colors hover:border-primary/40"
-      >
-        <Avatar path={identity?.avatar_url ?? null} name={displayName} className="size-9" />
-        <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">
-          {fr ? "Partagez un Spotlight…" : "Share a spotlight…"}
-        </span>
-        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-[11px] font-bold text-primary">
-          <ImagePlus className="size-3.5" aria-hidden />
-          {fr ? "Photo / Vidéo" : "Photo / Video"}
-        </span>
-      </button>
+      {hideTrigger ? null : (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="flex w-full touch-manipulation items-center gap-3 rounded-2xl border border-border bg-card px-3 py-2.5 text-left shadow-[var(--shadow-card)] transition-colors hover:border-primary/40"
+        >
+          <Avatar path={identity?.avatar_url ?? null} name={displayName} className="size-9" />
+          <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">
+            {fr ? "Partagez un Spotlight…" : "Share a spotlight…"}
+          </span>
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-[11px] font-bold text-primary">
+            <ImagePlus className="size-3.5" aria-hidden />
+            {fr ? "Photo / Vidéo" : "Photo / Video"}
+          </span>
+        </button>
+      )}
+
 
       <Dialog
         open={open}
