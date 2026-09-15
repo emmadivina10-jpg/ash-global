@@ -586,7 +586,7 @@ function MessagesPage() {
                         ASH AI
                       </span>
                       <span className="shrink-0 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#4B0082] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-white shadow-sm">
-                        Coming Soon
+                        {fr ? "En direct" : "Live"}
                       </span>
                     </span>
 
@@ -833,77 +833,10 @@ function MessagesPage() {
               >
                 <div
                   aria-hidden
-                  className="pointer-events-none absolute inset-0 bg-background/65 backdrop-blur-[1px] dark:bg-slate-950/72"
+                  className="pointer-events-none absolute inset-0 bg-background/70 backdrop-blur-[1px] dark:bg-slate-950/75"
                 />
-
                 <div className="relative flex min-h-0 flex-1 flex-col">
-                  <div className="flex-1 overflow-y-auto px-4 py-6">
-                  <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
-                    <span className="grid size-20 place-items-center rounded-full bg-gradient-to-br from-[#D4AF37] via-[#8B6914] to-[#4B0082] p-[2px] shadow-xl shadow-[#4B0082]/25 ring-2 ring-[#D4AF37]/50">
-                      <span className="grid size-full place-items-center overflow-hidden rounded-full bg-[#0b0712]">
-                        <span className="font-display text-xl font-black tracking-tight text-[#D4AF37]">ASH</span>
-                      </span>
-                    </span>
-
-                    <h3 className="mt-4 font-display text-2xl font-black text-foreground">
-                      ASH AI
-                    </h3>
-
-                    <span className="mt-2 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#4B0082] px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-white shadow-md">
-                      {fr ? "Bientôt disponible" : "Coming Soon"}
-                    </span>
-
-                    <p className="mt-3 max-w-md text-sm leading-6 text-muted-foreground">
-                      {fr
-                        ? "Votre assistant intelligent ASH arrive bientôt. Il vous aidera à découvrir les services, comprendre les annonces, obtenir des idées et bien plus."
-                        : "Your intelligent ASH assistant is coming soon. It will help you discover services, understand listings, get ideas, and much more."}
-                    </p>
-
-                    <div className="mt-6 grid w-full max-w-lg gap-2 sm:grid-cols-2">
-                      {(fr
-                        ? [
-                            "Aide-moi à trouver un service",
-                            "Aide-moi à rédiger un CV",
-                            "Explique-moi cette annonce",
-                            "Donne-moi une idée de business",
-                          ]
-                        : [
-                            "Help me find a service",
-                            "Help me write a CV",
-                            "Explain this listing",
-                            "Give me a business idea",
-                          ]
-                      ).map((prompt) => (
-                        <button
-                          key={prompt}
-                          type="button"
-                          className="rounded-xl border border-[#D4AF37]/20 bg-card/80 px-3 py-3 text-left text-sm text-foreground opacity-70" disabled
-                        >
-                          {prompt}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                  <div className="border-t border-border bg-card/90 p-3 backdrop-blur-xl">
-                  <div className="mx-auto flex max-w-2xl items-center gap-2 rounded-2xl border border-border bg-background px-3 py-2">
-                    <input
-                      type="text"
-                      placeholder={
-                        fr ? "ASH AI sera bientôt disponible…" : "ASH AI is coming soon…"
-                      }
-                      className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
-                      disabled
-                    />
-                    <span className="grid size-7 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#D4AF37] to-[#4B0082] text-[8px] font-black text-white">ASH</span>
-                  </div>
-                  <p className="mx-auto mt-2 max-w-2xl text-center text-[10px] text-muted-foreground">
-                    {fr
-                      ? "ASH AI est en préparation. Cette fonctionnalité sera activée dans une prochaine mise à jour."
-                      : "ASH AI is being prepared. This feature will be enabled in a future update."}
-                  </p>
-                  </div>
+                  <AssistantPanel />
                 </div>
               </div>
             ) : activeId ? (
