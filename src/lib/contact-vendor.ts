@@ -52,3 +52,29 @@ export async function contactVendor(options: {
 
   return conversationId;
 }
+
+/**
+ * Sends a first "hello + why I'm reaching out" message into a conversation
+ * that has no messages yet. Safe to call on an existing thread — it stays
+ * quiet when the conversation already started.
+ */
+export async function sendOpeningMessage(conversationId: string, body: string): Promise<void> {
+  try {
+    const { data: existing, error } = await supabase
+      .from("messages")
+      .select("id")
+      .eq("conversation_id", conversationId)
+      .limit(1);
+    if (error || (existing ?? []).length > 0) return;
+    const { data: auth } = await supabase.auth.getUser();
+    if (!auth.user) return;
+    await supabase.from("messages").insert({
+      conversation_id: conversationId,
+      sender_id: auth.user.id,
+      body,
+      metadata: { source: "ash_contact" },
+    });
+  } catch {
+    /* optional opener */
+  }
+}
