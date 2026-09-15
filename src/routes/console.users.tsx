@@ -397,6 +397,24 @@ function ConsoleUsers() {
           </div>
         </div>
       ) : null}
+
+      <MessageMemberDialog
+        open={Boolean(messageTarget)}
+        target={messageTarget}
+        onClose={() => setMessageTarget(null)}
+      />
+
+      <StatementDialog
+        open={Boolean(statementUser) && Boolean(statement.data)}
+        onClose={() => setStatementUser(null)}
+        holder={{
+          name: statement.data?.profile?.full_name ?? statementUser?.name ?? "Member",
+          email: statement.data?.profile?.email,
+          phone: statement.data?.profile?.phone,
+          reference: statement.data?.profile?.referral_code,
+        }}
+        transactions={statement.data?.transactions ?? []}
+      />
     </>
   );
 }
