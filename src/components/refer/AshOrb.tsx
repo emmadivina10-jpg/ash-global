@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
-import { CreditCard, Headphones, Mail, Sparkles, X } from "lucide-react";
+import { CreditCard, EyeOff, Headphones, Mail, Sparkles, X } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { AssistantPanel } from "./AssistantPanel";
 import { AshMark } from "./AshMark";
 import { useI18n } from "@/lib/i18n";
+import { useOrbVisible } from "@/lib/orb-visibility";
 import { cn } from "@/lib/utils";
 
 type OrbAction = "ai" | "support" | "card";
@@ -14,6 +15,7 @@ const RADIUS = 118;
 export function AshOrb() {
   const { t, lang } = useI18n();
   const fr = lang === "fr";
+  const { visible, setVisible } = useOrbVisible();
   const [open, setOpen] = useState(false);
   const [panel, setPanel] = useState<OrbAction | null>(null);
 
@@ -88,6 +90,8 @@ export function AshOrb() {
     { id: "card", label: fr ? "Carte ASH" : "ASH Card", icon: <CreditCard className="size-5" />, soon: true },
   ];
 
+  if (!visible) return null;
+
   return (
     <>
       {/* Soft blur veil behind the expanded arc. */}
@@ -140,6 +144,20 @@ export function AshOrb() {
             })
           : null}
 
+
+        {open ? (
+          <button
+            type="button"
+            onClick={() => {
+              setVisible(false);
+              setOpen(false);
+            }}
+            className="absolute bottom-1.5 right-20 inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border bg-card px-3 py-2 text-[11px] font-bold text-muted-foreground shadow-[var(--shadow-card)]"
+          >
+            <EyeOff className="size-3.5" aria-hidden />
+            {fr ? "Masquer" : "Hide button"}
+          </button>
+        ) : null}
 
         <button
           type="button"

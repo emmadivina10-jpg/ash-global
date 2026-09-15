@@ -5,6 +5,7 @@ import {
   Clock,
   Coins,
   Hourglass,
+  Printer,
   Sparkles,
   WalletMinimal,
 } from "lucide-react";
@@ -22,6 +23,7 @@ import {
 import { TransactionList } from "@/components/refer/TransactionList";
 import { SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
+import { StatementDialog } from "@/components/refer/StatementDialog";
 import { formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 
@@ -44,8 +46,10 @@ function WalletPage() {
   const { data: profile } = useProfile();
   const { data: transactions, isLoading: txLoading } = useTransactions(20);
   const { data: network } = useNetwork();
+  const { data: statementRows } = useTransactions(500);
+  const [statementOpen, setStatementOpen] = useState(false);
   const active = profile?.account_status === "ACTIVE";
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
 
   const [walletTheme, setWalletTheme] = useState(0);
 
@@ -94,15 +98,35 @@ function WalletPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
-      <header>
-        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
-          {t("wallet.title")}
-        </h1>
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
+            {t("wallet.title")}
+          </h1>
 
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("wallet.subtitle")}
-        </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t("wallet.subtitle")}
+          </p>
+        </div>
+
+        <Button variant="outline" size="sm" onClick={() => setStatementOpen(true)}>
+          <Printer className="size-4" aria-hidden />
+          {lang === "fr" ? "Relevé" : "Statement"}
+        </Button>
       </header>
+
+      <StatementDialog
+        open={statementOpen}
+        onClose={() => setStatementOpen(false)}
+        holder={{
+          name: profile?.full_name ?? "ASH member",
+          email: profile?.email,
+          phone: profile?.phone,
+          reference: profile?.referral_code,
+        }}
+        fr={lang === "fr"}
+        transactions={statementRows ?? []}
+      />
 
       {isLoading ? (
         <SkeletonRows rows={2} />

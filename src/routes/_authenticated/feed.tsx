@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { PostCard } from "@/components/refer/PostCard";
 import { StoriesRail } from "@/components/refer/StoriesRail";
+import { DiscoveryRow, useFeedDiscovery } from "@/components/refer/FeedDiscovery";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateSocialPost, useFriendships, useSocialFeed } from "@/lib/social.queries";
@@ -36,6 +37,7 @@ function FeedPage() {
   const { data: posts, isLoading, isFetching, refetch } = useSocialFeed();
   const { data: friendships } = useFriendships();
   const { data: profile } = useProfile();
+  const { data: discovery } = useFeedDiscovery();
   const create = useCreateSocialPost();
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
@@ -283,9 +285,18 @@ function FeedPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {visible.map((post) => (
-            <PostCard key={post.id} post={post} currentUserId={me} />
-          ))}
+          {visible.map((post, index) => {
+            // A single calm listings row every four posts — easy to scroll past.
+            const block = index > 0 && index % 4 === 0
+              ? (discovery ?? [])[Math.floor(index / 4) - 1]
+              : undefined;
+            return (
+              <div key={post.id} className="space-y-4">
+                {block ? <DiscoveryRow block={block} /> : null}
+                <PostCard post={post} currentUserId={me} />
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

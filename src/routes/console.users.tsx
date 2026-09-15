@@ -17,6 +17,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatDate, formatXAF } from "@/lib/format";
 import { toast } from "sonner";
+import { getMemberStatement } from "@/lib/ops.functions";
+import { MessageMemberDialog, type MessageTarget } from "@/components/console/MessageMemberDialog";
+import { StatementDialog } from "@/components/refer/StatementDialog";
 
 export const Route = createFileRoute("/console/users")({
   component: ConsoleUsers,
@@ -40,6 +43,16 @@ function ConsoleUsers() {
   const [amount, setAmount] = useState("");
   const [reason, setReason] = useState("");
   const [crediting, setCrediting] = useState(false);
+  const [messageTarget, setMessageTarget] = useState<MessageTarget>(null);
+  const [statementUser, setStatementUser] = useState<{ userId: string; name: string } | null>(null);
+
+  const loadStatement = useServerFn(getMemberStatement);
+
+  const statement = useQuery({
+    queryKey: ["console", "statement", statementUser?.userId],
+    queryFn: () => loadStatement({ data: { userId: statementUser?.userId ?? "" } }),
+    enabled: Boolean(statementUser),
+  });
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["console", "users"],
@@ -224,14 +237,38 @@ function ConsoleUsers() {
                     </p>
                   </div>
 
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => openCredit(u)}
-                  >
-                    Credit Wallet
-                  </Button>
+                  <div className="flex flex-wrap justify-end gap-1.5">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={() =>
+                        setStatementUser({ userId: u.user_id, name: u.full_name || "Member" })
+                      }
+                    >
+                      Statement
+                    </Button>
+
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={() =>
+                        setMessageTarget({ userId: u.user_id, name: u.full_name || "Member" })
+                      }
+                    >
+                      Message
+                    </Button>
+
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => openCredit(u)}
+                    >
+                      Credit Wallet
+                    </Button>
+                  </div>
                 </div>
               </li>
             ))}
@@ -360,6 +397,24 @@ function ConsoleUsers() {
           </div>
         </div>
       ) : null}
+
+      <MessageMemberDialog
+        open={Boolean(messageTarget)}
+        target={messageTarget}
+        onClose={() => setMessageTarget(null)}
+      />
+
+      <StatementDialog
+        open={Boolean(statementUser) && Boolean(statement.data)}
+        onClose={() => setStatementUser(null)}
+        holder={{
+          name: statement.data?.profile?.full_name ?? statementUser?.name ?? "Member",
+          email: statement.data?.profile?.email,
+          phone: statement.data?.profile?.phone,
+          reference: statement.data?.profile?.referral_code,
+        }}
+        transactions={statement.data?.transactions ?? []}
+      />
     </>
   );
 }

@@ -21,6 +21,7 @@ import {
 } from "recharts";
 import { ArrowDownRight, ArrowUpRight, Banknote, Users2, Wallet } from "lucide-react";
 import { getConsoleAnalytics, getConsoleOverview } from "@/lib/console.functions";
+import { DailyBriefing } from "@/components/console/DailyTickets";
 import { SectionCard, StatCard } from "@/components/refer/cards";
 import { TransactionList } from "@/components/refer/TransactionList";
 import { ErrorState, SkeletonRows } from "@/components/refer/states";
@@ -161,6 +162,8 @@ function ConsoleOverview() {
 
   return (
     <div className="space-y-6">
+      <DailyBriefing />
+
       {data?.financialsError ? (
         <p className="rounded-xl bg-destructive/10 p-3 text-xs text-destructive">
           Financial figures could not be loaded: {data.financialsError}

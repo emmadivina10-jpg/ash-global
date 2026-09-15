@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import { getSecurityAudit, runSecuritySelfCheck, type SecurityEvent } from "@/lib/console.functions";
 import { getCyberOps } from "@/lib/cyber.functions";
+import { MessageMemberDialog } from "@/components/console/MessageMemberDialog";
 import { SectionCard, StatCard } from "@/components/refer/cards";
 import { ErrorState, SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
@@ -90,6 +91,7 @@ function ConsoleSecurity() {
   const runCheck = useServerFn(runSecuritySelfCheck);
   const [hours, setHours] = useState<(typeof RANGES)[number]>(24);
   const [running, setRunning] = useState(false);
+  const [alertOpen, setAlertOpen] = useState(false);
 
   const fetchOps = useServerFn(getCyberOps);
   const { data: ops } = useQuery({
@@ -167,7 +169,11 @@ function ConsoleSecurity() {
             {RANGE_LABEL[r]}
           </button>
         ))}
-        <Button size="sm" variant="outline" className="ml-auto" onClick={exportLog}>
+        <Button size="sm" variant="outline" className="ml-auto" onClick={() => setAlertOpen(true)}>
+          <ShieldAlert className="size-4" aria-hidden />
+          Alert a member
+        </Button>
+        <Button size="sm" variant="outline" onClick={exportLog}>
           <Download className="size-4" aria-hidden />
           Export log
         </Button>

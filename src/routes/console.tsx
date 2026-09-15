@@ -33,6 +33,8 @@ import {
   X,
 } from "lucide-react";
 import { consoleStatus, lockConsole, setElevatedMode, unlockConsole } from "@/lib/console.functions";
+import { StaffChat } from "@/components/console/StaffChat";
+import { DailyTickets } from "@/components/console/DailyTickets";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -241,6 +243,7 @@ function ConsoleLayout() {
                 </span>
               </Button>
             ) : null}
+            <StaffChat />
             <ThemeToggle />
             <Button
               variant="outline"
@@ -256,9 +259,12 @@ function ConsoleLayout() {
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6">
+        <main className="mx-auto w-full max-w-7xl space-y-5 px-4 py-6 sm:px-6">
           {hasAccess ? (
-            <Outlet />
+            <>
+              <DailyTickets superAdmin={superAdmin} />
+              <Outlet />
+            </>
           ) : (
             <div className="mx-auto max-w-md rounded-2xl border border-border bg-card p-8 text-center">
               <Lock className="mx-auto size-6 text-muted-foreground" aria-hidden />
