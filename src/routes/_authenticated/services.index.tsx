@@ -549,14 +549,17 @@ function DiscoveryPage() {
     const query = searchInput.trim();
     if (!query) return providers;
 
-    return [...providers]
+    const scored = [...providers]
       .map((provider) => ({
         provider,
         score: marketplaceSearchScore(provider, query),
       }))
-      .filter((entry) => entry.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .map((entry) => entry.provider);
+      .sort((a, b) => b.score - a.score);
+
+    const matching = scored.filter((entry) => entry.score > 0);
+    // The server already matched these providers — ranking must never empty
+    // the list, so fall back to the server order when nothing scores.
+    return (matching.length > 0 ? matching : scored).map((entry) => entry.provider);
   }, [providers, searchInput]);
 
   const browsing =
