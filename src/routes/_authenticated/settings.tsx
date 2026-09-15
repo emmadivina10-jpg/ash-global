@@ -185,6 +185,28 @@ function SettingsPage() {
       </SectionCard>
 
       <SectionCard
+        title={fr ? "Localisation" : "Location"}
+        action={<MapPin className="size-4 text-muted-foreground" aria-hidden />}
+      >
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          {fr
+            ? "Ajoutez votre position pour voir en priorité les prestataires, services et opportunités près de vous. Elle reste sur cet appareil."
+            : "Add your location so nearby providers, services and opportunities show first. It stays on this device."}
+        </p>
+        {location ? (
+          <p className="mt-3 text-sm font-semibold text-foreground">
+            {location.label ?? `${location.lat.toFixed(2)}, ${location.lng.toFixed(2)}`}
+          </p>
+        ) : null}
+        <div className="mt-3">
+          <Button onClick={() => void requestLocation()} disabled={locationBusy}>
+            <MapPin className="size-4" aria-hidden />
+            {location ? (fr ? "Mettre à jour" : "Update location") : fr ? "Activer la localisation" : "Enable location"}
+          </Button>
+        </div>
+      </SectionCard>
+
+      <SectionCard
         title={t("settings.privacy")}
         action={<ShieldCheck className="size-4 text-muted-foreground" aria-hidden />}
       >
