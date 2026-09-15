@@ -134,15 +134,15 @@ export const consoleSetVerification = createServerFn({ method: "POST" })
     if (!isAdmin) return { ok: false as const, error: "FORBIDDEN" };
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: result, error } = await supabaseAdmin.rpc("console_set_verification", {
+    const { error } = await supabaseAdmin.rpc("console_set_verification", {
       _user_id: data.userId,
       _tier: data.tier,
       _days: data.days,
       _note: data.note ?? null,
       _actor: context.userId,
-    });
+    } as never);
     if (error) return { ok: false as const, error: error.message };
-    return { ok: true as const, result: result as unknown };
+    return { ok: true as const, error: null };
   });
 
 /** Admin: verified members, recent purchases and blocked impersonation attempts. */
