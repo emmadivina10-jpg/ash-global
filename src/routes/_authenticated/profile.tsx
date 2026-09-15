@@ -193,9 +193,12 @@ function ProfilePage() {
             <Input
               id="phone"
               value={phone}
+              inputMode="tel"
               readOnly={!editing}
               aria-readonly={!editing}
-              className={!editing ? "border-transparent bg-muted/60" : undefined}
+              className={!editing ? "cursor-pointer border-transparent bg-muted/60" : undefined}
+              onFocus={() => setEditing(true)}
+              onClick={() => setEditing(true)}
               onChange={(event) => setPhone(event.target.value)}
             />
           </div>
