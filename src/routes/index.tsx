@@ -12,6 +12,7 @@ import {
   Tag,
 } from "lucide-react";
 import { isNativeApp } from "@/lib/native";
+import ashLogo from "@/assets/ash-logo.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher, ThemeToggle } from "@/components/refer/Preferences";
