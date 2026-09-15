@@ -48,6 +48,8 @@ function ProfilePage() {
     if (profile && !editing) {
       setFullName(profile.full_name ?? "");
       setPhone(profile.phone ?? "");
+      setBirthday(((profile as { birthday?: string | null }).birthday ?? "") as string);
+      setCity(((profile as { city?: string | null }).city ?? "") as string);
     }
   }, [profile, editing]);
 
