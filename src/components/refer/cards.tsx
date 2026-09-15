@@ -125,7 +125,12 @@ export function BalanceCard({
         •••• •••• •••• {last4}
       </p>
 
-      <div className="relative mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
+      <div
+        className={cn(
+          "relative mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3",
+          gold && "text-[color:oklch(0.26_0.05_72)]",
+        )}
+      >
         <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] opacity-55">Card holder</p>
           <p className="truncate text-sm font-semibold uppercase tracking-wide">{holder ?? "ASH Member"}</p>
