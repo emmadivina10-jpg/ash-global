@@ -12,7 +12,6 @@ import {
   useWithdrawals,
 } from "@/lib/queries";
 import { disburseWithdrawal } from "@/lib/tchokopay.functions";
-import { PayoutAccountCard } from "@/components/refer/PayoutAccountCard";
 import { useRegion } from "@/lib/region-context";
 import { SectionCard } from "@/components/refer/cards";
 import { StatusBadge } from "@/components/refer/StatusBadge";
