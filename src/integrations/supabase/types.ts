@@ -1105,6 +1105,33 @@ export type Database = {
           },
         ]
       }
+      impersonation_attempts: {
+        Row: {
+          actor_id: string | null
+          attempted_value: string | null
+          created_at: string
+          id: string
+          kind: string
+          protected_user_id: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          attempted_value?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          protected_user_id?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          attempted_value?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          protected_user_id?: string | null
+        }
+        Relationships: []
+      }
       job_applications: {
         Row: {
           applicant_id: string
@@ -1940,6 +1967,8 @@ export type Database = {
           terms_accepted_at: string | null
           updated_at: string
           user_id: string
+          verified_tier: string | null
+          verified_until: string | null
         }
         Insert: {
           account_status?: string
@@ -1957,6 +1986,8 @@ export type Database = {
           terms_accepted_at?: string | null
           updated_at?: string
           user_id: string
+          verified_tier?: string | null
+          verified_until?: string | null
         }
         Update: {
           account_status?: string
@@ -1974,6 +2005,8 @@ export type Database = {
           terms_accepted_at?: string | null
           updated_at?: string
           user_id?: string
+          verified_tier?: string | null
+          verified_until?: string | null
         }
         Relationships: []
       }
@@ -2764,6 +2797,7 @@ export type Database = {
       }
       social_posts: {
         Row: {
+          allow_reuse: boolean
           author_id: string
           caption: string
           city: string | null
@@ -2780,6 +2814,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          allow_reuse?: boolean
           author_id: string
           caption?: string
           city?: string | null
@@ -2796,6 +2831,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          allow_reuse?: boolean
           author_id?: string
           caption?: string
           city?: string | null
@@ -3213,6 +3249,54 @@ export type Database = {
         }
         Relationships: []
       }
+      verifications: {
+        Row: {
+          amount: number
+          created_at: string
+          expires_at: string | null
+          granted_by: string | null
+          id: string
+          note: string | null
+          payment_reference: string | null
+          provider_transaction_id: string | null
+          started_at: string | null
+          status: string
+          tier: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          expires_at?: string | null
+          granted_by?: string | null
+          id?: string
+          note?: string | null
+          payment_reference?: string | null
+          provider_transaction_id?: string | null
+          started_at?: string | null
+          status?: string
+          tier: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          expires_at?: string | null
+          granted_by?: string | null
+          id?: string
+          note?: string | null
+          payment_reference?: string | null
+          provider_transaction_id?: string | null
+          started_at?: string | null
+          status?: string
+          tier?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       wallets: {
         Row: {
           available_balance: number
@@ -3345,16 +3429,28 @@ export type Database = {
         Args: { _payment_reference: string; _provider_transaction_id?: string }
         Returns: undefined
       }
+      complete_verification: {
+        Args: { _payment_reference: string; _provider_transaction_id?: string }
+        Returns: Json
+      }
       console_counts: { Args: never; Returns: Json }
       console_financials: { Args: never; Returns: Json }
       console_platform_payout: {
         Args: { _amount: number; _destination: string; _note?: string }
         Returns: Json
       }
-      console_set_verification: {
-        Args: { _approve: boolean; _provider_id: string }
-        Returns: Json
-      }
+      console_set_verification:
+        | { Args: { _approve: boolean; _provider_id: string }; Returns: Json }
+        | {
+            Args: {
+              _actor?: string
+              _days?: number
+              _note?: string
+              _tier: string
+              _user_id: string
+            }
+            Returns: Json
+          }
       console_settle_withdrawal: {
         Args: {
           _note?: string
@@ -3441,6 +3537,7 @@ export type Database = {
       is_group_owner: { Args: { _group_id: string }; Returns: boolean }
       is_provider_owner: { Args: { _provider_id: string }; Returns: boolean }
       is_provider_visible: { Args: { _provider_id: string }; Returns: boolean }
+      is_verified: { Args: { _user_id: string }; Returns: boolean }
       log_security_event: {
         Args: {
           _actor?: string
