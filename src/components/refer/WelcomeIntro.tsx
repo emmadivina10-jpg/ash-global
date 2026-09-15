@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import ashLogo from "@/assets/ash-logo.png.asset.json";
-import { useI18n } from "@/lib/i18n";
 import { isNativeApp } from "@/lib/native";
 
 const KEY = "ash-welcome-v1";
 
 /**
- * True once the launch animation has already played for this visit.
+ * True once the launch screen has already played for this visit.
  * The installed app replays it on every launch (WhatsApp-style); the website
  * plays it once per browser tab session so navigation stays instant.
  */
@@ -20,37 +19,32 @@ export function welcomeSeen(): boolean {
 }
 
 /**
- * ASH launch screen: a soft liquid brand wash behind the rounded ASH mark.
- * Collapses to a plain fade when the device asks for reduced motion.
+ * WhatsApp-style launch screen: the ASH mark centred on the brand background
+ * with a small wordmark at the bottom. It holds only for as long as the app
+ * needs to be ready — a very short minimum so members never wait.
  */
 export function WelcomeIntro({ onDone }: { onDone?: () => void }) {
-  const { lang } = useI18n();
-  const fr = lang === "fr";
-  // Rendered from the first paint (server included) so no page content flashes
-  // before the brand animation; hidden immediately when it has already played.
-  const [show, setShow] = useState(true);
+  const [show, setShow] = useState(() => !welcomeSeen());
   const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
-    if (welcomeSeen()) {
-      setShow(false);
+    if (!show) {
       onDone?.();
       return;
     }
-    const reduced =
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const hold = reduced ? 800 : 2000;
+    // Leave as soon as the first frame is painted, with a tiny minimum hold so
+    // the mark does not flicker.
+    const hold = 420;
     const leaveAt = window.setTimeout(() => setLeaving(true), hold);
     const endAt = window.setTimeout(() => {
       try {
         window.sessionStorage.setItem(KEY, "1");
       } catch {
-        /* private mode — the intro simply plays again next time */
+        /* private mode — the screen simply plays again next time */
       }
       setShow(false);
       onDone?.();
-    }, hold + 420);
+    }, hold + 220);
     return () => {
       window.clearTimeout(leaveAt);
       window.clearTimeout(endAt);
@@ -62,28 +56,27 @@ export function WelcomeIntro({ onDone }: { onDone?: () => void }) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden bg-background transition-opacity duration-[420ms]"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-between bg-background pb-[calc(2.5rem+env(safe-area-inset-bottom))] pt-[calc(2.5rem+env(safe-area-inset-top))] transition-opacity duration-200"
       style={{ opacity: leaving ? 0 : 1 }}
       role="status"
       aria-live="polite"
     >
-      <span className="ash-liquid ash-liquid-a" aria-hidden />
-      <span className="ash-liquid ash-liquid-b" aria-hidden />
-      <span className="ash-liquid ash-liquid-c" aria-hidden />
+      <span />
 
-      <span className="ash-launch-mark relative">
-        <img
-          src={ashLogo.url}
-          alt=""
-          className="ash-splash-mark aspect-square size-28 rounded-full bg-primary-deep object-cover p-1.5 shadow-[var(--shadow-brand)] ring-1 ring-border/50"
-        />
+      <img
+        src={ashLogo.url}
+        alt="ASH"
+        className="size-24 rounded-[28px] bg-primary-deep object-cover p-1.5 shadow-[var(--shadow-brand)] ring-1 ring-border/50"
+      />
+
+      <span className="flex flex-col items-center gap-1">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+          from
+        </span>
+        <span className="font-display text-sm font-extrabold tracking-[0.18em] text-foreground">
+          ASH GLO
+        </span>
       </span>
-      <h1 className="ash-fade-up mt-7 text-center font-display text-2xl font-extrabold tracking-tight text-foreground">
-        {fr ? "Bienvenue sur ASH" : "Welcome to ASH"}
-      </h1>
-      <p className="ash-fade-up mt-2 text-center text-sm text-muted-foreground">
-        {fr ? "Là où les opportunités se connectent." : "Where opportunities connect."}
-      </p>
     </div>
   );
 }

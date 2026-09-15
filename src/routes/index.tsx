@@ -1,5 +1,16 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
+import {
+  Briefcase,
+  Building2,
+  CalendarDays,
+  Lock,
+  ShieldCheck,
+  ShoppingBag,
+  Sparkles,
+  Store,
+  Tag,
+} from "lucide-react";
 import { isNativeApp } from "@/lib/native";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,6 +22,7 @@ const DESCRIPTION =
   "ASH is a digital opportunity, commerce, services, freelance, property, community and events platform that connects people, businesses, freelancers, service providers, communities and event organizers in one ecosystem.";
 
 const OG_IMAGE = "https://ashglogroup.company/ash-social.png";
+const SUPPORT_URL = "https://ash-glo-support.base44.app";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -50,8 +62,17 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
+const WORLD = [
+  { icon: Store, en: "Services", fr: "Services" },
+  { icon: ShoppingBag, en: "Marketplace", fr: "Marché" },
+  { icon: Briefcase, en: "Freelance", fr: "Freelance" },
+  { icon: Building2, en: "Property", fr: "Immobilier" },
+  { icon: CalendarDays, en: "Events", fr: "Événements" },
+  { icon: Tag, en: "Deals", fr: "Offres" },
+] as const;
+
 function Landing() {
-  const { lang, t } = useI18n();
+  const { lang } = useI18n();
   const fr = lang === "fr";
   const navigate = useNavigate();
 
@@ -76,37 +97,109 @@ function Landing() {
       <div className="ash-liquid ash-liquid-b" aria-hidden />
       <div className="ash-liquid ash-liquid-c" aria-hidden />
 
-      <div className="relative mx-auto flex min-h-dvh w-full max-w-md flex-1 flex-col items-center justify-center px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-[calc(1rem+env(safe-area-inset-top))]">
-        <div className="absolute left-4 right-4 top-[calc(1rem+env(safe-area-inset-top))] flex items-center justify-between">
+      <div className="relative mx-auto flex min-h-dvh w-full max-w-md flex-1 flex-col px-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1rem+env(safe-area-inset-top))]">
+        <header className="flex items-center justify-between">
           <span className="font-display text-xl font-extrabold tracking-[0.22em] text-foreground">ASH</span>
           <div className="flex items-center gap-1.5">
             <LanguageSwitcher />
             <ThemeToggle />
           </div>
-        </div>
+        </header>
 
-        <div className="ash-fade-up flex flex-col items-center text-center">
-          <div className="ash-launch-mark brand-gradient flex size-24 items-center justify-center rounded-full font-display text-3xl font-extrabold tracking-widest text-primary-foreground">
-            ASH
+        <main className="flex flex-1 flex-col justify-center py-8">
+          <div className="ash-fade-up flex flex-col items-center text-center">
+            <span className="relative grid size-24 place-items-center rounded-[2rem] bg-[linear-gradient(140deg,var(--primary),color-mix(in_oklab,var(--primary)_55%,black))] font-display text-3xl font-extrabold tracking-widest text-primary-foreground shadow-[var(--shadow-brand)] ring-1 ring-border/60">
+              ASH
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 rounded-[2rem] ring-2 ring-primary/25"
+              />
+            </span>
+
+            <span className="mt-6 inline-flex items-center gap-1.5 rounded-full border border-border bg-card/70 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.16em] text-muted-foreground backdrop-blur">
+              <Sparkles className="size-3 text-primary" aria-hidden />
+              {fr ? "L’écosystème ASH" : "The ASH ecosystem"}
+            </span>
+
+            <h1 className="mt-4 font-display text-[2rem] font-extrabold leading-tight tracking-tight text-foreground">
+              {fr ? "Bienvenue sur ASH" : "Welcome to ASH"}
+            </h1>
+            <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted-foreground">
+              {fr
+                ? "Là où les opportunités se connectent. Réservez des pros de confiance, vendez, louez, recrutez et soyez payé en toute sécurité."
+                : "Where opportunities connect. Book trusted pros, sell, rent, hire and get paid securely."}
+            </p>
           </div>
-          <h1 className="mt-8 font-display text-3xl font-bold leading-tight text-foreground">
-            {fr ? "Bienvenue sur ASH" : "Welcome to ASH"}
-          </h1>
-          <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
-            {fr
-              ? "Là où les opportunités se connectent."
-              : "Where opportunities connect."}
-          </p>
-        </div>
 
-        <div className="w-full max-w-xs space-y-3">
-          <Button asChild size="lg" className="w-full">
-            <Link to="/register">{fr ? "Commencer" : "Get started"}</Link>
-          </Button>
-          <Button asChild size="lg" variant="outline" className="w-full">
-            <Link to="/login">{fr ? "J'ai déjà un compte" : "I already have an account"}</Link>
-          </Button>
-        </div>
+          <div className="ash-fade-up mt-8 grid grid-cols-3 gap-2">
+            {WORLD.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.en}
+                  className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card/70 px-2 py-3 backdrop-blur-sm"
+                >
+                  <Icon className="size-4 text-primary" aria-hidden />
+                  <span className="text-[11px] font-semibold text-muted-foreground">
+                    {fr ? item.fr : item.en}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </main>
+
+        <footer className="space-y-4">
+          <div className="space-y-2.5">
+            <Button
+              asChild
+              size="lg"
+              className="h-13 w-full rounded-2xl text-base font-bold shadow-[var(--shadow-brand)] transition-transform active:scale-[0.99]"
+            >
+              <Link to="/register">{fr ? "Commencer" : "Get started"}</Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="h-13 w-full rounded-2xl border-border bg-card/70 text-base font-semibold backdrop-blur transition-transform active:scale-[0.99]"
+            >
+              <Link to="/login">{fr ? "J’ai déjà un compte" : "I already have an account"}</Link>
+            </Button>
+          </div>
+
+          <div className="flex items-start gap-2.5 rounded-2xl border border-border bg-card/70 px-3.5 py-3 backdrop-blur">
+            <span className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+              <ShieldCheck className="size-4" aria-hidden />
+            </span>
+            <p className="text-[11px] leading-5 text-muted-foreground">
+              <span className="font-bold text-foreground">
+                {fr ? "Paiements sécurisés." : "Secure payments."}
+              </span>{" "}
+              {fr
+                ? "Mobile money et carte sont traités par nos partenaires de paiement agréés. ASH ne conserve jamais les identifiants de votre carte."
+                : "Mobile money and card payments are handled by our licensed payment partners. ASH never stores your card details."}
+            </p>
+          </div>
+
+          <p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+            <Lock className="size-3" aria-hidden />
+            <a
+              href={SUPPORT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-foreground underline-offset-4 hover:underline"
+            >
+              {fr ? "Confidentialité & aide" : "Privacy & support"}
+            </a>
+            <Link to="/privacy" className="hover:underline">
+              {fr ? "Confidentialité" : "Privacy"}
+            </Link>
+            <Link to="/terms" className="hover:underline">
+              {fr ? "Conditions" : "Terms"}
+            </Link>
+          </p>
+        </footer>
       </div>
     </div>
   );
