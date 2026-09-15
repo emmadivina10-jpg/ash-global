@@ -49,7 +49,7 @@ function WalletPage() {
   const { data: statementRows } = useTransactions(500);
   const [statementOpen, setStatementOpen] = useState(false);
   const active = profile?.account_status === "ACTIVE";
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
 
   const [walletTheme, setWalletTheme] = useState(0);
 
@@ -111,7 +111,7 @@ function WalletPage() {
 
         <Button variant="outline" size="sm" onClick={() => setStatementOpen(true)}>
           <Printer className="size-4" aria-hidden />
-          {t("lang") === "fr" ? "Relevé" : "Statement"}
+          {lang === "fr" ? "Relevé" : "Statement"}
         </Button>
       </header>
 
@@ -124,6 +124,7 @@ function WalletPage() {
           phone: profile?.phone,
           reference: profile?.referral_code,
         }}
+        fr={lang === "fr"}
         transactions={statementRows ?? []}
       />
 
