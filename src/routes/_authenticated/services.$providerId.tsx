@@ -751,6 +751,25 @@ function BookingRequestDialog({
                 </select>
               </div>
             )}
+            {hours && hours.length > 0 ? (
+              <div className="rounded-xl border border-border bg-muted/40 p-3">
+                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                  {fr ? "Horaires du pro" : "Pro's opening hours"}
+                  {showZone ? ` · ${zoneLabel(zone, baseLang(lang))}` : ""}
+                </p>
+                <ul className="mt-2 space-y-1 text-xs text-foreground">
+                  {hours.map((h) => (
+                    <li key={`${h.weekday}-${h.start_minute}`} className="flex justify-between gap-3">
+                      <span>{dayName(h.weekday, fr)}</span>
+                      <span className="tabular font-semibold">
+                        {clock(h.start_minute)} – {clock(h.end_minute)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
             <div className="space-y-1.5">
               <Label htmlFor="day">{fr ? "Date" : "Date"}</Label>
 
@@ -758,13 +777,20 @@ function BookingRequestDialog({
                 id="day"
                 type="date"
                 value={day}
-                min={new Date().toISOString().slice(0, 10)}
+                min={todayInput()}
                 onChange={(e) => {
                   setDay(e.target.value);
                   setWhen("");
                 }}
                 required
               />
+              {day && hours && !hours.some((h) => h.weekday === weekdayOf(day)) ? (
+                <p className="text-xs font-medium text-destructive">
+                  {fr
+                    ? `Fermé le ${dayName(weekdayOf(day), true).toLowerCase()}. Choisissez un jour ouvert ci-dessus.`
+                    : `Closed on ${dayName(weekdayOf(day), false)}. Pick one of the open days listed above.`}
+                </p>
+              ) : null}
             </div>
 
             {day ? (
@@ -775,9 +801,13 @@ function BookingRequestDialog({
                 ) : (slots ?? []).length === 0 ? (
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">
-                      {fr
-                        ? "Aucun créneau ce jour-là. Choisissez une autre date ou proposez une heure."
-                        : "No slot that day. Pick another date or propose a time."}
+                      {slotError
+                        ? fr
+                          ? "Impossible de charger les créneaux. Réessayez."
+                          : "Could not load the slots. Please try again."
+                        : fr
+                          ? "Plus de créneau libre ce jour-là. Choisissez une autre date, ou proposez une heure au pro."
+                          : "No free slot left that day. Pick another date, or propose a time to the pro."}
                     </p>
                     <Input
                       type="datetime-local"
@@ -785,6 +815,11 @@ function BookingRequestDialog({
                       value={when}
                       onChange={(e) => setWhen(e.target.value)}
                     />
+                    <p className="text-xs text-muted-foreground">
+                      {fr
+                        ? "Heure saisie dans votre fuseau ; le pro doit l'accepter."
+                        : "Entered in your own timezone — the pro still has to accept it."}
+                    </p>
                   </div>
                 ) : (
                   <>
