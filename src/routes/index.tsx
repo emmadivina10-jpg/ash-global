@@ -4,12 +4,15 @@ import {
   Briefcase,
   Building2,
   CalendarDays,
+  Globe2,
   Lock,
+  MessageCircle,
   ShieldCheck,
   ShoppingBag,
   Sparkles,
   Store,
   Tag,
+  Users,
 } from "lucide-react";
 import { isNativeApp } from "@/lib/native";
 import ashLogo from "@/assets/ash-logo.png.asset.json";
@@ -131,8 +134,8 @@ function Landing() {
             </h1>
             <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted-foreground">
               {fr
-                ? "Là où les opportunités se connectent. Réservez des pros de confiance, vendez, louez, recrutez et soyez payé en toute sécurité."
-                : "Where opportunities connect. Book trusted pros, sell, rent, hire and get paid securely."}
+                ? "Là où les opportunités se connectent. Réservez des pros de confiance, vendez, louez, recrutez, partagez avec vos amis et soyez payé en toute sécurité."
+                : "Where opportunities connect. Book trusted pros, sell, rent, hire, share with friends and get paid securely."}
             </p>
           </div>
 
@@ -189,8 +192,8 @@ function Landing() {
                 {fr ? "Paiements sécurisés." : "Secure payments."}
               </span>{" "}
               {fr
-                ? "Mobile money et carte sont traités par nos partenaires de paiement agréés. ASH ne conserve jamais les identifiants de votre carte."
-                : "Mobile money and card payments are handled by our licensed payment partners. ASH never stores your card details."}
+                ? "Les paiements et retraits se font par Mobile Money (MTN & Orange), traités par nos partenaires agréés. Les virements bancaires ne sont pas encore disponibles — ils arrivent bientôt."
+                : "Payments and withdrawals run on Mobile Money (MTN & Orange), handled by our licensed payment partners. Bank transfers are not available yet — coming soon."}
             </p>
           </div>
 
