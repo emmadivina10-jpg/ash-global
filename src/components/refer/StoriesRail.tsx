@@ -7,7 +7,13 @@ import { SpotlightComposer } from "./SpotlightComposer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useCreateStory, useStories } from "@/lib/social.queries";
+import {
+  useCreateStory,
+  useMemberSearch,
+  useStories,
+  type SocialAuthor,
+  type StoryAudience,
+} from "@/lib/social.queries";
 import { useSpotlightFeed, type SpotlightEntry } from "@/lib/spotlight.queries";
 import { useProfile } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
