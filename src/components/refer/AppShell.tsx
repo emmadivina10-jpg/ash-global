@@ -50,6 +50,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Logo } from "./Logo";
+import { DesktopMenu, WEB_MENU_CREATE, WEB_MENU_GROUPS } from "./DesktopMenu";
 import { LanguageSwitcher, ThemeToggle } from "./Preferences";
 import { useI18n, type TKey } from "@/lib/i18n";
 import { useRegion } from "@/lib/region-context";
@@ -226,6 +227,52 @@ export function AppShell({ children }: { children: ReactNode }) {
         </aside>
 
         <div className="app-shell-column flex min-w-0 flex-1 flex-col">
+          {/* Web-only top bar: menu panel, notifications and the member photo. */}
+          <header className="sticky top-0 z-30 hidden border-b border-border bg-background/85 backdrop-blur-xl lg:block">
+            <div className="flex items-center justify-end gap-1.5 px-6 py-2.5">
+              <DesktopMenu groups={WEB_MENU_GROUPS} create={WEB_MENU_CREATE} />
+              <NotificationBell />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    aria-label={t("nav.profile")}
+                    className="ml-1 rounded-full ring-offset-background transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring hover:opacity-90"
+                  >
+                    <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-64 rounded-2xl">
+                  <DropdownMenuItem onSelect={() => navigate({ to: "/profile" })} className="gap-3 py-2.5">
+                    <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-bold">
+                        {profile?.full_name || t("shell.member")}
+                      </span>
+                      <span className="block text-xs text-muted-foreground">
+                        {lang === "fr" ? "Voir votre profil" : "See your profile"}
+                      </span>
+                    </span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={() => navigate({ to: "/settings" })}>
+                    <SettingsIcon className="size-4" aria-hidden />
+                    {t("nav.settings")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => navigate({ to: "/notifications" })}>
+                    <Bell className="size-4" aria-hidden />
+                    {lang === "fr" ? "Notifications" : "Notifications"}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={() => void signOut()}>
+                    <LogOut className="size-4" aria-hidden />
+                    {t("shell.signOut")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </header>
+
           <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl lg:hidden">
             <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4 py-3">
               <DropdownMenu>
