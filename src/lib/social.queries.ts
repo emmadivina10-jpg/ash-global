@@ -587,7 +587,15 @@ export function useMemberSearch(term: string) {
 
 /* ------------------------------------------------------------------ groups */
 
-export type ChatGroup = { id: string; name: string; owner_id: string; created_at: string; members: SocialAuthor[] };
+export type ChatGroup = {
+  id: string;
+  name: string;
+  owner_id: string;
+  created_at: string;
+  members: SocialAuthor[];
+  member_count: number;
+  conversation_id: string | null;
+};
 
 export function useGroups() {
   return useQuery({
