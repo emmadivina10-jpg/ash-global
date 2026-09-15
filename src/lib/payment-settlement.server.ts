@@ -7,13 +7,14 @@
  */
 import type { PaymentStatus } from "./tchokopay.server";
 
-export type SettlementKind = "ACTIVATION" | "BOOKING" | "PAYMENT_LINK" | "EVENT_TICKET" | "PROMOTION";
+export type SettlementKind = "ACTIVATION" | "BOOKING" | "PAYMENT_LINK" | "EVENT_TICKET" | "PROMOTION" | "VERIFICATION";
 
 export function kindOf(merchantReference: string): SettlementKind {
   if (merchantReference.startsWith("BKG-")) return "BOOKING";
   if (merchantReference.startsWith("PLK-")) return "PAYMENT_LINK";
   if (merchantReference.startsWith("EVT-")) return "EVENT_TICKET";
   if (merchantReference.startsWith("PRM-")) return "PROMOTION";
+  if (merchantReference.startsWith("VER-")) return "VERIFICATION";
   return "ACTIVATION";
 }
 
