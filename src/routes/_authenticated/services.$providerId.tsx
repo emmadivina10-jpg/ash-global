@@ -496,6 +496,8 @@ function BookingRequestDialog({
   const [customPrice, setCustomPrice] = useState("");
   const [step, setStep] = useState<"form" | "confirm">("form");
   const [busy, setBusy] = useState(false);
+  /** The vendor's own published weekly hours — the single source of truth. */
+  const [hours, setHours] = useState<{ weekday: number; start_minute: number; end_minute: number }[] | null>(null);
   /** Guards against a double tap firing two `request_booking` calls. */
   const sending = useRef(false);
 
