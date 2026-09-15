@@ -91,6 +91,7 @@ function ConsoleSecurity() {
   const runCheck = useServerFn(runSecuritySelfCheck);
   const [hours, setHours] = useState<(typeof RANGES)[number]>(24);
   const [running, setRunning] = useState(false);
+  const [alertOpen, setAlertOpen] = useState(false);
 
   const fetchOps = useServerFn(getCyberOps);
   const { data: ops } = useQuery({
