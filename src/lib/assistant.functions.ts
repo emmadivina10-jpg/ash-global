@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-export type ChatTurn = { role: "user" | "assistant"; content: string };
+export type ChatTurn = { role: "user" | "assistant"; content: string; images?: string[] };
 
 type AskInput = { messages: ChatTurn[]; lang?: string };
 
@@ -157,6 +157,10 @@ export const askAssistant = createServerFn({ method: "POST" })
       messages: messages.map((m) => ({
         role: m.role === "assistant" ? ("assistant" as const) : ("user" as const),
         content: String(m.content ?? "").slice(0, 4000),
+        // Photos and camera snapshots arrive as data URLs; keep at most two.
+        images: (Array.isArray(m.images) ? m.images : [])
+          .filter((src) => typeof src === "string" && src.startsWith("data:image/"))
+          .slice(0, 2),
       })),
       lang: input?.lang === "fr" ? "fr" : "en",
     };
@@ -175,7 +179,17 @@ export const askAssistant = createServerFn({ method: "POST" })
         messages: [
           { role: "system", content: SYSTEM },
           { role: "system", content: `USER CONTEXT (today ${new Date().toISOString()}):\n${userContext}\nReply language: ${data.lang}` },
-          ...data.messages,
+          ...data.messages.map((m) =>
+            m.images.length > 0
+              ? {
+                  role: m.role,
+                  content: [
+                    { type: "text", text: m.content || "Look at this photo and help me." },
+                    ...m.images.map((url) => ({ type: "image_url", image_url: { url } })),
+                  ],
+                }
+              : { role: m.role, content: m.content },
+          ),
         ],
       }),
     });

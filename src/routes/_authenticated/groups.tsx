@@ -1,0 +1,229 @@
+import { useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Loader2, MessageSquare, Plus, Users } from "lucide-react";
+import { toast } from "sonner";
+import { Avatar } from "@/components/refer/AvatarUpload";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useAddGroupMembers, useCreateGroup, useFriendships, useGroups } from "@/lib/social.queries";
+import { useI18n } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
+
+export const Route = createFileRoute("/_authenticated/groups")({
+  head: () => ({
+    meta: [
+      { title: "Groups — ASH" },
+      { name: "description", content: "Create ASH group chats and add the members you choose." },
+      { property: "og:title", content: "Groups — ASH" },
+      { property: "og:description", content: "Private group conversations for your ASH circle." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: GroupsPage,
+});
+
+function GroupsPage() {
+  const { lang } = useI18n();
+  const fr = lang === "fr";
+  const navigate = useNavigate();
+  const { data: groups, isLoading } = useGroups();
+  const { data: friendships } = useFriendships();
+  const create = useCreateGroup();
+  const addMembers = useAddGroupMembers();
+
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [selected, setSelected] = useState<string[]>([]);
+  const [addingTo, setAddingTo] = useState<string | null>(null);
+  const [addSelected, setAddSelected] = useState<string[]>([]);
+
+  const friends = friendships?.friends ?? [];
+
+  function toggle(list: string[], id: string) {
+    return list.includes(id) ? list.filter((item) => item !== id) : [...list, id];
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-2xl space-y-5">
+      <header className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
+            {fr ? "Groupes" : "Groups"}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {fr ? "Créez un groupe et ajoutez vos amis." : "Create a group and add your friends."}
+          </p>
+        </div>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm" className="touch-manipulation">
+              <Plus className="size-4" aria-hidden />
+              {fr ? "Nouveau" : "New"}
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{fr ? "Créer un groupe" : "Create a group"}</DialogTitle>
+            </DialogHeader>
+            <Input
+              value={name}
+              onChange={(event) => setName(event.target.value.slice(0, 60))}
+              placeholder={fr ? "Nom du groupe" : "Group name"}
+              aria-label={fr ? "Nom du groupe" : "Group name"}
+            />
+            <p className="text-xs font-semibold text-muted-foreground">
+              {fr ? "Choisissez les membres" : "Choose members"}
+            </p>
+            <div className="max-h-56 space-y-1 overflow-y-auto">
+              {friends.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  {fr ? "Ajoutez d'abord des amis." : "Add some friends first."}
+                </p>
+              ) : (
+                friends.map((entry) => (
+                  <button
+                    key={entry.person.id}
+                    type="button"
+                    onClick={() => setSelected((list) => toggle(list, entry.person.id))}
+                    className={cn(
+                      "flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors",
+                      selected.includes(entry.person.id) ? "bg-primary/10" : "hover:bg-muted",
+                    )}
+                  >
+                    <Avatar path={entry.person.avatar_url} name={entry.person.name} className="size-9" />
+                    <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
+                      {entry.person.name}
+                    </span>
+                    {selected.includes(entry.person.id) ? (
+                      <span className="text-xs font-bold text-primary">{fr ? "Ajouté" : "Added"}</span>
+                    ) : null}
+                  </button>
+                ))
+              )}
+            </div>
+            <Button
+              disabled={create.isPending || name.trim().length < 2}
+              className="touch-manipulation"
+              onClick={() =>
+                create.mutate(
+                  { name: name.trim(), memberIds: selected },
+                  {
+                    onSuccess: () => {
+                      toast.success(fr ? "Groupe créé" : "Group created");
+                      setOpen(false);
+                      setName("");
+                      setSelected([]);
+                    },
+                    onError: (error) =>
+                      toast.error(error instanceof Error ? error.message : "Could not create the group."),
+                  },
+                )
+              }
+            >
+              {create.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+              {fr ? "Créer" : "Create"}
+            </Button>
+          </DialogContent>
+        </Dialog>
+      </header>
+
+      {isLoading ? (
+        <div className="space-y-2">
+          {[0, 1].map((i) => (
+            <div key={i} className="h-20 animate-pulse rounded-3xl bg-muted" />
+          ))}
+        </div>
+      ) : (groups ?? []).length === 0 ? (
+        <div className="tile grid place-items-center gap-2 p-10 text-center">
+          <Users className="size-8 text-muted-foreground" aria-hidden />
+          <p className="text-sm text-muted-foreground">
+            {fr ? "Aucun groupe pour l'instant." : "No groups yet."}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {(groups ?? []).map((group) => (
+            <article key={group.id} className="tile flex items-center gap-3 p-4">
+              <span className="grid size-11 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+                <Users className="size-5" aria-hidden />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-bold text-foreground">{group.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  {group.member_count} {fr ? "membres" : "members"}
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setAddingTo(group.id);
+                  setAddSelected([]);
+                }}
+              >
+                <Plus className="size-4" aria-hidden />
+              </Button>
+              <Button
+                size="sm"
+                disabled={!group.conversation_id}
+                onClick={() =>
+                  void navigate({ to: "/messages", search: { c: group.conversation_id } } as never)
+                }
+              >
+                <MessageSquare className="size-4" aria-hidden />
+                {fr ? "Ouvrir" : "Open"}
+              </Button>
+            </article>
+          ))}
+        </div>
+      )}
+
+      <Dialog open={Boolean(addingTo)} onOpenChange={(value) => !value && setAddingTo(null)}>
+        <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{fr ? "Ajouter des membres" : "Add members"}</DialogTitle>
+          </DialogHeader>
+          <div className="max-h-64 space-y-1 overflow-y-auto">
+            {friends.map((entry) => (
+              <button
+                key={entry.person.id}
+                type="button"
+                onClick={() => setAddSelected((list) => toggle(list, entry.person.id))}
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors",
+                  addSelected.includes(entry.person.id) ? "bg-primary/10" : "hover:bg-muted",
+                )}
+              >
+                <Avatar path={entry.person.avatar_url} name={entry.person.name} className="size-9" />
+                <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
+                  {entry.person.name}
+                </span>
+              </button>
+            ))}
+          </div>
+          <Button
+            disabled={addMembers.isPending || addSelected.length === 0}
+            onClick={() => {
+              if (!addingTo) return;
+              addMembers.mutate(
+                { groupId: addingTo, memberIds: addSelected },
+                {
+                  onSuccess: () => {
+                    toast.success(fr ? "Membres ajoutés" : "Members added");
+                    setAddingTo(null);
+                  },
+                  onError: () => toast.error(fr ? "Échec" : "Could not add members"),
+                },
+              );
+            }}
+          >
+            {addMembers.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+            {fr ? "Ajouter" : "Add"}
+          </Button>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
