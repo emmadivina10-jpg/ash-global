@@ -261,6 +261,65 @@ export function useSocialFeed(limit = 40) {
   });
 }
 
+/** One post, so a like/comment notification can open exactly what it is about. */
+export function usePost(postId: string | null | undefined) {
+  return useQuery({
+    queryKey: ["social-post", postId],
+    enabled: Boolean(postId),
+    queryFn: async (): Promise<FeedPost | null> => {
+      const me = await currentUserId();
+      const { data, error } = await supabase
+        .from("social_posts")
+        .select("id, author_id, caption, media, city, like_count, comment_count, repost_count, filter_comments, created_at")
+        .eq("id", postId!)
+        .maybeSingle();
+      if (error) throw error;
+      const row = data as {
+        id: string;
+        author_id: string;
+        caption: string;
+        media: unknown;
+        city: string | null;
+        like_count: number;
+        comment_count: number;
+        repost_count: number;
+        filter_comments: boolean;
+        created_at: string;
+      } | null;
+      if (!row) return null;
+
+      const [signed, authors, liked, reposted] = await Promise.all([
+        signPaths(parseImages(row.media)),
+        loadAuthors([row.author_id]),
+        me
+          ? supabase.from("post_likes").select("post_id").eq("post_id", row.id).eq("user_id", me).maybeSingle()
+          : Promise.resolve({ data: null }),
+        me
+          ? supabase.from("post_reposts").select("post_id").eq("post_id", row.id).eq("user_id", me).maybeSingle()
+          : Promise.resolve({ data: null }),
+      ]);
+
+      return {
+        id: row.id,
+        author_id: row.author_id,
+        caption: row.caption,
+        city: row.city,
+        images: parseImages(row.media)
+          .map((p) => signed[p])
+          .filter((u): u is string => Boolean(u)),
+        like_count: row.like_count,
+        comment_count: row.comment_count,
+        repost_count: row.repost_count,
+        filter_comments: row.filter_comments,
+        liked: Boolean(liked.data),
+        reposted: Boolean(reposted.data),
+        created_at: row.created_at,
+        author: authors.get(row.author_id) ?? { id: row.author_id, name: "ASH member", avatar_url: null },
+      };
+    },
+  });
+}
+
 /** Posts written by one member — used on profiles. */
 export function useMemberPosts(userId: string | null | undefined) {
   return useQuery({
