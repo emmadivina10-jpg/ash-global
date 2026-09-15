@@ -245,11 +245,78 @@ function normalizeMarketplaceText(value: unknown): string {
   return "";
 }
 
+/**
+ * Filler words people type when searching in a natural phrase
+ * ("plumber in Douala", "salon près de moi"). They never appear in provider
+ * records, so they must not be treated as required search terms.
+ */
+const MARKETPLACE_STOP_WORDS = new Set([
+  "in",
+  "at",
+  "on",
+  "to",
+  "of",
+  "the",
+  "for",
+  "near",
+  "me",
+  "my",
+  "a",
+  "an",
+  "and",
+  "or",
+  "with",
+  "around",
+  "close",
+  "by",
+  "any",
+  "some",
+  "best",
+  "good",
+  "looking",
+  "need",
+  "want",
+  "find",
+  "who",
+  "can",
+  "is",
+  "are",
+  "de",
+  "du",
+  "des",
+  "la",
+  "le",
+  "les",
+  "un",
+  "une",
+  "et",
+  "ou",
+  "pour",
+  "dans",
+  "chez",
+  "pres",
+  "proche",
+  "moi",
+  "mon",
+  "ma",
+  "je",
+  "cherche",
+  "besoin",
+  "qui",
+  "avec",
+  "sur",
+  "au",
+  "aux",
+]);
+
 function marketplaceSearchTokens(query: string): string[] {
-  return normalizeMarketplaceText(query)
+  const all = normalizeMarketplaceText(query)
     .split(" ")
     .map((token) => token.trim())
     .filter((token) => token.length >= 2);
+  const meaningful = all.filter((token) => !MARKETPLACE_STOP_WORDS.has(token));
+  // If someone types only filler words, fall back to the raw tokens.
+  return meaningful.length > 0 ? meaningful : all;
 }
 
 function marketplaceSearchScore(item: unknown, query: string): number {
