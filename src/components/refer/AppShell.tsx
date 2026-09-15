@@ -162,7 +162,10 @@ export function AppShell({ children }: { children: ReactNode }) {
     navigate({ to: "/login", replace: true });
   }
 
-  const links = visible([...DESKTOP_NAV, ...SIDE_EXTRA]);
+  // Some destinations appear in both lists — show each one once.
+  const links = visible([...DESKTOP_NAV, ...SIDE_EXTRA]).filter(
+    (item, index, all) => all.findIndex((other) => other.to === item.to) === index,
+  );
 
   return (
     <div className="app-shell safe-top min-h-dvh bg-background">
