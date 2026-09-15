@@ -35,6 +35,8 @@ export function ProviderCard({
   const fr = lang === "fr";
   const cover = photos[0];
   const thumbs = photos.slice(1, 3);
+  const hasTwoPhotos = photos.length === 2;
+  const hasThreeOrMorePhotos = photos.length >= 3;
 
   const categories = (provider.categories ?? []) as ServiceCategory[];
   const rating = Number(provider.rating_avg);
@@ -56,7 +58,13 @@ export function ProviderCard({
     >
       {/* Media */}
       <div className="relative">
-        <div className="grid grid-cols-[minmax(0,1fr)] gap-1 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <div
+          className={cn(
+            "grid h-40 grid-cols-1 gap-1 sm:h-44",
+            hasTwoPhotos && "grid-cols-2",
+            hasThreeOrMorePhotos && "grid-cols-[minmax(0,2fr)_minmax(0,1fr)]",
+          )}
+        >
           <div className="relative h-40 w-full overflow-hidden bg-muted sm:h-44">
             {cover ? (
               <img
@@ -75,7 +83,7 @@ export function ProviderCard({
           </div>
 
           {thumbs.length > 0 ? (
-            <div className="hidden grid-rows-2 gap-1 sm:grid">
+            <div className={cn("grid min-w-0 gap-1", hasThreeOrMorePhotos && "grid-rows-2")}>
               {thumbs.map((p) => (
                 <div key={p.id} className="overflow-hidden bg-muted">
                   <img
