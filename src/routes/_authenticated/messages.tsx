@@ -13,6 +13,7 @@ import { ArrowLeft, Search } from "lucide-react";
 import { useConversations } from "@/lib/marketplace.queries";
 import { useUser } from "@/lib/queries";
 import { ChatThread } from "@/components/refer/ChatThread";
+import { AssistantPanel } from "@/components/refer/AssistantPanel";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { useI18n } from "@/lib/i18n";
@@ -143,7 +144,7 @@ const ASH_AI_ID = "ash-ai";
 const ashAiConversation = {
   id: ASH_AI_ID,
   label: "ASH AI",
-  preview: "Your intelligent ASH assistant is coming soon.",
+  preview: "Ask me anything — services, listings, ideas.",
 };
 const ASH_CHAT_BACKGROUND = "/images/ash-chat-background.png";
 
