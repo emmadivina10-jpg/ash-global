@@ -63,6 +63,9 @@ export type Story = {
 
 export type StoryGroup = { author: SocialAuthor; stories: Story[]; seen: boolean };
 
+/** Who may watch a story: everyone on ASH, or only hand-picked members. */
+export type StoryAudience = "ALL" | "SELECT";
+
 /** Every live story, grouped by the member who posted it. */
 export function useStories() {
   return useQuery({
