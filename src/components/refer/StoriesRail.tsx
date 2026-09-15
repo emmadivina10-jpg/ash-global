@@ -261,11 +261,7 @@ export function StoriesRail({
       <Dialog
         open={Boolean(file)}
         onOpenChange={(open) => {
-          if (!open) {
-            setFile(null);
-            setPreview(null);
-            setCaption("");
-          }
+          if (!open) resetStoryComposer();
         }}
       >
         <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto">
