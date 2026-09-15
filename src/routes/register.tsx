@@ -159,78 +159,93 @@ function RegisterPage() {
   return (
     <AuthLayout title={t("auth.register.title")} subtitle={t("auth.register.subtitle")}>
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
-        <Field label={t("auth.register.fullName")} id="fullName" error={errors["fullName"]}>
-          <Input
-            id="fullName"
-            autoComplete="name"
-            value={form.fullName}
-            onChange={(event) => update("fullName", event.target.value)}
-            placeholder="Jean Nkeng"
-          />
-        </Field>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <Field label={t("auth.register.fullName")} id="fullName" error={errors["fullName"]}>
+              <Input
+                id="fullName"
+                autoComplete="name"
+                value={form.fullName}
+                onChange={(event) => update("fullName", event.target.value)}
+                placeholder="Jean Nkeng"
+              />
+            </Field>
+          </div>
 
-        <Field label={t("auth.email")} id="email" error={errors["email"]}>
-          <Input
-            id="email"
-            type="email"
-            autoComplete="email"
-            value={form.email}
-            onChange={(event) => update("email", event.target.value)}
-            placeholder="you@example.com"
-          />
-        </Field>
+          <div className="sm:col-span-2">
+            <Field label={t("auth.email")} id="email" error={errors["email"]}>
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                value={form.email}
+                onChange={(event) => update("email", event.target.value)}
+                placeholder="you@example.com"
+              />
+            </Field>
+          </div>
 
-        <Field label={t("auth.register.phone")} id="phone" error={errors["phone"]} hint={t("auth.register.phoneHint")}>
-          <Input
-            id="phone"
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel"
-            value={form.phone}
-            onChange={(event) => update("phone", event.target.value)}
-            placeholder="6XX XXX XXX"
-          />
-        </Field>
+          <div className="sm:col-span-2">
+            <Field
+              label={t("auth.register.phone")}
+              id="phone"
+              error={errors["phone"]}
+              hint={t("auth.register.phoneHint")}
+            >
+              <Input
+                id="phone"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                value={form.phone}
+                onChange={(event) => update("phone", event.target.value)}
+                placeholder="6XX XXX XXX"
+              />
+            </Field>
+          </div>
 
-        <Field label={t("auth.password")} id="password" error={errors["password"]}>
-          <PasswordInput
-            id="password"
-            autoComplete="new-password"
-            value={form.password}
-            onChange={(event) => update("password", event.target.value)}
-          />
-        </Field>
+          <Field label={t("auth.password")} id="password" error={errors["password"]}>
+            <PasswordInput
+              id="password"
+              autoComplete="new-password"
+              value={form.password}
+              onChange={(event) => update("password", event.target.value)}
+            />
+          </Field>
 
-        <Field label={t("auth.register.confirmPassword")} id="confirmPassword" error={errors["confirmPassword"]}>
-          <PasswordInput
-            id="confirmPassword"
-            autoComplete="new-password"
-            value={form.confirmPassword}
-            onChange={(event) => update("confirmPassword", event.target.value)}
-          />
-        </Field>
+          <Field label={t("auth.register.confirmPassword")} id="confirmPassword" error={errors["confirmPassword"]}>
+            <PasswordInput
+              id="confirmPassword"
+              autoComplete="new-password"
+              value={form.confirmPassword}
+              onChange={(event) => update("confirmPassword", event.target.value)}
+            />
+          </Field>
 
-        <Field
-          label={t("auth.register.referral")}
-          id="referralCode"
-          error={errors["referralCode"]}
-          hint={
-            refState === "checking"
-              ? t("auth.register.refChecking")
-              : refState === "valid"
-                ? t("auth.register.refValid")
-                : refState === "invalid"
-                  ? t("auth.register.refInvalid")
-                  : undefined
-          }
-        >
-          <Input
-            id="referralCode"
-            value={form.referralCode}
-            onChange={(event) => update("referralCode", event.target.value.toUpperCase())}
-            placeholder="REFER-ABC123"
-          />
-        </Field>
+          <div className="sm:col-span-2">
+            <Field
+              label={t("auth.register.referral")}
+              id="referralCode"
+              error={errors["referralCode"]}
+              hint={
+                refState === "checking"
+                  ? t("auth.register.refChecking")
+                  : refState === "valid"
+                    ? t("auth.register.refValid")
+                    : refState === "invalid"
+                      ? t("auth.register.refInvalid")
+                      : undefined
+              }
+            >
+              <Input
+                id="referralCode"
+                value={form.referralCode}
+                onChange={(event) => update("referralCode", event.target.value.toUpperCase())}
+                placeholder="REFER-ABC123"
+              />
+            </Field>
+          </div>
+        </div>
 
         {errors["form"] ? (
           <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
@@ -238,7 +253,7 @@ function RegisterPage() {
           </p>
         ) : null}
 
-        <Button type="submit" className="h-12 w-full" disabled={loading}>
+        <Button type="submit" className="h-12 w-full rounded-xl text-base" disabled={loading}>
           {loading ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
           {loading ? t("auth.register.submitting") : t("auth.register.submit")}
         </Button>
