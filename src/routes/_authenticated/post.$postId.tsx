@@ -25,10 +25,10 @@ function PostPage() {
   const { lang } = useI18n();
   const fr = lang === "fr";
   const { data, isLoading } = usePost(postId);
-  const [me, setMe] = useState<string | undefined>(undefined);
+  const [me, setMe] = useState<string | null>(null);
 
   useEffect(() => {
-    void supabase.auth.getUser().then(({ data: auth }) => setMe(auth.user?.id));
+    void supabase.auth.getUser().then(({ data: auth }) => setMe(auth.user?.id ?? null));
   }, []);
 
   return (
