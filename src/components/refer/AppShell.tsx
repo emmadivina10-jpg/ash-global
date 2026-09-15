@@ -276,101 +276,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </div>
 
-      {(() => {
-        const items = visible(MOBILE_NAV);
-        const centerItem = items.find((item) => item.to === "/create");
-        const sideItems = items.filter((item) => item.to !== "/create");
-        const left = sideItems.slice(0, Math.ceil(sideItems.length / 2));
-        const right = sideItems.slice(Math.ceil(sideItems.length / 2));
-        const renderTab = (item: NavItem) => {
-          const active = pathname === item.to;
-          return (
-            <li key={item.to}>
-              <Link
-                to={item.to}
-                data-tour={item.tour}
-                className={cn(
-                  "relative flex min-h-14 flex-col items-center justify-center gap-1 py-2 text-[11px] font-semibold transition-all duration-300",
-                  active ? "-translate-y-0.5 text-primary" : "text-muted-foreground",
-                )}
-              >
-                {active ? (
-                  <span
-                    className="brand-gradient absolute top-0 h-1 w-10 rounded-full transition-all duration-300"
-                    aria-hidden
-                  />
-                ) : null}
-                <item.icon className="size-5" aria-hidden />
-                {navLabel(item)}
-              </Link>
-            </li>
-          );
-        };
-        return (
-          <nav className="fixed inset-x-0 bottom-0 z-40 lg:hidden">
-            {centerItem ? (
-              <Link
-                to={centerItem.to}
-                aria-label={t(centerItem.key)}
-                data-tour="create"
-                className="brand-gradient absolute left-1/2 top-0 z-10 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-primary-foreground shadow-[var(--shadow-brand)] ring-4 ring-background transition-transform duration-300 active:scale-95"
-              >
-                <centerItem.icon className="size-6" aria-hidden />
-              </Link>
-            ) : null}
-            <div className="ash-glass nav-cutout nav-bar-fill border-x-0 border-b-0 pb-[env(safe-area-inset-bottom)]">
-              <ul className="mx-auto grid max-w-lg grid-cols-5">
-                {left.map(renderTab)}
-                <li aria-hidden>{centerItem ? <span className="block min-h-14" /> : null}</li>
-                {right.map(renderTab)}
-                <li>
-            <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
-              <SheetTrigger asChild>
-                <button
-                  type="button"
-                  className="relative flex min-h-14 w-full flex-col items-center justify-center gap-1 py-2 text-[11px] font-semibold text-muted-foreground transition-colors"
-                >
-                  <Menu className="size-5" aria-hidden />
-                  {t("nav.more")}
-                </button>
-              </SheetTrigger>
-              <SheetContent side="bottom" className="rounded-t-3xl">
-                <SheetHeader>
-                  <SheetTitle>{t("nav.more")}</SheetTitle>
-                </SheetHeader>
-                <div className="grid grid-cols-3 gap-3 px-4 pb-8">
-                  {visible(SIDE_EXTRA).map((item) => (
-                    <Link
-                      key={item.to}
-                      to={item.to}
-                      onClick={() => setMoreOpen(false)}
-                      className={cn(
-                        "flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-4 text-center text-xs font-semibold text-foreground",
-                        pathname === item.to && "border-primary/50 text-primary",
-                      )}
-                    >
-                      <item.icon className="size-5" aria-hidden />
-                      {navLabel(item)}
-                    </Link>
-                  ))}
-                  {isAdmin ? (
-                    <a
-                      href="/console"
-                      className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-4 text-center text-xs font-semibold text-foreground"
-                    >
-                      <Shield className="size-5" aria-hidden />
-                      {t("nav.admin")}
-                    </a>
-                  ) : null}
-                </div>
-              </SheetContent>
-            </Sheet>
-                </li>
-              </ul>
-            </div>
-          </nav>
-        );
-      })()}
+      <MobileNav
+        items={visible(MOBILE_NAV)}
+        moreGroups={MORE_GROUPS.map((group) => ({ ...group, items: visible(group.items) }))}
+        isAdmin={Boolean(isAdmin)}
+      />
 
       <AshOrb />
     </div>
