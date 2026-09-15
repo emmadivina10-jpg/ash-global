@@ -117,31 +117,31 @@ function Landing() {
           </div>
         </header>
 
-        <main className="grid flex-1 items-center gap-10 py-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14">
+        <main className="grid flex-1 items-center gap-5 py-5 lg:grid-cols-[1.15fr_0.85fr] lg:gap-12 lg:py-8">
           {/* Story side */}
           <section className="ash-fade-up flex flex-col items-center text-center lg:items-start lg:text-left">
-            <div className="flex flex-wrap items-center justify-center gap-2 lg:justify-start">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/60 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.16em] text-muted-foreground backdrop-blur">
+            <div className="flex flex-wrap items-center justify-center gap-1.5 lg:justify-start">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/60 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.16em] text-muted-foreground backdrop-blur sm:text-[10px]">
                 <Sparkles className="size-3 text-primary" aria-hidden />
                 {fr ? "L’écosystème ASH" : "The ASH ecosystem"}
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.16em] text-primary backdrop-blur">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.16em] text-primary backdrop-blur sm:text-[10px]">
                 <Globe2 className="size-3" aria-hidden />
                 {fr ? "Présent dans 175 pays" : "Live in 175 countries"}
               </span>
             </div>
 
-            <span className="mt-7 block h-1 w-12 rounded-full bg-primary" aria-hidden />
-            <h1 className="mt-5 font-display text-[2.25rem] font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-[3.4rem]">
+            <span className="mt-4 block h-1 w-10 rounded-full bg-primary lg:mt-6" aria-hidden />
+            <h1 className="mt-3 font-display text-[1.85rem] font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-4xl lg:mt-5 lg:text-[3.2rem]">
               {fr ? "Bienvenue sur ASH" : "Welcome to ASH"}
             </h1>
-            <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
+            <p className="mt-2 max-w-md text-[12.5px] leading-relaxed text-muted-foreground sm:text-sm lg:mt-4 lg:text-base">
               {fr
                 ? "Là où les opportunités se connectent. Réservez des pros de confiance, vendez, louez, recrutez, partagez avec vos amis et soyez payé en toute sécurité."
                 : "Where opportunities connect. Book trusted pros, sell, rent, hire, share with friends and get paid securely."}
             </p>
 
-            <div className="mt-8 grid w-full grid-cols-2 gap-2 sm:gap-2.5 lg:max-w-xl">
+            <div className="mt-4 grid w-full grid-cols-2 gap-1.5 sm:gap-2.5 lg:mt-7 lg:max-w-xl">
               {WORLD.map((item) => {
                 const Icon = item.icon;
                 return (
