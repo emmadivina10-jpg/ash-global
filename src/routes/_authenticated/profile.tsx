@@ -41,11 +41,12 @@ function ProfilePage() {
   const fee = formatXAF(ACTIVATION_FEE);
 
   useEffect(() => {
-    if (profile) {
+    // Never overwrite what the member is typing when the profile query refetches.
+    if (profile && !editing) {
       setFullName(profile.full_name ?? "");
       setPhone(profile.phone ?? "");
     }
-  }, [profile]);
+  }, [profile, editing]);
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
@@ -177,7 +178,9 @@ function ProfilePage() {
               value={fullName}
               readOnly={!editing}
               aria-readonly={!editing}
-              className={!editing ? "border-transparent bg-muted/60" : undefined}
+              className={!editing ? "cursor-pointer border-transparent bg-muted/60" : undefined}
+              onFocus={() => setEditing(true)}
+              onClick={() => setEditing(true)}
               onChange={(event) => setFullName(event.target.value)}
             />
           </div>
@@ -190,9 +193,12 @@ function ProfilePage() {
             <Input
               id="phone"
               value={phone}
+              inputMode="tel"
               readOnly={!editing}
               aria-readonly={!editing}
-              className={!editing ? "border-transparent bg-muted/60" : undefined}
+              className={!editing ? "cursor-pointer border-transparent bg-muted/60" : undefined}
+              onFocus={() => setEditing(true)}
+              onClick={() => setEditing(true)}
               onChange={(event) => setPhone(event.target.value)}
             />
           </div>
