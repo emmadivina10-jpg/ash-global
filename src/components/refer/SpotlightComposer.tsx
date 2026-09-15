@@ -32,14 +32,27 @@ function useMyIdentity() {
  * Facebook-style "create a Spotlight" row: tapping it opens a composer where a
  * member writes a caption and attaches photos or videos.
  */
-export function SpotlightComposer() {
+export function SpotlightComposer({
+  open: controlledOpen,
+  onOpenChange,
+  hideTrigger = false,
+}: {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  hideTrigger?: boolean;
+} = {}) {
   const { lang } = useI18n();
   const fr = lang === "fr";
   const { data: identity } = useMyIdentity();
   const { data: provider } = useMyProviderProfile();
   const create = useCreateSpotlight();
 
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const open = controlledOpen ?? uncontrolledOpen;
+  const setOpen = (next: boolean) => {
+    setUncontrolledOpen(next);
+    onOpenChange?.(next);
+  };
   const [caption, setCaption] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<{ url: string; video: boolean }[]>([]);
