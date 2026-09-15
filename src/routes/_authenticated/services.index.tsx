@@ -26,6 +26,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { openConversation } from "@/lib/marketplace.queries";
 import { useSpotlightFeed } from "@/lib/spotlight.queries";
 import { SpotlightComposer } from "@/components/refer/SpotlightComposer";
+import { StoriesRail } from "@/components/refer/StoriesRail";
 import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
