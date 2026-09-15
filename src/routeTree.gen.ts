@@ -72,6 +72,7 @@ import { Route as ConsoleStaffRouteImport } from './routes/console.staff'
 import { Route as ConsoleSupportRouteImport } from './routes/console.support'
 import { Route as ConsoleTrustRouteImport } from './routes/console.trust'
 import { Route as ConsoleUsersRouteImport } from './routes/console.users'
+import { Route as ConsoleVerificationRouteImport } from './routes/console.verification'
 import { Route as ConsoleWithdrawalsRouteImport } from './routes/console.withdrawals'
 import { Route as PayCodeRouteImport } from './routes/pay.$code'
 import { Route as SSlugRouteImport } from './routes/s.$slug'
@@ -415,6 +416,11 @@ const ConsoleUsersRoute = ConsoleUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const ConsoleVerificationRoute = ConsoleVerificationRouteImport.update({
+  id: '/verification',
+  path: '/verification',
+  getParentRoute: () => ConsoleRoute,
+} as any)
 const ConsoleWithdrawalsRoute = ConsoleWithdrawalsRouteImport.update({
   id: '/withdrawals',
   path: '/withdrawals',
@@ -620,6 +626,7 @@ export interface FileRoutesByFullPath {
   '/console/support': typeof ConsoleSupportRoute
   '/console/trust': typeof ConsoleTrustRoute
   '/console/users': typeof ConsoleUsersRoute
+  '/console/verification': typeof ConsoleVerificationRoute
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
   '/pay/$code': typeof PayCodeRoute
   '/s/$slug': typeof SSlugRoute
@@ -708,6 +715,7 @@ export interface FileRoutesByTo {
   '/console/support': typeof ConsoleSupportRoute
   '/console/trust': typeof ConsoleTrustRoute
   '/console/users': typeof ConsoleUsersRoute
+  '/console/verification': typeof ConsoleVerificationRoute
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
   '/pay/$code': typeof PayCodeRoute
   '/s/$slug': typeof SSlugRoute
@@ -799,6 +807,7 @@ export interface FileRoutesById {
   '/console/support': typeof ConsoleSupportRoute
   '/console/trust': typeof ConsoleTrustRoute
   '/console/users': typeof ConsoleUsersRoute
+  '/console/verification': typeof ConsoleVerificationRoute
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
   '/pay/$code': typeof PayCodeRoute
   '/s/$slug': typeof SSlugRoute
@@ -890,6 +899,7 @@ export interface FileRouteTypes {
     | '/console/support'
     | '/console/trust'
     | '/console/users'
+    | '/console/verification'
     | '/console/withdrawals'
     | '/pay/$code'
     | '/s/$slug'
@@ -978,6 +988,7 @@ export interface FileRouteTypes {
     | '/console/support'
     | '/console/trust'
     | '/console/users'
+    | '/console/verification'
     | '/console/withdrawals'
     | '/pay/$code'
     | '/s/$slug'
@@ -1068,6 +1079,7 @@ export interface FileRouteTypes {
     | '/console/support'
     | '/console/trust'
     | '/console/users'
+    | '/console/verification'
     | '/console/withdrawals'
     | '/pay/$code'
     | '/s/$slug'
@@ -1566,6 +1578,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleUsersRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/console/verification': {
+      id: '/console/verification'
+      path: '/verification'
+      fullPath: '/console/verification'
+      preLoaderRoute: typeof ConsoleVerificationRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
     '/console/withdrawals': {
       id: '/console/withdrawals'
       path: '/withdrawals'
@@ -1855,6 +1874,7 @@ interface ConsoleRouteChildren {
   ConsoleSupportRoute: typeof ConsoleSupportRoute
   ConsoleTrustRoute: typeof ConsoleTrustRoute
   ConsoleUsersRoute: typeof ConsoleUsersRoute
+  ConsoleVerificationRoute: typeof ConsoleVerificationRoute
   ConsoleWithdrawalsRoute: typeof ConsoleWithdrawalsRoute
   ConsoleIndexRoute: typeof ConsoleIndexRoute
 }
@@ -1883,6 +1903,7 @@ const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsoleSupportRoute: ConsoleSupportRoute,
   ConsoleTrustRoute: ConsoleTrustRoute,
   ConsoleUsersRoute: ConsoleUsersRoute,
+  ConsoleVerificationRoute: ConsoleVerificationRoute,
   ConsoleWithdrawalsRoute: ConsoleWithdrawalsRoute,
   ConsoleIndexRoute: ConsoleIndexRoute,
 }
