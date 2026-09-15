@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { BadgeCheck, Clock3, Loader2, Plus, Sparkles } from "lucide-react";
+import { BadgeCheck, Clock3, Globe2, Loader2, Plus, Search, Sparkles, UserMinus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "./AvatarUpload";
 import { StoryViewer } from "./StoryViewer";
