@@ -49,7 +49,7 @@ export function useFeedDiscovery() {
         supabase
           .from("property_listings")
           .select("id, title, city, price, price_period, listing_kind")
-          .eq("status", "PUBLISHED")
+          .eq("status", "ACTIVE")
           .order("created_at", { ascending: false })
           .limit(6),
         supabase
