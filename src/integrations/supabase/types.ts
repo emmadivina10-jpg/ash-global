@@ -128,6 +128,83 @@ export type Database = {
         }
         Relationships: []
       }
+      article_likes: {
+        Row: {
+          article_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          article_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          article_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_likes_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      articles: {
+        Row: {
+          author_id: string
+          body: string
+          category: string
+          cover_path: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          is_published: boolean
+          like_count: number
+          tags: string[]
+          title: string
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          author_id: string
+          body: string
+          category?: string
+          cover_path?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          is_published?: boolean
+          like_count?: number
+          tags?: string[]
+          title: string
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          category?: string
+          cover_path?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          is_published?: boolean
+          like_count?: number
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           accepted_at: string | null
@@ -831,6 +908,116 @@ export type Database = {
         }
         Relationships: []
       }
+      job_applications: {
+        Row: {
+          applicant_id: string
+          contact_phone: string | null
+          cover_letter: string
+          created_at: string
+          id: string
+          job_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          applicant_id: string
+          contact_phone?: string | null
+          cover_letter: string
+          created_at?: string
+          id?: string
+          job_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          applicant_id?: string
+          contact_phone?: string | null
+          cover_letter?: string
+          created_at?: string
+          id?: string
+          job_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      jobs: {
+        Row: {
+          applications_count: number
+          apply_deadline: string | null
+          category: string
+          city: string | null
+          company: string
+          contact_email: string | null
+          country: string
+          created_at: string
+          currency: string
+          description: string
+          employment_type: string
+          id: string
+          is_open: boolean
+          location_type: string
+          poster_id: string
+          salary_max: number | null
+          salary_min: number | null
+          title: string
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          applications_count?: number
+          apply_deadline?: string | null
+          category?: string
+          city?: string | null
+          company: string
+          contact_email?: string | null
+          country?: string
+          created_at?: string
+          currency?: string
+          description: string
+          employment_type?: string
+          id?: string
+          is_open?: boolean
+          location_type?: string
+          poster_id: string
+          salary_max?: number | null
+          salary_min?: number | null
+          title: string
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          applications_count?: number
+          apply_deadline?: string | null
+          category?: string
+          city?: string | null
+          company?: string
+          contact_email?: string | null
+          country?: string
+          created_at?: string
+          currency?: string
+          description?: string
+          employment_type?: string
+          id?: string
+          is_open?: boolean
+          location_type?: string
+          poster_id?: string
+          salary_max?: number | null
+          salary_min?: number | null
+          title?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: []
+      }
       lead_activities: {
         Row: {
           body: string | null
@@ -971,6 +1158,98 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      mentor_requests: {
+        Row: {
+          created_at: string
+          id: string
+          mentor_id: string
+          message: string | null
+          requester_id: string
+          status: string
+          topic: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mentor_id: string
+          message?: string | null
+          requester_id: string
+          status?: string
+          topic: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mentor_id?: string
+          message?: string | null
+          requester_id?: string
+          status?: string
+          topic?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentor_requests_mentor_id_fkey"
+            columns: ["mentor_id"]
+            isOneToOne: false
+            referencedRelation: "mentors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mentors: {
+        Row: {
+          availability: string
+          bio: string | null
+          city: string | null
+          country: string
+          created_at: string
+          headline: string
+          id: string
+          is_free: boolean
+          is_published: boolean
+          session_price: number
+          sessions_count: number
+          skills: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          availability?: string
+          bio?: string | null
+          city?: string | null
+          country?: string
+          created_at?: string
+          headline: string
+          id?: string
+          is_free?: boolean
+          is_published?: boolean
+          session_price?: number
+          sessions_count?: number
+          skills?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          availability?: string
+          bio?: string | null
+          city?: string | null
+          country?: string
+          created_at?: string
+          headline?: string
+          id?: string
+          is_free?: boolean
+          is_published?: boolean
+          session_price?: number
+          sessions_count?: number
+          skills?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       messages: {
         Row: {
@@ -2718,6 +2997,8 @@ export type Database = {
         Args: { _listing_id: string }
         Returns: Json
       }
+      owns_job: { Args: { _job_id: string }; Returns: boolean }
+      owns_mentor: { Args: { _mentor_id: string }; Returns: boolean }
       owns_property: { Args: { _listing_id: string }; Returns: boolean }
       property_is_public: { Args: { _listing_id: string }; Returns: boolean }
       provider_slots: {
