@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { MessageMemberDialog } from "@/components/console/MessageMemberDialog";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -48,6 +49,7 @@ function SupportInboxPage() {
   const [selected, setSelected] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
+  const [writeOpen, setWriteOpen] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["console", "support"],
@@ -95,12 +97,19 @@ function SupportInboxPage() {
 
   return (
     <div className="space-y-5">
-      <header>
-        <h1 className="font-display text-xl font-extrabold text-foreground">Support inbox</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Every message customers send from the app lands here. Replying emails them straight from ASH Glo.
-        </p>
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+        <div className="min-w-0">
+          <h1 className="font-display text-xl font-extrabold text-foreground">Support inbox</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Every message customers send from the app lands here. Replying emails them straight from ASH Glo.
+          </p>
+        </div>
+        <Button size="sm" variant="outline" onClick={() => setWriteOpen(true)}>
+          Write to a member
+        </Button>
       </header>
+
+      <MessageMemberDialog open={writeOpen} onClose={() => setWriteOpen(false)} />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatTile label="Awaiting reply" value={data?.counts.awaitingReply ?? 0} tone="text-primary" />
