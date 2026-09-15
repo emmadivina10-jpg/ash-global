@@ -360,7 +360,10 @@ function marketplaceSearchScore(item: unknown, query: string): number {
     return count;
   }, 0);
 
-  return matches === tokens.length ? score : 0;
+  // Rank by how many terms matched, but never hide a result the server already
+  // matched just because one term (a city, a surname) is missing.
+  if (matches === tokens.length) score += 25;
+  return matches > 0 ? score : 0;
 }
 
 function isVideoSource(url: string | null | undefined) {
