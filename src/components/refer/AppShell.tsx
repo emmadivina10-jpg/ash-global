@@ -22,6 +22,9 @@ import {
   Users,
   User as UserIcon,
   Wallet,
+  BookOpen,
+  BriefcaseBusiness,
+  GraduationCap,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin, useProfile } from "@/lib/queries";
