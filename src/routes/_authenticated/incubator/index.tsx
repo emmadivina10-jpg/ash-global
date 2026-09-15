@@ -153,16 +153,16 @@ function IncubatorForumPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              {[
+              {([
                 ["Forum", fr ? "Bientôt" : "Coming soon", MessageCircle],
                 ["Tracks", "4", Network],
                 ["Mentorship", fr ? "Bientôt" : "Coming soon", Award],
                 ["Community", fr ? "En préparation" : "In preparation", ShieldCheck],
-              ].map(([label, value, Icon]) => (
-                <div key={label as string} className="rounded-2xl border border-white/8 bg-white/[0.035] p-4">
+              ] as const).map(([label, value, Icon]) => (
+                <div key={label} className="rounded-2xl border border-white/8 bg-white/[0.035] p-4">
                   <Icon className="size-4 text-[#D4AF37]" aria-hidden />
-                  <p className="mt-4 text-[10px] font-extrabold uppercase tracking-[0.12em] text-white/40">{label as string}</p>
-                  <p className="mt-1 text-sm font-bold text-white">{value as string}</p>
+                  <p className="mt-4 text-[10px] font-extrabold uppercase tracking-[0.12em] text-white/40">{label}</p>
+                  <p className="mt-1 text-sm font-bold text-white">{value}</p>
                 </div>
               ))}
             </div>

@@ -267,11 +267,11 @@ function MessagesPage() {
 
     if (nav) {
       if (mobileView === "thread") {
-        nav.dataset.ashChatHidden = "true";
+        nav.dataset["ashChatHidden"] = "true";
         nav.style.visibility = "hidden";
         nav.style.pointerEvents = "none";
-      } else if (nav.dataset.ashChatHidden === "true") {
-        delete nav.dataset.ashChatHidden;
+      } else if (nav.dataset["ashChatHidden"] === "true") {
+        delete nav.dataset["ashChatHidden"];
         nav.style.visibility = "";
         nav.style.pointerEvents = "";
       }
@@ -281,11 +281,11 @@ function MessagesPage() {
     // sit on top of the composer or the keyboard transition.
     for (const orb of orbs) {
       if (mobileView === "thread") {
-        orb.dataset.ashChatHidden = "true";
+        orb.dataset["ashChatHidden"] = "true";
         orb.style.visibility = "hidden";
         orb.style.pointerEvents = "none";
-      } else if (orb.dataset.ashChatHidden === "true") {
-        delete orb.dataset.ashChatHidden;
+      } else if (orb.dataset["ashChatHidden"] === "true") {
+        delete orb.dataset["ashChatHidden"];
         orb.style.visibility = "";
         orb.style.pointerEvents = "";
       }
@@ -301,15 +301,15 @@ function MessagesPage() {
       window.removeEventListener("focus", restoreAfterNavigation);
       document.removeEventListener("visibilitychange", restoreAfterNavigation);
 
-      if (nav?.dataset.ashChatHidden === "true") {
-        delete nav.dataset.ashChatHidden;
+      if (nav?.dataset["ashChatHidden"] === "true") {
+        delete nav.dataset["ashChatHidden"];
         nav.style.visibility = "";
         nav.style.pointerEvents = "";
       }
 
       for (const orb of orbs) {
-        if (orb.dataset.ashChatHidden === "true") {
-          delete orb.dataset.ashChatHidden;
+        if (orb.dataset["ashChatHidden"] === "true") {
+          delete orb.dataset["ashChatHidden"];
           orb.style.visibility = "";
           orb.style.pointerEvents = "";
         }
