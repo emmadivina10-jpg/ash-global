@@ -63,12 +63,12 @@ export const Route = createFileRoute("/")({
 });
 
 const WORLD = [
-  { icon: Store, en: "Services", fr: "Services" },
-  { icon: ShoppingBag, en: "ASH Hub", fr: "ASH Hub" },
-  { icon: Briefcase, en: "Freelance", fr: "Freelance" },
-  { icon: Building2, en: "Property", fr: "Immobilier" },
-  { icon: CalendarDays, en: "Events", fr: "Événements" },
-  { icon: Tag, en: "Deals", fr: "Offres" },
+  { icon: Store, en: "Services", fr: "Services", enHint: "Book trusted pros", frHint: "Réservez des pros" },
+  { icon: ShoppingBag, en: "ASH Hub", fr: "ASH Hub", enHint: "Buy and sell", frHint: "Achetez et vendez" },
+  { icon: Briefcase, en: "Freelance", fr: "Freelance", enHint: "Hire talent", frHint: "Recrutez des talents" },
+  { icon: Building2, en: "Property", fr: "Immobilier", enHint: "Rent and lease", frHint: "Louez et gérez" },
+  { icon: CalendarDays, en: "Events", fr: "Événements", enHint: "Sell tickets", frHint: "Vendez des billets" },
+  { icon: Tag, en: "Deals", fr: "Offres", enHint: "Save every week", frHint: "Économisez chaque semaine" },
 ] as const;
 
 function Landing() {
@@ -131,17 +131,24 @@ function Landing() {
             </p>
           </div>
 
-          <div className="ash-fade-up mt-8 grid grid-cols-3 gap-2">
+          <div className="ash-fade-up mt-8 grid grid-cols-2 gap-2">
             {WORLD.map((item) => {
               const Icon = item.icon;
               return (
                 <div
                   key={item.en}
-                  className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card/70 px-2 py-3 backdrop-blur-sm"
+                  className="flex items-center gap-2.5 rounded-2xl border border-border/80 bg-card/70 px-3 py-2.5 backdrop-blur-sm"
                 >
-                  <Icon className="size-4 text-primary" aria-hidden />
-                  <span className="text-[11px] font-semibold text-muted-foreground">
-                    {fr ? item.fr : item.en}
+                  <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+                    <Icon className="size-4" aria-hidden />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-[12px] font-bold leading-tight text-foreground">
+                      {fr ? item.fr : item.en}
+                    </span>
+                    <span className="block truncate text-[10px] leading-tight text-muted-foreground">
+                      {fr ? item.frHint : item.enHint}
+                    </span>
                   </span>
                 </div>
               );

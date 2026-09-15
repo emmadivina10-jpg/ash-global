@@ -14,6 +14,8 @@ export async function contactVendor(options: {
   subject?: string | null;
   fr?: boolean;
   source?: string;
+  /** Overrides the default opener with a tailored first message. */
+  message?: string | null;
 }): Promise<string | null> {
   const providerId = options.providerId?.trim();
   if (!providerId) return null;
@@ -36,9 +38,9 @@ export async function contactVendor(options: {
     const fr = options.fr === true;
     const businessName = options.businessName?.trim() || (fr ? "bonjour" : "there");
     const subject = options.subject?.trim() || (fr ? "votre offre" : "your offer");
-    const body = fr
+    const body = options.message?.trim() || (fr
       ? `Bonjour ${businessName} ! J’ai vu « ${subject} » sur ASH Glo. Je suis intéressé(e) et j’aimerais connaître le prix, la disponibilité et la façon de procéder.`
-      : `Hi ${businessName}! I saw "${subject}" on ASH Glo. I’m interested and would like to know the price, availability and how to proceed.`;
+      : `Hi ${businessName}! I saw "${subject}" on ASH Glo. I’m interested and would like to know the price, availability and how to proceed.`);
 
     await supabase.from("messages").insert({
       conversation_id: conversationId,

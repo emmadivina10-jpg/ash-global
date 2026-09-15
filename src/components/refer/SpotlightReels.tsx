@@ -1,0 +1,161 @@
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { BadgeCheck, Loader2, MessageCircle, Sparkles, X } from "lucide-react";
+import { toast } from "sonner";
+import { Avatar } from "./AvatarUpload";
+import { Button } from "@/components/ui/button";
+import { contactVendor, openMemberConversation, sendOpeningMessage } from "@/lib/contact-vendor";
+import type { SpotlightEntry } from "@/lib/spotlight.queries";
+import { useI18n } from "@/lib/i18n";
+
+/**
+ * Full-screen, reels-style Spotlight browser: one highlight per screen,
+ * vertical snap scrolling, with a "Contact vendor" action under each one that
+ * opens the vendor's chat with a ready-written availability enquiry.
+ */
+export function SpotlightReels({
+  entries,
+  startIndex = 0,
+  onClose,
+}: {
+  entries: SpotlightEntry[];
+  startIndex?: number;
+  onClose: () => void;
+}) {
+  const { lang } = useI18n();
+  const fr = lang === "fr";
+  const navigate = useNavigate();
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const [busy, setBusy] = useState<string | null>(null);
+
+  useEffect(() => {
+    const node = scrollerRef.current;
+    const target = node?.children[startIndex] as HTMLElement | undefined;
+    if (target) target.scrollIntoView({ block: "start" });
+  }, [startIndex]);
+
+  useEffect(() => {
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, []);
+
+  async function contact(entry: SpotlightEntry) {
+    setBusy(entry.id);
+    try {
+      const item = entry.caption?.trim() || entry.provider.business_name;
+      const name = entry.provider.business_name;
+      const message = fr
+        ? `Bonjour ${name} ! J’ai vu « ${item} » dans votre Spotlight sur ASH. Est-ce toujours disponible ? Quel est le prix et comment puis-je l’obtenir ?`
+        : `Hi ${name}! I saw "${item}" in your Spotlight on ASH. Is it still available? What's the price and how can I get it?`;
+
+      let conversationId: string | null = null;
+      if (entry.provider.id) {
+        conversationId = await contactVendor({
+          providerId: entry.provider.id,
+          businessName: name,
+          subject: item,
+          fr,
+          source: "spotlight_reels",
+          message,
+        });
+      } else if (entry.author_id) {
+        conversationId = await openMemberConversation(entry.author_id);
+        if (conversationId) await sendOpeningMessage(conversationId, message);
+      }
+
+      if (!conversationId) {
+        toast.error(fr ? "Discussion indisponible." : "Chat is not available for this post.");
+        return;
+      }
+      onClose();
+      void navigate({ to: "/messages", search: { c: conversationId } });
+    } catch {
+      toast.error(fr ? "Impossible d’ouvrir la discussion." : "Could not open the chat.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black">
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label={fr ? "Fermer" : "Close"}
+        className="absolute right-3 top-[calc(0.75rem+env(safe-area-inset-top))] z-20 grid size-10 place-items-center rounded-full bg-black/55 text-white backdrop-blur"
+      >
+        <X className="size-5" aria-hidden />
+      </button>
+
+      <div
+        ref={scrollerRef}
+        className="h-full snap-y snap-mandatory overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {entries.map((entry) => (
+          <section key={entry.id} className="relative h-full w-full snap-start snap-always">
+            {entry.media_type === "video" ? (
+              <video
+                src={entry.url}
+                controls
+                playsInline
+                loop
+                className="size-full bg-black object-contain"
+              />
+            ) : (
+              <img src={entry.url} alt="" className="size-full bg-black object-contain" />
+            )}
+
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black via-black/70 to-transparent" />
+
+            <div className="absolute inset-x-0 bottom-0 space-y-3 px-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
+              <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-white backdrop-blur">
+                <Sparkles className="size-3" aria-hidden />
+                Spotlight
+              </span>
+
+              <div className="flex items-center gap-2.5">
+                <Avatar
+                  path={entry.provider.avatar_url}
+                  name={entry.provider.business_name}
+                  className="size-10 shrink-0 ring-2 ring-white/70"
+                />
+                <div className="min-w-0">
+                  <p className="flex items-center gap-1 text-sm font-bold text-white">
+                    <span className="truncate">{entry.provider.business_name}</span>
+                    {entry.provider.is_verified ? (
+                      <BadgeCheck className="size-4 shrink-0 text-primary" aria-hidden />
+                    ) : null}
+                  </p>
+                  {entry.provider.city ? (
+                    <p className="truncate text-[11px] text-white/70">{entry.provider.city}</p>
+                  ) : null}
+                </div>
+              </div>
+
+              {entry.caption ? (
+                <p className="line-clamp-3 text-sm leading-relaxed text-white/90">{entry.caption}</p>
+              ) : null}
+
+              <Button
+                onClick={() => void contact(entry)}
+                disabled={busy === entry.id}
+                size="lg"
+                className="h-12 w-full rounded-2xl text-base font-bold shadow-[var(--shadow-brand)]"
+              >
+                {busy === entry.id ? (
+                  <Loader2 className="size-4 animate-spin" aria-hidden />
+                ) : (
+                  <MessageCircle className="size-4" aria-hidden />
+                )}
+                {fr ? "Contacter le vendeur" : "Contact vendor"}
+              </Button>
+            </div>
+          </section>
+        ))}
+      </div>
+    </div>
+  );
+}

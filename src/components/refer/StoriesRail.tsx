@@ -14,7 +14,8 @@ import {
   type SocialAuthor,
   type StoryAudience,
 } from "@/lib/social.queries";
-import { useSpotlightFeed, type SpotlightEntry } from "@/lib/spotlight.queries";
+import { useSpotlightFeed } from "@/lib/spotlight.queries";
+import { SpotlightReels } from "./SpotlightReels";
 import { useProfile } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -25,11 +26,7 @@ import { cn } from "@/lib/utils";
  *  - Spotlight: lasting highlights from members and vendors, gold badge.
  * The first tile lets the member choose which one to create.
  */
-export function StoriesRail({
-  onOpenSpotlight,
-}: {
-  onOpenSpotlight?: (index: number) => void;
-} = {}) {
+export function StoriesRail() {
   const { lang } = useI18n();
   const fr = lang === "fr";
   const { data } = useStories();
@@ -44,7 +41,7 @@ export function StoriesRail({
   const [preview, setPreview] = useState<string | null>(null);
   const [caption, setCaption] = useState("");
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
-  const [previewEntry, setPreviewEntry] = useState<SpotlightEntry | null>(null);
+  const [reelIndex, setReelIndex] = useState<number | null>(null);
   // Stories are open to everyone by default; the member can hide from some
   // people, or flip it around and pick exactly who may watch.
   const [audience, setAudience] = useState<StoryAudience>("ALL");
@@ -179,7 +176,7 @@ export function StoriesRail({
           <button
             key={entry.id}
             type="button"
-            onClick={() => (onOpenSpotlight ? onOpenSpotlight(index) : setPreviewEntry(entry))}
+            onClick={() => setReelIndex(index)}
             className="relative h-[190px] w-[112px] shrink-0 snap-start overflow-hidden rounded-2xl border border-primary/30 bg-muted text-left shadow-sm"
           >
             {entry.media_type === "video" ? (
@@ -389,26 +386,14 @@ export function StoriesRail({
         </DialogContent>
       </Dialog>
 
-      <Dialog open={Boolean(previewEntry)} onOpenChange={(open) => (open ? null : setPreviewEntry(null))}>
-        <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="size-4 text-primary" aria-hidden />
-              {previewEntry?.provider.business_name}
-            </DialogTitle>
-          </DialogHeader>
-          {previewEntry ? (
-            previewEntry.media_type === "video" ? (
-              <video src={previewEntry.url} controls playsInline className="w-full rounded-2xl" />
-            ) : (
-              <img src={previewEntry.url} alt="" className="w-full rounded-2xl object-contain" />
-            )
-          ) : null}
-          {previewEntry?.caption ? (
-            <p className="text-sm text-foreground">{previewEntry.caption}</p>
-          ) : null}
-        </DialogContent>
-      </Dialog>
+      {reelIndex !== null ? (
+        <SpotlightReels
+          entries={highlights}
+          startIndex={reelIndex}
+          onClose={() => setReelIndex(null)}
+        />
+      ) : null}
+
 
       {viewerIndex !== null ? (
         <StoryViewer
