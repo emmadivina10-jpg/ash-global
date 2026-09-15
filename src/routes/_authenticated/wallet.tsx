@@ -210,6 +210,7 @@ function WalletPage() {
               className={`relative overflow-hidden rounded-[inherit] transition-all duration-[1800ms] ease-in-out`}
             >
               <BalanceCard
+                gold={goldMode}
                 label={t("dash.availableBalance")}
                 amount={formatXAF(wallet?.available_balance ?? 0)}
                 action={
