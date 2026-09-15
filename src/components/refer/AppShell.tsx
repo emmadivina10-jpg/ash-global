@@ -55,7 +55,9 @@ import { cn } from "@/lib/utils";
 
 type NavItem = {
   to: string;
-  key: TKey;
+  key?: TKey;
+  en?: string;
+  fr?: string;
   label?: string;
   icon: typeof Store;
   referralOnly?: boolean;
@@ -63,38 +65,75 @@ type NavItem = {
 };
 
 const MOBILE_NAV: NavItem[] = [
-  { to: "/services", key: "nav.services" as TKey, icon: Store, tour: "market" },
-  { to: "/create", key: "nav.create" as TKey, label: "Create", icon: PlusCircle, tour: "create" },
+  { to: "/feed", en: "Feed", fr: "Fil", icon: Flame, tour: "feed" },
   { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle, tour: "messages" },
-  { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet, tour: "wallet" },
+  { to: "/services", key: "nav.services" as TKey, icon: Store, tour: "market" },
+  { to: "/notifications", en: "Alerts", fr: "Alertes", icon: Bell, tour: "notifications" },
 ];
 
 const DESKTOP_NAV: NavItem[] = [
   { to: "/services", key: "nav.services" as TKey, icon: Store, tour: "market" },
+  { to: "/feed", en: "Feed", fr: "Fil", icon: Flame, tour: "feed" },
   { to: "/search", key: "nav.search" as TKey, label: "Search", icon: Search, tour: "search" },
   { to: "/create", key: "nav.create" as TKey, label: "Create", icon: PlusCircle, tour: "create" },
   { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle, tour: "messages" },
+  { to: "/notifications", en: "Notifications", fr: "Notifications", icon: Bell },
   { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet, tour: "wallet" },
 ];
 
-const SIDE_EXTRA: NavItem[] = [
-  { to: "/property", key: "nav.property" as TKey, label: "Property", icon: Building2 },
-  { to: "/deals", key: "nav.deals" as TKey, label: "Deals", icon: Flame },
-  { to: "/events", key: "nav.events" as TKey, label: "Events", icon: CalendarDays },
-  { to: "/freelance", key: "nav.freelance" as TKey, label: "Freelance", icon: Briefcase },
-  { to: "/articles", key: "nav.articles" as TKey, label: "Articles", icon: BookOpen },
-  { to: "/jobs", key: "nav.jobs" as TKey, label: "Jobs", icon: BriefcaseBusiness },
-  { to: "/mentors", key: "nav.mentors" as TKey, label: "Mentors", icon: GraduationCap },
-  { to: "/dashboard", key: "nav.home" as TKey, icon: TrendingUp, referralOnly: true },
-  { to: "/network", key: "nav.network" as TKey, icon: Users, referralOnly: true },
-  { to: "/analytics", key: "nav.analytics" as TKey, label: "Analytics", icon: BarChart3 },
-  { to: "/profile", key: "nav.profile" as TKey, icon: UserIcon },
-  { to: "/bookings", key: "nav.bookings" as TKey, icon: CalendarDays },
-  { to: "/studio", key: "nav.pro" as TKey, icon: Sparkles },
-  { to: "/transactions", key: "nav.transactions" as TKey, icon: Receipt },
-  { to: "/withdraw", key: "nav.withdraw" as TKey, icon: ArrowDownToLine, referralOnly: true },
-  { to: "/settings", key: "nav.settings" as TKey, icon: SettingsIcon },
+/** The More sheet, nested into small groups so it stays easy to scan. */
+const MORE_GROUPS: { en: string; fr: string; items: NavItem[] }[] = [
+  {
+    en: "Community",
+    fr: "Communauté",
+    items: [
+      { to: "/feed", en: "Feed", fr: "Fil", icon: Flame },
+      { to: "/friends", en: "Friends", fr: "Amis", icon: Users },
+      { to: "/groups", en: "Groups", fr: "Groupes", icon: MessageCircle },
+      { to: "/articles", key: "nav.articles" as TKey, label: "Articles", icon: BookOpen },
+      { to: "/mentors", key: "nav.mentors" as TKey, label: "Mentors", icon: GraduationCap },
+      { to: "/incubator", en: "Incubator", fr: "Incubateur", icon: Sparkles },
+    ],
+  },
+  {
+    en: "Marketplace",
+    fr: "Marché",
+    items: [
+      { to: "/property", key: "nav.property" as TKey, label: "Property", icon: Building2 },
+      { to: "/deals", key: "nav.deals" as TKey, label: "Deals", icon: Flame },
+      { to: "/events", key: "nav.events" as TKey, label: "Events", icon: CalendarDays },
+      { to: "/freelance", key: "nav.freelance" as TKey, label: "Freelance", icon: Briefcase },
+      { to: "/jobs", key: "nav.jobs" as TKey, label: "Jobs", icon: BriefcaseBusiness },
+      { to: "/create", key: "nav.create" as TKey, label: "Create", icon: PlusCircle },
+    ],
+  },
+  {
+    en: "Earnings",
+    fr: "Revenus",
+    items: [
+      { to: "/wallet", key: "nav.wallet" as TKey, icon: Wallet },
+      { to: "/dashboard", key: "nav.home" as TKey, icon: TrendingUp, referralOnly: true },
+      { to: "/network", key: "nav.network" as TKey, icon: Users, referralOnly: true },
+      { to: "/transactions", key: "nav.transactions" as TKey, icon: Receipt },
+      { to: "/withdraw", key: "nav.withdraw" as TKey, icon: ArrowDownToLine, referralOnly: true },
+      { to: "/analytics", key: "nav.analytics" as TKey, label: "Analytics", icon: BarChart3 },
+    ],
+  },
+  {
+    en: "You",
+    fr: "Vous",
+    items: [
+      { to: "/profile", key: "nav.profile" as TKey, icon: UserIcon },
+      { to: "/bookings", key: "nav.bookings" as TKey, icon: CalendarDays },
+      { to: "/studio", key: "nav.pro" as TKey, icon: Sparkles },
+      { to: "/settings", key: "nav.settings" as TKey, icon: SettingsIcon },
+    ],
+  },
 ];
+
+const SIDE_EXTRA: NavItem[] = MORE_GROUPS.flatMap((group) => group.items).filter(
+  (item, index, list) => list.findIndex((other) => other.to === item.to) === index,
+);
 
 
 export function AppShell({ children }: { children: ReactNode }) {
