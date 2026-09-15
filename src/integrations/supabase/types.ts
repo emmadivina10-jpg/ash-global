@@ -606,6 +606,54 @@ export type Database = {
           },
         ]
       }
+      department_tasks: {
+        Row: {
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          created_by: string | null
+          department: string
+          detail: string | null
+          due_date: string
+          id: string
+          priority: string
+          source: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          department: string
+          detail?: string | null
+          due_date?: string
+          id?: string
+          priority?: string
+          source?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          department?: string
+          detail?: string | null
+          due_date?: string
+          id?: string
+          priority?: string
+          source?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       event_tickets: {
         Row: {
           amount: number
@@ -2856,6 +2904,36 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           username?: string
+        }
+        Relationships: []
+      }
+      staff_channel_messages: {
+        Row: {
+          author_department: string
+          author_name: string
+          author_staff_id: string | null
+          body: string
+          channel: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          author_department: string
+          author_name: string
+          author_staff_id?: string | null
+          body: string
+          channel?: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          author_department?: string
+          author_name?: string
+          author_staff_id?: string | null
+          body?: string
+          channel?: string
+          created_at?: string
+          id?: string
         }
         Relationships: []
       }
