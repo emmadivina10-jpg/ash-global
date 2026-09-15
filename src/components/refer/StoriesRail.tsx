@@ -60,33 +60,60 @@ export function StoriesRail() {
 
   return (
     <>
-      <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-1">
+      <div className="-mx-4 flex snap-x gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
-          className="flex w-20 shrink-0 flex-col items-center gap-1.5"
+          className="relative w-[112px] shrink-0 snap-start overflow-hidden rounded-2xl border border-border bg-card text-left shadow-sm"
         >
-          <span className="relative grid size-[68px] place-items-center overflow-hidden rounded-full border-2 border-dashed border-primary/40 bg-muted">
-            <Avatar path={profile?.avatar_url} name={profile?.full_name} className="size-full rounded-full" />
-            <span className="brand-gradient absolute bottom-0 right-0 grid size-6 place-items-center rounded-full border-2 border-background text-primary-foreground">
-              <Plus className="size-3.5" aria-hidden />
-            </span>
+          <span className="block h-[132px] w-full overflow-hidden bg-muted">
+            <Avatar
+              path={profile?.avatar_url}
+              name={profile?.full_name}
+              className="size-full rounded-none object-cover"
+            />
           </span>
-          <span className="w-full truncate text-center text-[11px] font-bold text-primary">
-            {fr ? "Créer" : "Create"}
+          <span className="flex h-[58px] items-end justify-center pb-2">
+            <span className="text-[12px] font-bold text-foreground">{fr ? "Créer" : "Create story"}</span>
+          </span>
+          <span className="brand-gradient absolute left-1/2 top-[110px] grid size-9 -translate-x-1/2 place-items-center rounded-full border-[3px] border-card text-primary-foreground">
+            <Plus className="size-4" aria-hidden />
           </span>
         </button>
 
-        {groups.map((group, index) => (
-          <StoryBubble
-            key={group.author.id}
-            name={group.author.id === me ? (fr ? "Vous" : "You") : group.author.name}
-            avatar={group.author.avatar_url}
-            image={group.stories[group.stories.length - 1]?.url}
-            seen={group.seen}
-            onClick={() => setViewerIndex(index)}
-          />
-        ))}
+        {groups.map((group, index) => {
+          const cover = group.stories[group.stories.length - 1]?.url;
+          return (
+            <button
+              key={group.author.id}
+              type="button"
+              onClick={() => setViewerIndex(index)}
+              className="relative h-[190px] w-[112px] shrink-0 snap-start overflow-hidden rounded-2xl bg-muted text-left shadow-sm"
+            >
+              {cover ? (
+                <img src={cover} alt="" className="size-full object-cover" loading="lazy" />
+              ) : (
+                <span className="block size-full bg-gradient-to-b from-muted to-secondary" />
+              )}
+              <span className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/75 to-transparent" />
+              <span
+                className={cn(
+                  "absolute left-2 top-2 grid size-9 place-items-center rounded-full border-[3px] bg-card",
+                  group.seen ? "border-muted-foreground/50" : "border-primary",
+                )}
+              >
+                <Avatar
+                  path={group.author.avatar_url}
+                  name={group.author.name}
+                  className="size-full rounded-full"
+                />
+              </span>
+              <span className="absolute inset-x-2 bottom-2 line-clamp-2 text-[12px] font-bold leading-tight text-white drop-shadow">
+                {group.author.id === me ? (fr ? "Vous" : "Your story") : group.author.name}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={pick} />
