@@ -17,6 +17,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatDate, formatXAF } from "@/lib/format";
 import { toast } from "sonner";
+import { getMemberStatement } from "@/lib/ops.functions";
+import { MessageMemberDialog, type MessageTarget } from "@/components/console/MessageMemberDialog";
+import { StatementDialog } from "@/components/refer/StatementDialog";
 
 export const Route = createFileRoute("/console/users")({
   component: ConsoleUsers,
@@ -40,6 +43,16 @@ function ConsoleUsers() {
   const [amount, setAmount] = useState("");
   const [reason, setReason] = useState("");
   const [crediting, setCrediting] = useState(false);
+  const [messageTarget, setMessageTarget] = useState<MessageTarget>(null);
+  const [statementUser, setStatementUser] = useState<{ userId: string; name: string } | null>(null);
+
+  const loadStatement = useServerFn(getMemberStatement);
+
+  const statement = useQuery({
+    queryKey: ["console", "statement", statementUser?.userId],
+    queryFn: () => loadStatement({ data: { userId: statementUser?.userId ?? "" } }),
+    enabled: Boolean(statementUser),
+  });
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["console", "users"],
