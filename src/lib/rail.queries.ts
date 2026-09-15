@@ -135,8 +135,8 @@ export function useRailJobs() {
     queryFn: async (): Promise<RailJob[]> => {
       const { data } = await supabase
         .from("jobs")
-        .select("id, title, company, city, status, created_at")
-        .eq("status", "OPEN")
+        .select("id, title, company, city, created_at")
+        .eq("is_open", true)
         .order("created_at", { ascending: false })
         .limit(4);
       return (data ?? []).map((row) => ({
