@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Check, Loader2, LogOut, Pencil } from "lucide-react";
+import { BadgeCheck, Check, Loader2, LogOut, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/lib/queries";
@@ -9,6 +9,7 @@ import { SectionCard } from "@/components/refer/cards";
 import { StatusBadge } from "@/components/refer/StatusBadge";
 import { CopyReferralButton } from "@/components/refer/ReferralCard";
 import { AvatarUpload } from "@/components/refer/AvatarUpload";
+import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 
 import { SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
