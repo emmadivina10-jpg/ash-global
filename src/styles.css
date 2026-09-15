@@ -298,6 +298,39 @@
   box-shadow: 0 1px 2px oklch(0 0 0 / 35%);
 }
 
+/* Premium metallic gold card surface. */
+@utility virtual-card-gold {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: calc(var(--radius) + 10px);
+  border: 1px solid oklch(0.95 0.08 95 / 35%);
+  background-color: oklch(0.52 0.11 80);
+  background-image:
+    radial-gradient(130% 150% at 0% 0%, oklch(0.92 0.12 95 / 55%) 0%, transparent 55%),
+    radial-gradient(130% 150% at 100% 115%, oklch(0.38 0.09 70 / 65%) 0%, transparent 60%),
+    linear-gradient(128deg, oklch(0.78 0.13 92) 0%, oklch(0.62 0.12 82) 38%, oklch(0.50 0.10 72) 70%, oklch(0.66 0.12 85) 100%);
+  color: oklch(0.99 0.01 95);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 30%) inset,
+    0 -1px 0 oklch(0.3 0.06 70 / 35%) inset,
+    0 24px 60px -18px oklch(0.6 0.13 88 / 45%),
+    var(--shadow-brand);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: linear-gradient(
+      108deg,
+      transparent 30%,
+      oklch(1 0 0 / 24%) 44%,
+      transparent 58%
+    );
+  }
+}
+
 @utility gold-text {
   background-image: linear-gradient(
     100deg,
