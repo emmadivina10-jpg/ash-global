@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { Heart, MessageCircle, Repeat2, ShieldCheck, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "./AvatarUpload";
@@ -28,10 +29,23 @@ function timeAgo(iso: string, fr: boolean) {
   return `${Math.round(hours / 24)}d`;
 }
 
-export function PostCard({ post, currentUserId }: { post: FeedPost; currentUserId: string | null }) {
+export function PostCard({
+  post,
+  currentUserId,
+  detail = false,
+}: {
+  post: FeedPost;
+  currentUserId: string | null;
+  /** Full-screen post page: comments are open and tapping does not navigate. */
+  detail?: boolean;
+}) {
   const { lang } = useI18n();
   const fr = lang === "fr";
-  const [commentsOpen, setCommentsOpen] = useState(false);
+  const navigate = useNavigate();
+  const [commentsOpen, setCommentsOpen] = useState(detail);
+  const openPost = () => {
+    if (!detail) void navigate({ to: "/post/$postId", params: { postId: post.id } });
+  };
   const like = useToggleLike();
   const repost = useToggleRepost();
   const setFilter = useSetCommentFilter();
@@ -39,7 +53,7 @@ export function PostCard({ post, currentUserId }: { post: FeedPost; currentUserI
   const mine = currentUserId === post.author_id;
 
   return (
-    <article className="tile overflow-hidden">
+    <article className={cn("tile overflow-hidden", detail && "rounded-none border-0 shadow-none sm:rounded-3xl sm:border")}>
       <header className="flex items-center gap-3 p-4 pb-3">
         <Avatar path={post.author.avatar_url} name={post.author.name} className="size-10" />
         <div className="min-w-0 flex-1">
@@ -64,20 +78,38 @@ export function PostCard({ post, currentUserId }: { post: FeedPost; currentUserI
       </header>
 
       {post.caption ? (
-        <p className="whitespace-pre-wrap break-words px-4 pb-3 text-sm leading-relaxed text-foreground">
+        <p
+          onClick={openPost}
+          className={cn(
+            "whitespace-pre-wrap break-words px-4 pb-3 text-sm leading-relaxed text-foreground",
+            !detail && "cursor-pointer",
+          )}
+        >
           {post.caption}
         </p>
       ) : null}
 
       {post.images.length > 0 ? (
-        <div className={cn("grid gap-0.5", post.images.length > 1 ? "grid-cols-2" : "grid-cols-1")}>
+        <div
+          className={cn(
+            "grid gap-0.5",
+            post.images.length > 1 && !detail ? "grid-cols-2" : "grid-cols-1",
+            detail && "bg-black",
+          )}
+        >
           {post.images.map((src, index) => (
             <img
               key={index}
               src={src}
               alt=""
               loading="lazy"
-              className="max-h-[70vh] w-full bg-muted object-cover"
+              onClick={openPost}
+              className={cn(
+                "w-full bg-muted",
+                detail
+                  ? "max-h-[75dvh] object-contain"
+                  : "max-h-[70vh] cursor-pointer object-cover touch-manipulation",
+              )}
             />
           ))}
         </div>
@@ -93,7 +125,11 @@ export function PostCard({ post, currentUserId }: { post: FeedPost; currentUserI
           <Heart className={cn("size-4", post.liked && "fill-current")} aria-hidden />
           {post.like_count}
         </Button>
-        <Button variant="ghost" size="sm" onClick={() => setCommentsOpen((v) => !v)}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => (detail ? setCommentsOpen((v) => !v) : openPost())}
+        >
           <MessageCircle className="size-4" aria-hidden />
           {post.comment_count}
         </Button>
