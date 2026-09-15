@@ -134,7 +134,7 @@ function RegisterPage() {
     const { data: session } = await supabase.auth.getSession();
     if (session.session) {
       toast.success(t("auth.register.created"));
-      navigate({ to: "/services" });
+      navigate({ to: "/consent" });
       return;
     }
     setDone(true);
