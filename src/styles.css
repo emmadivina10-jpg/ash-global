@@ -662,3 +662,91 @@ html.native .app-shell > nav {
   background-color: color-mix(in oklab, var(--color-card) 92%, var(--color-background));
   pointer-events: none;
 }
+
+/* ---------------------------------------------------------------------------
+   Device & browser compatibility layer
+   Scales the interface from smartwatch-width browsers and small Androids up to
+   iPad and desktop, and smooths over Safari/Firefox/older-Chromium quirks.
+--------------------------------------------------------------------------- */
+
+html {
+  /* Stop iOS Safari from inflating text in landscape. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  /* Nothing may push the page sideways on narrow screens. */
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}
+
+/* Long words, URLs and pasted text must never widen a card. */
+p,
+h1,
+h2,
+h3,
+h4,
+li,
+span,
+a {
+  overflow-wrap: anywhere;
+}
+
+/* Wearables and very small browser windows (~200-360px). */
+@media (max-width: 360px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 280px) {
+  html {
+    font-size: 13.5px;
+  }
+}
+
+/* Tablets and iPads: give content room without letting it stretch thin. */
+@media (min-width: 768px) {
+  html {
+    font-size: 17px;
+  }
+}
+
+/* Large desktop / external displays. */
+@media (min-width: 1536px) {
+  html {
+    font-size: 18px;
+  }
+}
+
+/* Touch devices: keep interactive targets thumb-sized. */
+@media (hover: none) and (pointer: coarse) {
+  button,
+  [role="button"],
+  a[data-nav-index] {
+    touch-action: manipulation;
+  }
+}
+
+/* Devices in landscape with very little height (watch browsers, split view). */
+@media (max-height: 420px) {
+  .app-shell-scroll {
+    padding-bottom: 4.5rem;
+  }
+}
+
+/* Safari <16 and Firefox lack dvh in some builds: fall back to vh. */
+@supports not (height: 100dvh) {
+  .app-shell,
+  .app-shell-frame {
+    min-height: 100vh;
+  }
+}

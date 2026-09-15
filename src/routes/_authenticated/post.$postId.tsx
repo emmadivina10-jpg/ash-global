@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PostCard } from "@/components/refer/PostCard";
@@ -22,6 +22,7 @@ export const Route = createFileRoute("/_authenticated/post/$postId")({
 
 function PostPage() {
   const { postId } = Route.useParams();
+  const navigate = useNavigate();
   const { lang } = useI18n();
   const fr = lang === "fr";
   const { data, isLoading } = usePost(postId);
@@ -31,29 +32,45 @@ function PostPage() {
     void supabase.auth.getUser().then(({ data: auth }) => setMe(auth.user?.id ?? null));
   }, []);
 
-  return (
-    <div className="mx-auto w-full max-w-2xl space-y-4">
-      <Link to="/feed" className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-        <ArrowLeft className="size-4" aria-hidden />
-        {fr ? "Retour au fil" : "Back to feed"}
-      </Link>
+  function back() {
+    if (typeof window !== "undefined" && window.history.length > 1) window.history.back();
+    else void navigate({ to: "/feed" });
+  }
 
-      {isLoading ? (
-        <div className="grid h-40 place-items-center">
-          <Loader2 className="size-5 animate-spin text-muted-foreground" aria-hidden />
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col bg-background">
+      <header className="flex shrink-0 items-center gap-3 border-b border-border px-3 pb-2 pt-[calc(0.5rem+env(safe-area-inset-top))]">
+        <button
+          type="button"
+          onClick={back}
+          aria-label={fr ? "Retour" : "Back"}
+          className="grid size-10 shrink-0 place-items-center rounded-full text-foreground transition-colors hover:bg-muted"
+        >
+          <ArrowLeft className="size-5" aria-hidden />
+        </button>
+        <p className="min-w-0 truncate text-sm font-bold text-foreground">{fr ? "Publication" : "Post"}</p>
+      </header>
+
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <div className="mx-auto w-full max-w-2xl">
+          {isLoading ? (
+            <div className="grid h-40 place-items-center">
+              <Loader2 className="size-5 animate-spin text-muted-foreground" aria-hidden />
+            </div>
+          ) : data ? (
+            <PostCard post={data} currentUserId={me} detail />
+          ) : (
+            <div className="p-8 text-center">
+              <p className="text-sm font-semibold text-foreground">
+                {fr ? "Cette publication n'existe plus." : "This post is no longer available."}
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {fr ? "Elle a peut-être été supprimée par son auteur." : "It may have been removed by its author."}
+              </p>
+            </div>
+          )}
         </div>
-      ) : data ? (
-        <PostCard post={data} currentUserId={me} />
-      ) : (
-        <div className="tile p-8 text-center">
-          <p className="text-sm font-semibold text-foreground">
-            {fr ? "Cette publication n'existe plus." : "This post is no longer available."}
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {fr ? "Elle a peut-être été supprimée par son auteur." : "It may have been removed by its author."}
-          </p>
-        </div>
-      )}
+      </div>
     </div>
   );
 }
