@@ -132,7 +132,7 @@ function LoginPage() {
           </div>
         ) : null}
 
-        <Button type="submit" className="h-12 w-full" disabled={loading}>
+        <Button type="submit" className="h-12 w-full rounded-xl text-base" disabled={loading}>
           {loading ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
           {loading ? t("auth.login.submitting") : t("auth.login.submit")}
         </Button>
