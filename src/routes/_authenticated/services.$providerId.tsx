@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { BadgeCheck, CalendarCheck, Clock, MapPin, MessageCircle, Play, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { contactVendor } from "@/lib/contact-vendor";
 import {
   openConversation,
   usePortfolio,
@@ -117,7 +118,15 @@ function ProviderPage() {
   const isOwner = provider?.user_id === user?.id;
 
   async function chat() {
-    const id = await openConversation(providerId);
+    // Opens with a friendly "Hi + why I'm reaching out" so the vendor has
+    // context from the first message.
+    const id = await contactVendor({
+      providerId,
+      businessName: provider?.business_name ?? null,
+      subject: activeServices[0]?.title ?? provider?.business_name ?? null,
+      fr: lang === "fr",
+      source: "ash_provider_page",
+    });
     if (!id) {
       toast.error(t("book.err"));
       return;
