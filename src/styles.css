@@ -804,3 +804,39 @@ a {
     background: #fff;
   }
 }
+
+/* Welcome screen ambient glows (replaces the old canvas water effect) */
+.ash-liquid {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.4;
+}
+.ash-liquid-a {
+  top: -14%;
+  left: -10%;
+  width: 55vw;
+  height: 55vw;
+  max-width: 620px;
+  max-height: 620px;
+  background: radial-gradient(circle, color-mix(in oklab, var(--primary) 55%, transparent), transparent 70%);
+  animation: ash-liquid-drift 22s ease-in-out infinite alternate;
+}
+.ash-liquid-b {
+  bottom: -18%;
+  right: -12%;
+  width: 60vw;
+  height: 60vw;
+  max-width: 680px;
+  max-height: 680px;
+  background: radial-gradient(circle, color-mix(in oklab, var(--accent) 45%, transparent), transparent 70%);
+  animation: ash-liquid-drift 28s ease-in-out infinite alternate-reverse;
+}
+@keyframes ash-liquid-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(4%, 6%, 0) scale(1.12); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ash-liquid { animation: none; }
+}
