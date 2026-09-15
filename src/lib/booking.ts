@@ -1,3 +1,4 @@
+import { baseLang } from "@/lib/i18n";
 import type { Lang } from "@/lib/i18n";
 
 /** Full ASH booking lifecycle. Values match the database `booking_status` enum. */

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { CATEGORY_GROUPS, type GroupId } from "@/lib/taxonomy";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, baseLang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 const INTERVAL = 7000;

@@ -1,3 +1,4 @@
+import { baseLang } from "@/lib/i18n";
 import type { Lang } from "@/lib/i18n";
 import type { ServiceCategory } from "@/lib/marketplace";
 

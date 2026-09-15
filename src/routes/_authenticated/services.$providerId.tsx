@@ -27,7 +27,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { type ServiceCategory } from "@/lib/marketplace";
 import { categoryLabel } from "@/lib/taxonomy";
 import { formatDateTime, formatXAF } from "@/lib/format";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, baseLang } from "@/lib/i18n";
 import {
   formatDateTimeInZone,
   formatTimeInZone,

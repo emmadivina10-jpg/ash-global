@@ -56,7 +56,7 @@ import {
 } from "@/lib/discovery.queries";
 import { useLocation } from "@/lib/location";
 import { useRegion } from "@/lib/region-context";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, baseLang } from "@/lib/i18n";
 import { formatXAF } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
