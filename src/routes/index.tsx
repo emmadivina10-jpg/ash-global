@@ -4,12 +4,15 @@ import {
   Briefcase,
   Building2,
   CalendarDays,
+  Globe2,
   Lock,
+  MessageCircle,
   ShieldCheck,
   ShoppingBag,
   Sparkles,
   Store,
   Tag,
+  Users,
 } from "lucide-react";
 import { isNativeApp } from "@/lib/native";
 import ashLogo from "@/assets/ash-logo.png.asset.json";
@@ -20,7 +23,7 @@ import { useI18n } from "@/lib/i18n";
 
 const TITLE = "ASH — Where Opportunities Connect.";
 const DESCRIPTION =
-  "ASH is a digital opportunity, commerce, services, freelance, property, community and events platform that connects people, businesses, freelancers, service providers, communities and event organizers in one ecosystem.";
+  "ASH is a digital opportunity, commerce, services, freelance, property, community and events platform — live in 175 countries — that connects people, businesses, freelancers, service providers, communities and event organizers in one ecosystem, with a social feed, stories, Spotlight, friends, groups and secure Mobile Money payments.";
 
 const OG_IMAGE = "https://ashglogroup.company/ash-social.png";
 const SUPPORT_URL = "https://ash-glo-support.base44.app";
@@ -70,6 +73,8 @@ const WORLD = [
   { icon: Building2, en: "Property", fr: "Immobilier", enHint: "Rent and lease", frHint: "Louez et gérez" },
   { icon: CalendarDays, en: "Events", fr: "Événements", enHint: "Sell tickets", frHint: "Vendez des billets" },
   { icon: Tag, en: "Deals", fr: "Offres", enHint: "Save every week", frHint: "Économisez chaque semaine" },
+  { icon: Users, en: "Social", fr: "Social", enHint: "Feed, stories & Spotlight", frHint: "Fil, stories et Spotlight" },
+  { icon: MessageCircle, en: "Chat", fr: "Chat", enHint: "Friends, groups & DMs", frHint: "Amis, groupes et messages" },
 ] as const;
 
 function Landing() {
@@ -119,14 +124,18 @@ function Landing() {
               <Sparkles className="size-3 text-primary" aria-hidden />
               {fr ? "L’écosystème ASH" : "The ASH ecosystem"}
             </span>
+            <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.16em] text-primary backdrop-blur">
+              <Globe2 className="size-3" aria-hidden />
+              {fr ? "Présent dans 175 pays" : "Live in 175 countries"}
+            </span>
 
             <h1 className="mt-4 font-display text-[2rem] font-extrabold leading-tight tracking-tight text-foreground">
               {fr ? "Bienvenue sur ASH" : "Welcome to ASH"}
             </h1>
             <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted-foreground">
               {fr
-                ? "Là où les opportunités se connectent. Réservez des pros de confiance, vendez, louez, recrutez et soyez payé en toute sécurité."
-                : "Where opportunities connect. Book trusted pros, sell, rent, hire and get paid securely."}
+                ? "Là où les opportunités se connectent. Réservez des pros de confiance, vendez, louez, recrutez, partagez avec vos amis et soyez payé en toute sécurité."
+                : "Where opportunities connect. Book trusted pros, sell, rent, hire, share with friends and get paid securely."}
             </p>
           </div>
 
@@ -183,8 +192,8 @@ function Landing() {
                 {fr ? "Paiements sécurisés." : "Secure payments."}
               </span>{" "}
               {fr
-                ? "Mobile money et carte sont traités par nos partenaires de paiement agréés. ASH ne conserve jamais les identifiants de votre carte."
-                : "Mobile money and card payments are handled by our licensed payment partners. ASH never stores your card details."}
+                ? "Les paiements et retraits se font par Mobile Money (MTN & Orange), traités par nos partenaires agréés. Les virements bancaires ne sont pas encore disponibles — ils arrivent bientôt."
+                : "Payments and withdrawals run on Mobile Money (MTN & Orange), handled by our licensed payment partners. Bank transfers are not available yet — coming soon."}
             </p>
           </div>
 
