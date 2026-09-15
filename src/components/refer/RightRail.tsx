@@ -15,7 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
-import { useTranslation } from "@/lib/i18n";
+import { useI18n } from "@/lib/i18n";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
@@ -154,7 +154,7 @@ function timeAgo(value: string | null, fr: boolean): string {
  * trending posts and fresh articles. Scrolls on its own.
  */
 export function RightRail() {
-  const { lang } = useTranslation();
+  const { lang } = useI18n();
   const fr = lang === "fr";
 
   const place = useRailPlace();
