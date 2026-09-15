@@ -1352,6 +1352,7 @@ export type Database = {
           stripe_account_id: string | null
           stripe_details_submitted: boolean
           stripe_payouts_enabled: boolean
+          terms_accepted_at: string | null
           updated_at: string
           user_id: string
         }
@@ -1368,6 +1369,7 @@ export type Database = {
           stripe_account_id?: string | null
           stripe_details_submitted?: boolean
           stripe_payouts_enabled?: boolean
+          terms_accepted_at?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1384,6 +1386,7 @@ export type Database = {
           stripe_account_id?: string | null
           stripe_details_submitted?: boolean
           stripe_payouts_enabled?: boolean
+          terms_accepted_at?: string | null
           updated_at?: string
           user_id?: string
         }
