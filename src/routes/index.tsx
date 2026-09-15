@@ -20,6 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher, ThemeToggle } from "@/components/refer/Preferences";
 import { useI18n } from "@/lib/i18n";
+import { WaterBackdrop } from "@/components/refer/WaterBackdrop";
 
 const TITLE = "ASH — Where Opportunities Connect.";
 const DESCRIPTION =
