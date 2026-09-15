@@ -40,7 +40,7 @@ export async function contactVendor(options: {
     const subject = options.subject?.trim() || (fr ? "votre offre" : "your offer");
     const body = options.message?.trim() || (fr
       ? `Bonjour ${businessName} ! J’ai vu « ${subject} » sur ASH Glo. Je suis intéressé(e) et j’aimerais connaître le prix, la disponibilité et la façon de procéder.`
-      : `Hi ${businessName}! I saw "${subject}" on ASH Glo. I’m interested and would like to know the price, availability and how to proceed.`;
+      : `Hi ${businessName}! I saw "${subject}" on ASH Glo. I’m interested and would like to know the price, availability and how to proceed.`);
 
     await supabase.from("messages").insert({
       conversation_id: conversationId,
