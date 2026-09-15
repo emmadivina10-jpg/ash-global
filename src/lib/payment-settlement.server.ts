@@ -97,7 +97,9 @@ export async function settleCollection(input: SettleInput): Promise<SettleOutcom
             ? "complete_event_ticket"
             : kind === "PROMOTION"
               ? "complete_promotion"
-              : "complete_activation";
+              : kind === "VERIFICATION"
+                ? "complete_verification"
+                : "complete_activation";
     const { error: rpcError } = await supabaseAdmin.rpc(rpc, {
       _payment_reference: input.merchantReference,
       _provider_transaction_id: providerRef,
@@ -116,7 +118,9 @@ export async function settleCollection(input: SettleInput): Promise<SettleOutcom
               ? "TICKET_CONFIRMED"
               : kind === "PROMOTION"
                 ? "PROMOTION_ACTIVE"
-                : "PAID";
+                : kind === "VERIFICATION"
+                  ? "VERIFIED_ACTIVE"
+                  : "PAID";
     }
   } else if (input.status === "FAILED" || input.status === "CANCELLED") {
     if (kind === "BOOKING") {
@@ -139,6 +143,12 @@ export async function settleCollection(input: SettleInput): Promise<SettleOutcom
         _payment_reference: input.merchantReference,
         _status: input.status,
       });
+    } else if (kind === "VERIFICATION") {
+      await supabaseAdmin
+        .from("verifications")
+        .update({ status: input.status, updated_at: new Date().toISOString() })
+        .eq("payment_reference", input.merchantReference)
+        .neq("status", "PAID");
     } else {
       await supabaseAdmin
         .from("activations")
