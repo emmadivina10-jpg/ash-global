@@ -57,7 +57,10 @@ export function PostCard({
       <header className="flex items-center gap-3 p-4 pb-3">
         <Avatar path={post.author.avatar_url} name={post.author.name} className="size-10" />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-bold text-foreground">{post.author.name}</p>
+          <p className="flex items-center gap-1 truncate text-sm font-bold text-foreground">
+            <span className="truncate">{post.author.name}</span>
+            <VerifiedBadge tier={post.author.verified_tier} until={post.author.verified_until} />
+          </p>
           <p className="truncate text-xs text-muted-foreground">
             {timeAgo(post.created_at, fr)}
             {post.city ? ` · ${post.city}` : ""}
