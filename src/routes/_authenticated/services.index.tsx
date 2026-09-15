@@ -23,6 +23,8 @@ import {
 
 import { ProviderCard } from "@/components/refer/ProviderCard";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { openMemberConversation } from "@/lib/contact-vendor";
 import { openConversation } from "@/lib/marketplace.queries";
 import { useSpotlightFeed } from "@/lib/spotlight.queries";
 import { SpotlightComposer } from "@/components/refer/SpotlightComposer";
@@ -245,11 +247,78 @@ function normalizeMarketplaceText(value: unknown): string {
   return "";
 }
 
+/**
+ * Filler words people type when searching in a natural phrase
+ * ("plumber in Douala", "salon près de moi"). They never appear in provider
+ * records, so they must not be treated as required search terms.
+ */
+const MARKETPLACE_STOP_WORDS = new Set([
+  "in",
+  "at",
+  "on",
+  "to",
+  "of",
+  "the",
+  "for",
+  "near",
+  "me",
+  "my",
+  "a",
+  "an",
+  "and",
+  "or",
+  "with",
+  "around",
+  "close",
+  "by",
+  "any",
+  "some",
+  "best",
+  "good",
+  "looking",
+  "need",
+  "want",
+  "find",
+  "who",
+  "can",
+  "is",
+  "are",
+  "de",
+  "du",
+  "des",
+  "la",
+  "le",
+  "les",
+  "un",
+  "une",
+  "et",
+  "ou",
+  "pour",
+  "dans",
+  "chez",
+  "pres",
+  "proche",
+  "moi",
+  "mon",
+  "ma",
+  "je",
+  "cherche",
+  "besoin",
+  "qui",
+  "avec",
+  "sur",
+  "au",
+  "aux",
+]);
+
 function marketplaceSearchTokens(query: string): string[] {
-  return normalizeMarketplaceText(query)
+  const all = normalizeMarketplaceText(query)
     .split(" ")
     .map((token) => token.trim())
     .filter((token) => token.length >= 2);
+  const meaningful = all.filter((token) => !MARKETPLACE_STOP_WORDS.has(token));
+  // If someone types only filler words, fall back to the raw tokens.
+  return meaningful.length > 0 ? meaningful : all;
 }
 
 function marketplaceSearchScore(item: unknown, query: string): number {
@@ -293,7 +362,10 @@ function marketplaceSearchScore(item: unknown, query: string): number {
     return count;
   }, 0);
 
-  return matches === tokens.length ? score : 0;
+  // Rank by how many terms matched, but never hide a result the server already
+  // matched just because one term (a city, a surname) is missing.
+  if (matches === tokens.length) score += 25;
+  return matches > 0 ? score : 0;
 }
 
 function isVideoSource(url: string | null | undefined) {
@@ -479,14 +551,17 @@ function DiscoveryPage() {
     const query = searchInput.trim();
     if (!query) return providers;
 
-    return [...providers]
+    const scored = [...providers]
       .map((provider) => ({
         provider,
         score: marketplaceSearchScore(provider, query),
       }))
-      .filter((entry) => entry.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .map((entry) => entry.provider);
+      .sort((a, b) => b.score - a.score);
+
+    const matching = scored.filter((entry) => entry.score > 0);
+    // The server already matched these providers — ranking must never empty
+    // the list, so fall back to the server order when nothing scores.
+    return (matching.length > 0 ? matching : scored).map((entry) => entry.provider);
   }, [providers, searchInput]);
 
   const browsing =
@@ -579,12 +654,18 @@ function DiscoveryPage() {
       businessName?: string | null;
       offerDescription?: string | null;
       searchedFor?: string;
+      /** Author of a personal Spotlight, who has no storefront. */
+      authorId?: string | null;
     },
   ) {
-    // Personal spotlights have no storefront to message.
-    if (!providerId) return;
-    const conversationId = await openConversation(providerId);
-    if (!conversationId) return;
+    // Personal spotlights have no storefront, so we message the member direct.
+    const conversationId = providerId
+      ? await openConversation(providerId)
+      : await openMemberConversation(context?.authorId);
+    if (!conversationId) {
+      toast.error(fr ? "Impossible d'ouvrir la discussion." : "Could not open the chat.");
+      return;
+    }
 
     try {
       const { data: existingMessages, error: existingMessagesError } = await supabase
@@ -1368,15 +1449,20 @@ function DiscoveryPage() {
                                     businessName,
                                     offerDescription,
                                     searchedFor: spotlightSearch.trim() || searchInput.trim(),
+                                    authorId: post.author_id,
                                   },
                                 )
                               }
                               className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#D4AF37] via-[#a77f1b] to-[#4B0082] px-4 py-3.5 text-sm font-extrabold text-white shadow-2xl shadow-black/35 transition-transform active:scale-[0.98]"
                             >
                               <MessageCircle className="size-4" aria-hidden />
-                              {fr
-                                ? "Contacter le vendeur"
-                                : "Contact Vendor"}
+                              {post.provider.id
+                                ? fr
+                                  ? "Contacter le vendeur"
+                                  : "Contact Vendor"
+                                : fr
+                                  ? "Envoyer un message"
+                                  : "Send a message"}
                             </button>
 
                             <p className="mt-2 text-center text-[10px] text-white/45">
