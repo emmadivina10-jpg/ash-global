@@ -164,10 +164,12 @@ function Landing() {
                 );
               })}
             </div>
+
+            <ReviewsCarousel fr={fr} className="mt-3 w-full lg:mt-5 lg:max-w-xl" />
           </section>
 
           {/* Action side */}
-          <section className="ash-fade-up w-full rounded-[1.75rem] border border-border/70 bg-card/60 p-5 shadow-[var(--shadow-brand)] backdrop-blur-xl sm:p-6">
+          <section className="ash-fade-up w-full rounded-[1.5rem] border border-border/70 bg-card/60 p-4 shadow-[var(--shadow-brand)] backdrop-blur-xl sm:p-6">
             <div className="flex items-center gap-3">
               <img
                 src={ashLogo.url}
