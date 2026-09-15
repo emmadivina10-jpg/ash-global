@@ -92,6 +92,11 @@ function ProfilePage() {
     }
     toast.success(t("profile.saved"));
     await queryClient.invalidateQueries({ queryKey: ["profile"] });
+    // Wrap up: leave edit mode, confirm briefly, and hide the save button
+    // until the member chooses to edit again.
+    setEditing(false);
+    setJustSaved(true);
+    setTimeout(() => setJustSaved(false), 3000);
   }
 
   async function signOut() {
