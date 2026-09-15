@@ -223,6 +223,36 @@ function ProfilePage() {
               onChange={(event) => setPhone(event.target.value)}
             />
           </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="birthday">Birthday</Label>
+              <Input
+                id="birthday"
+                type="date"
+                value={birthday}
+                readOnly={!editing}
+                aria-readonly={!editing}
+                className={!editing ? "cursor-pointer border-transparent bg-muted/60" : undefined}
+                onFocus={() => setEditing(true)}
+                onClick={() => setEditing(true)}
+                onChange={(event) => setBirthday(event.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">Friends can send you a celebration on the day.</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="city">City</Label>
+              <Input
+                id="city"
+                value={city}
+                readOnly={!editing}
+                aria-readonly={!editing}
+                className={!editing ? "cursor-pointer border-transparent bg-muted/60" : undefined}
+                onFocus={() => setEditing(true)}
+                onClick={() => setEditing(true)}
+                onChange={(event) => setCity(event.target.value)}
+              />
+            </div>
+          </div>
           {error ? (
             <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
               {error}
