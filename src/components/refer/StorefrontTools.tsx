@@ -319,8 +319,11 @@ export function AvailabilityCard({ studio }: { studio: Studio }) {
       </div>
 
       <Button className="mt-4" onClick={() => void save()} disabled={saving}>
-        Save availability
+        {saving ? "Saving…" : "Save availability"}
       </Button>
+      <p className="mt-2 text-xs text-muted-foreground">
+        These exact days and times are what customers see when they request a booking.
+      </p>
     </SectionCard>
   );
 }
