@@ -2905,7 +2905,10 @@ export type Database = {
       }
       stories: {
         Row: {
+          allow_ids: string[]
+          audience: string
           author_id: string
+          block_ids: string[]
           caption: string
           created_at: string
           expires_at: string
@@ -2915,7 +2918,10 @@ export type Database = {
           view_count: number
         }
         Insert: {
+          allow_ids?: string[]
+          audience?: string
           author_id: string
+          block_ids?: string[]
           caption?: string
           created_at?: string
           expires_at?: string
@@ -2925,7 +2931,10 @@ export type Database = {
           view_count?: number
         }
         Update: {
+          allow_ids?: string[]
+          audience?: string
           author_id?: string
+          block_ids?: string[]
           caption?: string
           created_at?: string
           expires_at?: string
