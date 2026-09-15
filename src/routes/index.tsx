@@ -63,12 +63,12 @@ export const Route = createFileRoute("/")({
 });
 
 const WORLD = [
-  { icon: Store, en: "Services", fr: "Services" },
-  { icon: ShoppingBag, en: "ASH Hub", fr: "ASH Hub" },
-  { icon: Briefcase, en: "Freelance", fr: "Freelance" },
-  { icon: Building2, en: "Property", fr: "Immobilier" },
-  { icon: CalendarDays, en: "Events", fr: "Événements" },
-  { icon: Tag, en: "Deals", fr: "Offres" },
+  { icon: Store, en: "Services", fr: "Services", enHint: "Book trusted pros", frHint: "Réservez des pros" },
+  { icon: ShoppingBag, en: "ASH Hub", fr: "ASH Hub", enHint: "Buy and sell", frHint: "Achetez et vendez" },
+  { icon: Briefcase, en: "Freelance", fr: "Freelance", enHint: "Hire talent", frHint: "Recrutez des talents" },
+  { icon: Building2, en: "Property", fr: "Immobilier", enHint: "Rent and lease", frHint: "Louez et gérez" },
+  { icon: CalendarDays, en: "Events", fr: "Événements", enHint: "Sell tickets", frHint: "Vendez des billets" },
+  { icon: Tag, en: "Deals", fr: "Offres", enHint: "Save every week", frHint: "Économisez chaque semaine" },
 ] as const;
 
 function Landing() {
