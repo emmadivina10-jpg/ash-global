@@ -10,6 +10,8 @@ export type AppNotification = {
   data: Record<string, unknown>;
   read_at: string | null;
   created_at: string;
+  actor_id: string | null;
+  actor: { id: string; name: string; avatar_url: string | null } | null;
 };
 
 /** Backend-generated notifications for the signed-in user, kept live over realtime. */
@@ -27,7 +29,33 @@ export function useNotifications(limit = 30) {
         .order("created_at", { ascending: false })
         .limit(limit);
       if (error) throw error;
-      return (data ?? []) as unknown as AppNotification[];
+
+      const rows = (data ?? []) as unknown as AppNotification[];
+      // Attach the person behind each notification so the screen can show their
+      // photo and name (a like, comment, friend request or group invite).
+      const actorIds = Array.from(
+        new Set(rows.map((row) => row.actor_id).filter((id): id is string => Boolean(id))),
+      );
+      if (actorIds.length === 0) return rows.map((row) => ({ ...row, actor: null }));
+
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, avatar_url")
+        .in("user_id", actorIds);
+      const map = new Map(
+        ((profiles ?? []) as { user_id: string; full_name: string | null; avatar_url: string | null }[]).map(
+          (row) => [row.user_id, row],
+        ),
+      );
+      return rows.map((row) => {
+        const profile = row.actor_id ? map.get(row.actor_id) : undefined;
+        return {
+          ...row,
+          actor: profile
+            ? { id: profile.user_id, name: profile.full_name ?? "ASH member", avatar_url: profile.avatar_url }
+            : null,
+        };
+      });
     },
   });
 

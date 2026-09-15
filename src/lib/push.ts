@@ -50,6 +50,16 @@ export function notificationLink(category: string, data: Record<string, unknown>
         : "/messages";
     case "REVIEW":
       return "/studio";
+    case "SOCIAL_LIKE":
+    case "SOCIAL_REPOST":
+    case "SOCIAL_COMMENT":
+    case "SOCIAL_REPLY":
+      return "/feed";
+    case "FRIEND_REQUEST":
+    case "FRIEND_ACCEPTED":
+      return "/friends";
+    case "GROUP_ADDED":
+      return "/messages";
     default:
       return "/dashboard";
   }
