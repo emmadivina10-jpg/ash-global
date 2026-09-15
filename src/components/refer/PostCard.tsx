@@ -14,6 +14,7 @@ import {
   useToggleRepost,
   type FeedPost,
   type PostComment,
+  useToggleCommentLike,
 } from "@/lib/social.queries";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -211,6 +212,7 @@ function CommentRow({
 }) {
   const { lang } = useI18n();
   const fr = lang === "fr";
+  const likeComment = useToggleCommentLike();
   return (
     <div className={cn("flex gap-2.5", depth > 0 && "ml-8")}>
       <Avatar path={comment.author.avatar_url} name={comment.author.name} className="size-8" />
