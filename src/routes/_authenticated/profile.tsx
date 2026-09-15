@@ -132,8 +132,19 @@ function ProfilePage() {
     <div className="mx-auto w-full max-w-3xl space-y-5">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <div className="min-w-0">
-          <h1 className="truncate text-2xl font-bold text-foreground sm:text-3xl">{profile.full_name || t("profile.title")}</h1>
+          <h1 className="flex items-center gap-1.5 truncate text-2xl font-bold text-foreground sm:text-3xl">
+            <span className="truncate">{profile.full_name || t("profile.title")}</span>
+            <VerifiedBadge
+              tier={(profile as { verified_tier?: string | null }).verified_tier ?? null}
+              until={(profile as { verified_until?: string | null }).verified_until ?? null}
+              size={18}
+            />
+          </h1>
           <p className="truncate text-sm text-muted-foreground">{profile.email}</p>
+          <Link to="/verified" className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-[#1877F2]">
+            <BadgeCheck className="size-3.5" aria-hidden />
+            {(profile as { verified_tier?: string | null }).verified_tier ? "Manage verification" : "Get verified"}
+          </Link>
         </div>
         <StatusBadge
           status={profile.account_status}
