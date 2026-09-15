@@ -23,6 +23,7 @@ import {
 
 import { ProviderCard } from "@/components/refer/ProviderCard";
 import { supabase } from "@/integrations/supabase/client";
+import { openMemberConversation } from "@/lib/contact-vendor";
 import { openConversation } from "@/lib/marketplace.queries";
 import { useSpotlightFeed } from "@/lib/spotlight.queries";
 import { SpotlightComposer } from "@/components/refer/SpotlightComposer";
@@ -652,12 +653,18 @@ function DiscoveryPage() {
       businessName?: string | null;
       offerDescription?: string | null;
       searchedFor?: string;
+      /** Author of a personal Spotlight, who has no storefront. */
+      authorId?: string | null;
     },
   ) {
-    // Personal spotlights have no storefront to message.
-    if (!providerId) return;
-    const conversationId = await openConversation(providerId);
-    if (!conversationId) return;
+    // Personal spotlights have no storefront, so we message the member direct.
+    const conversationId = providerId
+      ? await openConversation(providerId)
+      : await openMemberConversation(context?.authorId);
+    if (!conversationId) {
+      toast.error(fr ? "Impossible d'ouvrir la discussion." : "Could not open the chat.");
+      return;
+    }
 
     try {
       const { data: existingMessages, error: existingMessagesError } = await supabase
@@ -1441,15 +1448,20 @@ function DiscoveryPage() {
                                     businessName,
                                     offerDescription,
                                     searchedFor: spotlightSearch.trim() || searchInput.trim(),
+                                    authorId: post.author_id,
                                   },
                                 )
                               }
                               className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#D4AF37] via-[#a77f1b] to-[#4B0082] px-4 py-3.5 text-sm font-extrabold text-white shadow-2xl shadow-black/35 transition-transform active:scale-[0.98]"
                             >
                               <MessageCircle className="size-4" aria-hidden />
-                              {fr
-                                ? "Contacter le vendeur"
-                                : "Contact Vendor"}
+                              {post.provider.id
+                                ? fr
+                                  ? "Contacter le vendeur"
+                                  : "Contact Vendor"
+                                : fr
+                                  ? "Envoyer un message"
+                                  : "Send a message"}
                             </button>
 
                             <p className="mt-2 text-center text-[10px] text-white/45">
