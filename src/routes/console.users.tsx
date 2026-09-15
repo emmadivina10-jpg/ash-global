@@ -237,14 +237,38 @@ function ConsoleUsers() {
                     </p>
                   </div>
 
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => openCredit(u)}
-                  >
-                    Credit Wallet
-                  </Button>
+                  <div className="flex flex-wrap justify-end gap-1.5">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={() =>
+                        setStatementUser({ userId: u.user_id, name: u.full_name || "Member" })
+                      }
+                    >
+                      Statement
+                    </Button>
+
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={() =>
+                        setMessageTarget({ userId: u.user_id, name: u.full_name || "Member" })
+                      }
+                    >
+                      Message
+                    </Button>
+
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => openCredit(u)}
+                    >
+                      Credit Wallet
+                    </Button>
+                  </div>
                 </div>
               </li>
             ))}
