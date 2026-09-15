@@ -14,7 +14,8 @@ import {
   type SocialAuthor,
   type StoryAudience,
 } from "@/lib/social.queries";
-import { useSpotlightFeed, type SpotlightEntry } from "@/lib/spotlight.queries";
+import { useSpotlightFeed } from "@/lib/spotlight.queries";
+import { SpotlightReels } from "./SpotlightReels";
 import { useProfile } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
