@@ -69,7 +69,7 @@ function FeedPage() {
   }
 
   const friendIds = new Set(
-    (friendships?.accepted ?? []).map((entry) => entry.other.id),
+    (friendships?.friends ?? []).map((entry) => entry.other.id),
   );
 
   const all = posts ?? [];
