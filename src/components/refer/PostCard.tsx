@@ -1,3 +1,4 @@
+import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Heart, MessageCircle, Repeat2, ShieldCheck, Trash2 } from "lucide-react";
