@@ -209,28 +209,30 @@ function FeedPage() {
           </div>
         ) : null}
 
-        <div className="mt-3 flex items-center justify-between">
-          <div className="flex items-center gap-1">
-            <Button type="button" variant="ghost" size="sm" onClick={() => fileRef.current?.click()}>
-              <ImagePlus className="size-4" aria-hidden />
-              {fr ? "Galerie" : "Gallery"}
+        {composerOpen ? (
+          <div className="mt-3 flex items-center justify-between">
+            <div className="flex items-center gap-1">
+              <Button type="button" variant="ghost" size="sm" onClick={() => fileRef.current?.click()}>
+                <ImagePlus className="size-4" aria-hidden />
+                {fr ? "Galerie" : "Gallery"}
+              </Button>
+              <Button type="button" variant="ghost" size="sm" onClick={() => cameraRef.current?.click()}>
+                <Camera className="size-4" aria-hidden />
+                {fr ? "Caméra" : "Camera"}
+              </Button>
+              <span className="ml-1 text-[11px] tabular-nums text-muted-foreground">{caption.length}/1200</span>
+            </div>
+            <Button
+              size="sm"
+              onClick={publish}
+              disabled={create.isPending || (caption.trim().length === 0 && files.length === 0)}
+              className="touch-manipulation"
+            >
+              {create.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+              {fr ? "Publier" : "Post"}
             </Button>
-            <Button type="button" variant="ghost" size="sm" onClick={() => cameraRef.current?.click()}>
-              <Camera className="size-4" aria-hidden />
-              {fr ? "Caméra" : "Camera"}
-            </Button>
-            <span className="ml-1 text-[11px] tabular-nums text-muted-foreground">{caption.length}/1200</span>
           </div>
-          <Button
-            size="sm"
-            onClick={publish}
-            disabled={create.isPending || (caption.trim().length === 0 && files.length === 0)}
-            className="touch-manipulation"
-          >
-            {create.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-            {fr ? "Publier" : "Post"}
-          </Button>
-        </div>
+        ) : null}
         <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={pick} />
         <input
           ref={cameraRef}
@@ -240,10 +242,10 @@ function FeedPage() {
           className="hidden"
           onChange={pick}
         />
-        <p className="mt-2 text-[11px] text-muted-foreground">
-          {fr ? "Photos uniquement pour l'instant — 4 maximum." : "Photos only for now — up to 4."}
-        </p>
       </section>
+
+      <StoriesRail />
+
 
       {isLoading ? (
         <div className="space-y-3">
