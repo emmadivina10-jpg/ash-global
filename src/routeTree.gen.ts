@@ -75,6 +75,7 @@ import { Route as AuthenticatedEventsEventIdRouteImport } from './routes/_authen
 import { Route as AuthenticatedFreelanceIndexRouteImport } from './routes/_authenticated/freelance.index'
 import { Route as AuthenticatedFreelanceProjectIdRouteImport } from './routes/_authenticated/freelance.$projectId'
 import { Route as AuthenticatedIncubatorIndexRouteImport } from './routes/_authenticated/incubator/index'
+import { Route as AuthenticatedJobsIndexRouteImport } from './routes/_authenticated/jobs.index'
 import { Route as AuthenticatedPropertyIndexRouteImport } from './routes/_authenticated/property.index'
 import { Route as AuthenticatedPropertyListingIdRouteImport } from './routes/_authenticated/property.$listingId'
 import { Route as AuthenticatedPropertyManageRouteImport } from './routes/_authenticated/property.manage'
@@ -426,6 +427,11 @@ const AuthenticatedIncubatorIndexRoute =
     path: '/incubator/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedJobsIndexRoute = AuthenticatedJobsIndexRouteImport.update({
+  id: '/jobs/',
+  path: '/jobs/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPropertyIndexRoute =
   AuthenticatedPropertyIndexRouteImport.update({
     id: '/property/',
@@ -569,6 +575,7 @@ export interface FileRoutesByFullPath {
   '/events/': typeof AuthenticatedEventsIndexRoute
   '/freelance/': typeof AuthenticatedFreelanceIndexRoute
   '/incubator/': typeof AuthenticatedIncubatorIndexRoute
+  '/jobs/': typeof AuthenticatedJobsIndexRoute
   '/property/': typeof AuthenticatedPropertyIndexRoute
   '/services/': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
@@ -647,6 +654,7 @@ export interface FileRoutesByTo {
   '/events': typeof AuthenticatedEventsIndexRoute
   '/freelance': typeof AuthenticatedFreelanceIndexRoute
   '/incubator': typeof AuthenticatedIncubatorIndexRoute
+  '/jobs': typeof AuthenticatedJobsIndexRoute
   '/property': typeof AuthenticatedPropertyIndexRoute
   '/services': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
@@ -728,6 +736,7 @@ export interface FileRoutesById {
   '/_authenticated/events/': typeof AuthenticatedEventsIndexRoute
   '/_authenticated/freelance/': typeof AuthenticatedFreelanceIndexRoute
   '/_authenticated/incubator/': typeof AuthenticatedIncubatorIndexRoute
+  '/_authenticated/jobs/': typeof AuthenticatedJobsIndexRoute
   '/_authenticated/property/': typeof AuthenticatedPropertyIndexRoute
   '/_authenticated/services/': typeof AuthenticatedServicesIndexRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
@@ -809,6 +818,7 @@ export interface FileRouteTypes {
     | '/events/'
     | '/freelance/'
     | '/incubator/'
+    | '/jobs/'
     | '/property/'
     | '/services/'
     | '/api/public/webhooks/tchokopay'
@@ -887,6 +897,7 @@ export interface FileRouteTypes {
     | '/events'
     | '/freelance'
     | '/incubator'
+    | '/jobs'
     | '/property'
     | '/services'
     | '/api/public/webhooks/tchokopay'
@@ -967,6 +978,7 @@ export interface FileRouteTypes {
     | '/_authenticated/events/'
     | '/_authenticated/freelance/'
     | '/_authenticated/incubator/'
+    | '/_authenticated/jobs/'
     | '/_authenticated/property/'
     | '/_authenticated/services/'
     | '/api/public/webhooks/tchokopay'
@@ -1465,6 +1477,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIncubatorIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/jobs/': {
+      id: '/_authenticated/jobs/'
+      path: '/jobs'
+      fullPath: '/jobs/'
+      preLoaderRoute: typeof AuthenticatedJobsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/property/': {
       id: '/_authenticated/property/'
       path: '/property'
@@ -1581,6 +1600,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedEventsIndexRoute: typeof AuthenticatedEventsIndexRoute
   AuthenticatedFreelanceIndexRoute: typeof AuthenticatedFreelanceIndexRoute
   AuthenticatedIncubatorIndexRoute: typeof AuthenticatedIncubatorIndexRoute
+  AuthenticatedJobsIndexRoute: typeof AuthenticatedJobsIndexRoute
   AuthenticatedPropertyIndexRoute: typeof AuthenticatedPropertyIndexRoute
   AuthenticatedServicesIndexRoute: typeof AuthenticatedServicesIndexRoute
 }
@@ -1614,6 +1634,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEventsIndexRoute: AuthenticatedEventsIndexRoute,
   AuthenticatedFreelanceIndexRoute: AuthenticatedFreelanceIndexRoute,
   AuthenticatedIncubatorIndexRoute: AuthenticatedIncubatorIndexRoute,
+  AuthenticatedJobsIndexRoute: AuthenticatedJobsIndexRoute,
   AuthenticatedPropertyIndexRoute: AuthenticatedPropertyIndexRoute,
   AuthenticatedServicesIndexRoute: AuthenticatedServicesIndexRoute,
 }
