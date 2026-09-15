@@ -555,7 +555,26 @@ export function ChatThread({
           </div>
         ) : null}
 
+        {peerTyping ? (
+          <div className="flex items-end gap-2">
+            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground">
+              {peerInitials}
+            </span>
+            <span className="flex items-center gap-1 rounded-2xl rounded-bl-sm bg-muted px-3 py-2">
+              {[0, 1, 2].map((dot) => (
+                <span
+                  key={dot}
+                  className="size-1.5 animate-bounce rounded-full bg-muted-foreground"
+                  style={{ animationDelay: `${dot * 120}ms` }}
+                  aria-hidden
+                />
+              ))}
+              <span className="sr-only">{fr ? "En train d'écrire" : "Typing"}</span>
+            </span>
+          </div>
+        ) : null}
       </div>
+
 
       {quickReplies.length > 0 ? (
         <div className="flex shrink-0 gap-2 overflow-x-auto px-1 pb-2">
