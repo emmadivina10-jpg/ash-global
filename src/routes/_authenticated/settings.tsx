@@ -10,6 +10,7 @@ import {
   Home,
   Info,
   LifeBuoy,
+  MapPin,
   Loader2,
   ScrollText,
   ShieldCheck,
@@ -28,6 +29,7 @@ import { Label } from "@/components/ui/label";
 import { ACTIVATION_FEE, formatXAF } from "@/lib/format";
 import { Switch } from "@/components/ui/switch";
 import { playMessageSound, setSoundMuted, soundMuted } from "@/lib/sound";
+import { useLocation } from "@/lib/location";
 import { useI18n, type TKey } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/settings")({
@@ -75,6 +77,7 @@ function Paragraphs({ keys, vars }: { keys: TKey[]; vars?: Record<string, string
 function SettingsPage() {
   const { t, lang } = useI18n();
   const fr = lang === "fr";
+  const { location, request: requestLocation, busy: locationBusy } = useLocation();
   const queryClient = useQueryClient();
   const [reason, setReason] = useState("");
   const [confirming, setConfirming] = useState(false);
