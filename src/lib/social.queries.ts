@@ -442,6 +442,8 @@ export type PostComment = {
   body: string;
   created_at: string;
   author: SocialAuthor;
+  like_count: number;
+  liked: boolean;
   replies: PostComment[];
 };
 
@@ -452,7 +454,7 @@ export function useComments(postId: string | null) {
     queryFn: async (): Promise<PostComment[]> => {
       const { data, error } = await supabase
         .from("post_comments")
-        .select("id, post_id, parent_id, author_id, body, created_at")
+        .select("id, post_id, parent_id, author_id, body, created_at, like_count")
         .eq("post_id", postId!)
         .eq("is_hidden", false)
         .order("created_at", { ascending: true });
@@ -464,8 +466,22 @@ export function useComments(postId: string | null) {
         author_id: string;
         body: string;
         created_at: string;
+        like_count: number | null;
       }[];
-      const authors = await loadAuthors(rows.map((r) => r.author_id));
+      const me = await currentUserId();
+      const [authors, likedResult] = await Promise.all([
+        loadAuthors(rows.map((r) => r.author_id)),
+        me && rows.length
+          ? supabase
+              .from("comment_likes")
+              .select("comment_id")
+              .eq("user_id", me)
+              .in("comment_id", rows.map((r) => r.id))
+          : Promise.resolve({ data: [] }),
+      ]);
+      const likedIds = new Set(
+        ((likedResult.data ?? []) as { comment_id: string }[]).map((row) => row.comment_id),
+      );
       const byId = new Map<string, PostComment>();
       const roots: PostComment[] = [];
       for (const row of rows) {
@@ -476,6 +492,8 @@ export function useComments(postId: string | null) {
           body: row.body,
           created_at: row.created_at,
           author: authors.get(row.author_id) ?? { id: row.author_id, name: "ASH member", avatar_url: null },
+          like_count: row.like_count ?? 0,
+          liked: likedIds.has(row.id),
           replies: [],
         });
       }
@@ -486,6 +504,30 @@ export function useComments(postId: string | null) {
       }
       return roots;
     },
+  });
+}
+
+/** Like / unlike a comment or a reply. */
+export function useToggleCommentLike() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ commentId, liked }: { commentId: string; liked: boolean; postId: string }) => {
+      const userId = await currentUserId();
+      if (!userId) throw new Error("You need to be signed in.");
+      if (liked) {
+        const { error } = await supabase
+          .from("comment_likes")
+          .delete()
+          .eq("comment_id", commentId)
+          .eq("user_id", userId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("comment_likes").insert({ comment_id: commentId, user_id: userId });
+        if (error) throw error;
+      }
+    },
+    onSuccess: (_result, variables) =>
+      void queryClient.invalidateQueries({ queryKey: ["post-comments", variables.postId] }),
   });
 }
 
