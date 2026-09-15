@@ -1514,7 +1514,7 @@ function DiscoveryPage() {
               : CATEGORY_GROUPS.find(
                   (g) =>
                     g.id === id,
-                )!.label[lang]}
+                )!.label[baseLang(lang)]}
           </button>
         ))}
       </div>

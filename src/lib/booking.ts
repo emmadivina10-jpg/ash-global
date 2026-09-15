@@ -38,7 +38,7 @@ const LABELS: Record<string, { en: string; fr: string }> = {
 };
 
 export function bookingStatusLabel(status: string, lang: Lang): string {
-  return LABELS[status]?.[lang] ?? status.replace(/_/g, " ").toLowerCase();
+  return LABELS[status]?.[baseLang(lang)] ?? status.replace(/_/g, " ").toLowerCase();
 }
 
 export function bookingStatusTone(status: string): "positive" | "warning" | "danger" | "neutral" {

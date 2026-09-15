@@ -911,6 +911,11 @@ Object.entries(EXTRA_DICTS).map(([code, dict]) => [code, dict as Partial<Record<
 
 type Vars = Record<string, string | number>;
 
+/** Narrows any selected language to the two ASH carries full copy in. */
+export function baseLang(lang: Lang): "en" | "fr" {
+return lang === "fr" ? "fr" : "en";
+}
+
 function translate(lang: Lang, key: TKey, vars?: Vars) {
 const raw = DICT[lang]?.[key] ?? EN[key] ?? key;
 if (!vars) return raw;

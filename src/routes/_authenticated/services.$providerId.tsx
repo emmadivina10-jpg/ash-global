@@ -772,13 +772,13 @@ function BookingRequestDialog({
                     {showZone ? (
                       <p className="text-xs text-muted-foreground">
                         {fr
-                          ? `Heures affichées dans le fuseau du pro (${zoneLabel(zone, lang)}).`
-                          : `Times shown in the pro's timezone (${zoneLabel(zone, lang)}).`}
+                          ? `Heures affichées dans le fuseau du pro (${zoneLabel(zone, baseLang(lang))}).`
+                          : `Times shown in the pro's timezone (${zoneLabel(zone, baseLang(lang))}).`}
                       </p>
                     ) : null}
                     <div className="flex flex-wrap gap-2">
                     {(slots ?? []).map((slot) => {
-                      const local = formatTimeInZone(slot, zone, lang);
+                      const local = formatTimeInZone(slot, zone, baseLang(lang));
                       const value = toLocalInput(slot);
                       const active = when === value;
                       return (
