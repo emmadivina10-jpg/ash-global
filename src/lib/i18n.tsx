@@ -1,6 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
-export type Lang = "en" | "fr";
+import { EXTRA_DICTS, LANGUAGES, RTL_LANGS, type LangCode } from "@/lib/i18n.locales";
+
+export type Lang = LangCode;
 
 const KEY = "refer.lang";
 
@@ -899,12 +901,18 @@ const FR: Record<TKey, string> = {
 "settings.version": "ASH — Where Opportunities Connect · v1.0",
 };
 
-const DICT: Record<Lang, Record<TKey, string>> = { en: EN, fr: FR };
+const DICT: Record<Lang, Partial<Record<TKey, string>>> = {
+en: EN,
+fr: FR,
+...(Object.fromEntries(
+Object.entries(EXTRA_DICTS).map(([code, dict]) => [code, dict as Partial<Record<TKey, string>>]),
+) as Record<Exclude<Lang, "en" | "fr">, Partial<Record<TKey, string>>>),
+};
 
 type Vars = Record<string, string | number>;
 
 function translate(lang: Lang, key: TKey, vars?: Vars) {
-const raw = DICT[lang][key] ?? EN[key] ?? key;
+const raw = DICT[lang]?.[key] ?? EN[key] ?? key;
 if (!vars) return raw;
 return raw.replace(/{(\w+)}/g, (_m, name: string) => String(vars[name] ?? `{${name}}`));
 }
@@ -920,15 +928,18 @@ const [lang, setLangState] = useState<Lang>("en");
 
 useEffect(() => {
 const stored = localStorage.getItem(KEY) as Lang | null;
-if (stored === "en" || stored === "fr") {
+if (stored && LANGUAGES.some((entry) => entry.code === stored)) {
 setLangState(stored);
 return;
 }
-if (navigator.language?.toLowerCase().startsWith("fr")) setLangState("fr");
+const device = navigator.language?.toLowerCase().slice(0, 2);
+const match = LANGUAGES.find((entry) => entry.code === device);
+if (match) setLangState(match.code);
 }, []);
 
 useEffect(() => {
 document.documentElement.lang = lang;
+document.documentElement.dir = RTL_LANGS.has(lang) ? "rtl" : "ltr";
 }, [lang]);
 
 const setLang = useCallback((l: Lang) => {
