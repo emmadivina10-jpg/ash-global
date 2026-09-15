@@ -73,7 +73,12 @@ function ProfilePage() {
     setSaving(true);
     const { data: saved, error: updateError } = await supabase
       .from("profiles")
-      .update({ full_name: fullName.trim(), phone: normalizePhone(phone) })
+      .update({
+        full_name: fullName.trim(),
+        phone: normalizePhone(phone),
+        birthday: birthday ? birthday : null,
+        city: city.trim() ? city.trim() : null,
+      } as never)
       .eq("user_id", userId)
       .select("user_id")
       .maybeSingle();
