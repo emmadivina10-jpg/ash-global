@@ -1954,6 +1954,8 @@ export type Database = {
         Row: {
           account_status: string
           avatar_url: string | null
+          birthday: string | null
+          city: string | null
           created_at: string
           email: string
           full_name: string
@@ -1973,6 +1975,8 @@ export type Database = {
         Insert: {
           account_status?: string
           avatar_url?: string | null
+          birthday?: string | null
+          city?: string | null
           created_at?: string
           email?: string
           full_name?: string
@@ -1992,6 +1996,8 @@ export type Database = {
         Update: {
           account_status?: string
           avatar_url?: string | null
+          birthday?: string | null
+          city?: string | null
           created_at?: string
           email?: string
           full_name?: string

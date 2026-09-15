@@ -34,6 +34,8 @@ function ProfilePage() {
   const { data: profile, isLoading } = useProfile();
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
+  const [birthday, setBirthday] = useState("");
+  const [city, setCity] = useState("");
   const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
@@ -46,6 +48,8 @@ function ProfilePage() {
     if (profile && !editing) {
       setFullName(profile.full_name ?? "");
       setPhone(profile.phone ?? "");
+      setBirthday(((profile as { birthday?: string | null }).birthday ?? "") as string);
+      setCity(((profile as { city?: string | null }).city ?? "") as string);
     }
   }, [profile, editing]);
 
@@ -69,7 +73,12 @@ function ProfilePage() {
     setSaving(true);
     const { data: saved, error: updateError } = await supabase
       .from("profiles")
-      .update({ full_name: fullName.trim(), phone: normalizePhone(phone) })
+      .update({
+        full_name: fullName.trim(),
+        phone: normalizePhone(phone),
+        birthday: birthday ? birthday : null,
+        city: city.trim() ? city.trim() : null,
+      } as never)
       .eq("user_id", userId)
       .select("user_id")
       .maybeSingle();
@@ -213,6 +222,36 @@ function ProfilePage() {
               onClick={() => setEditing(true)}
               onChange={(event) => setPhone(event.target.value)}
             />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="birthday">Birthday</Label>
+              <Input
+                id="birthday"
+                type="date"
+                value={birthday}
+                readOnly={!editing}
+                aria-readonly={!editing}
+                className={!editing ? "cursor-pointer border-transparent bg-muted/60" : undefined}
+                onFocus={() => setEditing(true)}
+                onClick={() => setEditing(true)}
+                onChange={(event) => setBirthday(event.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">Friends can send you a celebration on the day.</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="city">City</Label>
+              <Input
+                id="city"
+                value={city}
+                readOnly={!editing}
+                aria-readonly={!editing}
+                className={!editing ? "cursor-pointer border-transparent bg-muted/60" : undefined}
+                onFocus={() => setEditing(true)}
+                onClick={() => setEditing(true)}
+                onChange={(event) => setCity(event.target.value)}
+              />
+            </div>
           </div>
           {error ? (
             <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">

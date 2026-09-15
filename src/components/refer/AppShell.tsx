@@ -50,6 +50,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Logo } from "./Logo";
+import { RightRail } from "./RightRail";
 import { DesktopMenu, WEB_MENU_CREATE, WEB_MENU_GROUPS } from "./DesktopMenu";
 import { LanguageSwitcher, ThemeToggle } from "./Preferences";
 import { useI18n, type TKey } from "@/lib/i18n";
@@ -161,7 +162,10 @@ export function AppShell({ children }: { children: ReactNode }) {
     navigate({ to: "/login", replace: true });
   }
 
-  const links = visible([...DESKTOP_NAV, ...SIDE_EXTRA]);
+  // Some destinations appear in both lists — show each one once.
+  const links = visible([...DESKTOP_NAV, ...SIDE_EXTRA]).filter(
+    (item, index, all) => all.findIndex((other) => other.to === item.to) === index,
+  );
 
   return (
     <div className="app-shell safe-top min-h-dvh bg-background">
@@ -321,7 +325,10 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </header>
 
-          <main className="app-shell-scroll min-w-0 flex-1 px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:px-8 lg:pb-10">{children}</main>
+          <div className="flex min-w-0 flex-1">
+            <main className="app-shell-scroll min-w-0 flex-1 px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:px-8 lg:pb-10">{children}</main>
+            <RightRail />
+          </div>
         </div>
       </div>
 
