@@ -12,6 +12,7 @@ import {
   Tag,
 } from "lucide-react";
 import { isNativeApp } from "@/lib/native";
+import ashLogo from "@/assets/ash-logo.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher, ThemeToggle } from "@/components/refer/Preferences";
@@ -99,7 +100,7 @@ function Landing() {
 
       <div className="relative mx-auto flex min-h-dvh w-full max-w-md flex-1 flex-col px-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1rem+env(safe-area-inset-top))]">
         <header className="flex items-center justify-between">
-          <span className="font-display text-xl font-extrabold tracking-[0.22em] text-foreground">ASH</span>
+          <img src={ashLogo.url} alt="ASH" className="h-9 w-auto rounded-xl shadow-sm" />
           <div className="flex items-center gap-1.5">
             <LanguageSwitcher />
             <ThemeToggle />
@@ -108,13 +109,11 @@ function Landing() {
 
         <main className="flex flex-1 flex-col justify-center py-8">
           <div className="ash-fade-up flex flex-col items-center text-center">
-            <span className="relative grid size-24 place-items-center rounded-[2rem] bg-[linear-gradient(140deg,var(--primary),color-mix(in_oklab,var(--primary)_55%,black))] font-display text-3xl font-extrabold tracking-widest text-primary-foreground shadow-[var(--shadow-brand)] ring-1 ring-border/60">
-              ASH
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-0 rounded-[2rem] ring-2 ring-primary/25"
-              />
-            </span>
+            <img
+              src={ashLogo.url}
+              alt="ASH"
+              className="size-24 rounded-[2rem] shadow-[var(--shadow-brand)] ring-1 ring-border/60"
+            />
 
             <span className="mt-6 inline-flex items-center gap-1.5 rounded-full border border-border bg-card/70 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.16em] text-muted-foreground backdrop-blur">
               <Sparkles className="size-3 text-primary" aria-hidden />
