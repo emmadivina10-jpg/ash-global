@@ -76,6 +76,7 @@ import { Route as AuthenticatedFreelanceIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedFreelanceProjectIdRouteImport } from './routes/_authenticated/freelance.$projectId'
 import { Route as AuthenticatedIncubatorIndexRouteImport } from './routes/_authenticated/incubator/index'
 import { Route as AuthenticatedJobsIndexRouteImport } from './routes/_authenticated/jobs.index'
+import { Route as AuthenticatedJobsJobIdRouteImport } from './routes/_authenticated/jobs.$jobId'
 import { Route as AuthenticatedPropertyIndexRouteImport } from './routes/_authenticated/property.index'
 import { Route as AuthenticatedPropertyListingIdRouteImport } from './routes/_authenticated/property.$listingId'
 import { Route as AuthenticatedPropertyManageRouteImport } from './routes/_authenticated/property.manage'
@@ -432,6 +433,11 @@ const AuthenticatedJobsIndexRoute = AuthenticatedJobsIndexRouteImport.update({
   path: '/jobs/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedJobsJobIdRoute = AuthenticatedJobsJobIdRouteImport.update({
+  id: '/jobs/$jobId',
+  path: '/jobs/$jobId',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPropertyIndexRoute =
   AuthenticatedPropertyIndexRouteImport.update({
     id: '/property/',
@@ -565,6 +571,7 @@ export interface FileRoutesByFullPath {
   '/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
+  '/jobs/$jobId': typeof AuthenticatedJobsJobIdRoute
   '/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
   '/property/manage': typeof AuthenticatedPropertyManageRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
@@ -644,6 +651,7 @@ export interface FileRoutesByTo {
   '/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
+  '/jobs/$jobId': typeof AuthenticatedJobsJobIdRoute
   '/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
   '/property/manage': typeof AuthenticatedPropertyManageRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
@@ -726,6 +734,7 @@ export interface FileRoutesById {
   '/_authenticated/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
   '/_authenticated/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/_authenticated/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
+  '/_authenticated/jobs/$jobId': typeof AuthenticatedJobsJobIdRoute
   '/_authenticated/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
   '/_authenticated/property/manage': typeof AuthenticatedPropertyManageRoute
   '/_authenticated/property/new': typeof AuthenticatedPropertyNewRoute
@@ -808,6 +817,7 @@ export interface FileRouteTypes {
     | '/articles/$articleId'
     | '/events/$eventId'
     | '/freelance/$projectId'
+    | '/jobs/$jobId'
     | '/property/$listingId'
     | '/property/manage'
     | '/property/new'
@@ -887,6 +897,7 @@ export interface FileRouteTypes {
     | '/articles/$articleId'
     | '/events/$eventId'
     | '/freelance/$projectId'
+    | '/jobs/$jobId'
     | '/property/$listingId'
     | '/property/manage'
     | '/property/new'
@@ -968,6 +979,7 @@ export interface FileRouteTypes {
     | '/_authenticated/articles/$articleId'
     | '/_authenticated/events/$eventId'
     | '/_authenticated/freelance/$projectId'
+    | '/_authenticated/jobs/$jobId'
     | '/_authenticated/property/$listingId'
     | '/_authenticated/property/manage'
     | '/_authenticated/property/new'
@@ -1484,6 +1496,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedJobsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/jobs/$jobId': {
+      id: '/_authenticated/jobs/$jobId'
+      path: '/jobs/$jobId'
+      fullPath: '/jobs/$jobId'
+      preLoaderRoute: typeof AuthenticatedJobsJobIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/property/': {
       id: '/_authenticated/property/'
       path: '/property'
@@ -1592,6 +1611,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedArticlesArticleIdRoute: typeof AuthenticatedArticlesArticleIdRoute
   AuthenticatedEventsEventIdRoute: typeof AuthenticatedEventsEventIdRoute
   AuthenticatedFreelanceProjectIdRoute: typeof AuthenticatedFreelanceProjectIdRoute
+  AuthenticatedJobsJobIdRoute: typeof AuthenticatedJobsJobIdRoute
   AuthenticatedPropertyListingIdRoute: typeof AuthenticatedPropertyListingIdRoute
   AuthenticatedPropertyManageRoute: typeof AuthenticatedPropertyManageRoute
   AuthenticatedPropertyNewRoute: typeof AuthenticatedPropertyNewRoute
@@ -1626,6 +1646,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedArticlesArticleIdRoute: AuthenticatedArticlesArticleIdRoute,
   AuthenticatedEventsEventIdRoute: AuthenticatedEventsEventIdRoute,
   AuthenticatedFreelanceProjectIdRoute: AuthenticatedFreelanceProjectIdRoute,
+  AuthenticatedJobsJobIdRoute: AuthenticatedJobsJobIdRoute,
   AuthenticatedPropertyListingIdRoute: AuthenticatedPropertyListingIdRoute,
   AuthenticatedPropertyManageRoute: AuthenticatedPropertyManageRoute,
   AuthenticatedPropertyNewRoute: AuthenticatedPropertyNewRoute,
