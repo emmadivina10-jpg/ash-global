@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
+  Bell,
   Building2,
   ArrowDownToLine,
   BarChart3,
@@ -179,7 +180,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 )}
               >
                 <item.icon className="size-4 shrink-0" aria-hidden />
-                {t(item.key)}
+                {navLabel(item)}
               </Link>
             ))}
             {isAdmin ? (
@@ -298,7 +299,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   />
                 ) : null}
                 <item.icon className="size-5" aria-hidden />
-                {t(item.key)}
+                {navLabel(item)}
               </Link>
             </li>
           );
@@ -347,7 +348,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                       )}
                     >
                       <item.icon className="size-5" aria-hidden />
-                      {t(item.key)}
+                      {navLabel(item)}
                     </Link>
                   ))}
                   {isAdmin ? (
