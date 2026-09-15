@@ -877,7 +877,12 @@ function BookingRequestDialog({
             <dl className="space-y-2 rounded-xl border border-border p-3 text-sm">
               <Row label={fr ? "Pro" : "Provider"} value={provider.name} />
               <Row label={fr ? "Service" : "Service"} value={effTitle} />
-              <Row label={fr ? "Date" : "Date"} value={formatDateTime(new Date(when).toISOString())} />
+              <Row
+                label={fr ? "Date" : "Date"}
+                value={`${formatDateTimeInZone(new Date(when).toISOString(), zone, baseLang(lang))}${
+                  showZone ? ` (${zoneLabel(zone, baseLang(lang))})` : ""
+                }`}
+              />
               <Row label={fr ? "Durée" : "Duration"} value={`${selected.duration_minutes} min`} />
               <Row label={fr ? "Lieu" : "Location"} value={address || provider.city || "—"} />
               <Row
