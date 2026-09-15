@@ -70,6 +70,8 @@ const WORLD = [
   { icon: Building2, en: "Property", fr: "Immobilier", enHint: "Rent and lease", frHint: "Louez et gérez" },
   { icon: CalendarDays, en: "Events", fr: "Événements", enHint: "Sell tickets", frHint: "Vendez des billets" },
   { icon: Tag, en: "Deals", fr: "Offres", enHint: "Save every week", frHint: "Économisez chaque semaine" },
+  { icon: Users, en: "Social", fr: "Social", enHint: "Feed, stories & Spotlight", frHint: "Fil, stories et Spotlight" },
+  { icon: MessageCircle, en: "Chat", fr: "Chat", enHint: "Friends, groups & DMs", frHint: "Amis, groupes et messages" },
 ] as const;
 
 function Landing() {
@@ -118,6 +120,10 @@ function Landing() {
             <span className="mt-6 inline-flex items-center gap-1.5 rounded-full border border-border bg-card/70 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.16em] text-muted-foreground backdrop-blur">
               <Sparkles className="size-3 text-primary" aria-hidden />
               {fr ? "L’écosystème ASH" : "The ASH ecosystem"}
+            </span>
+            <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.16em] text-primary backdrop-blur">
+              <Globe2 className="size-3" aria-hidden />
+              {fr ? "Présent dans 175 pays" : "Live in 175 countries"}
             </span>
 
             <h1 className="mt-4 font-display text-[2rem] font-extrabold leading-tight tracking-tight text-foreground">
