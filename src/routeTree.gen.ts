@@ -68,6 +68,7 @@ import { Route as ConsoleUsersRouteImport } from './routes/console.users'
 import { Route as ConsoleWithdrawalsRouteImport } from './routes/console.withdrawals'
 import { Route as PayCodeRouteImport } from './routes/pay.$code'
 import { Route as SSlugRouteImport } from './routes/s.$slug'
+import { Route as AuthenticatedArticlesIndexRouteImport } from './routes/_authenticated/articles.index'
 import { Route as AuthenticatedEventsIndexRouteImport } from './routes/_authenticated/events.index'
 import { Route as AuthenticatedEventsEventIdRouteImport } from './routes/_authenticated/events.$eventId'
 import { Route as AuthenticatedFreelanceIndexRouteImport } from './routes/_authenticated/freelance.index'
@@ -382,6 +383,12 @@ const SSlugRoute = SSlugRouteImport.update({
   path: '/s/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedArticlesIndexRoute =
+  AuthenticatedArticlesIndexRouteImport.update({
+    id: '/articles/',
+    path: '/articles/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedEventsIndexRoute =
   AuthenticatedEventsIndexRouteImport.update({
     id: '/events/',
@@ -550,6 +557,7 @@ export interface FileRoutesByFullPath {
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
+  '/articles/': typeof AuthenticatedArticlesIndexRoute
   '/events/': typeof AuthenticatedEventsIndexRoute
   '/freelance/': typeof AuthenticatedFreelanceIndexRoute
   '/incubator/': typeof AuthenticatedIncubatorIndexRoute
@@ -626,6 +634,7 @@ export interface FileRoutesByTo {
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
+  '/articles': typeof AuthenticatedArticlesIndexRoute
   '/events': typeof AuthenticatedEventsIndexRoute
   '/freelance': typeof AuthenticatedFreelanceIndexRoute
   '/incubator': typeof AuthenticatedIncubatorIndexRoute
@@ -705,6 +714,7 @@ export interface FileRoutesById {
   '/_authenticated/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
+  '/_authenticated/articles/': typeof AuthenticatedArticlesIndexRoute
   '/_authenticated/events/': typeof AuthenticatedEventsIndexRoute
   '/_authenticated/freelance/': typeof AuthenticatedFreelanceIndexRoute
   '/_authenticated/incubator/': typeof AuthenticatedIncubatorIndexRoute
@@ -784,6 +794,7 @@ export interface FileRouteTypes {
     | '/services/$providerId'
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
+    | '/articles/'
     | '/events/'
     | '/freelance/'
     | '/incubator/'
@@ -860,6 +871,7 @@ export interface FileRouteTypes {
     | '/services/$providerId'
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
+    | '/articles'
     | '/events'
     | '/freelance'
     | '/incubator'
@@ -938,6 +950,7 @@ export interface FileRouteTypes {
     | '/_authenticated/services/$providerId'
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
+    | '/_authenticated/articles/'
     | '/_authenticated/events/'
     | '/_authenticated/freelance/'
     | '/_authenticated/incubator/'
@@ -1390,6 +1403,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/articles/': {
+      id: '/_authenticated/articles/'
+      path: '/articles'
+      fullPath: '/articles/'
+      preLoaderRoute: typeof AuthenticatedArticlesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/events/': {
       id: '/_authenticated/events/'
       path: '/events'
@@ -1536,6 +1556,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPropertyManageRoute: typeof AuthenticatedPropertyManageRoute
   AuthenticatedPropertyNewRoute: typeof AuthenticatedPropertyNewRoute
   AuthenticatedServicesProviderIdRoute: typeof AuthenticatedServicesProviderIdRoute
+  AuthenticatedArticlesIndexRoute: typeof AuthenticatedArticlesIndexRoute
   AuthenticatedEventsIndexRoute: typeof AuthenticatedEventsIndexRoute
   AuthenticatedFreelanceIndexRoute: typeof AuthenticatedFreelanceIndexRoute
   AuthenticatedIncubatorIndexRoute: typeof AuthenticatedIncubatorIndexRoute
@@ -1567,6 +1588,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPropertyManageRoute: AuthenticatedPropertyManageRoute,
   AuthenticatedPropertyNewRoute: AuthenticatedPropertyNewRoute,
   AuthenticatedServicesProviderIdRoute: AuthenticatedServicesProviderIdRoute,
+  AuthenticatedArticlesIndexRoute: AuthenticatedArticlesIndexRoute,
   AuthenticatedEventsIndexRoute: AuthenticatedEventsIndexRoute,
   AuthenticatedFreelanceIndexRoute: AuthenticatedFreelanceIndexRoute,
   AuthenticatedIncubatorIndexRoute: AuthenticatedIncubatorIndexRoute,
