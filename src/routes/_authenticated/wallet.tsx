@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowDownToLine,
   Clock,
   Coins,
+  Crown,
   Hourglass,
   Printer,
   Sparkles,
@@ -51,15 +52,25 @@ function WalletPage() {
   const active = profile?.account_status === "ACTIVE";
   const { t, lang } = useI18n();
 
-  const [walletTheme, setWalletTheme] = useState(0);
-
-  useEffect(() => {
-    const interval = window.setInterval(() => {
-      setWalletTheme((current) => (current + 1) % 3);
-    }, 5000);
-
-    return () => window.clearInterval(interval);
-  }, []);
+  const GOLD_KEY = "ash.wallet.gold";
+  const [goldMode, setGoldMode] = useState(() => {
+    try {
+      return window.localStorage.getItem(GOLD_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+  const toggleGold = () => {
+    setGoldMode((current) => {
+      try {
+        window.localStorage.setItem(GOLD_KEY, current ? "0" : "1");
+      } catch {
+        /* private mode */
+      }
+      return !current;
+    });
+  };
+  const walletTheme = goldMode ? 2 : 0;
 
   const walletThemes = [
     {
@@ -109,10 +120,21 @@ function WalletPage() {
           </p>
         </div>
 
-        <Button variant="outline" size="sm" onClick={() => setStatementOpen(true)}>
-          <Printer className="size-4" aria-hidden />
-          {lang === "fr" ? "Relevé" : "Statement"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant={goldMode ? "default" : "outline"}
+            size="sm"
+            onClick={toggleGold}
+            aria-pressed={goldMode}
+          >
+            <Crown className="size-4" aria-hidden />
+            {lang === "fr" ? "Or" : "Gold"}
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setStatementOpen(true)}>
+            <Printer className="size-4" aria-hidden />
+            {lang === "fr" ? "Relevé" : "Statement"}
+          </Button>
+        </div>
       </header>
 
       <StatementDialog
@@ -159,11 +181,7 @@ function WalletPage() {
                 <div className="grid size-full place-items-center rounded-full bg-background/90 backdrop-blur-sm">
                   <Sparkles
                     className={`size-3.5 ${
-                      walletTheme === 2
-                        ? "text-amber-500"
-                        : walletTheme === 1
-                          ? "text-slate-500 dark:text-slate-200"
-                          : "text-slate-500"
+                      walletTheme === 2 ? "text-amber-500" : "text-slate-500"
                     }`}
                     aria-hidden
                   />
@@ -188,6 +206,7 @@ function WalletPage() {
               className={`relative overflow-hidden rounded-[inherit] transition-all duration-[1800ms] ease-in-out`}
             >
               <BalanceCard
+                gold={goldMode}
                 label={t("dash.availableBalance")}
                 amount={formatXAF(wallet?.available_balance ?? 0)}
                 action={

@@ -46,6 +46,7 @@ export function BalanceCard({
   action,
   holder,
   last4 = "8412",
+  gold = false,
 }: {
   label: string;
   amount: string;
@@ -53,25 +54,57 @@ export function BalanceCard({
   action?: ReactNode;
   holder?: string;
   last4?: string;
+  gold?: boolean;
 }) {
   return (
-    <div className="virtual-card grain p-5 sm:p-7">
+    <div className={cn(gold ? "virtual-card-gold" : "virtual-card", "grain p-5 sm:p-7")}>
       <div
-        className="pointer-events-none absolute -right-24 -top-28 size-72 rounded-full bg-gold/20 blur-3xl"
+        className={cn(
+          "pointer-events-none absolute -right-24 -top-28 size-72 rounded-full blur-3xl",
+          gold ? "bg-white/25" : "bg-gold/20",
+        )}
         aria-hidden
       />
 
       <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
-          <p className="eyebrow text-[color:oklch(0.98_0.004_285_/_0.6)]">{label}</p>
-          <p className="tabular mt-2 font-display text-[2rem] font-extrabold leading-none sm:text-[2.75rem]">
+          <p
+            className={cn(
+              "eyebrow",
+              gold
+                ? "text-[color:oklch(0.28_0.05_75_/_0.75)]"
+                : "text-[color:oklch(0.98_0.004_285_/_0.6)]",
+            )}
+          >
+            {label}
+          </p>
+          <p
+            className={cn(
+              "tabular mt-2 font-display text-[2rem] font-extrabold leading-none sm:text-[2.75rem]",
+              gold && "text-[color:oklch(0.22_0.04_70)] drop-shadow-[0_1px_0_oklch(1_0_0_/_35%)]",
+            )}
+          >
             {amount}
           </p>
         </div>
         <div className="text-right">
-          <span className="font-display text-sm font-extrabold tracking-[0.22em]">ASH</span>
-          <span className="mt-1 block rounded-full border border-[color:oklch(1_0_0_/_0.22)] bg-[oklch(0_0_0_/_0.28)] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.16em] opacity-90">
-            Card coming soon
+          <span
+            className={cn(
+              "font-display text-sm font-extrabold tracking-[0.22em]",
+              gold && "text-[color:oklch(0.28_0.05_75)]",
+            )}
+          >
+            ASH
+          </span>
+          <span
+            className={cn(
+              "mt-1 block rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.16em] opacity-90",
+              gold
+                ? "border-[color:oklch(0.3_0.05_70_/_0.35)] bg-[oklch(1_0_0_/_0.30)] text-[color:oklch(0.3_0.05_72)]"
+                : "border-[color:oklch(1_0_0_/_0.22)] bg-[oklch(0_0_0_/_0.28)]",
+            )}
+          >
+            {gold ? "Gold" : "Card coming soon"}
           </span>
         </div>
       </div>
@@ -92,7 +125,12 @@ export function BalanceCard({
         •••• •••• •••• {last4}
       </p>
 
-      <div className="relative mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
+      <div
+        className={cn(
+          "relative mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3",
+          gold && "text-[color:oklch(0.26_0.05_72)]",
+        )}
+      >
         <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] opacity-55">Card holder</p>
           <p className="truncate text-sm font-semibold uppercase tracking-wide">{holder ?? "ASH Member"}</p>
