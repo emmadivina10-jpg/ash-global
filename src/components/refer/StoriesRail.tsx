@@ -45,6 +45,34 @@ export function StoriesRail({
   const [caption, setCaption] = useState("");
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
   const [previewEntry, setPreviewEntry] = useState<SpotlightEntry | null>(null);
+  // Stories are open to everyone by default; the member can hide from some
+  // people, or flip it around and pick exactly who may watch.
+  const [audience, setAudience] = useState<StoryAudience>("ALL");
+  const [chosen, setChosen] = useState<SocialAuthor[]>([]);
+  const [blocked, setBlocked] = useState<SocialAuthor[]>([]);
+  const [search, setSearch] = useState("");
+  const { data: matches } = useMemberSearch(search);
+
+  const picked = audience === "ALL" ? blocked : chosen;
+  const setPicked = audience === "ALL" ? setBlocked : setChosen;
+
+  function togglePerson(person: SocialAuthor) {
+    setPicked((current) =>
+      current.some((entry) => entry.id === person.id)
+        ? current.filter((entry) => entry.id !== person.id)
+        : [...current, person],
+    );
+  }
+
+  function resetStoryComposer() {
+    setFile(null);
+    setPreview(null);
+    setCaption("");
+    setAudience("ALL");
+    setChosen([]);
+    setBlocked([]);
+    setSearch("");
+  }
 
   const groups = data?.groups ?? [];
   const me = data?.me ?? null;
