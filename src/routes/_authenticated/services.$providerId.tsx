@@ -572,7 +572,9 @@ function BookingRequestDialog({
           : {}),
       };
 
-      const { data, error } = await supabase.rpc("request_booking", payload);
+      // The deployed RPC accepts NULL for custom requests; generated client
+      // types lag that nullable signature until the next schema sync.
+      const { data, error } = await supabase.rpc("request_booking", payload as never);
 
       if (error) {
         console.error("request_booking failed", {

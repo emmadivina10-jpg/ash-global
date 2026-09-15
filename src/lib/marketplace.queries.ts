@@ -453,7 +453,7 @@ export function useCommunityFeed(limit = 12) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("portfolio_items")
-        .select("id, provider_id, image_path, caption, created_at, provider:provider_profiles!inner(id, business_name, slug, city, avatar_url, is_live)")
+        .select("id, provider_id, image_path, caption, created_at, provider:provider_profiles!inner(id, business_name, slug, city, avatar_url, is_live, is_verified)")
         .eq("provider.is_live", true)
         .order("created_at", { ascending: false })
         .limit(limit);
@@ -464,7 +464,7 @@ export function useCommunityFeed(limit = 12) {
         image_path: string;
         caption: string | null;
         created_at: string;
-        provider: { id: string; business_name: string; slug: string | null; city: string | null; avatar_url: string | null };
+        provider: { id: string; business_name: string; slug: string | null; city: string | null; avatar_url: string | null; is_verified: boolean };
       }[];
       const urls = await signPortfolioPaths(rows.map((r) => r.image_path));
       return rows
