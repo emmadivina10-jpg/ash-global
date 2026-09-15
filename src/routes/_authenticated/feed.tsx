@@ -62,6 +62,7 @@ function FeedPage() {
         onSuccess: () => {
           setCaption("");
           setFiles([]);
+          setComposerOpen(false);
           toast.success(fr ? "Publié" : "Posted");
         },
         onError: (error) => toast.error(error instanceof Error ? error.message : "Could not post."),
