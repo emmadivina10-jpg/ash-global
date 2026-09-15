@@ -70,6 +70,9 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
           const isLink =
             merchantReference.startsWith("PLK-");
 
+          const isVerification =
+            merchantReference.startsWith("VER-");
+
           let settlementError: string | null = null;
 
           if (status === "PAID") {
@@ -93,6 +96,16 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
                       ...(result.providerReference
                         ? { _provider_transaction_id: result.providerReference }
                         : {}),
+                    },
+                  )
+              : isVerification
+                ? await supabaseAdmin.rpc(
+                    "complete_verification",
+                    {
+                      _payment_reference:
+                        merchantReference,
+                      _provider_transaction_id:
+                        result.providerReference ?? "",
                     },
                   )
                 : await supabaseAdmin.rpc(
