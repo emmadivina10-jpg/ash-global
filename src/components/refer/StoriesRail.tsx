@@ -25,11 +25,7 @@ import { cn } from "@/lib/utils";
  *  - Spotlight: lasting highlights from members and vendors, gold badge.
  * The first tile lets the member choose which one to create.
  */
-export function StoriesRail({
-  onOpenSpotlight,
-}: {
-  onOpenSpotlight?: (index: number) => void;
-} = {}) {
+export function StoriesRail() {
   const { lang } = useI18n();
   const fr = lang === "fr";
   const { data } = useStories();
