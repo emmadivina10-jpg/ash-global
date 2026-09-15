@@ -3,6 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { needsConsent } from "@/lib/consent";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -57,6 +58,12 @@ function LoginPage() {
       return;
     }
     toast.success(t("auth.login.welcome"));
+    const { data: session } = await supabase.auth.getSession();
+    const userId = session.session?.user.id;
+    if (userId && (await needsConsent(userId))) {
+      navigate({ to: "/consent" });
+      return;
+    }
     navigate({ to: "/services" });
   }
 

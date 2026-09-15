@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { needsConsent } from "@/lib/consent";
 
 export const Route = createFileRoute("/auth/callback")({
   ssr: false,
@@ -20,7 +21,9 @@ function AuthCallback() {
         const { data } = await supabase.auth.getSession();
         if (cancelled) return;
         if (data.session) {
-          navigate({ to: "/services", replace: true });
+          const pending = await needsConsent(data.session.user.id);
+          if (cancelled) return;
+          navigate({ to: pending ? "/consent" : "/services", replace: true });
           return;
         }
         await new Promise((r) => setTimeout(r, 250));
