@@ -50,6 +50,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Logo } from "./Logo";
+import { RightRail } from "./RightRail";
 import { DesktopMenu, WEB_MENU_CREATE, WEB_MENU_GROUPS } from "./DesktopMenu";
 import { LanguageSwitcher, ThemeToggle } from "./Preferences";
 import { useI18n, type TKey } from "@/lib/i18n";
