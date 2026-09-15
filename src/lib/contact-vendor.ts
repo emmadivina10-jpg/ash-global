@@ -14,6 +14,8 @@ export async function contactVendor(options: {
   subject?: string | null;
   fr?: boolean;
   source?: string;
+  /** Overrides the default opener with a tailored first message. */
+  message?: string | null;
 }): Promise<string | null> {
   const providerId = options.providerId?.trim();
   if (!providerId) return null;
