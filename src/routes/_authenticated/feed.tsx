@@ -132,20 +132,60 @@ function FeedPage() {
         })}
       </div>
 
-      <StoriesRail />
-
-      <section className="tile p-4">
-        <div className="flex gap-3">
-          <Avatar path={profile?.avatar_url} name={profile?.full_name} className="size-10" />
-          <Textarea
-            rows={2}
-            value={caption}
-            onChange={(event) => setCaption(event.target.value.slice(0, 1200))}
-            placeholder={fr ? "Quoi de neuf ?" : "What's happening?"}
-            aria-label={fr ? "Votre publication" : "Your post"}
-            className="min-h-11 resize-none rounded-2xl"
-          />
+      <section className="tile p-3">
+        <div className="flex items-center gap-2.5">
+          <Avatar path={profile?.avatar_url} name={profile?.full_name} className="size-10 shrink-0" />
+          {composerOpen ? (
+            <Textarea
+              autoFocus
+              rows={3}
+              value={caption}
+              onChange={(event) => setCaption(event.target.value.slice(0, 1200))}
+              placeholder={firstName ? (fr ? `Quoi de neuf, ${firstName} ?` : `What's on your mind, ${firstName}?`) : fr ? "Quoi de neuf ?" : "What's on your mind?"}
+              aria-label={fr ? "Votre publication" : "Your post"}
+              className="min-h-11 resize-none rounded-2xl"
+            />
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => setComposerOpen(true)}
+                className="min-w-0 flex-1 truncate rounded-full bg-secondary px-4 py-2.5 text-left text-sm text-muted-foreground"
+              >
+                {firstName
+                  ? fr
+                    ? `Quoi de neuf, ${firstName} ?`
+                    : `What's on your mind, ${firstName}?`
+                  : fr
+                    ? "Quoi de neuf ?"
+                    : "What's on your mind?"}
+              </button>
+              <button
+                type="button"
+                aria-label={fr ? "Caméra" : "Camera"}
+                onClick={() => {
+                  setComposerOpen(true);
+                  cameraRef.current?.click();
+                }}
+                className="grid size-9 shrink-0 place-items-center rounded-full text-primary"
+              >
+                <Camera className="size-5" aria-hidden />
+              </button>
+              <button
+                type="button"
+                aria-label={fr ? "Galerie" : "Gallery"}
+                onClick={() => {
+                  setComposerOpen(true);
+                  fileRef.current?.click();
+                }}
+                className="grid size-9 shrink-0 place-items-center rounded-full text-accent"
+              >
+                <ImagePlus className="size-5" aria-hidden />
+              </button>
+            </>
+          )}
         </div>
+
 
         {files.length > 0 ? (
           <div className="mt-3 flex flex-wrap gap-2">
