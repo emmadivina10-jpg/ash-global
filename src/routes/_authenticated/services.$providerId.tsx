@@ -27,7 +27,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { type ServiceCategory } from "@/lib/marketplace";
 import { categoryLabel } from "@/lib/taxonomy";
 import { formatDateTime, formatXAF } from "@/lib/format";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, baseLang } from "@/lib/i18n";
 import {
   formatDateTimeInZone,
   formatTimeInZone,
@@ -772,13 +772,13 @@ function BookingRequestDialog({
                     {showZone ? (
                       <p className="text-xs text-muted-foreground">
                         {fr
-                          ? `Heures affichées dans le fuseau du pro (${zoneLabel(zone, lang)}).`
-                          : `Times shown in the pro's timezone (${zoneLabel(zone, lang)}).`}
+                          ? `Heures affichées dans le fuseau du pro (${zoneLabel(zone, baseLang(lang))}).`
+                          : `Times shown in the pro's timezone (${zoneLabel(zone, baseLang(lang))}).`}
                       </p>
                     ) : null}
                     <div className="flex flex-wrap gap-2">
                     {(slots ?? []).map((slot) => {
-                      const local = formatTimeInZone(slot, zone, lang);
+                      const local = formatTimeInZone(slot, zone, baseLang(lang));
                       const value = toLocalInput(slot);
                       const active = when === value;
                       return (

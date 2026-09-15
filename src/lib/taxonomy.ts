@@ -1,3 +1,4 @@
+import { baseLang } from "@/lib/i18n";
 import type { Lang } from "@/lib/i18n";
 import type { ServiceCategory } from "@/lib/marketplace";
 
@@ -124,7 +125,7 @@ const LABELS: Record<string, { en: string; fr: string }> = {
 
 export function categoryLabel(category: string, lang: Lang): string {
   const entry = LABELS[category];
-  if (entry) return entry[lang];
+  if (entry) return entry[baseLang(lang)];
   return category.replace(/_/g, " ").toLowerCase();
 }
 

@@ -56,7 +56,7 @@ import {
 } from "@/lib/discovery.queries";
 import { useLocation } from "@/lib/location";
 import { useRegion } from "@/lib/region-context";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, baseLang } from "@/lib/i18n";
 import { formatXAF } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -1514,7 +1514,7 @@ function DiscoveryPage() {
               : CATEGORY_GROUPS.find(
                   (g) =>
                     g.id === id,
-                )!.label[lang]}
+                )!.label[baseLang(lang)]}
           </button>
         ))}
       </div>

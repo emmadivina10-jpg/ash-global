@@ -1,3 +1,4 @@
+import { baseLang } from "@/lib/i18n";
 import type { Lang } from "@/lib/i18n";
 
 /** Full ASH booking lifecycle. Values match the database `booking_status` enum. */
@@ -38,7 +39,7 @@ const LABELS: Record<string, { en: string; fr: string }> = {
 };
 
 export function bookingStatusLabel(status: string, lang: Lang): string {
-  return LABELS[status]?.[lang] ?? status.replace(/_/g, " ").toLowerCase();
+  return LABELS[status]?.[baseLang(lang)] ?? status.replace(/_/g, " ").toLowerCase();
 }
 
 export function bookingStatusTone(status: string): "positive" | "warning" | "danger" | "neutral" {

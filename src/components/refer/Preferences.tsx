@@ -1,13 +1,15 @@
-import { Moon, Sun } from "lucide-react";
+import { Check, Globe, Moon, Sun } from "lucide-react";
 import { useTheme } from "@/lib/theme";
-import { useI18n, type Lang } from "@/lib/i18n";
+import { useI18n } from "@/lib/i18n";
+import { LANGUAGES } from "@/lib/i18n.locales";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-
-const LANGS: { code: Lang; label: string }[] = [
-  { code: "en", label: "EN" },
-  { code: "fr", label: "FR" },
-];
 
 export function ThemeToggle({ className }: { className?: string }) {
   const { theme, toggleTheme } = useTheme();
@@ -30,29 +32,41 @@ export function ThemeToggle({ className }: { className?: string }) {
 
 export function LanguageSwitcher({ className }: { className?: string }) {
   const { lang, setLang, t } = useI18n();
+  const current = LANGUAGES.find((entry) => entry.code === lang) ?? LANGUAGES[0]!;
 
   return (
-    <div
-      role="group"
-      aria-label={t("shell.language")}
-      className={cn("inline-flex items-center rounded-full border border-border p-0.5", className)}
-    >
-      {LANGS.map((l) => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
         <button
-          key={l.code}
           type="button"
-          onClick={() => setLang(l.code)}
-          aria-pressed={lang === l.code}
+          aria-label={t("shell.language")}
+          title={t("shell.language")}
           className={cn(
-            "rounded-full px-2.5 py-1 text-xs font-semibold transition-colors",
-            lang === l.code
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:text-foreground",
+            "inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-muted",
+            className,
           )}
         >
-          {l.label}
+          <Globe className="size-3.5 text-muted-foreground" aria-hidden />
+          {current.label}
         </button>
-      ))}
-    </div>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align="end" className="max-h-80 w-48 overflow-y-auto">
+        {LANGUAGES.map((entry) => (
+          <DropdownMenuItem
+            key={entry.code}
+            onSelect={() => setLang(entry.code)}
+            className="flex items-center justify-between gap-2"
+          >
+            <span className="min-w-0 truncate">{entry.native}</span>
+            {entry.code === lang ? (
+              <Check className="size-3.5 shrink-0 text-primary" aria-hidden />
+            ) : (
+              <span className="shrink-0 text-[10px] font-bold text-muted-foreground">{entry.label}</span>
+            )}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
