@@ -41,11 +41,12 @@ function ProfilePage() {
   const fee = formatXAF(ACTIVATION_FEE);
 
   useEffect(() => {
-    if (profile) {
+    // Never overwrite what the member is typing when the profile query refetches.
+    if (profile && !editing) {
       setFullName(profile.full_name ?? "");
       setPhone(profile.phone ?? "");
     }
-  }, [profile]);
+  }, [profile, editing]);
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
