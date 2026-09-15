@@ -27,7 +27,6 @@ import { toast } from "sonner";
 import { openMemberConversation } from "@/lib/contact-vendor";
 import { openConversation } from "@/lib/marketplace.queries";
 import { useSpotlightFeed } from "@/lib/spotlight.queries";
-import { StoriesRail } from "@/components/refer/StoriesRail";
 import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
