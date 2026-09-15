@@ -33,6 +33,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { AshOrb } from "./AshOrb";
 import { MobileNav } from "./MobileNav";
+import { LocationNudge } from "./LocationNudge";
 import { StatusBadge } from "./StatusBadge";
 import { NotificationBell } from "./NotificationBell";
 import { PushBridge } from "./PushBridge";
@@ -283,6 +284,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         isAdmin={Boolean(isAdmin)}
       />
 
+      <LocationNudge />
       <AshOrb />
     </div>
   );
