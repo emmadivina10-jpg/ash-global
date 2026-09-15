@@ -25,7 +25,7 @@ export function kindOf(merchantReference: string): SettlementKind {
 export async function findMerchantReference(providerReference: string): Promise<string | null> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-  const [activation, booking, link, ticket, promotion] = await Promise.all([
+  const [activation, booking, link, ticket, promotion, verification] = await Promise.all([
     supabaseAdmin
       .from("activations")
       .select("payment_reference")
@@ -51,6 +51,11 @@ export async function findMerchantReference(providerReference: string): Promise<
       .select("payment_reference")
       .eq("provider_transaction_id", providerReference)
       .maybeSingle(),
+    supabaseAdmin
+      .from("verifications")
+      .select("payment_reference")
+      .eq("provider_transaction_id", providerReference)
+      .maybeSingle(),
   ]);
 
   return (
@@ -59,6 +64,7 @@ export async function findMerchantReference(providerReference: string): Promise<
     link.data?.reference ??
     ticket.data?.payment_reference ??
     promotion.data?.payment_reference ??
+    verification.data?.payment_reference ??
     null
   );
 }
