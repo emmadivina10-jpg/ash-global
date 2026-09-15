@@ -78,3 +78,31 @@ export async function sendOpeningMessage(conversationId: string, body: string): 
     /* optional opener */
   }
 }
+
+/**
+ * Opens (or reuses) a direct member-to-member conversation — used when a
+ * Spotlight post comes from someone who has no business storefront.
+ */
+export async function openMemberConversation(memberId: string | null | undefined): Promise<string | null> {
+  const otherId = memberId?.trim();
+  if (!otherId) return null;
+  const { data: auth } = await supabase.auth.getUser();
+  const me = auth.user?.id;
+  if (!me || me === otherId) return null;
+
+  const { data: existing } = await supabase
+    .from("conversations")
+    .select("id")
+    .is("group_id", null)
+    .or(`and(client_id.eq.${me},owner_id.eq.${otherId}),and(client_id.eq.${otherId},owner_id.eq.${me})`)
+    .maybeSingle();
+  if (existing?.id) return existing.id;
+
+  const { data: created, error } = await supabase
+    .from("conversations")
+    .insert({ client_id: me, owner_id: otherId })
+    .select("id")
+    .single();
+  if (error) return null;
+  return created.id;
+}
