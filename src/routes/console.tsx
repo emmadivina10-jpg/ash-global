@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   Banknote,
+  BadgeCheck,
   Building2,
   BarChart3,
   CalendarCheck,
