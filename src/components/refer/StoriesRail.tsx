@@ -40,7 +40,7 @@ export function StoriesRail() {
   const [preview, setPreview] = useState<string | null>(null);
   const [caption, setCaption] = useState("");
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
-  const [previewEntry, setPreviewEntry] = useState<SpotlightEntry | null>(null);
+  const [reelIndex, setReelIndex] = useState<number | null>(null);
   // Stories are open to everyone by default; the member can hide from some
   // people, or flip it around and pick exactly who may watch.
   const [audience, setAudience] = useState<StoryAudience>("ALL");
