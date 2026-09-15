@@ -100,8 +100,8 @@ function Landing() {
 
   return (
     <div className="safe-top relative min-h-dvh overflow-hidden bg-background">
-      <WaterBackdrop />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_0%,transparent,color-mix(in_oklab,var(--background)_70%,transparent))]" />
+      <div className="ash-liquid ash-liquid-a" aria-hidden />
+      <div className="ash-liquid ash-liquid-b" aria-hidden />
 
       <div className="relative mx-auto flex min-h-dvh w-full max-w-6xl flex-col px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1rem+env(safe-area-inset-top))] lg:px-10">
         <header className="flex items-center justify-between">
