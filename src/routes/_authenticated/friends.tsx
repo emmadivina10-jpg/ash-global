@@ -44,9 +44,9 @@ function FriendsPage() {
   const incoming = data?.incoming ?? [];
   const outgoing = data?.outgoing ?? [];
   const known = new Set([
-    ...friends.map((f) => f.person.id),
-    ...incoming.map((f) => f.person.id),
-    ...outgoing.map((f) => f.person.id),
+    ...friends.map((f) => f.other.id),
+    ...incoming.map((f) => f.other.id),
+    ...outgoing.map((f) => f.other.id),
   ]);
 
   async function openChat(friendId: string) {
@@ -142,9 +142,9 @@ function FriendsPage() {
           </h2>
           {incoming.map((entry) => (
             <div key={entry.id} className="flex items-center gap-3">
-              <Avatar path={entry.person.avatar_url} name={entry.person.name} className="size-10" />
+              <Avatar path={entry.other.avatar_url} name={entry.other.name} className="size-10" />
               <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
-                {entry.person.name}
+                {entry.other.name}
               </span>
               <Button
                 size="sm"
@@ -173,8 +173,8 @@ function FriendsPage() {
           </h2>
           {outgoing.map((entry) => (
             <div key={entry.id} className="flex items-center gap-3">
-              <Avatar path={entry.person.avatar_url} name={entry.person.name} className="size-9" />
-              <span className="min-w-0 flex-1 truncate text-sm text-foreground">{entry.person.name}</span>
+              <Avatar path={entry.other.avatar_url} name={entry.other.name} className="size-9" />
+              <span className="min-w-0 flex-1 truncate text-sm text-foreground">{entry.other.name}</span>
               <span className="text-xs text-muted-foreground">{fr ? "En attente" : "Pending"}</span>
             </div>
           ))}
@@ -192,11 +192,11 @@ function FriendsPage() {
         ) : (
           friends.map((entry) => (
             <div key={entry.id} className="flex items-center gap-3">
-              <Avatar path={entry.person.avatar_url} name={entry.person.name} className="size-10" />
+              <Avatar path={entry.other.avatar_url} name={entry.other.name} className="size-10" />
               <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
-                {entry.person.name}
+                {entry.other.name}
               </span>
-              <Button size="sm" variant="outline" onClick={() => void openChat(entry.person.id)}>
+              <Button size="sm" variant="outline" onClick={() => void openChat(entry.other.id)}>
                 <MessageSquare className="size-4" aria-hidden />
                 {fr ? "Message" : "Message"}
               </Button>
