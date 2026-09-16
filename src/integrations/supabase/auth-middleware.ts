@@ -98,6 +98,16 @@ export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server
       throw new Error('Unauthorized: No user ID found in token');
     }
 
+    // Restricted accounts cannot bypass the app screen by calling a server
+    // function directly. The database write triggers remain the final guard.
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('moderation_banned_at')
+      .eq('user_id', data.claims.sub)
+      .maybeSingle();
+    if (profileError) throw new Error('Unauthorized: Account status unavailable');
+    if (profile?.moderation_banned_at) throw new Error('ACCOUNT_UNDER_SAFETY_REVIEW');
+
     return next({
       context: {
         supabase,

@@ -4,6 +4,7 @@
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { verifyMediaFiles } from "./media-safety";
 import { SPOTLIGHT_BUCKET, SPOTLIGHT_MAX_BYTES } from "./spotlight.queries";
 
 export type HubAuthor = { id: string; name: string; avatar_url: string | null };
@@ -202,10 +203,12 @@ export function usePublishArticle() {
     }) => {
       const userId = await currentUserId();
       let coverPath: string | null = null;
+      const articleId = crypto.randomUUID();
       if (input.cover) {
+        await verifyMediaFiles([input.cover], "ARTICLE_COVER");
         if (input.cover.size > SPOTLIGHT_MAX_BYTES) throw new Error("FILE_TOO_LARGE");
         const ext = input.cover.name.split(".").pop()?.toLowerCase() || "jpg";
-        const path = `${userId}/article-${crypto.randomUUID()}.${ext}`;
+        const path = `${userId}/article/${articleId}/${crypto.randomUUID()}.${ext}`;
         const { error: uploadError } = await supabase.storage
           .from(SPOTLIGHT_BUCKET)
           .upload(path, input.cover, { upsert: false, contentType: input.cover.type });
@@ -215,6 +218,7 @@ export function usePublishArticle() {
       const { data, error } = await supabase
         .from("articles")
         .insert({
+          id: articleId,
           author_id: userId,
           title: input.title.trim(),
           excerpt: input.excerpt.trim() || null,
@@ -225,7 +229,10 @@ export function usePublishArticle() {
         })
         .select("id")
         .single();
-      if (error) throw error;
+      if (error) {
+        if (coverPath) await supabase.storage.from(SPOTLIGHT_BUCKET).remove([coverPath]);
+        throw error;
+      }
       return data.id as string;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["hub-articles"] }),

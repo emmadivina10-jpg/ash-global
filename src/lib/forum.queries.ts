@@ -4,6 +4,7 @@
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { verifyMediaFiles } from "./media-safety";
 import { SPOTLIGHT_BUCKET, SPOTLIGHT_MAX_BYTES } from "./spotlight.queries";
 
 export const FORUM_SPACES = [
@@ -158,10 +159,12 @@ export function useCreateForumPost() {
       if (!userId) throw new Error("SIGNED_OUT");
 
       let imagePath: string | null = null;
+      const forumPostId = crypto.randomUUID();
       if (input.image) {
+        await verifyMediaFiles([input.image], "FORUM_POST");
         if (input.image.size > SPOTLIGHT_MAX_BYTES) throw new Error("FILE_TOO_LARGE");
         const ext = input.image.name.split(".").pop()?.toLowerCase() || "jpg";
-        const path = `${userId}/forum-${crypto.randomUUID()}.${ext}`;
+        const path = `${userId}/forum/${forumPostId}/${crypto.randomUUID()}.${ext}`;
         const { error: uploadError } = await supabase.storage
           .from(SPOTLIGHT_BUCKET)
           .upload(path, input.image, { upsert: false, contentType: input.image.type });
@@ -170,12 +173,16 @@ export function useCreateForumPost() {
       }
 
       const { error } = await supabase.from("forum_posts").insert({
+        id: forumPostId,
         author_id: userId,
         space: input.space,
         body: input.body.trim(),
         image_path: imagePath,
       });
-      if (error) throw error;
+      if (error) {
+        if (imagePath) await supabase.storage.from(SPOTLIGHT_BUCKET).remove([imagePath]);
+        throw error;
+      }
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["forum-feed"] }),
   });

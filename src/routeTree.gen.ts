@@ -21,6 +21,7 @@ import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SafetyReviewRouteImport } from './routes/safety-review'
 import { Route as SetupProfileRouteImport } from './routes/setup-profile'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SupportRouteImport } from './routes/support'
@@ -158,6 +159,11 @@ const RegisterRoute = RegisterRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SafetyReviewRoute = SafetyReviewRouteImport.update({
+  id: '/safety-review',
+  path: '/safety-review',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SetupProfileRoute = SetupProfileRouteImport.update({
@@ -588,6 +594,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/safety-review': typeof SafetyReviewRoute
   '/setup-profile': typeof SetupProfileRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
@@ -679,6 +686,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/safety-review': typeof SafetyReviewRoute
   '/setup-profile': typeof SetupProfileRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
@@ -773,6 +781,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/safety-review': typeof SafetyReviewRoute
   '/setup-profile': typeof SetupProfileRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
@@ -867,6 +876,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/register'
     | '/reset-password'
+    | '/safety-review'
     | '/setup-profile'
     | '/sitemap.xml'
     | '/support'
@@ -958,6 +968,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/register'
     | '/reset-password'
+    | '/safety-review'
     | '/setup-profile'
     | '/sitemap.xml'
     | '/support'
@@ -1051,6 +1062,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/register'
     | '/reset-password'
+    | '/safety-review'
     | '/setup-profile'
     | '/sitemap.xml'
     | '/support'
@@ -1145,6 +1157,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SafetyReviewRoute: typeof SafetyReviewRoute
   SetupProfileRoute: typeof SetupProfileRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SupportRoute: typeof SupportRoute
@@ -1244,6 +1257,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/safety-review': {
+      id: '/safety-review'
+      path: '/safety-review'
+      fullPath: '/safety-review'
+      preLoaderRoute: typeof SafetyReviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/setup-profile': {
@@ -1965,6 +1985,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SafetyReviewRoute: SafetyReviewRoute,
   SetupProfileRoute: SetupProfileRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SupportRoute: SupportRoute,

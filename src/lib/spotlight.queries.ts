@@ -4,6 +4,7 @@
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { verifyMediaFiles } from "./media-safety";
 import { signPortfolioPaths } from "./marketplace";
 
 export const SPOTLIGHT_BUCKET = "spotlight";
@@ -212,31 +213,39 @@ export function useCreateSpotlight() {
       const userId = auth.user?.id;
       if (!userId) throw new Error("You need to be signed in to post.");
       if (files.length === 0) throw new Error("Add at least one photo or video.");
+      await verifyMediaFiles(files, "SPOTLIGHT");
 
       const media: SpotlightMedia[] = [];
-      for (const file of files) {
-        if (file.size > SPOTLIGHT_MAX_BYTES) {
-          throw new Error(`${file.name} is larger than 50 MB.`);
+      const postId = crypto.randomUUID();
+      try {
+        for (const file of files) {
+          if (file.size > SPOTLIGHT_MAX_BYTES) {
+            throw new Error(`${file.name} is larger than 50 MB.`);
+          }
+          const isVideo = file.type.startsWith("video/");
+          const isImage = file.type.startsWith("image/");
+          if (!isVideo && !isImage) throw new Error("Only photos and videos can be posted.");
+          const extension = file.name.split(".").pop()?.toLowerCase() ?? (isVideo ? "mp4" : "jpg");
+          const path = `${userId}/spotlight/${postId}/${crypto.randomUUID()}.${extension}`;
+          const { error: uploadError } = await supabase.storage
+            .from(SPOTLIGHT_BUCKET)
+            .upload(path, file, { cacheControl: "3600", contentType: file.type, upsert: false });
+          if (uploadError) throw uploadError;
+          media.push({ path, type: isVideo ? "video" : "image" });
         }
-        const isVideo = file.type.startsWith("video/");
-        const isImage = file.type.startsWith("image/");
-        if (!isVideo && !isImage) throw new Error("Only photos and videos can be posted.");
-        const extension = file.name.split(".").pop()?.toLowerCase() ?? (isVideo ? "mp4" : "jpg");
-        const path = `${userId}/${crypto.randomUUID()}.${extension}`;
-        const { error: uploadError } = await supabase.storage
-          .from(SPOTLIGHT_BUCKET)
-          .upload(path, file, { cacheControl: "3600", contentType: file.type, upsert: false });
-        if (uploadError) throw uploadError;
-        media.push({ path, type: isVideo ? "video" : "image" });
-      }
 
-      const { error } = await supabase.from("spotlight_posts").insert({
-        author_id: userId,
-        provider_id: providerId ?? null,
-        caption: caption.trim(),
-        media: media as unknown as never,
-      });
-      if (error) throw error;
+        const { error } = await supabase.from("spotlight_posts").insert({
+          id: postId,
+          author_id: userId,
+          provider_id: providerId ?? null,
+          caption: caption.trim(),
+          media: media as unknown as never,
+        });
+        if (error) throw error;
+      } catch (error) {
+        if (media.length > 0) await supabase.storage.from(SPOTLIGHT_BUCKET).remove(media.map((item) => item.path));
+        throw error;
+      }
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["spotlight-feed"] });

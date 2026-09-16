@@ -5,6 +5,7 @@
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { verifyMediaFiles } from "./media-safety";
 
 export const SOCIAL_BUCKET = "spotlight";
 /** Largest single photo accepted by a story or a feed post. */
@@ -62,7 +63,7 @@ async function uploadImage(userId: string, file: File, prefix: string): Promise<
   if (!file.type.startsWith("image/")) throw new Error("Only photos can be shared right now.");
   if (file.size > SOCIAL_MAX_BYTES) throw new Error(`${file.name} is larger than 12 MB.`);
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
-  const path = `${userId}/${prefix}-${crypto.randomUUID()}.${ext}`;
+  const path = `${userId}/${prefix}/${crypto.randomUUID()}.${ext}`;
   const { error } = await supabase.storage
     .from(SOCIAL_BUCKET)
     .upload(path, file, { cacheControl: "3600", contentType: file.type, upsert: false });
@@ -181,6 +182,7 @@ export function useCreateStory() {
     }) => {
       const userId = await currentUserId();
       if (!userId) throw new Error("You need to be signed in.");
+      await verifyMediaFiles([file], "STORY");
       const path = await uploadImage(userId, file, "story");
       const { error } = await supabase.from("stories").insert({
         author_id: userId,
@@ -415,16 +417,22 @@ export function useCreateSocialPost() {
       const userId = await currentUserId();
       if (!userId) throw new Error("You need to be signed in.");
       if (files.length === 0 && !caption.trim()) throw new Error("Write something or add a photo.");
+      await verifyMediaFiles(files.slice(0, 4), "SOCIAL_POST");
       const media: string[] = [];
-      for (const file of files.slice(0, 4)) media.push(await uploadImage(userId, file, "post"));
-      const { error } = await supabase.from("social_posts").insert({
-        author_id: userId,
-        caption: caption.trim(),
-        media: media as unknown as never,
-        city: city ?? null,
-        filter_comments: filterComments ?? false,
-      });
-      if (error) throw error;
+      try {
+        for (const file of files.slice(0, 4)) media.push(await uploadImage(userId, file, "post"));
+        const { error } = await supabase.from("social_posts").insert({
+          author_id: userId,
+          caption: caption.trim(),
+          media: media as unknown as never,
+          city: city ?? null,
+          filter_comments: filterComments ?? false,
+        });
+        if (error) throw error;
+      } catch (error) {
+        if (media.length > 0) await supabase.storage.from(SOCIAL_BUCKET).remove(media);
+        throw error;
+      }
     },
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["social-feed"] }),
   });

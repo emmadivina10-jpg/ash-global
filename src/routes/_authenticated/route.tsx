@@ -10,7 +10,15 @@ export const Route = createFileRoute("/_authenticated")({
     // can fail while a perfectly valid session is still in storage, which is
     // what bounced signed-in members back to the landing page.
     const { data: sessionData } = await supabase.auth.getSession();
-    if (sessionData.session?.user) return { user: sessionData.session.user };
+    if (sessionData.session?.user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("moderation_banned_at")
+        .eq("user_id", sessionData.session.user.id)
+        .maybeSingle();
+      if (profile?.moderation_banned_at) throw redirect({ to: "/safety-review" });
+      return { user: sessionData.session.user };
+    }
 
     // No session in storage yet: it may still be rehydrating on a cold start
     // (installed app resuming, slow storage broker). Give it a brief window
@@ -18,12 +26,28 @@ export const Route = createFileRoute("/_authenticated")({
     for (let attempt = 0; attempt < 3; attempt += 1) {
       await new Promise((resolve) => setTimeout(resolve, 120));
       const { data: retry } = await supabase.auth.getSession();
-      if (retry.session?.user) return { user: retry.session.user };
+      if (retry.session?.user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("moderation_banned_at")
+          .eq("user_id", retry.session.user.id)
+          .maybeSingle();
+        if (profile?.moderation_banned_at) throw redirect({ to: "/safety-review" });
+        return { user: retry.session.user };
+      }
     }
 
     try {
       const { data, error } = await supabase.auth.getUser();
-      if (data.user) return { user: data.user };
+      if (data.user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("moderation_banned_at")
+          .eq("user_id", data.user.id)
+          .maybeSingle();
+        if (profile?.moderation_banned_at) throw redirect({ to: "/safety-review" });
+        return { user: data.user };
+      }
       if (error) throw error;
     } catch {
       // Network hiccup — never sign a member out because a request failed.
