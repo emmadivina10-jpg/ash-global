@@ -596,6 +596,47 @@ function MessagesPage() {
     });
   }
 
+  function toggleSelected(conversationId: string) {
+    setSelection((list) =>
+      list.includes(conversationId)
+        ? list.filter((id) => id !== conversationId)
+        : [...list, conversationId],
+    );
+  }
+
+  async function deleteSelected() {
+    const ids = [...selection];
+    setConfirmBulkDelete(false);
+    setSelection([]);
+    let removed = 0;
+    for (const id of ids) {
+      try {
+        await deleteChat.mutateAsync(id);
+        removed += 1;
+      } catch {
+        setPref.mutate({ conversationId: id, patch: { archived: true } });
+      }
+    }
+    if (removed > 0) {
+      toast.success(
+        fr
+          ? removed > 1
+            ? `${removed} discussions supprimées`
+            : "Discussion supprimée"
+          : removed > 1
+            ? `${removed} chats deleted`
+            : "Chat deleted",
+      );
+    }
+    if (removed < ids.length) {
+      toast.info(
+        fr
+          ? "Certaines discussions sont liées à une réservation — elles ont été archivées."
+          : "Some chats belong to a booking — they were archived instead.",
+      );
+    }
+  }
+
   return (
     <div className="mx-auto min-h-0 w-full max-w-5xl md:space-y-4">
       {/* DESKTOP PAGE HEADER */}
@@ -630,6 +671,29 @@ function MessagesPage() {
               <h2 className="mb-2 font-display text-xl font-bold text-foreground md:hidden">
                 {t("chat.title")}
               </h2>
+
+              {selection.length > 0 ? (
+                <div className="mb-2 flex items-center justify-between gap-2 rounded-full bg-primary/10 px-3 py-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setSelection([])}
+                    className="text-[12px] font-bold text-primary"
+                  >
+                    {fr ? "Annuler" : "Cancel"}
+                  </button>
+                  <span className="text-[12px] font-bold text-foreground">
+                    {selection.length} {fr ? "sélectionnée(s)" : "selected"}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmBulkDelete(true)}
+                    aria-label={fr ? "Supprimer" : "Delete"}
+                    className="grid size-8 place-items-center rounded-full text-destructive transition-colors hover:bg-destructive/10"
+                  >
+                    <Trash2 className="size-4" aria-hidden />
+                  </button>
+                </div>
+              ) : null}
 
               <div className="flex items-center gap-2 rounded-full bg-muted px-3 py-2">
                 <Search
@@ -692,6 +756,32 @@ function MessagesPage() {
                 ) : null}
               </div>
             </div>
+
+            <Dialog open={confirmBulkDelete} onOpenChange={setConfirmBulkDelete}>
+              <DialogContent className="max-w-sm">
+                <DialogHeader>
+                  <DialogTitle>
+                    {fr ? "Supprimer ces discussions ?" : "Delete these chats?"}
+                  </DialogTitle>
+                </DialogHeader>
+                <p className="text-sm text-muted-foreground">
+                  {fr
+                    ? "Les messages seront définitivement perdus. Vous pourrez toujours retrouver la personne par la recherche."
+                    : "The messages are permanently lost. You can still find the person again through search."}
+                </p>
+                <div className="flex gap-2">
+                  <Button variant="outline" className="flex-1" onClick={() => setConfirmBulkDelete(false)}>
+                    {fr ? "Annuler" : "Cancel"}
+                  </Button>
+                  <Button
+                    className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    onClick={() => void deleteSelected()}
+                  >
+                    {fr ? "Supprimer" : "Delete"}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
 
             <Dialog open={pinDialog} onOpenChange={setPinDialog}>
               <DialogContent className="max-w-sm">
