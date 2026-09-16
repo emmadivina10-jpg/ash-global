@@ -498,13 +498,95 @@ function MessagesPage() {
       .trim();
   }
 
-  const filtered = term.trim()
+  const searched = term.trim()
     ? list.filter((conv) =>
         `${peerOf(conv)} ${previewOf(conv)}`
           .toLowerCase()
           .includes(term.trim().toLowerCase()),
       )
     : list;
+
+  // Locked chats stay out of the list until the PIN is typed into the search
+  // box, exactly like WhatsApp's locked chats.
+  const visible = searched.filter((conv) => {
+    const pref = prefs?.[conv.id];
+    if (pref?.locked && !lockedUnlocked) return false;
+    if (pref?.archived && !showArchived) return false;
+    return true;
+  });
+
+  const filtered = [...visible].sort((a, b) => {
+    const pinA = prefs?.[a.id]?.pinned ? 1 : 0;
+    const pinB = prefs?.[b.id]?.pinned ? 1 : 0;
+    return pinB - pinA;
+  });
+
+  const archivedCount = list.filter((conv) => prefs?.[conv.id]?.archived).length;
+  const pinnedCount = list.filter((conv) => prefs?.[conv.id]?.pinned).length;
+
+  // Members who are not already in a chat with you — offered as "Add friend".
+  const linkedIds = new Set([
+    ...(graph?.friends ?? []).map((f) => f.other.id),
+    ...(graph?.incoming ?? []).map((f) => f.other.id),
+    ...(graph?.outgoing ?? []).map((f) => f.other.id),
+  ]);
+  const chatPeerIds = new Set(list.map((conv) => peerUserIdOf(conv)).filter(Boolean) as string[]);
+  const newPeople = (people ?? []).filter(
+    (person) => person.id !== user?.id && !linkedIds.has(person.id) && !chatPeerIds.has(person.id),
+  );
+
+  async function togglePin(conversationId: string) {
+    const pinned = Boolean(prefs?.[conversationId]?.pinned);
+    if (!pinned && pinnedCount >= MAX_PINNED) {
+      toast.info(
+        fr ? `Vous pouvez épingler ${MAX_PINNED} discussions.` : `You can pin up to ${MAX_PINNED} chats.`,
+      );
+      return;
+    }
+    setPref.mutate({ conversationId, patch: { pinned: !pinned } });
+  }
+
+  function toggleArchive(conversationId: string) {
+    const archived = Boolean(prefs?.[conversationId]?.archived);
+    setPref.mutate({ conversationId, patch: { archived: !archived } });
+  }
+
+  function toggleLock(conversationId: string) {
+    const locked = Boolean(prefs?.[conversationId]?.locked);
+    if (!locked && !lockPin) {
+      setPinDialog(true);
+      return;
+    }
+    setPref.mutate(
+      { conversationId, patch: { locked: !locked } },
+      {
+        onSuccess: () =>
+          toast.success(
+            locked
+              ? fr
+                ? "Discussion déverrouillée"
+                : "Chat unlocked"
+              : fr
+                ? "Discussion verrouillée et masquée"
+                : "Chat locked and hidden",
+          ),
+      },
+    );
+  }
+
+  function removeChat(conversationId: string) {
+    deleteChat.mutate(conversationId, {
+      onSuccess: () => toast.success(fr ? "Discussion supprimée" : "Chat deleted"),
+      onError: () => {
+        setPref.mutate({ conversationId, patch: { archived: true } });
+        toast.info(
+          fr
+            ? "Cette discussion est liée à une réservation — elle a été archivée."
+            : "This chat belongs to a booking — it was archived instead.",
+        );
+      },
+    });
+  }
 
   return (
     <div className="mx-auto w-full max-w-5xl md:space-y-4">
