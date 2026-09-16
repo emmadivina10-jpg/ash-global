@@ -22,7 +22,7 @@ import { bookingStatusLabel } from "@/lib/booking";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Archive, Lock, UserPlus } from "lucide-react";
-import { SwipeChatRow } from "@/components/refer/SwipeChatRow";
+import { SelectChatRow } from "@/components/refer/SelectChatRow";
 import {
   MAX_PINNED,
   hashPin,
@@ -347,7 +347,8 @@ function MessagesPage() {
   const { data: lockPin } = useChatLockPin();
   const saveLockPin = useSetChatLockPin();
   const [showArchived, setShowArchived] = useState(false);
-  const [openSwipe, setOpenSwipe] = useState<{ id: string; side: "archive" | "delete" } | null>(null);
+  const [selection, setSelection] = useState<string[]>([]);
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
   const [lockedUnlocked, setLockedUnlocked] = useState(false);
   const [pinDialog, setPinDialog] = useState(false);
   const [pinValue, setPinValue] = useState("");
@@ -748,7 +749,6 @@ function MessagesPage() {
 
             <nav
               className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain touch-pan-y"
-              onScroll={() => setOpenSwipe(null)}
             >
               {term.trim() &&
               !`${ashAiConversation.label} ${ashAiConversation.preview}`
@@ -809,26 +809,22 @@ function MessagesPage() {
                 const avatarColor = getAvatarColor(conv.id);
 
                 return (
-                  <SwipeChatRow
+                  <SelectChatRow
                     key={conv.id}
                     fr={fr}
                     pinned={Boolean(prefs?.[conv.id]?.pinned)}
                     archived={Boolean(prefs?.[conv.id]?.archived)}
                     locked={Boolean(prefs?.[conv.id]?.locked)}
-                    openSide={openSwipe?.id === conv.id ? openSwipe.side : null}
-                    onOpenSideChange={(side) => setOpenSwipe(side ? { id: conv.id, side } : null)}
+                    selecting={selection.length > 0}
+                    selected={selection.includes(conv.id)}
+                    onLongPress={() => toggleSelected(conv.id)}
+                    onToggleSelect={() => toggleSelected(conv.id)}
+                    onOpen={() => void navigate({ search: { c: conv.id } })}
                     onTogglePin={() => void togglePin(conv.id)}
                     onArchive={() => toggleArchive(conv.id)}
                     onToggleLock={() => toggleLock(conv.id)}
-                    onDelete={() => removeChat(conv.id)}
                   >
-                  <button
-                    type="button"
-                    onClick={() =>
-                      void navigate({
-                        search: { c: conv.id },
-                      })
-                    }
+                  <div
                     className={cn(
                       "flex w-full items-center gap-3 px-3 py-3 text-left transition-colors",
                       conv.id === activeId
@@ -894,8 +890,8 @@ function MessagesPage() {
                         ) : null}
                       </span>
                     </span>
-                  </button>
-                  </SwipeChatRow>
+                  </div>
+                  </SelectChatRow>
                 );
               })}
 
