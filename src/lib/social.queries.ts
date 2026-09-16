@@ -764,6 +764,8 @@ export type ChatGroup = {
   members: SocialAuthor[];
   member_count: number;
   conversation_id: string | null;
+  /** True when the group owner holds an active ASH Verified badge. */
+  owner_verified: boolean;
 };
 
 export function useGroups() {
@@ -784,7 +786,7 @@ export function useGroups() {
           groups.map((g) => g.id),
         );
       const rows = (memberRows ?? []) as { group_id: string; user_id: string }[];
-      const authors = await loadAuthors(rows.map((r) => r.user_id));
+      const authors = await loadAuthors([...rows.map((r) => r.user_id), ...groups.map((g) => g.owner_id)]);
       const { data: conversationRows } = await supabase
         .from("conversations")
         .select("id, group_id")
@@ -801,11 +803,14 @@ export function useGroups() {
         const members = rows
           .filter((r) => r.group_id === g.id)
           .map((r) => authors.get(r.user_id) ?? { id: r.user_id, name: "ASH member", avatar_url: null });
+        const owner = authors.get(g.owner_id);
+        const until = owner?.verified_until ? new Date(owner.verified_until).getTime() : null;
         return {
           ...g,
           members,
           member_count: members.length,
           conversation_id: conversations.get(g.id) ?? null,
+          owner_verified: Boolean(owner?.verified_tier) && (until === null || until > Date.now()),
         };
       });
     },
@@ -825,7 +830,12 @@ export function useCreateGroup() {
         .insert({ owner_id: me, name: clean })
         .select("id")
         .single();
-      if (error) throw error;
+      if (error) {
+        if (/GROUP_NAME_PROTECTED_BY_VERIFIED_ACCOUNT/.test(error.message)) {
+          throw new Error("That group name belongs to a verified member. Choose another name.");
+        }
+        throw error;
+      }
       const groupId = (data as { id: string }).id;
       const members = Array.from(new Set([me, ...memberIds]));
       const { error: memberError } = await supabase
@@ -837,6 +847,23 @@ export function useCreateGroup() {
         .insert({ group_id: groupId, client_id: me, owner_id: me });
       if (convError) throw convError;
       return groupId;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["chat-groups"] });
+      void queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    },
+  });
+}
+
+/** Only the owner may delete a group; the chat and its messages go with it. */
+export function useDeleteGroup() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (groupId: string) => {
+      const me = await currentUserId();
+      if (!me) throw new Error("You need to be signed in.");
+      const { error } = await supabase.from("chat_groups").delete().eq("id", groupId).eq("owner_id", me);
+      if (error) throw error;
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["chat-groups"] });

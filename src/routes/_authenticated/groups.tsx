@@ -1,18 +1,21 @@
 import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Loader2, MessageSquare, Plus, Users } from "lucide-react";
+import { Loader2, MessageSquare, Plus, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "@/components/refer/AvatarUpload";
+import { GroupVerifiedBadge } from "@/components/refer/GroupBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
   useAddGroupMembers,
   useCreateGroup,
+  useDeleteGroup,
   useFriendships,
   useGroups,
   useMemberSearch,
 } from "@/lib/social.queries";
+import { useProfile } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +41,8 @@ function GroupsPage() {
   const { data: friendships } = useFriendships();
   const create = useCreateGroup();
   const addMembers = useAddGroupMembers();
+  const removeGroup = useDeleteGroup();
+  const { data: myProfile } = useProfile();
 
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -45,6 +50,7 @@ function GroupsPage() {
   const [addingTo, setAddingTo] = useState<string | null>(null);
   const [addSelected, setAddSelected] = useState<string[]>([]);
   const [peopleTerm, setPeopleTerm] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const { data: searched } = useMemberSearch(peopleTerm);
 
   const friends = friendships?.friends ?? [];
@@ -175,7 +181,12 @@ function GroupsPage() {
                 <Users className="size-5" aria-hidden />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-bold text-foreground">{group.name}</p>
+                <p className="flex items-center gap-1.5 truncate text-sm font-bold text-foreground">
+                  <span className="truncate">{group.name}</span>
+                  {group.owner_verified ? (
+                    <GroupVerifiedBadge label={fr ? "Groupe vérifié" : "Verified group"} />
+                  ) : null}
+                </p>
                 <p className="text-xs text-muted-foreground">
                   {group.member_count} {fr ? "membres" : "members"}
                 </p>
@@ -190,6 +201,17 @@ function GroupsPage() {
               >
                 <Plus className="size-4" aria-hidden />
               </Button>
+              {group.owner_id === myProfile?.user_id ? (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  aria-label={fr ? "Supprimer le groupe" : "Delete group"}
+                  className="text-destructive"
+                  onClick={() => setConfirmDelete(group.id)}
+                >
+                  <Trash2 className="size-4" aria-hidden />
+                </Button>
+              ) : null}
               <Button
                 size="sm"
                 disabled={!group.conversation_id}
@@ -204,6 +226,42 @@ function GroupsPage() {
           ))}
         </div>
       )}
+
+      <Dialog open={Boolean(confirmDelete)} onOpenChange={(value) => !value && setConfirmDelete(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{fr ? "Supprimer ce groupe ?" : "Delete this group?"}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            {fr
+              ? "Le groupe et toute la conversation seront définitivement supprimés pour tous les membres."
+              : "The group and its whole conversation are permanently removed for every member."}
+          </p>
+          <div className="flex gap-2">
+            <Button variant="outline" className="flex-1" onClick={() => setConfirmDelete(null)}>
+              {fr ? "Annuler" : "Cancel"}
+            </Button>
+            <Button
+              className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={removeGroup.isPending}
+              onClick={() => {
+                const id = confirmDelete;
+                if (!id) return;
+                removeGroup.mutate(id, {
+                  onSuccess: () => {
+                    toast.success(fr ? "Groupe supprimé" : "Group deleted");
+                    setConfirmDelete(null);
+                  },
+                  onError: () => toast.error(fr ? "Échec de la suppression" : "Could not delete the group"),
+                });
+              }}
+            >
+              {removeGroup.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+              {fr ? "Supprimer" : "Delete"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={Boolean(addingTo)} onOpenChange={(value) => !value && setAddingTo(null)}>
         <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto">

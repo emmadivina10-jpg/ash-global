@@ -32,7 +32,7 @@ import {
   useSetChatLockPin,
   useSetChatPref,
 } from "@/lib/chat-prefs";
-import { useMemberSearch, useSendFriendRequest, useFriendships } from "@/lib/social.queries";
+import { useMemberSearch, useSendFriendRequest, useFriendships, useGroups } from "@/lib/social.queries";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -383,10 +383,16 @@ function MessagesPage() {
       : undefined);
 
   const active = list.find((conv) => conv.id === activeId);
+  const { data: myGroups } = useGroups();
+  const groupOf = (conv: (typeof list)[number] | undefined) =>
+    conv?.group_id ? (myGroups ?? []).find((g) => g.id === conv.group_id) : undefined;
+  const activeGroup = groupOf(active);
   /** Providers see the client; clients see the business.
    * Property threads show the listing/owner.
    */
   function peerOf(conv: (typeof list)[number]): string {
+    const group = groupOf(conv);
+    if (group) return group.name;
     if (conv.listing_id) {
       const viewerIsOwner =
         Boolean(user?.id) && conv.owner_id === user?.id;
@@ -1196,6 +1202,12 @@ function MessagesPage() {
                     : null
                 }
                 peerAvatar={active ? peerAvatarOf(active) : null}
+                isGroup={Boolean(activeGroup)}
+                members={(activeGroup?.members ?? []).map((m) => ({
+                  id: m.id,
+                  name: m.name,
+                  avatar_url: m.avatar_url,
+                }))}
                 className="min-h-0 flex-1 px-2"
                     quickReplies={
                       lang === "fr"

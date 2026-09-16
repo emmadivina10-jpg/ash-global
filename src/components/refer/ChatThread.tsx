@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ReportDialog } from "@/components/refer/ReportDialog";
 import { Avatar } from "@/components/refer/AvatarUpload";
+import { groupColorFor } from "@/components/refer/GroupBadge";
 import { CHAT_WALLPAPERS, useChatSettings, useSetWallpaper } from "@/lib/social.queries";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useI18n } from "@/lib/i18n";
@@ -70,6 +71,8 @@ export function ChatThread({
   peerName,
   peerUserId,
   peerAvatar,
+  isGroup = false,
+  members = [],
 }: {
   conversationId: string;
   currentUserId: string | undefined;
@@ -79,6 +82,9 @@ export function ChatThread({
   peerUserId?: string | null;
   /** Stored avatar path of the other person, so their photo shows on each bubble. */
   peerAvatar?: string | null;
+  /** Group chats colour every speaker differently and label each bubble. */
+  isGroup?: boolean;
+  members?: { id: string; name: string; avatar_url: string | null }[];
 }) {
   const { t, lang } = useI18n();
   const fr = lang === "fr";
@@ -103,6 +109,8 @@ export function ChatThread({
   const pressRef = useRef<number | null>(null);
 
   const messages = (data ?? []) as unknown as ChatMessage[];
+
+  const memberById = new Map(members.map((m) => [m.id, m]));
 
   // Facebook-style first contact: you may open a conversation with anyone, but
   // only one message goes through until the other person answers.
@@ -411,8 +419,8 @@ export function ChatThread({
                   >
                     {!mine ? (
                       <Avatar
-                        path={peerAvatar ?? null}
-                        name={peerName ?? "ASH"}
+                        path={(isGroup ? memberById.get(m.sender_id)?.avatar_url : peerAvatar) ?? null}
+                        name={(isGroup ? memberById.get(m.sender_id)?.name : peerName) ?? "ASH"}
                         className={cn("size-7 text-[10px]", !endsRun && "invisible")}
                       />
                     ) : null}
@@ -442,7 +450,9 @@ export function ChatThread({
                       className={cn(
                         "group relative max-w-[78%] px-3.5 py-2 shadow-sm transition-colors",
                         mine
-                          ? "rounded-2xl bg-primary text-primary-foreground"
+                          ? isGroup
+                            ? "rounded-2xl bg-[linear-gradient(135deg,#f6d365,#d4a017)] text-[#3a2a00]"
+                            : "rounded-2xl bg-primary text-primary-foreground"
                           : "rounded-2xl bg-muted text-foreground",
                         mine && !endsRun && "rounded-br-md",
                         mine && endsRun && "rounded-br-sm",
@@ -450,6 +460,14 @@ export function ChatThread({
                         !mine && endsRun && "rounded-bl-sm",
                       )}
                     >
+                      {isGroup && !mine && startsRun ? (
+                        <span
+                          className="mb-0.5 block text-[11px] font-bold"
+                          style={{ color: groupColorFor(m.sender_id) }}
+                        >
+                          {memberById.get(m.sender_id)?.name ?? (fr ? "Membre" : "Member")}
+                        </span>
+                      ) : null}
                       {mine ? (
                         <button
                           type="button"
