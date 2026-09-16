@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { verifyMediaFiles } from "./media-safety";
 import { signPortfolioPaths } from "./marketplace";
+import { EMPTY_REACTIONS, type ReactionBreakdown, type ReactionType } from "./social.queries";
 
 export const SPOTLIGHT_BUCKET = "spotlight";
 
@@ -22,6 +23,9 @@ export type SpotlightEntry = {
   media_type: "image" | "video";
   source: "post" | "portfolio";
   author_id: string | null;
+  reaction_count: number;
+  reaction_breakdown: ReactionBreakdown;
+  current_reaction: ReactionType | null;
   provider: {
     id: string;
     business_name: string;
@@ -97,10 +101,12 @@ export function useSpotlightFeed(limit = 18) {
         .map((row) => row.provider_id)
         .filter((id): id is string => Boolean(id));
 
-      const [profilesResult, providersResult] = await Promise.all([
+      const { data: auth } = await supabase.auth.getUser();
+      const [profilesResult, providersResult, reactionsResult] = await Promise.all([
         authorIds.length
           ? supabase.from("profiles").select("user_id, full_name, avatar_url").in("user_id", authorIds)
           : Promise.resolve({ data: [] }),
+        postRows.length ? supabase.from("spotlight_reactions").select("spotlight_id, user_id, reaction_type").in("spotlight_id", postRows.map((row) => row.id)) : Promise.resolve({ data: [] }),
         providerIds.length
           ? supabase
               .from("provider_profiles")
@@ -129,6 +135,7 @@ export function useSpotlightFeed(limit = 18) {
 
       const mediaPaths = postRows.flatMap((row) => parseMedia(row.media).map((m) => m.path));
       const signed = await signSpotlightPaths(mediaPaths);
+      const reactionRows = (reactionsResult.data ?? []) as Array<{ spotlight_id: string; user_id: string; reaction_type: string }>;
 
       const postEntries: SpotlightEntry[] = postRows.flatMap((row) => {
         const media = parseMedia(row.media);
@@ -138,7 +145,10 @@ export function useSpotlightFeed(limit = 18) {
         if (!url) return [];
         const storefront = row.provider_id ? providers.get(row.provider_id) : undefined;
         const profile = profiles.get(row.author_id);
-        return [
+         const reactions = reactionRows.filter((item) => item.spotlight_id === row.id);
+         const breakdown = { ...EMPTY_REACTIONS };
+         for (const reaction of reactions) if (reaction.reaction_type in breakdown) breakdown[reaction.reaction_type as ReactionType] += 1;
+         return [
           {
             id: `post:${row.id}`,
             caption: row.caption?.trim() ? row.caption : null,
@@ -147,6 +157,9 @@ export function useSpotlightFeed(limit = 18) {
             media_type: first.type,
             source: "post",
             author_id: row.author_id,
+             reaction_count: reactions.length,
+             reaction_breakdown: breakdown,
+             current_reaction: (reactions.find((item) => item.user_id === auth.user?.id)?.reaction_type as ReactionType | undefined) ?? null,
             provider: storefront ?? {
               id: "",
               business_name: profile?.full_name ?? "ASH member",
@@ -180,6 +193,9 @@ export function useSpotlightFeed(limit = 18) {
             media_type: "image",
             source: "portfolio",
             author_id: null,
+            reaction_count: 0,
+            reaction_breakdown: { ...EMPTY_REACTIONS },
+            current_reaction: null,
             provider: row.provider,
           },
         ];
@@ -192,6 +208,17 @@ export function useSpotlightFeed(limit = 18) {
         })
         .slice(0, limit * 2);
     },
+  });
+}
+
+export function useSetSpotlightReaction() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ spotlightId, reaction }: { spotlightId: string; reaction: ReactionType | null }) => {
+      const { error } = await supabase.rpc("set_spotlight_reaction", { _spotlight_id: spotlightId, _reaction_type: reaction ?? "" });
+      if (error) throw error;
+    },
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["spotlight-feed"] }),
   });
 }
 
