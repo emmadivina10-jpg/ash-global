@@ -203,12 +203,11 @@ export function usePublishArticle() {
     }) => {
       const userId = await currentUserId();
       let coverPath: string | null = null;
-      let articleId: string | null = null;
+      const articleId = crypto.randomUUID();
       if (input.cover) {
         await verifyMediaFiles([input.cover], "ARTICLE_COVER");
         if (input.cover.size > SPOTLIGHT_MAX_BYTES) throw new Error("FILE_TOO_LARGE");
         const ext = input.cover.name.split(".").pop()?.toLowerCase() || "jpg";
-        articleId = crypto.randomUUID();
         const path = `${userId}/article/${articleId}/${crypto.randomUUID()}.${ext}`;
         const { error: uploadError } = await supabase.storage
           .from(SPOTLIGHT_BUCKET)
@@ -219,7 +218,7 @@ export function usePublishArticle() {
       const { data, error } = await supabase
         .from("articles")
         .insert({
-          ...(coverPath ? { id: coverPath.split("/")[2] } : {}),
+          id: articleId,
           author_id: userId,
           title: input.title.trim(),
           excerpt: input.excerpt.trim() || null,
