@@ -72,6 +72,7 @@ export function ChatThread({
   peerUserId,
   peerAvatar,
   isGroup = false,
+  enforceFirstContactLimit = false,
   members = [],
 }: {
   conversationId: string;
@@ -84,6 +85,8 @@ export function ChatThread({
   peerAvatar?: string | null;
   /** Group chats colour every speaker differently and label each bubble. */
   isGroup?: boolean;
+  /** Limit only unsolicited person-to-person introductions, never groups or commerce threads. */
+  enforceFirstContactLimit?: boolean;
   members?: { id: string; name: string; avatar_url: string | null }[];
 }) {
   const { t, lang } = useI18n();
@@ -120,7 +123,7 @@ export function ChatThread({
   const mySent = messages.filter(
     (m) => m.sender_id === currentUserId && (m.kind ?? "TEXT") === "TEXT",
   ).length;
-  const awaitingReply = !peerReplied && mySent >= 1;
+  const awaitingReply = enforceFirstContactLimit && !isGroup && !peerReplied && mySent >= 1;
 
   // Scroll only the message list itself. Using scrollIntoView() here can
   // scroll the authenticated app-shell on iOS/web, which makes the entire

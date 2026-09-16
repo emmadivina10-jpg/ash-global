@@ -493,11 +493,12 @@ function MessagesPage() {
       .trim();
   }
 
-  const searched = term.trim()
+  const searchTerm = lockedUnlocked ? "" : term.trim();
+  const searched = searchTerm
     ? list.filter((conv) =>
         `${peerOf(conv)} ${previewOf(conv)}`
           .toLowerCase()
-          .includes(term.trim().toLowerCase()),
+          .includes(searchTerm.toLowerCase()),
       )
     : list;
 
@@ -1182,6 +1183,9 @@ function MessagesPage() {
                 }
                 peerAvatar={active ? peerAvatarOf(active) : null}
                 isGroup={Boolean(activeGroup)}
+                enforceFirstContactLimit={Boolean(
+                  active && !activeGroup && !active.provider_id && !active.booking_id && !active.listing_id,
+                )}
                 members={(activeGroup?.members ?? []).map((m) => ({
                   id: m.id,
                   name: m.name,
