@@ -1560,6 +1560,60 @@ export type Database = {
           },
         ]
       }
+      moderation_cases: {
+        Row: {
+          confidence: number | null
+          content_type: string
+          created_at: string
+          id: string
+          media_hash: string
+          media_type: string
+          original_name: string | null
+          reason: string
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          verdict: string
+        }
+        Insert: {
+          confidence?: number | null
+          content_type: string
+          created_at?: string
+          id?: string
+          media_hash: string
+          media_type: string
+          original_name?: string | null
+          reason: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          verdict: string
+        }
+        Update: {
+          confidence?: number | null
+          content_type?: string
+          created_at?: string
+          id?: string
+          media_hash?: string
+          media_type?: string
+          original_name?: string | null
+          reason?: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          verdict?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           actor_id: string | null
@@ -2004,6 +2058,9 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          moderation_ban_reason: string | null
+          moderation_banned_at: string | null
+          moderation_previous_status: string | null
           phone: string
           referral_code: string
           referred_by: string | null
@@ -2025,6 +2082,9 @@ export type Database = {
           email?: string
           full_name?: string
           id?: string
+          moderation_ban_reason?: string | null
+          moderation_banned_at?: string | null
+          moderation_previous_status?: string | null
           phone?: string
           referral_code: string
           referred_by?: string | null
@@ -2046,6 +2106,9 @@ export type Database = {
           email?: string
           full_name?: string
           id?: string
+          moderation_ban_reason?: string | null
+          moderation_banned_at?: string | null
+          moderation_previous_status?: string | null
           phone?: string
           referral_code?: string
           referred_by?: string | null
