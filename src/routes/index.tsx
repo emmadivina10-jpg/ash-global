@@ -68,12 +68,12 @@ export const Route = createFileRoute("/")({
 });
 
 const WORLD = [
-  { icon: Store, en: "Services", fr: "Services", enHint: "Book trusted pros", frHint: "Réservez des pros" },
-  { icon: ShoppingBag, en: "ASH Hub", fr: "ASH Hub", enHint: "Buy and sell", frHint: "Achetez et vendez" },
-  { icon: Briefcase, en: "Freelance", fr: "Freelance", enHint: "Hire talent", frHint: "Recrutez des talents" },
-  { icon: Building2, en: "Property", fr: "Immobilier", enHint: "Rent and lease", frHint: "Louez et gérez" },
-  { icon: CalendarDays, en: "Events", fr: "Événements", enHint: "Sell tickets", frHint: "Vendez des billets" },
-  { icon: Tag, en: "Deals", fr: "Offres", enHint: "Save every week", frHint: "Économisez chaque semaine" },
+  { icon: Store, en: "Services", fr: "Services", enHint: "Book verified pros", frHint: "Réservez des pros vérifiés" },
+  { icon: ShoppingBag, en: "ASH Hub", fr: "ASH Hub", enHint: "Buy, sell, get paid", frHint: "Achetez, vendez, encaissez" },
+  { icon: Briefcase, en: "Freelance", fr: "Freelance", enHint: "Hire talent, send offers", frHint: "Recrutez, proposez" },
+  { icon: Building2, en: "Property", fr: "Immobilier", enHint: "Rent, lease, visit", frHint: "Louez, gérez, visitez" },
+  { icon: CalendarDays, en: "Events", fr: "Événements", enHint: "Sell and scan tickets", frHint: "Vendez et scannez des billets" },
+  { icon: Tag, en: "Deals", fr: "Offres", enHint: "Claim weekly savings", frHint: "Profitez des offres" },
   { icon: Users, en: "Social", fr: "Social", enHint: "Feed, stories & Spotlight", frHint: "Fil, stories et Spotlight" },
   { icon: MessageCircle, en: "Chat", fr: "Chat", enHint: "Friends, groups & DMs", frHint: "Amis, groupes et messages" },
 ] as const;
@@ -137,8 +137,8 @@ function Landing() {
             </h1>
             <p className="mt-2 max-w-md text-[12.5px] leading-relaxed text-muted-foreground sm:text-sm lg:mt-4 lg:text-base">
               {fr
-                ? "Là où les opportunités se connectent. Réservez des pros de confiance, vendez, louez, recrutez, partagez avec vos amis et soyez payé en toute sécurité."
-                : "Where opportunities connect. Book trusted pros, sell, rent, hire, share with friends and get paid securely."}
+                ? "Là où les opportunités se connectent. Réservez des pros vérifiés, vendez, louez, recrutez, partagez avec vos amis, discutez et soyez payé en toute sécurité par Mobile Money."
+                : "Where opportunities connect. Book verified pros, sell, rent, hire, share with friends, chat, and get paid securely by Mobile Money."}
             </p>
 
             <div className="mt-4 grid w-full grid-cols-2 gap-1.5 sm:gap-2.5 lg:mt-7 lg:max-w-xl">
