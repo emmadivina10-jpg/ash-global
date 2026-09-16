@@ -149,6 +149,8 @@ export function StoryViewer({
                   toast.success(fr ? "Story supprimée" : "Story deleted");
                   onClose();
                 },
+                onError: (error) =>
+                  toast.error(error instanceof Error ? error.message : fr ? "Suppression impossible." : "Could not delete story."),
               });
             }}
             aria-label={fr ? "Supprimer" : "Delete"}

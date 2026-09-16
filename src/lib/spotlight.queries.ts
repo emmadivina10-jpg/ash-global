@@ -251,6 +251,10 @@ export function useDeleteSpotlight() {
   return useMutation({
     mutationFn: async (entry: SpotlightEntry) => {
       if (entry.source !== "post") throw new Error("Only your own Spotlight posts can be deleted here.");
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user || entry.author_id !== auth.user.id) {
+        throw new Error("Only the person who posted this Spotlight can delete it.");
+      }
       const postId = entry.id.startsWith("post:") ? entry.id.slice(5) : entry.id;
       const { data, error: readError } = await supabase
         .from("spotlight_posts")
@@ -261,8 +265,14 @@ export function useDeleteSpotlight() {
       if (!data) throw new Error("This Spotlight is no longer available.");
 
       const paths = parseMedia(data.media).map((item) => item.path);
-      const { error: deleteError } = await supabase.from("spotlight_posts").delete().eq("id", postId);
+      const { data: deleted, error: deleteError } = await supabase
+        .from("spotlight_posts")
+        .delete()
+        .eq("id", postId)
+        .select("id")
+        .maybeSingle();
       if (deleteError) throw deleteError;
+      if (!deleted) throw new Error("This Spotlight could not be deleted.");
 
       if (paths.length > 0) {
         const { error: storageError } = await supabase.storage.from(SPOTLIGHT_BUCKET).remove(paths);
