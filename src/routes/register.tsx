@@ -11,7 +11,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { AuthLayout } from "@/components/refer/AuthLayout";
 import { SocialAuth } from "@/components/refer/SocialAuth";
-import { CM_PHONE_REGEX, normalizePhone } from "@/lib/format";
+import { isValidPhone, normalizePhone } from "@/lib/format";
 import { useI18n, type TKey } from "@/lib/i18n";
 
 /** Validation messages follow the selected language. */
@@ -24,7 +24,8 @@ function buildSchema(t: (k: TKey) => string) {
         .string()
         .trim()
         .transform(normalizePhone)
-        .refine((value) => CM_PHONE_REGEX.test(value), t("auth.err.phone")),
+        // ASH is live in 175 countries, so any plausible international number is fine.
+        .refine((value) => isValidPhone(value), t("auth.err.phone")),
       password: z.string().min(8, t("auth.err.passwordMin")).max(72),
       confirmPassword: z.string(),
       referralCode: z.string().trim().max(32).optional(),
@@ -199,7 +200,7 @@ function RegisterPage() {
                 autoComplete="tel"
                 value={form.phone}
                 onChange={(event) => update("phone", event.target.value)}
-                placeholder="6XX XXX XXX"
+                placeholder="+237 6XX XXX XXX"
               />
             </Field>
           </div>

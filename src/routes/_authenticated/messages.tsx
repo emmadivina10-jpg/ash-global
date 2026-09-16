@@ -20,6 +20,27 @@ import { useI18n } from "@/lib/i18n";
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { bookingStatusLabel } from "@/lib/booking";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { Archive, Lock, UserPlus } from "lucide-react";
+import { SwipeChatRow } from "@/components/refer/SwipeChatRow";
+import {
+  MAX_PINNED,
+  hashPin,
+  useChatLockPin,
+  useChatPrefs,
+  useDeleteConversation,
+  useSetChatLockPin,
+  useSetChatPref,
+} from "@/lib/chat-prefs";
+import { useMemberSearch, useSendFriendRequest, useFriendships } from "@/lib/social.queries";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const searchSchema = z.object({ c: z.string().optional() });
 
@@ -343,6 +364,35 @@ function MessagesPage() {
   const { data: conversations, isLoading } = useConversations();
   const [term, setTerm] = useState("");
 
+  const { data: prefs } = useChatPrefs();
+  const setPref = useSetChatPref();
+  const deleteChat = useDeleteConversation();
+  const { data: lockPin } = useChatLockPin();
+  const saveLockPin = useSetChatLockPin();
+  const [showArchived, setShowArchived] = useState(false);
+  const [lockedUnlocked, setLockedUnlocked] = useState(false);
+  const [pinDialog, setPinDialog] = useState(false);
+  const [pinValue, setPinValue] = useState("");
+  const { data: people } = useMemberSearch(term);
+  const { data: graph } = useFriendships();
+  const sendFriendRequest = useSendFriendRequest();
+
+  // Typing the chat-lock PIN into the search box reveals the hidden chats.
+  useEffect(() => {
+    let cancelled = false;
+    const value = term.trim();
+    if (!lockPin || value.length < 4) {
+      setLockedUnlocked(false);
+      return;
+    }
+    void hashPin(value).then((hash) => {
+      if (!cancelled) setLockedUnlocked(hash === lockPin);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [term, lockPin]);
+
   const list = conversations ?? [];
 
   // Desktop falls back to the first conversation;
@@ -477,13 +527,95 @@ function MessagesPage() {
       .trim();
   }
 
-  const filtered = term.trim()
+  const searched = term.trim()
     ? list.filter((conv) =>
         `${peerOf(conv)} ${previewOf(conv)}`
           .toLowerCase()
           .includes(term.trim().toLowerCase()),
       )
     : list;
+
+  // Locked chats stay out of the list until the PIN is typed into the search
+  // box, exactly like WhatsApp's locked chats.
+  const visible = searched.filter((conv) => {
+    const pref = prefs?.[conv.id];
+    if (pref?.locked && !lockedUnlocked) return false;
+    if (pref?.archived && !showArchived) return false;
+    return true;
+  });
+
+  const filtered = [...visible].sort((a, b) => {
+    const pinA = prefs?.[a.id]?.pinned ? 1 : 0;
+    const pinB = prefs?.[b.id]?.pinned ? 1 : 0;
+    return pinB - pinA;
+  });
+
+  const archivedCount = list.filter((conv) => prefs?.[conv.id]?.archived).length;
+  const pinnedCount = list.filter((conv) => prefs?.[conv.id]?.pinned).length;
+
+  // Members who are not already in a chat with you — offered as "Add friend".
+  const linkedIds = new Set([
+    ...(graph?.friends ?? []).map((f) => f.other.id),
+    ...(graph?.incoming ?? []).map((f) => f.other.id),
+    ...(graph?.outgoing ?? []).map((f) => f.other.id),
+  ]);
+  const chatPeerIds = new Set(list.map((conv) => peerUserIdOf(conv)).filter(Boolean) as string[]);
+  const newPeople = (people ?? []).filter(
+    (person) => person.id !== user?.id && !linkedIds.has(person.id) && !chatPeerIds.has(person.id),
+  );
+
+  async function togglePin(conversationId: string) {
+    const pinned = Boolean(prefs?.[conversationId]?.pinned);
+    if (!pinned && pinnedCount >= MAX_PINNED) {
+      toast.info(
+        fr ? `Vous pouvez épingler ${MAX_PINNED} discussions.` : `You can pin up to ${MAX_PINNED} chats.`,
+      );
+      return;
+    }
+    setPref.mutate({ conversationId, patch: { pinned: !pinned } });
+  }
+
+  function toggleArchive(conversationId: string) {
+    const archived = Boolean(prefs?.[conversationId]?.archived);
+    setPref.mutate({ conversationId, patch: { archived: !archived } });
+  }
+
+  function toggleLock(conversationId: string) {
+    const locked = Boolean(prefs?.[conversationId]?.locked);
+    if (!locked && !lockPin) {
+      setPinDialog(true);
+      return;
+    }
+    setPref.mutate(
+      { conversationId, patch: { locked: !locked } },
+      {
+        onSuccess: () =>
+          toast.success(
+            locked
+              ? fr
+                ? "Discussion déverrouillée"
+                : "Chat unlocked"
+              : fr
+                ? "Discussion verrouillée et masquée"
+                : "Chat locked and hidden",
+          ),
+      },
+    );
+  }
+
+  function removeChat(conversationId: string) {
+    deleteChat.mutate(conversationId, {
+      onSuccess: () => toast.success(fr ? "Discussion supprimée" : "Chat deleted"),
+      onError: () => {
+        setPref.mutate({ conversationId, patch: { archived: true } });
+        toast.info(
+          fr
+            ? "Cette discussion est liée à une réservation — elle a été archivée."
+            : "This chat belongs to a booking — it was archived instead.",
+        );
+      },
+    });
+  }
 
   return (
     <div className="mx-auto w-full max-w-5xl md:space-y-4">
@@ -531,8 +663,8 @@ function MessagesPage() {
                   onChange={(event) => setTerm(event.target.value)}
                   placeholder={
                     fr
-                      ? "Rechercher une discussion"
-                      : "Search chats"
+                      ? "Rechercher une discussion, un membre ou votre code"
+                      : "Search chats, people or your PIN"
                   }
                   aria-label={
                     fr
@@ -542,7 +674,99 @@ function MessagesPage() {
                   className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                 />
               </div>
+
+              <div className="mt-2 flex items-center gap-2">
+                {archivedCount > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowArchived((value) => !value)}
+                    className="flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold text-muted-foreground"
+                  >
+                    <Archive className="size-3" aria-hidden />
+                    {showArchived
+                      ? fr
+                        ? "Masquer les archives"
+                        : "Hide archived"
+                      : `${fr ? "Archivées" : "Archived"} (${archivedCount})`}
+                  </button>
+                ) : null}
+
+                <button
+                  type="button"
+                  onClick={() => setPinDialog(true)}
+                  className="flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold text-muted-foreground"
+                >
+                  <Lock className="size-3" aria-hidden />
+                  {lockPin
+                    ? fr
+                      ? "Code des discussions"
+                      : "Chat lock PIN"
+                    : fr
+                      ? "Créer un code"
+                      : "Set a PIN"}
+                </button>
+
+                {lockedUnlocked ? (
+                  <span className="rounded-full bg-primary/15 px-2.5 py-1 text-[11px] font-bold text-primary">
+                    {fr ? "Discussions verrouillées affichées" : "Locked chats shown"}
+                  </span>
+                ) : null}
+              </div>
             </div>
+
+            <Dialog open={pinDialog} onOpenChange={setPinDialog}>
+              <DialogContent className="max-w-sm">
+                <DialogHeader>
+                  <DialogTitle>{fr ? "Code des discussions" : "Chat lock PIN"}</DialogTitle>
+                </DialogHeader>
+                <p className="text-xs text-muted-foreground">
+                  {fr
+                    ? "Choisissez un code d'au moins 4 chiffres. Les discussions verrouillées disparaissent de la liste et réapparaissent quand vous tapez ce code dans la recherche."
+                    : "Pick a PIN of at least 4 digits. Locked chats disappear from the list and come back when you type this PIN into the search box."}
+                </p>
+                <Input
+                  type="password"
+                  inputMode="numeric"
+                  value={pinValue}
+                  onChange={(event) => setPinValue(event.target.value.replace(/\D/g, "").slice(0, 8))}
+                  placeholder="••••"
+                  aria-label={fr ? "Code" : "PIN"}
+                />
+                <div className="flex gap-2">
+                  <Button
+                    className="flex-1"
+                    disabled={pinValue.length < 4 || saveLockPin.isPending}
+                    onClick={() =>
+                      saveLockPin.mutate(pinValue, {
+                        onSuccess: () => {
+                          setPinValue("");
+                          setPinDialog(false);
+                          toast.success(fr ? "Code enregistré" : "PIN saved");
+                        },
+                        onError: () => toast.error(fr ? "Échec" : "Could not save the PIN"),
+                      })
+                    }
+                  >
+                    {fr ? "Enregistrer" : "Save PIN"}
+                  </Button>
+                  {lockPin ? (
+                    <Button
+                      variant="outline"
+                      onClick={() =>
+                        saveLockPin.mutate(null, {
+                          onSuccess: () => {
+                            setPinDialog(false);
+                            toast.success(fr ? "Code retiré" : "PIN removed");
+                          },
+                        })
+                      }
+                    >
+                      {fr ? "Retirer" : "Remove"}
+                    </Button>
+                  ) : null}
+                </div>
+              </DialogContent>
+            </Dialog>
 
             <nav className="min-h-0 flex-1 divide-y divide-border overflow-y-auto">
               {term.trim() &&
@@ -604,8 +828,18 @@ function MessagesPage() {
                 const avatarColor = getAvatarColor(conv.id);
 
                 return (
-                  <button
+                  <SwipeChatRow
                     key={conv.id}
+                    fr={fr}
+                    pinned={Boolean(prefs?.[conv.id]?.pinned)}
+                    archived={Boolean(prefs?.[conv.id]?.archived)}
+                    locked={Boolean(prefs?.[conv.id]?.locked)}
+                    onTogglePin={() => void togglePin(conv.id)}
+                    onArchive={() => toggleArchive(conv.id)}
+                    onToggleLock={() => toggleLock(conv.id)}
+                    onDelete={() => removeChat(conv.id)}
+                  >
+                  <button
                     type="button"
                     onClick={() =>
                       void navigate({
@@ -678,8 +912,46 @@ function MessagesPage() {
                       </span>
                     </span>
                   </button>
+                  </SwipeChatRow>
                 );
               })}
+
+              {/* People on ASH you have not met yet. */}
+              {term.trim().length >= 2 && newPeople.length > 0 ? (
+                <div className="space-y-2 border-t border-border bg-muted/30 p-3">
+                  <p className="text-[11px] font-extrabold uppercase tracking-wide text-muted-foreground">
+                    {fr ? "Autres membres ASH" : "Other people on ASH"}
+                  </p>
+                  {newPeople.slice(0, 8).map((person) => (
+                    <div key={person.id} className="flex items-center gap-2">
+                      <Avatar path={person.avatar_url} name={person.name} className="size-9" />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          void routerNavigate({ to: "/u/$userId", params: { userId: person.id } })
+                        }
+                        className="min-w-0 flex-1 truncate text-left text-[13px] font-semibold text-foreground"
+                      >
+                        {person.name}
+                      </button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() =>
+                          sendFriendRequest.mutate(person.id, {
+                            onSuccess: () =>
+                              toast.success(fr ? "Demande envoyée" : "Friend request sent"),
+                            onError: () => toast.error(fr ? "Échec de l'envoi" : "Could not send"),
+                          })
+                        }
+                      >
+                        <UserPlus className="size-4" aria-hidden />
+                        {fr ? "Ajouter" : "Add"}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </nav>
           </div>
 
