@@ -47,31 +47,76 @@ function FeedPage() {
   const [composerOpen, setComposerOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [me, setMe] = useState<string | null>(null);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
 
   useEffect(() => {
     void supabase.auth.getUser().then(({ data }) => setMe(data.user?.id ?? null));
   }, []);
 
   function pick(event: React.ChangeEvent<HTMLInputElement>) {
-    const picked = Array.from(event.target.files ?? []).filter((file) => file.type.startsWith("image/"));
+    const picked = Array.from(event.target.files ?? [])
+      .filter((file) => file.type.startsWith("image/"));
+
     event.target.value = "";
-    setFiles((current) => [...current, ...picked].slice(0, 4));
+
+    if (picked.length === 0) {
+      toast.error(fr ? "Veuillez choisir une image." : "Please choose an image.");
+      return;
+    }
+
+    setFiles((current) => {
+      const next = [...current, ...picked].slice(0, 4);
+      return next;
+    });
+
+    setComposerOpen(true);
   }
 
-  function publish() {
-    create.mutate(
-      { caption, files },
-      {
-        onSuccess: () => {
-          setCaption("");
-          setFiles([]);
-          setComposerOpen(false);
-          toast.success(fr ? "Publié" : "Posted");
-        },
-        onError: (error) => toast.error(error instanceof Error ? error.message : "Could not post."),
-      },
-    );
+  function removeFile(index: number) {
+    setFiles((current) => current.filter((_, i) => i !== index));
   }
+
+  function clearComposer() {
+    setCaption("");
+    setFiles([]);
+    setComposerOpen(false);
+  }
+
+  async function publish() {
+    if (create.isPending) return;
+
+    const cleanCaption = caption.trim();
+
+    if (!cleanCaption && files.length === 0) {
+      toast.error(fr ? "Ajoutez une photo ou écrivez quelque chose." : "Add a photo or write something.");
+      return;
+    }
+
+    try {
+      await create.mutateAsync({
+        caption: cleanCaption,
+        files,
+      });
+
+      clearComposer();
+      toast.success(fr ? "Publication créée" : "Post published");
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : (fr ? "Impossible de publier. Veuillez réessayer." : "Could not publish. Please try again."),
+      );
+    }
+  }
+
+  useEffect(() => {
+    const urls = files.map((file) => URL.createObjectURL(file));
+    setPreviewUrls(urls);
+
+    return () => {
+      urls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [files]);
 
   const firstName = (profile?.full_name ?? "").trim().split(" ")[0] ?? "";
 
@@ -198,18 +243,18 @@ function FeedPage() {
 
         {files.length > 0 ? (
           <div className="mt-3 flex flex-wrap gap-2">
-            {files.map((file, index) => (
-              <span key={index} className="relative">
+            {previewUrls.map((url, index) => (
+              <span key={`${url}-${index}`} className="relative">
                 <img
-                  src={URL.createObjectURL(file)}
+                  src={url}
                   alt=""
                   className="size-20 rounded-xl border border-border object-cover"
                 />
                 <button
                   type="button"
                   aria-label={fr ? "Retirer" : "Remove"}
-                  onClick={() => setFiles((current) => current.filter((_, i) => i !== index))}
-                  className="absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-foreground text-background"
+                  onClick={() => removeFile(index)}
+                  className="absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-foreground text-background shadow-sm"
                 >
                   <X className="size-3" aria-hidden />
                 </button>
@@ -235,10 +280,10 @@ function FeedPage() {
               size="sm"
               onClick={publish}
               disabled={create.isPending || (caption.trim().length === 0 && files.length === 0)}
-              className="touch-manipulation"
+              className="touch-manipulation min-w-20"
             >
               {create.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-              {fr ? "Publier" : "Post"}
+              {create.isPending ? (fr ? "Publication..." : "Posting...") : (fr ? "Publier" : "Post")}
             </Button>
           </div>
         ) : null}
