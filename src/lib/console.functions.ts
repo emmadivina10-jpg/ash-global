@@ -284,7 +284,20 @@ export const creditUserWallet = createServerFn({
       adminClient,
     } = await import("./console.server");
 
-    await requireDepartment("REVENUE");
+    try {
+      await requireDepartment("REVENUE");
+    } catch (err) {
+      const code =
+        err instanceof Error ? err.message : "FORBIDDEN";
+      return {
+        ok: false as const,
+        error:
+          code === "CONSOLE_LOCKED"
+            ? "UNAUTHENTICATED"
+            : "FORBIDDEN",
+      };
+    }
+
 
     if (!data.userId) {
       return {
