@@ -525,6 +525,8 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
               "Authors can switch on a comment filter for any post they publish; comments that our moderation check flags as abusive are then blocked before they appear.",
               "Any user can block another user instantly; blocked users can no longer send them messages.",
               "Reports reach the ASH Trust & Safety team and are reviewed within 24 hours; breaching content is removed and accounts suspended or terminated.",
+              "Newly submitted images and video previews are automatically screened for explicit nudity before publication. High-confidence violations are deleted immediately and the account is restricted pending human review; uncertain media remains unpublished for review.",
+              "Members may appeal an automated restriction through Support. Only authorized Trust & Safety administrators can uphold or remove a restriction, and deleted explicit media is not restored.",
               "ASH Glo is an 18+ service. We do not knowingly collect data from children; child sexual abuse and exploitation material is prohibited, removed and reported to the competent authorities. Contact privacy@ashglogroup.company for child-safety concerns.",
             ]}
           />

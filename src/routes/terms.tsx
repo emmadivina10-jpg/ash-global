@@ -96,6 +96,11 @@ function TermsPage() {
             team within 24 hours; content that breaches this policy is removed and the account is suspended or
             terminated without refund. Repeat or severe breaches are reported to the competent authorities.
           </p>
+          <p>
+            ASH automatically screens newly submitted images and video previews before publication. High-confidence
+            explicit nudity is deleted immediately and the account is restricted until an authorized administrator
+            reviews the case. Uncertain media is not published. You may appeal a restriction through Support.
+          </p>
         </Section>
 
         <Section id="bookings" title="4. Bookings, payments and fees">
