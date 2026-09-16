@@ -3,6 +3,7 @@
  * reposts, friend requests, groups and chat preferences. Everything here reads
  * and writes real member data; nothing is seeded.
  */
+import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { verifyMediaFiles } from "./media-safety";
@@ -10,6 +11,19 @@ import { verifyMediaFiles } from "./media-safety";
 export const SOCIAL_BUCKET = "spotlight";
 /** Largest single photo accepted by a story or a feed post. */
 export const SOCIAL_MAX_BYTES = 12 * 1024 * 1024;
+export type ReactionType = "love" | "like" | "haha" | "wow" | "sad" | "angry";
+export type ReactionBreakdown = Record<ReactionType, number>;
+export const EMPTY_REACTIONS: ReactionBreakdown = { love: 0, like: 0, haha: 0, wow: 0, sad: 0, angry: 0 };
+
+function summarizeReactions(rows: Array<{ reaction_type: string; user_id: string }>, me: string | null) {
+  const breakdown = { ...EMPTY_REACTIONS };
+  let current: ReactionType | null = null;
+  for (const row of rows) {
+    if (row.reaction_type in breakdown) breakdown[row.reaction_type as ReactionType] += 1;
+    if (row.user_id === me) current = row.reaction_type as ReactionType;
+  }
+  return { breakdown, current, total: rows.length };
+}
 
 export type SocialAuthor = {
   id: string;
@@ -259,6 +273,8 @@ export type FeedPost = {
   repost_count: number;
   filter_comments: boolean;
   liked: boolean;
+  current_reaction: ReactionType | null;
+  reaction_breakdown: ReactionBreakdown;
   reposted: boolean;
   created_at: string;
   author: SocialAuthor;
@@ -293,8 +309,15 @@ export function useSocialFeed(limit = 40) {
       }[];
       if (rows.length === 0) return [];
       const paths = rows.flatMap((r) => parseImages(r.media));
-      const [signed, authors] = await Promise.all([signPaths(paths), loadAuthors(rows.map((r) => r.author_id))]);
-      return rows.map((r) => ({
+      const me = await currentUserId();
+      const [signed, authors, reactionResult] = await Promise.all([
+        signPaths(paths),
+        loadAuthors(rows.map((r) => r.author_id)),
+        supabase.from("post_likes").select("post_id, user_id, reaction_type").in("post_id", rows.map((r) => r.id)),
+      ]);
+      return rows.map((r) => {
+        const reaction = summarizeReactions(((reactionResult.data ?? []) as Array<{ post_id: string; user_id: string; reaction_type: string }>).filter((item) => item.post_id === r.id), me);
+        return ({
         id: r.id,
         author_id: r.author_id,
         caption: r.caption,
@@ -302,15 +325,18 @@ export function useSocialFeed(limit = 40) {
         images: parseImages(r.media)
           .map((p) => signed[p])
           .filter((u): u is string => Boolean(u)),
-        like_count: r.like_count,
+        like_count: reaction.total,
         comment_count: r.comment_count,
         repost_count: r.repost_count,
         filter_comments: r.filter_comments,
         liked: r.liked,
+        current_reaction: reaction.current,
+        reaction_breakdown: reaction.breakdown,
         reposted: r.reposted,
         created_at: r.created_at,
         author: authors.get(r.author_id) ?? { id: r.author_id, name: "ASH member", avatar_url: null },
-      }));
+        });
+      });
     },
   });
 }
@@ -342,17 +368,16 @@ export function usePost(postId: string | null | undefined) {
       } | null;
       if (!row) return null;
 
-      const [signed, authors, liked, reposted] = await Promise.all([
+      const [signed, authors, reactions, reposted] = await Promise.all([
         signPaths(parseImages(row.media)),
         loadAuthors([row.author_id]),
-        me
-          ? supabase.from("post_likes").select("post_id").eq("post_id", row.id).eq("user_id", me).maybeSingle()
-          : Promise.resolve({ data: null }),
+        supabase.from("post_likes").select("user_id, reaction_type").eq("post_id", row.id),
         me
           ? supabase.from("post_reposts").select("post_id").eq("post_id", row.id).eq("user_id", me).maybeSingle()
           : Promise.resolve({ data: null }),
       ]);
 
+      const reaction = summarizeReactions((reactions.data ?? []) as Array<{ user_id: string; reaction_type: string }>, me);
       return {
         id: row.id,
         author_id: row.author_id,
@@ -361,11 +386,13 @@ export function usePost(postId: string | null | undefined) {
         images: parseImages(row.media)
           .map((p) => signed[p])
           .filter((u): u is string => Boolean(u)),
-        like_count: row.like_count,
+        like_count: reaction.total,
         comment_count: row.comment_count,
         repost_count: row.repost_count,
         filter_comments: row.filter_comments,
-        liked: Boolean(liked.data),
+        liked: reaction.current !== null,
+        current_reaction: reaction.current,
+        reaction_breakdown: reaction.breakdown,
         reposted: Boolean(reposted.data),
         created_at: row.created_at,
         author: authors.get(row.author_id) ?? { id: row.author_id, name: "ASH member", avatar_url: null },
@@ -442,15 +469,24 @@ export function useToggleLike() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ postId, liked }: { postId: string; liked: boolean }) => {
-      const userId = await currentUserId();
-      if (!userId) throw new Error("You need to be signed in.");
-      if (liked) {
-        await supabase.from("post_likes").delete().eq("post_id", postId).eq("user_id", userId);
-      } else {
-        await supabase.from("post_likes").insert({ post_id: postId, user_id: userId });
-      }
+      const { error } = await supabase.rpc("set_post_reaction", { _post_id: postId, _reaction_type: liked ? "" : "like" });
+      if (error) throw error;
     },
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["social-feed"] }),
+  });
+}
+
+export function useSetPostReaction() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ postId, reaction }: { postId: string; reaction: ReactionType | null }) => {
+      const { error } = await supabase.rpc("set_post_reaction", { _post_id: postId, _reaction_type: reaction ?? "" });
+      if (error) throw error;
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: ["social-feed"] });
+      void queryClient.invalidateQueries({ queryKey: ["social-post", variables.postId] });
+    },
   });
 }
 
@@ -520,6 +556,8 @@ export type PostComment = {
   author: SocialAuthor;
   like_count: number;
   liked: boolean;
+  current_reaction: ReactionType | null;
+  reaction_breakdown: ReactionBreakdown;
   replies: PostComment[];
 };
 
@@ -550,17 +588,14 @@ export function useComments(postId: string | null) {
         me && rows.length
           ? supabase
               .from("comment_likes")
-              .select("comment_id")
-              .eq("user_id", me)
+              .select("comment_id, user_id, reaction_type")
               .in("comment_id", rows.map((r) => r.id))
           : Promise.resolve({ data: [] }),
       ]);
-      const likedIds = new Set(
-        ((likedResult.data ?? []) as { comment_id: string }[]).map((row) => row.comment_id),
-      );
       const byId = new Map<string, PostComment>();
       const roots: PostComment[] = [];
       for (const row of rows) {
+        const reaction = summarizeReactions(((likedResult.data ?? []) as Array<{ comment_id: string; user_id: string; reaction_type: string }>).filter((item) => item.comment_id === row.id), me);
         byId.set(row.id, {
           id: row.id,
           post_id: row.post_id,
@@ -568,8 +603,10 @@ export function useComments(postId: string | null) {
           body: row.body,
           created_at: row.created_at,
           author: authors.get(row.author_id) ?? { id: row.author_id, name: "ASH member", avatar_url: null },
-          like_count: row.like_count ?? 0,
-          liked: likedIds.has(row.id),
+          like_count: reaction.total,
+          liked: reaction.current !== null,
+          current_reaction: reaction.current,
+          reaction_breakdown: reaction.breakdown,
           replies: [],
         });
       }
@@ -588,23 +625,70 @@ export function useToggleCommentLike() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ commentId, liked }: { commentId: string; liked: boolean; postId: string }) => {
-      const userId = await currentUserId();
-      if (!userId) throw new Error("You need to be signed in.");
-      if (liked) {
-        const { error } = await supabase
-          .from("comment_likes")
-          .delete()
-          .eq("comment_id", commentId)
-          .eq("user_id", userId);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from("comment_likes").insert({ comment_id: commentId, user_id: userId });
-        if (error) throw error;
-      }
+      const { error } = await supabase.rpc("set_comment_reaction", { _comment_id: commentId, _reaction_type: liked ? "" : "like" });
+      if (error) throw error;
     },
     onSuccess: (_result, variables) =>
       void queryClient.invalidateQueries({ queryKey: ["post-comments", variables.postId] }),
   });
+}
+
+export function useSetCommentReaction() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ commentId, reaction }: { commentId: string; postId: string; reaction: ReactionType | null }) => {
+      const { error } = await supabase.rpc("set_comment_reaction", { _comment_id: commentId, _reaction_type: reaction ?? "" });
+      if (error) throw error;
+    },
+    onSuccess: (_data, variables) => void queryClient.invalidateQueries({ queryKey: ["post-comments", variables.postId] }),
+  });
+}
+
+export function useSetStoryReaction() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ storyId, reaction }: { storyId: string; reaction: ReactionType | null }) => {
+      const { error } = await supabase.rpc("set_story_reaction", { _story_id: storyId, _reaction_type: reaction ?? "" });
+      if (error) throw error;
+    },
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["stories"] }),
+  });
+}
+
+export function useEngagementRealtime(postId?: string | null) {
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    const channel = supabase.channel(`engagement:${postId ?? "feed"}:${crypto.randomUUID()}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "post_likes", ...(postId ? { filter: `post_id=eq.${postId}` } : {}) }, () => {
+        void queryClient.invalidateQueries({ queryKey: ["social-feed"] });
+        if (postId) void queryClient.invalidateQueries({ queryKey: ["social-post", postId] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "comment_likes" }, () => {
+        if (postId) void queryClient.invalidateQueries({ queryKey: ["post-comments", postId] });
+      }).subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, [postId, queryClient]);
+}
+
+export function useTagPeopleSearch(term: string) {
+  return useQuery({ queryKey: ["tag-people", term], enabled: term.trim().length >= 2, queryFn: async () => {
+    const { data, error } = await supabase.rpc("search_tag_people", { _query: term.trim(), _limit: 10 });
+    if (error) throw error; return data ?? [];
+  } });
+}
+
+export function useHashtagSuggestions(term: string) {
+  return useQuery({ queryKey: ["hashtag-suggestions", term], enabled: term.trim().length >= 2, queryFn: async () => {
+    const { data, error } = await supabase.from("hashtags").select("id, name, usage_count").ilike("name", `${term.trim().toLowerCase()}%`).gt("usage_count", 0).order("usage_count", { ascending: false }).limit(10);
+    if (error) throw error; return data ?? [];
+  } });
+}
+
+export function useHashtagFeed(tag: string, page = 0, sort: "recent" | "top" = "recent") {
+  return useQuery({ queryKey: ["hashtag-feed", tag, page, sort], enabled: Boolean(tag), queryFn: async () => {
+    const { data, error } = await supabase.rpc("hashtag_feed", { _normalized_name: tag.toLowerCase().replace(/^#/, ""), _limit: 20, _offset: page * 20, _sort: sort });
+    if (error) throw error; return data ?? [];
+  } });
 }
 
 export function useAddComment() {
