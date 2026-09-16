@@ -366,18 +366,24 @@ export type Database = {
           comment_id: string
           created_at: string
           id: string
+          reaction_type: string
+          updated_at: string
           user_id: string
         }
         Insert: {
           comment_id: string
           created_at?: string
           id?: string
+          reaction_type?: string
+          updated_at?: string
           user_id: string
         }
         Update: {
           comment_id?: string
           created_at?: string
           id?: string
+          reaction_type?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: [
@@ -387,6 +393,48 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "post_comments"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_mentions: {
+        Row: {
+          actor_id: string
+          content_id: string
+          content_type: string
+          created_at: string
+          id: string
+          mentioned_user_id: string
+        }
+        Insert: {
+          actor_id: string
+          content_id: string
+          content_type: string
+          created_at?: string
+          id?: string
+          mentioned_user_id: string
+        }
+        Update: {
+          actor_id?: string
+          content_id?: string
+          content_type?: string
+          created_at?: string
+          id?: string
+          mentioned_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_mentions_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "content_mentions_mentioned_user_id_fkey"
+            columns: ["mentioned_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -1148,6 +1196,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      hashtags: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          normalized_name: string
+          updated_at: string
+          usage_count: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          normalized_name: string
+          updated_at?: string
+          usage_count?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          normalized_name?: string
+          updated_at?: string
+          usage_count?: number
+        }
+        Relationships: []
       }
       impersonation_attempts: {
         Row: {
@@ -1990,23 +2065,62 @@ export type Database = {
           },
         ]
       }
+      post_hashtags: {
+        Row: {
+          created_at: string
+          hashtag_id: string
+          post_id: string
+        }
+        Insert: {
+          created_at?: string
+          hashtag_id: string
+          post_id: string
+        }
+        Update: {
+          created_at?: string
+          hashtag_id?: string
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_hashtags_hashtag_id_fkey"
+            columns: ["hashtag_id"]
+            isOneToOne: false
+            referencedRelation: "hashtags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_hashtags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "social_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_likes: {
         Row: {
           created_at: string
           id: string
           post_id: string
+          reaction_type: string
+          updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
           post_id: string
+          reaction_type?: string
+          updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
           post_id?: string
+          reaction_type?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: [
@@ -2016,6 +2130,67 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "social_posts"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_photo_tags: {
+        Row: {
+          created_at: string
+          id: string
+          image_index: number
+          post_id: string
+          status: string
+          tagged_by: string
+          tagged_user_id: string
+          updated_at: string
+          x: number
+          y: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_index: number
+          post_id: string
+          status?: string
+          tagged_by: string
+          tagged_user_id: string
+          updated_at?: string
+          x: number
+          y: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_index?: number
+          post_id?: string
+          status?: string
+          tagged_by?: string
+          tagged_user_id?: string
+          updated_at?: string
+          x?: number
+          y?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_photo_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "social_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_photo_tags_tagged_by_fkey"
+            columns: ["tagged_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "post_photo_tags_tagged_user_id_fkey"
+            columns: ["tagged_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -2070,6 +2245,7 @@ export type Database = {
           terms_accepted_at: string | null
           updated_at: string
           user_id: string
+          username: string
           verified_tier: string | null
           verified_until: string | null
         }
@@ -2094,6 +2270,7 @@ export type Database = {
           terms_accepted_at?: string | null
           updated_at?: string
           user_id: string
+          username: string
           verified_tier?: string | null
           verified_until?: string | null
         }
@@ -2118,6 +2295,7 @@ export type Database = {
           terms_accepted_at?: string | null
           updated_at?: string
           user_id?: string
+          username?: string
           verified_tier?: string | null
           verified_until?: string | null
         }
@@ -2970,6 +3148,39 @@ export type Database = {
           },
         ]
       }
+      spotlight_hashtags: {
+        Row: {
+          created_at: string
+          hashtag_id: string
+          spotlight_id: string
+        }
+        Insert: {
+          created_at?: string
+          hashtag_id: string
+          spotlight_id: string
+        }
+        Update: {
+          created_at?: string
+          hashtag_id?: string
+          spotlight_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spotlight_hashtags_hashtag_id_fkey"
+            columns: ["hashtag_id"]
+            isOneToOne: false
+            referencedRelation: "hashtags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "spotlight_hashtags_spotlight_id_fkey"
+            columns: ["spotlight_id"]
+            isOneToOne: false
+            referencedRelation: "spotlight_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       spotlight_posts: {
         Row: {
           author_id: string
@@ -3011,6 +3222,48 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "provider_profiles"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      spotlight_reactions: {
+        Row: {
+          created_at: string
+          id: string
+          reaction_type: string
+          spotlight_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reaction_type: string
+          spotlight_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reaction_type?: string
+          spotlight_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spotlight_reactions_spotlight_id_fkey"
+            columns: ["spotlight_id"]
+            isOneToOne: false
+            referencedRelation: "spotlight_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "spotlight_reactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -3172,6 +3425,87 @@ export type Database = {
         }
         Relationships: []
       }
+      story_reactions: {
+        Row: {
+          created_at: string
+          id: string
+          reaction_type: string
+          story_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reaction_type: string
+          story_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reaction_type?: string
+          story_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_reactions_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "stories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "story_reactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      story_replies: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          story_id: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          story_id: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          story_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_replies_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "stories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "story_replies_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       story_views: {
         Row: {
           created_at: string
@@ -3280,6 +3614,38 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      tag_preferences: {
+        Row: {
+          created_at: string
+          review_tags: boolean
+          updated_at: string
+          user_id: string
+          who_can_tag: string
+        }
+        Insert: {
+          created_at?: string
+          review_tags?: boolean
+          updated_at?: string
+          user_id: string
+          who_can_tag?: string
+        }
+        Update: {
+          created_at?: string
+          review_tags?: boolean
+          updated_at?: string
+          user_id?: string
+          who_can_tag?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tag_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       transactions: {
         Row: {
@@ -3578,6 +3944,15 @@ export type Database = {
         Returns: Json
       }
       expire_property_listings: { Args: never; Returns: number }
+      extract_social_tokens: {
+        Args: {
+          _actor_id: string
+          _body: string
+          _content_id: string
+          _content_type: string
+        }
+        Returns: undefined
+      }
       fail_booking_payment: {
         Args: { _payment_reference: string; _status: string }
         Returns: Json
@@ -3640,6 +4015,26 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      hashtag_feed: {
+        Args: {
+          _limit?: number
+          _normalized_name: string
+          _offset?: number
+          _sort?: string
+        }
+        Returns: {
+          author_id: string
+          caption: string
+          city: string
+          comment_count: number
+          created_at: string
+          filter_comments: boolean
+          id: string
+          like_count: number
+          media: Json
+          repost_count: number
+        }[]
       }
       is_blocked_pair: { Args: { _a: string; _b: string }; Returns: boolean }
       is_conversation_participant: {
@@ -3761,12 +4156,39 @@ export type Database = {
         }
         Returns: undefined
       }
+      search_tag_people: {
+        Args: { _limit?: number; _query: string }
+        Returns: {
+          avatar_url: string
+          full_name: string
+          user_id: string
+          username: string
+          verified_tier: string
+          verified_until: string
+        }[]
+      }
       security_housekeeping: { Args: never; Returns: undefined }
       security_overview: { Args: { _hours?: number }; Returns: Json }
       security_selfcheck: { Args: never; Returns: Json }
       set_booking_progress: {
         Args: { _booking_id: string; _status: string }
         Returns: Json
+      }
+      set_comment_reaction: {
+        Args: { _comment_id: string; _reaction_type: string }
+        Returns: undefined
+      }
+      set_post_reaction: {
+        Args: { _post_id: string; _reaction_type: string }
+        Returns: undefined
+      }
+      set_spotlight_reaction: {
+        Args: { _reaction_type: string; _spotlight_id: string }
+        Returns: undefined
+      }
+      set_story_reaction: {
+        Args: { _reaction_type: string; _story_id: string }
+        Returns: undefined
       }
       settle_withdrawal: {
         Args: {
