@@ -106,13 +106,13 @@ export function useSpotlightFeed(limit = 18) {
         authorIds.length
           ? supabase.from("profiles").select("user_id, full_name, avatar_url").in("user_id", authorIds)
           : Promise.resolve({ data: [] }),
-        postRows.length ? supabase.from("spotlight_reactions").select("spotlight_id, user_id, reaction_type").in("spotlight_id", postRows.map((row) => row.id)) : Promise.resolve({ data: [] }),
         providerIds.length
           ? supabase
               .from("provider_profiles")
               .select("id, business_name, slug, city, avatar_url, is_verified")
               .in("id", providerIds)
           : Promise.resolve({ data: [] }),
+        postRows.length ? supabase.from("spotlight_reactions").select("spotlight_id, user_id, reaction_type").in("spotlight_id", postRows.map((row) => row.id)) : Promise.resolve({ data: [] }),
       ]);
 
       const profiles = new Map(

@@ -5,8 +5,10 @@ import { toast } from "sonner";
 import { Avatar } from "./AvatarUpload";
 import { Button } from "@/components/ui/button";
 import { contactVendor, openMemberConversation, sendOpeningMessage } from "@/lib/contact-vendor";
-import { useDeleteSpotlight, type SpotlightEntry } from "@/lib/spotlight.queries";
+import { useDeleteSpotlight, useSetSpotlightReaction, type SpotlightEntry } from "@/lib/spotlight.queries";
 import { useI18n } from "@/lib/i18n";
+import { ReactionButton } from "./ReactionButton";
+import { SocialText } from "./SocialText";
 
 /**
  * Full-screen, reels-style Spotlight browser: one highlight per screen,
@@ -30,6 +32,7 @@ export function SpotlightReels({
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const remove = useDeleteSpotlight();
+  const react = useSetSpotlightReaction();
 
   useEffect(() => {
     const node = scrollerRef.current;
@@ -168,8 +171,10 @@ export function SpotlightReels({
               </div>
 
               {entry.caption ? (
-                <p className="line-clamp-3 text-sm leading-relaxed text-white/90">{entry.caption}</p>
+                <SocialText text={entry.caption} className="line-clamp-3 text-sm leading-relaxed text-white/90" />
               ) : null}
+
+              {entry.source === "post" ? <div className="w-fit rounded-full bg-background/85 backdrop-blur"><ReactionButton value={entry.current_reaction} total={entry.reaction_count} breakdown={entry.reaction_breakdown} disabled={!currentUserId || react.isPending} onChange={(reaction) => react.mutate({ spotlightId: entry.id.replace("post:", ""), reaction })} /></div> : null}
 
               <Button
                 onClick={() => void contact(entry)}
