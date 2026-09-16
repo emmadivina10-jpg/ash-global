@@ -3705,10 +3705,24 @@ export type Database = {
         }
         Returns: Json
       }
+      record_media_moderation: {
+        Args: {
+          _confidence: number
+          _content_type: string
+          _media_hash: string
+          _media_type: string
+          _original_name: string
+          _reason: string
+          _user_id: string
+          _verdict: string
+        }
+        Returns: string
+      }
       record_property_view: {
         Args: { _listing_id: string }
         Returns: undefined
       }
+      release_housekeeping: { Args: never; Returns: Json }
       request_booking: {
         Args: {
           _address?: string
@@ -3737,6 +3751,15 @@ export type Database = {
           _viewing_id: string
         }
         Returns: Json
+      }
+      review_media_moderation: {
+        Args: {
+          _case_id: string
+          _decision: string
+          _note: string
+          _reviewed_by: string
+        }
+        Returns: undefined
       }
       security_housekeeping: { Args: never; Returns: undefined }
       security_overview: { Args: { _hours?: number }; Returns: Json }
