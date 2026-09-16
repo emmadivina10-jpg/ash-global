@@ -39,7 +39,6 @@ import { NotificationBell } from "./NotificationBell";
 import { PushBridge } from "./PushBridge";
 import { WelcomeIntro } from "./WelcomeIntro";
 import { SwipeBack } from "./SwipeBack";
-import { PullToRefresh } from "./PullToRefresh";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAvatarUrl } from "./AvatarUpload";
 import {
@@ -329,7 +328,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </header>
 
           <div className="flex min-h-0 min-w-0 flex-1">
-            <main className="app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:px-8 lg:pb-10"><PullToRefresh>{children}</PullToRefresh></main>
+            <main className="app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:px-8 lg:pb-10">{children}</main>
             <RightRail />
           </div>
         </div>
