@@ -263,17 +263,12 @@ function SettingsPage() {
           <Button asChild variant="outline">
             <Link to="/terms">Terms of Service</Link>
           </Button>
+          <Button asChild variant="outline">
+            <Link to="/contact">Contact</Link>
+          </Button>
         </div>
         <p className="mt-3 text-xs text-muted-foreground">
-          Need help?{" "}
-          <a
-            href="https://ash-glo-support.base44.app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-medium text-primary hover:underline"
-          >
-            Visit Help & Support
-          </a>
+          Need help? Use the official ASH support form above.
         </p>
 
       </SectionCard>
