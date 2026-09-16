@@ -704,31 +704,123 @@ html.native .app-shell > nav {
   background-size: 26px 26px, 34px 34px;
 }
 
-/* Bottom tab bar: keep the bar flush with the screen edge and paint any
-   residual strip below it (iOS home-indicator area) in the bar's own colour
-   so no empty/white band can show while scrolling. */
+/* Signature phone navigation: a compact floating capsule with an elevated
+   ASH Hub orb. The clear safe-area gap intentionally remains outside the pill. */
 .app-shell > nav {
-  bottom: 0;
   transform: translateZ(0);
   backface-visibility: hidden;
 }
 
-.nav-bar-fill {
-  position: relative;
-  background-color: color-mix(in oklab, var(--color-card) 92%, var(--color-background));
+.premium-mobile-nav {
+  bottom: calc(0.55rem + env(safe-area-inset-bottom));
+  padding-inline: 0.625rem;
+  pointer-events: none;
 }
 
-.nav-bar-fill::after {
+.nav-bar-fill {
+  position: relative;
+  background-color: color-mix(in oklab, var(--color-card) 82%, transparent);
+}
+
+.premium-nav-pill {
+  pointer-events: auto;
+  box-shadow:
+    0 12px 30px color-mix(in oklab, var(--color-foreground) 11%, transparent),
+    0 0 24px color-mix(in oklab, var(--color-primary) 9%, transparent),
+    inset 0 1px 0 color-mix(in oklab, var(--color-background) 68%, transparent);
+  -webkit-backdrop-filter: blur(22px) saturate(145%);
+  backdrop-filter: blur(22px) saturate(145%);
+}
+
+.premium-nav-grid {
+  --nav-index: 0;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.premium-nav-bubble {
   content: "";
-  position: fixed;
-  top: auto;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: calc(env(safe-area-inset-bottom) + 6rem);
-  z-index: -1;
-  background-color: color-mix(in oklab, var(--color-card) 92%, var(--color-background));
+  position: absolute;
+  z-index: 0;
+  top: 0.55rem;
+  left: 1%;
+  width: 18%;
+  height: 3.1rem;
+  border-radius: 999px;
+  opacity: 0;
+  background: color-mix(in oklab, var(--color-primary) 10%, transparent);
+  box-shadow: 0 0 18px color-mix(in oklab, var(--color-primary) 12%, transparent);
+  transform: translateX(calc(var(--nav-index) * 111.111%)) scale(0.82);
+  transition: transform 360ms cubic-bezier(0.2, 0.9, 0.2, 1.15), opacity 180ms ease;
   pointer-events: none;
+}
+
+.premium-nav-grid.is-gesturing .premium-nav-bubble {
+  opacity: 1;
+  transform: translateX(calc(var(--nav-index) * 111.111%)) scale(1);
+}
+
+.premium-nav-item {
+  z-index: 1;
+  transition: color 180ms ease, transform 340ms cubic-bezier(0.2, 0.9, 0.2, 1.18);
+}
+
+.premium-nav-item-selected {
+  transform: translateY(-0.22rem) scale(1.07);
+}
+
+.premium-nav-item-neighbor {
+  transform: translateY(-0.08rem) scale(1.02);
+}
+
+.premium-hub-link {
+  transition: color 180ms ease, transform 360ms cubic-bezier(0.2, 0.9, 0.2, 1.18);
+}
+
+.premium-hub-link:active,
+.premium-hub-link.is-selected {
+  transform: translateY(-0.12rem) scale(1.055);
+}
+
+.premium-hub-orb {
+  box-shadow:
+    0 10px 24px color-mix(in oklab, var(--color-foreground) 18%, transparent),
+    0 0 23px color-mix(in oklab, var(--color-primary) 28%, transparent),
+    0 0 42px color-mix(in oklab, var(--color-accent) 16%, transparent);
+  transition: transform 360ms cubic-bezier(0.2, 0.9, 0.2, 1.18), box-shadow 240ms ease;
+}
+
+.premium-hub-orb.is-active,
+.premium-hub-link.is-selected .premium-hub-orb {
+  box-shadow:
+    0 12px 26px color-mix(in oklab, var(--color-foreground) 20%, transparent),
+    0 0 25px color-mix(in oklab, var(--color-primary) 42%, transparent),
+    0 0 46px color-mix(in oklab, var(--color-accent) 22%, transparent);
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .premium-mobile-nav {
+    bottom: calc(0.25rem + env(safe-area-inset-bottom));
+  }
+
+  .premium-hub-link {
+    top: -1.25rem;
+  }
+
+  .premium-hub-orb {
+    width: 3.9rem;
+    height: 3.9rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .premium-nav-bubble,
+  .premium-nav-item,
+  .premium-hub-link,
+  .premium-hub-orb {
+    transition-duration: 1ms;
+  }
 }
 
 /* ---------------------------------------------------------------------------
