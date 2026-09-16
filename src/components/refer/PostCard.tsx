@@ -159,11 +159,25 @@ export function PostCard({
         <Button
           variant="ghost"
           size="sm"
+          disabled={repost.isPending}
+          aria-pressed={post.reposted}
           className={cn(post.reposted && "text-primary")}
           onClick={() =>
             repost.mutate(
               { postId: post.id, reposted: post.reposted },
-              { onError: (error) => toast.error(error instanceof Error ? error.message : "Could not repost.") },
+              {
+                onSuccess: () =>
+                  toast.success(
+                    post.reposted
+                      ? fr
+                        ? "Republication retirée"
+                        : "Repost removed"
+                      : fr
+                        ? "Republié"
+                        : "Reposted",
+                  ),
+                onError: (error) => toast.error(error instanceof Error ? error.message : "Could not repost."),
+              },
             )
           }
         >
