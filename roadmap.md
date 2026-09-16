@@ -9,3 +9,4 @@
 - [ ] Add private story reactions and replies where supported
 - [ ] Verify security invariants and existing-system regressions
 - [ ] Produce final completion audit
+- [ ] Refine mobile navigation to exact compact ASH Hub reference without changing routes or behavior
