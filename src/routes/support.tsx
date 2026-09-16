@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useI18n } from "@/lib/i18n";
+import { PublicInfoShell } from "@/components/refer/PublicInfoShell";
 
 export const Route = createFileRoute("/support")({
   ssr: false,
@@ -24,8 +25,10 @@ export const Route = createFileRoute("/support")({
       { property: "og:title", content: "Contact ASH Glo Support" },
       { property: "og:description", content: "Questions about payments, withdrawals or bookings? Message our team." },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://ashglogroup.company/support" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://ashglogroup.company/support" }],
   }),
   component: SupportPage,
 });
@@ -83,15 +86,19 @@ function SupportPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-xl px-4 py-10">
-      <div className="mb-6 flex items-center gap-3">
+    <PublicInfoShell
+      eyebrow={fr ? "Aide aux membres" : "Member care"}
+      title={fr ? "Support ASH" : "ASH Support"}
+      description={fr ? "Obtenez de l’aide pour votre compte, vos réservations et vos paiements Mobile Money." : "Get help with your account, bookings and Mobile Money payments."}
+    >
+      <div className="mb-6 flex items-center gap-3 rounded-2xl border border-border bg-card p-4">
         <span className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary">
           <LifeBuoy className="size-5" aria-hidden />
         </span>
         <div>
-          <h1 className="font-display text-2xl font-extrabold text-foreground">
-            {fr ? "Support ASH Glo" : "ASH Glo Support"}
-          </h1>
+          <h2 className="font-display text-lg font-extrabold text-foreground">
+            {fr ? "Nous sommes là pour vous aider" : "We’re here to help"}
+          </h2>
           <p className="text-sm text-muted-foreground">
             {fr
               ? "Écrivez-nous. Nous répondons par e-mail sous 24 heures."
@@ -122,7 +129,7 @@ function SupportPage() {
           </div>
         </div>
       ) : (
-        <form onSubmit={submit} className="space-y-4 rounded-2xl border border-border bg-card p-5">
+        <form onSubmit={submit} className="space-y-4 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)] sm:p-6">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="support-name">{fr ? "Nom" : "Name"}</Label>
@@ -178,6 +185,6 @@ function SupportPage() {
           </Button>
         </form>
       )}
-    </main>
+    </PublicInfoShell>
   );
 }

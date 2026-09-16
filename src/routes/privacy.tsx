@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Logo } from "@/components/refer/Logo";
+import { PublicInfoShell } from "@/components/refer/PublicInfoShell";
 
 export const Route = createFileRoute("/privacy")({
   head: () => ({
@@ -17,14 +17,16 @@ export const Route = createFileRoute("/privacy")({
           "Data we collect, why we use it, who we share it with, how long we keep it and the rights you have.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://ashglogroup.company/privacy" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://ashglogroup.company/privacy" }],
   }),
   component: PrivacyPage,
 });
 
-const LAST_UPDATED = "11 September 2026";
-const EFFECTIVE = "11 September 2026";
+const LAST_UPDATED = "16 September 2026";
+const EFFECTIVE = "16 September 2026";
 const APP_VERSION = "1.0";
 const PRIVACY_EMAIL = "privacy@ashglogroup.company";
 const SUPPORT_EMAIL = "support@ashglogroup.company";
@@ -79,21 +81,13 @@ function Bullets({ items }: { items: string[] }) {
 
 function PrivacyPage() {
   return (
-    <div className="safe-top min-h-dvh bg-background">
-      <header className="border-b border-border">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4 sm:px-6">
-          <Link to="/" className="inline-flex">
-            <Logo />
-          </Link>
-          <Link to="/" className="text-sm font-medium text-primary hover:underline">
-            Back to ASH Glo
-          </Link>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-3xl space-y-10 px-4 py-10 pb-[calc(2.5rem+env(safe-area-inset-bottom))] sm:px-6">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Privacy Policy</h1>
+    <PublicInfoShell
+      eyebrow="Your data, clearly explained"
+      title="Privacy Policy"
+      description="How ASH collects, uses, shares and protects information across our website and mobile apps."
+    >
+      <article className="space-y-10">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)] sm:p-6">
           <p className="text-sm text-muted-foreground">
             Effective: {EFFECTIVE} · Last updated: {LAST_UPDATED} · Applies to ASH Glo app version {APP_VERSION} (iOS
             and Android) and the ASH Glo website
@@ -197,7 +191,7 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
               ],
               [
                 "Payout details",
-                "Mobile Money number (MTN MoMo / Orange Money) and, where used, Stripe Connect account identifiers",
+                "Mobile Money number (MTN MoMo / Orange Money)",
                 "Send your withdrawals to the destination you choose",
               ],
               [
@@ -233,7 +227,7 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
           <Bullets
             items={[
               "Social sign-in (Google, Apple): your name, email and a provider user ID, if you sign in that way. Apple’s “Hide My Email” relay is supported.",
-              "Payment processors (TchokoPay, Stripe): transaction status, reference, amount, currency, masked payment identifiers and payout status.",
+              "Our licensed Mobile Money processor: transaction status, reference, amount, currency, masked payment identifiers and payout status.",
               "No data brokers. We do not buy personal data, we do not run third-party advertising or analytics SDKs, and we do not use the advertising identifier (IDFA/AAID).",
             ]}
           />
@@ -250,9 +244,8 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
 
           <h3 className="pt-2 text-sm font-semibold text-foreground">3.5 What we never store</h3>
           <p>
-            We never receive or store your Mobile Money PIN, your full card number, CVV or your bank
-            login. Card details are entered directly with our payment processor. We only receive a
-            reference and a status.
+            We never receive or store your Mobile Money PIN. Bank transfers and card payments are not currently
+            available. From our licensed payment processor, we receive only a payment reference and status.
           </p>
 
           <h3 className="pt-2 text-sm font-semibold text-foreground">3.6 Children</h3>
@@ -353,11 +346,6 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
                 "TchokoPay",
                 "Processor — Mobile Money collection (MTN MoMo, Orange Money) and payouts",
                 "Name, phone number, amount, currency and payment reference",
-              ],
-              [
-                "Stripe (incl. Stripe Connect)",
-                "Processor — card payments and international payouts, where used",
-                "Name, email, payout account identifiers and transaction data",
               ],
               [
                 "Lovable (hosting and platform)",
@@ -561,13 +549,7 @@ available at https://ashglogroup.company and as the mobile app “ASH Glo”.
             items={["ASH Glo, Douala, Cameroon", `Email: ${PRIVACY_EMAIL}`, "Support: https://ashglogroup.company"]}
           />
         </Section>
-      </main>
-
-      <footer className="border-t border-border">
-        <div className="mx-auto max-w-3xl px-4 py-8 text-xs text-muted-foreground sm:px-6">
-          © {new Date().getFullYear()} ASH Glo. Refer. Earn. Discover. Grow.
-        </div>
-      </footer>
-    </div>
+      </article>
+    </PublicInfoShell>
   );
 }

@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AccountDeletionRouteImport } from './routes/account-deletion'
 import { Route as ConsentRouteImport } from './routes/consent'
 import { Route as ConsoleRouteImport } from './routes/console'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
@@ -122,6 +123,11 @@ const ConsentRoute = ConsentRouteImport.update({
 const ConsoleRoute = ConsoleRouteImport.update({
   id: '/console',
   path: '/console',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -575,6 +581,7 @@ export interface FileRoutesByFullPath {
   '/account-deletion': typeof AccountDeletionRoute
   '/consent': typeof ConsentRoute
   '/console': typeof ConsoleRouteWithChildren
+  '/contact': typeof ContactRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
@@ -665,6 +672,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account-deletion': typeof AccountDeletionRoute
   '/consent': typeof ConsentRoute
+  '/contact': typeof ContactRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
@@ -758,6 +766,7 @@ export interface FileRoutesById {
   '/account-deletion': typeof AccountDeletionRoute
   '/consent': typeof ConsentRoute
   '/console': typeof ConsoleRouteWithChildren
+  '/contact': typeof ContactRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
@@ -851,6 +860,7 @@ export interface FileRouteTypes {
     | '/account-deletion'
     | '/consent'
     | '/console'
+    | '/contact'
     | '/forgot-password'
     | '/login'
     | '/onboarding'
@@ -941,6 +951,7 @@ export interface FileRouteTypes {
     | '/'
     | '/account-deletion'
     | '/consent'
+    | '/contact'
     | '/forgot-password'
     | '/login'
     | '/onboarding'
@@ -1033,6 +1044,7 @@ export interface FileRouteTypes {
     | '/account-deletion'
     | '/consent'
     | '/console'
+    | '/contact'
     | '/forgot-password'
     | '/login'
     | '/onboarding'
@@ -1126,6 +1138,7 @@ export interface RootRouteChildren {
   AccountDeletionRoute: typeof AccountDeletionRoute
   ConsentRoute: typeof ConsentRoute
   ConsoleRoute: typeof ConsoleRouteWithChildren
+  ContactRoute: typeof ContactRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRoute
@@ -1182,6 +1195,13 @@ declare module '@tanstack/react-router' {
       path: '/console'
       fullPath: '/console'
       preLoaderRoute: typeof ConsoleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forgot-password': {
@@ -1938,6 +1958,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccountDeletionRoute: AccountDeletionRoute,
   ConsentRoute: ConsentRoute,
   ConsoleRoute: ConsoleRouteWithChildren,
+  ContactRoute: ContactRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Logo } from "@/components/refer/Logo";
+import { PublicInfoShell } from "@/components/refer/PublicInfoShell";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
@@ -16,13 +16,15 @@ export const Route = createFileRoute("/terms")({
         content: "Marketplace rules, payments and fees, user content policy and account termination.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://ashglogroup.company/terms" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://ashglogroup.company/terms" }],
   }),
   component: TermsPage,
 });
 
-const LAST_UPDATED = "2 September 2026";
+const LAST_UPDATED = "16 September 2026";
 const SUPPORT_EMAIL = "support@ashglogroup.company";
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
@@ -36,13 +38,12 @@ function Section({ id, title, children }: { id: string; title: string; children:
 
 function TermsPage() {
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
-      <header className="mb-8 space-y-3">
-        <Link to="/" className="inline-flex">
-          <Logo />
-        </Link>
-        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Terms of Service &amp; End-User Licence</h1>
-        <p className="text-sm text-muted-foreground">Last updated: {LAST_UPDATED}</p>
+    <PublicInfoShell
+      eyebrow={`Effective 16 September 2026 · Updated ${LAST_UPDATED}`}
+      title="Terms of Service & End-User Licence"
+      description="The rules that protect ASH members, providers and the community across our website and mobile apps."
+    >
+      <header className="mb-8 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)] sm:p-6">
         <p className="text-sm leading-relaxed text-muted-foreground">
           These terms are the agreement between you and ASH Global Technologies (&ldquo;ASH Glo&rdquo;, &ldquo;we&rdquo;)
           covering the ASH Glo website and the ASH Glo mobile apps distributed through the Apple App Store and Google
@@ -100,8 +101,8 @@ function TermsPage() {
         <Section id="bookings" title="4. Bookings, payments and fees">
           <p>
             Bookings are made in the app. Providers accept or decline; customers pay after acceptance within the stated
-            window. Payments are processed by our payment partners — TchokoPay for mobile money (MTN MoMo, Orange
-            Money) and Stripe for international cards. ASH Glo does not store your full card or wallet credentials.
+            window. Payments are currently processed through Mobile Money (MTN MoMo and Orange Money) by our licensed
+            payment partner. Bank transfers and card payments are not available yet. ASH Glo never stores your Mobile Money PIN.
           </p>
           <p>
             ASH Glo charges providers a 1% platform commission on completed marketplace transactions. Referral
@@ -173,6 +174,6 @@ function TermsPage() {
           .
         </p>
       </div>
-    </main>
+    </PublicInfoShell>
   );
 }

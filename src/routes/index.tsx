@@ -27,7 +27,6 @@ const DESCRIPTION =
   "ASH is a digital opportunity, commerce, services, freelance, property, community and events platform — live in 175 countries — that connects people, businesses, freelancers, service providers, communities and event organizers in one ecosystem, with a social feed, stories, Spotlight, friends, groups and secure Mobile Money payments.";
 
 const OG_IMAGE = "https://ashglogroup.company/ash-social.png";
-const SUPPORT_URL = "https://ash-glo-support.base44.app";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -220,19 +219,17 @@ function Landing() {
 
             <p className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
               <Lock className="size-3" aria-hidden />
-              <a
-                href={SUPPORT_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-semibold text-foreground underline-offset-4 hover:underline"
-              >
-                {fr ? "Confidentialité & aide" : "Privacy & support"}
-              </a>
+              <Link to="/support" className="font-semibold text-foreground underline-offset-4 hover:underline">
+                {fr ? "Assistance" : "Support"}
+              </Link>
               <Link to="/privacy" className="hover:underline">
                 {fr ? "Confidentialité" : "Privacy"}
               </Link>
               <Link to="/terms" className="hover:underline">
                 {fr ? "Conditions" : "Terms"}
+              </Link>
+              <Link to="/contact" className="hover:underline">
+                Contact
               </Link>
             </p>
           </section>
