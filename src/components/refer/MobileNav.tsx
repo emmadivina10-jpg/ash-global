@@ -1,7 +1,9 @@
-import { useRef, useState } from "react";
-import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useState } from "react";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu, Shield } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { AshMark } from "./AshMark";
 import { useI18n, type TKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -18,11 +20,7 @@ export type MobileNavItem = {
 
 export type MoreGroup = { en: string; fr: string; items: MobileNavItem[] };
 
-/**
- * WhatsApp-style bottom bar: a rounded floating pill with equal tabs. Press and
- * slide your thumb along it and the highlight follows, opening whichever tab
- * you release on.
- */
+/** Phone navigation with a raised ASH Hub tab and four stable destinations. */
 export function MobileNav({
   items,
   moreGroups,
@@ -34,86 +32,79 @@ export function MobileNav({
 }) {
   const { t, lang } = useI18n();
   const fr = lang === "fr";
-  const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [moreOpen, setMoreOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(moreGroups[0]?.en ?? null);
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
-  const listRef = useRef<HTMLUListElement>(null);
 
   const label = (item: MobileNavItem) =>
     item.key ? t(item.key) : ((fr ? item.fr : item.en) ?? item.label ?? "");
 
-  function indexFromPoint(clientX: number, clientY: number) {
-    const element = document.elementFromPoint(clientX, clientY);
-    const tab = element?.closest<HTMLElement>("[data-nav-index]");
-    if (!tab) return null;
-    const value = Number(tab.dataset["navIndex"]);
-    return Number.isFinite(value) ? value : null;
-  }
-
-  const renderTab = (item: MobileNavItem, index: number) => {
-    const active = pathname === item.to;
-    const hovered = dragIndex === index;
+  const renderTab = (item: MobileNavItem) => {
+    const active = pathname === item.to || pathname.startsWith(`${item.to}/`);
     return (
-      <li key={item.to} data-nav-index={index}>
+      <li key={item.to} className="min-w-0">
         <Link
           to={item.to}
           data-tour={item.tour}
+          aria-current={active ? "page" : undefined}
           className={cn(
-            "relative flex min-h-14 flex-col items-center justify-center gap-1 py-2 text-[11px] font-semibold transition-all duration-300",
-            active || hovered ? "-translate-y-0.5 text-primary" : "text-muted-foreground",
+            "relative flex h-[4.65rem] min-w-0 flex-col items-center justify-center gap-1 px-0.5 pt-1 text-[10px] font-semibold transition-colors",
+            active ? "text-primary" : "text-muted-foreground active:text-foreground",
           )}
         >
-          {active || hovered ? (
-            <span
-              className={cn(
-                "absolute inset-x-1.5 inset-y-1 -z-10 rounded-2xl bg-primary/12",
-                hovered && "animate-[pulse_1.2s_ease-in-out_infinite] bg-primary/20",
-              )}
-              aria-hidden
-            />
-          ) : null}
-          <item.icon className={cn("size-5 transition-transform duration-200", hovered && "scale-125")} aria-hidden />
-          {label(item)}
+          <item.icon className={cn("size-5 shrink-0 transition-transform", active && "scale-105")} aria-hidden />
+          <span className="max-w-full truncate">{label(item)}</span>
+          {active ? <span className="absolute bottom-1.5 size-1 rounded-full bg-primary" aria-hidden /> : null}
         </Link>
       </li>
     );
   };
 
+  const hub = items[2];
+  const regularItems = items.filter((_, index) => index !== 2);
+  const hubActive = Boolean(hub && (pathname === hub.to || pathname.startsWith(`${hub.to}/`)));
+
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 px-3 pb-[calc(0.5rem+env(safe-area-inset-bottom))] lg:hidden">
-      <div className="ash-glass mx-auto max-w-lg overflow-hidden rounded-[1.75rem] border border-border/70 shadow-[var(--shadow-card)]">
-        <ul
-          ref={listRef}
-          className="grid touch-pan-y"
-          style={{ gridTemplateColumns: `repeat(${items.length + 1}, minmax(0, 1fr))` }}
-          onPointerDown={(event) => setDragIndex(indexFromPoint(event.clientX, event.clientY))}
-          onPointerMove={(event) => {
-            if (dragIndex === null) return;
-            const next = indexFromPoint(event.clientX, event.clientY);
-            if (next !== null && next !== dragIndex) setDragIndex(next);
-          }}
-          onPointerUp={(event) => {
-            const index = indexFromPoint(event.clientX, event.clientY);
-            const item = index === null ? null : items[index];
-            setDragIndex(null);
-            if (item && item.to !== pathname) void navigate({ to: item.to } as never);
-          }}
-          onPointerCancel={() => setDragIndex(null)}
-          onPointerLeave={() => setDragIndex(null)}
-        >
-          {items.map((item, index) => renderTab(item, index))}
-          <li>
+    <nav className="fixed inset-x-0 bottom-0 z-40 px-2 pb-[calc(0.35rem+env(safe-area-inset-bottom))] lg:hidden">
+      <div className="ash-glass nav-bar-fill relative mx-auto max-w-lg rounded-[2rem] border border-border/70 shadow-[var(--shadow-card)]">
+        <ul className="grid h-[4.65rem] grid-cols-5 items-end">
+          {regularItems.slice(0, 2).map(renderTab)}
+
+          <li className="relative h-[4.65rem] min-w-0">
+            {hub ? (
+              <Link
+                to={hub.to}
+                data-tour={hub.tour}
+                aria-current={hubActive ? "page" : undefined}
+                className={cn(
+                  "absolute inset-x-0 -top-5 flex flex-col items-center gap-1 text-[10px] font-bold transition-colors",
+                  hubActive ? "text-foreground" : "text-muted-foreground",
+                )}
+              >
+                <span
+                  className={cn(
+                    "grid size-[4.15rem] shrink-0 place-items-center rounded-full border-[5px] border-background bg-card shadow-[0_8px_24px_color-mix(in_oklab,var(--color-primary)_28%,transparent)] transition-transform active:scale-95",
+                    hubActive && "ring-2 ring-primary/35",
+                  )}
+                >
+                  <AshMark ai={false} className="size-12" />
+                </span>
+                <span className="max-w-full truncate px-0.5">{label(hub)}</span>
+              </Link>
+            ) : null}
+          </li>
+
+          {regularItems.slice(2, 3).map(renderTab)}
+          <li className="min-w-0">
             <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
               <SheetTrigger asChild>
-                <button
-                  type="button"
-                  className="relative flex min-h-14 w-full flex-col items-center justify-center gap-1 py-2 text-[11px] font-semibold text-muted-foreground transition-colors"
+                <Button
+                  variant="ghost"
+                  className="relative flex h-[4.65rem] w-full min-w-0 flex-col items-center justify-center gap-1 rounded-none px-0.5 pt-1 text-[10px] font-semibold text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground [&_svg]:size-5"
                 >
                   <Menu className="size-5" aria-hidden />
-                  {t("nav.more")}
-                </button>
+                  <span className="max-w-full truncate">{t("nav.more")}</span>
+                </Button>
               </SheetTrigger>
               <SheetContent side="bottom" className="max-h-[80dvh] overflow-y-auto rounded-t-3xl">
                 <SheetHeader>
