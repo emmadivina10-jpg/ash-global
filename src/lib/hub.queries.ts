@@ -4,6 +4,7 @@
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { verifyMediaFiles } from "./media-safety";
 import { SPOTLIGHT_BUCKET, SPOTLIGHT_MAX_BYTES } from "./spotlight.queries";
 
 export type HubAuthor = { id: string; name: string; avatar_url: string | null };
@@ -203,6 +204,7 @@ export function usePublishArticle() {
       const userId = await currentUserId();
       let coverPath: string | null = null;
       if (input.cover) {
+        await verifyMediaFiles([input.cover], "ARTICLE_COVER");
         if (input.cover.size > SPOTLIGHT_MAX_BYTES) throw new Error("FILE_TOO_LARGE");
         const ext = input.cover.name.split(".").pop()?.toLowerCase() || "jpg";
         const path = `${userId}/article-${crypto.randomUUID()}.${ext}`;

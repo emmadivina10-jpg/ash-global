@@ -6,6 +6,7 @@ import { AlertTriangle, ArrowRight, CalendarClock, Coins, PartyPopper, Star, Tra
 import { MediaLightbox, isVideoSource, type LightboxMedia } from "@/components/refer/MediaLightbox";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { verifyMediaFiles } from "@/lib/media-safety";
 import {
   usePortfolio,
   useProviderBookings,
@@ -237,6 +238,7 @@ function StudioPage() {
     setUploading(true);
     let uploaded = 0;
     try {
+      await verifyMediaFiles(Array.from(files), "PROVIDER_PORTFOLIO");
       for (const file of Array.from(files)) {
         const isVideo = file.type.startsWith("video/");
         if (!file.type.startsWith("image/") && !isVideo) {

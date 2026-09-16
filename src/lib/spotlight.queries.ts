@@ -4,6 +4,7 @@
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { verifyMediaFiles } from "./media-safety";
 import { signPortfolioPaths } from "./marketplace";
 
 export const SPOTLIGHT_BUCKET = "spotlight";
@@ -212,6 +213,7 @@ export function useCreateSpotlight() {
       const userId = auth.user?.id;
       if (!userId) throw new Error("You need to be signed in to post.");
       if (files.length === 0) throw new Error("Add at least one photo or video.");
+      await verifyMediaFiles(files, "SPOTLIGHT");
 
       const media: SpotlightMedia[] = [];
       for (const file of files) {

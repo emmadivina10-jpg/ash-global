@@ -4,6 +4,7 @@
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { verifyMediaFiles } from "./media-safety";
 import { SPOTLIGHT_BUCKET, SPOTLIGHT_MAX_BYTES } from "./spotlight.queries";
 
 export const FORUM_SPACES = [
@@ -159,6 +160,7 @@ export function useCreateForumPost() {
 
       let imagePath: string | null = null;
       if (input.image) {
+        await verifyMediaFiles([input.image], "FORUM_POST");
         if (input.image.size > SPOTLIGHT_MAX_BYTES) throw new Error("FILE_TOO_LARGE");
         const ext = input.image.name.split(".").pop()?.toLowerCase() || "jpg";
         const path = `${userId}/forum-${crypto.randomUUID()}.${ext}`;

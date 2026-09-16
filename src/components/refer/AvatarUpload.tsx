@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Camera, Loader2, User } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { verifyMediaFiles } from "@/lib/media-safety";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -98,6 +99,13 @@ export function AvatarUpload({
     }
 
     setBusy(true);
+    try {
+      await verifyMediaFiles([file], "PROFILE_AVATAR");
+    } catch (error) {
+      setBusy(false);
+      toast.error(error instanceof Error ? error.message : "This photo could not be checked.");
+      return;
+    }
     const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
     const objectPath = `${userId}/${crypto.randomUUID()}.${ext}`;
     const { error } = await supabase.storage.from("avatars").upload(objectPath, file, {

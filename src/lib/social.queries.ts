@@ -5,6 +5,7 @@
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { verifyMediaFiles } from "./media-safety";
 
 export const SOCIAL_BUCKET = "spotlight";
 /** Largest single photo accepted by a story or a feed post. */
@@ -181,6 +182,7 @@ export function useCreateStory() {
     }) => {
       const userId = await currentUserId();
       if (!userId) throw new Error("You need to be signed in.");
+      await verifyMediaFiles([file], "STORY");
       const path = await uploadImage(userId, file, "story");
       const { error } = await supabase.from("stories").insert({
         author_id: userId,
@@ -415,6 +417,7 @@ export function useCreateSocialPost() {
       const userId = await currentUserId();
       if (!userId) throw new Error("You need to be signed in.");
       if (files.length === 0 && !caption.trim()) throw new Error("Write something or add a photo.");
+      await verifyMediaFiles(files.slice(0, 4), "SOCIAL_POST");
       const media: string[] = [];
       for (const file of files.slice(0, 4)) media.push(await uploadImage(userId, file, "post"));
       const { error } = await supabase.from("social_posts").insert({
