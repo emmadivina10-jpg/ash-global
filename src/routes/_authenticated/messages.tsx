@@ -21,8 +21,8 @@ import { formatDateTime, formatXAF } from "@/lib/format";
 import { bookingStatusLabel } from "@/lib/booking";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { Archive, Lock, UserPlus } from "lucide-react";
-import { SwipeChatRow } from "@/components/refer/SwipeChatRow";
+import { Archive, Lock, Trash2, UserPlus } from "lucide-react";
+import { SelectChatRow } from "@/components/refer/SelectChatRow";
 import {
   MAX_PINNED,
   hashPin,
@@ -347,7 +347,8 @@ function MessagesPage() {
   const { data: lockPin } = useChatLockPin();
   const saveLockPin = useSetChatLockPin();
   const [showArchived, setShowArchived] = useState(false);
-  const [openSwipe, setOpenSwipe] = useState<{ id: string; side: "archive" | "delete" } | null>(null);
+  const [selection, setSelection] = useState<string[]>([]);
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
   const [lockedUnlocked, setLockedUnlocked] = useState(false);
   const [pinDialog, setPinDialog] = useState(false);
   const [pinValue, setPinValue] = useState("");
@@ -581,18 +582,46 @@ function MessagesPage() {
     );
   }
 
-  function removeChat(conversationId: string) {
-    deleteChat.mutate(conversationId, {
-      onSuccess: () => toast.success(fr ? "Discussion supprimée" : "Chat deleted"),
-      onError: () => {
-        setPref.mutate({ conversationId, patch: { archived: true } });
-        toast.info(
-          fr
-            ? "Cette discussion est liée à une réservation — elle a été archivée."
-            : "This chat belongs to a booking — it was archived instead.",
-        );
-      },
-    });
+
+  function toggleSelected(conversationId: string) {
+    setSelection((list) =>
+      list.includes(conversationId)
+        ? list.filter((id) => id !== conversationId)
+        : [...list, conversationId],
+    );
+  }
+
+  async function deleteSelected() {
+    const ids = [...selection];
+    setConfirmBulkDelete(false);
+    setSelection([]);
+    let removed = 0;
+    for (const id of ids) {
+      try {
+        await deleteChat.mutateAsync(id);
+        removed += 1;
+      } catch {
+        setPref.mutate({ conversationId: id, patch: { archived: true } });
+      }
+    }
+    if (removed > 0) {
+      toast.success(
+        fr
+          ? removed > 1
+            ? `${removed} discussions supprimées`
+            : "Discussion supprimée"
+          : removed > 1
+            ? `${removed} chats deleted`
+            : "Chat deleted",
+      );
+    }
+    if (removed < ids.length) {
+      toast.info(
+        fr
+          ? "Certaines discussions sont liées à une réservation — elles ont été archivées."
+          : "Some chats belong to a booking — they were archived instead.",
+      );
+    }
   }
 
   return (
@@ -629,6 +658,29 @@ function MessagesPage() {
               <h2 className="mb-2 font-display text-xl font-bold text-foreground md:hidden">
                 {t("chat.title")}
               </h2>
+
+              {selection.length > 0 ? (
+                <div className="mb-2 flex items-center justify-between gap-2 rounded-full bg-primary/10 px-3 py-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setSelection([])}
+                    className="text-[12px] font-bold text-primary"
+                  >
+                    {fr ? "Annuler" : "Cancel"}
+                  </button>
+                  <span className="text-[12px] font-bold text-foreground">
+                    {selection.length} {fr ? "sélectionnée(s)" : "selected"}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmBulkDelete(true)}
+                    aria-label={fr ? "Supprimer" : "Delete"}
+                    className="grid size-8 place-items-center rounded-full text-destructive transition-colors hover:bg-destructive/10"
+                  >
+                    <Trash2 className="size-4" aria-hidden />
+                  </button>
+                </div>
+              ) : null}
 
               <div className="flex items-center gap-2 rounded-full bg-muted px-3 py-2">
                 <Search
@@ -692,6 +744,32 @@ function MessagesPage() {
               </div>
             </div>
 
+            <Dialog open={confirmBulkDelete} onOpenChange={setConfirmBulkDelete}>
+              <DialogContent className="max-w-sm">
+                <DialogHeader>
+                  <DialogTitle>
+                    {fr ? "Supprimer ces discussions ?" : "Delete these chats?"}
+                  </DialogTitle>
+                </DialogHeader>
+                <p className="text-sm text-muted-foreground">
+                  {fr
+                    ? "Les messages seront définitivement perdus. Vous pourrez toujours retrouver la personne par la recherche."
+                    : "The messages are permanently lost. You can still find the person again through search."}
+                </p>
+                <div className="flex gap-2">
+                  <Button variant="outline" className="flex-1" onClick={() => setConfirmBulkDelete(false)}>
+                    {fr ? "Annuler" : "Cancel"}
+                  </Button>
+                  <Button
+                    className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    onClick={() => void deleteSelected()}
+                  >
+                    {fr ? "Supprimer" : "Delete"}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+
             <Dialog open={pinDialog} onOpenChange={setPinDialog}>
               <DialogContent className="max-w-sm">
                 <DialogHeader>
@@ -748,7 +826,6 @@ function MessagesPage() {
 
             <nav
               className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain touch-pan-y"
-              onScroll={() => setOpenSwipe(null)}
             >
               {term.trim() &&
               !`${ashAiConversation.label} ${ashAiConversation.preview}`
@@ -809,26 +886,22 @@ function MessagesPage() {
                 const avatarColor = getAvatarColor(conv.id);
 
                 return (
-                  <SwipeChatRow
+                  <SelectChatRow
                     key={conv.id}
                     fr={fr}
                     pinned={Boolean(prefs?.[conv.id]?.pinned)}
                     archived={Boolean(prefs?.[conv.id]?.archived)}
                     locked={Boolean(prefs?.[conv.id]?.locked)}
-                    openSide={openSwipe?.id === conv.id ? openSwipe.side : null}
-                    onOpenSideChange={(side) => setOpenSwipe(side ? { id: conv.id, side } : null)}
+                    selecting={selection.length > 0}
+                    selected={selection.includes(conv.id)}
+                    onLongPress={() => toggleSelected(conv.id)}
+                    onToggleSelect={() => toggleSelected(conv.id)}
+                    onOpen={() => void navigate({ search: { c: conv.id } })}
                     onTogglePin={() => void togglePin(conv.id)}
                     onArchive={() => toggleArchive(conv.id)}
                     onToggleLock={() => toggleLock(conv.id)}
-                    onDelete={() => removeChat(conv.id)}
                   >
-                  <button
-                    type="button"
-                    onClick={() =>
-                      void navigate({
-                        search: { c: conv.id },
-                      })
-                    }
+                  <div
                     className={cn(
                       "flex w-full items-center gap-3 px-3 py-3 text-left transition-colors",
                       conv.id === activeId
@@ -894,8 +967,8 @@ function MessagesPage() {
                         ) : null}
                       </span>
                     </span>
-                  </button>
-                  </SwipeChatRow>
+                  </div>
+                  </SelectChatRow>
                 );
               })}
 

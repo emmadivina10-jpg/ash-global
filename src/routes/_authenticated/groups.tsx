@@ -6,7 +6,13 @@ import { Avatar } from "@/components/refer/AvatarUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useAddGroupMembers, useCreateGroup, useFriendships, useGroups } from "@/lib/social.queries";
+import {
+  useAddGroupMembers,
+  useCreateGroup,
+  useFriendships,
+  useGroups,
+  useMemberSearch,
+} from "@/lib/social.queries";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -38,8 +44,18 @@ function GroupsPage() {
   const [selected, setSelected] = useState<string[]>([]);
   const [addingTo, setAddingTo] = useState<string | null>(null);
   const [addSelected, setAddSelected] = useState<string[]>([]);
+  const [peopleTerm, setPeopleTerm] = useState("");
+  const { data: searched } = useMemberSearch(peopleTerm);
 
   const friends = friendships?.friends ?? [];
+  // Members you can add: your friends, plus anyone you look up by name.
+  const candidates = (() => {
+    const base = friends.map((entry) => entry.other);
+    const found = (searched ?? []).filter((person) => !base.some((f) => f.id === person.id));
+    const all = [...base, ...found];
+    const term = peopleTerm.trim().toLowerCase();
+    return term ? all.filter((person) => person.name.toLowerCase().includes(term)) : all;
+  })();
 
   function toggle(list: string[], id: string) {
     return list.includes(id) ? list.filter((item) => item !== id) : [...list, id];
@@ -76,27 +92,35 @@ function GroupsPage() {
             <p className="text-xs font-semibold text-muted-foreground">
               {fr ? "Choisissez les membres" : "Choose members"}
             </p>
+            <Input
+              value={peopleTerm}
+              onChange={(event) => setPeopleTerm(event.target.value)}
+              placeholder={fr ? "Rechercher un membre" : "Search people on ASH"}
+              aria-label={fr ? "Rechercher un membre" : "Search people"}
+            />
             <div className="max-h-56 space-y-1 overflow-y-auto">
-              {friends.length === 0 ? (
+              {candidates.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  {fr ? "Ajoutez d'abord des amis." : "Add some friends first."}
+                  {fr
+                    ? "Cherchez un membre par son nom pour l'ajouter."
+                    : "Search someone by name to add them."}
                 </p>
               ) : (
-                friends.map((entry) => (
+                candidates.map((person) => (
                   <button
-                    key={entry.other.id}
+                    key={person.id}
                     type="button"
-                    onClick={() => setSelected((list) => toggle(list, entry.other.id))}
+                    onClick={() => setSelected((list) => toggle(list, person.id))}
                     className={cn(
                       "flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors",
-                      selected.includes(entry.other.id) ? "bg-primary/10" : "hover:bg-muted",
+                      selected.includes(person.id) ? "bg-primary/10" : "hover:bg-muted",
                     )}
                   >
-                    <Avatar path={entry.other.avatar_url} name={entry.other.name} className="size-9" />
+                    <Avatar path={person.avatar_url} name={person.name} className="size-9" />
                     <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
-                      {entry.other.name}
+                      {person.name}
                     </span>
-                    {selected.includes(entry.other.id) ? (
+                    {selected.includes(person.id) ? (
                       <span className="text-xs font-bold text-primary">{fr ? "Ajouté" : "Added"}</span>
                     ) : null}
                   </button>
@@ -115,6 +139,7 @@ function GroupsPage() {
                       setOpen(false);
                       setName("");
                       setSelected([]);
+                      setPeopleTerm("");
                     },
                     onError: (error) =>
                       toast.error(error instanceof Error ? error.message : "Could not create the group."),
@@ -185,20 +210,26 @@ function GroupsPage() {
           <DialogHeader>
             <DialogTitle>{fr ? "Ajouter des membres" : "Add members"}</DialogTitle>
           </DialogHeader>
+          <Input
+            value={peopleTerm}
+            onChange={(event) => setPeopleTerm(event.target.value)}
+            placeholder={fr ? "Rechercher un membre" : "Search people on ASH"}
+            aria-label={fr ? "Rechercher un membre" : "Search people"}
+          />
           <div className="max-h-64 space-y-1 overflow-y-auto">
-            {friends.map((entry) => (
+            {candidates.map((person) => (
               <button
-                key={entry.other.id}
+                key={person.id}
                 type="button"
-                onClick={() => setAddSelected((list) => toggle(list, entry.other.id))}
+                onClick={() => setAddSelected((list) => toggle(list, person.id))}
                 className={cn(
                   "flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors",
-                  addSelected.includes(entry.other.id) ? "bg-primary/10" : "hover:bg-muted",
+                  addSelected.includes(person.id) ? "bg-primary/10" : "hover:bg-muted",
                 )}
               >
-                <Avatar path={entry.other.avatar_url} name={entry.other.name} className="size-9" />
+                <Avatar path={person.avatar_url} name={person.name} className="size-9" />
                 <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
-                  {entry.other.name}
+                  {person.name}
                 </span>
               </button>
             ))}
