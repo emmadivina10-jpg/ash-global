@@ -1,4 +1,4 @@
-import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Menu, Shield } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -18,6 +18,25 @@ export type MobileNavItem = {
 };
 
 export type MoreGroup = { en: string; fr: string; items: MobileNavItem[] };
+
+/** True while any surface on the page is scrolling; resets shortly after it stops. */
+function useScrolling(idleDelay = 280) {
+  const [scrolling, setScrolling] = useState(false);
+  useEffect(() => {
+    let timer: number | undefined;
+    const onScroll = () => {
+      setScrolling(true);
+      if (timer) window.clearTimeout(timer);
+      timer = window.setTimeout(() => setScrolling(false), idleDelay);
+    };
+    document.addEventListener("scroll", onScroll, { capture: true, passive: true });
+    return () => {
+      document.removeEventListener("scroll", onScroll, { capture: true } as EventListenerOptions);
+      if (timer) window.clearTimeout(timer);
+    };
+  }, [idleDelay]);
+  return scrolling;
+}
 
 /** Phone navigation with five evenly balanced destinations. */
 export function MobileNav({
@@ -42,6 +61,8 @@ export function MobileNav({
   const suppressNextClick = useRef(false);
   const activePointer = useRef<number | null>(null);
   const navList = useRef<HTMLUListElement>(null);
+  const scrolling = useScrolling();
+  const hidden = scrolling && !moreOpen && !gestureActive;
 
   const label = (item: MobileNavItem) =>
     item.key ? t(item.key) : ((fr ? item.fr : item.en) ?? item.label ?? "");
@@ -129,7 +150,11 @@ export function MobileNav({
   };
 
   return (
-    <nav className="premium-mobile-nav fixed inset-x-0 z-40 lg:hidden" aria-label={fr ? "Navigation principale" : "Primary navigation"}>
+    <nav
+      className={cn("premium-mobile-nav fixed inset-x-0 z-40 lg:hidden", hidden && "is-hidden")}
+      aria-hidden={hidden}
+      aria-label={fr ? "Navigation principale" : "Primary navigation"}
+    >
       <div className="premium-nav-pill nav-bar-fill relative mx-auto w-[calc(100%-1.5rem)] max-w-[26.5rem] rounded-[2rem] border border-border/35">
         <ul
           ref={navList}

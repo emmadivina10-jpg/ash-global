@@ -147,7 +147,7 @@ export function PostCard({
         <span className="text-[11px] text-muted-foreground">{post.comment_count} {fr ? "commentaires" : "comments"} · {post.repost_count} {fr ? "republications" : "reposts"}</span>
       </div>
       <div className="flex items-center gap-1 px-2 pb-2">
-        <ReactionButton value={post.current_reaction} total={post.like_count} breakdown={post.reaction_breakdown} disabled={!currentUserId || react.isPending} onChange={(reaction) => react.mutate({ postId: post.id, reaction })} />
+        <ReactionButton value={post.current_reaction} total={post.like_count} breakdown={post.reaction_breakdown} disabled={!currentUserId} onChange={(reaction) => react.mutate({ postId: post.id, reaction }, { onError: (error) => toast.error(error instanceof Error ? error.message : "Could not react.") })} />
         <Button
           variant="ghost"
           size="sm"
@@ -159,11 +159,25 @@ export function PostCard({
         <Button
           variant="ghost"
           size="sm"
+          disabled={repost.isPending}
+          aria-pressed={post.reposted}
           className={cn(post.reposted && "text-primary")}
           onClick={() =>
             repost.mutate(
               { postId: post.id, reposted: post.reposted },
-              { onError: (error) => toast.error(error instanceof Error ? error.message : "Could not repost.") },
+              {
+                onSuccess: () =>
+                  toast.success(
+                    post.reposted
+                      ? fr
+                        ? "Republication retirée"
+                        : "Repost removed"
+                      : fr
+                        ? "Republié"
+                        : "Reposted",
+                  ),
+                onError: (error) => toast.error(error instanceof Error ? error.message : "Could not repost."),
+              },
             )
           }
         >
@@ -251,7 +265,7 @@ function Comments({
           "sticky z-20 -mx-4 flex items-center gap-2 border-t border-border bg-background px-4 py-2",
           detail
             ? "bottom-0 pb-[calc(0.5rem+env(safe-area-inset-bottom))]"
-            : "bottom-[calc(4.75rem+env(safe-area-inset-bottom))] lg:bottom-3",
+            : "bottom-[calc(5.6rem+env(safe-area-inset-bottom))] lg:bottom-3",
         )}
       >
         <Input
@@ -309,7 +323,7 @@ function CommentRow({
           <SocialText text={comment.body} className="whitespace-pre-wrap break-words text-sm text-foreground" />
         </div>
         <div className="mt-1 flex items-center gap-3 px-2 text-[11px] font-semibold text-muted-foreground">
-          <ReactionButton compact value={comment.current_reaction} total={comment.like_count} breakdown={comment.reaction_breakdown} disabled={!currentUserId || reactComment.isPending} onChange={(reaction) => reactComment.mutate({ commentId: comment.id, postId: comment.post_id, reaction })} />
+          <ReactionButton compact value={comment.current_reaction} total={comment.like_count} breakdown={comment.reaction_breakdown} disabled={!currentUserId} onChange={(reaction) => reactComment.mutate({ commentId: comment.id, postId: comment.post_id, reaction }, { onError: (error) => toast.error(error instanceof Error ? error.message : "Could not react.") })} />
           {depth === 0 ? (
             <button type="button" onClick={() => onReply(comment)} className="hover:text-primary">
               {fr ? "Répondre" : "Reply"}
