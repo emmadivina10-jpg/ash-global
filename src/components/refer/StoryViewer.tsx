@@ -6,10 +6,12 @@ import {
   recordStoryView,
   useDeleteStory,
   useStoryViewers,
+  useSetStoryReaction,
   type StoryGroup,
 } from "@/lib/social.queries";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { ReactionButton } from "./ReactionButton";
 
 const SEGMENT_MS = 5000;
 
@@ -36,6 +38,7 @@ export function StoryViewer({
   const [progress, setProgress] = useState(0);
   const [viewersOpen, setViewersOpen] = useState(false);
   const deleteStory = useDeleteStory();
+  const reactStory = useSetStoryReaction();
   const startedAt = useRef(Date.now());
   const pressAt = useRef<{ time: number; x: number } | null>(null);
   const elapsed = useRef(0);
@@ -200,6 +203,8 @@ export function StoryViewer({
       </div>
 
       <div className="px-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <div className="flex items-center justify-between gap-3">
+        {!mine ? <ReactionButton value={story.current_reaction} total={story.reaction_count} breakdown={story.reaction_breakdown} disabled={reactStory.isPending} onChange={(reaction) => reactStory.mutate({ storyId: story.id, reaction })} /> : null}
         {mine ? (
           <button
             type="button"
@@ -210,6 +215,7 @@ export function StoryViewer({
             {story.view_count} {fr ? "vues" : "views"}
           </button>
         ) : null}
+        </div>
       </div>
 
       {viewersOpen ? (

@@ -95,6 +95,9 @@ export type Story = {
   view_count: number;
   created_at: string;
   expires_at: string;
+  reaction_count: number;
+  reaction_breakdown: ReactionBreakdown;
+  current_reaction: ReactionType | null;
 };
 
 export type StoryGroup = { author: SocialAuthor; stories: Story[]; seen: boolean };
@@ -126,7 +129,7 @@ export function useStories() {
       }[];
       if (rows.length === 0) return { me, groups: [] };
 
-      const [signed, authors, seenRows] = await Promise.all([
+      const [signed, authors, seenRows, reactionResult] = await Promise.all([
         signPaths(rows.map((r) => r.media_path)),
         loadAuthors(rows.map((r) => r.author_id)),
         me
@@ -139,6 +142,7 @@ export function useStories() {
                 rows.map((r) => r.id),
               )
           : Promise.resolve({ data: [] }),
+        supabase.from("story_reactions").select("story_id, user_id, reaction_type").in("story_id", rows.map((r) => r.id)),
       ]);
       const seen = new Set(((seenRows.data ?? []) as { story_id: string }[]).map((r) => r.story_id));
 
@@ -147,6 +151,7 @@ export function useStories() {
         const url = signed[row.media_path];
         if (!url) continue;
         const list = grouped.get(row.author_id) ?? [];
+        const reaction = summarizeReactions(((reactionResult.data ?? []) as Array<{ story_id: string; user_id: string; reaction_type: string }>).filter((item) => item.story_id === row.id), me);
         list.push({
           id: row.id,
           author_id: row.author_id,
@@ -155,6 +160,9 @@ export function useStories() {
           view_count: row.view_count,
           created_at: row.created_at,
           expires_at: row.expires_at,
+          reaction_count: reaction.total,
+          reaction_breakdown: reaction.breakdown,
+          current_reaction: reaction.current,
         });
         grouped.set(row.author_id, list);
       }

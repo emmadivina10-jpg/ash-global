@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { SocialSuggestions } from "./SocialSuggestions";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { useMyProviderProfile } from "@/lib/marketplace.queries";
 import { useCreateSpotlight } from "@/lib/spotlight.queries";
@@ -183,6 +184,7 @@ export function SpotlightComposer({
                   : "What do you want to share? An offer, a new drop, behind the scenes…"
               }
             />
+            <SocialSuggestions value={caption} onChange={setCaption} />
 
             {previews.length > 0 ? (
               <div className="grid aspect-square grid-cols-2 grid-rows-2 gap-2">

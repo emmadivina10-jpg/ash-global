@@ -57,17 +57,17 @@ export function MobileNav({
           data-tour={item.tour}
           aria-current={active ? "page" : undefined}
           className={cn(
-            "premium-nav-item relative flex h-[4.35rem] min-w-0 flex-col items-center justify-center gap-1 px-0.5 pt-1 text-[10px] font-semibold",
+            "premium-nav-item relative flex h-16 min-w-0 flex-col items-center justify-center gap-0.5 px-0.5 pt-1 text-[10px] font-semibold",
             active ? "text-primary" : "text-muted-foreground active:text-foreground",
             gestureActive && distance === 0 && "premium-nav-item-selected",
             gestureActive && distance === 1 && "premium-nav-item-neighbor",
           )}
         >
           <span className={cn("grid size-8 place-items-center rounded-full", active && "bg-primary/8")}>
-            <item.icon className={cn("size-[1.3rem] shrink-0", active && "scale-105")} strokeWidth={2.1} aria-hidden />
+            <item.icon className={cn("size-6 shrink-0", active && "scale-105")} strokeWidth={2} aria-hidden />
           </span>
           <span className="max-w-full truncate">{label(item)}</span>
-          {active ? <span className="absolute bottom-1 size-1 rounded-full bg-primary shadow-[0_0_7px_var(--color-primary)]" aria-hidden /> : null}
+          {active ? <span className="absolute bottom-0.5 size-1 rounded-full bg-primary shadow-[0_0_7px_var(--color-primary)]" aria-hidden /> : null}
         </Link>
       </li>
     );
@@ -135,10 +135,10 @@ export function MobileNav({
 
   return (
     <nav className="premium-mobile-nav fixed inset-x-0 z-40 lg:hidden" aria-label={fr ? "Navigation principale" : "Primary navigation"}>
-      <div className="premium-nav-pill nav-bar-fill relative mx-auto w-[calc(100%-1.25rem)] max-w-[27rem] rounded-[2rem] border border-border/45">
+      <div className="premium-nav-pill nav-bar-fill relative mx-auto w-[calc(100%-1.5rem)] max-w-[26.5rem] rounded-[2rem] border border-border/35">
         <ul
           ref={navList}
-          className={cn("premium-nav-grid relative grid h-[4.35rem] grid-cols-5 items-end", gestureActive && "is-gesturing")}
+          className={cn("premium-nav-grid relative grid h-16 grid-cols-5 items-end", gestureActive && "is-gesturing")}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerEnd}
@@ -158,25 +158,25 @@ export function MobileNav({
           <span className="premium-nav-bubble" aria-hidden />
           {regularItems.slice(0, 2).map((item, index) => renderTab(item, index))}
 
-          <li className="relative h-[4.35rem] min-w-0">
+          <li className="relative h-16 min-w-0">
             {hub ? (
               <Link
                 to={hub.to}
                 data-tour={hub.tour}
                 aria-current={hubActive ? "page" : undefined}
                 className={cn(
-                  "premium-hub-link absolute inset-x-0 -top-[2.15rem] z-10 flex flex-col items-center gap-0.5 text-[10px] font-bold",
+                  "premium-hub-link absolute inset-x-0 -top-[2rem] z-10 flex flex-col items-center gap-0.5 text-[10px] font-bold",
                   hubActive ? "text-foreground" : "text-muted-foreground",
                   gestureActive && gestureIndex === 2 && "is-selected",
                 )}
               >
                 <span
                   className={cn(
-                    "premium-hub-orb grid size-[4.7rem] shrink-0 place-items-center rounded-full border-[5px] border-background/90 bg-card",
+                    "premium-hub-orb grid size-[5.15rem] shrink-0 place-items-center rounded-full border-4 border-background/90 bg-card",
                     hubActive && "is-active",
                   )}
                 >
-                  <AshMark ai={false} className="size-[3.65rem]" />
+                  <AshMark ai={false} className="size-[4.2rem]" />
                 </span>
                 <span className="max-w-full truncate px-0.5 leading-4">{label(hub)}</span>
               </Link>
@@ -190,7 +190,7 @@ export function MobileNav({
                 <Button
                   variant="ghost"
                   className={cn(
-                    "premium-nav-item relative flex h-[4.35rem] w-full min-w-0 flex-col items-center justify-center gap-1 rounded-none px-0.5 pt-1 text-[10px] font-semibold text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground [&_svg]:size-[1.3rem]",
+                    "premium-nav-item relative flex h-16 w-full min-w-0 flex-col items-center justify-center gap-0.5 rounded-none px-0.5 pt-1 text-[10px] font-semibold text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground [&_svg]:size-6",
                     gestureActive && gestureIndex === 4 && "premium-nav-item-selected",
                     gestureActive && gestureIndex === 3 && "premium-nav-item-neighbor",
                   )}
