@@ -21,7 +21,7 @@ import { formatDateTime, formatXAF } from "@/lib/format";
 import { bookingStatusLabel } from "@/lib/booking";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { Archive, Lock, UserPlus } from "lucide-react";
+import { Archive, Lock, Trash2, UserPlus } from "lucide-react";
 import { SelectChatRow } from "@/components/refer/SelectChatRow";
 import {
   MAX_PINNED,
