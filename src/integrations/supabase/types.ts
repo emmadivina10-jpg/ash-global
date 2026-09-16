@@ -337,6 +337,7 @@ export type Database = {
       chat_settings: {
         Row: {
           created_at: string
+          lock_pin: string | null
           updated_at: string
           user_id: string
           wallpaper: string
@@ -344,6 +345,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          lock_pin?: string | null
           updated_at?: string
           user_id: string
           wallpaper?: string
@@ -351,6 +353,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          lock_pin?: string | null
           updated_at?: string
           user_id?: string
           wallpaper?: string
@@ -431,6 +434,47 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      conversation_prefs: {
+        Row: {
+          archived: boolean
+          conversation_id: string
+          created_at: string
+          id: string
+          locked: boolean
+          pinned: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          archived?: boolean
+          conversation_id: string
+          created_at?: string
+          id?: string
+          locked?: boolean
+          pinned?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          archived?: boolean
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          locked?: boolean
+          pinned?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_prefs_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       conversations: {
         Row: {
