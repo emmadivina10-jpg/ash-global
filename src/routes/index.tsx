@@ -104,23 +104,24 @@ function Landing() {
   const fr = lang === "fr";
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
-  const [visible, setVisible] = useState(true);
+  const [out, setOut] = useState(false);
   const reduced =
     typeof window.matchMedia === "function" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // The tiles crossfade from one set of ASH services to the next every five
-  // seconds: fade out slowly, swap the set, then fade back in.
+  // Every ten seconds the tiles melt into the next set: each tile fades over
+  // two seconds, staggered so the fade starts at the top and rolls slowly
+  // down, then the new set fades back in the same gentle way.
   useEffect(() => {
     if (reduced) return;
     let swapTimer: number | undefined;
     const id = window.setInterval(() => {
-      setVisible(false);
+      setOut(true);
       swapTimer = window.setTimeout(() => {
         setPage((p) => (p + 1) % WORLD_PAGES.length);
-        setVisible(true);
-      }, 700);
-    }, 5000);
+        setOut(false);
+      }, 3400);
+    }, 10000);
     return () => {
       window.clearInterval(id);
       window.clearTimeout(swapTimer);
