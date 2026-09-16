@@ -3,6 +3,7 @@
  * reposts, friend requests, groups and chat preferences. Everything here reads
  * and writes real member data; nothing is seeded.
  */
+import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { verifyMediaFiles } from "./media-safety";
@@ -10,6 +11,19 @@ import { verifyMediaFiles } from "./media-safety";
 export const SOCIAL_BUCKET = "spotlight";
 /** Largest single photo accepted by a story or a feed post. */
 export const SOCIAL_MAX_BYTES = 12 * 1024 * 1024;
+export type ReactionType = "love" | "like" | "haha" | "wow" | "sad" | "angry";
+export type ReactionBreakdown = Record<ReactionType, number>;
+export const EMPTY_REACTIONS: ReactionBreakdown = { love: 0, like: 0, haha: 0, wow: 0, sad: 0, angry: 0 };
+
+function summarizeReactions(rows: Array<{ reaction_type: string; user_id: string }>, me: string | null) {
+  const breakdown = { ...EMPTY_REACTIONS };
+  let current: ReactionType | null = null;
+  for (const row of rows) {
+    if (row.reaction_type in breakdown) breakdown[row.reaction_type as ReactionType] += 1;
+    if (row.user_id === me) current = row.reaction_type as ReactionType;
+  }
+  return { breakdown, current, total: rows.length };
+}
 
 export type SocialAuthor = {
   id: string;
@@ -259,6 +273,8 @@ export type FeedPost = {
   repost_count: number;
   filter_comments: boolean;
   liked: boolean;
+  current_reaction: ReactionType | null;
+  reaction_breakdown: ReactionBreakdown;
   reposted: boolean;
   created_at: string;
   author: SocialAuthor;
