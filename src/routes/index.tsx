@@ -185,7 +185,12 @@ function Landing() {
                 : "Where opportunities connect. Book verified pros, sell, rent, hire, share with friends, chat, and get paid securely by Mobile Money."}
             </p>
 
-            <div key={page} className="mt-4 grid w-full grid-cols-2 gap-1.5 sm:gap-2.5 lg:mt-7 lg:max-w-xl">
+            <div
+              key={page}
+              className={`mt-4 grid w-full grid-cols-2 gap-1.5 transition-opacity duration-700 ease-in-out sm:gap-2.5 lg:mt-7 lg:max-w-xl ${
+                visible ? "opacity-100" : "opacity-0"
+              }`}
+            >
               {(WORLD_PAGES[page] ?? WORLD).map((item) => {
                 const Icon = item.icon;
                 return (
