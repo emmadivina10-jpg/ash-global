@@ -61,6 +61,8 @@ export function MobileNav({
   const suppressNextClick = useRef(false);
   const activePointer = useRef<number | null>(null);
   const navList = useRef<HTMLUListElement>(null);
+  const scrolling = useScrolling();
+  const hidden = scrolling && !moreOpen && !gestureActive;
 
   const label = (item: MobileNavItem) =>
     item.key ? t(item.key) : ((fr ? item.fr : item.en) ?? item.label ?? "");
@@ -148,7 +150,11 @@ export function MobileNav({
   };
 
   return (
-    <nav className="premium-mobile-nav fixed inset-x-0 z-40 lg:hidden" aria-label={fr ? "Navigation principale" : "Primary navigation"}>
+    <nav
+      className={cn("premium-mobile-nav fixed inset-x-0 z-40 lg:hidden", hidden && "is-hidden")}
+      aria-hidden={hidden}
+      aria-label={fr ? "Navigation principale" : "Primary navigation"}
+    >
       <div className="premium-nav-pill nav-bar-fill relative mx-auto w-[calc(100%-1.5rem)] max-w-[26.5rem] rounded-[2rem] border border-border/35">
         <ul
           ref={navList}
