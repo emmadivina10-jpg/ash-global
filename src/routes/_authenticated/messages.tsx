@@ -20,6 +20,27 @@ import { useI18n } from "@/lib/i18n";
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { bookingStatusLabel } from "@/lib/booking";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { Archive, Lock, UserPlus } from "lucide-react";
+import { SwipeChatRow } from "@/components/refer/SwipeChatRow";
+import {
+  MAX_PINNED,
+  hashPin,
+  useChatLockPin,
+  useChatPrefs,
+  useDeleteConversation,
+  useSetChatLockPin,
+  useSetChatPref,
+} from "@/lib/chat-prefs";
+import { useMemberSearch, useSendFriendRequest, useFriendships } from "@/lib/social.queries";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const searchSchema = z.object({ c: z.string().optional() });
 
