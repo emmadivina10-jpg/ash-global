@@ -704,8 +704,8 @@ html.native .app-shell > nav {
   background-size: 26px 26px, 34px 34px;
 }
 
-/* Signature phone navigation: a compact floating capsule with an elevated
-   ASH Hub orb. The clear safe-area gap intentionally remains outside the pill. */
+/* Signature phone navigation: a compact floating capsule with five balanced
+   destinations. The clear safe-area gap intentionally remains outside the pill. */
 .app-shell > nav {
   transform: translateZ(0);
   backface-visibility: hidden;
@@ -774,51 +774,15 @@ html.native .app-shell > nav {
   transform: translateY(-0.08rem) scale(1.02);
 }
 
-.premium-hub-link {
-  transition: color 180ms ease, transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.premium-hub-link:active,
-.premium-hub-link.is-selected {
-  transform: translateY(-0.12rem) scale(1.055);
-}
-
-.premium-hub-orb {
-  box-shadow:
-    0 10px 24px color-mix(in oklab, var(--color-foreground) 18%, transparent),
-    0 0 25px color-mix(in oklab, var(--color-primary) 30%, transparent),
-    0 0 40px color-mix(in oklab, var(--color-accent) 15%, transparent);
-  transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 240ms ease;
-}
-
-.premium-hub-orb.is-active,
-.premium-hub-link.is-selected .premium-hub-orb {
-  box-shadow:
-    0 12px 26px color-mix(in oklab, var(--color-foreground) 20%, transparent),
-    0 0 25px color-mix(in oklab, var(--color-primary) 42%, transparent),
-    0 0 46px color-mix(in oklab, var(--color-accent) 22%, transparent);
-}
-
 @media (max-height: 500px) and (orientation: landscape) {
   .premium-mobile-nav {
     bottom: calc(0.25rem + env(safe-area-inset-bottom));
-  }
-
-  .premium-hub-link {
-    top: -1.25rem;
-  }
-
-  .premium-hub-orb {
-    width: 3.9rem;
-    height: 3.9rem;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .premium-nav-bubble,
-  .premium-nav-item,
-  .premium-hub-link,
-  .premium-hub-orb {
+  .premium-nav-item {
     transition-duration: 1ms;
   }
 }

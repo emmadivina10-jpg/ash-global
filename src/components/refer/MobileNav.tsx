@@ -3,7 +3,6 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Menu, Shield } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { AshMark } from "./AshMark";
 import { useI18n, type TKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -20,7 +19,7 @@ export type MobileNavItem = {
 
 export type MoreGroup = { en: string; fr: string; items: MobileNavItem[] };
 
-/** Phone navigation with a raised ASH Hub tab and four stable destinations. */
+/** Phone navigation with five evenly balanced destinations. */
 export function MobileNav({
   items,
   moreGroups,
@@ -72,10 +71,6 @@ export function MobileNav({
       </li>
     );
   };
-
-  const hub = items[2];
-  const regularItems = items.filter((_, index) => index !== 2);
-  const hubActive = Boolean(hub && (pathname === hub.to || pathname.startsWith(`${hub.to}/`)));
 
   const indexFromPointer = (clientX: number) => {
     const bounds = navList.current?.getBoundingClientRect();
@@ -156,34 +151,7 @@ export function MobileNav({
           }}
         >
           <span className="premium-nav-bubble" aria-hidden />
-          {regularItems.slice(0, 2).map((item, index) => renderTab(item, index))}
-
-          <li className="relative h-16 min-w-0">
-            {hub ? (
-              <Link
-                to={hub.to}
-                data-tour={hub.tour}
-                aria-current={hubActive ? "page" : undefined}
-                className={cn(
-                  "premium-hub-link absolute inset-x-0 -top-[2rem] z-10 flex flex-col items-center gap-0.5 text-[10px] font-bold",
-                  hubActive ? "text-foreground" : "text-muted-foreground",
-                  gestureActive && gestureIndex === 2 && "is-selected",
-                )}
-              >
-                <span
-                  className={cn(
-                    "premium-hub-orb grid size-[5.15rem] shrink-0 place-items-center rounded-full border-4 border-background/90 bg-card",
-                    hubActive && "is-active",
-                  )}
-                >
-                  <AshMark ai={false} className="size-[4.2rem]" />
-                </span>
-                <span className="max-w-full truncate px-0.5 leading-4">{label(hub)}</span>
-              </Link>
-            ) : null}
-          </li>
-
-          {regularItems.slice(2, 3).map((item) => renderTab(item, 3))}
+          {items.map((item, index) => renderTab(item, index))}
           <li className="min-w-0">
             <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
               <SheetTrigger asChild>
