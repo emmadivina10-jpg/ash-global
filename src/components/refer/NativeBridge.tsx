@@ -24,16 +24,22 @@ export function NativeBridge() {
       const height = vv?.height ?? window.innerHeight;
       document.documentElement.style.setProperty("--ash-vh", `${Math.round(height)}px`);
     };
+    const syncAfterReturn = () => {
+      if (document.visibilityState !== "visible") return;
+      requestAnimationFrame(sync);
+    };
     sync();
     vv?.addEventListener("resize", sync);
     vv?.addEventListener("scroll", sync);
     window.addEventListener("resize", sync);
     window.addEventListener("orientationchange", sync);
+    document.addEventListener("visibilitychange", syncAfterReturn);
     return () => {
       vv?.removeEventListener("resize", sync);
       vv?.removeEventListener("scroll", sync);
       window.removeEventListener("resize", sync);
       window.removeEventListener("orientationchange", sync);
+      document.removeEventListener("visibilitychange", syncAfterReturn);
     };
   }, []);
 

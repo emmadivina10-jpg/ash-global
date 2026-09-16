@@ -38,13 +38,23 @@ export async function initNativeShell(onBack?: () => boolean): Promise<() => voi
     () => document.documentElement.classList.remove("native", platform),
   ];
 
-  try {
+  const restoreNativeChrome = async () => {
+    if (typeof window === "undefined") return;
     const { StatusBar, Style } = await import("@capacitor/status-bar");
     const dark = document.documentElement.classList.contains("dark");
+    await StatusBar.setOverlaysWebView({ overlay: false });
     await StatusBar.setStyle({ style: dark ? Style.Dark : Style.Light });
     if (platform === "android") {
       await StatusBar.setBackgroundColor({ color: dark ? "#080812" : "#ffffff" });
     }
+    document.documentElement.style.setProperty(
+      "--ash-vh",
+      `${Math.round(window.visualViewport?.height ?? window.innerHeight)}px`,
+    );
+  };
+
+  try {
+    await restoreNativeChrome();
   } catch {
     /* status bar unavailable — ignore */
   }
@@ -68,8 +78,24 @@ export async function initNativeShell(onBack?: () => boolean): Promise<() => voi
       }
     });
     cleanups.push(() => void handle.remove());
+
+    const stateHandle = await App.addListener("appStateChange", ({ isActive }) => {
+      if (!isActive) return;
+      requestAnimationFrame(() => void restoreNativeChrome());
+    });
+    cleanups.push(() => void stateHandle.remove());
   } catch {
     /* app plugin unavailable */
+  }
+
+  try {
+    const { Browser } = await import("@capacitor/browser");
+    const browserHandle = await Browser.addListener("browserFinished", () => {
+      requestAnimationFrame(() => void restoreNativeChrome());
+    });
+    cleanups.push(() => void browserHandle.remove());
+  } catch {
+    /* browser plugin unavailable */
   }
 
   return () => cleanups.forEach((fn) => fn());
