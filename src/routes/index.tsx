@@ -78,6 +78,19 @@ const WORLD = [
   { icon: MessageCircle, en: "Chat", fr: "Chat", enHint: "Friends, groups & DMs", frHint: "Amis, groupes et messages" },
 ] as const;
 
+const MORE_WORLD = [
+  { icon: Gift, en: "Referrals", fr: "Parrainage", enHint: "Invite and earn", frHint: "Invitez et gagnez" },
+  { icon: Zap, en: "Electricity", fr: "Électricité", enHint: "Pay your bills in seconds", frHint: "Payez vos factures en secondes" },
+  { icon: Send, en: "TchokoPay", fr: "TchokoPay", enHint: "Send money across Africa", frHint: "Envoyez de l’argent en Afrique" },
+  { icon: Wallet, en: "Wallet", fr: "Portefeuille", enHint: "Mobile Money in and out", frHint: "Mobile Money entrées et sorties" },
+  { icon: LayoutGrid, en: "Other apps", fr: "Autres apps", enHint: "Browse the ASH family", frHint: "Découvrez la famille ASH" },
+  { icon: Newspaper, en: "Articles", fr: "Articles", enHint: "Read and publish", frHint: "Lisez et publiez" },
+  { icon: GraduationCap, en: "Mentors", fr: "Mentors", enHint: "Learn from doers", frHint: "Apprenez des experts" },
+  { icon: BadgeCheck, en: "ASH Verified", fr: "ASH Vérifié", enHint: "Protect your name", frHint: "Protégez votre nom" },
+] as const;
+
+const WORLD_PAGES = [WORLD, MORE_WORLD] as const;
+
 function Landing() {
   const { lang } = useI18n();
   const fr = lang === "fr";
