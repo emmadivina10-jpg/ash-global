@@ -96,7 +96,7 @@ function SetupProfilePage() {
           <Button
             className="h-12 w-full"
             disabled={!path}
-            onClick={() => navigate({ to: "/services", replace: true })}
+            onClick={() => navigate({ to: "/feed", replace: true })}
           >
             {fr ? "Terminer et entrer" : "Finish and enter ASH"}
           </Button>

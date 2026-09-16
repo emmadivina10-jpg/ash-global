@@ -60,7 +60,7 @@ function LoginPage() {
     toast.success(t("auth.login.welcome"));
     const { data: session } = await supabase.auth.getSession();
     const userId = session.session?.user.id;
-    const next = userId ? await nextOnboardingRoute(userId) : "/services";
+    const next = userId ? await nextOnboardingRoute(userId) : "/feed";
     navigate({ to: next });
   }
 

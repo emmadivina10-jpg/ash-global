@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { LanguageSwitcher, ThemeToggle } from "@/components/refer/Preferences";
 import { useI18n } from "@/lib/i18n";
 import { ReviewsCarousel } from "@/components/refer/ReviewsCarousel";
+import { WelcomeIntro } from "@/components/refer/WelcomeIntro";
 
 const TITLE = "ASH — Where Opportunities Connect.";
 const DESCRIPTION =
@@ -82,20 +83,20 @@ function Landing() {
   const fr = lang === "fr";
   const navigate = useNavigate();
 
-  // Native apps skip this screen and route signed-in members to services, visitors to login.
+  // Native apps skip this screen and route signed-in members to the feed, visitors to login.
   useEffect(() => {
     if (!isNativeApp()) return;
     let cancelled = false;
     void supabase.auth.getSession().then(({ data }) => {
       if (cancelled) return;
-      void navigate({ to: data.session?.user ? "/services" : "/login", replace: true });
+      void navigate({ to: data.session?.user ? "/feed" : "/login", replace: true });
     });
     return () => {
       cancelled = true;
     };
   }, [navigate]);
 
-  if (isNativeApp()) return <div className="min-h-dvh bg-background" />;
+  if (isNativeApp()) return <WelcomeIntro />;
 
   return (
     <div className="safe-top relative min-h-dvh overflow-hidden bg-background">
