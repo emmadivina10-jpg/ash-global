@@ -207,7 +207,7 @@ export function usePublishArticle() {
         await verifyMediaFiles([input.cover], "ARTICLE_COVER");
         if (input.cover.size > SPOTLIGHT_MAX_BYTES) throw new Error("FILE_TOO_LARGE");
         const ext = input.cover.name.split(".").pop()?.toLowerCase() || "jpg";
-        const path = `${userId}/article-${crypto.randomUUID()}.${ext}`;
+        const path = `${userId}/article/${crypto.randomUUID()}.${ext}`;
         const { error: uploadError } = await supabase.storage
           .from(SPOTLIGHT_BUCKET)
           .upload(path, input.cover, { upsert: false, contentType: input.cover.type });

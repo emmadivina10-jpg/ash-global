@@ -224,7 +224,7 @@ export function useCreateSpotlight() {
         const isImage = file.type.startsWith("image/");
         if (!isVideo && !isImage) throw new Error("Only photos and videos can be posted.");
         const extension = file.name.split(".").pop()?.toLowerCase() ?? (isVideo ? "mp4" : "jpg");
-        const path = `${userId}/${crypto.randomUUID()}.${extension}`;
+        const path = `${userId}/spotlight/${crypto.randomUUID()}.${extension}`;
         const { error: uploadError } = await supabase.storage
           .from(SPOTLIGHT_BUCKET)
           .upload(path, file, { cacheControl: "3600", contentType: file.type, upsert: false });

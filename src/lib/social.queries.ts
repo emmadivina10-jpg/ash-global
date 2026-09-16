@@ -63,7 +63,7 @@ async function uploadImage(userId: string, file: File, prefix: string): Promise<
   if (!file.type.startsWith("image/")) throw new Error("Only photos can be shared right now.");
   if (file.size > SOCIAL_MAX_BYTES) throw new Error(`${file.name} is larger than 12 MB.`);
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
-  const path = `${userId}/${prefix}-${crypto.randomUUID()}.${ext}`;
+  const path = `${userId}/${prefix}/${crypto.randomUUID()}.${ext}`;
   const { error } = await supabase.storage
     .from(SOCIAL_BUCKET)
     .upload(path, file, { cacheControl: "3600", contentType: file.type, upsert: false });

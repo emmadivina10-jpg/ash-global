@@ -163,7 +163,7 @@ export function useCreateForumPost() {
         await verifyMediaFiles([input.image], "FORUM_POST");
         if (input.image.size > SPOTLIGHT_MAX_BYTES) throw new Error("FILE_TOO_LARGE");
         const ext = input.image.name.split(".").pop()?.toLowerCase() || "jpg";
-        const path = `${userId}/forum-${crypto.randomUUID()}.${ext}`;
+        const path = `${userId}/forum/${crypto.randomUUID()}.${ext}`;
         const { error: uploadError } = await supabase.storage
           .from(SPOTLIGHT_BUCKET)
           .upload(path, input.image, { upsert: false, contentType: input.image.type });
