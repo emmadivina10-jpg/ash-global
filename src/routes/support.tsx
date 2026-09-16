@@ -25,8 +25,10 @@ export const Route = createFileRoute("/support")({
       { property: "og:title", content: "Contact ASH Glo Support" },
       { property: "og:description", content: "Questions about payments, withdrawals or bookings? Message our team." },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://ashglogroup.company/support" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://ashglogroup.company/support" }],
   }),
   component: SupportPage,
 });

@@ -16,8 +16,10 @@ export const Route = createFileRoute("/terms")({
         content: "Marketplace rules, payments and fees, user content policy and account termination.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://ashglogroup.company/terms" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://ashglogroup.company/terms" }],
   }),
   component: TermsPage,
 });

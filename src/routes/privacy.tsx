@@ -17,8 +17,10 @@ export const Route = createFileRoute("/privacy")({
           "Data we collect, why we use it, who we share it with, how long we keep it and the rights you have.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://ashglogroup.company/privacy" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://ashglogroup.company/privacy" }],
   }),
   component: PrivacyPage,
 });
