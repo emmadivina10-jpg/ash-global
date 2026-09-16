@@ -190,7 +190,13 @@ export function SpotlightComposer({
                   <div
                     key={preview.url}
                     className={`relative min-h-0 overflow-hidden rounded-xl border border-border bg-muted ${
-                      previews.length === 1 ? "col-span-2 row-span-2" : previews.length === 3 && index === 0 ? "col-span-2" : ""
+                      previews.length === 1
+                        ? "col-span-2 row-span-2"
+                        : previews.length === 2
+                          ? "row-span-2"
+                          : previews.length === 3 && index === 0
+                            ? "col-span-2"
+                            : ""
                     }`}
                   >
                     {preview.video ? (

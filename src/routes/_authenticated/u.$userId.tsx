@@ -126,7 +126,9 @@ function MemberProfilePage() {
                       src={src}
                       alt=""
                       loading="lazy"
-                      className={`size-full min-h-0 bg-muted object-cover ${post.images.length === 3 && index === 0 ? "col-span-2" : ""}`}
+                      className={`size-full min-h-0 bg-muted object-cover ${
+                        post.images.length === 2 ? "row-span-2" : post.images.length === 3 && index === 0 ? "col-span-2" : ""
+                      }`}
                     />
                   ))}
                 </button>

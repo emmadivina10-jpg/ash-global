@@ -124,6 +124,7 @@ export function PostCard({
                 detail
                   ? "max-h-[75dvh] object-contain"
                   : "cursor-pointer object-cover touch-manipulation",
+                !detail && post.images.length === 2 && "row-span-2",
                 !detail && post.images.length === 3 && index === 0 && "col-span-2",
               )}
             />
