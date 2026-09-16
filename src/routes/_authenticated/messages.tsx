@@ -736,8 +736,18 @@ function MessagesPage() {
                 const avatarColor = getAvatarColor(conv.id);
 
                 return (
-                  <button
+                  <SwipeChatRow
                     key={conv.id}
+                    fr={fr}
+                    pinned={Boolean(prefs?.[conv.id]?.pinned)}
+                    archived={Boolean(prefs?.[conv.id]?.archived)}
+                    locked={Boolean(prefs?.[conv.id]?.locked)}
+                    onTogglePin={() => void togglePin(conv.id)}
+                    onArchive={() => toggleArchive(conv.id)}
+                    onToggleLock={() => toggleLock(conv.id)}
+                    onDelete={() => removeChat(conv.id)}
+                  >
+                  <button
                     type="button"
                     onClick={() =>
                       void navigate({
