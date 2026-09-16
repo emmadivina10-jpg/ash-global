@@ -443,13 +443,29 @@ export function useToggleRepost() {
       const userId = await currentUserId();
       if (!userId) throw new Error("You need to be signed in.");
       if (reposted) {
-        await supabase.from("post_reposts").delete().eq("post_id", postId).eq("user_id", userId);
+        const { error } = await supabase
+          .from("post_reposts")
+          .delete()
+          .eq("post_id", postId)
+          .eq("user_id", userId);
+        if (error) throw error;
       } else {
         const { error } = await supabase.from("post_reposts").insert({ post_id: postId, user_id: userId });
-        if (error) throw error;
+        // A verified author can lock their work; the database guard says so plainly.
+        if (error) {
+          throw new Error(
+            /permit|allow_reuse|verified/i.test(error.message)
+              ? "This member keeps their posts protected, so it cannot be shared."
+              : error.message,
+          );
+        }
       }
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["social-feed"] }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["social-feed"] });
+      void queryClient.invalidateQueries({ queryKey: ["member-posts"] });
+      void queryClient.invalidateQueries({ queryKey: ["post"] });
+    },
   });
 }
 
@@ -898,5 +914,62 @@ export function useSetWallpaper() {
       if (error) throw error;
     },
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["chat-settings"] }),
+  });
+}
+
+/* ---------------------------------------------------- friend suggestions */
+
+/**
+ * People you might know: real members you are not already linked to. No bots,
+ * no seeded rows — just the newest members outside your friend graph.
+ */
+export function useFriendSuggestions(limit = 12) {
+  return useQuery({
+    queryKey: ["friend-suggestions", limit],
+    queryFn: async (): Promise<SocialAuthor[]> => {
+      const me = await currentUserId();
+      if (!me) return [];
+      const { data: links } = await supabase
+        .from("friendships")
+        .select("requester_id, addressee_id, status");
+      const linked = new Set<string>([me]);
+      for (const row of (links ?? []) as { requester_id: string; addressee_id: string }[]) {
+        linked.add(row.requester_id);
+        linked.add(row.addressee_id);
+      }
+      const { data } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, avatar_url, verified_tier, verified_until")
+        .order("created_at", { ascending: false })
+        .limit(limit + linked.size + 10);
+      return ((data ?? []) as {
+        user_id: string;
+        full_name: string | null;
+        avatar_url: string | null;
+        verified_tier: string | null;
+        verified_until: string | null;
+      }[])
+        .filter((row) => !linked.has(row.user_id) && Boolean(row.full_name))
+        .slice(0, limit)
+        .map((row) => ({
+          id: row.user_id,
+          name: row.full_name ?? "ASH member",
+          avatar_url: row.avatar_url,
+          verified_tier: row.verified_tier,
+          verified_until: row.verified_until,
+        }));
+    },
+  });
+}
+
+/** One member's public card: name, photo, badge. */
+export function useMemberProfile(userId: string | null | undefined) {
+  return useQuery({
+    queryKey: ["member-profile", userId],
+    enabled: Boolean(userId),
+    queryFn: async (): Promise<SocialAuthor | null> => {
+      const authors = await loadAuthors([userId!]);
+      return authors.get(userId!) ?? null;
+    },
   });
 }

@@ -92,6 +92,7 @@ import { Route as AuthenticatedPropertyManageRouteImport } from './routes/_authe
 import { Route as AuthenticatedPropertyNewRouteImport } from './routes/_authenticated/property.new'
 import { Route as AuthenticatedServicesIndexRouteImport } from './routes/_authenticated/services.index'
 import { Route as AuthenticatedServicesProviderIdRouteImport } from './routes/_authenticated/services.$providerId'
+import { Route as AuthenticatedUUserIdRouteImport } from './routes/_authenticated/u.$userId'
 import { Route as ApiPublicReconcileActivationsRouteImport } from './routes/api/public/reconcile-activations'
 import { Route as ApiPublicSecuritySelfcheckRouteImport } from './routes/api/public/security-selfcheck'
 import { Route as ApiPublicWebhooksTchokopayRouteImport } from './routes/api/public/webhooks/tchokopay'
@@ -529,6 +530,11 @@ const AuthenticatedServicesProviderIdRoute =
     path: '/services/$providerId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedUUserIdRoute = AuthenticatedUUserIdRouteImport.update({
+  id: '/u/$userId',
+  path: '/u/$userId',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ApiPublicReconcileActivationsRoute =
   ApiPublicReconcileActivationsRouteImport.update({
     id: '/api/public/reconcile-activations',
@@ -640,6 +646,7 @@ export interface FileRoutesByFullPath {
   '/property/manage': typeof AuthenticatedPropertyManageRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
+  '/u/$userId': typeof AuthenticatedUUserIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
   '/articles/': typeof AuthenticatedArticlesIndexRoute
@@ -729,6 +736,7 @@ export interface FileRoutesByTo {
   '/property/manage': typeof AuthenticatedPropertyManageRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
+  '/u/$userId': typeof AuthenticatedUUserIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
   '/articles': typeof AuthenticatedArticlesIndexRoute
@@ -821,6 +829,7 @@ export interface FileRoutesById {
   '/_authenticated/property/manage': typeof AuthenticatedPropertyManageRoute
   '/_authenticated/property/new': typeof AuthenticatedPropertyNewRoute
   '/_authenticated/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
+  '/_authenticated/u/$userId': typeof AuthenticatedUUserIdRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
   '/_authenticated/articles/': typeof AuthenticatedArticlesIndexRoute
@@ -913,6 +922,7 @@ export interface FileRouteTypes {
     | '/property/manage'
     | '/property/new'
     | '/services/$providerId'
+    | '/u/$userId'
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
     | '/articles/'
@@ -1002,6 +1012,7 @@ export interface FileRouteTypes {
     | '/property/manage'
     | '/property/new'
     | '/services/$providerId'
+    | '/u/$userId'
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
     | '/articles'
@@ -1093,6 +1104,7 @@ export interface FileRouteTypes {
     | '/_authenticated/property/manage'
     | '/_authenticated/property/new'
     | '/_authenticated/services/$providerId'
+    | '/_authenticated/u/$userId'
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
     | '/_authenticated/articles/'
@@ -1718,6 +1730,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedServicesProviderIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/u/$userId': {
+      id: '/_authenticated/u/$userId'
+      path: '/u/$userId'
+      fullPath: '/u/$userId'
+      preLoaderRoute: typeof AuthenticatedUUserIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/reconcile-activations': {
       id: '/api/public/reconcile-activations'
       path: '/api/public/reconcile-activations'
@@ -1796,6 +1815,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPropertyManageRoute: typeof AuthenticatedPropertyManageRoute
   AuthenticatedPropertyNewRoute: typeof AuthenticatedPropertyNewRoute
   AuthenticatedServicesProviderIdRoute: typeof AuthenticatedServicesProviderIdRoute
+  AuthenticatedUUserIdRoute: typeof AuthenticatedUUserIdRoute
   AuthenticatedArticlesIndexRoute: typeof AuthenticatedArticlesIndexRoute
   AuthenticatedEventsIndexRoute: typeof AuthenticatedEventsIndexRoute
   AuthenticatedFreelanceIndexRoute: typeof AuthenticatedFreelanceIndexRoute
@@ -1838,6 +1858,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPropertyManageRoute: AuthenticatedPropertyManageRoute,
   AuthenticatedPropertyNewRoute: AuthenticatedPropertyNewRoute,
   AuthenticatedServicesProviderIdRoute: AuthenticatedServicesProviderIdRoute,
+  AuthenticatedUUserIdRoute: AuthenticatedUUserIdRoute,
   AuthenticatedArticlesIndexRoute: AuthenticatedArticlesIndexRoute,
   AuthenticatedEventsIndexRoute: AuthenticatedEventsIndexRoute,
   AuthenticatedFreelanceIndexRoute: AuthenticatedFreelanceIndexRoute,

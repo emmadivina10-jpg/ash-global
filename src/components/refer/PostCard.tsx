@@ -56,12 +56,22 @@ export function PostCard({
   return (
     <article className={cn("tile overflow-hidden", detail && "rounded-none border-0 shadow-none sm:rounded-3xl sm:border")}>
       <header className="flex items-center gap-3 p-4 pb-3">
-        <Avatar path={post.author.avatar_url} name={post.author.name} className="size-10" />
+        <button
+          type="button"
+          aria-label={post.author.name}
+          onClick={() => void navigate({ to: "/u/$userId", params: { userId: post.author_id } })}
+        >
+          <Avatar path={post.author.avatar_url} name={post.author.name} className="size-10" />
+        </button>
         <div className="min-w-0 flex-1">
-          <p className="flex items-center gap-1 truncate text-sm font-bold text-foreground">
+          <button
+            type="button"
+            onClick={() => void navigate({ to: "/u/$userId", params: { userId: post.author_id } })}
+            className="flex max-w-full items-center gap-1 truncate text-sm font-bold text-foreground hover:underline"
+          >
             <span className="truncate">{post.author.name}</span>
             <VerifiedBadge tier={post.author.verified_tier} until={post.author.verified_until} />
-          </p>
+          </button>
           <p className="truncate text-xs text-muted-foreground">
             {timeAgo(post.created_at, fr)}
             {post.city ? ` · ${post.city}` : ""}
@@ -253,15 +263,24 @@ function CommentRow({
   const { lang } = useI18n();
   const fr = lang === "fr";
   const likeComment = useToggleCommentLike();
+  const navigate = useNavigate();
+  const openAuthor = () =>
+    void navigate({ to: "/u/$userId", params: { userId: comment.author.id } });
   return (
     <div className={cn("flex gap-2.5", depth > 0 && "ml-8")}>
-      <Avatar path={comment.author.avatar_url} name={comment.author.name} className="size-8" />
+      <button type="button" aria-label={comment.author.name} onClick={openAuthor}>
+        <Avatar path={comment.author.avatar_url} name={comment.author.name} className="size-8" />
+      </button>
       <div className="min-w-0 flex-1">
         <div className="rounded-2xl bg-muted px-3 py-2">
-          <p className="flex items-center gap-1 text-xs font-bold text-foreground">
+          <button
+            type="button"
+            onClick={openAuthor}
+            className="flex max-w-full items-center gap-1 text-xs font-bold text-foreground hover:underline"
+          >
             <span className="truncate">{comment.author.name}</span>
             <VerifiedBadge tier={comment.author.verified_tier} until={comment.author.verified_until} size={12} />
-          </p>
+          </button>
           <p className="whitespace-pre-wrap break-words text-sm text-foreground">{comment.body}</p>
         </div>
         <div className="mt-1 flex items-center gap-3 px-2 text-[11px] font-semibold text-muted-foreground">

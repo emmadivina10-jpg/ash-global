@@ -37,6 +37,8 @@ export function StoryViewer({
   const [viewersOpen, setViewersOpen] = useState(false);
   const deleteStory = useDeleteStory();
   const startedAt = useRef(Date.now());
+  const pressAt = useRef<{ time: number; x: number } | null>(null);
+  const elapsed = useRef(0);
 
   const group = groups[groupIndex];
   const story = group?.stories[storyIndex];
@@ -71,17 +73,29 @@ export function StoryViewer({
     }
   }
 
-  // Auto-advance timer.
+  // Restart the segment whenever the story changes.
   useEffect(() => {
-    startedAt.current = Date.now();
+    elapsed.current = 0;
     setProgress(0);
+  }, [groupIndex, storyIndex]);
+
+  // Auto-advance timer. Holding pauses it and keeps the elapsed time, so the
+  // bar carries on from where it stopped when the finger is lifted.
+  useEffect(() => {
     if (paused || viewersOpen) return;
+    startedAt.current = Date.now();
     const tick = window.setInterval(() => {
-      const elapsed = Date.now() - startedAt.current;
-      setProgress(Math.min(1, elapsed / SEGMENT_MS));
-      if (elapsed >= SEGMENT_MS) next();
+      const total = elapsed.current + (Date.now() - startedAt.current);
+      setProgress(Math.min(1, total / SEGMENT_MS));
+      if (total >= SEGMENT_MS) {
+        elapsed.current = 0;
+        next();
+      }
     }, 60);
-    return () => window.clearInterval(tick);
+    return () => {
+      window.clearInterval(tick);
+      elapsed.current += Date.now() - startedAt.current;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupIndex, storyIndex, paused, viewersOpen]);
 
@@ -142,24 +156,28 @@ export function StoryViewer({
       </div>
 
       <div
-        className="relative min-h-0 flex-1"
-        onPointerDown={() => setPaused(true)}
-        onPointerUp={() => setPaused(false)}
-        onPointerCancel={() => setPaused(false)}
+        className="relative min-h-0 flex-1 touch-none select-none"
+        onPointerDown={(event) => {
+          pressAt.current = { time: Date.now(), x: event.clientX };
+          setPaused(true);
+        }}
+        onPointerUp={(event) => {
+          const press = pressAt.current;
+          pressAt.current = null;
+          setPaused(false);
+          if (!press) return;
+          // A quick tap moves between segments; a long press only pauses.
+          if (Date.now() - press.time > 260) return;
+          const bounds = event.currentTarget.getBoundingClientRect();
+          if (event.clientX - bounds.left < bounds.width / 3) previous();
+          else next();
+        }}
+        onPointerCancel={() => {
+          pressAt.current = null;
+          setPaused(false);
+        }}
       >
         <img src={story.url} alt={story.caption || "Story"} className="size-full object-contain" />
-        <button
-          type="button"
-          aria-label={fr ? "Précédent" : "Previous"}
-          onClick={previous}
-          className="absolute inset-y-0 left-0 w-1/3"
-        />
-        <button
-          type="button"
-          aria-label={fr ? "Suivant" : "Next"}
-          onClick={next}
-          className="absolute inset-y-0 right-0 w-1/3"
-        />
         {story.caption ? (
           <p className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-5 pb-6 pt-10 text-center text-sm text-white">
             {story.caption}
