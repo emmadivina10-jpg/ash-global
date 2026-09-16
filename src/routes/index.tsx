@@ -1,18 +1,26 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
+  BadgeCheck,
   Briefcase,
   Building2,
   CalendarDays,
+  Gift,
   Globe2,
+  GraduationCap,
+  LayoutGrid,
   Lock,
   MessageCircle,
+  Newspaper,
+  Send,
   ShieldCheck,
   ShoppingBag,
   Sparkles,
   Store,
   Tag,
   Users,
+  Wallet,
+  Zap,
 } from "lucide-react";
 import { isNativeApp } from "@/lib/native";
 import ashLogo from "@/assets/ash-logo.png.asset.json";
@@ -95,6 +103,14 @@ function Landing() {
   const { lang } = useI18n();
   const fr = lang === "fr";
   const navigate = useNavigate();
+  const [page, setPage] = useState(0);
+
+  // The tiles fade from one set of ASH services to the next every five seconds.
+  useEffect(() => {
+    if (typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const id = window.setInterval(() => setPage((p) => (p + 1) % WORLD_PAGES.length), 5000);
+    return () => window.clearInterval(id);
+  }, []);
 
   // Native apps skip this screen and route signed-in members to the feed, visitors to login.
   useEffect(() => {
@@ -154,13 +170,13 @@ function Landing() {
                 : "Where opportunities connect. Book verified pros, sell, rent, hire, share with friends, chat, and get paid securely by Mobile Money."}
             </p>
 
-            <div className="mt-4 grid w-full grid-cols-2 gap-1.5 sm:gap-2.5 lg:mt-7 lg:max-w-xl">
-              {WORLD.map((item) => {
+            <div key={page} className="mt-4 grid w-full grid-cols-2 gap-1.5 sm:gap-2.5 lg:mt-7 lg:max-w-xl">
+              {(WORLD_PAGES[page] ?? WORLD).map((item) => {
                 const Icon = item.icon;
                 return (
                   <div
                     key={item.en}
-                    className="flex items-center gap-2.5 rounded-2xl border border-border/70 bg-card/50 px-3 py-2.5 text-left backdrop-blur-md transition-colors hover:border-primary/40 hover:bg-card/70"
+                    className="ash-fade-up flex items-center gap-2.5 rounded-2xl border border-border/70 bg-card/50 px-3 py-2.5 text-left backdrop-blur-md transition-colors hover:border-primary/40 hover:bg-card/70"
                   >
                     <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
                       <Icon className="size-4" aria-hidden />
