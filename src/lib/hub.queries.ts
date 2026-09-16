@@ -207,7 +207,8 @@ export function usePublishArticle() {
         await verifyMediaFiles([input.cover], "ARTICLE_COVER");
         if (input.cover.size > SPOTLIGHT_MAX_BYTES) throw new Error("FILE_TOO_LARGE");
         const ext = input.cover.name.split(".").pop()?.toLowerCase() || "jpg";
-        const path = `${userId}/article/${crypto.randomUUID()}.${ext}`;
+        const articleId = crypto.randomUUID();
+        const path = `${userId}/article/${articleId}/${crypto.randomUUID()}.${ext}`;
         const { error: uploadError } = await supabase.storage
           .from(SPOTLIGHT_BUCKET)
           .upload(path, input.cover, { upsert: false, contentType: input.cover.type });
@@ -217,6 +218,7 @@ export function usePublishArticle() {
       const { data, error } = await supabase
         .from("articles")
         .insert({
+          ...(coverPath ? { id: coverPath.split("/")[2] } : {}),
           author_id: userId,
           title: input.title.trim(),
           excerpt: input.excerpt.trim() || null,

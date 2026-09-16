@@ -419,15 +419,20 @@ export function useCreateSocialPost() {
       if (files.length === 0 && !caption.trim()) throw new Error("Write something or add a photo.");
       await verifyMediaFiles(files.slice(0, 4), "SOCIAL_POST");
       const media: string[] = [];
-      for (const file of files.slice(0, 4)) media.push(await uploadImage(userId, file, "post"));
-      const { error } = await supabase.from("social_posts").insert({
-        author_id: userId,
-        caption: caption.trim(),
-        media: media as unknown as never,
-        city: city ?? null,
-        filter_comments: filterComments ?? false,
-      });
-      if (error) throw error;
+      try {
+        for (const file of files.slice(0, 4)) media.push(await uploadImage(userId, file, "post"));
+        const { error } = await supabase.from("social_posts").insert({
+          author_id: userId,
+          caption: caption.trim(),
+          media: media as unknown as never,
+          city: city ?? null,
+          filter_comments: filterComments ?? false,
+        });
+        if (error) throw error;
+      } catch (error) {
+        if (media.length > 0) await supabase.storage.from(SOCIAL_BUCKET).remove(media);
+        throw error;
+      }
     },
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["social-feed"] }),
   });
