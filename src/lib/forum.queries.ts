@@ -159,11 +159,12 @@ export function useCreateForumPost() {
       if (!userId) throw new Error("SIGNED_OUT");
 
       let imagePath: string | null = null;
+      let forumPostId: string | null = null;
       if (input.image) {
         await verifyMediaFiles([input.image], "FORUM_POST");
         if (input.image.size > SPOTLIGHT_MAX_BYTES) throw new Error("FILE_TOO_LARGE");
         const ext = input.image.name.split(".").pop()?.toLowerCase() || "jpg";
-        const forumPostId = crypto.randomUUID();
+        forumPostId = crypto.randomUUID();
         const path = `${userId}/forum/${forumPostId}/${crypto.randomUUID()}.${ext}`;
         const { error: uploadError } = await supabase.storage
           .from(SPOTLIGHT_BUCKET)
@@ -179,7 +180,10 @@ export function useCreateForumPost() {
         body: input.body.trim(),
         image_path: imagePath,
       });
-      if (error) throw error;
+      if (error) {
+        if (imagePath) await supabase.storage.from(SPOTLIGHT_BUCKET).remove([imagePath]);
+        throw error;
+      }
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["forum-feed"] }),
   });

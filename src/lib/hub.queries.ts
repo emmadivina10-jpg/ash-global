@@ -203,11 +203,12 @@ export function usePublishArticle() {
     }) => {
       const userId = await currentUserId();
       let coverPath: string | null = null;
+      let articleId: string | null = null;
       if (input.cover) {
         await verifyMediaFiles([input.cover], "ARTICLE_COVER");
         if (input.cover.size > SPOTLIGHT_MAX_BYTES) throw new Error("FILE_TOO_LARGE");
         const ext = input.cover.name.split(".").pop()?.toLowerCase() || "jpg";
-        const articleId = crypto.randomUUID();
+        articleId = crypto.randomUUID();
         const path = `${userId}/article/${articleId}/${crypto.randomUUID()}.${ext}`;
         const { error: uploadError } = await supabase.storage
           .from(SPOTLIGHT_BUCKET)
@@ -229,7 +230,10 @@ export function usePublishArticle() {
         })
         .select("id")
         .single();
-      if (error) throw error;
+      if (error) {
+        if (coverPath) await supabase.storage.from(SPOTLIGHT_BUCKET).remove([coverPath]);
+        throw error;
+      }
       return data.id as string;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["hub-articles"] }),
