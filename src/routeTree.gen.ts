@@ -84,6 +84,7 @@ import { Route as AuthenticatedEventsIndexRouteImport } from './routes/_authenti
 import { Route as AuthenticatedEventsEventIdRouteImport } from './routes/_authenticated/events.$eventId'
 import { Route as AuthenticatedFreelanceIndexRouteImport } from './routes/_authenticated/freelance.index'
 import { Route as AuthenticatedFreelanceProjectIdRouteImport } from './routes/_authenticated/freelance.$projectId'
+import { Route as AuthenticatedHashtagTagRouteImport } from './routes/_authenticated/hashtag.$tag'
 import { Route as AuthenticatedIncubatorIndexRouteImport } from './routes/_authenticated/incubator/index'
 import { Route as AuthenticatedJobsIndexRouteImport } from './routes/_authenticated/jobs.index'
 import { Route as AuthenticatedJobsJobIdRouteImport } from './routes/_authenticated/jobs.$jobId'
@@ -485,6 +486,11 @@ const AuthenticatedFreelanceProjectIdRoute =
     path: '/freelance/$projectId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedHashtagTagRoute = AuthenticatedHashtagTagRouteImport.update({
+  id: '/hashtag/$tag',
+  path: '/hashtag/$tag',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedIncubatorIndexRoute =
   AuthenticatedIncubatorIndexRouteImport.update({
     id: '/incubator/',
@@ -654,6 +660,7 @@ export interface FileRoutesByFullPath {
   '/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
+  '/hashtag/$tag': typeof AuthenticatedHashtagTagRoute
   '/jobs/$jobId': typeof AuthenticatedJobsJobIdRoute
   '/post/$postId': typeof AuthenticatedPostPostIdRoute
   '/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
@@ -746,6 +753,7 @@ export interface FileRoutesByTo {
   '/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
+  '/hashtag/$tag': typeof AuthenticatedHashtagTagRoute
   '/jobs/$jobId': typeof AuthenticatedJobsJobIdRoute
   '/post/$postId': typeof AuthenticatedPostPostIdRoute
   '/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
@@ -841,6 +849,7 @@ export interface FileRoutesById {
   '/_authenticated/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
   '/_authenticated/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/_authenticated/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
+  '/_authenticated/hashtag/$tag': typeof AuthenticatedHashtagTagRoute
   '/_authenticated/jobs/$jobId': typeof AuthenticatedJobsJobIdRoute
   '/_authenticated/post/$postId': typeof AuthenticatedPostPostIdRoute
   '/_authenticated/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
@@ -936,6 +945,7 @@ export interface FileRouteTypes {
     | '/articles/$articleId'
     | '/events/$eventId'
     | '/freelance/$projectId'
+    | '/hashtag/$tag'
     | '/jobs/$jobId'
     | '/post/$postId'
     | '/property/$listingId'
@@ -1028,6 +1038,7 @@ export interface FileRouteTypes {
     | '/articles/$articleId'
     | '/events/$eventId'
     | '/freelance/$projectId'
+    | '/hashtag/$tag'
     | '/jobs/$jobId'
     | '/post/$postId'
     | '/property/$listingId'
@@ -1122,6 +1133,7 @@ export interface FileRouteTypes {
     | '/_authenticated/articles/$articleId'
     | '/_authenticated/events/$eventId'
     | '/_authenticated/freelance/$projectId'
+    | '/_authenticated/hashtag/$tag'
     | '/_authenticated/jobs/$jobId'
     | '/_authenticated/post/$postId'
     | '/_authenticated/property/$listingId'
@@ -1700,6 +1712,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFreelanceProjectIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/hashtag/$tag': {
+      id: '/_authenticated/hashtag/$tag'
+      path: '/hashtag/$tag'
+      fullPath: '/hashtag/$tag'
+      preLoaderRoute: typeof AuthenticatedHashtagTagRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/incubator/': {
       id: '/_authenticated/incubator/'
       path: '/incubator'
@@ -1849,6 +1868,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedArticlesArticleIdRoute: typeof AuthenticatedArticlesArticleIdRoute
   AuthenticatedEventsEventIdRoute: typeof AuthenticatedEventsEventIdRoute
   AuthenticatedFreelanceProjectIdRoute: typeof AuthenticatedFreelanceProjectIdRoute
+  AuthenticatedHashtagTagRoute: typeof AuthenticatedHashtagTagRoute
   AuthenticatedJobsJobIdRoute: typeof AuthenticatedJobsJobIdRoute
   AuthenticatedPostPostIdRoute: typeof AuthenticatedPostPostIdRoute
   AuthenticatedPropertyListingIdRoute: typeof AuthenticatedPropertyListingIdRoute
@@ -1892,6 +1912,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedArticlesArticleIdRoute: AuthenticatedArticlesArticleIdRoute,
   AuthenticatedEventsEventIdRoute: AuthenticatedEventsEventIdRoute,
   AuthenticatedFreelanceProjectIdRoute: AuthenticatedFreelanceProjectIdRoute,
+  AuthenticatedHashtagTagRoute: AuthenticatedHashtagTagRoute,
   AuthenticatedJobsJobIdRoute: AuthenticatedJobsJobIdRoute,
   AuthenticatedPostPostIdRoute: AuthenticatedPostPostIdRoute,
   AuthenticatedPropertyListingIdRoute: AuthenticatedPropertyListingIdRoute,
