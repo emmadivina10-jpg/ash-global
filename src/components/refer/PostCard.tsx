@@ -1,7 +1,7 @@
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Heart, MessageCircle, Repeat2, ShieldCheck, Trash2 } from "lucide-react";
+import { MessageCircle, Repeat2, ShieldCheck, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "./AvatarUpload";
 import { Button } from "@/components/ui/button";
@@ -12,14 +12,18 @@ import {
   useComments,
   useDeletePost,
   useSetCommentFilter,
-  useToggleLike,
+  useEngagementRealtime,
+  useSetPostReaction,
   useToggleRepost,
   type FeedPost,
   type PostComment,
-  useToggleCommentLike,
+  useSetCommentReaction,
 } from "@/lib/social.queries";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { ReactionButton, ReactionSummary } from "./ReactionButton";
+import { SocialText } from "./SocialText";
+import { SocialSuggestions } from "./SocialSuggestions";
 
 function timeAgo(iso: string, fr: boolean) {
   const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
@@ -47,11 +51,12 @@ export function PostCard({
   const openPost = () => {
     if (!detail) void navigate({ to: "/post/$postId", params: { postId: post.id } });
   };
-  const like = useToggleLike();
+  const react = useSetPostReaction();
   const repost = useToggleRepost();
   const setFilter = useSetCommentFilter();
   const remove = useDeletePost();
   const mine = currentUserId === post.author_id;
+  useEngagementRealtime(detail ? post.id : null);
 
   return (
     <article
@@ -99,15 +104,13 @@ export function PostCard({
       </header>
 
       {post.caption ? (
-        <p
-          onClick={openPost}
+        <SocialText
+          text={post.caption}
           className={cn(
             "whitespace-pre-wrap break-words px-4 pb-3 text-sm leading-relaxed text-foreground",
             !detail && "cursor-pointer",
           )}
-        >
-          {post.caption}
-        </p>
+        />
       ) : null}
 
       {post.images.length > 0 ? (
@@ -139,16 +142,12 @@ export function PostCard({
         </div>
       ) : null}
 
-      <div className="flex items-center gap-1 px-2 py-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          className={cn(post.liked && "text-primary")}
-          onClick={() => like.mutate({ postId: post.id, liked: post.liked })}
-        >
-          <Heart className={cn("size-4", post.liked && "fill-current")} aria-hidden />
-          {post.like_count}
-        </Button>
+      <div className="flex items-center justify-between px-4 pt-2">
+        <ReactionSummary breakdown={post.reaction_breakdown} />
+        <span className="text-[11px] text-muted-foreground">{post.comment_count} {fr ? "commentaires" : "comments"} · {post.repost_count} {fr ? "republications" : "reposts"}</span>
+      </div>
+      <div className="flex items-center gap-1 px-2 pb-2">
+        <ReactionButton value={post.current_reaction} total={post.like_count} breakdown={post.reaction_breakdown} disabled={!currentUserId || react.isPending} onChange={(reaction) => react.mutate({ postId: post.id, reaction })} />
         <Button
           variant="ghost"
           size="sm"
@@ -288,7 +287,7 @@ function CommentRow({
 }) {
   const { lang } = useI18n();
   const fr = lang === "fr";
-  const likeComment = useToggleCommentLike();
+   const reactComment = useSetCommentReaction();
   const navigate = useNavigate();
   const openAuthor = () =>
     void navigate({ to: "/u/$userId", params: { userId: comment.author.id } });
@@ -307,20 +306,10 @@ function CommentRow({
             <span className="truncate">{comment.author.name}</span>
             <VerifiedBadge tier={comment.author.verified_tier} until={comment.author.verified_until} size={12} />
           </button>
-          <p className="whitespace-pre-wrap break-words text-sm text-foreground">{comment.body}</p>
+          <SocialText text={comment.body} className="whitespace-pre-wrap break-words text-sm text-foreground" />
         </div>
         <div className="mt-1 flex items-center gap-3 px-2 text-[11px] font-semibold text-muted-foreground">
-          <button
-            type="button"
-            onClick={() =>
-              likeComment.mutate({ commentId: comment.id, liked: comment.liked, postId: comment.post_id })
-            }
-            disabled={!currentUserId || likeComment.isPending}
-            className={cn("transition-colors hover:text-primary", comment.liked && "text-primary")}
-          >
-            {fr ? "J'aime" : "Like"}
-            {comment.like_count > 0 ? ` · ${comment.like_count}` : ""}
-          </button>
+          <ReactionButton compact value={comment.current_reaction} total={comment.like_count} breakdown={comment.reaction_breakdown} disabled={!currentUserId || reactComment.isPending} onChange={(reaction) => reactComment.mutate({ commentId: comment.id, postId: comment.post_id, reaction })} />
           {depth === 0 ? (
             <button type="button" onClick={() => onReply(comment)} className="hover:text-primary">
               {fr ? "Répondre" : "Reply"}
