@@ -349,7 +349,7 @@ export function ChatThread({
 
       <div
         ref={messagesScrollRef}
-        className="min-h-0 min-w-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl px-1 py-2 touch-pan-y [scrollbar-gutter:stable]"
+        className="messages-scroll min-h-0 min-w-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl px-1 py-2 touch-pan-y"
         style={wallpaperStyle}
       >
         {isLoading ? (

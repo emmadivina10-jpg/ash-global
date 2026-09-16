@@ -217,15 +217,14 @@ function MessagesPage() {
   }, []);
 
   // Mobile chat is a viewport-locked surface. The message list itself owns
-  // scrolling; the authenticated shell must never be allowed to retain a
-  // scroll offset from the previous page or from iOS keyboard adjustments.
+  // scrolling; the outer shell stays still while the bottom navigation remains
+  // visible and stable.
   useEffect(() => {
     if (typeof window === "undefined" || window.innerWidth >= 768) return;
 
     const shellScroll = document.querySelector<HTMLElement>(
       ".app-shell-scroll",
     );
-    const nav = document.querySelector<HTMLElement>(".app-shell > nav");
     const orbs = Array.from(
       document.querySelectorAll<HTMLElement>(".orb-surface"),
     );
@@ -267,18 +266,6 @@ function MessagesPage() {
       window.addEventListener("pageshow", restoreAfterNavigation);
     }
 
-    if (nav) {
-      if (mobileView === "thread") {
-        nav.dataset["ashChatHidden"] = "true";
-        nav.style.visibility = "hidden";
-        nav.style.pointerEvents = "none";
-      } else if (nav.dataset["ashChatHidden"] === "true") {
-        delete nav.dataset["ashChatHidden"];
-        nav.style.visibility = "";
-        nav.style.pointerEvents = "";
-      }
-    }
-
     // Hide the floating ASH orb while the keyboard is visible so it can never
     // sit on top of the composer or the keyboard transition.
     for (const orb of orbs) {
@@ -299,12 +286,6 @@ function MessagesPage() {
       window.history.scrollRestoration = previousScrollRestoration;
 
       window.removeEventListener("pageshow", restoreAfterNavigation);
-
-      if (nav?.dataset["ashChatHidden"] === "true") {
-        delete nav.dataset["ashChatHidden"];
-        nav.style.visibility = "";
-        nav.style.pointerEvents = "";
-      }
 
       for (const orb of orbs) {
         if (orb.dataset["ashChatHidden"] === "true") {
@@ -830,9 +811,7 @@ function MessagesPage() {
               </DialogContent>
             </Dialog>
 
-            <nav
-              className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain touch-pan-y"
-            >
+            <nav className="messages-scroll min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain touch-pan-y">
               {term.trim() &&
               !`${ashAiConversation.label} ${ashAiConversation.preview}`
                 .toLowerCase()
@@ -1042,8 +1021,8 @@ function MessagesPage() {
               mobileView === "list"
                 ? "hidden md:flex"
                 : cn(
-                    "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:z-[70] max-md:w-screen max-md:touch-pan-y",
-                    "max-md:h-[var(--ash-chat-height,100dvh)]",
+                    "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:bottom-[calc(4.75rem+env(safe-area-inset-bottom))] max-md:z-30 max-md:w-screen max-md:touch-pan-y",
+                    "max-md:h-auto",
                   ),
               "md:h-[72vh]",
             )}

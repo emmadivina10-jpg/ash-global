@@ -675,6 +675,19 @@ html.native .app-shell > nav {
   bottom: 0;
 }
 
+/* Messages has one deliberate inner scroll surface. Hide the browser's
+   transient scrollbar so no vertical cut appears beside chat rows or bubbles. */
+.messages-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.messages-scroll::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 /* The native WebView is already placed below the status bar because the
    status bar does not overlay it. Adding the CSS inset again created the
    visible top strip on mobile browsers and duplicated native spacing. */
@@ -696,6 +709,8 @@ html.native .app-shell > nav {
    so no empty/white band can show while scrolling. */
 .app-shell > nav {
   bottom: 0;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .nav-bar-fill {

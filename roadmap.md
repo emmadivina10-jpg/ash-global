@@ -4,6 +4,7 @@
 - [x] Owners can delete their Stories and member-created Spotlights, including uploaded media cleanup
 - [x] One-to-four photo posts and Spotlight previews use balanced, gap-free layouts
 - [x] Messages list uses direction-locked swipe actions with delete confirmation and stable independent scrolling
+- [x] Removed global pull-down loading movement; Messages keeps one clean scroll surface and a stable bottom navigation
 
 - [x] Store TchokoPay webhook signing secret — user declined the secure form for now; webhooks remain safe via API round-trip verification
 - [x] Platform payout page: `/console/payout` — withdraw 1% revenue, per-booking status/amount/fee, payout history, balance guard (`platform_payouts` table + `console_platform_payout` RPC)
