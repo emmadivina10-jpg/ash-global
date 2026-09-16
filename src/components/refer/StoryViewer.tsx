@@ -102,10 +102,10 @@ export function StoryViewer({
   useEffect(() => {
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    document.documentElement.dataset.mediaViewerOpen = "true";
+    document.documentElement.dataset["mediaViewerOpen"] = "true";
     return () => {
       document.body.style.overflow = previous;
-      delete document.documentElement.dataset.mediaViewerOpen;
+      delete document.documentElement.dataset["mediaViewerOpen"];
     };
   }, []);
 
