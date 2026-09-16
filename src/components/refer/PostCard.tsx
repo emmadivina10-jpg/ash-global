@@ -239,7 +239,15 @@ function Comments({
         </p>
       ) : null}
 
-      <div className="flex items-center gap-2">
+      {/* Kept above the bottom bar so the box is never hidden behind it. */}
+      <div
+        className={cn(
+          "sticky z-20 -mx-4 flex items-center gap-2 border-t border-border bg-background px-4 py-2",
+          detail
+            ? "bottom-0 pb-[calc(0.5rem+env(safe-area-inset-bottom))]"
+            : "bottom-[calc(4.75rem+env(safe-area-inset-bottom))] lg:bottom-3",
+        )}
+      >
         <Input
           value={body}
           onChange={(event) => setBody(event.target.value.slice(0, 600))}
