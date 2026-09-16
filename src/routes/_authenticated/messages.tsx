@@ -364,6 +364,35 @@ function MessagesPage() {
   const { data: conversations, isLoading } = useConversations();
   const [term, setTerm] = useState("");
 
+  const { data: prefs } = useChatPrefs();
+  const setPref = useSetChatPref();
+  const deleteChat = useDeleteConversation();
+  const { data: lockPin } = useChatLockPin();
+  const saveLockPin = useSetChatLockPin();
+  const [showArchived, setShowArchived] = useState(false);
+  const [lockedUnlocked, setLockedUnlocked] = useState(false);
+  const [pinDialog, setPinDialog] = useState(false);
+  const [pinValue, setPinValue] = useState("");
+  const { data: people } = useMemberSearch(term);
+  const { data: graph } = useFriendships();
+  const sendFriendRequest = useSendFriendRequest();
+
+  // Typing the chat-lock PIN into the search box reveals the hidden chats.
+  useEffect(() => {
+    let cancelled = false;
+    const value = term.trim();
+    if (!lockPin || value.length < 4) {
+      setLockedUnlocked(false);
+      return;
+    }
+    void hashPin(value).then((hash) => {
+      if (!cancelled) setLockedUnlocked(hash === lockPin);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [term, lockPin]);
+
   const list = conversations ?? [];
 
   // Desktop falls back to the first conversation;
