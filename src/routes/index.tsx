@@ -104,13 +104,28 @@ function Landing() {
   const fr = lang === "fr";
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
+  const [visible, setVisible] = useState(true);
+  const reduced =
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // The tiles fade from one set of ASH services to the next every five seconds.
+  // The tiles crossfade from one set of ASH services to the next every five
+  // seconds: fade out slowly, swap the set, then fade back in.
   useEffect(() => {
-    if (typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const id = window.setInterval(() => setPage((p) => (p + 1) % WORLD_PAGES.length), 5000);
-    return () => window.clearInterval(id);
-  }, []);
+    if (reduced) return;
+    let swapTimer: number | undefined;
+    const id = window.setInterval(() => {
+      setVisible(false);
+      swapTimer = window.setTimeout(() => {
+        setPage((p) => (p + 1) % WORLD_PAGES.length);
+        setVisible(true);
+      }, 700);
+    }, 5000);
+    return () => {
+      window.clearInterval(id);
+      window.clearTimeout(swapTimer);
+    };
+  }, [reduced]);
 
   // Native apps skip this screen and route signed-in members to the feed, visitors to login.
   useEffect(() => {
@@ -170,7 +185,12 @@ function Landing() {
                 : "Where opportunities connect. Book verified pros, sell, rent, hire, share with friends, chat, and get paid securely by Mobile Money."}
             </p>
 
-            <div key={page} className="mt-4 grid w-full grid-cols-2 gap-1.5 sm:gap-2.5 lg:mt-7 lg:max-w-xl">
+            <div
+              key={page}
+              className={`mt-4 grid w-full grid-cols-2 gap-1.5 transition-opacity duration-700 ease-in-out sm:gap-2.5 lg:mt-7 lg:max-w-xl ${
+                visible ? "opacity-100" : "opacity-0"
+              }`}
+            >
               {(WORLD_PAGES[page] ?? WORLD).map((item) => {
                 const Icon = item.icon;
                 return (
