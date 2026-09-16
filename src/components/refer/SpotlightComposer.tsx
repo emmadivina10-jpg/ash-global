@@ -185,11 +185,19 @@ export function SpotlightComposer({
             />
 
             {previews.length > 0 ? (
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid aspect-square grid-cols-2 grid-rows-2 gap-2">
                 {previews.map((preview, index) => (
                   <div
                     key={preview.url}
-                    className="relative aspect-[3/4] overflow-hidden rounded-xl border border-border bg-muted"
+                    className={`relative min-h-0 overflow-hidden rounded-xl border border-border bg-muted ${
+                      previews.length === 1
+                        ? "col-span-2 row-span-2"
+                        : previews.length === 2
+                          ? "row-span-2"
+                          : previews.length === 3 && index === 0
+                            ? "col-span-2"
+                            : ""
+                    }`}
                   >
                     {preview.video ? (
                       <video src={preview.url} muted playsInline className="size-full object-cover" />

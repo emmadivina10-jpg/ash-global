@@ -227,8 +227,18 @@ export function useDeleteStory() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("stories").delete().eq("id", id);
-      if (error) throw error;
+      const { data, error: readError } = await supabase
+        .from("stories")
+        .select("media_path")
+        .eq("id", id)
+        .maybeSingle();
+      if (readError) throw readError;
+      if (!data) throw new Error("This story is no longer available.");
+
+      const { error: deleteError } = await supabase.from("stories").delete().eq("id", id);
+      if (deleteError) throw deleteError;
+      const { error: storageError } = await supabase.storage.from(SOCIAL_BUCKET).remove([data.media_path]);
+      if (storageError) console.warn("Story media cleanup failed", storageError.message);
     },
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["stories"] }),
   });

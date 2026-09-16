@@ -243,3 +243,42 @@ export function useCreateSpotlight() {
     },
   });
 }
+
+/** Deletes a member-created Spotlight and cleans up its uploaded media. */
+export function useDeleteSpotlight() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (entry: SpotlightEntry) => {
+      if (entry.source !== "post") throw new Error("Only your own Spotlight posts can be deleted here.");
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user || entry.author_id !== auth.user.id) {
+        throw new Error("Only the person who posted this Spotlight can delete it.");
+      }
+      const postId = entry.id.startsWith("post:") ? entry.id.slice(5) : entry.id;
+      const { data, error: readError } = await supabase
+        .from("spotlight_posts")
+        .select("media")
+        .eq("id", postId)
+        .maybeSingle();
+      if (readError) throw readError;
+      if (!data) throw new Error("This Spotlight is no longer available.");
+
+      const paths = parseMedia(data.media).map((item) => item.path);
+      const { data: deleted, error: deleteError } = await supabase
+        .from("spotlight_posts")
+        .delete()
+        .eq("id", postId)
+        .select("id")
+        .maybeSingle();
+      if (deleteError) throw deleteError;
+      if (!deleted) throw new Error("This Spotlight could not be deleted.");
+
+      if (paths.length > 0) {
+        const { error: storageError } = await supabase.storage.from(SPOTLIGHT_BUCKET).remove(paths);
+        if (storageError) console.warn("Spotlight media cleanup failed", storageError.message);
+      }
+    },
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["spotlight-feed"] }),
+  });
+}

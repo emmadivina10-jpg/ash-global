@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { BadgeCheck, Clock3, Globe2, Loader2, Plus, Search, Sparkles, UserMinus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "./AvatarUpload";
@@ -387,21 +388,28 @@ export function StoriesRail() {
       </Dialog>
 
       {reelIndex !== null ? (
-        <SpotlightReels
-          entries={highlights}
-          startIndex={reelIndex}
-          onClose={() => setReelIndex(null)}
-        />
+        createPortal(
+          <SpotlightReels
+            entries={highlights}
+            startIndex={reelIndex}
+            currentUserId={me}
+            onClose={() => setReelIndex(null)}
+          />,
+          document.body,
+        )
       ) : null}
 
 
       {viewerIndex !== null ? (
-        <StoryViewer
-          groups={groups}
-          startIndex={viewerIndex}
-          currentUserId={me}
-          onClose={() => setViewerIndex(null)}
-        />
+        createPortal(
+          <StoryViewer
+            groups={groups}
+            startIndex={viewerIndex}
+            currentUserId={me}
+            onClose={() => setViewerIndex(null)}
+          />,
+          document.body,
+        )
       ) : null}
     </>
   );

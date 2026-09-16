@@ -118,10 +118,18 @@ function MemberProfilePage() {
                 <button
                   type="button"
                   onClick={() => void navigate({ to: "/post/$postId", params: { postId: post.id } })}
-                  className="grid w-full grid-cols-1 gap-0.5"
+                  className={`grid w-full gap-0.5 ${post.images.length > 1 ? "aspect-square grid-cols-2 grid-rows-2" : "grid-cols-1"}`}
                 >
                   {post.images.map((src, index) => (
-                    <img key={index} src={src} alt="" loading="lazy" className="w-full bg-muted object-cover" />
+                    <img
+                      key={index}
+                      src={src}
+                      alt=""
+                      loading="lazy"
+                      className={`size-full min-h-0 bg-muted object-cover ${
+                        post.images.length === 2 ? "row-span-2" : post.images.length === 3 && index === 0 ? "col-span-2" : ""
+                      }`}
+                    />
                   ))}
                 </button>
               ) : null}

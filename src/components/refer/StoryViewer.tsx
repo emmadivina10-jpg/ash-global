@@ -100,6 +100,16 @@ export function StoryViewer({
   }, [groupIndex, storyIndex, paused, viewersOpen]);
 
   useEffect(() => {
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.dataset["mediaViewerOpen"] = "true";
+    return () => {
+      document.body.style.overflow = previous;
+      delete document.documentElement.dataset["mediaViewerOpen"];
+    };
+  }, []);
+
+  useEffect(() => {
     function onKey(event: KeyboardEvent) {
       if (event.key === "Escape") onClose();
       if (event.key === "ArrowRight") next();
@@ -113,7 +123,7 @@ export function StoryViewer({
   if (!group || !story) return null;
 
   return (
-    <div className="fixed inset-0 z-[70] flex flex-col bg-black">
+    <div className="fixed inset-0 z-[100] flex h-[100dvh] w-screen flex-col bg-black">
       <div className="flex gap-1 px-3 pt-[calc(0.75rem+env(safe-area-inset-top))]">
         {group.stories.map((s, index) => (
           <span key={s.id} className="h-0.5 flex-1 overflow-hidden rounded-full bg-white/25">
@@ -131,12 +141,16 @@ export function StoryViewer({
         {mine ? (
           <button
             type="button"
+            disabled={deleteStory.isPending}
             onClick={() => {
+              if (!window.confirm(fr ? "Supprimer cette story ?" : "Delete this story?")) return;
               deleteStory.mutate(story.id, {
                 onSuccess: () => {
                   toast.success(fr ? "Story supprimée" : "Story deleted");
                   onClose();
                 },
+                onError: (error) =>
+                  toast.error(error instanceof Error ? error.message : fr ? "Suppression impossible." : "Could not delete story."),
               });
             }}
             aria-label={fr ? "Supprimer" : "Delete"}
