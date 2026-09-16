@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { BadgeCheck, Loader2, MessageCircle, Sparkles, X } from "lucide-react";
+import { BadgeCheck, Loader2, MessageCircle, Sparkles, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "./AvatarUpload";
 import { Button } from "@/components/ui/button";
 import { contactVendor, openMemberConversation, sendOpeningMessage } from "@/lib/contact-vendor";
-import type { SpotlightEntry } from "@/lib/spotlight.queries";
+import { useDeleteSpotlight, type SpotlightEntry } from "@/lib/spotlight.queries";
 import { useI18n } from "@/lib/i18n";
 
 /**
@@ -16,10 +16,12 @@ import { useI18n } from "@/lib/i18n";
 export function SpotlightReels({
   entries,
   startIndex = 0,
+  currentUserId,
   onClose,
 }: {
   entries: SpotlightEntry[];
   startIndex?: number;
+  currentUserId: string | null;
   onClose: () => void;
 }) {
   const { lang } = useI18n();
@@ -27,6 +29,7 @@ export function SpotlightReels({
   const navigate = useNavigate();
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const remove = useDeleteSpotlight();
 
   useEffect(() => {
     const node = scrollerRef.current;
@@ -37,8 +40,10 @@ export function SpotlightReels({
   useEffect(() => {
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    document.documentElement.dataset.mediaViewerOpen = "true";
     return () => {
       document.body.style.overflow = previous;
+      delete document.documentElement.dataset.mediaViewerOpen;
     };
   }, []);
 
@@ -80,7 +85,7 @@ export function SpotlightReels({
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black">
+    <div className="fixed inset-0 z-[100] h-[100dvh] w-screen bg-black">
       <button
         type="button"
         onClick={onClose}
@@ -94,7 +99,9 @@ export function SpotlightReels({
         ref={scrollerRef}
         className="h-full snap-y snap-mandatory overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        {entries.map((entry) => (
+        {entries.map((entry) => {
+          const mine = entry.source === "post" && Boolean(currentUserId && entry.author_id === currentUserId);
+          return (
           <section key={entry.id} className="relative h-full w-full snap-start snap-always">
             {entry.media_type === "video" ? (
               <video
@@ -116,23 +123,48 @@ export function SpotlightReels({
                 Spotlight
               </span>
 
-              <div className="flex items-center gap-2.5">
-                <Avatar
-                  path={entry.provider.avatar_url}
-                  name={entry.provider.business_name}
-                  className="size-10 shrink-0 ring-2 ring-white/70"
-                />
-                <div className="min-w-0">
-                  <p className="flex items-center gap-1 text-sm font-bold text-white">
-                    <span className="truncate">{entry.provider.business_name}</span>
-                    {entry.provider.is_verified ? (
-                      <BadgeCheck className="size-4 shrink-0 text-primary" aria-hidden />
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2.5">
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <Avatar
+                    path={entry.provider.avatar_url}
+                    name={entry.provider.business_name}
+                    className="size-10 shrink-0 ring-2 ring-white/70"
+                  />
+                  <div className="min-w-0">
+                    <p className="flex items-center gap-1 text-sm font-bold text-white">
+                      <span className="truncate">{entry.provider.business_name}</span>
+                      {entry.provider.is_verified ? (
+                        <BadgeCheck className="size-4 shrink-0 text-primary" aria-hidden />
+                      ) : null}
+                    </p>
+                    {entry.provider.city ? (
+                      <p className="truncate text-[11px] text-white/70">{entry.provider.city}</p>
                     ) : null}
-                  </p>
-                  {entry.provider.city ? (
-                    <p className="truncate text-[11px] text-white/70">{entry.provider.city}</p>
-                  ) : null}
+                  </div>
                 </div>
+                {mine ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    disabled={remove.isPending}
+                    aria-label={fr ? "Supprimer le Spotlight" : "Delete Spotlight"}
+                    className="shrink-0 rounded-full bg-white/15 text-white hover:bg-white/25 hover:text-white"
+                    onClick={() => {
+                      if (!window.confirm(fr ? "Supprimer ce Spotlight ?" : "Delete this Spotlight?")) return;
+                      remove.mutate(entry, {
+                        onSuccess: () => {
+                          toast.success(fr ? "Spotlight supprimé" : "Spotlight deleted");
+                          onClose();
+                        },
+                        onError: (error) =>
+                          toast.error(error instanceof Error ? error.message : fr ? "Suppression impossible." : "Could not delete Spotlight."),
+                      });
+                    }}
+                  >
+                    {remove.isPending ? <Loader2 className="animate-spin" aria-hidden /> : <Trash2 aria-hidden />}
+                  </Button>
+                ) : null}
               </div>
 
               {entry.caption ? (
@@ -154,7 +186,8 @@ export function SpotlightReels({
               </Button>
             </div>
           </section>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

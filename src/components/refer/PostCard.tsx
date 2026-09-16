@@ -108,6 +108,7 @@ export function PostCard({
           className={cn(
             "grid gap-0.5",
             post.images.length > 1 && !detail ? "grid-cols-2" : "grid-cols-1",
+            !detail && post.images.length > 1 && "aspect-square grid-rows-2",
             detail && "bg-black",
           )}
         >
@@ -119,10 +120,11 @@ export function PostCard({
               loading="lazy"
               onClick={openPost}
               className={cn(
-                "w-full bg-muted",
+                "size-full min-h-0 bg-muted",
                 detail
                   ? "max-h-[75dvh] object-contain"
-                  : "max-h-[70vh] cursor-pointer object-cover touch-manipulation",
+                  : "cursor-pointer object-cover touch-manipulation",
+                !detail && post.images.length === 3 && index === 0 && "col-span-2",
               )}
             />
           ))}
