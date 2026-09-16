@@ -185,7 +185,15 @@ export function PostCard({
   );
 }
 
-function Comments({ post, currentUserId }: { post: FeedPost; currentUserId: string | null }) {
+function Comments({
+  post,
+  currentUserId,
+  detail = false,
+}: {
+  post: FeedPost;
+  currentUserId: string | null;
+  detail?: boolean;
+}) {
   const { lang } = useI18n();
   const fr = lang === "fr";
   const { data, isLoading } = useComments(post.id);
