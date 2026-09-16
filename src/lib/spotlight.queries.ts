@@ -216,6 +216,7 @@ export function useCreateSpotlight() {
       await verifyMediaFiles(files, "SPOTLIGHT");
 
       const media: SpotlightMedia[] = [];
+      const postId = crypto.randomUUID();
       for (const file of files) {
         if (file.size > SPOTLIGHT_MAX_BYTES) {
           throw new Error(`${file.name} is larger than 50 MB.`);
@@ -224,7 +225,6 @@ export function useCreateSpotlight() {
         const isImage = file.type.startsWith("image/");
         if (!isVideo && !isImage) throw new Error("Only photos and videos can be posted.");
         const extension = file.name.split(".").pop()?.toLowerCase() ?? (isVideo ? "mp4" : "jpg");
-        const postId = crypto.randomUUID();
         const path = `${userId}/spotlight/${postId}/${crypto.randomUUID()}.${extension}`;
         const { error: uploadError } = await supabase.storage
           .from(SPOTLIGHT_BUCKET)
