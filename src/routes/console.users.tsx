@@ -149,7 +149,7 @@ function ConsoleUsers() {
 
         toast.error(
           messages[result.error] ??
-            "Could not credit this wallet.",
+            `Could not credit this wallet (${result.error}).`,
         );
 
         return;
