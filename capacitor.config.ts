@@ -36,8 +36,8 @@ const config: CapacitorConfig = {
       "appleid.apple.com",
     ],
   },
- ios: {
-  contentInset: "automatic",
+  ios: {
+   contentInset: "never",
     scrollEnabled: true,
     backgroundColor: "#080812",
     limitsNavigationsToAppBoundDomains: false,
