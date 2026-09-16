@@ -284,14 +284,14 @@ function FeedPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-0 sm:space-y-4">
           {visible.map((post, index) => {
             // A single calm listings row every four posts — easy to scroll past.
             const block = index > 0 && index % 4 === 0
               ? (discovery ?? [])[Math.floor(index / 4) - 1]
               : undefined;
             return (
-              <div key={post.id} className="space-y-4">
+              <div key={post.id} className="space-y-0 sm:space-y-4">
                 {block ? <DiscoveryRow block={block} /> : null}
                 <PostCard post={post} currentUserId={me} />
               </div>
