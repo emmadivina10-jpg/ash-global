@@ -73,8 +73,8 @@ type NavItem = {
 const MOBILE_NAV: NavItem[] = [
   { to: "/feed", en: "Feed", fr: "Fil", icon: Flame, tour: "feed" },
   { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle, tour: "messages" },
-  { to: "/services", en: "ASH Hub", fr: "ASH Hub", icon: Store, tour: "market" },
   { to: "/search", en: "Market", fr: "Marché", icon: Store, tour: "search" },
+  { to: "/services", en: "Services", fr: "Services", icon: Sparkles, tour: "market" },
 ];
 
 const DESKTOP_NAV: NavItem[] = [
