@@ -1,18 +1,26 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
+  BadgeCheck,
   Briefcase,
   Building2,
   CalendarDays,
+  Gift,
   Globe2,
+  GraduationCap,
+  LayoutGrid,
   Lock,
   MessageCircle,
+  Newspaper,
+  Send,
   ShieldCheck,
   ShoppingBag,
   Sparkles,
   Store,
   Tag,
   Users,
+  Wallet,
+  Zap,
 } from "lucide-react";
 import { isNativeApp } from "@/lib/native";
 import ashLogo from "@/assets/ash-logo.png.asset.json";
@@ -21,6 +29,7 @@ import { Button } from "@/components/ui/button";
 import { LanguageSwitcher, ThemeToggle } from "@/components/refer/Preferences";
 import { useI18n } from "@/lib/i18n";
 import { ReviewsCarousel } from "@/components/refer/ReviewsCarousel";
+import { WelcomeIntro } from "@/components/refer/WelcomeIntro";
 
 const TITLE = "ASH — Where Opportunities Connect.";
 const DESCRIPTION =
@@ -77,25 +86,46 @@ const WORLD = [
   { icon: MessageCircle, en: "Chat", fr: "Chat", enHint: "Friends, groups & DMs", frHint: "Amis, groupes et messages" },
 ] as const;
 
+const MORE_WORLD = [
+  { icon: Gift, en: "Referrals", fr: "Parrainage", enHint: "Invite and earn", frHint: "Invitez et gagnez" },
+  { icon: Zap, en: "Electricity", fr: "Électricité", enHint: "Pay your bills in seconds", frHint: "Payez vos factures en secondes" },
+  { icon: Send, en: "TchokoPay", fr: "TchokoPay", enHint: "Send money across Africa", frHint: "Envoyez de l’argent en Afrique" },
+  { icon: Wallet, en: "Wallet", fr: "Portefeuille", enHint: "Mobile Money in and out", frHint: "Mobile Money entrées et sorties" },
+  { icon: LayoutGrid, en: "Other apps", fr: "Autres apps", enHint: "Browse the ASH family", frHint: "Découvrez la famille ASH" },
+  { icon: Newspaper, en: "Articles", fr: "Articles", enHint: "Read and publish", frHint: "Lisez et publiez" },
+  { icon: GraduationCap, en: "Mentors", fr: "Mentors", enHint: "Learn from doers", frHint: "Apprenez des experts" },
+  { icon: BadgeCheck, en: "ASH Verified", fr: "ASH Vérifié", enHint: "Protect your name", frHint: "Protégez votre nom" },
+] as const;
+
+const WORLD_PAGES = [WORLD, MORE_WORLD] as const;
+
 function Landing() {
   const { lang } = useI18n();
   const fr = lang === "fr";
   const navigate = useNavigate();
+  const [page, setPage] = useState(0);
 
-  // Native apps skip this screen and route signed-in members to services, visitors to login.
+  // The tiles fade from one set of ASH services to the next every five seconds.
+  useEffect(() => {
+    if (typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const id = window.setInterval(() => setPage((p) => (p + 1) % WORLD_PAGES.length), 5000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  // Native apps skip this screen and route signed-in members to the feed, visitors to login.
   useEffect(() => {
     if (!isNativeApp()) return;
     let cancelled = false;
     void supabase.auth.getSession().then(({ data }) => {
       if (cancelled) return;
-      void navigate({ to: data.session?.user ? "/services" : "/login", replace: true });
+      void navigate({ to: data.session?.user ? "/feed" : "/login", replace: true });
     });
     return () => {
       cancelled = true;
     };
   }, [navigate]);
 
-  if (isNativeApp()) return <div className="min-h-dvh bg-background" />;
+  if (isNativeApp()) return <WelcomeIntro />;
 
   return (
     <div className="safe-top relative min-h-dvh overflow-hidden bg-background">
@@ -140,13 +170,13 @@ function Landing() {
                 : "Where opportunities connect. Book verified pros, sell, rent, hire, share with friends, chat, and get paid securely by Mobile Money."}
             </p>
 
-            <div className="mt-4 grid w-full grid-cols-2 gap-1.5 sm:gap-2.5 lg:mt-7 lg:max-w-xl">
-              {WORLD.map((item) => {
+            <div key={page} className="mt-4 grid w-full grid-cols-2 gap-1.5 sm:gap-2.5 lg:mt-7 lg:max-w-xl">
+              {(WORLD_PAGES[page] ?? WORLD).map((item) => {
                 const Icon = item.icon;
                 return (
                   <div
                     key={item.en}
-                    className="flex items-center gap-2.5 rounded-2xl border border-border/70 bg-card/50 px-3 py-2.5 text-left backdrop-blur-md transition-colors hover:border-primary/40 hover:bg-card/70"
+                    className="ash-fade-up flex items-center gap-2.5 rounded-2xl border border-border/70 bg-card/50 px-3 py-2.5 text-left backdrop-blur-md transition-colors hover:border-primary/40 hover:bg-card/70"
                   >
                     <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
                       <Icon className="size-4" aria-hidden />

@@ -4,13 +4,17 @@ import { isNativeApp } from "@/lib/native";
 
 const KEY = "ash-welcome-v1";
 
+/** Set once the launch screen has played during this app session. */
+let played = false;
+
 /**
  * True once the launch screen has already played for this visit.
- * The installed app replays it on every launch (WhatsApp-style); the website
- * plays it once per browser tab session so navigation stays instant.
+ * It plays exactly once per launch — the installed app replays it on a cold
+ * start, the website once per browser tab session.
  */
 export function welcomeSeen(): boolean {
   try {
+    if (played) return true;
     if (isNativeApp()) return false;
     return window.sessionStorage.getItem(KEY) === "1";
   } catch {
@@ -34,7 +38,8 @@ export function WelcomeIntro({ onDone }: { onDone?: () => void }) {
     }
     // Leave as soon as the first frame is painted, with a tiny minimum hold so
     // the mark does not flicker.
-    const hold = 420;
+    const hold = 800;
+    played = true;
     const leaveAt = window.setTimeout(() => setLeaving(true), hold);
     const endAt = window.setTimeout(() => {
       try {
