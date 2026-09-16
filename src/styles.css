@@ -648,6 +648,17 @@ html.native .app-shell-column > div {
   min-height: 0;
 }
 
+/* A Story or Spotlight owns the entire viewport while it is playing. */
+html[data-media-viewer-open="true"] .app-shell > aside,
+html[data-media-viewer-open="true"] .app-shell-column > header,
+html[data-media-viewer-open="true"] .app-shell > nav {
+  visibility: hidden;
+}
+
+html[data-media-viewer-open="true"] .app-shell > div:not(.app-shell-frame) {
+  visibility: hidden;
+}
+
 html.native .app-shell-scroll {
   min-height: 0;
   overflow-x: hidden;
