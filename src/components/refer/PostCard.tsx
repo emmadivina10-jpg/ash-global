@@ -54,7 +54,14 @@ export function PostCard({
   const mine = currentUserId === post.author_id;
 
   return (
-    <article className={cn("tile overflow-hidden", detail && "rounded-none border-0 shadow-none sm:rounded-3xl sm:border")}>
+    <article
+      className={cn(
+        "tile overflow-hidden",
+        !detail &&
+          "-mx-4 rounded-none border-x-0 border-y border-border/20 bg-card bg-none shadow-none sm:mx-0 sm:rounded-3xl sm:border sm:border-border sm:shadow-[var(--shadow-card)]",
+        detail && "rounded-none border-0 shadow-none sm:rounded-3xl sm:border",
+      )}
+    >
       <header className="flex items-center gap-3 p-4 pb-3">
         <button
           type="button"
