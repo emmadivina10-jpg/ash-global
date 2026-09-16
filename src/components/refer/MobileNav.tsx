@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Menu, Shield } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -31,16 +31,25 @@ export function MobileNav({
   isAdmin: boolean;
 }) {
   const { t, lang } = useI18n();
+  const navigate = useNavigate();
   const fr = lang === "fr";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [moreOpen, setMoreOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(moreGroups[0]?.en ?? null);
+  const [gestureIndex, setGestureIndex] = useState<number | null>(null);
+  const [gestureActive, setGestureActive] = useState(false);
+  const startX = useRef(0);
+  const dragged = useRef(false);
+  const suppressNextClick = useRef(false);
+  const activePointer = useRef<number | null>(null);
+  const navList = useRef<HTMLUListElement>(null);
 
   const label = (item: MobileNavItem) =>
     item.key ? t(item.key) : ((fr ? item.fr : item.en) ?? item.label ?? "");
 
-  const renderTab = (item: MobileNavItem) => {
+  const renderTab = (item: MobileNavItem, visualIndex: number) => {
     const active = pathname === item.to || pathname.startsWith(`${item.to}/`);
+    const distance = gestureIndex === null ? 10 : Math.abs(gestureIndex - visualIndex);
     return (
       <li key={item.to} className="min-w-0">
         <Link
@@ -48,13 +57,17 @@ export function MobileNav({
           data-tour={item.tour}
           aria-current={active ? "page" : undefined}
           className={cn(
-            "relative flex h-[4.65rem] min-w-0 flex-col items-center justify-center gap-1 px-0.5 pt-1 text-[10px] font-semibold transition-colors",
+            "premium-nav-item relative flex h-[4.35rem] min-w-0 flex-col items-center justify-center gap-1 px-0.5 pt-1 text-[10px] font-semibold",
             active ? "text-primary" : "text-muted-foreground active:text-foreground",
+            gestureActive && distance === 0 && "premium-nav-item-selected",
+            gestureActive && distance === 1 && "premium-nav-item-neighbor",
           )}
         >
-          <item.icon className={cn("size-5 shrink-0 transition-transform", active && "scale-105")} aria-hidden />
+          <span className={cn("grid size-8 place-items-center rounded-full", active && "bg-primary/8")}>
+            <item.icon className={cn("size-[1.3rem] shrink-0", active && "scale-105")} strokeWidth={2.1} aria-hidden />
+          </span>
           <span className="max-w-full truncate">{label(item)}</span>
-          {active ? <span className="absolute bottom-1.5 size-1 rounded-full bg-primary" aria-hidden /> : null}
+          {active ? <span className="absolute bottom-1 size-1 rounded-full bg-primary shadow-[0_0_7px_var(--color-primary)]" aria-hidden /> : null}
         </Link>
       </li>
     );
@@ -64,45 +77,125 @@ export function MobileNav({
   const regularItems = items.filter((_, index) => index !== 2);
   const hubActive = Boolean(hub && (pathname === hub.to || pathname.startsWith(`${hub.to}/`)));
 
-  return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 px-2 pb-[calc(0.35rem+env(safe-area-inset-bottom))] lg:hidden">
-      <div className="ash-glass nav-bar-fill relative mx-auto max-w-lg rounded-[2rem] border border-border/70 shadow-[var(--shadow-card)]">
-        <ul className="grid h-[4.65rem] grid-cols-5 items-end">
-          {regularItems.slice(0, 2).map(renderTab)}
+  const indexFromPointer = (clientX: number) => {
+    const bounds = navList.current?.getBoundingClientRect();
+    if (!bounds || bounds.width <= 0) return 0;
+    return Math.max(0, Math.min(4, Math.floor(((clientX - bounds.left) / bounds.width) * 5)));
+  };
 
-          <li className="relative h-[4.65rem] min-w-0">
+  const setBubblePosition = (index: number) => {
+    navList.current?.style.setProperty("--nav-index", String(index));
+  };
+
+  const handlePointerDown = (event: ReactPointerEvent<HTMLUListElement>) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    startX.current = event.clientX;
+    dragged.current = false;
+    activePointer.current = event.pointerId;
+    const index = indexFromPointer(event.clientX);
+    setBubblePosition(index);
+    setGestureIndex(index);
+    setGestureActive(true);
+  };
+
+  const handlePointerMove = (event: ReactPointerEvent<HTMLUListElement>) => {
+    if (activePointer.current !== event.pointerId) return;
+    if (Math.abs(event.clientX - startX.current) > 7 && !dragged.current) {
+      dragged.current = true;
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
+    if (!dragged.current) return;
+    const index = indexFromPointer(event.clientX);
+    if (index !== gestureIndex) {
+      setGestureIndex(index);
+      setBubblePosition(index);
+      if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate(7);
+    }
+  };
+
+  const handlePointerEnd = (event: ReactPointerEvent<HTMLUListElement>) => {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    activePointer.current = null;
+    const selected = indexFromPointer(event.clientX);
+    const shouldSelect = dragged.current;
+    setGestureActive(false);
+    setGestureIndex(null);
+    if (!shouldSelect) return;
+    event.preventDefault();
+    suppressNextClick.current = true;
+    if (selected === 4) {
+      setMoreOpen(true);
+      return;
+    }
+    const destination = items[selected]?.to;
+    if (destination) void navigate({ to: destination });
+  };
+
+  return (
+    <nav className="premium-mobile-nav fixed inset-x-0 z-40 lg:hidden" aria-label={fr ? "Navigation principale" : "Primary navigation"}>
+      <div className="premium-nav-pill nav-bar-fill relative mx-auto w-[calc(100%-1.25rem)] max-w-[27rem] rounded-[2rem] border border-border/45">
+        <ul
+          ref={navList}
+          className={cn("premium-nav-grid relative grid h-[4.35rem] grid-cols-5 items-end", gestureActive && "is-gesturing")}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerEnd}
+          onClickCapture={(event) => {
+            if (!suppressNextClick.current) return;
+            suppressNextClick.current = false;
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+          onDragStart={(event) => event.preventDefault()}
+          onPointerCancel={() => {
+            activePointer.current = null;
+            setGestureActive(false);
+            setGestureIndex(null);
+          }}
+        >
+          <span className="premium-nav-bubble" aria-hidden />
+          {regularItems.slice(0, 2).map((item, index) => renderTab(item, index))}
+
+          <li className="relative h-[4.35rem] min-w-0">
             {hub ? (
               <Link
                 to={hub.to}
                 data-tour={hub.tour}
                 aria-current={hubActive ? "page" : undefined}
                 className={cn(
-                  "absolute inset-x-0 -top-5 flex flex-col items-center gap-1 text-[10px] font-bold transition-colors",
+                  "premium-hub-link absolute inset-x-0 -top-[2.15rem] z-10 flex flex-col items-center gap-0.5 text-[10px] font-bold",
                   hubActive ? "text-foreground" : "text-muted-foreground",
+                  gestureActive && gestureIndex === 2 && "is-selected",
                 )}
               >
                 <span
                   className={cn(
-                    "grid size-[4.15rem] shrink-0 place-items-center rounded-full border-[5px] border-background bg-card shadow-[0_8px_24px_color-mix(in_oklab,var(--color-primary)_28%,transparent)] transition-transform active:scale-95",
-                    hubActive && "ring-2 ring-primary/35",
+                    "premium-hub-orb grid size-[4.7rem] shrink-0 place-items-center rounded-full border-[5px] border-background/90 bg-card",
+                    hubActive && "is-active",
                   )}
                 >
-                  <AshMark ai={false} className="size-12" />
+                  <AshMark ai={false} className="size-[3.65rem]" />
                 </span>
-                <span className="max-w-full truncate px-0.5">{label(hub)}</span>
+                <span className="max-w-full truncate px-0.5 leading-4">{label(hub)}</span>
               </Link>
             ) : null}
           </li>
 
-          {regularItems.slice(2, 3).map(renderTab)}
+          {regularItems.slice(2, 3).map((item) => renderTab(item, 3))}
           <li className="min-w-0">
             <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
               <SheetTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="relative flex h-[4.65rem] w-full min-w-0 flex-col items-center justify-center gap-1 rounded-none px-0.5 pt-1 text-[10px] font-semibold text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground [&_svg]:size-5"
+                  className={cn(
+                    "premium-nav-item relative flex h-[4.35rem] w-full min-w-0 flex-col items-center justify-center gap-1 rounded-none px-0.5 pt-1 text-[10px] font-semibold text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground [&_svg]:size-[1.3rem]",
+                    gestureActive && gestureIndex === 4 && "premium-nav-item-selected",
+                    gestureActive && gestureIndex === 3 && "premium-nav-item-neighbor",
+                  )}
                 >
-                  <Menu className="size-5" aria-hidden />
+                  <span className="grid size-8 place-items-center rounded-full"><Menu strokeWidth={2.1} aria-hidden /></span>
                   <span className="max-w-full truncate">{t("nav.more")}</span>
                 </Button>
               </SheetTrigger>
