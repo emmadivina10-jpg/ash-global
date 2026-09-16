@@ -820,8 +820,46 @@ function MessagesPage() {
                       </span>
                     </span>
                   </button>
+                  </SwipeChatRow>
                 );
               })}
+
+              {/* People on ASH you have not met yet. */}
+              {term.trim().length >= 2 && newPeople.length > 0 ? (
+                <div className="space-y-2 border-t border-border bg-muted/30 p-3">
+                  <p className="text-[11px] font-extrabold uppercase tracking-wide text-muted-foreground">
+                    {fr ? "Autres membres ASH" : "Other people on ASH"}
+                  </p>
+                  {newPeople.slice(0, 8).map((person) => (
+                    <div key={person.id} className="flex items-center gap-2">
+                      <Avatar path={person.avatar_url} name={person.name} className="size-9" />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          void routerNavigate({ to: "/u/$userId", params: { userId: person.id } })
+                        }
+                        className="min-w-0 flex-1 truncate text-left text-[13px] font-semibold text-foreground"
+                      >
+                        {person.name}
+                      </button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() =>
+                          sendFriendRequest.mutate(person.id, {
+                            onSuccess: () =>
+                              toast.success(fr ? "Demande envoyée" : "Friend request sent"),
+                            onError: () => toast.error(fr ? "Échec de l'envoi" : "Could not send"),
+                          })
+                        }
+                      >
+                        <UserPlus className="size-4" aria-hidden />
+                        {fr ? "Ajouter" : "Add"}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </nav>
           </div>
 
