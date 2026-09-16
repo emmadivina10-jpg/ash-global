@@ -575,6 +575,8 @@
   .ash-liquid { animation: none; opacity: 0.35; }
   .ash-splash-mark,
   .ash-fade-up,
+  .ash-tiles-out,
+  .ash-tiles-in { animation: none; }
   .ash-launch-mark::before,
   .ash-launch-mark::after { animation: ash-simple-fade 300ms ease-out both; }
   @keyframes ash-simple-fade {
