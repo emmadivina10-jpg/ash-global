@@ -104,23 +104,24 @@ function Landing() {
   const fr = lang === "fr";
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
-  const [visible, setVisible] = useState(true);
+  const [out, setOut] = useState(false);
   const reduced =
     typeof window.matchMedia === "function" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // The tiles crossfade from one set of ASH services to the next every five
-  // seconds: fade out slowly, swap the set, then fade back in.
+  // Every ten seconds the tiles melt into the next set: each tile fades over
+  // two seconds, staggered so the fade starts at the top and rolls slowly
+  // down, then the new set fades back in the same gentle way.
   useEffect(() => {
     if (reduced) return;
     let swapTimer: number | undefined;
     const id = window.setInterval(() => {
-      setVisible(false);
+      setOut(true);
       swapTimer = window.setTimeout(() => {
         setPage((p) => (p + 1) % WORLD_PAGES.length);
-        setVisible(true);
-      }, 700);
-    }, 5000);
+        setOut(false);
+      }, 3400);
+    }, 10000);
     return () => {
       window.clearInterval(id);
       window.clearTimeout(swapTimer);
@@ -187,16 +188,17 @@ function Landing() {
 
             <div
               key={page}
-              className={`mt-4 grid w-full grid-cols-2 gap-1.5 transition-opacity duration-700 ease-in-out sm:gap-2.5 lg:mt-7 lg:max-w-xl ${
-                visible ? "opacity-100" : "opacity-0"
-              }`}
+              className="mt-4 grid w-full grid-cols-2 gap-1.5 sm:gap-2.5 lg:mt-7 lg:max-w-xl"
             >
-              {(WORLD_PAGES[page] ?? WORLD).map((item) => {
+              {(WORLD_PAGES[page] ?? WORLD).map((item, i) => {
                 const Icon = item.icon;
                 return (
                   <div
                     key={item.en}
-                    className="ash-fade-up flex items-center gap-2.5 rounded-2xl border border-border/70 bg-card/50 px-3 py-2.5 text-left backdrop-blur-md transition-colors hover:border-primary/40 hover:bg-card/70"
+                    style={{ animationDelay: `${i * 160}ms` }}
+                    className={`flex items-center gap-2.5 rounded-2xl border border-border/70 bg-card/50 px-3 py-2.5 text-left backdrop-blur-md transition-colors hover:border-primary/40 hover:bg-card/70 ${
+                      out ? "ash-tiles-out" : "ash-tiles-in"
+                    }`}
                   >
                     <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
                       <Icon className="size-4" aria-hidden />

@@ -575,6 +575,8 @@
   .ash-liquid { animation: none; opacity: 0.35; }
   .ash-splash-mark,
   .ash-fade-up,
+  .ash-tiles-out,
+  .ash-tiles-in { animation: none; }
   .ash-launch-mark::before,
   .ash-launch-mark::after { animation: ash-simple-fade 300ms ease-out both; }
   @keyframes ash-simple-fade {
@@ -839,4 +841,22 @@ a {
 }
 @media (prefers-reduced-motion: reduce) {
   .ash-liquid { animation: none; }
+}
+
+/* Welcome-screen service tiles: a very slow, top-to-bottom sweep.
+   Each tile fades over 2s; the delay steps down the column so the fade
+   starts at the top and rolls gently to the bottom. */
+@keyframes ash-tiles-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(18px); }
+}
+@keyframes ash-tiles-in {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.ash-tiles-out {
+  animation: ash-tiles-out 2000ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.ash-tiles-in {
+  animation: ash-tiles-in 2000ms cubic-bezier(0.4, 0, 0.2, 1) both;
 }
