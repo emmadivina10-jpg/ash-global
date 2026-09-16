@@ -105,9 +105,16 @@ function Landing() {
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [out, setOut] = useState(false);
-  const reduced =
-    typeof window.matchMedia === "function" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReduced(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
 
   // Every ten seconds the tiles melt into the next set: each tile fades over
   // two seconds, staggered so the fade starts at the top and rolls slowly
