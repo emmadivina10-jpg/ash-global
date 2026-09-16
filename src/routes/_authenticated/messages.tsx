@@ -663,8 +663,8 @@ function MessagesPage() {
                   onChange={(event) => setTerm(event.target.value)}
                   placeholder={
                     fr
-                      ? "Rechercher une discussion"
-                      : "Search chats"
+                      ? "Rechercher une discussion, un membre ou votre code"
+                      : "Search chats, people or your PIN"
                   }
                   aria-label={
                     fr
@@ -674,7 +674,99 @@ function MessagesPage() {
                   className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                 />
               </div>
+
+              <div className="mt-2 flex items-center gap-2">
+                {archivedCount > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowArchived((value) => !value)}
+                    className="flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold text-muted-foreground"
+                  >
+                    <Archive className="size-3" aria-hidden />
+                    {showArchived
+                      ? fr
+                        ? "Masquer les archives"
+                        : "Hide archived"
+                      : `${fr ? "Archivées" : "Archived"} (${archivedCount})`}
+                  </button>
+                ) : null}
+
+                <button
+                  type="button"
+                  onClick={() => setPinDialog(true)}
+                  className="flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold text-muted-foreground"
+                >
+                  <Lock className="size-3" aria-hidden />
+                  {lockPin
+                    ? fr
+                      ? "Code des discussions"
+                      : "Chat lock PIN"
+                    : fr
+                      ? "Créer un code"
+                      : "Set a PIN"}
+                </button>
+
+                {lockedUnlocked ? (
+                  <span className="rounded-full bg-primary/15 px-2.5 py-1 text-[11px] font-bold text-primary">
+                    {fr ? "Discussions verrouillées affichées" : "Locked chats shown"}
+                  </span>
+                ) : null}
+              </div>
             </div>
+
+            <Dialog open={pinDialog} onOpenChange={setPinDialog}>
+              <DialogContent className="max-w-sm">
+                <DialogHeader>
+                  <DialogTitle>{fr ? "Code des discussions" : "Chat lock PIN"}</DialogTitle>
+                </DialogHeader>
+                <p className="text-xs text-muted-foreground">
+                  {fr
+                    ? "Choisissez un code d'au moins 4 chiffres. Les discussions verrouillées disparaissent de la liste et réapparaissent quand vous tapez ce code dans la recherche."
+                    : "Pick a PIN of at least 4 digits. Locked chats disappear from the list and come back when you type this PIN into the search box."}
+                </p>
+                <Input
+                  type="password"
+                  inputMode="numeric"
+                  value={pinValue}
+                  onChange={(event) => setPinValue(event.target.value.replace(/\D/g, "").slice(0, 8))}
+                  placeholder="••••"
+                  aria-label={fr ? "Code" : "PIN"}
+                />
+                <div className="flex gap-2">
+                  <Button
+                    className="flex-1"
+                    disabled={pinValue.length < 4 || saveLockPin.isPending}
+                    onClick={() =>
+                      saveLockPin.mutate(pinValue, {
+                        onSuccess: () => {
+                          setPinValue("");
+                          setPinDialog(false);
+                          toast.success(fr ? "Code enregistré" : "PIN saved");
+                        },
+                        onError: () => toast.error(fr ? "Échec" : "Could not save the PIN"),
+                      })
+                    }
+                  >
+                    {fr ? "Enregistrer" : "Save PIN"}
+                  </Button>
+                  {lockPin ? (
+                    <Button
+                      variant="outline"
+                      onClick={() =>
+                        saveLockPin.mutate(null, {
+                          onSuccess: () => {
+                            setPinDialog(false);
+                            toast.success(fr ? "Code retiré" : "PIN removed");
+                          },
+                        })
+                      }
+                    >
+                      {fr ? "Retirer" : "Remove"}
+                    </Button>
+                  ) : null}
+                </div>
+              </DialogContent>
+            </Dialog>
 
             <nav className="min-h-0 flex-1 divide-y divide-border overflow-y-auto">
               {term.trim() &&
