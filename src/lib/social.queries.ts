@@ -566,10 +566,12 @@ export function useCreateSocialPost() {
       }
     },
 
-    onSuccess: async () => {
-      // Refresh the feed immediately after a successful insert.
-      await queryClient.invalidateQueries({ queryKey: ["social-feed"] });
-      await queryClient.invalidateQueries({ queryKey: ["member-posts"] });
+    onSuccess: () => {
+      // Refresh in the background. Do not await these invalidations because
+      // the Feed uses mutateAsync() and should resolve immediately after the
+      // post itself has been created successfully.
+      void queryClient.invalidateQueries({ queryKey: ["social-feed"] });
+      void queryClient.invalidateQueries({ queryKey: ["member-posts"] });
     },
   });
 }
