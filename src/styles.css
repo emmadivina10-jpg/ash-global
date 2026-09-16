@@ -715,6 +715,22 @@ html.native .app-shell > nav {
   bottom: calc(0.65rem + env(safe-area-inset-bottom));
   padding-inline: 0.75rem;
   pointer-events: none;
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+/* Slide gently out of the way while the member scrolls, then glide back. */
+.premium-mobile-nav.is-hidden {
+  opacity: 0;
+  transform: translate3d(0, calc(100% + 1.25rem), 0);
+}
+
+.premium-mobile-nav.is-hidden .premium-nav-pill {
+  pointer-events: none;
 }
 
 .nav-bar-fill {
