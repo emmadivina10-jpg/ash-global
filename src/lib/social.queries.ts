@@ -34,8 +34,30 @@ export type SocialAuthor = {
 };
 
 async function currentUserId(): Promise<string | null> {
-  const { data } = await supabase.auth.getUser();
+  const { data, error } = await supabase.auth.getUser();
+  if (error) throw new Error(`Authentication check failed: ${error.message}`);
   return data.user?.id ?? null;
+}
+
+/**
+ * Prevent a social upload/post operation from leaving the UI in a permanent
+ * loading state if a storage or database request gets stuck.
+ */
+async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => {
+          reject(new Error(`${label} timed out. Please check your connection and try again.`));
+        }, ms);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 }
 
 async function signPaths(paths: string[]): Promise<Record<string, string>> {
@@ -74,14 +96,34 @@ export async function loadAuthors(ids: string[]): Promise<Map<string, SocialAuth
 }
 
 async function uploadImage(userId: string, file: File, prefix: string): Promise<string> {
-  if (!file.type.startsWith("image/")) throw new Error("Only photos can be shared right now.");
-  if (file.size > SOCIAL_MAX_BYTES) throw new Error(`${file.name} is larger than 12 MB.`);
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Only photos can be shared right now.");
+  }
+
+  if (file.size > SOCIAL_MAX_BYTES) {
+    throw new Error(`${file.name} is larger than 12 MB.`);
+  }
+
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
-  const path = `${userId}/${prefix}/${crypto.randomUUID()}.${ext}`;
-  const { error } = await supabase.storage
-    .from(SOCIAL_BUCKET)
-    .upload(path, file, { cacheControl: "3600", contentType: file.type, upsert: false });
-  if (error) throw error;
+  const safeExt = /^[a-z0-9]+$/.test(ext) ? ext : "jpg";
+  const path = `${userId}/${prefix}/${crypto.randomUUID()}.${safeExt}`;
+
+  const result = await withTimeout(
+    supabase.storage
+      .from(SOCIAL_BUCKET)
+      .upload(path, file, {
+        cacheControl: "3600",
+        contentType: file.type || "image/jpeg",
+        upsert: false,
+      }),
+    45_000,
+    "Image upload",
+  );
+
+  if (result.error) {
+    throw new Error(`Image upload failed: ${result.error.message}`);
+  }
+
   return path;
 }
 
@@ -437,6 +479,7 @@ export function useMemberPosts(userId: string | null | undefined) {
 
 export function useCreateSocialPost() {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async ({
       caption,
@@ -450,26 +493,84 @@ export function useCreateSocialPost() {
       filterComments?: boolean;
     }) => {
       const userId = await currentUserId();
-      if (!userId) throw new Error("You need to be signed in.");
-      if (files.length === 0 && !caption.trim()) throw new Error("Write something or add a photo.");
-      await verifyMediaFiles(files.slice(0, 4), "SOCIAL_POST");
+
+      if (!userId) {
+        throw new Error("You need to be signed in.");
+      }
+
+      const cleanCaption = caption.trim();
+      const selectedFiles = files.slice(0, 4);
+
+      if (selectedFiles.length === 0 && !cleanCaption) {
+        throw new Error("Write something or add a photo.");
+      }
+
+      if (selectedFiles.length > 0) {
+        await withTimeout(
+          verifyMediaFiles(selectedFiles, "SOCIAL_POST"),
+          30_000,
+          "Photo safety check",
+        );
+      }
+
       const media: string[] = [];
+
       try {
-        for (const file of files.slice(0, 4)) media.push(await uploadImage(userId, file, "post"));
-        const { error } = await supabase.from("social_posts").insert({
-          author_id: userId,
-          caption: caption.trim(),
-          media: media as unknown as never,
-          city: city ?? null,
-          filter_comments: filterComments ?? false,
-        });
-        if (error) throw error;
+        // Upload photos one at a time so failures are attributable and partial
+        // uploads can be cleaned up reliably.
+        for (const file of selectedFiles) {
+          const path = await uploadImage(userId, file, "post");
+          media.push(path);
+        }
+
+        const insertResult = await withTimeout(
+          supabase
+            .from("social_posts")
+            .insert({
+              author_id: userId,
+              caption: cleanCaption,
+              media: media,
+              city: city ?? null,
+              filter_comments: filterComments ?? false,
+            })
+            .select("id")
+            .single(),
+          30_000,
+          "Post creation",
+        );
+
+        if (insertResult.error) {
+          throw new Error(`Post creation failed: ${insertResult.error.message}`);
+        }
+
+        if (!insertResult.data?.id) {
+          throw new Error("The post was not created.");
+        }
+
+        return insertResult.data.id;
       } catch (error) {
-        if (media.length > 0) await supabase.storage.from(SOCIAL_BUCKET).remove(media);
-        throw error;
+        // Never leave orphaned images behind when the database insert fails.
+        if (media.length > 0) {
+          const cleanup = await supabase.storage
+            .from(SOCIAL_BUCKET)
+            .remove(media);
+
+          if (cleanup.error) {
+            console.warn("Post media cleanup failed:", cleanup.error.message);
+          }
+        }
+
+        throw error instanceof Error
+          ? error
+          : new Error("Could not publish your post.");
       }
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["social-feed"] }),
+
+    onSuccess: async () => {
+      // Refresh the feed immediately after a successful insert.
+      await queryClient.invalidateQueries({ queryKey: ["social-feed"] });
+      await queryClient.invalidateQueries({ queryKey: ["member-posts"] });
+    },
   });
 }
 
