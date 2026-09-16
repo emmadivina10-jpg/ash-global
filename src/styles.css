@@ -641,6 +641,13 @@ html.native .app-shell-column {
   min-height: 0;
 }
 
+/* Every wrapper between the column and the scroll pane must be allowed to
+   shrink, otherwise the pane grows to its content height and the fixed shell
+   clips it — which reads as "the page will not scroll". */
+html.native .app-shell-column > div {
+  min-height: 0;
+}
+
 html.native .app-shell-scroll {
   min-height: 0;
   overflow-x: hidden;
