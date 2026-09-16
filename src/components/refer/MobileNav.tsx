@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Menu, Shield } from "lucide-react";
-import { AshMark } from "./AshMark";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useI18n, type TKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -20,9 +19,9 @@ export type MobileNavItem = {
 export type MoreGroup = { en: string; fr: string; items: MobileNavItem[] };
 
 /**
- * The bottom bar. The centre button is ASH Hub, and the tabs carry a
- * WhatsApp-style bubble: press and slide your thumb along the bar and the
- * highlight follows it, opening whichever tab you release on.
+ * WhatsApp-style bottom bar: a rounded floating pill with equal tabs. Press and
+ * slide your thumb along it and the highlight follows, opening whichever tab
+ * you release on.
  */
 export function MobileNav({
   items,
@@ -45,12 +44,6 @@ export function MobileNav({
   const label = (item: MobileNavItem) =>
     item.key ? t(item.key) : ((fr ? item.fr : item.en) ?? item.label ?? "");
 
-  const centre = items.find((item) => item.to === "/services");
-  const tabs = items.filter((item) => item.to !== "/services");
-  const left = tabs.slice(0, Math.ceil(tabs.length / 2));
-  const right = tabs.slice(Math.ceil(tabs.length / 2));
-  const ordered = [...left, ...right];
-
   function indexFromPoint(clientX: number, clientY: number) {
     const element = document.elementFromPoint(clientX, clientY);
     const tab = element?.closest<HTMLElement>("[data-nav-index]");
@@ -72,14 +65,14 @@ export function MobileNav({
             active || hovered ? "-translate-y-0.5 text-primary" : "text-muted-foreground",
           )}
         >
-          {hovered ? (
+          {active || hovered ? (
             <span
-              className="absolute inset-x-2 inset-y-1 -z-10 animate-[pulse_1.2s_ease-in-out_infinite] rounded-2xl bg-primary/15"
+              className={cn(
+                "absolute inset-x-1.5 inset-y-1 -z-10 rounded-2xl bg-primary/12",
+                hovered && "animate-[pulse_1.2s_ease-in-out_infinite] bg-primary/20",
+              )}
               aria-hidden
             />
-          ) : null}
-          {active ? (
-            <span className="brand-gradient absolute top-0 h-1 w-10 rounded-full transition-all duration-300" aria-hidden />
           ) : null}
           <item.icon className={cn("size-5 transition-transform duration-200", hovered && "scale-125")} aria-hidden />
           {label(item)}
@@ -89,23 +82,12 @@ export function MobileNav({
   };
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 lg:hidden">
-      {centre ? (
-        <Link
-          to={centre.to}
-          aria-label={label(centre)}
-          data-tour="market"
-          className="brand-gradient absolute left-1/2 top-0 z-10 flex size-16 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full text-primary-foreground shadow-[var(--shadow-brand)] ring-4 ring-background transition-transform duration-300 active:scale-95"
-        >
-          <AshMark className="size-7" ai={false} />
-          <span className="text-[9px] font-extrabold tracking-wide">HUB</span>
-        </Link>
-      ) : null}
-
-      <div className="ash-glass nav-cutout nav-bar-fill border-x-0 border-b-0 pb-[env(safe-area-inset-bottom)]">
+    <nav className="fixed inset-x-0 bottom-0 z-40 px-3 pb-[calc(0.5rem+env(safe-area-inset-bottom))] lg:hidden">
+      <div className="ash-glass mx-auto max-w-lg overflow-hidden rounded-[1.75rem] border border-border/70 shadow-[var(--shadow-card)]">
         <ul
           ref={listRef}
-          className="mx-auto grid max-w-lg grid-cols-5 touch-pan-y"
+          className="grid touch-pan-y"
+          style={{ gridTemplateColumns: `repeat(${items.length + 1}, minmax(0, 1fr))` }}
           onPointerDown={(event) => setDragIndex(indexFromPoint(event.clientX, event.clientY))}
           onPointerMove={(event) => {
             if (dragIndex === null) return;
@@ -114,16 +96,14 @@ export function MobileNav({
           }}
           onPointerUp={(event) => {
             const index = indexFromPoint(event.clientX, event.clientY);
-            const item = index === null ? null : ordered[index];
+            const item = index === null ? null : items[index];
             setDragIndex(null);
             if (item && item.to !== pathname) void navigate({ to: item.to } as never);
           }}
           onPointerCancel={() => setDragIndex(null)}
           onPointerLeave={() => setDragIndex(null)}
         >
-          {left.map((item, index) => renderTab(item, index))}
-          <li aria-hidden>{centre ? <span className="block min-h-14" /> : null}</li>
-          {right.map((item, index) => renderTab(item, left.length + index))}
+          {items.map((item, index) => renderTab(item, index))}
           <li>
             <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
               <SheetTrigger asChild>

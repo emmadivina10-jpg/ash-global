@@ -168,11 +168,17 @@ export function AshOrb() {
           onPointerUp={onPointerUp}
           onPointerCancel={() => (drag.current = null)}
           className={cn(
-            "orb-surface relative grid size-16 place-items-center rounded-full transition-transform duration-300",
-            open ? "rotate-45 scale-95" : "ash-ring hover:scale-105",
+            "relative grid size-16 place-items-center rounded-full border border-primary/30 bg-primary/15 text-primary backdrop-blur-xl transition-transform duration-300",
+            open ? "rotate-45 scale-95" : "hover:scale-105",
           )}
         >
-          {open ? <X className="size-6" aria-hidden /> : <AshMark className="size-7" />}
+          {open ? (
+            <X className="size-6" aria-hidden />
+          ) : (
+            <span className="font-display text-2xl font-black leading-none text-primary/90" aria-hidden>
+              A
+            </span>
+          )}
         </button>
       </div>
 

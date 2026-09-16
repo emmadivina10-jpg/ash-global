@@ -32,11 +32,11 @@ export function VerifiedBadge({
     >
       <title>{label}</title>
       <path
-        fill="#1877F2"
+        className="fill-primary"
         d="M12 1.5l2.47 1.9 3.1-.22.86 2.99 2.67 1.6-1.25 2.85 1.25 2.85-2.67 1.6-.86 2.99-3.1-.22L12 22.5l-2.47-1.9-3.1.22-.86-2.99-2.67-1.6 1.25-2.85L2.9 10.53l2.67-1.6.86-2.99 3.1.22L12 1.5z"
       />
       <path
-        fill="#fff"
+        className="fill-primary-foreground"
         d="M10.75 15.4l-3-3 1.24-1.25 1.76 1.76 4.26-4.26 1.24 1.25-5.5 5.5z"
       />
     </svg>

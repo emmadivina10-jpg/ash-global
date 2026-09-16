@@ -867,6 +867,7 @@ function MessagesPage() {
                     ? peerUserIdOf(active)
                     : null
                 }
+                peerAvatar={active ? peerAvatarOf(active) : null}
                 className="min-h-0 flex-1 px-2"
                     quickReplies={
                       lang === "fr"

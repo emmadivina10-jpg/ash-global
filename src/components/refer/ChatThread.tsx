@@ -16,6 +16,7 @@ import { useMessages } from "@/lib/marketplace.queries";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ReportDialog } from "@/components/refer/ReportDialog";
+import { Avatar } from "@/components/refer/AvatarUpload";
 import { CHAT_WALLPAPERS, useChatSettings, useSetWallpaper } from "@/lib/social.queries";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useI18n } from "@/lib/i18n";
@@ -68,6 +69,7 @@ export function ChatThread({
   quickReplies = [],
   peerName,
   peerUserId,
+  peerAvatar,
 }: {
   conversationId: string;
   currentUserId: string | undefined;
@@ -75,6 +77,8 @@ export function ChatThread({
   quickReplies?: string[];
   peerName?: string;
   peerUserId?: string | null;
+  /** Stored avatar path of the other person, so their photo shows on each bubble. */
+  peerAvatar?: string | null;
 }) {
   const { t, lang } = useI18n();
   const fr = lang === "fr";
@@ -99,7 +103,16 @@ export function ChatThread({
   const pressRef = useRef<number | null>(null);
 
   const messages = (data ?? []) as unknown as ChatMessage[];
-  const peerInitials = (peerName ?? "ASH").trim().slice(0, 2).toUpperCase();
+
+  // Facebook-style first contact: you may open a conversation with anyone, but
+  // only one message goes through until the other person answers.
+  const peerReplied = messages.some(
+    (m) => m.sender_id !== currentUserId && (m.kind ?? "TEXT") === "TEXT",
+  );
+  const mySent = messages.filter(
+    (m) => m.sender_id === currentUserId && (m.kind ?? "TEXT") === "TEXT",
+  ).length;
+  const awaitingReply = !peerReplied && mySent >= 1;
 
   // Scroll only the message list itself. Using scrollIntoView() here can
   // scroll the authenticated app-shell on iOS/web, which makes the entire
@@ -194,6 +207,15 @@ export function ChatThread({
     const value = text.trim();
 
     if (!value || !currentUserId || sending) return;
+
+    if (awaitingReply) {
+      toast.info(
+        fr
+          ? "Attendez la réponse avant d'envoyer un autre message."
+          : "Wait for a reply before sending another message.",
+      );
+      return;
+    }
 
     setSending(true);
     setFailed(null);
@@ -391,15 +413,11 @@ export function ChatThread({
                     )}
                   >
                     {!mine ? (
-                      <span
-                        className={cn(
-                          "grid size-7 shrink-0 place-items-center rounded-full bg-primary/15 text-[10px] font-bold text-primary",
-                          !endsRun && "invisible",
-                        )}
-                        aria-hidden
-                      >
-                        {peerInitials}
-                      </span>
+                      <Avatar
+                        path={peerAvatar ?? null}
+                        name={peerName ?? "ASH"}
+                        className={cn("size-7 text-[10px]", !endsRun && "invisible")}
+                      />
                     ) : null}
 
                     <div
@@ -557,9 +575,7 @@ export function ChatThread({
 
         {peerTyping ? (
           <div className="flex items-end gap-2">
-            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground">
-              {peerInitials}
-            </span>
+            <Avatar path={peerAvatar ?? null} name={peerName ?? "ASH"} className="size-7 text-[10px]" />
             <span className="flex items-center gap-1 rounded-2xl rounded-bl-sm bg-muted px-3 py-2">
               {[0, 1, 2].map((dot) => (
                 <span
@@ -589,6 +605,14 @@ export function ChatThread({
             </button>
           ))}
         </div>
+      ) : null}
+
+      {awaitingReply ? (
+        <p className="shrink-0 rounded-2xl bg-muted px-3 py-2 text-center text-[11px] font-semibold text-muted-foreground">
+          {fr
+            ? `Votre message a été envoyé. Vous pourrez écrire à nouveau dès que ${peerName ?? "cette personne"} répond.`
+            : `Your message was sent. You can write again once ${peerName ?? "they"} reply.`}
+        </p>
       ) : null}
 
       <form
@@ -631,7 +655,7 @@ export function ChatThread({
           size="icon"
           className="mb-5 size-10 shrink-0 rounded-full"
           disabled={
-            sending || body.trim().length === 0
+            sending || awaitingReply || body.trim().length === 0
           }
           aria-label={t("chat.send")}
         >

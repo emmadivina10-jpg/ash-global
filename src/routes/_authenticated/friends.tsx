@@ -7,6 +7,7 @@ import { Avatar } from "@/components/refer/AvatarUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  useFriendSuggestions,
   useFriendships,
   useMemberSearch,
   useRemoveFriend,
@@ -36,6 +37,7 @@ function FriendsPage() {
   const { data } = useFriendships();
   const [term, setTerm] = useState("");
   const { data: results } = useMemberSearch(term);
+  const { data: suggestions } = useFriendSuggestions();
   const send = useSendFriendRequest();
   const respond = useRespondFriendRequest();
   const remove = useRemoveFriend();
@@ -134,6 +136,47 @@ function FriendsPage() {
           )
         ) : null}
       </div>
+
+      {(suggestions ?? []).length > 0 ? (
+        <section className="tile space-y-3 p-4">
+          <h2 className="font-display text-base font-extrabold text-foreground">
+            {fr ? "Suggestions d'amis" : "People you may know"}
+          </h2>
+          <ul className="space-y-2">
+            {(suggestions ?? []).map((person) => (
+              <li key={person.id} className="flex items-center gap-3">
+                <button
+                  type="button"
+                  aria-label={person.name}
+                  onClick={() => void navigate({ to: "/u/$userId", params: { userId: person.id } })}
+                >
+                  <Avatar path={person.avatar_url} name={person.name} className="size-10" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void navigate({ to: "/u/$userId", params: { userId: person.id } })}
+                  className="min-w-0 flex-1 truncate text-left text-sm font-semibold text-foreground hover:underline"
+                >
+                  {person.name}
+                </button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    send.mutate(person.id, {
+                      onSuccess: () => toast.success(fr ? "Demande envoyée" : "Request sent"),
+                      onError: () => toast.error(fr ? "Échec de l'envoi" : "Could not send"),
+                    })
+                  }
+                >
+                  <UserPlus className="size-4" aria-hidden />
+                  {fr ? "Ajouter" : "Add"}
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {incoming.length > 0 ? (
         <section className="tile space-y-3 p-4">
