@@ -121,10 +121,7 @@ export function ChatThread({
     const node = messagesScrollRef.current;
     if (!node) return;
 
-    node.scrollTo({
-      top: node.scrollHeight,
-      behavior: "smooth",
-    });
+    node.scrollTop = node.scrollHeight;
   }, [messages.length, pending.length]);
 
   // Mark the other side's messages as read once the thread is open.
@@ -280,7 +277,7 @@ export function ChatThread({
   }
 
   return (
-    <div className={cn("flex min-h-0 flex-col", className)}>
+    <div className={cn("flex h-full min-h-0 min-w-0 flex-col overflow-hidden", className)}>
       <div className="flex shrink-0 items-center justify-end gap-1 px-1">
         <Dialog open={wallpaperOpen} onOpenChange={setWallpaperOpen}>
           <DialogTrigger asChild>
@@ -344,7 +341,7 @@ export function ChatThread({
 
       <div
         ref={messagesScrollRef}
-        className="min-h-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl px-1 py-2"
+        className="min-h-0 min-w-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl px-1 py-2 touch-pan-y [scrollbar-gutter:stable]"
         style={wallpaperStyle}
       >
         {isLoading ? (
@@ -593,7 +590,7 @@ export function ChatThread({
 
 
       {quickReplies.length > 0 ? (
-        <div className="flex shrink-0 gap-2 overflow-x-auto px-1 pb-2">
+        <div className="flex min-w-0 shrink-0 gap-2 overflow-x-auto overscroll-x-contain px-1 pb-2 touch-pan-x">
           {quickReplies.map((q) => (
             <button
               key={q}
@@ -620,7 +617,7 @@ export function ChatThread({
           e.preventDefault();
           void submit(body);
         }}
-        className="shrink-0 flex items-end gap-2 border-t border-border bg-background pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] md:pb-2"
+        className="flex min-w-0 shrink-0 items-end gap-2 border-t border-border bg-background pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] md:pb-2"
       >
         <div className="flex min-w-0 flex-1 flex-col">
           <Textarea

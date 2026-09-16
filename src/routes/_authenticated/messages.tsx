@@ -181,7 +181,6 @@ function MessagesPage() {
   // iOS/WKWebView visual viewport. The chat becomes a true fullscreen surface
   // while a thread is open, so the shell navigation/orb cannot overlap it.
   const [visualViewportHeight, setVisualViewportHeight] = useState<number | null>(null);
-  const [keyboardOpen, setKeyboardOpen] = useState(false);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const useIsoLayoutEffect =
@@ -198,35 +197,19 @@ function MessagesPage() {
 
     const updateViewport = () => {
       const height = Math.max(0, Math.round(viewport.height));
-      setVisualViewportHeight(height);
-
-      const active = document.activeElement;
-      const editing =
-        active instanceof HTMLInputElement ||
-        active instanceof HTMLTextAreaElement ||
-        (active instanceof HTMLElement && active.isContentEditable);
-      // iOS Safari can change visualViewport.height for browser chrome too.
-      // A real keyboard causes a much larger reduction; use that stable
-      // threshold so dismissing the keyboard reliably returns to the normal
-      // bottom-nav layout even while the textarea remains focused.
-      const keyboard =
-        editing &&
-        height > 0 &&
-        window.innerHeight - height > 180;
-
-      setKeyboardOpen(keyboard);
+      setVisualViewportHeight((current) =>
+        current !== null && Math.abs(current - height) < 2 ? current : height,
+      );
     };
 
     updateViewport();
     viewport.addEventListener("resize", updateViewport);
-    viewport.addEventListener("scroll", updateViewport);
     window.addEventListener("focusin", updateViewport);
     window.addEventListener("focusout", updateViewport);
     window.addEventListener("resize", updateViewport);
 
     return () => {
       viewport.removeEventListener("resize", updateViewport);
-      viewport.removeEventListener("scroll", updateViewport);
       window.removeEventListener("focusin", updateViewport);
       window.removeEventListener("focusout", updateViewport);
       window.removeEventListener("resize", updateViewport);
@@ -282,9 +265,6 @@ function MessagesPage() {
       shellScroll.style.overscrollBehavior = "none";
 
       window.addEventListener("pageshow", restoreAfterNavigation);
-      window.addEventListener("popstate", restoreAfterNavigation);
-      window.addEventListener("focus", restoreAfterNavigation);
-      document.addEventListener("visibilitychange", restoreAfterNavigation);
     }
 
     if (nav) {
@@ -319,9 +299,6 @@ function MessagesPage() {
       window.history.scrollRestoration = previousScrollRestoration;
 
       window.removeEventListener("pageshow", restoreAfterNavigation);
-      window.removeEventListener("popstate", restoreAfterNavigation);
-      window.removeEventListener("focus", restoreAfterNavigation);
-      document.removeEventListener("visibilitychange", restoreAfterNavigation);
 
       if (nav?.dataset["ashChatHidden"] === "true") {
         delete nav.dataset["ashChatHidden"];
@@ -337,7 +314,7 @@ function MessagesPage() {
         }
       }
     };
-  }, [mobileView, keyboardOpen]);
+  }, [mobileView]);
 
   function handleChatTouchStart(event: TouchEvent<HTMLDivElement>) {
     const touch = event.touches[0];
@@ -370,6 +347,7 @@ function MessagesPage() {
   const { data: lockPin } = useChatLockPin();
   const saveLockPin = useSetChatLockPin();
   const [showArchived, setShowArchived] = useState(false);
+  const [openSwipe, setOpenSwipe] = useState<{ id: string; side: "archive" | "delete" } | null>(null);
   const [lockedUnlocked, setLockedUnlocked] = useState(false);
   const [pinDialog, setPinDialog] = useState(false);
   const [pinValue, setPinValue] = useState("");
@@ -618,7 +596,7 @@ function MessagesPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-5xl md:space-y-4">
+    <div className="mx-auto min-h-0 w-full max-w-5xl md:space-y-4">
       {/* DESKTOP PAGE HEADER */}
       <header className="hidden md:block">
         <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
@@ -640,7 +618,7 @@ function MessagesPage() {
               ========================================================= */}
           <div
             className={cn(
-              "tile flex flex-col overflow-hidden bg-background p-0 max-md:rounded-none max-md:border-0",
+              "tile flex min-h-0 flex-col overflow-hidden bg-background p-0 max-md:rounded-none max-md:border-0",
               mobileView === "thread"
                 ? "hidden md:flex"
                 : "max-md:-mx-4 max-md:-mt-5 max-md:h-[calc(var(--ash-vh,100dvh)-3.5rem-4.75rem)]",
@@ -768,7 +746,10 @@ function MessagesPage() {
               </DialogContent>
             </Dialog>
 
-            <nav className="min-h-0 flex-1 divide-y divide-border overflow-y-auto">
+            <nav
+              className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain touch-pan-y"
+              onScroll={() => setOpenSwipe(null)}
+            >
               {term.trim() &&
               !`${ashAiConversation.label} ${ashAiConversation.preview}`
                 .toLowerCase()
@@ -834,6 +815,8 @@ function MessagesPage() {
                     pinned={Boolean(prefs?.[conv.id]?.pinned)}
                     archived={Boolean(prefs?.[conv.id]?.archived)}
                     locked={Boolean(prefs?.[conv.id]?.locked)}
+                    openSide={openSwipe?.id === conv.id ? openSwipe.side : null}
+                    onOpenSideChange={(side) => setOpenSwipe(side ? { id: conv.id, side } : null)}
                     onTogglePin={() => void togglePin(conv.id)}
                     onArchive={() => toggleArchive(conv.id)}
                     onToggleLock={() => toggleLock(conv.id)}
@@ -976,7 +959,7 @@ function MessagesPage() {
               } as CSSProperties
             }
             className={cn(
-              "tile chat-surface flex flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-0",
+              "tile chat-surface flex min-h-0 flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-0",
               mobileView === "list"
                 ? "hidden md:flex"
                 : cn(
