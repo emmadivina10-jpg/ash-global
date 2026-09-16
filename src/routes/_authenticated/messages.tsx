@@ -582,19 +582,6 @@ function MessagesPage() {
     );
   }
 
-  function removeChat(conversationId: string) {
-    deleteChat.mutate(conversationId, {
-      onSuccess: () => toast.success(fr ? "Discussion supprimée" : "Chat deleted"),
-      onError: () => {
-        setPref.mutate({ conversationId, patch: { archived: true } });
-        toast.info(
-          fr
-            ? "Cette discussion est liée à une réservation — elle a été archivée."
-            : "This chat belongs to a booking — it was archived instead.",
-        );
-      },
-    });
-  }
 
   function toggleSelected(conversationId: string) {
     setSelection((list) =>
