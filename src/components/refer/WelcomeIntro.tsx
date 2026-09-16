@@ -38,7 +38,8 @@ export function WelcomeIntro({ onDone }: { onDone?: () => void }) {
     }
     // Leave as soon as the first frame is painted, with a tiny minimum hold so
     // the mark does not flicker.
-    const hold = 420;
+    const hold = 800;
+    played = true;
     const leaveAt = window.setTimeout(() => setLeaving(true), hold);
     const endAt = window.setTimeout(() => {
       try {
