@@ -188,16 +188,17 @@ function Landing() {
 
             <div
               key={page}
-              className={`mt-4 grid w-full grid-cols-2 gap-1.5 transition-opacity duration-700 ease-in-out sm:gap-2.5 lg:mt-7 lg:max-w-xl ${
-                visible ? "opacity-100" : "opacity-0"
-              }`}
+              className="mt-4 grid w-full grid-cols-2 gap-1.5 sm:gap-2.5 lg:mt-7 lg:max-w-xl"
             >
-              {(WORLD_PAGES[page] ?? WORLD).map((item) => {
+              {(WORLD_PAGES[page] ?? WORLD).map((item, i) => {
                 const Icon = item.icon;
                 return (
                   <div
                     key={item.en}
-                    className="ash-fade-up flex items-center gap-2.5 rounded-2xl border border-border/70 bg-card/50 px-3 py-2.5 text-left backdrop-blur-md transition-colors hover:border-primary/40 hover:bg-card/70"
+                    style={{ animationDelay: `${i * 160}ms` }}
+                    className={`flex items-center gap-2.5 rounded-2xl border border-border/70 bg-card/50 px-3 py-2.5 text-left backdrop-blur-md transition-colors hover:border-primary/40 hover:bg-card/70 ${
+                      out ? "ash-tiles-out" : "ash-tiles-in"
+                    }`}
                   >
                     <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
                       <Icon className="size-4" aria-hidden />
