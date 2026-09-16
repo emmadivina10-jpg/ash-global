@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { PostCard } from "@/components/refer/PostCard";
 import { StoriesRail } from "@/components/refer/StoriesRail";
+import { SocialSuggestions } from "@/components/refer/SocialSuggestions";
 import { DiscoveryRow, useFeedDiscovery } from "@/components/refer/FeedDiscovery";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -191,6 +192,8 @@ function FeedPage() {
             </>
           )}
         </div>
+
+        {composerOpen ? <SocialSuggestions value={caption} onChange={setCaption} /> : null}
 
 
         {files.length > 0 ? (
