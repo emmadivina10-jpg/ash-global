@@ -40,6 +40,7 @@ export function MobileNav({
   const [gestureActive, setGestureActive] = useState(false);
   const startX = useRef(0);
   const dragged = useRef(false);
+  const activePointer = useRef<number | null>(null);
   const navList = useRef<HTMLUListElement>(null);
 
   const label = (item: MobileNavItem) =>
@@ -89,16 +90,20 @@ export function MobileNav({
     if (event.pointerType === "mouse" && event.button !== 0) return;
     startX.current = event.clientX;
     dragged.current = false;
+    activePointer.current = event.pointerId;
     const index = indexFromPointer(event.clientX);
     setBubblePosition(index);
     setGestureIndex(index);
     setGestureActive(true);
-    event.currentTarget.setPointerCapture(event.pointerId);
   };
 
   const handlePointerMove = (event: ReactPointerEvent<HTMLUListElement>) => {
-    if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
-    if (Math.abs(event.clientX - startX.current) > 7) dragged.current = true;
+    if (activePointer.current !== event.pointerId) return;
+    if (Math.abs(event.clientX - startX.current) > 7 && !dragged.current) {
+      dragged.current = true;
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
+    if (!dragged.current) return;
     const index = indexFromPointer(event.clientX);
     if (index !== gestureIndex) {
       setGestureIndex(index);
@@ -111,6 +116,7 @@ export function MobileNav({
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
+    activePointer.current = null;
     const selected = indexFromPointer(event.clientX);
     const shouldSelect = dragged.current;
     setGestureActive(false);
@@ -135,6 +141,7 @@ export function MobileNav({
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerEnd}
           onPointerCancel={() => {
+            activePointer.current = null;
             setGestureActive(false);
             setGestureIndex(null);
           }}
