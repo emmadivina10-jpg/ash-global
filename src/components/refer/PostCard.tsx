@@ -180,7 +180,7 @@ export function PostCard({
         </div>
       ) : null}
 
-      {commentsOpen ? <Comments post={post} currentUserId={currentUserId} /> : null}
+      {commentsOpen ? <Comments post={post} currentUserId={currentUserId} detail={detail} /> : null}
     </article>
   );
 }
