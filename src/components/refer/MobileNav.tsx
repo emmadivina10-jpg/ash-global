@@ -40,6 +40,7 @@ export function MobileNav({
   const [gestureActive, setGestureActive] = useState(false);
   const startX = useRef(0);
   const dragged = useRef(false);
+  const suppressNextClick = useRef(false);
   const activePointer = useRef<number | null>(null);
   const navList = useRef<HTMLUListElement>(null);
 
@@ -123,6 +124,7 @@ export function MobileNav({
     setGestureIndex(null);
     if (!shouldSelect) return;
     event.preventDefault();
+    suppressNextClick.current = true;
     if (selected === 4) {
       setMoreOpen(true);
       return;
@@ -140,6 +142,13 @@ export function MobileNav({
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerEnd}
+          onClickCapture={(event) => {
+            if (!suppressNextClick.current) return;
+            suppressNextClick.current = false;
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+          onDragStart={(event) => event.preventDefault()}
           onPointerCancel={() => {
             activePointer.current = null;
             setGestureActive(false);
