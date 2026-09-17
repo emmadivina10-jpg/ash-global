@@ -15,6 +15,7 @@ import {
   Play,
   Plus,
   Sparkles,
+  Trash2,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -27,6 +28,7 @@ import {
   isStoryVideoSource,
   recordStoryView,
   useCreateStory,
+  useDeleteStory,
   useStories,
   type Story,
   type StoryGroup,
@@ -267,6 +269,7 @@ export function StoriesRail() {
 
   const { data: storyData, isLoading: storiesLoading } = useStories();
   const createStory = useCreateStory();
+  const deleteStory = useDeleteStory();
 
   const { data: spotlights = [], isError: spotlightsError } = useQuery<SpotlightPost[]>({
     queryKey: ["ash-spotlights"],
@@ -338,6 +341,7 @@ export function StoriesRail() {
   const [spotlightIndex, setSpotlightIndex] = useState(0);
   const spotlightContainerRef = useRef<HTMLDivElement | null>(null);
   const [spotlightMuted, setSpotlightMuted] = useState(true);
+  const [deletingSpotlightId, setDeletingSpotlightId] = useState<string | null>(null);
 
   const activeStoryGroup = stories[storyGroupIndex] ?? null;
   const activeStory = activeStoryGroup?.stories[storyIndex] ?? null;
@@ -441,12 +445,9 @@ export function StoriesRail() {
         onProgress: setUploadProgress,
       });
 
-      try {
-        await queryClient.refetchQueries({ queryKey: ["stories"], type: "active" });
-      } catch (refreshError) {
-        console.warn("Story refresh after publish failed:", refreshError);
-      }
-
+      // Never hold the composer open waiting for a second fetch. The story row
+      // already exists at this point; refresh the rail in the background.
+      void queryClient.invalidateQueries({ queryKey: ["stories"] });
       toast.success("Story published.");
       resetComposer();
     } catch (error) {
@@ -572,25 +573,47 @@ export function StoriesRail() {
     }
 
     setStoryProgress(0);
+
+    // Image stories use a fixed WhatsApp-style 5 second duration.
+    // Video stories use the real video timeline and advance only on onEnded.
     if (activeStory.media_type === "video") return;
 
     const durationMs = 5_000;
     const startedAt = performance.now();
-    let frame = 0;
+    let lastProgress = -1;
 
-    const tick = (now: number) => {
-      const progress = Math.min(100, ((now - startedAt) / durationMs) * 100);
-      setStoryProgress(progress);
-      if (progress >= 100) {
-        nextStory();
-        return;
+    const timer = window.setInterval(() => {
+      const next = Math.min(100, ((performance.now() - startedAt) / durationMs) * 100);
+      // Throttle state updates enough to keep the animation smooth without
+      // causing a render on every animation frame.
+      if (next - lastProgress >= 1 || next >= 100) {
+        lastProgress = next;
+        setStoryProgress(next);
       }
-      frame = window.requestAnimationFrame(tick);
-    };
 
-    frame = window.requestAnimationFrame(tick);
-    return () => window.cancelAnimationFrame(frame);
+      if (next >= 100) {
+        window.clearInterval(timer);
+        nextStory();
+      }
+    }, 50);
+
+    return () => window.clearInterval(timer);
   }, [storyViewerOpen, activeStory, nextStory]);
+
+  async function deleteCurrentStory() {
+    if (!activeStory || me !== activeStory.author_id || deleteStory.isPending) return;
+    const confirmed = window.confirm("Delete this Story? This cannot be undone.");
+    if (!confirmed) return;
+
+    try {
+      await deleteStory.mutateAsync(activeStory.id);
+      toast.success("Story deleted.");
+      setStoryViewerOpen(false);
+      void queryClient.invalidateQueries({ queryKey: ["stories"] });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not delete this Story.");
+    }
+  }
 
   function previousStory() {
     if (storyIndex > 0) {
@@ -619,6 +642,57 @@ export function StoriesRail() {
       await navigate({ to: "/messages", search: { c: conversationId } });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not open this vendor chat.");
+    }
+  }
+
+  async function deleteSpotlight(spotlight: SpotlightPost) {
+    if (!me || spotlight.provider.user_id !== me || deletingSpotlightId) return;
+
+    const confirmed = window.confirm("Delete this Spotlight? This cannot be undone.");
+    if (!confirmed) return;
+
+    setDeletingSpotlightId(spotlight.id);
+
+    try {
+      const rpcResult = await withTimeout(
+        Promise.resolve(
+          (
+            supabase as unknown as {
+              rpc: (
+                name: string,
+                args: Record<string, unknown>,
+              ) => PromiseLike<{ data: string | null; error: { message: string } | null }>;
+            }
+          ).rpc("delete_spotlight_post", {
+            _spotlight_id: spotlight.id,
+          }),
+        ),
+        20_000,
+        "Spotlight deletion",
+      );
+
+      if (rpcResult.error) {
+        throw new Error(rpcResult.error.message);
+      }
+
+      const mediaPath = rpcResult.data;
+      if (mediaPath) {
+        const { error: storageError } = await supabase.storage.from(SOCIAL_BUCKET).remove([mediaPath]);
+        if (storageError) {
+          console.warn("Spotlight media cleanup failed:", storageError.message);
+        }
+      }
+
+      queryClient.setQueryData<SpotlightPost[]>(["ash-spotlights"], (current) =>
+        (current ?? []).filter((item) => item.id !== spotlight.id),
+      );
+      void queryClient.invalidateQueries({ queryKey: ["ash-spotlights"] });
+      setSpotlightViewerOpen(false);
+      toast.success("Spotlight deleted.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not delete this Spotlight.");
+    } finally {
+      setDeletingSpotlightId(null);
     }
   }
 
@@ -1009,6 +1083,21 @@ export function StoriesRail() {
                           {storyMuted ? <MicOff className="size-4" /> : <Mic className="size-4" />}
                         </button>
                       ) : null}
+                      {me === activeStory.author_id ? (
+                        <button
+                          type="button"
+                          onClick={() => void deleteCurrentStory()}
+                          disabled={deleteStory.isPending}
+                          className="grid size-9 place-items-center rounded-full bg-white/10 text-white backdrop-blur-md disabled:opacity-50"
+                          aria-label="Delete story"
+                        >
+                          {deleteStory.isPending ? (
+                            <Loader2 className="size-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="size-4" />
+                          )}
+                        </button>
+                      ) : null}
                       <button
                         type="button"
                         onClick={() => setStoryViewerOpen(false)}
@@ -1191,7 +1280,21 @@ export function StoriesRail() {
                               <MessageCircle className="size-4" />
                               Contact Vendor
                             </button>
-                          ) : null}
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => void deleteSpotlight(spotlight)}
+                              disabled={deletingSpotlightId === spotlight.id}
+                              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-4 py-3.5 text-sm font-extrabold text-white backdrop-blur-xl transition-transform active:scale-[0.98] disabled:opacity-60"
+                            >
+                              {deletingSpotlightId === spotlight.id ? (
+                                <Loader2 className="size-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="size-4" />
+                              )}
+                              {deletingSpotlightId === spotlight.id ? "Deleting…" : "Delete Spotlight"}
+                            </button>
+                          )}
 
                           <p className="mt-2 text-center text-[9px] font-semibold text-white/45">
                             Discover · contact · order
