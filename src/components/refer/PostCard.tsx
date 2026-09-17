@@ -56,7 +56,12 @@ export function PostCard({
   const setFilter = useSetCommentFilter();
   const remove = useDeletePost();
   const mine = currentUserId === post.author_id;
+  const [captionExpanded, setCaptionExpanded] = useState(false);
   useEngagementRealtime(detail ? post.id : null);
+
+  // Long captions on photo posts stay compact in the feed, like Facebook.
+  // The full caption is still available with "See more".
+  const collapsiblePhotoCaption = !detail && post.images.length > 0 && post.caption.trim().length > 280;
 
   return (
     <article
@@ -104,13 +109,26 @@ export function PostCard({
       </header>
 
       {post.caption ? (
-        <SocialText
-          text={post.caption}
-          className={cn(
-            "whitespace-pre-wrap break-words px-4 pb-3 text-sm leading-relaxed text-foreground",
-            !detail && "cursor-pointer",
-          )}
-        />
+        <div className="px-4 pb-3">
+          <SocialText
+            text={post.caption}
+            className={cn(
+              "whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground",
+              collapsiblePhotoCaption && !captionExpanded && "line-clamp-4",
+            )}
+          />
+
+          {collapsiblePhotoCaption ? (
+            <button
+              type="button"
+              onClick={() => setCaptionExpanded((expanded) => !expanded)}
+              className="mt-1 inline-flex touch-manipulation text-sm font-semibold text-muted-foreground hover:text-foreground"
+              aria-expanded={captionExpanded}
+            >
+              {captionExpanded ? (fr ? "Voir moins" : "See less") : fr ? "Voir plus" : "See more"}
+            </button>
+          ) : null}
+        </div>
       ) : null}
 
       {post.images.length > 0 ? (
@@ -131,9 +149,7 @@ export function PostCard({
               onClick={openPost}
               className={cn(
                 "size-full min-h-0 bg-muted",
-                detail
-                  ? "max-h-[75dvh] object-contain"
-                  : "cursor-pointer object-cover touch-manipulation",
+                detail ? "max-h-[75dvh] object-contain" : "cursor-pointer object-cover touch-manipulation",
                 !detail && post.images.length === 2 && "row-span-2",
                 !detail && post.images.length === 3 && index === 0 && "col-span-2",
               )}
@@ -144,15 +160,25 @@ export function PostCard({
 
       <div className="flex items-center justify-between px-4 pt-2">
         <ReactionSummary breakdown={post.reaction_breakdown} />
-        <span className="text-[11px] text-muted-foreground">{post.comment_count} {fr ? "commentaires" : "comments"} · {post.repost_count} {fr ? "republications" : "reposts"}</span>
+        <span className="text-[11px] text-muted-foreground">
+          {post.comment_count} {fr ? "commentaires" : "comments"} · {post.repost_count}{" "}
+          {fr ? "republications" : "reposts"}
+        </span>
       </div>
       <div className="flex items-center gap-1 px-2 pb-2">
-        <ReactionButton value={post.current_reaction} total={post.like_count} breakdown={post.reaction_breakdown} disabled={!currentUserId} onChange={(reaction) => react.mutate({ postId: post.id, reaction }, { onError: (error) => toast.error(error instanceof Error ? error.message : "Could not react.") })} />
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => (detail ? setCommentsOpen((v) => !v) : openPost())}
-        >
+        <ReactionButton
+          value={post.current_reaction}
+          total={post.like_count}
+          breakdown={post.reaction_breakdown}
+          disabled={!currentUserId}
+          onChange={(reaction) =>
+            react.mutate(
+              { postId: post.id, reaction },
+              { onError: (error) => toast.error(error instanceof Error ? error.message : "Could not react.") },
+            )
+          }
+        />
+        <Button variant="ghost" size="sm" onClick={() => (detail ? setCommentsOpen((v) => !v) : openPost())}>
           <MessageCircle className="size-4" aria-hidden />
           {post.comment_count}
         </Button>
@@ -168,13 +194,7 @@ export function PostCard({
               {
                 onSuccess: () =>
                   toast.success(
-                    post.reposted
-                      ? fr
-                        ? "Republication retirée"
-                        : "Repost removed"
-                      : fr
-                        ? "Republié"
-                        : "Reposted",
+                    post.reposted ? (fr ? "Republication retirée" : "Repost removed") : fr ? "Republié" : "Reposted",
                   ),
                 onError: (error) => toast.error(error instanceof Error ? error.message : "Could not repost."),
               },
@@ -301,10 +321,9 @@ function CommentRow({
 }) {
   const { lang } = useI18n();
   const fr = lang === "fr";
-   const reactComment = useSetCommentReaction();
+  const reactComment = useSetCommentReaction();
   const navigate = useNavigate();
-  const openAuthor = () =>
-    void navigate({ to: "/u/$userId", params: { userId: comment.author.id } });
+  const openAuthor = () => void navigate({ to: "/u/$userId", params: { userId: comment.author.id } });
   return (
     <div className={cn("flex gap-2.5", depth > 0 && "ml-8")}>
       <button type="button" aria-label={comment.author.name} onClick={openAuthor}>
@@ -323,7 +342,19 @@ function CommentRow({
           <SocialText text={comment.body} className="whitespace-pre-wrap break-words text-sm text-foreground" />
         </div>
         <div className="mt-1 flex items-center gap-3 px-2 text-[11px] font-semibold text-muted-foreground">
-          <ReactionButton compact value={comment.current_reaction} total={comment.like_count} breakdown={comment.reaction_breakdown} disabled={!currentUserId} onChange={(reaction) => reactComment.mutate({ commentId: comment.id, postId: comment.post_id, reaction }, { onError: (error) => toast.error(error instanceof Error ? error.message : "Could not react.") })} />
+          <ReactionButton
+            compact
+            value={comment.current_reaction}
+            total={comment.like_count}
+            breakdown={comment.reaction_breakdown}
+            disabled={!currentUserId}
+            onChange={(reaction) =>
+              reactComment.mutate(
+                { commentId: comment.id, postId: comment.post_id, reaction },
+                { onError: (error) => toast.error(error instanceof Error ? error.message : "Could not react.") },
+              )
+            }
+          />
           {depth === 0 ? (
             <button type="button" onClick={() => onReply(comment)} className="hover:text-primary">
               {fr ? "Répondre" : "Reply"}
