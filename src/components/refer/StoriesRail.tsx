@@ -304,12 +304,14 @@ export function StoriesRail() {
   const railItems = useMemo<RailItem[]>(() => {
     const items: RailItem[] = [];
 
-    if (myGroup?.stories[0]) {
-      items.push({ kind: "story", group: myGroup, story: myGroup.stories[0] });
+    const myLatestStory = myGroup?.stories.at(-1);
+    if (myLatestStory) {
+      items.push({ kind: "story", group: myGroup!, story: myLatestStory });
     }
 
     for (const group of otherStoryGroups) {
-      const story = group.stories[0];
+      // The rail always represents each person's most recent active Story.
+      const story = group.stories.at(-1);
       if (story) items.push({ kind: "story", group, story });
     }
 
@@ -338,6 +340,10 @@ export function StoriesRail() {
   const [storyMuted, setStoryMuted] = useState(true);
   const [storyProgress, setStoryProgress] = useState(0);
   const [viewersStoryId, setViewersStoryId] = useState<string | null>(null);
+  const storyVideoRef = useRef<HTMLVideoElement | null>(null);
+  const storyTimerRef = useRef<number | null>(null);
+  const storyStartedAtRef = useRef<number | null>(null);
+  const storyElapsedMsRef = useRef(0);
 
   const [spotlightViewerOpen, setSpotlightViewerOpen] = useState(false);
   const [spotlightIndex, setSpotlightIndex] = useState(0);
@@ -571,38 +577,86 @@ export function StoriesRail() {
   }, [activeStoryGroup, storyGroupIndex, storyIndex, stories.length]);
 
   useEffect(() => {
-    if (!storyViewerOpen || !activeStory) {
+    // A new Story (or a fresh viewer session) starts from the beginning.
+    if (!activeStory || !storyViewerOpen) {
+      storyElapsedMsRef.current = 0;
+      storyStartedAtRef.current = null;
+      if (storyTimerRef.current !== null) {
+        window.clearInterval(storyTimerRef.current);
+        storyTimerRef.current = null;
+      }
       setStoryProgress(0);
       return;
     }
 
+    storyElapsedMsRef.current = 0;
+    storyStartedAtRef.current = null;
     setStoryProgress(0);
+  }, [storyViewerOpen, activeStory?.id]);
 
-    // Image stories use a fixed WhatsApp-style 5 second duration.
-    // Video stories use the real video timeline and advance only on onEnded.
-    if (activeStory.media_type === "video") return;
+  useEffect(() => {
+    if (storyTimerRef.current !== null) {
+      window.clearInterval(storyTimerRef.current);
+      storyTimerRef.current = null;
+    }
 
+    if (!storyViewerOpen || !activeStory || viewersStoryId || activeStory.media_type === "video") {
+      return;
+    }
+
+    // Image Stories use a fixed 5 second duration. The elapsed time is kept in
+    // a ref so opening "Story views" pauses the Story without resetting it.
     const durationMs = 5_000;
-    const startedAt = performance.now();
-    let lastProgress = -1;
+    storyStartedAtRef.current = performance.now() - storyElapsedMsRef.current;
+    let lastProgress = storyElapsedMsRef.current > 0 ? (storyElapsedMsRef.current / durationMs) * 100 : -1;
 
-    const timer = window.setInterval(() => {
-      const next = Math.min(100, ((performance.now() - startedAt) / durationMs) * 100);
-      // Throttle state updates enough to keep the animation smooth without
-      // causing a render on every animation frame.
+    const tick = () => {
+      if (storyStartedAtRef.current === null) return;
+      const elapsed = Math.min(durationMs, performance.now() - storyStartedAtRef.current);
+      storyElapsedMsRef.current = elapsed;
+      const next = Math.min(100, (elapsed / durationMs) * 100);
+
       if (next - lastProgress >= 1 || next >= 100) {
         lastProgress = next;
         setStoryProgress(next);
       }
 
       if (next >= 100) {
-        window.clearInterval(timer);
+        if (storyTimerRef.current !== null) {
+          window.clearInterval(storyTimerRef.current);
+          storyTimerRef.current = null;
+        }
+        storyStartedAtRef.current = null;
         nextStory();
       }
-    }, 50);
+    };
 
-    return () => window.clearInterval(timer);
-  }, [storyViewerOpen, activeStory, nextStory]);
+    tick();
+    storyTimerRef.current = window.setInterval(tick, 50);
+
+    return () => {
+      if (storyStartedAtRef.current !== null) {
+        storyElapsedMsRef.current = Math.min(durationMs, Math.max(0, performance.now() - storyStartedAtRef.current));
+      }
+      storyStartedAtRef.current = null;
+      if (storyTimerRef.current !== null) {
+        window.clearInterval(storyTimerRef.current);
+        storyTimerRef.current = null;
+      }
+    };
+  }, [storyViewerOpen, activeStory, activeStory?.media_type, viewersStoryId, nextStory]);
+
+  useEffect(() => {
+    const video = storyVideoRef.current;
+    if (!storyViewerOpen || !activeStory || activeStory.media_type !== "video" || !video) return;
+
+    if (viewersStoryId) {
+      video.pause();
+      return;
+    }
+
+    void video.play().catch(() => undefined);
+  }, [storyViewerOpen, activeStory?.id, activeStory?.media_type, viewersStoryId]);
 
   async function deleteCurrentStory() {
     if (!activeStory || me !== activeStory.author_id || deleteStory.isPending) return;
@@ -621,6 +675,7 @@ export function StoriesRail() {
 
   function openStoryViewers(story: Story) {
     if (me !== story.author_id) return;
+    if (storyVideoRef.current) storyVideoRef.current.pause();
     setViewersStoryId(story.id);
   }
 
@@ -765,12 +820,12 @@ export function StoriesRail() {
                   <button
                     key={`story-${item.story.id}`}
                     type="button"
-                    onClick={() =>
-                      openStory(
-                        stories.findIndex((group) => group.author.id === item.group.author.id),
-                        0,
-                      )
-                    }
+                    onClick={() => {
+                      const groupIndex = stories.findIndex((group) => group.author.id === item.group.author.id);
+                      const group = stories[groupIndex];
+                      const latestIndex = Math.max(0, (group?.stories.length ?? 1) - 1);
+                      openStory(groupIndex, latestIndex);
+                    }}
                     className="group relative h-52 w-[120px] shrink-0 overflow-hidden rounded-[24px] border border-border bg-black text-left shadow-sm transition-transform active:scale-[0.98]"
                   >
                     {storyIsVideo ? (
@@ -789,8 +844,21 @@ export function StoriesRail() {
                       />
                     )}
                     <span className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
-                    <span className="absolute left-2.5 top-2.5 z-10">
-                      <Avatar src={item.group.author.avatar_url} name={item.group.author.name} className="size-9" />
+                    <span
+                      className={`absolute left-2.5 top-2.5 z-10 grid size-[42px] place-items-center rounded-full p-[2px] shadow-lg ${
+                        item.group.seen
+                          ? "bg-white/20"
+                          : "bg-[conic-gradient(from_220deg,#ff2d55,#4B0082,#D4AF37,#ff2d55)]"
+                      }`}
+                      aria-label={item.group.seen ? "Story viewed" : "New Story"}
+                    >
+                      <span className="grid size-full place-items-center rounded-full bg-black">
+                        <Avatar
+                          src={item.group.author.avatar_url}
+                          name={item.group.author.name}
+                          className="size-9 !border-0"
+                        />
+                      </span>
                     </span>
                     <span className="absolute right-2.5 top-2.5 z-10 rounded-full bg-black/40 px-2 py-1 text-[9px] font-bold text-white backdrop-blur-md">
                       24h
@@ -1135,6 +1203,7 @@ export function StoriesRail() {
                 <div className="flex h-full w-full items-center justify-center">
                   {activeStory.media_type === "video" ? (
                     <video
+                      ref={storyVideoRef}
                       key={activeStory.id}
                       src={activeStory.url}
                       autoPlay
