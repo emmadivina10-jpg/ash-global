@@ -125,6 +125,64 @@ async function uploadImage(userId: string, file: File, prefix: string): Promise<
   return path;
 }
 
+export type StoryMediaKind = "image" | "video";
+
+const STORY_MAX_VIDEO_BYTES = 50 * 1024 * 1024;
+
+export function isStoryVideoSource(source: string | File): boolean {
+  const value = typeof source === "string" ? source : source.type;
+
+  if (value.startsWith("video/")) return true;
+
+  return /\.(mp4|webm|mov|m4v|ogv)(?:[?#].*)?$/i.test(value);
+}
+
+async function uploadStoryMedia(userId: string, file: File): Promise<string> {
+  const isVideo = isStoryVideoSource(file);
+
+  if (isVideo) {
+    const supportedVideoTypes = new Set(["video/mp4", "video/webm", "video/quicktime", "video/x-m4v", "video/ogg"]);
+
+    if (!supportedVideoTypes.has(file.type)) {
+      throw new Error("Unsupported video format. Please use MP4, WebM, MOV, M4V or OGG.");
+    }
+
+    if (file.size > STORY_MAX_VIDEO_BYTES) {
+      throw new Error(`${file.name} is larger than 50 MB.`);
+    }
+  } else {
+    if (!file.type.startsWith("image/")) {
+      throw new Error("Please choose a photo or video.");
+    }
+
+    if (file.size > SOCIAL_MAX_BYTES) {
+      throw new Error(`${file.name} is larger than 12 MB.`);
+    }
+  }
+
+  const fallbackExtension = isVideo ? "mp4" : "jpg";
+  const extension = file.name.split(".").pop()?.toLowerCase() ?? fallbackExtension;
+  const safeExtension = /^[a-z0-9]+$/.test(extension) ? extension : fallbackExtension;
+
+  const path = `${userId}/story/${crypto.randomUUID()}.${safeExtension}`;
+
+  const result = await withTimeout(
+    supabase.storage.from(SOCIAL_BUCKET).upload(path, file, {
+      cacheControl: "3600",
+      contentType: file.type || (isVideo ? "video/mp4" : "image/jpeg"),
+      upsert: false,
+    }),
+    isVideo ? 60_000 : 45_000,
+    isVideo ? "Video upload" : "Image upload",
+  );
+
+  if (result.error) {
+    throw new Error(`${isVideo ? "Video" : "Image"} upload failed: ${result.error.message}`);
+  }
+
+  return path;
+}
+
 /* ------------------------------------------------------------------ stories */
 
 export type Story = {
@@ -132,6 +190,7 @@ export type Story = {
   author_id: string;
   caption: string;
   url: string;
+  media_type: StoryMediaKind;
   view_count: number;
   created_at: string;
   expires_at: string;
@@ -208,6 +267,7 @@ export function useStories() {
           author_id: row.author_id,
           caption: row.caption,
           url,
+          media_type: isStoryVideoSource(row.media_path) ? "video" : "image",
           view_count: row.view_count,
           created_at: row.created_at,
           expires_at: row.expires_at,
@@ -238,6 +298,7 @@ export function useStories() {
 
 export function useCreateStory() {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async ({
       file,
@@ -248,26 +309,62 @@ export function useCreateStory() {
     }: {
       file: File;
       caption: string;
-      /** ALL = anyone on ASH can watch, SELECT = only the chosen members. */
+      /** ALL = anyone on ASH can watch, or only hand-picked members. */
       audience?: StoryAudience;
       allowIds?: string[];
       blockIds?: string[];
     }) => {
       const userId = await currentUserId();
-      if (!userId) throw new Error("You need to be signed in.");
-      await verifyMediaFiles([file], "STORY");
-      const path = await uploadImage(userId, file, "story");
-      const { error } = await supabase.from("stories").insert({
-        author_id: userId,
-        media_path: path,
-        caption: caption.trim(),
-        audience,
-        allow_ids: audience === "SELECT" ? allowIds : [],
-        block_ids: audience === "ALL" ? blockIds : [],
-      });
-      if (error) throw error;
+
+      if (!userId) {
+        throw new Error("You need to be signed in.");
+      }
+
+      if (!file) {
+        throw new Error("Choose a photo or video.");
+      }
+
+      const mediaKind = isStoryVideoSource(file) ? "video" : "image";
+
+      // Keep the existing media-safety check for photos.
+      // The current safety helper is image-oriented; video moderation
+      // should be added to the video pipeline before unrestricted public use.
+      if (mediaKind === "image") {
+        await verifyMediaFiles([file], "STORY");
+      }
+
+      const path = await uploadStoryMedia(userId, file);
+
+      try {
+        const { error } = await supabase.from("stories").insert({
+          author_id: userId,
+          media_path: path,
+          caption: caption.trim(),
+          audience,
+          allow_ids: audience === "SELECT" ? allowIds : [],
+          block_ids: audience === "ALL" ? blockIds : [],
+        });
+
+        if (error) {
+          throw error;
+        }
+      } catch (error) {
+        // Never leave an orphaned uploaded file if the story row fails.
+        const cleanup = await supabase.storage.from(SOCIAL_BUCKET).remove([path]);
+
+        if (cleanup.error) {
+          console.warn("Story media cleanup failed:", cleanup.error.message);
+        }
+
+        throw error;
+      }
+
+      return path;
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["stories"] }),
+
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["stories"] });
+    },
   });
 }
 
