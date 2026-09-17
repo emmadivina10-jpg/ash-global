@@ -29,8 +29,10 @@ import {
   useStories,
   type Story,
   type StoryGroup,
+  uploadResumableStorageFile,
 } from "@/lib/social.queries";
 import { Button } from "@/components/ui/button";
+import { Avatar as ProfileAvatar } from "@/components/refer/AvatarUpload";
 
 const SOCIAL_BUCKET = "spotlight";
 const IMAGE_MAX_BYTES = 12 * 1024 * 1024;
@@ -80,7 +82,11 @@ function contentTypeOf(file: File): string {
   return VIDEO_MIME_BY_EXTENSION[extensionOf(file)] ?? "image/jpeg";
 }
 
-async function uploadSpotlightMedia(userId: string, file: File): Promise<string> {
+async function uploadSpotlightMedia(
+  userId: string,
+  file: File,
+  onProgress?: (progress: number) => void,
+): Promise<string> {
   const video = isVideoSource(file);
 
   if (video) {
@@ -97,10 +103,18 @@ async function uploadSpotlightMedia(userId: string, file: File): Promise<string>
   }
 
   const path = `${userId}/spotlight/${crypto.randomUUID()}.${extensionOf(file)}`;
+  const contentType = contentTypeOf(file);
+
+  if (video && file.size > 6 * 1024 * 1024) {
+    await uploadResumableStorageFile(SOCIAL_BUCKET, path, file, contentType, onProgress);
+    return path;
+  }
+
+  onProgress?.(0);
   const { error } = await withTimeout(
     supabase.storage.from(SOCIAL_BUCKET).upload(path, file, {
       cacheControl: "3600",
-      contentType: contentTypeOf(file),
+      contentType,
       upsert: false,
     }),
     video ? 90_000 : 45_000,
@@ -111,6 +125,7 @@ async function uploadSpotlightMedia(userId: string, file: File): Promise<string>
     throw new Error(`Spotlight upload failed: ${error.message}`);
   }
 
+  onProgress?.(100);
   return path;
 }
 
@@ -140,17 +155,7 @@ function Avatar({
   name?: string | null;
   className?: string;
 }) {
-  return (
-    <span
-      className={`grid shrink-0 place-items-center overflow-hidden rounded-full border border-white/70 bg-white/10 ${className}`}
-    >
-      {src ? (
-        <img src={src} alt="" className="size-full object-cover" />
-      ) : (
-        <span className="text-[10px] font-black text-white">{initials(name)}</span>
-      )}
-    </span>
-  );
+  return <ProfileAvatar path={src} name={name} className={className} />;
 }
 
 export function StoriesRail() {
@@ -213,6 +218,7 @@ export function StoriesRail() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [caption, setCaption] = useState("");
   const [publishing, setPublishing] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [storyViewerOpen, setStoryViewerOpen] = useState(false);
@@ -272,6 +278,7 @@ export function StoriesRail() {
     setCaption("");
     setComposerMode(null);
     setPublishing(false);
+    setUploadProgress(0);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
@@ -316,15 +323,18 @@ export function StoriesRail() {
 
     setPublishing(true);
     try {
+      setUploadProgress(0);
       await createStory.mutateAsync({
         file: selectedFile,
         caption,
         audience: "ALL",
         allowIds: [],
         blockIds: [],
+        onProgress: setUploadProgress,
       });
       toast.success("Story published.");
       resetComposer();
+      void queryClient.invalidateQueries({ queryKey: ["stories"] });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not publish your story.");
       setPublishing(false);
@@ -358,7 +368,8 @@ export function StoriesRail() {
         await withTimeout(verifyMediaFiles([selectedFile], "SPOTLIGHT"), 30_000, "Spotlight safety check");
       }
 
-      mediaPath = await uploadSpotlightMedia(me, selectedFile);
+      setUploadProgress(0);
+      mediaPath = await uploadSpotlightMedia(me, selectedFile, setUploadProgress);
 
       const rpcResult = await withTimeout(
         Promise.resolve(
@@ -386,11 +397,11 @@ export function StoriesRail() {
       }
 
       toast.success("Spotlight published.");
-      await queryClient.invalidateQueries({
+      resetComposer();
+      void queryClient.invalidateQueries({
         predicate: (query) => query.queryKey.some((key) => String(key).toLowerCase().includes("community")),
       });
-      await queryClient.invalidateQueries({ queryKey: ["stories"] });
-      resetComposer();
+      void queryClient.invalidateQueries({ queryKey: ["stories"] });
     } catch (error) {
       if (mediaPath) {
         void supabase.storage.from(SOCIAL_BUCKET).remove([mediaPath]);
@@ -465,12 +476,16 @@ export function StoriesRail() {
           <button
             type="button"
             onClick={openCreate}
-            className="relative h-56 w-[132px] shrink-0 overflow-visible rounded-[24px] border border-border bg-card text-left shadow-sm transition-transform active:scale-[0.98]"
+            className="relative h-52 w-[120px] shrink-0 overflow-visible rounded-[22px] border border-border bg-card text-left shadow-sm transition-transform active:scale-[0.98]"
             aria-label="Create Story or Spotlight"
           >
-            <div className="absolute inset-x-0 top-0 h-[72%] overflow-hidden rounded-t-[24px] bg-gradient-to-br from-[#D4AF37] via-[#e9d8ff] to-[#4B0082]">
+            <div className="absolute inset-x-0 top-0 z-0 h-[70%] overflow-hidden rounded-t-[22px] bg-gradient-to-br from-[#D4AF37] via-[#e9d8ff] to-[#4B0082]">
               {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="" className="size-full object-cover" />
+                <Avatar
+                  src={profile.avatar_url}
+                  name={profile.full_name}
+                  className="!size-full !rounded-none !border-0 !bg-transparent"
+                />
               ) : (
                 <div className="grid size-full place-items-center bg-gradient-to-br from-[#D4AF37] via-[#a77f1b] to-[#4B0082]">
                   <span className="text-4xl font-black text-white">{initials(profile?.full_name)}</span>
@@ -478,10 +493,10 @@ export function StoriesRail() {
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/5" />
             </div>
-            <span className="absolute left-1/2 top-[58%] grid size-14 -translate-x-1/2 place-items-center rounded-full border-[4px] border-card bg-gradient-to-br from-[#ff2d55] to-[#4B0082] text-white shadow-xl">
-              <Plus className="size-7" />
+            <span className="absolute inset-x-0 bottom-0 z-10 h-[36%] rounded-b-[22px] bg-card" />
+            <span className="absolute left-1/2 top-[57%] z-20 grid size-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-[4px] border-card bg-gradient-to-br from-[#ff2d55] to-[#4B0082] text-white shadow-xl">
+              <Plus className="size-7" strokeWidth={2.5} />
             </span>
-            <span className="absolute inset-x-0 bottom-0 h-[35%] rounded-b-[24px] bg-card" />
             <span className="absolute inset-x-3 bottom-4 z-10 text-center">
               <span className="block text-[15px] font-black text-foreground">Create</span>
               <span className="mt-0.5 block text-[10px] font-semibold text-muted-foreground">Story or Spotlight</span>
@@ -490,7 +505,7 @@ export function StoriesRail() {
 
           {storiesLoading
             ? [0, 1, 2].map((item) => (
-                <div key={item} className="h-56 w-[132px] shrink-0 animate-pulse rounded-[24px] bg-muted" />
+                <div key={item} className="h-52 w-[120px] shrink-0 animate-pulse rounded-[24px] bg-muted" />
               ))
             : null}
 
@@ -509,7 +524,7 @@ export function StoriesRail() {
                         0,
                       )
                     }
-                    className="group relative h-56 w-[132px] shrink-0 overflow-hidden rounded-[24px] border border-border bg-black text-left shadow-sm transition-transform active:scale-[0.98]"
+                    className="group relative h-52 w-[120px] shrink-0 overflow-hidden rounded-[24px] border border-border bg-black text-left shadow-sm transition-transform active:scale-[0.98]"
                   >
                     {storyIsVideo ? (
                       <video
@@ -553,7 +568,7 @@ export function StoriesRail() {
                   key={`spotlight-${spotlight.id}`}
                   type="button"
                   onClick={() => openSpotlight(spotlights.findIndex((post) => post.id === spotlight.id))}
-                  className="group relative h-56 w-[132px] shrink-0 overflow-hidden rounded-[24px] border border-[#D4AF37]/30 bg-black text-left shadow-sm transition-transform active:scale-[0.98]"
+                  className="group relative h-52 w-[120px] shrink-0 overflow-hidden rounded-[24px] border border-[#D4AF37]/30 bg-black text-left shadow-sm transition-transform active:scale-[0.98]"
                 >
                   {spotlightVideo ? (
                     <video
@@ -689,7 +704,13 @@ export function StoriesRail() {
                   {previewUrl ? (
                     <div className="overflow-hidden rounded-[24px] border border-border bg-black">
                       {selectedFile && isVideoSource(selectedFile) ? (
-                        <video src={previewUrl} controls playsInline className="max-h-[52vh] w-full object-contain" />
+                        <video
+                          src={previewUrl}
+                          controls
+                          playsInline
+                          muted
+                          className="max-h-[52vh] w-full object-contain"
+                        />
                       ) : (
                         <img src={previewUrl} alt="Preview" className="max-h-[52vh] w-full object-contain" />
                       )}
@@ -732,6 +753,23 @@ export function StoriesRail() {
                   ) : null}
                 </div>
 
+                {publishing ? (
+                  <div className="border-t border-border px-4 pt-3">
+                    <div className="rounded-2xl border border-border bg-muted/50 px-3 py-2.5">
+                      <div className="flex items-center justify-between text-[10px] font-bold">
+                        <span>{uploadProgress < 100 ? "Uploading media…" : "Publishing…"}</span>
+                        <span>{Math.max(0, Math.min(100, uploadProgress))}%</span>
+                      </div>
+                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-background/80">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-[#ff2d55] via-[#D4AF37] to-[#4B0082] transition-[width] duration-300"
+                          style={{ width: `${Math.max(4, Math.min(100, uploadProgress))}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
                 <div className="flex items-center justify-between gap-3 border-t border-border p-4">
                   <Button
                     type="button"
@@ -749,7 +787,7 @@ export function StoriesRail() {
                     className="min-w-32"
                   >
                     {publishing ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-                    {publishing ? "Publishing…" : "Publish"}
+                    {publishing ? (uploadProgress < 100 ? `${uploadProgress}%` : "Publishing…") : "Publish"}
                   </Button>
                 </div>
               </div>
