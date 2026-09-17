@@ -61,6 +61,150 @@ async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): P
   }
 }
 
+async function fetchWithTimeout(
+  input: RequestInfo | URL,
+  init: RequestInit,
+  ms: number,
+  label: string,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), ms);
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error(`${label} timed out. Please try again.`);
+    }
+    throw error instanceof Error ? error : new Error(label);
+  } finally {
+    window.clearTimeout(timer);
+  }
+}
+
+function toBase64(value: string): string {
+  const bytes = new TextEncoder().encode(value);
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary);
+}
+
+function resumableStorageEndpoint(): string {
+  const rawUrl = String(import.meta.env.VITE_SUPABASE_URL ?? "").trim();
+  if (!rawUrl) {
+    throw new Error("Supabase URL is not configured for video uploads.");
+  }
+
+  const url = new URL(rawUrl);
+  if (url.hostname.endsWith(".supabase.co")) {
+    const projectRef = url.hostname.split(".")[0];
+    return `https://${projectRef}.storage.supabase.co/storage/v1/upload/resumable`;
+  }
+
+  return `${rawUrl.replace(/\/$/, "")}/storage/v1/upload/resumable`;
+}
+
+/** Upload a large browser video with Supabase TUS resumable uploads. */
+export async function uploadResumableStorageFile(
+  bucketName: string,
+  objectName: string,
+  file: File,
+  contentType: string,
+  onProgress?: (progress: number) => void,
+): Promise<void> {
+  const { data, error: sessionError } = await supabase.auth.getSession();
+  const accessToken = data.session?.access_token;
+  if (sessionError || !accessToken) {
+    throw new Error("Your session expired. Please sign in again.");
+  }
+
+  const createResponse = await fetchWithTimeout(
+    resumableStorageEndpoint(),
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Tus-Resumable": "1.0.0",
+        "Upload-Length": String(file.size),
+        "Upload-Metadata": [
+          `bucketName ${toBase64(bucketName)}`,
+          `objectName ${toBase64(objectName)}`,
+          `contentType ${toBase64(contentType)}`,
+          `cacheControl ${toBase64("3600")}`,
+        ].join(","),
+        "x-upsert": "false",
+      },
+    },
+    30_000,
+    "Starting video upload",
+  );
+
+  if (!createResponse.ok) {
+    const body = await createResponse.text().catch(() => "");
+    throw new Error(`Could not start video upload (${createResponse.status}).${body ? ` ${body}` : ""}`);
+  }
+
+  const uploadUrl = createResponse.headers.get("Location");
+  if (!uploadUrl) {
+    throw new Error("Supabase did not return a resumable upload URL.");
+  }
+
+  const chunkSize = 6 * 1024 * 1024;
+  let offset = 0;
+  onProgress?.(0);
+
+  while (offset < file.size) {
+    const end = Math.min(offset + chunkSize, file.size);
+    const chunk = file.slice(offset, end);
+    let sent = false;
+    let lastError: Error | null = null;
+
+    for (let attempt = 0; attempt < 4 && !sent; attempt += 1) {
+      try {
+        const response = await fetchWithTimeout(
+          uploadUrl,
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Tus-Resumable": "1.0.0",
+              "Upload-Offset": String(offset),
+              "Content-Type": "application/offset+octet-stream",
+            },
+            body: chunk,
+          },
+          90_000,
+          "Video chunk upload",
+        );
+
+        if (!response.ok) {
+          const body = await response.text().catch(() => "");
+          throw new Error(`Video chunk upload failed (${response.status}).${body ? ` ${body}` : ""}`);
+        }
+
+        const serverOffset = Number(response.headers.get("Upload-Offset") ?? end);
+        if (!Number.isFinite(serverOffset) || serverOffset <= offset) {
+          throw new Error("Supabase returned an invalid upload offset.");
+        }
+
+        offset = Math.min(serverOffset, file.size);
+        onProgress?.(Math.round((offset / file.size) * 100));
+        sent = true;
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error("Video chunk upload failed.");
+        if (attempt < 3) {
+          await new Promise((resolve) => window.setTimeout(resolve, 750 * (attempt + 1)));
+        }
+      }
+    }
+
+    if (!sent) {
+      throw lastError ?? new Error("Video upload failed.");
+    }
+  }
+
+  onProgress?.(100);
+}
+
 async function signPaths(paths: string[]): Promise<Record<string, string>> {
   const unique = Array.from(new Set(paths.filter(Boolean)));
   if (unique.length === 0) return {};
@@ -166,7 +310,7 @@ function getStoryVideoContentType(file: File): string {
   }
 }
 
-async function uploadStoryMedia(userId: string, file: File): Promise<string> {
+async function uploadStoryMedia(userId: string, file: File, onProgress?: (progress: number) => void): Promise<string> {
   const isVideo = isStoryVideoSource(file);
 
   if (isVideo) {
@@ -190,6 +334,12 @@ async function uploadStoryMedia(userId: string, file: File): Promise<string> {
 
   const contentType = isVideo ? getStoryVideoContentType(file) : file.type || "image/jpeg";
 
+  if (isVideo && file.size > 6 * 1024 * 1024) {
+    await uploadResumableStorageFile(SOCIAL_BUCKET, path, file, contentType, onProgress);
+    return path;
+  }
+
+  onProgress?.(0);
   const result = await withTimeout(
     supabase.storage.from(SOCIAL_BUCKET).upload(path, file, {
       cacheControl: "3600",
@@ -204,6 +354,7 @@ async function uploadStoryMedia(userId: string, file: File): Promise<string> {
     throw new Error(`${isVideo ? "Video" : "Image"} upload failed: ${result.error.message}`);
   }
 
+  onProgress?.(100);
   return path;
 }
 
@@ -374,6 +525,7 @@ export function useCreateStory() {
       audience?: StoryAudience;
       allowIds?: string[];
       blockIds?: string[];
+      onProgress?: (progress: number) => void;
     }) => {
       const userId = await currentUserId();
       if (!userId) throw new Error("You need to be signed in.");
@@ -386,7 +538,7 @@ export function useCreateStory() {
         await withTimeout(verifyMediaFiles([file], "STORY"), 30_000, "Photo safety check");
       }
 
-      const path = await uploadStoryMedia(userId, file);
+      const path = await uploadStoryMedia(userId, file, onProgress);
 
       try {
         const insertResult = await withTimeout(
