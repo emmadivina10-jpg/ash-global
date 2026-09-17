@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { Link } from "@tanstack/react-router";
 import {
   Camera,
   ChevronLeft,
@@ -265,6 +266,21 @@ export function StoriesRail() {
         </div>
 
         <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <Link
+            to="/services/"
+            className="relative h-48 w-[124px] shrink-0 overflow-hidden rounded-[22px] border border-border bg-gradient-to-br from-[#D4AF37]/30 via-card to-[#4B0082]/45 text-left shadow-sm transition-transform active:scale-[0.98]"
+            aria-label="Open ASH Spotlight"
+          >
+            <span className="absolute inset-0 bg-gradient-to-b from-transparent to-black/40" />
+            <span className="absolute left-3 top-3 grid size-10 place-items-center rounded-full border-2 border-background bg-gradient-to-br from-[#D4AF37] to-[#4B0082] text-white shadow-lg">
+              <Play className="size-5 fill-current" />
+            </span>
+            <span className="absolute inset-x-3 bottom-3 z-10 text-white">
+              <span className="block text-sm font-black">Create</span>
+              <span className="block text-[11px] font-semibold text-white/80">Spotlight</span>
+            </span>
+          </Link>
+
           <button
             type="button"
             onClick={openComposer}
