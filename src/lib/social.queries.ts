@@ -519,6 +519,7 @@ export function useCreateStory() {
       audience = "ALL",
       allowIds = [],
       blockIds = [],
+      onProgress,
     }: {
       file: File;
       caption: string;
@@ -533,12 +534,39 @@ export function useCreateStory() {
 
       const mediaKind = isStoryVideoSource(file) ? "video" : "image";
 
-      // Keep existing image moderation. The current safety helper is image-based.
-      if (mediaKind === "image") {
-        await withTimeout(verifyMediaFiles([file], "STORY"), 30_000, "Photo safety check");
-      }
+      let path: string;
 
-      const path = await uploadStoryMedia(userId, file, onProgress);
+      // Keep the existing image moderation, but overlap it with the storage upload
+      // so a normal Story does not wait for two sequential network operations.
+      // The Story is not published until both have completed successfully.
+      if (mediaKind === "image") {
+        const [safetyResult, uploadResult] = await Promise.allSettled([
+          withTimeout(verifyMediaFiles([file], "STORY"), 30_000, "Photo safety check"),
+          uploadStoryMedia(userId, file, onProgress),
+        ]);
+
+        if (uploadResult.status === "rejected") {
+          throw uploadResult.reason instanceof Error
+            ? uploadResult.reason
+            : new Error("Could not upload your story media.");
+        }
+
+        path = uploadResult.value;
+
+        if (safetyResult.status === "rejected") {
+          try {
+            await withTimeout(supabase.storage.from(SOCIAL_BUCKET).remove([path]), 15_000, "Story cleanup");
+          } catch (cleanupError) {
+            console.warn("Story media cleanup failed:", cleanupError);
+          }
+
+          throw safetyResult.reason instanceof Error
+            ? safetyResult.reason
+            : new Error("The selected photo could not be approved.");
+        }
+      } else {
+        path = await uploadStoryMedia(userId, file, onProgress);
+      }
 
       try {
         const insertResult = await withTimeout(
