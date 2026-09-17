@@ -34,14 +34,15 @@ export type SocialAuthor = {
 };
 
 async function currentUserId(): Promise<string | null> {
-  const { data, error } = await supabase.auth.getUser();
+  const { data, error } = await withTimeout(supabase.auth.getUser(), 15_000, "Authentication check");
   if (error) throw new Error(`Authentication check failed: ${error.message}`);
   return data.user?.id ?? null;
 }
 
 /**
- * Prevent a social upload/post operation from leaving the UI in a permanent
- * loading state if a storage or database request gets stuck.
+ * Race network/storage operations against a finite timeout so the UI never
+ * remains stuck in a pending state forever. This does not abort the underlying
+ * request; it guarantees that the mutation/query itself can settle.
  */
 async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -63,9 +64,21 @@ async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): P
 async function signPaths(paths: string[]): Promise<Record<string, string>> {
   const unique = Array.from(new Set(paths.filter(Boolean)));
   if (unique.length === 0) return {};
-  const { data } = await supabase.storage.from(SOCIAL_BUCKET).createSignedUrls(unique, 60 * 60 * 12);
+
+  const result = await withTimeout(
+    supabase.storage.from(SOCIAL_BUCKET).createSignedUrls(unique, 60 * 60 * 12),
+    20_000,
+    "Story media access",
+  );
+
+  if (result.error) {
+    throw new Error(`Unable to access story media: ${result.error.message}`);
+  }
+
   const map: Record<string, string> = {};
-  for (const item of data ?? []) if (item.path && item.signedUrl) map[item.path] = item.signedUrl;
+  for (const item of result.data ?? []) {
+    if (item.path && item.signedUrl) map[item.path] = item.signedUrl;
+  }
   return map;
 }
 
@@ -97,7 +110,7 @@ export async function loadAuthors(ids: string[]): Promise<Map<string, SocialAuth
 
 async function uploadImage(userId: string, file: File, prefix: string): Promise<string> {
   if (!file.type.startsWith("image/")) {
-    throw new Error("Only photos can be shared right now.");
+    throw new Error("Only photos can be shared here.");
   }
 
   if (file.size > SOCIAL_MAX_BYTES) {
@@ -126,27 +139,37 @@ async function uploadImage(userId: string, file: File, prefix: string): Promise<
 }
 
 export type StoryMediaKind = "image" | "video";
-
 const STORY_MAX_VIDEO_BYTES = 50 * 1024 * 1024;
 
 export function isStoryVideoSource(source: string | File): boolean {
-  const value = typeof source === "string" ? source : source.type;
+  const value = typeof source === "string" ? source : `${source.type} ${source.name}`;
 
-  if (value.startsWith("video/")) return true;
+  return /^video\//i.test(value) || /\.(mp4|webm|mov|m4v|ogv)(?:[?#].*)?$/i.test(value);
+}
 
-  return /\.(mp4|webm|mov|m4v|ogv)(?:[?#].*)?$/i.test(value);
+function getStoryVideoContentType(file: File): string {
+  if (/^video\//i.test(file.type)) return file.type;
+
+  const ext = file.name.split(".").pop()?.toLowerCase();
+  switch (ext) {
+    case "webm":
+      return "video/webm";
+    case "mov":
+      return "video/quicktime";
+    case "m4v":
+      return "video/x-m4v";
+    case "ogv":
+      return "video/ogg";
+    case "mp4":
+    default:
+      return "video/mp4";
+  }
 }
 
 async function uploadStoryMedia(userId: string, file: File): Promise<string> {
   const isVideo = isStoryVideoSource(file);
 
   if (isVideo) {
-    const supportedVideoTypes = new Set(["video/mp4", "video/webm", "video/quicktime", "video/x-m4v", "video/ogg"]);
-
-    if (!supportedVideoTypes.has(file.type)) {
-      throw new Error("Unsupported video format. Please use MP4, WebM, MOV, M4V or OGG.");
-    }
-
     if (file.size > STORY_MAX_VIDEO_BYTES) {
       throw new Error(`${file.name} is larger than 50 MB.`);
     }
@@ -161,18 +184,19 @@ async function uploadStoryMedia(userId: string, file: File): Promise<string> {
   }
 
   const fallbackExtension = isVideo ? "mp4" : "jpg";
-  const extension = file.name.split(".").pop()?.toLowerCase() ?? fallbackExtension;
-  const safeExtension = /^[a-z0-9]+$/.test(extension) ? extension : fallbackExtension;
-
+  const originalExtension = file.name.split(".").pop()?.toLowerCase() ?? fallbackExtension;
+  const safeExtension = /^[a-z0-9]+$/.test(originalExtension) ? originalExtension : fallbackExtension;
   const path = `${userId}/story/${crypto.randomUUID()}.${safeExtension}`;
+
+  const contentType = isVideo ? getStoryVideoContentType(file) : file.type || "image/jpeg";
 
   const result = await withTimeout(
     supabase.storage.from(SOCIAL_BUCKET).upload(path, file, {
       cacheControl: "3600",
-      contentType: file.type || (isVideo ? "video/mp4" : "image/jpeg"),
+      contentType,
       upsert: false,
     }),
-    isVideo ? 60_000 : 45_000,
+    isVideo ? 90_000 : 45_000,
     isVideo ? "Video upload" : "Image upload",
   );
 
@@ -199,24 +223,34 @@ export type Story = {
   current_reaction: ReactionType | null;
 };
 
-export type StoryGroup = { author: SocialAuthor; stories: Story[]; seen: boolean };
+export type StoryGroup = {
+  author: SocialAuthor;
+  stories: Story[];
+  seen: boolean;
+};
 
-/** Who may watch a story: everyone on ASH, or only hand-picked members. */
 export type StoryAudience = "ALL" | "SELECT";
 
-/** Every live story, grouped by the member who posted it. */
 export function useStories() {
   return useQuery({
     queryKey: ["stories"],
-    staleTime: 20_000,
+    staleTime: 15_000,
+    retry: 1,
     queryFn: async (): Promise<{ me: string | null; groups: StoryGroup[] }> => {
       const me = await currentUserId();
-      const { data, error } = await supabase
-        .from("stories")
-        .select("id, author_id, caption, media_path, view_count, created_at, expires_at")
-        .gt("expires_at", new Date().toISOString())
-        .order("created_at", { ascending: true });
+
+      const { data, error } = await withTimeout(
+        supabase
+          .from("stories")
+          .select("id, author_id, caption, media_path, view_count, created_at, expires_at")
+          .gt("expires_at", new Date().toISOString())
+          .order("created_at", { ascending: true }),
+        20_000,
+        "Loading stories",
+      );
+
       if (error) throw error;
+
       const rows = (data ?? []) as {
         id: string;
         author_id: string;
@@ -226,21 +260,10 @@ export function useStories() {
         created_at: string;
         expires_at: string;
       }[];
+
       if (rows.length === 0) return { me, groups: [] };
 
-      const [signed, authors, seenRows, reactionResult] = await Promise.all([
-        signPaths(rows.map((r) => r.media_path)),
-        loadAuthors(rows.map((r) => r.author_id)),
-        me
-          ? supabase
-              .from("story_views")
-              .select("story_id")
-              .eq("viewer_id", me)
-              .in(
-                "story_id",
-                rows.map((r) => r.id),
-              )
-          : Promise.resolve({ data: [] }),
+      const reactionRowsPromise = withTimeout(
         supabase
           .from("story_reactions")
           .select("story_id, user_id, reaction_type")
@@ -248,20 +271,55 @@ export function useStories() {
             "story_id",
             rows.map((r) => r.id),
           ),
+        15_000,
+        "Loading story reactions",
+      );
+
+      const seenPromise = me
+        ? withTimeout(
+            supabase
+              .from("story_views")
+              .select("story_id")
+              .eq("viewer_id", me)
+              .in(
+                "story_id",
+                rows.map((r) => r.id),
+              ),
+            15_000,
+            "Loading story views",
+          )
+        : Promise.resolve({ data: [] as { story_id: string }[] });
+
+      const [signed, authors, seenRows, reactionResult] = await Promise.all([
+        signPaths(rows.map((r) => r.media_path)),
+        loadAuthors(rows.map((r) => r.author_id)),
+        seenPromise,
+        reactionRowsPromise,
       ]);
+
       const seen = new Set(((seenRows.data ?? []) as { story_id: string }[]).map((r) => r.story_id));
 
+      const reactions = (reactionResult.data ?? []) as Array<{
+        story_id: string;
+        user_id: string;
+        reaction_type: string;
+      }>;
+
       const grouped = new Map<string, Story[]>();
+
       for (const row of rows) {
         const url = signed[row.media_path];
-        if (!url) continue;
-        const list = grouped.get(row.author_id) ?? [];
+        if (!url) {
+          console.warn("Story media URL unavailable:", row.media_path);
+          continue;
+        }
+
         const reaction = summarizeReactions(
-          ((reactionResult.data ?? []) as Array<{ story_id: string; user_id: string; reaction_type: string }>).filter(
-            (item) => item.story_id === row.id,
-          ),
+          reactions.filter((item) => item.story_id === row.id),
           me,
         );
+
+        const list = grouped.get(row.author_id) ?? [];
         list.push({
           id: row.id,
           author_id: row.author_id,
@@ -279,18 +337,22 @@ export function useStories() {
       }
 
       const groups: StoryGroup[] = Array.from(grouped.entries()).map(([authorId, stories]) => ({
-        author: authors.get(authorId) ?? { id: authorId, name: "ASH member", avatar_url: null },
+        author: authors.get(authorId) ?? {
+          id: authorId,
+          name: "ASH member",
+          avatar_url: null,
+        },
         stories,
-        seen: stories.every((s) => seen.has(s.id)),
+        seen: stories.every((story) => seen.has(story.id)),
       }));
 
-      // Mine first, then unseen, then newest.
       groups.sort((a, b) => {
         if (me && a.author.id === me) return -1;
         if (me && b.author.id === me) return 1;
         if (a.seen !== b.seen) return a.seen ? 1 : -1;
         return (b.stories.at(-1)?.created_at ?? "").localeCompare(a.stories.at(-1)?.created_at ?? "");
       });
+
       return { me, groups };
     },
   });
@@ -309,59 +371,60 @@ export function useCreateStory() {
     }: {
       file: File;
       caption: string;
-      /** ALL = anyone on ASH can watch, or only hand-picked members. */
       audience?: StoryAudience;
       allowIds?: string[];
       blockIds?: string[];
     }) => {
       const userId = await currentUserId();
-
-      if (!userId) {
-        throw new Error("You need to be signed in.");
-      }
-
-      if (!file) {
-        throw new Error("Choose a photo or video.");
-      }
+      if (!userId) throw new Error("You need to be signed in.");
+      if (!(file instanceof File)) throw new Error("Choose a photo or video.");
 
       const mediaKind = isStoryVideoSource(file) ? "video" : "image";
 
-      // Keep the existing media-safety check for photos.
-      // The current safety helper is image-oriented; video moderation
-      // should be added to the video pipeline before unrestricted public use.
+      // Keep existing image moderation. The current safety helper is image-based.
       if (mediaKind === "image") {
-        await verifyMediaFiles([file], "STORY");
+        await withTimeout(verifyMediaFiles([file], "STORY"), 30_000, "Photo safety check");
       }
 
       const path = await uploadStoryMedia(userId, file);
 
       try {
-        const { error } = await supabase.from("stories").insert({
-          author_id: userId,
-          media_path: path,
-          caption: caption.trim(),
-          audience,
-          allow_ids: audience === "SELECT" ? allowIds : [],
-          block_ids: audience === "ALL" ? blockIds : [],
-        });
+        const insertResult = await withTimeout(
+          supabase
+            .from("stories")
+            .insert({
+              author_id: userId,
+              media_path: path,
+              caption: caption.trim(),
+              audience,
+              allow_ids: audience === "SELECT" ? allowIds : [],
+              block_ids: audience === "ALL" ? blockIds : [],
+            })
+            .select("id")
+            .single(),
+          20_000,
+          "Story publication",
+        );
 
-        if (error) {
-          throw error;
+        if (insertResult.error) {
+          throw new Error(`Story publication failed: ${insertResult.error.message}`);
         }
+
+        if (!insertResult.data?.id) {
+          throw new Error("The story was not created.");
+        }
+
+        return insertResult.data.id;
       } catch (error) {
-        // Never leave an orphaned uploaded file if the story row fails.
-        const cleanup = await supabase.storage.from(SOCIAL_BUCKET).remove([path]);
-
-        if (cleanup.error) {
-          console.warn("Story media cleanup failed:", cleanup.error.message);
+        try {
+          await withTimeout(supabase.storage.from(SOCIAL_BUCKET).remove([path]), 15_000, "Story cleanup");
+        } catch (cleanupError) {
+          console.warn("Story media cleanup failed:", cleanupError);
         }
 
-        throw error;
+        throw error instanceof Error ? error : new Error("Could not publish your story.");
       }
-
-      return path;
     },
-
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["stories"] });
     },
