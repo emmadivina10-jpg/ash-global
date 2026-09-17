@@ -754,29 +754,23 @@ export function useComments(postId: string | null) {
 /** Like / unlike a comment or a reply. */
 export function useToggleCommentLike() {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async ({ commentId, liked }: { commentId: string; liked: boolean; postId: string }) => {
-      const me = await currentUserId();
-      if (!me) throw new Error("You need to be signed in.");
+      if (!(await currentUserId())) {
+        throw new Error("You need to be signed in.");
+      }
 
-      if (liked) {
-        const { error } = await supabase.from("comment_likes").delete().eq("comment_id", commentId).eq("user_id", me);
+      const { error } = await supabase.rpc("set_comment_reaction", {
+        _comment_id: commentId,
+        _reaction_type: liked ? "" : "like",
+      });
 
-        if (error) {
-          throw new Error(`Unable to unlike comment: ${error.message}`);
-        }
-      } else {
-        const { error } = await supabase.from("comment_likes").insert({
-          comment_id: commentId,
-          user_id: me,
-          reaction_type: "like",
-        });
-
-        if (error && !/duplicate|unique/i.test(error.message)) {
-          throw new Error(`Unable to like comment: ${error.message}`);
-        }
+      if (error) {
+        throw new Error(`Unable to update comment like: ${error.message}`);
       }
     },
+
     onSuccess: (_result, variables) => {
       void queryClient.invalidateQueries({
         queryKey: ["post-comments", variables.postId],
@@ -801,33 +795,20 @@ export function useSetCommentReaction() {
       postId: string;
       reaction: ReactionType | null;
     }) => {
-      const me = await currentUserId();
-      if (!me) throw new Error("You need to be signed in.");
-
-      // Write directly to comment_likes. The comments UI already derives
-      // reaction state/counts from this table.
-      const { error: deleteError } = await supabase
-        .from("comment_likes")
-        .delete()
-        .eq("comment_id", commentId)
-        .eq("user_id", me);
-
-      if (deleteError) {
-        throw new Error(`Unable to update comment reaction: ${deleteError.message}`);
+      if (!(await currentUserId())) {
+        throw new Error("You need to be signed in.");
       }
 
-      if (reaction) {
-        const { error: insertError } = await supabase.from("comment_likes").insert({
-          comment_id: commentId,
-          user_id: me,
-          reaction_type: reaction,
-        });
+      const { error } = await supabase.rpc("set_comment_reaction", {
+        _comment_id: commentId,
+        _reaction_type: reaction ?? "",
+      });
 
-        if (insertError) {
-          throw new Error(`Unable to set comment reaction: ${insertError.message}`);
-        }
+      if (error) {
+        throw new Error(`Unable to set comment reaction: ${error.message}`);
       }
     },
+
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({
         queryKey: ["post-comments", variables.postId],
