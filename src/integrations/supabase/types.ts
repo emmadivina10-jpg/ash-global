@@ -4009,6 +4009,10 @@ export type Database = {
           parent_id: string
         }[]
       }
+      has_project_proposal: {
+        Args: { _project_id: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -4043,6 +4047,10 @@ export type Database = {
       }
       is_group_member: { Args: { _group_id: string }; Returns: boolean }
       is_group_owner: { Args: { _group_id: string }; Returns: boolean }
+      is_project_client: {
+        Args: { _project_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_provider_owner: { Args: { _provider_id: string }; Returns: boolean }
       is_provider_visible: { Args: { _provider_id: string }; Returns: boolean }
       is_verified: { Args: { _user_id: string }; Returns: boolean }
