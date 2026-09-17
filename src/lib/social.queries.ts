@@ -751,13 +751,15 @@ export function useComments(postId: string | null) {
   });
 }
 
-/** Like / unlike a comment or a reply. */
+/** Like / unlike a comment or reply. */
 export function useToggleCommentLike() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ commentId, liked }: { commentId: string; liked: boolean; postId: string }) => {
-      if (!(await currentUserId())) {
+      const userId = await currentUserId();
+
+      if (!userId) {
         throw new Error("You need to be signed in.");
       }
 
@@ -778,7 +780,9 @@ export function useToggleCommentLike() {
       void queryClient.invalidateQueries({
         queryKey: ["social-post", variables.postId],
       });
-      void queryClient.invalidateQueries({ queryKey: ["social-feed"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["social-feed"],
+      });
     },
   });
 }
@@ -795,7 +799,9 @@ export function useSetCommentReaction() {
       postId: string;
       reaction: ReactionType | null;
     }) => {
-      if (!(await currentUserId())) {
+      const userId = await currentUserId();
+
+      if (!userId) {
         throw new Error("You need to be signed in.");
       }
 
@@ -816,7 +822,9 @@ export function useSetCommentReaction() {
       void queryClient.invalidateQueries({
         queryKey: ["social-post", variables.postId],
       });
-      void queryClient.invalidateQueries({ queryKey: ["social-feed"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["social-feed"],
+      });
     },
   });
 }
