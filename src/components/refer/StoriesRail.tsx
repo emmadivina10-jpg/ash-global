@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -6,6 +6,7 @@ import {
   Camera,
   ChevronLeft,
   ChevronRight,
+  Eye,
   ImagePlus,
   Loader2,
   MessageCircle,
@@ -20,7 +21,7 @@ import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useUser } from "@/lib/queries";
-import { openConversation, useCommunityFeed } from "@/lib/marketplace.queries";
+import { openConversation } from "@/lib/marketplace.queries";
 import { verifyMediaFiles } from "@/lib/media-safety";
 import {
   isStoryVideoSource,
@@ -158,6 +159,106 @@ function Avatar({
   return <ProfileAvatar path={src} name={name} className={className} />;
 }
 
+function spotlightMediaPath(value: unknown): string | null {
+  if (typeof value === "string") return value;
+  if (Array.isArray(value)) {
+    const first = value[0];
+    if (typeof first === "string") return first;
+    if (first && typeof first === "object" && "path" in first) {
+      const path = (first as { path?: unknown }).path;
+      return typeof path === "string" ? path : null;
+    }
+    return null;
+  }
+  if (value && typeof value === "object" && "path" in value) {
+    const path = (value as { path?: unknown }).path;
+    return typeof path === "string" ? path : null;
+  }
+  return null;
+}
+
+async function loadSpotlights(): Promise<SpotlightPost[]> {
+  const { data: rows, error } = await supabase
+    .from("spotlight_posts")
+    .select("id, author_id, media, caption, created_at")
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  if (error) throw error;
+
+  const records = (rows ?? []) as Array<{
+    id: string;
+    author_id: string;
+    media: unknown;
+    caption: string | null;
+    created_at: string | null;
+  }>;
+
+  if (records.length === 0) return [];
+
+  const authorIds = Array.from(new Set(records.map((row) => row.author_id).filter(Boolean)));
+  const mediaPaths = records
+    .map((row) => spotlightMediaPath(row.media))
+    .filter((path): path is string => Boolean(path));
+
+  const [providersResult, signedResult] = await Promise.all([
+    supabase
+      .from("provider_profiles")
+      .select("id, user_id, business_name, city, avatar_url, is_verified")
+      .in("user_id", authorIds),
+    mediaPaths.length > 0
+      ? supabase.storage.from(SOCIAL_BUCKET).createSignedUrls(mediaPaths, 60 * 60 * 12)
+      : Promise.resolve({ data: [], error: null }),
+  ]);
+
+  if (providersResult.error) throw providersResult.error;
+  if (signedResult.error) throw signedResult.error;
+
+  const providers = new Map(
+    (
+      (providersResult.data ?? []) as Array<{
+        id: string;
+        user_id: string;
+        business_name: string;
+        city: string | null;
+        avatar_url: string | null;
+        is_verified: boolean | null;
+      }>
+    ).map((provider) => [provider.user_id, provider]),
+  );
+
+  const signed = new Map(
+    ((signedResult.data ?? []) as Array<{ path: string | null; signedUrl: string | null }>).map((item) => [
+      item.path ?? "",
+      item.signedUrl ?? "",
+    ]),
+  );
+
+  return records.flatMap((row) => {
+    const provider = providers.get(row.author_id);
+    const path = spotlightMediaPath(row.media);
+    const url = path ? (signed.get(path) ?? "") : "";
+    if (!provider || !path || !url) return [];
+
+    return [
+      {
+        id: row.id,
+        url,
+        caption: row.caption,
+        created_at: row.created_at,
+        provider: {
+          id: provider.id,
+          user_id: provider.user_id,
+          business_name: provider.business_name,
+          city: provider.city,
+          avatar_url: provider.avatar_url,
+          is_verified: provider.is_verified,
+        },
+      },
+    ];
+  });
+}
+
 export function StoriesRail() {
   const { user } = useUser();
   const me = user?.id ?? null;
@@ -165,13 +266,19 @@ export function StoriesRail() {
   const navigate = useNavigate();
 
   const { data: storyData, isLoading: storiesLoading } = useStories();
-  const { data: community } = useCommunityFeed();
   const createStory = useCreateStory();
 
+  const { data: spotlights = [], isError: spotlightsError } = useQuery<SpotlightPost[]>({
+    queryKey: ["ash-spotlights"],
+    staleTime: 15_000,
+    queryFn: loadSpotlights,
+  });
+
+  useEffect(() => {
+    if (spotlightsError) console.warn("ASH Spotlights could not be loaded.");
+  }, [spotlightsError]);
+
   const stories = storyData?.groups ?? [];
-  const spotlights = ((community ?? []) as unknown as SpotlightPost[])
-    .filter((post) => post?.url && post?.provider?.id)
-    .slice(0, 50);
 
   const { data: profile } = useQuery({
     queryKey: ["stories-rail-profile", me],
@@ -225,6 +332,7 @@ export function StoriesRail() {
   const [storyGroupIndex, setStoryGroupIndex] = useState(0);
   const [storyIndex, setStoryIndex] = useState(0);
   const [storyMuted, setStoryMuted] = useState(true);
+  const [storyProgress, setStoryProgress] = useState(0);
 
   const [spotlightViewerOpen, setSpotlightViewerOpen] = useState(false);
   const [spotlightIndex, setSpotlightIndex] = useState(0);
@@ -332,9 +440,15 @@ export function StoriesRail() {
         blockIds: [],
         onProgress: setUploadProgress,
       });
+
+      try {
+        await queryClient.refetchQueries({ queryKey: ["stories"], type: "active" });
+      } catch (refreshError) {
+        console.warn("Story refresh after publish failed:", refreshError);
+      }
+
       toast.success("Story published.");
       resetComposer();
-      void queryClient.invalidateQueries({ queryKey: ["stories"] });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not publish your story.");
       setPublishing(false);
@@ -350,11 +464,12 @@ export function StoriesRail() {
 
     setPublishing(true);
     let mediaPath: string | null = null;
+    let spotlightCreated = false;
 
     try {
       const { data: provider, error: providerError } = await supabase
         .from("provider_profiles")
-        .select("id, user_id, business_name")
+        .select("id, user_id, business_name, city, avatar_url, is_verified")
         .eq("user_id", me)
         .maybeSingle();
 
@@ -389,21 +504,39 @@ export function StoriesRail() {
         "Spotlight publication",
       );
 
-      if (rpcResult.error) {
-        throw new Error(rpcResult.error.message);
-      }
-      if (!rpcResult.data) {
-        throw new Error("Spotlight was not created.");
+      if (rpcResult.error) throw new Error(rpcResult.error.message);
+      if (!rpcResult.data) throw new Error("Spotlight was not created.");
+
+      spotlightCreated = true;
+
+      const { data: signed } = await supabase.storage.from(SOCIAL_BUCKET).createSignedUrl(mediaPath, 60 * 60 * 12);
+
+      if (signed?.signedUrl) {
+        const optimistic: SpotlightPost = {
+          id: rpcResult.data,
+          url: signed.signedUrl,
+          caption: caption.trim() || null,
+          created_at: new Date().toISOString(),
+          provider: {
+            id: provider.id,
+            user_id: provider.user_id,
+            business_name: provider.business_name,
+            city: provider.city,
+            avatar_url: provider.avatar_url,
+            is_verified: provider.is_verified,
+          },
+        };
+
+        queryClient.setQueryData<SpotlightPost[]>(["ash-spotlights"], (current) =>
+          [optimistic, ...(current ?? []).filter((item) => item.id !== optimistic.id)].slice(0, 50),
+        );
       }
 
+      void queryClient.invalidateQueries({ queryKey: ["ash-spotlights"] });
       toast.success("Spotlight published.");
       resetComposer();
-      void queryClient.invalidateQueries({
-        predicate: (query) => query.queryKey.some((key) => String(key).toLowerCase().includes("community")),
-      });
-      void queryClient.invalidateQueries({ queryKey: ["stories"] });
     } catch (error) {
-      if (mediaPath) {
+      if (mediaPath && !spotlightCreated) {
         void supabase.storage.from(SOCIAL_BUCKET).remove([mediaPath]);
       }
       toast.error(error instanceof Error ? error.message : "Could not publish your Spotlight.");
@@ -418,7 +551,7 @@ export function StoriesRail() {
     setStoryViewerOpen(true);
   }
 
-  function nextStory() {
+  const nextStory = useCallback(() => {
     if (!activeStoryGroup) return;
     if (storyIndex < activeStoryGroup.stories.length - 1) {
       setStoryIndex((value) => value + 1);
@@ -430,7 +563,34 @@ export function StoriesRail() {
       return;
     }
     setStoryViewerOpen(false);
-  }
+  }, [activeStoryGroup, storyGroupIndex, storyIndex, stories.length]);
+
+  useEffect(() => {
+    if (!storyViewerOpen || !activeStory) {
+      setStoryProgress(0);
+      return;
+    }
+
+    setStoryProgress(0);
+    if (activeStory.media_type === "video") return;
+
+    const durationMs = 5_000;
+    const startedAt = performance.now();
+    let frame = 0;
+
+    const tick = (now: number) => {
+      const progress = Math.min(100, ((now - startedAt) / durationMs) * 100);
+      setStoryProgress(progress);
+      if (progress >= 100) {
+        nextStory();
+        return;
+      }
+      frame = window.requestAnimationFrame(tick);
+    };
+
+    frame = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(frame);
+  }, [storyViewerOpen, activeStory, nextStory]);
 
   function previousStory() {
     if (storyIndex > 0) {
@@ -810,7 +970,16 @@ export function StoriesRail() {
                     {activeStoryGroup?.stories.map((story) => (
                       <span key={story.id} className="h-1 flex-1 overflow-hidden rounded-full bg-white/20">
                         <span
-                          className={`block h-full rounded-full bg-white ${story.id === activeStory.id ? "w-full" : "w-0"}`}
+                          className="block h-full rounded-full bg-white transition-[width] duration-75 ease-linear"
+                          style={{
+                            width:
+                              story.id === activeStory.id
+                                ? `${storyProgress}%`
+                                : activeStoryGroup &&
+                                    activeStoryGroup.stories.findIndex((item) => item.id === story.id) < storyIndex
+                                  ? "100%"
+                                  : "0%",
+                          }}
                         />
                       </span>
                     ))}
@@ -871,6 +1040,13 @@ export function StoriesRail() {
                       muted={storyMuted}
                       controls
                       preload="auto"
+                      onLoadedMetadata={() => setStoryProgress(0)}
+                      onTimeUpdate={(event) => {
+                        const duration = event.currentTarget.duration;
+                        if (Number.isFinite(duration) && duration > 0) {
+                          setStoryProgress((event.currentTarget.currentTime / duration) * 100);
+                        }
+                      }}
                       onEnded={nextStory}
                       className="max-h-full max-w-full object-contain"
                     />
@@ -892,11 +1068,16 @@ export function StoriesRail() {
                   <ChevronRight className="ml-auto mr-3 hidden size-7 text-white/70 sm:block" />
                 </button>
 
-                {activeStory.caption ? (
-                  <div className="absolute inset-x-0 bottom-0 z-30 bg-gradient-to-t from-black via-black/55 to-transparent px-5 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-24 text-white">
+                <div className="absolute inset-x-0 bottom-0 z-30 bg-gradient-to-t from-black via-black/55 to-transparent px-5 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-24 text-white">
+                  {activeStory.caption ? (
                     <p className="mx-auto max-w-2xl whitespace-pre-wrap text-sm leading-6">{activeStory.caption}</p>
+                  ) : null}
+                  <div className="mx-auto mt-3 flex max-w-2xl items-center gap-1.5 text-xs font-semibold text-white/75">
+                    <Eye className="size-4" />
+                    <span>{activeStory.view_count ?? 0}</span>
+                    <span>{activeStory.view_count === 1 ? "view" : "views"}</span>
                   </div>
-                ) : null}
+                </div>
               </div>
             </div>,
             document.body,
