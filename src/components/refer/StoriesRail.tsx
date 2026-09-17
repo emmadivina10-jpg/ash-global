@@ -30,6 +30,7 @@ import {
   useCreateStory,
   useDeleteStory,
   useStories,
+  useStoryViewers,
   type Story,
   type StoryGroup,
   uploadResumableStorageFile,
@@ -336,6 +337,7 @@ export function StoriesRail() {
   const [storyIndex, setStoryIndex] = useState(0);
   const [storyMuted, setStoryMuted] = useState(true);
   const [storyProgress, setStoryProgress] = useState(0);
+  const [viewersStoryId, setViewersStoryId] = useState<string | null>(null);
 
   const [spotlightViewerOpen, setSpotlightViewerOpen] = useState(false);
   const [spotlightIndex, setSpotlightIndex] = useState(0);
@@ -346,6 +348,8 @@ export function StoriesRail() {
   const activeStoryGroup = stories[storyGroupIndex] ?? null;
   const activeStory = activeStoryGroup?.stories[storyIndex] ?? null;
   const activeSpotlight = spotlights[spotlightIndex] ?? null;
+  const { data: storyViewers = [], isLoading: storyViewersLoading } = useStoryViewers(viewersStoryId);
+  const viewersStory = activeStory?.id === viewersStoryId ? activeStory : null;
 
   useEffect(() => {
     return () => {
@@ -613,6 +617,15 @@ export function StoriesRail() {
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not delete this Story.");
     }
+  }
+
+  function openStoryViewers(story: Story) {
+    if (me !== story.author_id) return;
+    setViewersStoryId(story.id);
+  }
+
+  function closeStoryViewers() {
+    setViewersStoryId(null);
   }
 
   function previousStory() {
@@ -1161,11 +1174,99 @@ export function StoriesRail() {
                   {activeStory.caption ? (
                     <p className="mx-auto max-w-2xl whitespace-pre-wrap text-sm leading-6">{activeStory.caption}</p>
                   ) : null}
-                  <div className="mx-auto mt-3 flex max-w-2xl items-center gap-1.5 text-xs font-semibold text-white/75">
-                    <Eye className="size-4" />
-                    <span>{activeStory.view_count ?? 0}</span>
-                    <span>{activeStory.view_count === 1 ? "view" : "views"}</span>
+                  <div className="mx-auto mt-3 flex max-w-2xl items-center">
+                    {me === activeStory.author_id ? (
+                      <button
+                        type="button"
+                        onClick={() => openStoryViewers(activeStory)}
+                        className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-xs font-semibold text-white/80 transition hover:bg-white/10 hover:text-white active:scale-[0.98]"
+                        aria-label={`See who viewed this story. ${activeStory.view_count ?? 0} ${(activeStory.view_count ?? 0) === 1 ? "view" : "views"}.`}
+                      >
+                        <Eye className="size-4" />
+                        <span>{activeStory.view_count ?? 0}</span>
+                        <span>{activeStory.view_count === 1 ? "view" : "views"}</span>
+                      </button>
+                    ) : (
+                      <div className="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-semibold text-white/75">
+                        <Eye className="size-4" />
+                        <span>{activeStory.view_count ?? 0}</span>
+                        <span>{activeStory.view_count === 1 ? "view" : "views"}</span>
+                      </div>
+                    )}
                   </div>
+                </div>
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
+
+      {viewersStoryId && typeof document !== "undefined"
+        ? createPortal(
+            <div
+              className="fixed inset-0 z-[160000] flex items-end justify-center bg-black/65 p-0 sm:items-center sm:p-6"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Story viewers"
+              onMouseDown={(event) => {
+                if (event.currentTarget === event.target) closeStoryViewers();
+              }}
+            >
+              <div className="w-full max-w-lg overflow-hidden rounded-t-3xl bg-zinc-950 text-white shadow-2xl sm:rounded-3xl">
+                <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+                  <div className="min-w-0">
+                    <p className="text-base font-black">Story views</p>
+                    <p className="truncate text-xs text-white/55">
+                      {viewersStory?.view_count ?? storyViewers.length}{" "}
+                      {(viewersStory?.view_count ?? storyViewers.length) === 1 ? "view" : "views"}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={closeStoryViewers}
+                    className="grid size-9 place-items-center rounded-full bg-white/10 text-white"
+                    aria-label="Close story viewers"
+                  >
+                    <X className="size-5" />
+                  </button>
+                </div>
+
+                <div className="max-h-[65vh] overflow-y-auto p-3">
+                  {storyViewersLoading ? (
+                    <div className="flex items-center justify-center gap-2 px-4 py-10 text-sm text-white/65">
+                      <Loader2 className="size-4 animate-spin" />
+                      Loading viewers…
+                    </div>
+                  ) : storyViewers.length === 0 ? (
+                    <div className="px-4 py-10 text-center">
+                      <Eye className="mx-auto mb-3 size-8 text-white/30" />
+                      <p className="text-sm font-semibold text-white/75">No viewer names yet.</p>
+                      <p className="mt-1 text-xs text-white/45">People who watch this story will appear here.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      {storyViewers.map((item) => (
+                        <div
+                          key={`${item.viewer.id}-${item.at}`}
+                          className="flex items-center gap-3 rounded-2xl px-3 py-3 hover:bg-white/5"
+                        >
+                          <Avatar src={item.viewer.avatar_url} name={item.viewer.name} className="size-11" />
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-bold">{item.viewer.name ?? "ASH member"}</p>
+                            <p className="text-[11px] text-white/45">
+                              {new Date(item.at).toLocaleString([], {
+                                month: "short",
+                                day: "numeric",
+                                hour: "numeric",
+                                minute: "2-digit",
+                              })}
+                            </p>
+                          </div>
+                          <Eye className="size-4 text-white/35" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>,
