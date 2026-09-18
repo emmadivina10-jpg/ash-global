@@ -47,9 +47,10 @@ function databaseMessage(prefix: string, error: unknown): string {
 function CreatePage() {
   const { lang } = useI18n();
   const fr = lang === "fr";
+  const navigate = useNavigate();
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-5">
+    <div className="relative mx-auto w-full max-w-2xl space-y-5">
       <header>
         <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">{fr ? "Créer" : "Create"}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -88,6 +89,37 @@ function CreatePage() {
           <FreelancerForm fr={fr} />
         </TabsContent>
       </Tabs>
+
+      {/* Coming Soon gate: keeps the existing Create experience intact for later while
+          temporarily blocking access to it with a clear full-screen notice. */}
+      <div
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-background/65 p-5 backdrop-blur-md"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="create-coming-soon-title"
+      >
+        <div className="w-full max-w-lg rounded-3xl border border-border/70 bg-card/95 p-8 text-center shadow-2xl sm:p-10">
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <span className="text-2xl font-bold">ASH</span>
+          </div>
+
+          <h2 id="create-coming-soon-title" className="font-display text-3xl font-bold text-foreground sm:text-4xl">
+            {fr ? "Bientôt disponible !" : "Coming Soon!"}
+          </h2>
+          <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground sm:text-base">
+            {fr
+              ? "La création d'offres, d'événements, de projets et de profils freelance sera disponible prochainement."
+              : "Deal, event, project and freelance profile creation will be available soon."}
+          </p>
+
+          <Button
+            className="mt-7 h-12 w-full rounded-2xl text-base font-semibold"
+            onClick={() => void navigate({ to: "/feed" })}
+          >
+            {fr ? "Retour au fil" : "Return to Feed"}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
