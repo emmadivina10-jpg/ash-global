@@ -14,7 +14,11 @@ export const Route = createFileRoute("/_authenticated/create")({
   head: () => ({
     meta: [
       { title: "Create on ASH — deals, events, projects and freelance profiles" },
-      { name: "description", content: "Publish a deal, list an event with tickets, post a freelance project or build your freelancer profile on ASH in a few taps." },
+      {
+        name: "description",
+        content:
+          "Publish a deal, list an event with tickets, post a freelance project or build your freelancer profile on ASH in a few taps.",
+      },
       { property: "og:title", content: "Create on ASH — deals, events, projects and profiles" },
       { property: "og:description", content: "Publish deals, ticketed events, projects and freelance profiles." },
       { property: "og:type", content: "website" },
@@ -28,6 +32,18 @@ function inDays(days: number): string {
   return new Date(Date.now() + days * 86_400_000).toISOString();
 }
 
+async function getAuthenticatedUser() {
+  const { data, error } = await supabase.auth.getUser();
+  if (error) throw new Error(`Authentication check failed: ${error.message}`);
+  if (!data.user) throw new Error("Your session has expired. Please sign in again.");
+  return data.user;
+}
+
+function databaseMessage(prefix: string, error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+  return `${prefix}: ${message}`;
+}
+
 function CreatePage() {
   const { lang } = useI18n();
   const fr = lang === "fr";
@@ -37,16 +53,26 @@ function CreatePage() {
       <header>
         <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">{fr ? "Créer" : "Create"}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {fr ? "Publiez une offre, un événement, un projet ou votre profil freelance." : "Publish a deal, an event, a project or your freelance profile."}
+          {fr
+            ? "Publiez une offre, un événement, un projet ou votre profil freelance."
+            : "Publish a deal, an event, a project or your freelance profile."}
         </p>
       </header>
 
       <Tabs defaultValue="deal">
         <TabsList className="w-full">
-          <TabsTrigger value="deal" className="flex-1">{fr ? "Offre" : "Deal"}</TabsTrigger>
-          <TabsTrigger value="event" className="flex-1">{fr ? "Événement" : "Event"}</TabsTrigger>
-          <TabsTrigger value="project" className="flex-1">{fr ? "Projet" : "Project"}</TabsTrigger>
-          <TabsTrigger value="freelancer" className="flex-1">{fr ? "Freelance" : "Freelance"}</TabsTrigger>
+          <TabsTrigger value="deal" className="flex-1">
+            {fr ? "Offre" : "Deal"}
+          </TabsTrigger>
+          <TabsTrigger value="event" className="flex-1">
+            {fr ? "Événement" : "Event"}
+          </TabsTrigger>
+          <TabsTrigger value="project" className="flex-1">
+            {fr ? "Projet" : "Project"}
+          </TabsTrigger>
+          <TabsTrigger value="freelancer" className="flex-1">
+            {fr ? "Freelance" : "Freelance"}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="deal" className="mt-4">
@@ -78,7 +104,16 @@ function Field({ id, label, children }: { id: string; label: string; children: R
 function DealForm({ fr }: { fr: boolean }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [form, setForm] = useState({ title: "", description: "", category: "OTHER", original: "", price: "", city: "", limit: "50", days: "7" });
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    category: "OTHER",
+    original: "",
+    price: "",
+    city: "",
+    limit: "50",
+    days: "7",
+  });
   const [busy, setBusy] = useState(false);
 
   async function submit() {
@@ -90,25 +125,26 @@ function DealForm({ fr }: { fr: boolean }) {
     }
     setBusy(true);
     try {
-      const { data: auth } = await supabase.auth.getUser();
-      if (!auth.user) return;
+      const user = await getAuthenticatedUser();
       const { error } = await supabase.from("deals").insert({
-        owner_id: auth.user.id,
+        owner_id: user.id,
         title: form.title.trim(),
         description: form.description.trim() || null,
         category: form.category,
         original_price: Math.round(original),
         deal_price: Math.round(price),
         city: form.city.trim() || null,
+        starts_at: new Date().toISOString(),
         ends_at: inDays(Math.max(1, Number(form.days) || 7)),
         claim_limit: Math.max(1, Number(form.limit) || 50),
+        is_active: true,
       });
       if (error) {
-        toast.error(fr ? "Publication impossible." : "Could not publish the deal.");
+        toast.error(databaseMessage(fr ? "Publication impossible" : "Could not publish the deal", error));
         return;
       }
       toast.success(fr ? "Offre publiée !" : "Deal published!");
-      await queryClient.invalidateQueries({ queryKey: ["deals"] });
+      void queryClient.invalidateQueries({ queryKey: ["deals"] });
       void navigate({ to: "/deals" });
     } finally {
       setBusy(false);
@@ -121,23 +157,48 @@ function DealForm({ fr }: { fr: boolean }) {
         <Input id="deal-title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
       </Field>
       <Field id="deal-desc" label={fr ? "Description" : "Description"}>
-        <Textarea id="deal-desc" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+        <Textarea
+          id="deal-desc"
+          rows={3}
+          value={form.description}
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
+        />
       </Field>
       <div className="grid gap-3 sm:grid-cols-2">
         <Field id="deal-original" label={fr ? "Prix normal (XAF)" : "Normal price (XAF)"}>
-          <Input id="deal-original" inputMode="numeric" value={form.original} onChange={(e) => setForm({ ...form, original: e.target.value })} />
+          <Input
+            id="deal-original"
+            inputMode="numeric"
+            value={form.original}
+            onChange={(e) => setForm({ ...form, original: e.target.value })}
+          />
         </Field>
         <Field id="deal-price" label={fr ? "Prix promo (XAF)" : "Deal price (XAF)"}>
-          <Input id="deal-price" inputMode="numeric" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
+          <Input
+            id="deal-price"
+            inputMode="numeric"
+            value={form.price}
+            onChange={(e) => setForm({ ...form, price: e.target.value })}
+          />
         </Field>
         <Field id="deal-city" label={fr ? "Ville" : "City"}>
           <Input id="deal-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
         </Field>
         <Field id="deal-limit" label={fr ? "Nombre max" : "Claim limit"}>
-          <Input id="deal-limit" inputMode="numeric" value={form.limit} onChange={(e) => setForm({ ...form, limit: e.target.value })} />
+          <Input
+            id="deal-limit"
+            inputMode="numeric"
+            value={form.limit}
+            onChange={(e) => setForm({ ...form, limit: e.target.value })}
+          />
         </Field>
         <Field id="deal-days" label={fr ? "Durée (jours)" : "Runs for (days)"}>
-          <Input id="deal-days" inputMode="numeric" value={form.days} onChange={(e) => setForm({ ...form, days: e.target.value })} />
+          <Input
+            id="deal-days"
+            inputMode="numeric"
+            value={form.days}
+            onChange={(e) => setForm({ ...form, days: e.target.value })}
+          />
         </Field>
       </div>
       <Button className="w-full" disabled={busy} onClick={() => void submit()}>
@@ -150,7 +211,16 @@ function DealForm({ fr }: { fr: boolean }) {
 function EventForm({ fr }: { fr: boolean }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [form, setForm] = useState({ title: "", description: "", category: "COMMUNITY", venue: "", city: "", startsAt: "", price: "", capacity: "100" });
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    category: "COMMUNITY",
+    venue: "",
+    city: "",
+    startsAt: "",
+    price: "",
+    capacity: "100",
+  });
   const [busy, setBusy] = useState(false);
 
   async function submit() {
@@ -161,10 +231,9 @@ function EventForm({ fr }: { fr: boolean }) {
     const price = Number(form.price) || 0;
     setBusy(true);
     try {
-      const { data: auth } = await supabase.auth.getUser();
-      if (!auth.user) return;
+      const user = await getAuthenticatedUser();
       const { error } = await supabase.from("events").insert({
-        organizer_id: auth.user.id,
+        organizer_id: user.id,
         title: form.title.trim(),
         description: form.description.trim() || null,
         category: form.category,
@@ -177,11 +246,11 @@ function EventForm({ fr }: { fr: boolean }) {
         is_published: true,
       });
       if (error) {
-        toast.error(fr ? "Publication impossible." : "Could not publish the event.");
+        toast.error(databaseMessage(fr ? "Publication impossible" : "Could not publish the event", error));
         return;
       }
       toast.success(fr ? "Événement publié !" : "Event published!");
-      await queryClient.invalidateQueries({ queryKey: ["events"] });
+      void queryClient.invalidateQueries({ queryKey: ["events"] });
       void navigate({ to: "/events" });
     } finally {
       setBusy(false);
@@ -194,11 +263,21 @@ function EventForm({ fr }: { fr: boolean }) {
         <Input id="ev-title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
       </Field>
       <Field id="ev-desc" label={fr ? "Description" : "Description"}>
-        <Textarea id="ev-desc" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+        <Textarea
+          id="ev-desc"
+          rows={3}
+          value={form.description}
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
+        />
       </Field>
       <div className="grid gap-3 sm:grid-cols-2">
         <Field id="ev-start" label={fr ? "Date et heure" : "Date and time"}>
-          <Input id="ev-start" type="datetime-local" value={form.startsAt} onChange={(e) => setForm({ ...form, startsAt: e.target.value })} />
+          <Input
+            id="ev-start"
+            type="datetime-local"
+            value={form.startsAt}
+            onChange={(e) => setForm({ ...form, startsAt: e.target.value })}
+          />
         </Field>
         <Field id="ev-venue" label={fr ? "Lieu" : "Venue"}>
           <Input id="ev-venue" value={form.venue} onChange={(e) => setForm({ ...form, venue: e.target.value })} />
@@ -207,10 +286,20 @@ function EventForm({ fr }: { fr: boolean }) {
           <Input id="ev-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
         </Field>
         <Field id="ev-price" label={fr ? "Prix du billet (0 = gratuit)" : "Ticket price (0 = free)"}>
-          <Input id="ev-price" inputMode="numeric" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
+          <Input
+            id="ev-price"
+            inputMode="numeric"
+            value={form.price}
+            onChange={(e) => setForm({ ...form, price: e.target.value })}
+          />
         </Field>
         <Field id="ev-cap" label={fr ? "Places" : "Capacity"}>
-          <Input id="ev-cap" inputMode="numeric" value={form.capacity} onChange={(e) => setForm({ ...form, capacity: e.target.value })} />
+          <Input
+            id="ev-cap"
+            inputMode="numeric"
+            value={form.capacity}
+            onChange={(e) => setForm({ ...form, capacity: e.target.value })}
+          />
         </Field>
       </div>
       <Button className="w-full" disabled={busy} onClick={() => void submit()}>
@@ -223,7 +312,15 @@ function EventForm({ fr }: { fr: boolean }) {
 function ProjectForm({ fr }: { fr: boolean }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [form, setForm] = useState({ title: "", description: "", category: "WEB_DEV", budget: "", days: "14", skills: "", city: "" });
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    category: "WEB_DEV",
+    budget: "",
+    days: "14",
+    skills: "",
+    city: "",
+  });
   const [busy, setBusy] = useState(false);
 
   async function submit() {
@@ -234,24 +331,27 @@ function ProjectForm({ fr }: { fr: boolean }) {
     }
     setBusy(true);
     try {
-      const { data: auth } = await supabase.auth.getUser();
-      if (!auth.user) return;
+      const user = await getAuthenticatedUser();
       const { error } = await supabase.from("freelance_projects").insert({
-        client_id: auth.user.id,
+        client_id: user.id,
         title: form.title.trim(),
         description: form.description.trim(),
         category: form.category,
         budget: Math.round(budget),
         deadline_days: Math.max(1, Number(form.days) || 14),
-        skills: form.skills.split(",").map((s) => s.trim()).filter(Boolean),
+        skills: form.skills
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean),
         city: form.city.trim() || null,
+        status: "OPEN",
       });
       if (error) {
-        toast.error(fr ? "Publication impossible." : "Could not publish the project.");
+        toast.error(databaseMessage(fr ? "Publication impossible" : "Could not publish the project", error));
         return;
       }
       toast.success(fr ? "Projet publié !" : "Project published!");
-      await queryClient.invalidateQueries({ queryKey: ["freelance-projects"] });
+      void queryClient.invalidateQueries({ queryKey: ["freelance-projects"] });
       void navigate({ to: "/freelance" });
     } finally {
       setBusy(false);
@@ -264,14 +364,29 @@ function ProjectForm({ fr }: { fr: boolean }) {
         <Input id="pr-title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
       </Field>
       <Field id="pr-desc" label={fr ? "Ce dont vous avez besoin" : "What you need"}>
-        <Textarea id="pr-desc" rows={5} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+        <Textarea
+          id="pr-desc"
+          rows={5}
+          value={form.description}
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
+        />
       </Field>
       <div className="grid gap-3 sm:grid-cols-2">
         <Field id="pr-budget" label={fr ? "Budget (XAF)" : "Budget (XAF)"}>
-          <Input id="pr-budget" inputMode="numeric" value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} />
+          <Input
+            id="pr-budget"
+            inputMode="numeric"
+            value={form.budget}
+            onChange={(e) => setForm({ ...form, budget: e.target.value })}
+          />
         </Field>
         <Field id="pr-days" label={fr ? "Délai (jours)" : "Deadline (days)"}>
-          <Input id="pr-days" inputMode="numeric" value={form.days} onChange={(e) => setForm({ ...form, days: e.target.value })} />
+          <Input
+            id="pr-days"
+            inputMode="numeric"
+            value={form.days}
+            onChange={(e) => setForm({ ...form, days: e.target.value })}
+          />
         </Field>
         <Field id="pr-skills" label={fr ? "Compétences (séparées par ,)" : "Skills (comma separated)"}>
           <Input id="pr-skills" value={form.skills} onChange={(e) => setForm({ ...form, skills: e.target.value })} />
@@ -300,14 +415,16 @@ function FreelancerForm({ fr }: { fr: boolean }) {
     }
     setBusy(true);
     try {
-      const { data: auth } = await supabase.auth.getUser();
-      if (!auth.user) return;
+      const user = await getAuthenticatedUser();
       const { error } = await supabase.from("freelancer_profiles").upsert(
         {
-          user_id: auth.user.id,
+          user_id: user.id,
           headline: form.headline.trim(),
           bio: form.bio.trim() || null,
-          skills: form.skills.split(",").map((s) => s.trim()).filter(Boolean),
+          skills: form.skills
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
           city: form.city.trim() || null,
           starting_price: Math.max(0, Math.round(Number(form.starting) || 0)),
           years_experience: Math.max(0, Number(form.years) || 0),
@@ -316,11 +433,12 @@ function FreelancerForm({ fr }: { fr: boolean }) {
         { onConflict: "user_id" },
       );
       if (error) {
-        toast.error(fr ? "Enregistrement impossible." : "Could not save your profile.");
+        toast.error(databaseMessage(fr ? "Enregistrement impossible" : "Could not save your profile", error));
         return;
       }
       toast.success(fr ? "Profil freelance publié !" : "Freelance profile published!");
-      await queryClient.invalidateQueries({ queryKey: ["freelancers"] });
+      void queryClient.invalidateQueries({ queryKey: ["freelancers"] });
+      void queryClient.invalidateQueries({ queryKey: ["freelancer-profile", "mine"] });
       void navigate({ to: "/freelance" });
     } finally {
       setBusy(false);
@@ -348,10 +466,20 @@ function FreelancerForm({ fr }: { fr: boolean }) {
           <Input id="fl-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
         </Field>
         <Field id="fl-start" label={fr ? "À partir de (XAF)" : "Starting from (XAF)"}>
-          <Input id="fl-start" inputMode="numeric" value={form.starting} onChange={(e) => setForm({ ...form, starting: e.target.value })} />
+          <Input
+            id="fl-start"
+            inputMode="numeric"
+            value={form.starting}
+            onChange={(e) => setForm({ ...form, starting: e.target.value })}
+          />
         </Field>
         <Field id="fl-years" label={fr ? "Années d'expérience" : "Years of experience"}>
-          <Input id="fl-years" inputMode="numeric" value={form.years} onChange={(e) => setForm({ ...form, years: e.target.value })} />
+          <Input
+            id="fl-years"
+            inputMode="numeric"
+            value={form.years}
+            onChange={(e) => setForm({ ...form, years: e.target.value })}
+          />
         </Field>
       </div>
       <Button className="w-full" disabled={busy} onClick={() => void submit()}>
