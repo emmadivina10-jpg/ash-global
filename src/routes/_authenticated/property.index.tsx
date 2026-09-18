@@ -104,9 +104,7 @@ function PropertyLanding() {
       await supabase.from("property_saves").delete().eq("listing_id", listingId).eq("user_id", auth.user.id);
       toast.success(fr ? "Retiré des favoris" : "Removed from saved");
     } else {
-      const { error } = await supabase
-        .from("property_saves")
-        .insert({ listing_id: listingId, user_id: auth.user.id });
+      const { error } = await supabase.from("property_saves").insert({ listing_id: listingId, user_id: auth.user.id });
       if (error) {
         toast.error(error.message);
         return;
@@ -120,7 +118,26 @@ function PropertyLanding() {
   const cities = PROPERTY_LOCATIONS[country]?.cities ?? [];
 
   return (
-    <div className="space-y-6">
+    <div className="relative space-y-6">
+      {/* Coming Soon overlay — keeps the existing Property experience intact underneath. */}
+      <div
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-background/55 px-5 backdrop-blur-md"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="property-coming-soon-title"
+      >
+        <div className="w-full max-w-sm rounded-3xl border border-border/70 bg-card/95 p-8 text-center shadow-2xl backdrop-blur-xl">
+          <h2
+            id="property-coming-soon-title"
+            className="font-display text-4xl font-black tracking-tight text-foreground sm:text-5xl"
+          >
+            Coming Soon!
+          </h2>
+          <Button asChild className="mt-7 h-11 w-full rounded-xl text-sm font-bold">
+            <Link to="/">Return to Feed</Link>
+          </Button>
+        </div>
+      </div>
       <header className="tile overflow-hidden p-5 sm:p-7">
         <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary">ASH Property</p>
         <h1 className="mt-1 font-display text-2xl font-extrabold text-foreground sm:text-3xl">
@@ -156,12 +173,19 @@ function PropertyLanding() {
 
         <div className="mt-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden
+            />
             <Input
               value={term}
               onChange={(event) => setTerm(event.target.value)}
               className="pl-9"
-              placeholder={fr ? "Où cherchez-vous ? Ville, quartier, université" : "Where are you looking? City, neighborhood or university"}
+              placeholder={
+                fr
+                  ? "Où cherchez-vous ? Ville, quartier, université"
+                  : "Where are you looking? City, neighborhood or university"
+              }
               aria-label={fr ? "Rechercher un bien" : "Search property"}
             />
           </div>
@@ -319,7 +343,9 @@ function PropertyLanding() {
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-display text-lg font-extrabold text-foreground">
             {fr ? "Annonces" : "Listings"}
-            {listings ? <span className="ml-2 text-sm font-normal text-muted-foreground">{listings.length}</span> : null}
+            {listings ? (
+              <span className="ml-2 text-sm font-normal text-muted-foreground">{listings.length}</span>
+            ) : null}
           </h2>
           <Link to="/property/manage" className="text-xs font-semibold text-primary">
             {fr ? "Mes biens" : "My property"}
