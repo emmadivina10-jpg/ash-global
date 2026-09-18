@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Building2, Home, Landmark, Plus, School, Search, SlidersHorizontal, Store } from "lucide-react";
 import { toast } from "sonner";
@@ -62,6 +62,7 @@ function PropertyLanding() {
   const { lang } = useI18n();
   const fr = lang === "fr";
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const [tab, setTab] = useState<TabKey>("STUDENT");
   const [term, setTerm] = useState("");
@@ -133,8 +134,11 @@ function PropertyLanding() {
           >
             Coming Soon!
           </h2>
-          <Button asChild className="mt-7 h-11 w-full rounded-xl text-sm font-bold">
-            <Link to="/">Return to Feed</Link>
+          <Button
+            className="mt-7 h-11 w-full rounded-xl text-sm font-bold"
+            onClick={() => void navigate({ to: "/feed" })}
+          >
+            {fr ? "Retour au fil" : "Return to Feed"}
           </Button>
         </div>
       </div>
