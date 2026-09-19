@@ -99,6 +99,8 @@ import { Route as AuthenticatedServicesProviderIdRouteImport } from './routes/_a
 import { Route as AuthenticatedUUserIdRouteImport } from './routes/_authenticated/u.$userId'
 import { Route as ApiPublicReconcileActivationsRouteImport } from './routes/api/public/reconcile-activations'
 import { Route as ApiPublicSecuritySelfcheckRouteImport } from './routes/api/public/security-selfcheck'
+import { Route as AuthenticatedMarketsInstructorsInstructorIdRouteImport } from './routes/_authenticated/markets.instructors.$instructorId'
+import { Route as AuthenticatedMarketsUpdateMarketPostIdRouteImport } from './routes/_authenticated/markets.update.$marketPostId'
 import { Route as ApiPublicWebhooksTchokopayRouteImport } from './routes/api/public/webhooks/tchokopay'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -571,6 +573,18 @@ const ApiPublicSecuritySelfcheckRoute =
     path: '/api/public/security-selfcheck',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedMarketsInstructorsInstructorIdRoute =
+  AuthenticatedMarketsInstructorsInstructorIdRouteImport.update({
+    id: '/markets/instructors/$instructorId',
+    path: '/markets/instructors/$instructorId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMarketsUpdateMarketPostIdRoute =
+  AuthenticatedMarketsUpdateMarketPostIdRouteImport.update({
+    id: '/markets/update/$marketPostId',
+    path: '/markets/update/$marketPostId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicWebhooksTchokopayRoute =
   ApiPublicWebhooksTchokopayRouteImport.update({
     id: '/api/public/webhooks/tchokopay',
@@ -684,6 +698,8 @@ export interface FileRoutesByFullPath {
   '/jobs/': typeof AuthenticatedJobsIndexRoute
   '/property/': typeof AuthenticatedPropertyIndexRoute
   '/services/': typeof AuthenticatedServicesIndexRoute
+  '/markets/instructors/$instructorId': typeof AuthenticatedMarketsInstructorsInstructorIdRoute
+  '/markets/update/$marketPostId': typeof AuthenticatedMarketsUpdateMarketPostIdRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -778,6 +794,8 @@ export interface FileRoutesByTo {
   '/jobs': typeof AuthenticatedJobsIndexRoute
   '/property': typeof AuthenticatedPropertyIndexRoute
   '/services': typeof AuthenticatedServicesIndexRoute
+  '/markets/instructors/$instructorId': typeof AuthenticatedMarketsInstructorsInstructorIdRoute
+  '/markets/update/$marketPostId': typeof AuthenticatedMarketsUpdateMarketPostIdRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -875,6 +893,8 @@ export interface FileRoutesById {
   '/_authenticated/jobs/': typeof AuthenticatedJobsIndexRoute
   '/_authenticated/property/': typeof AuthenticatedPropertyIndexRoute
   '/_authenticated/services/': typeof AuthenticatedServicesIndexRoute
+  '/_authenticated/markets/instructors/$instructorId': typeof AuthenticatedMarketsInstructorsInstructorIdRoute
+  '/_authenticated/markets/update/$marketPostId': typeof AuthenticatedMarketsUpdateMarketPostIdRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -972,6 +992,8 @@ export interface FileRouteTypes {
     | '/jobs/'
     | '/property/'
     | '/services/'
+    | '/markets/instructors/$instructorId'
+    | '/markets/update/$marketPostId'
     | '/api/public/webhooks/tchokopay'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1066,6 +1088,8 @@ export interface FileRouteTypes {
     | '/jobs'
     | '/property'
     | '/services'
+    | '/markets/instructors/$instructorId'
+    | '/markets/update/$marketPostId'
     | '/api/public/webhooks/tchokopay'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1162,6 +1186,8 @@ export interface FileRouteTypes {
     | '/_authenticated/jobs/'
     | '/_authenticated/property/'
     | '/_authenticated/services/'
+    | '/_authenticated/markets/instructors/$instructorId'
+    | '/_authenticated/markets/update/$marketPostId'
     | '/api/public/webhooks/tchokopay'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1829,6 +1855,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSecuritySelfcheckRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/markets/instructors/$instructorId': {
+      id: '/_authenticated/markets/instructors/$instructorId'
+      path: '/markets/instructors/$instructorId'
+      fullPath: '/markets/instructors/$instructorId'
+      preLoaderRoute: typeof AuthenticatedMarketsInstructorsInstructorIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/markets/update/$marketPostId': {
+      id: '/_authenticated/markets/update/$marketPostId'
+      path: '/markets/update/$marketPostId'
+      fullPath: '/markets/update/$marketPostId'
+      preLoaderRoute: typeof AuthenticatedMarketsUpdateMarketPostIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/webhooks/tchokopay': {
       id: '/api/public/webhooks/tchokopay'
       path: '/api/public/webhooks/tchokopay'
@@ -1902,6 +1942,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedJobsIndexRoute: typeof AuthenticatedJobsIndexRoute
   AuthenticatedPropertyIndexRoute: typeof AuthenticatedPropertyIndexRoute
   AuthenticatedServicesIndexRoute: typeof AuthenticatedServicesIndexRoute
+  AuthenticatedMarketsInstructorsInstructorIdRoute: typeof AuthenticatedMarketsInstructorsInstructorIdRoute
+  AuthenticatedMarketsUpdateMarketPostIdRoute: typeof AuthenticatedMarketsUpdateMarketPostIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1946,6 +1988,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedJobsIndexRoute: AuthenticatedJobsIndexRoute,
   AuthenticatedPropertyIndexRoute: AuthenticatedPropertyIndexRoute,
   AuthenticatedServicesIndexRoute: AuthenticatedServicesIndexRoute,
+  AuthenticatedMarketsInstructorsInstructorIdRoute:
+    AuthenticatedMarketsInstructorsInstructorIdRoute,
+  AuthenticatedMarketsUpdateMarketPostIdRoute:
+    AuthenticatedMarketsUpdateMarketPostIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
