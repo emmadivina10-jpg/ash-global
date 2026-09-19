@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { Camera, ImagePlus, Loader2, RefreshCw, Sparkles, Users, X } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { BarChart3, Camera, ImagePlus, Loader2, RefreshCw, Sparkles, Users, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/refer/AvatarUpload";
@@ -151,14 +151,24 @@ function FeedPage() {
               : "Photos from real ASH members. Like, comment, repost."}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => void refetch()}
-          aria-label={fr ? "Actualiser" : "Refresh"}
-          className="grid size-10 shrink-0 place-items-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-primary"
-        >
-          <RefreshCw className={cn("size-4", isFetching && "animate-spin")} aria-hidden />
-        </button>
+        <div className="flex items-center gap-1.5">
+          <Link
+            to="/search"
+            aria-label={fr ? "Ouvrir Analyse FX" : "Open FX Analytics"}
+            className="inline-flex h-10 items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3 text-xs font-bold text-primary transition-colors hover:bg-primary/15"
+          >
+            <BarChart3 className="size-4" aria-hidden />
+            <span className="hidden min-[390px]:inline">{fr ? "Analyse FX" : "FX Analytics"}</span>
+          </Link>
+          <button
+            type="button"
+            onClick={() => void refetch()}
+            aria-label={fr ? "Actualiser" : "Refresh"}
+            className="grid size-10 shrink-0 place-items-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-primary"
+          >
+            <RefreshCw className={cn("size-4", isFetching && "animate-spin")} aria-hidden />
+          </button>
+        </div>
       </header>
 
       <div className="flex gap-2 overflow-x-auto pb-0.5">
