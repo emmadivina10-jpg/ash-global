@@ -699,7 +699,9 @@ function MessagesPage() {
               "tile flex min-h-0 flex-col overflow-hidden bg-background p-0 max-md:rounded-none max-md:border-0",
               mobileView === "thread"
                 ? "hidden md:flex"
-                : "max-md:-mx-4 max-md:-mt-5 max-md:h-[calc(var(--ash-vh,100dvh)-3.5rem-3.75rem)]",
+                : chromeReservePx !== null
+                  ? "max-md:-mx-4 max-md:-mt-5"
+                  : "max-md:-mx-4 max-md:-mt-5 max-md:h-[calc(var(--ash-vh,100dvh)-3.5rem-3.75rem)]",
               "md:max-h-[72vh]",
             )}
           >
