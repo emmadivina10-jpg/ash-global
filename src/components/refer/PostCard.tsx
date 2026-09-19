@@ -50,8 +50,28 @@ export function PostCard({
   const fr = lang === "fr";
   const navigate = useNavigate();
   const [commentsOpen, setCommentsOpen] = useState(detail);
+  // Activity intelligence: impression + viewing time while the card is on screen.
+  const impressionRef = useImpression(
+    {
+      event_type: "impression",
+      surface: "feed",
+      target_type: "post",
+      target_id: post.id,
+      author_id: post.author_id,
+    },
+    !detail,
+  );
   const openPost = () => {
-    if (!detail) void navigate({ to: "/post/$postId", params: { postId: post.id } });
+    if (!detail) {
+      trackEvent({
+        event_type: "click",
+        surface: "feed",
+        target_type: "post",
+        target_id: post.id,
+        author_id: post.author_id,
+      });
+      void navigate({ to: "/post/$postId", params: { postId: post.id } });
+    }
   };
   const react = useSetPostReaction();
   const repost = useToggleRepost();
