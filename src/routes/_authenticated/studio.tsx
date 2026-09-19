@@ -179,6 +179,25 @@ function StudioPage() {
     }
   }
 
+  async function publishStorefront() {
+    if (!studio?.id) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from("provider_profiles")
+      .update({ is_live: true })
+      .eq("id", studio.id);
+    setSaving(false);
+    if (error) {
+      toast.error(lang === "fr" ? "Publication impossible." : "Could not publish your storefront.");
+      return;
+    }
+    await queryClient.invalidateQueries({ queryKey: ["provider"] });
+    await queryClient.invalidateQueries({ queryKey: ["providers"] });
+    await queryClient.invalidateQueries({ queryKey: ["discovery"] });
+    toast.success(lang === "fr" ? "Votre vitrine est publiée." : "Your storefront is published.");
+    setCelebrate("created");
+  }
+
 
 
   async function addService(event: React.FormEvent) {
@@ -599,8 +618,8 @@ function StudioPage() {
             </ul>
             <Button
               className="mt-4 h-12 w-full sm:w-auto"
-              disabled={(services ?? []).length === 0}
-              onClick={() => setCelebrate("created")}
+              disabled={(services ?? []).length === 0 || saving}
+              onClick={() => void publishStorefront()}
             >
               {lang === "fr" ? "J'ai terminé — publier ma vitrine" : "I'm done — publish my storefront"}
               <ArrowRight className="size-4" aria-hidden />
