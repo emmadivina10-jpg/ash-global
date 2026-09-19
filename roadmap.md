@@ -74,5 +74,5 @@
 - [x] Rewrite Account & Data Deletion and align Support & Contact
 - [x] Update all legal links, consent, settings, and submission records
 - [x] Remove conflicting ages, retention terms, support URLs, entity wording, and unverified geography
-- [ ] Verify every policy page, route, factual statement, and production build
-- [ ] Deliver complete final text of all seven documents
+- [x] Verify every policy page, route, factual statement, and production build
+- [x] Deliver complete final text of all seven documents
