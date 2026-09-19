@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -30,7 +30,6 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin, useProfile } from "@/lib/queries";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { AshOrb } from "./AshOrb";
 import { MobileNav } from "./MobileNav";
 import { LocationNudge } from "./LocationNudge";
@@ -153,7 +152,6 @@ export function AppShell({ children }: { children: ReactNode }) {
     items.filter((item) => !item.referralOnly || region.referralEnabled);
   const navLabel = (item: NavItem) =>
     item.key ? t(item.key) : ((lang === "fr" ? item.fr : item.en) ?? item.label ?? "");
-  const [moreOpen, setMoreOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   useEffect(() => {
@@ -354,8 +352,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <MobileNav
         items={visible(MOBILE_NAV)}
-        moreGroups={MORE_GROUPS.map((group) => ({ ...group, items: visible(group.items) }))}
-        isAdmin={Boolean(isAdmin)}
+        profile={profile}
       />
 
       <LocationNudge />

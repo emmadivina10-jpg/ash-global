@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { ReactionButton, ReactionSummary } from "./ReactionButton";
 import { SocialText } from "./SocialText";
 import { SocialSuggestions } from "./SocialSuggestions";
+import { ExpandableSocialText } from "./ExpandableSocialText";
 
 function timeAgo(iso: string, fr: boolean) {
   const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
@@ -56,12 +57,7 @@ export function PostCard({
   const setFilter = useSetCommentFilter();
   const remove = useDeletePost();
   const mine = currentUserId === post.author_id;
-  const [captionExpanded, setCaptionExpanded] = useState(false);
   useEngagementRealtime(detail ? post.id : null);
-
-  // Long captions on photo posts stay compact in the feed, like Facebook.
-  // The full caption is still available with "See more".
-  const collapsiblePhotoCaption = !detail && post.images.length > 0 && post.caption.trim().length > 280;
 
   return (
     <article
@@ -119,24 +115,11 @@ export function PostCard({
 
       {post.caption ? (
         <div className="px-4 pb-3">
-          <SocialText
-            text={post.caption}
-            className={cn(
-              "whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground",
-              collapsiblePhotoCaption && !captionExpanded && "line-clamp-4",
-            )}
-          />
-
-          {collapsiblePhotoCaption ? (
-            <button
-              type="button"
-              onClick={() => setCaptionExpanded((expanded) => !expanded)}
-              className="mt-1 inline-flex touch-manipulation text-sm font-semibold text-muted-foreground hover:text-foreground"
-              aria-expanded={captionExpanded}
-            >
-              {captionExpanded ? (fr ? "Voir moins" : "See less") : fr ? "Voir plus" : "See more"}
-            </button>
-          ) : null}
+          {detail ? (
+            <SocialText text={post.caption} className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground" />
+          ) : (
+            <ExpandableSocialText text={post.caption} className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground" />
+          )}
         </div>
       ) : null}
 

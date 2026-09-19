@@ -45,3 +45,10 @@
 - [ ] Refine the admin dashboard around platform funds, reserved funds, and reconciled fees
 - [ ] Refresh the landing experience with a compact app view and richer web view
 - [ ] Complete every supported language dictionary; retain explicit English fallback until translated
+
+## Spotlight, Feed, and Menu refinements
+- [x] Resolve Spotlight member names and profile pictures from the shared member directory
+- [x] Collapse Feed and Spotlight text after two lines with See more and See less controls
+- [x] Remove the descriptive sentence under the Feed title
+- [x] Replace the More sheet with a dedicated Facebook-style Menu page and profile-photo Menu tab
+- [x] Verify the mobile Feed and Menu with the signed-in profile

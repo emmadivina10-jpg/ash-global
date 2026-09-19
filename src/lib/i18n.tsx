@@ -346,7 +346,7 @@ const EN = {
 
 // Settings
 "nav.settings": "Settings",
-"nav.more": "More",
+"nav.more": "Menu",
 "settings.title": "Settings",
 "settings.subtitle": "ASH — Where Opportunities Connect. About the platform, your privacy, and account controls.",
 "settings.about": "About ASH",
@@ -792,7 +792,7 @@ const FR: Record<TKey, string> = {
 "card.notify": "Aucune action requise — votre carte apparaîtra ici automatiquement au lancement.",
 
 "nav.settings": "Paramètres",
-"nav.more": "Plus",
+"nav.more": "Menu",
 "settings.title": "Paramètres",
 "settings.subtitle":
 "ASH — Là où les opportunités se connectent. À propos de la plateforme, votre vie privée et votre compte.",

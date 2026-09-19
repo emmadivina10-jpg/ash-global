@@ -1,0 +1,165 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import {
+  ArrowDownToLine,
+  BarChart3,
+  Bell,
+  BookOpen,
+  Briefcase,
+  BriefcaseBusiness,
+  CalendarDays,
+  ChevronRight,
+  Flame,
+  GraduationCap,
+  LogOut,
+  MessageCircle,
+  PlusCircle,
+  Receipt,
+  Settings,
+  Shield,
+  Sparkles,
+  Store,
+  TrendingUp,
+  User,
+  Users,
+  Wallet,
+  Building2,
+} from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
+import { Avatar } from "@/components/refer/AvatarUpload";
+import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/lib/i18n";
+import { useIsAdmin, useProfile } from "@/lib/queries";
+import { useRegion } from "@/lib/region-context";
+
+export const Route = createFileRoute("/_authenticated/menu")({
+  head: () => ({
+    meta: [
+      { title: "Menu — ASH Glo" },
+      { name: "description", content: "Open your ASH Glo profile, community, marketplace, earnings and account tools." },
+      { property: "og:title", content: "Menu — ASH Glo" },
+      { property: "og:description", content: "Your ASH Glo destinations and account tools in one place." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: MenuPage,
+});
+
+const sections = [
+  {
+    en: "Social",
+    fr: "Social",
+    items: [
+      ["Friends", "Amis", "/friends", Users],
+      ["Groups", "Groupes", "/groups", MessageCircle],
+      ["Notifications", "Notifications", "/notifications", Bell],
+      ["Articles", "Articles", "/articles", BookOpen],
+      ["Mentors", "Mentors", "/mentors", GraduationCap],
+      ["Incubator", "Incubateur", "/incubator", Sparkles],
+    ],
+  },
+  {
+    en: "Your activity",
+    fr: "Votre activité",
+    items: [
+      ["Services", "Services", "/services", Store],
+      ["Property", "Immobilier", "/property", Building2],
+      ["Deals", "Offres", "/deals", Flame],
+      ["Events", "Événements", "/events", CalendarDays],
+      ["Freelance", "Freelance", "/freelance", Briefcase],
+      ["Jobs", "Emplois", "/jobs", BriefcaseBusiness],
+      ["Create", "Créer", "/create", PlusCircle],
+      ["Bookings", "Réservations", "/bookings", CalendarDays],
+    ],
+  },
+  {
+    en: "Earn and manage",
+    fr: "Gagner et gérer",
+    items: [
+      ["Wallet", "Portefeuille", "/wallet", Wallet],
+      ["Referral dashboard", "Tableau de parrainage", "/dashboard", TrendingUp, true],
+      ["My network", "Mon réseau", "/network", Users, true],
+      ["Transactions", "Transactions", "/transactions", Receipt],
+      ["Withdraw", "Retirer", "/withdraw", ArrowDownToLine, true],
+      ["Analytics", "Analyses", "/analytics", BarChart3],
+      ["Professional studio", "Studio professionnel", "/studio", Sparkles],
+    ],
+  },
+] as const;
+
+function MenuPage() {
+  const { lang } = useI18n();
+  const fr = lang === "fr";
+  const region = useRegion();
+  const { data: profile } = useProfile();
+  const { data: isAdmin } = useIsAdmin();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  async function signOut() {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    void navigate({ to: "/login", replace: true });
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-3xl space-y-4">
+      <div className="flex items-center justify-between">
+        <h1 className="font-display text-3xl font-bold text-foreground">Menu</h1>
+        <Link to="/settings" aria-label={fr ? "Paramètres" : "Settings"} className="grid size-10 place-items-center rounded-full bg-muted text-foreground">
+          <Settings className="size-5" aria-hidden />
+        </Link>
+      </div>
+
+      <Link to="/profile" className="flex items-center gap-3 border-b border-border bg-card py-3 sm:rounded-lg sm:border sm:px-4">
+        <Avatar path={profile?.avatar_url} name={profile?.full_name} online className="size-14" />
+        <span className="min-w-0 flex-1">
+          <span className="flex items-center gap-1 text-base font-bold text-foreground">
+            <span className="truncate">{profile?.full_name || (fr ? "Votre profil" : "Your profile")}</span>
+            <VerifiedBadge tier={profile?.verified_tier} until={profile?.verified_until} size={16} />
+          </span>
+          <span className="mt-0.5 block text-sm text-muted-foreground">{fr ? "Voir votre profil" : "See your profile"}</span>
+        </span>
+        <ChevronRight className="size-5 text-muted-foreground" aria-hidden />
+      </Link>
+
+      {sections.map((section) => (
+        <section key={section.en} className="border-b border-border pb-4">
+          <h2 className="mb-2 text-base font-bold text-foreground">{fr ? section.fr : section.en}</h2>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {section.items
+              .filter((item) => !item[4] || region.referralEnabled)
+              .map(([en, french, to, Icon]) => (
+                <Link key={to} to={to} className="flex min-h-16 items-center gap-3 rounded-lg border border-border bg-card px-3 py-2.5 text-sm font-semibold text-foreground shadow-sm transition-colors hover:bg-muted/50">
+                  <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+                    <Icon className="size-5" aria-hidden />
+                  </span>
+                  <span className="min-w-0 break-words">{fr ? french : en}</span>
+                </Link>
+              ))}
+          </div>
+        </section>
+      ))}
+
+      {isAdmin ? (
+        <a href="/console" className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 text-sm font-bold text-foreground">
+          <span className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary"><Shield className="size-5" aria-hidden /></span>
+          {fr ? "Console d’administration" : "Admin console"}
+        </a>
+      ) : null}
+
+      <div className="grid grid-cols-2 gap-2 pb-2">
+        <Link to="/settings" className="flex items-center justify-center gap-2 rounded-lg bg-muted px-4 py-3 text-sm font-bold text-foreground">
+          <Settings className="size-4" aria-hidden /> {fr ? "Paramètres" : "Settings"}
+        </Link>
+        <Button variant="secondary" className="h-auto rounded-lg py-3" onClick={() => void signOut()}>
+          <LogOut className="size-4" aria-hidden /> {fr ? "Déconnexion" : "Log out"}
+        </Button>
+      </div>
+    </div>
+  );
+}
