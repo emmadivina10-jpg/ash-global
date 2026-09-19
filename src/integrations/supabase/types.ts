@@ -3939,9 +3939,17 @@ export type Database = {
         }
         Returns: Json
       }
+      create_spotlight_post: {
+        Args: { _caption?: string; _media_path: string }
+        Returns: string
+      }
       decide_booking: {
         Args: { _accept: boolean; _booking_id: string; _reason?: string }
         Returns: Json
+      }
+      delete_spotlight_post: {
+        Args: { _spotlight_id: string }
+        Returns: string
       }
       expire_property_listings: { Args: never; Returns: number }
       extract_social_tokens: {
