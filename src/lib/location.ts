@@ -54,6 +54,15 @@ function read(): SavedLocation | null {
 }
 
 /**
+ * Coarse city label for the member, available only when they granted location
+ * permission. Coordinates stay on the device and are never sent anywhere.
+ */
+export function getCachedCity(): string | null {
+  if (typeof window === "undefined") return null;
+  return read()?.label ?? null;
+}
+
+/**
  * Stores the member's coordinates locally once. Discovery uses it to sort
  * "Nearby" first; we never ask twice unless the member opens the prompt again.
  */
