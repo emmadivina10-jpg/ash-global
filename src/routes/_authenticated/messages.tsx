@@ -185,6 +185,10 @@ function MessagesPage() {
   // iOS/WKWebView visual viewport. The chat becomes a true fullscreen surface
   // while a thread is open, so the shell navigation/orb cannot overlap it.
   const [visualViewportHeight, setVisualViewportHeight] = useState<number | null>(null);
+  // Real chrome reserve for the mobile chat list: distance from the list top to
+  // the top edge of the bottom navigation, measured from the live layout so it
+  // stays exact on any header height, root font size, or device safe area.
+  const [chromeReservePx, setChromeReservePx] = useState<number | null>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const useIsoLayoutEffect =
@@ -199,11 +203,22 @@ function MessagesPage() {
     const viewport = window.visualViewport;
     if (!viewport) return;
 
+    const measureChromeReserve = () => {
+      const main = document.querySelector<HTMLElement>("main.app-shell-scroll");
+      const nav = document.querySelector<HTMLElement>(".premium-mobile-nav");
+      if (!main || !nav) return;
+      const navHeight = nav.getBoundingClientRect().height;
+      if (navHeight <= 0) return;
+      const top = main.getBoundingClientRect().top + main.scrollTop;
+      if (top > 0) setChromeReservePx(Math.round(top + navHeight));
+    };
+
     const updateViewport = () => {
       const height = Math.max(0, Math.round(viewport.height));
       setVisualViewportHeight((current) =>
         current !== null && Math.abs(current - height) < 2 ? current : height,
       );
+      measureChromeReserve();
     };
 
     updateViewport();
