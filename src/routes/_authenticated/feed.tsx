@@ -141,15 +141,10 @@ function FeedPage() {
   return (
     <div className="mx-auto w-full max-w-xl space-y-4">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
-        <div className="min-w-0">
+        <div className="min-w-0 self-center">
           <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
             {fr ? "Fil ASH" : "ASH Feed"}
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {fr
-              ? "Des photos de vrais membres ASH. Aimez, commentez, repartagez."
-              : "Photos from real ASH members. Like, comment, repost."}
-          </p>
         </div>
         <div className="flex items-center gap-1.5">
           <Link
