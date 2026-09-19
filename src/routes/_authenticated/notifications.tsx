@@ -8,11 +8,12 @@ import {
   Heart,
   MessageSquare,
   Settings2,
+  Trash2,
   UserPlus,
 } from "lucide-react";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { Button } from "@/components/ui/button";
-import { useMarkNotificationsRead, useNotifications, type AppNotification } from "@/lib/notifications";
+import { useDeleteNotifications, useMarkNotificationsRead, useNotifications, type AppNotification } from "@/lib/notifications";
 import { notificationLink } from "@/lib/push";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -81,6 +82,7 @@ function NotificationsPage() {
   const navigate = useNavigate();
   const { data, isLoading } = useNotifications(60);
   const markRead = useMarkNotificationsRead();
+  const remove = useDeleteNotifications();
   const [bucket, setBucket] = useState<Bucket>("all");
   const [unreadOnly, setUnreadOnly] = useState(false);
 
@@ -139,12 +141,20 @@ function NotificationsPage() {
                 : "You're all caught up."}
           </p>
         </div>
-        {unread.length > 0 ? (
-          <Button variant="outline" size="sm" onClick={() => markRead.mutate(unread.map((n) => n.id))}>
-            <CheckCheck className="size-4" aria-hidden />
-            {fr ? "Tout lire" : "Mark all read"}
-          </Button>
-        ) : null}
+        <div className="flex flex-wrap justify-end gap-2">
+          {unread.length > 0 ? (
+            <Button variant="outline" size="sm" onClick={() => markRead.mutate(unread.map((n) => n.id))}>
+              <CheckCheck className="size-4" aria-hidden />
+              {fr ? "Tout lire" : "Mark all read"}
+            </Button>
+          ) : null}
+          {items.length > 0 ? (
+            <Button variant="ghost" size="sm" onClick={() => remove.mutate(items.map((n) => n.id))} disabled={remove.isPending}>
+              <Trash2 className="size-4" aria-hidden />
+              {fr ? "Tout supprimer" : "Clear all"}
+            </Button>
+          ) : null}
+        </div>
       </header>
 
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
@@ -199,24 +209,23 @@ function NotificationsPage() {
               {list.map((item) => {
                 const Icon = iconFor(item.category);
                 return (
-                  <button
+                  <div
                     key={item.id}
-                    type="button"
-                    onClick={() => open(item)}
                     className={cn(
                       "flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/60",
                       !item.read_at && "bg-primary/5",
                     )}
                   >
-                    <span className="relative shrink-0">
+                    <button type="button" onClick={() => open(item)} className="contents">
+                    <span className="relative z-0 shrink-0">
                       {item.actor ? (
-                        <Avatar path={item.actor.avatar_url} name={item.actor.name} online={item.actor.online} className="size-11" />
+                        <Avatar path={item.actor.avatar_url} name={item.actor.name} online={false} className="size-11" />
                       ) : (
                         <span className="grid size-11 place-items-center rounded-full bg-muted text-muted-foreground">
                           <Icon className="size-5" aria-hidden />
                         </span>
                       )}
-                      <span className="absolute -bottom-0.5 -right-0.5 grid size-5 place-items-center rounded-full border-2 border-background bg-primary text-primary-foreground">
+                      <span className="absolute -bottom-0.5 -right-0.5 z-10 grid size-5 place-items-center rounded-full border-2 border-background bg-primary text-primary-foreground">
                         <Icon className="size-2.5" aria-hidden />
                       </span>
                     </span>
@@ -232,7 +241,17 @@ function NotificationsPage() {
                       ) : null}
                     </span>
                     {!item.read_at ? <span className="mt-2 size-2 shrink-0 rounded-full bg-primary" /> : null}
-                  </button>
+                    </button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-8 shrink-0"
+                      aria-label={fr ? "Supprimer la notification" : "Delete notification"}
+                      onClick={() => remove.mutate([item.id])}
+                    >
+                      <Trash2 className="size-4" aria-hidden />
+                    </Button>
+                  </div>
                 );
               })}
             </div>
