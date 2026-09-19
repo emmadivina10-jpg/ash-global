@@ -24,7 +24,7 @@ function buildSchema(t: (k: TKey) => string) {
         .string()
         .trim()
         .transform(normalizePhone)
-        // ASH is live in 175 countries, so any plausible international number is fine.
+        // Accept plausible international numbers for supported and future regions.
         .refine((value) => isValidPhone(value), t("auth.err.phone")),
       password: z.string().min(8, t("auth.err.passwordMin")).max(72),
       confirmPassword: z.string(),

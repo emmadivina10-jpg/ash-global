@@ -33,7 +33,7 @@ import { WelcomeIntro } from "@/components/refer/WelcomeIntro";
 
 const TITLE = "ASH — Where Opportunities Connect.";
 const DESCRIPTION =
-  "ASH is a digital opportunity, commerce, services, freelance, property, community and events platform — live in 175 countries — that connects people, businesses, freelancers, service providers, communities and event organizers in one ecosystem, with a social feed, stories, Spotlight, friends, groups and secure Mobile Money payments.";
+  "ASH Glo is a digital opportunity, commerce, services, freelance, property, community and events platform that connects people, businesses, freelancers, service providers, communities and event organizers in one ecosystem, with a social feed, stories, Spotlight, friends, groups and supported payments.";
 
 const OG_IMAGE = "https://ashglogroup.company/ash-social.png";
 
@@ -179,7 +179,7 @@ function Landing() {
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.16em] text-primary backdrop-blur sm:text-[10px]">
                 <Globe2 className="size-3" aria-hidden />
-                {fr ? "Présent dans 175 pays" : "Live in 175 countries"}
+                {fr ? "Opportunités, services et communauté" : "Opportunities, services and community"}
               </span>
             </div>
 

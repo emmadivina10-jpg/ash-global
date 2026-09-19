@@ -358,6 +358,18 @@ function SettingsPage() {
             <Link to="/terms">Terms of Service</Link>
           </Button>
           <Button asChild variant="outline">
+            <Link to="/community-guidelines">Community Guidelines</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/marketplace-policy">Marketplace Policy</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/referral-wallet-terms">Referral &amp; Wallet Terms</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/account-deletion">Account &amp; Data Deletion</Link>
+          </Button>
+          <Button asChild variant="outline">
             <Link to="/contact">Contact</Link>
           </Button>
         </div>

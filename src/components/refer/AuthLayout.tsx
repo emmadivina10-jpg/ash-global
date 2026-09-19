@@ -81,7 +81,7 @@ export function AuthLayout({
         </div>
 
         <p className="relative text-xs text-on-dark/60">
-          {fr ? "ASH — présent dans 175 pays." : "ASH — live in 175 countries."}
+          {fr ? "ASH Glo — Là où les opportunités se connectent." : "ASH Glo — Where Opportunities Connect."}
         </p>
       </aside>
 
