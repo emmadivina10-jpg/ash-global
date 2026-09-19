@@ -66,12 +66,11 @@ export function AshOrb() {
           onPointerUp={pointerUp}
           onPointerCancel={() => { drag.current = null; }}
           aria-label={fr ? "Ouvrir le portefeuille" : "Open wallet"}
-          className="group relative h-14 w-[5.75rem] overflow-hidden rounded-[10px] border border-primary/35 bg-primary text-primary-foreground shadow-[var(--shadow-raised)] transition-transform hover:scale-[1.03]"
+          className="wallet-orb group relative size-16 overflow-hidden rounded-full text-white transition-transform hover:scale-105"
         >
-          <span className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-accent/80" aria-hidden />
-          <span className="relative flex h-full flex-col items-start justify-center px-3 text-left">
-            <Wallet className="size-4" aria-hidden />
-            <span className="mt-0.5 text-[11px] font-extrabold uppercase">{fr ? "Portefeuille" : "Wallet"}</span>
+          <span className="relative flex h-full flex-col items-center justify-center">
+            <Wallet className="size-5" aria-hidden />
+            <span className="mt-0.5 text-[9px] font-extrabold uppercase tracking-wide">{fr ? "Portefeuille" : "Wallet"}</span>
           </span>
         </button>
       </div>
