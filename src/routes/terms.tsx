@@ -1,20 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { PublicInfoShell } from "@/components/refer/PublicInfoShell";
+import {
+  LEGAL_ENTITY,
+  LEGAL_UPDATED,
+  LegalIntro,
+  LegalLinks,
+  LegalList,
+  LegalPage,
+  LegalSection,
+  PRIVACY_EMAIL,
+  SUPPORT_EMAIL,
+} from "@/components/refer/LegalDocument";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
       { title: "Terms of Service — ASH Glo" },
-      {
-        name: "description",
-        content:
-          "ASH Glo terms of service and end-user licence agreement: marketplace rules, payments, fees, user content, zero-tolerance policy and account termination.",
-      },
+      { name: "description", content: "Terms governing ASH Glo accounts, community features, services, payments, wallet, referrals, AI and Markets." },
       { property: "og:title", content: "Terms of Service — ASH Glo" },
-      {
-        property: "og:description",
-        content: "Marketplace rules, payments and fees, user content policy and account termination.",
-      },
+      { property: "og:description", content: "The agreement governing access to and use of ASH Glo." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://ashglogroup.company/terms" },
       { name: "twitter:card", content: "summary" },
@@ -24,161 +27,154 @@ export const Route = createFileRoute("/terms")({
   component: TermsPage,
 });
 
-const LAST_UPDATED = "16 September 2026";
-const SUPPORT_EMAIL = "support@ashglogroup.company";
-
-function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
-  return (
-    <section id={id} className="scroll-mt-24 space-y-3">
-      <h2 className="text-lg font-semibold text-foreground sm:text-xl">{title}</h2>
-      <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">{children}</div>
-    </section>
-  );
-}
-
 function TermsPage() {
   return (
-    <PublicInfoShell
-      eyebrow={`Effective 16 September 2026 · Updated ${LAST_UPDATED}`}
-      title="Terms of Service & End-User Licence"
-      description="The rules that protect ASH members, providers and the community across our website and mobile apps."
+    <LegalPage
+      eyebrow={`Effective and updated ${LEGAL_UPDATED}`}
+      title="Terms of Service"
+      description="The agreement that applies when you create an account or use the ASH Glo platform."
     >
-      <header className="mb-8 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)] sm:p-6">
-        <p className="text-sm leading-relaxed text-muted-foreground">
-          These terms are the agreement between you and ASH Global Technologies (&ldquo;ASH Glo&rdquo;, &ldquo;we&rdquo;)
-          covering the ASH Glo website and the ASH Glo mobile apps distributed through the Apple App Store and Google
-          Play. By creating an account, browsing the marketplace or paying for a service you accept them.
+      <LegalIntro>
+        These Terms are an agreement between you and {LEGAL_ENTITY}, the legal entity that operates ASH Glo. “ASH Glo” is
+        the product and platform. By creating an account or using ASH Glo, you agree to these Terms and the related policies linked below.
+      </LegalIntro>
+
+      <LegalSection id="eligibility" title="1. Eligibility and accounts">
+        <p>
+          You must be at least 13 years old to use ASH Glo. If the law where you live requires parental or guardian consent
+          for a person under the age of legal adulthood, you may use ASH Glo only with that consent. Some services, contracts,
+          earning features, payments or identity checks may require you to be older or legally capable of entering the transaction.
         </p>
-      </header>
-
-      <div className="space-y-8">
-        <Section id="service" title="1. What ASH Glo is">
-          <p>
-            ASH Glo is a marketplace that connects customers with independent real-world service providers — braiders,
-            barbers, nail and lash technicians, electricians, nurses and other professionals — and lets them chat,
-            book, pay and review. ASH Glo also runs an optional referral programme in supported countries.
-          </p>
-          <p>
-            Providers are independent businesses, not employees or agents of ASH Glo. We are not a party to the service
-            contract between a customer and a provider; we provide the platform, payment rails and dispute support.
-          </p>
-        </Section>
-
-        <Section id="eligibility" title="2. Eligibility and accounts">
-          <p>
-            You must be at least 18 years old to create an ASH Glo account. You are responsible for keeping your
-            credentials secure and for everything done through your account. Provide accurate information — false
-            identity, business or payout details lead to suspension.
-          </p>
-        </Section>
-
-        <Section id="content" title="3. User content and zero-tolerance policy">
-          <p>
-            You keep ownership of the photos, videos, service descriptions, social posts, Spotlight stories, comments,
-            chat messages and reviews you post, and you grant ASH Glo a worldwide, non-exclusive licence to host and
-            display that content inside the product.
-          </p>
-          <p>
-            ASH social features — the photo feed, comments and replies, likes and reposts, friend requests, group chats
-            and Spotlight stories that disappear after 24 hours — are for real members only. Fake accounts, bought
-            engagement and impersonation are prohibited. Video posting is not available in the feed at this time. If you
-            publish a post you may switch on its comment filter; ASH will then block comments an automated check finds
-            abusive, and you remain responsible for moderating your own threads.
-          </p>
-          <p className="font-medium text-foreground">
-            There is zero tolerance for objectionable content or abusive behaviour. You may not post or send content
-            that is illegal, sexually explicit, hateful, harassing, violent, fraudulent, impersonating, spam, or that
-            depicts or endangers minors.
-          </p>
-          <p>
-            Every profile, portfolio item, review, social post, comment, story and chat message can be reported from inside the app using the flag
-            control, and any user can block another user immediately. Reports are reviewed by the ASH Trust &amp; Safety
-            team within 24 hours; content that breaches this policy is removed and the account is suspended or
-            terminated without refund. Repeat or severe breaches are reported to the competent authorities.
-          </p>
-          <p>
-            ASH automatically screens newly submitted images and video previews before publication. High-confidence
-            explicit nudity is deleted immediately and the account is restricted until an authorized administrator
-            reviews the case. Uncertain media is not published. You may appeal a restriction through Support.
-          </p>
-        </Section>
-
-        <Section id="bookings" title="4. Bookings, payments and fees">
-          <p>
-            Bookings are made in the app. Providers accept or decline; customers pay after acceptance within the stated
-            window. Payments are currently processed through Mobile Money (MTN MoMo and Orange Money) by our licensed
-            payment partner. Bank transfers and card payments are not available yet. ASH Glo never stores your Mobile Money PIN.
-          </p>
-          <p>
-            ASH Glo charges providers a 1% platform commission on completed marketplace transactions. Referral
-            programme fees, where offered, are shown before payment. Withdrawals from your ASH wallet are paid to Mobile
-            Money; bank transfers are shown in the app as a coming-soon feature and are not available yet. All prices are shown inclusive of the fees that
-            apply to you before you confirm.
-          </p>
-          <p>
-            Everything sold through ASH Glo is a real-world service or physical product delivered outside the app, so
-            in-app purchases are not used. Refunds and disputes are handled case by case; contact{" "}
-            <a className="text-primary hover:underline" href={`mailto:${SUPPORT_EMAIL}`}>
-              {SUPPORT_EMAIL}
-            </a>{" "}
-            within 7 days of the booking.
-          </p>
-        </Section>
-
-        <Section id="conduct" title="5. Acceptable use">
-          <p>
-            Do not misuse the platform: no scraping, reverse engineering, security probing, spam, money laundering,
-            circumventing fees by moving payment off-platform, or creating fake reviews, fake accounts or fake
-            referrals. Referral rewards obtained through fraud are reversed.
-          </p>
-        </Section>
-
-        <Section id="termination" title="6. Suspension, termination and deletion">
-          <p>
-            You can delete your account at any time from Settings inside the app, or by visiting{" "}
-            <Link to="/account-deletion" className="text-primary hover:underline">
-              ashglogroup.company/account-deletion
-            </Link>
-            . We may suspend or terminate accounts that breach these terms, the law or store policies.
-          </p>
-        </Section>
-
-        <Section id="warranty" title="7. Disclaimers and liability">
-          <p>
-            The platform is provided &ldquo;as is&rdquo;. ASH Glo does not guarantee the quality, safety or legality of
-            services offered by providers, and to the extent permitted by law our aggregate liability is limited to the
-            fees you paid to ASH Glo in the three months before the claim.
-          </p>
-        </Section>
-
-        <Section id="stores" title="8. App store terms">
-          <p>
-            The mobile apps are licensed, not sold, to you for personal, non-transferable use on devices you own or
-            control. Apple and Google are not responsible for the app or its content, have no obligation to provide
-            support or maintenance, and are third-party beneficiaries of this licence with the right to enforce it. You
-            confirm you are not located in a country subject to an applicable embargo and are not on a prohibited-party
-            list.
-          </p>
-        </Section>
-
-        <Section id="law" title="9. Governing law and contact">
-          <p>
-            These terms are governed by the laws of the Republic of Cameroon. Questions, complaints and legal notices:{" "}
-            <a className="text-primary hover:underline" href={`mailto:${SUPPORT_EMAIL}`}>
-              {SUPPORT_EMAIL}
-            </a>
-            .
-          </p>
-        </Section>
-
-        <p className="pt-4 text-sm text-muted-foreground">
-          See also our{" "}
-          <Link to="/privacy" className="text-primary hover:underline">
-            Privacy Policy
-          </Link>
-          .
+        <p>
+          Provide accurate information, protect your credentials and use only accounts you are authorized to control. You are
+          responsible for activity through your account. Contact Support promptly if you believe your account has been compromised.
         </p>
-      </div>
-    </PublicInfoShell>
+      </LegalSection>
+
+      <LegalSection id="platform" title="2. What ASH Glo provides">
+        <p>
+          ASH Glo combines social and communications features with discovery of independent services, providers, jobs,
+          freelance opportunities, events, deals, products and property listings. It also offers optional referrals, wallet records,
+          educational Markets content and ASH AI. Features and payment methods vary by account, region and availability.
+        </p>
+        <p>
+          Except where a screen expressly says otherwise, members and providers—not {LEGAL_ENTITY}—create listings and deliver
+          the underlying real-world services, work, events, products or opportunities. Providers are independent and are responsible
+          for their offers, qualifications, licences where required, taxes, safety and legal compliance.
+        </p>
+      </LegalSection>
+
+      <LegalSection id="content" title="3. Your content and community conduct">
+        <p>
+          You retain ownership of content you create. You grant {LEGAL_ENTITY} a worldwide, non-exclusive, royalty-free licence
+          to host, reproduce, process, display and distribute that content only as needed to operate, protect and promote ASH Glo,
+          including making content available to the audiences and surfaces you select. This licence ends when the content is deleted,
+          except for copies reasonably required for legal, safety, backup or integrity purposes.
+        </p>
+        <p>
+          Follow the <Link to="/community-guidelines" className="text-primary hover:underline">Community Guidelines</Link>.
+          Illegal, sexually exploitative, hateful, harassing, violent, fraudulent, impersonating, spam, privacy-invasive or unsafe
+          content is prohibited. Never publish content that exploits, sexualizes or endangers a minor.
+        </p>
+        <p>
+          Available controls let members report content and block accounts. Automated systems screen previews of submitted media;
+          explicit content can be blocked and create a moderation case. Authorized staff may review reports and restrictions.
+          We may remove content, restrict features or close accounts. Fraud, abuse and safety-related records are retained for 24 months,
+          unless a longer period is required to resolve a case or comply with law.
+        </p>
+      </LegalSection>
+
+      <LegalSection id="marketplace" title="4. Marketplace, bookings and payments">
+        <p>
+          The <Link to="/marketplace-policy" className="text-primary hover:underline">Marketplace, Services, Booking &amp; Refund Policy</Link>
+          governs listings, provider duties, booking status, cancellations, disputes and refunds. Booking requests require provider
+          acceptance and any required payment confirmation. Refunds are not automatic and are reviewed case by case.
+        </p>
+        <p>
+          Available methods are shown at checkout. Supported Mobile Money transactions use TchokoPay. Where another method such as
+          external card checkout is offered, its provider is identified in the relevant flow. ASH Glo does not receive or store Mobile
+          Money PINs or full card credentials. {LEGAL_ENTITY} retains transaction and accounting records needed for wallet, referral,
+          booking, withdrawal and reconciliation operations. Applicable fees are shown in the relevant flow or record.
+        </p>
+      </LegalSection>
+
+      <LegalSection id="wallet" title="5. Referrals, wallet and withdrawals">
+        <p>
+          The <Link to="/referral-wallet-terms" className="text-primary hover:underline">Referral &amp; Wallet Terms</Link> apply.
+          The wallet is a platform ledger, not a bank, savings or investment account. Referral rewards are conditional, not guaranteed
+          income, and may be corrected or reversed administratively for failed, refunded, duplicate, disputed or abusive activity.
+          Withdrawal availability, methods, minimums and status are shown in ASH Glo.
+        </p>
+      </LegalSection>
+
+      <LegalSection id="ai" title="6. ASH AI and automated systems">
+        <p>
+          ASH AI can answer questions using messages and images you choose to submit and selected ASH Glo account context relevant
+          to the request, which may include profile, wallet, referral, provider, booking, listing and property information. Requests
+          are processed through an AI service supporting ASH Glo. ASH AI can be inaccurate and does not replace professional, legal,
+          medical, financial or emergency advice. Do not send secrets or information you do not have permission to share.
+        </p>
+        <p>
+          Separate automated image screening assists content moderation. Automated outcomes may prevent publication or create a
+          review case. Members can contact Support to request review of a restriction. See the Privacy Policy for more detail.
+        </p>
+      </LegalSection>
+
+      <LegalSection id="markets" title="7. ASH Markets and FX Analytics">
+        <p>
+          ASH Markets and FX Analytics provide general educational and informational content, including clearly labelled demo values.
+          They do not provide personalized investment advice, trading signals, guaranteed results, brokerage, custody or trade execution.
+          Verify market information independently and seek qualified advice appropriate to your circumstances before making financial decisions.
+        </p>
+      </LegalSection>
+
+      <LegalSection id="verification" title="8. Verification">
+        <p>
+          Some features may ask for a government ID and selfie/face image for manual verification. Submission does not mean that
+          verification is complete. No external KYC provider is claimed unless one is identified in the relevant flow. A badge indicates
+          only that the checks described by ASH Glo were completed; it is not a guarantee of identity, licensing, skill, safety or conduct.
+        </p>
+      </LegalSection>
+
+      <LegalSection id="acceptable-use" title="9. Acceptable use">
+        <LegalList items={[
+          "Do not scrape, reverse engineer, disrupt, probe or bypass platform safeguards or access controls.",
+          "Do not use ASH Glo for money laundering, fraud, fake reviews, fake referrals, spam, unauthorized advertising or unlawful transactions.",
+          "Do not upload malware, misuse another person’s data or intellectual property, or evade fees and restrictions.",
+          "Do not use ASH AI, Markets or social features to deceive, harass, exploit or cause harm.",
+        ]} />
+      </LegalSection>
+
+      <LegalSection id="closure" title="10. Suspension, closure and deletion requests">
+        <p>
+          You may submit an <Link to="/account-deletion" className="text-primary hover:underline">account-deletion request</Link>.
+          The request is reviewed by authorized staff and may be delayed or rejected while outstanding balances, withdrawals,
+          bookings, disputes, investigations or legal obligations are resolved. Approval currently closes the account; data is then
+          handled according to the Privacy Policy and applicable retention obligations. Submission does not cause immediate or automatic deletion.
+        </p>
+        <p>{LEGAL_ENTITY} may restrict or close an account that violates these Terms, another policy, the rights of others or applicable law.</p>
+      </LegalSection>
+
+      <LegalSection id="disclaimers" title="11. Disclaimers and responsibility">
+        <p>
+          ASH Glo is provided on an “as available” basis. To the extent permitted by law, {LEGAL_ENTITY} does not guarantee uninterrupted
+          access, the conduct or identity of members, listing accuracy, provider quality, employment, earnings, event outcomes, property
+          ownership, market data or AI output. Nothing in these Terms excludes a right or liability that cannot legally be excluded.
+        </p>
+      </LegalSection>
+
+      <LegalSection id="changes" title="12. Changes and contact">
+        <p>
+          We may update these Terms when the platform, law or our practices change. The effective date will be updated and material
+          changes may be communicated in the app or through available account contact details. Continued use after the effective date means acceptance where permitted by law.
+        </p>
+        <p>
+          Support: <a href={`mailto:${SUPPORT_EMAIL}`} className="text-primary hover:underline">{SUPPORT_EMAIL}</a>. Privacy questions:{" "}
+          <a href={`mailto:${PRIVACY_EMAIL}`} className="text-primary hover:underline">{PRIVACY_EMAIL}</a>. We do not publish a physical legal address at this time.
+        </p>
+      </LegalSection>
+
+      <LegalLinks />
+    </LegalPage>
   );
 }
