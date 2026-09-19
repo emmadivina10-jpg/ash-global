@@ -453,7 +453,7 @@ export function ChatThread({
                       className={cn(
                         "group relative max-w-[78%] px-3.5 py-2 shadow-sm transition-colors",
                         mine
-                          ? "brand-gradient rounded-2xl text-primary-foreground shadow-md"
+                          ? "brand-gradient rounded-2xl text-on-dark shadow-md"
                           : "rounded-2xl bg-muted text-foreground",
                         mine && !endsRun && "rounded-br-md",
                         mine && endsRun && "rounded-br-sm",

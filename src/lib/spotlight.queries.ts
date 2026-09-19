@@ -162,7 +162,7 @@ export function useSpotlightFeed(limit = 18) {
              current_reaction: (reactions.find((item) => item.user_id === auth.user?.id)?.reaction_type as ReactionType | undefined) ?? null,
             provider: storefront ?? {
               id: "",
-              business_name: profile?.full_name ?? "ASH member",
+              business_name: profile?.full_name ?? "Profile unavailable",
               slug: null,
               city: null,
               avatar_url: profile?.avatar_url ?? null,

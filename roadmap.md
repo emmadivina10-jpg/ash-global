@@ -17,15 +17,15 @@
 - [ ] Verify Markets interactions, responsive layouts, and existing route stability
 
 ## Social identity and Messages hardening
-- [ ] Replace generic member/client labels with resolved profile names throughout member-facing surfaces
-- [ ] Add shared online presence and new Story/Spotlight avatar indicators
-- [ ] Restyle the ASH verification badge as a solid Facebook-like badge
-- [ ] Support recursive comment replies and reactions at every reply depth
-- [ ] Make group creation and member management complete inside Messages
-- [ ] Rebuild Archived and Locked chats as dedicated WhatsApp-style list surfaces
-- [ ] Polish branded chat bubbles, wallpapers, and mobile thread viewport stability
-- [ ] Improve tab transition speed without weakening fresh-data behavior
-- [ ] Verify social and chat flows on phone and desktop
+- [x] Replace generic member/client labels with resolved profile names throughout member-facing surfaces
+- [x] Add shared online presence and new Story/Spotlight avatar indicators
+- [x] Restyle the ASH verification badge as a solid Facebook-like badge
+- [x] Support recursive comment replies and reactions at every reply depth
+- [x] Make group creation and member management complete inside Messages
+- [x] Rebuild Archived and Locked chats as dedicated WhatsApp-style list surfaces
+- [x] Polish branded chat bubbles, wallpapers, and mobile thread viewport stability
+- [x] Improve tab transition speed without weakening fresh-data behavior
+- [x] Verify social and chat flows on phone and desktop
 
 ## FX instructors and Markets publishing
 - [ ] Add free FX instructor applications with country, ID document, and selfie capture

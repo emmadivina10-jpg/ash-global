@@ -653,7 +653,7 @@ export function useStoryViewers(storyId: string | null) {
       const authors = await loadAuthors(rows.map((r) => r.viewer_id));
       return rows.map((r) => ({
         at: r.created_at,
-        viewer: authors.get(r.viewer_id) ?? { id: r.viewer_id, name: "ASH member", avatar_url: null },
+        viewer: authors.get(r.viewer_id) ?? { id: r.viewer_id, name: "Profile unavailable", avatar_url: null },
       }));
     },
   });
@@ -761,7 +761,7 @@ export function useSocialFeed(limit = 40) {
           reaction_breakdown: reaction.breakdown,
           reposted: r.reposted,
           created_at: r.created_at,
-          author: authors.get(r.author_id) ?? { id: r.author_id, name: "ASH member", avatar_url: null },
+          author: authors.get(r.author_id) ?? { id: r.author_id, name: "Profile unavailable", avatar_url: null },
         };
       });
     },
@@ -827,7 +827,7 @@ export function usePost(postId: string | null | undefined) {
         reaction_breakdown: reaction.breakdown,
         reposted: Boolean(reposted.data),
         created_at: row.created_at,
-        author: authors.get(row.author_id) ?? { id: row.author_id, name: "ASH member", avatar_url: null },
+        author: authors.get(row.author_id) ?? { id: row.author_id, name: "Profile unavailable", avatar_url: null },
       };
     },
   });
