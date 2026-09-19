@@ -61,7 +61,7 @@ export function Avatar({
     <span
       className={cn(
         "relative grid size-11 shrink-0 place-items-center rounded-full bg-muted text-sm font-bold text-muted-foreground",
-        hasUpdate && "p-[2px] before:absolute before:inset-0 before:rounded-full before:bg-[conic-gradient(from_220deg,hsl(var(--primary)),hsl(var(--gold)),hsl(var(--primary)))]",
+        hasUpdate && "brand-gradient p-[2px]",
         className,
       )}
     >
@@ -76,7 +76,7 @@ export function Avatar({
       </span>
       {online ? (
         <span
-          className="absolute bottom-[3%] right-[3%] z-[2] size-[25%] min-h-2 min-w-2 rounded-full bg-emerald-500 ring-2 ring-background"
+          className="absolute bottom-[3%] right-[3%] z-[2] size-[25%] min-h-2 min-w-2 rounded-full bg-success ring-2 ring-background"
           aria-label="Online"
           role="img"
         />

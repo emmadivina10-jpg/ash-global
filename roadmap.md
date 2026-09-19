@@ -25,7 +25,7 @@
 - [x] Rebuild Archived and Locked chats as dedicated WhatsApp-style list surfaces
 - [x] Polish branded chat bubbles, wallpapers, and mobile thread viewport stability
 - [x] Improve tab transition speed without weakening fresh-data behavior
-- [ ] Verify social and chat flows on phone and desktop
+- [x] Verify social and chat flows on phone and desktop
 
 ## FX instructors and Markets publishing
 - [ ] Add free FX instructor applications with country, ID document, and selfie capture
