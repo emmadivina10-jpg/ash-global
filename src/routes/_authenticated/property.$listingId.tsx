@@ -294,7 +294,7 @@ function PropertyDetail() {
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               {fr ? "Publié par" : "Listed by"}
             </p>
-            <p className="mt-1 font-semibold text-foreground">{owner?.full_name ?? (fr ? "Propriétaire ASH" : "ASH member")}</p>
+            <p className="mt-1 font-semibold text-foreground">{owner?.full_name ?? (fr ? "Profil indisponible" : "Profile unavailable")}</p>
             <p className="text-xs text-muted-foreground">
               {fr ? "Annonce publiée le" : "Listed"} {formatDateTime(listing.created_at)}
             </p>

@@ -187,7 +187,7 @@ export function useTrendingPosts() {
         caption: row.caption ?? "",
         like_count: row.like_count ?? 0,
         comment_count: row.comment_count ?? 0,
-        author: names.get(row.author_id) ?? "ASH member",
+        author: names.get(row.author_id) ?? "Profile unavailable",
       }));
     },
   });

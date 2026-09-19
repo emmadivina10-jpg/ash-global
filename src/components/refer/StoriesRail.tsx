@@ -1148,7 +1148,7 @@ export function StoriesRail() {
                       />
                       <div className="min-w-0">
                         <p className="truncate text-sm font-extrabold">
-                          {activeStoryGroup?.author.name ?? "ASH member"}
+                          {activeStoryGroup?.author.name ?? "Profile unavailable"}
                         </p>
                         <p className="text-[10px] text-white/60">24h story</p>
                       </div>
@@ -1321,7 +1321,7 @@ export function StoriesRail() {
                         >
                           <Avatar src={item.viewer.avatar_url} name={item.viewer.name} className="size-11" />
                           <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-bold">{item.viewer.name ?? "ASH member"}</p>
+                            <p className="truncate text-sm font-bold">{item.viewer.name ?? "Profile unavailable"}</p>
                             <p className="text-[11px] text-white/45">
                               {new Date(item.at).toLocaleString([], {
                                 month: "short",
