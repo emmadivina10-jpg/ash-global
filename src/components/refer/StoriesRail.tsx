@@ -237,6 +237,7 @@ async function loadSpotlights(): Promise<SpotlightPost[]> {
   ]);
 
   if (providersResult.error) throw providersResult.error;
+  if (profilesResult.error) throw profilesResult.error;
   if (signedResult.error) throw signedResult.error;
 
   const providers = new Map(

@@ -29,7 +29,7 @@ export function ExpandableSocialText({
   return (
     <div>
       <div ref={textRef} className={cn(!expanded && "line-clamp-2")}>
-        <SocialText text={text} className={className} />
+        <SocialText text={text} {...(className ? { className } : {})} />
       </div>
       {overflowing || expanded ? (
         <button
