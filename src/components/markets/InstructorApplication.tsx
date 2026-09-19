@@ -23,11 +23,11 @@ export function InstructorApplication() {
   if (isLoading) return <p className="py-10 text-center text-sm text-market-muted">Loading your application…</p>;
   if (application) {
     return (
-      <div className="rounded-xl border border-market-line bg-market-surface p-5">
+      <div className="border-y border-border py-6">
         <CheckCircle2 className="size-8 text-market-accent" aria-hidden />
         <h3 className="mt-4 font-display text-xl font-bold text-market-foreground">{STATUS_COPY[application.status]}</h3>
         <p className="mt-2 text-sm text-market-muted">Typically reviewed within 24–48 hours.</p>
-        {application.admin_note ? <p className="mt-4 rounded-lg bg-market-elevated p-3 text-sm text-market-foreground">{application.admin_note}</p> : null}
+        {application.admin_note ? <p className="mt-4 border-l-2 border-primary bg-muted px-3 py-2 text-sm text-foreground">{application.admin_note}</p> : null}
         <p className="mt-4 text-xs leading-relaxed text-market-muted">Document upload does not mean identity verification. ASH review and external KYC verification are recorded separately.</p>
       </div>
     );
@@ -66,7 +66,7 @@ export function InstructorApplication() {
 
   return (
     <form onSubmit={(event) => void onSubmit(event)} className="space-y-5">
-      <div className="rounded-xl border border-market-line bg-market-elevated p-4">
+      <div className="border-y border-border py-4">
         <ShieldCheck className="size-6 text-market-accent" aria-hidden />
         <p className="mt-2 text-sm font-semibold text-market-foreground">Private verification documents</p>
         <p className="mt-1 text-xs leading-relaxed text-market-muted">Only you and authorized reviewers can access your ID and selfie. Uploads are reviewed manually and are not presented as completed KYC.</p>
@@ -87,7 +87,7 @@ export function InstructorApplication() {
         <Field label="Government ID"><Input name="governmentId" type="file" accept="image/jpeg,image/png,application/pdf" required /></Field>
         <Field label="Selfie / face photo"><Input name="selfie" type="file" accept="image/jpeg,image/png" required /></Field>
       </div>
-      <label className="flex items-start gap-3 rounded-xl border border-market-line p-4 text-sm text-market-muted">
+      <label className="flex items-start gap-3 border-y border-border py-4 text-sm text-muted-foreground">
         <input name="declarations" type="checkbox" required className="mt-1" />
         <span>I attest that the information is accurate, the documents are mine, and my Markets content will remain educational and informational—not personalized financial advice.</span>
       </label>

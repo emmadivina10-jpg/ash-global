@@ -19,6 +19,7 @@ import { Line, LineChart } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { PostCard } from "@/components/refer/PostCard";
+import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { InstructorApplication } from "@/components/markets/InstructorApplication";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -118,7 +119,7 @@ function MarketsPage() {
               ))}
             </section>
 
-            <section className="mt-6 grid gap-4 sm:grid-cols-[minmax(0,1fr)_17rem]">
+            <section className="mt-6">
               <div>
                 <TitleRow title="Latest Market Updates" note="From approved FX instructors" />
                 <div className="mt-3 space-y-3">
@@ -136,7 +137,7 @@ function MarketsPage() {
                 </div>
               </div>
 
-              <aside>
+              <aside className="mt-5 border-y border-border py-4">
                 <InstructorInvitation onApply={() => setPanel("apply")} />
               </aside>
             </section>
@@ -161,7 +162,7 @@ function Snapshot({ market }: { market: (typeof FX_MARKETS)[number] }) {
 }
 
 function InstructorInvitation({ onApply }: { onApply: () => void }) {
-  return <section className="brand-gradient rounded-lg p-4 text-on-dark"><GraduationCap className="size-5" /><p className="mt-3 text-[9px] font-extrabold uppercase opacity-80">Teach on ASH Markets</p><h2 className="mt-1 font-display text-base font-extrabold">Become a Verified FX Instructor</h2><Button onClick={onApply} size="sm" variant="secondary" className="mt-3">Apply Now <ChevronRight className="size-4" /></Button><p className="mt-2 text-[9px] opacity-70">Review usually takes 24–48 hours.</p></section>;
+  return <section className="flex w-full flex-col gap-3 sm:flex-row sm:items-center"><span className="brand-gradient grid size-10 shrink-0 place-items-center rounded-xl text-on-dark"><GraduationCap className="size-5" /></span><div className="min-w-0 flex-1"><p className="text-[9px] font-extrabold uppercase text-primary">Teach in FX Analytics</p><h2 className="mt-0.5 font-display text-base font-extrabold text-foreground">Become an ASH Verified FX Instructor</h2><p className="mt-1 text-[10px] text-muted-foreground">Private application · Review usually takes 24–48 hours.</p></div><Button onClick={onApply} size="sm" className="shrink-0">Apply Now <ChevronRight className="size-4" /></Button></section>;
 }
 
 function EmptyUpdates({ onInstructors }: { onInstructors: () => void }) {
@@ -174,7 +175,7 @@ function ComingSoon({ category, onBack }: { category: Exclude<MarketCategory, "F
 
 function MarketPanel({ panel, onClose, currentUserId, updates }: { panel: Panel; onClose: () => void; currentUserId: string | null; updates: ReturnType<typeof useMarketUpdates>["data"] }) {
   const titles: Record<Exclude<Panel, null>, string> = { analysis: "Market Analysis", updates: "Market Updates", news: "Market News", calendar: "Economic Calendar", instructors: "FX Instructors", learn: "Learn FX", apply: "FX Instructor Application", publish: "Publish to ASH Markets" };
-  return <Sheet open={panel !== null} onOpenChange={(value) => { if (!value) onClose(); }}><SheetContent side="right" className="market-theme w-full overflow-y-auto border-border bg-background p-0 sm:max-w-xl"><SheetHeader className="sticky top-0 z-10 border-b border-border bg-background/90 p-5 pr-12 text-left backdrop-blur-xl"><SheetTitle className="font-display text-xl font-extrabold text-foreground">{panel ? titles[panel] : "ASH Markets"}</SheetTitle><SheetDescription className="text-muted-foreground">Educational and informational content only.</SheetDescription></SheetHeader><div className="p-5">{panel === "analysis" ? <AnalysisPanel /> : null}{panel === "news" ? <NewsPanel /> : null}{panel === "calendar" ? <CalendarPanel /> : null}{panel === "learn" ? <LearnPanel /> : null}{panel === "instructors" ? <InstructorsPanel /> : null}{panel === "apply" ? <InstructorApplication /> : null}{panel === "publish" ? <MarketComposer onDone={onClose} /> : null}{panel === "updates" ? <div className="space-y-4">{updates?.map((item) => <div key={item.id} className="overflow-hidden rounded-lg border border-border"><div className="bg-muted px-4 py-3"><p className="text-[10px] font-bold uppercase text-primary">ASH Markets Update</p><p className="font-bold text-foreground">{item.title}</p></div><PostCard post={item.post} currentUserId={currentUserId} /></div>)}</div> : null}</div></SheetContent></Sheet>;
+  return <Sheet open={panel !== null} onOpenChange={(value) => { if (!value) onClose(); }}><SheetContent side="right" className="market-theme w-screen max-w-none overflow-y-auto border-0 bg-background p-0"><SheetHeader className="sticky top-0 z-10 border-b border-border bg-background/90 px-4 py-4 pr-12 text-left backdrop-blur-xl sm:px-8"><SheetTitle className="font-display text-xl font-extrabold text-foreground">{panel ? titles[panel] : "FX Analytics"}</SheetTitle><SheetDescription className="text-muted-foreground">Educational and informational content only.</SheetDescription></SheetHeader><div className="mx-auto w-full max-w-4xl px-4 py-5 sm:px-8">{panel === "analysis" ? <AnalysisPanel /> : null}{panel === "news" ? <NewsPanel /> : null}{panel === "calendar" ? <CalendarPanel /> : null}{panel === "learn" ? <LearnPanel /> : null}{panel === "instructors" ? <InstructorsPanel /> : null}{panel === "apply" ? <InstructorApplication /> : null}{panel === "publish" ? <MarketComposer onDone={onClose} /> : null}{panel === "updates" ? <div className="space-y-4">{updates?.map((item) => <div key={item.id} className="overflow-hidden border-y border-border"><div className="bg-muted px-4 py-3"><p className="text-[10px] font-bold uppercase text-primary">ASH Markets Update</p><p className="font-bold text-foreground">{item.title}</p></div><PostCard post={item.post} currentUserId={currentUserId} /></div>)}</div> : null}</div></SheetContent></Sheet>;
 }
 
 function AnalysisPanel() { return <div className="space-y-3">{ANALYSIS_ITEMS.map((item, index) => <article key={item.title} className="rounded-xl border border-market-line bg-market-surface p-5"><span className="text-[10px] font-extrabold uppercase text-market-accent">Market Observation {index + 1}</span><h3 className="mt-2 font-bold text-market-foreground">{item.title}</h3><p className="mt-2 text-sm leading-relaxed text-market-muted">{item.body}</p></article>)}</div>; }
@@ -186,7 +187,7 @@ function InstructorsPanel() {
   const { data: instructors, isLoading } = useFxInstructors();
   if (isLoading) return <Loader2 className="mx-auto mt-10 size-5 animate-spin text-market-accent" />;
   if (!instructors?.length) return <div className="py-12 text-center"><Users className="mx-auto size-7 text-market-accent"/><h3 className="mt-3 font-bold text-market-foreground">No approved instructors yet</h3><p className="mt-2 text-sm text-market-muted">Profiles appear here only after a real application review and approval.</p></div>;
-  return <div className="space-y-3">{instructors.map((item) => <article key={item.id} className="rounded-xl border border-market-line bg-market-surface p-4"><div className="flex gap-3"><Avatar path={item.avatar_url} name={item.full_name} className="size-12"/><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h3 className="font-bold text-market-foreground">{item.full_name}</h3><span className="rounded-full bg-market-accent px-2 py-0.5 text-[9px] font-extrabold text-market-accent-foreground">ASH VERIFIED FX INSTRUCTOR</span></div><p className="text-xs text-market-lavender">@{item.username ?? "profile"} · {item.follower_count} followers</p></div></div><p className="mt-3 text-sm text-market-muted">{item.about || item.experience_summary || "Professional instructor profile."}</p><div className="mt-3 flex flex-wrap gap-1.5">{item.specialties.map((specialty) => <span key={specialty} className="rounded-full border border-market-line px-2 py-1 text-[10px] text-market-muted">{specialty}</span>)}</div><Button asChild variant="outline" size="sm" className="mt-4 border-market-line bg-market-elevated text-market-foreground"><Link to="/markets/instructors/$instructorId" params={{ instructorId: item.id }}>View professional profile</Link></Button></article>)}</div>;
+  return <div className="divide-y divide-border border-y border-border">{instructors.map((item) => <article key={item.id} className="py-5"><div className="flex gap-3"><Avatar path={item.avatar_url} name={item.full_name} online={item.online} className="size-12"/><div className="min-w-0"><div className="flex flex-wrap items-center gap-1.5"><h3 className="font-bold text-foreground">{item.full_name}</h3><VerifiedBadge tier={item.verified_tier} until={item.verified_until} size={15}/><span className="text-[9px] font-extrabold uppercase text-primary">ASH Verified FX Instructor</span></div><p className="text-xs text-muted-foreground">@{item.username ?? "profile"} · {item.follower_count} followers</p></div></div><p className="mt-3 text-sm text-muted-foreground">{item.about || item.experience_summary || "Professional instructor profile."}</p><div className="mt-3 flex flex-wrap gap-1.5">{item.specialties.map((specialty) => <span key={specialty} className="rounded-full border border-border px-2 py-1 text-[10px] text-muted-foreground">{specialty}</span>)}</div><Button asChild variant="outline" size="sm" className="mt-4"><Link to="/markets/instructors/$instructorId" params={{ instructorId: item.id }}>View professional profile</Link></Button></article>)}</div>;
 }
 
 function MarketComposer({ onDone }: { onDone: () => void }) {
