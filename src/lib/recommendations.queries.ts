@@ -49,8 +49,8 @@ export function useRecommendations(
         _content_type: contentType,
         _limit: limit,
         _offset: offset,
-        _city: city,
-        _category: category,
+        ...(city ? { _city: city } : {}),
+        ...(category ? { _category: category } : {}),
       });
       if (error) throw error;
       return (data ?? []) as RecommendationCandidate[];
