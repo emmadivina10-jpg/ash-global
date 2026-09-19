@@ -209,7 +209,14 @@ export function PostCard({
           disabled={repost.isPending}
           aria-pressed={post.reposted}
           className={cn(post.reposted && "text-primary")}
-          onClick={() =>
+          onClick={() => {
+            trackEvent({
+              event_type: "repost",
+              surface: "feed",
+              target_type: "post",
+              target_id: post.id,
+              author_id: post.author_id,
+            });
             repost.mutate(
               { postId: post.id, reposted: post.reposted },
               {
