@@ -73,12 +73,12 @@ export function PostCard({
       )}
     >
       {post.market ? (
-        <div className="flex items-center justify-between gap-3 border-b border-border bg-primary-deep px-4 py-2 text-on-dark">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-primary/5 px-4 py-2">
           <div className="min-w-0">
-            <p className="text-[9px] font-extrabold uppercase text-gold-soft">ASH Markets Update</p>
-            <p className="truncate text-xs font-bold">{post.market.title}</p>
+            <p className="text-[9px] font-extrabold uppercase text-primary">ASH Markets Update</p>
+            <p className="truncate text-xs font-bold text-foreground">{post.market.title}</p>
           </div>
-          <Link to="/search" className="shrink-0 text-[10px] font-bold text-gold-soft hover:underline">View in ASH Markets</Link>
+          <Link to="/search" className="shrink-0 text-[10px] font-bold text-primary hover:underline">View in ASH Markets</Link>
         </div>
       ) : null}
       <header className="flex items-center gap-3 p-4 pb-3">
