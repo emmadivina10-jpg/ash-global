@@ -99,10 +99,6 @@ function CreatePage() {
         aria-labelledby="create-coming-soon-title"
       >
         <div className="w-full max-w-lg rounded-3xl border border-border/70 bg-card/95 p-8 text-center shadow-2xl sm:p-10">
-          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <span className="text-2xl font-bold">ASH</span>
-          </div>
-
           <h2 id="create-coming-soon-title" className="font-display text-3xl font-bold text-foreground sm:text-4xl">
             {fr ? "Bientôt disponible !" : "Coming Soon!"}
           </h2>

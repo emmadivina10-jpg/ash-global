@@ -100,11 +100,13 @@ export function AvatarUpload({
   userId,
   path,
   name,
+  online = false,
   onUploaded,
 }: {
   userId: string;
   path: string | null | undefined;
   name?: string | null | undefined;
+  online?: boolean | undefined;
   onUploaded: (path: string) => Promise<void> | void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -157,7 +159,7 @@ export function AvatarUpload({
   return (
     <div className="flex items-center gap-4">
       <div className="relative">
-        <Avatar path={path} name={name} className="size-20 ring-2 ring-border" />
+        <Avatar path={path} name={name} online={online} className="size-20 ring-2 ring-border" />
         {busy ? (
           <span className="absolute inset-0 grid place-items-center rounded-full bg-foreground/50">
             <Loader2 className="size-5 animate-spin text-background" aria-hidden />
