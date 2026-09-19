@@ -95,7 +95,7 @@ export function ChatThread({
   const { t, lang } = useI18n();
   const fr = lang === "fr";
   const queryClient = useQueryClient();
-  const { data, isLoading } = useMessages(conversationId, !initialMessages);
+  const { data, isLoading } = useMessages(conversationId, initialMessages === undefined);
 
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);

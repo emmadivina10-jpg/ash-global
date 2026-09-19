@@ -206,12 +206,12 @@ export function useProviderReviews(providerId: string | undefined) {
           .select("user_id, full_name, avatar_url")
           .in("user_id", ids);
         for (const p of people ?? []) {
-          names[p.user_id] = { name: p.full_name || "Profile unavailable", avatar: p.avatar_url };
+          names[p.user_id] = { name: p.full_name || "Profile", avatar: p.avatar_url };
         }
       }
       return rows.map((r) => ({
         ...r,
-        author: names[r.client_id]?.name ?? "Profile unavailable",
+        author: names[r.client_id]?.name ?? "Profile",
         authorAvatar: names[r.client_id]?.avatar ?? null,
       }));
     },
