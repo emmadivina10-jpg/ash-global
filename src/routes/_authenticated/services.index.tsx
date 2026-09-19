@@ -3,7 +3,7 @@ import { trackEvent } from "@/lib/activity";
 import { createPortal } from "react-dom";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Capacitor } from "@capacitor/core";
-import { Browser } from "@capacitor/browser";
+import { AppLauncher } from "@capacitor/app-launcher";
 import {
   Briefcase,
   Calendar,
@@ -172,20 +172,24 @@ const QUICK_LINKS = [
 ] as const;
 
 /**
- * Opens third-party services without navigating ASH itself away.
+ * Opens third-party services in the device's real web browser.
  *
  * Native Capacitor app:
- *   Uses the OS in-app browser surface. We intentionally do not set a
- *   presentationStyle or manipulate scroll/viewport state; the native
- *   browser owns its own presentation and closing it returns to ASH.
+ *   AppLauncher hands the URL to Safari / Chrome, so the page never renders
+ *   inside ASH. Falls back to the in-app browser surface only if the launch
+ *   is refused by the OS.
  *
  * Normal web:
- *   Opens a new tab and leaves the ASH tab untouched.
+ *   Opens a new browser tab and leaves the ASH tab untouched.
  */
 async function openExternalService(url: string) {
   try {
     if (Capacitor.isNativePlatform()) {
-      await Browser.open({ url });
+      const { completed } = await AppLauncher.openUrl({ url });
+      if (!completed) {
+        const { Browser } = await import("@capacitor/browser");
+        await Browser.open({ url });
+      }
       return;
     }
 
