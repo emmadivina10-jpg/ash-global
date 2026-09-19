@@ -12,13 +12,16 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AccountDeletionRouteImport } from './routes/account-deletion'
+import { Route as CommunityGuidelinesRouteImport } from './routes/community-guidelines'
 import { Route as ConsentRouteImport } from './routes/consent'
 import { Route as ConsoleRouteImport } from './routes/console'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MarketplacePolicyRouteImport } from './routes/marketplace-policy'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ReferralWalletTermsRouteImport } from './routes/referral-wallet-terms'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SafetyReviewRouteImport } from './routes/safety-review'
@@ -122,6 +125,11 @@ const AccountDeletionRoute = AccountDeletionRouteImport.update({
   path: '/account-deletion',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CommunityGuidelinesRoute = CommunityGuidelinesRouteImport.update({
+  id: '/community-guidelines',
+  path: '/community-guidelines',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConsentRoute = ConsentRouteImport.update({
   id: '/consent',
   path: '/consent',
@@ -147,6 +155,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MarketplacePolicyRoute = MarketplacePolicyRouteImport.update({
+  id: '/marketplace-policy',
+  path: '/marketplace-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -155,6 +168,11 @@ const OnboardingRoute = OnboardingRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReferralWalletTermsRoute = ReferralWalletTermsRouteImport.update({
+  id: '/referral-wallet-terms',
+  path: '/referral-wallet-terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegisterRoute = RegisterRouteImport.update({
@@ -623,13 +641,16 @@ const LovableEmailTransactionalPreviewRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/account-deletion': typeof AccountDeletionRoute
+  '/community-guidelines': typeof CommunityGuidelinesRoute
   '/consent': typeof ConsentRoute
   '/console': typeof ConsoleRouteWithChildren
   '/contact': typeof ContactRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/marketplace-policy': typeof MarketplacePolicyRoute
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
+  '/referral-wallet-terms': typeof ReferralWalletTermsRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/safety-review': typeof SafetyReviewRoute
@@ -722,12 +743,15 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account-deletion': typeof AccountDeletionRoute
+  '/community-guidelines': typeof CommunityGuidelinesRoute
   '/consent': typeof ConsentRoute
   '/contact': typeof ContactRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/marketplace-policy': typeof MarketplacePolicyRoute
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
+  '/referral-wallet-terms': typeof ReferralWalletTermsRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/safety-review': typeof SafetyReviewRoute
@@ -822,13 +846,16 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/account-deletion': typeof AccountDeletionRoute
+  '/community-guidelines': typeof CommunityGuidelinesRoute
   '/consent': typeof ConsentRoute
   '/console': typeof ConsoleRouteWithChildren
   '/contact': typeof ContactRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/marketplace-policy': typeof MarketplacePolicyRoute
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
+  '/referral-wallet-terms': typeof ReferralWalletTermsRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/safety-review': typeof SafetyReviewRoute
@@ -923,13 +950,16 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/account-deletion'
+    | '/community-guidelines'
     | '/consent'
     | '/console'
     | '/contact'
     | '/forgot-password'
     | '/login'
+    | '/marketplace-policy'
     | '/onboarding'
     | '/privacy'
+    | '/referral-wallet-terms'
     | '/register'
     | '/reset-password'
     | '/safety-review'
@@ -1022,12 +1052,15 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/account-deletion'
+    | '/community-guidelines'
     | '/consent'
     | '/contact'
     | '/forgot-password'
     | '/login'
+    | '/marketplace-policy'
     | '/onboarding'
     | '/privacy'
+    | '/referral-wallet-terms'
     | '/register'
     | '/reset-password'
     | '/safety-review'
@@ -1121,13 +1154,16 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/account-deletion'
+    | '/community-guidelines'
     | '/consent'
     | '/console'
     | '/contact'
     | '/forgot-password'
     | '/login'
+    | '/marketplace-policy'
     | '/onboarding'
     | '/privacy'
+    | '/referral-wallet-terms'
     | '/register'
     | '/reset-password'
     | '/safety-review'
@@ -1222,13 +1258,16 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AccountDeletionRoute: typeof AccountDeletionRoute
+  CommunityGuidelinesRoute: typeof CommunityGuidelinesRoute
   ConsentRoute: typeof ConsentRoute
   ConsoleRoute: typeof ConsoleRouteWithChildren
   ContactRoute: typeof ContactRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
+  MarketplacePolicyRoute: typeof MarketplacePolicyRoute
   OnboardingRoute: typeof OnboardingRoute
   PrivacyRoute: typeof PrivacyRoute
+  ReferralWalletTermsRoute: typeof ReferralWalletTermsRoute
   RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SafetyReviewRoute: typeof SafetyReviewRoute
@@ -1271,6 +1310,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountDeletionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/community-guidelines': {
+      id: '/community-guidelines'
+      path: '/community-guidelines'
+      fullPath: '/community-guidelines'
+      preLoaderRoute: typeof CommunityGuidelinesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/consent': {
       id: '/consent'
       path: '/consent'
@@ -1306,6 +1352,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/marketplace-policy': {
+      id: '/marketplace-policy'
+      path: '/marketplace-policy'
+      fullPath: '/marketplace-policy'
+      preLoaderRoute: typeof MarketplacePolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboarding': {
       id: '/onboarding'
       path: '/onboarding'
@@ -1318,6 +1371,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/referral-wallet-terms': {
+      id: '/referral-wallet-terms'
+      path: '/referral-wallet-terms'
+      fullPath: '/referral-wallet-terms'
+      preLoaderRoute: typeof ReferralWalletTermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register': {
@@ -2105,13 +2165,16 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AccountDeletionRoute: AccountDeletionRoute,
+  CommunityGuidelinesRoute: CommunityGuidelinesRoute,
   ConsentRoute: ConsentRoute,
   ConsoleRoute: ConsoleRouteWithChildren,
   ContactRoute: ContactRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
+  MarketplacePolicyRoute: MarketplacePolicyRoute,
   OnboardingRoute: OnboardingRoute,
   PrivacyRoute: PrivacyRoute,
+  ReferralWalletTermsRoute: ReferralWalletTermsRoute,
   RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SafetyReviewRoute: SafetyReviewRoute,
