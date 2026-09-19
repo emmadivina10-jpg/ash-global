@@ -20,7 +20,7 @@ export const Route = createFileRoute("/support")({
       {
         name: "description",
         content:
-          "Reach the ASH Glo team about payments, withdrawals, bookings or your account. We reply by email within 24 hours.",
+          "Reach ASH Global Technologies about ASH Glo payments, withdrawals, bookings, privacy, safety or your account.",
       },
       { property: "og:title", content: "Contact ASH Glo Support" },
       { property: "og:description", content: "Questions about payments, withdrawals or bookings? Message our team." },
@@ -101,8 +101,8 @@ function SupportPage() {
           </h2>
           <p className="text-sm text-muted-foreground">
             {fr
-              ? "Écrivez-nous. Nous répondons par e-mail sous 24 heures."
-              : "Send us a message. We reply by email within 24 hours."}
+              ? "Écrivez-nous et conservez votre référence pour le suivi."
+              : "Send us a message and keep your reference for follow-up."}
           </p>
         </div>
       </div>

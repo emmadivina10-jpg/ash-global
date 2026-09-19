@@ -19,6 +19,8 @@ export const Route = createFileRoute("/consent")({
       },
       { property: "og:title", content: "Agree to the ASH Glo terms" },
       { property: "og:description", content: "Accept the ASH Glo Terms of Service and Privacy Policy." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: ConsentPage,

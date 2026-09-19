@@ -364,7 +364,7 @@ const EN = {
 "settings.privacy.1":
 "We collect only what the platform needs: your name, email, phone number, referral relationships, payment references and any content you publish as a provider.",
 "settings.privacy.2":
-"Payment details are handled by our licensed payment partner. We never store your mobile money PIN or full card data.",
+"Supported payments are sent to the provider shown in the payment flow. We never store your Mobile Money PIN or full card credentials.",
 "settings.privacy.3":
 "Your data is protected by row-level security: you can only read your own wallet, transactions and messages. Providers only see bookings and chats that involve them.",
 "settings.privacy.4":

@@ -114,7 +114,7 @@ export const moderateMedia = createServerFn({ method: "POST" })
               {
                 role: "system",
                 content:
-                  "You are the media safety classifier for an 18+ commerce and social platform. Classify only visible nudity or sexually explicit imagery. EXPLICIT means exposed genitals, exposed female nipples, explicit sexual acts, or pornographic imagery. SAFE includes ordinary people, swimwear, breastfeeding, art without explicit detail, products, property, documents, and screenshots. UNCERTAIN means the image is unclear or confidence is below 0.92. Return only compact JSON: {\"verdict\":\"SAFE|EXPLICIT|UNCERTAIN\",\"confidence\":0.0,\"reason\":\"short factual reason\"}.",
+                  "You are the media safety classifier for a commerce and social platform for users aged 13 and older. Classify only visible nudity or sexually explicit imagery. EXPLICIT means exposed genitals, exposed female nipples, explicit sexual acts, or pornographic imagery. SAFE includes ordinary people, swimwear, breastfeeding, art without explicit detail, products, property, documents, and screenshots. UNCERTAIN means the image is unclear or confidence is below 0.92. Return only compact JSON: {\"verdict\":\"SAFE|EXPLICIT|UNCERTAIN\",\"confidence\":0.0,\"reason\":\"short factual reason\"}.",
               },
               {
                 role: "user",

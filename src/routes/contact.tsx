@@ -6,12 +6,12 @@ import { PublicInfoShell } from "@/components/refer/PublicInfoShell";
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact ASH — Help, Privacy & Safety" },
+      { title: "Contact ASH Glo — Help, Privacy & Safety" },
       {
         name: "description",
-        content: "Contact ASH for account help, payments, privacy, safety, partnerships and legal questions.",
+        content: "Contact ASH Global Technologies for ASH Glo account help, payments, privacy, safety, partnerships and legal questions.",
       },
-      { property: "og:title", content: "Contact ASH — Help, Privacy & Safety" },
+      { property: "og:title", content: "Contact ASH Glo — Help, Privacy & Safety" },
       { property: "og:description", content: "Official contact channels for ASH members and App Store reviewers." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://ashglogroup.company/contact" },
@@ -53,8 +53,8 @@ function ContactPage() {
   return (
     <PublicInfoShell
       eyebrow="Official contact"
-      title="Contact ASH"
-      description="Choose the right channel and our team will route your request securely. Support messages normally receive a reply within 24 hours."
+      title="Contact ASH Glo"
+      description="These are the official channels for contacting ASH Global Technologies about the ASH Glo platform."
       wide
     >
       <div className="grid gap-4 md:grid-cols-2">
@@ -81,7 +81,7 @@ function ContactPage() {
           <div>
             <h2 className="font-bold text-foreground">For the fastest help</h2>
             <p className="mt-1 text-sm leading-6 text-muted-foreground">
-              Include your ASH account email and any booking or transaction reference. Never send your password, Mobile Money PIN, card number or verification code.
+              Include your ASH Glo account email and any booking or transaction reference. Never send your password, Mobile Money PIN, full card credentials or verification code.
             </p>
           </div>
         </div>
