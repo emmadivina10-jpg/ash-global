@@ -702,7 +702,7 @@ html.native .app-shell-scroll {
    layout viewport, so no empty band can appear beneath it. */
 html.native .app-shell > nav {
   position: absolute;
-  bottom: calc(0.55rem + env(safe-area-inset-bottom));
+  bottom: 0;
 }
 
 /* Messages has one deliberate inner scroll surface. Hide the browser's
