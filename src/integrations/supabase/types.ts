@@ -4440,6 +4440,10 @@ export type Database = {
         }
         Returns: Json
       }
+      review_fx_instructor_application: {
+        Args: { _application_id: string; _note?: string; _status: string }
+        Returns: undefined
+      }
       review_media_moderation: {
         Args: {
           _case_id: string
