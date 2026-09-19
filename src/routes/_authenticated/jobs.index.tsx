@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Briefcase, MapPin, Plus, Search } from "lucide-react";
+import { Briefcase, ImagePlus, MapPin, Plus, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -97,14 +97,16 @@ function JobsPage() {
           description={fr ? "Publiez la première offre, c'est gratuit." : "Post the first role — it's free."}
         />
       ) : (
-        <ul className="space-y-3">
+        <ul className="grid gap-3 sm:grid-cols-2">
           {(jobs.data ?? []).map((job) => (
             <li key={job.id}>
               <Link
                 to="/jobs/$jobId"
                 params={{ jobId: job.id }}
-                className="tile flex flex-col gap-2 p-4 transition hover:border-primary/40"
+                className="tile flex h-full flex-col gap-2 overflow-hidden p-0 transition hover:border-primary/40"
               >
+                {job.image_url ? <img src={job.image_url} alt="" className="aspect-[16/9] w-full object-cover" loading="lazy" /> : null}
+                <div className="flex flex-1 flex-col gap-2 p-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
                     {job.employment_type}
@@ -132,6 +134,7 @@ function JobsPage() {
                 <p className="text-xs text-muted-foreground">
                   {job.applications_count} {fr ? "candidature(s)" : "applicants"}
                 </p>
+                </div>
               </Link>
             </li>
           ))}
@@ -152,6 +155,7 @@ function PostJobDialog({ fr }: { fr: boolean }) {
   const [salaryMin, setSalaryMin] = useState("");
   const [salaryMax, setSalaryMax] = useState("");
   const [email, setEmail] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const post = usePostJob();
 
   async function submit() {
@@ -171,6 +175,7 @@ function PostJobDialog({ fr }: { fr: boolean }) {
         salary_max: salaryMax ? Number(salaryMax) : null,
         apply_deadline: null,
         contact_email: email.trim() || null,
+        imageFile,
       });
       toast.success(fr ? "Offre publiée." : "Job posted.");
       setOpen(false);
@@ -181,6 +186,7 @@ function PostJobDialog({ fr }: { fr: boolean }) {
       setSalaryMin("");
       setSalaryMax("");
       setEmail("");
+      setImageFile(null);
     } catch {
       toast.error(fr ? "Publication impossible." : "Could not post the job.");
     }
@@ -252,6 +258,26 @@ function PostJobDialog({ fr }: { fr: boolean }) {
             type="email"
             placeholder={fr ? "Email de contact (optionnel)" : "Contact email (optional)"}
           />
+          <div className="rounded-lg border border-dashed border-border p-3">
+            <label className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-foreground">
+              <ImagePlus className="size-4 text-primary" aria-hidden />
+              {fr ? "Ajouter une image (optionnel)" : "Add one image (optional)"}
+              <input
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                onChange={(event) => setImageFile(event.target.files?.[0] ?? null)}
+              />
+            </label>
+            {imageFile ? (
+              <div className="mt-2 flex items-center justify-between gap-2 text-xs text-muted-foreground">
+                <span className="truncate">{imageFile.name}</span>
+                <Button variant="ghost" size="icon" className="size-7" onClick={() => setImageFile(null)} aria-label={fr ? "Retirer l'image" : "Remove image"}>
+                  <X className="size-4" aria-hidden />
+                </Button>
+              </div>
+            ) : null}
+          </div>
           <Button onClick={submit} disabled={post.isPending} className="w-full touch-manipulation">
             {post.isPending ? (fr ? "Publication…" : "Posting…") : fr ? "Publier l'offre" : "Post the job"}
           </Button>

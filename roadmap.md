@@ -60,9 +60,9 @@
 - [ ] Verify the published cleanup callback and remove existing expired Stories
 
 ## Menu, social, jobs, network, and studio fixes
-- [ ] Place the Menu lines in front of the profile photo
-- [ ] Remove newly connected or pending members from Add Friend suggestions
-- [ ] Place the notification bell in front and allow notifications to be deleted
-- [ ] Allow one optional job image and professional job-referenced messaging
-- [ ] Shorten network level labels to L1/L2/L3 and show member photos and names
-- [ ] Make Professional Studio availability and publish actions publish the profile
+- [x] Place the Menu lines in front of the profile photo
+- [x] Remove newly connected or pending members from Add Friend suggestions
+- [x] Place the notification bell in front and allow notifications to be deleted
+- [x] Allow one optional job image and professional job-referenced messaging
+- [x] Shorten network level labels to L1/L2/L3 and show member photos and names
+- [x] Make Professional Studio availability and publish actions publish the profile

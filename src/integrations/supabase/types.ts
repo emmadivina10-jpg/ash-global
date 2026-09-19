@@ -4443,6 +4443,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      open_job_conversation: { Args: { _job_id: string }; Returns: string }
       open_property_conversation: {
         Args: { _listing_id: string }
         Returns: Json

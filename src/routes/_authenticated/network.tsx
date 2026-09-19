@@ -124,12 +124,12 @@ function LevelRow({ level }: { level: NetworkLevel }) {
         className="flex w-full items-center gap-2 px-3 py-3 sm:gap-3 text-left transition hover:bg-muted/50 sm:px-5"
       >
         <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-          {level.level}
+          L{level.level}
         </span>
 
         <span className="min-w-0 flex-1">
           <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className="whitespace-nowrap text-sm font-semibold text-foreground">{t("net.level", { n: level.level })}</span>
+            <span className="whitespace-nowrap text-sm font-semibold text-foreground">L{level.level}</span>
             <span className="tabular whitespace-nowrap rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
               {t("net.each", { amount: formatXAF(COMMISSIONS[level.level as 1 | 2 | 3]) })}
             </span>

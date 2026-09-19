@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { ChevronDown, ChevronRight, User2 } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
+import { Avatar } from "@/components/refer/AvatarUpload";
 import { StatusBadge } from "@/components/refer/StatusBadge";
 import { formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
@@ -12,6 +13,8 @@ export type NetworkNode = {
   account_status: string;
   joined_at: string;
   commission: number;
+  member_name: string;
+  avatar_url: string | null;
 };
 
 type TreeNode = NetworkNode & { children: TreeNode[] };
@@ -60,7 +63,7 @@ export function NetworkTree({
                   : "bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary",
               )}
             >
-              {lvl ? t("net.level", { n: lvl }) : t("net.tree.filter.all")}
+              {lvl ? `L${lvl}` : t("net.tree.filter.all")}
             </button>
           ))}
         </div>
@@ -104,7 +107,7 @@ function RootNode({ status }: { status: string }) {
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-3">
       <div className="grid size-10 place-items-center rounded-full bg-primary text-primary-foreground">
-        <span className="text-xs font-bold">{t("net.tree.you")}</span>
+        <span className="whitespace-nowrap text-xs font-bold">{t("net.tree.you")}</span>
       </div>
       <div>
         <p className="text-sm font-semibold text-foreground">{t("net.tree.rootLabel")}</p>
@@ -139,18 +142,11 @@ function NodeBranch({ node, depth }: { node: TreeNode; depth: number }) {
           {open ? <ChevronDown className="size-4" aria-hidden /> : <ChevronRight className="size-4" aria-hidden />}
         </button>
 
-        <div
-          className={cn(
-            "grid size-9 place-items-center rounded-full",
-            depth === 0 ? "bg-primary text-primary-foreground" : "bg-gold/20 text-gold-foreground",
-          )}
-        >
-          <User2 className="size-5" aria-hidden />
-        </div>
+        <Avatar path={node.avatar_url} name={node.member_name} className="size-9" />
 
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-foreground">
-            {t("net.level", { n: node.level })} · {t("net.tree.member")}
+            {node.member_name} · L{node.level}
           </p>
           <p className="text-xs text-muted-foreground">{t("net.tree.joined", { date: formatDate(node.joined_at) })}</p>
         </div>

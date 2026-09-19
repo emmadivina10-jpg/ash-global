@@ -113,14 +113,14 @@ export function NotificationBell() {
                 }}
                 className="flex w-full items-start gap-3 rounded-2xl px-2.5 py-2.5 text-left transition-colors hover:bg-secondary"
               >
-                <span className="relative shrink-0">
+                  <span className="relative z-0 shrink-0">
                   <Avatar
                     path={n.actor?.avatar_url ?? null}
                     name={n.actor?.name ?? (fr ? "Profil" : "Profile")}
                     className="size-11"
-                     online={n.actor?.online}
+                     online={false}
                   />
-                  <span className="brand-gradient absolute -bottom-0.5 -right-0.5 grid size-5 place-items-center rounded-full border-2 border-card text-primary-foreground">
+                   <span className="brand-gradient absolute -bottom-0.5 -right-0.5 z-10 grid size-5 place-items-center rounded-full border-2 border-card text-primary-foreground">
                     <Bell className="size-2.5" aria-hidden />
                   </span>
                 </span>

@@ -237,6 +237,7 @@ export function AvailabilityCard({ studio }: { studio: Studio }) {
         slot_minutes: Number(slotMinutes) || 30,
         booking_lead_hours: Number(lead) || 0,
         accepting_bookings: accepting,
+        is_live: true,
       })
       .eq("id", studio.id);
     setSaving(false);
@@ -244,7 +245,7 @@ export function AvailabilityCard({ studio }: { studio: Studio }) {
       toast.error(profileError.message);
       return;
     }
-    toast.success("Availability saved");
+    toast.success("Availability saved — storefront published");
     await queryClient.invalidateQueries({ queryKey: ["availability", studio.id] });
     void queryClient.invalidateQueries({ queryKey: ["provider"] });
   }

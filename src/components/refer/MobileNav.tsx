@@ -74,7 +74,7 @@ export function MobileNav({
             >
               <span className="relative size-7">
                 <Avatar path={profile?.avatar_url} name={profile?.full_name} className="size-7 border border-border" />
-                <span className="absolute -bottom-0.5 -right-1 grid size-3.5 place-items-center rounded-full bg-background ring-1 ring-border">
+                <span className="absolute -bottom-0.5 -right-1 z-10 grid size-3.5 place-items-center rounded-full bg-background ring-1 ring-border">
                   <Menu className="size-2.5" strokeWidth={3} aria-hidden />
                 </span>
               </span>
