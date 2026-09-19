@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { signPortfolioPaths, type ServiceCategory } from "./marketplace";
-import { directory } from "@/lib/public-profiles";
+import { directory, type DirectoryProfile } from "@/lib/public-profiles";
 
 export type ProviderProfile = {
   id: string;
