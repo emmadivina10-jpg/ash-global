@@ -189,12 +189,12 @@ function SettingsPage() {
         </div>
       </SectionCard>
 
-      <SectionCard title={fr ? "Bouton ASH flottant" : "Floating ASH button"}>
+      <SectionCard title={fr ? "Bouton Portefeuille flottant" : "Floating Wallet button"}>
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {fr
-              ? "Afficher le bouton rond « A » qui ouvre l'assistant, le support et la carte ASH."
-              : "Show the round \u201cA\u201d button that opens the assistant, support and ASH card."}
+              ? "Afficher le bouton rond qui ouvre un aperçu rapide de votre portefeuille."
+              : "Show the round button that opens a quick preview of your wallet."}
           </p>
           <Switch
             checked={orbVisible}
