@@ -634,10 +634,17 @@ export function useCreateStory() {
 }
 
 /** Records that the signed-in member watched a story (ignores repeats). */
-export async function recordStoryView(storyId: string) {
+export async function recordStoryView(storyId: string, authorId?: string | null) {
   const userId = await currentUserId();
   if (!userId) return;
   await supabase.from("story_views").insert({ story_id: storyId, viewer_id: userId });
+  trackEvent({
+    event_type: "story_view",
+    surface: "stories",
+    target_type: "story",
+    target_id: storyId,
+    ...(authorId ? { author_id: authorId } : {}),
+  });
 }
 
 export function useStoryViewers(storyId: string | null) {
