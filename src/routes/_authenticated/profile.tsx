@@ -9,7 +9,6 @@ import { SectionCard } from "@/components/refer/cards";
 import { StatusBadge } from "@/components/refer/StatusBadge";
 import { CopyReferralButton } from "@/components/refer/ReferralCard";
 import { AvatarUpload } from "@/components/refer/AvatarUpload";
-import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { GroupVerifiedBadge } from "@/components/refer/GroupBadge";
 
 import { SkeletonRows } from "@/components/refer/states";
@@ -148,7 +147,7 @@ function ProfilePage() {
             {(profile as { verified_tier?: string | null }).verified_tier ? (
               <GroupVerifiedBadge className="size-5" label="ASH verified profile" />
             ) : (
-              <Link to="/verified" aria-label="Get verified" title="Get verified" className="shrink-0 text-primary">
+              <Link to="/verified" aria-label="Get verified" title="Get verified" className="shrink-0 text-social-verified">
                 <BadgeCheck className="size-5" aria-hidden />
               </Link>
             )}
