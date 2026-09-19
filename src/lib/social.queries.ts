@@ -1436,7 +1436,11 @@ export function useRespondFriendRequest() {
         .eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => { void queryClient.invalidateQueries({ queryKey: ["friendships"] }); void queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] }); },
+    onSuccess: (_result, variables) => {
+      if (variables.accept) trackEvent({ event_type: "follow", surface: "profile", target_type: "friendship", target_id: variables.id });
+      void queryClient.invalidateQueries({ queryKey: ["friendships"] });
+      void queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
+    },
   });
 }
 
