@@ -531,6 +531,7 @@ export type Database = {
           created_at: string
           group_id: string | null
           id: string
+          job_id: string | null
           last_message_at: string
           listing_id: string | null
           owner_id: string | null
@@ -542,6 +543,7 @@ export type Database = {
           created_at?: string
           group_id?: string | null
           id?: string
+          job_id?: string | null
           last_message_at?: string
           listing_id?: string | null
           owner_id?: string | null
@@ -553,6 +555,7 @@ export type Database = {
           created_at?: string
           group_id?: string | null
           id?: string
+          job_id?: string | null
           last_message_at?: string
           listing_id?: string | null
           owner_id?: string | null
@@ -571,6 +574,13 @@ export type Database = {
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "chat_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
             referencedColumns: ["id"]
           },
           {
@@ -1466,6 +1476,7 @@ export type Database = {
           description: string
           employment_type: string
           id: string
+          image_path: string | null
           is_open: boolean
           location_type: string
           poster_id: string
@@ -1488,6 +1499,7 @@ export type Database = {
           description: string
           employment_type?: string
           id?: string
+          image_path?: string | null
           is_open?: boolean
           location_type?: string
           poster_id: string
@@ -1510,6 +1522,7 @@ export type Database = {
           description?: string
           employment_type?: string
           id?: string
+          image_path?: string | null
           is_open?: boolean
           location_type?: string
           poster_id?: string
@@ -4337,6 +4350,19 @@ export type Database = {
           id: string
           joined_at: string
           level: number
+          parent_id: string
+        }[]
+      }
+      get_user_network_tree_with_profiles: {
+        Args: never
+        Returns: {
+          account_status: string
+          avatar_url: string
+          commission: number
+          id: string
+          joined_at: string
+          level: number
+          member_name: string
           parent_id: string
         }[]
       }
