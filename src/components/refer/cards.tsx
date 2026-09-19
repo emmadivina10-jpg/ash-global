@@ -133,7 +133,7 @@ export function BalanceCard({
       >
         <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] opacity-55">Card holder</p>
-          <p className="truncate text-sm font-semibold uppercase tracking-wide">{holder ?? "ASH Member"}</p>
+          <p className="truncate text-sm font-semibold uppercase tracking-wide">{holder ?? "Profile"}</p>
         </div>
         <div className="text-right">
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] opacity-55">Valid thru</p>

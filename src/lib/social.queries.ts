@@ -511,7 +511,7 @@ export function useStories() {
       const groups: StoryGroup[] = Array.from(grouped.entries()).map(([authorId, stories]) => ({
         author: authors.get(authorId) ?? {
           id: authorId,
-          name: "Profile unavailable",
+          name: "Profile",
           avatar_url: null,
         },
         stories,
@@ -653,7 +653,7 @@ export function useStoryViewers(storyId: string | null) {
       const authors = await loadAuthors(rows.map((r) => r.viewer_id));
       return rows.map((r) => ({
         at: r.created_at,
-        viewer: authors.get(r.viewer_id) ?? { id: r.viewer_id, name: "Profile unavailable", avatar_url: null },
+        viewer: authors.get(r.viewer_id) ?? { id: r.viewer_id, name: "Profile", avatar_url: null },
       }));
     },
   });
@@ -761,7 +761,7 @@ export function useSocialFeed(limit = 40) {
           reaction_breakdown: reaction.breakdown,
           reposted: r.reposted,
           created_at: r.created_at,
-          author: authors.get(r.author_id) ?? { id: r.author_id, name: "Profile unavailable", avatar_url: null },
+          author: authors.get(r.author_id) ?? { id: r.author_id, name: "Profile", avatar_url: null },
         };
       });
     },
@@ -827,7 +827,7 @@ export function usePost(postId: string | null | undefined) {
         reaction_breakdown: reaction.breakdown,
         reposted: Boolean(reposted.data),
         created_at: row.created_at,
-        author: authors.get(row.author_id) ?? { id: row.author_id, name: "Profile unavailable", avatar_url: null },
+        author: authors.get(row.author_id) ?? { id: row.author_id, name: "Profile", avatar_url: null },
       };
     },
   });
@@ -1094,7 +1094,7 @@ export function useComments(postId: string | null) {
           parent_id: row.parent_id,
           body: row.body,
           created_at: row.created_at,
-          author: authors.get(row.author_id) ?? { id: row.author_id, name: "Profile unavailable", avatar_url: null },
+          author: authors.get(row.author_id) ?? { id: row.author_id, name: "Profile", avatar_url: null },
           like_count: reaction.total,
           liked: reaction.current !== null,
           current_reaction: reaction.current,
@@ -1363,7 +1363,7 @@ export function useFriendships() {
         return {
           ...r,
           incoming: r.addressee_id === me,
-          other: authors.get(otherId) ?? { id: otherId, name: "Profile unavailable", avatar_url: null },
+          other: authors.get(otherId) ?? { id: otherId, name: "Profile", avatar_url: null },
         };
       });
       return {
@@ -1430,7 +1430,7 @@ export function useMemberSearch(term: string) {
       const authors = await loadAuthors(((data ?? []) as { user_id: string }[]).map((row) => row.user_id));
       return ((data ?? []) as { user_id: string; full_name: string; avatar_url: string | null }[])
         .filter((row) => row.user_id !== me)
-        .map((row) => authors.get(row.user_id) ?? ({ id: row.user_id, name: row.full_name || "Profile unavailable", avatar_url: row.avatar_url }));
+        .map((row) => authors.get(row.user_id) ?? ({ id: row.user_id, name: row.full_name || "Profile", avatar_url: row.avatar_url }));
     },
   });
 }
@@ -1484,7 +1484,7 @@ export function useGroups() {
       return groups.map((g) => {
         const members = rows
           .filter((r) => r.group_id === g.id)
-          .map((r) => authors.get(r.user_id) ?? { id: r.user_id, name: "Profile unavailable", avatar_url: null });
+          .map((r) => authors.get(r.user_id) ?? { id: r.user_id, name: "Profile", avatar_url: null });
         const owner = authors.get(g.owner_id);
         const until = owner?.verified_until ? new Date(owner.verified_until).getTime() : null;
         return {
@@ -1717,7 +1717,7 @@ export function useFriendSuggestions(limit = 12) {
         .slice(0, limit)
         .map((row) => ({
           id: row.user_id,
-          name: row.full_name ?? "Profile unavailable",
+          name: row.full_name ?? "Profile",
           avatar_url: row.avatar_url,
           verified_tier: row.verified_tier,
           verified_until: row.verified_until,
