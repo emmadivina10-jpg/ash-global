@@ -51,7 +51,7 @@ export const decideFxInstructorApplication = createServerFn({ method: "POST" })
     const { error: decisionError } = await db.rpc("review_fx_instructor_application", {
       _application_id: application.id,
       _status: data.status,
-      _note: data.note || null,
+      _note: data.note || undefined,
     });
     if (decisionError) throw decisionError;
 
