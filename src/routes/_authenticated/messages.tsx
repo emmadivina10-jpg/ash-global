@@ -591,6 +591,7 @@ function MessagesPage() {
       toast.error(fr ? "Code incorrect" : "Incorrect PIN");
       return;
     }
+    setLockedUnlocked(true);
     setUnlockDialog(false);
     setPinValue("");
     toast.success(fr ? "Discussions verrouillées affichées" : "Locked chats shown");
