@@ -89,6 +89,60 @@ export type Database = {
         }
         Relationships: []
       }
+      activity_events: {
+        Row: {
+          author_id: string | null
+          category: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          dwell_ms: number | null
+          event_type: string
+          hashtags: string[] | null
+          id: number
+          metadata: Json
+          surface: string
+          target_id: string | null
+          target_type: string | null
+          user_id: string
+          weight: number
+        }
+        Insert: {
+          author_id?: string | null
+          category?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          dwell_ms?: number | null
+          event_type: string
+          hashtags?: string[] | null
+          id?: never
+          metadata?: Json
+          surface: string
+          target_id?: string | null
+          target_type?: string | null
+          user_id?: string
+          weight?: number
+        }
+        Update: {
+          author_id?: string | null
+          category?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          dwell_ms?: number | null
+          event_type?: string
+          hashtags?: string[] | null
+          id?: never
+          metadata?: Json
+          surface?: string
+          target_id?: string | null
+          target_type?: string | null
+          user_id?: string
+          weight?: number
+        }
+        Relationships: []
+      }
       admin_audit_log: {
         Row: {
           action: string
@@ -437,6 +491,48 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      content_popularity: {
+        Row: {
+          author_id: string | null
+          category: string | null
+          city: string | null
+          content_id: string
+          content_type: string
+          country: string | null
+          created_at: string | null
+          engagement_score: number
+          freshness_hours: number
+          quality_score: number
+          refreshed_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          category?: string | null
+          city?: string | null
+          content_id: string
+          content_type: string
+          country?: string | null
+          created_at?: string | null
+          engagement_score?: number
+          freshness_hours?: number
+          quality_score?: number
+          refreshed_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          category?: string | null
+          city?: string | null
+          content_id?: string
+          content_type?: string
+          country?: string | null
+          created_at?: string | null
+          engagement_score?: number
+          freshness_hours?: number
+          quality_score?: number
+          refreshed_at?: string
+        }
+        Relationships: []
       }
       content_reports: {
         Row: {
@@ -3292,6 +3388,36 @@ export type Database = {
         }
         Relationships: []
       }
+      recommendation_prefs: {
+        Row: {
+          created_at: string
+          history_cleared_at: string | null
+          personalization_enabled: boolean
+          updated_at: string
+          use_activity_history: boolean
+          use_location: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          history_cleared_at?: string | null
+          personalization_enabled?: boolean
+          updated_at?: string
+          use_activity_history?: boolean
+          use_location?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          history_cleared_at?: string | null
+          personalization_enabled?: boolean
+          updated_at?: string
+          use_activity_history?: boolean
+          use_location?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       referrals: {
         Row: {
           activated_at: string | null
@@ -4036,6 +4162,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_interest_signals: {
+        Row: {
+          event_count: number
+          last_event_at: string | null
+          score: number
+          signal_key: string
+          signal_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          event_count?: number
+          last_event_at?: string | null
+          score?: number
+          signal_key: string
+          signal_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          event_count?: number
+          last_event_at?: string | null
+          score?: number
+          signal_key?: string
+          signal_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -4191,6 +4347,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      activity_event_direction: {
+        Args: { _event_type: string }
+        Returns: number
+      }
+      activity_event_weight: {
+        Args: { _dwell_ms?: number; _event_type: string }
+        Returns: number
+      }
       admin_credit_wallet: {
         Args: { _amount: number; _reason: string; _user_id: string }
         Returns: Json
@@ -4213,6 +4377,7 @@ export type Database = {
         Args: { _deal_id: string; _user_id: string }
         Returns: Json
       }
+      clear_my_activity_history: { Args: never; Returns: undefined }
       complete_activation: {
         Args: { _payment_reference: string; _provider_transaction_id: string }
         Returns: Json
@@ -4411,6 +4576,7 @@ export type Database = {
       is_provider_owner: { Args: { _provider_id: string }; Returns: boolean }
       is_provider_visible: { Args: { _provider_id: string }; Returns: boolean }
       is_verified: { Args: { _user_id: string }; Returns: boolean }
+      log_activity_events: { Args: { _events: Json }; Returns: number }
       log_security_event: {
         Args: {
           _actor?: string
@@ -4457,6 +4623,7 @@ export type Database = {
         Returns: string[]
       }
       provider_zone: { Args: { _country: string }; Returns: string }
+      purge_old_activity_events: { Args: { _days?: number }; Returns: number }
       rate_limit_check: {
         Args: {
           _bucket: string
@@ -4465,6 +4632,31 @@ export type Database = {
           _window_seconds: number
         }
         Returns: Json
+      }
+      recommend_content: {
+        Args: {
+          _category?: string
+          _city?: string
+          _content_type?: string
+          _limit?: number
+          _offset?: number
+        }
+        Returns: {
+          author_id: string
+          category: string
+          city: string
+          closeness_score: number
+          cold_start: boolean
+          content_id: string
+          diversity_penalty: number
+          engagement_score: number
+          freshness_score: number
+          location_score: number
+          personal_score: number
+          quality_score: number
+          seen_penalty: number
+          total_score: number
+        }[]
       }
       record_media_moderation: {
         Args: {
@@ -4482,6 +4674,15 @@ export type Database = {
       record_property_view: {
         Args: { _listing_id: string }
         Returns: undefined
+      }
+      refresh_active_user_interests: {
+        Args: { _since_minutes?: number }
+        Returns: number
+      }
+      refresh_content_popularity: { Args: never; Returns: number }
+      refresh_user_interests: {
+        Args: { _days?: number; _user_id?: string }
+        Returns: number
       }
       release_housekeeping: { Args: never; Returns: Json }
       request_booking: {
