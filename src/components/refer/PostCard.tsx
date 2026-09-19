@@ -25,6 +25,7 @@ import { ReactionButton, ReactionSummary } from "./ReactionButton";
 import { SocialText } from "./SocialText";
 import { SocialSuggestions } from "./SocialSuggestions";
 import { ExpandableSocialText } from "./ExpandableSocialText";
+import { trackEvent, useImpression } from "@/lib/activity";
 
 function timeAgo(iso: string, fr: boolean) {
   const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
