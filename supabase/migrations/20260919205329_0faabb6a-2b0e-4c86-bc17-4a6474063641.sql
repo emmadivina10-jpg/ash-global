@@ -1,0 +1,1 @@
+ALTER FUNCTION public.open_job_conversation(uuid) SECURITY INVOKER;
