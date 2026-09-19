@@ -110,7 +110,7 @@ function FriendsPage() {
             <ul className="space-y-2">
               {(results ?? []).map((person) => (
                 <li key={person.id} className="flex items-center gap-3">
-                  <Avatar path={person.avatar_url} name={person.name} className="size-10" />
+                  <Avatar path={person.avatar_url} name={person.name} online={person.online} hasUpdate={person.has_update} className="size-10" />
                   <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
                     {person.name}
                   </span>
@@ -150,7 +150,7 @@ function FriendsPage() {
                   aria-label={person.name}
                   onClick={() => void navigate({ to: "/u/$userId", params: { userId: person.id } })}
                 >
-                  <Avatar path={person.avatar_url} name={person.name} className="size-10" />
+                   <Avatar path={person.avatar_url} name={person.name} online={person.online} hasUpdate={person.has_update} className="size-10" />
                 </button>
                 <button
                   type="button"
@@ -185,7 +185,7 @@ function FriendsPage() {
           </h2>
           {incoming.map((entry) => (
             <div key={entry.id} className="flex items-center gap-3">
-              <Avatar path={entry.other.avatar_url} name={entry.other.name} className="size-10" />
+               <Avatar path={entry.other.avatar_url} name={entry.other.name} online={entry.other.online} hasUpdate={entry.other.has_update} className="size-10" />
               <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
                 {entry.other.name}
               </span>
@@ -216,7 +216,7 @@ function FriendsPage() {
           </h2>
           {outgoing.map((entry) => (
             <div key={entry.id} className="flex items-center gap-3">
-              <Avatar path={entry.other.avatar_url} name={entry.other.name} className="size-9" />
+               <Avatar path={entry.other.avatar_url} name={entry.other.name} online={entry.other.online} hasUpdate={entry.other.has_update} className="size-9" />
               <span className="min-w-0 flex-1 truncate text-sm text-foreground">{entry.other.name}</span>
               <span className="text-xs text-muted-foreground">{fr ? "En attente" : "Pending"}</span>
             </div>
@@ -235,7 +235,7 @@ function FriendsPage() {
         ) : (
           friends.map((entry) => (
             <div key={entry.id} className="flex items-center gap-3">
-              <Avatar path={entry.other.avatar_url} name={entry.other.name} className="size-10" />
+               <Avatar path={entry.other.avatar_url} name={entry.other.name} online={entry.other.online} hasUpdate={entry.other.has_update} className="size-10" />
               <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
                 {entry.other.name}
               </span>

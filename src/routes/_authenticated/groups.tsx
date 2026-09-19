@@ -122,7 +122,7 @@ function GroupsPage() {
                       selected.includes(person.id) ? "bg-primary/10" : "hover:bg-muted",
                     )}
                   >
-                    <Avatar path={person.avatar_url} name={person.name} className="size-9" />
+                     <Avatar path={person.avatar_url} name={person.name} online={person.online} hasUpdate={person.has_update} className="size-9" />
                     <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
                       {person.name}
                     </span>
@@ -285,7 +285,7 @@ function GroupsPage() {
                   addSelected.includes(person.id) ? "bg-primary/10" : "hover:bg-muted",
                 )}
               >
-                <Avatar path={person.avatar_url} name={person.name} className="size-9" />
+                 <Avatar path={person.avatar_url} name={person.name} online={person.online} hasUpdate={person.has_update} className="size-9" />
                 <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
                   {person.name}
                 </span>

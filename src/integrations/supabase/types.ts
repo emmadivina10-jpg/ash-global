@@ -1502,6 +1502,24 @@ export type Database = {
           },
         ]
       }
+      member_presence: {
+        Row: {
+          last_active_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          last_active_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          last_active_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       mentor_requests: {
         Row: {
           created_at: string
@@ -4248,6 +4266,7 @@ export type Database = {
         }
         Returns: Json
       }
+      touch_member_presence: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user"

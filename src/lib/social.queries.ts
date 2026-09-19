@@ -31,6 +31,8 @@ export type SocialAuthor = {
   avatar_url: string | null;
   verified_tier?: string | null;
   verified_until?: string | null;
+  online?: boolean;
+  has_update?: boolean;
 };
 
 async function currentUserId(): Promise<string | null> {
@@ -44,7 +46,7 @@ async function currentUserId(): Promise<string | null> {
  * remains stuck in a pending state forever. This does not abort the underlying
  * request; it guarantees that the mutation/query itself can settle.
  */
-async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+async function withTimeout<T>(promise: PromiseLike<T>, ms: number, label: string): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
 
   try {
@@ -89,7 +91,7 @@ function toBase64(value: string): string {
 }
 
 function resumableStorageEndpoint(): string {
-  const rawUrl = String(import.meta.env.VITE_SUPABASE_URL ?? "").trim();
+  const rawUrl = String(import.meta.env["VITE_SUPABASE_URL"] ?? "").trim();
   if (!rawUrl) {
     throw new Error("Supabase URL is not configured for video uploads.");
   }
@@ -230,10 +232,16 @@ export async function loadAuthors(ids: string[]): Promise<Map<string, SocialAuth
   const unique = Array.from(new Set(ids.filter(Boolean)));
   const map = new Map<string, SocialAuthor>();
   if (unique.length === 0) return map;
-  const { data } = await supabase
-    .from("profiles")
-    .select("user_id, full_name, avatar_url, verified_tier, verified_until")
-    .in("user_id", unique);
+  const since = new Date(Date.now() - 5 * 60_000).toISOString();
+  const now = new Date().toISOString();
+  const [{ data }, { data: presence }, { data: stories }, { data: spotlights }] = await Promise.all([
+    supabase.from("profiles").select("user_id, full_name, avatar_url, verified_tier, verified_until").in("user_id", unique),
+    supabase.from("member_presence").select("user_id").in("user_id", unique).gte("last_active_at", since),
+    supabase.from("stories").select("author_id").in("author_id", unique).gt("expires_at", now),
+    supabase.from("spotlight_posts").select("author_id").in("author_id", unique).eq("is_published", true).gte("created_at", new Date(Date.now() - 24 * 60 * 60_000).toISOString()),
+  ]);
+  const onlineIds = new Set((presence ?? []).map((row) => row.user_id));
+  const updateIds = new Set([...(stories ?? []).map((row) => row.author_id), ...(spotlights ?? []).map((row) => row.author_id)]);
   for (const row of (data ?? []) as {
     user_id: string;
     full_name: string;
@@ -247,9 +255,22 @@ export async function loadAuthors(ids: string[]): Promise<Map<string, SocialAuth
       avatar_url: row.avatar_url,
       verified_tier: row.verified_tier,
       verified_until: row.verified_until,
+      online: onlineIds.has(row.user_id),
+      has_update: updateIds.has(row.user_id),
     });
   }
   return map;
+}
+
+/** Shared identity state for compact member surfaces such as the inbox. */
+export function useMemberStates(ids: string[]) {
+  const unique = Array.from(new Set(ids.filter(Boolean))).sort();
+  return useQuery({
+    queryKey: ["member-states", unique],
+    enabled: unique.length > 0,
+    staleTime: 30_000,
+    queryFn: () => loadAuthors(unique),
+  });
 }
 
 async function uploadImage(userId: string, file: File, prefix: string): Promise<string> {
@@ -490,7 +511,7 @@ export function useStories() {
       const groups: StoryGroup[] = Array.from(grouped.entries()).map(([authorId, stories]) => ({
         author: authors.get(authorId) ?? {
           id: authorId,
-          name: "ASH member",
+          name: "Profile unavailable",
           avatar_url: null,
         },
         stories,
@@ -935,8 +956,8 @@ export function useToggleLike() {
     mutationFn: async ({ postId, liked }: { postId: string; liked: boolean }) => {
       const { error } = await supabase.rpc("set_post_reaction", {
         _post_id: postId,
-        _reaction_type: liked ? "" : "like",
-      });
+        _reaction_type: liked ? null : "like",
+      } as never);
       if (error) throw error;
     },
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["social-feed"] }),
@@ -1073,7 +1094,7 @@ export function useComments(postId: string | null) {
           parent_id: row.parent_id,
           body: row.body,
           created_at: row.created_at,
-          author: authors.get(row.author_id) ?? { id: row.author_id, name: "ASH member", avatar_url: null },
+          author: authors.get(row.author_id) ?? { id: row.author_id, name: "Profile unavailable", avatar_url: null },
           like_count: reaction.total,
           liked: reaction.current !== null,
           current_reaction: reaction.current,
@@ -1147,8 +1168,8 @@ export function useSetCommentReaction() {
 
       const { error } = await supabase.rpc("set_comment_reaction", {
         _comment_id: commentId,
-        _reaction_type: reaction ?? "",
-      });
+        _reaction_type: reaction,
+      } as never);
 
       if (error) {
         throw new Error(`Unable to set comment reaction: ${error.message}`);
@@ -1175,8 +1196,8 @@ export function useSetStoryReaction() {
     mutationFn: async ({ storyId, reaction }: { storyId: string; reaction: ReactionType | null }) => {
       const { error } = await supabase.rpc("set_story_reaction", {
         _story_id: storyId,
-        _reaction_type: reaction ?? "",
-      });
+        _reaction_type: reaction,
+      } as never);
       if (error) throw error;
     },
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["stories"] }),
@@ -1342,7 +1363,7 @@ export function useFriendships() {
         return {
           ...r,
           incoming: r.addressee_id === me,
-          other: authors.get(otherId) ?? { id: otherId, name: "ASH member", avatar_url: null },
+          other: authors.get(otherId) ?? { id: otherId, name: "Profile unavailable", avatar_url: null },
         };
       });
       return {
@@ -1406,9 +1427,10 @@ export function useMemberSearch(term: string) {
         .select("user_id, full_name, avatar_url")
         .ilike("full_name", `%${term.trim()}%`)
         .limit(20);
+      const authors = await loadAuthors(((data ?? []) as { user_id: string }[]).map((row) => row.user_id));
       return ((data ?? []) as { user_id: string; full_name: string; avatar_url: string | null }[])
         .filter((row) => row.user_id !== me)
-        .map((row) => ({ id: row.user_id, name: row.full_name, avatar_url: row.avatar_url }));
+        .map((row) => authors.get(row.user_id) ?? ({ id: row.user_id, name: row.full_name || "Profile unavailable", avatar_url: row.avatar_url }));
     },
   });
 }
@@ -1461,7 +1483,7 @@ export function useGroups() {
       return groups.map((g) => {
         const members = rows
           .filter((r) => r.group_id === g.id)
-          .map((r) => authors.get(r.user_id) ?? { id: r.user_id, name: "ASH member", avatar_url: null });
+          .map((r) => authors.get(r.user_id) ?? { id: r.user_id, name: "Profile unavailable", avatar_url: null });
         const owner = authors.get(g.owner_id);
         const until = owner?.verified_until ? new Date(owner.verified_until).getTime() : null;
         return {
@@ -1669,7 +1691,7 @@ export function useFriendSuggestions(limit = 12) {
         .slice(0, limit)
         .map((row) => ({
           id: row.user_id,
-          name: row.full_name ?? "ASH member",
+          name: row.full_name ?? "Profile unavailable",
           avatar_url: row.avatar_url,
           verified_tier: row.verified_tier,
           verified_until: row.verified_until,

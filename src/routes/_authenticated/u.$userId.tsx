@@ -68,7 +68,7 @@ function MemberProfilePage() {
   return (
     <div className="mx-auto w-full max-w-2xl space-y-5">
       <header className="tile flex items-center gap-4 p-5">
-        <Avatar path={person.avatar_url} name={person.name} className="size-20" />
+        <Avatar path={person.avatar_url} name={person.name} online={person.online} hasUpdate={person.has_update} className="size-20" />
         <div className="min-w-0 flex-1">
           <h1 className="flex items-center gap-1.5 font-display text-xl font-bold text-foreground">
             <span className="truncate">{person.name}</span>

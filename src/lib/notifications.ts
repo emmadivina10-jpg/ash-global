@@ -52,7 +52,7 @@ export function useNotifications(limit = 30) {
         return {
           ...row,
           actor: profile
-            ? { id: profile.user_id, name: profile.full_name ?? "ASH member", avatar_url: profile.avatar_url }
+            ? { id: profile.user_id, name: profile.full_name ?? "Profile unavailable", avatar_url: profile.avatar_url }
             : null,
         };
       });

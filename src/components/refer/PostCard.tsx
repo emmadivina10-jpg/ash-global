@@ -78,7 +78,7 @@ export function PostCard({
           aria-label={post.author.name}
           onClick={() => void navigate({ to: "/u/$userId", params: { userId: post.author_id } })}
         >
-          <Avatar path={post.author.avatar_url} name={post.author.name} className="size-10" />
+          <Avatar path={post.author.avatar_url} name={post.author.name} online={post.author.online} hasUpdate={post.author.has_update} className="size-10" />
         </button>
         <div className="min-w-0 flex-1">
           <button
@@ -325,9 +325,9 @@ function CommentRow({
   const navigate = useNavigate();
   const openAuthor = () => void navigate({ to: "/u/$userId", params: { userId: comment.author.id } });
   return (
-    <div className={cn("flex gap-2.5", depth > 0 && "ml-8")}>
+    <div className={cn("flex gap-2.5", depth > 0 && "ml-[min(2rem,8vw)]")}>
       <button type="button" aria-label={comment.author.name} onClick={openAuthor}>
-        <Avatar path={comment.author.avatar_url} name={comment.author.name} className="size-8" />
+        <Avatar path={comment.author.avatar_url} name={comment.author.name} online={comment.author.online} hasUpdate={comment.author.has_update} className="size-8" />
       </button>
       <div className="min-w-0 flex-1">
         <div className="rounded-2xl bg-muted px-3 py-2">
@@ -355,11 +355,9 @@ function CommentRow({
               )
             }
           />
-          {depth === 0 ? (
-            <button type="button" onClick={() => onReply(comment)} className="hover:text-primary">
-              {fr ? "Répondre" : "Reply"}
-            </button>
-          ) : null}
+          <button type="button" onClick={() => onReply(comment)} className="hover:text-primary">
+            {fr ? "Répondre" : "Reply"}
+          </button>
           <span className="font-normal">{new Date(comment.created_at).toLocaleDateString(fr ? "fr-FR" : "en-GB")}</span>
         </div>
         {comment.replies.map((reply) => (

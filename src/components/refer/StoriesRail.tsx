@@ -155,9 +155,9 @@ function Avatar({
   name,
   className = "size-10",
 }: {
-  src?: string | null;
-  name?: string | null;
-  className?: string;
+  src?: string | null | undefined;
+  name?: string | null | undefined;
+  className?: string | undefined;
 }) {
   return <ProfileAvatar path={src} name={name} className={className} />;
 }
