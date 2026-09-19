@@ -28,14 +28,16 @@
 - [x] Verify social and chat flows on phone and desktop
 
 ## FX instructors and Markets publishing
-- [ ] Add free FX instructor applications with country, ID document, and selfie capture
-- [ ] Add manual admin review with a stated 24–48 hour review window
-- [ ] Add approved instructor profiles, branded instructor badges, and market publishing
-- [ ] Cross-publish eligible FX Spotlights into the main Feed without duplicating records
-- [ ] Add premium Markets discovery/detail surfaces and admin review reporting
+- [ ] Redesign Markets around Overview, compact snapshots, shortcuts, and Latest Market Updates
+- [ ] Add free FX instructor applications for Cameroon and Nigeria with private ID and selfie capture
+- [ ] Add manual admin review with a stated 24–48 hour review window and provider-ready KYC fields
+- [ ] Add approved instructor profiles, branded instructor badges, follows, and market publishing
+- [ ] Reuse social posts, reactions, threaded comments, reposts, and saves for Markets content
+- [ ] Cross-publish eligible FX Spotlights and Market Updates into Feed without duplicate content records
+- [ ] Add premium Markets panels, detail/profile screens, and admin review reporting
 
 ## Wallet, finance, admin, and landing follow-up
-- [ ] Add Feed card-balance preview with a direct Wallet action
+- [ ] Replace the floating ASH “A” launcher with a card-shaped Wallet launcher and real balance preview
 - [ ] Make gold the default wallet-card theme and ASH card the alternate theme
 - [ ] Add stored TchokoPay fee/net reconciliation before showing provider deductions
 - [ ] Refine the admin dashboard around platform funds, reserved funds, and reconciled fees
