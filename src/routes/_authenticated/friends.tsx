@@ -15,6 +15,7 @@ import {
   useSendFriendRequest,
 } from "@/lib/social.queries";
 import { useI18n } from "@/lib/i18n";
+import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 
 export const Route = createFileRoute("/_authenticated/friends")({
   head: () => ({
@@ -112,7 +113,7 @@ function FriendsPage() {
                 <li key={person.id} className="flex items-center gap-3">
                   <Avatar path={person.avatar_url} name={person.name} online={person.online} hasUpdate={person.has_update} className="size-10" />
                   <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
-                    {person.name}
+                    <span className="inline-flex items-center gap-1">{person.name}<VerifiedBadge tier={person.verified_tier} until={person.verified_until} size={13}/></span>
                   </span>
                   {known.has(person.id) ? (
                     <span className="text-xs text-muted-foreground">{fr ? "Déjà lié" : "Already linked"}</span>
@@ -157,7 +158,7 @@ function FriendsPage() {
                   onClick={() => void navigate({ to: "/u/$userId", params: { userId: person.id } })}
                   className="min-w-0 flex-1 truncate text-left text-sm font-semibold text-foreground hover:underline"
                 >
-                  {person.name}
+                  <span className="inline-flex items-center gap-1">{person.name}<VerifiedBadge tier={person.verified_tier} until={person.verified_until} size={13}/></span>
                 </button>
                 <Button
                   size="sm"
@@ -187,7 +188,7 @@ function FriendsPage() {
             <div key={entry.id} className="flex items-center gap-3">
                <Avatar path={entry.other.avatar_url} name={entry.other.name} online={entry.other.online} hasUpdate={entry.other.has_update} className="size-10" />
               <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
-                {entry.other.name}
+                 <span className="inline-flex items-center gap-1">{entry.other.name}<VerifiedBadge tier={entry.other.verified_tier} until={entry.other.verified_until} size={13}/></span>
               </span>
               <Button
                 size="sm"
@@ -217,7 +218,7 @@ function FriendsPage() {
           {outgoing.map((entry) => (
             <div key={entry.id} className="flex items-center gap-3">
                <Avatar path={entry.other.avatar_url} name={entry.other.name} online={entry.other.online} hasUpdate={entry.other.has_update} className="size-9" />
-              <span className="min-w-0 flex-1 truncate text-sm text-foreground">{entry.other.name}</span>
+              <span className="min-w-0 flex flex-1 items-center gap-1 truncate text-sm text-foreground">{entry.other.name}<VerifiedBadge tier={entry.other.verified_tier} until={entry.other.verified_until} size={13}/></span>
               <span className="text-xs text-muted-foreground">{fr ? "En attente" : "Pending"}</span>
             </div>
           ))}
@@ -237,7 +238,7 @@ function FriendsPage() {
             <div key={entry.id} className="flex items-center gap-3">
                <Avatar path={entry.other.avatar_url} name={entry.other.name} online={entry.other.online} hasUpdate={entry.other.has_update} className="size-10" />
               <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
-                {entry.other.name}
+                 <span className="inline-flex items-center gap-1">{entry.other.name}<VerifiedBadge tier={entry.other.verified_tier} until={entry.other.verified_until} size={13}/></span>
               </span>
               <Button size="sm" variant="outline" onClick={() => void openChat(entry.other.id)}>
                 <MessageSquare className="size-4" aria-hidden />

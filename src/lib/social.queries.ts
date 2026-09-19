@@ -1713,7 +1713,7 @@ export function useFriendSuggestions(limit = 12) {
         .select("user_id, full_name, avatar_url, verified_tier, verified_until")
         .order("created_at", { ascending: false })
         .limit(limit + linked.size + 10);
-      return (
+      const candidates = (
         (data ?? []) as {
           user_id: string;
           full_name: string | null;
@@ -1723,14 +1723,9 @@ export function useFriendSuggestions(limit = 12) {
         }[]
       )
         .filter((row) => !linked.has(row.user_id) && Boolean(row.full_name))
-        .slice(0, limit)
-        .map((row) => ({
-          id: row.user_id,
-          name: row.full_name ?? "Profile",
-          avatar_url: row.avatar_url,
-          verified_tier: row.verified_tier,
-          verified_until: row.verified_until,
-        }));
+        .slice(0, limit);
+      const authors = await loadAuthors(candidates.map((row) => row.user_id));
+      return candidates.map((row) => authors.get(row.user_id) ?? ({ id: row.user_id, name: row.full_name ?? "Profile", avatar_url: row.avatar_url, verified_tier: row.verified_tier, verified_until: row.verified_until }));
     },
   });
 }

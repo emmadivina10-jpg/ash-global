@@ -16,7 +16,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
 import { useI18n } from "@/lib/i18n";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar } from "@/components/refer/AvatarUpload";
 import { Button } from "@/components/ui/button";
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { openMemberConversation, sendOpeningMessage } from "@/lib/contact-vendor";
@@ -112,10 +112,7 @@ function BirthdayRow({ person, fr }: { person: BirthdayPerson; fr: boolean }) {
 
   return (
     <li className="flex items-center gap-2.5 py-1.5">
-      <Avatar className="size-9">
-        <AvatarImage src={person.avatar_url ?? undefined} alt={person.full_name} />
-        <AvatarFallback>{person.full_name.slice(0, 2).toUpperCase()}</AvatarFallback>
-      </Avatar>
+       <Avatar path={person.avatar_url} name={person.full_name} online={person.online} className="size-9" />
       <div className="min-w-0 flex-1">
         <p className="flex items-center gap-1 truncate text-sm font-medium text-foreground">
           {person.full_name}
