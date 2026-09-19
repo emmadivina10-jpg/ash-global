@@ -704,6 +704,11 @@ function MessagesPage() {
                   : "max-md:-mx-4 max-md:-mt-5 max-md:h-[calc(var(--ash-vh,100dvh)-3.5rem-3.75rem)]",
               "md:max-h-[72vh]",
             )}
+            style={
+              mobileView !== "thread" && chromeReservePx !== null
+                ? { height: `calc(var(--ash-vh, 100dvh) - ${chromeReservePx}px)` }
+                : undefined
+            }
           >
             <div className="border-b border-border bg-card/95 px-3 pb-2.5 pt-2.5 backdrop-blur">
               <h2 className="mb-2 font-display text-xl font-bold text-foreground md:hidden">
