@@ -5,6 +5,7 @@ import { BadgeCheck, CalendarCheck, Clock, MapPin, MessageCircle, Play, ShieldCh
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { contactVendor } from "@/lib/contact-vendor";
+import { trackEvent } from "@/lib/activity";
 import {
   openConversation,
   usePortfolio,
