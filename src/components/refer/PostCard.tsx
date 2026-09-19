@@ -82,6 +82,7 @@ export function PostCard({
 
   return (
     <article
+      ref={impressionRef as React.RefObject<HTMLElement>}
       className={cn(
         "tile overflow-hidden",
         !detail &&
