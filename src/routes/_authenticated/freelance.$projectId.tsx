@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { EmptyState, LoadingState } from "@/components/refer/states";
 import { formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
+import { useTrackView } from "@/lib/activity";
 
 export const Route = createFileRoute("/_authenticated/freelance/$projectId")({
   head: () => ({
@@ -34,6 +35,11 @@ function ProjectDetail() {
   const queryClient = useQueryClient();
   const { data: project, isLoading } = useProject(projectId);
   const proposals = useProposals(projectId);
+
+  useTrackView(
+    { event_type: "view", surface: "freelance", target_type: "project", target_id: projectId },
+    Boolean(project),
+  );
 
   const [cover, setCover] = useState("");
   const [amount, setAmount] = useState("");

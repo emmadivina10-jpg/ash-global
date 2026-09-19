@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { EmptyState, LoadingState } from "@/components/refer/states";
 import { formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
+import { useTrackView } from "@/lib/activity";
 import {
   useApplyToJob,
   useJob,
@@ -38,6 +39,11 @@ function JobDetail() {
   const navigate = useNavigate();
   const job = useJob(jobId);
   const applications = useJobApplications(jobId);
+
+  useTrackView(
+    { event_type: "view", surface: "jobs", target_type: "job", target_id: jobId, category: job.data?.category ?? null },
+    Boolean(job.data),
+  );
   const apply = useApplyToJob();
   const setStatus = useSetApplicationStatus();
   const [coverLetter, setCoverLetter] = useState("");
