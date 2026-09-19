@@ -291,8 +291,12 @@ export function useFxInstructorProfile(instructorId: string) {
         .maybeSingle();
       if (error) throw error;
       if (!data) return null;
-      const { data: profile } = await supabase.from("profiles").select("full_name,username,avatar_url").eq("user_id", data.user_id).maybeSingle();
-      return { ...data, full_name: profile?.full_name?.trim() || "Profile", username: profile?.username ?? null, avatar_url: profile?.avatar_url ?? null } as FxInstructorProfile;
+       const since = new Date(Date.now() - 5 * 60_000).toISOString();
+       const [{ data: profile }, { data: presence }] = await Promise.all([
+         supabase.from("profiles").select("full_name,username,avatar_url,verified_tier,verified_until").eq("user_id", data.user_id).maybeSingle(),
+         supabase.from("member_presence").select("user_id").eq("user_id", data.user_id).gte("last_active_at", since).maybeSingle(),
+       ]);
+       return { ...data, full_name: profile?.full_name?.trim() || "Profile", username: profile?.username ?? null, avatar_url: profile?.avatar_url ?? null, verified_tier: profile?.verified_tier ?? null, verified_until: profile?.verified_until ?? null, online: Boolean(presence) } as FxInstructorProfile;
     },
   });
 }
