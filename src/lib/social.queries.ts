@@ -694,6 +694,7 @@ export type FeedPost = {
   reposted: boolean;
   created_at: string;
   author: SocialAuthor;
+  market?: { id: string; title: string; educational_label: string } | null;
 };
 
 function parseImages(value: unknown): string[] {
@@ -726,7 +727,7 @@ export function useSocialFeed(limit = 40) {
       if (rows.length === 0) return [];
       const paths = rows.flatMap((r) => parseImages(r.media));
       const me = await currentUserId();
-      const [signed, authors, reactionResult] = await Promise.all([
+      const [signed, authors, reactionResult, marketResult] = await Promise.all([
         signPaths(paths),
         loadAuthors(rows.map((r) => r.author_id)),
         supabase
@@ -736,7 +737,14 @@ export function useSocialFeed(limit = 40) {
             "post_id",
             rows.map((r) => r.id),
           ),
+        (supabase as unknown as { from: (table: string) => any })
+          .from("market_posts")
+          .select("id,social_post_id,title,educational_label")
+          .in("social_post_id", rows.map((r) => r.id)),
       ]);
+      const marketByPost = new Map(
+        ((marketResult.data ?? []) as Array<{ id: string; social_post_id: string; title: string; educational_label: string }>).map((item) => [item.social_post_id, item]),
+      );
       return rows.map((r) => {
         const reaction = summarizeReactions(
           ((reactionResult.data ?? []) as Array<{ post_id: string; user_id: string; reaction_type: string }>).filter(
@@ -762,6 +770,7 @@ export function useSocialFeed(limit = 40) {
           reposted: r.reposted,
           created_at: r.created_at,
           author: authors.get(r.author_id) ?? { id: r.author_id, name: "Profile", avatar_url: null },
+          market: marketByPost.get(r.id) ?? null,
         };
       });
     },

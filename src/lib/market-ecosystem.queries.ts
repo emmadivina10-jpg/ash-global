@@ -223,6 +223,26 @@ export function useMarketUpdates() {
   };
 }
 
+export function useMarketUpdate(marketPostId: string) {
+  const feed = useSocialFeed(100);
+  const metadata = useQuery({
+    queryKey: ["market-post", marketPostId],
+    queryFn: async (): Promise<MarketPostMeta | null> => {
+      const { data, error } = await db
+        .from("market_posts")
+        .select("id,social_post_id,instructor_id,content_type,market_category,instrument,title,educational_label,published_at")
+        .eq("id", marketPostId)
+        .maybeSingle();
+      if (error) throw error;
+      return data as MarketPostMeta | null;
+    },
+  });
+  return {
+    isLoading: metadata.isLoading || feed.isLoading,
+    data: metadata.data ? { ...metadata.data, post: (feed.data ?? []).find((post) => post.id === metadata.data?.social_post_id) } : null,
+  };
+}
+
 export function useCreateMarketPost() {
   const queryClient = useQueryClient();
   return useMutation({

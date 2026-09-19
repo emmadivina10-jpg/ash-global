@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   BarChart3,
   BookOpen,
@@ -220,11 +220,12 @@ function MarketComposer({ onDone }: { onDone: () => void }) {
   const [contentType, setContentType] = useState("MARKET_UPDATE");
   const [files, setFiles] = useState<File[]>([]);
   if (!instructor) return <p className="rounded-xl border border-market-line bg-market-surface p-5 text-sm text-market-muted">Publishing is available only after your FX instructor application is approved.</p>;
+  const approvedInstructor = instructor;
   async function publish() {
     if (title.trim().length < 3 || (!body.trim() && !files.length)) { toast.error("Add a title and educational content."); return; }
     try {
       const socialPostId = await createSocial.mutateAsync({ caption: body.trim(), files });
-      await createMarket.mutateAsync({ socialPostId, instructorId: instructor.id, contentType, title, instrument });
+      await createMarket.mutateAsync({ socialPostId, instructorId: approvedInstructor.id, contentType, title, instrument });
       toast.success("Market update published.");
       onDone();
     } catch (error) { toast.error(error instanceof Error ? error.message : "Could not publish the update."); }

@@ -1,6 +1,6 @@
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { MessageCircle, Repeat2, ShieldCheck, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "./AvatarUpload";
@@ -72,6 +72,15 @@ export function PostCard({
         detail && "rounded-none border-0 shadow-none sm:rounded-3xl sm:border",
       )}
     >
+      {post.market ? (
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-primary-deep px-4 py-2 text-on-dark">
+          <div className="min-w-0">
+            <p className="text-[9px] font-extrabold uppercase text-gold-soft">ASH Markets Update</p>
+            <p className="truncate text-xs font-bold">{post.market.title}</p>
+          </div>
+          <Link to="/search" className="shrink-0 text-[10px] font-bold text-gold-soft hover:underline">View in ASH Markets</Link>
+        </div>
+      ) : null}
       <header className="flex items-center gap-3 p-4 pb-3">
         <button
           type="button"
