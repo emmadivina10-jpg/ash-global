@@ -37,6 +37,7 @@ import {
 } from "@/lib/social.queries";
 import { Button } from "@/components/ui/button";
 import { Avatar as ProfileAvatar, useAvatarUrl } from "@/components/refer/AvatarUpload";
+import { directory, type DirectoryProfile } from "@/lib/public-profiles";
 
 const SOCIAL_BUCKET = "spotlight";
 const IMAGE_MAX_BYTES = 12 * 1024 * 1024;
@@ -219,10 +220,13 @@ async function loadSpotlights(): Promise<SpotlightPost[]> {
     .filter((path): path is string => Boolean(path));
 
   const since = new Date(Date.now() - 5 * 60_000).toISOString();
-  const [providersResult, signedResult, presenceResult] = await Promise.all([
+  const [providersResult, profilesResult, signedResult, presenceResult] = await Promise.all([
     supabase
       .from("provider_profiles")
       .select("id, user_id, business_name, city, avatar_url, is_verified")
+      .in("user_id", authorIds),
+    directory()
+      .select("user_id, full_name, avatar_url, verified_tier, verified_until")
       .in("user_id", authorIds),
     mediaPaths.length > 0
       ? supabase.storage.from(SOCIAL_BUCKET).createSignedUrls(mediaPaths, 60 * 60 * 12)
@@ -247,6 +251,9 @@ async function loadSpotlights(): Promise<SpotlightPost[]> {
       }>
     ).map((provider) => [provider.user_id, provider]),
   );
+  const profiles = new Map(
+    ((profilesResult.data ?? []) as DirectoryProfile[]).map((profile) => [profile.user_id, profile]),
+  );
   const onlineIds = new Set((presenceResult.data ?? []).map((row) => row.user_id));
 
   const signed = new Map(
@@ -258,9 +265,10 @@ async function loadSpotlights(): Promise<SpotlightPost[]> {
 
   return records.flatMap((row) => {
     const provider = providers.get(row.author_id);
+    const profile = profiles.get(row.author_id);
     const path = spotlightMediaPath(row.media);
     const url = path ? (signed.get(path) ?? "") : "";
-    if (!provider || !path || !url) return [];
+    if ((!provider && !profile) || !path || !url) return [];
 
     return [
       {
@@ -269,13 +277,13 @@ async function loadSpotlights(): Promise<SpotlightPost[]> {
         caption: row.caption,
         created_at: row.created_at,
         provider: {
-          id: provider.id,
-          user_id: provider.user_id,
-          business_name: provider.business_name,
-          city: provider.city,
-          avatar_url: provider.avatar_url,
-          is_verified: provider.is_verified,
-           online: onlineIds.has(provider.user_id),
+          id: provider?.id ?? "",
+          user_id: row.author_id,
+          business_name: profile?.full_name ?? provider?.business_name ?? "Profile",
+          city: provider?.city ?? null,
+          avatar_url: profile?.avatar_url ?? provider?.avatar_url ?? null,
+          is_verified: Boolean(provider?.is_verified || profile?.verified_tier),
+          online: onlineIds.has(row.author_id),
         },
       },
     ];

@@ -8,7 +8,6 @@ import { contactVendor, openMemberConversation, sendOpeningMessage } from "@/lib
 import { useDeleteSpotlight, useSetSpotlightReaction, type SpotlightEntry } from "@/lib/spotlight.queries";
 import { useI18n } from "@/lib/i18n";
 import { ReactionButton } from "./ReactionButton";
-import { SocialText } from "./SocialText";
 import { VerifiedBadge } from "./VerifiedBadge";
 import { ExpandableSocialText } from "./ExpandableSocialText";
 
