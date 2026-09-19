@@ -261,6 +261,12 @@ function RegisterPage() {
         <p className="text-center text-xs text-muted-foreground">
           {t("auth.register.activationNote")}
         </p>
+        <p className="text-center text-xs leading-5 text-muted-foreground">
+          By creating an account, you confirm you are at least 13 and agree to the{" "}
+          <Link to="/terms" className="font-semibold text-primary hover:underline">Terms of Service</Link>,{" "}
+          <Link to="/privacy" className="font-semibold text-primary hover:underline">Privacy Policy</Link> and{" "}
+          <Link to="/community-guidelines" className="font-semibold text-primary hover:underline">Community Guidelines</Link>.
+        </p>
       </form>
 
       <SocialAuth label={t("auth.register.orSignUp")} />

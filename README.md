@@ -22,7 +22,7 @@ native iOS and Android apps via Capacitor.
 | **Deals & Promotions** | Discount deals with claim codes, ASH Promote for sellers. | `/deals` |
 | **Events & Ticketing** | Event pages, free and paid tickets, mobile-money entry codes. | `/events`, `/events/$eventId` |
 | **Refer & Earn** | 3-level referral commissions with a collapsible network tree and full ledger (live in CM/NG). | `/dashboard`, `/network` |
-| **Wallet & Payouts** | Balances, statements, withdrawals via Mobile Money (MTN MoMo, Orange Money) and Stripe bank payouts. | `/wallet`, `/transactions`, `/withdraw` |
+| **Wallet & Payouts** | Balances, statements and supported Mobile Money withdrawals. | `/wallet`, `/transactions`, `/withdraw` |
 | **Bookings & Messaging** | Full booking lifecycle with a 24h pay-after-acceptance window; order-centric chat with realtime + polling fallback. | `/bookings`, `/messages` |
 | **Universal Search** | One search across services, businesses, freelancers, projects, property, deals and events. | `/search` |
 | **Analytics** | Personal and business analytics dashboards. | `/analytics` |
@@ -30,7 +30,7 @@ native iOS and Android apps via Capacitor.
 | **ASH Console (admin)** | Password-gated admin suite: financials, users, providers, verification, bookings, withdrawals, payments, referral ledger, moderation, property review, security audit. Department-scoped staff seats. | `/console*` |
 | **Workforce & CRM** | Employee logins, department access control, CRM leads/activities/targets, branded bilingual outreach. CEO super-admin: Emmanuel Tanga Divine. | `/console/staff`, `/console/outreach`, `/console/security`… |
 
-Public legal pages: `/privacy`, `/terms`, `/account-deletion`, `/support`.
+Public legal pages: `/terms`, `/privacy`, `/community-guidelines`, `/marketplace-policy`, `/referral-wallet-terms`, `/account-deletion`, `/support`, `/contact`.
 Auth: `/login`, `/register`, `/forgot-password`, `/reset-password`, `/auth/callback`.
 
 ## Core experience
@@ -47,7 +47,7 @@ Auth: `/login`, `/register`, `/forgot-password`, `/reset-password`, `/auth/callb
 - **Frontend / framework**: TanStack Start v1 (React 19, Vite, TypeScript), TanStack Router + React Query
 - **Styling**: Tailwind CSS v4 with OKLCH design tokens (shadcn-style component system)
 - **Backend / auth / storage**: Lovable Cloud (Supabase) — Postgres, Row-Level Security, Auth, Storage
-- **Payments**: TchokoPay Merchant API (Mobile Money) + Stripe (international cards, Stripe Connect payouts)
+- **Payments**: TchokoPay for supported Mobile Money flows; any additional checkout method is presented in its relevant flow
 - **Emails**: React Email templates for auth, invites, support and outreach
 - **Native shell**: Capacitor 8 (iOS `com.ashglogroup.mobile`, Android `com.ashglogroup.app`)
 
@@ -178,7 +178,7 @@ suite and a database self-check.
 - [NATIVE.md](./NATIVE.md) — Capacitor / App Store / Play Store workflow
 - [STORE-SUBMISSION.md](./STORE-SUBMISSION.md) — store listing copy, review notes, privacy/data-safety answers
 - [SECURITY.md](./SECURITY.md) / [SECURITY-CHANGELOG.md](./SECURITY-CHANGELOG.md) — security model and hardening log
-- `/privacy`, `/terms`, `/account-deletion` — public legal pages the stores require
+- `/terms`, `/privacy`, `/community-guidelines`, `/marketplace-policy`, `/referral-wallet-terms`, `/account-deletion`, `/support`, `/contact` — public legal and support pages
 
 ## Deployment
 
