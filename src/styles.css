@@ -66,11 +66,42 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-market-background: var(--market-background);
+  --color-market-surface: var(--market-surface);
+  --color-market-elevated: var(--market-elevated);
+  --color-market-foreground: var(--market-foreground);
+  --color-market-muted: var(--market-muted);
+  --color-market-line: var(--market-line);
+  --color-market-accent: var(--market-accent);
+  --color-market-accent-foreground: var(--market-accent-foreground);
+  --color-market-lavender: var(--market-lavender);
+  --color-market-positive: var(--market-positive);
+  --color-market-negative: var(--market-negative);
 
   --shadow-card: 0 1px 1px oklch(0.14 0.022 283 / 0.05), 0 12px 34px -18px oklch(0.14 0.022 283 / 0.3);
   --shadow-raised: 0 2px 6px oklch(0.14 0.022 283 / 0.08), 0 30px 64px -28px oklch(0.14 0.022 283 / 0.55);
   --shadow-gold: 0 18px 48px -20px oklch(0.5744 0.2189 295.84 / 0.55);
   --shadow-brand: 0 20px 50px -22px oklch(0.638 0.2365 18.24 / 0.55);
+}
+
+.market-theme {
+  --market-background: oklch(0.105 0.024 292);
+  --market-surface: oklch(0.155 0.04 298);
+  --market-elevated: oklch(0.205 0.065 303);
+  --market-foreground: oklch(0.985 0.004 290);
+  --market-muted: oklch(0.735 0.04 300);
+  --market-line: oklch(0.54 0.17 305 / 0.3);
+  --market-accent: oklch(0.66 0.25 333);
+  --market-accent-foreground: oklch(0.99 0.004 290);
+  --market-lavender: oklch(0.82 0.09 305);
+  --market-positive: oklch(0.72 0.17 153);
+  --market-negative: oklch(0.65 0.25 20);
+  --market-feature: oklch(0.19 0.09 313);
+  --market-glow: radial-gradient(circle at 78% 8%, oklch(0.62 0.27 333 / 0.34), transparent 47%);
+}
+
+@theme inline {
+  --color-market-feature: var(--market-feature);
 }
 
 :root {
