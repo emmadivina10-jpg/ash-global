@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, MapPin } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { ArrowLeft, MapPin, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import {
   useJob,
   useJobApplications,
   useSetApplicationStatus,
+  openJobConversation,
 } from "@/lib/hub.queries";
 
 export const Route = createFileRoute("/_authenticated/jobs/$jobId")({
@@ -34,6 +35,7 @@ function JobDetail() {
   const { jobId } = Route.useParams();
   const { lang } = useI18n();
   const fr = lang === "fr";
+  const navigate = useNavigate();
   const job = useJob(jobId);
   const applications = useJobApplications(jobId);
   const apply = useApplyToJob();
@@ -73,6 +75,15 @@ function JobDetail() {
     }
   }
 
+  async function contactPoster() {
+    try {
+      const conversationId = await openJobConversation(jobId);
+      void navigate({ to: "/messages", search: { c: conversationId } } as never);
+    } catch {
+      toast.error(fr ? "Impossible d'ouvrir la discussion." : "Could not open the conversation.");
+    }
+  }
+
   return (
     <div className="mx-auto w-full max-w-3xl space-y-5">
       <Link to="/jobs" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -81,6 +92,7 @@ function JobDetail() {
       </Link>
 
       <header className="tile space-y-2 p-5">
+        {row.image_url ? <img src={row.image_url} alt="" className="mb-4 aspect-[16/9] w-full rounded-lg object-cover" /> : null}
         <div className="flex flex-wrap gap-2">
           <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
             {row.employment_type}
@@ -105,6 +117,13 @@ function JobDetail() {
           </span>
         </div>
       </header>
+
+      {!mine ? (
+        <Button onClick={() => void contactPoster()} className="w-full sm:w-auto">
+          <MessageSquare className="size-4" aria-hidden />
+          {fr ? "Contacter le recruteur" : "Message job poster"}
+        </Button>
+      ) : null}
 
       <section className="tile space-y-2 p-5">
         <h2 className="font-semibold text-foreground">{fr ? "Description" : "About the role"}</h2>

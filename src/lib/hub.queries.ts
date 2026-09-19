@@ -286,6 +286,8 @@ export type Job = {
   is_open: boolean;
   applications_count: number;
   created_at: string;
+  image_path: string | null;
+  image_url: string | null;
   poster: HubAuthor;
   is_mine: boolean;
 };
@@ -298,7 +300,7 @@ export function useJobs(filters: { employmentType?: string; locationType?: strin
       let query = supabase
         .from("jobs")
         .select(
-          "id, poster_id, title, company, description, category, employment_type, location_type, city, country, salary_min, salary_max, currency, apply_deadline, is_open, applications_count, created_at",
+          "id, poster_id, title, company, description, category, employment_type, location_type, city, country, salary_min, salary_max, currency, apply_deadline, is_open, applications_count, created_at, image_path",
         )
         .eq("is_open", true)
         .order("created_at", { ascending: false })
@@ -316,8 +318,14 @@ export function useJobs(filters: { employmentType?: string; locationType?: strin
       const { data: auth } = await supabase.auth.getUser();
       const me = auth.user?.id ?? null;
       const posters = await loadAuthors(rows.map((r) => r.poster_id));
+      const imagePaths = rows.map((row) => row.image_path).filter((path): path is string => Boolean(path));
+      const { data: signed } = imagePaths.length
+        ? await supabase.storage.from("job-images").createSignedUrls(imagePaths, 60 * 60)
+        : { data: [] };
+      const imageUrls = new Map((signed ?? []).map((item) => [item.path, item.signedUrl]));
       return rows.map((row) => ({
         ...row,
+        image_url: row.image_path ? imageUrls.get(row.image_path) ?? null : null,
         poster: posters[row.poster_id] ?? { id: row.poster_id, name: "Profile unavailable", avatar_url: null },
         is_mine: row.poster_id === me,
       })) as Job[];
@@ -334,7 +342,7 @@ export function useJob(jobId: string | null) {
       const { data, error } = await supabase
         .from("jobs")
         .select(
-          "id, poster_id, title, company, description, category, employment_type, location_type, city, country, salary_min, salary_max, currency, apply_deadline, is_open, applications_count, created_at",
+          "id, poster_id, title, company, description, category, employment_type, location_type, city, country, salary_min, salary_max, currency, apply_deadline, is_open, applications_count, created_at, image_path",
         )
         .eq("id", jobId)
         .maybeSingle();
@@ -343,8 +351,12 @@ export function useJob(jobId: string | null) {
       const { data: auth } = await supabase.auth.getUser();
       const me = auth.user?.id ?? null;
       const posters = await loadAuthors([data.poster_id]);
+      const imageUrl = data.image_path
+        ? (await supabase.storage.from("job-images").createSignedUrl(data.image_path, 60 * 60)).data?.signedUrl ?? null
+        : null;
       return {
         ...data,
+        image_url: imageUrl,
         poster: posters[data.poster_id] ?? { id: data.poster_id, name: "Profile unavailable", avatar_url: null },
         is_mine: data.poster_id === me,
       } as Job;
@@ -366,8 +378,18 @@ export function usePostJob() {
       salary_max: number | null;
       apply_deadline: string | null;
       contact_email: string | null;
+      imageFile?: File | null;
     }) => {
       const userId = await currentUserId();
+      let imagePath: string | null = null;
+      if (input.imageFile) {
+        if (!input.imageFile.type.startsWith("image/")) throw new Error("Please choose an image file.");
+        if (input.imageFile.size > 8 * 1024 * 1024) throw new Error("Image must be 8 MB or smaller.");
+        await verifyMediaFiles([input.imageFile], "JOB_IMAGE");
+        imagePath = `${userId}/${crypto.randomUUID()}.${input.imageFile.name.split(".").pop()?.toLowerCase() || "jpg"}`;
+        const { error: uploadError } = await supabase.storage.from("job-images").upload(imagePath, input.imageFile, { upsert: false });
+        if (uploadError) throw uploadError;
+      }
       const { data, error } = await supabase
         .from("jobs")
         .insert({
@@ -382,14 +404,24 @@ export function usePostJob() {
           salary_max: input.salary_max,
           apply_deadline: input.apply_deadline,
           contact_email: input.contact_email,
+          image_path: imagePath,
         })
         .select("id")
         .single();
-      if (error) throw error;
+      if (error) {
+        if (imagePath) await supabase.storage.from("job-images").remove([imagePath]);
+        throw error;
+      }
       return data.id as string;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["hub-jobs"] }),
   });
+}
+
+export async function openJobConversation(jobId: string): Promise<string> {
+  const { data, error } = await supabase.rpc("open_job_conversation", { _job_id: jobId });
+  if (error || !data) throw error ?? new Error("Could not open the job conversation.");
+  return String(data);
 }
 
 export type JobApplication = {

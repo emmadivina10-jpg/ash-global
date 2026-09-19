@@ -710,6 +710,18 @@ function InvoiceMessage({
   const fr = lang === "fr";
 
   if (kind === "SYSTEM") {
+    const jobTitle = String(metadata["job_title"] ?? "");
+    const company = String(metadata["company"] ?? "");
+    if (metadata["source"] === "job_contact" && jobTitle) {
+      return (
+        <article className="mx-auto w-full max-w-[92%] rounded-lg border border-primary/30 bg-primary/5 p-3">
+          <span className="text-xs font-bold text-primary">{fr ? "Référence de l'offre" : "Job reference"}</span>
+          <p className="mt-1 text-sm font-semibold text-foreground">{jobTitle}</p>
+          {company ? <p className="text-xs text-muted-foreground">{company}</p> : null}
+          <p className="mt-2 text-xs leading-5 text-muted-foreground">{body}</p>
+        </article>
+      );
+    }
     return (
       <p className="mx-auto max-w-[90%] rounded-full bg-muted px-3 py-1 text-center text-[11px] text-muted-foreground">
         {body}
