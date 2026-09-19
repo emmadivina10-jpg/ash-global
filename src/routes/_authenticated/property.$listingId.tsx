@@ -111,6 +111,12 @@ function PropertyDetail() {
     } else {
       await supabase.from("property_saves").insert({ listing_id: listingId, user_id: auth.user.id });
     }
+    trackEvent({
+      event_type: saved ? "unsave" : "save",
+      surface: "property",
+      target_type: "property",
+      target_id: listingId,
+    });
     await queryClient.invalidateQueries({ queryKey: ["property"] });
     toast.success(saved ? (fr ? "Retiré" : "Removed") : fr ? "Enregistré" : "Saved");
   }
@@ -180,6 +186,7 @@ function PropertyDetail() {
             aria-label={fr ? "Partager" : "Share"}
             onClick={() => {
               void navigator.clipboard.writeText(window.location.href);
+              trackEvent({ event_type: "share", surface: "property", target_type: "property", target_id: listingId });
               toast.success(fr ? "Lien copié" : "Link copied");
             }}
           >

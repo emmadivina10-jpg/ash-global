@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Check, Link2, Share2 } from "lucide-react";
 import { toast } from "sonner";
+import { trackEvent } from "@/lib/activity";
 import { cn } from "@/lib/utils";
 
 export function storefrontUrl(slug: string) {
@@ -29,6 +30,7 @@ export function ShareStorefront({
   async function share(event: React.MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
+    trackEvent({ event_type: "share", surface: "services", target_type: "storefront", target_id: slug });
     const payload = {
       title: businessName,
       text: `${businessName} on ASH Glo — see prices, photos and book instantly.`,

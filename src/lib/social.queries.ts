@@ -1576,7 +1576,8 @@ export function useCreateGroup() {
       if (convError) throw convError;
       return groupId;
     },
-    onSuccess: () => {
+    onSuccess: (groupId) => {
+      trackEvent({ event_type: "click", surface: "other", target_type: "group", target_id: groupId });
       void queryClient.invalidateQueries({ queryKey: ["chat-groups"] });
       void queryClient.invalidateQueries({ queryKey: ["conversations"] });
     },
