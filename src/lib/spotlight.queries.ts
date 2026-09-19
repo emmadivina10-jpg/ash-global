@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { verifyMediaFiles } from "./media-safety";
 import { signPortfolioPaths } from "./marketplace";
 import { EMPTY_REACTIONS, type ReactionBreakdown, type ReactionType } from "./social.queries";
+import { directory } from "@/lib/public-profiles";
 
 export const SPOTLIGHT_BUCKET = "spotlight";
 
@@ -108,7 +109,7 @@ export function useSpotlightFeed(limit = 18) {
       const since = new Date(Date.now() - 5 * 60_000).toISOString();
       const [profilesResult, providersResult, reactionsResult, presenceResult] = await Promise.all([
         authorIds.length
-          ? supabase.from("profiles").select("user_id, full_name, avatar_url, verified_tier, verified_until").in("user_id", authorIds)
+          ? directory().select("user_id, full_name, avatar_url, verified_tier, verified_until").in("user_id", authorIds)
           : Promise.resolve({ data: [] }),
         providerIds.length
           ? supabase

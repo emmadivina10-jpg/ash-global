@@ -395,9 +395,27 @@ function MessagesPage() {
   /** Providers see the client; clients see the business.
    * Property threads show the listing/owner.
    */
+  function directPeerOf(conv: (typeof list)[number]) {
+    // Member-to-member thread: no group, no storefront, no listing.
+    if (conv.group_id || conv.listing_id || conv.provider_id) return null;
+    const ownerId = conv.owner_id ?? null;
+    if (!ownerId) return null;
+    const viewerIsOwner = Boolean(user?.id) && ownerId === user?.id;
+    const side = viewerIsOwner
+      ? (conv as { client?: { full_name?: string | null; avatar_url?: string | null } }).client
+      : (conv as { owner?: { full_name?: string | null; avatar_url?: string | null } | null }).owner;
+    return {
+      id: (viewerIsOwner ? conv.client_id : ownerId) ?? null,
+      name: side?.full_name ?? null,
+      avatar_url: side?.avatar_url ?? null,
+    };
+  }
+
   function peerOf(conv: (typeof list)[number]): string {
     const group = groupOf(conv);
     if (group) return group.name;
+    const direct = directPeerOf(conv);
+    if (direct) return direct.name ?? (fr ? "Profil" : "Profile");
     if (conv.listing_id) {
       const viewerIsOwner =
         Boolean(user?.id) && conv.owner_id === user?.id;
@@ -417,6 +435,8 @@ function MessagesPage() {
 
   /** Picture of the other side, when we have one. */
   function peerAvatarOf(conv: (typeof list)[number]): string | null {
+    const direct = directPeerOf(conv);
+    if (direct) return direct.avatar_url ?? null;
     if (conv.listing_id) {
       const viewerIsOwner =
         Boolean(user?.id) && conv.owner_id === user?.id;
@@ -441,6 +461,8 @@ function MessagesPage() {
 
   /** The other person's auth id — used for reporting and blocking. */
   function peerUserIdOf(conv: (typeof list)[number]): string | null {
+    const direct = directPeerOf(conv);
+    if (direct) return direct.id;
     if (conv.listing_id) {
       const viewerIsOwner =
         Boolean(user?.id) && conv.owner_id === user?.id;
@@ -455,6 +477,7 @@ function MessagesPage() {
       (viewerIsProvider ? conv.client_id : conv.provider?.user_id) ?? null
     );
   }
+
 
   /** Where the other side's public page lives, when they have one. */
   function peerProfileOf(conv: (typeof list)[number] | undefined) {

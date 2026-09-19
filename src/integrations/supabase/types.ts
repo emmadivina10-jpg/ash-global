@@ -3189,6 +3189,45 @@ export type Database = {
           },
         ]
       }
+      public_profiles: {
+        Row: {
+          account_status: string | null
+          avatar_url: string | null
+          birthday: string | null
+          city: string | null
+          created_at: string | null
+          full_name: string | null
+          user_id: string
+          username: string | null
+          verified_tier: string | null
+          verified_until: string | null
+        }
+        Insert: {
+          account_status?: string | null
+          avatar_url?: string | null
+          birthday?: string | null
+          city?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          user_id: string
+          username?: string | null
+          verified_tier?: string | null
+          verified_until?: string | null
+        }
+        Update: {
+          account_status?: string | null
+          avatar_url?: string | null
+          birthday?: string | null
+          city?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          user_id?: string
+          username?: string | null
+          verified_tier?: string | null
+          verified_until?: string | null
+        }
+        Relationships: []
+      }
       push_tokens: {
         Row: {
           created_at: string

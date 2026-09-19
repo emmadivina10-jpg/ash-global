@@ -33,7 +33,8 @@ function MentionToken({ value }: { value: string }) {
     <button type="button" className="font-semibold text-primary hover:underline" onClick={async (event) => {
       event.stopPropagation();
       const { supabase } = await import("@/integrations/supabase/client");
-      const { data } = await supabase.from("profiles").select("user_id").ilike("username", value.slice(1)).maybeSingle();
+      const { directory } = await import("@/lib/public-profiles");
+      const { data } = await directory().select("user_id").ilike("username", value.slice(1)).maybeSingle();
       if (data?.user_id) void navigate({ to: "/u/$userId", params: { userId: data.user_id } });
     }}>
       {value}

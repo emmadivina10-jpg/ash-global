@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { verifyMediaFiles } from "./media-safety";
+import { directory } from "@/lib/public-profiles";
 
 export const SOCIAL_BUCKET = "spotlight";
 /** Largest single photo accepted by a story or a feed post. */
@@ -235,7 +236,7 @@ export async function loadAuthors(ids: string[]): Promise<Map<string, SocialAuth
   const since = new Date(Date.now() - 5 * 60_000).toISOString();
   const now = new Date().toISOString();
   const [{ data }, { data: presence }, { data: stories }, { data: spotlights }] = await Promise.all([
-    supabase.from("profiles").select("user_id, full_name, avatar_url, verified_tier, verified_until").in("user_id", unique),
+    directory().select("user_id, full_name, avatar_url, verified_tier, verified_until").in("user_id", unique),
     supabase.from("member_presence").select("user_id").in("user_id", unique).gte("last_active_at", since),
     supabase.from("stories").select("author_id").in("author_id", unique).gt("expires_at", now),
     supabase.from("spotlight_posts").select("author_id").in("author_id", unique).eq("is_published", true).gte("created_at", new Date(Date.now() - 24 * 60 * 60_000).toISOString()),
@@ -1431,8 +1432,7 @@ export function useMemberSearch(term: string) {
     enabled: term.trim().length >= 2,
     queryFn: async (): Promise<SocialAuthor[]> => {
       const me = await currentUserId();
-      const { data } = await supabase
-        .from("profiles")
+      const { data } = await directory()
         .select("user_id, full_name, avatar_url")
         .ilike("full_name", `%${term.trim()}%`)
         .limit(20);
@@ -1708,8 +1708,7 @@ export function useFriendSuggestions(limit = 12) {
         linked.add(row.requester_id);
         linked.add(row.addressee_id);
       }
-      const { data } = await supabase
-        .from("profiles")
+      const { data } = await directory()
         .select("user_id, full_name, avatar_url, verified_tier, verified_until")
         .order("created_at", { ascending: false })
         .limit(limit + linked.size + 10);

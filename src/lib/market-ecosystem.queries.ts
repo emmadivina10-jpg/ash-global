@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { usePost, useSocialFeed, type FeedPost } from "@/lib/social.queries";
+import { directory, type DirectoryProfile } from "@/lib/public-profiles";
 
 const db = supabase as unknown as { from: (table: string) => any };
 const VERIFICATION_BUCKET = "market-verification";
@@ -161,11 +162,13 @@ export function useFxInstructors() {
       if (!ids.length) return [];
        const since = new Date(Date.now() - 5 * 60_000).toISOString();
        const [{ data: profiles }, { data: presence }] = await Promise.all([
-         supabase.from("profiles").select("user_id,full_name,username,avatar_url,verified_tier,verified_until").in("user_id", ids),
+         directory().select("user_id,full_name,username,avatar_url,verified_tier,verified_until").in("user_id", ids),
          supabase.from("member_presence").select("user_id").in("user_id", ids).gte("last_active_at", since),
        ]);
        const onlineIds = new Set((presence ?? []).map((row) => row.user_id));
-      const byUser = new Map((profiles ?? []).map((profile) => [profile.user_id, profile]));
+      const byUser = new Map(
+        ((profiles ?? []) as DirectoryProfile[]).map((profile) => [profile.user_id, profile]),
+      );
       return (rows ?? []).map((row: Omit<FxInstructorProfile, "full_name" | "username" | "avatar_url">) => {
         const profile = byUser.get(row.user_id);
         return {
@@ -293,7 +296,7 @@ export function useFxInstructorProfile(instructorId: string) {
       if (!data) return null;
        const since = new Date(Date.now() - 5 * 60_000).toISOString();
        const [{ data: profile }, { data: presence }] = await Promise.all([
-         supabase.from("profiles").select("full_name,username,avatar_url,verified_tier,verified_until").eq("user_id", data.user_id).maybeSingle(),
+         directory().select("full_name,username,avatar_url,verified_tier,verified_until").eq("user_id", data.user_id).maybeSingle(),
          supabase.from("member_presence").select("user_id").eq("user_id", data.user_id).gte("last_active_at", since).maybeSingle(),
        ]);
        return { ...data, full_name: profile?.full_name?.trim() || "Profile", username: profile?.username ?? null, avatar_url: profile?.avatar_url ?? null, verified_tier: profile?.verified_tier ?? null, verified_until: profile?.verified_until ?? null, online: Boolean(presence) } as FxInstructorProfile;

@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { signPortfolioPaths, type ServiceCategory } from "./marketplace";
+import { directory, type DirectoryProfile } from "@/lib/public-profiles";
 
 export type ProviderProfile = {
   id: string;
@@ -201,8 +202,7 @@ export function useProviderReviews(providerId: string | undefined) {
       const ids = [...new Set(rows.map((r) => r.client_id))];
       const names: Record<string, { name: string; avatar: string | null }> = {};
       if (ids.length > 0) {
-        const { data: people } = await supabase
-          .from("profiles")
+        const { data: people } = await directory()
           .select("user_id, full_name, avatar_url")
           .in("user_id", ids);
         for (const p of people ?? []) {
@@ -257,14 +257,20 @@ export function useConversations() {
 
       // conversations.client_id points at auth.users, so the client profile is
       // fetched separately (PostgREST cannot embed across schemas).
-      const clientIds = [...new Set(rows.map((r) => r.client_id))];
+      // Member-to-member threads store the other side in owner_id, so both
+      // sides of every thread are looked up in the public member directory.
+      const clientIds = [
+        ...new Set([
+          ...rows.map((r) => r.client_id),
+          ...rows.map((r) => (r as { owner_id?: string | null }).owner_id).filter(Boolean),
+        ]),
+      ] as string[];
       const clients: Record<string, { full_name: string; avatar_url: string | null }> = {};
       if (clientIds.length > 0) {
-        const { data: people } = await supabase
-          .from("profiles")
+        const { data: people } = await directory()
           .select("user_id, full_name, avatar_url")
           .in("user_id", clientIds);
-        for (const p of people ?? []) {
+        for (const p of (people ?? []) as DirectoryProfile[]) {
           clients[p.user_id] = { full_name: p.full_name || "Profile", avatar_url: p.avatar_url };
         }
       }
@@ -299,12 +305,16 @@ export function useConversations() {
         }
       }
 
-      return rows.map((row) => ({
-        ...row,
-        client: clients[row.client_id] ?? { full_name: "Profile", avatar_url: null },
-        last_message: preview[row.id] ?? null,
-        unread_count: unread[row.id] ?? 0,
-      }));
+      return rows.map((row) => {
+        const ownerId = (row as { owner_id?: string | null }).owner_id ?? null;
+        return {
+          ...row,
+          client: clients[row.client_id] ?? { full_name: "Profile", avatar_url: null },
+          owner: ownerId ? (clients[ownerId] ?? { full_name: "Profile", avatar_url: null }) : null,
+          last_message: preview[row.id] ?? null,
+          unread_count: unread[row.id] ?? 0,
+        };
+      });
     },
   });
 
