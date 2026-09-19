@@ -74,6 +74,7 @@ export function ChatThread({
   isGroup = false,
   enforceFirstContactLimit = false,
   members = [],
+  initialMessages,
 }: {
   conversationId: string;
   currentUserId: string | undefined;
@@ -88,11 +89,12 @@ export function ChatThread({
   /** Limit only unsolicited person-to-person introductions, never groups or commerce threads. */
   enforceFirstContactLimit?: boolean;
   members?: { id: string; name: string; avatar_url: string | null }[];
+  initialMessages?: ChatMessage[] | undefined;
 }) {
   const { t, lang } = useI18n();
   const fr = lang === "fr";
   const queryClient = useQueryClient();
-  const { data, isLoading } = useMessages(conversationId);
+  const { data, isLoading } = useMessages(conversationId, !initialMessages);
 
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
@@ -111,7 +113,7 @@ export function ChatThread({
   const messagesScrollRef = useRef<HTMLDivElement>(null);
   const pressRef = useRef<number | null>(null);
 
-  const messages = (data ?? []) as unknown as ChatMessage[];
+  const messages = (initialMessages ?? data ?? []) as unknown as ChatMessage[];
 
   const memberById = new Map(members.map((m) => [m.id, m]));
 
@@ -423,7 +425,7 @@ export function ChatThread({
                     {!mine ? (
                       <Avatar
                         path={(isGroup ? memberById.get(m.sender_id)?.avatar_url : peerAvatar) ?? null}
-                        name={(isGroup ? memberById.get(m.sender_id)?.name : peerName) ?? "ASH"}
+                        name={(isGroup ? memberById.get(m.sender_id)?.name : peerName) ?? "Profile"}
                         className={cn("size-7 text-[10px]", !endsRun && "invisible")}
                       />
                     ) : null}
@@ -591,7 +593,7 @@ export function ChatThread({
 
         {peerTyping ? (
           <div className="flex items-end gap-2">
-            <Avatar path={peerAvatar ?? null} name={peerName ?? "ASH"} className="size-7 text-[10px]" />
+            <Avatar path={peerAvatar ?? null} name={peerName ?? "Profile"} className="size-7 text-[10px]" />
             <span className="flex items-center gap-1 rounded-2xl rounded-bl-sm bg-muted px-3 py-2">
               {[0, 1, 2].map((dot) => (
                 <span

@@ -327,14 +327,14 @@ export function useConversations() {
   return query;
 }
 
-export function useMessages(conversationId: string | undefined) {
+export function useMessages(conversationId: string | undefined, enabled = true) {
   const queryClient = useQueryClient();
 
   const query = useQuery({
-    enabled: Boolean(conversationId),
+    enabled: Boolean(conversationId) && enabled,
     queryKey: ["messages", conversationId],
     // Fallback poll so a dropped realtime socket never strands a conversation.
-    refetchInterval: 15_000,
+    refetchInterval: 60_000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("messages")
@@ -347,7 +347,7 @@ export function useMessages(conversationId: string | undefined) {
   });
 
   useEffect(() => {
-    if (!conversationId) return;
+    if (!conversationId || !enabled) return;
     const channel = supabase
       .channel(`messages:${conversationId}`)
       .on(
@@ -362,7 +362,7 @@ export function useMessages(conversationId: string | undefined) {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [conversationId, queryClient]);
+  }, [conversationId, enabled, queryClient]);
 
   return query;
 }
