@@ -1218,7 +1218,15 @@ export function useSetStoryReaction() {
       } as never);
       if (error) throw error;
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["stories"] }),
+    onSuccess: (_result, variables) => {
+      trackEvent({
+        event_type: variables.reaction ? "story_reaction" : "unlike",
+        surface: "stories",
+        target_type: "story",
+        target_id: variables.storyId,
+      });
+      void queryClient.invalidateQueries({ queryKey: ["stories"] });
+    },
   });
 }
 
