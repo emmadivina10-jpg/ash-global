@@ -811,7 +811,7 @@ export function StoriesRail() {
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/5" />
             </div>
-            <span className="absolute left-1/2 top-[70%] z-20 grid size-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-primary text-primary-foreground shadow-md ring-4 ring-card">
+            <span className="absolute left-1/2 top-[64%] z-20 grid size-10 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-primary text-primary-foreground shadow-md ring-4 ring-card">
               <Plus className="size-6" strokeWidth={2.75} aria-hidden />
             </span>
             <span className="absolute inset-x-0 bottom-0 z-10 h-[36%] rounded-b-[22px] bg-card" />
