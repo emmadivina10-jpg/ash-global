@@ -166,7 +166,9 @@ export function useFxInstructors() {
          supabase.from("member_presence").select("user_id").in("user_id", ids).gte("last_active_at", since),
        ]);
        const onlineIds = new Set((presence ?? []).map((row) => row.user_id));
-      const byUser = new Map((profiles ?? []).map((profile) => [profile.user_id, profile]));
+      const byUser = new Map(
+        ((profiles ?? []) as DirectoryProfile[]).map((profile) => [profile.user_id, profile]),
+      );
       return (rows ?? []).map((row: Omit<FxInstructorProfile, "full_name" | "username" | "avatar_url">) => {
         const profile = byUser.get(row.user_id);
         return {
