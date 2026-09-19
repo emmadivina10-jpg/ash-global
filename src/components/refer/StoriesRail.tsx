@@ -66,7 +66,7 @@ function isVideoSource(source: string | File | null | undefined): boolean {
 
 function initials(name: string | null | undefined): string {
   return (
-    String(name ?? "ASH")
+    String(name ?? "Profile")
       .trim()
       .split(/\s+/)
       .slice(0, 2)
@@ -1148,7 +1148,7 @@ export function StoriesRail() {
                       />
                       <div className="min-w-0">
                         <p className="truncate text-sm font-extrabold">
-                          {activeStoryGroup?.author.name ?? "Profile unavailable"}
+                          {activeStoryGroup?.author.name ?? "Profile"}
                         </p>
                         <p className="text-[10px] text-white/60">24h story</p>
                       </div>
@@ -1321,7 +1321,7 @@ export function StoriesRail() {
                         >
                           <Avatar src={item.viewer.avatar_url} name={item.viewer.name} className="size-11" />
                           <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-bold">{item.viewer.name ?? "Profile unavailable"}</p>
+                            <p className="truncate text-sm font-bold">{item.viewer.name ?? "Profile"}</p>
                             <p className="text-[11px] text-white/45">
                               {new Date(item.at).toLocaleString([], {
                                 month: "short",

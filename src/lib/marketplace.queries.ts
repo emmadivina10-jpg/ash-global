@@ -206,12 +206,12 @@ export function useProviderReviews(providerId: string | undefined) {
           .select("user_id, full_name, avatar_url")
           .in("user_id", ids);
         for (const p of people ?? []) {
-          names[p.user_id] = { name: p.full_name || "Profile unavailable", avatar: p.avatar_url };
+          names[p.user_id] = { name: p.full_name || "Profile", avatar: p.avatar_url };
         }
       }
       return rows.map((r) => ({
         ...r,
-        author: names[r.client_id]?.name ?? "Profile unavailable",
+        author: names[r.client_id]?.name ?? "Profile",
         authorAvatar: names[r.client_id]?.avatar ?? null,
       }));
     },
@@ -265,7 +265,7 @@ export function useConversations() {
           .select("user_id, full_name, avatar_url")
           .in("user_id", clientIds);
         for (const p of people ?? []) {
-          clients[p.user_id] = { full_name: p.full_name || "Profile unavailable", avatar_url: p.avatar_url };
+          clients[p.user_id] = { full_name: p.full_name || "Profile", avatar_url: p.avatar_url };
         }
       }
       // Last message preview + unread count, WhatsApp-style inbox rows.
@@ -301,7 +301,7 @@ export function useConversations() {
 
       return rows.map((row) => ({
         ...row,
-        client: clients[row.client_id] ?? { full_name: "Profile unavailable", avatar_url: null },
+        client: clients[row.client_id] ?? { full_name: "Profile", avatar_url: null },
         last_message: preview[row.id] ?? null,
         unread_count: unread[row.id] ?? 0,
       }));
@@ -327,14 +327,14 @@ export function useConversations() {
   return query;
 }
 
-export function useMessages(conversationId: string | undefined) {
+export function useMessages(conversationId: string | undefined, enabled = true) {
   const queryClient = useQueryClient();
 
   const query = useQuery({
-    enabled: Boolean(conversationId),
+    enabled: Boolean(conversationId) && enabled,
     queryKey: ["messages", conversationId],
     // Fallback poll so a dropped realtime socket never strands a conversation.
-    refetchInterval: 15_000,
+    refetchInterval: 60_000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("messages")
@@ -347,7 +347,7 @@ export function useMessages(conversationId: string | undefined) {
   });
 
   useEffect(() => {
-    if (!conversationId) return;
+    if (!conversationId || !enabled) return;
     const channel = supabase
       .channel(`messages:${conversationId}`)
       .on(
@@ -362,7 +362,7 @@ export function useMessages(conversationId: string | undefined) {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [conversationId, queryClient]);
+  }, [conversationId, enabled, queryClient]);
 
   return query;
 }

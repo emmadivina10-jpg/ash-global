@@ -8,7 +8,8 @@ import {
 } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, Search } from "lucide-react";
+import { ArrowLeft, Camera, Search, Settings2, UserMinus } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 
 import { useConversations } from "@/lib/marketplace.queries";
 import { useUser } from "@/lib/queries";
@@ -32,7 +33,9 @@ import {
   useSetChatLockPin,
   useSetChatPref,
 } from "@/lib/chat-prefs";
-import { useCreateGroup, useMemberSearch, useMemberStates, useSendFriendRequest, useFriendships, useGroups } from "@/lib/social.queries";
+import { useAddGroupMembers, useCreateGroup, useMemberSearch, useMemberStates, useRemoveGroupMember, useSendFriendRequest, useFriendships, useGroups, useUpdateGroup } from "@/lib/social.queries";
+import { unlockChat, type LockedChatMessage } from "@/lib/chat-lock.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -331,31 +334,26 @@ function MessagesPage() {
   const [selection, setSelection] = useState<string[]>([]);
   const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
   const [lockedUnlocked, setLockedUnlocked] = useState(false);
+  const [unlockDialog, setUnlockDialog] = useState(false);
+  const [unlockingId, setUnlockingId] = useState<string | null>(null);
+  const [lockedMessages, setLockedMessages] = useState<Record<string, LockedChatMessage[]>>({});
   const [pinDialog, setPinDialog] = useState(false);
   const [pinValue, setPinValue] = useState("");
   const [groupDialog, setGroupDialog] = useState(false);
   const [groupName, setGroupName] = useState("");
   const [groupMembers, setGroupMembers] = useState<string[]>([]);
+  const [groupSearch, setGroupSearch] = useState("");
+  const [groupSettings, setGroupSettings] = useState(false);
+  const [groupEditName, setGroupEditName] = useState("");
   const { data: people } = useMemberSearch(term);
+  const { data: groupPeople } = useMemberSearch(groupSearch);
   const { data: graph } = useFriendships();
   const sendFriendRequest = useSendFriendRequest();
   const createGroup = useCreateGroup();
-
-  // Typing the chat-lock PIN into the search box reveals the hidden chats.
-  useEffect(() => {
-    let cancelled = false;
-    const value = term.trim();
-    if (!lockPin || value.length < 4) {
-      setLockedUnlocked(false);
-      return;
-    }
-    void hashPin(value).then((hash) => {
-      if (!cancelled) setLockedUnlocked(hash === lockPin);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [term, lockPin]);
+  const addGroupMembers = useAddGroupMembers();
+  const removeGroupMember = useRemoveGroupMember();
+  const updateGroup = useUpdateGroup();
+  const unlockChatServer = useServerFn(unlockChat);
 
   const list = conversations ?? [];
   const peerIds = list.map((conversation) => {
@@ -389,7 +387,7 @@ function MessagesPage() {
         Boolean(user?.id) && conv.owner_id === user?.id;
 
       return viewerIsOwner
-        ? (conv.client?.full_name ?? "Profile unavailable")
+        ? (conv.client?.full_name ?? (fr ? "Profil" : "Profile"))
         : (conv.listing?.title ?? "ASH Property");
     }
 
@@ -397,7 +395,7 @@ function MessagesPage() {
       Boolean(user?.id) && conv.provider?.user_id === user?.id;
 
     return viewerIsProvider
-      ? (conv.client?.full_name ?? "Profile unavailable")
+      ? (conv.client?.full_name ?? (fr ? "Profil" : "Profile"))
       : (conv.provider?.business_name ?? t("chat.title"));
   }
 
@@ -508,7 +506,7 @@ function MessagesPage() {
       .trim();
   }
 
-  const searchTerm = lockedUnlocked ? "" : term.trim();
+  const searchTerm = term.trim();
   const searched = searchTerm
     ? list.filter((conv) =>
         `${peerOf(conv)} ${previewOf(conv)}`
@@ -517,8 +515,8 @@ function MessagesPage() {
       )
     : list;
 
-  // Locked chats stay out of the list until the PIN is typed into the search
-  // box, exactly like WhatsApp's locked chats.
+  // Locked conversations are also excluded by RLS. This filter keeps the UI
+  // consistent while preference invalidation and conversation refetch settle.
   const visible = searched.filter((conv) => {
     const pref = prefs?.[conv.id];
     if (pref?.locked && !lockedUnlocked) return false;
@@ -532,7 +530,8 @@ function MessagesPage() {
     return pinB - pinA;
   });
 
-  const archivedCount = list.filter((conv) => prefs?.[conv.id]?.archived).length;
+  const archivedCount = Object.values(prefs ?? {}).filter((pref) => pref.archived).length;
+  const lockedCount = Object.values(prefs ?? {}).filter((pref) => pref.locked).length;
   const pinnedCount = list.filter((conv) => prefs?.[conv.id]?.pinned).length;
 
   // Members who are not already in a chat with you — offered as "Add friend".
@@ -585,6 +584,36 @@ function MessagesPage() {
     );
   }
 
+  async function revealLockedChats() {
+    if (!lockPin || pinValue.length < 4) return;
+    const hash = await hashPin(pinValue);
+    if (hash !== lockPin) {
+      toast.error(fr ? "Code incorrect" : "Incorrect PIN");
+      return;
+    }
+    setUnlockDialog(false);
+    setPinValue("");
+    toast.success(fr ? "Discussions verrouillées affichées" : "Locked chats shown");
+  }
+
+  async function openLockedChat(conversationId: string) {
+    setUnlockingId(conversationId);
+    setUnlockDialog(true);
+  }
+
+  async function submitLockedChatUnlock() {
+    if (!unlockingId || pinValue.length < 4) return;
+    try {
+      const result = await unlockChatServer({ data: { conversationId: unlockingId, pin: pinValue } }) as { messages: LockedChatMessage[] };
+      setLockedMessages((current) => ({ ...current, [unlockingId]: result.messages }));
+      setUnlockDialog(false);
+      setPinValue("");
+      void navigate({ search: { c: unlockingId } });
+    } catch {
+      toast.error(fr ? "Code incorrect" : "Incorrect PIN");
+    }
+  }
+
 
   function toggleSelected(conversationId: string) {
     setSelection((list) =>
@@ -604,7 +633,7 @@ function MessagesPage() {
         await deleteChat.mutateAsync(id);
         removed += 1;
       } catch {
-        setPref.mutate({ conversationId: id, patch: { archived: true } });
+        setPref.mutate({ conversationId: id, patch: { archived: true, locked: Boolean(prefs?.[id]?.locked) } });
       }
     }
     if (removed > 0) {
@@ -696,8 +725,8 @@ function MessagesPage() {
                   onChange={(event) => setTerm(event.target.value)}
                   placeholder={
                     fr
-                      ? "Rechercher une discussion, un membre ou votre code"
-                      : "Search chats, people or your PIN"
+                       ? "Rechercher une discussion ou un membre"
+                       : "Search chats or people"
                   }
                   aria-label={
                     fr
@@ -734,6 +763,17 @@ function MessagesPage() {
                   </button>
                 ) : null}
 
+                {lockPin && lockedCount > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => setUnlockDialog(true)}
+                    className="flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold text-muted-foreground"
+                  >
+                    <Lock className="size-3" aria-hidden />
+                    {fr ? `Verrouillées (${lockedCount})` : `Locked (${lockedCount})`}
+                  </button>
+                ) : null}
+
                 <button
                   type="button"
                   onClick={() => setPinDialog(true)}
@@ -767,13 +807,18 @@ function MessagesPage() {
                   onChange={(event) => setGroupName(event.target.value.slice(0, 60))}
                   placeholder={fr ? "Nom du groupe" : "Group name"}
                 />
+                <Input
+                  value={groupSearch}
+                  onChange={(event) => setGroupSearch(event.target.value)}
+                  placeholder={fr ? "Rechercher un membre" : "Search people on ASH"}
+                />
                 <div className="max-h-64 space-y-1 overflow-y-auto">
-                  {(graph?.friends ?? []).length === 0 ? (
+                  {[...(graph?.friends ?? []).map(({ other }) => other), ...(groupPeople ?? []).filter((person) => !(graph?.friends ?? []).some(({ other }) => other.id === person.id))].length === 0 ? (
                     <p className="py-4 text-center text-sm text-muted-foreground">
                       {fr ? "Ajoutez d’abord des amis au groupe." : "Add friends before creating a group."}
                     </p>
                   ) : (
-                    (graph?.friends ?? []).map(({ other }) => {
+                    [...(graph?.friends ?? []).map(({ other }) => other), ...(groupPeople ?? []).filter((person) => !(graph?.friends ?? []).some(({ other }) => other.id === person.id))].map((other) => {
                       const selected = groupMembers.includes(other.id);
                       return (
                         <Button
@@ -808,6 +853,15 @@ function MessagesPage() {
                 >
                   {fr ? "Créer le groupe" : "Create group"}
                 </Button>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={unlockDialog} onOpenChange={(open) => { setUnlockDialog(open); if (!open) { setUnlockingId(null); setPinValue(""); } }}>
+              <DialogContent className="max-w-sm">
+                <DialogHeader><DialogTitle>{fr ? "Déverrouiller les discussions" : "Unlock chats"}</DialogTitle></DialogHeader>
+                <p className="text-xs text-muted-foreground">{fr ? "Entrez votre code. Le contenu reste inaccessible jusqu’à sa validation." : "Enter your PIN. Chat content remains unavailable until it is verified."}</p>
+                <Input type="password" inputMode="numeric" autoFocus value={pinValue} onChange={(event) => setPinValue(event.target.value.replace(/\D/g, "").slice(0, 8))} placeholder="••••" />
+                <Button disabled={pinValue.length < 4} onClick={() => void (unlockingId ? submitLockedChatUnlock() : revealLockedChats())}>{fr ? "Déverrouiller" : "Unlock"}</Button>
               </DialogContent>
             </Dialog>
 
@@ -961,7 +1015,7 @@ function MessagesPage() {
                     selected={selection.includes(conv.id)}
                     onLongPress={() => toggleSelected(conv.id)}
                     onToggleSelect={() => toggleSelected(conv.id)}
-                    onOpen={() => void navigate({ search: { c: conv.id } })}
+                    onOpen={() => prefs?.[conv.id]?.locked && !lockedMessages[conv.id] ? void openLockedChat(conv.id) : void navigate({ search: { c: conv.id } })}
                     onTogglePin={() => void togglePin(conv.id)}
                     onArchive={() => toggleArchive(conv.id)}
                     onToggleLock={() => toggleLock(conv.id)}
@@ -1047,7 +1101,7 @@ function MessagesPage() {
                   </p>
                   {newPeople.slice(0, 8).map((person) => (
                     <div key={person.id} className="flex items-center gap-2">
-                      <Avatar path={person.avatar_url} name={person.name} className="size-9" />
+                      <Avatar path={person.avatar_url} name={person.name} online={person.online} hasUpdate={person.has_update} className="size-9" />
                       <button
                         type="button"
                         onClick={() =>
@@ -1214,7 +1268,27 @@ function MessagesPage() {
                   </p>
                 </div>
               ) : null}
+              {activeGroup ? (
+                <button type="button" onClick={() => { setGroupEditName(activeGroup.name); setGroupSettings(true); }} aria-label={fr ? "Gérer le groupe" : "Manage group"} className="grid size-9 place-items-center rounded-full bg-muted text-muted-foreground">
+                  <Settings2 className="size-4" aria-hidden />
+                </button>
+              ) : null}
             </div>
+
+            <Dialog open={groupSettings} onOpenChange={setGroupSettings}>
+              <DialogContent className="max-h-[calc(100dvh-2rem)] max-w-sm overflow-y-auto">
+                <DialogHeader><DialogTitle>{fr ? "Gérer le groupe" : "Manage group"}</DialogTitle></DialogHeader>
+                {activeGroup ? <>
+                  <div className="flex items-center gap-3">
+                    <Avatar path={activeGroup.avatar_path} name={activeGroup.name} className="size-14" />
+                    {activeGroup.owner_id === user?.id ? <label className="inline-flex cursor-pointer items-center gap-2 text-sm font-semibold text-primary"><Camera className="size-4" />{fr ? "Photo" : "Photo"}<input type="file" accept="image/*" className="sr-only" onChange={async (event) => { const file = event.target.files?.[0]; if (!file || !user?.id) return; const path = `${user.id}/groups/${activeGroup.id}-${Date.now()}`; const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true }); if (error) { toast.error(error.message); return; } updateGroup.mutate({ groupId: activeGroup.id, avatarPath: path }); }} /></label> : null}
+                  </div>
+                  {activeGroup.owner_id === user?.id ? <div className="flex gap-2"><Input value={groupEditName} onChange={(event) => setGroupEditName(event.target.value.slice(0, 60))} /><Button onClick={() => updateGroup.mutate({ groupId: activeGroup.id, name: groupEditName }, { onSuccess: () => toast.success(fr ? "Groupe mis à jour" : "Group updated") })}>{fr ? "Enregistrer" : "Save"}</Button></div> : null}
+                  <div className="space-y-2">{activeGroup.members.map((member) => <div key={member.id} className="flex items-center gap-2 rounded-xl bg-muted/50 p-2"><Avatar path={member.avatar_url} name={member.name} online={member.online} hasUpdate={member.has_update} className="size-9" /><span className="min-w-0 flex-1 truncate text-sm font-semibold">{member.name}</span>{activeGroup.owner_id === user?.id && member.id !== user.id ? <Button size="icon" variant="ghost" className="text-destructive" onClick={() => removeGroupMember.mutate({ groupId: activeGroup.id, userId: member.id })}><UserMinus className="size-4" /></Button> : null}</div>)}</div>
+                  {activeGroup.owner_id === user?.id ? <><Input value={groupSearch} onChange={(event) => setGroupSearch(event.target.value)} placeholder={fr ? "Ajouter un membre" : "Add a member"} />{(groupPeople ?? []).filter((person) => !activeGroup.members.some((member) => member.id === person.id)).slice(0, 6).map((person) => <button key={person.id} type="button" onClick={() => addGroupMembers.mutate({ groupId: activeGroup.id, memberIds: [person.id] })} className="flex w-full items-center gap-2 rounded-xl p-2 text-left hover:bg-muted"><Avatar path={person.avatar_url} name={person.name} online={person.online} hasUpdate={person.has_update} className="size-9" /><span className="flex-1 truncate text-sm font-semibold">{person.name}</span><Plus className="size-4 text-primary" /></button>)}</> : null}
+                </> : null}
+              </DialogContent>
+            </Dialog>
 
             {/* =======================================================
                 CHAT CONTENT
@@ -1237,6 +1311,15 @@ function MessagesPage() {
                   <AssistantPanel />
                 </div>
               </div>
+            ) : activeId && prefs?.[activeId]?.locked && !lockedMessages[activeId] ? (
+              <div className="grid flex-1 place-items-center bg-background/80 p-6 text-center backdrop-blur-sm">
+                <div className="max-w-xs space-y-3">
+                  <span className="mx-auto grid size-14 place-items-center rounded-full bg-primary/10 text-primary"><Lock className="size-6" /></span>
+                  <p className="font-display text-lg font-bold">{fr ? "Discussion verrouillée" : "Locked chat"}</p>
+                  <p className="text-sm text-muted-foreground">{fr ? "Le contenu n’a pas été chargé. Entrez votre code pour l’ouvrir." : "Content has not been loaded. Enter your PIN to open it."}</p>
+                  <Button onClick={() => void openLockedChat(activeId)}>{fr ? "Déverrouiller" : "Unlock"}</Button>
+                </div>
+              </div>
             ) : activeId ? (
               <div
                 className="relative min-h-0 flex-1 overflow-hidden bg-background"
@@ -1257,7 +1340,7 @@ function MessagesPage() {
                 conversationId={activeId}
                 currentUserId={user?.id}
                 peerName={
-                  active ? peerOf(active) : "ASH"
+                  active ? peerOf(active) : (fr ? "Profil" : "Profile")
                 }
                 peerUserId={
                   active
@@ -1273,7 +1356,9 @@ function MessagesPage() {
                   id: m.id,
                   name: m.name,
                   avatar_url: m.avatar_url,
+                    online: m.online,
                 }))}
+                  initialMessages={activeId ? lockedMessages[activeId] : undefined}
                 className="min-h-0 flex-1 px-2"
                     quickReplies={
                       lang === "fr"

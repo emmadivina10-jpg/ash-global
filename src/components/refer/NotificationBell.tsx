@@ -115,7 +115,7 @@ export function NotificationBell() {
                 <span className="relative shrink-0">
                   <Avatar
                     path={n.actor?.avatar_url ?? null}
-                    name={n.actor?.name ?? "ASH"}
+                    name={n.actor?.name ?? (fr ? "Profil" : "Profile")}
                     className="size-11"
                   />
                   <span className="brand-gradient absolute -bottom-0.5 -right-0.5 grid size-5 place-items-center rounded-full border-2 border-card text-primary-foreground">
