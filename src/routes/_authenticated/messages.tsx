@@ -185,6 +185,10 @@ function MessagesPage() {
   // iOS/WKWebView visual viewport. The chat becomes a true fullscreen surface
   // while a thread is open, so the shell navigation/orb cannot overlap it.
   const [visualViewportHeight, setVisualViewportHeight] = useState<number | null>(null);
+  // Real chrome reserve for the mobile chat list: distance from the list top to
+  // the top edge of the bottom navigation, measured from the live layout so it
+  // stays exact on any header height, root font size, or device safe area.
+  const [chromeReservePx, setChromeReservePx] = useState<number | null>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const useIsoLayoutEffect =
@@ -199,11 +203,22 @@ function MessagesPage() {
     const viewport = window.visualViewport;
     if (!viewport) return;
 
+    const measureChromeReserve = () => {
+      const main = document.querySelector<HTMLElement>("main.app-shell-scroll");
+      const nav = document.querySelector<HTMLElement>(".premium-mobile-nav");
+      if (!main || !nav) return;
+      const navHeight = nav.getBoundingClientRect().height;
+      if (navHeight <= 0) return;
+      const top = main.getBoundingClientRect().top + main.scrollTop;
+      if (top > 0) setChromeReservePx(Math.round(top + navHeight));
+    };
+
     const updateViewport = () => {
       const height = Math.max(0, Math.round(viewport.height));
       setVisualViewportHeight((current) =>
         current !== null && Math.abs(current - height) < 2 ? current : height,
       );
+      measureChromeReserve();
     };
 
     updateViewport();
@@ -684,9 +699,16 @@ function MessagesPage() {
               "tile flex min-h-0 flex-col overflow-hidden bg-background p-0 max-md:rounded-none max-md:border-0",
               mobileView === "thread"
                 ? "hidden md:flex"
-                : "max-md:-mx-4 max-md:-mt-5 max-md:h-[calc(var(--ash-vh,100dvh)-3.5rem-4.75rem)]",
+                : chromeReservePx !== null
+                  ? "max-md:-mx-4 max-md:-mt-5"
+                  : "max-md:-mx-4 max-md:-mt-5 max-md:h-[calc(var(--ash-vh,100dvh)-3.5rem-3.75rem)]",
               "md:max-h-[72vh]",
             )}
+            style={
+              mobileView !== "thread" && chromeReservePx !== null
+                ? { height: `calc(var(--ash-vh, 100dvh) - ${chromeReservePx}px)` }
+                : undefined
+            }
           >
             <div className="border-b border-border bg-card/95 px-3 pb-2.5 pt-2.5 backdrop-blur">
               <h2 className="mb-2 font-display text-xl font-bold text-foreground md:hidden">
@@ -1159,7 +1181,7 @@ function MessagesPage() {
               mobileView === "list"
                 ? "hidden md:flex"
                 : cn(
-                    "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:bottom-[calc(4.75rem+env(safe-area-inset-bottom))] max-md:z-30 max-md:w-screen max-md:touch-pan-y",
+                    "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:bottom-[calc(3.75rem+env(safe-area-inset-bottom))] max-md:z-30 max-md:w-screen max-md:touch-pan-y",
                     "max-md:h-auto",
                   ),
               "md:h-[72vh]",
