@@ -51,7 +51,7 @@ export function StoryViewer({
   // Record the view once per story.
   useEffect(() => {
     if (!story || mine) return;
-    void recordStoryView(story.id);
+    void recordStoryView(story.id, story.author_id);
   }, [story, mine]);
 
   function next() {

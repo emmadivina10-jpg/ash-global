@@ -394,7 +394,7 @@ export function StoriesRail() {
 
   useEffect(() => {
     if (!storyViewerOpen || !activeStory) return;
-    void recordStoryView(activeStory.id);
+    void recordStoryView(activeStory.id, activeStory.author_id);
   }, [storyViewerOpen, activeStory]);
 
   useEffect(() => {
