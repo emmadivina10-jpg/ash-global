@@ -13,7 +13,6 @@ import {
   Mic,
   MicOff,
   Play,
-  Plus,
   Sparkles,
   Trash2,
   X,
@@ -795,9 +794,9 @@ export function StoriesRail() {
                 <Avatar
                   src={profile.avatar_url}
                   name={profile.full_name}
-                    online
                   className="!size-full !rounded-none !border-0 !bg-transparent"
                 />
+
               ) : (
                 <div className="grid size-full place-items-center bg-gradient-to-br from-[#D4AF37] via-[#a77f1b] to-[#4B0082]">
                   <span className="text-4xl font-black text-white">{initials(profile?.full_name)}</span>
@@ -806,9 +805,6 @@ export function StoriesRail() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/5" />
             </div>
             <span className="absolute inset-x-0 bottom-0 z-10 h-[36%] rounded-b-[22px] bg-card" />
-            <span className="absolute left-1/2 top-[57%] z-20 grid size-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-[4px] border-card bg-gradient-to-br from-[#ff2d55] to-[#4B0082] text-white shadow-xl">
-              <Plus className="size-7" strokeWidth={2.5} />
-            </span>
             <span className="absolute inset-x-3 bottom-4 z-10 text-center">
               <span className="block text-[15px] font-black text-foreground">Create</span>
               <span className="mt-0.5 block text-[10px] font-semibold text-muted-foreground">Story or Spotlight</span>
