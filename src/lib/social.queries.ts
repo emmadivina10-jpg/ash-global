@@ -31,6 +31,8 @@ export type SocialAuthor = {
   avatar_url: string | null;
   verified_tier?: string | null;
   verified_until?: string | null;
+  online?: boolean;
+  has_update?: boolean;
 };
 
 async function currentUserId(): Promise<string | null> {
@@ -230,10 +232,16 @@ export async function loadAuthors(ids: string[]): Promise<Map<string, SocialAuth
   const unique = Array.from(new Set(ids.filter(Boolean)));
   const map = new Map<string, SocialAuthor>();
   if (unique.length === 0) return map;
-  const { data } = await supabase
-    .from("profiles")
-    .select("user_id, full_name, avatar_url, verified_tier, verified_until")
-    .in("user_id", unique);
+  const since = new Date(Date.now() - 5 * 60_000).toISOString();
+  const now = new Date().toISOString();
+  const [{ data }, { data: presence }, { data: stories }, { data: spotlights }] = await Promise.all([
+    supabase.from("profiles").select("user_id, full_name, avatar_url, verified_tier, verified_until").in("user_id", unique),
+    supabase.from("member_presence").select("user_id").in("user_id", unique).gte("last_active_at", since),
+    supabase.from("stories").select("author_id").in("author_id", unique).gt("expires_at", now),
+    supabase.from("spotlight_posts").select("author_id").in("author_id", unique).eq("is_published", true).gte("created_at", new Date(Date.now() - 24 * 60 * 60_000).toISOString()),
+  ]);
+  const onlineIds = new Set((presence ?? []).map((row) => row.user_id));
+  const updateIds = new Set([...(stories ?? []).map((row) => row.author_id), ...(spotlights ?? []).map((row) => row.author_id)]);
   for (const row of (data ?? []) as {
     user_id: string;
     full_name: string;
@@ -247,6 +255,8 @@ export async function loadAuthors(ids: string[]): Promise<Map<string, SocialAuth
       avatar_url: row.avatar_url,
       verified_tier: row.verified_tier,
       verified_until: row.verified_until,
+      online: onlineIds.has(row.user_id),
+      has_update: updateIds.has(row.user_id),
     });
   }
   return map;
@@ -490,7 +500,7 @@ export function useStories() {
       const groups: StoryGroup[] = Array.from(grouped.entries()).map(([authorId, stories]) => ({
         author: authors.get(authorId) ?? {
           id: authorId,
-          name: "ASH member",
+          name: "Profile unavailable",
           avatar_url: null,
         },
         stories,
@@ -1073,7 +1083,7 @@ export function useComments(postId: string | null) {
           parent_id: row.parent_id,
           body: row.body,
           created_at: row.created_at,
-          author: authors.get(row.author_id) ?? { id: row.author_id, name: "ASH member", avatar_url: null },
+          author: authors.get(row.author_id) ?? { id: row.author_id, name: "Profile unavailable", avatar_url: null },
           like_count: reaction.total,
           liked: reaction.current !== null,
           current_reaction: reaction.current,
@@ -1406,9 +1416,10 @@ export function useMemberSearch(term: string) {
         .select("user_id, full_name, avatar_url")
         .ilike("full_name", `%${term.trim()}%`)
         .limit(20);
+      const authors = await loadAuthors(((data ?? []) as { user_id: string }[]).map((row) => row.user_id));
       return ((data ?? []) as { user_id: string; full_name: string; avatar_url: string | null }[])
         .filter((row) => row.user_id !== me)
-        .map((row) => ({ id: row.user_id, name: row.full_name, avatar_url: row.avatar_url }));
+        .map((row) => authors.get(row.user_id) ?? ({ id: row.user_id, name: row.full_name || "Profile unavailable", avatar_url: row.avatar_url }));
     },
   });
 }
@@ -1461,7 +1472,7 @@ export function useGroups() {
       return groups.map((g) => {
         const members = rows
           .filter((r) => r.group_id === g.id)
-          .map((r) => authors.get(r.user_id) ?? { id: r.user_id, name: "ASH member", avatar_url: null });
+          .map((r) => authors.get(r.user_id) ?? { id: r.user_id, name: "Profile unavailable", avatar_url: null });
         const owner = authors.get(g.owner_id);
         const until = owner?.verified_until ? new Date(owner.verified_until).getTime() : null;
         return {
@@ -1669,7 +1680,7 @@ export function useFriendSuggestions(limit = 12) {
         .slice(0, limit)
         .map((row) => ({
           id: row.user_id,
-          name: row.full_name ?? "ASH member",
+          name: row.full_name ?? "Profile unavailable",
           avatar_url: row.avatar_url,
           verified_tier: row.verified_tier,
           verified_until: row.verified_until,

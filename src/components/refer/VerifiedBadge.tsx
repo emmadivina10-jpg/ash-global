@@ -1,8 +1,7 @@
 import { cn } from "@/lib/utils";
 
 /**
- * The ASH Verified check. Same familiar blue mark people already trust,
- * shown next to the name of any member or vendor with an active badge.
+ * Solid ASH Verified check with a crisp high-contrast centre.
  */
 export function VerifiedBadge({
   tier,
@@ -31,13 +30,11 @@ export function VerifiedBadge({
       className={cn("inline-block shrink-0 align-[-0.125em]", className)}
     >
       <title>{label}</title>
-      <path
-        className="fill-primary"
-        d="M12 1.5l2.47 1.9 3.1-.22.86 2.99 2.67 1.6-1.25 2.85 1.25 2.85-2.67 1.6-.86 2.99-3.1-.22L12 22.5l-2.47-1.9-3.1.22-.86-2.99-2.67-1.6 1.25-2.85L2.9 10.53l2.67-1.6.86-2.99 3.1.22L12 1.5z"
-      />
+      <path className="fill-primary" d="M12 1.25 14.5 3l3.05-.35.9 2.95 2.65 1.55-1.2 2.82 1.2 2.83-2.65 1.55-.9 2.95-3.05-.35L12 22.75 9.5 21l-3.05.35-.9-2.95-2.65-1.55 1.2-2.83L2.9 7.15 5.55 5.6l.9-2.95L9.5 3 12 1.25Z" />
+      <circle cx="12" cy="12" r="6.15" className="fill-primary" />
       <path
         className="fill-primary-foreground"
-        d="M10.75 15.4l-3-3 1.24-1.25 1.76 1.76 4.26-4.26 1.24 1.25-5.5 5.5z"
+        d="m10.35 15.75-3.2-3.2 1.55-1.55 1.65 1.65 4.95-4.95 1.55 1.55-6.5 6.5Z"
       />
     </svg>
   );
