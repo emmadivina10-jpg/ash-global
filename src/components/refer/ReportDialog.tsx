@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Flag, Loader2, ShieldOff } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { trackEvent } from "@/lib/activity";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -85,6 +86,13 @@ export function ReportDialog({
       toast.error(error.message || (fr ? "Signalement échoué" : "Report failed"));
       return;
     }
+    trackEvent({
+      event_type: "report",
+      surface: "other",
+      target_type: targetType,
+      target_id: targetId ?? null,
+      author_id: targetUserId ?? null,
+    });
     setOpen(false);
     setDetails("");
     toast.success(

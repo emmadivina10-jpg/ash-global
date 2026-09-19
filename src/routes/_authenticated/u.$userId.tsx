@@ -12,6 +12,7 @@ import {
   useSendFriendRequest,
 } from "@/lib/social.queries";
 import { useI18n } from "@/lib/i18n";
+import { useTrackView } from "@/lib/activity";
 
 export const Route = createFileRoute("/_authenticated/u/$userId")({
   head: () => ({
@@ -36,6 +37,11 @@ function MemberProfilePage() {
   const { data: posts } = useMemberPosts(userId);
   const { data: graph } = useFriendships();
   const send = useSendFriendRequest();
+
+  useTrackView(
+    { event_type: "profile_view", surface: "profile", target_type: "profile", target_id: userId, author_id: userId },
+    Boolean(person),
+  );
 
   const me = graph?.me ?? null;
   const isMe = me === userId;

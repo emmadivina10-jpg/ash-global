@@ -31,6 +31,11 @@ import { Switch } from "@/components/ui/switch";
 import { playMessageSound, setSoundMuted, soundMuted } from "@/lib/sound";
 import { useLocation } from "@/lib/location";
 import { useOrbVisible } from "@/lib/orb-visibility";
+import {
+  useClearActivityHistory,
+  useRecommendationPrefs,
+  useUpdateRecommendationPrefs,
+} from "@/lib/recommendations.queries";
 import { useI18n, type TKey } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/settings")({
@@ -85,6 +90,10 @@ function SettingsPage() {
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [soundOff, setSoundOff] = useState(false);
+  const { data: recPrefs } = useRecommendationPrefs();
+  const updateRecPrefs = useUpdateRecommendationPrefs();
+  const clearHistory = useClearActivityHistory();
+  const [clearingHistory, setClearingHistory] = useState(false);
 
   useEffect(() => {
     setSoundOff(soundMuted());
@@ -201,6 +210,91 @@ function SettingsPage() {
             onCheckedChange={(on) => setOrbVisible(on)}
             aria-label={fr ? "Bouton ASH flottant" : "Floating ASH button"}
           />
+        </div>
+      </SectionCard>
+
+      <SectionCard title={fr ? "Recommandations personnalisées" : "Personalized recommendations"}>
+        <div className="space-y-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold">
+                {fr ? "Recommandations personnalisées" : "Personalized recommendations"}
+              </p>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {fr
+                  ? "Laisser ASH choisir ce qui vous est montré en fonction de ce qui vous intéresse. Désactivé, vous voyez le contenu récent et populaire comme tout le monde."
+                  : "Let ASH choose what you see based on what interests you. Turned off, you simply see recent and popular content like everyone else."}
+              </p>
+            </div>
+            <Switch
+              checked={recPrefs?.personalization_enabled ?? true}
+              onCheckedChange={(on) => updateRecPrefs.mutate({ personalization_enabled: on })}
+              aria-label={fr ? "Recommandations personnalisées" : "Personalized recommendations"}
+            />
+          </div>
+
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold">{fr ? "Utiliser ma ville" : "Use my city"}</p>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {fr
+                  ? "Mettre en avant les personnes, services et offres proches de vous. Seul le nom de la ville est utilisé, jamais votre position exacte."
+                  : "Show people, services and offers closer to you. Only the city name is used — never your exact position."}
+              </p>
+            </div>
+            <Switch
+              checked={recPrefs?.use_location ?? false}
+              onCheckedChange={(on) => updateRecPrefs.mutate({ use_location: on })}
+              aria-label={fr ? "Utiliser ma ville" : "Use my city"}
+            />
+          </div>
+
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold">
+                {fr ? "Utiliser mon activité" : "Use my activity"}
+              </p>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {fr
+                  ? "Tenir compte de ce que vous ouvrez, aimez ou enregistrez. Désactivé, ASH arrête d'enregistrer cette activité."
+                  : "Take into account what you open, like or save. Turned off, ASH stops recording this activity."}
+              </p>
+            </div>
+            <Switch
+              checked={recPrefs?.use_activity_history ?? true}
+              onCheckedChange={(on) => updateRecPrefs.mutate({ use_activity_history: on })}
+              aria-label={fr ? "Utiliser mon activité" : "Use my activity"}
+            />
+          </div>
+
+          <div className="rounded-xl border border-border/60 p-3">
+            <p className="text-sm font-semibold">
+              {fr ? "Effacer mon historique de personnalisation" : "Clear my personalization history"}
+            </p>
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+              {fr
+                ? "Supprime uniquement ce qu'ASH a retenu de votre activité. Vos publications, commentaires, messages, réservations, portefeuille, parrainages et amis ne sont pas touchés."
+                : "Deletes only what ASH learned from your activity. Your posts, comments, messages, bookings, wallet, referrals and friends are not touched."}
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-3"
+              disabled={clearingHistory}
+              onClick={() => {
+                setClearingHistory(true);
+                clearHistory.mutate(undefined, {
+                  onSuccess: () =>
+                    toast.success(fr ? "Historique effacé." : "Personalization history cleared."),
+                  onError: () =>
+                    toast.error(fr ? "Impossible d'effacer." : "Could not clear the history."),
+                  onSettled: () => setClearingHistory(false),
+                });
+              }}
+            >
+              {fr ? "Effacer l'historique" : "Clear history"}
+            </Button>
+          </div>
         </div>
       </SectionCard>
 

@@ -1218,7 +1218,15 @@ export function useSetStoryReaction() {
       } as never);
       if (error) throw error;
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["stories"] }),
+    onSuccess: (_result, variables) => {
+      trackEvent({
+        event_type: variables.reaction ? "story_reaction" : "unlike",
+        surface: "stories",
+        target_type: "story",
+        target_id: variables.storyId,
+      });
+      void queryClient.invalidateQueries({ queryKey: ["stories"] });
+    },
   });
 }
 
@@ -1321,6 +1329,12 @@ export function useAddComment() {
       if (error) throw error;
     },
     onSuccess: (_result, variables) => {
+      trackEvent({
+        event_type: variables.parentId ? "reply" : "comment",
+        surface: "feed",
+        target_type: "post",
+        target_id: variables.postId,
+      });
       void queryClient.invalidateQueries({ queryKey: ["post-comments", variables.postId] });
       void queryClient.invalidateQueries({ queryKey: ["social-feed"] });
     },
@@ -1404,7 +1418,11 @@ export function useSendFriendRequest() {
       const { error } = await supabase.from("friendships").insert({ requester_id: me, addressee_id: userId });
       if (error) throw error;
     },
-    onSuccess: () => { void queryClient.invalidateQueries({ queryKey: ["friendships"] }); void queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] }); },
+    onSuccess: (_result, userId) => {
+      trackEvent({ event_type: "friend_request", surface: "profile", target_type: "profile", target_id: userId, author_id: userId });
+      void queryClient.invalidateQueries({ queryKey: ["friendships"] });
+      void queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
+    },
   });
 }
 
@@ -1418,7 +1436,11 @@ export function useRespondFriendRequest() {
         .eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => { void queryClient.invalidateQueries({ queryKey: ["friendships"] }); void queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] }); },
+    onSuccess: (_result, variables) => {
+      if (variables.accept) trackEvent({ event_type: "follow", surface: "profile", target_type: "friendship", target_id: variables.id });
+      void queryClient.invalidateQueries({ queryKey: ["friendships"] });
+      void queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
+    },
   });
 }
 
@@ -1440,6 +1462,13 @@ export function useMemberSearch(term: string) {
     enabled: term.trim().length >= 2,
     queryFn: async (): Promise<SocialAuthor[]> => {
       const me = await currentUserId();
+      // Only the length of the query is recorded — never the text itself.
+      trackEvent({
+        event_type: "search",
+        surface: "search",
+        target_type: "member_search",
+        metadata: { query_length: term.trim().length },
+      });
       const { data } = await directory()
         .select("user_id, full_name, avatar_url")
         .ilike("full_name", `%${term.trim()}%`)
@@ -1547,7 +1576,8 @@ export function useCreateGroup() {
       if (convError) throw convError;
       return groupId;
     },
-    onSuccess: () => {
+    onSuccess: (groupId) => {
+      trackEvent({ event_type: "click", surface: "other", target_type: "group", target_id: groupId });
       void queryClient.invalidateQueries({ queryKey: ["chat-groups"] });
       void queryClient.invalidateQueries({ queryKey: ["conversations"] });
     },

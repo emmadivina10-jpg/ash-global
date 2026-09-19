@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState, LoadingState } from "@/components/refer/states";
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
+import { useTrackView } from "@/lib/activity";
 
 export const Route = createFileRoute("/_authenticated/events/$eventId")({
   head: () => ({
@@ -33,6 +34,10 @@ function EventDetail() {
   const fr = lang === "fr";
   const queryClient = useQueryClient();
   const { data: event, isLoading } = useEvent(eventId);
+  useTrackView(
+    { event_type: "view", surface: "events", target_type: "event", target_id: eventId },
+    Boolean(event),
+  );
   const start = useServerFn(startTicketPurchase);
   const verify = useServerFn(verifyCommerceCharge);
 

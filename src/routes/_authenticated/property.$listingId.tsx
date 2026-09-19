@@ -38,6 +38,7 @@ import { formatDateTime } from "@/lib/format";
 import { useUser } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { trackEvent } from "@/lib/activity";
 
 export const Route = createFileRoute("/_authenticated/property/$listingId")({
   head: () => ({
@@ -76,6 +77,12 @@ function PropertyDetail() {
 
   useEffect(() => {
     void supabase.rpc("record_property_view", { _listing_id: listingId });
+    trackEvent({
+      event_type: "listing_view",
+      surface: "property",
+      target_type: "property",
+      target_id: listingId,
+    });
   }, [listingId]);
 
   if (isLoading) return <LoadingState label={fr ? "Chargement du bien…" : "Loading property…"} />;
@@ -104,6 +111,12 @@ function PropertyDetail() {
     } else {
       await supabase.from("property_saves").insert({ listing_id: listingId, user_id: auth.user.id });
     }
+    trackEvent({
+      event_type: saved ? "unsave" : "save",
+      surface: "property",
+      target_type: "property",
+      target_id: listingId,
+    });
     await queryClient.invalidateQueries({ queryKey: ["property"] });
     toast.success(saved ? (fr ? "Retiré" : "Removed") : fr ? "Enregistré" : "Saved");
   }
@@ -173,6 +186,7 @@ function PropertyDetail() {
             aria-label={fr ? "Partager" : "Share"}
             onClick={() => {
               void navigator.clipboard.writeText(window.location.href);
+              trackEvent({ event_type: "share", surface: "property", target_type: "property", target_id: listingId });
               toast.success(fr ? "Lien copié" : "Link copied");
             }}
           >

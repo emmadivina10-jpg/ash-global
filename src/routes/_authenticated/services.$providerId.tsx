@@ -664,6 +664,15 @@ function BookingRequestDialog({
         return;
       }
 
+      trackEvent({
+        event_type: "booking",
+        surface: "services",
+        target_type: "provider",
+        target_id: provider.id,
+        author_id: (provider as { user_id?: string | null }).user_id ?? null,
+        category: (selected as { category?: string | null }).category ?? null,
+      });
+
       toast.success(
         fr
           ? "Demande envoyée. Le pro a 24 h pour répondre."
