@@ -395,7 +395,7 @@ export function ChatThread({
                       key={m.id}
                       kind={kind}
                       body={m.body}
-                      metadata={m.metadata ?? {}}
+                      metadata={m.metadata && typeof m.metadata === "object" && !Array.isArray(m.metadata) ? m.metadata : {}}
                     />
                   );
                 }
