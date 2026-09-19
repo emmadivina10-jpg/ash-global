@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS public.get_locked_chat_messages(uuid, text);
