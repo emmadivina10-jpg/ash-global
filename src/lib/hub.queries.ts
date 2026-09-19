@@ -44,7 +44,7 @@ async function loadAuthors(ids: string[]): Promise<Record<string, HubAuthor>> {
   for (const row of data ?? []) {
     map[row.user_id] = {
       id: row.user_id,
-      name: row.full_name || "ASH member",
+      name: row.full_name || "Profile unavailable",
       avatar_url: row.avatar_url ?? null,
     };
   }
@@ -134,7 +134,7 @@ export function useArticles(category: string = "ALL", limit = 40) {
         cover_url: row.cover_path ? (covers[row.cover_path] ?? null) : null,
         like_count: row.like_count ?? 0,
         created_at: row.created_at,
-        author: authors[row.author_id] ?? { id: row.author_id, name: "ASH member", avatar_url: null },
+        author: authors[row.author_id] ?? { id: row.author_id, name: "Profile unavailable", avatar_url: null },
         liked: likedSet.has(row.id),
         is_mine: row.author_id === me,
       }));
@@ -182,7 +182,7 @@ export function useArticle(articleId: string | null) {
         cover_url: data.cover_path ? (covers[data.cover_path] ?? null) : null,
         like_count: data.like_count ?? 0,
         created_at: data.created_at,
-        author: authors[data.author_id] ?? { id: data.author_id, name: "ASH member", avatar_url: null },
+        author: authors[data.author_id] ?? { id: data.author_id, name: "Profile unavailable", avatar_url: null },
         liked,
         is_mine: data.author_id === me,
       };
@@ -318,7 +318,7 @@ export function useJobs(filters: { employmentType?: string; locationType?: strin
       const posters = await loadAuthors(rows.map((r) => r.poster_id));
       return rows.map((row) => ({
         ...row,
-        poster: posters[row.poster_id] ?? { id: row.poster_id, name: "ASH member", avatar_url: null },
+        poster: posters[row.poster_id] ?? { id: row.poster_id, name: "Profile unavailable", avatar_url: null },
         is_mine: row.poster_id === me,
       })) as Job[];
     },
@@ -345,7 +345,7 @@ export function useJob(jobId: string | null) {
       const posters = await loadAuthors([data.poster_id]);
       return {
         ...data,
-        poster: posters[data.poster_id] ?? { id: data.poster_id, name: "ASH member", avatar_url: null },
+        poster: posters[data.poster_id] ?? { id: data.poster_id, name: "Profile unavailable", avatar_url: null },
         is_mine: data.poster_id === me,
       } as Job;
     },
@@ -420,7 +420,7 @@ export function useJobApplications(jobId: string | null) {
       const people = await loadAuthors(rows.map((r) => r.applicant_id));
       return rows.map((row) => ({
         ...row,
-        applicant: people[row.applicant_id] ?? { id: row.applicant_id, name: "ASH member", avatar_url: null },
+        applicant: people[row.applicant_id] ?? { id: row.applicant_id, name: "Profile unavailable", avatar_url: null },
       }));
     },
   });
@@ -504,7 +504,7 @@ export function useMentors() {
       return rows.map((row) => ({
         ...row,
         skills: row.skills ?? [],
-        person: people[row.user_id] ?? { id: row.user_id, name: "ASH member", avatar_url: null },
+        person: people[row.user_id] ?? { id: row.user_id, name: "Profile unavailable", avatar_url: null },
         is_mine: row.user_id === me,
       }));
     },
@@ -587,7 +587,7 @@ export function useMentorRequests() {
       const people = await loadAuthors(rows.map((r) => r.requester_id));
       return rows.map((row) => ({
         ...row,
-        person: people[row.requester_id] ?? { id: row.requester_id, name: "ASH member", avatar_url: null },
+        person: people[row.requester_id] ?? { id: row.requester_id, name: "Profile unavailable", avatar_url: null },
       }));
     },
   });

@@ -56,7 +56,7 @@ async function loadAuthors(ids: string[]): Promise<Record<string, ForumAuthor>> 
   for (const row of data ?? []) {
     map[row.user_id] = {
       id: row.user_id,
-      name: row.full_name || "ASH member",
+      name: row.full_name || "Profile unavailable",
       avatar_url: row.avatar_url ?? null,
     };
   }
@@ -118,7 +118,7 @@ export function useForumFeed(space: ForumSpace | "ALL" = "ALL", limit = 40) {
         like_count: row.like_count ?? 0,
         comment_count: row.comment_count ?? 0,
         created_at: row.created_at,
-        author: authors[row.author_id] ?? { id: row.author_id, name: "ASH member", avatar_url: null },
+        author: authors[row.author_id] ?? { id: row.author_id, name: "Profile unavailable", avatar_url: null },
         liked: likedSet.has(row.id),
       }));
     },
@@ -144,7 +144,7 @@ export function useForumComments(postId: string | null) {
         id: row.id,
         body: row.body,
         created_at: row.created_at,
-        author: authors[row.author_id] ?? { id: row.author_id, name: "ASH member", avatar_url: null },
+        author: authors[row.author_id] ?? { id: row.author_id, name: "Profile unavailable", avatar_url: null },
       }));
     },
   });

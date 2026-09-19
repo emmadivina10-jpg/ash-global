@@ -46,8 +46,8 @@ export function Avatar({
   path: string | null | undefined;
   name?: string | null | undefined;
   className?: string | undefined;
-  online?: boolean;
-  hasUpdate?: boolean;
+  online?: boolean | undefined;
+  hasUpdate?: boolean | undefined;
 }) {
   const url = useAvatarUrl(path);
   const initials = (name ?? "")

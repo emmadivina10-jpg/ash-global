@@ -46,7 +46,7 @@ async function currentUserId(): Promise<string | null> {
  * remains stuck in a pending state forever. This does not abort the underlying
  * request; it guarantees that the mutation/query itself can settle.
  */
-async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+async function withTimeout<T>(promise: PromiseLike<T>, ms: number, label: string): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
 
   try {
@@ -91,7 +91,7 @@ function toBase64(value: string): string {
 }
 
 function resumableStorageEndpoint(): string {
-  const rawUrl = String(import.meta.env.VITE_SUPABASE_URL ?? "").trim();
+  const rawUrl = String(import.meta.env["VITE_SUPABASE_URL"] ?? "").trim();
   if (!rawUrl) {
     throw new Error("Supabase URL is not configured for video uploads.");
   }
@@ -945,8 +945,8 @@ export function useToggleLike() {
     mutationFn: async ({ postId, liked }: { postId: string; liked: boolean }) => {
       const { error } = await supabase.rpc("set_post_reaction", {
         _post_id: postId,
-        _reaction_type: liked ? "" : "like",
-      });
+        _reaction_type: liked ? null : "like",
+      } as never);
       if (error) throw error;
     },
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["social-feed"] }),
@@ -1157,8 +1157,8 @@ export function useSetCommentReaction() {
 
       const { error } = await supabase.rpc("set_comment_reaction", {
         _comment_id: commentId,
-        _reaction_type: reaction ?? "",
-      });
+        _reaction_type: reaction,
+      } as never);
 
       if (error) {
         throw new Error(`Unable to set comment reaction: ${error.message}`);
@@ -1185,8 +1185,8 @@ export function useSetStoryReaction() {
     mutationFn: async ({ storyId, reaction }: { storyId: string; reaction: ReactionType | null }) => {
       const { error } = await supabase.rpc("set_story_reaction", {
         _story_id: storyId,
-        _reaction_type: reaction ?? "",
-      });
+        _reaction_type: reaction,
+      } as never);
       if (error) throw error;
     },
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["stories"] }),
@@ -1352,7 +1352,7 @@ export function useFriendships() {
         return {
           ...r,
           incoming: r.addressee_id === me,
-          other: authors.get(otherId) ?? { id: otherId, name: "ASH member", avatar_url: null },
+          other: authors.get(otherId) ?? { id: otherId, name: "Profile unavailable", avatar_url: null },
         };
       });
       return {
