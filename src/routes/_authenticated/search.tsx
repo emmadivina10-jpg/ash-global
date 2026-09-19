@@ -10,12 +10,9 @@ import {
   Loader2,
   Newspaper,
   PenLine,
-  Save,
   Sparkles,
-  TrendingDown,
   TrendingUp,
   Users,
-  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Area, AreaChart, CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";

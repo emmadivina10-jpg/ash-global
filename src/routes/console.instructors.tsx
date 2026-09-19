@@ -28,7 +28,8 @@ function InstructorReviews() {
   async function act(id: string, status: "UNDER_REVIEW" | "APPROVED" | "ADDITIONAL_INFORMATION_REQUIRED" | "REJECTED") {
     setBusy(id);
     try {
-      await decide({ data: { applicationId: id, status, note: notes[id] } });
+      const note = notes[id];
+      await decide({ data: note ? { applicationId: id, status, note } : { applicationId: id, status } });
       toast.success(`Application marked ${status.toLowerCase().replaceAll("_", " ")}.`);
       await queryClient.invalidateQueries({ queryKey: ["console", "fx-instructor-applications"] });
     } catch (error) { toast.error(error instanceof Error ? error.message : "Could not update the application."); }

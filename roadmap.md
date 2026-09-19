@@ -14,7 +14,7 @@
 ## ASH Markets V1
 - [x] Replace the existing Market screen with the focused informational ASH Markets V1 experience
 - [x] Rename the mobile Market label to Markets without changing navigation structure
-- [ ] Verify Markets interactions, responsive layouts, and existing route stability
+- [x] Verify Markets interactions, responsive layouts, and existing route stability
 
 ## Social identity and Messages hardening
 - [x] Replace generic member/client labels with resolved profile names throughout member-facing surfaces
@@ -28,17 +28,17 @@
 - [x] Verify social and chat flows on phone and desktop
 
 ## FX instructors and Markets publishing
-- [ ] Redesign Markets around Overview, compact snapshots, shortcuts, and Latest Market Updates
-- [ ] Add free FX instructor applications for Cameroon and Nigeria with private ID and selfie capture
-- [ ] Add manual admin review with a stated 24–48 hour review window and provider-ready KYC fields
-- [ ] Add approved instructor profiles, branded instructor badges, follows, and market publishing
-- [ ] Reuse social posts, reactions, threaded comments, reposts, and saves for Markets content
-- [ ] Cross-publish eligible FX Spotlights and Market Updates into Feed without duplicate content records
-- [ ] Add premium Markets panels, detail/profile screens, and admin review reporting
+- [x] Redesign Markets around Overview, compact snapshots, shortcuts, and Latest Market Updates
+- [x] Add free FX instructor applications for Cameroon and Nigeria with private ID and selfie capture
+- [x] Add manual admin review with a stated 24–48 hour review window and provider-ready KYC fields
+- [x] Add approved instructor profiles, branded instructor badges, follows, and market publishing
+- [x] Reuse social posts, reactions, threaded comments, reposts, and saves for Markets content
+- [ ] Link eligible FX Spotlights to Market Updates without duplicate content records
+- [x] Add premium Markets panels, detail/profile screens, and admin review reporting
 
 ## Wallet, finance, admin, and landing follow-up
-- [ ] Replace the floating ASH “A” launcher with a card-shaped Wallet launcher and real balance preview
-- [ ] Make gold the default wallet-card theme and ASH card the alternate theme
+- [x] Replace the floating ASH “A” launcher with a card-shaped Wallet launcher and real balance preview
+- [ ] Keep Cool ASH Card as the default wallet-card theme and Real ASH Card as the alternate theme
 - [ ] Add stored TchokoPay fee/net reconciliation before showing provider deductions
 - [ ] Refine the admin dashboard around platform funds, reserved funds, and reconciled fees
 - [ ] Refresh the landing experience with a compact app view and richer web view
