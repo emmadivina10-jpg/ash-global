@@ -195,3 +195,20 @@ export function useImpression(event: ActivityEvent, enabled = true) {
 export function useTrackClick() {
   return useCallback((event: ActivityEvent) => trackEvent({ ...event, event_type: "click" }), []);
 }
+
+/**
+ * Fires one "view" event for a screen or detail page, once per mount, as soon
+ * as the content is ready. Used by detail screens (profile, job, listing,
+ * event, project) where an impression observer is not meaningful.
+ */
+export function useTrackView(event: ActivityEvent, ready = true) {
+  const sent = useRef(false);
+  const payload = useRef(event);
+  payload.current = event;
+
+  useEffect(() => {
+    if (!ready || sent.current) return;
+    sent.current = true;
+    trackEvent({ ...payload.current, event_type: payload.current.event_type ?? "view" });
+  }, [ready]);
+}
