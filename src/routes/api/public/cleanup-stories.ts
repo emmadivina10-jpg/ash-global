@@ -22,7 +22,15 @@ async function cleanupExpiredStories(request: Request) {
     return Response.json({ ok: false, error: "AUTH_CHECK_FAILED" }, { status: 500 });
   }
   if (authorized !== true) {
-    return new Response("Unauthorized", { status: 401 });
+    return Response.json(
+      {
+        ok: false,
+        error: "INVALID_CREDENTIAL",
+        credentialLength: suppliedSecret.length,
+        credentialShapeValid: /^[0-9a-f]{64}$/.test(suppliedSecret),
+      },
+      { status: 401 },
+    );
   }
 
   const { data, error: batchError } = await supabaseAdmin.rpc("expired_story_cleanup_batch", {
