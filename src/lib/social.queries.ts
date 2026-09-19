@@ -1418,7 +1418,11 @@ export function useSendFriendRequest() {
       const { error } = await supabase.from("friendships").insert({ requester_id: me, addressee_id: userId });
       if (error) throw error;
     },
-    onSuccess: () => { void queryClient.invalidateQueries({ queryKey: ["friendships"] }); void queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] }); },
+    onSuccess: (_result, userId) => {
+      trackEvent({ event_type: "friend_request", surface: "profile", target_type: "profile", target_id: userId, author_id: userId });
+      void queryClient.invalidateQueries({ queryKey: ["friendships"] });
+      void queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
+    },
   });
 }
 
