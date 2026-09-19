@@ -305,12 +305,16 @@ export function useConversations() {
         }
       }
 
-      return rows.map((row) => ({
-        ...row,
-        client: clients[row.client_id] ?? { full_name: "Profile", avatar_url: null },
-        last_message: preview[row.id] ?? null,
-        unread_count: unread[row.id] ?? 0,
-      }));
+      return rows.map((row) => {
+        const ownerId = (row as { owner_id?: string | null }).owner_id ?? null;
+        return {
+          ...row,
+          client: clients[row.client_id] ?? { full_name: "Profile", avatar_url: null },
+          owner: ownerId ? (clients[ownerId] ?? { full_name: "Profile", avatar_url: null }) : null,
+          last_message: preview[row.id] ?? null,
+          unread_count: unread[row.id] ?? 0,
+        };
+      });
     },
   });
 
