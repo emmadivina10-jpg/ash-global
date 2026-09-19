@@ -225,7 +225,10 @@ function MarketComposer({ onDone }: { onDone: () => void }) {
     if (title.trim().length < 3 || (!body.trim() && !files.length)) { toast.error("Add a title and educational content."); return; }
     try {
       const socialPostId = await createSocial.mutateAsync({ caption: body.trim(), files });
-      await createMarket.mutateAsync({ socialPostId, instructorId: approvedInstructor.id, contentType, title, instrument, spotlightPostId: spotlightPostId || undefined });
+      const marketInput = spotlightPostId
+        ? { socialPostId, instructorId: approvedInstructor.id, contentType, title, instrument, spotlightPostId }
+        : { socialPostId, instructorId: approvedInstructor.id, contentType, title, instrument };
+      await createMarket.mutateAsync(marketInput);
       toast.success("Market update published.");
       onDone();
     } catch (error) { toast.error(error instanceof Error ? error.message : "Could not publish the update."); }
