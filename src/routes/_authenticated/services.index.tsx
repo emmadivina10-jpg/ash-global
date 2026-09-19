@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { trackEvent } from "@/lib/activity";
 import { createPortal } from "react-dom";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Capacitor } from "@capacitor/core";
@@ -478,6 +479,27 @@ function DiscoveryPage() {
 
     return () => clearTimeout(id);
   }, [searchInput]);
+
+  // Activity intelligence: searches and category filters are interest signals.
+  // Only the length of the typed text is recorded, never the text itself.
+  useEffect(() => {
+    const query = searchInput.trim();
+    if (query.length < 2) return;
+    const id = setTimeout(() => {
+      trackEvent({
+        event_type: "search",
+        surface: "services",
+        target_type: "provider_search",
+        metadata: { query_length: query.length },
+      });
+    }, 900);
+    return () => clearTimeout(id);
+  }, [searchInput]);
+
+  useEffect(() => {
+    if (category === "ALL") return;
+    trackEvent({ event_type: "category_view", surface: "services", target_type: "category", category });
+  }, [category]);
 
   useEffect(() => {
     const cats: ServiceCategory[] =

@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState, LoadingState } from "@/components/refer/states";
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
+import { useTrackView } from "@/lib/activity";
 
 export const Route = createFileRoute("/_authenticated/deals")({
   head: () => ({
@@ -35,6 +36,8 @@ function DealsPage() {
   const deals = useDeals();
   const mine = useMyDeals();
   const claims = useMyClaims();
+
+  useTrackView({ event_type: "view", surface: "deals", target_type: "deals_page" });
   const [pending, setPending] = useState<string | null>(null);
 
   async function onClaim(dealId: string) {
