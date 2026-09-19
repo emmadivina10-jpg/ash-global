@@ -46,6 +46,7 @@
   /* Always-light text for dark brand panels (constant across themes). */
   --color-on-dark: oklch(0.9784 0.0045 285);
   --color-success: var(--success);
+  --color-social-verified: var(--social-verified);
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
@@ -86,19 +87,19 @@
 }
 
 .market-theme {
-  --market-background: oklch(0.105 0.024 292);
-  --market-surface: oklch(0.155 0.04 298);
-  --market-elevated: oklch(0.205 0.065 303);
-  --market-foreground: oklch(0.985 0.004 290);
-  --market-muted: oklch(0.735 0.04 300);
-  --market-line: oklch(0.54 0.17 305 / 0.3);
-  --market-accent: oklch(0.66 0.25 333);
-  --market-accent-foreground: oklch(0.99 0.004 290);
-  --market-lavender: oklch(0.82 0.09 305);
-  --market-positive: oklch(0.72 0.17 153);
-  --market-negative: oklch(0.65 0.25 20);
-  --market-feature: oklch(0.19 0.09 313);
-  --market-glow: radial-gradient(circle at 78% 8%, oklch(0.62 0.27 333 / 0.34), transparent 47%);
+  --market-background: var(--background);
+  --market-surface: var(--card);
+  --market-elevated: var(--muted);
+  --market-foreground: var(--foreground);
+  --market-muted: var(--muted-foreground);
+  --market-line: var(--border);
+  --market-accent: var(--primary);
+  --market-accent-foreground: var(--primary-foreground);
+  --market-lavender: var(--gold);
+  --market-positive: var(--success);
+  --market-negative: var(--destructive);
+  --market-feature: var(--secondary);
+  --market-glow: none;
 }
 
 :root {
@@ -137,6 +138,7 @@
   --destructive: oklch(0.6094 0.2152 7.65);
   --destructive-foreground: oklch(1 0 0);
   --success: oklch(0.6271 0.1699 149.21);
+  --social-verified: oklch(0.605 0.216 255.5);
   --success-foreground: oklch(1 0 0);
   --warning: oklch(0.7686 0.1647 70);
   --warning-foreground: oklch(0.1789 0.0262 283.6);

@@ -15,7 +15,7 @@ import {
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Area, AreaChart, CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
+import { Line, LineChart } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { PostCard } from "@/components/refer/PostCard";
@@ -23,7 +23,7 @@ import { InstructorApplication } from "@/components/markets/InstructorApplicatio
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ChartContainer, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
+import { ChartContainer, type ChartConfig } from "@/components/ui/chart";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import {
   useCreateMarketPost,
@@ -36,14 +36,11 @@ import { useCreateSocialPost } from "@/lib/social.queries";
 import {
   ANALYSIS_ITEMS,
   ECONOMIC_EVENTS,
-  EUR_USD_SERIES,
   FX_MARKETS,
   LEARNING_ITEMS,
   MARKET_CATEGORIES,
   MARKET_NEWS,
-  MARKET_RANGES,
   type MarketCategory,
-  type MarketRange,
 } from "@/lib/markets";
 import { cn } from "@/lib/utils";
 
@@ -62,7 +59,7 @@ export const Route = createFileRoute("/_authenticated/search")({
 });
 
 type Panel = "analysis" | "updates" | "news" | "calendar" | "instructors" | "learn" | "apply" | "publish" | null;
-const chartConfig = { price: { label: "Demo price", color: "var(--color-market-accent)" } } satisfies ChartConfig;
+const chartConfig = { price: { label: "Demo price", color: "var(--color-primary)" } } satisfies ChartConfig;
 
 const SHORTCUTS = [
   { id: "analysis" as const, label: "Market Analysis", icon: BarChart3 },
@@ -75,7 +72,6 @@ const SHORTCUTS = [
 
 function MarketsPage() {
   const [category, setCategory] = useState<MarketCategory>("FX");
-  const [range, setRange] = useState<MarketRange>("1D");
   const [panel, setPanel] = useState<Panel>(null);
   const [me, setMe] = useState<string | null>(null);
   const { data: updates, isLoading: updatesLoading } = useMarketUpdates();
@@ -84,57 +80,55 @@ function MarketsPage() {
   useEffect(() => { void supabase.auth.getUser().then(({ data }) => setMe(data.user?.id ?? null)); }, []);
 
   return (
-    <div className="market-theme -mx-4 -mt-5 min-h-screen bg-market-background pb-12 text-market-foreground sm:-mx-6 sm:-mt-6 lg:-mx-8">
-      <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
-        <header className="relative overflow-hidden border-b border-market-line pb-6">
-          <div className="absolute inset-x-0 top-0 h-40 bg-market-glow opacity-60" aria-hidden />
-          <div className="relative flex items-start justify-between gap-4">
+    <div className="mx-auto w-full max-w-3xl pb-8">
+      <div>
+        <header className="border-b border-border pb-4">
+          <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-[11px] font-extrabold uppercase text-market-accent">ASH Glo</p>
-              <h1 className="mt-1 font-display text-4xl font-extrabold text-market-foreground sm:text-5xl">ASH Markets</h1>
-              <p className="mt-2 text-base font-bold text-market-lavender sm:text-lg">Learn. Discover. Connect. Grow.</p>
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-market-muted">Educational market observations, verified instructor perspectives, news, and learning—built for a smarter market community.</p>
+              <p className="text-[11px] font-extrabold uppercase text-primary">ASH Glo</p>
+              <h1 className="mt-1 font-display text-2xl font-extrabold text-foreground sm:text-3xl">ASH Markets</h1>
+              <p className="mt-1 text-sm font-bold text-gold">Learn. Discover. Connect. Grow.</p>
             </div>
-            {instructor ? <Button size="sm" onClick={() => setPanel("publish")} className="shrink-0 bg-market-accent text-market-accent-foreground"><PenLine className="size-4" /> Publish</Button> : null}
+            {instructor ? <Button size="sm" onClick={() => setPanel("publish")} className="shrink-0"><PenLine className="size-4" /> Publish</Button> : null}
           </div>
         </header>
 
-        <nav aria-label="Market categories" className="scrollbar-none mt-5 flex gap-2 overflow-x-auto pb-1">
+        <nav aria-label="Market categories" className="scrollbar-none mt-4 flex gap-2 overflow-x-auto pb-1">
           {["Overview", ...MARKET_CATEGORIES].map((item) => {
             const active = item === "Overview" ? category === "FX" : category === item;
-            return <Button key={item} type="button" size="sm" variant="ghost" onClick={() => setCategory(item === "Overview" ? "FX" : item as MarketCategory)} className={cn("shrink-0 rounded-full border px-4", active ? "border-market-accent bg-market-accent text-market-accent-foreground" : "border-market-line bg-market-surface text-market-muted hover:bg-market-elevated hover:text-market-foreground")}>{item}</Button>;
+            return <Button key={item} type="button" size="sm" variant={active ? "default" : "outline"} onClick={() => setCategory(item === "Overview" ? "FX" : item as MarketCategory)} className="shrink-0 rounded-full px-4">{item}</Button>;
           })}
         </nav>
 
         {category !== "FX" ? <ComingSoon category={category} onBack={() => setCategory("FX")} /> : (
           <>
-            <section className="mt-6">
+            <section className="mt-5">
               <TitleRow title="Market snapshot" note="Illustrative demo data" />
-              <div className="mt-3 grid grid-cols-2 gap-2 lg:grid-cols-4">
+              <div className="scrollbar-none mt-3 flex gap-2 overflow-x-auto pb-1">
                 {FX_MARKETS.map((market) => <Snapshot key={market.symbol} market={market} />)}
               </div>
-              <p className="mt-2 text-[10px] text-market-muted">Demo values for education and interface preview. Not live prices, signals, or investment advice.</p>
+              <p className="mt-2 text-[10px] text-muted-foreground">Demo values—not live prices or signals.</p>
             </section>
 
-            <section className="mt-7 grid grid-cols-3 gap-2 sm:grid-cols-6">
+            <section className="mt-5 grid grid-cols-3 gap-2 sm:grid-cols-6">
               {SHORTCUTS.map(({ id, label, icon: Icon }) => (
-                <Button key={id} variant="ghost" onClick={() => setPanel(id)} className="h-[5.75rem] flex-col gap-2 rounded-xl border border-market-line bg-market-surface px-2 text-center text-[10px] font-bold text-market-muted hover:border-market-accent/60 hover:bg-market-elevated hover:text-market-foreground">
-                  <span className="grid size-8 place-items-center rounded-lg bg-market-accent/15 text-market-accent"><Icon className="size-4" /></span>{label}
+                <Button key={id} variant="outline" onClick={() => setPanel(id)} className="h-16 flex-col gap-1.5 rounded-lg px-2 text-center text-[10px] font-bold">
+                  <Icon className="size-4 text-primary" />{label}
                 </Button>
               ))}
             </section>
 
-            <section className="mt-7 grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(18rem,0.6fr)]">
+            <section className="mt-6 grid gap-4 sm:grid-cols-[minmax(0,1fr)_17rem]">
               <div>
                 <TitleRow title="Latest Market Updates" note="From approved FX instructors" />
-                <div className="mt-3 space-y-4">
-                  {updatesLoading ? <div className="grid min-h-40 place-items-center rounded-xl border border-market-line bg-market-surface"><Loader2 className="size-5 animate-spin text-market-accent" /></div> : null}
+                <div className="mt-3 space-y-3">
+                  {updatesLoading ? <div className="grid min-h-28 place-items-center rounded-lg border border-border bg-card"><Loader2 className="size-5 animate-spin text-primary" /></div> : null}
                   {!updatesLoading && !updates?.length ? <EmptyUpdates onInstructors={() => setPanel("instructors")} /> : null}
-                  {updates?.slice(0, 5).map((update) => (
-                    <div key={update.id} className="overflow-hidden rounded-xl border border-market-line bg-market-surface">
-                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-market-line bg-market-elevated px-4 py-3">
-                        <div><p className="text-[10px] font-extrabold uppercase text-market-accent">ASH Markets Update</p><h3 className="mt-0.5 text-sm font-bold text-market-foreground">{update.title}</h3></div>
-                        <Link to="/markets/update/$marketPostId" params={{ marketPostId: update.id }} className="rounded-full border border-market-line px-2 py-1 text-[9px] font-bold uppercase text-market-lavender hover:border-market-accent">View discussion</Link>
+                  {updates?.slice(0, 2).map((update) => (
+                    <div key={update.id} className="overflow-hidden rounded-lg border border-border bg-card">
+                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-muted/60 px-4 py-3">
+                        <div><p className="text-[10px] font-extrabold uppercase text-primary">ASH Markets Update</p><h3 className="mt-0.5 text-sm font-bold text-foreground">{update.title}</h3></div>
+                        <Link to="/markets/update/$marketPostId" params={{ marketPostId: update.id }} className="text-[10px] font-bold text-primary hover:underline">Open</Link>
                       </div>
                       <PostCard post={update.post} currentUserId={me} />
                     </div>
@@ -142,22 +136,14 @@ function MarketsPage() {
                 </div>
               </div>
 
-              <aside className="space-y-4">
+              <aside>
                 <InstructorInvitation onApply={() => setPanel("apply")} />
-                <ChartPreview range={range} setRange={setRange} />
               </aside>
-            </section>
-
-            <section className="mt-8">
-              <TitleRow title="Learn FX" note="Build strong foundations" />
-              <div className="scrollbar-none mt-3 flex snap-x gap-3 overflow-x-auto pb-2">
-                {LEARNING_ITEMS.map((item, index) => <article key={item.title} className="w-60 shrink-0 snap-start rounded-xl border border-market-line bg-market-surface p-4"><span className="text-[10px] font-extrabold uppercase text-market-accent">Lesson {index + 1}</span><h3 className="mt-3 font-bold text-market-foreground">{item.title}</h3><p className="mt-2 text-xs leading-relaxed text-market-muted">{item.description}</p></article>)}
-              </div>
             </section>
           </>
         )}
 
-        <p className="mx-auto mt-10 max-w-3xl text-center text-[11px] leading-relaxed text-market-muted">ASH Markets provides general information and education only. It does not execute trades, provide signals, guarantee outcomes, or offer personalized financial advice.</p>
+        <p className="mx-auto mt-7 max-w-2xl text-center text-[10px] leading-relaxed text-muted-foreground">Educational information only. No trading, signals, guarantees, or personalized financial advice.</p>
       </div>
 
       <MarketPanel panel={panel} onClose={() => setPanel(null)} currentUserId={me} updates={updates ?? []} />
@@ -166,33 +152,29 @@ function MarketsPage() {
 }
 
 function TitleRow({ title, note }: { title: string; note: string }) {
-  return <div className="flex items-end justify-between gap-3"><h2 className="font-display text-xl font-extrabold text-market-foreground">{title}</h2><span className="text-right text-[10px] font-semibold uppercase text-market-muted">{note}</span></div>;
+  return <div className="flex items-end justify-between gap-3"><h2 className="font-display text-lg font-extrabold text-foreground">{title}</h2><span className="text-right text-[9px] font-semibold uppercase text-muted-foreground">{note}</span></div>;
 }
 
 function Snapshot({ market }: { market: (typeof FX_MARKETS)[number] }) {
   const up = market.change >= 0;
-  return <article className="rounded-xl border border-market-line bg-market-surface p-3"><div className="flex items-start justify-between gap-2"><div><p className="font-bold text-market-foreground">{market.symbol}</p><p className="text-[9px] text-market-muted">{market.name}</p></div><span className={cn("mt-1 size-2 rounded-full", up ? "bg-market-positive" : "bg-market-negative")} /></div><p className="mt-3 font-display text-lg font-extrabold tabular-nums text-market-foreground">{market.price}</p><div className="mt-1 flex items-end justify-between"><span className={cn("text-[10px] font-bold", up ? "text-market-positive" : "text-market-negative")}>{up ? "+" : ""}{market.change.toFixed(2)}%</span><ChartContainer config={chartConfig} className="h-7 w-14"><LineChart data={market.trend}><Line type="monotone" dataKey="value" stroke={up ? "var(--color-market-positive)" : "var(--color-market-negative)"} strokeWidth={2} dot={false} /></LineChart></ChartContainer></div></article>;
+  return <article className="w-36 shrink-0 rounded-lg border border-border bg-card p-3"><div className="flex items-start justify-between gap-2"><div><p className="font-bold text-foreground">{market.symbol}</p><p className="text-[9px] text-muted-foreground">{market.name}</p></div><span className={cn("mt-1 size-2 rounded-full", up ? "bg-success" : "bg-destructive")} /></div><p className="mt-2 font-display text-base font-extrabold tabular-nums text-foreground">{market.price}</p><div className="mt-1 flex items-end justify-between"><span className={cn("text-[10px] font-bold", up ? "text-success" : "text-destructive")}>{up ? "+" : ""}{market.change.toFixed(2)}%</span><ChartContainer config={chartConfig} className="h-6 w-12"><LineChart data={market.trend}><Line type="monotone" dataKey="value" stroke={up ? "var(--color-success)" : "var(--color-destructive)"} strokeWidth={2} dot={false} /></LineChart></ChartContainer></div></article>;
 }
 
 function InstructorInvitation({ onApply }: { onApply: () => void }) {
-  return <section className="relative overflow-hidden rounded-xl border border-market-accent/40 bg-market-feature p-5"><div className="absolute inset-0 bg-market-glow opacity-55" aria-hidden /><div className="relative"><span className="grid size-10 place-items-center rounded-lg bg-market-accent text-market-accent-foreground"><GraduationCap className="size-5" /></span><p className="mt-5 text-[10px] font-extrabold uppercase text-market-lavender">Teach on ASH Markets</p><h2 className="mt-2 font-display text-xl font-extrabold text-market-foreground">Become an ASH Verified FX Instructor</h2><p className="mt-2 text-sm font-semibold text-market-lavender">Share your knowledge. Teach. Build your reputation.</p><Button onClick={onApply} className="mt-5 bg-market-foreground text-market-background hover:bg-market-foreground/90">Apply Now <ChevronRight className="size-4" /></Button><p className="mt-3 text-[10px] text-market-muted">Typically reviewed within 24–48 hours.</p></div></section>;
-}
-
-function ChartPreview({ range, setRange }: { range: MarketRange; setRange: (value: MarketRange) => void }) {
-  return <section className="rounded-xl border border-market-line bg-market-surface p-4"><div className="flex items-center justify-between"><div><p className="text-[10px] font-bold uppercase text-market-accent">Demo chart</p><h3 className="mt-1 font-bold text-market-foreground">EUR/USD</h3></div><span className="text-xs font-bold text-market-positive">+0.28%</span></div><ChartContainer config={chartConfig} className="mt-3 h-36 w-full"><AreaChart data={EUR_USD_SERIES[range]} margin={{ top: 8, right: 4, left: -32, bottom: 0 }}><defs><linearGradient id="marketMiniFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="var(--color-market-accent)" stopOpacity={0.45}/><stop offset="100%" stopColor="var(--color-market-accent)" stopOpacity={0}/></linearGradient></defs><CartesianGrid vertical={false} strokeDasharray="3 5" /><XAxis dataKey="label" hide /><YAxis hide domain={["dataMin - 0.002", "dataMax + 0.002"]}/><Tooltip content={<ChartTooltipContent indicator="line" />} /><Area type="monotone" dataKey="value" stroke="var(--color-market-accent)" strokeWidth={2} fill="url(#marketMiniFill)" /></AreaChart></ChartContainer><div className="mt-2 flex gap-1">{MARKET_RANGES.slice(0,4).map((item) => <Button key={item} size="sm" variant="ghost" onClick={() => setRange(item)} className={cn("h-7 flex-1 px-1 text-[10px] text-market-muted", range === item && "bg-market-accent text-market-accent-foreground")}>{item}</Button>)}</div><p className="mt-3 text-[9px] text-market-muted">Illustrative demo only—not live market data.</p></section>;
+  return <section className="brand-gradient rounded-lg p-4 text-on-dark"><GraduationCap className="size-5" /><p className="mt-3 text-[9px] font-extrabold uppercase opacity-80">Teach on ASH Markets</p><h2 className="mt-1 font-display text-base font-extrabold">Become a Verified FX Instructor</h2><Button onClick={onApply} size="sm" variant="secondary" className="mt-3">Apply Now <ChevronRight className="size-4" /></Button><p className="mt-2 text-[9px] opacity-70">Review usually takes 24–48 hours.</p></section>;
 }
 
 function EmptyUpdates({ onInstructors }: { onInstructors: () => void }) {
-  return <div className="rounded-xl border border-dashed border-market-line bg-market-surface p-7 text-center"><Sparkles className="mx-auto size-6 text-market-accent"/><h3 className="mt-3 font-bold text-market-foreground">Instructor updates will appear here</h3><p className="mx-auto mt-2 max-w-md text-sm text-market-muted">Only approved FX instructors can publish. Posts use ASH Glo’s existing reactions, comments, replies, and reposts.</p><Button variant="outline" onClick={onInstructors} className="mt-4 border-market-line bg-market-elevated text-market-foreground">Explore instructors</Button></div>;
+  return <div className="rounded-lg border border-dashed border-border bg-card p-5 text-center"><Sparkles className="mx-auto size-5 text-primary"/><h3 className="mt-2 font-bold text-foreground">Instructor updates will appear here</h3><p className="mx-auto mt-1 max-w-md text-xs text-muted-foreground">Only approved FX instructors can publish here.</p><Button variant="outline" size="sm" onClick={onInstructors} className="mt-3">Explore instructors</Button></div>;
 }
 
 function ComingSoon({ category, onBack }: { category: Exclude<MarketCategory, "FX">; onBack: () => void }) {
-  return <section className="mt-8 grid min-h-72 place-items-center rounded-xl border border-market-line bg-market-surface p-8 text-center"><div><BarChart3 className="mx-auto size-8 text-market-accent"/><h2 className="mt-4 font-display text-2xl font-extrabold text-market-foreground">{category} — Coming Soon</h2><p className="mx-auto mt-2 max-w-sm text-sm text-market-muted">This category is being prepared for a later ASH Markets release. FX remains the active educational experience.</p><Button onClick={onBack} className="mt-5 bg-market-accent text-market-accent-foreground">Return to FX</Button></div></section>;
+  return <section className="mt-6 grid min-h-52 place-items-center rounded-lg border border-border bg-card p-6 text-center"><div><BarChart3 className="mx-auto size-7 text-primary"/><h2 className="mt-3 font-display text-xl font-extrabold text-foreground">{category} — Coming Soon</h2><p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">FX remains the active educational experience.</p><Button onClick={onBack} size="sm" className="mt-4">Return to FX</Button></div></section>;
 }
 
 function MarketPanel({ panel, onClose, currentUserId, updates }: { panel: Panel; onClose: () => void; currentUserId: string | null; updates: ReturnType<typeof useMarketUpdates>["data"] }) {
   const titles: Record<Exclude<Panel, null>, string> = { analysis: "Market Analysis", updates: "Market Updates", news: "Market News", calendar: "Economic Calendar", instructors: "FX Instructors", learn: "Learn FX", apply: "FX Instructor Application", publish: "Publish to ASH Markets" };
-  return <Sheet open={panel !== null} onOpenChange={(value) => { if (!value) onClose(); }}><SheetContent side="right" className="market-theme w-full overflow-y-auto border-market-line bg-market-background p-0 sm:max-w-xl"><SheetHeader className="sticky top-0 z-10 border-b border-market-line bg-market-background/90 p-5 pr-12 text-left backdrop-blur-xl"><SheetTitle className="font-display text-xl font-extrabold text-market-foreground">{panel ? titles[panel] : "ASH Markets"}</SheetTitle><SheetDescription className="text-market-muted">Educational and informational content only.</SheetDescription></SheetHeader><div className="p-5">{panel === "analysis" ? <AnalysisPanel /> : null}{panel === "news" ? <NewsPanel /> : null}{panel === "calendar" ? <CalendarPanel /> : null}{panel === "learn" ? <LearnPanel /> : null}{panel === "instructors" ? <InstructorsPanel /> : null}{panel === "apply" ? <InstructorApplication /> : null}{panel === "publish" ? <MarketComposer onDone={onClose} /> : null}{panel === "updates" ? <div className="space-y-4">{updates?.map((item) => <div key={item.id} className="overflow-hidden rounded-xl border border-market-line"><div className="bg-market-elevated px-4 py-3"><p className="text-[10px] font-bold uppercase text-market-accent">ASH Markets Update</p><p className="font-bold text-market-foreground">{item.title}</p></div><PostCard post={item.post} currentUserId={currentUserId} /></div>)}</div> : null}</div></SheetContent></Sheet>;
+  return <Sheet open={panel !== null} onOpenChange={(value) => { if (!value) onClose(); }}><SheetContent side="right" className="market-theme w-full overflow-y-auto border-border bg-background p-0 sm:max-w-xl"><SheetHeader className="sticky top-0 z-10 border-b border-border bg-background/90 p-5 pr-12 text-left backdrop-blur-xl"><SheetTitle className="font-display text-xl font-extrabold text-foreground">{panel ? titles[panel] : "ASH Markets"}</SheetTitle><SheetDescription className="text-muted-foreground">Educational and informational content only.</SheetDescription></SheetHeader><div className="p-5">{panel === "analysis" ? <AnalysisPanel /> : null}{panel === "news" ? <NewsPanel /> : null}{panel === "calendar" ? <CalendarPanel /> : null}{panel === "learn" ? <LearnPanel /> : null}{panel === "instructors" ? <InstructorsPanel /> : null}{panel === "apply" ? <InstructorApplication /> : null}{panel === "publish" ? <MarketComposer onDone={onClose} /> : null}{panel === "updates" ? <div className="space-y-4">{updates?.map((item) => <div key={item.id} className="overflow-hidden rounded-lg border border-border"><div className="bg-muted px-4 py-3"><p className="text-[10px] font-bold uppercase text-primary">ASH Markets Update</p><p className="font-bold text-foreground">{item.title}</p></div><PostCard post={item.post} currentUserId={currentUserId} /></div>)}</div> : null}</div></SheetContent></Sheet>;
 }
 
 function AnalysisPanel() { return <div className="space-y-3">{ANALYSIS_ITEMS.map((item, index) => <article key={item.title} className="rounded-xl border border-market-line bg-market-surface p-5"><span className="text-[10px] font-extrabold uppercase text-market-accent">Market Observation {index + 1}</span><h3 className="mt-2 font-bold text-market-foreground">{item.title}</h3><p className="mt-2 text-sm leading-relaxed text-market-muted">{item.body}</p></article>)}</div>; }
