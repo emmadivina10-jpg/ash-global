@@ -1462,6 +1462,13 @@ export function useMemberSearch(term: string) {
     enabled: term.trim().length >= 2,
     queryFn: async (): Promise<SocialAuthor[]> => {
       const me = await currentUserId();
+      // Only the length of the query is recorded — never the text itself.
+      trackEvent({
+        event_type: "search",
+        surface: "search",
+        target_type: "member_search",
+        metadata: { query_length: term.trim().length },
+      });
       const { data } = await directory()
         .select("user_id, full_name, avatar_url")
         .ilike("full_name", `%${term.trim()}%`)
