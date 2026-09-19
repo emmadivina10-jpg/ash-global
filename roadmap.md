@@ -10,3 +10,8 @@
 - [ ] Verify security invariants and existing-system regressions
 - [ ] Produce final completion audit
 - [x] Refine mobile navigation to exact compact ASH Hub reference without changing routes or behavior
+
+## ASH Markets V1
+- [x] Replace the existing Market screen with the focused informational ASH Markets V1 experience
+- [x] Rename the mobile Market label to Markets without changing navigation structure
+- [ ] Verify Markets interactions, responsive layouts, and existing route stability

@@ -89,7 +89,7 @@ function MarketsPage() {
         </div>
       </section>
 
-      {category !== "FX" ? <ComingSoon category={category} /> : (
+      {category !== "FX" ? <ComingSoon category={category} onViewFx={() => setCategory("FX")} /> : (
         <>
           <section aria-labelledby="market-overview-heading" className="space-y-3">
             <SectionHeading title="Market Overview" label="Demo Market Data" />
@@ -212,10 +212,10 @@ function MarketCard({ market }: { market: (typeof FX_MARKETS)[number] }) {
   );
 }
 
-function ComingSoon({ category }: { category: Exclude<MarketCategory, "FX"> }) {
+function ComingSoon({ category, onViewFx }: { category: Exclude<MarketCategory, "FX">; onViewFx: () => void }) {
   return (
     <section className="grid min-h-72 place-items-center rounded-2xl border border-border/60 bg-card/70 p-8 text-center shadow-card backdrop-blur-xl">
-      <div><span className="mx-auto grid size-12 place-items-center rounded-xl bg-primary/10 text-primary"><BarChart3 className="size-6" aria-hidden /></span><h2 className="mt-4 font-display text-xl font-extrabold text-foreground">{category} — Coming Soon</h2><p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">This market category is being prepared for a future ASH Markets release. Explore the FX demo experience in V1.</p><Button className="mt-5" onClick={() => location.hash = ""}>View FX</Button></div>
+      <div><span className="mx-auto grid size-12 place-items-center rounded-xl bg-primary/10 text-primary"><BarChart3 className="size-6" aria-hidden /></span><h2 className="mt-4 font-display text-xl font-extrabold text-foreground">{category} — Coming Soon</h2><p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">This market category is being prepared for a future ASH Markets release. Explore the FX demo experience in V1.</p><Button className="mt-5" onClick={onViewFx}>View FX</Button></div>
     </section>
   );
 }
