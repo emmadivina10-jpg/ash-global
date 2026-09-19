@@ -48,11 +48,10 @@ export const decideFxInstructorApplication = createServerFn({ method: "POST" })
       .maybeSingle();
     if (readError || !application) throw readError ?? new Error("APPLICATION_NOT_FOUND");
 
-    const { error: decisionError } = await db.rpc("review_fx_instructor_application", {
-      _application_id: application.id,
-      _status: data.status,
-      _note: data.note || undefined,
-    });
+    const reviewInput = data.note
+      ? { _application_id: application.id, _status: data.status, _note: data.note }
+      : { _application_id: application.id, _status: data.status };
+    const { error: decisionError } = await db.rpc("review_fx_instructor_application", reviewInput);
     if (decisionError) throw decisionError;
 
     await db.from("admin_audit_log").insert({
