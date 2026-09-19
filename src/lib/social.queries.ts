@@ -262,6 +262,17 @@ export async function loadAuthors(ids: string[]): Promise<Map<string, SocialAuth
   return map;
 }
 
+/** Shared identity state for compact member surfaces such as the inbox. */
+export function useMemberStates(ids: string[]) {
+  const unique = Array.from(new Set(ids.filter(Boolean))).sort();
+  return useQuery({
+    queryKey: ["member-states", unique],
+    enabled: unique.length > 0,
+    staleTime: 30_000,
+    queryFn: () => loadAuthors(unique),
+  });
+}
+
 async function uploadImage(userId: string, file: File, prefix: string): Promise<string> {
   if (!file.type.startsWith("image/")) {
     throw new Error("Only photos can be shared here.");

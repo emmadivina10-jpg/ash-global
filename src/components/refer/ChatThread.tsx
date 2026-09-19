@@ -453,9 +453,7 @@ export function ChatThread({
                       className={cn(
                         "group relative max-w-[78%] px-3.5 py-2 shadow-sm transition-colors",
                         mine
-                          ? isGroup
-                            ? "rounded-2xl bg-[linear-gradient(135deg,#f6d365,#d4a017)] text-[#3a2a00]"
-                            : "rounded-2xl bg-primary text-primary-foreground"
+                          ? "brand-gradient rounded-2xl text-primary-foreground shadow-md"
                           : "rounded-2xl bg-muted text-foreground",
                         mine && !endsRun && "rounded-br-md",
                         mine && endsRun && "rounded-br-sm",
@@ -638,7 +636,7 @@ export function ChatThread({
           e.preventDefault();
           void submit(body);
         }}
-        className="flex min-w-0 shrink-0 items-end gap-2 border-t border-border bg-background pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] md:pb-2"
+        className="flex min-w-0 shrink-0 items-end gap-2 border-t border-primary/20 bg-card/95 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] backdrop-blur md:pb-2"
       >
         <div className="flex min-w-0 flex-1 flex-col">
           <Textarea
@@ -656,7 +654,7 @@ export function ChatThread({
             }}
             placeholder={t("chat.placeholder")}
             aria-label={t("chat.placeholder")}
-            className="min-h-10 max-h-32 resize-none overflow-y-auto rounded-2xl overscroll-contain"
+            className="min-h-10 max-h-32 resize-none overflow-y-auto rounded-2xl border-primary/25 bg-background/90 shadow-inner overscroll-contain focus-visible:ring-primary/40"
           />
 
           <span className="mt-1 px-1 text-[10px] text-muted-foreground">

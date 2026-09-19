@@ -21,7 +21,7 @@ import { formatDateTime, formatXAF } from "@/lib/format";
 import { bookingStatusLabel } from "@/lib/booking";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { Archive, Lock, Trash2, UserPlus } from "lucide-react";
+import { Archive, Lock, Plus, Trash2, UserPlus, Users } from "lucide-react";
 import { SelectChatRow } from "@/components/refer/SelectChatRow";
 import {
   MAX_PINNED,
@@ -32,7 +32,7 @@ import {
   useSetChatLockPin,
   useSetChatPref,
 } from "@/lib/chat-prefs";
-import { useMemberSearch, useSendFriendRequest, useFriendships, useGroups } from "@/lib/social.queries";
+import { useCreateGroup, useMemberSearch, useMemberStates, useSendFriendRequest, useFriendships, useGroups } from "@/lib/social.queries";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -333,9 +333,13 @@ function MessagesPage() {
   const [lockedUnlocked, setLockedUnlocked] = useState(false);
   const [pinDialog, setPinDialog] = useState(false);
   const [pinValue, setPinValue] = useState("");
+  const [groupDialog, setGroupDialog] = useState(false);
+  const [groupName, setGroupName] = useState("");
+  const [groupMembers, setGroupMembers] = useState<string[]>([]);
   const { data: people } = useMemberSearch(term);
   const { data: graph } = useFriendships();
   const sendFriendRequest = useSendFriendRequest();
+  const createGroup = useCreateGroup();
 
   // Typing the chat-lock PIN into the search box reveals the hidden chats.
   useEffect(() => {
@@ -354,6 +358,12 @@ function MessagesPage() {
   }, [term, lockPin]);
 
   const list = conversations ?? [];
+  const peerIds = list.map((conversation) => {
+    if (conversation.group_id) return null;
+    const providerIsMe = Boolean(user?.id) && conversation.provider?.user_id === user?.id;
+    return (providerIsMe ? conversation.client_id : conversation.provider?.user_id) ?? null;
+  }).filter((id): id is string => Boolean(id));
+  const { data: memberStates } = useMemberStates(peerIds);
 
   // Desktop falls back to the first conversation;
   // mobile requires an explicit conversation pick.
@@ -408,6 +418,11 @@ function MessagesPage() {
     return viewerIsProvider
       ? (conv.client?.avatar_url ?? null)
       : (conv.provider?.avatar_url ?? null);
+  }
+
+  function peerStateOf(conv: (typeof list)[number]) {
+    const id = peerUserIdOf(conv);
+    return id ? memberStates?.get(id) : undefined;
   }
 
   /** The other person's auth id — used for reporting and blocking. */
@@ -694,6 +709,16 @@ function MessagesPage() {
               </div>
 
               <div className="mt-2 flex items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-7 rounded-full px-2.5 text-[11px]"
+                  onClick={() => setGroupDialog(true)}
+                >
+                  <Users className="size-3" aria-hidden />
+                  {fr ? "Nouveau groupe" : "New group"}
+                </Button>
                 {archivedCount > 0 ? (
                   <button
                     type="button"
@@ -731,6 +756,60 @@ function MessagesPage() {
                 ) : null}
               </div>
             </div>
+
+            <Dialog open={groupDialog} onOpenChange={setGroupDialog}>
+              <DialogContent className="max-h-[calc(100dvh-2rem)] max-w-sm overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>{fr ? "Créer un groupe" : "Create a group"}</DialogTitle>
+                </DialogHeader>
+                <Input
+                  value={groupName}
+                  onChange={(event) => setGroupName(event.target.value.slice(0, 60))}
+                  placeholder={fr ? "Nom du groupe" : "Group name"}
+                />
+                <div className="max-h-64 space-y-1 overflow-y-auto">
+                  {(graph?.friends ?? []).length === 0 ? (
+                    <p className="py-4 text-center text-sm text-muted-foreground">
+                      {fr ? "Ajoutez d’abord des amis au groupe." : "Add friends before creating a group."}
+                    </p>
+                  ) : (
+                    (graph?.friends ?? []).map(({ other }) => {
+                      const selected = groupMembers.includes(other.id);
+                      return (
+                        <Button
+                          key={other.id}
+                          type="button"
+                          variant="ghost"
+                          className={cn("h-auto w-full justify-start gap-3 px-2 py-2", selected && "bg-primary/10")}
+                          onClick={() => setGroupMembers((ids) => selected ? ids.filter((id) => id !== other.id) : [...ids, other.id])}
+                        >
+                          <Avatar path={other.avatar_url} name={other.name} online={other.online} hasUpdate={other.has_update} className="size-9" />
+                          <span className="min-w-0 flex-1 truncate text-left">{other.name}</span>
+                          {selected ? <span className="text-xs font-bold text-primary">{fr ? "Ajouté" : "Added"}</span> : <Plus className="size-4" aria-hidden />}
+                        </Button>
+                      );
+                    })
+                  )}
+                </div>
+                <Button
+                  disabled={groupName.trim().length < 2 || createGroup.isPending}
+                  onClick={() => createGroup.mutate(
+                    { name: groupName, memberIds: groupMembers },
+                    {
+                      onSuccess: () => {
+                        setGroupDialog(false);
+                        setGroupName("");
+                        setGroupMembers([]);
+                        toast.success(fr ? "Groupe créé" : "Group created");
+                      },
+                      onError: (error) => toast.error(error instanceof Error ? error.message : "Could not create the group."),
+                    },
+                  )}
+                >
+                  {fr ? "Créer le groupe" : "Create group"}
+                </Button>
+              </DialogContent>
+            </Dialog>
 
             <Dialog open={confirmBulkDelete} onOpenChange={setConfirmBulkDelete}>
               <DialogContent className="max-w-sm">
@@ -907,6 +986,8 @@ function MessagesPage() {
                         <Avatar
                           path={peerAvatarOf(conv)}
                           name={label}
+                          online={peerStateOf(conv)?.online}
+                          hasUpdate={peerStateOf(conv)?.has_update}
                           className="size-full rounded-full border-0 shadow-none"
                         />
                       </span>
@@ -1084,6 +1165,8 @@ function MessagesPage() {
                       <Avatar
                         path={peerAvatarOf(active)}
                         name={peerOf(active)}
+                        online={peerStateOf(active)?.online}
+                        hasUpdate={peerStateOf(active)?.has_update}
                         className="size-full rounded-full border-0 shadow-none"
                       />
                     </span>
