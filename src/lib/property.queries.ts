@@ -6,6 +6,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PROPERTY_BUCKET } from "@/lib/property";
+import { directory } from "@/lib/public-profiles";
 
 export type PropertyListing = {
   id: string;
@@ -199,8 +200,7 @@ export function useProperty(listingId: string) {
       if (error) throw error;
       if (!listing) return null;
       const signed = await signPropertyPaths((images ?? []).map((image) => image.image_path));
-      const owner = await supabase
-        .from("profiles")
+      const owner = await directory()
         .select("full_name, avatar_url, created_at")
         .eq("user_id", (listing as unknown as PropertyListing).owner_id)
         .maybeSingle();

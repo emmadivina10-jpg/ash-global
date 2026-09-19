@@ -18,11 +18,9 @@ export type DirectoryProfile = {
   created_at: string | null;
 };
 
-type LooseClient = {
-  from: (table: string) => ReturnType<typeof supabase.from<never, never>>;
-};
-
 /** Query builder over the public member directory. */
-export function directory() {
-  return (supabase as unknown as LooseClient).from("public_profiles");
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function directory(): any {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (supabase as any).from("public_profiles");
 }

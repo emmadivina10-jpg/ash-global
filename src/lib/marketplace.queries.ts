@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { signPortfolioPaths, type ServiceCategory } from "./marketplace";
+import { directory } from "@/lib/public-profiles";
 
 export type ProviderProfile = {
   id: string;
@@ -201,8 +202,7 @@ export function useProviderReviews(providerId: string | undefined) {
       const ids = [...new Set(rows.map((r) => r.client_id))];
       const names: Record<string, { name: string; avatar: string | null }> = {};
       if (ids.length > 0) {
-        const { data: people } = await supabase
-          .from("profiles")
+        const { data: people } = await directory()
           .select("user_id, full_name, avatar_url")
           .in("user_id", ids);
         for (const p of people ?? []) {
@@ -260,8 +260,7 @@ export function useConversations() {
       const clientIds = [...new Set(rows.map((r) => r.client_id))];
       const clients: Record<string, { full_name: string; avatar_url: string | null }> = {};
       if (clientIds.length > 0) {
-        const { data: people } = await supabase
-          .from("profiles")
+        const { data: people } = await directory()
           .select("user_id, full_name, avatar_url")
           .in("user_id", clientIds);
         for (const p of people ?? []) {

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { directory } from "@/lib/public-profiles";
 
 export type AppNotification = {
   id: string;
@@ -40,7 +41,7 @@ export function useNotifications(limit = 30) {
 
       const since = new Date(Date.now() - 5 * 60_000).toISOString();
       const [{ data: profiles }, { data: presence }] = await Promise.all([
-        supabase.from("profiles").select("user_id, full_name, avatar_url, verified_tier, verified_until").in("user_id", actorIds),
+        directory().select("user_id, full_name, avatar_url, verified_tier, verified_until").in("user_id", actorIds),
         supabase.from("member_presence").select("user_id").in("user_id", actorIds).gte("last_active_at", since),
       ]);
       const onlineIds = new Set((presence ?? []).map((row) => row.user_id));

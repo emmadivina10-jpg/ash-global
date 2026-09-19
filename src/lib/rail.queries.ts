@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { directory } from "@/lib/public-profiles";
 
 /* ------------------------------------------------------------- birthdays */
 
@@ -35,7 +36,7 @@ export function useUpcomingBirthdays() {
     queryFn: async (): Promise<BirthdayPerson[]> => {
       const since = new Date(Date.now() - 5 * 60_000).toISOString();
       const [{ data }, { data: presence }] = await Promise.all([
-        supabase.from("profiles").select("user_id, full_name, avatar_url, verified_tier, verified_until, birthday").not("birthday", "is", null).limit(500),
+        directory().select("user_id, full_name, avatar_url, verified_tier, verified_until, birthday").not("birthday", "is", null).limit(500),
         supabase.from("member_presence").select("user_id").gte("last_active_at", since),
       ]);
       const onlineIds = new Set((presence ?? []).map((row) => row.user_id));

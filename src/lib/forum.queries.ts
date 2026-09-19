@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { verifyMediaFiles } from "./media-safety";
 import { SPOTLIGHT_BUCKET, SPOTLIGHT_MAX_BYTES } from "./spotlight.queries";
+import { directory } from "@/lib/public-profiles";
 
 export const FORUM_SPACES = [
   { key: "INTRODUCTIONS", en: "Introductions", fr: "Présentations" },
@@ -48,8 +49,7 @@ export type ForumComment = {
 async function loadAuthors(ids: string[]): Promise<Record<string, ForumAuthor>> {
   const unique = Array.from(new Set(ids.filter(Boolean)));
   if (unique.length === 0) return {};
-  const { data } = await supabase
-    .from("profiles")
+  const { data } = await directory()
     .select("user_id, full_name, avatar_url")
     .in("user_id", unique);
   const map: Record<string, ForumAuthor> = {};
