@@ -52,3 +52,9 @@
 - [x] Remove the descriptive sentence under the Feed title
 - [x] Replace the More sheet with a dedicated Facebook-style Menu page and profile-photo Menu tab
 - [x] Verify the mobile Feed and Menu with the signed-in profile
+
+## Automatic Story expiry
+- [x] Keep Stories visible for exactly 24 hours
+- [x] Remove expired Story media before deleting its database record
+- [x] Schedule private cleanup every five minutes with retryable media failures
+- [ ] Verify the published cleanup callback and remove existing expired Stories

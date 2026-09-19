@@ -4268,6 +4268,13 @@ export type Database = {
         Returns: string
       }
       expire_property_listings: { Args: never; Returns: number }
+      expired_story_cleanup_batch: {
+        Args: { _limit?: number }
+        Returns: {
+          id: string
+          media_path: string
+        }[]
+      }
       extract_social_tokens: {
         Args: {
           _actor_id: string
@@ -4569,6 +4576,10 @@ export type Database = {
         Returns: Json
       }
       touch_member_presence: { Args: never; Returns: undefined }
+      verify_story_cleanup_secret: {
+        Args: { _secret: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "user"
