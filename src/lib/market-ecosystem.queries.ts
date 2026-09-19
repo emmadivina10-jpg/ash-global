@@ -34,6 +34,9 @@ export type FxInstructorProfile = {
   full_name: string;
   username: string | null;
   avatar_url: string | null;
+  verified_tier: string | null;
+  verified_until: string | null;
+  online: boolean;
 };
 
 export type MarketPostMeta = {
@@ -156,10 +159,12 @@ export function useFxInstructors() {
       if (error) throw error;
       const ids = (rows ?? []).map((row: { user_id: string }) => row.user_id);
       if (!ids.length) return [];
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("user_id,full_name,username,avatar_url")
-        .in("user_id", ids);
+       const since = new Date(Date.now() - 5 * 60_000).toISOString();
+       const [{ data: profiles }, { data: presence }] = await Promise.all([
+         supabase.from("profiles").select("user_id,full_name,username,avatar_url,verified_tier,verified_until").in("user_id", ids),
+         supabase.from("member_presence").select("user_id").in("user_id", ids).gte("last_active_at", since),
+       ]);
+       const onlineIds = new Set((presence ?? []).map((row) => row.user_id));
       const byUser = new Map((profiles ?? []).map((profile) => [profile.user_id, profile]));
       return (rows ?? []).map((row: Omit<FxInstructorProfile, "full_name" | "username" | "avatar_url">) => {
         const profile = byUser.get(row.user_id);
@@ -168,6 +173,9 @@ export function useFxInstructors() {
           full_name: profile?.full_name?.trim() || "Profile",
           username: profile?.username ?? null,
           avatar_url: profile?.avatar_url ?? null,
+           verified_tier: profile?.verified_tier ?? null,
+           verified_until: profile?.verified_until ?? null,
+           online: onlineIds.has(row.user_id),
         };
       });
     },
@@ -189,7 +197,7 @@ export function useMyFxInstructorProfile() {
       if (!data) return null;
       const { data: profile } = await supabase
         .from("profiles")
-        .select("full_name,username,avatar_url")
+        .select("full_name,username,avatar_url,verified_tier,verified_until")
         .eq("user_id", userId)
         .maybeSingle();
       return {
@@ -197,6 +205,9 @@ export function useMyFxInstructorProfile() {
         full_name: profile?.full_name?.trim() || "Profile",
         username: profile?.username ?? null,
         avatar_url: profile?.avatar_url ?? null,
+         verified_tier: profile?.verified_tier ?? null,
+         verified_until: profile?.verified_until ?? null,
+         online: true,
       } as FxInstructorProfile;
     },
   });
@@ -280,8 +291,12 @@ export function useFxInstructorProfile(instructorId: string) {
         .maybeSingle();
       if (error) throw error;
       if (!data) return null;
-      const { data: profile } = await supabase.from("profiles").select("full_name,username,avatar_url").eq("user_id", data.user_id).maybeSingle();
-      return { ...data, full_name: profile?.full_name?.trim() || "Profile", username: profile?.username ?? null, avatar_url: profile?.avatar_url ?? null } as FxInstructorProfile;
+       const since = new Date(Date.now() - 5 * 60_000).toISOString();
+       const [{ data: profile }, { data: presence }] = await Promise.all([
+         supabase.from("profiles").select("full_name,username,avatar_url,verified_tier,verified_until").eq("user_id", data.user_id).maybeSingle(),
+         supabase.from("member_presence").select("user_id").eq("user_id", data.user_id).gte("last_active_at", since).maybeSingle(),
+       ]);
+       return { ...data, full_name: profile?.full_name?.trim() || "Profile", username: profile?.username ?? null, avatar_url: profile?.avatar_url ?? null, verified_tier: profile?.verified_tier ?? null, verified_until: profile?.verified_until ?? null, online: Boolean(presence) } as FxInstructorProfile;
     },
   });
 }

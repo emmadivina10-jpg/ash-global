@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Archive, Lock, Plus, Trash2, UserPlus, Users } from "lucide-react";
 import { SelectChatRow } from "@/components/refer/SelectChatRow";
+import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import {
   MAX_PINNED,
   hashPin,
@@ -1050,8 +1051,8 @@ function MessagesPage() {
 
                     <span className="min-w-0 flex-1">
                       <span className="flex items-baseline justify-between gap-2">
-                        <span className="truncate text-[15px] font-semibold text-foreground">
-                          {label}
+                        <span className="inline-flex min-w-0 items-center gap-1 text-[15px] font-semibold text-foreground">
+                          <span className="truncate">{label}</span><VerifiedBadge tier={peerStateOf(conv)?.verified_tier} until={peerStateOf(conv)?.verified_until} size={14}/>
                         </span>
 
                         <span
@@ -1110,7 +1111,7 @@ function MessagesPage() {
                         }
                         className="min-w-0 flex-1 truncate text-left text-[13px] font-semibold text-foreground"
                       >
-                        {person.name}
+                        <span className="inline-flex items-center gap-1">{person.name}<VerifiedBadge tier={person.verified_tier} until={person.verified_until} size={13}/></span>
                       </button>
                       <Button
                         size="sm"
@@ -1229,8 +1230,8 @@ function MessagesPage() {
                 ) : null}
 
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-display text-[15px] font-semibold text-foreground">
-                    {activeId === ASH_AI_ID ? "ASH AI" : active ? peerOf(active) : t("chat.title")}
+                  <p className="flex items-center gap-1 truncate font-display text-[15px] font-semibold text-foreground">
+                    <span className="truncate">{activeId === ASH_AI_ID ? "ASH AI" : active ? peerOf(active) : t("chat.title")}</span>{activeId !== ASH_AI_ID && active ? <VerifiedBadge tier={peerStateOf(active)?.verified_tier} until={peerStateOf(active)?.verified_until} size={14}/> : null}
                   </p>
 
                   {active?.booking ? (

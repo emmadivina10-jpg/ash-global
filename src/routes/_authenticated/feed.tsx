@@ -186,7 +186,7 @@ function FeedPage() {
 
       <section className="tile p-3">
         <div className="flex items-center gap-2.5">
-          <Avatar path={profile?.avatar_url} name={profile?.full_name} className="size-10 shrink-0" />
+          <Avatar path={profile?.avatar_url} name={profile?.full_name} online className="size-10 shrink-0" />
           {composerOpen ? (
             <Textarea
               autoFocus

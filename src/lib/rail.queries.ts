@@ -12,6 +12,7 @@ export type BirthdayPerson = {
   birthday: string;
   /** 0 = today, 1 = tomorrow … */
   inDays: number;
+  online: boolean;
 };
 
 function daysUntilBirthday(birthday: string): number | null {
@@ -32,11 +33,12 @@ export function useUpcomingBirthdays() {
     queryKey: ["rail", "birthdays"],
     staleTime: 30 * 60_000,
     queryFn: async (): Promise<BirthdayPerson[]> => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("user_id, full_name, avatar_url, verified_tier, verified_until, birthday")
-        .not("birthday", "is", null)
-        .limit(500);
+      const since = new Date(Date.now() - 5 * 60_000).toISOString();
+      const [{ data }, { data: presence }] = await Promise.all([
+        supabase.from("profiles").select("user_id, full_name, avatar_url, verified_tier, verified_until, birthday").not("birthday", "is", null).limit(500),
+        supabase.from("member_presence").select("user_id").gte("last_active_at", since),
+      ]);
+      const onlineIds = new Set((presence ?? []).map((row) => row.user_id));
 
       const rows = (data ?? []) as {
         user_id: string;
@@ -48,7 +50,7 @@ export function useUpcomingBirthdays() {
       }[];
 
       return rows
-        .map((row) => ({ ...row, inDays: daysUntilBirthday(row.birthday) }))
+        .map((row) => ({ ...row, online: onlineIds.has(row.user_id), inDays: daysUntilBirthday(row.birthday) }))
         .filter((row): row is BirthdayPerson => row.inDays !== null && row.inDays <= 14)
         .sort((a, b) => a.inDays - b.inDays)
         .slice(0, 8);

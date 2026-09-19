@@ -144,13 +144,7 @@ function ProfilePage() {
         <div className="min-w-0">
           <h1 className="flex items-center gap-1.5 truncate text-2xl font-bold text-foreground sm:text-3xl">
             <span className="truncate">{profile.full_name || t("profile.title")}</span>
-            {(profile as { verified_tier?: string | null }).verified_tier ? (
-              <GroupVerifiedBadge className="size-5" label="ASH verified profile" />
-            ) : (
-              <Link to="/verified" aria-label="Get verified" title="Get verified" className="shrink-0 text-social-verified">
-                <BadgeCheck className="size-5" aria-hidden />
-              </Link>
-            )}
+            {(profile as { verified_tier?: string | null }).verified_tier ? <GroupVerifiedBadge className="size-5" label="ASH verified profile" /> : null}
           </h1>
           <p className="truncate text-sm text-muted-foreground">{profile.email}</p>
           <Link to="/verified" className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-[#1877F2]">
