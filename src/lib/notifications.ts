@@ -11,7 +11,7 @@ export type AppNotification = {
   read_at: string | null;
   created_at: string;
   actor_id: string | null;
-  actor: { id: string; name: string; avatar_url: string | null } | null;
+  actor: { id: string; name: string; avatar_url: string | null; verified_tier: string | null; verified_until: string | null; online: boolean } | null;
 };
 
 /** Backend-generated notifications for the signed-in user, kept live over realtime. */
@@ -38,12 +38,14 @@ export function useNotifications(limit = 30) {
       );
       if (actorIds.length === 0) return rows.map((row) => ({ ...row, actor: null }));
 
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("user_id, full_name, avatar_url")
-        .in("user_id", actorIds);
+      const since = new Date(Date.now() - 5 * 60_000).toISOString();
+      const [{ data: profiles }, { data: presence }] = await Promise.all([
+        supabase.from("profiles").select("user_id, full_name, avatar_url, verified_tier, verified_until").in("user_id", actorIds),
+        supabase.from("member_presence").select("user_id").in("user_id", actorIds).gte("last_active_at", since),
+      ]);
+      const onlineIds = new Set((presence ?? []).map((row) => row.user_id));
       const map = new Map(
-        ((profiles ?? []) as { user_id: string; full_name: string | null; avatar_url: string | null }[]).map(
+        ((profiles ?? []) as { user_id: string; full_name: string | null; avatar_url: string | null; verified_tier: string | null; verified_until: string | null }[]).map(
           (row) => [row.user_id, row],
         ),
       );
@@ -52,7 +54,7 @@ export function useNotifications(limit = 30) {
         return {
           ...row,
           actor: profile
-            ? { id: profile.user_id, name: profile.full_name ?? "Profile", avatar_url: profile.avatar_url }
+            ? { id: profile.user_id, name: profile.full_name ?? "Profile", avatar_url: profile.avatar_url, verified_tier: profile.verified_tier, verified_until: profile.verified_until, online: onlineIds.has(profile.user_id) }
             : null,
         };
       });

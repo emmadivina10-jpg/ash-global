@@ -16,6 +16,7 @@ import { useMarkNotificationsRead, useNotifications, type AppNotification } from
 import { notificationLink } from "@/lib/push";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 
 export const Route = createFileRoute("/_authenticated/notifications")({
   head: () => ({
@@ -209,7 +210,7 @@ function NotificationsPage() {
                   >
                     <span className="relative shrink-0">
                       {item.actor ? (
-                        <Avatar path={item.actor.avatar_url} name={item.actor.name} className="size-11" />
+                        <Avatar path={item.actor.avatar_url} name={item.actor.name} online={item.actor.online} className="size-11" />
                       ) : (
                         <span className="grid size-11 place-items-center rounded-full bg-muted text-muted-foreground">
                           <Icon className="size-5" aria-hidden />
@@ -221,7 +222,7 @@ function NotificationsPage() {
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="flex items-start justify-between gap-3">
-                        <span className="text-sm font-semibold text-foreground">{item.title}</span>
+                        <span className="text-sm font-semibold text-foreground"><span className="inline-flex items-center gap-1">{item.title}{item.actor ? <VerifiedBadge tier={item.actor.verified_tier} until={item.actor.verified_until} size={13} /> : null}</span></span>
                         <span className="shrink-0 text-[11px] text-muted-foreground">
                           {timeAgo(item.created_at, fr)}
                         </span>

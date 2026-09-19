@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useMarkNotificationsRead, useNotifications } from "@/lib/notifications";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { VerifiedBadge } from "./VerifiedBadge";
 
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
@@ -117,6 +118,7 @@ export function NotificationBell() {
                     path={n.actor?.avatar_url ?? null}
                     name={n.actor?.name ?? (fr ? "Profil" : "Profile")}
                     className="size-11"
+                     online={n.actor?.online}
                   />
                   <span className="brand-gradient absolute -bottom-0.5 -right-0.5 grid size-5 place-items-center rounded-full border-2 border-card text-primary-foreground">
                     <Bell className="size-2.5" aria-hidden />
@@ -124,7 +126,7 @@ export function NotificationBell() {
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm leading-snug text-foreground">
-                    {n.actor?.name ? <span className="font-bold">{n.actor.name} </span> : null}
+                    {n.actor?.name ? <span className="inline-flex items-center gap-1 font-bold">{n.actor.name}<VerifiedBadge tier={n.actor.verified_tier} until={n.actor.verified_until} size={13} /></span> : null}{" "}
                     <span className={cn(!n.read_at && "font-semibold")}>{n.title}</span>
                   </span>
                   <span className="mt-0.5 block line-clamp-2 text-xs text-muted-foreground">{n.body}</span>
