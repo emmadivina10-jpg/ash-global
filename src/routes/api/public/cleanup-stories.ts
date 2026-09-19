@@ -18,7 +18,10 @@ async function cleanupExpiredStories(request: Request) {
     { _secret: suppliedSecret },
   );
 
-  if (authorizationError || authorized !== true) {
+  if (authorizationError) {
+    return Response.json({ ok: false, error: "AUTH_CHECK_FAILED" }, { status: 500 });
+  }
+  if (authorized !== true) {
     return new Response("Unauthorized", { status: 401 });
   }
 
