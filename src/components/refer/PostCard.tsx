@@ -226,8 +226,8 @@ export function PostCard({
                   ),
                 onError: (error) => toast.error(error instanceof Error ? error.message : "Could not repost."),
               },
-            )
-          }
+            );
+          }}
         >
           <Repeat2 className="size-4" aria-hidden />
           {post.repost_count}
