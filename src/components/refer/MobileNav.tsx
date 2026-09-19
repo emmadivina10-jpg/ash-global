@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useState } from "react";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu, Shield } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -19,26 +19,7 @@ export type MobileNavItem = {
 
 export type MoreGroup = { en: string; fr: string; items: MobileNavItem[] };
 
-/** True while any surface on the page is scrolling; resets shortly after it stops. */
-function useScrolling(idleDelay = 280) {
-  const [scrolling, setScrolling] = useState(false);
-  useEffect(() => {
-    let timer: number | undefined;
-    const onScroll = () => {
-      setScrolling(true);
-      if (timer) window.clearTimeout(timer);
-      timer = window.setTimeout(() => setScrolling(false), idleDelay);
-    };
-    document.addEventListener("scroll", onScroll, { capture: true, passive: true });
-    return () => {
-      document.removeEventListener("scroll", onScroll, { capture: true } as EventListenerOptions);
-      if (timer) window.clearTimeout(timer);
-    };
-  }, [idleDelay]);
-  return scrolling;
-}
-
-/** Phone navigation with five evenly balanced destinations. */
+/** Facebook-style phone navigation with five equal, always-visible destinations. */
 export function MobileNav({
   items,
   moreGroups,
@@ -49,27 +30,16 @@ export function MobileNav({
   isAdmin: boolean;
 }) {
   const { t, lang } = useI18n();
-  const navigate = useNavigate();
   const fr = lang === "fr";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [moreOpen, setMoreOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(moreGroups[0]?.en ?? null);
-  const [gestureIndex, setGestureIndex] = useState<number | null>(null);
-  const [gestureActive, setGestureActive] = useState(false);
-  const startX = useRef(0);
-  const dragged = useRef(false);
-  const suppressNextClick = useRef(false);
-  const activePointer = useRef<number | null>(null);
-  const navList = useRef<HTMLUListElement>(null);
-  const scrolling = useScrolling();
-  const hidden = scrolling && !moreOpen && !gestureActive;
 
   const label = (item: MobileNavItem) =>
     item.key ? t(item.key) : ((fr ? item.fr : item.en) ?? item.label ?? "");
 
-  const renderTab = (item: MobileNavItem, visualIndex: number) => {
+  const renderTab = (item: MobileNavItem) => {
     const active = pathname === item.to || pathname.startsWith(`${item.to}/`);
-    const distance = gestureIndex === null ? 10 : Math.abs(gestureIndex - visualIndex);
     return (
       <li key={item.to} className="min-w-0">
         <Link
@@ -77,118 +47,38 @@ export function MobileNav({
           data-tour={item.tour}
           aria-current={active ? "page" : undefined}
           className={cn(
-            "premium-nav-item relative flex h-16 min-w-0 flex-col items-center justify-center gap-0.5 px-0.5 pt-1 text-[10px] font-semibold",
+            "premium-nav-item relative flex h-[3.75rem] min-w-0 flex-col items-center justify-center gap-0.5 px-0.5 pt-1 text-[10px] font-semibold",
             active ? "text-primary" : "text-muted-foreground active:text-foreground",
-            gestureActive && distance === 0 && "premium-nav-item-selected",
-            gestureActive && distance === 1 && "premium-nav-item-neighbor",
           )}
         >
-          <span className={cn("grid size-8 place-items-center rounded-full", active && "bg-primary/8")}>
-            <item.icon className={cn("size-6 shrink-0", active && "scale-105")} strokeWidth={2} aria-hidden />
+          <span className="grid size-7 place-items-center">
+            <item.icon className={cn("size-[1.45rem] shrink-0", active && "fill-primary/10")} strokeWidth={active ? 2.5 : 2} aria-hidden />
           </span>
           <span className="max-w-full truncate">{label(item)}</span>
-          {active ? <span className="absolute bottom-0.5 size-1 rounded-full bg-primary shadow-[0_0_7px_var(--color-primary)]" aria-hidden /> : null}
+          {active ? <span className="absolute inset-x-2 top-0 h-0.5 rounded-b-full bg-primary" aria-hidden /> : null}
         </Link>
       </li>
     );
   };
 
-  const indexFromPointer = (clientX: number) => {
-    const bounds = navList.current?.getBoundingClientRect();
-    if (!bounds || bounds.width <= 0) return 0;
-    return Math.max(0, Math.min(4, Math.floor(((clientX - bounds.left) / bounds.width) * 5)));
-  };
-
-  const setBubblePosition = (index: number) => {
-    navList.current?.style.setProperty("--nav-index", String(index));
-  };
-
-  const handlePointerDown = (event: ReactPointerEvent<HTMLUListElement>) => {
-    if (event.pointerType === "mouse" && event.button !== 0) return;
-    startX.current = event.clientX;
-    dragged.current = false;
-    activePointer.current = event.pointerId;
-    const index = indexFromPointer(event.clientX);
-    setBubblePosition(index);
-    setGestureIndex(index);
-    setGestureActive(true);
-  };
-
-  const handlePointerMove = (event: ReactPointerEvent<HTMLUListElement>) => {
-    if (activePointer.current !== event.pointerId) return;
-    if (Math.abs(event.clientX - startX.current) > 7 && !dragged.current) {
-      dragged.current = true;
-      event.currentTarget.setPointerCapture(event.pointerId);
-    }
-    if (!dragged.current) return;
-    const index = indexFromPointer(event.clientX);
-    if (index !== gestureIndex) {
-      setGestureIndex(index);
-      setBubblePosition(index);
-      if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate(7);
-    }
-  };
-
-  const handlePointerEnd = (event: ReactPointerEvent<HTMLUListElement>) => {
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-    activePointer.current = null;
-    const selected = indexFromPointer(event.clientX);
-    const shouldSelect = dragged.current;
-    setGestureActive(false);
-    setGestureIndex(null);
-    if (!shouldSelect) return;
-    event.preventDefault();
-    suppressNextClick.current = true;
-    if (selected === 4) {
-      setMoreOpen(true);
-      return;
-    }
-    const destination = items[selected]?.to;
-    if (destination) void navigate({ to: destination });
-  };
-
   return (
     <nav
-      className={cn("premium-mobile-nav fixed inset-x-0 z-40 lg:hidden", hidden && "is-hidden")}
-      aria-hidden={hidden}
+      className="premium-mobile-nav fixed inset-x-0 z-40 lg:hidden"
       aria-label={fr ? "Navigation principale" : "Primary navigation"}
     >
-      <div className="premium-nav-pill nav-bar-fill relative mx-auto w-[calc(100%-1.5rem)] max-w-[26.5rem] rounded-[2rem] border border-border/35">
-        <ul
-          ref={navList}
-          className={cn("premium-nav-grid relative grid h-16 grid-cols-5 items-end", gestureActive && "is-gesturing")}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerEnd}
-          onClickCapture={(event) => {
-            if (!suppressNextClick.current) return;
-            suppressNextClick.current = false;
-            event.preventDefault();
-            event.stopPropagation();
-          }}
-          onDragStart={(event) => event.preventDefault()}
-          onPointerCancel={() => {
-            activePointer.current = null;
-            setGestureActive(false);
-            setGestureIndex(null);
-          }}
-        >
-          <span className="premium-nav-bubble" aria-hidden />
-          {items.map((item, index) => renderTab(item, index))}
+      <div className="premium-nav-pill nav-bar-fill relative w-full border-t border-border">
+        <ul className="premium-nav-grid relative mx-auto grid h-[3.75rem] max-w-lg grid-cols-5 items-stretch">
+          {items.map((item) => renderTab(item))}
           <li className="min-w-0">
             <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
               <SheetTrigger asChild>
                 <Button
                   variant="ghost"
                   className={cn(
-                    "premium-nav-item relative flex h-16 w-full min-w-0 flex-col items-center justify-center gap-0.5 rounded-none px-0.5 pt-1 text-[10px] font-semibold text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground [&_svg]:size-6",
-                    gestureActive && gestureIndex === 4 && "premium-nav-item-selected",
-                    gestureActive && gestureIndex === 3 && "premium-nav-item-neighbor",
+                    "premium-nav-item relative flex h-[3.75rem] w-full min-w-0 flex-col items-center justify-center gap-0.5 rounded-none px-0.5 pt-1 text-[10px] font-semibold text-muted-foreground shadow-none hover:bg-muted/50 hover:text-foreground [&_svg]:size-[1.45rem]",
                   )}
                 >
-                  <span className="grid size-8 place-items-center rounded-full"><Menu strokeWidth={2.1} aria-hidden /></span>
+                  <span className="grid size-7 place-items-center"><Menu strokeWidth={2.1} aria-hidden /></span>
                   <span className="max-w-full truncate">{t("nav.more")}</span>
                 </Button>
               </SheetTrigger>

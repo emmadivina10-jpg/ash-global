@@ -39,6 +39,7 @@
 ## Wallet, finance, admin, and landing follow-up
 - [x] Replace the floating ASH “A” launcher with a card-shaped Wallet launcher and real balance preview
 - [x] Reorder mobile navigation to Feed, Services, Earn, Messages, More and open FX Analytics from Feed
+- [x] Restyle mobile navigation as a flat Facebook-style edge-to-edge tab bar
 - [ ] Keep Cool ASH Card as the default wallet-card theme and Real ASH Card as the alternate theme
 - [ ] Add stored TchokoPay fee/net reconciliation before showing provider deductions
 - [ ] Refine the admin dashboard around platform funds, reserved funds, and reconciled fees
