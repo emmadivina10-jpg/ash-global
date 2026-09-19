@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { usePost, useSocialFeed, type FeedPost } from "@/lib/social.queries";
 import { directory, type DirectoryProfile } from "@/lib/public-profiles";
+import { trackEvent } from "./activity";
 
 const db = supabase as unknown as { from: (table: string) => any };
 const VERIFICATION_BUCKET = "market-verification";
@@ -345,7 +346,15 @@ export function useToggleMarketSave() {
       const { error } = await request;
       if (error) throw error;
     },
-    onSuccess: (_data, input) => void queryClient.invalidateQueries({ queryKey: ["market-save", input.marketPostId] }),
+    onSuccess: (_data, input) => {
+      trackEvent({
+        event_type: input.saved ? "unsave" : "save",
+        surface: "markets",
+        target_type: "market_post",
+        target_id: input.marketPostId,
+      });
+      void queryClient.invalidateQueries({ queryKey: ["market-save", input.marketPostId] });
+    },
   });
 }
 
@@ -398,6 +407,9 @@ export function useToggleInstructorFollow() {
       if (error) throw error;
     },
     onSuccess: (_data, input) => {
+      if (!input.following) {
+        trackEvent({ event_type: "follow", surface: "markets", target_type: "instructor", target_id: input.instructorId });
+      }
       void queryClient.invalidateQueries({ queryKey: ["fx-instructors"] });
       void queryClient.invalidateQueries({ queryKey: ["fx-instructor-follow", input.instructorId] });
       void queryClient.invalidateQueries({ queryKey: ["fx-instructor-profile", input.instructorId] });

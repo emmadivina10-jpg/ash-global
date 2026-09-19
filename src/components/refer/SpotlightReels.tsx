@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { contactVendor, openMemberConversation, sendOpeningMessage } from "@/lib/contact-vendor";
 import { useDeleteSpotlight, useSetSpotlightReaction, type SpotlightEntry } from "@/lib/spotlight.queries";
 import { useI18n } from "@/lib/i18n";
+import { trackEvent } from "@/lib/activity";
 import { ReactionButton } from "./ReactionButton";
 import { VerifiedBadge } from "./VerifiedBadge";
 import { ExpandableSocialText } from "./ExpandableSocialText";
@@ -40,6 +41,34 @@ export function SpotlightReels({
     const target = node?.children[startIndex] as HTMLElement | undefined;
     if (target) target.scrollIntoView({ block: "start" });
   }, [startIndex]);
+
+  // One spotlight_view per highlight that actually reaches the screen.
+  useEffect(() => {
+    const node = scrollerRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") return;
+    const seen = new Set<string>();
+    const observer = new IntersectionObserver(
+      (items) => {
+        for (const item of items) {
+          if (!item.isIntersecting) continue;
+          const element = item.target as HTMLElement;
+          const id = element.dataset["spotlightId"];
+          if (!id || seen.has(id)) continue;
+          seen.add(id);
+          trackEvent({
+            event_type: "spotlight_view",
+            surface: "spotlight",
+            target_type: "spotlight",
+            target_id: id.replace("post:", ""),
+            author_id: element.dataset["authorId"] || null,
+          });
+        }
+      },
+      { threshold: 0.6 },
+    );
+    for (const child of Array.from(node.children)) observer.observe(child);
+    return () => observer.disconnect();
+  }, [entries]);
 
   useEffect(() => {
     const previous = document.body.style.overflow;
@@ -106,7 +135,12 @@ export function SpotlightReels({
         {entries.map((entry) => {
           const mine = entry.source === "post" && Boolean(currentUserId && entry.author_id === currentUserId);
           return (
-          <section key={entry.id} className="relative h-full w-full snap-start snap-always">
+          <section
+            key={entry.id}
+            data-spotlight-id={entry.id}
+            data-author-id={entry.author_id ?? ""}
+            className="relative h-full w-full snap-start snap-always"
+          >
             {entry.media_type === "video" ? (
               <video
                 src={entry.url}

@@ -8,6 +8,7 @@ import { verifyMediaFiles } from "./media-safety";
 import { signPortfolioPaths } from "./marketplace";
 import { EMPTY_REACTIONS, type ReactionBreakdown, type ReactionType } from "./social.queries";
 import { directory } from "@/lib/public-profiles";
+import { trackEvent } from "./activity";
 
 export const SPOTLIGHT_BUCKET = "spotlight";
 
