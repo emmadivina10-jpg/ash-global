@@ -1,327 +1,97 @@
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
-import { CreditCard, EyeOff, Headphones, Mail, Sparkles, X } from "lucide-react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { Link } from "@tanstack/react-router";
+import { CreditCard, Wallet, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AssistantPanel } from "./AssistantPanel";
-import { AshMark } from "./AshMark";
+import { useWallet } from "@/lib/queries";
+import { formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 import { useOrbVisible } from "@/lib/orb-visibility";
-import { cn } from "@/lib/utils";
-
-type OrbAction = "ai" | "support" | "card";
-
-const RADIUS = 118;
 
 export function AshOrb() {
-  const { t, lang } = useI18n();
+  const { lang } = useI18n();
   const fr = lang === "fr";
-  const { visible, setVisible } = useOrbVisible();
+  const { visible } = useOrbVisible();
+  const { data: wallet, isLoading } = useWallet();
   const [open, setOpen] = useState(false);
-  const [panel, setPanel] = useState<OrbAction | null>(null);
-
-  // Draggable orb. The wrapper is anchored bottom-right, so the offset is
-  // always negative-or-zero and clamped to the viewport: the button can be
-  // moved out of the way but never off-screen.
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const drag = useRef<{ px: number; py: number; ox: number; oy: number; moved: boolean } | null>(null);
 
   useEffect(() => {
     try {
-      const raw = window.localStorage.getItem("ash-orb-offset");
-      if (raw) {
-        const parsed = JSON.parse(raw) as { x: number; y: number };
-        if (typeof parsed?.x === "number" && typeof parsed?.y === "number") setOffset(parsed);
+      const saved = window.localStorage.getItem("ash-wallet-launcher-offset");
+      if (saved) {
+        const value = JSON.parse(saved) as { x?: number; y?: number };
+        if (typeof value.x === "number" && typeof value.y === "number") setOffset({ x: value.x, y: value.y });
       }
-    } catch {
-      /* ignore unreadable storage */
-    }
+    } catch { /* Keep the default position. */ }
   }, []);
 
-  function clamp(x: number, y: number) {
-    const maxLeft = Math.max(0, window.innerWidth - 96);
-    const maxUp = Math.max(0, window.innerHeight - 180);
-    return { x: Math.min(0, Math.max(-maxLeft, x)), y: Math.min(0, Math.max(-maxUp, y)) };
-  }
-
-  function onPointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
+  function pointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
     drag.current = { px: event.clientX, py: event.clientY, ox: offset.x, oy: offset.y, moved: false };
     event.currentTarget.setPointerCapture(event.pointerId);
   }
 
-  function onPointerMove(event: ReactPointerEvent<HTMLButtonElement>) {
-    const d = drag.current;
-    if (!d) return;
-    const dx = event.clientX - d.px;
-    const dy = event.clientY - d.py;
-    if (!d.moved && Math.hypot(dx, dy) < 6) return;
-    d.moved = true;
-    setOffset(clamp(d.ox + dx, d.oy + dy));
+  function pointerMove(event: ReactPointerEvent<HTMLButtonElement>) {
+    const start = drag.current;
+    if (!start) return;
+    const dx = event.clientX - start.px;
+    const dy = event.clientY - start.py;
+    if (!start.moved && Math.hypot(dx, dy) < 6) return;
+    start.moved = true;
+    setOffset({
+      x: Math.min(0, Math.max(-(window.innerWidth - 112), start.ox + dx)),
+      y: Math.min(0, Math.max(-(window.innerHeight - 190), start.oy + dy)),
+    });
   }
 
-  function onPointerUp(event: ReactPointerEvent<HTMLButtonElement>) {
-    const d = drag.current;
+  function pointerUp(event: ReactPointerEvent<HTMLButtonElement>) {
+    const start = drag.current;
     drag.current = null;
-    if (!d) return;
     event.currentTarget.releasePointerCapture?.(event.pointerId);
-    if (d.moved) {
-      try {
-        window.localStorage.setItem("ash-orb-offset", JSON.stringify(offset));
-      } catch {
-        /* ignore unwritable storage */
-      }
+    if (start?.moved) {
+      try { window.localStorage.setItem("ash-wallet-launcher-offset", JSON.stringify(offset)); } catch { /* Ignore unavailable storage. */ }
       return;
     }
-    setOpen((value) => !value);
+    setOpen(true);
   }
 
-  useEffect(() => {
-    function onKey(event: KeyboardEvent) {
-      if (event.key !== "Escape") return;
-      setPanel(null);
-      setOpen(false);
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
-
-  const items: { id: OrbAction; label: string; icon: ReactNode; soon?: boolean }[] = [
-    { id: "ai", label: fr ? "Assistant IA" : "AI Assistant", icon: <AshMark className="size-5" /> },
-    { id: "support", label: fr ? "Support ASH" : "ASH Support", icon: <Headphones className="size-5" /> },
-    { id: "card", label: fr ? "Carte ASH" : "ASH Card", icon: <CreditCard className="size-5" />, soon: true },
-  ];
-
   if (!visible) return null;
-
   return (
     <>
-      {/* Soft blur veil behind the expanded arc. */}
-      {open ? (
+      <div style={{ transform: `translate3d(${offset.x}px, ${offset.y}px, 0)` }} className="fixed bottom-24 right-4 z-40 touch-none lg:bottom-8 lg:right-8">
         <button
           type="button"
-          aria-label={fr ? "Fermer le menu ASH" : "Close ASH menu"}
-          onClick={() => setOpen(false)}
-          className="fixed inset-0 z-40 bg-background/55 backdrop-blur-md"
-        />
-      ) : null}
-
-      <div
-        style={{ transform: `translate3d(${offset.x}px, ${offset.y}px, 0)` }}
-        className="fixed bottom-24 right-4 z-50 touch-none lg:bottom-8 lg:right-8"
-      >
-        {/* Quarter-circle arc: items fan up and to the left, thumb-reachable.
-            The radial offset lives on the wrapper because the entrance
-            animation owns `transform` on the button itself. */}
-        {open
-          ? items.map((item, index) => {
-              const angle = (index / (items.length - 1)) * 92 + 2; // degrees, up → left
-              const rad = (angle * Math.PI) / 180;
-              const dx = -Math.sin(rad) * RADIUS;
-              const dy = -Math.cos(rad) * RADIUS;
-              return (
-                <div
-                  key={item.id}
-                  style={{ transform: `translate3d(${dx}px, ${dy}px, 0)` }}
-                  className="absolute bottom-1.5 right-1.5"
-                >
-                  <button
-                    type="button"
-                    aria-label={item.label}
-                    onClick={() => {
-                      setPanel(item.id);
-                      setOpen(false);
-                    }}
-                    style={{ animationDelay: `${index * 45}ms` }}
-                    className="ash-rise ash-glass grid size-14 place-items-center rounded-full text-foreground shadow-[var(--shadow-card)] transition-[scale] duration-200 hover:scale-105"
-                  >
-                    <span className="grid place-items-center text-primary">{item.icon}</span>
-                  </button>
-                  <span className="pointer-events-none absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap rounded-full bg-foreground/85 px-2 py-0.5 text-[10px] font-bold text-background">
-                    {item.label}
-                    {item.soon ? ` · ${fr ? "Bientôt" : "Soon"}` : ""}
-                  </span>
-                </div>
-              );
-            })
-          : null}
-
-
-        {open ? (
-          <button
-            type="button"
-            onClick={() => {
-              setVisible(false);
-              setOpen(false);
-            }}
-            className="absolute bottom-1.5 right-20 inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border bg-card px-3 py-2 text-[11px] font-bold text-muted-foreground shadow-[var(--shadow-card)]"
-          >
-            <EyeOff className="size-3.5" aria-hidden />
-            {fr ? "Masquer" : "Hide button"}
-          </button>
-        ) : null}
-
-        <button
-          type="button"
-          aria-expanded={open}
-          aria-label={open ? (fr ? "Fermer ASH" : "Close ASH") : (fr ? "Ouvrir ASH" : "Open ASH")}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerCancel={() => (drag.current = null)}
-          className={cn(
-            "relative grid size-16 place-items-center rounded-full border border-primary/30 bg-primary/15 text-primary backdrop-blur-xl transition-transform duration-300",
-            open ? "rotate-45 scale-95" : "hover:scale-105",
-          )}
+          onPointerDown={pointerDown}
+          onPointerMove={pointerMove}
+          onPointerUp={pointerUp}
+          onPointerCancel={() => { drag.current = null; }}
+          aria-label={fr ? "Ouvrir le portefeuille" : "Open wallet"}
+          className="group relative h-14 w-[5.75rem] overflow-hidden rounded-[10px] border border-primary/35 bg-primary text-primary-foreground shadow-[var(--shadow-raised)] transition-transform hover:scale-[1.03]"
         >
-          {open ? (
-            <X className="size-6" aria-hidden />
-          ) : (
-            <span className="font-display text-2xl font-black leading-none text-primary/90" aria-hidden>
-              A
-            </span>
-          )}
+          <span className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-accent/80" aria-hidden />
+          <span className="relative flex h-full flex-col items-start justify-center px-3 text-left">
+            <Wallet className="size-4" aria-hidden />
+            <span className="mt-0.5 text-[11px] font-extrabold uppercase">{fr ? "Portefeuille" : "Wallet"}</span>
+          </span>
         </button>
       </div>
 
-      <OrbPanel
-        open={panel !== null}
-        onClose={() => setPanel(null)}
-        title={
-          panel === "ai"
-            ? t("ai.title")
-            : panel === "support"
-              ? fr
-                ? "Support ASH"
-                : "ASH Support"
-              : "ASH Card"
-        }
-        subtitle={
-          panel === "ai"
-            ? t("ai.subtitle")
-            : panel === "support"
-              ? fr
-                ? "Comment pouvons-nous vous aider ?"
-                : "How can we help you?"
-              : fr
-                ? "Bientôt disponible"
-                : "Coming soon"
-        }
-        tall={panel === "ai"}
-      >
-        {panel === "ai" ? <AssistantPanel /> : null}
-
-        {panel === "support" ? (
-          <div className="space-y-3">
-            <button
-              type="button"
-              onClick={() => setPanel("ai")}
-              className="tile flex w-full items-center gap-3 p-4 text-left"
-            >
-              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-                <AshMark className="size-5" />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-sm font-bold text-foreground">{fr ? "Aide IA" : "AI Help"}</span>
-                <span className="block truncate text-xs text-muted-foreground">
-                  {fr ? "Réponses instantanées sur ASH Glo" : "Instant answers about ASH Glo"}
-                </span>
-              </span>
-            </button>
-
-            <Link to="/support" onClick={() => setOpen(false)} className="tile flex w-full items-center gap-3 p-4 text-left">
-              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-gold-soft text-gold-foreground">
-                <Headphones className="size-5" aria-hidden />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-sm font-bold text-foreground">
-                  {fr ? "Contacter le support" : "Contact support"}
-                </span>
-                <span className="block truncate text-xs text-muted-foreground">
-                  {fr ? "Nous répondons par e-mail sous 24 h" : "We reply by email within 24 hours"}
-                </span>
-              </span>
-            </Link>
-
-            <a href="mailto:support@ashglogroup.company" className="tile flex w-full items-center gap-3 p-4 text-left">
-              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-muted text-muted-foreground">
-                <Mail className="size-5" aria-hidden />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-sm font-bold text-foreground">{fr ? "Par e-mail" : "By email"}</span>
-                <span className="block truncate text-xs text-muted-foreground">support@ashglogroup.company</span>
-              </span>
-            </a>
-
-          </div>
-        ) : null}
-
-        {panel === "card" ? (
-          <div className="space-y-4">
-            <div className="virtual-card grain relative p-5">
-              <span className="hairline-gold absolute right-4 top-4 rounded-full bg-[oklch(0_0_0_/_0.35)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[color:var(--color-gold-soft)]">
-                {fr ? "Bientôt" : "Coming soon"}
-              </span>
-              <p className="eyebrow text-[color:oklch(0.98_0.004_285_/_0.6)]">ASH</p>
-              <p className="mt-2 font-display text-2xl font-extrabold">
-                ASH Card
-              </p>
-              <p className="mt-6 text-sm opacity-80">
-                {fr
-                  ? "Dépensez vos gains directement, en ligne et en magasin."
-                  : "Spend your earnings directly, online and in store."}
-              </p>
+      {open ? (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-background/65 backdrop-blur-md sm:items-center sm:p-4">
+          <button type="button" className="absolute inset-0" aria-label="Close" onClick={() => setOpen(false)} />
+          <section role="dialog" aria-modal="true" aria-label="Wallet balance" className="ash-rise relative w-full max-w-md rounded-t-3xl border border-border bg-card p-5 shadow-[var(--shadow-raised)] sm:rounded-3xl">
+            <Button size="icon" variant="ghost" className="absolute right-3 top-3" onClick={() => setOpen(false)} aria-label="Close"><X className="size-4" /></Button>
+            <div className="virtual-card grain relative overflow-hidden p-5">
+              <div className="flex items-center justify-between"><span className="text-xs font-extrabold uppercase tracking-wide opacity-70">Cool ASH Card</span><CreditCard className="size-5" /></div>
+              <p className="mt-7 text-xs opacity-65">{fr ? "Solde disponible" : "Available balance"}</p>
+              <p className="mt-1 font-display text-3xl font-extrabold tabular-nums">{isLoading ? "…" : formatXAF(wallet?.available_balance ?? 0)}</p>
+              <div className="mt-6 flex items-center justify-between border-t border-primary-foreground/15 pt-3 text-xs"><span className="opacity-65">{fr ? "En attente" : "Pending"}</span><strong>{isLoading ? "…" : formatXAF(wallet?.pending_balance ?? 0)}</strong></div>
             </div>
-            <p className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Sparkles className="size-3.5 shrink-0" aria-hidden />
-              {fr
-                ? "Cette fonctionnalité n'est pas encore disponible."
-                : "This feature is not available yet."}
-            </p>
-          </div>
-        ) : null}
-      </OrbPanel>
-    </>
-  );
-}
-
-function OrbPanel({
-  open,
-  onClose,
-  title,
-  subtitle,
-  tall,
-  children,
-}: {
-  open: boolean;
-  onClose: () => void;
-  title: string;
-  subtitle: string;
-  tall?: boolean;
-  children: ReactNode;
-}) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-background/60 p-0 backdrop-blur-md sm:items-center sm:p-4">
-      <button type="button" aria-label="Close" className="absolute inset-0" onClick={onClose} />
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        className={cn(
-          "ash-rise relative flex w-full max-w-md flex-col rounded-t-3xl border border-border bg-card p-5 shadow-[var(--shadow-raised)] sm:rounded-3xl",
-          tall ? "h-[76vh] max-h-[560px]" : "max-h-[86vh] overflow-y-auto",
-        )}
-      >
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 pb-4">
-          <div className="min-w-0">
-            <p className="truncate font-display text-lg font-extrabold text-foreground">{title}</p>
-            <p className="truncate text-xs text-muted-foreground">{subtitle}</p>
-          </div>
-          <Button size="icon" variant="ghost" aria-label="Close" onClick={onClose}>
-            <X className="size-4" aria-hidden />
-          </Button>
+            <p className="mt-4 text-xs text-muted-foreground">{fr ? "Ces montants proviennent directement de votre portefeuille ASH Glo." : "These amounts come directly from your ASH Glo wallet."}</p>
+            <Button asChild className="mt-5 w-full"><Link to="/wallet" onClick={() => setOpen(false)}>{fr ? "Ouvrir le portefeuille complet" : "Open Full Wallet"}</Link></Button>
+          </section>
         </div>
-        {children}
-      </div>
-    </div>
+      ) : null}
+    </>
   );
 }
