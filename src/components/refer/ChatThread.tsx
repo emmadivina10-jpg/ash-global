@@ -30,8 +30,8 @@ type ChatMessage = {
   body: string;
   created_at: string;
   read_at?: string | null;
-  kind?: string;
-  metadata?: Record<string, unknown>;
+  kind?: string | null;
+  metadata?: Record<string, unknown> | null;
 };
 
 function dayKey(iso: string) {
@@ -88,7 +88,7 @@ export function ChatThread({
   isGroup?: boolean;
   /** Limit only unsolicited person-to-person introductions, never groups or commerce threads. */
   enforceFirstContactLimit?: boolean;
-  members?: { id: string; name: string; avatar_url: string | null; online?: boolean }[];
+  members?: { id: string; name: string; avatar_url: string | null; online?: boolean | undefined }[];
   initialMessages?: ChatMessage[] | undefined;
 }) {
   const { t, lang } = useI18n();

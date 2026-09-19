@@ -530,7 +530,8 @@ function MessagesPage() {
     return pinB - pinA;
   });
 
-  const archivedCount = list.filter((conv) => prefs?.[conv.id]?.archived).length;
+  const archivedCount = Object.values(prefs ?? {}).filter((pref) => pref.archived).length;
+  const lockedCount = Object.values(prefs ?? {}).filter((pref) => pref.locked).length;
   const pinnedCount = list.filter((conv) => prefs?.[conv.id]?.pinned).length;
 
   // Members who are not already in a chat with you — offered as "Add friend".
@@ -604,7 +605,7 @@ function MessagesPage() {
   async function submitLockedChatUnlock() {
     if (!unlockingId || pinValue.length < 4) return;
     try {
-      const result = await unlockChatServer({ data: { conversationId: unlockingId, pin: pinValue } });
+      const result = await unlockChatServer({ data: { conversationId: unlockingId, pin: pinValue } }) as { messages: LockedChatMessage[] };
       setLockedMessages((current) => ({ ...current, [unlockingId]: result.messages }));
       setUnlockDialog(false);
       setPinValue("");
@@ -763,14 +764,14 @@ function MessagesPage() {
                   </button>
                 ) : null}
 
-                {lockPin ? (
+                {lockPin && lockedCount > 0 ? (
                   <button
                     type="button"
                     onClick={() => setUnlockDialog(true)}
                     className="flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold text-muted-foreground"
                   >
                     <Lock className="size-3" aria-hidden />
-                    {fr ? "Discussions verrouillées" : "Locked chats"}
+                    {fr ? `Verrouillées (${lockedCount})` : `Locked (${lockedCount})`}
                   </button>
                 ) : null}
 
@@ -1281,7 +1282,7 @@ function MessagesPage() {
                 {activeGroup ? <>
                   <div className="flex items-center gap-3">
                     <Avatar path={activeGroup.avatar_path} name={activeGroup.name} className="size-14" />
-                    {activeGroup.owner_id === user?.id ? <label className="inline-flex cursor-pointer items-center gap-2 text-sm font-semibold text-primary"><Camera className="size-4" />{fr ? "Photo" : "Photo"}<input type="file" accept="image/*" className="sr-only" onChange={async (event) => { const file = event.target.files?.[0]; if (!file || !user?.id) return; const path = `${user.id}/groups/${activeGroup.id}-${Date.now()}`; const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true }); if (error) return toast.error(error.message); updateGroup.mutate({ groupId: activeGroup.id, avatarPath: path }); }} /></label> : null}
+                    {activeGroup.owner_id === user?.id ? <label className="inline-flex cursor-pointer items-center gap-2 text-sm font-semibold text-primary"><Camera className="size-4" />{fr ? "Photo" : "Photo"}<input type="file" accept="image/*" className="sr-only" onChange={async (event) => { const file = event.target.files?.[0]; if (!file || !user?.id) return; const path = `${user.id}/groups/${activeGroup.id}-${Date.now()}`; const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true }); if (error) { toast.error(error.message); return; } updateGroup.mutate({ groupId: activeGroup.id, avatarPath: path }); }} /></label> : null}
                   </div>
                   {activeGroup.owner_id === user?.id ? <div className="flex gap-2"><Input value={groupEditName} onChange={(event) => setGroupEditName(event.target.value.slice(0, 60))} /><Button onClick={() => updateGroup.mutate({ groupId: activeGroup.id, name: groupEditName }, { onSuccess: () => toast.success(fr ? "Groupe mis à jour" : "Group updated") })}>{fr ? "Enregistrer" : "Save"}</Button></div> : null}
                   <div className="space-y-2">{activeGroup.members.map((member) => <div key={member.id} className="flex items-center gap-2 rounded-xl bg-muted/50 p-2"><Avatar path={member.avatar_url} name={member.name} online={member.online} hasUpdate={member.has_update} className="size-9" /><span className="min-w-0 flex-1 truncate text-sm font-semibold">{member.name}</span>{activeGroup.owner_id === user?.id && member.id !== user.id ? <Button size="icon" variant="ghost" className="text-destructive" onClick={() => removeGroupMember.mutate({ groupId: activeGroup.id, userId: member.id })}><UserMinus className="size-4" /></Button> : null}</div>)}</div>
@@ -1309,6 +1310,15 @@ function MessagesPage() {
                 />
                 <div className="relative flex min-h-0 flex-1 flex-col px-4 py-4">
                   <AssistantPanel />
+                </div>
+              </div>
+            ) : activeId && prefs?.[activeId]?.locked && !lockedMessages[activeId] ? (
+              <div className="grid flex-1 place-items-center bg-background/80 p-6 text-center backdrop-blur-sm">
+                <div className="max-w-xs space-y-3">
+                  <span className="mx-auto grid size-14 place-items-center rounded-full bg-primary/10 text-primary"><Lock className="size-6" /></span>
+                  <p className="font-display text-lg font-bold">{fr ? "Discussion verrouillée" : "Locked chat"}</p>
+                  <p className="text-sm text-muted-foreground">{fr ? "Le contenu n’a pas été chargé. Entrez votre code pour l’ouvrir." : "Content has not been loaded. Enter your PIN to open it."}</p>
+                  <Button onClick={() => void openLockedChat(activeId)}>{fr ? "Déverrouiller" : "Unlock"}</Button>
                 </div>
               </div>
             ) : activeId ? (

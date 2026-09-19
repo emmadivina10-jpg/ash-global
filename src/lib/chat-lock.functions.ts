@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Json } from "@/integrations/supabase/types";
 
 export type LockedChatMessage = {
   id: string;
@@ -9,7 +10,7 @@ export type LockedChatMessage = {
   created_at: string;
   read_at: string | null;
   kind: string | null;
-  metadata: Record<string, unknown> | null;
+  metadata: Json | null;
 };
 
 async function sha256(value: string) {
@@ -33,7 +34,7 @@ export const unlockChat = createServerFn({ method: "POST" })
     if (!data.conversationId || data.pin.length < 4) throw new Error("INVALID_CHAT_PIN");
 
     const { supabase, userId } = context;
-    const [{ data: pref }, { data: settings }, { data: conversation }] = await Promise.all([
+    const [{ data: pref }, { data: settings }] = await Promise.all([
       supabase
         .from("conversation_prefs")
         .select("locked")
@@ -41,11 +42,6 @@ export const unlockChat = createServerFn({ method: "POST" })
         .eq("conversation_id", data.conversationId)
         .maybeSingle(),
       supabase.from("chat_settings").select("lock_pin").eq("user_id", userId).maybeSingle(),
-      supabase
-        .from("conversations")
-        .select("id")
-        .eq("id", data.conversationId)
-        .maybeSingle(),
     ]);
 
     // The normal RLS query intentionally cannot see a locked conversation.
