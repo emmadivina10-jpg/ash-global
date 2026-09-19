@@ -171,7 +171,11 @@ export function SpotlightReels({
               </div>
 
               {entry.caption ? (
-                <ExpandableSocialText text={entry.caption} className="whitespace-pre-wrap break-words text-sm leading-relaxed text-white/90" />
+                <ExpandableSocialText
+                  text={entry.caption}
+                  className="whitespace-pre-wrap break-words text-sm leading-relaxed text-white/90"
+                  buttonClassName="text-white/80 hover:text-white"
+                />
               ) : null}
 
               {entry.source === "post" ? <div className="w-fit rounded-full bg-background/85 backdrop-blur"><ReactionButton value={entry.current_reaction} total={entry.reaction_count} breakdown={entry.reaction_breakdown} disabled={!currentUserId || react.isPending} onChange={(reaction) => react.mutate({ spotlightId: entry.id.replace("post:", ""), reaction })} /></div> : null}

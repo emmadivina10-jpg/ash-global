@@ -6,9 +6,11 @@ import { cn } from "@/lib/utils";
 export function ExpandableSocialText({
   text,
   className,
+  buttonClassName,
 }: {
   text: string;
   className?: string;
+  buttonClassName?: string;
 }) {
   const { lang } = useI18n();
   const [expanded, setExpanded] = useState(false);
@@ -35,7 +37,7 @@ export function ExpandableSocialText({
         <button
           type="button"
           onClick={() => setExpanded((value) => !value)}
-          className="mt-1 inline-flex touch-manipulation text-sm font-semibold text-muted-foreground hover:text-foreground"
+          className={cn("mt-1 inline-flex touch-manipulation text-sm font-semibold text-muted-foreground hover:text-foreground", buttonClassName)}
           aria-expanded={expanded}
         >
           {expanded ? (lang === "fr" ? "Voir moins" : "See less") : lang === "fr" ? "Voir plus" : "See more"}
