@@ -89,10 +89,11 @@ let timer: ReturnType<typeof setTimeout> | null = null;
 let flushing = false;
 
 function locationFields() {
-  const loc = getCachedLocation();
-  if (!loc) return {};
-  // Only the coarse city label is sent; coordinates never leave the device.
-  return { city: loc.city ?? null, country: loc.country ?? null };
+  // Only the coarse city label is sent, and only when the member granted
+  // location permission. Coordinates never leave the device. The database
+  // drops these fields again unless the member's location setting is on.
+  const city = getCachedCity();
+  return city ? { city } : {};
 }
 
 async function flush() {
