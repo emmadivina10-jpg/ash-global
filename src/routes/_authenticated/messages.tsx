@@ -387,7 +387,7 @@ function MessagesPage() {
         Boolean(user?.id) && conv.owner_id === user?.id;
 
       return viewerIsOwner
-        ? (conv.client?.full_name ?? "Profile unavailable")
+        ? (conv.client?.full_name ?? (fr ? "Profil" : "Profile"))
         : (conv.listing?.title ?? "ASH Property");
     }
 
@@ -395,7 +395,7 @@ function MessagesPage() {
       Boolean(user?.id) && conv.provider?.user_id === user?.id;
 
     return viewerIsProvider
-      ? (conv.client?.full_name ?? "Profile unavailable")
+      ? (conv.client?.full_name ?? (fr ? "Profil" : "Profile"))
       : (conv.provider?.business_name ?? t("chat.title"));
   }
 

@@ -23,6 +23,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useI18n } from "@/lib/i18n";
 import { formatXAF } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import type { Json } from "@/integrations/supabase/types";
 
 type ChatMessage = {
   id: string;
@@ -31,7 +32,7 @@ type ChatMessage = {
   created_at: string;
   read_at?: string | null;
   kind?: string | null;
-  metadata?: Record<string, unknown> | null;
+  metadata?: Json | null;
 };
 
 function dayKey(iso: string) {

@@ -265,7 +265,7 @@ export function useConversations() {
           .select("user_id, full_name, avatar_url")
           .in("user_id", clientIds);
         for (const p of people ?? []) {
-          clients[p.user_id] = { full_name: p.full_name || "Profile unavailable", avatar_url: p.avatar_url };
+          clients[p.user_id] = { full_name: p.full_name || "Profile", avatar_url: p.avatar_url };
         }
       }
       // Last message preview + unread count, WhatsApp-style inbox rows.
@@ -301,7 +301,7 @@ export function useConversations() {
 
       return rows.map((row) => ({
         ...row,
-        client: clients[row.client_id] ?? { full_name: "Profile unavailable", avatar_url: null },
+        client: clients[row.client_id] ?? { full_name: "Profile", avatar_url: null },
         last_message: preview[row.id] ?? null,
         unread_count: unread[row.id] ?? 0,
       }));
