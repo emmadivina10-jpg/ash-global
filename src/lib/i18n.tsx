@@ -378,7 +378,7 @@ const EN = {
 "settings.terms.3": "Providers are responsible for the services they deliver to clients.",
 "settings.support": "Support",
 "settings.support.copy":
-"Questions about payments, bookings or your account? Ask the ASH Assistant in the app, or send our team a message and we will reply by email within 24 hours.",
+"Questions about payments, bookings or your account? Ask the ASH Assistant in the app, or send our team a message and keep your reference for follow-up.",
 "settings.support.cta": "Contact support",
 "settings.danger": "Delete account",
 "settings.delete.copy":

@@ -78,6 +78,7 @@ function PrivacyPage() {
           personalization history. Clearing removes activity events and derived interest signals covered by that control; it does not
           delete posts, comments, messages, bookings, wallet records, referrals, friendships or other account data. Raw activity events
           are scheduled for deletion after 180 days, while older signals lose influence through time decay and derived data is refreshed.
+          Raw events are private from other members; authorized administrators can access them for platform administration, security and support.
           Current Feed, Stories/Status, Spotlight and Services ordering may continue using their existing non-personalized or relationship-based ordering until a personalized ranker is connected.
         </p>
       </LegalSection>
@@ -97,12 +98,12 @@ function PrivacyPage() {
       <LegalSection id="ai" title="5. ASH AI and automated content screening">
         <p>
           When you use ASH AI, the service sends your selected messages and up to two submitted images, together with a limited recent
-          conversation and relevant ASH Glo account context, to the AI service supporting ASH Glo. Context can include profile, wallet,
+          conversation and relevant ASH Glo account context, to a Google AI model through the Lovable AI Gateway. Context can include profile, wallet,
           referral, provider, booking, listing and property information. The inspected assistant function does not itself save a separate
           server-side conversation history, although your request is transmitted for processing and the provider may process operational request data.
         </p>
         <p>
-          For media safety, a resized preview of a submitted image is sent to the same AI service for classification. High-confidence
+          For media safety, a resized preview—not the original file—of a submitted image is sent to the same AI service for classification. High-confidence
           explicit content is blocked and recorded as a moderation case; uncertain or reported content may be reviewed by authorized staff.
           Automated results can be wrong. Contact Support to request review of a restriction.
         </p>
@@ -120,7 +121,16 @@ function PrivacyPage() {
         <p>We do not sell personal information. We do not claim that any service provider stores or uses data beyond the functions verified and described here.</p>
       </LegalSection>
 
-      <LegalSection id="visibility" title="7. Visibility and member choices">
+      <LegalSection id="device-storage" title="7. Device storage, diagnostics and tracking">
+        <p>
+          ASH Glo uses local storage on your device for items such as authentication state, language, theme, onboarding choices,
+          sound and interface preferences, and cached location choices. No cookie usage or advertising SDK was found in the inspected
+          implementation. Technical request, error, reliability and security information may still be processed to operate and protect
+          the service. ASH Glo does not use this information for cross-app advertising tracking.
+        </p>
+      </LegalSection>
+
+      <LegalSection id="visibility" title="8. Visibility and member choices">
         <p>
           Content visibility depends on the feature. Other members may see profile details, verification badge, approximate presence,
           posts, Stories/Status, Spotlight, comments, reviews, listings and group activity where the product displays them. Direct messages
@@ -133,7 +143,7 @@ function PrivacyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection id="retention" title="8. Retention">
+      <LegalSection id="retention" title="9. Retention">
         <p>We keep information only as long as needed for the purpose collected and the safeguards or obligations described here.</p>
         <LegalList items={[
           "Raw personalization activity events are scheduled for deletion after 180 days and may be cleared sooner through Settings.",
@@ -144,7 +154,7 @@ function PrivacyPage() {
         ]} />
       </LegalSection>
 
-      <LegalSection id="deletion" title="9. Account and data deletion">
+      <LegalSection id="deletion" title="10. Account and data deletion">
         <p>
           An account-deletion submission is a request, not immediate deletion. Authorized staff review it and may require pending
           balances, withdrawals, bookings, disputes, investigations or other obligations to be resolved. Approval currently closes the
@@ -153,7 +163,7 @@ function PrivacyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection id="security" title="10. Security">
+      <LegalSection id="security" title="11. Security">
         <p>
           ASH Glo uses access controls, private storage for sensitive verification media, row-level database rules, signed access links,
           provider callback verification and administrative role restrictions. No system is perfectly secure. Use a unique password,
@@ -161,7 +171,7 @@ function PrivacyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection id="rights" title="11. Access, correction and questions">
+      <LegalSection id="rights" title="12. Access, correction and questions">
         <p>
           Depending on applicable law, you may request access, correction, export, restriction, objection or deletion of personal information.
           Some requests may require identity verification and some records cannot be removed immediately for the reasons described above.
@@ -170,7 +180,7 @@ function PrivacyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection id="changes" title="12. Changes and contact">
+      <LegalSection id="changes" title="13. Changes and contact">
         <p>
           We may update this Policy when ASH Glo, the law or our practices change. The effective date will be updated and material changes
           may be communicated through the app or available account contact details. General support is available at{" "}
