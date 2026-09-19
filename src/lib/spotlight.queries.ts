@@ -33,6 +33,9 @@ export type SpotlightEntry = {
     city: string | null;
     avatar_url: string | null;
     is_verified: boolean;
+    verified_tier?: string | null;
+    verified_until?: string | null;
+    online?: boolean;
   };
 };
 
@@ -102,9 +105,10 @@ export function useSpotlightFeed(limit = 18) {
         .filter((id): id is string => Boolean(id));
 
       const { data: auth } = await supabase.auth.getUser();
-      const [profilesResult, providersResult, reactionsResult] = await Promise.all([
+      const since = new Date(Date.now() - 5 * 60_000).toISOString();
+      const [profilesResult, providersResult, reactionsResult, presenceResult] = await Promise.all([
         authorIds.length
-          ? supabase.from("profiles").select("user_id, full_name, avatar_url").in("user_id", authorIds)
+          ? supabase.from("profiles").select("user_id, full_name, avatar_url, verified_tier, verified_until").in("user_id", authorIds)
           : Promise.resolve({ data: [] }),
         providerIds.length
           ? supabase
@@ -113,10 +117,12 @@ export function useSpotlightFeed(limit = 18) {
               .in("id", providerIds)
           : Promise.resolve({ data: [] }),
         postRows.length ? supabase.from("spotlight_reactions").select("spotlight_id, user_id, reaction_type").in("spotlight_id", postRows.map((row) => row.id)) : Promise.resolve({ data: [] }),
+        authorIds.length ? supabase.from("member_presence").select("user_id").in("user_id", authorIds).gte("last_active_at", since) : Promise.resolve({ data: [] }),
       ]);
+      const onlineIds = new Set((presenceResult.data ?? []).map((row) => row.user_id));
 
       const profiles = new Map(
-        ((profilesResult.data ?? []) as { user_id: string; full_name: string; avatar_url: string | null }[]).map(
+        ((profilesResult.data ?? []) as { user_id: string; full_name: string; avatar_url: string | null; verified_tier: string | null; verified_until: string | null }[]).map(
           (row) => [row.user_id, row],
         ),
       );
@@ -160,13 +166,16 @@ export function useSpotlightFeed(limit = 18) {
              reaction_count: reactions.length,
              reaction_breakdown: breakdown,
              current_reaction: (reactions.find((item) => item.user_id === auth.user?.id)?.reaction_type as ReactionType | undefined) ?? null,
-            provider: storefront ?? {
+            provider: storefront ? { ...storefront, online: onlineIds.has(row.author_id) } : {
               id: "",
               business_name: profile?.full_name ?? "Profile",
               slug: null,
               city: null,
               avatar_url: profile?.avatar_url ?? null,
               is_verified: false,
+              verified_tier: profile?.verified_tier ?? null,
+              verified_until: profile?.verified_until ?? null,
+              online: onlineIds.has(row.author_id),
             },
           },
         ];

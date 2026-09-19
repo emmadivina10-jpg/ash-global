@@ -9,6 +9,7 @@ import { useDeleteSpotlight, useSetSpotlightReaction, type SpotlightEntry } from
 import { useI18n } from "@/lib/i18n";
 import { ReactionButton } from "./ReactionButton";
 import { SocialText } from "./SocialText";
+import { VerifiedBadge } from "./VerifiedBadge";
 
 /**
  * Full-screen, reels-style Spotlight browser: one highlight per screen,
@@ -131,14 +132,13 @@ export function SpotlightReels({
                   <Avatar
                     path={entry.provider.avatar_url}
                     name={entry.provider.business_name}
+                    online={entry.provider.online}
                     className="size-10 shrink-0 ring-2 ring-white/70"
                   />
                   <div className="min-w-0">
                     <p className="flex items-center gap-1 text-sm font-bold text-white">
                       <span className="truncate">{entry.provider.business_name}</span>
-                      {entry.provider.is_verified ? (
-                        <BadgeCheck className="size-4 shrink-0 text-primary" aria-hidden />
-                      ) : null}
+                      {entry.provider.is_verified ? <BadgeCheck className="size-4 shrink-0 text-primary" aria-hidden /> : <VerifiedBadge tier={entry.provider.verified_tier} until={entry.provider.verified_until} size={15}/>} 
                     </p>
                     {entry.provider.city ? (
                       <p className="truncate text-[11px] text-white/70">{entry.provider.city}</p>
