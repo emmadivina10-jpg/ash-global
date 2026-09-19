@@ -1016,7 +1016,7 @@ function MessagesPage() {
                     selected={selection.includes(conv.id)}
                     onLongPress={() => toggleSelected(conv.id)}
                     onToggleSelect={() => toggleSelected(conv.id)}
-                    onOpen={() => prefs?.[conv.id]?.locked ? void openLockedChat(conv.id) : void navigate({ search: { c: conv.id } })}
+                    onOpen={() => prefs?.[conv.id]?.locked && !lockedMessages[conv.id] ? void openLockedChat(conv.id) : void navigate({ search: { c: conv.id } })}
                     onTogglePin={() => void togglePin(conv.id)}
                     onArchive={() => toggleArchive(conv.id)}
                     onToggleLock={() => toggleLock(conv.id)}
