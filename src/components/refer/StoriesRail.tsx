@@ -13,6 +13,7 @@ import {
   Mic,
   MicOff,
   Play,
+  Plus,
   Sparkles,
   Trash2,
   X,
@@ -35,7 +36,7 @@ import {
   uploadResumableStorageFile,
 } from "@/lib/social.queries";
 import { Button } from "@/components/ui/button";
-import { Avatar as ProfileAvatar } from "@/components/refer/AvatarUpload";
+import { Avatar as ProfileAvatar, useAvatarUrl } from "@/components/refer/AvatarUpload";
 
 const SOCIAL_BUCKET = "spotlight";
 const IMAGE_MAX_BYTES = 12 * 1024 * 1024;
@@ -162,6 +163,17 @@ function Avatar({
   online?: boolean | undefined;
 }) {
   return <ProfileAvatar path={src} name={name} online={online} className={className} />;
+}
+
+function CreateCardPhoto({ path, name }: { path: string | null | undefined; name?: string | null | undefined }) {
+  const url = useAvatarUrl(path);
+  return url ? (
+    <img src={url} alt={name ?? "Profile picture"} className="size-full object-cover" loading="lazy" decoding="async" />
+  ) : (
+    <div className="grid size-full place-items-center bg-primary/10">
+      <span className="text-4xl font-black text-primary">{initials(name)}</span>
+    </div>
+  );
 }
 
 function spotlightMediaPath(value: unknown): string | null {
