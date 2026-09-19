@@ -145,6 +145,7 @@ type SpotlightPost = {
     city?: string | null;
     avatar_url?: string | null;
     is_verified?: boolean | null;
+    online?: boolean;
   };
 };
 
@@ -154,12 +155,14 @@ function Avatar({
   src,
   name,
   className = "size-10",
+  online = false,
 }: {
   src?: string | null | undefined;
   name?: string | null | undefined;
   className?: string | undefined;
+  online?: boolean | undefined;
 }) {
-  return <ProfileAvatar path={src} name={name} className={className} />;
+  return <ProfileAvatar path={src} name={name} online={online} className={className} />;
 }
 
 function spotlightMediaPath(value: unknown): string | null {
@@ -204,7 +207,8 @@ async function loadSpotlights(): Promise<SpotlightPost[]> {
     .map((row) => spotlightMediaPath(row.media))
     .filter((path): path is string => Boolean(path));
 
-  const [providersResult, signedResult] = await Promise.all([
+  const since = new Date(Date.now() - 5 * 60_000).toISOString();
+  const [providersResult, signedResult, presenceResult] = await Promise.all([
     supabase
       .from("provider_profiles")
       .select("id, user_id, business_name, city, avatar_url, is_verified")
@@ -212,6 +216,9 @@ async function loadSpotlights(): Promise<SpotlightPost[]> {
     mediaPaths.length > 0
       ? supabase.storage.from(SOCIAL_BUCKET).createSignedUrls(mediaPaths, 60 * 60 * 12)
       : Promise.resolve({ data: [], error: null }),
+    authorIds.length > 0
+      ? supabase.from("member_presence").select("user_id").in("user_id", authorIds).gte("last_active_at", since)
+      : Promise.resolve({ data: [] }),
   ]);
 
   if (providersResult.error) throw providersResult.error;
@@ -229,6 +236,7 @@ async function loadSpotlights(): Promise<SpotlightPost[]> {
       }>
     ).map((provider) => [provider.user_id, provider]),
   );
+  const onlineIds = new Set((presenceResult.data ?? []).map((row) => row.user_id));
 
   const signed = new Map(
     ((signedResult.data ?? []) as Array<{ path: string | null; signedUrl: string | null }>).map((item) => [
@@ -256,6 +264,7 @@ async function loadSpotlights(): Promise<SpotlightPost[]> {
           city: provider.city,
           avatar_url: provider.avatar_url,
           is_verified: provider.is_verified,
+           online: onlineIds.has(provider.user_id),
         },
       },
     ];
@@ -786,6 +795,7 @@ export function StoriesRail() {
                 <Avatar
                   src={profile.avatar_url}
                   name={profile.full_name}
+                    online
                   className="!size-full !rounded-none !border-0 !bg-transparent"
                 />
               ) : (
@@ -856,6 +866,7 @@ export function StoriesRail() {
                         <Avatar
                           src={item.group.author.avatar_url}
                           name={item.group.author.name}
+                          online={item.group.author.online}
                           className="size-9 !border-0"
                         />
                       </span>
@@ -911,6 +922,7 @@ export function StoriesRail() {
                     <Avatar
                       src={spotlight.provider.avatar_url}
                       name={spotlight.provider.business_name}
+                      online={spotlight.provider.online}
                       className="size-9"
                     />
                   </span>
@@ -1144,6 +1156,7 @@ export function StoriesRail() {
                       <Avatar
                         src={activeStoryGroup?.author.avatar_url}
                         name={activeStoryGroup?.author.name}
+                        online={activeStoryGroup?.author.online}
                         className="size-10"
                       />
                       <div className="min-w-0">
@@ -1319,7 +1332,7 @@ export function StoriesRail() {
                           key={`${item.viewer.id}-${item.at}`}
                           className="flex items-center gap-3 rounded-2xl px-3 py-3 hover:bg-white/5"
                         >
-                          <Avatar src={item.viewer.avatar_url} name={item.viewer.name} className="size-11" />
+                          <Avatar src={item.viewer.avatar_url} name={item.viewer.name} online={item.viewer.online} className="size-11" />
                           <div className="min-w-0 flex-1">
                             <p className="truncate text-sm font-bold">{item.viewer.name ?? "Profile"}</p>
                             <p className="text-[11px] text-white/45">
@@ -1406,6 +1419,7 @@ export function StoriesRail() {
                               <Avatar
                                 src={spotlight.provider.avatar_url}
                                 name={spotlight.provider.business_name}
+                                online={spotlight.provider.online}
                                 className="size-11"
                               />
                               <div className="min-w-0">
