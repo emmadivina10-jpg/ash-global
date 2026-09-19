@@ -185,12 +185,19 @@ export function PostCard({
           total={post.like_count}
           breakdown={post.reaction_breakdown}
           disabled={!currentUserId}
-          onChange={(reaction) =>
+          onChange={(reaction) => {
+            trackEvent({
+              event_type: reaction ? "reaction" : "unlike",
+              surface: "feed",
+              target_type: "post",
+              target_id: post.id,
+              author_id: post.author_id,
+            });
             react.mutate(
               { postId: post.id, reaction },
               { onError: (error) => toast.error(error instanceof Error ? error.message : "Could not react.") },
-            )
-          }
+            );
+          }}
         />
         <Button variant="ghost" size="sm" onClick={() => (detail ? setCommentsOpen((v) => !v) : openPost())}>
           <MessageCircle className="size-4" aria-hidden />
