@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { usePost, useSocialFeed, type FeedPost } from "@/lib/social.queries";
-import { directory } from "@/lib/public-profiles";
+import { directory, type DirectoryProfile } from "@/lib/public-profiles";
 
 const db = supabase as unknown as { from: (table: string) => any };
 const VERIFICATION_BUCKET = "market-verification";
