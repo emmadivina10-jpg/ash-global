@@ -109,7 +109,7 @@ export function SpotlightComposer({
     }
   };
 
-  const displayName = provider && asBusiness ? provider.business_name : (identity?.full_name ?? "ASH");
+  const displayName = provider && asBusiness ? provider.business_name : (identity?.full_name ?? (fr ? "Profil" : "Profile"));
 
   return (
     <>

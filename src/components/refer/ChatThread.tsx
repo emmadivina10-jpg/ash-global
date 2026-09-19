@@ -88,7 +88,7 @@ export function ChatThread({
   isGroup?: boolean;
   /** Limit only unsolicited person-to-person introductions, never groups or commerce threads. */
   enforceFirstContactLimit?: boolean;
-  members?: { id: string; name: string; avatar_url: string | null }[];
+  members?: { id: string; name: string; avatar_url: string | null; online?: boolean }[];
   initialMessages?: ChatMessage[] | undefined;
 }) {
   const { t, lang } = useI18n();
@@ -426,6 +426,7 @@ export function ChatThread({
                       <Avatar
                         path={(isGroup ? memberById.get(m.sender_id)?.avatar_url : peerAvatar) ?? null}
                         name={(isGroup ? memberById.get(m.sender_id)?.name : peerName) ?? "Profile"}
+                        online={isGroup ? memberById.get(m.sender_id)?.online : undefined}
                         className={cn("size-7 text-[10px]", !endsRun && "invisible")}
                       />
                     ) : null}

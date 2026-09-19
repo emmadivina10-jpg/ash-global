@@ -141,7 +141,7 @@ function WalletPage() {
         open={statementOpen}
         onClose={() => setStatementOpen(false)}
         holder={{
-          name: profile?.full_name ?? "ASH member",
+          name: profile?.full_name ?? (lang === "fr" ? "Profil" : "Profile"),
           email: profile?.email,
           phone: profile?.phone,
           reference: profile?.referral_code,

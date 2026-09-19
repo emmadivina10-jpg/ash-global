@@ -7,6 +7,24 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const MAX_BYTES = 5 * 1024 * 1024;
+const avatarUrlCache = new Map<string, { url: string; expiresAt: number }>();
+const pendingAvatarUrls = new Map<string, Promise<string | null>>();
+
+async function resolveAvatarUrl(path: string) {
+  if (path.startsWith("http")) return path;
+  const cached = avatarUrlCache.get(path);
+  if (cached && cached.expiresAt > Date.now()) return cached.url;
+  const pending = pendingAvatarUrls.get(path);
+  if (pending) return pending;
+  const request = supabase.storage.from("avatars").createSignedUrl(path, 60 * 60 * 24).then(({ data }) => {
+    const url = data?.signedUrl ?? null;
+    if (url) avatarUrlCache.set(path, { url, expiresAt: Date.now() + 23 * 60 * 60 * 1000 });
+    pendingAvatarUrls.delete(path);
+    return url;
+  });
+  pendingAvatarUrls.set(path, request);
+  return request;
+}
 
 /** Resolves a stored avatar path to a temporary viewable URL. */
 export function useAvatarUrl(path: string | null | undefined) {
@@ -18,16 +36,9 @@ export function useAvatarUrl(path: string | null | undefined) {
       setUrl(null);
       return;
     }
-    if (path.startsWith("http")) {
-      setUrl(path);
-      return;
-    }
-    void supabase.storage
-      .from("avatars")
-      .createSignedUrl(path, 60 * 60 * 24)
-      .then(({ data }) => {
-        if (!cancelled) setUrl(data?.signedUrl ?? null);
-      });
+    void resolveAvatarUrl(path).then((next) => {
+      if (!cancelled) setUrl(next);
+    });
     return () => {
       cancelled = true;
     };
@@ -67,7 +78,7 @@ export function Avatar({
     >
       <span className={cn("relative z-[1] grid size-full place-items-center overflow-hidden rounded-full bg-muted", hasUpdate && "ring-2 ring-background")}>
         {url ? (
-          <img src={url} alt={name ?? "Profile picture"} className="size-full object-cover" loading="lazy" />
+          <img src={url} alt={name ?? "Profile picture"} className="size-full object-cover" loading="lazy" decoding="async" />
         ) : initials ? (
           initials
         ) : (

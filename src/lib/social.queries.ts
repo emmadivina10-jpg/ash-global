@@ -1447,6 +1447,7 @@ export type ChatGroup = {
   conversation_id: string | null;
   /** True when the group owner holds an active ASH Verified badge. */
   owner_verified: boolean;
+  avatar_path: string | null;
 };
 
 export function useGroups() {
@@ -1455,9 +1456,9 @@ export function useGroups() {
     queryFn: async (): Promise<ChatGroup[]> => {
       const { data } = await supabase
         .from("chat_groups")
-        .select("id, name, owner_id, created_at")
+        .select("id, name, owner_id, created_at, avatar_path")
         .order("created_at", { ascending: false });
-      const groups = (data ?? []) as { id: string; name: string; owner_id: string; created_at: string }[];
+      const groups = (data ?? []) as { id: string; name: string; owner_id: string; created_at: string; avatar_path: string | null }[];
       if (groups.length === 0) return [];
       const { data: memberRows } = await supabase
         .from("group_members")
@@ -1563,6 +1564,31 @@ export function useAddGroupMembers() {
       const { error } = await supabase
         .from("group_members")
         .insert(memberIds.map((user_id) => ({ group_id: groupId, user_id, added_by: me })));
+      if (error) throw error;
+    },
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["chat-groups"] }),
+  });
+}
+
+export function useRemoveGroupMember() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ groupId, userId }: { groupId: string; userId: string }) => {
+      const { error } = await supabase.from("group_members").delete().eq("group_id", groupId).eq("user_id", userId);
+      if (error) throw error;
+    },
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["chat-groups"] }),
+  });
+}
+
+export function useUpdateGroup() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ groupId, name, avatarPath }: { groupId: string; name?: string; avatarPath?: string | null }) => {
+      const patch: { name?: string; avatar_path?: string | null } = {};
+      if (name !== undefined) patch.name = name.trim().slice(0, 60);
+      if (avatarPath !== undefined) patch.avatar_path = avatarPath;
+      const { error } = await supabase.from("chat_groups").update(patch).eq("id", groupId);
       if (error) throw error;
     },
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["chat-groups"] }),

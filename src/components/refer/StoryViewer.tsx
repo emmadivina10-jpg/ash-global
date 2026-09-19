@@ -139,7 +139,7 @@ export function StoryViewer({
       </div>
 
       <div className="flex items-center gap-3 px-4 py-3">
-        <Avatar path={group.author.avatar_url} name={group.author.name} className="size-9" />
+        <Avatar path={group.author.avatar_url} name={group.author.name} online={group.author.online} hasUpdate={!mine} className="size-9" />
         <p className="min-w-0 flex-1 truncate text-sm font-semibold text-white">{group.author.name}</p>
         {mine ? (
           <button
@@ -194,7 +194,7 @@ export function StoryViewer({
           setPaused(false);
         }}
       >
-        <img src={story.url} alt={story.caption || "Story"} className="size-full object-contain" />
+        <img src={story.url} alt={story.caption || "Story"} className="size-full object-contain" decoding="async" />
         {story.caption ? (
           <p className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-5 pb-6 pt-10 text-center text-sm text-white">
             {story.caption}
@@ -236,7 +236,7 @@ export function StoryViewer({
             <ul className="space-y-2">
               {(viewers ?? []).map((entry) => (
                 <li key={entry.viewer.id} className="flex items-center gap-3">
-                  <Avatar path={entry.viewer.avatar_url} name={entry.viewer.name} className="size-9" />
+                  <Avatar path={entry.viewer.avatar_url} name={entry.viewer.name} online={entry.viewer.online} hasUpdate={entry.viewer.has_update} className="size-9" />
                   <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
                     {entry.viewer.name}
                   </span>
