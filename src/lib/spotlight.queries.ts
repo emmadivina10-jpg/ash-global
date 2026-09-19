@@ -228,7 +228,15 @@ export function useSetSpotlightReaction() {
       const { error } = await supabase.rpc("set_spotlight_reaction", { _spotlight_id: spotlightId, _reaction_type: reaction ?? "" });
       if (error) throw error;
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["spotlight-feed"] }),
+    onSuccess: (_result, variables) => {
+      trackEvent({
+        event_type: variables.reaction ? "spotlight_reaction" : "unlike",
+        surface: "spotlight",
+        target_type: "spotlight",
+        target_id: variables.spotlightId,
+      });
+      void queryClient.invalidateQueries({ queryKey: ["spotlight-feed"] });
+    },
   });
 }
 
