@@ -13,7 +13,6 @@ import {
   Mic,
   MicOff,
   Play,
-  Plus,
   Sparkles,
   Trash2,
   X,
