@@ -48,28 +48,12 @@ export const decideFxInstructorApplication = createServerFn({ method: "POST" })
       .maybeSingle();
     if (readError || !application) throw readError ?? new Error("APPLICATION_NOT_FOUND");
 
-    const now = new Date().toISOString();
-    const { error: updateError } = await db.from("fx_instructor_applications").update({
-      status: data.status,
-      admin_note: data.note || null,
-      reviewed_at: now,
-    }).eq("id", application.id);
-    if (updateError) throw updateError;
-
-    if (data.status === "APPROVED") {
-      const { error: profileError } = await db.from("fx_instructor_profiles").upsert({
-        user_id: application.user_id,
-        application_id: application.id,
-        about: application.profile_summary,
-        experience_summary: application.trading_experience,
-        specialties: application.expertise,
-        approved_at: now,
-        is_active: true,
-      }, { onConflict: "application_id" });
-      if (profileError) throw profileError;
-    } else if (application.status === "APPROVED") {
-      await db.from("fx_instructor_profiles").update({ is_active: false }).eq("application_id", application.id);
-    }
+    const { error: decisionError } = await db.rpc("review_fx_instructor_application", {
+      _application_id: application.id,
+      _status: data.status,
+      _note: data.note || null,
+    });
+    if (decisionError) throw decisionError;
 
     await db.from("admin_audit_log").insert({
       actor: actor.name,
