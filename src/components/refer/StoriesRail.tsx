@@ -13,6 +13,7 @@ import {
   Mic,
   MicOff,
   Play,
+  Plus,
   Sparkles,
   Trash2,
   X,
@@ -35,7 +36,7 @@ import {
   uploadResumableStorageFile,
 } from "@/lib/social.queries";
 import { Button } from "@/components/ui/button";
-import { Avatar as ProfileAvatar } from "@/components/refer/AvatarUpload";
+import { Avatar as ProfileAvatar, useAvatarUrl } from "@/components/refer/AvatarUpload";
 
 const SOCIAL_BUCKET = "spotlight";
 const IMAGE_MAX_BYTES = 12 * 1024 * 1024;
@@ -162,6 +163,17 @@ function Avatar({
   online?: boolean | undefined;
 }) {
   return <ProfileAvatar path={src} name={name} online={online} className={className} />;
+}
+
+function CreateCardPhoto({ path, name }: { path: string | null | undefined; name?: string | null | undefined }) {
+  const url = useAvatarUrl(path);
+  return url ? (
+    <img src={url} alt={name ?? "Profile picture"} className="size-full object-cover" loading="lazy" decoding="async" />
+  ) : (
+    <div className="grid size-full place-items-center bg-primary/10">
+      <span className="text-4xl font-black text-primary">{initials(name)}</span>
+    </div>
+  );
 }
 
 function spotlightMediaPath(value: unknown): string | null {
@@ -789,21 +801,19 @@ export function StoriesRail() {
             className="relative h-52 w-[120px] shrink-0 overflow-visible rounded-[22px] border border-border bg-card text-left shadow-sm transition-transform active:scale-[0.98]"
             aria-label="Create Story or Spotlight"
           >
-            <div className="absolute inset-x-0 top-0 z-0 h-[70%] overflow-hidden rounded-t-[22px] bg-gradient-to-br from-[#D4AF37] via-[#e9d8ff] to-[#4B0082]">
+            <div className="absolute inset-x-0 top-0 z-0 h-[70%] overflow-hidden rounded-t-[22px] bg-muted">
               {profile?.avatar_url ? (
-                <Avatar
-                  src={profile.avatar_url}
-                  name={profile.full_name}
-                  className="!size-full !rounded-none !border-0 !bg-transparent"
-                />
-
+                <CreateCardPhoto path={profile.avatar_url} name={profile.full_name} />
               ) : (
-                <div className="grid size-full place-items-center bg-gradient-to-br from-[#D4AF37] via-[#a77f1b] to-[#4B0082]">
-                  <span className="text-4xl font-black text-white">{initials(profile?.full_name)}</span>
+                <div className="grid size-full place-items-center bg-primary/10">
+                  <span className="text-4xl font-black text-primary">{initials(profile?.full_name)}</span>
                 </div>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/5" />
             </div>
+            <span className="absolute left-1/2 top-[64%] z-20 grid size-10 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-primary text-primary-foreground shadow-md ring-4 ring-card">
+              <Plus className="size-6" strokeWidth={2.75} aria-hidden />
+            </span>
             <span className="absolute inset-x-0 bottom-0 z-10 h-[36%] rounded-b-[22px] bg-card" />
             <span className="absolute inset-x-3 bottom-4 z-10 text-center">
               <span className="block text-[15px] font-black text-foreground">Create</span>
