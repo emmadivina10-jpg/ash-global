@@ -5,6 +5,7 @@ import { BadgeCheck, CalendarCheck, Clock, MapPin, MessageCircle, Play, ShieldCh
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { contactVendor } from "@/lib/contact-vendor";
+import { trackEvent } from "@/lib/activity";
 import {
   openConversation,
   usePortfolio,
@@ -109,6 +110,20 @@ function ProviderPage() {
 
   const [detail, setDetail] = useState<ServiceRow | null>(null);
   const [booking, setBooking] = useState<ServiceRow | null>(null);
+
+  // Activity intelligence: a storefront visit is a strong interest signal.
+  useEffect(() => {
+    if (!provider) return;
+    const categories = (provider as { categories?: string[] | null }).categories;
+    trackEvent({
+      event_type: "provider_view",
+      surface: "services",
+      target_type: "provider",
+      target_id: provider.id,
+      author_id: provider.user_id ?? null,
+      category: categories && categories.length > 0 ? (categories[0] ?? null) : null,
+    });
+  }, [provider]);
 
   const activeServices = useMemo(
     () => ((services ?? []) as ServiceRow[]).filter((s) => s.is_active),

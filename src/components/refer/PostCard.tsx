@@ -25,6 +25,7 @@ import { ReactionButton, ReactionSummary } from "./ReactionButton";
 import { SocialText } from "./SocialText";
 import { SocialSuggestions } from "./SocialSuggestions";
 import { ExpandableSocialText } from "./ExpandableSocialText";
+import { trackEvent, useImpression } from "@/lib/activity";
 
 function timeAgo(iso: string, fr: boolean) {
   const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
@@ -49,8 +50,28 @@ export function PostCard({
   const fr = lang === "fr";
   const navigate = useNavigate();
   const [commentsOpen, setCommentsOpen] = useState(detail);
+  // Activity intelligence: impression + viewing time while the card is on screen.
+  const impressionRef = useImpression(
+    {
+      event_type: "impression",
+      surface: "feed",
+      target_type: "post",
+      target_id: post.id,
+      author_id: post.author_id,
+    },
+    !detail,
+  );
   const openPost = () => {
-    if (!detail) void navigate({ to: "/post/$postId", params: { postId: post.id } });
+    if (!detail) {
+      trackEvent({
+        event_type: "click",
+        surface: "feed",
+        target_type: "post",
+        target_id: post.id,
+        author_id: post.author_id,
+      });
+      void navigate({ to: "/post/$postId", params: { postId: post.id } });
+    }
   };
   const react = useSetPostReaction();
   const repost = useToggleRepost();
@@ -61,6 +82,7 @@ export function PostCard({
 
   return (
     <article
+      ref={impressionRef as React.RefObject<HTMLElement>}
       className={cn(
         "tile overflow-hidden",
         !detail &&
@@ -163,12 +185,19 @@ export function PostCard({
           total={post.like_count}
           breakdown={post.reaction_breakdown}
           disabled={!currentUserId}
-          onChange={(reaction) =>
+          onChange={(reaction) => {
+            trackEvent({
+              event_type: reaction ? "reaction" : "unlike",
+              surface: "feed",
+              target_type: "post",
+              target_id: post.id,
+              author_id: post.author_id,
+            });
             react.mutate(
               { postId: post.id, reaction },
               { onError: (error) => toast.error(error instanceof Error ? error.message : "Could not react.") },
-            )
-          }
+            );
+          }}
         />
         <Button variant="ghost" size="sm" onClick={() => (detail ? setCommentsOpen((v) => !v) : openPost())}>
           <MessageCircle className="size-4" aria-hidden />
@@ -180,7 +209,14 @@ export function PostCard({
           disabled={repost.isPending}
           aria-pressed={post.reposted}
           className={cn(post.reposted && "text-primary")}
-          onClick={() =>
+          onClick={() => {
+            trackEvent({
+              event_type: "repost",
+              surface: "feed",
+              target_type: "post",
+              target_id: post.id,
+              author_id: post.author_id,
+            });
             repost.mutate(
               { postId: post.id, reposted: post.reposted },
               {
@@ -190,8 +226,8 @@ export function PostCard({
                   ),
                 onError: (error) => toast.error(error instanceof Error ? error.message : "Could not repost."),
               },
-            )
-          }
+            );
+          }}
         >
           <Repeat2 className="size-4" aria-hidden />
           {post.repost_count}

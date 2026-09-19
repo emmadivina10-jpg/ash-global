@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronLeft, Hash, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { trackEvent } from "@/lib/activity";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useHashtagFeed } from "@/lib/social.queries";
@@ -22,6 +23,10 @@ function HashtagPage() {
   const [sort, setSort] = useState<"recent" | "top">("recent");
   const [page, setPage] = useState(0);
   const { data, isLoading } = useHashtagFeed(tag, page, sort);
+  // Activity intelligence: opening a hashtag is a clear topic interest signal.
+  useEffect(() => {
+    trackEvent({ event_type: "hashtag_view", surface: "hashtag", target_type: "hashtag", hashtags: [tag] });
+  }, [tag]);
   return (
     <div className="mx-auto w-full max-w-xl space-y-4">
       <header className="flex items-center gap-3">

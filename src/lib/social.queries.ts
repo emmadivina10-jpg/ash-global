@@ -8,6 +8,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { verifyMediaFiles } from "./media-safety";
 import { directory } from "@/lib/public-profiles";
+import { trackEvent } from "./activity";
 
 export const SOCIAL_BUCKET = "spotlight";
 /** Largest single photo accepted by a story or a feed post. */
@@ -634,10 +635,17 @@ export function useCreateStory() {
 }
 
 /** Records that the signed-in member watched a story (ignores repeats). */
-export async function recordStoryView(storyId: string) {
+export async function recordStoryView(storyId: string, authorId?: string | null) {
   const userId = await currentUserId();
   if (!userId) return;
   await supabase.from("story_views").insert({ story_id: storyId, viewer_id: userId });
+  trackEvent({
+    event_type: "story_view",
+    surface: "stories",
+    target_type: "story",
+    target_id: storyId,
+    ...(authorId ? { author_id: authorId } : {}),
+  });
 }
 
 export function useStoryViewers(storyId: string | null) {
