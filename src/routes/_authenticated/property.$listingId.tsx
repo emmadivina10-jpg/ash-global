@@ -38,6 +38,7 @@ import { formatDateTime } from "@/lib/format";
 import { useUser } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { trackEvent } from "@/lib/activity";
 
 export const Route = createFileRoute("/_authenticated/property/$listingId")({
   head: () => ({
@@ -76,6 +77,12 @@ function PropertyDetail() {
 
   useEffect(() => {
     void supabase.rpc("record_property_view", { _listing_id: listingId });
+    trackEvent({
+      event_type: "listing_view",
+      surface: "property",
+      target_type: "property",
+      target_id: listingId,
+    });
   }, [listingId]);
 
   if (isLoading) return <LoadingState label={fr ? "Chargement du bien…" : "Loading property…"} />;
