@@ -68,7 +68,7 @@ function ReportsPage() {
         <div>
           <h2 className="font-display text-xl font-extrabold text-foreground">Safety reports</h2>
           <p className="text-sm text-muted-foreground">
-            User reports of objectionable content. Store policy requires action within 24 hours.
+            User reports of objectionable content for Trust & Safety review.
           </p>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2 text-xs text-muted-foreground">

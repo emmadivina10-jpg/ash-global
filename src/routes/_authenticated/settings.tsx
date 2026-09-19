@@ -305,7 +305,7 @@ function SettingsPage() {
         <p className="text-sm leading-relaxed text-muted-foreground">
           {fr
             ? "Ajoutez votre position pour voir en priorité les prestataires, services et opportunités près de vous. Elle reste sur cet appareil."
-            : "Add your location so nearby providers, services and opportunities show first. It stays on this device."}
+            : "Add your location for nearby results. Precise coordinates stay on this device; your city can support recommendations only when you enable that setting."}
         </p>
         {location ? (
           <p className="mt-3 text-sm font-semibold text-foreground">
@@ -356,6 +356,18 @@ function SettingsPage() {
           </Button>
           <Button asChild variant="outline">
             <Link to="/terms">Terms of Service</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/community-guidelines">Community Guidelines</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/marketplace-policy">Marketplace Policy</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/referral-wallet-terms">Referral &amp; Wallet Terms</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/account-deletion">Account &amp; Data Deletion</Link>
           </Button>
           <Button asChild variant="outline">
             <Link to="/contact">Contact</Link>

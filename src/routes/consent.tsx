@@ -7,8 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useI18n } from "@/lib/i18n";
 
-const SUPPORT_URL = "https://ash-glo-support.base44.app";
-
 export const Route = createFileRoute("/consent")({
   ssr: false,
   head: () => ({
@@ -21,6 +19,8 @@ export const Route = createFileRoute("/consent")({
       },
       { property: "og:title", content: "Agree to the ASH Glo terms" },
       { property: "og:description", content: "Accept the ASH Glo Terms of Service and Privacy Policy." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: ConsentPage,
@@ -84,8 +84,8 @@ function ConsentPage() {
           <ShieldCheck className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
           <p className="text-sm text-muted-foreground">
             {fr
-              ? "Vos données restent privées. Les paiements Mobile Money sont traités par nos partenaires sécurisés — ASH ne voit jamais vos identifiants de paiement."
-              : "Your data stays private. Mobile Money payments are handled by our secure partners — ASH never sees your payment credentials."}
+              ? "Vous devez avoir au moins 13 ans. Consultez nos règles sur la confidentialité, la sécurité, les paiements et la personnalisation avant de continuer."
+              : "You must be at least 13. Review our privacy, safety, payment and personalization rules before continuing."}
           </p>
         </div>
 
@@ -121,9 +121,9 @@ function ConsentPage() {
         </Button>
 
         <p className="text-center text-xs text-muted-foreground">
-          <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" className="hover:underline">
+          <Link to="/support" className="hover:underline">
             {fr ? "Aide et support" : "Help & Support"}
-          </a>
+          </Link>
         </p>
       </div>
     </AuthLayout>

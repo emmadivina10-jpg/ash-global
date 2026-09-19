@@ -8,7 +8,7 @@ const LINKS = [
   { to: "/support", label: "Support" },
   { to: "/privacy", label: "Privacy Policy" },
   { to: "/terms", label: "Terms" },
-  { to: "/contact", label: "Contact" },
+  { to: "/community-guidelines", label: "Community" },
 ] as const;
 
 export function PublicInfoShell({
@@ -65,7 +65,7 @@ export function PublicInfoShell({
 
       <footer className="border-t border-border bg-card/40">
         <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-8 text-xs text-muted-foreground sm:px-6 md:flex-row md:items-center md:justify-between">
-          <p>© {new Date().getFullYear()} ASH Global Technologies. ASH is present in 175 countries.</p>
+          <p>© {new Date().getFullYear()} ASH Global Technologies. ASH Glo is the product and platform.</p>
           <nav className="flex flex-wrap gap-x-4 gap-y-2" aria-label="Footer information pages">
             {LINKS.map((item) => (
               <Link key={item.to} to={item.to} className="font-semibold hover:text-foreground">
@@ -75,6 +75,7 @@ export function PublicInfoShell({
             <Link to="/account-deletion" className="inline-flex items-center gap-1 font-semibold hover:text-foreground">
               Delete account <ExternalLink className="size-3" aria-hidden />
             </Link>
+            <Link to="/contact" className="font-semibold hover:text-foreground">Contact</Link>
           </nav>
         </div>
       </footer>

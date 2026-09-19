@@ -98,7 +98,7 @@ export function ReportDialog({
     toast.success(
       fr
         ? "Merci. L'équipe ASH examine chaque signalement sous 24 h."
-        : "Thank you. The ASH team reviews every report within 24 hours.",
+        : "Thank you. Your report has been sent to the ASH Trust & Safety team.",
     );
   }
 
@@ -149,7 +149,7 @@ export function ReportDialog({
               : ""}
             {fr
               ? "ASH applique une tolérance zéro pour les contenus abusifs. Chaque signalement est examiné sous 24 heures."
-              : "ASH has zero tolerance for objectionable content. Every report is reviewed within 24 hours."}
+              : "ASH has zero tolerance for objectionable content. Reports are reviewed by the Trust & Safety team."}
           </DialogDescription>
         </DialogHeader>
 

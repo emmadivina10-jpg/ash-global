@@ -364,7 +364,7 @@ const EN = {
 "settings.privacy.1":
 "We collect only what the platform needs: your name, email, phone number, referral relationships, payment references and any content you publish as a provider.",
 "settings.privacy.2":
-"Payment details are handled by our licensed payment partner. We never store your mobile money PIN or full card data.",
+"Supported payments are sent to the provider shown in the payment flow. We never store your Mobile Money PIN or full card credentials.",
 "settings.privacy.3":
 "Your data is protected by row-level security: you can only read your own wallet, transactions and messages. Providers only see bookings and chats that involve them.",
 "settings.privacy.4":
@@ -378,7 +378,7 @@ const EN = {
 "settings.terms.3": "Providers are responsible for the services they deliver to clients.",
 "settings.support": "Support",
 "settings.support.copy":
-"Questions about payments, bookings or your account? Ask the ASH Assistant in the app, or send our team a message and we will reply by email within 24 hours.",
+"Questions about payments, bookings or your account? Ask the ASH Assistant in the app, or send our team a message and keep your reference for follow-up.",
 "settings.support.cta": "Contact support",
 "settings.danger": "Delete account",
 "settings.delete.copy":

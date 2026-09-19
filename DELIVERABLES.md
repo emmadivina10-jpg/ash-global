@@ -13,7 +13,7 @@ A complete inventory of what has been built. See [DOCS-INDEX.md](./DOCS-INDEX.md
 | Bookings | `/bookings` | Full lifecycle with 24h pay-after-acceptance window |
 | Messages | `/messages` | Order-centric inbox, realtime + polling fallback |
 | Earnings | `/dashboard`, `/network` | 3-level referral ledger, collapsible network tree |
-| Wallet | `/wallet`, `/transactions`, `/withdraw` | Balances, statements, MoMo and Stripe bank payouts |
+| Wallet | `/wallet`, `/transactions`, `/withdraw` | Balances, statements and supported Mobile Money withdrawals |
 | Provider Studio | `/studio` | Services, portfolio uploads, slots, storefront, payment links |
 | Storefront / pay links | `/s/$slug`, `/pay/$code` | Public, rate-limited |
 | Settings | `/settings` | Privacy summary, account deletion request |
@@ -45,8 +45,8 @@ verification, bookings, withdrawals review, payments, referral ledger, deletion 
 ## 5. Payments
 
 - TchokoPay Mobile Money (MTN MoMo, Orange Money) for Cameroon.
-- Stripe for international card payments; Stripe Connect for bank payouts.
-- 1% platform commission on paid bookings (2% in high-fee markets).
+- TchokoPay Mobile Money for supported payment and withdrawal flows.
+- 1% platform commission on paid bookings.
 
 ## 6. Native app (Capacitor)
 

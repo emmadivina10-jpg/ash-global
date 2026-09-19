@@ -152,6 +152,18 @@ function MenuPage() {
         </a>
       ) : null}
 
+      <section className="border-b border-border pb-4">
+        <h2 className="mb-2 text-base font-bold text-foreground">{fr ? "Informations légales" : "Legal & privacy"}</h2>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          <Link to="/privacy" className="rounded-lg border border-border bg-card px-3 py-3 text-sm font-semibold text-foreground">{fr ? "Confidentialité" : "Privacy Policy"}</Link>
+          <Link to="/terms" className="rounded-lg border border-border bg-card px-3 py-3 text-sm font-semibold text-foreground">{fr ? "Conditions" : "Terms of Service"}</Link>
+          <Link to="/community-guidelines" className="rounded-lg border border-border bg-card px-3 py-3 text-sm font-semibold text-foreground">{fr ? "Règles de la communauté" : "Community Guidelines"}</Link>
+          <Link to="/marketplace-policy" className="rounded-lg border border-border bg-card px-3 py-3 text-sm font-semibold text-foreground">{fr ? "Réservations et remboursements" : "Bookings & refunds"}</Link>
+          <Link to="/referral-wallet-terms" className="rounded-lg border border-border bg-card px-3 py-3 text-sm font-semibold text-foreground">{fr ? "Parrainage et portefeuille" : "Referral & wallet"}</Link>
+          <Link to="/account-deletion" className="rounded-lg border border-border bg-card px-3 py-3 text-sm font-semibold text-foreground">{fr ? "Suppression du compte" : "Account deletion"}</Link>
+        </div>
+      </section>
+
       <div className="grid grid-cols-2 gap-2 pb-2">
         <Link to="/settings" className="flex items-center justify-center gap-2 rounded-lg bg-muted px-4 py-3 text-sm font-bold text-foreground">
           <Settings className="size-4" aria-hidden /> {fr ? "Paramètres" : "Settings"}

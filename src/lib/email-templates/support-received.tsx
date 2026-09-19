@@ -20,7 +20,7 @@ const Email = ({ name, subject, message, ticketRef }: Props) => (
         <Text style={text}>{name ? `Hi ${name},` : 'Hi there,'}</Text>
         <Text style={text}>
           Thanks for contacting ASH Glo support. Our team reviews requests in the order they arrive
-          and usually replies within 24 hours.
+          and will reply using the contact information you provided.
         </Text>
         <Hr style={hr} />
         <Text style={muted}>Subject</Text>

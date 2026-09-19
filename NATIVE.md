@@ -124,8 +124,11 @@ Full listing copy, review notes and privacy answers live in
 
 1. **Legal URLs** — privacy https://ashglogroup.company/privacy, terms
    https://ashglogroup.company/terms, account deletion
-   https://ashglogroup.company/account-deletion, support
-   https://ashglogroup.company/support. All four are live public routes.
+   https://ashglogroup.company/account-deletion, community guidelines
+   https://ashglogroup.company/community-guidelines, marketplace policy
+   https://ashglogroup.company/marketplace-policy, referral and wallet terms
+   https://ashglogroup.company/referral-wallet-terms, and support
+   https://ashglogroup.company/support. All are live public routes.
 2. **iOS purpose strings** — paste `native/ios-info-plist-additions.xml` into
    `ios/App/App/Info.plist`. Without them iOS terminates the app when a user taps
    a portfolio upload field (automatic rejection, Guideline 5.1.1).
@@ -134,12 +137,11 @@ Full listing copy, review notes and privacy answers live in
 4. **Target SDK 35+**, 64-bit AAB, and Play App Signing enabled.
 5. **User-generated content controls** (Apple 1.2 / Play UGC policy) are shipped:
    zero-tolerance clause in `/terms` §3, in-app report flag on provider profiles,
-   reviews and chat, user blocking, and the `/console/reports` moderation queue
-   with a 24-hour SLA. Do not remove them.
+   reviews and chat, user blocking, and the `/console/reports` moderation queue.
 6. **Account deletion in-app** — More → Settings → Delete account (Apple 5.1.1(v)).
 7. **Sign in with Apple** ships alongside Google sign-in (Apple 4.8).
-8. **Payments** — ASH Glo sells real-world services, so mobile money and cards are
-   allowed and in-app purchase is not required. Never add digital-only unlocks
+8. **Payments** — ASH Glo sells real-world services, so supported external payment
+   methods are allowed and in-app purchase is not required. Never add digital-only unlocks
    without adding IAP first.
 9. **Demo account** — create a pre-activated reviewer account with a published
    storefront and put the credentials in the App Store Connect review notes and

@@ -65,7 +65,7 @@ export const template = {
   previewData: {
     name: 'Divine',
     subject: 'Withdrawal is pending',
-    reply: 'Thanks for reaching out.\nYour withdrawal was approved and lands within 24 hours.',
+    reply: 'Thanks for reaching out.\nYour withdrawal was approved and is being processed by the supported payment provider.',
     original: 'My withdrawal has been pending since yesterday.',
     ticketRef: 'A1B2C3D4',
   },

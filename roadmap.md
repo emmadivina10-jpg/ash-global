@@ -66,3 +66,13 @@
 - [x] Allow one optional job image and professional job-referenced messaging
 - [x] Shorten network level labels to L1/L2/L3 and show member photos and names
 - [x] Make Professional Studio availability and publish actions publish the profile
+
+## Canonical legal and privacy framework
+- [x] Verify current product, data, payment, AI, moderation, personalization, and deletion behavior
+- [x] Rewrite Terms of Service and Privacy Policy with confirmed owner decisions
+- [x] Add Community Guidelines; Marketplace, Services, Booking & Refund Policy; Referral & Wallet Terms
+- [x] Rewrite Account & Data Deletion and align Support & Contact
+- [x] Update all legal links, consent, settings, and submission records
+- [x] Remove conflicting ages, retention terms, support URLs, entity wording, and unverified geography
+- [ ] Verify every policy page, route, factual statement, and production build
+- [ ] Deliver complete final text of all seven documents

@@ -71,7 +71,7 @@ export const OUTREACH_SCRIPTS: OutreachScript[] = [
     group: "Trust",
     subject: { en: "One more step to get verified", fr: "Une dernière étape pour être vérifié" },
     body: {
-      en: "Hi {{name}},\n\nWe started reviewing {{provider}} for the ASH verified badge. To finish, please add a clear profile photo, at least three portfolio pictures and a short description of your services.\n\nSend them over and we will verify you within 24 hours.\n\nASH Glo Trust & Verification",
+      en: "Hi {{name}},\n\nWe started reviewing {{provider}} for the ASH verified badge. To finish, please add a clear profile photo, at least three portfolio pictures and a short description of your services.\n\nSend them over and our Trust & Verification team will continue the review.\n\nASH Glo Trust & Verification",
       fr: "Bonjour {{name}},\n\nNous avons commencé la vérification de {{provider}}. Pour finaliser, ajoutez une photo de profil nette, au moins trois photos de portfolio et une courte description de vos services.\n\nEnvoyez-les et nous vous vérifions sous 24 heures.\n\nÉquipe Confiance ASH Glo",
     },
   },

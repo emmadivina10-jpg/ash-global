@@ -24,7 +24,7 @@ function buildSchema(t: (k: TKey) => string) {
         .string()
         .trim()
         .transform(normalizePhone)
-        // ASH is live in 175 countries, so any plausible international number is fine.
+        // Accept plausible international numbers for supported and future regions.
         .refine((value) => isValidPhone(value), t("auth.err.phone")),
       password: z.string().min(8, t("auth.err.passwordMin")).max(72),
       confirmPassword: z.string(),
@@ -260,6 +260,12 @@ function RegisterPage() {
         </Button>
         <p className="text-center text-xs text-muted-foreground">
           {t("auth.register.activationNote")}
+        </p>
+        <p className="text-center text-xs leading-5 text-muted-foreground">
+          By creating an account, you confirm you are at least 13 and agree to the{" "}
+          <Link to="/terms" className="font-semibold text-primary hover:underline">Terms of Service</Link>,{" "}
+          <Link to="/privacy" className="font-semibold text-primary hover:underline">Privacy Policy</Link> and{" "}
+          <Link to="/community-guidelines" className="font-semibold text-primary hover:underline">Community Guidelines</Link>.
         </p>
       </form>
 
