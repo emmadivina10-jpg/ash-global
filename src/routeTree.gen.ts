@@ -57,6 +57,7 @@ import { Route as ConsoleContentRouteImport } from './routes/console.content'
 import { Route as ConsoleDeletionsRouteImport } from './routes/console.deletions'
 import { Route as ConsoleExpansionRouteImport } from './routes/console.expansion'
 import { Route as ConsoleGrowthRouteImport } from './routes/console.growth'
+import { Route as ConsoleInstructorsRouteImport } from './routes/console.instructors'
 import { Route as ConsoleLedgerRouteImport } from './routes/console.ledger'
 import { Route as ConsoleMarketplaceRouteImport } from './routes/console.marketplace'
 import { Route as ConsoleMerchantRouteImport } from './routes/console.merchant'
@@ -343,6 +344,11 @@ const ConsoleExpansionRoute = ConsoleExpansionRouteImport.update({
 const ConsoleGrowthRoute = ConsoleGrowthRouteImport.update({
   id: '/growth',
   path: '/growth',
+  getParentRoute: () => ConsoleRoute,
+} as any)
+const ConsoleInstructorsRoute = ConsoleInstructorsRouteImport.update({
+  id: '/instructors',
+  path: '/instructors',
   getParentRoute: () => ConsoleRoute,
 } as any)
 const ConsoleLedgerRoute = ConsoleLedgerRouteImport.update({
@@ -635,6 +641,7 @@ export interface FileRoutesByFullPath {
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/expansion': typeof ConsoleExpansionRoute
   '/console/growth': typeof ConsoleGrowthRoute
+  '/console/instructors': typeof ConsoleInstructorsRoute
   '/console/ledger': typeof ConsoleLedgerRoute
   '/console/marketplace': typeof ConsoleMarketplaceRoute
   '/console/merchant': typeof ConsoleMerchantRoute
@@ -728,6 +735,7 @@ export interface FileRoutesByTo {
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/expansion': typeof ConsoleExpansionRoute
   '/console/growth': typeof ConsoleGrowthRoute
+  '/console/instructors': typeof ConsoleInstructorsRoute
   '/console/ledger': typeof ConsoleLedgerRoute
   '/console/marketplace': typeof ConsoleMarketplaceRoute
   '/console/merchant': typeof ConsoleMerchantRoute
@@ -824,6 +832,7 @@ export interface FileRoutesById {
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/expansion': typeof ConsoleExpansionRoute
   '/console/growth': typeof ConsoleGrowthRoute
+  '/console/instructors': typeof ConsoleInstructorsRoute
   '/console/ledger': typeof ConsoleLedgerRoute
   '/console/marketplace': typeof ConsoleMarketplaceRoute
   '/console/merchant': typeof ConsoleMerchantRoute
@@ -920,6 +929,7 @@ export interface FileRouteTypes {
     | '/console/deletions'
     | '/console/expansion'
     | '/console/growth'
+    | '/console/instructors'
     | '/console/ledger'
     | '/console/marketplace'
     | '/console/merchant'
@@ -1013,6 +1023,7 @@ export interface FileRouteTypes {
     | '/console/deletions'
     | '/console/expansion'
     | '/console/growth'
+    | '/console/instructors'
     | '/console/ledger'
     | '/console/marketplace'
     | '/console/merchant'
@@ -1108,6 +1119,7 @@ export interface FileRouteTypes {
     | '/console/deletions'
     | '/console/expansion'
     | '/console/growth'
+    | '/console/instructors'
     | '/console/ledger'
     | '/console/marketplace'
     | '/console/merchant'
@@ -1521,6 +1533,13 @@ declare module '@tanstack/react-router' {
       path: '/growth'
       fullPath: '/console/growth'
       preLoaderRoute: typeof ConsoleGrowthRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/instructors': {
+      id: '/console/instructors'
+      path: '/instructors'
+      fullPath: '/console/instructors'
+      preLoaderRoute: typeof ConsoleInstructorsRouteImport
       parentRoute: typeof ConsoleRoute
     }
     '/console/ledger': {
@@ -1939,6 +1958,7 @@ interface ConsoleRouteChildren {
   ConsoleDeletionsRoute: typeof ConsoleDeletionsRoute
   ConsoleExpansionRoute: typeof ConsoleExpansionRoute
   ConsoleGrowthRoute: typeof ConsoleGrowthRoute
+  ConsoleInstructorsRoute: typeof ConsoleInstructorsRoute
   ConsoleLedgerRoute: typeof ConsoleLedgerRoute
   ConsoleMarketplaceRoute: typeof ConsoleMarketplaceRoute
   ConsoleMerchantRoute: typeof ConsoleMerchantRoute
@@ -1968,6 +1988,7 @@ const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsoleDeletionsRoute: ConsoleDeletionsRoute,
   ConsoleExpansionRoute: ConsoleExpansionRoute,
   ConsoleGrowthRoute: ConsoleGrowthRoute,
+  ConsoleInstructorsRoute: ConsoleInstructorsRoute,
   ConsoleLedgerRoute: ConsoleLedgerRoute,
   ConsoleMarketplaceRoute: ConsoleMarketplaceRoute,
   ConsoleMerchantRoute: ConsoleMerchantRoute,
