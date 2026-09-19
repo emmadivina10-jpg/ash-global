@@ -1165,6 +1165,166 @@ export type Database = {
         }
         Relationships: []
       }
+      fx_instructor_applications: {
+        Row: {
+          admin_note: string | null
+          country: string
+          created_at: string
+          date_of_birth: string
+          declarations_accepted: boolean
+          display_name: string
+          expertise: string[]
+          government_id_path: string
+          government_id_type: string
+          id: string
+          kyc_provider: string | null
+          kyc_reference: string | null
+          kyc_status: string
+          legal_full_name: string
+          profile_summary: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          selfie_path: string
+          status: string
+          submitted_at: string
+          trading_background: string
+          trading_experience: string
+          updated_at: string
+          user_id: string
+          years_experience: number
+        }
+        Insert: {
+          admin_note?: string | null
+          country: string
+          created_at?: string
+          date_of_birth: string
+          declarations_accepted?: boolean
+          display_name: string
+          expertise?: string[]
+          government_id_path: string
+          government_id_type: string
+          id?: string
+          kyc_provider?: string | null
+          kyc_reference?: string | null
+          kyc_status?: string
+          legal_full_name: string
+          profile_summary: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          selfie_path: string
+          status?: string
+          submitted_at?: string
+          trading_background: string
+          trading_experience: string
+          updated_at?: string
+          user_id: string
+          years_experience: number
+        }
+        Update: {
+          admin_note?: string | null
+          country?: string
+          created_at?: string
+          date_of_birth?: string
+          declarations_accepted?: boolean
+          display_name?: string
+          expertise?: string[]
+          government_id_path?: string
+          government_id_type?: string
+          id?: string
+          kyc_provider?: string | null
+          kyc_reference?: string | null
+          kyc_status?: string
+          legal_full_name?: string
+          profile_summary?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          selfie_path?: string
+          status?: string
+          submitted_at?: string
+          trading_background?: string
+          trading_experience?: string
+          updated_at?: string
+          user_id?: string
+          years_experience?: number
+        }
+        Relationships: []
+      }
+      fx_instructor_follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          instructor_id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          instructor_id: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          instructor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fx_instructor_follows_instructor_id_fkey"
+            columns: ["instructor_id"]
+            isOneToOne: false
+            referencedRelation: "fx_instructor_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fx_instructor_profiles: {
+        Row: {
+          about: string
+          application_id: string
+          approved_at: string
+          created_at: string
+          experience_summary: string
+          follower_count: number
+          id: string
+          is_active: boolean
+          specialties: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          about?: string
+          application_id: string
+          approved_at: string
+          created_at?: string
+          experience_summary?: string
+          follower_count?: number
+          id?: string
+          is_active?: boolean
+          specialties?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          about?: string
+          application_id?: string
+          approved_at?: string
+          created_at?: string
+          experience_summary?: string
+          follower_count?: number
+          id?: string
+          is_active?: boolean
+          specialties?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fx_instructor_profiles_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: true
+            referencedRelation: "fx_instructor_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       group_members: {
         Row: {
           added_by: string | null
@@ -1498,6 +1658,105 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "staff_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      market_post_saves: {
+        Row: {
+          created_at: string
+          market_post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          market_post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          market_post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_post_saves_market_post_id_fkey"
+            columns: ["market_post_id"]
+            isOneToOne: false
+            referencedRelation: "market_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      market_posts: {
+        Row: {
+          author_id: string
+          content_type: string
+          created_at: string
+          educational_label: string
+          id: string
+          instructor_id: string
+          instrument: string | null
+          is_published: boolean
+          market_category: string
+          published_at: string
+          social_post_id: string
+          spotlight_post_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          content_type: string
+          created_at?: string
+          educational_label?: string
+          id?: string
+          instructor_id: string
+          instrument?: string | null
+          is_published?: boolean
+          market_category?: string
+          published_at?: string
+          social_post_id: string
+          spotlight_post_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          content_type?: string
+          created_at?: string
+          educational_label?: string
+          id?: string
+          instructor_id?: string
+          instrument?: string | null
+          is_published?: boolean
+          market_category?: string
+          published_at?: string
+          social_post_id?: string
+          spotlight_post_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_posts_instructor_id_fkey"
+            columns: ["instructor_id"]
+            isOneToOne: false
+            referencedRelation: "fx_instructor_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "market_posts_social_post_id_fkey"
+            columns: ["social_post_id"]
+            isOneToOne: true
+            referencedRelation: "social_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "market_posts_spotlight_post_id_fkey"
+            columns: ["spotlight_post_id"]
+            isOneToOne: true
+            referencedRelation: "spotlight_posts"
             referencedColumns: ["id"]
           },
         ]
