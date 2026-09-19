@@ -1321,6 +1321,12 @@ export function useAddComment() {
       if (error) throw error;
     },
     onSuccess: (_result, variables) => {
+      trackEvent({
+        event_type: variables.parentId ? "reply" : "comment",
+        surface: "feed",
+        target_type: "post",
+        target_id: variables.postId,
+      });
       void queryClient.invalidateQueries({ queryKey: ["post-comments", variables.postId] });
       void queryClient.invalidateQueries({ queryKey: ["social-feed"] });
     },
