@@ -257,13 +257,20 @@ export function useConversations() {
 
       // conversations.client_id points at auth.users, so the client profile is
       // fetched separately (PostgREST cannot embed across schemas).
-      const clientIds = [...new Set(rows.map((r) => r.client_id))];
+      // Member-to-member threads store the other side in owner_id, so both
+      // sides of every thread are looked up in the public member directory.
+      const clientIds = [
+        ...new Set([
+          ...rows.map((r) => r.client_id),
+          ...rows.map((r) => (r as { owner_id?: string | null }).owner_id).filter(Boolean),
+        ]),
+      ] as string[];
       const clients: Record<string, { full_name: string; avatar_url: string | null }> = {};
       if (clientIds.length > 0) {
         const { data: people } = await directory()
           .select("user_id, full_name, avatar_url")
           .in("user_id", clientIds);
-        for (const p of people ?? []) {
+        for (const p of (people ?? []) as DirectoryProfile[]) {
           clients[p.user_id] = { full_name: p.full_name || "Profile", avatar_url: p.avatar_url };
         }
       }
