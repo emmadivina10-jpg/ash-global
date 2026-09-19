@@ -144,7 +144,7 @@ function FriendsPage() {
             {fr ? "Suggestions d'amis" : "People you may know"}
           </h2>
           <ul className="space-y-2">
-            {(suggestions ?? []).map((person) => (
+            {(suggestions ?? []).filter((p) => !known.has(p.id)).map((person) => (
               <li key={person.id} className="flex items-center gap-3">
                 <button
                   type="button"
