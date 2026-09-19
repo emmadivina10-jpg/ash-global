@@ -1396,7 +1396,7 @@ export function useSendFriendRequest() {
       const { error } = await supabase.from("friendships").insert({ requester_id: me, addressee_id: userId });
       if (error) throw error;
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["friendships"] }),
+    onSuccess: () => { void queryClient.invalidateQueries({ queryKey: ["friendships"] }); void queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] }); },
   });
 }
 
@@ -1410,7 +1410,7 @@ export function useRespondFriendRequest() {
         .eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["friendships"] }),
+    onSuccess: () => { void queryClient.invalidateQueries({ queryKey: ["friendships"] }); void queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] }); },
   });
 }
 
@@ -1421,7 +1421,7 @@ export function useRemoveFriend() {
       const { error } = await supabase.from("friendships").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["friendships"] }),
+    onSuccess: () => { void queryClient.invalidateQueries({ queryKey: ["friendships"] }); void queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] }); },
   });
 }
 
