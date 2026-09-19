@@ -3996,6 +3996,25 @@ export type Database = {
         Returns: undefined
       }
       generate_referral_code: { Args: never; Returns: string }
+      get_locked_chat_messages: {
+        Args: { _conversation_id: string; _pin: string }
+        Returns: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          kind: string
+          metadata: Json
+          read_at: string | null
+          sender_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "messages"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_provider_bookings: {
         Args: never
         Returns: {
