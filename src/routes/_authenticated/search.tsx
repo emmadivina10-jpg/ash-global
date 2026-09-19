@@ -10,12 +10,9 @@ import {
   Loader2,
   Newspaper,
   PenLine,
-  Save,
   Sparkles,
-  TrendingDown,
   TrendingUp,
   Users,
-  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Area, AreaChart, CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
@@ -33,6 +30,7 @@ import {
   useFxInstructors,
   useMarketUpdates,
   useMyFxInstructorProfile,
+  useMySpotlightReferences,
 } from "@/lib/market-ecosystem.queries";
 import { useCreateSocialPost } from "@/lib/social.queries";
 import {
@@ -136,7 +134,7 @@ function MarketsPage() {
                     <div key={update.id} className="overflow-hidden rounded-xl border border-market-line bg-market-surface">
                       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-market-line bg-market-elevated px-4 py-3">
                         <div><p className="text-[10px] font-extrabold uppercase text-market-accent">ASH Markets Update</p><h3 className="mt-0.5 text-sm font-bold text-market-foreground">{update.title}</h3></div>
-                        <span className="rounded-full border border-market-line px-2 py-1 text-[9px] font-bold uppercase text-market-lavender">{update.educational_label}</span>
+                        <Link to="/markets/update/$marketPostId" params={{ marketPostId: update.id }} className="rounded-full border border-market-line px-2 py-1 text-[9px] font-bold uppercase text-market-lavender hover:border-market-accent">View discussion</Link>
                       </div>
                       <PostCard post={update.post} currentUserId={me} />
                     </div>
@@ -206,7 +204,7 @@ function InstructorsPanel() {
   const { data: instructors, isLoading } = useFxInstructors();
   if (isLoading) return <Loader2 className="mx-auto mt-10 size-5 animate-spin text-market-accent" />;
   if (!instructors?.length) return <div className="py-12 text-center"><Users className="mx-auto size-7 text-market-accent"/><h3 className="mt-3 font-bold text-market-foreground">No approved instructors yet</h3><p className="mt-2 text-sm text-market-muted">Profiles appear here only after a real application review and approval.</p></div>;
-  return <div className="space-y-3">{instructors.map((item) => <article key={item.id} className="rounded-xl border border-market-line bg-market-surface p-4"><div className="flex gap-3"><Avatar path={item.avatar_url} name={item.full_name} className="size-12"/><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h3 className="font-bold text-market-foreground">{item.full_name}</h3><span className="rounded-full bg-market-accent px-2 py-0.5 text-[9px] font-extrabold text-market-accent-foreground">ASH VERIFIED FX INSTRUCTOR</span></div><p className="text-xs text-market-lavender">@{item.username ?? "profile"} · {item.follower_count} followers</p></div></div><p className="mt-3 text-sm text-market-muted">{item.about || item.experience_summary || "Professional instructor profile."}</p><div className="mt-3 flex flex-wrap gap-1.5">{item.specialties.map((specialty) => <span key={specialty} className="rounded-full border border-market-line px-2 py-1 text-[10px] text-market-muted">{specialty}</span>)}</div></article>)}</div>;
+  return <div className="space-y-3">{instructors.map((item) => <article key={item.id} className="rounded-xl border border-market-line bg-market-surface p-4"><div className="flex gap-3"><Avatar path={item.avatar_url} name={item.full_name} className="size-12"/><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h3 className="font-bold text-market-foreground">{item.full_name}</h3><span className="rounded-full bg-market-accent px-2 py-0.5 text-[9px] font-extrabold text-market-accent-foreground">ASH VERIFIED FX INSTRUCTOR</span></div><p className="text-xs text-market-lavender">@{item.username ?? "profile"} · {item.follower_count} followers</p></div></div><p className="mt-3 text-sm text-market-muted">{item.about || item.experience_summary || "Professional instructor profile."}</p><div className="mt-3 flex flex-wrap gap-1.5">{item.specialties.map((specialty) => <span key={specialty} className="rounded-full border border-market-line px-2 py-1 text-[10px] text-market-muted">{specialty}</span>)}</div><Button asChild variant="outline" size="sm" className="mt-4 border-market-line bg-market-elevated text-market-foreground"><Link to="/markets/instructors/$instructorId" params={{ instructorId: item.id }}>View professional profile</Link></Button></article>)}</div>;
 }
 
 function MarketComposer({ onDone }: { onDone: () => void }) {
@@ -218,18 +216,23 @@ function MarketComposer({ onDone }: { onDone: () => void }) {
   const [body, setBody] = useState("");
   const [instrument, setInstrument] = useState("");
   const [contentType, setContentType] = useState("MARKET_UPDATE");
+  const [spotlightPostId, setSpotlightPostId] = useState("");
   const [files, setFiles] = useState<File[]>([]);
+  const { data: spotlightReferences = [] } = useMySpotlightReferences(contentType === "SPOTLIGHT");
   if (!instructor) return <p className="rounded-xl border border-market-line bg-market-surface p-5 text-sm text-market-muted">Publishing is available only after your FX instructor application is approved.</p>;
   const approvedInstructor = instructor;
   async function publish() {
     if (title.trim().length < 3 || (!body.trim() && !files.length)) { toast.error("Add a title and educational content."); return; }
     try {
       const socialPostId = await createSocial.mutateAsync({ caption: body.trim(), files });
-      await createMarket.mutateAsync({ socialPostId, instructorId: approvedInstructor.id, contentType, title, instrument });
+      const marketInput = spotlightPostId
+        ? { socialPostId, instructorId: approvedInstructor.id, contentType, title, instrument, spotlightPostId }
+        : { socialPostId, instructorId: approvedInstructor.id, contentType, title, instrument };
+      await createMarket.mutateAsync(marketInput);
       toast.success("Market update published.");
       onDone();
     } catch (error) { toast.error(error instanceof Error ? error.message : "Could not publish the update."); }
   }
   const busy = createSocial.isPending || createMarket.isPending;
-  return <div className="space-y-4"><select value={contentType} onChange={(e) => setContentType(e.target.value)} className="h-10 w-full rounded-md border border-market-line bg-market-elevated px-3 text-sm text-market-foreground"><option value="MARKET_UPDATE">Market Update</option><option value="FX_ANALYSIS">FX Analysis</option><option value="ARTICLE">Educational Article</option><option value="EDUCATIONAL_POST">Educational Post</option><option value="MARKET_COMMENTARY">Market Commentary</option><option value="CHART">Chart</option><option value="IMAGE">Image</option><option value="SPOTLIGHT">Spotlight reference</option></select><Input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={180} placeholder="Update title"/><Input value={instrument} onChange={(e) => setInstrument(e.target.value)} maxLength={40} placeholder="Instrument, e.g. EUR/USD (optional)"/><Textarea value={body} onChange={(e) => setBody(e.target.value.slice(0,1200))} rows={8} placeholder="Share a neutral market observation, technical analysis, or educational discussion…"/><input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => setFiles(Array.from(e.target.files ?? []).slice(0,4))}/><Button variant="outline" onClick={() => fileRef.current?.click()} className="w-full border-market-line bg-market-elevated text-market-foreground"><ImagePlus className="size-4"/> {files.length ? `${files.length} image${files.length > 1 ? "s" : ""} selected` : "Add images"}</Button><div className="rounded-xl border border-market-line bg-market-surface p-3 text-xs leading-relaxed text-market-muted">Keep content educational and neutral. No signals, guarantees, trade execution, or personalized financial advice.</div><Button onClick={() => void publish()} disabled={busy} className="w-full bg-market-accent text-market-accent-foreground">{busy ? <Loader2 className="size-4 animate-spin"/> : <PenLine className="size-4"/>}{busy ? "Publishing…" : "Publish Market Update"}</Button></div>;
+  return <div className="space-y-4"><select value={contentType} onChange={(e) => setContentType(e.target.value)} className="h-10 w-full rounded-md border border-market-line bg-market-elevated px-3 text-sm text-market-foreground"><option value="MARKET_UPDATE">Market Update</option><option value="FX_ANALYSIS">FX Analysis</option><option value="ARTICLE">Educational Article</option><option value="EDUCATIONAL_POST">Educational Post</option><option value="MARKET_COMMENTARY">Market Commentary</option><option value="CHART">Chart</option><option value="IMAGE">Image</option><option value="SPOTLIGHT">Spotlight reference</option></select>{contentType === "SPOTLIGHT" ? <div><label htmlFor="market-spotlight" className="mb-1.5 block text-xs font-bold text-market-lavender">Link one of your published Spotlights</label><select id="market-spotlight" value={spotlightPostId} onChange={(e) => setSpotlightPostId(e.target.value)} className="h-10 w-full rounded-md border border-market-line bg-market-elevated px-3 text-sm text-market-foreground"><option value="">No Spotlight attached</option>{spotlightReferences.map((spotlight) => <option key={spotlight.id} value={spotlight.id}>{spotlight.caption?.trim() || `Spotlight from ${new Date(spotlight.created_at).toLocaleDateString()}`}</option>)}</select><p className="mt-1.5 text-[10px] text-market-muted">This links the existing Spotlight without publishing a duplicate.</p></div> : null}<Input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={180} placeholder="Update title"/><Input value={instrument} onChange={(e) => setInstrument(e.target.value)} maxLength={40} placeholder="Instrument, e.g. EUR/USD (optional)"/><Textarea value={body} onChange={(e) => setBody(e.target.value.slice(0,1200))} rows={8} placeholder="Share a neutral market observation, technical analysis, or educational discussion…"/><input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => setFiles(Array.from(e.target.files ?? []).slice(0,4))}/><Button variant="outline" onClick={() => fileRef.current?.click()} className="w-full border-market-line bg-market-elevated text-market-foreground"><ImagePlus className="size-4"/> {files.length ? `${files.length} image${files.length > 1 ? "s" : ""} selected` : "Add images"}</Button><div className="rounded-xl border border-market-line bg-market-surface p-3 text-xs leading-relaxed text-market-muted">Keep content educational and neutral. No signals, guarantees, trade execution, or personalized financial advice.</div><Button onClick={() => void publish()} disabled={busy} className="w-full bg-market-accent text-market-accent-foreground">{busy ? <Loader2 className="size-4 animate-spin"/> : <PenLine className="size-4"/>}{busy ? "Publishing…" : "Publish Market Update"}</Button></div>;
 }

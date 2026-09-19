@@ -57,6 +57,7 @@ import { Route as ConsoleContentRouteImport } from './routes/console.content'
 import { Route as ConsoleDeletionsRouteImport } from './routes/console.deletions'
 import { Route as ConsoleExpansionRouteImport } from './routes/console.expansion'
 import { Route as ConsoleGrowthRouteImport } from './routes/console.growth'
+import { Route as ConsoleInstructorsRouteImport } from './routes/console.instructors'
 import { Route as ConsoleLedgerRouteImport } from './routes/console.ledger'
 import { Route as ConsoleMarketplaceRouteImport } from './routes/console.marketplace'
 import { Route as ConsoleMerchantRouteImport } from './routes/console.merchant'
@@ -98,6 +99,8 @@ import { Route as AuthenticatedServicesProviderIdRouteImport } from './routes/_a
 import { Route as AuthenticatedUUserIdRouteImport } from './routes/_authenticated/u.$userId'
 import { Route as ApiPublicReconcileActivationsRouteImport } from './routes/api/public/reconcile-activations'
 import { Route as ApiPublicSecuritySelfcheckRouteImport } from './routes/api/public/security-selfcheck'
+import { Route as AuthenticatedMarketsInstructorsInstructorIdRouteImport } from './routes/_authenticated/markets.instructors.$instructorId'
+import { Route as AuthenticatedMarketsUpdateMarketPostIdRouteImport } from './routes/_authenticated/markets.update.$marketPostId'
 import { Route as ApiPublicWebhooksTchokopayRouteImport } from './routes/api/public/webhooks/tchokopay'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -345,6 +348,11 @@ const ConsoleGrowthRoute = ConsoleGrowthRouteImport.update({
   path: '/growth',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const ConsoleInstructorsRoute = ConsoleInstructorsRouteImport.update({
+  id: '/instructors',
+  path: '/instructors',
+  getParentRoute: () => ConsoleRoute,
+} as any)
 const ConsoleLedgerRoute = ConsoleLedgerRouteImport.update({
   id: '/ledger',
   path: '/ledger',
@@ -565,6 +573,18 @@ const ApiPublicSecuritySelfcheckRoute =
     path: '/api/public/security-selfcheck',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedMarketsInstructorsInstructorIdRoute =
+  AuthenticatedMarketsInstructorsInstructorIdRouteImport.update({
+    id: '/markets/instructors/$instructorId',
+    path: '/markets/instructors/$instructorId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMarketsUpdateMarketPostIdRoute =
+  AuthenticatedMarketsUpdateMarketPostIdRouteImport.update({
+    id: '/markets/update/$marketPostId',
+    path: '/markets/update/$marketPostId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicWebhooksTchokopayRoute =
   ApiPublicWebhooksTchokopayRouteImport.update({
     id: '/api/public/webhooks/tchokopay',
@@ -635,6 +655,7 @@ export interface FileRoutesByFullPath {
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/expansion': typeof ConsoleExpansionRoute
   '/console/growth': typeof ConsoleGrowthRoute
+  '/console/instructors': typeof ConsoleInstructorsRoute
   '/console/ledger': typeof ConsoleLedgerRoute
   '/console/marketplace': typeof ConsoleMarketplaceRoute
   '/console/merchant': typeof ConsoleMerchantRoute
@@ -677,6 +698,8 @@ export interface FileRoutesByFullPath {
   '/jobs/': typeof AuthenticatedJobsIndexRoute
   '/property/': typeof AuthenticatedPropertyIndexRoute
   '/services/': typeof AuthenticatedServicesIndexRoute
+  '/markets/instructors/$instructorId': typeof AuthenticatedMarketsInstructorsInstructorIdRoute
+  '/markets/update/$marketPostId': typeof AuthenticatedMarketsUpdateMarketPostIdRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -728,6 +751,7 @@ export interface FileRoutesByTo {
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/expansion': typeof ConsoleExpansionRoute
   '/console/growth': typeof ConsoleGrowthRoute
+  '/console/instructors': typeof ConsoleInstructorsRoute
   '/console/ledger': typeof ConsoleLedgerRoute
   '/console/marketplace': typeof ConsoleMarketplaceRoute
   '/console/merchant': typeof ConsoleMerchantRoute
@@ -770,6 +794,8 @@ export interface FileRoutesByTo {
   '/jobs': typeof AuthenticatedJobsIndexRoute
   '/property': typeof AuthenticatedPropertyIndexRoute
   '/services': typeof AuthenticatedServicesIndexRoute
+  '/markets/instructors/$instructorId': typeof AuthenticatedMarketsInstructorsInstructorIdRoute
+  '/markets/update/$marketPostId': typeof AuthenticatedMarketsUpdateMarketPostIdRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -824,6 +850,7 @@ export interface FileRoutesById {
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/expansion': typeof ConsoleExpansionRoute
   '/console/growth': typeof ConsoleGrowthRoute
+  '/console/instructors': typeof ConsoleInstructorsRoute
   '/console/ledger': typeof ConsoleLedgerRoute
   '/console/marketplace': typeof ConsoleMarketplaceRoute
   '/console/merchant': typeof ConsoleMerchantRoute
@@ -866,6 +893,8 @@ export interface FileRoutesById {
   '/_authenticated/jobs/': typeof AuthenticatedJobsIndexRoute
   '/_authenticated/property/': typeof AuthenticatedPropertyIndexRoute
   '/_authenticated/services/': typeof AuthenticatedServicesIndexRoute
+  '/_authenticated/markets/instructors/$instructorId': typeof AuthenticatedMarketsInstructorsInstructorIdRoute
+  '/_authenticated/markets/update/$marketPostId': typeof AuthenticatedMarketsUpdateMarketPostIdRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -920,6 +949,7 @@ export interface FileRouteTypes {
     | '/console/deletions'
     | '/console/expansion'
     | '/console/growth'
+    | '/console/instructors'
     | '/console/ledger'
     | '/console/marketplace'
     | '/console/merchant'
@@ -962,6 +992,8 @@ export interface FileRouteTypes {
     | '/jobs/'
     | '/property/'
     | '/services/'
+    | '/markets/instructors/$instructorId'
+    | '/markets/update/$marketPostId'
     | '/api/public/webhooks/tchokopay'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1013,6 +1045,7 @@ export interface FileRouteTypes {
     | '/console/deletions'
     | '/console/expansion'
     | '/console/growth'
+    | '/console/instructors'
     | '/console/ledger'
     | '/console/marketplace'
     | '/console/merchant'
@@ -1055,6 +1088,8 @@ export interface FileRouteTypes {
     | '/jobs'
     | '/property'
     | '/services'
+    | '/markets/instructors/$instructorId'
+    | '/markets/update/$marketPostId'
     | '/api/public/webhooks/tchokopay'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1108,6 +1143,7 @@ export interface FileRouteTypes {
     | '/console/deletions'
     | '/console/expansion'
     | '/console/growth'
+    | '/console/instructors'
     | '/console/ledger'
     | '/console/marketplace'
     | '/console/merchant'
@@ -1150,6 +1186,8 @@ export interface FileRouteTypes {
     | '/_authenticated/jobs/'
     | '/_authenticated/property/'
     | '/_authenticated/services/'
+    | '/_authenticated/markets/instructors/$instructorId'
+    | '/_authenticated/markets/update/$marketPostId'
     | '/api/public/webhooks/tchokopay'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1523,6 +1561,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleGrowthRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/console/instructors': {
+      id: '/console/instructors'
+      path: '/instructors'
+      fullPath: '/console/instructors'
+      preLoaderRoute: typeof ConsoleInstructorsRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
     '/console/ledger': {
       id: '/console/ledger'
       path: '/ledger'
@@ -1810,6 +1855,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSecuritySelfcheckRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/markets/instructors/$instructorId': {
+      id: '/_authenticated/markets/instructors/$instructorId'
+      path: '/markets/instructors/$instructorId'
+      fullPath: '/markets/instructors/$instructorId'
+      preLoaderRoute: typeof AuthenticatedMarketsInstructorsInstructorIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/markets/update/$marketPostId': {
+      id: '/_authenticated/markets/update/$marketPostId'
+      path: '/markets/update/$marketPostId'
+      fullPath: '/markets/update/$marketPostId'
+      preLoaderRoute: typeof AuthenticatedMarketsUpdateMarketPostIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/webhooks/tchokopay': {
       id: '/api/public/webhooks/tchokopay'
       path: '/api/public/webhooks/tchokopay'
@@ -1883,6 +1942,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedJobsIndexRoute: typeof AuthenticatedJobsIndexRoute
   AuthenticatedPropertyIndexRoute: typeof AuthenticatedPropertyIndexRoute
   AuthenticatedServicesIndexRoute: typeof AuthenticatedServicesIndexRoute
+  AuthenticatedMarketsInstructorsInstructorIdRoute: typeof AuthenticatedMarketsInstructorsInstructorIdRoute
+  AuthenticatedMarketsUpdateMarketPostIdRoute: typeof AuthenticatedMarketsUpdateMarketPostIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1927,6 +1988,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedJobsIndexRoute: AuthenticatedJobsIndexRoute,
   AuthenticatedPropertyIndexRoute: AuthenticatedPropertyIndexRoute,
   AuthenticatedServicesIndexRoute: AuthenticatedServicesIndexRoute,
+  AuthenticatedMarketsInstructorsInstructorIdRoute:
+    AuthenticatedMarketsInstructorsInstructorIdRoute,
+  AuthenticatedMarketsUpdateMarketPostIdRoute:
+    AuthenticatedMarketsUpdateMarketPostIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -1939,6 +2004,7 @@ interface ConsoleRouteChildren {
   ConsoleDeletionsRoute: typeof ConsoleDeletionsRoute
   ConsoleExpansionRoute: typeof ConsoleExpansionRoute
   ConsoleGrowthRoute: typeof ConsoleGrowthRoute
+  ConsoleInstructorsRoute: typeof ConsoleInstructorsRoute
   ConsoleLedgerRoute: typeof ConsoleLedgerRoute
   ConsoleMarketplaceRoute: typeof ConsoleMarketplaceRoute
   ConsoleMerchantRoute: typeof ConsoleMerchantRoute
@@ -1968,6 +2034,7 @@ const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsoleDeletionsRoute: ConsoleDeletionsRoute,
   ConsoleExpansionRoute: ConsoleExpansionRoute,
   ConsoleGrowthRoute: ConsoleGrowthRoute,
+  ConsoleInstructorsRoute: ConsoleInstructorsRoute,
   ConsoleLedgerRoute: ConsoleLedgerRoute,
   ConsoleMarketplaceRoute: ConsoleMarketplaceRoute,
   ConsoleMerchantRoute: ConsoleMerchantRoute,

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useSocialFeed, type FeedPost } from "@/lib/social.queries";
+import { usePost, useSocialFeed, type FeedPost } from "@/lib/social.queries";
 
 const db = supabase as unknown as { from: (table: string) => any };
 const VERIFICATION_BUCKET = "market-verification";
@@ -49,6 +49,12 @@ export type MarketPostMeta = {
 };
 
 export type MarketUpdate = MarketPostMeta & { post: FeedPost };
+
+export type OwnSpotlightReference = {
+  id: string;
+  caption: string | null;
+  created_at: string;
+};
 
 async function currentUserId() {
   const { data } = await supabase.auth.getUser();
@@ -196,6 +202,26 @@ export function useMyFxInstructorProfile() {
   });
 }
 
+export function useMySpotlightReferences(enabled = true) {
+  return useQuery({
+    queryKey: ["market-spotlight-references", "mine"],
+    enabled,
+    queryFn: async (): Promise<OwnSpotlightReference[]> => {
+      const userId = await currentUserId();
+      if (!userId) return [];
+      const { data, error } = await supabase
+        .from("spotlight_posts")
+        .select("id,caption,created_at")
+        .eq("author_id", userId)
+        .eq("is_published", true)
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
 export function useMarketUpdates() {
   const feed = useSocialFeed(100);
   const metadata = useQuery({
@@ -224,7 +250,6 @@ export function useMarketUpdates() {
 }
 
 export function useMarketUpdate(marketPostId: string) {
-  const feed = useSocialFeed(100);
   const metadata = useQuery({
     queryKey: ["market-post", marketPostId],
     queryFn: async (): Promise<MarketPostMeta | null> => {
@@ -237,10 +262,73 @@ export function useMarketUpdate(marketPostId: string) {
       return data as MarketPostMeta | null;
     },
   });
+  const post = usePost(metadata.data?.social_post_id);
   return {
-    isLoading: metadata.isLoading || feed.isLoading,
-    data: metadata.data ? { ...metadata.data, post: (feed.data ?? []).find((post) => post.id === metadata.data?.social_post_id) } : null,
+    isLoading: metadata.isLoading || post.isLoading,
+    data: metadata.data && post.data ? { ...metadata.data, post: post.data } : null,
   };
+}
+
+export function useFxInstructorProfile(instructorId: string) {
+  return useQuery({
+    queryKey: ["fx-instructor-profile", instructorId],
+    queryFn: async (): Promise<FxInstructorProfile | null> => {
+      const { data, error } = await db
+        .from("fx_instructor_profiles")
+        .select("id,user_id,about,experience_summary,specialties,follower_count,is_active")
+        .eq("id", instructorId)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) return null;
+      const { data: profile } = await supabase.from("profiles").select("full_name,username,avatar_url").eq("user_id", data.user_id).maybeSingle();
+      return { ...data, full_name: profile?.full_name?.trim() || "Profile", username: profile?.username ?? null, avatar_url: profile?.avatar_url ?? null } as FxInstructorProfile;
+    },
+  });
+}
+
+export function useInstructorMarketUpdates(instructorId: string) {
+  const all = useMarketUpdates();
+  return { ...all, data: (all.data ?? []).filter((item) => item.instructor_id === instructorId) };
+}
+
+export function useInstructorFollowState(instructorId: string) {
+  return useQuery({
+    queryKey: ["fx-instructor-follow", instructorId],
+    queryFn: async () => {
+      const userId = await currentUserId();
+      if (!userId) return false;
+      const { data } = await db.from("fx_instructor_follows").select("instructor_id").eq("instructor_id", instructorId).eq("follower_id", userId).maybeSingle();
+      return Boolean(data);
+    },
+  });
+}
+
+export function useMarketSaveState(marketPostId: string) {
+  return useQuery({
+    queryKey: ["market-save", marketPostId],
+    queryFn: async () => {
+      const userId = await currentUserId();
+      if (!userId) return false;
+      const { data } = await db.from("market_post_saves").select("market_post_id").eq("market_post_id", marketPostId).eq("user_id", userId).maybeSingle();
+      return Boolean(data);
+    },
+  });
+}
+
+export function useToggleMarketSave() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ marketPostId, saved }: { marketPostId: string; saved: boolean }) => {
+      const userId = await currentUserId();
+      if (!userId) throw new Error("You need to be signed in.");
+      const request = saved
+        ? db.from("market_post_saves").delete().eq("market_post_id", marketPostId).eq("user_id", userId)
+        : db.from("market_post_saves").insert({ market_post_id: marketPostId, user_id: userId });
+      const { error } = await request;
+      if (error) throw error;
+    },
+    onSuccess: (_data, input) => void queryClient.invalidateQueries({ queryKey: ["market-save", input.marketPostId] }),
+  });
 }
 
 export function useCreateMarketPost() {
@@ -252,6 +340,7 @@ export function useCreateMarketPost() {
       contentType: string;
       title: string;
       instrument?: string;
+      spotlightPostId?: string;
     }) => {
       const userId = await currentUserId();
       if (!userId) throw new Error("You need to be signed in.");
@@ -262,6 +351,7 @@ export function useCreateMarketPost() {
         content_type: input.contentType,
         market_category: "FX",
         instrument: input.instrument?.trim() || null,
+        spotlight_post_id: input.spotlightPostId || null,
         title: input.title.trim(),
         educational_label: input.contentType === "EDUCATIONAL_POST" ? "Educational Discussion" : "Market Observation",
       });
@@ -289,6 +379,10 @@ export function useToggleInstructorFollow() {
       const { error } = await request;
       if (error) throw error;
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["fx-instructors"] }),
+    onSuccess: (_data, input) => {
+      void queryClient.invalidateQueries({ queryKey: ["fx-instructors"] });
+      void queryClient.invalidateQueries({ queryKey: ["fx-instructor-follow", input.instructorId] });
+      void queryClient.invalidateQueries({ queryKey: ["fx-instructor-profile", input.instructorId] });
+    },
   });
 }

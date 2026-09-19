@@ -9,6 +9,7 @@ import {
   BarChart3,
   CalendarCheck,
   CreditCard,
+  GraduationCap,
   Lock,
   LogOut,
   Menu,
