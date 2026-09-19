@@ -252,7 +252,13 @@ function MessagesPage() {
 
     const previousOverflow = shellScroll.style.overflow;
     const previousOverscroll = shellScroll.style.overscrollBehavior;
+    const previousPaddingBottom = shellScroll.style.paddingBottom;
     const previousScrollRestoration = window.history.scrollRestoration;
+
+    // The Messages surface already reserves the exact live height of the
+    // bottom navigation. Remove the shell's general page padding here so it
+    // cannot create a second empty band above the navigation.
+    shellScroll.style.paddingBottom = "0px";
 
     // iOS can restore the document/shell scroll position after returning from
     // another route. Do this in a few animation frames so Safari has time to
@@ -302,6 +308,7 @@ function MessagesPage() {
     return () => {
       shellScroll.style.overflow = previousOverflow;
       shellScroll.style.overscrollBehavior = previousOverscroll;
+      shellScroll.style.paddingBottom = previousPaddingBottom;
       window.history.scrollRestoration = previousScrollRestoration;
 
       window.removeEventListener("pageshow", restoreAfterNavigation);
