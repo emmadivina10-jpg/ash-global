@@ -50,6 +50,12 @@ export type MarketPostMeta = {
 
 export type MarketUpdate = MarketPostMeta & { post: FeedPost };
 
+export type OwnSpotlightReference = {
+  id: string;
+  caption: string | null;
+  created_at: string;
+};
+
 async function currentUserId() {
   const { data } = await supabase.auth.getUser();
   return data.user?.id ?? null;
@@ -196,6 +202,26 @@ export function useMyFxInstructorProfile() {
   });
 }
 
+export function useMySpotlightReferences(enabled = true) {
+  return useQuery({
+    queryKey: ["market-spotlight-references", "mine"],
+    enabled,
+    queryFn: async (): Promise<OwnSpotlightReference[]> => {
+      const userId = await currentUserId();
+      if (!userId) return [];
+      const { data, error } = await supabase
+        .from("spotlight_posts")
+        .select("id,caption,created_at")
+        .eq("author_id", userId)
+        .eq("is_published", true)
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
 export function useMarketUpdates() {
   const feed = useSocialFeed(100);
   const metadata = useQuery({
@@ -314,6 +340,7 @@ export function useCreateMarketPost() {
       contentType: string;
       title: string;
       instrument?: string;
+      spotlightPostId?: string;
     }) => {
       const userId = await currentUserId();
       if (!userId) throw new Error("You need to be signed in.");
@@ -324,6 +351,7 @@ export function useCreateMarketPost() {
         content_type: input.contentType,
         market_category: "FX",
         instrument: input.instrument?.trim() || null,
+        spotlight_post_id: input.spotlightPostId || null,
         title: input.title.trim(),
         educational_label: input.contentType === "EDUCATIONAL_POST" ? "Educational Discussion" : "Market Observation",
       });

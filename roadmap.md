@@ -33,7 +33,7 @@
 - [x] Add manual admin review with a stated 24–48 hour review window and provider-ready KYC fields
 - [x] Add approved instructor profiles, branded instructor badges, follows, and market publishing
 - [x] Reuse social posts, reactions, threaded comments, reposts, and saves for Markets content
-- [ ] Link eligible FX Spotlights to Market Updates without duplicate content records
+- [x] Link eligible FX Spotlights to Market Updates without duplicate content records
 - [x] Add premium Markets panels, detail/profile screens, and admin review reporting
 
 ## Wallet, finance, admin, and landing follow-up
