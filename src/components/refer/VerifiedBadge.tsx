@@ -1,23 +1,29 @@
+import { useId } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Solid ASH Verified check with a crisp high-contrast centre.
+ * Premium ASH Verified seal with a crisp high-contrast centre.
  */
 export function VerifiedBadge({
   tier,
   until,
   className,
   size = 14,
+  label: customLabel,
 }: {
   tier?: string | null | undefined;
   until?: string | null | undefined;
   className?: string | undefined;
   size?: number | undefined;
+  label?: string | undefined;
 }) {
   if (!tier) return null;
   if (until && new Date(until).getTime() < Date.now()) return null;
 
-  const label =
+  const generatedId = useId().replace(/:/g, "");
+  const gradientId = `ash-verified-${generatedId}`;
+  const shineId = `ash-verified-shine-${generatedId}`;
+  const label = customLabel ??
     tier === "BUSINESS_PLUS" ? "ASH Verified Business Plus" : tier === "BUSINESS" ? "ASH Verified Business" : "ASH Verified";
 
   return (
@@ -30,11 +36,27 @@ export function VerifiedBadge({
       className={cn("inline-block shrink-0 align-[-0.125em]", className)}
     >
       <title>{label}</title>
-      <path className="fill-primary" d="M12 1.25 14.5 3l3.05-.35.9 2.95 2.65 1.55-1.2 2.82 1.2 2.83-2.65 1.55-.9 2.95-3.05-.35L12 22.75 9.5 21l-3.05.35-.9-2.95-2.65-1.55 1.2-2.83L2.9 7.15 5.55 5.6l.9-2.95L9.5 3 12 1.25Z" />
-      <circle cx="12" cy="12" r="6.15" className="fill-primary" />
+      <defs>
+        <linearGradient id={gradientId} x1="3" y1="21" x2="21" y2="3" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="var(--color-verified-violet)" />
+          <stop offset="0.52" stopColor="var(--color-verified-magenta)" />
+          <stop offset="1" stopColor="var(--color-verified-coral)" />
+        </linearGradient>
+        <linearGradient id={shineId} x1="5" y1="3" x2="18" y2="22" gradientUnits="userSpaceOnUse">
+          <stop stopColor="var(--color-on-dark)" stopOpacity="0.48" />
+          <stop offset="0.42" stopColor="var(--color-on-dark)" stopOpacity="0" />
+          <stop offset="1" stopColor="var(--color-verified-gold)" stopOpacity="0.26" />
+        </linearGradient>
+      </defs>
+      <circle cx="12" cy="12" r="10.25" fill={`url(#${gradientId})`} stroke="var(--color-verified-gold)" strokeOpacity="0.58" strokeWidth="1" />
+      <circle cx="12" cy="12" r="9.1" fill={`url(#${shineId})`} />
       <path
-        className="fill-primary-foreground"
-        d="m10.35 15.75-3.2-3.2 1.55-1.55 1.65 1.65 4.95-4.95 1.55 1.55-6.5 6.5Z"
+        fill="none"
+        stroke="var(--color-on-dark)"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2.8"
+        d="m7.2 12.2 3.1 3.1 6.6-7"
       />
     </svg>
   );

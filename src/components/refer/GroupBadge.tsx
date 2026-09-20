@@ -1,9 +1,7 @@
-import { BadgeCheck } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 
 /**
- * The solid blue badge shown on groups owned by a verified ASH member.
- * Same flat blue as the badge people recognise from Facebook.
+ * The shared ASH brand seal shown on groups owned by a verified member.
  */
 export function GroupVerifiedBadge({
   className,
@@ -13,13 +11,7 @@ export function GroupVerifiedBadge({
   label?: string;
 }) {
   return (
-    <BadgeCheck
-      aria-label={label}
-      role="img"
-      className={cn("size-4 shrink-0", className)}
-      style={{ color: "#1877F2", fill: "#1877F2", stroke: "#ffffff" }}
-      strokeWidth={2.2}
-    />
+    <VerifiedBadge tier="VERIFIED" label={label} size={16} className={className} />
   );
 }
 

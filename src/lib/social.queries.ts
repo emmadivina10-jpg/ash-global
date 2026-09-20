@@ -1632,13 +1632,70 @@ export function useUpdateGroup() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ groupId, name, avatarPath }: { groupId: string; name?: string; avatarPath?: string | null }) => {
+      const me = await currentUserId();
+      if (!me) throw new Error("You need to be signed in.");
       const patch: { name?: string; avatar_path?: string | null } = {};
       if (name !== undefined) patch.name = name.trim().slice(0, 60);
       if (avatarPath !== undefined) patch.avatar_path = avatarPath;
-      const { error } = await supabase.from("chat_groups").update(patch).eq("id", groupId);
+      if (Object.keys(patch).length === 0) return;
+      const { data, error } = await supabase
+        .from("chat_groups")
+        .update(patch)
+        .eq("id", groupId)
+        .eq("owner_id", me)
+        .select("id")
+        .maybeSingle();
       if (error) throw error;
+      if (!data) throw new Error("Only the group owner can make this change.");
     },
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["chat-groups"] }),
+  });
+}
+
+const GROUP_AVATAR_MAX_BYTES = 5 * 1024 * 1024;
+
+export function useUpdateGroupAvatar() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ groupId, file, currentPath }: { groupId: string; file: File; currentPath?: string | null }) => {
+      const me = await currentUserId();
+      if (!me) throw new Error("You need to be signed in.");
+      if (!file.type.startsWith("image/")) throw new Error("Please choose an image file.");
+      if (file.size > GROUP_AVATAR_MAX_BYTES) throw new Error("Image is too large — 5MB maximum.");
+
+      await verifyMediaFiles([file], "PROFILE_AVATAR");
+      const originalExtension = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+      const extension = /^[a-z0-9]+$/.test(originalExtension) ? originalExtension : "jpg";
+      const objectPath = `${me}/groups/${groupId}-${crypto.randomUUID()}.${extension}`;
+      const upload = await supabase.storage.from("avatars").upload(objectPath, file, {
+        cacheControl: "3600",
+        contentType: file.type || "image/jpeg",
+        upsert: false,
+      });
+      if (upload.error) throw new Error(`Upload failed: ${upload.error.message}`);
+
+      const saved = await supabase
+        .from("chat_groups")
+        .update({ avatar_path: objectPath })
+        .eq("id", groupId)
+        .eq("owner_id", me)
+        .select("id")
+        .maybeSingle();
+      if (saved.error || !saved.data) {
+        await supabase.storage.from("avatars").remove([objectPath]);
+        throw new Error(saved.error?.message ?? "Only the group owner can change its photo.");
+      }
+
+      if (currentPath && !currentPath.startsWith("http") && currentPath !== objectPath) {
+        const cleanup = await supabase.storage.from("avatars").remove([currentPath]);
+        if (cleanup.error) console.warn("Previous group photo cleanup failed", cleanup.error.message);
+      }
+      return objectPath;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["chat-groups"] });
+      void queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    },
   });
 }
 
