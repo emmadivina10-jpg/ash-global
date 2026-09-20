@@ -37,6 +37,7 @@ import {
 } from "@/lib/social.queries";
 import { Button } from "@/components/ui/button";
 import { Avatar as ProfileAvatar, useAvatarUrl } from "@/components/refer/AvatarUpload";
+import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { directory, type DirectoryProfile } from "@/lib/public-profiles";
 
 const SOCIAL_BUCKET = "spotlight";
@@ -145,7 +146,8 @@ type SpotlightPost = {
     business_name: string;
     city?: string | null;
     avatar_url?: string | null;
-    is_verified?: boolean | null;
+    verified_tier?: string | null;
+    verified_until?: string | null;
     online?: boolean;
   };
 };
@@ -283,7 +285,8 @@ async function loadSpotlights(): Promise<SpotlightPost[]> {
           business_name: profile?.full_name ?? provider?.business_name ?? "Profile",
           city: provider?.city ?? null,
           avatar_url: profile?.avatar_url ?? provider?.avatar_url ?? null,
-          is_verified: Boolean(provider?.is_verified || profile?.verified_tier),
+          verified_tier: profile?.verified_tier ?? (provider?.is_verified ? "BUSINESS" : null),
+          verified_until: profile?.verified_until ?? null,
           online: onlineIds.has(row.author_id),
         },
       },
@@ -1175,8 +1178,9 @@ export function StoriesRail() {
                         className="size-10"
                       />
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-extrabold">
-                          {activeStoryGroup?.author.name ?? "Profile"}
+                        <p className="flex items-center gap-1 text-sm font-extrabold">
+                          <span className="truncate">{activeStoryGroup?.author.name ?? "Profile"}</span>
+                          <VerifiedBadge tier={activeStoryGroup?.author.verified_tier} until={activeStoryGroup?.author.verified_until} size={13} />
                         </p>
                         <p className="text-[10px] text-white/60">24h story</p>
                       </div>
@@ -1442,9 +1446,7 @@ export function StoriesRail() {
                                   <p className="truncate text-sm font-extrabold text-white">
                                     {spotlight.provider.business_name}
                                   </p>
-                                  {spotlight.provider.is_verified ? (
-                                    <span className="text-[10px] font-black text-[#D4AF37]">✓</span>
-                                  ) : null}
+                                  <VerifiedBadge tier={spotlight.provider.verified_tier} until={spotlight.provider.verified_until} size={14} />
                                 </div>
                                 {spotlight.provider.city ? (
                                   <p className="truncate text-[10px] text-white/60">{spotlight.provider.city}</p>

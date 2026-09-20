@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ReportDialog } from "@/components/refer/ReportDialog";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { groupColorFor } from "@/components/refer/GroupBadge";
+import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { CHAT_WALLPAPERS, useChatSettings, useSetWallpaper } from "@/lib/social.queries";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useI18n } from "@/lib/i18n";
@@ -89,7 +90,14 @@ export function ChatThread({
   isGroup?: boolean;
   /** Limit only unsolicited person-to-person introductions, never groups or commerce threads. */
   enforceFirstContactLimit?: boolean;
-  members?: { id: string; name: string; avatar_url: string | null; online?: boolean | undefined }[];
+  members?: {
+    id: string;
+    name: string;
+    avatar_url: string | null;
+    online?: boolean | undefined;
+    verified_tier?: string | null;
+    verified_until?: string | null;
+  }[];
   initialMessages?: ChatMessage[] | undefined;
 }) {
   const { t, lang } = useI18n();
@@ -467,10 +475,15 @@ export function ChatThread({
                     >
                       {isGroup && !mine && startsRun ? (
                         <span
-                          className="mb-0.5 block text-[11px] font-bold"
+                          className="mb-0.5 flex items-center gap-1 text-[11px] font-bold"
                           style={{ color: groupColorFor(m.sender_id) }}
                         >
-                          {memberById.get(m.sender_id)?.name ?? (fr ? "Membre" : "Member")}
+                          <span className="truncate">{memberById.get(m.sender_id)?.name ?? (fr ? "Membre" : "Member")}</span>
+                          <VerifiedBadge
+                            tier={memberById.get(m.sender_id)?.verified_tier}
+                            until={memberById.get(m.sender_id)?.verified_until}
+                            size={12}
+                          />
                         </span>
                       ) : null}
                       {mine ? (

@@ -1338,7 +1338,7 @@ function MessagesPage() {
                     {activeGroup.owner_id === user?.id ? <label className="inline-flex cursor-pointer items-center gap-2 text-sm font-semibold text-primary"><Camera className="size-4" />{fr ? "Photo" : "Photo"}<input type="file" accept="image/*" className="sr-only" onChange={async (event) => { const file = event.target.files?.[0]; if (!file || !user?.id) return; const path = `${user.id}/groups/${activeGroup.id}-${Date.now()}`; const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true }); if (error) { toast.error(error.message); return; } updateGroup.mutate({ groupId: activeGroup.id, avatarPath: path }); }} /></label> : null}
                   </div>
                   {activeGroup.owner_id === user?.id ? <div className="flex gap-2"><Input value={groupEditName} onChange={(event) => setGroupEditName(event.target.value.slice(0, 60))} /><Button onClick={() => updateGroup.mutate({ groupId: activeGroup.id, name: groupEditName }, { onSuccess: () => toast.success(fr ? "Groupe mis à jour" : "Group updated") })}>{fr ? "Enregistrer" : "Save"}</Button></div> : null}
-                  <div className="space-y-2">{activeGroup.members.map((member) => <div key={member.id} className="flex items-center gap-2 rounded-xl bg-muted/50 p-2"><Avatar path={member.avatar_url} name={member.name} online={member.online} hasUpdate={member.has_update} className="size-9" /><span className="min-w-0 flex-1 truncate text-sm font-semibold">{member.name}</span>{activeGroup.owner_id === user?.id && member.id !== user.id ? <Button size="icon" variant="ghost" className="text-destructive" onClick={() => removeGroupMember.mutate({ groupId: activeGroup.id, userId: member.id })}><UserMinus className="size-4" /></Button> : null}</div>)}</div>
+                  <div className="space-y-2">{activeGroup.members.map((member) => <div key={member.id} className="flex items-center gap-2 rounded-xl bg-muted/50 p-2"><Avatar path={member.avatar_url} name={member.name} online={member.online} hasUpdate={member.has_update} className="size-9" /><span className="flex min-w-0 flex-1 items-center gap-1 text-sm font-semibold"><span className="truncate">{member.name}</span><VerifiedBadge tier={member.verified_tier} until={member.verified_until} size={13} /></span>{activeGroup.owner_id === user?.id && member.id !== user.id ? <Button size="icon" variant="ghost" className="text-destructive" onClick={() => removeGroupMember.mutate({ groupId: activeGroup.id, userId: member.id })}><UserMinus className="size-4" /></Button> : null}</div>)}</div>
                   {activeGroup.owner_id === user?.id ? <><Input value={groupSearch} onChange={(event) => setGroupSearch(event.target.value)} placeholder={fr ? "Ajouter un membre" : "Add a member"} />{(groupPeople ?? []).filter((person) => !activeGroup.members.some((member) => member.id === person.id)).slice(0, 6).map((person) => <button key={person.id} type="button" onClick={() => addGroupMembers.mutate({ groupId: activeGroup.id, memberIds: [person.id] })} className="flex w-full items-center gap-2 rounded-xl p-2 text-left hover:bg-muted"><Avatar path={person.avatar_url} name={person.name} online={person.online} hasUpdate={person.has_update} className="size-9" /><span className="flex-1 truncate text-sm font-semibold">{person.name}</span><Plus className="size-4 text-primary" /></button>)}</> : null}
                 </> : null}
               </DialogContent>
@@ -1410,7 +1410,9 @@ function MessagesPage() {
                   id: m.id,
                   name: m.name,
                   avatar_url: m.avatar_url,
-                    online: m.online,
+                  online: m.online,
+                  verified_tier: m.verified_tier,
+                  verified_until: m.verified_until,
                 }))}
                   initialMessages={activeId ? lockedMessages[activeId] : undefined}
                 className="min-h-0 flex-1 px-2"
