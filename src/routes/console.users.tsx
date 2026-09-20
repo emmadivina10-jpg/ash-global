@@ -378,7 +378,16 @@ function ConsoleUsers() {
                 Cancel
               </Button>
 
-              <Button type="button" className="flex-1" onClick={() => void submitCredit()} disabled={crediting}>
+              <Button
+                type="button"
+                className="flex-1"
+                onClick={() => {
+                  console.log("[ConsoleUsers] CREDIT WALLET BUTTON CLICKED");
+                  toast.info("Credit Wallet button clicked");
+                  void submitCredit();
+                }}
+                disabled={crediting}
+              >
                 {crediting ? "Crediting..." : "Credit Wallet"}
               </Button>
             </div>
