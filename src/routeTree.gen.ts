@@ -39,6 +39,7 @@ import { Route as AuthenticatedDealsRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedElectricityRouteImport } from './routes/_authenticated/electricity'
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
 import { Route as AuthenticatedFriendsRouteImport } from './routes/_authenticated/friends'
+import { Route as AuthenticatedFxAnalyticsRouteImport } from './routes/_authenticated/fx-analytics'
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
 import { Route as AuthenticatedMentorsRouteImport } from './routes/_authenticated/mentors'
 import { Route as AuthenticatedMenuRouteImport } from './routes/_authenticated/menu'
@@ -261,6 +262,12 @@ const AuthenticatedFriendsRoute = AuthenticatedFriendsRouteImport.update({
   path: '/friends',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedFxAnalyticsRoute =
+  AuthenticatedFxAnalyticsRouteImport.update({
+    id: '/fx-analytics',
+    path: '/fx-analytics',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedGroupsRoute = AuthenticatedGroupsRouteImport.update({
   id: '/groups',
   path: '/groups',
@@ -668,6 +675,7 @@ export interface FileRoutesByFullPath {
   '/electricity': typeof AuthenticatedElectricityRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/friends': typeof AuthenticatedFriendsRoute
+  '/fx-analytics': typeof AuthenticatedFxAnalyticsRoute
   '/groups': typeof AuthenticatedGroupsRoute
   '/mentors': typeof AuthenticatedMentorsRoute
   '/menu': typeof AuthenticatedMenuRoute
@@ -769,6 +777,7 @@ export interface FileRoutesByTo {
   '/electricity': typeof AuthenticatedElectricityRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/friends': typeof AuthenticatedFriendsRoute
+  '/fx-analytics': typeof AuthenticatedFxAnalyticsRoute
   '/groups': typeof AuthenticatedGroupsRoute
   '/mentors': typeof AuthenticatedMentorsRoute
   '/menu': typeof AuthenticatedMenuRoute
@@ -873,6 +882,7 @@ export interface FileRoutesById {
   '/_authenticated/electricity': typeof AuthenticatedElectricityRoute
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
   '/_authenticated/friends': typeof AuthenticatedFriendsRoute
+  '/_authenticated/fx-analytics': typeof AuthenticatedFxAnalyticsRoute
   '/_authenticated/groups': typeof AuthenticatedGroupsRoute
   '/_authenticated/mentors': typeof AuthenticatedMentorsRoute
   '/_authenticated/menu': typeof AuthenticatedMenuRoute
@@ -977,6 +987,7 @@ export interface FileRouteTypes {
     | '/electricity'
     | '/feed'
     | '/friends'
+    | '/fx-analytics'
     | '/groups'
     | '/mentors'
     | '/menu'
@@ -1078,6 +1089,7 @@ export interface FileRouteTypes {
     | '/electricity'
     | '/feed'
     | '/friends'
+    | '/fx-analytics'
     | '/groups'
     | '/mentors'
     | '/menu'
@@ -1181,6 +1193,7 @@ export interface FileRouteTypes {
     | '/_authenticated/electricity'
     | '/_authenticated/feed'
     | '/_authenticated/friends'
+    | '/_authenticated/fx-analytics'
     | '/_authenticated/groups'
     | '/_authenticated/mentors'
     | '/_authenticated/menu'
@@ -1497,6 +1510,13 @@ declare module '@tanstack/react-router' {
       path: '/friends'
       fullPath: '/friends'
       preLoaderRoute: typeof AuthenticatedFriendsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fx-analytics': {
+      id: '/_authenticated/fx-analytics'
+      path: '/fx-analytics'
+      fullPath: '/fx-analytics'
+      preLoaderRoute: typeof AuthenticatedFxAnalyticsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/groups': {
@@ -2010,6 +2030,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedElectricityRoute: typeof AuthenticatedElectricityRoute
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
   AuthenticatedFriendsRoute: typeof AuthenticatedFriendsRoute
+  AuthenticatedFxAnalyticsRoute: typeof AuthenticatedFxAnalyticsRoute
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRoute
   AuthenticatedMentorsRoute: typeof AuthenticatedMentorsRoute
   AuthenticatedMenuRoute: typeof AuthenticatedMenuRoute
@@ -2057,6 +2078,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedElectricityRoute: AuthenticatedElectricityRoute,
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
   AuthenticatedFriendsRoute: AuthenticatedFriendsRoute,
+  AuthenticatedFxAnalyticsRoute: AuthenticatedFxAnalyticsRoute,
   AuthenticatedGroupsRoute: AuthenticatedGroupsRoute,
   AuthenticatedMentorsRoute: AuthenticatedMentorsRoute,
   AuthenticatedMenuRoute: AuthenticatedMenuRoute,
