@@ -35,7 +35,9 @@ function ConsoleUsers() {
   const [amount, setAmount] = useState("");
   const [reason, setReason] = useState("");
   const [crediting, setCrediting] = useState(false);
+
   const [messageTarget, setMessageTarget] = useState<MessageTarget>(null);
+
   const [statementUser, setStatementUser] = useState<{ userId: string; name: string } | null>(null);
 
   const loadStatement = useServerFn(getMemberStatement);
@@ -309,12 +311,14 @@ function ConsoleUsers() {
 
       {selectedUser ? (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm pointer-events-auto"
           role="dialog"
           aria-modal="true"
           aria-labelledby="credit-wallet-title"
+          onPointerDown={(event) => event.stopPropagation()}
+          onClick={(event) => event.stopPropagation()}
         >
-          <div className="w-full max-w-md rounded-3xl border border-border bg-background p-5 shadow-2xl">
+          <div className="relative z-[100000] w-full max-w-md rounded-3xl border border-border bg-background p-5 shadow-2xl pointer-events-auto">
             <div className="mb-5">
               <h2 id="credit-wallet-title" className="text-lg font-bold text-foreground">
                 Credit Wallet
@@ -378,22 +382,22 @@ function ConsoleUsers() {
                 Cancel
               </Button>
 
-              <Button
+              <button
                 type="button"
-                className="flex-1 relative z-[9999]"
-                onPointerDown={() => {
-                  console.log("CREDIT POINTER DOWN");
-                  toast.info("Pointer received");
+                className="relative z-[100001] flex h-9 flex-1 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                onPointerDown={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
                 }}
-                onClick={() => {
-                  console.log("CREDIT CLICK");
-                  toast.info("Click received");
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
                   void submitCredit();
                 }}
                 disabled={crediting}
               >
                 {crediting ? "Crediting..." : "Credit Wallet"}
-              </Button>
+              </button>
             </div>
 
             <p className="mt-3 text-center text-[11px] text-muted-foreground">
