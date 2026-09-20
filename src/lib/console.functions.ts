@@ -256,7 +256,6 @@ export const getConsoleUsers = createServerFn({
   }));
 });
 
-
 /**
  * Credits a user's withdrawable wallet balance from the admin console.
  *
@@ -267,49 +266,45 @@ export const getConsoleUsers = createServerFn({
 export const creditUserWallet = createServerFn({
   method: "POST",
 })
-  .inputValidator(
-    (data: {
-      userId: string;
-      amount: number;
-      reason: string;
-    }) => ({
-      userId: String(data.userId ?? ""),
-      amount: Number(data.amount),
-      reason: String(data.reason ?? ""),
-    }),
-  )
+  .inputValidator((data: { userId: string; amount: number; reason: string }) => ({
+    userId: String(data.userId ?? "").trim(),
+    amount: Number(data.amount),
+    reason: String(data.reason ?? ""),
+  }))
   .handler(async ({ data }) => {
-    const {
-      requireDepartment,
-      adminClient,
-    } = await import("./console.server");
+    const { requireDepartment, adminClient } = await import("./console.server");
 
+    // ---------------------------------------------------------------
+    // 1. AUTHORIZATION
+    // ---------------------------------------------------------------
     try {
       await requireDepartment("REVENUE");
     } catch (err) {
-      const code =
-        err instanceof Error ? err.message : "FORBIDDEN";
+      const message = err instanceof Error ? err.message : "FORBIDDEN";
+
+      console.error("[creditUserWallet] authorization failed:", message);
+
       return {
         ok: false as const,
-        error:
-          code === "CONSOLE_LOCKED"
-            ? "UNAUTHENTICATED"
-            : "FORBIDDEN",
+        error: message === "CONSOLE_LOCKED" ? "UNAUTHENTICATED" : "FORBIDDEN",
       };
     }
 
-
+    // ---------------------------------------------------------------
+    // 2. INPUT VALIDATION
+    // ---------------------------------------------------------------
     if (!data.userId) {
+      console.error("[creditUserWallet] invalid user id");
+
       return {
         ok: false as const,
         error: "INVALID_USER",
       };
     }
 
-    if (
-      !Number.isFinite(data.amount) ||
-      data.amount <= 0
-    ) {
+    if (!Number.isFinite(data.amount) || data.amount <= 0 || data.amount !== Math.round(data.amount)) {
+      console.error("[creditUserWallet] invalid amount:", data.amount);
+
       return {
         ok: false as const,
         error: "INVALID_AMOUNT",
@@ -319,27 +314,88 @@ export const creditUserWallet = createServerFn({
     const reason = data.reason.trim();
 
     if (reason.length < 5) {
+      console.error("[creditUserWallet] reason too short");
+
       return {
         ok: false as const,
         error: "REASON_REQUIRED",
       };
     }
 
-    const db = await adminClient();
+    // Keep the reason bounded before sending it to the database.
+    const safeReason = reason.slice(0, 500);
 
-    const {
-      data: result,
-      error,
-    } = await db.rpc(
-      "admin_credit_wallet",
-      {
+    // ---------------------------------------------------------------
+    // 3. SERVER-SIDE SUPABASE ADMIN CLIENT
+    // ---------------------------------------------------------------
+    let db;
+
+    try {
+      db = await adminClient();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "SUPABASE_ADMIN_CLIENT_FAILED";
+
+      console.error("[creditUserWallet] failed to create admin Supabase client:", message);
+
+      return {
+        ok: false as const,
+        error: "SUPABASE_ADMIN_CLIENT_FAILED",
+        detail: message,
+      };
+    }
+
+    // ---------------------------------------------------------------
+    // 4. DATABASE RPC
+    // ---------------------------------------------------------------
+    let rpcResult;
+    let rpcError;
+
+    try {
+      const response = await db.rpc("admin_credit_wallet", {
         _user_id: data.userId,
         _amount: Math.round(data.amount),
-        _reason: reason,
-      },
-    );
+        _reason: safeReason,
+      });
 
-    const payload = result as {
+      rpcResult = response.data;
+      rpcError = response.error;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "WALLET_CREDIT_RPC_EXCEPTION";
+
+      console.error("[creditUserWallet] RPC threw an exception:", message);
+
+      return {
+        ok: false as const,
+        error: "WALLET_CREDIT_RPC_EXCEPTION",
+        detail: message,
+      };
+    }
+
+    // ---------------------------------------------------------------
+    // 5. RPC ERROR
+    // ---------------------------------------------------------------
+    if (rpcError) {
+      console.error("[creditUserWallet] admin_credit_wallet RPC failed:", {
+        message: rpcError.message,
+        details: rpcError.details,
+        hint: rpcError.hint,
+        code: rpcError.code,
+      });
+
+      return {
+        ok: false as const,
+        error: "WALLET_CREDIT_RPC_FAILED",
+        detail: rpcError.message,
+        code: rpcError.code ?? null,
+        details: rpcError.details ?? null,
+        hint: rpcError.hint ?? null,
+      };
+    }
+
+    // ---------------------------------------------------------------
+    // 6. VALIDATE RPC PAYLOAD
+    // ---------------------------------------------------------------
+    const payload = rpcResult as {
       ok?: boolean;
       error?: string;
       reference?: string;
@@ -348,26 +404,38 @@ export const creditUserWallet = createServerFn({
       new_balance?: number;
     } | null;
 
-    if (error || !payload?.ok) {
+    console.log("[creditUserWallet] admin_credit_wallet RPC response:", payload);
+
+    if (!payload?.ok) {
+      console.error("[creditUserWallet] RPC returned an unsuccessful payload:", payload);
+
       return {
         ok: false as const,
-        error:
-          payload?.error ??
-          error?.message ??
-          "WALLET_CREDIT_FAILED",
+        error: payload?.error ?? "WALLET_CREDIT_FAILED",
       };
     }
+
+    // ---------------------------------------------------------------
+    // 7. SUCCESS
+    // ---------------------------------------------------------------
+    const creditedAmount = Number(payload.amount ?? data.amount);
+
+    const newBalance = Number(payload.new_balance ?? 0);
+
+    console.log("[creditUserWallet] wallet successfully credited:", {
+      userId: data.userId,
+      amount: creditedAmount,
+      currency: payload.currency ?? "XAF",
+      reference: payload.reference ?? null,
+      newBalance,
+    });
 
     return {
       ok: true as const,
       reference: payload.reference ?? null,
-      amount: Number(
-        payload.amount ?? data.amount,
-      ),
+      amount: creditedAmount,
       currency: payload.currency ?? "XAF",
-      newBalance: Number(
-        payload.new_balance ?? 0,
-      ),
+      newBalance,
     };
   });
 
@@ -1567,9 +1635,7 @@ export const getConsolePayouts = createServerFn({
 
     db
       .from("bookings")
-      .select(
-        "id, provider_id, service_title, price, status, platform_fee, provider_amount, paid_at, created_at",
-      )
+      .select("id, provider_id, service_title, price, status, platform_fee, provider_amount, paid_at, created_at")
       .order("created_at", {
         ascending: false,
       })
@@ -1579,37 +1645,26 @@ export const getConsolePayouts = createServerFn({
   ]);
 
   const taken = (payouts.data ?? [])
-    .filter((p) =>
-      ["PENDING", "PROCESSING", "COMPLETED"].includes(
-        String(p.status ?? ""),
-      ),
-    )
+    .filter((p) => ["PENDING", "PROCESSING", "COMPLETED"].includes(String(p.status ?? "")))
     .reduce((sum, p) => sum + Number(p.amount ?? 0), 0);
 
   const f = (fin.data ?? {}) as Record<string, number>;
 
-  const pMap = new Map(
-    (providers.data ?? []).map((p) => [p.id, p.business_name]),
-  );
+  const pMap = new Map((providers.data ?? []).map((p) => [p.id, p.business_name]));
 
   return {
     financials: (fin.data ?? null) as Financials | null,
 
     taken,
 
-    available: Math.max(
-      Number(f["safe_to_withdraw"] ?? 0) - taken,
-      0,
-    ),
+    available: Math.max(Number(f["safe_to_withdraw"] ?? 0) - taken, 0),
 
     payouts: payouts.data ?? [],
 
     bookings: (bookings.data ?? []).map((b) => ({
       ...b,
       providerName: pMap.get(b.provider_id) ?? "—",
-      fee: Number(
-        b.platform_fee ?? Math.round(Number(b.price) * 0.01),
-      ),
+      fee: Number(b.platform_fee ?? Math.round(Number(b.price) * 0.01)),
     })),
   };
 });
@@ -1617,27 +1672,14 @@ export const getConsolePayouts = createServerFn({
 export const requestConsolePayout = createServerFn({
   method: "POST",
 })
-  .inputValidator(
-    (data: {
-      amount: number;
-      destination: string;
-      provider: "mtn_cm" | "orange_cm";
-      note?: string;
-    }) => ({
-      amount: Number(data?.amount),
-      destination: String(data?.destination ?? ""),
-      provider:
-        data?.provider === "orange_cm"
-          ? "orange_cm"
-          : "mtn_cm",
-      note: data?.note ? String(data.note) : "",
-    }),
-  )
+  .inputValidator((data: { amount: number; destination: string; provider: "mtn_cm" | "orange_cm"; note?: string }) => ({
+    amount: Number(data?.amount),
+    destination: String(data?.destination ?? ""),
+    provider: data?.provider === "orange_cm" ? "orange_cm" : "mtn_cm",
+    note: data?.note ? String(data.note) : "",
+  }))
   .handler(async ({ data }) => {
-    const {
-      requireDepartment,
-      adminClient,
-    } = await import("./console.server");
+    const { requireDepartment, adminClient } = await import("./console.server");
 
     await requireDepartment("REVENUE");
 
@@ -1671,10 +1713,7 @@ export const requestConsolePayout = createServerFn({
 
     const db = await adminClient();
 
-    const {
-      data: result,
-      error,
-    } = await db.rpc("console_platform_payout", {
+    const { data: result, error } = await db.rpc("console_platform_payout", {
       _amount: amount,
       _destination: phone,
       ...(data.note
@@ -1697,10 +1736,7 @@ export const requestConsolePayout = createServerFn({
     if (error || !payload?.ok || !payload.id || !payload.reference) {
       return {
         ok: false as const,
-        error:
-          payload?.error ??
-          error?.message ??
-          "PAYOUT_RECORD_FAILED",
+        error: payload?.error ?? error?.message ?? "PAYOUT_RECORD_FAILED",
         available: payload?.available ?? null,
       };
     }
@@ -1732,22 +1768,15 @@ export const requestConsolePayout = createServerFn({
     });
 
     if (disbursement.ok) {
-      const status =
-        disbursement.status === "PAID"
-          ? "COMPLETED"
-          : "PROCESSING";
+      const status = disbursement.status === "PAID" ? "COMPLETED" : "PROCESSING";
 
       const { error: updateError } = await db
         .from("platform_payouts")
         .update({
           status,
           provider: data.provider,
-          provider_reference:
-            disbursement.providerReference ?? null,
-          processed_at:
-            status === "COMPLETED"
-              ? new Date().toISOString()
-              : null,
+          provider_reference: disbursement.providerReference ?? null,
+          processed_at: status === "COMPLETED" ? new Date().toISOString() : null,
           failure_reason: null,
         })
         .eq("id", payload.id);
@@ -1757,8 +1786,7 @@ export const requestConsolePayout = createServerFn({
           ok: false as const,
           error: "PAYOUT_STATE_UPDATE_FAILED",
           reference: payload.reference,
-          providerReference:
-            disbursement.providerReference ?? null,
+          providerReference: disbursement.providerReference ?? null,
         };
       }
 
@@ -1767,8 +1795,7 @@ export const requestConsolePayout = createServerFn({
         reference: payload.reference,
         status,
         provider: data.provider,
-        providerReference:
-          disbursement.providerReference ?? null,
+        providerReference: disbursement.providerReference ?? null,
         remaining: payload.remaining ?? null,
       };
     }
@@ -1782,22 +1809,15 @@ export const requestConsolePayout = createServerFn({
       .from("platform_payouts")
       .update({
         provider: data.provider,
-        failure_reason:
-          disbursement.error ?? "DISBURSEMENT_FAILED",
-        status: uncertainProviderFailure
-          ? "PENDING"
-          : "FAILED",
-        processed_at: uncertainProviderFailure
-          ? null
-          : new Date().toISOString(),
+        failure_reason: disbursement.error ?? "DISBURSEMENT_FAILED",
+        status: uncertainProviderFailure ? "PENDING" : "FAILED",
+        processed_at: uncertainProviderFailure ? null : new Date().toISOString(),
       })
       .eq("id", payload.id);
 
     return {
       ok: false as const,
-      error:
-        disbursement.error ??
-        "DISBURSEMENT_FAILED",
+      error: disbursement.error ?? "DISBURSEMENT_FAILED",
       reference: payload.reference,
     };
   });
