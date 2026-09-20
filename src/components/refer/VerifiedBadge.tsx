@@ -23,8 +23,13 @@ export function VerifiedBadge({
   const generatedId = useId().replace(/:/g, "");
   const gradientId = `ash-verified-${generatedId}`;
   const shineId = `ash-verified-shine-${generatedId}`;
-  const label = customLabel ??
-    tier === "BUSINESS_PLUS" ? "ASH Verified Business Plus" : tier === "BUSINESS" ? "ASH Verified Business" : "ASH Verified";
+  const label =
+    customLabel ??
+    (tier === "BUSINESS_PLUS"
+      ? "ASH Verified Business Plus"
+      : tier === "BUSINESS"
+        ? "ASH Verified Business"
+        : "ASH Verified");
 
   return (
     <svg
