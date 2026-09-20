@@ -34,7 +34,7 @@ import {
   useSetChatLockPin,
   useSetChatPref,
 } from "@/lib/chat-prefs";
-import { useAddGroupMembers, useCreateGroup, useMemberSearch, useMemberStates, useRemoveGroupMember, useSendFriendRequest, useFriendships, useGroups, useUpdateGroup } from "@/lib/social.queries";
+import { useAddGroupMembers, useCreateGroup, useMemberSearch, useMemberStates, useRemoveGroupMember, useSendFriendRequest, useFriendships, useGroups, useUpdateGroup, useUpdateGroupAvatar } from "@/lib/social.queries";
 import { unlockChat, type LockedChatMessage } from "@/lib/chat-lock.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -376,6 +376,7 @@ function MessagesPage() {
   const addGroupMembers = useAddGroupMembers();
   const removeGroupMember = useRemoveGroupMember();
   const updateGroup = useUpdateGroup();
+  const updateGroupAvatar = useUpdateGroupAvatar();
   const unlockChatServer = useServerFn(unlockChat);
 
   const list = conversations ?? [];
@@ -442,6 +443,8 @@ function MessagesPage() {
 
   /** Picture of the other side, when we have one. */
   function peerAvatarOf(conv: (typeof list)[number]): string | null {
+    const group = groupOf(conv);
+    if (group) return group.avatar_path;
     const direct = directPeerOf(conv);
     if (direct) return direct.avatar_url ?? null;
     if (conv.listing_id) {
@@ -1335,7 +1338,7 @@ function MessagesPage() {
                 {activeGroup ? <>
                   <div className="flex items-center gap-3">
                     <Avatar path={activeGroup.avatar_path} name={activeGroup.name} className="size-14" />
-                    {activeGroup.owner_id === user?.id ? <label className="inline-flex cursor-pointer items-center gap-2 text-sm font-semibold text-primary"><Camera className="size-4" />{fr ? "Photo" : "Photo"}<input type="file" accept="image/*" className="sr-only" onChange={async (event) => { const file = event.target.files?.[0]; if (!file || !user?.id) return; const path = `${user.id}/groups/${activeGroup.id}-${Date.now()}`; const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true }); if (error) { toast.error(error.message); return; } updateGroup.mutate({ groupId: activeGroup.id, avatarPath: path }); }} /></label> : null}
+                    {activeGroup.owner_id === user?.id ? <label className={cn("inline-flex items-center gap-2 text-sm font-semibold text-primary", updateGroupAvatar.isPending ? "cursor-wait opacity-60" : "cursor-pointer")}><Camera className="size-4" />{updateGroupAvatar.isPending ? (fr ? "Enregistrement…" : "Saving…") : (fr ? "Photo" : "Photo")}<input type="file" accept="image/*" className="sr-only" disabled={updateGroupAvatar.isPending} onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ""; if (!file) return; updateGroupAvatar.mutate({ groupId: activeGroup.id, file, currentPath: activeGroup.avatar_path }, { onSuccess: () => toast.success(fr ? "Photo du groupe enregistrée" : "Group photo saved"), onError: (error) => toast.error(error instanceof Error ? error.message : (fr ? "Impossible d’enregistrer la photo" : "Could not save the group photo")) }); }} /></label> : null}
                   </div>
                   {activeGroup.owner_id === user?.id ? <div className="flex gap-2"><Input value={groupEditName} onChange={(event) => setGroupEditName(event.target.value.slice(0, 60))} /><Button onClick={() => updateGroup.mutate({ groupId: activeGroup.id, name: groupEditName }, { onSuccess: () => toast.success(fr ? "Groupe mis à jour" : "Group updated") })}>{fr ? "Enregistrer" : "Save"}</Button></div> : null}
                   <div className="space-y-2">{activeGroup.members.map((member) => <div key={member.id} className="flex items-center gap-2 rounded-xl bg-muted/50 p-2"><Avatar path={member.avatar_url} name={member.name} online={member.online} hasUpdate={member.has_update} className="size-9" /><span className="flex min-w-0 flex-1 items-center gap-1 text-sm font-semibold"><span className="truncate">{member.name}</span><VerifiedBadge tier={member.verified_tier} until={member.verified_until} size={13} /></span>{activeGroup.owner_id === user?.id && member.id !== user.id ? <Button size="icon" variant="ghost" className="text-destructive" onClick={() => removeGroupMember.mutate({ groupId: activeGroup.id, userId: member.id })}><UserMinus className="size-4" /></Button> : null}</div>)}</div>
