@@ -380,10 +380,14 @@ function ConsoleUsers() {
 
               <Button
                 type="button"
-                className="flex-1"
+                className="flex-1 relative z-[9999]"
+                onPointerDown={() => {
+                  console.log("CREDIT POINTER DOWN");
+                  toast.info("Pointer received");
+                }}
                 onClick={() => {
-                  console.log("[ConsoleUsers] CREDIT WALLET BUTTON CLICKED");
-                  toast.info("Credit Wallet button clicked");
+                  console.log("CREDIT CLICK");
+                  toast.info("Click received");
                   void submitCredit();
                 }}
                 disabled={crediting}
