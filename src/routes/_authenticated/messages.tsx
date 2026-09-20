@@ -1411,8 +1411,8 @@ function MessagesPage() {
                   name: m.name,
                   avatar_url: m.avatar_url,
                   online: m.online,
-                  verified_tier: m.verified_tier,
-                  verified_until: m.verified_until,
+                  verified_tier: m.verified_tier ?? null,
+                  verified_until: m.verified_until ?? null,
                 }))}
                   initialMessages={activeId ? lockedMessages[activeId] : undefined}
                 className="min-h-0 flex-1 px-2"

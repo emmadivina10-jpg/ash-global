@@ -566,7 +566,8 @@ export function StoriesRail() {
             business_name: provider.business_name,
             city: provider.city,
             avatar_url: provider.avatar_url,
-            is_verified: provider.is_verified,
+            verified_tier: provider.is_verified ? "BUSINESS" : null,
+            verified_until: null,
           },
         };
 
