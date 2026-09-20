@@ -96,7 +96,7 @@ export function PostCard({
             <p className="text-[9px] font-extrabold uppercase text-primary">ASH Markets Update</p>
             <p className="truncate text-xs font-bold text-foreground">{post.market.title}</p>
           </div>
-          <Link to="/search" className="shrink-0 text-[10px] font-bold text-primary hover:underline">View in ASH Markets</Link>
+          <Link to="/fx-analytics" className="shrink-0 text-[10px] font-bold text-primary hover:underline">View in ASH Markets</Link>
         </div>
       ) : null}
       <header className="flex items-center gap-3 p-4 pb-3">

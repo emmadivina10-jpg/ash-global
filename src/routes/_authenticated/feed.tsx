@@ -148,7 +148,7 @@ function FeedPage() {
         </div>
         <div className="flex items-center gap-1.5">
           <Link
-            to="/search"
+            to="/fx-analytics"
             aria-label={fr ? "Ouvrir Analyse FX" : "Open FX Analytics"}
             className="inline-flex h-10 items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3 text-xs font-bold text-primary transition-colors hover:bg-primary/15"
           >
