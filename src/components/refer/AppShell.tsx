@@ -40,6 +40,7 @@ import { WelcomeIntro } from "./WelcomeIntro";
 import { SwipeBack } from "./SwipeBack";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAvatarUrl } from "./AvatarUpload";
+import { VerifiedBadge } from "./VerifiedBadge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -232,8 +233,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="mt-3 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-card)]">
             <div className="flex items-center gap-2">
               <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
-              <p className="min-w-0 truncate text-sm font-semibold text-foreground">
-                {profile?.full_name || t("shell.member")}
+              <p className="flex min-w-0 items-center gap-1 text-sm font-semibold text-foreground">
+                <span className="truncate">{profile?.full_name || t("shell.member")}</span>
+                <VerifiedBadge tier={profile?.verified_tier} until={profile?.verified_until} size={13} />
               </p>
             </div>
             <StatusBadge
@@ -268,8 +270,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <DropdownMenuItem onSelect={() => navigate({ to: "/profile" })} className="gap-3 py-2.5">
                     <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
                     <span className="min-w-0">
-                      <span className="block truncate text-sm font-bold">
-                        {profile?.full_name || t("shell.member")}
+                      <span className="flex items-center gap-1 text-sm font-bold">
+                        <span className="truncate">{profile?.full_name || t("shell.member")}</span>
+                        <VerifiedBadge tier={profile?.verified_tier} until={profile?.verified_until} size={13} />
                       </span>
                       <span className="block text-xs text-muted-foreground">
                         {lang === "fr" ? "Voir votre profil" : "See your profile"}
@@ -310,7 +313,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-60">
                   <DropdownMenuLabel className="space-y-1">
-                    <p className="truncate text-sm font-semibold">{profile?.full_name || t("shell.member")}</p>
+                    <p className="flex items-center gap-1 text-sm font-semibold"><span className="truncate">{profile?.full_name || t("shell.member")}</span><VerifiedBadge tier={profile?.verified_tier} until={profile?.verified_until} size={13} /></p>
                     <StatusBadge
                       status={profile?.account_status ?? "PENDING"}
                       label={profile?.account_status === "ACTIVE" ? t("shell.active") : t("shell.pending")}

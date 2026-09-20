@@ -9,7 +9,7 @@ import { SectionCard } from "@/components/refer/cards";
 import { StatusBadge } from "@/components/refer/StatusBadge";
 import { CopyReferralButton } from "@/components/refer/ReferralCard";
 import { AvatarUpload } from "@/components/refer/AvatarUpload";
-import { GroupVerifiedBadge } from "@/components/refer/GroupBadge";
+import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 
 import { SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
@@ -144,7 +144,11 @@ function ProfilePage() {
         <div className="min-w-0">
           <h1 className="flex items-center gap-1.5 truncate text-2xl font-bold text-foreground sm:text-3xl">
             <span className="truncate">{profile.full_name || t("profile.title")}</span>
-            {(profile as { verified_tier?: string | null }).verified_tier ? <GroupVerifiedBadge className="size-5" label="ASH verified profile" /> : null}
+            <VerifiedBadge
+              tier={(profile as { verified_tier?: string | null }).verified_tier}
+              until={(profile as { verified_until?: string | null }).verified_until}
+              size={20}
+            />
           </h1>
           <p className="truncate text-sm text-muted-foreground">{profile.email}</p>
           <Link to="/verified" className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-[#1877F2]">
