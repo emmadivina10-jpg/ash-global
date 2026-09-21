@@ -107,6 +107,7 @@ import { Route as ApiPublicCleanupSpotlightVideosRouteImport } from './routes/ap
 import { Route as ApiPublicCleanupStoriesRouteImport } from './routes/api/public/cleanup-stories'
 import { Route as ApiPublicReconcileActivationsRouteImport } from './routes/api/public/reconcile-activations'
 import { Route as ApiPublicSecuritySelfcheckRouteImport } from './routes/api/public/security-selfcheck'
+import { Route as AuthenticatedCampusInstructorsIndexRouteImport } from './routes/_authenticated/campus.instructors.index'
 import { Route as AuthenticatedMarketsInstructorsInstructorIdRouteImport } from './routes/_authenticated/markets.instructors.$instructorId'
 import { Route as AuthenticatedMarketsUpdateMarketPostIdRouteImport } from './routes/_authenticated/markets.update.$marketPostId'
 import { Route as ApiPublicWebhooksTchokopayRouteImport } from './routes/api/public/webhooks/tchokopay'
@@ -624,6 +625,12 @@ const ApiPublicSecuritySelfcheckRoute =
     path: '/api/public/security-selfcheck',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedCampusInstructorsIndexRoute =
+  AuthenticatedCampusInstructorsIndexRouteImport.update({
+    id: '/campus/instructors/',
+    path: '/campus/instructors/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMarketsInstructorsInstructorIdRoute =
   AuthenticatedMarketsInstructorsInstructorIdRouteImport.update({
     id: '/markets/instructors/$instructorId',
@@ -763,6 +770,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/campus/instructors/': typeof AuthenticatedCampusInstructorsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -867,6 +875,7 @@ export interface FileRoutesByTo {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/campus/instructors': typeof AuthenticatedCampusInstructorsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -974,6 +983,7 @@ export interface FileRoutesById {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/_authenticated/campus/instructors/': typeof AuthenticatedCampusInstructorsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1081,6 +1091,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
+    | '/campus/instructors/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1185,6 +1196,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
+    | '/campus/instructors'
   id:
     | '__root__'
     | '/'
@@ -1291,6 +1303,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
+    | '/_authenticated/campus/instructors/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -2015,6 +2028,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSecuritySelfcheckRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/campus/instructors/': {
+      id: '/_authenticated/campus/instructors/'
+      path: '/campus/instructors'
+      fullPath: '/campus/instructors/'
+      preLoaderRoute: typeof AuthenticatedCampusInstructorsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/markets/instructors/$instructorId': {
       id: '/_authenticated/markets/instructors/$instructorId'
       path: '/markets/instructors/$instructorId'
@@ -2107,6 +2127,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedServicesIndexRoute: typeof AuthenticatedServicesIndexRoute
   AuthenticatedMarketsInstructorsInstructorIdRoute: typeof AuthenticatedMarketsInstructorsInstructorIdRoute
   AuthenticatedMarketsUpdateMarketPostIdRoute: typeof AuthenticatedMarketsUpdateMarketPostIdRoute
+  AuthenticatedCampusInstructorsIndexRoute: typeof AuthenticatedCampusInstructorsIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -2158,6 +2179,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedMarketsInstructorsInstructorIdRoute,
   AuthenticatedMarketsUpdateMarketPostIdRoute:
     AuthenticatedMarketsUpdateMarketPostIdRoute,
+  AuthenticatedCampusInstructorsIndexRoute:
+    AuthenticatedCampusInstructorsIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
