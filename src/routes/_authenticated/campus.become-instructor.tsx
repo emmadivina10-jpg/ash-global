@@ -12,6 +12,11 @@ import {
   CAMPUS_LEVELS,
   CAMPUS_MODES,
   CAMPUS_PARTS,
+  INSTRUCTOR_TYPES,
+  LANGUAGE_LEVELS,
+  catalogueOf,
+  instructorTypeLabel,
+  languageLevelLabel,
   levelLabel,
   modeLabel,
   useCampusSubjects,
@@ -57,6 +62,17 @@ function BecomeInstructorPage() {
   const [methodology, setMethodology] = useState("");
   const [teachingExperience, setTeachingExperience] = useState("");
   const [chosenSubjects, setChosenSubjects] = useState<string[]>([]);
+  const [instructorTypes, setInstructorTypes] = useState<string[]>([]);
+  const [exams, setExams] = useState<string[]>([]);
+  const [skills, setSkills] = useState<string[]>([]);
+  const [languageLevels, setLanguageLevels] = useState<{ language: string; level: string }[]>([]);
+  const [timezone, setTimezone] = useState(() => {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || "Africa/Douala";
+    } catch {
+      return "Africa/Douala";
+    }
+  });
   const [levels, setLevels] = useState<string[]>([]);
   const [languages, setLanguages] = useState<string[]>([]);
   const [modes, setModes] = useState<string[]>([]);
@@ -102,6 +118,11 @@ function BecomeInstructorPage() {
         levels,
         languages,
         teachingModes: modes,
+        instructorTypes,
+        exams,
+        skills,
+        languageLevels,
+        timezone,
         areasServed,
         yearsExperience: Number(yearsExperience) || 0,
         hourlyFrom: hourlyFrom ? Number(hourlyFrom) : null,
