@@ -254,6 +254,12 @@ function InstructorProfilePage() {
       </Section>
 
       <Section title={fr ? "Disponibilités" : "Availability"}>
+        <p className="mb-2 text-xs text-muted-foreground">
+          {fr ? "Fuseau de l'instructeur : " : "Instructor's time zone: "}
+          {zoneLabel(instructor.timezone || providerTimeZone(instructor.country))} ·{" "}
+          {fr ? "Votre fuseau : " : "Your time zone: "}
+          {zoneLabel(Intl.DateTimeFormat().resolvedOptions().timeZone)}
+        </p>
         {!details?.availability.length ? (
           <p className="text-sm text-muted-foreground">
             {fr ? "Aucune disponibilité publiée." : "No availability published."}
