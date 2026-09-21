@@ -87,6 +87,7 @@ import { Route as SSlugRouteImport } from './routes/s.$slug'
 import { Route as AuthenticatedArticlesIndexRouteImport } from './routes/_authenticated/articles.index'
 import { Route as AuthenticatedArticlesArticleIdRouteImport } from './routes/_authenticated/articles.$articleId'
 import { Route as AuthenticatedCampusIndexRouteImport } from './routes/_authenticated/campus.index'
+import { Route as AuthenticatedCampusBecomeInstructorRouteImport } from './routes/_authenticated/campus.become-instructor'
 import { Route as AuthenticatedEventsIndexRouteImport } from './routes/_authenticated/events.index'
 import { Route as AuthenticatedEventsEventIdRouteImport } from './routes/_authenticated/events.$eventId'
 import { Route as AuthenticatedFreelanceIndexRouteImport } from './routes/_authenticated/freelance.index'
@@ -512,6 +513,12 @@ const AuthenticatedCampusIndexRoute =
     path: '/campus/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCampusBecomeInstructorRoute =
+  AuthenticatedCampusBecomeInstructorRouteImport.update({
+    id: '/campus/become-instructor',
+    path: '/campus/become-instructor',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedEventsIndexRoute =
   AuthenticatedEventsIndexRouteImport.update({
     id: '/events/',
@@ -749,6 +756,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug': typeof SSlugRoute
   '/console/': typeof ConsoleIndexRoute
   '/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
+  '/campus/become-instructor': typeof AuthenticatedCampusBecomeInstructorRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/hashtag/$tag': typeof AuthenticatedHashtagTagRoute
@@ -855,6 +863,7 @@ export interface FileRoutesByTo {
   '/s/$slug': typeof SSlugRoute
   '/console': typeof ConsoleIndexRoute
   '/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
+  '/campus/become-instructor': typeof AuthenticatedCampusBecomeInstructorRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/hashtag/$tag': typeof AuthenticatedHashtagTagRoute
@@ -964,6 +973,7 @@ export interface FileRoutesById {
   '/s/$slug': typeof SSlugRoute
   '/console/': typeof ConsoleIndexRoute
   '/_authenticated/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
+  '/_authenticated/campus/become-instructor': typeof AuthenticatedCampusBecomeInstructorRoute
   '/_authenticated/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/_authenticated/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/_authenticated/hashtag/$tag': typeof AuthenticatedHashtagTagRoute
@@ -1073,6 +1083,7 @@ export interface FileRouteTypes {
     | '/s/$slug'
     | '/console/'
     | '/articles/$articleId'
+    | '/campus/become-instructor'
     | '/events/$eventId'
     | '/freelance/$projectId'
     | '/hashtag/$tag'
@@ -1179,6 +1190,7 @@ export interface FileRouteTypes {
     | '/s/$slug'
     | '/console'
     | '/articles/$articleId'
+    | '/campus/become-instructor'
     | '/events/$eventId'
     | '/freelance/$projectId'
     | '/hashtag/$tag'
@@ -1287,6 +1299,7 @@ export interface FileRouteTypes {
     | '/s/$slug'
     | '/console/'
     | '/_authenticated/articles/$articleId'
+    | '/_authenticated/campus/become-instructor'
     | '/_authenticated/events/$eventId'
     | '/_authenticated/freelance/$projectId'
     | '/_authenticated/hashtag/$tag'
@@ -1901,6 +1914,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCampusIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/campus/become-instructor': {
+      id: '/_authenticated/campus/become-instructor'
+      path: '/campus/become-instructor'
+      fullPath: '/campus/become-instructor'
+      preLoaderRoute: typeof AuthenticatedCampusBecomeInstructorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/events/': {
       id: '/_authenticated/events/'
       path: '/events'
@@ -2127,6 +2147,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
   AuthenticatedWithdrawRoute: typeof AuthenticatedWithdrawRoute
   AuthenticatedArticlesArticleIdRoute: typeof AuthenticatedArticlesArticleIdRoute
+  AuthenticatedCampusBecomeInstructorRoute: typeof AuthenticatedCampusBecomeInstructorRoute
   AuthenticatedEventsEventIdRoute: typeof AuthenticatedEventsEventIdRoute
   AuthenticatedFreelanceProjectIdRoute: typeof AuthenticatedFreelanceProjectIdRoute
   AuthenticatedHashtagTagRoute: typeof AuthenticatedHashtagTagRoute
@@ -2178,6 +2199,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedWalletRoute: AuthenticatedWalletRoute,
   AuthenticatedWithdrawRoute: AuthenticatedWithdrawRoute,
   AuthenticatedArticlesArticleIdRoute: AuthenticatedArticlesArticleIdRoute,
+  AuthenticatedCampusBecomeInstructorRoute:
+    AuthenticatedCampusBecomeInstructorRoute,
   AuthenticatedEventsEventIdRoute: AuthenticatedEventsEventIdRoute,
   AuthenticatedFreelanceProjectIdRoute: AuthenticatedFreelanceProjectIdRoute,
   AuthenticatedHashtagTagRoute: AuthenticatedHashtagTagRoute,
