@@ -103,6 +103,7 @@ function BecomeInstructorPage() {
   }
 
   async function send() {
+    setFormError(null);
     try {
       await submit.mutateAsync({
         legalFullName,
