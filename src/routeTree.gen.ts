@@ -102,6 +102,7 @@ import { Route as AuthenticatedPropertyNewRouteImport } from './routes/_authenti
 import { Route as AuthenticatedServicesIndexRouteImport } from './routes/_authenticated/services.index'
 import { Route as AuthenticatedServicesProviderIdRouteImport } from './routes/_authenticated/services.$providerId'
 import { Route as AuthenticatedUUserIdRouteImport } from './routes/_authenticated/u.$userId'
+import { Route as ApiPublicCleanupSpotlightVideosRouteImport } from './routes/api/public/cleanup-spotlight-videos'
 import { Route as ApiPublicCleanupStoriesRouteImport } from './routes/api/public/cleanup-stories'
 import { Route as ApiPublicReconcileActivationsRouteImport } from './routes/api/public/reconcile-activations'
 import { Route as ApiPublicSecuritySelfcheckRouteImport } from './routes/api/public/security-selfcheck'
@@ -593,6 +594,12 @@ const AuthenticatedUUserIdRoute = AuthenticatedUUserIdRouteImport.update({
   path: '/u/$userId',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicCleanupSpotlightVideosRoute =
+  ApiPublicCleanupSpotlightVideosRouteImport.update({
+    id: '/api/public/cleanup-spotlight-videos',
+    path: '/api/public/cleanup-spotlight-videos',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicCleanupStoriesRoute = ApiPublicCleanupStoriesRouteImport.update({
   id: '/api/public/cleanup-stories',
   path: '/api/public/cleanup-stories',
@@ -731,6 +738,7 @@ export interface FileRoutesByFullPath {
   '/property/new': typeof AuthenticatedPropertyNewRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/u/$userId': typeof AuthenticatedUUserIdRoute
+  '/api/public/cleanup-spotlight-videos': typeof ApiPublicCleanupSpotlightVideosRoute
   '/api/public/cleanup-stories': typeof ApiPublicCleanupStoriesRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
@@ -833,6 +841,7 @@ export interface FileRoutesByTo {
   '/property/new': typeof AuthenticatedPropertyNewRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/u/$userId': typeof AuthenticatedUUserIdRoute
+  '/api/public/cleanup-spotlight-videos': typeof ApiPublicCleanupSpotlightVideosRoute
   '/api/public/cleanup-stories': typeof ApiPublicCleanupStoriesRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
@@ -938,6 +947,7 @@ export interface FileRoutesById {
   '/_authenticated/property/new': typeof AuthenticatedPropertyNewRoute
   '/_authenticated/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/_authenticated/u/$userId': typeof AuthenticatedUUserIdRoute
+  '/api/public/cleanup-spotlight-videos': typeof ApiPublicCleanupSpotlightVideosRoute
   '/api/public/cleanup-stories': typeof ApiPublicCleanupStoriesRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
@@ -1043,6 +1053,7 @@ export interface FileRouteTypes {
     | '/property/new'
     | '/services/$providerId'
     | '/u/$userId'
+    | '/api/public/cleanup-spotlight-videos'
     | '/api/public/cleanup-stories'
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
@@ -1145,6 +1156,7 @@ export interface FileRouteTypes {
     | '/property/new'
     | '/services/$providerId'
     | '/u/$userId'
+    | '/api/public/cleanup-spotlight-videos'
     | '/api/public/cleanup-stories'
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
@@ -1249,6 +1261,7 @@ export interface FileRouteTypes {
     | '/_authenticated/property/new'
     | '/_authenticated/services/$providerId'
     | '/_authenticated/u/$userId'
+    | '/api/public/cleanup-spotlight-videos'
     | '/api/public/cleanup-stories'
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
@@ -1291,6 +1304,7 @@ export interface RootRouteChildren {
   AuthCallbackRoute: typeof AuthCallbackRoute
   PayCodeRoute: typeof PayCodeRoute
   SSlugRoute: typeof SSlugRoute
+  ApiPublicCleanupSpotlightVideosRoute: typeof ApiPublicCleanupSpotlightVideosRoute
   ApiPublicCleanupStoriesRoute: typeof ApiPublicCleanupStoriesRoute
   ApiPublicReconcileActivationsRoute: typeof ApiPublicReconcileActivationsRoute
   ApiPublicSecuritySelfcheckRoute: typeof ApiPublicSecuritySelfcheckRoute
@@ -1953,6 +1967,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUUserIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/cleanup-spotlight-videos': {
+      id: '/api/public/cleanup-spotlight-videos'
+      path: '/api/public/cleanup-spotlight-videos'
+      fullPath: '/api/public/cleanup-spotlight-videos'
+      preLoaderRoute: typeof ApiPublicCleanupSpotlightVideosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cleanup-stories': {
       id: '/api/public/cleanup-stories'
       path: '/api/public/cleanup-stories'
@@ -2207,6 +2228,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthCallbackRoute: AuthCallbackRoute,
   PayCodeRoute: PayCodeRoute,
   SSlugRoute: SSlugRoute,
+  ApiPublicCleanupSpotlightVideosRoute: ApiPublicCleanupSpotlightVideosRoute,
   ApiPublicCleanupStoriesRoute: ApiPublicCleanupStoriesRoute,
   ApiPublicReconcileActivationsRoute: ApiPublicReconcileActivationsRoute,
   ApiPublicSecuritySelfcheckRoute: ApiPublicSecuritySelfcheckRoute,
