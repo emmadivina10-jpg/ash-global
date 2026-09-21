@@ -19,7 +19,7 @@ import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { useMyCampusApplication, useMyInstructorProfile } from "@/lib/campus.queries";
 
-export const Route = createFileRoute("/_authenticated/campus")({
+export const Route = createFileRoute("/_authenticated/campus/")({
   head: () => ({
     meta: [
       { title: "ASH Campus — learn, teach and grow" },
