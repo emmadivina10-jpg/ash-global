@@ -360,6 +360,7 @@ function MessagesPage() {
   const [unlockDialog, setUnlockDialog] = useState(false);
   const [unlockingId, setUnlockingId] = useState<string | null>(null);
   const [lockedMessages, setLockedMessages] = useState<Record<string, LockedChatMessage[]>>({});
+  const [lockedPins, setLockedPins] = useState<Record<string, string>>({});
   const [pinDialog, setPinDialog] = useState(false);
   const [pinValue, setPinValue] = useState("");
   const [groupDialog, setGroupDialog] = useState(false);
@@ -394,6 +395,7 @@ function MessagesPage() {
     (typeof window !== "undefined" && window.innerWidth >= 768
       ? list[0]?.id
       : undefined);
+  const activeLockedPin = activeId ? lockedPins[activeId] : undefined;
 
   const active = list.find((conv) => conv.id === activeId);
   const { data: myGroups } = useGroups();
@@ -654,8 +656,10 @@ function MessagesPage() {
   async function submitLockedChatUnlock() {
     if (!unlockingId || pinValue.length < 4) return;
     try {
-      const result = await unlockChatServer({ data: { conversationId: unlockingId, pin: pinValue } }) as { messages: LockedChatMessage[] };
+      const submittedPin = pinValue;
+      const result = await unlockChatServer({ data: { conversationId: unlockingId, pin: submittedPin } }) as { messages: LockedChatMessage[] };
       setLockedMessages((current) => ({ ...current, [unlockingId]: result.messages }));
+      setLockedPins((current) => ({ ...current, [unlockingId]: submittedPin }));
       setUnlockDialog(false);
       setPinValue("");
       void navigate({ search: { c: unlockingId } });
@@ -1418,6 +1422,14 @@ function MessagesPage() {
                   verified_until: m.verified_until ?? null,
                 }))}
                   initialMessages={activeId ? lockedMessages[activeId] : undefined}
+                  refreshMessages={activeId && activeLockedPin
+                    ? async () => {
+                        const result = await unlockChatServer({
+                          data: { conversationId: activeId, pin: activeLockedPin },
+                        }) as { messages: LockedChatMessage[] };
+                        return result.messages;
+                      }
+                    : undefined}
                 className="min-h-0 flex-1 px-2"
                     quickReplies={
                       lang === "fr"

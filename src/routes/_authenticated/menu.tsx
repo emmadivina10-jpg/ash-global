@@ -14,6 +14,7 @@ import {
   MessageCircle,
   PlusCircle,
   Receipt,
+  Search,
   Settings,
   Shield,
   Sparkles,
@@ -53,6 +54,7 @@ const sections = [
     en: "Social",
     fr: "Social",
     items: [
+      ["Search ASH", "Rechercher sur ASH", "/search", Search],
       ["Friends", "Amis", "/friends", Users],
       ["Groups", "Groupes", "/groups", MessageCircle],
       ["Notifications", "Notifications", "/notifications", Bell],
