@@ -260,6 +260,23 @@ export function ChatThread({
 
     setBody("");
 
+    // Off-platform protection: warn once, record repeats for the review team.
+    const offPlatform = detectOffPlatform(value);
+    if (offPlatform) {
+      const count = await flagOffPlatform(conversationId, offPlatform.rule, value);
+      const warning = fr ? offPlatform.fr : offPlatform.en;
+      if (count > 2) {
+        toast.warning(
+          warning +
+            (fr
+              ? " Ces messages répétés sont transmis à l'équipe ASH."
+              : " Repeated messages like this are sent to the ASH review team."),
+        );
+      } else {
+        toast.info(warning);
+      }
+    }
+
     void queryClient.invalidateQueries({
       queryKey: ["messages", conversationId],
     });
