@@ -216,27 +216,59 @@ function BecomeInstructorPage() {
               <Textarea value={teachingExperience} onChange={(event) => setTeachingExperience(event.target.value)} rows={3} />
             </Field>
 
-            <Field label={fr ? "Matières" : "Subjects"}>
+            <Field label={fr ? "Type d'instructeur" : "Instructor type"}>
               <div className="flex flex-wrap gap-1.5">
-                {(subjects.data ?? []).map((subject) => {
-                  const value = subject.name_en;
-                  const active = chosenSubjects.includes(value);
-                  return (
-                    <button
-                      key={subject.id}
-                      type="button"
-                      onClick={() => toggle(chosenSubjects, value, setChosenSubjects)}
-                      className={
-                        "rounded-full border px-3 py-1 text-xs font-semibold transition-colors " +
-                        (active ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground")
-                      }
-                    >
-                      {fr ? subject.name_fr : subject.name_en}
-                    </button>
-                  );
-                })}
+                {INSTRUCTOR_TYPES.map((type) => (
+                  <Chip
+                    key={type}
+                    active={instructorTypes.includes(type)}
+                    onClick={() => toggle(instructorTypes, type, setInstructorTypes)}
+                  >
+                    {instructorTypeLabel(type, fr)}
+                  </Chip>
+                ))}
               </div>
             </Field>
+
+            <Field label={fr ? "Matières" : "Subjects"}>
+              <div className="flex flex-wrap gap-1.5">
+                {catalogueOf(subjects.data, "SUBJECT").map((subject) => (
+                  <Chip
+                    key={subject.id}
+                    active={chosenSubjects.includes(subject.name_en)}
+                    onClick={() => toggle(chosenSubjects, subject.name_en, setChosenSubjects)}
+                  >
+                    {fr ? subject.name_fr : subject.name_en}
+                  </Chip>
+                ))}
+              </div>
+            </Field>
+
+            <Field label={fr ? "Examens préparés" : "Exams you prepare learners for"}>
+              <div className="flex flex-wrap gap-1.5">
+                {catalogueOf(subjects.data, "EXAM").map((item) => (
+                  <Chip key={item.id} active={exams.includes(item.name_en)} onClick={() => toggle(exams, item.name_en, setExams)}>
+                    {fr ? item.name_fr : item.name_en}
+                  </Chip>
+                ))}
+              </div>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                {fr
+                  ? "Vos services s'affichent comme « Préparation TCF Canada ». ASH n'affirme aucune affiliation avec un organisme d'examen."
+                  : "Your services appear as “TCF Canada Preparation”. ASH never claims affiliation with an examination organisation."}
+              </p>
+            </Field>
+
+            <Field label={fr ? "Compétences professionnelles et techniques" : "Professional and technical skills"}>
+              <div className="flex flex-wrap gap-1.5">
+                {catalogueOf(subjects.data, "SKILL").map((item) => (
+                  <Chip key={item.id} active={skills.includes(item.name_en)} onClick={() => toggle(skills, item.name_en, setSkills)}>
+                    {fr ? item.name_fr : item.name_en}
+                  </Chip>
+                ))}
+              </div>
+            </Field>
+
 
             <Field label={fr ? "Niveaux" : "Education levels"}>
               <div className="flex flex-wrap gap-1.5">
