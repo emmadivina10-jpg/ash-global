@@ -395,6 +395,7 @@ function MessagesPage() {
     (typeof window !== "undefined" && window.innerWidth >= 768
       ? list[0]?.id
       : undefined);
+  const activeLockedPin = activeId ? lockedPins[activeId] : undefined;
 
   const active = list.find((conv) => conv.id === activeId);
   const { data: myGroups } = useGroups();
@@ -1421,10 +1422,10 @@ function MessagesPage() {
                   verified_until: m.verified_until ?? null,
                 }))}
                   initialMessages={activeId ? lockedMessages[activeId] : undefined}
-                  refreshMessages={activeId && lockedPins[activeId]
+                  refreshMessages={activeId && activeLockedPin
                     ? async () => {
                         const result = await unlockChatServer({
-                          data: { conversationId: activeId, pin: lockedPins[activeId] },
+                          data: { conversationId: activeId, pin: activeLockedPin },
                         }) as { messages: LockedChatMessage[] };
                         return result.messages;
                       }
