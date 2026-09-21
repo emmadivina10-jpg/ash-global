@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MessageMemberDialog } from "@/components/console/MessageMemberDialog";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -70,15 +70,14 @@ function SupportInboxPage() {
 
   const active = tickets.find((t) => t.id === (selected ?? visible[0]?.id)) ?? null;
 
-  useMemo(() => {
-    if (!active) return null;
+  useEffect(() => {
+    if (!active) return;
     const latestCustomer = [...active.messages].reverse().find((message) => message.sender === "CUSTOMER");
-    if (!latestCustomer || (active.admin_read_at && latestCustomer.created_at <= active.admin_read_at)) return null;
+    if (!latestCustomer || (active.admin_read_at && latestCustomer.created_at <= active.admin_read_at)) return;
     void markRead({ data: { ticketId: active.id } }).then(async () => {
       await queryClient.invalidateQueries({ queryKey: ["console", "support", "badge"] });
       await queryClient.invalidateQueries({ queryKey: ["console", "support"] });
     });
-    return null;
   }, [active, markRead, queryClient]);
 
   async function send(resolve: boolean) {

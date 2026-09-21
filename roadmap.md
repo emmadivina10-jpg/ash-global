@@ -78,9 +78,9 @@
 - [x] Deliver complete final text of all seven documents
 
 ## Notifications, entry routing, support chat, and founder profile
-- [ ] Correct notification destinations using their real event data
-- [ ] Route completed sign-ins and returning signed-in members to Feed
-- [ ] Add Support Chat to every member’s Messages using the existing support inbox
-- [ ] Show awaiting support counts beside Support in the admin console
-- [ ] Add the confirmed CEO biography to ASH AI’s founder knowledge
-- [ ] Verify member and admin flows without changing unrelated screens
+- [x] Correct notification destinations using their real event data
+- [x] Route completed sign-ins and returning signed-in members to Feed
+- [x] Add Support Chat to every member’s Messages using the existing support inbox
+- [x] Show awaiting support counts beside Support in the admin console
+- [x] Add the confirmed CEO biography to ASH AI’s founder knowledge
+- [x] Verify member and admin flows without changing unrelated screens
