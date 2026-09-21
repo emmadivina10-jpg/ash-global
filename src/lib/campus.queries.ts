@@ -52,6 +52,11 @@ export type CampusInstructor = {
   levels: string[];
   languages: string[];
   teaching_modes: string[];
+  instructor_types: string[];
+  exams: string[];
+  skills: string[];
+  language_levels: { language?: string; level?: string }[];
+  timezone: string | null;
   country: string | null;
   city: string | null;
   areas_served: string;
@@ -81,6 +86,11 @@ export type CampusApplication = {
   levels: string[];
   languages: string[];
   teaching_modes: string[];
+  instructor_types: string[];
+  exams: string[];
+  skills: string[];
+  language_levels: { language?: string; level?: string }[];
+  timezone: string | null;
   areas_served: string;
   years_experience: number;
   hourly_from: number | null;
