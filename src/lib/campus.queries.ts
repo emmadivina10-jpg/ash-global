@@ -453,6 +453,11 @@ export type CampusApplicationInput = {
   levels: string[];
   languages: string[];
   teachingModes: string[];
+  instructorTypes: string[];
+  exams: string[];
+  skills: string[];
+  languageLevels: { language: string; level: string }[];
+  timezone: string;
   areasServed: string;
   yearsExperience: number;
   hourlyFrom: number | null;
@@ -472,7 +477,9 @@ export function useSubmitCampusApplication() {
       if (!userId) throw new Error("You need to be signed in.");
       if (!input.declarationsAccepted) throw new Error("Please accept the declaration before submitting.");
       if (!input.identityDocument) throw new Error("Please attach an identity document.");
-      if (input.subjects.length === 0) throw new Error("Please choose at least one subject.");
+      if (input.instructorTypes.length === 0) throw new Error("Please choose your instructor type.");
+      if (input.subjects.length + input.exams.length + input.skills.length + input.languages.length === 0)
+        throw new Error("Please choose at least one subject, language, exam or skill.");
       if (input.levels.length === 0) throw new Error("Please choose at least one education level.");
 
       const uploaded: string[] = [];
@@ -500,6 +507,11 @@ export function useSubmitCampusApplication() {
           levels: input.levels,
           languages: input.languages,
           teaching_modes: input.teachingModes,
+          instructor_types: input.instructorTypes,
+          exams: input.exams,
+          skills: input.skills,
+          language_levels: input.languageLevels,
+          timezone: input.timezone || null,
           areas_served: input.areasServed.trim(),
           years_experience: Math.max(0, Math.min(60, Math.round(input.yearsExperience))),
           hourly_from: input.hourlyFrom,
