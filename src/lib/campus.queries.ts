@@ -299,42 +299,61 @@ export function useInstructors(filters: InstructorFilters) {
     queryKey: ["campus", "instructors", filters],
     queryFn: async (): Promise<CampusInstructor[]> => {
       let query = db.from("campus_instructor_profiles").select("*").eq("is_active", true);
-      const term = (filters.term ?? "").trim();
-      if (term.length >= 2) {
-        query = query.or(
-          `display_name.ilike.%${term}%,headline.ilike.%${term}%,bio.ilike.%${term}%,areas_served.ilike.%${term}%`,
-        );
-      }
       if (filters.level) query = query.contains("levels", [filters.level]);
       if (filters.mode) query = query.contains("teaching_modes", [filters.mode]);
       if (filters.language) query = query.contains("languages", [filters.language]);
+      if (filters.exam) query = query.contains("exams", [filters.exam]);
+      if (filters.skill) query = query.contains("skills", [filters.skill]);
+      if (filters.subject) query = query.contains("subjects", [filters.subject]);
+      if (filters.instructorType) query = query.contains("instructor_types", [filters.instructorType]);
       if (filters.city) query = query.ilike("city", `%${filters.city}%`);
+      if (filters.country) query = query.ilike("country", `%${filters.country}%`);
+      if (filters.maxPrice) query = query.lte("hourly_from", filters.maxPrice);
       if (filters.sort === "price") query = query.order("hourly_from", { ascending: true, nullsFirst: false });
       else query = query.order("years_experience", { ascending: false });
-      const { data, error } = await query.limit(40);
+      const { data, error } = await query.limit(80);
       if (error) throw error;
       let rows = (data ?? []) as CampusInstructor[];
+
+      const term = (filters.term ?? "").trim().toLowerCase();
       if (term.length >= 2) {
-        const needle = term.toLowerCase();
-        const matchesSubject = rows.filter((row) =>
-          row.subjects.some((subject) => subject.toLowerCase().includes(needle)),
-        );
-        const ids = new Set(rows.map((row) => row.id));
-        const { data: bySubject } = await db
-          .from("campus_instructor_profiles")
-          .select("*")
-          .eq("is_active", true)
-          .overlaps("subjects", [term])
-          .limit(20);
-        for (const row of (bySubject ?? []) as CampusInstructor[]) {
-          if (!ids.has(row.id)) {
-            rows.push(row);
-            ids.add(row.id);
-          }
-        }
-        void matchesSubject;
+        rows = rows.filter((row) => {
+          const haystack = [
+            row.display_name,
+            row.headline,
+            row.bio,
+            row.areas_served,
+            row.country ?? "",
+            row.city ?? "",
+            ...(row.subjects ?? []),
+            ...(row.exams ?? []),
+            ...(row.skills ?? []),
+            ...(row.languages ?? []),
+          ]
+            .join(" ")
+            .toLowerCase();
+          return haystack.includes(term);
+        });
       }
-      return decorate(rows);
+
+      if (filters.category) {
+        const category = filters.category;
+        const { data: catalogue } = await db
+          .from("campus_subjects")
+          .select("name_en")
+          .eq("is_active", true)
+          .eq("category", category);
+        const names = new Set(((catalogue ?? []) as { name_en: string }[]).map((item) => item.name_en));
+        if (names.size) {
+          rows = rows.filter((row) =>
+            [...(row.subjects ?? []), ...(row.exams ?? []), ...(row.skills ?? []), ...(row.languages ?? [])].some(
+              (value) => names.has(value),
+            ),
+          );
+        }
+      }
+
+      return decorate(rows.slice(0, 40));
     },
   });
 }
