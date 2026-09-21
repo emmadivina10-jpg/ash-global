@@ -35,6 +35,7 @@ import {
   X,
 } from "lucide-react";
 import { consoleStatus, lockConsole, setElevatedMode, unlockConsole } from "@/lib/console.functions";
+import { getSupportAwaitingCount } from "@/lib/support.functions";
 import { StaffChat } from "@/components/console/StaffChat";
 import { DailyTickets } from "@/components/console/DailyTickets";
 import { Button } from "@/components/ui/button";
@@ -111,11 +112,13 @@ function SidebarNav({
   onNavigate,
   superAdmin,
   department,
+  supportCount = 0,
 }: {
   pathname: string;
   onNavigate?: () => void;
   superAdmin: boolean;
   department: string;
+  supportCount?: number;
 }) {
   const items = allowedNav(superAdmin, department);
   return (
@@ -140,7 +143,12 @@ function SidebarNav({
                   )}
                 >
                   <Icon className="size-4 shrink-0" aria-hidden />
-                  {item.label}
+                  <span className="min-w-0 flex-1">{item.label}</span>
+                  {item.to === "/console/support" && supportCount > 0 ? (
+                    <span className="grid min-w-5 shrink-0 place-items-center rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-bold text-destructive-foreground">
+                      {supportCount > 99 ? "99+" : supportCount}
+                    </span>
+                  ) : null}
                 </Link>
               );
             })}
@@ -158,8 +166,16 @@ function ConsoleLayout() {
   const elevate = useServerFn(setElevatedMode);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [menuOpen, setMenuOpen] = useState(false);
+  const supportCountFn = useServerFn(getSupportAwaitingCount);
 
   const { data, isLoading } = useQuery({ queryKey: ["console", "status"], queryFn: status });
+  const canSeeSupport = Boolean(data?.unlocked && (data.actor?.superAdmin || data.actor?.department === "SUPPORT"));
+  const { data: supportBadge } = useQuery({
+    queryKey: ["console", "support", "badge"],
+    queryFn: supportCountFn,
+    enabled: canSeeSupport,
+    refetchInterval: 15_000,
+  });
 
   if (isLoading) return <LoadingState label="Checking console access…" />;
   if (!data?.unlocked) return <UnlockScreen />;
@@ -186,7 +202,7 @@ function ConsoleLayout() {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          <SidebarNav pathname={pathname} superAdmin={superAdmin} department={department} />
+          <SidebarNav pathname={pathname} superAdmin={superAdmin} department={department} supportCount={supportBadge?.count ?? 0} />
         </div>
 
         <div className="mt-4 rounded-xl border border-sidebar-border bg-card p-3">
@@ -310,6 +326,7 @@ function ConsoleLayout() {
                 onNavigate={() => setMenuOpen(false)}
                 superAdmin={superAdmin}
                 department={department}
+                supportCount={supportBadge?.count ?? 0}
               />
             </div>
           </div>
