@@ -5,7 +5,14 @@ import { Button } from "@/components/ui/button";
 import { EmptyState, LoadingState } from "@/components/refer/states";
 import { useI18n } from "@/lib/i18n";
 import { useMyBookings, useProviderReviews, useProviderServices } from "@/lib/marketplace.queries";
-import { useInstructorDetails, useMyCampusApplication, useMyInstructorProfile } from "@/lib/campus.queries";
+import {
+  CAMPUS_COMMISSION_RATE,
+  instructorTitle,
+  useInstructorDetails,
+  useInstructorEarnings,
+  useMyCampusApplication,
+  useMyInstructorProfile,
+} from "@/lib/campus.queries";
 
 export const Route = createFileRoute("/_authenticated/campus/teaching")({
   head: () => ({
@@ -30,6 +37,7 @@ function TeachingDashboard() {
   const services = useProviderServices(instructor?.provider_id ?? undefined);
   const reviews = useProviderReviews(instructor?.provider_id ?? undefined);
   const bookings = useMyBookings();
+  const earnings = useInstructorEarnings(instructor?.provider_id, instructor?.currency ?? "XAF");
 
   if (isLoading) return <LoadingState label={fr ? "Chargement…" : "Loading…"} />;
 
@@ -79,7 +87,7 @@ function TeachingDashboard() {
       <header className="rounded-2xl border border-border bg-card p-5">
         <p className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide text-primary">
           <BadgeCheck className="size-3.5" aria-hidden />
-          {fr ? "Instructeur vérifié ASH" : "ASH Verified Instructor"}
+          {instructorTitle(instructor.instructor_types, fr)}
         </p>
         <h1 className="mt-1 font-display text-2xl font-extrabold text-foreground">{instructor.display_name}</h1>
         <p className="text-sm text-muted-foreground">{instructor.headline}</p>
