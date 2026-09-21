@@ -108,6 +108,7 @@ import { Route as ApiPublicCleanupStoriesRouteImport } from './routes/api/public
 import { Route as ApiPublicReconcileActivationsRouteImport } from './routes/api/public/reconcile-activations'
 import { Route as ApiPublicSecuritySelfcheckRouteImport } from './routes/api/public/security-selfcheck'
 import { Route as AuthenticatedCampusInstructorsIndexRouteImport } from './routes/_authenticated/campus.instructors.index'
+import { Route as AuthenticatedCampusInstructorsInstructorIdRouteImport } from './routes/_authenticated/campus.instructors.$instructorId'
 import { Route as AuthenticatedMarketsInstructorsInstructorIdRouteImport } from './routes/_authenticated/markets.instructors.$instructorId'
 import { Route as AuthenticatedMarketsUpdateMarketPostIdRouteImport } from './routes/_authenticated/markets.update.$marketPostId'
 import { Route as ApiPublicWebhooksTchokopayRouteImport } from './routes/api/public/webhooks/tchokopay'
@@ -631,6 +632,12 @@ const AuthenticatedCampusInstructorsIndexRoute =
     path: '/campus/instructors/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCampusInstructorsInstructorIdRoute =
+  AuthenticatedCampusInstructorsInstructorIdRouteImport.update({
+    id: '/campus/instructors/$instructorId',
+    path: '/campus/instructors/$instructorId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMarketsInstructorsInstructorIdRoute =
   AuthenticatedMarketsInstructorsInstructorIdRouteImport.update({
     id: '/markets/instructors/$instructorId',
@@ -764,6 +771,7 @@ export interface FileRoutesByFullPath {
   '/jobs/': typeof AuthenticatedJobsIndexRoute
   '/property/': typeof AuthenticatedPropertyIndexRoute
   '/services/': typeof AuthenticatedServicesIndexRoute
+  '/campus/instructors/$instructorId': typeof AuthenticatedCampusInstructorsInstructorIdRoute
   '/markets/instructors/$instructorId': typeof AuthenticatedMarketsInstructorsInstructorIdRoute
   '/markets/update/$marketPostId': typeof AuthenticatedMarketsUpdateMarketPostIdRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
@@ -869,6 +877,7 @@ export interface FileRoutesByTo {
   '/jobs': typeof AuthenticatedJobsIndexRoute
   '/property': typeof AuthenticatedPropertyIndexRoute
   '/services': typeof AuthenticatedServicesIndexRoute
+  '/campus/instructors/$instructorId': typeof AuthenticatedCampusInstructorsInstructorIdRoute
   '/markets/instructors/$instructorId': typeof AuthenticatedMarketsInstructorsInstructorIdRoute
   '/markets/update/$marketPostId': typeof AuthenticatedMarketsUpdateMarketPostIdRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
@@ -977,6 +986,7 @@ export interface FileRoutesById {
   '/_authenticated/jobs/': typeof AuthenticatedJobsIndexRoute
   '/_authenticated/property/': typeof AuthenticatedPropertyIndexRoute
   '/_authenticated/services/': typeof AuthenticatedServicesIndexRoute
+  '/_authenticated/campus/instructors/$instructorId': typeof AuthenticatedCampusInstructorsInstructorIdRoute
   '/_authenticated/markets/instructors/$instructorId': typeof AuthenticatedMarketsInstructorsInstructorIdRoute
   '/_authenticated/markets/update/$marketPostId': typeof AuthenticatedMarketsUpdateMarketPostIdRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
@@ -1085,6 +1095,7 @@ export interface FileRouteTypes {
     | '/jobs/'
     | '/property/'
     | '/services/'
+    | '/campus/instructors/$instructorId'
     | '/markets/instructors/$instructorId'
     | '/markets/update/$marketPostId'
     | '/api/public/webhooks/tchokopay'
@@ -1190,6 +1201,7 @@ export interface FileRouteTypes {
     | '/jobs'
     | '/property'
     | '/services'
+    | '/campus/instructors/$instructorId'
     | '/markets/instructors/$instructorId'
     | '/markets/update/$marketPostId'
     | '/api/public/webhooks/tchokopay'
@@ -1297,6 +1309,7 @@ export interface FileRouteTypes {
     | '/_authenticated/jobs/'
     | '/_authenticated/property/'
     | '/_authenticated/services/'
+    | '/_authenticated/campus/instructors/$instructorId'
     | '/_authenticated/markets/instructors/$instructorId'
     | '/_authenticated/markets/update/$marketPostId'
     | '/api/public/webhooks/tchokopay'
@@ -2035,6 +2048,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCampusInstructorsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/campus/instructors/$instructorId': {
+      id: '/_authenticated/campus/instructors/$instructorId'
+      path: '/campus/instructors/$instructorId'
+      fullPath: '/campus/instructors/$instructorId'
+      preLoaderRoute: typeof AuthenticatedCampusInstructorsInstructorIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/markets/instructors/$instructorId': {
       id: '/_authenticated/markets/instructors/$instructorId'
       path: '/markets/instructors/$instructorId'
@@ -2125,6 +2145,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedJobsIndexRoute: typeof AuthenticatedJobsIndexRoute
   AuthenticatedPropertyIndexRoute: typeof AuthenticatedPropertyIndexRoute
   AuthenticatedServicesIndexRoute: typeof AuthenticatedServicesIndexRoute
+  AuthenticatedCampusInstructorsInstructorIdRoute: typeof AuthenticatedCampusInstructorsInstructorIdRoute
   AuthenticatedMarketsInstructorsInstructorIdRoute: typeof AuthenticatedMarketsInstructorsInstructorIdRoute
   AuthenticatedMarketsUpdateMarketPostIdRoute: typeof AuthenticatedMarketsUpdateMarketPostIdRoute
   AuthenticatedCampusInstructorsIndexRoute: typeof AuthenticatedCampusInstructorsIndexRoute
@@ -2175,6 +2196,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedJobsIndexRoute: AuthenticatedJobsIndexRoute,
   AuthenticatedPropertyIndexRoute: AuthenticatedPropertyIndexRoute,
   AuthenticatedServicesIndexRoute: AuthenticatedServicesIndexRoute,
+  AuthenticatedCampusInstructorsInstructorIdRoute:
+    AuthenticatedCampusInstructorsInstructorIdRoute,
   AuthenticatedMarketsInstructorsInstructorIdRoute:
     AuthenticatedMarketsInstructorsInstructorIdRoute,
   AuthenticatedMarketsUpdateMarketPostIdRoute:
