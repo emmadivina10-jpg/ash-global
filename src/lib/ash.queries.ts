@@ -385,6 +385,11 @@ export type SearchBuckets = {
     display_name: string;
     headline: string;
     subjects: string[];
+    exams: string[];
+    skills: string[];
+    languages: string[];
+    instructor_types: string[];
+    country: string | null;
     city: string | null;
     hourly_from: number | null;
     currency: string;
