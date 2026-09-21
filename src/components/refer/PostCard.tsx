@@ -1,7 +1,7 @@
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { MessageCircle, Repeat2, ShieldCheck, Trash2 } from "lucide-react";
+import { MessageCircle, Repeat2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "./AvatarUpload";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,6 @@ import { Switch } from "@/components/ui/switch";
 import {
   useAddComment,
   useComments,
-  useDeletePost,
   useSetCommentFilter,
   useEngagementRealtime,
   useSetPostReaction,
@@ -19,6 +18,7 @@ import {
   type PostComment,
   useSetCommentReaction,
 } from "@/lib/social.queries";
+import { SocialPostOwnerActions } from "./SocialPostOwnerActions";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { ReactionButton, ReactionSummary } from "./ReactionButton";
@@ -76,7 +76,6 @@ export function PostCard({
   const react = useSetPostReaction();
   const repost = useToggleRepost();
   const setFilter = useSetCommentFilter();
-  const remove = useDeletePost();
   const mine = currentUserId === post.author_id;
   useEngagementRealtime(detail ? post.id : null);
 
@@ -122,16 +121,7 @@ export function PostCard({
           </p>
         </div>
         {mine ? (
-          <button
-            type="button"
-            aria-label={fr ? "Supprimer" : "Delete"}
-            onClick={() =>
-              remove.mutate(post.id, { onSuccess: () => toast.success(fr ? "Publication supprimée" : "Post deleted") })
-            }
-            className="text-muted-foreground transition-colors hover:text-destructive"
-          >
-            <Trash2 className="size-4" aria-hidden />
-          </button>
+          <SocialPostOwnerActions postId={post.id} caption={post.caption} />
         ) : null}
       </header>
 

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { AlertTriangle, ArrowRight, CalendarClock, Coins, PartyPopper, Star, Trash2, Wallet , Play } from "lucide-react";
+import { AlertTriangle, ArrowRight, CalendarClock, Coins, PartyPopper, Pencil, Star, Trash2, Wallet , Play } from "lucide-react";
 import { MediaLightbox, isVideoSource, type LightboxMedia } from "@/components/refer/MediaLightbox";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +18,24 @@ import { useUser, useWallet } from "@/lib/queries";
 import { SectionCard, StatCard } from "@/components/refer/cards";
 import { SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -84,6 +102,16 @@ function StudioPage() {
   });
   const [addingService, setAddingService] = useState(false);
   const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [editingService, setEditingService] = useState<{
+    id: string;
+    title: string;
+    price: string;
+    duration_minutes: string;
+    description: string;
+    category: ServiceCategory | "";
+  } | null>(null);
+  const [deletingServiceId, setDeletingServiceId] = useState<string | null>(null);
+  const [savingService, setSavingService] = useState(false);
 
   useEffect(() => {
     if (!studio) return;
@@ -239,9 +267,52 @@ function StudioPage() {
 
 
 
+  async function updateService() {
+    if (!studio || !editingService) return;
+    const price = Number(editingService.price);
+    const duration = Number(editingService.duration_minutes);
+    if (!editingService.title.trim() || !Number.isFinite(price) || price <= 0 || !Number.isFinite(duration) || duration <= 0) {
+      toast.error(t("pro.saveErr"));
+      return;
+    }
+    setSavingService(true);
+    const { error } = await supabase
+      .from("provider_services")
+      .update({
+        title: editingService.title.trim(),
+        price,
+        duration_minutes: duration,
+        description: editingService.description.trim() || null,
+        ...(editingService.category ? { category: editingService.category } : {}),
+      })
+      .eq("id", editingService.id)
+      .eq("provider_id", studio.id);
+    setSavingService(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setEditingService(null);
+    await queryClient.invalidateQueries({ queryKey: ["provider-services", studio.id] });
+    await queryClient.invalidateQueries({ queryKey: ["providers"] });
+    toast.success(lang === "fr" ? "Service modifié" : "Service updated");
+  }
+
   async function removeService(id: string) {
-    await supabase.from("provider_services").delete().eq("id", id);
-    void queryClient.invalidateQueries({ queryKey: ["provider-services", studio?.id] });
+    if (!studio) return;
+    const { error } = await supabase
+      .from("provider_services")
+      .delete()
+      .eq("id", id)
+      .eq("provider_id", studio.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setDeletingServiceId(null);
+    await queryClient.invalidateQueries({ queryKey: ["provider-services", studio.id] });
+    await queryClient.invalidateQueries({ queryKey: ["providers"] });
+    toast.success(lang === "fr" ? "Service supprimé" : "Service deleted");
   }
 
   async function uploadPhotos(files: FileList | null, input?: HTMLInputElement | null) {
@@ -534,12 +605,82 @@ function StudioPage() {
                       {formatXAF(s.price)} · {t("svc.duration", { minutes: s.duration_minutes })}
                     </p>
                   </div>
-                  <Button size="icon" variant="ghost" aria-label={t("pro.delete")} onClick={() => removeService(s.id)}>
-                    <Trash2 className="size-4" aria-hidden />
-                  </Button>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      aria-label={lang === "fr" ? "Modifier le service" : "Edit service"}
+                      onClick={() => setEditingService({
+                        id: s.id,
+                        title: s.title,
+                        price: String(s.price),
+                        duration_minutes: String(s.duration_minutes),
+                        description: s.description ?? "",
+                        category: (s.category ?? "") as ServiceCategory | "",
+                      })}
+                    >
+                      <Pencil className="size-4" aria-hidden />
+                    </Button>
+                    <Button size="icon" variant="ghost" aria-label={t("pro.delete")} onClick={() => setDeletingServiceId(s.id)}>
+                      <Trash2 className="size-4" aria-hidden />
+                    </Button>
+                  </div>
                 </li>
               ))}
             </ul>
+
+            <Dialog open={Boolean(editingService)} onOpenChange={(open) => { if (!open) setEditingService(null); }}>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>{lang === "fr" ? "Modifier le service" : "Edit service"}</DialogTitle>
+                  <DialogDescription>
+                    {lang === "fr" ? "Modifiez les détails affichés aux clients." : "Update the details customers see."}
+                  </DialogDescription>
+                </DialogHeader>
+                {editingService ? (
+                  <div className="grid gap-3">
+                    <Input value={editingService.title} onChange={(e) => setEditingService({ ...editingService, title: e.target.value })} placeholder={lang === "fr" ? "Nom du service" : "Service name"} />
+                    <div className="grid grid-cols-2 gap-3">
+                      <Input type="number" min="1" value={editingService.price} onChange={(e) => setEditingService({ ...editingService, price: e.target.value })} placeholder={lang === "fr" ? "Prix" : "Price"} />
+                      <Input type="number" min="1" value={editingService.duration_minutes} onChange={(e) => setEditingService({ ...editingService, duration_minutes: e.target.value })} placeholder={lang === "fr" ? "Durée" : "Duration"} />
+                    </div>
+                    <select
+                      className="h-10 rounded-xl border border-border bg-background px-3 text-sm text-foreground"
+                      value={editingService.category}
+                      onChange={(e) => setEditingService({ ...editingService, category: e.target.value as ServiceCategory })}
+                    >
+                      <option value="">{t("pro.categories")}</option>
+                      {SERVICE_CATEGORIES.map((category) => <option key={category} value={category}>{categoryLabel(category, lang)}</option>)}
+                    </select>
+                    <Textarea value={editingService.description} onChange={(e) => setEditingService({ ...editingService, description: e.target.value })} placeholder={t("pro.description")} rows={4} />
+                  </div>
+                ) : null}
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setEditingService(null)}>{lang === "fr" ? "Annuler" : "Cancel"}</Button>
+                  <Button onClick={() => void updateService()} disabled={savingService}>{lang === "fr" ? "Enregistrer" : "Save"}</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            <AlertDialog open={Boolean(deletingServiceId)} onOpenChange={(open) => { if (!open) setDeletingServiceId(null); }}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{lang === "fr" ? "Supprimer ce service ?" : "Delete this service?"}</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {lang === "fr" ? "Ce service sera supprimé définitivement de votre vitrine." : "This service will be permanently removed from your storefront."}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{lang === "fr" ? "Annuler" : "Cancel"}</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    onClick={() => { if (deletingServiceId) void removeService(deletingServiceId); }}
+                  >
+                    {lang === "fr" ? "Supprimer" : "Delete"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
 
           </SectionCard>
 

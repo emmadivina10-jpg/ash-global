@@ -1040,10 +1040,67 @@ export function useDeletePost() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("social_posts").delete().eq("id", id);
+      const userId = await currentUserId();
+      if (!userId) throw new Error("You need to be signed in.");
+      const { data: post, error: readError } = await supabase
+        .from("social_posts")
+        .select("media")
+        .eq("id", id)
+        .eq("author_id", userId)
+        .maybeSingle();
+      if (readError) throw readError;
+      if (!post) throw new Error("You can only delete your own post.");
+
+      const mediaPaths = parseImages(post.media);
+      const { error } = await supabase
+        .from("social_posts")
+        .delete()
+        .eq("id", id)
+        .eq("author_id", userId);
+      if (error) throw error;
+      if (mediaPaths.length > 0) {
+        const cleanup = await supabase.storage.from(SOCIAL_BUCKET).remove(mediaPaths);
+        if (cleanup.error) console.warn("Post media cleanup failed:", cleanup.error.message);
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["social-feed"] });
+      void queryClient.invalidateQueries({ queryKey: ["member-posts"] });
+      void queryClient.invalidateQueries({ queryKey: ["post"] });
+    },
+  });
+}
+
+export function useUpdatePost() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, caption }: { id: string; caption: string }) => {
+      const userId = await currentUserId();
+      if (!userId) throw new Error("You need to be signed in.");
+      const cleanCaption = caption.trim();
+      const { data: post, error: readError } = await supabase
+        .from("social_posts")
+        .select("media")
+        .eq("id", id)
+        .eq("author_id", userId)
+        .maybeSingle();
+      if (readError) throw readError;
+      if (!post) throw new Error("You can only edit your own post.");
+      if (!cleanCaption && parseImages(post.media).length === 0) {
+        throw new Error("Write something or keep a photo in the post.");
+      }
+      const { error } = await supabase
+        .from("social_posts")
+        .update({ caption: cleanCaption })
+        .eq("id", id)
+        .eq("author_id", userId);
       if (error) throw error;
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["social-feed"] }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["social-feed"] });
+      void queryClient.invalidateQueries({ queryKey: ["member-posts"] });
+      void queryClient.invalidateQueries({ queryKey: ["post"] });
+    },
   });
 }
 

@@ -3,6 +3,7 @@ import { MessageSquare, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
+import { SocialPostOwnerActions } from "@/components/refer/SocialPostOwnerActions";
 import { Button } from "@/components/ui/button";
 import { openMemberConversation } from "@/lib/contact-vendor";
 import {
@@ -117,9 +118,12 @@ function MemberProfilePage() {
         ) : (
           (posts ?? []).map((post) => (
             <article key={post.id} className="tile overflow-hidden">
-              {post.caption ? (
-                <p className="whitespace-pre-wrap break-words px-4 py-3 text-sm text-foreground">{post.caption}</p>
-              ) : null}
+              <div className="flex items-start gap-2 px-4 py-3">
+                {post.caption ? (
+                  <p className="min-w-0 flex-1 whitespace-pre-wrap break-words text-sm text-foreground">{post.caption}</p>
+                ) : <span className="flex-1" />}
+                {isMe ? <SocialPostOwnerActions postId={post.id} caption={post.caption} /> : null}
+              </div>
               {post.images.length > 0 ? (
                 <button
                   type="button"
