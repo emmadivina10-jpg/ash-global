@@ -426,8 +426,9 @@ export function useUpdateMyInstructorProfile() {
 export function trackInstructorView(instructorId: string, subjects: string[]) {
   trackEvent({
     event_type: "profile_view",
-    surface: "campus",
+    surface: "other",
+    target_type: "campus_instructor",
     target_id: instructorId,
     category: subjects[0] ?? null,
-  } as never);
+  });
 }
