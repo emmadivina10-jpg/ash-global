@@ -380,6 +380,15 @@ export type SearchBuckets = {
     currency: string;
     price_period: string | null;
   }>;
+  instructors: Array<{
+    id: string;
+    display_name: string;
+    headline: string;
+    subjects: string[];
+    city: string | null;
+    hourly_from: number | null;
+    currency: string;
+  }>;
 };
 
 export function useUniversalSearch(term: string) {
