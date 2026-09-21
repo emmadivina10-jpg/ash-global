@@ -87,6 +87,7 @@ function BecomeInstructorPage() {
   const [identityDocument, setIdentityDocument] = useState<File | null>(null);
   const [qualificationDocument, setQualificationDocument] = useState<File | null>(null);
   const [accepted, setAccepted] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const status = existing.data?.status;
   const locked = status === "SUBMITTED" || status === "UNDER_REVIEW" || status === "APPROVED";
@@ -137,7 +138,9 @@ function BecomeInstructorPage() {
       toast.success(fr ? "Candidature envoyée pour examen." : "Application submitted for review.");
       void navigate({ to: "/campus" });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not submit the application.");
+      const message = error instanceof Error ? error.message : "Could not submit the application.";
+      setFormError(message);
+      toast.error(message);
     }
   }
 
@@ -477,6 +480,15 @@ function BecomeInstructorPage() {
               </span>
             </label>
           </Card>
+
+          {formError ? (
+            <p
+              role="alert"
+              className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive"
+            >
+              {formError}
+            </p>
+          ) : null}
 
           <div className="flex items-center gap-3">
             <Button size="lg" disabled={submit.isPending} onClick={() => void send()}>
