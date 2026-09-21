@@ -430,6 +430,7 @@ export function useUniversalSearch(term: string) {
         providers: (providers.data ?? []) as SearchBuckets["providers"],
         services: (services.data ?? []) as unknown as SearchBuckets["services"],
         properties: (properties.data ?? []) as unknown as SearchBuckets["properties"],
+        instructors: (instructors.data ?? []) as unknown as SearchBuckets["instructors"],
       };
     },
   });
