@@ -71,6 +71,7 @@ const NAV = [
   { to: "/console/trust", label: "Trust & Verification", icon: ShieldCheck, group: "Workforce", dept: "TRUST" },
   { to: "/console/verification", label: "Verified badges", icon: BadgeCheck, group: "Workforce", dept: "TRUST" },
   { to: "/console/instructors", label: "FX instructor reviews", icon: GraduationCap, group: "Workforce", dept: "TRUST" },
+  { to: "/console/campus-instructors", label: "Campus instructor reviews", icon: GraduationCap, group: "Workforce", dept: "TRUST" },
   { to: "/console/staff", label: "Staff & departments", icon: UserCog, group: "Admin", dept: "SUPER_ADMIN" },
 ] as const;
 
