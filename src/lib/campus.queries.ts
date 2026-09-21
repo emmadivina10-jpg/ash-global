@@ -117,6 +117,92 @@ export const CAMPUS_MODES = ["ONLINE", "IN_PERSON"] as const;
 
 export const CAMPUS_PARTS = ["MORNING", "AFTERNOON", "EVENING"] as const;
 
+/** Instructor types an admin can approve. Titles are never inflated beyond these. */
+export const INSTRUCTOR_TYPES = [
+  "ACADEMIC",
+  "LANGUAGE",
+  "EXAM_PREPARATION",
+  "PROFESSIONAL",
+  "TECHNICAL",
+  "CREATIVE",
+  "OTHER",
+] as const;
+
+export const CAMPUS_CATEGORIES = [
+  "ACADEMIC",
+  "LANGUAGES",
+  "EXAM_PREPARATION",
+  "PROFESSIONAL",
+  "TECHNOLOGY",
+  "ENGINEERING",
+  "CREATIVE",
+] as const;
+
+export const LANGUAGE_LEVELS = [
+  "BEGINNER",
+  "INTERMEDIATE",
+  "ADVANCED",
+  "CONVERSATION",
+  "GRAMMAR",
+  "WRITING",
+  "SPEAKING",
+  "LISTENING",
+  "READING",
+  "EXAM_PREPARATION",
+] as const;
+
+export function instructorTypeLabel(type: string, fr: boolean) {
+  const map: Record<string, [string, string]> = {
+    ACADEMIC: ["ASH Academic Tutor", "Tuteur académique ASH"],
+    LANGUAGE: ["ASH Language Instructor", "Instructeur de langues ASH"],
+    EXAM_PREPARATION: ["ASH Exam Preparation Instructor", "Instructeur de préparation aux examens ASH"],
+    PROFESSIONAL: ["ASH Professional Instructor", "Instructeur professionnel ASH"],
+    TECHNICAL: ["ASH Technical Instructor", "Instructeur technique ASH"],
+    CREATIVE: ["ASH Creative Skills Instructor", "Instructeur de compétences créatives ASH"],
+    OTHER: ["ASH Verified Instructor", "Instructeur vérifié ASH"],
+  };
+  const entry = map[type] ?? [fr ? "Instructeur vérifié ASH" : "ASH Verified Instructor", "Instructeur vérifié ASH"];
+  return fr ? entry[1] : entry[0];
+}
+
+/** The accurate title shown on a card — never Professor, Doctor, Certified or Licensed. */
+export function instructorTitle(types: string[] | null | undefined, fr: boolean) {
+  const first = (types ?? [])[0];
+  if (!first) return fr ? "Instructeur vérifié ASH" : "ASH Verified Instructor";
+  return instructorTypeLabel(first, fr);
+}
+
+export function categoryLabel(category: string, fr: boolean) {
+  const map: Record<string, [string, string]> = {
+    ACADEMIC: ["Academic", "Académique"],
+    LANGUAGES: ["Languages", "Langues"],
+    EXAM_PREPARATION: ["Exam Preparation", "Préparation aux examens"],
+    PROFESSIONAL: ["Professional", "Professionnel"],
+    TECHNOLOGY: ["Technology", "Technologie"],
+    ENGINEERING: ["Engineering", "Ingénierie"],
+    CREATIVE: ["Creative Skills", "Compétences créatives"],
+  };
+  const entry = map[category] ?? [category, category];
+  return fr ? entry[1] : entry[0];
+}
+
+export function languageLevelLabel(level: string, fr: boolean) {
+  const map: Record<string, [string, string]> = {
+    BEGINNER: ["Beginner", "Débutant"],
+    INTERMEDIATE: ["Intermediate", "Intermédiaire"],
+    ADVANCED: ["Advanced", "Avancé"],
+    CONVERSATION: ["Conversation", "Conversation"],
+    GRAMMAR: ["Grammar", "Grammaire"],
+    WRITING: ["Writing", "Écrit"],
+    SPEAKING: ["Speaking", "Oral"],
+    LISTENING: ["Listening", "Compréhension orale"],
+    READING: ["Reading", "Lecture"],
+    EXAM_PREPARATION: ["Exam preparation", "Préparation aux examens"],
+  };
+  const entry = map[level] ?? [level, level];
+  return fr ? entry[1] : entry[0];
+}
+
 export function levelLabel(level: string, fr: boolean) {
   const map: Record<string, [string, string]> = {
     PRIMARY: ["Primary", "Primaire"],
