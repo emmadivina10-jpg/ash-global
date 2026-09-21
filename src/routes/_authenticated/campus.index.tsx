@@ -79,12 +79,17 @@ function CampusPage() {
             {fr ? "Trouver un instructeur" : "Find an instructor"}
           </p>
           <h2 className="mt-2 font-display text-2xl font-extrabold leading-tight sm:text-3xl">
-            {fr ? "Trouvez le bon instructeur" : "Find the Right Instructor"}
+            {fr ? "Trouvez quelqu'un qui peut vous apprendre." : "Find Someone Who Can Teach You."}
           </h2>
           <p className="mt-2 max-w-lg text-sm opacity-95">
             {fr
-              ? "Des instructeurs pour le GCE, le HND, l'université, les langues, la technologie, les compétences techniques et plus encore."
-              : "Find instructors for GCE, HND, university, languages, technology, technical skills and more."}
+              ? "Des instructeurs pour l'école, l'université, les langues, les compétences professionnelles et la préparation aux examens internationaux — au Cameroun et dans le monde."
+              : "Connect with instructors for school, university, languages, professional skills and international exam preparation — in Cameroon and around the world."}
+          </p>
+          <p className="mt-2 text-xs font-semibold opacity-90">
+            TCF Canada · TEF Canada · IELTS · CELPIP · {fr ? "Français" : "French"} · {fr ? "Anglais" : "English"} ·{" "}
+            {fr ? "Allemand" : "German"} · {fr ? "Mathématiques" : "Mathematics"} · {fr ? "Physique" : "Physics"} ·
+            Programming · Cybersecurity
           </p>
           <div className="mt-5 flex flex-wrap gap-2">
             <Button asChild size="lg" variant="secondary" className="rounded-full font-bold">
