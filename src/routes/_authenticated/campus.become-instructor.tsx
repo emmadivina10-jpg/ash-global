@@ -290,19 +290,66 @@ function BecomeInstructorPage() {
               </div>
             </Field>
 
-            <Field label={fr ? "Langues" : "Languages"}>
+            <Field label={fr ? "Langues enseignées" : "Languages you teach"}>
               <div className="flex flex-wrap gap-1.5">
-                {["English", "French", "Other"].map((language) => (
+                {catalogueOf(subjects.data, "LANGUAGE").map((item) => (
                   <Chip
-                    key={language}
-                    active={languages.includes(language)}
-                    onClick={() => toggle(languages, language, setLanguages)}
+                    key={item.id}
+                    active={languages.includes(item.name_en)}
+                    onClick={() => {
+                      toggle(languages, item.name_en, setLanguages);
+                      setLanguageLevels((current) => current.filter((entry) => entry.language !== item.name_en));
+                    }}
                   >
-                    {language}
+                    {fr ? item.name_fr : item.name_en}
                   </Chip>
                 ))}
               </div>
             </Field>
+
+            {languages.length ? (
+              <Field label={fr ? "Niveaux et objectifs par langue" : "Level and focus for each language"}>
+                <div className="space-y-2">
+                  {languages.map((language) => (
+                    <div key={language} className="rounded-xl border border-border p-3">
+                      <p className="text-xs font-bold text-foreground">{language}</p>
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {LANGUAGE_LEVELS.map((level) => {
+                          const active = languageLevels.some(
+                            (entry) => entry.language === language && entry.level === level,
+                          );
+                          return (
+                            <Chip
+                              key={level}
+                              active={active}
+                              onClick={() =>
+                                setLanguageLevels((current) =>
+                                  active
+                                    ? current.filter((entry) => !(entry.language === language && entry.level === level))
+                                    : [...current, { language, level }],
+                                )
+                              }
+                            >
+                              {languageLevelLabel(level, fr)}
+                            </Chip>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Field>
+            ) : null}
+
+            <Field label={fr ? "Fuseau horaire" : "Time zone"}>
+              <Input value={timezone} onChange={(event) => setTimezone(event.target.value)} placeholder="Africa/Douala" />
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                {fr
+                  ? "Vos disponibilités sont affichées aux apprenants dans leur propre fuseau horaire."
+                  : "Your availability is shown to learners in their own time zone."}
+              </p>
+            </Field>
+
 
             <div className="grid gap-3 sm:grid-cols-2">
               <Field label={fr ? "Années d'expérience" : "Years of experience"}>
