@@ -48,7 +48,7 @@ function ResetPasswordPage() {
       return;
     }
     toast.success(t("auth.reset.updated"));
-    navigate({ to: "/dashboard" });
+    navigate({ to: "/feed" });
   }
 
   return (

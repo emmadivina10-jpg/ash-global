@@ -4393,11 +4393,13 @@ export type Database = {
       }
       support_tickets: {
         Row: {
+          admin_read_at: string | null
           category: string
           created_at: string
           email: string
           id: string
           last_message_at: string
+          member_read_at: string | null
           name: string
           priority: string
           status: string
@@ -4406,11 +4408,13 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          admin_read_at?: string | null
           category?: string
           created_at?: string
           email: string
           id?: string
           last_message_at?: string
+          member_read_at?: string | null
           name: string
           priority?: string
           status?: string
@@ -4419,11 +4423,13 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          admin_read_at?: string | null
           category?: string
           created_at?: string
           email?: string
           id?: string
           last_message_at?: string
+          member_read_at?: string | null
           name?: string
           priority?: string
           status?: string

@@ -135,13 +135,17 @@ function Landing() {
     };
   }, [reduced]);
 
-  // Native apps skip this screen and route signed-in members to the feed, visitors to login.
+  // Signed-in members enter the product on Feed. Native visitors go to login;
+  // signed-out web visitors keep the public landing page.
   useEffect(() => {
-    if (!isNativeApp()) return;
     let cancelled = false;
     void supabase.auth.getSession().then(({ data }) => {
       if (cancelled) return;
-      void navigate({ to: data.session?.user ? "/feed" : "/login", replace: true });
+      if (data.session?.user) {
+        void navigate({ to: "/feed", replace: true });
+      } else if (isNativeApp()) {
+        void navigate({ to: "/login", replace: true });
+      }
     });
     return () => {
       cancelled = true;

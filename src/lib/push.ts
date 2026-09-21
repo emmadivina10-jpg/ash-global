@@ -64,6 +64,8 @@ export function notificationLink(category: string, data: Record<string, unknown>
       return "/feed";
     case "WALLET":
       return "/wallet";
+    case "ACCOUNT":
+      return "/profile";
     case "DEAL":
       return "/deals";
     case "PROPERTY":
@@ -76,7 +78,7 @@ export function notificationLink(category: string, data: Record<string, unknown>
         ? `/messages?c=${data["conversation_id"]}`
         : "/groups";
     default:
-      return "/dashboard";
+      return "/feed";
   }
 }
 

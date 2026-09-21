@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type TicketStatus = "OPEN" | "PENDING" | "RESOLVED";
 
@@ -22,6 +23,8 @@ export type SupportTicket = {
   status: TicketStatus;
   priority: "LOW" | "NORMAL" | "HIGH" | "URGENT";
   last_message_at: string;
+  member_read_at: string | null;
+  admin_read_at: string | null;
   created_at: string;
   messages: SupportMessage[];
 };
@@ -121,14 +124,14 @@ export const submitSupportTicket = createServerFn({ method: "POST" })
   });
 
 /** A signed-in member reads their own conversations. */
-export const getMySupportTickets = createServerFn({ method: "GET" }).handler(async () => {
-  const user = await optionalUser();
-  if (!user) return [] as SupportTicket[];
+export const getMySupportTickets = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: tickets } = await supabaseAdmin
     .from("support_tickets")
     .select("*")
-    .eq("user_id", user.id)
+    .eq("user_id", context.userId)
     .order("last_message_at", { ascending: false })
     .limit(50);
   const ids = (tickets ?? []).map((t) => t.id);
@@ -143,7 +146,49 @@ export const getMySupportTickets = createServerFn({ method: "GET" }).handler(asy
     ...t,
     messages: (messages ?? []).filter((m) => m.ticket_id === t.id),
   })) as SupportTicket[];
-});
+  });
+
+/** A signed-in member continues one of their own support conversations. */
+export const sendMySupportMessage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { ticketId: string; body: string }) => ({
+    ticketId: String(data?.ticketId ?? ""),
+    body: String(data?.body ?? "").trim().slice(0, 4000),
+  }))
+  .handler(async ({ data, context }) => {
+    if (!data.ticketId || !data.body) return { ok: false as const, error: "MISSING_FIELDS" };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: ticket } = await supabaseAdmin
+      .from("support_tickets")
+      .select("id")
+      .eq("id", data.ticketId)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (!ticket) return { ok: false as const, error: "NOT_FOUND" };
+
+    const { error } = await supabaseAdmin.from("support_ticket_messages").insert({
+      ticket_id: ticket.id,
+      sender: "CUSTOMER",
+      body: data.body,
+    });
+    if (error) return { ok: false as const, error: error.message };
+    await supabaseAdmin.from("support_tickets").update({ status: "OPEN" }).eq("id", ticket.id);
+    return { ok: true as const };
+  });
+
+/** Records that the member has opened Support Chat. */
+export const markMySupportRead = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { ticketId: string }) => ({ ticketId: String(data?.ticketId ?? "") }))
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin
+      .from("support_tickets")
+      .update({ member_read_at: new Date().toISOString() })
+      .eq("id", data.ticketId)
+      .eq("user_id", context.userId);
+    return { ok: true as const };
+  });
 
 /* ------------------------------------------------------------------ */
 /* Console (admin) side                                                */
@@ -185,6 +230,37 @@ export const getConsoleTickets = createServerFn({ method: "GET" }).handler(async
     },
   };
 });
+
+/** Small polling payload for the Support badge in the console navigation. */
+export const getSupportAwaitingCount = createServerFn({ method: "GET" }).handler(async () => {
+  const { requireDepartment, adminClient } = await import("./console.server");
+  await requireDepartment("SUPPORT");
+  const db = await adminClient();
+  const { data: tickets } = await db
+    .from("support_tickets")
+    .select("id, admin_read_at, support_ticket_messages(sender, created_at)")
+    .order("last_message_at", { ascending: false })
+    .limit(200);
+  const count = (tickets ?? []).filter((ticket) => {
+    const messages = (ticket.support_ticket_messages ?? []) as Array<{ sender: string; created_at: string }>;
+    const latestCustomer = messages
+      .filter((message) => message.sender === "CUSTOMER")
+      .reduce<string | null>((latest, message) => !latest || message.created_at > latest ? message.created_at : latest, null);
+    return Boolean(latestCustomer && (!ticket.admin_read_at || latestCustomer > ticket.admin_read_at));
+  }).length;
+  return { count };
+});
+
+/** Records that a support staff member has opened a customer conversation. */
+export const markSupportTicketRead = createServerFn({ method: "POST" })
+  .inputValidator((data: { ticketId: string }) => ({ ticketId: String(data?.ticketId ?? "") }))
+  .handler(async ({ data }) => {
+    const { requireDepartment, adminClient } = await import("./console.server");
+    await requireDepartment("SUPPORT");
+    const db = await adminClient();
+    await db.from("support_tickets").update({ admin_read_at: new Date().toISOString() }).eq("id", data.ticketId);
+    return { ok: true as const };
+  });
 
 /** Admin replies to a ticket; the reply is emailed to the customer. */
 export const replyToTicket = createServerFn({ method: "POST" })

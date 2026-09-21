@@ -8,13 +8,15 @@ import {
 } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, Camera, Search, Settings2, UserMinus } from "lucide-react";
+import { ArrowLeft, Camera, LifeBuoy, Search, Settings2, UserMinus } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 
 import { useConversations } from "@/lib/marketplace.queries";
 import { useUser } from "@/lib/queries";
 import { ChatThread } from "@/components/refer/ChatThread";
 import { AssistantPanel } from "@/components/refer/AssistantPanel";
+import { SupportChatPanel } from "@/components/refer/SupportChatPanel";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { useI18n } from "@/lib/i18n";
@@ -37,6 +39,7 @@ import {
 import { useAddGroupMembers, useCreateGroup, useMemberSearch, useMemberStates, useRemoveGroupMember, useSendFriendRequest, useFriendships, useGroups, useUpdateGroup, useUpdateGroupAvatar } from "@/lib/social.queries";
 import { unlockChat, type LockedChatMessage } from "@/lib/chat-lock.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { getMySupportTickets } from "@/lib/support.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -165,11 +168,17 @@ function getAvatarColor(id: string) {
 }
 
 const ASH_AI_ID = "ash-ai";
+const ASH_SUPPORT_ID = "ash-support";
 
 const ashAiConversation = {
   id: ASH_AI_ID,
   label: "ASH AI",
   preview: "Ask me anything — services, listings, ideas.",
+};
+const ashSupportConversation = {
+  id: ASH_SUPPORT_ID,
+  label: "ASH Support",
+  preview: "Get help from the ASH team.",
 };
 const ASH_CHAT_BACKGROUND = "/images/ash-chat-background.png";
 
@@ -346,6 +355,17 @@ function MessagesPage() {
   }
 
   const { data: conversations, isLoading } = useConversations();
+  const getSupportTickets = useServerFn(getMySupportTickets);
+  const { data: supportTickets } = useQuery({
+    queryKey: ["support", "mine"],
+    queryFn: getSupportTickets,
+    refetchInterval: 10_000,
+  });
+  const supportTicket = supportTickets?.[0] ?? null;
+  const latestSupportMessage = supportTicket?.messages.at(-1);
+  const supportUnread = supportTicket?.messages.filter(
+    (message) => message.sender === "ADMIN" && (!supportTicket.member_read_at || message.created_at > supportTicket.member_read_at),
+  ).length ?? 0;
   const [term, setTerm] = useState("");
 
   const { data: prefs } = useChatPrefs();
@@ -1060,6 +1080,37 @@ function MessagesPage() {
                 </button>
               )}
 
+              {(!term.trim() ||
+                `${ashSupportConversation.label} ${ashSupportConversation.preview}`
+                  .toLowerCase()
+                  .includes(term.trim().toLowerCase())) && (
+                <button
+                  type="button"
+                  onClick={() => void navigate({ search: { c: ASH_SUPPORT_ID } })}
+                  className={cn(
+                    "flex w-full items-center gap-3 border-b border-border px-3 py-3 text-left transition-colors",
+                    activeId === ASH_SUPPORT_ID ? "bg-primary/10" : "hover:bg-muted/70 active:bg-muted",
+                  )}
+                >
+                  <span className="grid size-12 shrink-0 place-items-center rounded-full bg-primary/10 text-primary ring-2 ring-primary/25">
+                    <LifeBuoy className="size-6" aria-hidden />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-baseline justify-between gap-2">
+                      <span className="truncate text-[15px] font-bold text-foreground">ASH Support</span>
+                      {supportUnread > 0 ? (
+                        <span className="grid min-w-5 shrink-0 place-items-center rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground">
+                          {supportUnread > 99 ? "99+" : supportUnread}
+                        </span>
+                      ) : null}
+                    </span>
+                    <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">
+                      {latestSupportMessage?.body ?? (fr ? "Obtenez de l’aide de l’équipe ASH." : ashSupportConversation.preview)}
+                    </span>
+                  </span>
+                </button>
+              )}
+
               {filtered.map((conv) => {
                 const label = peerOf(conv);
                 const unread = conv.unread_count ?? 0;
@@ -1268,6 +1319,10 @@ function MessagesPage() {
                   <span className="grid size-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#D4AF37] via-[#8B6914] to-[#4B0082] p-[2px] shadow-lg ring-2 ring-[#D4AF37]/50">
                     <span className="grid size-full place-items-center rounded-full bg-[#0b0712] font-display text-[9px] font-black text-[#D4AF37]">ASH</span>
                   </span>
+                ) : activeId === ASH_SUPPORT_ID ? (
+                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary/10 text-primary ring-2 ring-primary/25">
+                    <LifeBuoy className="size-5" aria-hidden />
+                  </span>
                 ) : active ? (
                   <span
                     className={cn(
@@ -1290,7 +1345,7 @@ function MessagesPage() {
 
                 <div className="min-w-0 flex-1">
                   <p className="flex items-center gap-1 truncate font-display text-[15px] font-semibold text-foreground">
-                    <span className="truncate">{activeId === ASH_AI_ID ? "ASH AI" : active ? peerOf(active) : t("chat.title")}</span>{activeId !== ASH_AI_ID && active ? <VerifiedBadge tier={peerStateOf(active)?.verified_tier} until={peerStateOf(active)?.verified_until} size={14}/> : null}
+                    <span className="truncate">{activeId === ASH_AI_ID ? "ASH AI" : activeId === ASH_SUPPORT_ID ? "ASH Support" : active ? peerOf(active) : t("chat.title")}</span>{activeId !== ASH_AI_ID && activeId !== ASH_SUPPORT_ID && active ? <VerifiedBadge tier={peerStateOf(active)?.verified_tier} until={peerStateOf(active)?.verified_until} size={14}/> : null}
                   </p>
 
                   {active?.booking ? (
@@ -1371,6 +1426,10 @@ function MessagesPage() {
                 <div className="relative flex min-h-0 flex-1 flex-col px-4 py-4">
                   <AssistantPanel />
                 </div>
+              </div>
+            ) : activeId === ASH_SUPPORT_ID ? (
+              <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+                <SupportChatPanel />
               </div>
             ) : activeId && prefs?.[activeId]?.locked && !lockedMessages[activeId] ? (
               <div className="grid flex-1 place-items-center bg-background/80 p-6 text-center backdrop-blur-sm">
