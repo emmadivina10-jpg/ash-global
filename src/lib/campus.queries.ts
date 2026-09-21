@@ -575,3 +575,92 @@ export function trackInstructorView(instructorId: string, subjects: string[]) {
     category: subjects[0] ?? null,
   });
 }
+
+export type InstructorEarnings = {
+  gross: number;
+  commission: number;
+  net: number;
+  pending: number;
+  currency: string;
+};
+
+/** Earnings read from the existing booking ledger. Amounts are never computed from user input. */
+export function useInstructorEarnings(providerId: string | null | undefined, currency = "XAF") {
+  return useQuery({
+    queryKey: ["campus", "earnings", providerId],
+    enabled: Boolean(providerId),
+    queryFn: async (): Promise<InstructorEarnings> => {
+      const { data, error } = await db
+        .from("bookings")
+        .select("price,platform_fee,status")
+        .eq("provider_id", providerId)
+        .limit(500);
+      if (error) throw error;
+      const rows = (data ?? []) as { price: number; platform_fee: number | null; status: string }[];
+      let gross = 0;
+      let commission = 0;
+      let pending = 0;
+      for (const row of rows) {
+        const price = Number(row.price) || 0;
+        const fee = Number(row.platform_fee) || Math.round(price * CAMPUS_COMMISSION_RATE);
+        if (row.status === "COMPLETED" || row.status === "SETTLED") {
+          gross += price;
+          commission += fee;
+        } else if (["PENDING", "CONFIRMED", "ACCEPTED", "IN_PROGRESS", "PAYMENT_PROCESSING"].includes(row.status)) {
+          pending += price - fee;
+        }
+      }
+      return { gross, commission, net: gross - commission, pending, currency };
+    },
+  });
+}
+
+/** Displayed only. The real fee is calculated server-side on every completed session. */
+export const CAMPUS_COMMISSION_RATE = 0.1;
+
+export function useCampusCatalogueAdmin() {
+  const queryClient = useQueryClient();
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["campus"] });
+
+  const add = useMutation({
+    mutationFn: async (input: { category: string; kind: CampusCatalogueKind; nameEn: string; nameFr: string }) => {
+      const { error } = await db.from("campus_subjects").insert({
+        category: input.category,
+        kind: input.kind,
+        name_en: input.nameEn.trim(),
+        name_fr: (input.nameFr || input.nameEn).trim(),
+        sort_order: 99,
+        is_active: true,
+      });
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
+
+  const setActive = useMutation({
+    mutationFn: async (input: { id: string; isActive: boolean }) => {
+      const { error } = await db.from("campus_subjects").update({ is_active: input.isActive }).eq("id", input.id);
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
+
+  return { add, setActive };
+}
+
+/** Every catalogue entry, including retired ones — admin console only. */
+export function useAllCampusCatalogue() {
+  return useQuery({
+    queryKey: ["campus", "catalogue", "all"],
+    queryFn: async (): Promise<CampusSubject[]> => {
+      const { data, error } = await db
+        .from("campus_subjects")
+        .select("id,category,kind,name_en,name_fr,sort_order,is_active")
+        .order("kind")
+        .order("category")
+        .order("sort_order");
+      if (error) throw error;
+      return (data ?? []) as CampusSubject[];
+    },
+  });
+}
