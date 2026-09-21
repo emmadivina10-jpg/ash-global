@@ -399,7 +399,7 @@ export function useUniversalSearch(term: string) {
     queryFn: async (): Promise<SearchBuckets> => {
       const like = `%${q}%`;
       const nowIso = new Date().toISOString();
-      const [freelancers, projects, deals, events, providers, services, properties] = await Promise.all([
+      const [freelancers, projects, deals, events, providers, services, properties, instructors] = await Promise.all([
         supabase.from("freelancer_profiles").select("*").eq("is_published", true).or(`headline.ilike.${like},bio.ilike.${like}`).limit(12),
         supabase.from("freelance_projects").select("*").eq("status", "OPEN").or(`title.ilike.${like},description.ilike.${like}`).limit(12),
         supabase.from("deals").select("*").eq("is_active", true).gt("ends_at", new Date().toISOString()).ilike("title", like).limit(12),
