@@ -414,6 +414,12 @@ export function useUniversalSearch(term: string) {
           .or(`title.ilike.${like},description.ilike.${like},city.ilike.${like},neighborhood.ilike.${like},university.ilike.${like}`)
           .order("created_at", { ascending: false })
           .limit(12),
+        (supabase as unknown as { from: (table: string) => any })
+          .from("campus_instructor_profiles")
+          .select("id, display_name, headline, subjects, city, hourly_from, currency")
+          .eq("is_active", true)
+          .or(`display_name.ilike.${like},headline.ilike.${like},bio.ilike.${like}`)
+          .limit(12),
       ]);
 
       return {
