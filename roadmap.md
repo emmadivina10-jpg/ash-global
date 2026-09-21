@@ -76,3 +76,11 @@
 - [x] Remove conflicting ages, retention terms, support URLs, entity wording, and unverified geography
 - [x] Verify every policy page, route, factual statement, and production build
 - [x] Deliver complete final text of all seven documents
+
+## Notifications, entry routing, support chat, and founder profile
+- [ ] Correct notification destinations using their real event data
+- [ ] Route completed sign-ins and returning signed-in members to Feed
+- [ ] Add Support Chat to every member’s Messages using the existing support inbox
+- [ ] Show awaiting support counts beside Support in the admin console
+- [ ] Add the confirmed CEO biography to ASH AI’s founder knowledge
+- [ ] Verify member and admin flows without changing unrelated screens
