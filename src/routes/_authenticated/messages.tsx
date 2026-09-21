@@ -1302,14 +1302,21 @@ function MessagesPage() {
               {/* ACTIVE PROFILE */}
               <button
                 type="button"
-                onClick={() =>
-                  active && openPeerProfile(active)
-                }
+                onClick={() => {
+                  if (activeGroup) {
+                    setGroupEditName(activeGroup.name);
+                    setGroupSettings(true);
+                    return;
+                  }
+                  if (active) openPeerProfile(active);
+                }}
                 disabled={
-                  !active || !peerProfileOf(active)
+                  !active || (!activeGroup && !peerProfileOf(active))
                 }
                 aria-label={
-                  fr
+                  activeGroup
+                    ? (fr ? "Voir le profil du groupe" : "View group profile")
+                    : fr
                     ? "Voir le profil"
                     : "View profile"
                 }
