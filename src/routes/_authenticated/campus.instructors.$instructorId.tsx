@@ -170,14 +170,26 @@ function InstructorProfilePage() {
         </div>
       </section>
 
-      <Section title={fr ? "Expérience" : "Experience"}>
+      <Section title={fr ? "Ce qui est enseigné" : "What is taught"}>
         <div className="flex flex-wrap gap-2">
-          <Badge variant="outline">
-            {instructor.years_experience} {fr ? "ans d'expérience" : "years experience"}
-          </Badge>
+          {instructor.years_experience > 0 ? (
+            <Badge variant="outline">
+              {instructor.years_experience} {fr ? "ans d'expérience" : "years experience"}
+            </Badge>
+          ) : null}
+          {instructor.exams.map((exam) => (
+            <Badge key={exam} variant="outline">
+              {exam} {fr ? "— préparation" : "Preparation"}
+            </Badge>
+          ))}
           {instructor.subjects.map((subject) => (
             <Badge key={subject} variant="outline">
               {subject}
+            </Badge>
+          ))}
+          {instructor.skills.map((skill) => (
+            <Badge key={skill} variant="outline">
+              {skill}
             </Badge>
           ))}
           {instructor.levels.map((level) => (
@@ -186,6 +198,28 @@ function InstructorProfilePage() {
             </Badge>
           ))}
         </div>
+        {instructor.language_levels?.length ? (
+          <div className="mt-3 space-y-1">
+            {instructor.languages.map((language) => {
+              const levels = instructor.language_levels
+                .filter((entry) => entry.language === language)
+                .map((entry) => languageLevelLabel(String(entry.level ?? ""), fr));
+              if (!levels.length) return null;
+              return (
+                <p key={language} className="text-xs text-muted-foreground">
+                  <span className="font-semibold text-foreground">{language}</span> — {levels.join(", ")}
+                </p>
+              );
+            })}
+          </div>
+        ) : null}
+        {instructor.exams.length ? (
+          <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
+            {fr
+              ? "Cet instructeur propose une préparation indépendante. Il n'est ni affilié, ni approuvé, ni certifié par l'organisme qui administre ces examens."
+              : "This instructor offers independent preparation. They are not affiliated with, endorsed by or certified by the organisation that administers these examinations."}
+          </p>
+        ) : null}
       </Section>
 
       <Section title={fr ? "Qualifications" : "Qualifications"}>
