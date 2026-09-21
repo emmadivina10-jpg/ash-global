@@ -78,6 +78,7 @@ export function ChatThread({
   enforceFirstContactLimit = false,
   members = [],
   initialMessages,
+  refreshMessages,
 }: {
   conversationId: string;
   currentUserId: string | undefined;
@@ -100,11 +101,13 @@ export function ChatThread({
     verified_until?: string | null;
   }[];
   initialMessages?: ChatMessage[] | undefined;
+  refreshMessages?: (() => Promise<ChatMessage[]>) | undefined;
 }) {
   const { t, lang } = useI18n();
   const fr = lang === "fr";
   const queryClient = useQueryClient();
   const { data, isLoading } = useMessages(conversationId, initialMessages === undefined);
+  const [securedMessages, setSecuredMessages] = useState<ChatMessage[] | undefined>(initialMessages);
 
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
@@ -123,7 +126,34 @@ export function ChatThread({
   const messagesScrollRef = useRef<HTMLDivElement>(null);
   const pressRef = useRef<number | null>(null);
 
-  const messages = (initialMessages ?? data ?? []) as unknown as ChatMessage[];
+  const messages = (securedMessages ?? data ?? []) as unknown as ChatMessage[];
+
+  useEffect(() => {
+    setSecuredMessages(initialMessages);
+  }, [conversationId, initialMessages]);
+
+  useEffect(() => {
+    if (!refreshMessages) return;
+    let active = true;
+    let refreshing = false;
+    const refresh = async () => {
+      if (refreshing) return;
+      refreshing = true;
+      try {
+        const next = await refreshMessages();
+        if (active) setSecuredMessages(next);
+      } catch {
+        // Keep the last authorized snapshot if a background refresh fails.
+      } finally {
+        refreshing = false;
+      }
+    };
+    const timer = window.setInterval(() => void refresh(), 5_000);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, [refreshMessages]);
 
   const memberById = new Map(members.map((m) => [m.id, m]));
 
@@ -261,6 +291,14 @@ export function ChatThread({
 
     setBody("");
 
+    if (refreshMessages) {
+      try {
+        setSecuredMessages(await refreshMessages());
+      } catch {
+        // The periodic secured refresh will retry without exposing the thread.
+      }
+    }
+
     // Off-platform protection: warn once, record repeats for the review team.
     const offPlatform = detectOffPlatform(value);
     if (offPlatform) {
@@ -306,6 +344,14 @@ export function ChatThread({
     }
 
     toast.success(fr ? "Message supprimé" : "Message deleted");
+
+    if (refreshMessages) {
+      try {
+        setSecuredMessages(await refreshMessages());
+      } catch {
+        // The periodic secured refresh will retry without exposing the thread.
+      }
+    }
 
     void queryClient.invalidateQueries({
       queryKey: ["messages", conversationId],
