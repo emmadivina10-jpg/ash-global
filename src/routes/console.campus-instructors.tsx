@@ -96,7 +96,11 @@ function CampusInstructorReviews() {
               <div className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
                 <Info label="Headline" value={item["headline"]} />
                 <Info label="About" value={item["bio"]} />
+                <Info label="Instructor type" value={(item["instructor_types"] ?? []).join(", ")} />
                 <Info label="Subjects" value={(item["subjects"] ?? []).join(", ")} />
+                <Info label="Exams prepared" value={(item["exams"] ?? []).join(", ")} />
+                <Info label="Skills" value={(item["skills"] ?? []).join(", ")} />
+                <Info label="Time zone" value={item["timezone"]} />
                 <Info label="Levels" value={(item["levels"] ?? []).join(", ")} />
                 <Info label="Languages" value={(item["languages"] ?? []).join(", ")} />
                 <Info label="Teaching modes" value={(item["teaching_modes"] ?? []).join(", ")} />
