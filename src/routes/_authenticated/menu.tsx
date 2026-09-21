@@ -58,6 +58,7 @@ const sections = [
       ["Notifications", "Notifications", "/notifications", Bell],
       ["Articles", "Articles", "/articles", BookOpen],
       ["Mentors", "Mentors", "/mentors", GraduationCap],
+      ["ASH Campus", "ASH Campus", "/campus", GraduationCap],
       ["Incubator", "Incubateur", "/incubator", Sparkles],
     ],
   },

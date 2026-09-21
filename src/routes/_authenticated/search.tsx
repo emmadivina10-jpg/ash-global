@@ -55,6 +55,16 @@ function SearchPage() {
           items: data.services.map((row) => ({ id: row.id, title: row.title, meta: formatXAF(row.price), href: `/services/${row.provider_id}` })),
         },
         {
+          key: "instructors",
+          label: fr ? "Instructeurs" : "Instructors",
+          items: data.instructors.map((row) => ({
+            id: row.id,
+            title: row.display_name,
+            meta: [row.subjects[0], row.city].filter(Boolean).join(" · "),
+            href: `/campus/instructors/${row.id}`,
+          })),
+        },
+        {
           key: "freelancers",
           label: fr ? "Freelances" : "Freelancers",
           items: data.freelancers.map((row) => ({ id: row.id, title: row.headline, meta: row.city ?? row.country, href: "/freelance" })),

@@ -380,6 +380,15 @@ export type SearchBuckets = {
     currency: string;
     price_period: string | null;
   }>;
+  instructors: Array<{
+    id: string;
+    display_name: string;
+    headline: string;
+    subjects: string[];
+    city: string | null;
+    hourly_from: number | null;
+    currency: string;
+  }>;
 };
 
 export function useUniversalSearch(term: string) {
@@ -390,7 +399,7 @@ export function useUniversalSearch(term: string) {
     queryFn: async (): Promise<SearchBuckets> => {
       const like = `%${q}%`;
       const nowIso = new Date().toISOString();
-      const [freelancers, projects, deals, events, providers, services, properties] = await Promise.all([
+      const [freelancers, projects, deals, events, providers, services, properties, instructors] = await Promise.all([
         supabase.from("freelancer_profiles").select("*").eq("is_published", true).or(`headline.ilike.${like},bio.ilike.${like}`).limit(12),
         supabase.from("freelance_projects").select("*").eq("status", "OPEN").or(`title.ilike.${like},description.ilike.${like}`).limit(12),
         supabase.from("deals").select("*").eq("is_active", true).gt("ends_at", new Date().toISOString()).ilike("title", like).limit(12),
@@ -405,6 +414,12 @@ export function useUniversalSearch(term: string) {
           .or(`title.ilike.${like},description.ilike.${like},city.ilike.${like},neighborhood.ilike.${like},university.ilike.${like}`)
           .order("created_at", { ascending: false })
           .limit(12),
+        (supabase as unknown as { from: (table: string) => any })
+          .from("campus_instructor_profiles")
+          .select("id, display_name, headline, subjects, city, hourly_from, currency")
+          .eq("is_active", true)
+          .or(`display_name.ilike.${like},headline.ilike.${like},bio.ilike.${like}`)
+          .limit(12),
       ]);
 
       return {
@@ -415,6 +430,7 @@ export function useUniversalSearch(term: string) {
         providers: (providers.data ?? []) as SearchBuckets["providers"],
         services: (services.data ?? []) as unknown as SearchBuckets["services"],
         properties: (properties.data ?? []) as unknown as SearchBuckets["properties"],
+        instructors: (instructors.data ?? []) as unknown as SearchBuckets["instructors"],
       };
     },
   });
