@@ -42,7 +42,8 @@ export function SpotlightReels({
     if (target) target.scrollIntoView({ block: "start" });
   }, [startIndex]);
 
-  // One spotlight_view per highlight that actually reaches the screen.
+  // One spotlight_view per highlight that actually reaches the screen, and only
+  // the highlight on screen is allowed to keep playing.
   useEffect(() => {
     const node = scrollerRef.current;
     if (!node || typeof IntersectionObserver === "undefined") return;
@@ -50,8 +51,19 @@ export function SpotlightReels({
     const observer = new IntersectionObserver(
       (items) => {
         for (const item of items) {
-          if (!item.isIntersecting) continue;
           const element = item.target as HTMLElement;
+          const video = element.querySelector("video");
+
+          if (!item.isIntersecting) {
+            if (video) {
+              video.pause();
+              video.currentTime = 0;
+            }
+            continue;
+          }
+
+          if (video) void video.play().catch(() => undefined);
+
           const id = element.dataset["spotlightId"];
           if (!id || seen.has(id)) continue;
           seen.add(id);
@@ -67,8 +79,12 @@ export function SpotlightReels({
       { threshold: 0.6 },
     );
     for (const child of Array.from(node.children)) observer.observe(child);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      for (const video of Array.from(node.querySelectorAll("video"))) video.pause();
+    };
   }, [entries]);
+
 
   useEffect(() => {
     const previous = document.body.style.overflow;
