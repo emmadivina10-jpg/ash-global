@@ -134,6 +134,25 @@ function TeachingDashboard() {
       </div>
 
       <section className="rounded-2xl border border-border bg-card p-5">
+        <h2 className="mb-3 font-display text-base font-bold text-foreground">{fr ? "Gains" : "Earnings"}</h2>
+        <div className="grid gap-3 sm:grid-cols-4">
+          <Money label={fr ? "Revenu brut" : "Gross revenue"} value={earnings.data?.gross ?? 0} currency={instructor.currency} />
+          <Money
+            label={fr ? "Commission ASH (10 %)" : "ASH commission (10%)"}
+            value={earnings.data?.commission ?? 0}
+            currency={instructor.currency}
+          />
+          <Money label={fr ? "Vos gains" : "Your earnings"} value={earnings.data?.net ?? 0} currency={instructor.currency} />
+          <Money label={fr ? "En attente" : "Pending"} value={earnings.data?.pending ?? 0} currency={instructor.currency} />
+        </div>
+        <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+          {fr
+            ? `L'inscription, la candidature, la vérification et la publication de services sont gratuites. ASH prélève ${Math.round(CAMPUS_COMMISSION_RATE * 100)} % sur chaque séance terminée, calculé côté serveur. Les gains disponibles se retirent depuis le portefeuille ASH.`
+            : `Registration, application, verification and listing services are free. ASH takes ${Math.round(CAMPUS_COMMISSION_RATE * 100)}% of each completed session, calculated server-side. Available earnings are withdrawn from your ASH wallet.`}
+        </p>
+      </section>
+
+      <section className="rounded-2xl border border-border bg-card p-5">
         <h2 className="mb-3 font-display text-base font-bold text-foreground">{fr ? "Mes services" : "My services"}</h2>
         {!instructor.provider_id ? (
           <p className="text-sm text-muted-foreground">
