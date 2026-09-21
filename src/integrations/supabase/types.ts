@@ -373,10 +373,13 @@ export type Database = {
           currency: string
           date_of_birth: string | null
           display_name: string
+          exams: string[]
           headline: string
           hourly_from: number | null
           id: string
           identity_document_path: string | null
+          instructor_types: string[]
+          language_levels: Json
           languages: string[]
           legal_full_name: string
           levels: string[]
@@ -385,11 +388,13 @@ export type Database = {
           qualifications: Json
           reviewed_at: string | null
           reviewed_by: string | null
+          skills: string[]
           status: string
           subjects: string[]
           submitted_at: string | null
           teaching_experience: string
           teaching_modes: string[]
+          timezone: string | null
           updated_at: string
           user_id: string
           years_experience: number
@@ -405,10 +410,13 @@ export type Database = {
           currency?: string
           date_of_birth?: string | null
           display_name: string
+          exams?: string[]
           headline?: string
           hourly_from?: number | null
           id?: string
           identity_document_path?: string | null
+          instructor_types?: string[]
+          language_levels?: Json
           languages?: string[]
           legal_full_name: string
           levels?: string[]
@@ -417,11 +425,13 @@ export type Database = {
           qualifications?: Json
           reviewed_at?: string | null
           reviewed_by?: string | null
+          skills?: string[]
           status?: string
           subjects?: string[]
           submitted_at?: string | null
           teaching_experience?: string
           teaching_modes?: string[]
+          timezone?: string | null
           updated_at?: string
           user_id: string
           years_experience?: number
@@ -437,10 +447,13 @@ export type Database = {
           currency?: string
           date_of_birth?: string | null
           display_name?: string
+          exams?: string[]
           headline?: string
           hourly_from?: number | null
           id?: string
           identity_document_path?: string | null
+          instructor_types?: string[]
+          language_levels?: Json
           languages?: string[]
           legal_full_name?: string
           levels?: string[]
@@ -449,11 +462,13 @@ export type Database = {
           qualifications?: Json
           reviewed_at?: string | null
           reviewed_by?: string | null
+          skills?: string[]
           status?: string
           subjects?: string[]
           submitted_at?: string | null
           teaching_experience?: string
           teaching_modes?: string[]
+          timezone?: string | null
           updated_at?: string
           user_id?: string
           years_experience?: number
@@ -505,17 +520,22 @@ export type Database = {
           created_at: string
           currency: string
           display_name: string
+          exams: string[]
           headline: string
           hourly_from: number | null
           id: string
+          instructor_types: string[]
           is_active: boolean
           is_verified: boolean
+          language_levels: Json
           languages: string[]
           levels: string[]
           methodology: string
           provider_id: string | null
+          skills: string[]
           subjects: string[]
           teaching_modes: string[]
+          timezone: string | null
           updated_at: string
           user_id: string
           years_experience: number
@@ -529,17 +549,22 @@ export type Database = {
           created_at?: string
           currency?: string
           display_name: string
+          exams?: string[]
           headline?: string
           hourly_from?: number | null
           id?: string
+          instructor_types?: string[]
           is_active?: boolean
           is_verified?: boolean
+          language_levels?: Json
           languages?: string[]
           levels?: string[]
           methodology?: string
           provider_id?: string | null
+          skills?: string[]
           subjects?: string[]
           teaching_modes?: string[]
+          timezone?: string | null
           updated_at?: string
           user_id: string
           years_experience?: number
@@ -553,17 +578,22 @@ export type Database = {
           created_at?: string
           currency?: string
           display_name?: string
+          exams?: string[]
           headline?: string
           hourly_from?: number | null
           id?: string
+          instructor_types?: string[]
           is_active?: boolean
           is_verified?: boolean
+          language_levels?: Json
           languages?: string[]
           levels?: string[]
           methodology?: string
           provider_id?: string | null
+          skills?: string[]
           subjects?: string[]
           teaching_modes?: string[]
+          timezone?: string | null
           updated_at?: string
           user_id?: string
           years_experience?: number
@@ -619,34 +649,76 @@ export type Database = {
           },
         ]
       }
+      campus_offplatform_flags: {
+        Row: {
+          conversation_id: string | null
+          created_at: string
+          excerpt: string
+          id: string
+          matched_rule: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string
+          excerpt: string
+          id?: string
+          matched_rule: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string
+          excerpt?: string
+          id?: string
+          matched_rule?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       campus_subjects: {
         Row: {
           category: string
+          code: string | null
           created_at: string
           id: string
           is_active: boolean
+          kind: string
           name_en: string
           name_fr: string
+          parent_category: string | null
           sort_order: number
           updated_at: string
         }
         Insert: {
           category: string
+          code?: string | null
           created_at?: string
           id?: string
           is_active?: boolean
+          kind?: string
           name_en: string
           name_fr: string
+          parent_category?: string | null
           sort_order?: number
           updated_at?: string
         }
         Update: {
           category?: string
+          code?: string | null
           created_at?: string
           id?: string
           is_active?: boolean
+          kind?: string
           name_en?: string
           name_fr?: string
+          parent_category?: string | null
           sort_order?: number
           updated_at?: string
         }
@@ -4659,6 +4731,10 @@ export type Database = {
         Args: { _booking_id: string; _reference: string }
         Returns: Json
       }
+      campus_commission_rate: {
+        Args: { _provider_id: string }
+        Returns: number
+      }
       can_view_avatar: { Args: { _object_name: string }; Returns: boolean }
       cancel_booking: {
         Args: { _booking_id: string; _reason?: string }
@@ -4779,6 +4855,10 @@ export type Database = {
       finalize_spotlight_video_cleanup: {
         Args: { _post_id: string; _removed_paths: string[] }
         Returns: string
+      }
+      flag_offplatform_attempt: {
+        Args: { _conversation_id: string; _excerpt: string; _rule: string }
+        Returns: number
       }
       generate_referral_code: { Args: never; Returns: string }
       get_provider_bookings: {
