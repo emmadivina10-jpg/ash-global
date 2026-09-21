@@ -58,6 +58,7 @@ import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ConsoleIndexRouteImport } from './routes/console.index'
 import { Route as ConsoleAdvertisingRouteImport } from './routes/console.advertising'
 import { Route as ConsoleBookingsRouteImport } from './routes/console.bookings'
+import { Route as ConsoleCampusInstructorsRouteImport } from './routes/console.campus-instructors'
 import { Route as ConsoleContentRouteImport } from './routes/console.content'
 import { Route as ConsoleDeletionsRouteImport } from './routes/console.deletions'
 import { Route as ConsoleExpansionRouteImport } from './routes/console.expansion'
@@ -88,6 +89,7 @@ import { Route as AuthenticatedArticlesIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedArticlesArticleIdRouteImport } from './routes/_authenticated/articles.$articleId'
 import { Route as AuthenticatedCampusIndexRouteImport } from './routes/_authenticated/campus.index'
 import { Route as AuthenticatedCampusBecomeInstructorRouteImport } from './routes/_authenticated/campus.become-instructor'
+import { Route as AuthenticatedCampusTeachingRouteImport } from './routes/_authenticated/campus.teaching'
 import { Route as AuthenticatedEventsIndexRouteImport } from './routes/_authenticated/events.index'
 import { Route as AuthenticatedEventsEventIdRouteImport } from './routes/_authenticated/events.$eventId'
 import { Route as AuthenticatedFreelanceIndexRouteImport } from './routes/_authenticated/freelance.index'
@@ -365,6 +367,12 @@ const ConsoleBookingsRoute = ConsoleBookingsRouteImport.update({
   path: '/bookings',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const ConsoleCampusInstructorsRoute =
+  ConsoleCampusInstructorsRouteImport.update({
+    id: '/campus-instructors',
+    path: '/campus-instructors',
+    getParentRoute: () => ConsoleRoute,
+  } as any)
 const ConsoleContentRoute = ConsoleContentRouteImport.update({
   id: '/content',
   path: '/content',
@@ -517,6 +525,12 @@ const AuthenticatedCampusBecomeInstructorRoute =
   AuthenticatedCampusBecomeInstructorRouteImport.update({
     id: '/campus/become-instructor',
     path: '/campus/become-instructor',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCampusTeachingRoute =
+  AuthenticatedCampusTeachingRouteImport.update({
+    id: '/campus/teaching',
+    path: '/campus/teaching',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedEventsIndexRoute =
@@ -728,6 +742,7 @@ export interface FileRoutesByFullPath {
   '/auth/callback': typeof AuthCallbackRoute
   '/console/advertising': typeof ConsoleAdvertisingRoute
   '/console/bookings': typeof ConsoleBookingsRoute
+  '/console/campus-instructors': typeof ConsoleCampusInstructorsRoute
   '/console/content': typeof ConsoleContentRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/expansion': typeof ConsoleExpansionRoute
@@ -757,6 +772,7 @@ export interface FileRoutesByFullPath {
   '/console/': typeof ConsoleIndexRoute
   '/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
   '/campus/become-instructor': typeof AuthenticatedCampusBecomeInstructorRoute
+  '/campus/teaching': typeof AuthenticatedCampusTeachingRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/hashtag/$tag': typeof AuthenticatedHashtagTagRoute
@@ -835,6 +851,7 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
   '/console/advertising': typeof ConsoleAdvertisingRoute
   '/console/bookings': typeof ConsoleBookingsRoute
+  '/console/campus-instructors': typeof ConsoleCampusInstructorsRoute
   '/console/content': typeof ConsoleContentRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/expansion': typeof ConsoleExpansionRoute
@@ -864,6 +881,7 @@ export interface FileRoutesByTo {
   '/console': typeof ConsoleIndexRoute
   '/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
   '/campus/become-instructor': typeof AuthenticatedCampusBecomeInstructorRoute
+  '/campus/teaching': typeof AuthenticatedCampusTeachingRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/hashtag/$tag': typeof AuthenticatedHashtagTagRoute
@@ -945,6 +963,7 @@ export interface FileRoutesById {
   '/auth/callback': typeof AuthCallbackRoute
   '/console/advertising': typeof ConsoleAdvertisingRoute
   '/console/bookings': typeof ConsoleBookingsRoute
+  '/console/campus-instructors': typeof ConsoleCampusInstructorsRoute
   '/console/content': typeof ConsoleContentRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/expansion': typeof ConsoleExpansionRoute
@@ -974,6 +993,7 @@ export interface FileRoutesById {
   '/console/': typeof ConsoleIndexRoute
   '/_authenticated/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
   '/_authenticated/campus/become-instructor': typeof AuthenticatedCampusBecomeInstructorRoute
+  '/_authenticated/campus/teaching': typeof AuthenticatedCampusTeachingRoute
   '/_authenticated/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/_authenticated/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/_authenticated/hashtag/$tag': typeof AuthenticatedHashtagTagRoute
@@ -1055,6 +1075,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/console/advertising'
     | '/console/bookings'
+    | '/console/campus-instructors'
     | '/console/content'
     | '/console/deletions'
     | '/console/expansion'
@@ -1084,6 +1105,7 @@ export interface FileRouteTypes {
     | '/console/'
     | '/articles/$articleId'
     | '/campus/become-instructor'
+    | '/campus/teaching'
     | '/events/$eventId'
     | '/freelance/$projectId'
     | '/hashtag/$tag'
@@ -1162,6 +1184,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/console/advertising'
     | '/console/bookings'
+    | '/console/campus-instructors'
     | '/console/content'
     | '/console/deletions'
     | '/console/expansion'
@@ -1191,6 +1214,7 @@ export interface FileRouteTypes {
     | '/console'
     | '/articles/$articleId'
     | '/campus/become-instructor'
+    | '/campus/teaching'
     | '/events/$eventId'
     | '/freelance/$projectId'
     | '/hashtag/$tag'
@@ -1271,6 +1295,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/console/advertising'
     | '/console/bookings'
+    | '/console/campus-instructors'
     | '/console/content'
     | '/console/deletions'
     | '/console/expansion'
@@ -1300,6 +1325,7 @@ export interface FileRouteTypes {
     | '/console/'
     | '/_authenticated/articles/$articleId'
     | '/_authenticated/campus/become-instructor'
+    | '/_authenticated/campus/teaching'
     | '/_authenticated/events/$eventId'
     | '/_authenticated/freelance/$projectId'
     | '/_authenticated/hashtag/$tag'
@@ -1711,6 +1737,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleBookingsRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/console/campus-instructors': {
+      id: '/console/campus-instructors'
+      path: '/campus-instructors'
+      fullPath: '/console/campus-instructors'
+      preLoaderRoute: typeof ConsoleCampusInstructorsRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
     '/console/content': {
       id: '/console/content'
       path: '/content'
@@ -1919,6 +1952,13 @@ declare module '@tanstack/react-router' {
       path: '/campus/become-instructor'
       fullPath: '/campus/become-instructor'
       preLoaderRoute: typeof AuthenticatedCampusBecomeInstructorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/campus/teaching': {
+      id: '/_authenticated/campus/teaching'
+      path: '/campus/teaching'
+      fullPath: '/campus/teaching'
+      preLoaderRoute: typeof AuthenticatedCampusTeachingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/events/': {
@@ -2148,6 +2188,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedWithdrawRoute: typeof AuthenticatedWithdrawRoute
   AuthenticatedArticlesArticleIdRoute: typeof AuthenticatedArticlesArticleIdRoute
   AuthenticatedCampusBecomeInstructorRoute: typeof AuthenticatedCampusBecomeInstructorRoute
+  AuthenticatedCampusTeachingRoute: typeof AuthenticatedCampusTeachingRoute
   AuthenticatedEventsEventIdRoute: typeof AuthenticatedEventsEventIdRoute
   AuthenticatedFreelanceProjectIdRoute: typeof AuthenticatedFreelanceProjectIdRoute
   AuthenticatedHashtagTagRoute: typeof AuthenticatedHashtagTagRoute
@@ -2201,6 +2242,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedArticlesArticleIdRoute: AuthenticatedArticlesArticleIdRoute,
   AuthenticatedCampusBecomeInstructorRoute:
     AuthenticatedCampusBecomeInstructorRoute,
+  AuthenticatedCampusTeachingRoute: AuthenticatedCampusTeachingRoute,
   AuthenticatedEventsEventIdRoute: AuthenticatedEventsEventIdRoute,
   AuthenticatedFreelanceProjectIdRoute: AuthenticatedFreelanceProjectIdRoute,
   AuthenticatedHashtagTagRoute: AuthenticatedHashtagTagRoute,
@@ -2235,6 +2277,7 @@ const AuthenticatedRouteRouteWithChildren =
 interface ConsoleRouteChildren {
   ConsoleAdvertisingRoute: typeof ConsoleAdvertisingRoute
   ConsoleBookingsRoute: typeof ConsoleBookingsRoute
+  ConsoleCampusInstructorsRoute: typeof ConsoleCampusInstructorsRoute
   ConsoleContentRoute: typeof ConsoleContentRoute
   ConsoleDeletionsRoute: typeof ConsoleDeletionsRoute
   ConsoleExpansionRoute: typeof ConsoleExpansionRoute
@@ -2265,6 +2308,7 @@ interface ConsoleRouteChildren {
 const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsoleAdvertisingRoute: ConsoleAdvertisingRoute,
   ConsoleBookingsRoute: ConsoleBookingsRoute,
+  ConsoleCampusInstructorsRoute: ConsoleCampusInstructorsRoute,
   ConsoleContentRoute: ConsoleContentRoute,
   ConsoleDeletionsRoute: ConsoleDeletionsRoute,
   ConsoleExpansionRoute: ConsoleExpansionRoute,
