@@ -14,12 +14,16 @@ export type CampusApplicationStatus =
   | "APPROVED"
   | "REJECTED";
 
+export type CampusCatalogueKind = "SUBJECT" | "LANGUAGE" | "EXAM" | "SKILL" | "LEVEL";
+
 export type CampusSubject = {
   id: string;
   category: string;
+  kind: CampusCatalogueKind;
   name_en: string;
   name_fr: string;
   sort_order: number;
+  is_active?: boolean;
 };
 
 export type CampusQualification = {
