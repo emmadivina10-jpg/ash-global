@@ -717,7 +717,7 @@ export function ChatThread({
           e.preventDefault();
           void submit(body);
         }}
-        className="flex min-w-0 shrink-0 items-end gap-2 border-t border-primary/20 bg-card/95 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] backdrop-blur md:pb-2"
+        className="flex min-w-0 shrink-0 items-end gap-2 border-t border-primary/20 bg-card/95 py-2 backdrop-blur"
       >
         <div className="flex min-w-0 flex-1 flex-col">
           <Textarea

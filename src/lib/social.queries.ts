@@ -1723,7 +1723,7 @@ export function useUpdateGroupAvatar() {
       await verifyMediaFiles([file], "PROFILE_AVATAR");
       const originalExtension = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
       const extension = /^[a-z0-9]+$/.test(originalExtension) ? originalExtension : "jpg";
-      const objectPath = `${me}/groups/${groupId}-${crypto.randomUUID()}.${extension}`;
+      const objectPath = `${me}/groups/${groupId}/${crypto.randomUUID()}.${extension}`;
       const upload = await supabase.storage.from("avatars").upload(objectPath, file, {
         cacheControl: "3600",
         contentType: file.type || "image/jpeg",
