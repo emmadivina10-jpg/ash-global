@@ -163,16 +163,7 @@ function InstructorProfilePage() {
             <UserPlus className="size-4" aria-hidden />
             {fr ? "Suivre" : "Follow"}
           </Button>
-          <ReportDialog
-            targetType="PROFILE"
-            targetId={instructor.user_id}
-            trigger={
-              <Button variant="ghost" size="sm">
-                <Flag className="size-4" aria-hidden />
-                {fr ? "Signaler" : "Report"}
-              </Button>
-            }
-          />
+          <ReportDialog targetType="USER" targetUserId={instructor.user_id} targetLabel={name} />
         </div>
       </section>
 
