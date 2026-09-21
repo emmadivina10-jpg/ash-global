@@ -62,8 +62,8 @@ export function DesktopMenu({ groups, create }: { groups: MenuGroup[]; create: M
         align="end"
         className="w-[min(46rem,calc(100vw-3rem))] rounded-3xl p-0 shadow-[var(--shadow-card)]"
       >
-        <div className="grid max-h-[min(34rem,calc(100dvh-6rem))] grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] overflow-hidden">
-          <div className="overflow-y-auto border-r border-border p-4">
+        <div className="grid h-[min(34rem,calc(100dvh-6rem))] min-h-0 grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] overflow-hidden">
+          <div className="min-h-0 overflow-y-auto overscroll-contain border-r border-border p-4">
             <h2 className="font-display text-xl font-extrabold text-foreground">Menu</h2>
             <div className="relative mt-3">
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
@@ -112,7 +112,7 @@ export function DesktopMenu({ groups, create }: { groups: MenuGroup[]; create: M
             </div>
           </div>
 
-          <div className="overflow-y-auto p-4">
+          <div className="min-h-0 overflow-y-auto overscroll-contain p-4">
             <h3 className="font-display text-lg font-extrabold text-foreground">{fr ? "Créer" : "Create"}</h3>
             <div className="mt-3 space-y-0.5">
               {create.map((item) => (

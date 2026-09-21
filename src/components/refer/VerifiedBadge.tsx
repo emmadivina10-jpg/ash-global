@@ -1,8 +1,7 @@
-import { useId } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Premium ASH Verified seal with a crisp high-contrast centre.
+ * Familiar blue verification seal with a crisp white check.
  */
 export function VerifiedBadge({
   tier,
@@ -20,9 +19,6 @@ export function VerifiedBadge({
   if (!tier) return null;
   if (until && new Date(until).getTime() < Date.now()) return null;
 
-  const generatedId = useId().replace(/:/g, "");
-  const gradientId = `ash-verified-${generatedId}`;
-  const shineId = `ash-verified-shine-${generatedId}`;
   const label =
     customLabel ??
     (tier === "BUSINESS_PLUS"
@@ -41,27 +37,18 @@ export function VerifiedBadge({
       className={cn("inline-block shrink-0 align-[-0.125em]", className)}
     >
       <title>{label}</title>
-      <defs>
-        <linearGradient id={gradientId} x1="3" y1="21" x2="21" y2="3" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="var(--color-verified-violet)" />
-          <stop offset="0.52" stopColor="var(--color-verified-magenta)" />
-          <stop offset="1" stopColor="var(--color-verified-coral)" />
-        </linearGradient>
-        <linearGradient id={shineId} x1="5" y1="3" x2="18" y2="22" gradientUnits="userSpaceOnUse">
-          <stop stopColor="var(--color-on-dark)" stopOpacity="0.48" />
-          <stop offset="0.42" stopColor="var(--color-on-dark)" stopOpacity="0" />
-          <stop offset="1" stopColor="var(--color-verified-gold)" stopOpacity="0.26" />
-        </linearGradient>
-      </defs>
-      <circle cx="12" cy="12" r="10.25" fill={`url(#${gradientId})`} stroke="var(--color-verified-gold)" strokeOpacity="0.58" strokeWidth="1" />
-      <circle cx="12" cy="12" r="9.1" fill={`url(#${shineId})`} />
+      <path
+        fill="var(--color-social-verified)"
+        d="M12 1.6 14.14 3l2.54-.18 1.18 2.26 2.36.95.18 2.54L21.8 10.7 20.82 13l.98 2.3-1.4 2.13-.18 2.54-2.36.95-1.18 2.26-2.54-.18L12 24.4 9.86 23l-2.54.18-1.18-2.26-2.36-.95-.18-2.54L2.2 15.3l.98-2.3-.98-2.3 1.4-2.13.18-2.54 2.36-.95 1.18-2.26L9.86 3 12 1.6Z"
+        transform="translate(0 -1)"
+      />
       <path
         fill="none"
         stroke="var(--color-on-dark)"
         strokeLinecap="round"
         strokeLinejoin="round"
-        strokeWidth="2.8"
-        d="m7.2 12.2 3.1 3.1 6.6-7"
+        strokeWidth="2.6"
+        d="m7.1 11.9 3.15 3.15 6.7-7.1"
       />
     </svg>
   );

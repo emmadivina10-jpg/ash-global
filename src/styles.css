@@ -142,7 +142,7 @@
   --destructive: oklch(0.6094 0.2152 7.65);
   --destructive-foreground: oklch(1 0 0);
   --success: oklch(0.6271 0.1699 149.21);
-  --social-verified: oklch(0.605 0.216 255.5);
+  --social-verified: oklch(0.61 0.22 255);
   --verified-coral: oklch(0.7 0.19 31);
   --verified-magenta: oklch(0.63 0.25 340);
   --verified-violet: oklch(0.54 0.24 295);
@@ -198,6 +198,7 @@
   --border: oklch(0.9784 0.0045 285 / 12%);
   --input: oklch(0.9784 0.0045 285 / 16%);
   --ring: oklch(0.6656 0.2262 18.24);
+  --social-verified: oklch(0.68 0.19 251);
   --verified-coral: oklch(0.73 0.18 31);
   --verified-magenta: oklch(0.68 0.23 340);
   --verified-violet: oklch(0.64 0.22 295);
