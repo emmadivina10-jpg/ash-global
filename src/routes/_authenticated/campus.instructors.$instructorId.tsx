@@ -14,12 +14,15 @@ import { useI18n } from "@/lib/i18n";
 import { useProviderReviews, useProviderServices } from "@/lib/marketplace.queries";
 import { useSendFriendRequest } from "@/lib/social.queries";
 import {
+  instructorTitle,
+  languageLevelLabel,
   levelLabel,
   modeLabel,
   trackInstructorView,
   useInstructor,
   useInstructorDetails,
 } from "@/lib/campus.queries";
+import { providerTimeZone, zoneLabel } from "@/lib/timezone";
 
 export const Route = createFileRoute("/_authenticated/campus/instructors/$instructorId")({
   head: () => ({
@@ -100,7 +103,7 @@ function InstructorProfilePage() {
           <div className="min-w-0 flex-1">
             <p className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide text-primary">
               <BadgeCheck className="size-3.5" aria-hidden />
-              {fr ? "Instructeur vérifié ASH" : "ASH Verified Instructor"}
+              {instructorTitle(instructor.instructor_types, fr)}
             </p>
             <h1 className="mt-0.5 flex min-w-0 items-center gap-1 font-display text-2xl font-extrabold text-foreground">
               <span className="truncate">{name}</span>
