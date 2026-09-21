@@ -235,7 +235,7 @@ export function useCampusSubjects() {
     queryFn: async (): Promise<CampusSubject[]> => {
       const { data, error } = await db
         .from("campus_subjects")
-        .select("id,category,name_en,name_fr,sort_order")
+        .select("id,category,kind,name_en,name_fr,sort_order,is_active")
         .eq("is_active", true)
         .order("category")
         .order("sort_order");
@@ -245,12 +245,24 @@ export function useCampusSubjects() {
   });
 }
 
+/** Catalogue entries of one kind, e.g. every active exam or language. */
+export function catalogueOf(rows: CampusSubject[] | undefined, kind: CampusCatalogueKind) {
+  return (rows ?? []).filter((row) => row.kind === kind);
+}
+
 export type InstructorFilters = {
   term?: string;
   level?: string;
   mode?: string;
   city?: string;
+  country?: string;
   language?: string;
+  exam?: string;
+  skill?: string;
+  subject?: string;
+  category?: string;
+  instructorType?: string;
+  maxPrice?: number | null;
   sort?: "relevance" | "experience" | "price";
 };
 
