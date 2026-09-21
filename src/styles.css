@@ -636,13 +636,27 @@
    the bottom inset lives only on the tab bar. */
 html,
 body {
+  width: 100%;
+  max-width: 100%;
   min-height: 100%;
   background-color: var(--color-background);
+  overflow-x: clip;
   overscroll-behavior-y: none;
 }
 
-body {
-  overflow-x: hidden;
+.app-shell,
+.app-shell-frame,
+.app-shell-column,
+.app-shell-scroll {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.app-shell,
+.app-shell-frame,
+.app-shell-column {
+  overflow-x: clip;
 }
 
 html.native {
@@ -807,7 +821,7 @@ html {
 
 body {
   /* Nothing may push the page sideways on narrow screens. */
-  overflow-x: hidden;
+  overflow-x: clip;
   overscroll-behavior-y: none;
 }
 
