@@ -196,3 +196,14 @@ function Stat({ label, value, icon: Icon }: { label: string; value: number; icon
     </div>
   );
 }
+
+function Money({ label, value, currency }: { label: string; value: number; currency: string }) {
+  return (
+    <div className="rounded-2xl border border-border p-4">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="mt-1 font-display text-lg font-extrabold text-foreground">
+        {value.toLocaleString()} {currency}
+      </p>
+    </div>
+  );
+}
