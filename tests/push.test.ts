@@ -50,6 +50,10 @@ describe("notification deep links", () => {
   });
 
   it("falls back to the dashboard for unknown categories", () => {
-    expect(notificationLink("SOMETHING")).toBe("/dashboard");
+    expect(notificationLink("SOMETHING")).toBe("/feed");
+  });
+
+  it("opens account notifications on the profile", () => {
+    expect(notificationLink("ACCOUNT")).toBe("/profile");
   });
 });
