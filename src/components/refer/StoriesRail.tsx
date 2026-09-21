@@ -400,13 +400,48 @@ export function StoriesRail() {
     void recordStoryView(activeStory.id, activeStory.author_id);
   }, [storyViewerOpen, activeStory]);
 
+  // Opening the viewer jumps once to the tapped Spotlight. Index changes that
+  // come from scrolling must NOT trigger scrolling themselves (loop).
   useEffect(() => {
     if (!spotlightViewerOpen) return;
     const node = spotlightContainerRef.current;
     if (!node) return;
     const target = node.children[spotlightIndex] as HTMLElement | undefined;
     target?.scrollIntoView({ behavior: "instant", block: "start" });
-  }, [spotlightViewerOpen, spotlightIndex]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [spotlightViewerOpen]);
+
+  // Only the Spotlight currently on screen may play; everything else pauses
+  // and rewinds. All videos start paused — no autoPlay attribute, otherwise
+  // every video fires onPlay at once and the viewer skips through the list.
+  useEffect(() => {
+    if (!spotlightViewerOpen) return;
+    const node = spotlightContainerRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      (items) => {
+        for (const item of items) {
+          const element = item.target as HTMLElement;
+          const video = element.querySelector("video");
+          if (!video) continue;
+          if (item.isIntersecting) {
+            void video.play().catch(() => undefined);
+            const idx = Number(element.dataset["spotlightIndex"]);
+            if (Number.isInteger(idx)) setSpotlightIndex((current) => (current === idx ? current : idx));
+          } else {
+            video.pause();
+            video.currentTime = 0;
+          }
+        }
+      },
+      { root: node, threshold: 0.6 },
+    );
+    for (const child of Array.from(node.children)) observer.observe(child);
+    return () => {
+      observer.disconnect();
+      for (const video of Array.from(node.querySelectorAll("video"))) video.pause();
+    };
+  }, [spotlightViewerOpen, spotlights.length]);
 
   useEffect(() => {
     if (!storyViewerOpen && !spotlightViewerOpen) return;
@@ -1409,18 +1444,17 @@ export function StoriesRail() {
                   return (
                     <article
                       key={spotlight.id}
+                      data-spotlight-index={index}
                       className="relative h-[100dvh] min-h-[100svh] w-full snap-start overflow-hidden bg-black"
                     >
                       {video ? (
                         <video
                           src={spotlight.url}
-                          autoPlay
                           loop
                           playsInline
                           muted={spotlightMuted}
-                          preload="auto"
+                          preload="metadata"
                           className="absolute inset-0 size-full object-cover"
-                          onPlay={() => setSpotlightIndex(index)}
                         />
                       ) : (
                         <img
