@@ -9,7 +9,7 @@ export const listCampusInstructorApplications = createServerFn({ method: "GET" }
   const { data, error } = await db
     .from("campus_instructor_applications")
     .select(
-      "id,user_id,legal_full_name,display_name,country,city,date_of_birth,headline,bio,methodology,teaching_experience,subjects,levels,languages,teaching_modes,areas_served,years_experience,hourly_from,currency,qualifications,availability,identity_document_path,qualification_document_path,status,admin_note,submitted_at,reviewed_at",
+      "id,user_id,legal_full_name,display_name,country,city,date_of_birth,headline,bio,methodology,teaching_experience,subjects,levels,languages,teaching_modes,instructor_types,exams,skills,language_levels,timezone,areas_served,years_experience,hourly_from,currency,qualifications,availability,identity_document_path,qualification_document_path,status,admin_note,submitted_at,reviewed_at",
     )
     .order("submitted_at", { ascending: false, nullsFirst: false })
     .limit(200);

@@ -795,6 +795,24 @@ function DiscoveryPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
+      <Link
+        to="/campus/instructors"
+        className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-[linear-gradient(135deg,var(--color-verified-violet),var(--color-verified-magenta))] p-4 text-on-dark"
+      >
+        <span>
+          <span className="block text-[11px] font-bold uppercase tracking-[0.2em] opacity-90">ASH Campus</span>
+          <span className="block font-display text-base font-extrabold">
+            {fr ? "Trouvez quelqu'un qui peut vous apprendre." : "Find Someone Who Can Teach You."}
+          </span>
+          <span className="block text-xs opacity-90">
+            {fr
+              ? "École, université, langues, compétences pro et préparation aux examens."
+              : "School, university, languages, professional skills and exam preparation."}
+          </span>
+        </span>
+      </Link>
+
+
 
       {!asked && !location ? (
         <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-2xl border border-border bg-card p-4 sm:flex sm:justify-between">

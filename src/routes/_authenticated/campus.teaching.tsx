@@ -5,7 +5,14 @@ import { Button } from "@/components/ui/button";
 import { EmptyState, LoadingState } from "@/components/refer/states";
 import { useI18n } from "@/lib/i18n";
 import { useMyBookings, useProviderReviews, useProviderServices } from "@/lib/marketplace.queries";
-import { useInstructorDetails, useMyCampusApplication, useMyInstructorProfile } from "@/lib/campus.queries";
+import {
+  CAMPUS_COMMISSION_RATE,
+  instructorTitle,
+  useInstructorDetails,
+  useInstructorEarnings,
+  useMyCampusApplication,
+  useMyInstructorProfile,
+} from "@/lib/campus.queries";
 
 export const Route = createFileRoute("/_authenticated/campus/teaching")({
   head: () => ({
@@ -30,6 +37,7 @@ function TeachingDashboard() {
   const services = useProviderServices(instructor?.provider_id ?? undefined);
   const reviews = useProviderReviews(instructor?.provider_id ?? undefined);
   const bookings = useMyBookings();
+  const earnings = useInstructorEarnings(instructor?.provider_id, instructor?.currency ?? "XAF");
 
   if (isLoading) return <LoadingState label={fr ? "Chargement…" : "Loading…"} />;
 
@@ -79,7 +87,7 @@ function TeachingDashboard() {
       <header className="rounded-2xl border border-border bg-card p-5">
         <p className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide text-primary">
           <BadgeCheck className="size-3.5" aria-hidden />
-          {fr ? "Instructeur vérifié ASH" : "ASH Verified Instructor"}
+          {instructorTitle(instructor.instructor_types, fr)}
         </p>
         <h1 className="mt-1 font-display text-2xl font-extrabold text-foreground">{instructor.display_name}</h1>
         <p className="text-sm text-muted-foreground">{instructor.headline}</p>
@@ -126,6 +134,25 @@ function TeachingDashboard() {
       </div>
 
       <section className="rounded-2xl border border-border bg-card p-5">
+        <h2 className="mb-3 font-display text-base font-bold text-foreground">{fr ? "Gains" : "Earnings"}</h2>
+        <div className="grid gap-3 sm:grid-cols-4">
+          <Money label={fr ? "Revenu brut" : "Gross revenue"} value={earnings.data?.gross ?? 0} currency={instructor.currency} />
+          <Money
+            label={fr ? "Commission ASH (10 %)" : "ASH commission (10%)"}
+            value={earnings.data?.commission ?? 0}
+            currency={instructor.currency}
+          />
+          <Money label={fr ? "Vos gains" : "Your earnings"} value={earnings.data?.net ?? 0} currency={instructor.currency} />
+          <Money label={fr ? "En attente" : "Pending"} value={earnings.data?.pending ?? 0} currency={instructor.currency} />
+        </div>
+        <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+          {fr
+            ? `L'inscription, la candidature, la vérification et la publication de services sont gratuites. ASH prélève ${Math.round(CAMPUS_COMMISSION_RATE * 100)} % sur chaque séance terminée, calculé côté serveur. Les gains disponibles se retirent depuis le portefeuille ASH.`
+            : `Registration, application, verification and listing services are free. ASH takes ${Math.round(CAMPUS_COMMISSION_RATE * 100)}% of each completed session, calculated server-side. Available earnings are withdrawn from your ASH wallet.`}
+        </p>
+      </section>
+
+      <section className="rounded-2xl border border-border bg-card p-5">
         <h2 className="mb-3 font-display text-base font-bold text-foreground">{fr ? "Mes services" : "My services"}</h2>
         {!instructor.provider_id ? (
           <p className="text-sm text-muted-foreground">
@@ -166,6 +193,17 @@ function Stat({ label, value, icon: Icon }: { label: string; value: number; icon
       <Icon className="size-4 text-primary" aria-hidden />
       <p className="mt-2 font-display text-2xl font-extrabold text-foreground">{value}</p>
       <p className="text-xs text-muted-foreground">{label}</p>
+    </div>
+  );
+}
+
+function Money({ label, value, currency }: { label: string; value: number; currency: string }) {
+  return (
+    <div className="rounded-2xl border border-border p-4">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="mt-1 font-display text-lg font-extrabold text-foreground">
+        {value.toLocaleString()} {currency}
+      </p>
     </div>
   );
 }

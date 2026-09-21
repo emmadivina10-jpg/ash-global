@@ -58,6 +58,7 @@ import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ConsoleIndexRouteImport } from './routes/console.index'
 import { Route as ConsoleAdvertisingRouteImport } from './routes/console.advertising'
 import { Route as ConsoleBookingsRouteImport } from './routes/console.bookings'
+import { Route as ConsoleCampusCatalogueRouteImport } from './routes/console.campus-catalogue'
 import { Route as ConsoleCampusInstructorsRouteImport } from './routes/console.campus-instructors'
 import { Route as ConsoleContentRouteImport } from './routes/console.content'
 import { Route as ConsoleDeletionsRouteImport } from './routes/console.deletions'
@@ -365,6 +366,11 @@ const ConsoleAdvertisingRoute = ConsoleAdvertisingRouteImport.update({
 const ConsoleBookingsRoute = ConsoleBookingsRouteImport.update({
   id: '/bookings',
   path: '/bookings',
+  getParentRoute: () => ConsoleRoute,
+} as any)
+const ConsoleCampusCatalogueRoute = ConsoleCampusCatalogueRouteImport.update({
+  id: '/campus-catalogue',
+  path: '/campus-catalogue',
   getParentRoute: () => ConsoleRoute,
 } as any)
 const ConsoleCampusInstructorsRoute =
@@ -742,6 +748,7 @@ export interface FileRoutesByFullPath {
   '/auth/callback': typeof AuthCallbackRoute
   '/console/advertising': typeof ConsoleAdvertisingRoute
   '/console/bookings': typeof ConsoleBookingsRoute
+  '/console/campus-catalogue': typeof ConsoleCampusCatalogueRoute
   '/console/campus-instructors': typeof ConsoleCampusInstructorsRoute
   '/console/content': typeof ConsoleContentRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
@@ -851,6 +858,7 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
   '/console/advertising': typeof ConsoleAdvertisingRoute
   '/console/bookings': typeof ConsoleBookingsRoute
+  '/console/campus-catalogue': typeof ConsoleCampusCatalogueRoute
   '/console/campus-instructors': typeof ConsoleCampusInstructorsRoute
   '/console/content': typeof ConsoleContentRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
@@ -963,6 +971,7 @@ export interface FileRoutesById {
   '/auth/callback': typeof AuthCallbackRoute
   '/console/advertising': typeof ConsoleAdvertisingRoute
   '/console/bookings': typeof ConsoleBookingsRoute
+  '/console/campus-catalogue': typeof ConsoleCampusCatalogueRoute
   '/console/campus-instructors': typeof ConsoleCampusInstructorsRoute
   '/console/content': typeof ConsoleContentRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
@@ -1075,6 +1084,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/console/advertising'
     | '/console/bookings'
+    | '/console/campus-catalogue'
     | '/console/campus-instructors'
     | '/console/content'
     | '/console/deletions'
@@ -1184,6 +1194,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/console/advertising'
     | '/console/bookings'
+    | '/console/campus-catalogue'
     | '/console/campus-instructors'
     | '/console/content'
     | '/console/deletions'
@@ -1295,6 +1306,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/console/advertising'
     | '/console/bookings'
+    | '/console/campus-catalogue'
     | '/console/campus-instructors'
     | '/console/content'
     | '/console/deletions'
@@ -1735,6 +1747,13 @@ declare module '@tanstack/react-router' {
       path: '/bookings'
       fullPath: '/console/bookings'
       preLoaderRoute: typeof ConsoleBookingsRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/campus-catalogue': {
+      id: '/console/campus-catalogue'
+      path: '/campus-catalogue'
+      fullPath: '/console/campus-catalogue'
+      preLoaderRoute: typeof ConsoleCampusCatalogueRouteImport
       parentRoute: typeof ConsoleRoute
     }
     '/console/campus-instructors': {
@@ -2277,6 +2296,7 @@ const AuthenticatedRouteRouteWithChildren =
 interface ConsoleRouteChildren {
   ConsoleAdvertisingRoute: typeof ConsoleAdvertisingRoute
   ConsoleBookingsRoute: typeof ConsoleBookingsRoute
+  ConsoleCampusCatalogueRoute: typeof ConsoleCampusCatalogueRoute
   ConsoleCampusInstructorsRoute: typeof ConsoleCampusInstructorsRoute
   ConsoleContentRoute: typeof ConsoleContentRoute
   ConsoleDeletionsRoute: typeof ConsoleDeletionsRoute
@@ -2308,6 +2328,7 @@ interface ConsoleRouteChildren {
 const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsoleAdvertisingRoute: ConsoleAdvertisingRoute,
   ConsoleBookingsRoute: ConsoleBookingsRoute,
+  ConsoleCampusCatalogueRoute: ConsoleCampusCatalogueRoute,
   ConsoleCampusInstructorsRoute: ConsoleCampusInstructorsRoute,
   ConsoleContentRoute: ConsoleContentRoute,
   ConsoleDeletionsRoute: ConsoleDeletionsRoute,

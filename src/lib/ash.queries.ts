@@ -385,6 +385,11 @@ export type SearchBuckets = {
     display_name: string;
     headline: string;
     subjects: string[];
+    exams: string[];
+    skills: string[];
+    languages: string[];
+    instructor_types: string[];
+    country: string | null;
     city: string | null;
     hourly_from: number | null;
     currency: string;
@@ -416,11 +421,29 @@ export function useUniversalSearch(term: string) {
           .limit(12),
         (supabase as unknown as { from: (table: string) => any })
           .from("campus_instructor_profiles")
-          .select("id, display_name, headline, subjects, city, hourly_from, currency")
+          .select(
+            "id, display_name, headline, subjects, exams, skills, languages, instructor_types, country, city, hourly_from, currency",
+          )
           .eq("is_active", true)
-          .or(`display_name.ilike.${like},headline.ilike.${like},bio.ilike.${like}`)
-          .limit(12),
+          .limit(60),
       ]);
+
+      const needle = q.toLowerCase();
+      const instructorRows = ((instructors.data ?? []) as unknown as SearchBuckets["instructors"]).filter((row) =>
+        [
+          row.display_name,
+          row.headline,
+          row.city ?? "",
+          row.country ?? "",
+          ...(row.subjects ?? []),
+          ...(row.exams ?? []),
+          ...(row.skills ?? []),
+          ...(row.languages ?? []),
+        ]
+          .join(" ")
+          .toLowerCase()
+          .includes(needle),
+      );
 
       return {
         freelancers: (freelancers.data ?? []) as unknown as FreelancerProfile[],
@@ -430,7 +453,7 @@ export function useUniversalSearch(term: string) {
         providers: (providers.data ?? []) as SearchBuckets["providers"],
         services: (services.data ?? []) as unknown as SearchBuckets["services"],
         properties: (properties.data ?? []) as unknown as SearchBuckets["properties"],
-        instructors: (instructors.data ?? []) as unknown as SearchBuckets["instructors"],
+        instructors: instructorRows.slice(0, 12),
       };
     },
   });

@@ -14,12 +14,15 @@ import { useI18n } from "@/lib/i18n";
 import { useProviderReviews, useProviderServices } from "@/lib/marketplace.queries";
 import { useSendFriendRequest } from "@/lib/social.queries";
 import {
+  instructorTitle,
+  languageLevelLabel,
   levelLabel,
   modeLabel,
   trackInstructorView,
   useInstructor,
   useInstructorDetails,
 } from "@/lib/campus.queries";
+import { providerTimeZone, zoneLabel } from "@/lib/timezone";
 
 export const Route = createFileRoute("/_authenticated/campus/instructors/$instructorId")({
   head: () => ({
@@ -100,7 +103,7 @@ function InstructorProfilePage() {
           <div className="min-w-0 flex-1">
             <p className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide text-primary">
               <BadgeCheck className="size-3.5" aria-hidden />
-              {fr ? "Instructeur vérifié ASH" : "ASH Verified Instructor"}
+              {instructorTitle(instructor.instructor_types, fr)}
             </p>
             <h1 className="mt-0.5 flex min-w-0 items-center gap-1 font-display text-2xl font-extrabold text-foreground">
               <span className="truncate">{name}</span>
@@ -167,14 +170,26 @@ function InstructorProfilePage() {
         </div>
       </section>
 
-      <Section title={fr ? "Expérience" : "Experience"}>
+      <Section title={fr ? "Ce qui est enseigné" : "What is taught"}>
         <div className="flex flex-wrap gap-2">
-          <Badge variant="outline">
-            {instructor.years_experience} {fr ? "ans d'expérience" : "years experience"}
-          </Badge>
+          {instructor.years_experience > 0 ? (
+            <Badge variant="outline">
+              {instructor.years_experience} {fr ? "ans d'expérience" : "years experience"}
+            </Badge>
+          ) : null}
+          {instructor.exams.map((exam) => (
+            <Badge key={exam} variant="outline">
+              {exam} {fr ? "— préparation" : "Preparation"}
+            </Badge>
+          ))}
           {instructor.subjects.map((subject) => (
             <Badge key={subject} variant="outline">
               {subject}
+            </Badge>
+          ))}
+          {instructor.skills.map((skill) => (
+            <Badge key={skill} variant="outline">
+              {skill}
             </Badge>
           ))}
           {instructor.levels.map((level) => (
@@ -183,6 +198,28 @@ function InstructorProfilePage() {
             </Badge>
           ))}
         </div>
+        {instructor.language_levels?.length ? (
+          <div className="mt-3 space-y-1">
+            {instructor.languages.map((language) => {
+              const levels = instructor.language_levels
+                .filter((entry) => entry.language === language)
+                .map((entry) => languageLevelLabel(String(entry.level ?? ""), fr));
+              if (!levels.length) return null;
+              return (
+                <p key={language} className="text-xs text-muted-foreground">
+                  <span className="font-semibold text-foreground">{language}</span> — {levels.join(", ")}
+                </p>
+              );
+            })}
+          </div>
+        ) : null}
+        {instructor.exams.length ? (
+          <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
+            {fr
+              ? "Cet instructeur propose une préparation indépendante. Il n'est ni affilié, ni approuvé, ni certifié par l'organisme qui administre ces examens."
+              : "This instructor offers independent preparation. They are not affiliated with, endorsed by or certified by the organisation that administers these examinations."}
+          </p>
+        ) : null}
       </Section>
 
       <Section title={fr ? "Qualifications" : "Qualifications"}>
@@ -217,6 +254,12 @@ function InstructorProfilePage() {
       </Section>
 
       <Section title={fr ? "Disponibilités" : "Availability"}>
+        <p className="mb-2 text-xs text-muted-foreground">
+          {fr ? "Fuseau de l'instructeur : " : "Instructor's time zone: "}
+          {zoneLabel(instructor.timezone || providerTimeZone(instructor.country))} ·{" "}
+          {fr ? "Votre fuseau : " : "Your time zone: "}
+          {zoneLabel(Intl.DateTimeFormat().resolvedOptions().timeZone)}
+        </p>
         {!details?.availability.length ? (
           <p className="text-sm text-muted-foreground">
             {fr ? "Aucune disponibilité publiée." : "No availability published."}

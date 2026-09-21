@@ -14,12 +14,16 @@ export type CampusApplicationStatus =
   | "APPROVED"
   | "REJECTED";
 
+export type CampusCatalogueKind = "SUBJECT" | "LANGUAGE" | "EXAM" | "SKILL" | "LEVEL";
+
 export type CampusSubject = {
   id: string;
   category: string;
+  kind: CampusCatalogueKind;
   name_en: string;
   name_fr: string;
   sort_order: number;
+  is_active?: boolean;
 };
 
 export type CampusQualification = {
@@ -48,6 +52,11 @@ export type CampusInstructor = {
   levels: string[];
   languages: string[];
   teaching_modes: string[];
+  instructor_types: string[];
+  exams: string[];
+  skills: string[];
+  language_levels: { language?: string; level?: string }[];
+  timezone: string | null;
   country: string | null;
   city: string | null;
   areas_served: string;
@@ -77,6 +86,11 @@ export type CampusApplication = {
   levels: string[];
   languages: string[];
   teaching_modes: string[];
+  instructor_types: string[];
+  exams: string[];
+  skills: string[];
+  language_levels: { language?: string; level?: string }[];
+  timezone: string | null;
   areas_served: string;
   years_experience: number;
   hourly_from: number | null;
@@ -102,6 +116,92 @@ export const CAMPUS_LEVELS = [
 export const CAMPUS_MODES = ["ONLINE", "IN_PERSON"] as const;
 
 export const CAMPUS_PARTS = ["MORNING", "AFTERNOON", "EVENING"] as const;
+
+/** Instructor types an admin can approve. Titles are never inflated beyond these. */
+export const INSTRUCTOR_TYPES = [
+  "ACADEMIC",
+  "LANGUAGE",
+  "EXAM_PREPARATION",
+  "PROFESSIONAL",
+  "TECHNICAL",
+  "CREATIVE",
+  "OTHER",
+] as const;
+
+export const CAMPUS_CATEGORIES = [
+  "ACADEMIC",
+  "LANGUAGES",
+  "EXAM_PREPARATION",
+  "PROFESSIONAL",
+  "TECHNOLOGY",
+  "ENGINEERING",
+  "CREATIVE",
+] as const;
+
+export const LANGUAGE_LEVELS = [
+  "BEGINNER",
+  "INTERMEDIATE",
+  "ADVANCED",
+  "CONVERSATION",
+  "GRAMMAR",
+  "WRITING",
+  "SPEAKING",
+  "LISTENING",
+  "READING",
+  "EXAM_PREPARATION",
+] as const;
+
+export function instructorTypeLabel(type: string, fr: boolean) {
+  const map: Record<string, [string, string]> = {
+    ACADEMIC: ["ASH Academic Tutor", "Tuteur académique ASH"],
+    LANGUAGE: ["ASH Language Instructor", "Instructeur de langues ASH"],
+    EXAM_PREPARATION: ["ASH Exam Preparation Instructor", "Instructeur de préparation aux examens ASH"],
+    PROFESSIONAL: ["ASH Professional Instructor", "Instructeur professionnel ASH"],
+    TECHNICAL: ["ASH Technical Instructor", "Instructeur technique ASH"],
+    CREATIVE: ["ASH Creative Skills Instructor", "Instructeur de compétences créatives ASH"],
+    OTHER: ["ASH Verified Instructor", "Instructeur vérifié ASH"],
+  };
+  const entry = map[type] ?? [fr ? "Instructeur vérifié ASH" : "ASH Verified Instructor", "Instructeur vérifié ASH"];
+  return fr ? entry[1] : entry[0];
+}
+
+/** The accurate title shown on a card — never Professor, Doctor, Certified or Licensed. */
+export function instructorTitle(types: string[] | null | undefined, fr: boolean) {
+  const first = (types ?? [])[0];
+  if (!first) return fr ? "Instructeur vérifié ASH" : "ASH Verified Instructor";
+  return instructorTypeLabel(first, fr);
+}
+
+export function categoryLabel(category: string, fr: boolean) {
+  const map: Record<string, [string, string]> = {
+    ACADEMIC: ["Academic", "Académique"],
+    LANGUAGES: ["Languages", "Langues"],
+    EXAM_PREPARATION: ["Exam Preparation", "Préparation aux examens"],
+    PROFESSIONAL: ["Professional", "Professionnel"],
+    TECHNOLOGY: ["Technology", "Technologie"],
+    ENGINEERING: ["Engineering", "Ingénierie"],
+    CREATIVE: ["Creative Skills", "Compétences créatives"],
+  };
+  const entry = map[category] ?? [category, category];
+  return fr ? entry[1] : entry[0];
+}
+
+export function languageLevelLabel(level: string, fr: boolean) {
+  const map: Record<string, [string, string]> = {
+    BEGINNER: ["Beginner", "Débutant"],
+    INTERMEDIATE: ["Intermediate", "Intermédiaire"],
+    ADVANCED: ["Advanced", "Avancé"],
+    CONVERSATION: ["Conversation", "Conversation"],
+    GRAMMAR: ["Grammar", "Grammaire"],
+    WRITING: ["Writing", "Écrit"],
+    SPEAKING: ["Speaking", "Oral"],
+    LISTENING: ["Listening", "Compréhension orale"],
+    READING: ["Reading", "Lecture"],
+    EXAM_PREPARATION: ["Exam preparation", "Préparation aux examens"],
+  };
+  const entry = map[level] ?? [level, level];
+  return fr ? entry[1] : entry[0];
+}
 
 export function levelLabel(level: string, fr: boolean) {
   const map: Record<string, [string, string]> = {
@@ -135,7 +235,7 @@ export function useCampusSubjects() {
     queryFn: async (): Promise<CampusSubject[]> => {
       const { data, error } = await db
         .from("campus_subjects")
-        .select("id,category,name_en,name_fr,sort_order")
+        .select("id,category,kind,name_en,name_fr,sort_order,is_active")
         .eq("is_active", true)
         .order("category")
         .order("sort_order");
@@ -145,12 +245,24 @@ export function useCampusSubjects() {
   });
 }
 
+/** Catalogue entries of one kind, e.g. every active exam or language. */
+export function catalogueOf(rows: CampusSubject[] | undefined, kind: CampusCatalogueKind) {
+  return (rows ?? []).filter((row) => row.kind === kind);
+}
+
 export type InstructorFilters = {
   term?: string;
   level?: string;
   mode?: string;
   city?: string;
+  country?: string;
   language?: string;
+  exam?: string;
+  skill?: string;
+  subject?: string;
+  category?: string;
+  instructorType?: string;
+  maxPrice?: number | null;
   sort?: "relevance" | "experience" | "price";
 };
 
@@ -187,42 +299,61 @@ export function useInstructors(filters: InstructorFilters) {
     queryKey: ["campus", "instructors", filters],
     queryFn: async (): Promise<CampusInstructor[]> => {
       let query = db.from("campus_instructor_profiles").select("*").eq("is_active", true);
-      const term = (filters.term ?? "").trim();
-      if (term.length >= 2) {
-        query = query.or(
-          `display_name.ilike.%${term}%,headline.ilike.%${term}%,bio.ilike.%${term}%,areas_served.ilike.%${term}%`,
-        );
-      }
       if (filters.level) query = query.contains("levels", [filters.level]);
       if (filters.mode) query = query.contains("teaching_modes", [filters.mode]);
       if (filters.language) query = query.contains("languages", [filters.language]);
+      if (filters.exam) query = query.contains("exams", [filters.exam]);
+      if (filters.skill) query = query.contains("skills", [filters.skill]);
+      if (filters.subject) query = query.contains("subjects", [filters.subject]);
+      if (filters.instructorType) query = query.contains("instructor_types", [filters.instructorType]);
       if (filters.city) query = query.ilike("city", `%${filters.city}%`);
+      if (filters.country) query = query.ilike("country", `%${filters.country}%`);
+      if (filters.maxPrice) query = query.lte("hourly_from", filters.maxPrice);
       if (filters.sort === "price") query = query.order("hourly_from", { ascending: true, nullsFirst: false });
       else query = query.order("years_experience", { ascending: false });
-      const { data, error } = await query.limit(40);
+      const { data, error } = await query.limit(80);
       if (error) throw error;
       let rows = (data ?? []) as CampusInstructor[];
+
+      const term = (filters.term ?? "").trim().toLowerCase();
       if (term.length >= 2) {
-        const needle = term.toLowerCase();
-        const matchesSubject = rows.filter((row) =>
-          row.subjects.some((subject) => subject.toLowerCase().includes(needle)),
-        );
-        const ids = new Set(rows.map((row) => row.id));
-        const { data: bySubject } = await db
-          .from("campus_instructor_profiles")
-          .select("*")
-          .eq("is_active", true)
-          .overlaps("subjects", [term])
-          .limit(20);
-        for (const row of (bySubject ?? []) as CampusInstructor[]) {
-          if (!ids.has(row.id)) {
-            rows.push(row);
-            ids.add(row.id);
-          }
-        }
-        void matchesSubject;
+        rows = rows.filter((row) => {
+          const haystack = [
+            row.display_name,
+            row.headline,
+            row.bio,
+            row.areas_served,
+            row.country ?? "",
+            row.city ?? "",
+            ...(row.subjects ?? []),
+            ...(row.exams ?? []),
+            ...(row.skills ?? []),
+            ...(row.languages ?? []),
+          ]
+            .join(" ")
+            .toLowerCase();
+          return haystack.includes(term);
+        });
       }
-      return decorate(rows);
+
+      if (filters.category) {
+        const category = filters.category;
+        const { data: catalogue } = await db
+          .from("campus_subjects")
+          .select("name_en")
+          .eq("is_active", true)
+          .eq("category", category);
+        const names = new Set(((catalogue ?? []) as { name_en: string }[]).map((item) => item.name_en));
+        if (names.size) {
+          rows = rows.filter((row) =>
+            [...(row.subjects ?? []), ...(row.exams ?? []), ...(row.skills ?? []), ...(row.languages ?? [])].some(
+              (value) => names.has(value),
+            ),
+          );
+        }
+      }
+
+      return decorate(rows.slice(0, 40));
     },
   });
 }
@@ -322,6 +453,11 @@ export type CampusApplicationInput = {
   levels: string[];
   languages: string[];
   teachingModes: string[];
+  instructorTypes: string[];
+  exams: string[];
+  skills: string[];
+  languageLevels: { language: string; level: string }[];
+  timezone: string;
   areasServed: string;
   yearsExperience: number;
   hourlyFrom: number | null;
@@ -341,7 +477,9 @@ export function useSubmitCampusApplication() {
       if (!userId) throw new Error("You need to be signed in.");
       if (!input.declarationsAccepted) throw new Error("Please accept the declaration before submitting.");
       if (!input.identityDocument) throw new Error("Please attach an identity document.");
-      if (input.subjects.length === 0) throw new Error("Please choose at least one subject.");
+      if (input.instructorTypes.length === 0) throw new Error("Please choose your instructor type.");
+      if (input.subjects.length + input.exams.length + input.skills.length + input.languages.length === 0)
+        throw new Error("Please choose at least one subject, language, exam or skill.");
       if (input.levels.length === 0) throw new Error("Please choose at least one education level.");
 
       const uploaded: string[] = [];
@@ -369,6 +507,11 @@ export function useSubmitCampusApplication() {
           levels: input.levels,
           languages: input.languages,
           teaching_modes: input.teachingModes,
+          instructor_types: input.instructorTypes,
+          exams: input.exams,
+          skills: input.skills,
+          language_levels: input.languageLevels,
+          timezone: input.timezone || null,
           areas_served: input.areasServed.trim(),
           years_experience: Math.max(0, Math.min(60, Math.round(input.yearsExperience))),
           hourly_from: input.hourlyFrom,
@@ -430,5 +573,94 @@ export function trackInstructorView(instructorId: string, subjects: string[]) {
     target_type: "campus_instructor",
     target_id: instructorId,
     category: subjects[0] ?? null,
+  });
+}
+
+export type InstructorEarnings = {
+  gross: number;
+  commission: number;
+  net: number;
+  pending: number;
+  currency: string;
+};
+
+/** Earnings read from the existing booking ledger. Amounts are never computed from user input. */
+export function useInstructorEarnings(providerId: string | null | undefined, currency = "XAF") {
+  return useQuery({
+    queryKey: ["campus", "earnings", providerId],
+    enabled: Boolean(providerId),
+    queryFn: async (): Promise<InstructorEarnings> => {
+      const { data, error } = await db
+        .from("bookings")
+        .select("price,platform_fee,status")
+        .eq("provider_id", providerId)
+        .limit(500);
+      if (error) throw error;
+      const rows = (data ?? []) as { price: number; platform_fee: number | null; status: string }[];
+      let gross = 0;
+      let commission = 0;
+      let pending = 0;
+      for (const row of rows) {
+        const price = Number(row.price) || 0;
+        const fee = Number(row.platform_fee) || Math.round(price * CAMPUS_COMMISSION_RATE);
+        if (row.status === "COMPLETED" || row.status === "SETTLED") {
+          gross += price;
+          commission += fee;
+        } else if (["PENDING", "CONFIRMED", "ACCEPTED", "IN_PROGRESS", "PAYMENT_PROCESSING"].includes(row.status)) {
+          pending += price - fee;
+        }
+      }
+      return { gross, commission, net: gross - commission, pending, currency };
+    },
+  });
+}
+
+/** Displayed only. The real fee is calculated server-side on every completed session. */
+export const CAMPUS_COMMISSION_RATE = 0.1;
+
+export function useCampusCatalogueAdmin() {
+  const queryClient = useQueryClient();
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["campus"] });
+
+  const add = useMutation({
+    mutationFn: async (input: { category: string; kind: CampusCatalogueKind; nameEn: string; nameFr: string }) => {
+      const { error } = await db.from("campus_subjects").insert({
+        category: input.category,
+        kind: input.kind,
+        name_en: input.nameEn.trim(),
+        name_fr: (input.nameFr || input.nameEn).trim(),
+        sort_order: 99,
+        is_active: true,
+      });
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
+
+  const setActive = useMutation({
+    mutationFn: async (input: { id: string; isActive: boolean }) => {
+      const { error } = await db.from("campus_subjects").update({ is_active: input.isActive }).eq("id", input.id);
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
+
+  return { add, setActive };
+}
+
+/** Every catalogue entry, including retired ones — admin console only. */
+export function useAllCampusCatalogue() {
+  return useQuery({
+    queryKey: ["campus", "catalogue", "all"],
+    queryFn: async (): Promise<CampusSubject[]> => {
+      const { data, error } = await db
+        .from("campus_subjects")
+        .select("id,category,kind,name_en,name_fr,sort_order,is_active")
+        .order("kind")
+        .order("category")
+        .order("sort_order");
+      if (error) throw error;
+      return (data ?? []) as CampusSubject[];
+    },
   });
 }

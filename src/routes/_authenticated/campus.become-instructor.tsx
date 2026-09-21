@@ -12,6 +12,11 @@ import {
   CAMPUS_LEVELS,
   CAMPUS_MODES,
   CAMPUS_PARTS,
+  INSTRUCTOR_TYPES,
+  LANGUAGE_LEVELS,
+  catalogueOf,
+  instructorTypeLabel,
+  languageLevelLabel,
   levelLabel,
   modeLabel,
   useCampusSubjects,
@@ -57,6 +62,17 @@ function BecomeInstructorPage() {
   const [methodology, setMethodology] = useState("");
   const [teachingExperience, setTeachingExperience] = useState("");
   const [chosenSubjects, setChosenSubjects] = useState<string[]>([]);
+  const [instructorTypes, setInstructorTypes] = useState<string[]>([]);
+  const [exams, setExams] = useState<string[]>([]);
+  const [skills, setSkills] = useState<string[]>([]);
+  const [languageLevels, setLanguageLevels] = useState<{ language: string; level: string }[]>([]);
+  const [timezone, setTimezone] = useState(() => {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || "Africa/Douala";
+    } catch {
+      return "Africa/Douala";
+    }
+  });
   const [levels, setLevels] = useState<string[]>([]);
   const [languages, setLanguages] = useState<string[]>([]);
   const [modes, setModes] = useState<string[]>([]);
@@ -102,6 +118,11 @@ function BecomeInstructorPage() {
         levels,
         languages,
         teachingModes: modes,
+        instructorTypes,
+        exams,
+        skills,
+        languageLevels,
+        timezone,
         areasServed,
         yearsExperience: Number(yearsExperience) || 0,
         hourlyFrom: hourlyFrom ? Number(hourlyFrom) : null,
@@ -195,27 +216,59 @@ function BecomeInstructorPage() {
               <Textarea value={teachingExperience} onChange={(event) => setTeachingExperience(event.target.value)} rows={3} />
             </Field>
 
-            <Field label={fr ? "Matières" : "Subjects"}>
+            <Field label={fr ? "Type d'instructeur" : "Instructor type"}>
               <div className="flex flex-wrap gap-1.5">
-                {(subjects.data ?? []).map((subject) => {
-                  const value = subject.name_en;
-                  const active = chosenSubjects.includes(value);
-                  return (
-                    <button
-                      key={subject.id}
-                      type="button"
-                      onClick={() => toggle(chosenSubjects, value, setChosenSubjects)}
-                      className={
-                        "rounded-full border px-3 py-1 text-xs font-semibold transition-colors " +
-                        (active ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground")
-                      }
-                    >
-                      {fr ? subject.name_fr : subject.name_en}
-                    </button>
-                  );
-                })}
+                {INSTRUCTOR_TYPES.map((type) => (
+                  <Chip
+                    key={type}
+                    active={instructorTypes.includes(type)}
+                    onClick={() => toggle(instructorTypes, type, setInstructorTypes)}
+                  >
+                    {instructorTypeLabel(type, fr)}
+                  </Chip>
+                ))}
               </div>
             </Field>
+
+            <Field label={fr ? "Matières" : "Subjects"}>
+              <div className="flex flex-wrap gap-1.5">
+                {catalogueOf(subjects.data, "SUBJECT").map((subject) => (
+                  <Chip
+                    key={subject.id}
+                    active={chosenSubjects.includes(subject.name_en)}
+                    onClick={() => toggle(chosenSubjects, subject.name_en, setChosenSubjects)}
+                  >
+                    {fr ? subject.name_fr : subject.name_en}
+                  </Chip>
+                ))}
+              </div>
+            </Field>
+
+            <Field label={fr ? "Examens préparés" : "Exams you prepare learners for"}>
+              <div className="flex flex-wrap gap-1.5">
+                {catalogueOf(subjects.data, "EXAM").map((item) => (
+                  <Chip key={item.id} active={exams.includes(item.name_en)} onClick={() => toggle(exams, item.name_en, setExams)}>
+                    {fr ? item.name_fr : item.name_en}
+                  </Chip>
+                ))}
+              </div>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                {fr
+                  ? "Vos services s'affichent comme « Préparation TCF Canada ». ASH n'affirme aucune affiliation avec un organisme d'examen."
+                  : "Your services appear as “TCF Canada Preparation”. ASH never claims affiliation with an examination organisation."}
+              </p>
+            </Field>
+
+            <Field label={fr ? "Compétences professionnelles et techniques" : "Professional and technical skills"}>
+              <div className="flex flex-wrap gap-1.5">
+                {catalogueOf(subjects.data, "SKILL").map((item) => (
+                  <Chip key={item.id} active={skills.includes(item.name_en)} onClick={() => toggle(skills, item.name_en, setSkills)}>
+                    {fr ? item.name_fr : item.name_en}
+                  </Chip>
+                ))}
+              </div>
+            </Field>
+
 
             <Field label={fr ? "Niveaux" : "Education levels"}>
               <div className="flex flex-wrap gap-1.5">
@@ -237,19 +290,66 @@ function BecomeInstructorPage() {
               </div>
             </Field>
 
-            <Field label={fr ? "Langues" : "Languages"}>
+            <Field label={fr ? "Langues enseignées" : "Languages you teach"}>
               <div className="flex flex-wrap gap-1.5">
-                {["English", "French", "Other"].map((language) => (
+                {catalogueOf(subjects.data, "LANGUAGE").map((item) => (
                   <Chip
-                    key={language}
-                    active={languages.includes(language)}
-                    onClick={() => toggle(languages, language, setLanguages)}
+                    key={item.id}
+                    active={languages.includes(item.name_en)}
+                    onClick={() => {
+                      toggle(languages, item.name_en, setLanguages);
+                      setLanguageLevels((current) => current.filter((entry) => entry.language !== item.name_en));
+                    }}
                   >
-                    {language}
+                    {fr ? item.name_fr : item.name_en}
                   </Chip>
                 ))}
               </div>
             </Field>
+
+            {languages.length ? (
+              <Field label={fr ? "Niveaux et objectifs par langue" : "Level and focus for each language"}>
+                <div className="space-y-2">
+                  {languages.map((language) => (
+                    <div key={language} className="rounded-xl border border-border p-3">
+                      <p className="text-xs font-bold text-foreground">{language}</p>
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {LANGUAGE_LEVELS.map((level) => {
+                          const active = languageLevels.some(
+                            (entry) => entry.language === language && entry.level === level,
+                          );
+                          return (
+                            <Chip
+                              key={level}
+                              active={active}
+                              onClick={() =>
+                                setLanguageLevels((current) =>
+                                  active
+                                    ? current.filter((entry) => !(entry.language === language && entry.level === level))
+                                    : [...current, { language, level }],
+                                )
+                              }
+                            >
+                              {languageLevelLabel(level, fr)}
+                            </Chip>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Field>
+            ) : null}
+
+            <Field label={fr ? "Fuseau horaire" : "Time zone"}>
+              <Input value={timezone} onChange={(event) => setTimezone(event.target.value)} placeholder="Africa/Douala" />
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                {fr
+                  ? "Vos disponibilités sont affichées aux apprenants dans leur propre fuseau horaire."
+                  : "Your availability is shown to learners in their own time zone."}
+              </p>
+            </Field>
+
 
             <div className="grid gap-3 sm:grid-cols-2">
               <Field label={fr ? "Années d'expérience" : "Years of experience"}>
