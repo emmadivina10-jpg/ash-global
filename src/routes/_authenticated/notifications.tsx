@@ -36,10 +36,10 @@ export const Route = createFileRoute("/_authenticated/notifications")({
 type Bucket = "all" | "social" | "messages" | "bookings" | "money" | "system";
 
 const GROUPS: Record<Exclude<Bucket, "all">, string[]> = {
-  social: ["SOCIAL_LIKE", "SOCIAL_REPOST", "SOCIAL_COMMENT", "SOCIAL_REPLY", "STORY", "FRIEND_REQUEST", "FRIEND_ACCEPTED"],
+  social: ["SOCIAL_LIKE", "SOCIAL_REACTION", "COMMENT_REACTION", "SOCIAL_REPOST", "SOCIAL_COMMENT", "SOCIAL_REPLY", "STORY", "STORY_REACTION", "SPOTLIGHT_REACTION", "FRIEND_REQUEST", "FRIEND_ACCEPTED"],
   messages: ["MESSAGE", "GROUP_ADDED"],
-  bookings: ["BOOKING", "REVIEW"],
-  money: ["WITHDRAWAL", "COMMISSION", "ACTIVATION"],
+  bookings: ["BOOKING", "REVIEW", "PROPERTY"],
+  money: ["WITHDRAWAL", "COMMISSION", "ACTIVATION", "WALLET"],
   system: [],
 };
 

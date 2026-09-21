@@ -51,13 +51,23 @@ export function notificationLink(category: string, data: Record<string, unknown>
     case "REVIEW":
       return "/studio";
     case "SOCIAL_LIKE":
+    case "SOCIAL_REACTION":
     case "SOCIAL_REPOST":
     case "SOCIAL_COMMENT":
     case "SOCIAL_REPLY":
+    case "COMMENT_REACTION":
       // Open the exact post the notification is about whenever we know it.
       return typeof data["post_id"] === "string" ? `/post/${data["post_id"]}` : "/feed";
     case "STORY":
+    case "STORY_REACTION":
+    case "SPOTLIGHT_REACTION":
       return "/feed";
+    case "WALLET":
+      return "/wallet";
+    case "DEAL":
+      return "/deals";
+    case "PROPERTY":
+      return typeof data["listing_id"] === "string" ? `/property/${data["listing_id"]}` : "/property";
     case "FRIEND_REQUEST":
     case "FRIEND_ACCEPTED":
       return "/friends";
