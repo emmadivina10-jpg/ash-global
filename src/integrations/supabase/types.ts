@@ -4446,6 +4446,13 @@ export type Database = {
         Returns: string
       }
       expire_property_listings: { Args: never; Returns: number }
+      expired_spotlight_video_batch: {
+        Args: { _limit?: number }
+        Returns: {
+          id: string
+          media: Json
+        }[]
+      }
       expired_story_cleanup_batch: {
         Args: { _limit?: number }
         Returns: {
@@ -4477,6 +4484,10 @@ export type Database = {
       fail_promotion: {
         Args: { _payment_reference: string; _status: string }
         Returns: undefined
+      }
+      finalize_spotlight_video_cleanup: {
+        Args: { _post_id: string; _removed_paths: string[] }
+        Returns: string
       }
       generate_referral_code: { Args: never; Returns: string }
       get_provider_bookings: {
