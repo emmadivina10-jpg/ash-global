@@ -58,6 +58,7 @@ import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ConsoleIndexRouteImport } from './routes/console.index'
 import { Route as ConsoleAdvertisingRouteImport } from './routes/console.advertising'
 import { Route as ConsoleBookingsRouteImport } from './routes/console.bookings'
+import { Route as ConsoleCampusInstructorsRouteImport } from './routes/console.campus-instructors'
 import { Route as ConsoleContentRouteImport } from './routes/console.content'
 import { Route as ConsoleDeletionsRouteImport } from './routes/console.deletions'
 import { Route as ConsoleExpansionRouteImport } from './routes/console.expansion'
@@ -86,6 +87,9 @@ import { Route as PayCodeRouteImport } from './routes/pay.$code'
 import { Route as SSlugRouteImport } from './routes/s.$slug'
 import { Route as AuthenticatedArticlesIndexRouteImport } from './routes/_authenticated/articles.index'
 import { Route as AuthenticatedArticlesArticleIdRouteImport } from './routes/_authenticated/articles.$articleId'
+import { Route as AuthenticatedCampusIndexRouteImport } from './routes/_authenticated/campus.index'
+import { Route as AuthenticatedCampusBecomeInstructorRouteImport } from './routes/_authenticated/campus.become-instructor'
+import { Route as AuthenticatedCampusTeachingRouteImport } from './routes/_authenticated/campus.teaching'
 import { Route as AuthenticatedEventsIndexRouteImport } from './routes/_authenticated/events.index'
 import { Route as AuthenticatedEventsEventIdRouteImport } from './routes/_authenticated/events.$eventId'
 import { Route as AuthenticatedFreelanceIndexRouteImport } from './routes/_authenticated/freelance.index'
@@ -106,6 +110,8 @@ import { Route as ApiPublicCleanupSpotlightVideosRouteImport } from './routes/ap
 import { Route as ApiPublicCleanupStoriesRouteImport } from './routes/api/public/cleanup-stories'
 import { Route as ApiPublicReconcileActivationsRouteImport } from './routes/api/public/reconcile-activations'
 import { Route as ApiPublicSecuritySelfcheckRouteImport } from './routes/api/public/security-selfcheck'
+import { Route as AuthenticatedCampusInstructorsIndexRouteImport } from './routes/_authenticated/campus.instructors.index'
+import { Route as AuthenticatedCampusInstructorsInstructorIdRouteImport } from './routes/_authenticated/campus.instructors.$instructorId'
 import { Route as AuthenticatedMarketsInstructorsInstructorIdRouteImport } from './routes/_authenticated/markets.instructors.$instructorId'
 import { Route as AuthenticatedMarketsUpdateMarketPostIdRouteImport } from './routes/_authenticated/markets.update.$marketPostId'
 import { Route as ApiPublicWebhooksTchokopayRouteImport } from './routes/api/public/webhooks/tchokopay'
@@ -361,6 +367,12 @@ const ConsoleBookingsRoute = ConsoleBookingsRouteImport.update({
   path: '/bookings',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const ConsoleCampusInstructorsRoute =
+  ConsoleCampusInstructorsRouteImport.update({
+    id: '/campus-instructors',
+    path: '/campus-instructors',
+    getParentRoute: () => ConsoleRoute,
+  } as any)
 const ConsoleContentRoute = ConsoleContentRouteImport.update({
   id: '/content',
   path: '/content',
@@ -503,6 +515,24 @@ const AuthenticatedArticlesArticleIdRoute =
     path: '/articles/$articleId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCampusIndexRoute =
+  AuthenticatedCampusIndexRouteImport.update({
+    id: '/campus/',
+    path: '/campus/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCampusBecomeInstructorRoute =
+  AuthenticatedCampusBecomeInstructorRouteImport.update({
+    id: '/campus/become-instructor',
+    path: '/campus/become-instructor',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCampusTeachingRoute =
+  AuthenticatedCampusTeachingRouteImport.update({
+    id: '/campus/teaching',
+    path: '/campus/teaching',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedEventsIndexRoute =
   AuthenticatedEventsIndexRouteImport.update({
     id: '/events/',
@@ -617,6 +647,18 @@ const ApiPublicSecuritySelfcheckRoute =
     path: '/api/public/security-selfcheck',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedCampusInstructorsIndexRoute =
+  AuthenticatedCampusInstructorsIndexRouteImport.update({
+    id: '/campus/instructors/',
+    path: '/campus/instructors/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCampusInstructorsInstructorIdRoute =
+  AuthenticatedCampusInstructorsInstructorIdRouteImport.update({
+    id: '/campus/instructors/$instructorId',
+    path: '/campus/instructors/$instructorId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMarketsInstructorsInstructorIdRoute =
   AuthenticatedMarketsInstructorsInstructorIdRouteImport.update({
     id: '/markets/instructors/$instructorId',
@@ -700,6 +742,7 @@ export interface FileRoutesByFullPath {
   '/auth/callback': typeof AuthCallbackRoute
   '/console/advertising': typeof ConsoleAdvertisingRoute
   '/console/bookings': typeof ConsoleBookingsRoute
+  '/console/campus-instructors': typeof ConsoleCampusInstructorsRoute
   '/console/content': typeof ConsoleContentRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/expansion': typeof ConsoleExpansionRoute
@@ -728,6 +771,8 @@ export interface FileRoutesByFullPath {
   '/s/$slug': typeof SSlugRoute
   '/console/': typeof ConsoleIndexRoute
   '/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
+  '/campus/become-instructor': typeof AuthenticatedCampusBecomeInstructorRoute
+  '/campus/teaching': typeof AuthenticatedCampusTeachingRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/hashtag/$tag': typeof AuthenticatedHashtagTagRoute
@@ -743,18 +788,21 @@ export interface FileRoutesByFullPath {
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
   '/articles/': typeof AuthenticatedArticlesIndexRoute
+  '/campus/': typeof AuthenticatedCampusIndexRoute
   '/events/': typeof AuthenticatedEventsIndexRoute
   '/freelance/': typeof AuthenticatedFreelanceIndexRoute
   '/incubator/': typeof AuthenticatedIncubatorIndexRoute
   '/jobs/': typeof AuthenticatedJobsIndexRoute
   '/property/': typeof AuthenticatedPropertyIndexRoute
   '/services/': typeof AuthenticatedServicesIndexRoute
+  '/campus/instructors/$instructorId': typeof AuthenticatedCampusInstructorsInstructorIdRoute
   '/markets/instructors/$instructorId': typeof AuthenticatedMarketsInstructorsInstructorIdRoute
   '/markets/update/$marketPostId': typeof AuthenticatedMarketsUpdateMarketPostIdRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/campus/instructors/': typeof AuthenticatedCampusInstructorsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -803,6 +851,7 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
   '/console/advertising': typeof ConsoleAdvertisingRoute
   '/console/bookings': typeof ConsoleBookingsRoute
+  '/console/campus-instructors': typeof ConsoleCampusInstructorsRoute
   '/console/content': typeof ConsoleContentRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/expansion': typeof ConsoleExpansionRoute
@@ -831,6 +880,8 @@ export interface FileRoutesByTo {
   '/s/$slug': typeof SSlugRoute
   '/console': typeof ConsoleIndexRoute
   '/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
+  '/campus/become-instructor': typeof AuthenticatedCampusBecomeInstructorRoute
+  '/campus/teaching': typeof AuthenticatedCampusTeachingRoute
   '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/hashtag/$tag': typeof AuthenticatedHashtagTagRoute
@@ -846,18 +897,21 @@ export interface FileRoutesByTo {
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
   '/articles': typeof AuthenticatedArticlesIndexRoute
+  '/campus': typeof AuthenticatedCampusIndexRoute
   '/events': typeof AuthenticatedEventsIndexRoute
   '/freelance': typeof AuthenticatedFreelanceIndexRoute
   '/incubator': typeof AuthenticatedIncubatorIndexRoute
   '/jobs': typeof AuthenticatedJobsIndexRoute
   '/property': typeof AuthenticatedPropertyIndexRoute
   '/services': typeof AuthenticatedServicesIndexRoute
+  '/campus/instructors/$instructorId': typeof AuthenticatedCampusInstructorsInstructorIdRoute
   '/markets/instructors/$instructorId': typeof AuthenticatedMarketsInstructorsInstructorIdRoute
   '/markets/update/$marketPostId': typeof AuthenticatedMarketsUpdateMarketPostIdRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/campus/instructors': typeof AuthenticatedCampusInstructorsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -909,6 +963,7 @@ export interface FileRoutesById {
   '/auth/callback': typeof AuthCallbackRoute
   '/console/advertising': typeof ConsoleAdvertisingRoute
   '/console/bookings': typeof ConsoleBookingsRoute
+  '/console/campus-instructors': typeof ConsoleCampusInstructorsRoute
   '/console/content': typeof ConsoleContentRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/expansion': typeof ConsoleExpansionRoute
@@ -937,6 +992,8 @@ export interface FileRoutesById {
   '/s/$slug': typeof SSlugRoute
   '/console/': typeof ConsoleIndexRoute
   '/_authenticated/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
+  '/_authenticated/campus/become-instructor': typeof AuthenticatedCampusBecomeInstructorRoute
+  '/_authenticated/campus/teaching': typeof AuthenticatedCampusTeachingRoute
   '/_authenticated/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/_authenticated/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/_authenticated/hashtag/$tag': typeof AuthenticatedHashtagTagRoute
@@ -952,18 +1009,21 @@ export interface FileRoutesById {
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
   '/_authenticated/articles/': typeof AuthenticatedArticlesIndexRoute
+  '/_authenticated/campus/': typeof AuthenticatedCampusIndexRoute
   '/_authenticated/events/': typeof AuthenticatedEventsIndexRoute
   '/_authenticated/freelance/': typeof AuthenticatedFreelanceIndexRoute
   '/_authenticated/incubator/': typeof AuthenticatedIncubatorIndexRoute
   '/_authenticated/jobs/': typeof AuthenticatedJobsIndexRoute
   '/_authenticated/property/': typeof AuthenticatedPropertyIndexRoute
   '/_authenticated/services/': typeof AuthenticatedServicesIndexRoute
+  '/_authenticated/campus/instructors/$instructorId': typeof AuthenticatedCampusInstructorsInstructorIdRoute
   '/_authenticated/markets/instructors/$instructorId': typeof AuthenticatedMarketsInstructorsInstructorIdRoute
   '/_authenticated/markets/update/$marketPostId': typeof AuthenticatedMarketsUpdateMarketPostIdRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/_authenticated/campus/instructors/': typeof AuthenticatedCampusInstructorsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1015,6 +1075,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/console/advertising'
     | '/console/bookings'
+    | '/console/campus-instructors'
     | '/console/content'
     | '/console/deletions'
     | '/console/expansion'
@@ -1043,6 +1104,8 @@ export interface FileRouteTypes {
     | '/s/$slug'
     | '/console/'
     | '/articles/$articleId'
+    | '/campus/become-instructor'
+    | '/campus/teaching'
     | '/events/$eventId'
     | '/freelance/$projectId'
     | '/hashtag/$tag'
@@ -1058,18 +1121,21 @@ export interface FileRouteTypes {
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
     | '/articles/'
+    | '/campus/'
     | '/events/'
     | '/freelance/'
     | '/incubator/'
     | '/jobs/'
     | '/property/'
     | '/services/'
+    | '/campus/instructors/$instructorId'
     | '/markets/instructors/$instructorId'
     | '/markets/update/$marketPostId'
     | '/api/public/webhooks/tchokopay'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
+    | '/campus/instructors/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1118,6 +1184,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/console/advertising'
     | '/console/bookings'
+    | '/console/campus-instructors'
     | '/console/content'
     | '/console/deletions'
     | '/console/expansion'
@@ -1146,6 +1213,8 @@ export interface FileRouteTypes {
     | '/s/$slug'
     | '/console'
     | '/articles/$articleId'
+    | '/campus/become-instructor'
+    | '/campus/teaching'
     | '/events/$eventId'
     | '/freelance/$projectId'
     | '/hashtag/$tag'
@@ -1161,18 +1230,21 @@ export interface FileRouteTypes {
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
     | '/articles'
+    | '/campus'
     | '/events'
     | '/freelance'
     | '/incubator'
     | '/jobs'
     | '/property'
     | '/services'
+    | '/campus/instructors/$instructorId'
     | '/markets/instructors/$instructorId'
     | '/markets/update/$marketPostId'
     | '/api/public/webhooks/tchokopay'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
+    | '/campus/instructors'
   id:
     | '__root__'
     | '/'
@@ -1223,6 +1295,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/console/advertising'
     | '/console/bookings'
+    | '/console/campus-instructors'
     | '/console/content'
     | '/console/deletions'
     | '/console/expansion'
@@ -1251,6 +1324,8 @@ export interface FileRouteTypes {
     | '/s/$slug'
     | '/console/'
     | '/_authenticated/articles/$articleId'
+    | '/_authenticated/campus/become-instructor'
+    | '/_authenticated/campus/teaching'
     | '/_authenticated/events/$eventId'
     | '/_authenticated/freelance/$projectId'
     | '/_authenticated/hashtag/$tag'
@@ -1266,18 +1341,21 @@ export interface FileRouteTypes {
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
     | '/_authenticated/articles/'
+    | '/_authenticated/campus/'
     | '/_authenticated/events/'
     | '/_authenticated/freelance/'
     | '/_authenticated/incubator/'
     | '/_authenticated/jobs/'
     | '/_authenticated/property/'
     | '/_authenticated/services/'
+    | '/_authenticated/campus/instructors/$instructorId'
     | '/_authenticated/markets/instructors/$instructorId'
     | '/_authenticated/markets/update/$marketPostId'
     | '/api/public/webhooks/tchokopay'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
+    | '/_authenticated/campus/instructors/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1659,6 +1737,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleBookingsRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/console/campus-instructors': {
+      id: '/console/campus-instructors'
+      path: '/campus-instructors'
+      fullPath: '/console/campus-instructors'
+      preLoaderRoute: typeof ConsoleCampusInstructorsRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
     '/console/content': {
       id: '/console/content'
       path: '/content'
@@ -1855,6 +1940,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedArticlesArticleIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/campus/': {
+      id: '/_authenticated/campus/'
+      path: '/campus'
+      fullPath: '/campus/'
+      preLoaderRoute: typeof AuthenticatedCampusIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/campus/become-instructor': {
+      id: '/_authenticated/campus/become-instructor'
+      path: '/campus/become-instructor'
+      fullPath: '/campus/become-instructor'
+      preLoaderRoute: typeof AuthenticatedCampusBecomeInstructorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/campus/teaching': {
+      id: '/_authenticated/campus/teaching'
+      path: '/campus/teaching'
+      fullPath: '/campus/teaching'
+      preLoaderRoute: typeof AuthenticatedCampusTeachingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/events/': {
       id: '/_authenticated/events/'
       path: '/events'
@@ -1995,6 +2101,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSecuritySelfcheckRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/campus/instructors/': {
+      id: '/_authenticated/campus/instructors/'
+      path: '/campus/instructors'
+      fullPath: '/campus/instructors/'
+      preLoaderRoute: typeof AuthenticatedCampusInstructorsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/campus/instructors/$instructorId': {
+      id: '/_authenticated/campus/instructors/$instructorId'
+      path: '/campus/instructors/$instructorId'
+      fullPath: '/campus/instructors/$instructorId'
+      preLoaderRoute: typeof AuthenticatedCampusInstructorsInstructorIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/markets/instructors/$instructorId': {
       id: '/_authenticated/markets/instructors/$instructorId'
       path: '/markets/instructors/$instructorId'
@@ -2067,6 +2187,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
   AuthenticatedWithdrawRoute: typeof AuthenticatedWithdrawRoute
   AuthenticatedArticlesArticleIdRoute: typeof AuthenticatedArticlesArticleIdRoute
+  AuthenticatedCampusBecomeInstructorRoute: typeof AuthenticatedCampusBecomeInstructorRoute
+  AuthenticatedCampusTeachingRoute: typeof AuthenticatedCampusTeachingRoute
   AuthenticatedEventsEventIdRoute: typeof AuthenticatedEventsEventIdRoute
   AuthenticatedFreelanceProjectIdRoute: typeof AuthenticatedFreelanceProjectIdRoute
   AuthenticatedHashtagTagRoute: typeof AuthenticatedHashtagTagRoute
@@ -2078,14 +2200,17 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedServicesProviderIdRoute: typeof AuthenticatedServicesProviderIdRoute
   AuthenticatedUUserIdRoute: typeof AuthenticatedUUserIdRoute
   AuthenticatedArticlesIndexRoute: typeof AuthenticatedArticlesIndexRoute
+  AuthenticatedCampusIndexRoute: typeof AuthenticatedCampusIndexRoute
   AuthenticatedEventsIndexRoute: typeof AuthenticatedEventsIndexRoute
   AuthenticatedFreelanceIndexRoute: typeof AuthenticatedFreelanceIndexRoute
   AuthenticatedIncubatorIndexRoute: typeof AuthenticatedIncubatorIndexRoute
   AuthenticatedJobsIndexRoute: typeof AuthenticatedJobsIndexRoute
   AuthenticatedPropertyIndexRoute: typeof AuthenticatedPropertyIndexRoute
   AuthenticatedServicesIndexRoute: typeof AuthenticatedServicesIndexRoute
+  AuthenticatedCampusInstructorsInstructorIdRoute: typeof AuthenticatedCampusInstructorsInstructorIdRoute
   AuthenticatedMarketsInstructorsInstructorIdRoute: typeof AuthenticatedMarketsInstructorsInstructorIdRoute
   AuthenticatedMarketsUpdateMarketPostIdRoute: typeof AuthenticatedMarketsUpdateMarketPostIdRoute
+  AuthenticatedCampusInstructorsIndexRoute: typeof AuthenticatedCampusInstructorsIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -2115,6 +2240,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedWalletRoute: AuthenticatedWalletRoute,
   AuthenticatedWithdrawRoute: AuthenticatedWithdrawRoute,
   AuthenticatedArticlesArticleIdRoute: AuthenticatedArticlesArticleIdRoute,
+  AuthenticatedCampusBecomeInstructorRoute:
+    AuthenticatedCampusBecomeInstructorRoute,
+  AuthenticatedCampusTeachingRoute: AuthenticatedCampusTeachingRoute,
   AuthenticatedEventsEventIdRoute: AuthenticatedEventsEventIdRoute,
   AuthenticatedFreelanceProjectIdRoute: AuthenticatedFreelanceProjectIdRoute,
   AuthenticatedHashtagTagRoute: AuthenticatedHashtagTagRoute,
@@ -2126,16 +2254,21 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedServicesProviderIdRoute: AuthenticatedServicesProviderIdRoute,
   AuthenticatedUUserIdRoute: AuthenticatedUUserIdRoute,
   AuthenticatedArticlesIndexRoute: AuthenticatedArticlesIndexRoute,
+  AuthenticatedCampusIndexRoute: AuthenticatedCampusIndexRoute,
   AuthenticatedEventsIndexRoute: AuthenticatedEventsIndexRoute,
   AuthenticatedFreelanceIndexRoute: AuthenticatedFreelanceIndexRoute,
   AuthenticatedIncubatorIndexRoute: AuthenticatedIncubatorIndexRoute,
   AuthenticatedJobsIndexRoute: AuthenticatedJobsIndexRoute,
   AuthenticatedPropertyIndexRoute: AuthenticatedPropertyIndexRoute,
   AuthenticatedServicesIndexRoute: AuthenticatedServicesIndexRoute,
+  AuthenticatedCampusInstructorsInstructorIdRoute:
+    AuthenticatedCampusInstructorsInstructorIdRoute,
   AuthenticatedMarketsInstructorsInstructorIdRoute:
     AuthenticatedMarketsInstructorsInstructorIdRoute,
   AuthenticatedMarketsUpdateMarketPostIdRoute:
     AuthenticatedMarketsUpdateMarketPostIdRoute,
+  AuthenticatedCampusInstructorsIndexRoute:
+    AuthenticatedCampusInstructorsIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -2144,6 +2277,7 @@ const AuthenticatedRouteRouteWithChildren =
 interface ConsoleRouteChildren {
   ConsoleAdvertisingRoute: typeof ConsoleAdvertisingRoute
   ConsoleBookingsRoute: typeof ConsoleBookingsRoute
+  ConsoleCampusInstructorsRoute: typeof ConsoleCampusInstructorsRoute
   ConsoleContentRoute: typeof ConsoleContentRoute
   ConsoleDeletionsRoute: typeof ConsoleDeletionsRoute
   ConsoleExpansionRoute: typeof ConsoleExpansionRoute
@@ -2174,6 +2308,7 @@ interface ConsoleRouteChildren {
 const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsoleAdvertisingRoute: ConsoleAdvertisingRoute,
   ConsoleBookingsRoute: ConsoleBookingsRoute,
+  ConsoleCampusInstructorsRoute: ConsoleCampusInstructorsRoute,
   ConsoleContentRoute: ConsoleContentRoute,
   ConsoleDeletionsRoute: ConsoleDeletionsRoute,
   ConsoleExpansionRoute: ConsoleExpansionRoute,

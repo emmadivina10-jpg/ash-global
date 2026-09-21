@@ -361,6 +361,297 @@ export type Database = {
           },
         ]
       }
+      campus_instructor_applications: {
+        Row: {
+          admin_note: string | null
+          areas_served: string
+          availability: Json
+          bio: string
+          city: string | null
+          country: string
+          created_at: string
+          currency: string
+          date_of_birth: string | null
+          display_name: string
+          headline: string
+          hourly_from: number | null
+          id: string
+          identity_document_path: string | null
+          languages: string[]
+          legal_full_name: string
+          levels: string[]
+          methodology: string
+          qualification_document_path: string | null
+          qualifications: Json
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          subjects: string[]
+          submitted_at: string | null
+          teaching_experience: string
+          teaching_modes: string[]
+          updated_at: string
+          user_id: string
+          years_experience: number
+        }
+        Insert: {
+          admin_note?: string | null
+          areas_served?: string
+          availability?: Json
+          bio?: string
+          city?: string | null
+          country: string
+          created_at?: string
+          currency?: string
+          date_of_birth?: string | null
+          display_name: string
+          headline?: string
+          hourly_from?: number | null
+          id?: string
+          identity_document_path?: string | null
+          languages?: string[]
+          legal_full_name: string
+          levels?: string[]
+          methodology?: string
+          qualification_document_path?: string | null
+          qualifications?: Json
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          subjects?: string[]
+          submitted_at?: string | null
+          teaching_experience?: string
+          teaching_modes?: string[]
+          updated_at?: string
+          user_id: string
+          years_experience?: number
+        }
+        Update: {
+          admin_note?: string | null
+          areas_served?: string
+          availability?: Json
+          bio?: string
+          city?: string | null
+          country?: string
+          created_at?: string
+          currency?: string
+          date_of_birth?: string | null
+          display_name?: string
+          headline?: string
+          hourly_from?: number | null
+          id?: string
+          identity_document_path?: string | null
+          languages?: string[]
+          legal_full_name?: string
+          levels?: string[]
+          methodology?: string
+          qualification_document_path?: string | null
+          qualifications?: Json
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          subjects?: string[]
+          submitted_at?: string | null
+          teaching_experience?: string
+          teaching_modes?: string[]
+          updated_at?: string
+          user_id?: string
+          years_experience?: number
+        }
+        Relationships: []
+      }
+      campus_instructor_availability: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          id: string
+          instructor_id: string
+          part_of_day: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          id?: string
+          instructor_id: string
+          part_of_day: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          id?: string
+          instructor_id?: string
+          part_of_day?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campus_instructor_availability_instructor_id_fkey"
+            columns: ["instructor_id"]
+            isOneToOne: false
+            referencedRelation: "campus_instructor_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campus_instructor_profiles: {
+        Row: {
+          approved_at: string
+          areas_served: string
+          bio: string
+          city: string | null
+          country: string | null
+          created_at: string
+          currency: string
+          display_name: string
+          headline: string
+          hourly_from: number | null
+          id: string
+          is_active: boolean
+          is_verified: boolean
+          languages: string[]
+          levels: string[]
+          methodology: string
+          provider_id: string | null
+          subjects: string[]
+          teaching_modes: string[]
+          updated_at: string
+          user_id: string
+          years_experience: number
+        }
+        Insert: {
+          approved_at?: string
+          areas_served?: string
+          bio?: string
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          currency?: string
+          display_name: string
+          headline?: string
+          hourly_from?: number | null
+          id?: string
+          is_active?: boolean
+          is_verified?: boolean
+          languages?: string[]
+          levels?: string[]
+          methodology?: string
+          provider_id?: string | null
+          subjects?: string[]
+          teaching_modes?: string[]
+          updated_at?: string
+          user_id: string
+          years_experience?: number
+        }
+        Update: {
+          approved_at?: string
+          areas_served?: string
+          bio?: string
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          currency?: string
+          display_name?: string
+          headline?: string
+          hourly_from?: number | null
+          id?: string
+          is_active?: boolean
+          is_verified?: boolean
+          languages?: string[]
+          levels?: string[]
+          methodology?: string
+          provider_id?: string | null
+          subjects?: string[]
+          teaching_modes?: string[]
+          updated_at?: string
+          user_id?: string
+          years_experience?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campus_instructor_profiles_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campus_instructor_qualifications: {
+        Row: {
+          completed_year: number | null
+          created_at: string
+          id: string
+          institution: string
+          instructor_id: string
+          kind: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          completed_year?: number | null
+          created_at?: string
+          id?: string
+          institution?: string
+          instructor_id: string
+          kind?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          completed_year?: number | null
+          created_at?: string
+          id?: string
+          institution?: string
+          instructor_id?: string
+          kind?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campus_instructor_qualifications_instructor_id_fkey"
+            columns: ["instructor_id"]
+            isOneToOne: false
+            referencedRelation: "campus_instructor_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campus_subjects: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name_en: string
+          name_fr: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name_en: string
+          name_fr: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name_en?: string
+          name_fr?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       chat_groups: {
         Row: {
           avatar_path: string | null
@@ -4724,6 +5015,15 @@ export type Database = {
           _viewing_id: string
         }
         Returns: Json
+      }
+      review_campus_instructor_application: {
+        Args: {
+          _application_id: string
+          _note?: string
+          _reviewer?: string
+          _status: string
+        }
+        Returns: undefined
       }
       review_fx_instructor_application: {
         Args: { _application_id: string; _note?: string; _status: string }
