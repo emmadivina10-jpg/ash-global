@@ -647,11 +647,15 @@ body {
 
 .app-shell,
 .app-shell-frame,
-.app-shell-column,
-.app-shell-scroll {
+.app-shell-column {
   width: 100%;
   max-width: 100%;
   min-width: 0;
+}
+
+.app-shell-scroll {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .app-shell,
