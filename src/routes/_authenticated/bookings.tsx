@@ -112,6 +112,43 @@ function BookingsPage() {
     void queryClient.invalidateQueries({ queryKey: ["bookings"] });
   }
 
+  // While a mobile money prompt is on the payer's phone, ask the server for the
+  // real outcome every few seconds so the booking confirms (or fails) on its own.
+  const awaitingIds = useMemo(
+    () =>
+      clientBookings
+        .filter((b) => String(b["status"] ?? "") === "PAYMENT_PROCESSING")
+        .map((b) => b.id)
+        .join(","),
+    [clientBookings],
+  );
+
+  useEffect(() => {
+    if (!awaitingIds) return;
+    let cancelled = false;
+    const ids = awaitingIds.split(",");
+    async function check() {
+      let changed = false;
+      for (const id of ids) {
+        try {
+          const result = await syncPayment({ data: { bookingId: id } });
+          if (result.ok && result.status !== "PENDING" && result.status !== "PROCESSING") changed = true;
+        } catch {
+          /* transient network issue — the next tick retries */
+        }
+      }
+      if (!cancelled && changed) refresh();
+    }
+    const timer = setInterval(() => void check(), 6000);
+    void check();
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [awaitingIds]);
+
+
   async function pay(bookingId: string, method: "MOMO" | "CARD", momo?: { provider: string; phone: string }) {
     setBusyId(bookingId);
     try {
