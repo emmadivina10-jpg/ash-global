@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ACTIVATION_FEE, formatDate, formatXAF, isValidPhone, normalizePhone, referralLink } from "@/lib/format";
+import { isNativeApp } from "@/lib/native";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/profile")({
