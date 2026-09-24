@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ACTIVATION_FEE, formatDate, formatXAF, isValidPhone, normalizePhone, referralLink } from "@/lib/format";
+import { isNativeApp } from "@/lib/native";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/profile")({
@@ -151,10 +152,17 @@ function ProfilePage() {
             />
           </h1>
           <p className="truncate text-sm text-muted-foreground">{profile.email}</p>
-          <Link to="/verified" className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-[#1877F2]">
-            <BadgeCheck className="size-3.5" aria-hidden />
-            {(profile as { verified_tier?: string | null }).verified_tier ? "Manage verification" : "Get verified"}
-          </Link>
+          {isNativeApp() ? (
+            <span className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground" aria-disabled="true">
+              <BadgeCheck className="size-3.5" aria-hidden />
+              {(profile as { verified_tier?: string | null }).verified_tier ? "Manage verification" : "Get verified"}
+            </span>
+          ) : (
+            <Link to="/verified" className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-[#1877F2]">
+              <BadgeCheck className="size-3.5" aria-hidden />
+              {(profile as { verified_tier?: string | null }).verified_tier ? "Manage verification" : "Get verified"}
+            </Link>
+          )}
         </div>
         <StatusBadge
           status={profile.account_status}
