@@ -107,8 +107,6 @@ export const startBookingPayment = createServerFn({ method: "POST" })
       .eq("user_id", userId)
       .maybeSingle();
 
-    const appUrl = data.origin || process.env["APP_URL"] || "https://ashglogroup.company";
-
     // Card rail (Stripe): available worldwide, including to Cameroonian cards.
     if (data.method === "CARD") {
       const { stripePay, xafToUsdCents } = await import("./stripe.server");
