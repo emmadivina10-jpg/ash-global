@@ -153,7 +153,7 @@ function BookingsPage() {
     setBusyId(bookingId);
     try {
       const result = await startPayment({
-        data: { bookingId, method, provider: momo?.provider ?? "", phone: momo?.phone ?? "", country },
+        data: { bookingId, method, provider: momo?.provider ?? "", phone: momo?.phone ?? "", country, origin: window.location.origin },
       });
       if (!result.ok) {
         const code = result.error ?? "";
