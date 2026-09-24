@@ -11,19 +11,29 @@ function makeReference(): string {
  */
 export const startBookingPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { bookingId: string; method?: "MOMO" | "CARD"; provider?: string; phone?: string; country?: string }) => {
+  .inputValidator((input: { bookingId: string; method?: "MOMO" | "CARD"; provider?: string; phone?: string; country?: string; origin?: string }) => {
     if (!input?.bookingId) throw new Error("bookingId required");
+    // Only same-app origins are allowed for Stripe success/cancel URLs.
+    const rawOrigin = String(input.origin ?? "").trim();
+    const origin = /^https:\/\/[\w.-]+\.lovable\.app$/.test(rawOrigin) || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(rawOrigin)
+      ? rawOrigin
+      : "";
     return {
       bookingId: input.bookingId,
       method: input.method === "CARD" ? ("CARD" as const) : ("MOMO" as const),
       provider: String(input.provider ?? "").trim().slice(0, 40),
       phone: String(input.phone ?? "").trim().slice(0, 20),
       country: (String(input.country ?? "CM").toUpperCase().slice(0, 2) || "CM"),
+      origin,
     };
   })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { tchokoPay } = await import("./tchokopay.server");
+
+    // The back/cancel link on Stripe must land on the app the payer came
+    // from, so the session URLs follow the caller's origin when available.
+    const appUrl = data.origin || process.env["APP_URL"] || "https://ashglogroup.company";
 
     const { data: booking } = await supabase
       .from("bookings")
@@ -50,8 +60,8 @@ export const startBookingPayment = createServerFn({ method: "POST" })
             amountCents: (await import("./stripe.server")).xafToUsdCents(Number(booking.price)),
             currency: "USD",
             description: `ASH booking — ${booking.service_title}`,
-            successUrl: `${process.env["APP_URL"] ?? "https://ashglogroup.company"}/bookings`,
-            cancelUrl: `${process.env["APP_URL"] ?? "https://ashglogroup.company"}/bookings`,
+            successUrl: `${appUrl}/bookings`,
+            cancelUrl: `${appUrl}/bookings`,
             metadata: { booking_id: booking.id },
           });
           if (resumed.ok && resumed.checkoutUrl) {
@@ -96,8 +106,6 @@ export const startBookingPayment = createServerFn({ method: "POST" })
       .select("full_name, email, phone")
       .eq("user_id", userId)
       .maybeSingle();
-
-    const appUrl = process.env["APP_URL"] ?? "https://ashglogroup.company";
 
     // Card rail (Stripe): available worldwide, including to Cameroonian cards.
     if (data.method === "CARD") {
