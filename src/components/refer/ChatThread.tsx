@@ -76,6 +76,7 @@ export function ChatThread({
   peerAvatar,
   isGroup = false,
   enforceFirstContactLimit = false,
+  offPlatformGuard = false,
   members = [],
   initialMessages,
   refreshMessages,
@@ -92,6 +93,8 @@ export function ChatThread({
   isGroup?: boolean;
   /** Limit only unsolicited person-to-person introductions, never groups or commerce threads. */
   enforceFirstContactLimit?: boolean;
+  /** Campus-only: warn about moving lessons off-platform. Never enable for ordinary chats. */
+  offPlatformGuard?: boolean;
   members?: {
     id: string;
     name: string;
@@ -299,8 +302,8 @@ export function ChatThread({
       }
     }
 
-    // Off-platform protection: warn once, record repeats for the review team.
-    const offPlatform = detectOffPlatform(value);
+    // Off-platform protection (Campus lessons only): warn once, record repeats for the review team.
+    const offPlatform = offPlatformGuard ? detectOffPlatform(value) : null;
     if (offPlatform) {
       const count = await flagOffPlatform(conversationId, offPlatform.rule, value);
       const warning = fr ? offPlatform.fr : offPlatform.en;
