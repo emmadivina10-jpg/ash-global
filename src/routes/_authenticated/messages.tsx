@@ -422,6 +422,22 @@ function MessagesPage() {
   const groupOf = (conv: (typeof list)[number] | undefined) =>
     conv?.group_id ? (myGroups ?? []).find((g) => g.id === conv.group_id) : undefined;
   const activeGroup = groupOf(active);
+  // Off-platform warnings apply only to Campus instructor threads.
+  const activePeerId = active ? peerUserIdOf(active) : null;
+  const { data: isCampusPeer } = useQuery({
+    queryKey: ["campus-peer", activePeerId],
+    enabled: Boolean(activePeerId),
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("campus_instructor_profiles")
+        .select("id")
+        .eq("user_id", activePeerId as string)
+        .eq("is_active", true)
+        .maybeSingle();
+      return Boolean(data);
+    },
+  });
   /** Providers see the client; clients see the business.
    * Property threads show the listing/owner.
    */
@@ -1476,6 +1492,7 @@ function MessagesPage() {
                 }
                 peerAvatar={active ? peerAvatarOf(active) : null}
                 isGroup={Boolean(activeGroup)}
+                offPlatformGuard={Boolean(isCampusPeer)}
                 enforceFirstContactLimit={Boolean(
                   active && !activeGroup && !active.provider_id && !active.booking_id && !active.listing_id,
                 )}
