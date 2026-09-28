@@ -5280,6 +5280,16 @@ export type Database = {
         Returns: number
       }
       generate_referral_code: { Args: never; Returns: string }
+      get_clean_public_settings: {
+        Args: never
+        Returns: {
+          facility_address: string
+          facility_hours: string
+          facility_lat: number
+          facility_lng: number
+          price_per_kg: number
+        }[]
+      }
       get_provider_bookings: {
         Args: never
         Returns: {
