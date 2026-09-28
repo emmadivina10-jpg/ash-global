@@ -17,7 +17,7 @@ async function reconcile(limit: number) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { settleCollection } = await import("@/lib/payment-settlement.server");
 
-  const [activations, bookings, links] = await Promise.all([
+  const [activations, bookings, links, cleans] = await Promise.all([
     supabaseAdmin
       .from("activations")
       .select("payment_reference, provider_transaction_id")
@@ -37,6 +37,11 @@ async function reconcile(limit: number) {
       .in("status", ["PENDING", "PROCESSING"])
       .order("created_at", { ascending: false })
       .limit(limit),
+    supabaseAdmin
+      .from("clean_orders")
+      .select("payment_reference, provider_transaction_id")
+      .eq("payment_status", "PROCESSING")
+      .limit(limit),
   ]);
 
   const pending: { merchantReference: string; providerReference: string | null }[] = [
@@ -45,6 +50,12 @@ async function reconcile(limit: number) {
       providerReference: r.provider_transaction_id,
     })),
     ...(bookings.data ?? [])
+      .filter((r) => Boolean(r.payment_reference))
+      .map((r) => ({
+        merchantReference: r.payment_reference as string,
+        providerReference: r.provider_transaction_id,
+      })),
+    ...(cleans.data ?? [])
       .filter((r) => Boolean(r.payment_reference))
       .map((r) => ({
         merchantReference: r.payment_reference as string,

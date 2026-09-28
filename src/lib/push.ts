@@ -44,6 +44,8 @@ export function notificationLink(category: string, data: Record<string, unknown>
       return "/network";
     case "BOOKING":
       return "/bookings";
+    case "ASH_CLEAN":
+      return typeof data["order_id"] === "string" ? `/clean/orders/${data["order_id"]}` : "/clean";
     case "MESSAGE":
       return typeof data["conversation_id"] === "string"
         ? `/messages?c=${data["conversation_id"]}`
