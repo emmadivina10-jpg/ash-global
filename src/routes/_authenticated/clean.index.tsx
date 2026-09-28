@@ -41,7 +41,7 @@ function CleanHome() {
   });
   const { data: settings } = useQuery({
     queryKey: ["clean", "settings"],
-    queryFn: async () => (await supabase.from("clean_settings").select("price_per_kg, facility_address, facility_hours").eq("id", 1).single()).data,
+    queryFn: async () => (await supabase.rpc("get_clean_public_settings").single()).data,
   });
 
   const steps = [
