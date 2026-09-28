@@ -8,7 +8,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { declineCleanQuote, payCleanOrder, syncCleanPayment } from "@/lib/clean.functions";
 import { CLEAN_TIMELINE, cleanStatusLabel, cleanStepIndex, fcfa, methodLabel } from "@/lib/clean";
 import { useI18n } from "@/lib/i18n";
-import { CleanMap } from "@/components/clean/CleanMap";
+import { CleanTrack } from "@/components/clean/CleanTrack";
+
+function ArrivalAlert({ arrived, id, fr }: { arrived: boolean; id: string; fr: boolean }) {
+  useEffect(() => {
+    if (!arrived) return;
+    const k = `ash-clean-arrived:${id}`;
+    if (sessionStorage.getItem(k)) return;
+    sessionStorage.setItem(k, "1");
+    toast.success(fr ? "Votre agent ASH Clean est arrivé !" : "Your ASH Clean worker has arrived!");
+    navigator.vibrate?.(200);
+  }, [arrived, id, fr]);
+  return null;
+}
 import { MomoCharge } from "@/components/refer/MomoCharge";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/format";
@@ -114,12 +126,15 @@ function CleanOrder() {
               ? `${km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`} · ETA ~${Math.max(1, Math.round((km / (activeJob.method === "STAFF" ? 5 : 20)) * 60))} min`
               : fr ? "Position en attente…" : "Waiting for live position…"}
           </p>
-          <CleanMap
-            className="h-64 w-full"
-            center={target}
-            markers={[{ ...target, label: fr ? "V" : "Y", color: "#2563eb" }, ...(live ? [{ lat: live.lat, lng: live.lng, label: activeJob.method === "STAFF" ? "S" : "R" }] : [])]}
-            route={live ? [{ lat: live.lat, lng: live.lng }, target] : null}
+          <CleanTrack
+            className="h-56 w-full"
+            km={km}
+            arrived={activeJob.status === "ARRIVED"}
+            method={activeJob.method as "STAFF" | "RIDER"}
+            storageKey={activeJob.id}
+            fr={fr}
           />
+          <ArrivalAlert arrived={activeJob.status === "ARRIVED"} id={activeJob.id} fr={fr} />
         </section>
       ) : null}
 

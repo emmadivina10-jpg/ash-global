@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-export function SupportChatPanel() {
+export function SupportChatPanel({ topic }: { topic?: "clean" } = {}) {
   const { lang } = useI18n();
   const fr = lang === "fr";
   const { user } = useUser();
@@ -63,7 +63,7 @@ export function SupportChatPanel() {
             data: {
               name: profile?.full_name ?? user?.user_metadata?.["full_name"] ?? "ASH member",
               email: user?.email ?? "",
-              subject: "In-app support chat",
+              subject: topic === "clean" ? "ASH Clean" : "In-app support chat",
               category: "GENERAL",
               message: body,
             },
@@ -82,9 +82,13 @@ export function SupportChatPanel() {
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 py-4">
         <div className="mr-8 rounded-2xl bg-muted px-3.5 py-2.5 text-sm text-foreground">
-          {fr
-            ? "Bonjour, vous êtes connecté au support ASH. Expliquez-nous ce dont vous avez besoin."
-            : "Hello, you’re connected to ASH Support. Tell us what you need help with."}
+          {topic === "clean"
+            ? fr
+              ? "Bonjour, ici ASH Clean. Posez vos questions sur votre linge, collecte ou livraison."
+              : "Hi, this is ASH Clean. Ask us anything about your laundry, pickup or delivery."
+            : fr
+              ? "Bonjour, vous êtes connecté au support ASH. Expliquez-nous ce dont vous avez besoin."
+              : "Hello, you’re connected to ASH Support. Tell us what you need help with."}
         </div>
         {messages.map((message) => (
           <div key={message.id} className={cn("flex", message.sender === "CUSTOMER" ? "justify-end" : "justify-start")}>
