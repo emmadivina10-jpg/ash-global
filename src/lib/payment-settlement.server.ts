@@ -7,7 +7,7 @@
  */
 import type { PaymentStatus } from "./tchokopay.server";
 
-export type SettlementKind = "ACTIVATION" | "BOOKING" | "PAYMENT_LINK" | "EVENT_TICKET" | "PROMOTION" | "VERIFICATION";
+export type SettlementKind = "ACTIVATION" | "BOOKING" | "PAYMENT_LINK" | "EVENT_TICKET" | "PROMOTION" | "VERIFICATION" | "CLEAN";
 
 export function kindOf(merchantReference: string): SettlementKind {
   if (merchantReference.startsWith("BKG-")) return "BOOKING";
@@ -15,6 +15,7 @@ export function kindOf(merchantReference: string): SettlementKind {
   if (merchantReference.startsWith("EVT-")) return "EVENT_TICKET";
   if (merchantReference.startsWith("PRM-")) return "PROMOTION";
   if (merchantReference.startsWith("VER-")) return "VERIFICATION";
+  if (merchantReference.startsWith("CLN-")) return "CLEAN";
   return "ACTIVATION";
 }
 
@@ -105,7 +106,9 @@ export async function settleCollection(input: SettleInput): Promise<SettleOutcom
               ? "complete_promotion"
               : kind === "VERIFICATION"
                 ? "complete_verification"
-                : "complete_activation";
+                : kind === "CLEAN"
+                  ? "complete_clean_payment"
+                  : "complete_activation";
     const { error: rpcError } = await supabaseAdmin.rpc(rpc, {
       _payment_reference: input.merchantReference,
       _provider_transaction_id: providerRef,
@@ -146,6 +149,11 @@ export async function settleCollection(input: SettleInput): Promise<SettleOutcom
       });
     } else if (kind === "PROMOTION") {
       await supabaseAdmin.rpc("fail_promotion", {
+        _payment_reference: input.merchantReference,
+        _status: input.status,
+      });
+    } else if (kind === "CLEAN") {
+      await supabaseAdmin.rpc("fail_clean_payment", {
         _payment_reference: input.merchantReference,
         _status: input.status,
       });

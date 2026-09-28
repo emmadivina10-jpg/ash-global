@@ -33,6 +33,7 @@ import {
   Users,
   Wallet,
   X,
+  Shirt,
 } from "lucide-react";
 import { consoleStatus, lockConsole, setElevatedMode, unlockConsole } from "@/lib/console.functions";
 import { getSupportAwaitingCount } from "@/lib/support.functions";
@@ -55,6 +56,7 @@ const NAV = [
   { to: "/console/ledger", label: "Ledger", icon: ReceiptText, group: "Money", dept: "REVENUE" },
   { to: "/console/users", label: "Users", icon: Users, group: "People", dept: "SUPER_ADMIN" },
   { to: "/console/providers", label: "Providers", icon: Store, group: "People", dept: "TRUST" },
+  { to: "/console/clean", label: "ASH Clean", icon: Shirt, group: "People", dept: "MARKETPLACE_OPS" },
   { to: "/console/bookings", label: "Bookings", icon: CalendarCheck, group: "People", dept: "MARKETPLACE_OPS" },
   { to: "/console/deletions", label: "Deletions", icon: Trash2, group: "People", dept: "SUPER_ADMIN" },
   { to: "/console/support", label: "Support", icon: LifeBuoy, group: "People", dept: "SUPPORT" },

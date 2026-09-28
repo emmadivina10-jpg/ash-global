@@ -64,6 +64,22 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
           const merchantReference = result.merchantReference;
           const status = result.status ?? "PENDING";
 
+          // ASH Clean laundry payments share the one settlement path.
+          if (merchantReference.startsWith("CLN-")) {
+            const { settleCollection } = await import("@/lib/payment-settlement.server");
+            const outcome = await settleCollection({
+              merchantReference,
+              providerReference: result.providerReference ?? null,
+              status,
+              source: "WEBHOOK",
+              signatureVerified: true,
+            });
+            return new Response(JSON.stringify({ ok: outcome.ok }), {
+              status: outcome.ok ? 200 : 500,
+              headers: { "content-type": "application/json" },
+            });
+          }
+
           const isBooking =
             merchantReference.startsWith("BKG-");
 
