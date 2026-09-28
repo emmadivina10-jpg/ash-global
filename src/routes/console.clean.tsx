@@ -248,14 +248,14 @@ function SettingsPanel({ settings, bands, services, onSaved }: { settings: Recor
       </section>
       <section className="space-y-2 rounded-2xl bg-card p-4">
         <h2 className="font-bold">Services & special items</h2>
-        {services.map((sv) => <ServiceRow key={sv.id} sv={sv} onSave={async (row) => { await saveS({ data: row }); toast.success("Saved"); onSaved(); }} />)}
-        <ServiceRow sv={{ id: "", code: "", kind: "SPECIAL", name_en: "", name_fr: "", price: 0, active: true }} onSave={async (row) => { await saveS({ data: { ...row, id: undefined } }); toast.success("Added"); onSaved(); }} />
+        {services.map((sv) => <ServiceRow key={sv.id} sv={sv} onSave={async (row) => { await saveS({ data: row.id ? { ...row, id: row.id } : (({ id: _i, ...x }) => x)(row) }); toast.success("Saved"); onSaved(); }} />)}
+        <ServiceRow sv={{ id: "", code: "", kind: "SPECIAL", name_en: "", name_fr: "", price: 0, active: true }} onSave={async (row) => { const { id: _drop, ...rest } = row; void _drop; await saveS({ data: rest }); toast.success("Added"); onSaved(); }} />
       </section>
     </div>
   );
 }
 
-function ServiceRow({ sv, onSave }: { sv: Svc; onSave: (r: Svc & { id?: string }) => Promise<void> }) {
+function ServiceRow({ sv, onSave }: { sv: Svc; onSave: (r: Omit<Svc, "id"> & { id?: string | undefined }) => Promise<void> }) {
   const [r, setR] = useState(sv);
   return (
     <div className="flex flex-wrap items-center gap-1.5 text-sm">
@@ -265,7 +265,7 @@ function ServiceRow({ sv, onSave }: { sv: Svc; onSave: (r: Svc & { id?: string }
       <select className="rounded-md border border-border bg-background p-1.5" value={r.kind} onChange={(e) => setR({ ...r, kind: e.target.value })}><option>SERVICE</option><option>SPECIAL</option></select>
       <Input className="w-20" type="number" value={r.price} onChange={(e) => setR({ ...r, price: Number(e.target.value) })} />
       <label className="flex items-center gap-1"><input type="checkbox" checked={r.active} onChange={(e) => setR({ ...r, active: e.target.checked })} />on</label>
-      <Button size="sm" variant="outline" onClick={() => void onSave({ ...r, id: sv.id || undefined })}>{sv.id ? "Save" : "Add"}</Button>
+      <Button size="sm" variant="outline" onClick={() => void onSave(sv.id ? { ...r, id: sv.id } : r)}>{sv.id ? "Save" : "Add"}</Button>
     </div>
   );
 }
