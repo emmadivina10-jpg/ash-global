@@ -138,7 +138,7 @@ function AddressPicker({
             },
             () => {
               setLocating(false);
-              toast.error(fr ? "Autorisez la localisation ou choisissez sur la carte" : "Allow location, or tap the map instead");
+              toast.error(fr ? "Autorisez la localisation ou recherchez votre adresse" : "Allow location, or search your address");
             },
             { enableHighAccuracy: true, timeout: 12000 },
           );

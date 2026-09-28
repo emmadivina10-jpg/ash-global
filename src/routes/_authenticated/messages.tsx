@@ -1056,6 +1056,37 @@ function MessagesPage() {
               ) : null}
 
               {(!term.trim() ||
+                `${ashSupportConversation.label} ${ashSupportConversation.preview}`
+                  .toLowerCase()
+                  .includes(term.trim().toLowerCase())) && (
+                <button
+                  type="button"
+                  onClick={() => void navigate({ search: { c: ASH_SUPPORT_ID } })}
+                  className={cn(
+                    "flex w-full items-center gap-3 border-b border-border px-3 py-3 text-left transition-colors",
+                    activeId === ASH_SUPPORT_ID ? "bg-primary/10" : "hover:bg-muted/70 active:bg-muted",
+                  )}
+                >
+                  <span className="grid size-12 shrink-0 place-items-center rounded-full bg-primary/10 text-primary ring-2 ring-primary/25">
+                    <LifeBuoy className="size-6" aria-hidden />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-baseline justify-between gap-2">
+                      <span className="truncate text-[15px] font-bold text-foreground">ASH Support · ASH Clean</span>
+                      {supportUnread > 0 ? (
+                        <span className="grid min-w-5 shrink-0 place-items-center rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground">
+                          {supportUnread > 99 ? "99+" : supportUnread}
+                        </span>
+                      ) : null}
+                    </span>
+                    <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">
+                      {latestSupportMessage?.body ?? (fr ? "Obtenez de l’aide de l’équipe ASH." : ashSupportConversation.preview)}
+                    </span>
+                  </span>
+                </button>
+              )}
+
+              {(!term.trim() ||
                 `${ashAiConversation.label} ${ashAiConversation.preview}`
                   .toLowerCase()
                   .includes(term.trim().toLowerCase())) && (
@@ -1091,37 +1122,6 @@ function MessagesPage() {
 
                     <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">
                       {ashAiConversation.preview}
-                    </span>
-                  </span>
-                </button>
-              )}
-
-              {(!term.trim() ||
-                `${ashSupportConversation.label} ${ashSupportConversation.preview}`
-                  .toLowerCase()
-                  .includes(term.trim().toLowerCase())) && (
-                <button
-                  type="button"
-                  onClick={() => void navigate({ search: { c: ASH_SUPPORT_ID } })}
-                  className={cn(
-                    "flex w-full items-center gap-3 border-b border-border px-3 py-3 text-left transition-colors",
-                    activeId === ASH_SUPPORT_ID ? "bg-primary/10" : "hover:bg-muted/70 active:bg-muted",
-                  )}
-                >
-                  <span className="grid size-12 shrink-0 place-items-center rounded-full bg-primary/10 text-primary ring-2 ring-primary/25">
-                    <LifeBuoy className="size-6" aria-hidden />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-baseline justify-between gap-2">
-                      <span className="truncate text-[15px] font-bold text-foreground">ASH Support</span>
-                      {supportUnread > 0 ? (
-                        <span className="grid min-w-5 shrink-0 place-items-center rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground">
-                          {supportUnread > 99 ? "99+" : supportUnread}
-                        </span>
-                      ) : null}
-                    </span>
-                    <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">
-                      {latestSupportMessage?.body ?? (fr ? "Obtenez de l’aide de l’équipe ASH." : ashSupportConversation.preview)}
                     </span>
                   </span>
                 </button>
