@@ -186,21 +186,21 @@ export const saveCleanSettings = createServerFn({ method: "POST" })
     };
     return {
       price_per_kg: n("price_per_kg"),
-      facility_address: String(i.facility_address ?? "").slice(0, 200),
+      facility_address: String(i['facility_address'] ?? "").slice(0, 200),
       facility_lat: n("facility_lat"),
-      facility_lng: Number(i.facility_lng),
-      facility_phone: String(i.facility_phone ?? "").slice(0, 30) || null,
-      facility_hours: String(i.facility_hours ?? "").slice(0, 100),
+      facility_lng: Number(i['facility_lng']),
+      facility_phone: String(i['facility_phone'] ?? "").slice(0, 30) || null,
+      facility_hours: String(i['facility_hours'] ?? "").slice(0, 100),
       staff_radius_km: n("staff_radius_km"),
       max_staff_km: n("max_staff_km"),
       min_rider_fee: n("min_rider_fee"),
       base_pickup_fee: n("base_pickup_fee"),
       base_delivery_fee: n("base_delivery_fee"),
       far_fee_per_km: n("far_fee_per_km"),
-      staff_pickup_enabled: Boolean(i.staff_pickup_enabled),
-      staff_delivery_enabled: Boolean(i.staff_delivery_enabled),
-      rider_enabled: Boolean(i.rider_enabled),
-      cash_enabled: Boolean(i.cash_enabled),
+      staff_pickup_enabled: Boolean(i['staff_pickup_enabled']),
+      staff_delivery_enabled: Boolean(i['staff_delivery_enabled']),
+      rider_enabled: Boolean(i['rider_enabled']),
+      cash_enabled: Boolean(i['cash_enabled']),
     };
   })
   .handler(async ({ data }) => {

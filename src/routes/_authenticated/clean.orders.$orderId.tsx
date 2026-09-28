@@ -148,7 +148,10 @@ function CleanOrder() {
                 setBusy(true);
                 const r = await pay({ data: { orderId, provider, phone } }).catch((e) => ({ ok: false as const, error: String(e) }));
                 setBusy(false);
-                if (!r.ok) return toast.error(("message" in r && r.message) || r.error);
+                if (!r.ok) {
+                  toast.error(("message" in r && r.message) || r.error);
+                  return;
+                }
                 toast.info(fr ? "Validez la demande sur votre téléphone" : "Approve the prompt on your phone");
                 void qc.invalidateQueries({ queryKey: ["clean", "order", orderId] });
               }}

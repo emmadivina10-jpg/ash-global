@@ -69,7 +69,10 @@ function AddressPicker({
   const seq = useRef(0);
 
   useEffect(() => {
-    if (term.trim().length < 3) return setResults([]);
+    if (term.trim().length < 3) {
+      setResults([]);
+      return;
+    }
     const id = ++seq.current;
     const t = setTimeout(async () => {
       const r = await search({ data: { input: term, sessionToken: token.current } }).catch(() => []);
@@ -161,7 +164,7 @@ function AddressPicker({
   );
 }
 
-function QuoteCard({ q, loading, direction, fr }: { q?: Quote; loading: boolean; direction: "PICKUP" | "DELIVERY"; fr: boolean }) {
+function QuoteCard({ q, loading, direction, fr }: { q: Quote | undefined; loading: boolean; direction: "PICKUP" | "DELIVERY"; fr: boolean }) {
   if (loading) return <div className="flex items-center gap-2 rounded-2xl bg-muted p-4 text-sm"><Loader2 className="size-4 animate-spin" /> {fr ? "Calcul de la distance…" : "Working out road distance…"}</div>;
   if (!q) return null;
   const staff = q.method === "STAFF";
@@ -220,12 +223,21 @@ function BookClean() {
     setServices((s) => (s.includes(code) ? s.filter((x) => x !== code) : [...s, code]));
 
   const submit = async () => {
-    if (!pickup || !deliveryLoc) return toast.error(fr ? "Choisissez votre adresse" : "Set your address first");
-    if (!services.length) return toast.error(fr ? "Choisissez au moins un service" : "Choose at least one service");
+    if (!pickup || !deliveryLoc) {
+      toast.error(fr ? "Choisissez votre adresse" : "Set your address first");
+      return;
+    }
+    if (!services.length) {
+      toast.error(fr ? "Choisissez au moins un service" : "Choose at least one service");
+      return;
+    }
     setBusy(true);
     try {
       const r = await create({ data: { services, notes, phone, pickup, delivery: deliveryLoc } });
-      if (!r.ok) return toast.error(r.error);
+      if (!r.ok) {
+        toast.error(r.error);
+        return;
+      }
       toast.success(`${fr ? "Réservé" : "Booked"} · ${r.orderNo}`);
       void navigate({ to: "/clean/orders/$orderId", params: { orderId: r.id } });
     } catch (e) {
