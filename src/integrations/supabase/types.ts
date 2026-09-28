@@ -778,6 +778,411 @@ export type Database = {
         }
         Relationships: []
       }
+      clean_assignments: {
+        Row: {
+          created_at: string
+          direction: string
+          id: string
+          method: string
+          order_id: string
+          status: string
+          updated_at: string
+          worker_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          direction: string
+          id?: string
+          method: string
+          order_id: string
+          status?: string
+          updated_at?: string
+          worker_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          direction?: string
+          id?: string
+          method?: string
+          order_id?: string
+          status?: string
+          updated_at?: string
+          worker_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clean_assignments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "clean_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clean_distance_bands: {
+        Row: {
+          created_at: string
+          fee: number
+          id: string
+          max_km: number | null
+          min_km: number
+        }
+        Insert: {
+          created_at?: string
+          fee: number
+          id?: string
+          max_km?: number | null
+          min_km: number
+        }
+        Update: {
+          created_at?: string
+          fee?: number
+          id?: string
+          max_km?: number | null
+          min_km?: number
+        }
+        Relationships: []
+      }
+      clean_locations: {
+        Row: {
+          assignment_id: string
+          lat: number
+          lng: number
+          order_id: string
+          updated_at: string
+          worker_id: string
+        }
+        Insert: {
+          assignment_id: string
+          lat: number
+          lng: number
+          order_id: string
+          updated_at?: string
+          worker_id: string
+        }
+        Update: {
+          assignment_id?: string
+          lat?: number
+          lng?: number
+          order_id?: string
+          updated_at?: string
+          worker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clean_locations_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: true
+            referencedRelation: "clean_assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clean_locations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "clean_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clean_orders: {
+        Row: {
+          contact_phone: string | null
+          created_at: string
+          current_quote_id: string | null
+          customer_id: string
+          delivery_address: string
+          delivery_distance_km: number
+          delivery_eta_min: number | null
+          delivery_fee: number
+          delivery_lat: number
+          delivery_lng: number
+          delivery_method: string
+          id: string
+          notes: string | null
+          order_no: string
+          paid_at: string | null
+          payment_reference: string | null
+          payment_status: string
+          pickup_address: string
+          pickup_distance_km: number
+          pickup_distance_source: string
+          pickup_eta_min: number | null
+          pickup_fee: number
+          pickup_lat: number
+          pickup_lng: number
+          pickup_method: string
+          provider_transaction_id: string | null
+          receipt_no: string | null
+          services: string[]
+          status: string
+          total: number | null
+          updated_at: string
+          weight_kg: number | null
+        }
+        Insert: {
+          contact_phone?: string | null
+          created_at?: string
+          current_quote_id?: string | null
+          customer_id: string
+          delivery_address: string
+          delivery_distance_km: number
+          delivery_eta_min?: number | null
+          delivery_fee?: number
+          delivery_lat: number
+          delivery_lng: number
+          delivery_method: string
+          id?: string
+          notes?: string | null
+          order_no?: string
+          paid_at?: string | null
+          payment_reference?: string | null
+          payment_status?: string
+          pickup_address: string
+          pickup_distance_km: number
+          pickup_distance_source?: string
+          pickup_eta_min?: number | null
+          pickup_fee?: number
+          pickup_lat: number
+          pickup_lng: number
+          pickup_method: string
+          provider_transaction_id?: string | null
+          receipt_no?: string | null
+          services?: string[]
+          status?: string
+          total?: number | null
+          updated_at?: string
+          weight_kg?: number | null
+        }
+        Update: {
+          contact_phone?: string | null
+          created_at?: string
+          current_quote_id?: string | null
+          customer_id?: string
+          delivery_address?: string
+          delivery_distance_km?: number
+          delivery_eta_min?: number | null
+          delivery_fee?: number
+          delivery_lat?: number
+          delivery_lng?: number
+          delivery_method?: string
+          id?: string
+          notes?: string | null
+          order_no?: string
+          paid_at?: string | null
+          payment_reference?: string | null
+          payment_status?: string
+          pickup_address?: string
+          pickup_distance_km?: number
+          pickup_distance_source?: string
+          pickup_eta_min?: number | null
+          pickup_fee?: number
+          pickup_lat?: number
+          pickup_lng?: number
+          pickup_method?: string
+          provider_transaction_id?: string | null
+          receipt_no?: string | null
+          services?: string[]
+          status?: string
+          total?: number | null
+          updated_at?: string
+          weight_kg?: number | null
+        }
+        Relationships: []
+      }
+      clean_price_quotes: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          decided_at: string | null
+          delivery_fee: number
+          id: string
+          laundry_amount: number
+          order_id: string
+          pickup_fee: number
+          rate_per_kg: number
+          special_amount: number
+          special_items: Json
+          status: string
+          total: number
+          weight_kg: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          decided_at?: string | null
+          delivery_fee?: number
+          id?: string
+          laundry_amount: number
+          order_id: string
+          pickup_fee?: number
+          rate_per_kg: number
+          special_amount?: number
+          special_items?: Json
+          status?: string
+          total: number
+          weight_kg: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          decided_at?: string | null
+          delivery_fee?: number
+          id?: string
+          laundry_amount?: number
+          order_id?: string
+          pickup_fee?: number
+          rate_per_kg?: number
+          special_amount?: number
+          special_items?: Json
+          status?: string
+          total?: number
+          weight_kg?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clean_price_quotes_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "clean_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clean_services: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          id: string
+          kind: string
+          name_en: string
+          name_fr: string
+          price: number
+          sort: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          id?: string
+          kind?: string
+          name_en: string
+          name_fr: string
+          price?: number
+          sort?: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          name_en?: string
+          name_fr?: string
+          price?: number
+          sort?: number
+        }
+        Relationships: []
+      }
+      clean_settings: {
+        Row: {
+          base_delivery_fee: number
+          base_pickup_fee: number
+          cash_enabled: boolean
+          facility_address: string
+          facility_hours: string
+          facility_lat: number
+          facility_lng: number
+          facility_phone: string | null
+          far_fee_per_km: number
+          id: number
+          max_staff_km: number
+          min_rider_fee: number
+          price_per_kg: number
+          rider_enabled: boolean
+          staff_delivery_enabled: boolean
+          staff_pickup_enabled: boolean
+          staff_radius_km: number
+          updated_at: string
+        }
+        Insert: {
+          base_delivery_fee?: number
+          base_pickup_fee?: number
+          cash_enabled?: boolean
+          facility_address?: string
+          facility_hours?: string
+          facility_lat?: number
+          facility_lng?: number
+          facility_phone?: string | null
+          far_fee_per_km?: number
+          id?: number
+          max_staff_km?: number
+          min_rider_fee?: number
+          price_per_kg?: number
+          rider_enabled?: boolean
+          staff_delivery_enabled?: boolean
+          staff_pickup_enabled?: boolean
+          staff_radius_km?: number
+          updated_at?: string
+        }
+        Update: {
+          base_delivery_fee?: number
+          base_pickup_fee?: number
+          cash_enabled?: boolean
+          facility_address?: string
+          facility_hours?: string
+          facility_lat?: number
+          facility_lng?: number
+          facility_phone?: string | null
+          far_fee_per_km?: number
+          id?: number
+          max_staff_km?: number
+          min_rider_fee?: number
+          price_per_kg?: number
+          rider_enabled?: boolean
+          staff_delivery_enabled?: boolean
+          staff_pickup_enabled?: boolean
+          staff_radius_km?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      clean_status_events: {
+        Row: {
+          actor: string | null
+          created_at: string
+          id: string
+          note: string | null
+          order_id: string
+          status: string
+        }
+        Insert: {
+          actor?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          order_id: string
+          status: string
+        }
+        Update: {
+          actor?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          order_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clean_status_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "clean_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comment_likes: {
         Row: {
           comment_id: string
@@ -4759,6 +5164,10 @@ export type Database = {
         Args: { _payment_reference: string; _provider_transaction_id?: string }
         Returns: Json
       }
+      complete_clean_payment: {
+        Args: { _payment_reference: string; _provider_transaction_id?: string }
+        Returns: Json
+      }
       complete_event_ticket: {
         Args: { _payment_reference: string; _provider_transaction_id: string }
         Returns: Json
@@ -4845,6 +5254,10 @@ export type Database = {
       fail_booking_payment: {
         Args: { _payment_reference: string; _status: string }
         Returns: Json
+      }
+      fail_clean_payment: {
+        Args: { _payment_reference: string; _status?: string }
+        Returns: undefined
       }
       fail_event_ticket: {
         Args: { _payment_reference: string; _status: string }
@@ -4951,6 +5364,10 @@ export type Database = {
         }[]
       }
       is_blocked_pair: { Args: { _a: string; _b: string }; Returns: boolean }
+      is_clean_worker_on: {
+        Args: { _order_id: string; _uid: string }
+        Returns: boolean
+      }
       is_conversation_participant: {
         Args: { _conversation_id: string }
         Returns: boolean
@@ -5207,7 +5624,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "clean_worker"
       booking_status:
         | "PENDING"
         | "CONFIRMED"
@@ -5381,7 +5798,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "clean_worker"],
       booking_status: [
         "PENDING",
         "CONFIRMED",
