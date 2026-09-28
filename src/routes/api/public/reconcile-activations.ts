@@ -80,13 +80,52 @@ async function reconcile(limit: number) {
     results.push({ reference: row.merchantReference, status: outcome.outcome });
   }
 
+  // Member withdrawals still waiting on TchokoPay: apply the provider's own final result.
+  const { data: payouts } = await supabaseAdmin
+    .from("withdrawals")
+    .select("id, reference, provider_reference")
+    .eq("status", "PROCESSING")
+    .not("provider_reference", "is", null)
+    .order("requested_at", { ascending: false })
+    .limit(limit);
+
+  let payoutsSettled = 0;
+  for (const w of payouts ?? []) {
+    const ref = w.provider_reference as string;
+    const d = await tchokoPay.getDisbursement(ref);
+    if (!d.ok) {
+      results.push({ reference: w.reference, status: "PAYOUT_UNVERIFIED" });
+      continue;
+    }
+    const target = d.status === "PAID" ? "COMPLETED" : d.status === "FAILED" || d.status === "CANCELLED" ? "FAILED" : null;
+    if (!target) {
+      results.push({ reference: w.reference, status: `PAYOUT_${d.status}` });
+      continue;
+    }
+    const { data: out, error } = await supabaseAdmin.rpc("console_settle_withdrawal", {
+      _withdrawal_id: w.id,
+      _status: target,
+      _provider_reference: ref,
+    });
+    const ok = !error && Boolean((out as { ok?: boolean } | null)?.ok);
+    if (ok) payoutsSettled += 1;
+    await supabaseAdmin.from("payment_events").insert({
+      source: "RECONCILE",
+      reference: w.reference,
+      status: d.status,
+      outcome: ok ? `WITHDRAWAL_${target}` : "WITHDRAWAL_SETTLE_ERROR",
+      detail: { provider_reference: ref, reason: d.reason },
+    });
+    results.push({ reference: w.reference, status: `PAYOUT_${target}` });
+  }
+
   await supabaseAdmin.from("payment_events").insert({
     source: "RECONCILE",
     outcome: "RECONCILED",
-    detail: { checked: pending.length, settled },
+    detail: { checked: pending.length, settled, payoutsChecked: (payouts ?? []).length, payoutsSettled },
   });
 
-  return { ok: true as const, checked: pending.length, settled, results };
+  return { ok: true as const, checked: pending.length, settled, payoutsSettled, results };
 }
 
 export const Route = createFileRoute("/api/public/reconcile-activations")({
