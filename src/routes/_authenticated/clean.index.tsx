@@ -8,6 +8,7 @@ import { cleanStatusLabel, fcfa } from "@/lib/clean";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/format";
+import { SupportChatPanel } from "@/components/refer/SupportChatPanel";
 
 export const Route = createFileRoute("/_authenticated/clean/")({
   head: () => ({
@@ -66,6 +67,18 @@ function CleanHome() {
         <Button asChild size="lg" variant="secondary" className="mt-4 rounded-full font-bold">
           <Link to="/clean/book">{fr ? "Réserver une collecte" : "Book a pickup"}</Link>
         </Button>
+      </section>
+
+      <section className="overflow-hidden rounded-3xl bg-card shadow-[var(--shadow-card)]">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <p className="font-bold text-foreground">{fr ? "Discuter avec ASH Clean" : "Chat with ASH Clean"}</p>
+          <Link to="/messages" search={{ c: "ash-support" } as never} className="text-xs font-bold text-primary">
+            {fr ? "Plein écran" : "Open in Messages"}
+          </Link>
+        </div>
+        <div className="flex h-80 flex-col">
+          <SupportChatPanel topic="clean" />
+        </div>
       </section>
 
       <div className="grid grid-cols-4 gap-2">
