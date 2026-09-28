@@ -566,6 +566,26 @@ export const tchokoPay = {
   },
 
   /**
+   * GET /disburse/{reference} — authoritative payout status, used as a
+   * fallback when the disbursement webhook never arrives.
+   */
+  async getDisbursement(
+    providerReference: string,
+  ): Promise<{ ok: boolean; status: PaymentStatus; reason: string | null }> {
+    if (!this.isConfigured() || !providerReference) {
+      return { ok: false, status: "PENDING", reason: null };
+    }
+    try {
+      const res = await request(`/disburse/${encodeURIComponent(providerReference)}`, { method: "GET" });
+      if (!res.ok) return { ok: false, status: "PENDING", reason: null };
+      const reason = typeof res.data["statusReason"] === "string" ? (res.data["statusReason"] as string) : null;
+      return { ok: true, status: mapStatus(res.data["status"]), reason };
+    } catch {
+      return { ok: false, status: "PENDING", reason: null };
+    }
+  },
+
+  /**
    * POST /disburse — sends a mobile-money payout to the recipient.
    *
    * The TchokoPay API returns as soon as the disbursement is accepted.
