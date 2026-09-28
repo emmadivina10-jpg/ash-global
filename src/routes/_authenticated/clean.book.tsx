@@ -127,7 +127,10 @@ function AddressPicker({
         className="rounded-full"
         disabled={locating}
         onClick={() => {
-          if (!navigator.geolocation) return toast.error(fr ? "Localisation indisponible" : "Location unavailable");
+          if (!navigator.geolocation) {
+            toast.error(fr ? "Localisation indisponible" : "Location unavailable");
+            return;
+          }
           setLocating(true);
           navigator.geolocation.getCurrentPosition(
             (p) => {
