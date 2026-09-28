@@ -6,6 +6,7 @@ import { Capacitor } from "@capacitor/core";
 import { AppLauncher } from "@capacitor/app-launcher";
 import {
   Briefcase,
+  Shirt,
   Calendar,
   ArrowLeft,
   CreditCard,
@@ -71,6 +72,15 @@ import { cn } from "@/lib/utils";
  * ASH Marketplace routes.
  */
 const QUICK_LINKS = [
+  {
+    to: "/clean",
+    en: "Laundry",
+    fr: "Pressing",
+    icon: Shirt,
+    tone: "text-sky-500",
+    ring:
+      "bg-sky-500/15 ring-sky-400/50 shadow-sky-500/20",
+  },
   {
     to: "/electricity",
     en: "Pay Eneo Bills",
