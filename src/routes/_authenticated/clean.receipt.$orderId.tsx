@@ -58,7 +58,7 @@ function CleanReceipt() {
             <p className="font-display text-xl font-extrabold">ASH Clean</p>
             <p className="text-xs text-muted-foreground">ASH Global Technologies</p>
             <p className="text-xs text-muted-foreground">{data.settings?.facility_address}</p>
-            <p className="text-xs text-muted-foreground">{data.settings?.facility_hours}{data.settings?.facility_phone ? ` · ${data.settings.facility_phone}` : ""}</p>
+            <p className="text-xs text-muted-foreground">{data.settings?.facility_hours}</p>
           </div>
           <QRCodeSVG value={`ASHCLEAN:${o.order_no}:${o.id}`} size={96} level="M" includeMargin={false} />
         </header>
