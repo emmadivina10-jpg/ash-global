@@ -7,7 +7,6 @@ import { Navigation } from "lucide-react";
 import { getCleanJobs, pushCleanLocation, updateCleanJob } from "@/lib/clean.functions";
 import { cleanStatusLabel, methodLabel } from "@/lib/clean";
 import { useI18n } from "@/lib/i18n";
-import { CleanMap } from "@/components/clean/CleanMap";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/clean/jobs")({
@@ -99,7 +98,6 @@ function CleanJobs() {
             </div>
             <p className="text-sm text-foreground">{dest.address}</p>
             <p className="text-xs text-muted-foreground">{cleanStatusLabel(o.status, fr)}{o.contact_phone ? ` · ${o.contact_phone}` : ""}{o.notes ? ` · ${o.notes}` : ""}</p>
-            <CleanMap className="h-44 w-full" center={dest} markers={[{ ...dest, label: pickup ? "P" : "D", color: "#2563eb" }]} />
             <div className="flex gap-2">
               <Button asChild variant="outline" className="flex-1 rounded-full">
                 <a href={`https://www.google.com/maps/dir/?api=1&destination=${dest.lat},${dest.lng}`} target="_blank" rel="noopener noreferrer">

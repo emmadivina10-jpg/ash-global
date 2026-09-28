@@ -296,6 +296,19 @@ export const updateCleanJob = createServerFn({ method: "POST" })
     const next = orderStatus[data.status]!;
     await db.from("clean_orders").update({ status: next }).eq("id", a.order_id);
     await logCleanEvent(a.order_id, data.status === "ARRIVED" ? `${a.direction}_ARRIVED` : next, null, actor);
+    if (data.status === "ARRIVED" || data.status === "ON_THE_WAY") {
+      const { data: ord } = await db.from("clean_orders").select("customer_id, order_no").eq("id", a.order_id).maybeSingle();
+      if (ord?.customer_id) {
+        const arrived = data.status === "ARRIVED";
+        await db.from("notifications").insert({
+          user_id: ord.customer_id,
+          category: "ASH_CLEAN",
+          title: arrived ? "Your ASH Clean worker has arrived" : "ASH Clean is on the way",
+          body: `${actor} · ${ord.order_no} · ${pickup ? "pickup" : "delivery"}`,
+          data: { link: `/clean/orders/${a.order_id}`, order_id: a.order_id },
+        });
+      }
+    }
     // Tracking stops the moment the job is finished.
     if (data.status === "DONE") await db.from("clean_locations").delete().eq("assignment_id", a.id);
     return { ok: true as const };

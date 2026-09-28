@@ -14,7 +14,6 @@ import {
 } from "@/lib/clean.functions";
 import { fcfa } from "@/lib/clean";
 import { useI18n } from "@/lib/i18n";
-import { CleanMap } from "@/components/clean/CleanMap";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -148,16 +147,6 @@ function AddressPicker({
         {locating ? <Loader2 className="size-4 animate-spin" /> : <LocateFixed className="size-4" />}
         {fr ? "Utiliser ma position" : "Use my current location"}
       </Button>
-      <CleanMap
-        className="h-56 w-full"
-        center={value ?? center}
-        markers={[
-          { ...center, label: "A", color: "#7c3aed" },
-          ...(value ? [{ lat: value.lat, lng: value.lng, label: "•" }] : []),
-        ]}
-        onPick={(p) => void pick(p.lat, p.lng)}
-      />
-      <p className="text-xs text-muted-foreground">{fr ? "Touchez la carte pour placer l'épingle. A = ASH Clean." : "Tap the map to drop your pin. A = ASH Clean."}</p>
       {value ? (
         <p className="flex items-start gap-2 text-sm font-medium text-foreground">
           <MapPin className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden /> {value.address}
