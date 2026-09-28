@@ -32,7 +32,7 @@ function CleanReceipt() {
       const [o, q, s, me] = await Promise.all([
         supabase.from("clean_orders").select("*").eq("id", orderId).maybeSingle(),
         supabase.from("clean_price_quotes").select("*").eq("order_id", orderId).order("created_at", { ascending: false }).limit(1),
-        supabase.from("clean_settings").select("facility_address, facility_hours, facility_phone").eq("id", 1).single(),
+        supabase.rpc("get_clean_public_settings").single(),
         supabase.auth.getUser(),
       ]);
       const uid = me.data.user?.id;
@@ -58,7 +58,7 @@ function CleanReceipt() {
             <p className="font-display text-xl font-extrabold">ASH Clean</p>
             <p className="text-xs text-muted-foreground">ASH Global Technologies</p>
             <p className="text-xs text-muted-foreground">{data.settings?.facility_address}</p>
-            <p className="text-xs text-muted-foreground">{data.settings?.facility_hours}{data.settings?.facility_phone ? ` · ${data.settings.facility_phone}` : ""}</p>
+            <p className="text-xs text-muted-foreground">{data.settings?.facility_hours}</p>
           </div>
           <QRCodeSVG value={`ASHCLEAN:${o.order_no}:${o.id}`} size={96} level="M" includeMargin={false} />
         </header>

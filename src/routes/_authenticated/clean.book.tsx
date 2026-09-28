@@ -201,7 +201,7 @@ function BookClean() {
     queryKey: ["clean", "book-base"],
     queryFn: async () => {
       const [s, sv] = await Promise.all([
-        supabase.from("clean_settings").select("facility_lat, facility_lng, price_per_kg").eq("id", 1).single(),
+        supabase.rpc("get_clean_public_settings").single(),
         supabase.from("clean_services").select("code, kind, name_en, name_fr, price").eq("active", true).order("sort"),
       ]);
       return { settings: s.data, services: sv.data ?? [] };
