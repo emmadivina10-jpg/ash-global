@@ -6,6 +6,7 @@ import { getMarketplaceHealth } from "@/lib/workforce.functions";
 import { LoadingState } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { SafetyActivity } from "@/components/console/SafetyActivity";
 
 export const Route = createFileRoute("/console/trust")({
   ssr: false,
@@ -55,6 +56,8 @@ function TrustPage() {
           )}
         </ul>
       </div>
+
+      <SafetyActivity />
     </div>
   );
 }
