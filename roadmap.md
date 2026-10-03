@@ -1,8 +1,8 @@
 # Roadmap
 
 ## Current verification
-- [ ] Keep the post comment input above the TestFlight navigation and keyboard without changing other screens
-- [ ] Verify the existing report destination, security, duplicates, and moderation wiring against the uploaded checklist
+- [ ] Confirm on a physical iPhone that the full-screen post comment input stays above the keyboard (preview-only fix in place)
+- [x] Inspect the existing report destination, security, duplicates, and moderation wiring against the uploaded checklist; physical two-account/staff tests remain pending
 
 ## Reactions, hashtags, and tagging
 - [ ] Audit current social, comment, story, notification, profile, block, search, and feed systems
