@@ -6,6 +6,8 @@ import { AuthLayout } from "@/components/refer/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useI18n } from "@/lib/i18n";
+import { recordTermsAcceptance } from "@/lib/consent";
+import { ZeroTolerance } from "@/components/refer/ZeroTolerance";
 
 export const Route = createFileRoute("/consent")({
   ssr: false,
@@ -56,10 +58,7 @@ function ConsentPage() {
       navigate({ to: "/login", replace: true });
       return;
     }
-    const { error: updateError } = await supabase
-      .from("profiles")
-      .update({ terms_accepted_at: new Date().toISOString() })
-      .eq("user_id", userId);
+    const { error: updateError } = await recordTermsAcceptance(userId);
     setSaving(false);
     if (updateError) {
       setError(
@@ -72,7 +71,7 @@ function ConsentPage() {
 
   return (
     <AuthLayout
-      title={fr ? "Avant de commencer" : "Before you start"}
+      title={fr ? "Conditions d'utilisation d'ASH Glo" : "ASH Glo Terms of Use"}
       subtitle={
         fr
           ? "Lisez et acceptez nos conditions et notre politique de confidentialité."
@@ -89,6 +88,8 @@ function ConsentPage() {
           </p>
         </div>
 
+        <ZeroTolerance fr={fr} />
+
         <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border p-4">
           <Checkbox
             checked={checked}
@@ -97,11 +98,15 @@ function ConsentPage() {
             aria-label={fr ? "J'accepte" : "I agree"}
           />
           <span className="text-sm text-foreground">
-            {fr ? "J'ai lu et j'accepte les " : "I have read and agree to the "}
+            {fr ? "J'accepte les " : "I agree to the ASH Glo "}
             <Link to="/terms" className="font-semibold text-primary hover:underline">
-              {fr ? "Conditions d'utilisation" : "Terms of Service"}
+              {fr ? "Conditions d'utilisation d'ASH Glo" : "Terms of Use"}
             </Link>
-            {fr ? " et la " : " and the "}
+            {fr ? " et les " : " and "}
+            <Link to="/community-guidelines" className="font-semibold text-primary hover:underline">
+              {fr ? "Règles de la communauté" : "Community Guidelines"}
+            </Link>
+            {fr ? ", et j'ai lu la " : ", and I have read the "}
             <Link to="/privacy" className="font-semibold text-primary hover:underline">
               {fr ? "Politique de confidentialité" : "Privacy Policy"}
             </Link>

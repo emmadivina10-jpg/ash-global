@@ -1,4 +1,9 @@
+import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { SafetyMenu } from "@/components/refer/SafetyMenu";
+import { BlockUserDialog } from "@/components/refer/BlockUserDialog";
 import { MessageSquare, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "@/components/refer/AvatarUpload";
@@ -46,6 +51,16 @@ function MemberProfilePage() {
 
   const me = graph?.me ?? null;
   const isMe = me === userId;
+  const [unblockOpen, setUnblockOpen] = useState(false);
+  const blocked = useQuery({
+    queryKey: ["my-block", userId],
+    enabled: Boolean(me) && !isMe,
+    queryFn: async () => {
+      const { data } = await supabase.from("user_blocks").select("id").eq("blocked_id", userId).maybeSingle();
+      return Boolean(data);
+    },
+  });
+  const iBlocked = blocked.data === true;
   const linked =
     (graph?.friends ?? []).some((f) => f.other.id === userId) ||
     (graph?.incoming ?? []).some((f) => f.other.id === userId) ||
@@ -85,9 +100,31 @@ function MemberProfilePage() {
             {(posts ?? []).length} {fr ? "publications" : "posts"}
           </p>
         </div>
+        {isMe ? null : (
+          <SafetyMenu targetType="USER" targetId={userId} targetUserId={iBlocked ? null : userId} targetName={person.name} />
+        )}
       </header>
 
-      {isMe ? null : (
+      {!isMe && iBlocked ? (
+        <div className="tile flex items-center justify-between gap-3 p-4">
+          <p className="text-sm text-muted-foreground">
+            {fr ? "Vous avez bloqué ce membre. Son contenu est masqué." : "You blocked this member. Their content is hidden."}
+          </p>
+          <Button variant="outline" size="sm" onClick={() => setUnblockOpen(true)}>
+            {fr ? "Débloquer" : "Unblock User"}
+          </Button>
+          <BlockUserDialog
+            open={unblockOpen}
+            onOpenChange={setUnblockOpen}
+            targetUserId={userId}
+            targetName={person.name}
+            source="profile"
+            unblock
+          />
+        </div>
+      ) : null}
+
+      {isMe || iBlocked ? null : (
         <div className="flex gap-2">
           <Button className="flex-1" onClick={() => void message()}>
             <MessageSquare className="size-4" aria-hidden />

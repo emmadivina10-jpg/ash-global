@@ -19,6 +19,7 @@ import {
   useSetCommentReaction,
 } from "@/lib/social.queries";
 import { SocialPostOwnerActions } from "./SocialPostOwnerActions";
+import { SafetyMenu } from "./SafetyMenu";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { ReactionButton, ReactionSummary } from "./ReactionButton";
@@ -122,6 +123,8 @@ export function PostCard({
         </div>
         {mine ? (
           <SocialPostOwnerActions postId={post.id} caption={post.caption} />
+        ) : currentUserId ? (
+          <SafetyMenu targetType="POST" targetId={post.id} targetUserId={post.author_id} targetName={post.author.name} />
         ) : null}
       </header>
 
@@ -377,6 +380,15 @@ function CommentRow({
             {fr ? "Répondre" : "Reply"}
           </button>
           <span className="font-normal">{new Date(comment.created_at).toLocaleDateString(fr ? "fr-FR" : "en-GB")}</span>
+          {currentUserId && currentUserId !== comment.author.id ? (
+            <SafetyMenu
+              targetType="COMMENT"
+              targetId={comment.id}
+              targetUserId={comment.author.id}
+              targetName={comment.author.name}
+              triggerClassName="size-6"
+            />
+          ) : null}
         </div>
         {comment.replies.map((reply) => (
           <div key={reply.id} className="mt-2">

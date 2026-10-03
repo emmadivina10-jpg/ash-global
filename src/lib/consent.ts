@@ -1,5 +1,16 @@
 import { supabase } from "@/integrations/supabase/client";
 
+/** Bump when the Terms of Use / Community Guidelines change materially. */
+export const TERMS_VERSION = "2026-10-03";
+
+/** Records agreement to the current Terms of Use and Community Guidelines. */
+export async function recordTermsAcceptance(userId: string) {
+  return supabase
+    .from("profiles")
+    .update({ terms_accepted_at: new Date().toISOString(), terms_version: TERMS_VERSION })
+    .eq("user_id", userId);
+}
+
 /**
  * Members must agree to the Terms of Service and Privacy Policy once, then add
  * a profile picture, before they can use the app. A missing profile row is
