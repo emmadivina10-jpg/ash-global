@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { Flag, Loader2, ShieldOff } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { trackEvent } from "@/lib/activity";
+import { useRefreshAfterBlock } from "./BlockUserDialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -19,18 +21,18 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-export type ReportTargetType = "PROVIDER" | "REVIEW" | "MESSAGE" | "USER" | "PORTFOLIO" | "PROPERTY";
+export type ReportTargetType = "PROVIDER" | "REVIEW" | "MESSAGE" | "USER" | "PORTFOLIO" | "PROPERTY" | "POST" | "SPOTLIGHT" | "COMMENT";
 
 const REASONS = [
-  { value: "SPAM", en: "Spam or misleading", fr: "Spam ou trompeur" },
-  { value: "HARASSMENT", en: "Harassment or abuse", fr: "Harcèlement ou abus" },
-  { value: "SCAM", en: "Scam or fraud", fr: "Arnaque ou fraude" },
-  { value: "SEXUAL", en: "Sexual or explicit content", fr: "Contenu sexuel ou explicite" },
+  { value: "HARASSMENT", en: "Harassment or bullying", fr: "Harcèlement ou intimidation" },
+  { value: "HATE", en: "Hate or discrimination", fr: "Haine ou discrimination" },
+  { value: "SEXUAL", en: "Sexual or inappropriate content", fr: "Contenu sexuel ou inapproprié" },
   { value: "VIOLENCE", en: "Violence or threats", fr: "Violence ou menaces" },
-  { value: "HATE", en: "Hate speech", fr: "Discours haineux" },
-  { value: "ILLEGAL", en: "Illegal goods or services", fr: "Biens ou services illégaux" },
+  { value: "SCAM", en: "Scam or fraud", fr: "Arnaque ou fraude" },
+  { value: "ILLEGAL", en: "Illegal content", fr: "Contenu illégal" },
+  { value: "SPAM", en: "Spam", fr: "Spam" },
   { value: "IMPERSONATION", en: "Impersonation", fr: "Usurpation d'identité" },
-  { value: "OTHER", en: "Something else", fr: "Autre chose" },
+  { value: "OTHER", en: "Other", fr: "Autre" },
 ] as const;
 
 /**
@@ -46,6 +48,9 @@ export function ReportDialog({
   className,
   variant = "ghost",
   compact = false,
+  open: openProp,
+  onOpenChange,
+  hideTrigger = false,
 }: {
   targetType: ReportTargetType;
   targetId?: string | null;
@@ -55,14 +60,23 @@ export function ReportDialog({
   className?: string | undefined;
   variant?: "ghost" | "outline";
   compact?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  hideTrigger?: boolean;
 }) {
   const { lang } = useI18n();
   const fr = lang === "fr";
-  const [open, setOpen] = useState(false);
-  const [reason, setReason] = useState<string>("SPAM");
+  const [openState, setOpenState] = useState(false);
+  const open = openProp ?? openState;
+  const setOpen = (next: boolean) => {
+    setOpenState(next);
+    onOpenChange?.(next);
+  };
+  const [reason, setReason] = useState<string>("HARASSMENT");
   const [details, setDetails] = useState("");
   const [busy, setBusy] = useState(false);
   const [blocking, setBlocking] = useState(false);
+  const refreshAfterBlock = useRefreshAfterBlock();
 
   async function submit() {
     setBusy(true);
@@ -83,7 +97,12 @@ export function ReportDialog({
     });
     setBusy(false);
     if (error) {
-      toast.error(error.message || (fr ? "Signalement échoué" : "Report failed"));
+      if (error.message.includes("DUPLICATE_REPORT")) {
+        setOpen(false);
+        toast.info(fr ? "Vous avez déjà signalé ce contenu. Il est en cours d'examen." : "You already reported this. It is being reviewed.");
+        return;
+      }
+      toast.error(fr ? "Signalement échoué. Réessayez." : "Report failed. Try again.");
       return;
     }
     trackEvent({
@@ -97,13 +116,14 @@ export function ReportDialog({
     setDetails("");
     toast.success(
       fr
-        ? "Merci. L'équipe ASH examine chaque signalement sous 24 h."
-        : "Thank you. Your report has been sent to the ASH Trust & Safety team.",
+        ? "Merci. Votre signalement a été envoyé et sera examiné par l'équipe ASH Trust & Safety."
+        : "Thank you. Your report has been submitted and will be reviewed by ASH Trust & Safety.",
     );
   }
 
   async function block() {
     if (!targetUserId) return;
+    if (!window.confirm(fr ? "Bloquer cet utilisateur ? Vous ne verrez plus son contenu et il ne pourra plus interagir avec vous." : "Block this user? You will no longer see their content and they cannot interact with you.")) return;
     setBlocking(true);
     const { data: auth } = await supabase.auth.getUser();
     const uid = auth.user?.id;
@@ -112,20 +132,24 @@ export function ReportDialog({
       toast.error(fr ? "Connectez-vous d'abord." : "Sign in first.");
       return;
     }
-    const { error } = await supabase.from("user_blocks").insert({ blocker_id: uid, blocked_id: targetUserId });
+    const { error } = await supabase
+      .from("user_blocks")
+      .insert({ blocker_id: uid, blocked_id: targetUserId, reason: `report:${targetType}` });
     setBlocking(false);
     if (error && !error.message.includes("duplicate")) {
       toast.error(error.message);
       return;
     }
     setOpen(false);
+    await refreshAfterBlock();
     toast.success(
-      fr ? "Utilisateur bloqué. Il ne peut plus vous écrire." : "User blocked. They can no longer message you.",
+      fr ? "Utilisateur bloqué. Son contenu est masqué." : "User blocked. Their content is now hidden from you.",
     );
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
+      {hideTrigger ? null : (
       <DialogTrigger asChild>
         <Button
           type="button"
@@ -138,6 +162,7 @@ export function ReportDialog({
           {compact ? <span className="sr-only">{fr ? "Signaler" : "Report"}</span> : null}
         </Button>
       </DialogTrigger>
+      )}
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{fr ? "Signaler un contenu" : "Report content"}</DialogTitle>
@@ -148,8 +173,11 @@ export function ReportDialog({
                 : `Reporting “${targetLabel}”. `
               : ""}
             {fr
-              ? "ASH applique une tolérance zéro pour les contenus abusifs. Chaque signalement est examiné sous 24 heures."
-              : "ASH has zero tolerance for objectionable content. Reports are reviewed by the Trust & Safety team."}
+              ? "ASH Glo applique une tolérance zéro pour les contenus abusifs. Les signalements sont examinés par l'équipe Trust & Safety. "
+              : "ASH Glo has zero tolerance for objectionable content. Reports are reviewed by the Trust & Safety team. "}
+            <Link to="/community-guidelines" className="font-semibold text-primary hover:underline">
+              {fr ? "Règles de la communauté" : "Community Guidelines"}
+            </Link>
           </DialogDescription>
         </DialogHeader>
 
