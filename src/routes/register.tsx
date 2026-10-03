@@ -13,6 +13,9 @@ import { AuthLayout } from "@/components/refer/AuthLayout";
 import { SocialAuth } from "@/components/refer/SocialAuth";
 import { isValidPhone, normalizePhone } from "@/lib/format";
 import { useI18n, type TKey } from "@/lib/i18n";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ZeroTolerance } from "@/components/refer/ZeroTolerance";
+import { nextOnboardingRoute, recordTermsAcceptance } from "@/lib/consent";
 
 /** Validation messages follow the selected language. */
 function buildSchema(t: (k: TKey) => string) {
@@ -56,7 +59,8 @@ export const Route = createFileRoute("/register")({
 function RegisterPage() {
   const navigate = useNavigate();
   const { ref } = Route.useSearch();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const [agreed, setAgreed] = useState(false);
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -107,6 +111,10 @@ function RegisterPage() {
       return;
     }
 
+    if (!agreed) {
+      setErrors({ form: "You must agree to the ASH Glo Terms of Use and Community Guidelines." });
+      return;
+    }
     setErrors({});
     setLoading(true);
     const { error } = await supabase.auth.signUp({
@@ -135,7 +143,8 @@ function RegisterPage() {
     const { data: session } = await supabase.auth.getSession();
     if (session.session) {
       toast.success(t("auth.register.created"));
-      navigate({ to: "/consent" });
+      await recordTermsAcceptance(session.session.user.id);
+      navigate({ to: await nextOnboardingRoute(session.session.user.id) });
       return;
     }
     setDone(true);
@@ -278,12 +287,7 @@ function RegisterPage() {
         <p className="text-center text-xs text-muted-foreground">
           {t("auth.register.activationNote")}
         </p>
-        <p className="text-center text-xs leading-5 text-muted-foreground">
-          By creating an account, you confirm you are at least 13 and agree to the{" "}
-          <Link to="/terms" className="font-semibold text-primary hover:underline">Terms of Service</Link>,{" "}
-          <Link to="/privacy" className="font-semibold text-primary hover:underline">Privacy Policy</Link> and{" "}
-          <Link to="/community-guidelines" className="font-semibold text-primary hover:underline">Community Guidelines</Link>.
-        </p>
+
       </form>
 
       {agreed ? <SocialAuth label={t("auth.register.orSignUp")} /> : null}
