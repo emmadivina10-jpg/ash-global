@@ -1304,12 +1304,16 @@ export type Database = {
       }
       content_reports: {
         Row: {
+          action_taken: string | null
           created_at: string
           details: string | null
           id: string
+          moderator_id: string | null
           reason: string
           reporter_id: string
           resolution_note: string | null
+          resolution_reason: string | null
+          resolved_at: string | null
           reviewed_at: string | null
           status: string
           target_id: string | null
@@ -1318,12 +1322,16 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          action_taken?: string | null
           created_at?: string
           details?: string | null
           id?: string
+          moderator_id?: string | null
           reason: string
           reporter_id: string
           resolution_note?: string | null
+          resolution_reason?: string | null
+          resolved_at?: string | null
           reviewed_at?: string | null
           status?: string
           target_id?: string | null
@@ -1332,12 +1340,16 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          action_taken?: string | null
           created_at?: string
           details?: string | null
           id?: string
+          moderator_id?: string | null
           reason?: string
           reporter_id?: string
           resolution_note?: string | null
+          resolution_reason?: string | null
+          resolved_at?: string | null
           reviewed_at?: string | null
           status?: string
           target_id?: string | null
@@ -3179,6 +3191,7 @@ export type Database = {
           id: string
           is_hidden: boolean
           like_count: number
+          moderation_status: string
           parent_id: string | null
           post_id: string
         }
@@ -3189,6 +3202,7 @@ export type Database = {
           id?: string
           is_hidden?: boolean
           like_count?: number
+          moderation_status?: string
           parent_id?: string | null
           post_id: string
         }
@@ -3199,6 +3213,7 @@ export type Database = {
           id?: string
           is_hidden?: boolean
           like_count?: number
+          moderation_status?: string
           parent_id?: string | null
           post_id?: string
         }
@@ -3390,6 +3405,7 @@ export type Database = {
           moderation_ban_reason: string | null
           moderation_banned_at: string | null
           moderation_previous_status: string | null
+          moderation_suspended_until: string | null
           phone: string
           referral_code: string
           referred_by: string | null
@@ -3397,6 +3413,7 @@ export type Database = {
           stripe_details_submitted: boolean
           stripe_payouts_enabled: boolean
           terms_accepted_at: string | null
+          terms_version: string | null
           updated_at: string
           user_id: string
           username: string
@@ -3415,6 +3432,7 @@ export type Database = {
           moderation_ban_reason?: string | null
           moderation_banned_at?: string | null
           moderation_previous_status?: string | null
+          moderation_suspended_until?: string | null
           phone?: string
           referral_code: string
           referred_by?: string | null
@@ -3422,6 +3440,7 @@ export type Database = {
           stripe_details_submitted?: boolean
           stripe_payouts_enabled?: boolean
           terms_accepted_at?: string | null
+          terms_version?: string | null
           updated_at?: string
           user_id: string
           username: string
@@ -3440,6 +3459,7 @@ export type Database = {
           moderation_ban_reason?: string | null
           moderation_banned_at?: string | null
           moderation_previous_status?: string | null
+          moderation_suspended_until?: string | null
           phone?: string
           referral_code?: string
           referred_by?: string | null
@@ -3447,6 +3467,7 @@ export type Database = {
           stripe_details_submitted?: boolean
           stripe_payouts_enabled?: boolean
           terms_accepted_at?: string | null
+          terms_version?: string | null
           updated_at?: string
           user_id?: string
           username?: string
@@ -4322,6 +4343,7 @@ export type Database = {
           is_published: boolean
           like_count: number
           media: Json
+          moderation_status: string
           repost_count: number
           reposted_from: string | null
           tags: string[]
@@ -4339,6 +4361,7 @@ export type Database = {
           is_published?: boolean
           like_count?: number
           media?: Json
+          moderation_status?: string
           repost_count?: number
           reposted_from?: string | null
           tags?: string[]
@@ -4356,6 +4379,7 @@ export type Database = {
           is_published?: boolean
           like_count?: number
           media?: Json
+          moderation_status?: string
           repost_count?: number
           reposted_from?: string | null
           tags?: string[]
@@ -4412,6 +4436,7 @@ export type Database = {
           id: string
           is_published: boolean
           media: Json
+          moderation_status: string
           provider_id: string | null
           updated_at: string
           view_count: number
@@ -4423,6 +4448,7 @@ export type Database = {
           id?: string
           is_published?: boolean
           media?: Json
+          moderation_status?: string
           provider_id?: string | null
           updated_at?: string
           view_count?: number
@@ -4434,6 +4460,7 @@ export type Database = {
           id?: string
           is_published?: boolean
           media?: Json
+          moderation_status?: string
           provider_id?: string | null
           updated_at?: string
           view_count?: number
@@ -5373,6 +5400,7 @@ export type Database = {
           repost_count: number
         }[]
       }
+      is_author_restricted: { Args: { _uid: string }; Returns: boolean }
       is_blocked_pair: { Args: { _a: string; _b: string }; Returns: boolean }
       is_clean_worker_on: {
         Args: { _order_id: string; _uid: string }
@@ -5628,6 +5656,7 @@ export type Database = {
         Returns: Json
       }
       touch_member_presence: { Args: never; Returns: undefined }
+      ugc_text_is_suspicious: { Args: { _text: string }; Returns: boolean }
       verify_story_cleanup_secret: {
         Args: { _secret: string }
         Returns: boolean
