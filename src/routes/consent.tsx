@@ -6,6 +6,7 @@ import { AuthLayout } from "@/components/refer/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useI18n } from "@/lib/i18n";
+import { recordTermsAcceptance } from "@/lib/consent";
 
 export const Route = createFileRoute("/consent")({
   ssr: false,
@@ -56,10 +57,7 @@ function ConsentPage() {
       navigate({ to: "/login", replace: true });
       return;
     }
-    const { error: updateError } = await supabase
-      .from("profiles")
-      .update({ terms_accepted_at: new Date().toISOString() })
-      .eq("user_id", userId);
+    const { error: updateError } = await recordTermsAcceptance(userId);
     setSaving(false);
     if (updateError) {
       setError(
@@ -72,7 +70,7 @@ function ConsentPage() {
 
   return (
     <AuthLayout
-      title={fr ? "Avant de commencer" : "Before you start"}
+      title={fr ? "Conditions d'utilisation d'ASH Glo" : "ASH Glo Terms of Use"}
       subtitle={
         fr
           ? "Lisez et acceptez nos conditions et notre politique de confidentialité."
@@ -89,6 +87,8 @@ function ConsentPage() {
           </p>
         </div>
 
+        <ZeroTolerance fr={fr} />
+
         <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border p-4">
           <Checkbox
             checked={checked}
@@ -97,11 +97,15 @@ function ConsentPage() {
             aria-label={fr ? "J'accepte" : "I agree"}
           />
           <span className="text-sm text-foreground">
-            {fr ? "J'ai lu et j'accepte les " : "I have read and agree to the "}
+            {fr ? "J'accepte les " : "I agree to the ASH Glo "}
             <Link to="/terms" className="font-semibold text-primary hover:underline">
-              {fr ? "Conditions d'utilisation" : "Terms of Service"}
+              {fr ? "Conditions d'utilisation d'ASH Glo" : "Terms of Use"}
             </Link>
-            {fr ? " et la " : " and the "}
+            {fr ? " et les " : " and "}
+            <Link to="/community-guidelines" className="font-semibold text-primary hover:underline">
+              {fr ? "Règles de la communauté" : "Community Guidelines"}
+            </Link>
+            {fr ? ", et j'ai lu la " : ", and I have read the "}
             <Link to="/privacy" className="font-semibold text-primary hover:underline">
               {fr ? "Politique de confidentialité" : "Privacy Policy"}
             </Link>
@@ -127,5 +131,38 @@ function ConsentPage() {
         </p>
       </div>
     </AuthLayout>
+  );
+}
+
+const ZERO_TOLERANCE: Array<[string, string]> = [
+  ["Harassment and bullying", "Harcèlement et intimidation"],
+  ["Threats", "Menaces"],
+  ["Hate or discriminatory content", "Contenu haineux ou discriminatoire"],
+  ["Sexual exploitation or inappropriate sexual content", "Exploitation sexuelle ou contenu sexuel inapproprié"],
+  ["Violence or encouragement of violence", "Violence ou incitation à la violence"],
+  ["Scams and fraud", "Arnaques et fraude"],
+  ["Illegal activity", "Activités illégales"],
+  ["Spam", "Spam"],
+  ["Abusive behavior and other objectionable content", "Comportement abusif et autres contenus répréhensibles"],
+];
+
+/** Zero-tolerance rules shown before registration and before first use. */
+export function ZeroTolerance({ fr }: { fr: boolean }) {
+  return (
+    <div className="rounded-xl border border-border p-4">
+      <p className="text-sm font-semibold text-foreground">
+        {fr ? "ASH Glo applique une tolérance zéro pour :" : "ASH Glo has zero tolerance for:"}
+      </p>
+      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+        {ZERO_TOLERANCE.map(([en, frText]) => (
+          <li key={en}>{fr ? frText : en}</li>
+        ))}
+      </ul>
+      <p className="mt-3 text-xs text-muted-foreground">
+        {fr
+          ? "Les contenus signalés sont examinés par l'équipe ASH Trust & Safety. Les infractions peuvent entraîner la suppression du contenu, une suspension ou la fermeture du compte."
+          : "Reported content is reviewed by ASH Trust & Safety. Violations can lead to content removal, suspension or account termination."}
+      </p>
+    </div>
   );
 }

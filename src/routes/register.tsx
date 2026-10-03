@@ -254,7 +254,24 @@ function RegisterPage() {
           </p>
         ) : null}
 
-        <Button type="submit" className="h-12 w-full rounded-xl text-base" disabled={loading}>
+        <ZeroTolerance fr={lang === "fr"} />
+        <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border p-4">
+          <Checkbox
+            checked={agreed}
+            onCheckedChange={(value) => setAgreed(value === true)}
+            className="mt-0.5"
+            aria-label="I agree to the ASH Glo Terms of Use and Community Guidelines"
+          />
+          <span className="text-sm text-foreground">
+            I agree to the ASH Glo{" "}
+            <Link to="/terms" className="font-semibold text-primary hover:underline">Terms of Use</Link> and{" "}
+            <Link to="/community-guidelines" className="font-semibold text-primary hover:underline">Community Guidelines</Link>,
+            and I have read the{" "}
+            <Link to="/privacy" className="font-semibold text-primary hover:underline">Privacy Policy</Link>. I am at least 13.
+          </span>
+        </label>
+
+        <Button type="submit" className="h-12 w-full rounded-xl text-base" disabled={loading || !agreed}>
           {loading ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
           {loading ? t("auth.register.submitting") : t("auth.register.submit")}
         </Button>
@@ -269,7 +286,7 @@ function RegisterPage() {
         </p>
       </form>
 
-      <SocialAuth label={t("auth.register.orSignUp")} />
+      {agreed ? <SocialAuth label={t("auth.register.orSignUp")} /> : null}
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         {t("auth.register.haveAccount")}{" "}
