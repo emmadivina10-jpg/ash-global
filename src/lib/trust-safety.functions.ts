@@ -154,9 +154,14 @@ export const moderationAction = createServerFn({ method: "POST" })
     } else if ((data.action === "REMOVE" || data.action === "RESTORE") && ownedTable && data.contentId) {
       const { error } = await db.from(ownedTable).update({ moderation_status: data.action === "REMOVE" ? "REMOVED" : "APPROVED" }).eq("id", data.contentId);
       if (error) throw new Error(error.message);
-    } else if (data.action === "REMOVE" || data.action === "RESTORE") {
+    } else if (data.action === "REMOVE") {
       if (!table || !data.contentId) throw new Error("This report has no removable content. Use suspend or ban instead.");
-      const { error } = await db.from(table).update({ moderation_status: data.action === "REMOVE" ? "REMOVED" : "APPROVED" }).eq("id", data.contentId);
+      // Permanently delete the content row so it is gone for everyone, including staff views.
+      const { error } = await db.from(table).delete().eq("id", data.contentId);
+      if (error) throw new Error(error.message);
+    } else if (data.action === "RESTORE") {
+      if (!table || !data.contentId) throw new Error("This report has no restorable content.");
+      const { error } = await db.from(table).update({ moderation_status: "APPROVED" }).eq("id", data.contentId);
       if (error) throw new Error(error.message);
     }
     if (data.action === "WARN" || data.action === "SUSPEND" || data.action === "BAN" || data.action === "UNBAN") {
