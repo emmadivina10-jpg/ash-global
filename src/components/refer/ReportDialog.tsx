@@ -21,7 +21,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-export type ReportTargetType = "PROVIDER" | "REVIEW" | "MESSAGE" | "USER" | "PORTFOLIO" | "PROPERTY" | "POST" | "SPOTLIGHT" | "COMMENT" | "STORY";
+export type ReportTargetType = "PROVIDER" | "REVIEW" | "MESSAGE" | "USER" | "PORTFOLIO" | "PROPERTY" | "POST" | "SPOTLIGHT" | "COMMENT" | "STORY" | "MARKET" | "EVENT";
 
 const REASONS = [
   { value: "HARASSMENT", en: "Harassment or bullying", fr: "Harcèlement ou intimidation" },
