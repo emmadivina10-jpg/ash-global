@@ -3636,6 +3636,7 @@ export type Database = {
           is_furnished: boolean
           land_use: string | null
           listing_kind: string
+          moderation_status: string
           neighborhood: string | null
           owner_id: string
           owner_kind: string
@@ -3674,6 +3675,7 @@ export type Database = {
           is_furnished?: boolean
           land_use?: string | null
           listing_kind?: string
+          moderation_status?: string
           neighborhood?: string | null
           owner_id: string
           owner_kind?: string
@@ -3712,6 +3714,7 @@ export type Database = {
           is_furnished?: boolean
           land_use?: string | null
           listing_kind?: string
+          moderation_status?: string
           neighborhood?: string | null
           owner_id?: string
           owner_kind?: string
@@ -3905,6 +3908,7 @@ export type Database = {
           id: string
           is_live: boolean
           is_verified: boolean
+          moderation_status: string
           phone: string | null
           rating_avg: number
           rating_count: number
@@ -3936,6 +3940,7 @@ export type Database = {
           id?: string
           is_live?: boolean
           is_verified?: boolean
+          moderation_status?: string
           phone?: string | null
           rating_avg?: number
           rating_count?: number
@@ -3967,6 +3972,7 @@ export type Database = {
           id?: string
           is_live?: boolean
           is_verified?: boolean
+          moderation_status?: string
           phone?: string | null
           rating_avg?: number
           rating_count?: number
