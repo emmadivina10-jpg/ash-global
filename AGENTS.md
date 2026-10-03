@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep the full-screen post comment composer outside the post scroll pane and position it against the visible native viewport; nested sticky elements are clipped by the post card and can fall under mobile chrome.

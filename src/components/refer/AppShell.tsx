@@ -356,10 +356,12 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </div>
 
-      <MobileNav
-        items={visible(MOBILE_NAV)}
-        profile={profile}
-      />
+      {!pathname.startsWith("/post/") ? (
+        <MobileNav
+          items={visible(MOBILE_NAV)}
+          profile={profile}
+        />
+      ) : null}
       <ScrollToTop />
 
       <LocationNudge />

@@ -1,5 +1,9 @@
 # Roadmap
 
+## Current verification
+- [ ] Keep the post comment input above the TestFlight navigation and keyboard without changing other screens
+- [ ] Verify the existing report destination, security, duplicates, and moderation wiring against the uploaded checklist
+
 ## Reactions, hashtags, and tagging
 - [ ] Audit current social, comment, story, notification, profile, block, search, and feed systems
 - [ ] Add secure database structures, policies, validation, indexes, notifications, and realtime support
