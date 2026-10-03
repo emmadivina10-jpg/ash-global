@@ -7,13 +7,16 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
+  Flag,
   ImagePlus,
   Loader2,
   MessageCircle,
   Mic,
   MicOff,
+  MoreHorizontal,
   Play,
   Plus,
+  ShieldOff,
   Sparkles,
   Trash2,
   X,
@@ -36,6 +39,14 @@ import {
   uploadResumableStorageFile,
 } from "@/lib/social.queries";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ReportDialog } from "@/components/refer/ReportDialog";
+import { BlockUserDialog } from "@/components/refer/BlockUserDialog";
 import { Avatar as ProfileAvatar, useAvatarUrl } from "@/components/refer/AvatarUpload";
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { directory, type DirectoryProfile } from "@/lib/public-profiles";
@@ -383,6 +394,12 @@ export function StoriesRail() {
   const [spotlightMuted, setSpotlightMuted] = useState(true);
   const [deletingSpotlightId, setDeletingSpotlightId] = useState<string | null>(null);
 
+  const [storySafety, setStorySafety] = useState<{
+    mode: "report" | "block";
+    storyId: string;
+    authorId: string;
+    name?: string | undefined;
+  } | null>(null);
   const activeStoryGroup = stories[storyGroupIndex] ?? null;
   const activeStory = activeStoryGroup?.stories[storyIndex] ?? null;
   const activeSpotlight = spotlights[spotlightIndex] ?? null;
@@ -1232,7 +1249,41 @@ export function StoriesRail() {
                           {storyMuted ? <MicOff className="size-4" /> : <Mic className="size-4" />}
                         </button>
                       ) : null}
+                      {me && me !== activeStory.author_id ? (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              type="button"
+                              className="grid size-9 place-items-center rounded-full bg-white/10 backdrop-blur-md"
+                              aria-label="More options"
+                            >
+                              <MoreHorizontal className="size-5" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="z-[150000]">
+                            {(["report", "block"] as const).map((mode) => (
+                              <DropdownMenuItem
+                                key={mode}
+                                className={mode === "block" ? "text-destructive focus:text-destructive" : undefined}
+                                onSelect={() => {
+                                  setStorySafety({
+                                    mode,
+                                    storyId: activeStory.id,
+                                    authorId: activeStory.author_id,
+                                    name: activeStoryGroup?.author.name,
+                                  });
+                                  setStoryViewerOpen(false);
+                                }}
+                              >
+                                {mode === "report" ? <Flag className="size-4" /> : <ShieldOff className="size-4" />}
+                                {mode === "report" ? "Report" : "Block User"}
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      ) : null}
                       {me === activeStory.author_id ? (
+
                         <button
                           type="button"
                           onClick={() => void deleteCurrentStory()}
@@ -1545,6 +1596,26 @@ export function StoriesRail() {
             document.body,
           )
         : null}
+      <ReportDialog
+        hideTrigger
+        open={Boolean(storySafety && storySafety.mode === "report")}
+        onOpenChange={(open) => !open && setStorySafety(null)}
+        targetType="STORY"
+        targetId={storySafety?.storyId ?? null}
+        targetUserId={storySafety?.authorId ?? null}
+        targetLabel={storySafety?.name}
+        allowBlock={false}
+      />
+      {storySafety ? (
+        <BlockUserDialog
+          open={storySafety.mode === "block"}
+          onOpenChange={(open) => !open && setStorySafety(null)}
+          targetUserId={storySafety.authorId}
+          targetName={storySafety.name}
+          source="story"
+        />
+      ) : null}
     </>
+
   );
 }

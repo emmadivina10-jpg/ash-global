@@ -417,6 +417,7 @@ export function useStories() {
         supabase
           .from("stories")
           .select("id, author_id, caption, media_path, view_count, created_at, expires_at")
+          .or(me ? `moderation_status.eq.APPROVED,author_id.eq.${me}` : "moderation_status.eq.APPROVED")
           .gt("expires_at", new Date().toISOString())
           .order("created_at", { ascending: true }),
         20_000,
