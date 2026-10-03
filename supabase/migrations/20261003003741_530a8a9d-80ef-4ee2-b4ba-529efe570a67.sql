@@ -1,0 +1,2 @@
+ALTER TABLE public.content_reports DROP CONSTRAINT IF EXISTS content_reports_target_type_check;
+ALTER TABLE public.content_reports ADD CONSTRAINT content_reports_target_type_check CHECK (target_type = ANY (ARRAY['PROVIDER','REVIEW','MESSAGE','USER','PORTFOLIO','PROPERTY','POST','SPOTLIGHT','COMMENT','STORY','MARKET','EVENT']));
