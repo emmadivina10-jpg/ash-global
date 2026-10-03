@@ -2,6 +2,22 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/refer/AppShell";
 
+type GateProfile = {
+  moderation_banned_at: string | null;
+  moderation_suspended_until: string | null;
+  terms_accepted_at: string | null;
+} | null;
+
+/** Banned/suspended members go to safety review; members who never agreed go to the Terms screen. */
+function enforceGate(profile: GateProfile) {
+  if (!profile) return;
+  const suspended = profile.moderation_suspended_until && new Date(profile.moderation_suspended_until) > new Date();
+  if (profile.moderation_banned_at || suspended) throw redirect({ to: "/safety-review" });
+  if (!profile.terms_accepted_at) throw redirect({ to: "/consent" });
+}
+
+const GATE_COLUMNS = "moderation_banned_at, moderation_suspended_until, terms_accepted_at";
+
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async () => {
@@ -13,10 +29,10 @@ export const Route = createFileRoute("/_authenticated")({
     if (sessionData.session?.user) {
       const { data: profile } = await supabase
         .from("profiles")
-        .select("moderation_banned_at")
+        .select(GATE_COLUMNS)
         .eq("user_id", sessionData.session.user.id)
         .maybeSingle();
-      if (profile?.moderation_banned_at) throw redirect({ to: "/safety-review" });
+      enforceGate(profile as GateProfile);
       return { user: sessionData.session.user };
     }
 
@@ -29,10 +45,10 @@ export const Route = createFileRoute("/_authenticated")({
       if (retry.session?.user) {
         const { data: profile } = await supabase
           .from("profiles")
-          .select("moderation_banned_at")
+          .select(GATE_COLUMNS)
           .eq("user_id", retry.session.user.id)
           .maybeSingle();
-        if (profile?.moderation_banned_at) throw redirect({ to: "/safety-review" });
+        enforceGate(profile as GateProfile);
         return { user: retry.session.user };
       }
     }
@@ -42,10 +58,10 @@ export const Route = createFileRoute("/_authenticated")({
       if (data.user) {
         const { data: profile } = await supabase
           .from("profiles")
-          .select("moderation_banned_at")
+          .select(GATE_COLUMNS)
           .eq("user_id", data.user.id)
           .maybeSingle();
-        if (profile?.moderation_banned_at) throw redirect({ to: "/safety-review" });
+        enforceGate(profile as GateProfile);
         return { user: data.user };
       }
       if (error) throw error;
