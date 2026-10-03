@@ -36,7 +36,7 @@ function EventDetail() {
   const fr = lang === "fr";
   const queryClient = useQueryClient();
   const { data: event, isLoading } = useEvent(eventId);
-  const { data: me } = useUser();
+  const { user: me } = useUser();
   useTrackView(
     { event_type: "view", surface: "events", target_type: "event", target_id: eventId },
     Boolean(event),
