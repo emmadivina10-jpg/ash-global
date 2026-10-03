@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 const TABS = ["Reports", "Block Events", "Flagged Content", "Removed Content", "Suspended Users", "Banned Users", "Moderation Activity"] as const;
 const FILTERS = ["OPEN", "ACTIONED", "DISMISSED", "ALL"] as const;
-const REMOVABLE = ["POST", "SPOTLIGHT", "COMMENT"];
+const REMOVABLE = ["POST", "SPOTLIGHT", "COMMENT", "STORY"];
 
 function ageHours(iso: string) {
   return (Date.now() - new Date(iso).getTime()) / 3600000;
