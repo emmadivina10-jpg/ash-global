@@ -683,6 +683,16 @@ html.native body {
   overflow-x: hidden;
 }
 
+/* Signup, consent and other public screens scroll with the document. A fixed
+   body height clips their lower controls inside the iOS WebView, leaving a
+   blank white area where the rest of the form should be. The signed-in shell
+   remains fixed to the visual viewport independently. */
+html.native body:has(.safe-top) {
+  height: auto;
+  min-height: 100%;
+  overflow-x: clip;
+}
+
 html.native .app-shell {
   position: fixed;
   top: 0;
