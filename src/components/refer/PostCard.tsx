@@ -1,5 +1,6 @@
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { MessageCircle, Repeat2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
@@ -41,11 +42,14 @@ export function PostCard({
   post,
   currentUserId,
   detail = false,
+  fullScreen = false,
 }: {
   post: FeedPost;
   currentUserId: string | null;
   /** Full-screen post page: comments are open and tapping does not navigate. */
   detail?: boolean;
+  /** The standalone post view has a full-height comment composer. */
+  fullScreen?: boolean;
 }) {
   const { lang } = useI18n();
   const fr = lang === "fr";
@@ -241,7 +245,7 @@ export function PostCard({
         </div>
       ) : null}
 
-      {commentsOpen ? <Comments post={post} currentUserId={currentUserId} detail={detail} /> : null}
+      {commentsOpen ? <Comments post={post} currentUserId={currentUserId} fullScreen={fullScreen} /> : null}
     </article>
   );
 }
@@ -249,11 +253,11 @@ export function PostCard({
 function Comments({
   post,
   currentUserId,
-  detail = false,
+  fullScreen = false,
 }: {
   post: FeedPost;
   currentUserId: string | null;
-  detail?: boolean;
+  fullScreen?: boolean;
 }) {
   const { lang } = useI18n();
   const fr = lang === "fr";
@@ -277,8 +281,35 @@ function Comments({
     );
   }
 
+  const composer = (
+    <div
+      className={cn(
+        "flex items-center gap-2 border-t border-border bg-background px-4 py-2",
+        fullScreen
+          ? "post-comment-composer fixed inset-x-0 bottom-0 z-[60] mx-auto w-full max-w-2xl pb-[calc(0.5rem+env(safe-area-inset-bottom))]"
+          : "sticky bottom-[calc(5.6rem+env(safe-area-inset-bottom))] z-20 -mx-4 lg:bottom-3",
+      )}
+    >
+      <Input
+        value={body}
+        onChange={(event) => setBody(event.target.value.slice(0, 600))}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            submit();
+          }
+        }}
+        placeholder={fr ? "Écrire un commentaire…" : "Write a comment…"}
+        aria-label={fr ? "Commentaire" : "Comment"}
+      />
+      <Button size="sm" onClick={submit} disabled={add.isPending || body.trim().length === 0}>
+        {fr ? "Envoyer" : "Send"}
+      </Button>
+    </div>
+  );
+
   return (
-    <div className="space-y-3 border-t border-border p-4">
+    <div className={cn("space-y-3 border-t border-border p-4", fullScreen && "pb-24")}>
       {isLoading ? (
         <p className="text-xs text-muted-foreground">{fr ? "Chargement…" : "Loading…"}</p>
       ) : (data ?? []).length === 0 ? (
@@ -300,31 +331,7 @@ function Comments({
         </p>
       ) : null}
 
-      {/* Kept above the bottom bar so the box is never hidden behind it. */}
-      <div
-        className={cn(
-          "sticky z-20 -mx-4 flex items-center gap-2 border-t border-border bg-background px-4 py-2",
-          detail
-            ? "bottom-0 pb-[calc(0.5rem+env(safe-area-inset-bottom))]"
-            : "bottom-[calc(5.6rem+env(safe-area-inset-bottom))] lg:bottom-3",
-        )}
-      >
-        <Input
-          value={body}
-          onChange={(event) => setBody(event.target.value.slice(0, 600))}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              event.preventDefault();
-              submit();
-            }
-          }}
-          placeholder={fr ? "Écrire un commentaire…" : "Write a comment…"}
-          aria-label={fr ? "Commentaire" : "Comment"}
-        />
-        <Button size="sm" onClick={submit} disabled={add.isPending || body.trim().length === 0}>
-          {fr ? "Envoyer" : "Send"}
-        </Button>
-      </div>
+      {fullScreen && typeof document !== "undefined" ? createPortal(composer, document.body) : composer}
     </div>
   );
 }

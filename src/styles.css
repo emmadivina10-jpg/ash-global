@@ -746,6 +746,14 @@ html.native .app-shell > nav {
   bottom: 0;
 }
 
+/* The full-screen post composer is portalled outside the scrolling post.
+   Follow the visible WKWebView height as the keyboard opens. */
+html.native .post-comment-composer {
+  bottom: auto;
+  top: var(--ash-vh, 100dvh);
+  transform: translateY(-100%);
+}
+
 /* Messages has one deliberate inner scroll surface. Hide the browser's
    transient scrollbar so no vertical cut appears beside chat rows or bubbles. */
 .messages-scroll {

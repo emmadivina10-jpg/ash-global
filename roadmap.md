@@ -1,5 +1,9 @@
 # Roadmap
 
+## Current verification
+- [ ] Confirm on a physical iPhone that the full-screen post comment input stays above the keyboard (preview-only fix in place)
+- [x] Inspect the existing report destination, security, duplicates, and moderation wiring against the uploaded checklist; physical two-account/staff tests remain pending
+
 ## Reactions, hashtags, and tagging
 - [ ] Audit current social, comment, story, notification, profile, block, search, and feed systems
 - [ ] Add secure database structures, policies, validation, indexes, notifications, and realtime support

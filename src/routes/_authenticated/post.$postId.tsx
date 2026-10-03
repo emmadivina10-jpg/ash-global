@@ -58,7 +58,7 @@ function PostPage() {
               <Loader2 className="size-5 animate-spin text-muted-foreground" aria-hidden />
             </div>
           ) : data ? (
-            <PostCard post={data} currentUserId={me} detail />
+            <PostCard post={data} currentUserId={me} detail fullScreen />
           ) : (
             <div className="p-8 text-center">
               <p className="text-sm font-semibold text-foreground">
