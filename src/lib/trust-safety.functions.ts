@@ -168,7 +168,7 @@ export const moderationAction = createServerFn({ method: "POST" })
       if (data.action === "REVIEW") patch["status"] = "REVIEWING";
       else if (data.action === "CLOSE") Object.assign(patch, { status: "DISMISSED", resolved_at: now, action_taken: "CLOSED", resolution_reason: data.reason, resolution_note: data.reason });
       else Object.assign(patch, { status: "ACTIONED", resolved_at: now, action_taken: data.action, resolution_reason: data.reason, resolution_note: data.reason });
-      const { error } = await db.from("content_reports").update(patch).eq("id", data.reportId);
+      const { error } = await db.from("content_reports").update(patch as never).eq("id", data.reportId);
       if (error) throw new Error(error.message);
     }
 

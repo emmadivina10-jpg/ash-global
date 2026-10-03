@@ -108,7 +108,7 @@ export function TrustSafetyPanel() {
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Button size="sm" variant="outline" disabled={busy} onClick={() => run.mutate({ action: "REVIEW", reportId: r.id })}>Review</Button>
                     {removable ? (
-                      <Button size="sm" variant="destructive" disabled={busy} onClick={() => { const reason = ask("Removed for violating Community Guidelines"); if (reason) run.mutate({ action: "REMOVE", reportId: r.id, contentKind: r.target_type, contentId: r.target_id!, userId: r.target_user_id ?? undefined, reason }); }}>Remove Content</Button>
+                      <Button size="sm" variant="destructive" disabled={busy} onClick={() => { const reason = ask("Removed for violating Community Guidelines"); if (reason) run.mutate({ action: "REMOVE", reportId: r.id, contentKind: r.target_type, contentId: r.target_id!, ...(r.target_user_id ? { userId: r.target_user_id } : {}), reason }); }}>Remove Content</Button>
                     ) : null}
                     {r.target_user_id ? (
                       <>
