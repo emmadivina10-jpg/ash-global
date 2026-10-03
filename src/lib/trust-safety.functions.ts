@@ -78,6 +78,12 @@ export const loadTrustSafety = createServerFn({ method: "POST" })
       const { data: rows } = await db.from(CONTENT_TABLE[kind]).select(`id, ${col}`).in("id", ids);
       for (const row of (rows ?? []) as unknown as Array<Record<string, string | null>>) previews.set(String(row["id"]), row[col] ?? null);
     }
+    for (const [kind, tbl] of [["MARKET", "market_posts"], ["EVENT", "events"]] as const) {
+      const ids = reports.filter((r) => r.target_type === kind && r.target_id).map((r) => r.target_id as string);
+      if (!ids.length) continue;
+      const { data: rows } = await db.from(tbl).select("id, title").in("id", ids);
+      for (const row of rows ?? []) previews.set(row.id, row.title);
+    }
 
     const ids = new Set<string>();
     reports.forEach((r) => { ids.add(r.reporter_id); if (r.target_user_id) ids.add(r.target_user_id); });
@@ -134,7 +140,11 @@ export const moderationAction = createServerFn({ method: "POST" })
 
     const table = data.contentKind && data.contentKind in CONTENT_TABLE ? CONTENT_TABLE[data.contentKind as keyof typeof CONTENT_TABLE] : null;
 
-    if (data.action === "REMOVE" || data.action === "RESTORE") {
+    const listingTable = data.contentKind === "MARKET" ? "market_posts" : data.contentKind === "EVENT" ? "events" : null;
+    if ((data.action === "REMOVE" || data.action === "RESTORE") && listingTable && data.contentId) {
+      const { error } = await db.from(listingTable).update({ is_published: data.action === "RESTORE" }).eq("id", data.contentId);
+      if (error) throw new Error(error.message);
+    } else if (data.action === "REMOVE" || data.action === "RESTORE") {
       if (!table || !data.contentId) throw new Error("This report has no removable content. Use suspend or ban instead.");
       const { error } = await db.from(table).update({ moderation_status: data.action === "REMOVE" ? "REMOVED" : "APPROVED" }).eq("id", data.contentId);
       if (error) throw new Error(error.message);

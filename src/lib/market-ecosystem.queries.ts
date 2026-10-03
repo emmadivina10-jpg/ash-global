@@ -43,6 +43,7 @@ export type FxInstructorProfile = {
 
 export type MarketPostMeta = {
   id: string;
+  author_id?: string;
   social_post_id: string;
   instructor_id: string;
   content_type: string;
@@ -270,7 +271,7 @@ export function useMarketUpdate(marketPostId: string) {
     queryFn: async (): Promise<MarketPostMeta | null> => {
       const { data, error } = await db
         .from("market_posts")
-        .select("id,social_post_id,instructor_id,content_type,market_category,instrument,title,educational_label,published_at")
+        .select("id,author_id,social_post_id,instructor_id,content_type,market_category,instrument,title,educational_label,published_at")
         .eq("id", marketPostId)
         .maybeSingle();
       if (error) throw error;
