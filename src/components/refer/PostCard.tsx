@@ -81,33 +81,6 @@ export function PostCard({
   const mine = currentUserId === post.author_id;
   useEngagementRealtime(detail ? post.id : null);
 
-  const composer = (
-    <div
-      className={cn(
-        "flex items-center gap-2 border-t border-border bg-background px-4 py-2",
-        detail
-          ? "post-comment-composer fixed inset-x-0 bottom-0 z-[60] mx-auto w-full max-w-2xl pb-[calc(0.5rem+env(safe-area-inset-bottom))]"
-          : "sticky bottom-[calc(5.6rem+env(safe-area-inset-bottom))] z-20 -mx-4 lg:bottom-3",
-      )}
-    >
-      <Input
-        value={body}
-        onChange={(event) => setBody(event.target.value.slice(0, 600))}
-        onKeyDown={(event) => {
-          if (event.key === "Enter") {
-            event.preventDefault();
-            submit();
-          }
-        }}
-        placeholder={fr ? "Écrire un commentaire…" : "Write a comment…"}
-        aria-label={fr ? "Commentaire" : "Comment"}
-      />
-      <Button size="sm" onClick={submit} disabled={add.isPending || body.trim().length === 0}>
-        {fr ? "Envoyer" : "Send"}
-      </Button>
-    </div>
-  );
-
   return (
     <article
       ref={impressionRef as React.RefObject<HTMLElement>}
@@ -304,6 +277,33 @@ function Comments({
       },
     );
   }
+
+  const composer = (
+    <div
+      className={cn(
+        "flex items-center gap-2 border-t border-border bg-background px-4 py-2",
+        detail
+          ? "post-comment-composer fixed inset-x-0 bottom-0 z-[60] mx-auto w-full max-w-2xl pb-[calc(0.5rem+env(safe-area-inset-bottom))]"
+          : "sticky bottom-[calc(5.6rem+env(safe-area-inset-bottom))] z-20 -mx-4 lg:bottom-3",
+      )}
+    >
+      <Input
+        value={body}
+        onChange={(event) => setBody(event.target.value.slice(0, 600))}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            submit();
+          }
+        }}
+        placeholder={fr ? "Écrire un commentaire…" : "Write a comment…"}
+        aria-label={fr ? "Commentaire" : "Comment"}
+      />
+      <Button size="sm" onClick={submit} disabled={add.isPending || body.trim().length === 0}>
+        {fr ? "Envoyer" : "Send"}
+      </Button>
+    </div>
+  );
 
   return (
     <div className={cn("space-y-3 border-t border-border p-4", detail && "pb-24")}>
