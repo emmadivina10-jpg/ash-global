@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, FileText, Loader2 } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,8 +14,14 @@ import { SocialAuth } from "@/components/refer/SocialAuth";
 import { isValidPhone, normalizePhone } from "@/lib/format";
 import { useI18n, type TKey } from "@/lib/i18n";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ZeroTolerance } from "@/components/refer/ZeroTolerance";
-import { nextOnboardingRoute, recordTermsAcceptance } from "@/lib/consent";
+import {
+  TERMS_VERSION,
+  markPendingTermsAgreement,
+  nextOnboardingRoute,
+  recordTermsAcceptance,
+} from "@/lib/consent";
 
 /** Validation messages follow the selected language. */
 function buildSchema(t: (k: TKey) => string) {
@@ -61,6 +67,7 @@ function RegisterPage() {
   const { ref } = Route.useSearch();
   const { t, lang } = useI18n();
   const [agreed, setAgreed] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -126,6 +133,8 @@ function RegisterPage() {
           full_name: parsed.data.fullName,
           phone: parsed.data.phone,
           referral_code: code,
+          terms_version: TERMS_VERSION,
+          terms_agreed_at: new Date().toISOString(),
         },
       },
     });
@@ -150,6 +159,39 @@ function RegisterPage() {
     setDone(true);
   }
 
+  // While waiting for email confirmation, quietly retry signing in with the
+  // credentials just entered. Sign-in only succeeds once the email is
+  // verified, so new members continue into onboarding without the Login page.
+  useEffect(() => {
+    if (!done) return;
+    let cancelled = false;
+    let tries = 0;
+    async function attempt() {
+      if (cancelled) return;
+      tries += 1;
+      const { data: existing } = await supabase.auth.getSession();
+      let userId = existing.session?.user.id;
+      if (!userId) {
+        const { data } = await supabase.auth.signInWithPassword({
+          email: form.email.trim(),
+          password: form.password,
+        });
+        userId = data.session?.user.id;
+      }
+      if (cancelled) return;
+      if (userId) {
+        navigate({ to: await nextOnboardingRoute(userId), replace: true });
+        return;
+      }
+      if (tries < 180) timer = window.setTimeout(attempt, 5000);
+    }
+    let timer = window.setTimeout(attempt, 5000);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [done, form.email, form.password, navigate]);
+
   if (done) {
     return (
       <AuthLayout title={t("auth.register.checkEmail")} subtitle={t("auth.register.checkEmailSub")}>
@@ -157,6 +199,12 @@ function RegisterPage() {
           <CheckCircle2 className="size-10 text-success" aria-hidden />
           <p className="mt-4 text-sm text-muted-foreground">
             {t("auth.register.checkEmailCopy", { email: form.email })}
+          </p>
+          <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+            <Loader2 className="size-3.5 animate-spin" aria-hidden />
+            {lang === "fr"
+              ? "Après confirmation, vous continuerez automatiquement ici."
+              : "Once you confirm, you'll continue here automatically."}
           </p>
           <Button asChild className="mt-6 w-full">
             <Link to="/login">{t("auth.register.goLogin")}</Link>
@@ -263,22 +311,58 @@ function RegisterPage() {
           </p>
         ) : null}
 
-        <ZeroTolerance fr={lang === "fr"} />
-        <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border p-4">
-          <Checkbox
-            checked={agreed}
-            onCheckedChange={(value) => setAgreed(value === true)}
-            className="mt-0.5"
-            aria-label="I agree to the ASH Glo Terms of Use and Community Guidelines"
-          />
-          <span className="text-sm text-foreground">
-            I agree to the ASH Glo{" "}
-            <Link to="/terms" className="font-semibold text-primary hover:underline">Terms of Use</Link> and{" "}
-            <Link to="/community-guidelines" className="font-semibold text-primary hover:underline">Community Guidelines</Link>,
-            and I have read the{" "}
-            <Link to="/privacy" className="font-semibold text-primary hover:underline">Privacy Policy</Link>. I am at least 13.
-          </span>
-        </label>
+        <section aria-labelledby="terms-heading" className="space-y-3 rounded-2xl border border-primary/30 bg-primary/5 p-4">
+          <h2 id="terms-heading" className="text-base font-bold text-foreground">
+            {lang === "fr" ? "Conditions d'utilisation et règles de la communauté" : "Terms of Use & Community Standards"}
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            {lang === "fr"
+              ? "Avant de rejoindre ASH Glo, veuillez lire et accepter nos Conditions d'utilisation et nos Règles de la communauté."
+              : "Before joining ASH Glo, please review and agree to our Terms of Use and Community Standards."}
+          </p>
+          <Button type="button" variant="outline" className="w-full" onClick={() => setTermsOpen(true)}>
+            <FileText className="size-4" aria-hidden />
+            {lang === "fr" ? "Voir les conditions" : "View Terms"}
+          </Button>
+          <ZeroTolerance fr={lang === "fr"} />
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-background p-4">
+            <Checkbox
+              checked={agreed}
+              onCheckedChange={(value) => {
+                const next = value === true;
+                setAgreed(next);
+                markPendingTermsAgreement(next);
+              }}
+              className="mt-0.5"
+              aria-label="I agree to the ASH Glo Terms of Use and Community Standards"
+            />
+            <span className="text-sm text-foreground">
+              {lang === "fr"
+                ? "J'accepte les Conditions d'utilisation et les Règles de la communauté d'ASH Glo, j'ai lu la "
+                : "I agree to the ASH Glo Terms of Use and Community Standards, and I have read the "}
+              <Link to="/privacy" className="font-semibold text-primary hover:underline">
+                {lang === "fr" ? "Politique de confidentialité" : "Privacy Policy"}
+              </Link>
+              {lang === "fr" ? ". J'ai au moins 13 ans." : ". I am at least 13."}
+            </span>
+          </label>
+        </section>
+
+        <Dialog open={termsOpen} onOpenChange={setTermsOpen}>
+          <DialogContent className="flex h-[85dvh] max-w-2xl flex-col gap-3 p-4">
+            <DialogHeader>
+              <DialogTitle>{lang === "fr" ? "Conditions d'utilisation d'ASH Glo" : "ASH Glo Terms of Use"}</DialogTitle>
+            </DialogHeader>
+            <iframe
+              src="/terms"
+              title="ASH Glo Terms of Use"
+              className="min-h-0 w-full flex-1 rounded-lg border border-border bg-background"
+            />
+            <Button type="button" onClick={() => setTermsOpen(false)}>
+              {lang === "fr" ? "Retour à l'inscription" : "Back to sign up"}
+            </Button>
+          </DialogContent>
+        </Dialog>
 
         <Button type="submit" className="h-12 w-full rounded-xl text-base" disabled={loading || !agreed}>
           {loading ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
