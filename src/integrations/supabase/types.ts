@@ -4645,6 +4645,7 @@ export type Database = {
           id: string
           media_path: string
           media_type: string
+          moderation_status: string
           view_count: number
         }
         Insert: {
@@ -4658,6 +4659,7 @@ export type Database = {
           id?: string
           media_path: string
           media_type?: string
+          moderation_status?: string
           view_count?: number
         }
         Update: {
@@ -4671,6 +4673,7 @@ export type Database = {
           id?: string
           media_path?: string
           media_type?: string
+          moderation_status?: string
           view_count?: number
         }
         Relationships: []
