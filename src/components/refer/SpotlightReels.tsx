@@ -10,6 +10,7 @@ import { useI18n } from "@/lib/i18n";
 import { trackEvent } from "@/lib/activity";
 import { ReactionButton } from "./ReactionButton";
 import { VerifiedBadge } from "./VerifiedBadge";
+import { SafetyMenu } from "./SafetyMenu";
 import { ExpandableSocialText } from "./ExpandableSocialText";
 
 /**
@@ -195,6 +196,15 @@ export function SpotlightReels({
                     ) : null}
                   </div>
                 </div>
+                {!mine && currentUserId ? (
+                  <SafetyMenu
+                    targetType={entry.source === "post" ? "SPOTLIGHT" : "PORTFOLIO"}
+                    targetId={entry.id.replace(/^(post|portfolio):/, "")}
+                    targetUserId={entry.author_id}
+                    targetName={entry.provider.business_name}
+                    triggerClassName="size-10 bg-white/15 text-white hover:bg-white/25 hover:text-white"
+                  />
+                ) : null}
                 {mine ? (
                   <Button
                     type="button"
