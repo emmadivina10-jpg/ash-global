@@ -42,11 +42,14 @@ export function PostCard({
   post,
   currentUserId,
   detail = false,
+  fullScreen = false,
 }: {
   post: FeedPost;
   currentUserId: string | null;
   /** Full-screen post page: comments are open and tapping does not navigate. */
   detail?: boolean;
+  /** The standalone post view has a full-height comment composer. */
+  fullScreen?: boolean;
 }) {
   const { lang } = useI18n();
   const fr = lang === "fr";
@@ -242,7 +245,7 @@ export function PostCard({
         </div>
       ) : null}
 
-      {commentsOpen ? <Comments post={post} currentUserId={currentUserId} detail={detail} /> : null}
+      {commentsOpen ? <Comments post={post} currentUserId={currentUserId} fullScreen={fullScreen} /> : null}
     </article>
   );
 }
@@ -250,11 +253,11 @@ export function PostCard({
 function Comments({
   post,
   currentUserId,
-  detail = false,
+  fullScreen = false,
 }: {
   post: FeedPost;
   currentUserId: string | null;
-  detail?: boolean;
+  fullScreen?: boolean;
 }) {
   const { lang } = useI18n();
   const fr = lang === "fr";
@@ -282,7 +285,7 @@ function Comments({
     <div
       className={cn(
         "flex items-center gap-2 border-t border-border bg-background px-4 py-2",
-        detail
+        fullScreen
           ? "post-comment-composer fixed inset-x-0 bottom-0 z-[60] mx-auto w-full max-w-2xl pb-[calc(0.5rem+env(safe-area-inset-bottom))]"
           : "sticky bottom-[calc(5.6rem+env(safe-area-inset-bottom))] z-20 -mx-4 lg:bottom-3",
       )}
@@ -306,7 +309,7 @@ function Comments({
   );
 
   return (
-    <div className={cn("space-y-3 border-t border-border p-4", detail && "pb-24")}>
+    <div className={cn("space-y-3 border-t border-border p-4", fullScreen && "pb-24")}>
       {isLoading ? (
         <p className="text-xs text-muted-foreground">{fr ? "Chargement…" : "Loading…"}</p>
       ) : (data ?? []).length === 0 ? (
@@ -328,7 +331,7 @@ function Comments({
         </p>
       ) : null}
 
-      {detail && typeof document !== "undefined" ? createPortal(composer, document.body) : composer}
+      {fullScreen && typeof document !== "undefined" ? createPortal(composer, document.body) : composer}
     </div>
   );
 }
