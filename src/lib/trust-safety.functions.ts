@@ -21,7 +21,7 @@ export type TSReport = {
 
 export type TSContent = {
   id: string;
-  kind: "POST" | "SPOTLIGHT" | "COMMENT";
+  kind: "POST" | "SPOTLIGHT" | "COMMENT" | "STORY";
   author_id: string;
   author_name: string;
   text: string | null;
@@ -33,7 +33,7 @@ export type TSMember = { user_id: string; name: string; until: string | null; re
 export type TSEvent = { id: string; kind: string; actor_name: string; target_name: string; source: string; created_at: string };
 export type TSActivity = { id: string; actor: string; action: string; reason: string | null; created_at: string };
 
-const CONTENT_TABLE = { POST: "social_posts", SPOTLIGHT: "spotlight_posts", COMMENT: "post_comments" } as const;
+const CONTENT_TABLE = { POST: "social_posts", SPOTLIGHT: "spotlight_posts", COMMENT: "post_comments", STORY: "stories" } as const;
 
 /** Full Trust & Safety overview. Trust/Support department or super admin only. */
 export const loadTrustSafety = createServerFn({ method: "POST" })
@@ -47,7 +47,7 @@ export const loadTrustSafety = createServerFn({ method: "POST" })
     if (data.status === "OPEN") rq = rq.in("status", ["OPEN", "REVIEWING"]);
     else if (data.status !== "ALL") rq = rq.eq("status", data.status);
 
-    const [reportsR, blocksR, postsR, spotR, comR, suspR, banR, auditR] = await Promise.all([
+    const [reportsR, blocksR, postsR, spotR, comR, suspR, banR, auditR, storyR] = await Promise.all([
       rq,
       db.from("security_events").select("id, kind, actor_user_id, route, detail, created_at").in("kind", ["USER_BLOCK", "USER_UNBLOCK"]).order("created_at", { ascending: false }).limit(100),
       db.from("social_posts").select("id, author_id, caption, moderation_status, created_at").in("moderation_status", ["FLAGGED", "REMOVED"]).order("created_at", { ascending: false }).limit(100),
@@ -56,6 +56,7 @@ export const loadTrustSafety = createServerFn({ method: "POST" })
       db.from("profiles").select("user_id, full_name, moderation_suspended_until, moderation_ban_reason").gt("moderation_suspended_until", new Date().toISOString()).limit(100),
       db.from("profiles").select("user_id, full_name, moderation_banned_at, moderation_ban_reason").not("moderation_banned_at", "is", null).limit(100),
       db.from("admin_audit_log").select("id, actor, action, reason, created_at").like("action", "TS_%").order("created_at", { ascending: false }).limit(50),
+      db.from("stories").select("id, author_id, caption, moderation_status, created_at").in("moderation_status", ["FLAGGED", "REMOVED"]).order("created_at", { ascending: false }).limit(100),
     ]);
     if (reportsR.error) throw new Error(reportsR.error.message);
 
@@ -64,12 +65,13 @@ export const loadTrustSafety = createServerFn({ method: "POST" })
       ...(postsR.data ?? []).map((r) => ({ id: r.id, kind: "POST" as const, author_id: r.author_id, author_name: "", text: r.caption, status: r.moderation_status, created_at: r.created_at })),
       ...(spotR.data ?? []).map((r) => ({ id: r.id, kind: "SPOTLIGHT" as const, author_id: r.author_id, author_name: "", text: r.caption, status: r.moderation_status, created_at: r.created_at })),
       ...(comR.data ?? []).map((r) => ({ id: r.id, kind: "COMMENT" as const, author_id: r.author_id, author_name: "", text: r.body, status: r.moderation_status, created_at: r.created_at })),
+      ...(storyR.data ?? []).map((r) => ({ id: r.id, kind: "STORY" as const, author_id: r.author_id, author_name: "", text: r.caption, status: r.moderation_status, created_at: r.created_at })),
     ];
     const blockRows = blocksR.data ?? [];
 
     // Content previews for reports
     const previews = new Map<string, string | null>();
-    for (const kind of ["POST", "SPOTLIGHT", "COMMENT"] as const) {
+    for (const kind of ["POST", "SPOTLIGHT", "COMMENT", "STORY"] as const) {
       const ids = reports.filter((r) => r.target_type === kind && r.target_id).map((r) => r.target_id as string);
       if (!ids.length) continue;
       const col = kind === "COMMENT" ? "body" : "caption";
