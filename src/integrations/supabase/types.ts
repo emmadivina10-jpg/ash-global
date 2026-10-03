@@ -5464,6 +5464,7 @@ export type Database = {
       owns_mentor: { Args: { _mentor_id: string }; Returns: boolean }
       owns_property: { Args: { _listing_id: string }; Returns: boolean }
       property_is_public: { Args: { _listing_id: string }; Returns: boolean }
+      provider_owner: { Args: { _provider_id: string }; Returns: string }
       provider_slots: {
         Args: { _date: string; _duration?: number; _provider_id: string }
         Returns: string[]
@@ -5660,6 +5661,7 @@ export type Database = {
       }
       touch_member_presence: { Args: never; Returns: undefined }
       ugc_text_is_suspicious: { Args: { _text: string }; Returns: boolean }
+      ugc_visible: { Args: { _owner: string }; Returns: boolean }
       verify_story_cleanup_secret: {
         Args: { _secret: string }
         Returns: boolean
