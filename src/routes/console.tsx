@@ -54,6 +54,7 @@ const NAV = [
   { to: "/console/withdrawals", label: "Withdrawals", icon: Wallet, group: "Money", dept: "REVENUE" },
   { to: "/console/payout", label: "Payout", icon: Banknote, group: "Money", dept: "REVENUE" },
   { to: "/console/ledger", label: "Ledger", icon: ReceiptText, group: "Money", dept: "REVENUE" },
+  { to: "/console/finance", label: "Finance", icon: Banknote, group: "Money", dept: "REVENUE" },
   { to: "/console/users", label: "Users", icon: Users, group: "People", dept: "SUPER_ADMIN" },
   { to: "/console/providers", label: "Providers", icon: Store, group: "People", dept: "TRUST" },
   { to: "/console/clean", label: "ASH Clean", icon: Shirt, group: "People", dept: "MARKETPLACE_OPS" },
