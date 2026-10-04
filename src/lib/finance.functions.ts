@@ -224,7 +224,10 @@ export const getFinanceLedger = createServerFn({ method: "GET" }).handler(async 
   const cashOnHand = revenueTotal + customerFunds - memberPayouts - ownerTaken;
   const f = (fin.data ?? {}) as Record<string, number>;
   const refundLiability = n(f["refund_liability"]);
-  const available = Math.max(cashOnHand - walletLiability - refundLiability, 0);
+  const ledgerAvailable = Math.max(cashOnHand - walletLiability - refundLiability, 0);
+  // The existing owner-withdrawal check subtracts owner withdrawals a second time, so the
+  // enforced limit is lower (safer) than the ledger figure. Show the enforced limit.
+  const available = Math.max(n(f["safe_to_withdraw"]) - ownerTaken, 0);
 
   // ---- Wallet reconciliation: stored balance vs. sum of the wallet's own history ----
   // Activation payments are external payments shown on a member's history; they never touch the wallet.
@@ -274,6 +277,8 @@ export const getFinanceLedger = createServerFn({ method: "GET" }).handler(async 
       refundLiability,
       cashOnHand,
       availablePlatformFunds: available,
+      ledgerAvailable,
+      dbCashOnHand: n(f["cash_on_hand"]),
       mismatchedWallets: reconciliation.filter((r) => Math.abs(r.difference) > 0.009).length,
     },
   };
