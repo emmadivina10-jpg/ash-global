@@ -11,3 +11,5 @@
 
 - Keep the full-screen post comment composer outside the post scroll pane and position it against the visible native viewport; nested sticky elements are clipped by the post card and can fall under mobile chrome.
 - Staff authentication audit data must use a server-side super-admin guard and safe column projections; historical credential test results must never contain passwords or hashes.
+- Staff identity (employee name, position, employee ID, extra departments) lives on staff_accounts; seats without an employee name are shared team logins. Why: one source of truth for console headers and per-person performance.
+- Staff performance figures are computed only from existing records in staff-performance.functions.ts and show "Data not available" otherwise. Why: owner forbids fabricated KPIs.

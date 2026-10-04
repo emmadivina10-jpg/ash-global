@@ -89,3 +89,5 @@
 - [x] Show awaiting support counts beside Support in the admin console
 - [x] Add the confirmed CEO biography to ASH AI’s founder knowledge
 - [x] Verify member and admin flows without changing unrelated screens
+- [ ] Facebook Page connection for Advertising dashboard — blocked: needs ASH's Meta developer app (App ID + Secret) and Meta app review.
+- [ ] Staff dashboards: publish only after owner tests remaining seats (blocked on owner approval).
