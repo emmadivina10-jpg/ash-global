@@ -1673,7 +1673,8 @@ export const getConsolePayouts = createServerFn({
 
     taken,
 
-    available: Math.max(Number(f["safe_to_withdraw"] ?? 0) - taken, 0),
+    // safe_to_withdraw already deducts owner payouts once; do not subtract `taken` again.
+    available: Math.max(Number(f["safe_to_withdraw"] ?? 0), 0),
 
     payouts: payouts.data ?? [],
 
