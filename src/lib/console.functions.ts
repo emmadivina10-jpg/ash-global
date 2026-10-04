@@ -34,6 +34,7 @@ export const consoleStatus = createServerFn({ method: "GET" }).handler(async () 
       department: session.data.department ?? "SUPER_ADMIN",
       elevated: Boolean(session.data.elevated),
       superAdmin: (session.data.department ?? "SUPER_ADMIN") === "SUPER_ADMIN",
+      extraDepartments: session.data.extraDepartments ?? [],
     },
   };
 });
@@ -67,6 +68,7 @@ export const unlockConsole = createServerFn({ method: "POST" })
         staffId: null,
         staffName: "Super admin",
         department: "SUPER_ADMIN" as const,
+        extraDepartments: [],
         elevated: true,
       });
 
@@ -84,7 +86,7 @@ export const unlockConsole = createServerFn({ method: "POST" })
 
     const { data: staff } = await db
       .from("staff_accounts")
-      .select("id, full_name, department, password_hash, is_active")
+      .select("id, full_name, department, password_hash, is_active, extra_departments")
       .eq("username", data.username)
       .maybeSingle();
 
@@ -104,6 +106,7 @@ export const unlockConsole = createServerFn({ method: "POST" })
       staffId: staff.id,
       staffName: staff.full_name,
       department: staff.department as never,
+      extraDepartments: staff.extra_departments ?? [],
       elevated: false,
     });
 
