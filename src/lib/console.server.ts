@@ -15,6 +15,7 @@ export const DEPARTMENTS = [
   "REVENUE",
   "TRUST",
   "CYBERSECURITY",
+  "OPERATIONS",
 ] as const;
 
 export type Department = (typeof DEPARTMENTS)[number];
@@ -24,6 +25,7 @@ export type ConsoleSession = {
   staffId?: string | null;
   staffName?: string;
   department?: Department;
+  extraDepartments?: string[];
   elevated?: boolean;
 };
 
@@ -33,6 +35,7 @@ export type ConsoleActor = {
   department: Department;
   elevated: boolean;
   superAdmin: boolean;
+  extraDepartments: string[];
 };
 
 export function sessionConfig() {
@@ -86,6 +89,7 @@ export async function requireConsole(): Promise<ConsoleActor> {
     department,
     elevated: Boolean(session.data.elevated),
     superAdmin: department === "SUPER_ADMIN",
+    extraDepartments: session.data.extraDepartments ?? [],
   };
 }
 
@@ -98,6 +102,7 @@ export async function requireDepartment(...allowed: Department[]): Promise<Conso
   const actor = await requireConsole();
   if (actor.superAdmin || actor.elevated) return actor;
   if (allowed.includes(actor.department)) return actor;
+  if (actor.extraDepartments.some((d) => (allowed as string[]).includes(d))) return actor;
   throw new Error("FORBIDDEN_DEPARTMENT");
 }
 

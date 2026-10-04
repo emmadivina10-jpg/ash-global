@@ -271,7 +271,7 @@ export const replyToTicket = createServerFn({ method: "POST" })
   }))
   .handler(async ({ data }) => {
     const { requireDepartment, adminClient } = await import("./console.server");
-    await requireDepartment("SUPPORT");
+    const replier = await requireDepartment("SUPPORT");
     if (!data.ticketId || !data.body) return { ok: false as const, error: "MISSING_FIELDS" };
     const db = await adminClient();
 
@@ -293,7 +293,7 @@ export const replyToTicket = createServerFn({ method: "POST" })
 
     const { data: saved, error: insertError } = await db
       .from("support_ticket_messages")
-      .insert({ ticket_id: ticket.id, sender: "ADMIN", body: data.body })
+      .insert({ ticket_id: ticket.id, sender: "ADMIN", body: data.body, staff_id: replier.staffId })
       .select("id")
       .single();
     if (insertError || !saved) return { ok: false as const, error: insertError?.message ?? "INSERT_FAILED" };
