@@ -64,6 +64,7 @@ import { Route as ConsoleCleanRouteImport } from './routes/console.clean'
 import { Route as ConsoleContentRouteImport } from './routes/console.content'
 import { Route as ConsoleDeletionsRouteImport } from './routes/console.deletions'
 import { Route as ConsoleExpansionRouteImport } from './routes/console.expansion'
+import { Route as ConsoleFinanceRouteImport } from './routes/console.finance'
 import { Route as ConsoleGrowthRouteImport } from './routes/console.growth'
 import { Route as ConsoleInstructorsRouteImport } from './routes/console.instructors'
 import { Route as ConsoleLedgerRouteImport } from './routes/console.ledger'
@@ -403,6 +404,11 @@ const ConsoleDeletionsRoute = ConsoleDeletionsRouteImport.update({
 const ConsoleExpansionRoute = ConsoleExpansionRouteImport.update({
   id: '/expansion',
   path: '/expansion',
+  getParentRoute: () => ConsoleRoute,
+} as any)
+const ConsoleFinanceRoute = ConsoleFinanceRouteImport.update({
+  id: '/finance',
+  path: '/finance',
   getParentRoute: () => ConsoleRoute,
 } as any)
 const ConsoleGrowthRoute = ConsoleGrowthRouteImport.update({
@@ -792,6 +798,7 @@ export interface FileRoutesByFullPath {
   '/console/content': typeof ConsoleContentRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/expansion': typeof ConsoleExpansionRoute
+  '/console/finance': typeof ConsoleFinanceRoute
   '/console/growth': typeof ConsoleGrowthRoute
   '/console/instructors': typeof ConsoleInstructorsRoute
   '/console/ledger': typeof ConsoleLedgerRoute
@@ -908,6 +915,7 @@ export interface FileRoutesByTo {
   '/console/content': typeof ConsoleContentRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/expansion': typeof ConsoleExpansionRoute
+  '/console/finance': typeof ConsoleFinanceRoute
   '/console/growth': typeof ConsoleGrowthRoute
   '/console/instructors': typeof ConsoleInstructorsRoute
   '/console/ledger': typeof ConsoleLedgerRoute
@@ -1027,6 +1035,7 @@ export interface FileRoutesById {
   '/console/content': typeof ConsoleContentRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/expansion': typeof ConsoleExpansionRoute
+  '/console/finance': typeof ConsoleFinanceRoute
   '/console/growth': typeof ConsoleGrowthRoute
   '/console/instructors': typeof ConsoleInstructorsRoute
   '/console/ledger': typeof ConsoleLedgerRoute
@@ -1146,6 +1155,7 @@ export interface FileRouteTypes {
     | '/console/content'
     | '/console/deletions'
     | '/console/expansion'
+    | '/console/finance'
     | '/console/growth'
     | '/console/instructors'
     | '/console/ledger'
@@ -1262,6 +1272,7 @@ export interface FileRouteTypes {
     | '/console/content'
     | '/console/deletions'
     | '/console/expansion'
+    | '/console/finance'
     | '/console/growth'
     | '/console/instructors'
     | '/console/ledger'
@@ -1380,6 +1391,7 @@ export interface FileRouteTypes {
     | '/console/content'
     | '/console/deletions'
     | '/console/expansion'
+    | '/console/finance'
     | '/console/growth'
     | '/console/instructors'
     | '/console/ledger'
@@ -1863,6 +1875,13 @@ declare module '@tanstack/react-router' {
       path: '/expansion'
       fullPath: '/console/expansion'
       preLoaderRoute: typeof ConsoleExpansionRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/finance': {
+      id: '/console/finance'
+      path: '/finance'
+      fullPath: '/console/finance'
+      preLoaderRoute: typeof ConsoleFinanceRouteImport
       parentRoute: typeof ConsoleRoute
     }
     '/console/growth': {
@@ -2428,6 +2447,7 @@ interface ConsoleRouteChildren {
   ConsoleContentRoute: typeof ConsoleContentRoute
   ConsoleDeletionsRoute: typeof ConsoleDeletionsRoute
   ConsoleExpansionRoute: typeof ConsoleExpansionRoute
+  ConsoleFinanceRoute: typeof ConsoleFinanceRoute
   ConsoleGrowthRoute: typeof ConsoleGrowthRoute
   ConsoleInstructorsRoute: typeof ConsoleInstructorsRoute
   ConsoleLedgerRoute: typeof ConsoleLedgerRoute
@@ -2461,6 +2481,7 @@ const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsoleContentRoute: ConsoleContentRoute,
   ConsoleDeletionsRoute: ConsoleDeletionsRoute,
   ConsoleExpansionRoute: ConsoleExpansionRoute,
+  ConsoleFinanceRoute: ConsoleFinanceRoute,
   ConsoleGrowthRoute: ConsoleGrowthRoute,
   ConsoleInstructorsRoute: ConsoleInstructorsRoute,
   ConsoleLedgerRoute: ConsoleLedgerRoute,

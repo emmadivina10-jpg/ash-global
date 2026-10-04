@@ -277,8 +277,9 @@ export const creditUserWallet = createServerFn({
     // ---------------------------------------------------------------
     // 1. AUTHORIZATION
     // ---------------------------------------------------------------
+    let creditActor: { name: string; department: string; staffId: string | null } | null = null;
     try {
-      await requireDepartment("REVENUE");
+      creditActor = await requireDepartment("REVENUE");
     } catch (err) {
       const message = err instanceof Error ? err.message : "FORBIDDEN";
 
@@ -429,6 +430,21 @@ export const creditUserWallet = createServerFn({
       reference: payload.reference ?? null,
       newBalance,
     });
+
+    // Audit trail: who issued the credit (non-blocking; the credit already succeeded).
+    try {
+      await db!.from("admin_audit_log").insert({
+        actor: creditActor?.name ?? "CONSOLE",
+        action: "WALLET_CREDIT",
+        target_user_id: data.userId,
+        target_reference: payload.reference ?? null,
+        new_state: { amount: creditedAmount, new_balance: newBalance },
+        reason: data.reason.trim().slice(0, 500),
+        metadata: { department: creditActor?.department ?? null, staff_id: creditActor?.staffId ?? null },
+      });
+    } catch (auditErr) {
+      console.error("[creditUserWallet] audit log failed:", auditErr);
+    }
 
     return {
       ok: true as const,
