@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Keep the full-screen post comment composer outside the post scroll pane and position it against the visible native viewport; nested sticky elements are clipped by the post card and can fall under mobile chrome.
+- Staff authentication audit data must use a server-side super-admin guard and safe column projections; historical credential test results must never contain passwords or hashes.
