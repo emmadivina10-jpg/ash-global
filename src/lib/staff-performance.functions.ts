@@ -188,7 +188,7 @@ async function identityFor(db: Db, actor: { staffId: string | null; department: 
 
 async function targetFor(db: Db, staffId: string | null): Promise<Target> {
   if (!staffId) return null;
-  const { data } = await db.from("staff_targets").select("kpi_label, kpi_target").eq("staff_id", staffId).eq("period", "monthly").maybeSingle();
+  const { data } = await db.from("staff_targets").select("kpi_label, kpi_target").eq("staff_id", staffId).eq("period", "MONTHLY").maybeSingle();
   return data?.kpi_target != null ? { label: data.kpi_label ?? "Monthly target", target: data.kpi_target } : null;
 }
 
@@ -212,7 +212,7 @@ export const getDepartmentsOverview = createServerFn({ method: "GET" }).handler(
   const { data: staff } = await db.from("staff_accounts")
     .select("id, username, employee_name, position, employee_id, department, extra_departments, is_active").order("employee_id");
   const { data: tasks } = await db.from("department_tasks").select("department, title, status, due_date, priority").eq("status", "OPEN").limit(300);
-  const { data: targets } = await db.from("staff_targets").select("staff_id, kpi_label, kpi_target").eq("period", "monthly");
+  const { data: targets } = await db.from("staff_targets").select("staff_id, kpi_label, kpi_target").eq("period", "MONTHLY");
   const { data: replies } = await db.from("support_ticket_messages").select("staff_id").eq("sender", "ADMIN").gte("created_at", monthStart());
   const { data: leads } = await db.from("leads").select("created_by").gte("created_at", monthStart());
   const count = (rows: { [k: string]: unknown }[] | null, key: string, id: string) => (rows ?? []).filter((r) => r[key] === id).length;
@@ -244,11 +244,11 @@ export const setStaffTarget = createServerFn({ method: "POST" })
     const { requireSuperAdmin, adminClient } = await import("./console.server");
     const actor = await requireSuperAdmin();
     const db = await adminClient();
-    const { data: existing } = await db.from("staff_targets").select("id").eq("staff_id", data.staffId).eq("period", "monthly").maybeSingle();
+    const { data: existing } = await db.from("staff_targets").select("id").eq("staff_id", data.staffId).eq("period", "MONTHLY").maybeSingle();
     const row = { kpi_label: data.label || "Monthly target", kpi_target: data.target, updated_at: new Date().toISOString() };
     const res = existing
       ? await db.from("staff_targets").update(row).eq("id", existing.id)
-      : await db.from("staff_targets").insert({ staff_id: data.staffId, period: "monthly", ...row });
+      : await db.from("staff_targets").insert({ staff_id: data.staffId, period: "MONTHLY", ...row });
     if (res.error) throw new Error("Unable to save the target.");
     await db.from("admin_audit_log").insert({ actor: actor.name, action: "STAFF_TARGET_SET", target_reference: data.staffId, new_state: row, reason: "Monthly target" });
     return { ok: true as const };
