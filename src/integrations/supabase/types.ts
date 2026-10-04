@@ -4528,12 +4528,16 @@ export type Database = {
           created_at: string
           department: string
           email: string | null
+          employee_id: string | null
+          employee_name: string | null
+          extra_departments: string[]
           full_name: string
           id: string
           is_active: boolean
           last_login_at: string | null
           password_hash: string
           phone: string | null
+          position: string | null
           updated_at: string
           username: string
         }
@@ -4541,12 +4545,16 @@ export type Database = {
           created_at?: string
           department: string
           email?: string | null
+          employee_id?: string | null
+          employee_name?: string | null
+          extra_departments?: string[]
           full_name: string
           id?: string
           is_active?: boolean
           last_login_at?: string | null
           password_hash: string
           phone?: string | null
+          position?: string | null
           updated_at?: string
           username: string
         }
@@ -4554,12 +4562,16 @@ export type Database = {
           created_at?: string
           department?: string
           email?: string | null
+          employee_id?: string | null
+          employee_name?: string | null
+          extra_departments?: string[]
           full_name?: string
           id?: string
           is_active?: boolean
           last_login_at?: string | null
           password_hash?: string
           phone?: string | null
+          position?: string | null
           updated_at?: string
           username?: string
         }
@@ -4601,6 +4613,8 @@ export type Database = {
           created_at: string
           deals_target: number
           id: string
+          kpi_label: string | null
+          kpi_target: number | null
           period: string
           recruits_target: number
           revenue_target: number
@@ -4612,6 +4626,8 @@ export type Database = {
           created_at?: string
           deals_target?: number
           id?: string
+          kpi_label?: string | null
+          kpi_target?: number | null
           period?: string
           recruits_target?: number
           revenue_target?: number
@@ -4623,6 +4639,8 @@ export type Database = {
           created_at?: string
           deals_target?: number
           id?: string
+          kpi_label?: string | null
+          kpi_target?: number | null
           period?: string
           recruits_target?: number
           revenue_target?: number
@@ -4802,6 +4820,7 @@ export type Database = {
           email_sent: boolean
           id: string
           sender: string
+          staff_id: string | null
           ticket_id: string
         }
         Insert: {
@@ -4811,6 +4830,7 @@ export type Database = {
           email_sent?: boolean
           id?: string
           sender: string
+          staff_id?: string | null
           ticket_id: string
         }
         Update: {
@@ -4820,6 +4840,7 @@ export type Database = {
           email_sent?: boolean
           id?: string
           sender?: string
+          staff_id?: string | null
           ticket_id?: string
         }
         Relationships: [
