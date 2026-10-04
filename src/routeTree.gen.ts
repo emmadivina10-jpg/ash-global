@@ -63,6 +63,7 @@ import { Route as ConsoleCampusInstructorsRouteImport } from './routes/console.c
 import { Route as ConsoleCleanRouteImport } from './routes/console.clean'
 import { Route as ConsoleContentRouteImport } from './routes/console.content'
 import { Route as ConsoleDeletionsRouteImport } from './routes/console.deletions'
+import { Route as ConsoleDepartmentsRouteImport } from './routes/console.departments'
 import { Route as ConsoleExpansionRouteImport } from './routes/console.expansion'
 import { Route as ConsoleFinanceRouteImport } from './routes/console.finance'
 import { Route as ConsoleGrowthRouteImport } from './routes/console.growth'
@@ -70,6 +71,7 @@ import { Route as ConsoleInstructorsRouteImport } from './routes/console.instruc
 import { Route as ConsoleLedgerRouteImport } from './routes/console.ledger'
 import { Route as ConsoleMarketplaceRouteImport } from './routes/console.marketplace'
 import { Route as ConsoleMerchantRouteImport } from './routes/console.merchant'
+import { Route as ConsoleOperationsRouteImport } from './routes/console.operations'
 import { Route as ConsoleOutreachRouteImport } from './routes/console.outreach'
 import { Route as ConsolePartnershipsRouteImport } from './routes/console.partnerships'
 import { Route as ConsolePaymentsRouteImport } from './routes/console.payments'
@@ -401,6 +403,11 @@ const ConsoleDeletionsRoute = ConsoleDeletionsRouteImport.update({
   path: '/deletions',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const ConsoleDepartmentsRoute = ConsoleDepartmentsRouteImport.update({
+  id: '/departments',
+  path: '/departments',
+  getParentRoute: () => ConsoleRoute,
+} as any)
 const ConsoleExpansionRoute = ConsoleExpansionRouteImport.update({
   id: '/expansion',
   path: '/expansion',
@@ -434,6 +441,11 @@ const ConsoleMarketplaceRoute = ConsoleMarketplaceRouteImport.update({
 const ConsoleMerchantRoute = ConsoleMerchantRouteImport.update({
   id: '/merchant',
   path: '/merchant',
+  getParentRoute: () => ConsoleRoute,
+} as any)
+const ConsoleOperationsRoute = ConsoleOperationsRouteImport.update({
+  id: '/operations',
+  path: '/operations',
   getParentRoute: () => ConsoleRoute,
 } as any)
 const ConsoleOutreachRoute = ConsoleOutreachRouteImport.update({
@@ -797,6 +809,7 @@ export interface FileRoutesByFullPath {
   '/console/clean': typeof ConsoleCleanRoute
   '/console/content': typeof ConsoleContentRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
+  '/console/departments': typeof ConsoleDepartmentsRoute
   '/console/expansion': typeof ConsoleExpansionRoute
   '/console/finance': typeof ConsoleFinanceRoute
   '/console/growth': typeof ConsoleGrowthRoute
@@ -804,6 +817,7 @@ export interface FileRoutesByFullPath {
   '/console/ledger': typeof ConsoleLedgerRoute
   '/console/marketplace': typeof ConsoleMarketplaceRoute
   '/console/merchant': typeof ConsoleMerchantRoute
+  '/console/operations': typeof ConsoleOperationsRoute
   '/console/outreach': typeof ConsoleOutreachRoute
   '/console/partnerships': typeof ConsolePartnershipsRoute
   '/console/payments': typeof ConsolePaymentsRoute
@@ -914,6 +928,7 @@ export interface FileRoutesByTo {
   '/console/clean': typeof ConsoleCleanRoute
   '/console/content': typeof ConsoleContentRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
+  '/console/departments': typeof ConsoleDepartmentsRoute
   '/console/expansion': typeof ConsoleExpansionRoute
   '/console/finance': typeof ConsoleFinanceRoute
   '/console/growth': typeof ConsoleGrowthRoute
@@ -921,6 +936,7 @@ export interface FileRoutesByTo {
   '/console/ledger': typeof ConsoleLedgerRoute
   '/console/marketplace': typeof ConsoleMarketplaceRoute
   '/console/merchant': typeof ConsoleMerchantRoute
+  '/console/operations': typeof ConsoleOperationsRoute
   '/console/outreach': typeof ConsoleOutreachRoute
   '/console/partnerships': typeof ConsolePartnershipsRoute
   '/console/payments': typeof ConsolePaymentsRoute
@@ -1034,6 +1050,7 @@ export interface FileRoutesById {
   '/console/clean': typeof ConsoleCleanRoute
   '/console/content': typeof ConsoleContentRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
+  '/console/departments': typeof ConsoleDepartmentsRoute
   '/console/expansion': typeof ConsoleExpansionRoute
   '/console/finance': typeof ConsoleFinanceRoute
   '/console/growth': typeof ConsoleGrowthRoute
@@ -1041,6 +1058,7 @@ export interface FileRoutesById {
   '/console/ledger': typeof ConsoleLedgerRoute
   '/console/marketplace': typeof ConsoleMarketplaceRoute
   '/console/merchant': typeof ConsoleMerchantRoute
+  '/console/operations': typeof ConsoleOperationsRoute
   '/console/outreach': typeof ConsoleOutreachRoute
   '/console/partnerships': typeof ConsolePartnershipsRoute
   '/console/payments': typeof ConsolePaymentsRoute
@@ -1154,6 +1172,7 @@ export interface FileRouteTypes {
     | '/console/clean'
     | '/console/content'
     | '/console/deletions'
+    | '/console/departments'
     | '/console/expansion'
     | '/console/finance'
     | '/console/growth'
@@ -1161,6 +1180,7 @@ export interface FileRouteTypes {
     | '/console/ledger'
     | '/console/marketplace'
     | '/console/merchant'
+    | '/console/operations'
     | '/console/outreach'
     | '/console/partnerships'
     | '/console/payments'
@@ -1271,6 +1291,7 @@ export interface FileRouteTypes {
     | '/console/clean'
     | '/console/content'
     | '/console/deletions'
+    | '/console/departments'
     | '/console/expansion'
     | '/console/finance'
     | '/console/growth'
@@ -1278,6 +1299,7 @@ export interface FileRouteTypes {
     | '/console/ledger'
     | '/console/marketplace'
     | '/console/merchant'
+    | '/console/operations'
     | '/console/outreach'
     | '/console/partnerships'
     | '/console/payments'
@@ -1390,6 +1412,7 @@ export interface FileRouteTypes {
     | '/console/clean'
     | '/console/content'
     | '/console/deletions'
+    | '/console/departments'
     | '/console/expansion'
     | '/console/finance'
     | '/console/growth'
@@ -1397,6 +1420,7 @@ export interface FileRouteTypes {
     | '/console/ledger'
     | '/console/marketplace'
     | '/console/merchant'
+    | '/console/operations'
     | '/console/outreach'
     | '/console/partnerships'
     | '/console/payments'
@@ -1870,6 +1894,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleDeletionsRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/console/departments': {
+      id: '/console/departments'
+      path: '/departments'
+      fullPath: '/console/departments'
+      preLoaderRoute: typeof ConsoleDepartmentsRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
     '/console/expansion': {
       id: '/console/expansion'
       path: '/expansion'
@@ -1917,6 +1948,13 @@ declare module '@tanstack/react-router' {
       path: '/merchant'
       fullPath: '/console/merchant'
       preLoaderRoute: typeof ConsoleMerchantRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/operations': {
+      id: '/console/operations'
+      path: '/operations'
+      fullPath: '/console/operations'
+      preLoaderRoute: typeof ConsoleOperationsRouteImport
       parentRoute: typeof ConsoleRoute
     }
     '/console/outreach': {
@@ -2446,6 +2484,7 @@ interface ConsoleRouteChildren {
   ConsoleCleanRoute: typeof ConsoleCleanRoute
   ConsoleContentRoute: typeof ConsoleContentRoute
   ConsoleDeletionsRoute: typeof ConsoleDeletionsRoute
+  ConsoleDepartmentsRoute: typeof ConsoleDepartmentsRoute
   ConsoleExpansionRoute: typeof ConsoleExpansionRoute
   ConsoleFinanceRoute: typeof ConsoleFinanceRoute
   ConsoleGrowthRoute: typeof ConsoleGrowthRoute
@@ -2453,6 +2492,7 @@ interface ConsoleRouteChildren {
   ConsoleLedgerRoute: typeof ConsoleLedgerRoute
   ConsoleMarketplaceRoute: typeof ConsoleMarketplaceRoute
   ConsoleMerchantRoute: typeof ConsoleMerchantRoute
+  ConsoleOperationsRoute: typeof ConsoleOperationsRoute
   ConsoleOutreachRoute: typeof ConsoleOutreachRoute
   ConsolePartnershipsRoute: typeof ConsolePartnershipsRoute
   ConsolePaymentsRoute: typeof ConsolePaymentsRoute
@@ -2480,6 +2520,7 @@ const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsoleCleanRoute: ConsoleCleanRoute,
   ConsoleContentRoute: ConsoleContentRoute,
   ConsoleDeletionsRoute: ConsoleDeletionsRoute,
+  ConsoleDepartmentsRoute: ConsoleDepartmentsRoute,
   ConsoleExpansionRoute: ConsoleExpansionRoute,
   ConsoleFinanceRoute: ConsoleFinanceRoute,
   ConsoleGrowthRoute: ConsoleGrowthRoute,
@@ -2487,6 +2528,7 @@ const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsoleLedgerRoute: ConsoleLedgerRoute,
   ConsoleMarketplaceRoute: ConsoleMarketplaceRoute,
   ConsoleMerchantRoute: ConsoleMerchantRoute,
+  ConsoleOperationsRoute: ConsoleOperationsRoute,
   ConsoleOutreachRoute: ConsoleOutreachRoute,
   ConsolePartnershipsRoute: ConsolePartnershipsRoute,
   ConsolePaymentsRoute: ConsolePaymentsRoute,
