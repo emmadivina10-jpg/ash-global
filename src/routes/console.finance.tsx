@@ -143,9 +143,15 @@ function ConsoleFinance() {
             <Mini label="Owner withdrawals (completed + in progress)" value={s.ownerTaken} />
             <Mini label="Remaining available platform funds" value={s.availablePlatformFunds} />
           </div>
-          <p className="mb-3 text-xs text-muted-foreground">
-            New owner withdrawals are made from Console → Payout, which blocks any amount above the available funds.
-          </p>
+          <div className="mb-3 rounded-md border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
+            <p className="font-medium text-foreground">How "Available to withdraw" is calculated</p>
+            <p className="mt-1">= Real money received (activation fees, payments)</p>
+            <p>− Completed member payouts</p>
+            <p>− Owner withdrawals (completed + in progress), deducted once</p>
+            <p>− Money owed to member and provider wallets</p>
+            <p>− Disputed bookings held for refunds</p>
+            <p className="mt-2">Admin wallet credits are never counted as income. New owner withdrawals are made from Console → Payout, which blocks any amount above this figure.</p>
+          </div>
           {data.ownerWithdrawals.length === 0 ? (
             <EmptyState title="No owner withdrawals yet" />
           ) : (
