@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { LoadingState } from "@/components/refer/states";
+import { StaffAuthenticationAudit } from "@/components/console/StaffAuthenticationAudit";
 
 const DEPARTMENT_OPTIONS = [
   ["SUPPORT", "Support"],
@@ -28,6 +29,15 @@ const DEPARTMENT_OPTIONS = [
 
 export const Route = createFileRoute("/console/staff")({
   ssr: false,
+  head: () => ({ meta: [
+    { title: "ASH Glo — Private Staff Administration & Authentication Audit" },
+    { name: "description", content: "Private ASH Glo staff account, department and authentication audit." },
+    { property: "og:title", content: "ASH Glo — Private Staff Administration" },
+    { property: "og:description", content: "Private staff department and authentication audit." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+    { name: "robots", content: "noindex, nofollow" },
+  ] }),
   component: StaffPage,
 });
 
@@ -122,6 +132,7 @@ function StaffPage() {
           </p>
         ) : null}
       </div>
+      <StaffAuthenticationAudit />
     </div>
   );
 }
