@@ -101,7 +101,7 @@ const CHARTERS: Record<string, Charter> = {
     kpis: ["Platform growth", "Revenue growth", "User growth", "Security incidents", "Security response", "Department performance", "Strategic objectives"],
   },
 };
-CHARTERS.CYBERSECURITY = { ...CHARTERS.SUPER_ADMIN, key: "CYBERSECURITY", label: "Cybersecurity" };
+CHARTERS["CYBERSECURITY"] = { ...(CHARTERS["SUPER_ADMIN"] as Charter), key: "CYBERSECURITY", label: "Cybersecurity" };
 
 const GENERIC: Record<string, string> = {
   GROWTH: "Growth & Acquisition", SALES: "Sales", PARTNERSHIPS: "Partnerships", CONTENT: "Content & Creator",
@@ -109,7 +109,8 @@ const GENERIC: Record<string, string> = {
 };
 
 export function charterFor(department: string): Charter {
-  if (CHARTERS[department]) return CHARTERS[department];
+  const found = CHARTERS[department];
+  if (found) return found;
   const label = GENERIC[department] ?? department.replace(/_/g, " ");
   return {
     key: department, label, chartTitle: `${label} Performance`, chartSubtitle: "Activity trend · leads recorded",

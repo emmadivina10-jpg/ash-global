@@ -38,6 +38,7 @@ import {
 import { consoleStatus, lockConsole, setElevatedMode, unlockConsole } from "@/lib/console.functions";
 import { getSupportAwaitingCount } from "@/lib/support.functions";
 import { StaffChat } from "@/components/console/StaffChat";
+import { DepartmentCommandCenter } from "@/components/console/DepartmentCommandCenter";
 import { DailyTickets } from "@/components/console/DailyTickets";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,6 +49,7 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { to: "/console", label: "Overview", icon: BarChart3, group: "Insights", dept: "SUPER_ADMIN" },
+  { to: "/console/departments", label: "Departments", icon: Building2, group: "Insights", dept: "SUPER_ADMIN" },
   { to: "/console/revenue", label: "Revenue", icon: Target, group: "Insights", dept: "REVENUE" },
   { to: "/console/security", label: "Cybersecurity", icon: ShieldAlert, group: "Insights", dept: "CYBERSECURITY" },
   { to: "/console/payments", label: "Payments", icon: CreditCard, group: "Money", dept: "REVENUE" },
@@ -62,6 +64,7 @@ const NAV = [
   { to: "/console/deletions", label: "Deletions", icon: Trash2, group: "People", dept: "SUPER_ADMIN" },
   { to: "/console/support", label: "Support", icon: LifeBuoy, group: "People", dept: "SUPPORT" },
   { to: "/console/outreach", label: "Outreach", icon: Send, group: "People", dept: "SUPPORT" },
+  { to: "/console/operations", label: "Operations", icon: CalendarCheck, group: "Workforce", dept: "OPERATIONS" },
   { to: "/console/growth", label: "Growth", icon: Rocket, group: "Workforce", dept: "GROWTH" },
   { to: "/console/sales", label: "Sales", icon: Target, group: "Workforce", dept: "SALES" },
   { to: "/console/marketplace", label: "Marketplace Ops", icon: Store, group: "Workforce", dept: "MARKETPLACE_OPS" },
@@ -105,9 +108,10 @@ function ThemeToggle() {
 }
 
 /** CEO sees everything; every other seat sees only its own department. */
-function allowedNav(superAdmin: boolean, department: string) {
+function allowedNav(superAdmin: boolean, department: string, extra: string[] = []) {
   if (superAdmin) return NAV.slice();
-  return NAV.filter((item) => item.dept === department);
+  const own = NAV.filter((item) => item.dept === department);
+  return [...own, ...NAV.filter((item) => extra.includes(item.dept) && item.dept !== department)];
 }
 
 function SidebarNav({
@@ -115,15 +119,17 @@ function SidebarNav({
   onNavigate,
   superAdmin,
   department,
+  extra = [],
   supportCount = 0,
 }: {
   pathname: string;
   onNavigate?: () => void;
   superAdmin: boolean;
   department: string;
+  extra?: string[];
   supportCount?: number;
 }) {
-  const items = allowedNav(superAdmin, department);
+  const items = allowedNav(superAdmin, department, extra);
   return (
     <nav className="space-y-6">
       {GROUPS.filter((group) => items.some((item) => item.group === group)).map((group) => (
@@ -186,7 +192,8 @@ function ConsoleLayout() {
   const actor = data.actor;
   const superAdmin = Boolean(actor?.superAdmin);
   const department = actor?.department ?? "";
-  const allowed = allowedNav(superAdmin, department);
+  const extra = (actor as { extraDepartments?: string[] } | null)?.extraDepartments ?? [];
+  const allowed = allowedNav(superAdmin, department, extra);
   const hasAccess = allowed.some((item) => item.to === pathname);
   const current = NAV.find((item) => item.to === pathname)?.label ?? "Overview";
 
@@ -205,7 +212,7 @@ function ConsoleLayout() {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          <SidebarNav pathname={pathname} superAdmin={superAdmin} department={department} supportCount={supportBadge?.count ?? 0} />
+          <SidebarNav pathname={pathname} superAdmin={superAdmin} department={department} extra={extra} supportCount={supportBadge?.count ?? 0} />
         </div>
 
         <div className="mt-4 rounded-xl border border-sidebar-border bg-card p-3">
@@ -287,6 +294,7 @@ function ConsoleLayout() {
         <main className="mx-auto w-full max-w-7xl space-y-5 px-4 py-6 sm:px-6">
           {hasAccess ? (
             <>
+              {!superAdmin && allowed.some((i) => i.to === pathname && i.dept === department) ? <DepartmentCommandCenter /> : null}
               <DailyTickets superAdmin={superAdmin} />
               <Outlet />
             </>
@@ -329,6 +337,7 @@ function ConsoleLayout() {
                 onNavigate={() => setMenuOpen(false)}
                 superAdmin={superAdmin}
                 department={department}
+                extra={extra}
                 supportCount={supportBadge?.count ?? 0}
               />
             </div>
