@@ -19,9 +19,9 @@ const monthStart = () => { const d = new Date(); return new Date(Date.UTC(d.getU
 
 function daily(dates: (string | null | undefined)[], weights?: number[]): DailyPoint[] {
   const map = new Map<string, number>();
-  dates.forEach((d, i) => { if (d) map.set(day(d), (map.get(day(d)) ?? 0) + (weights ? weights[i] : 1)); });
+  dates.forEach((d, i) => { if (d) map.set(day(d), (map.get(day(d)) ?? 0) + (weights ? (weights[i] ?? 0) : 1)); });
   if (map.size === 0) return [];
-  const first = [...map.keys()].sort()[0];
+  const first = [...map.keys()].sort()[0] as string;
   const out: DailyPoint[] = [];
   for (let t = new Date(first + "T00:00:00Z").getTime(); t <= Date.now(); t += 86400000) {
     const key = new Date(t).toISOString().slice(0, 10);

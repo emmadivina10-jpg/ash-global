@@ -18,14 +18,14 @@ function bucketKey(date: string, range: Range) {
 export function buildCandles(series: DailyPoint[], range: Range): Candle[] {
   if (range === "D") {
     return series.slice(-60).map((p, i, arr) => {
-      const prev = i > 0 ? arr[i - 1].value : p.value;
+      const prev = i > 0 ? (arr[i - 1]?.value ?? p.value) : p.value;
       return { label: p.date, open: prev, close: p.value, high: Math.max(prev, p.value), low: Math.min(prev, p.value), volume: p.value };
     });
   }
   const groups = new Map<string, number[]>();
   series.forEach((p) => { const k = bucketKey(p.date, range); groups.set(k, [...(groups.get(k) ?? []), p.value]); });
   return [...groups.entries()].map(([label, v]) => ({
-    label, open: v[0], close: v[v.length - 1], high: Math.max(...v), low: Math.min(...v), volume: v.reduce((a, b) => a + b, 0),
+    label, open: v[0] ?? 0, close: v[v.length - 1] ?? 0, high: Math.max(...v), low: Math.min(...v), volume: v.reduce((a, b) => a + b, 0),
   })).slice(range === "W" ? -26 : range === "M" ? -24 : -10);
 }
 
@@ -79,8 +79,8 @@ export function PerformanceChart({ title, subtitle, series }: { title: string; s
           <svg viewBox={`0 0 ${W} ${H}`} className="mt-4 h-64 w-full" role="img" aria-label={`${title} chart`}>
             {[0.25, 0.5, 0.75].map((g) => <line key={g} x1={0} x2={W} y1={y(max * g)} y2={y(max * g)} className="stroke-border" strokeDasharray="3 4" />)}
             {candles.map((c, i) => {
-              const up = range === "D" ? c.close >= c.open : i === 0 || c.volume >= candles[i - 1].volume;
-              const o = range === "D" ? c.open : i === 0 ? c.volume : candles[i - 1].volume;
+              const up = range === "D" ? c.close >= c.open : i === 0 || c.volume >= (candles[i - 1]?.volume ?? 0);
+              const o = range === "D" ? c.open : i === 0 ? c.volume : (candles[i - 1]?.volume ?? c.volume);
               const cl = range === "D" ? c.close : c.volume;
               const hi = range === "D" ? c.high : Math.max(o, cl);
               const lo = range === "D" ? c.low : Math.min(o, cl);
