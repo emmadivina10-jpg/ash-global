@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Current verification
+- [ ] Audit existing employee authentication and department dashboards without changing accounts, passwords, roles, or the Apple review account; deliver a private report
 - [ ] Confirm on a physical iPhone that the full-screen post comment input stays above the keyboard (preview-only fix in place)
 - [x] Inspect the existing report destination, security, duplicates, and moderation wiring against the uploaded checklist; physical two-account/staff tests remain pending
 
