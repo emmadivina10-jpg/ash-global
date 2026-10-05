@@ -131,6 +131,8 @@ function SupportInboxPage() {
         <StatTile label="Resolved" value={data?.counts.resolved ?? 0} />
       </div>
 
+      <TicketBoard />
+
       <div className="flex flex-wrap gap-2">
         {FILTERS.map((f) => (
           <button
