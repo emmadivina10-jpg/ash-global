@@ -7,6 +7,7 @@ const PRIORITIES = ["LOW", "NORMAL", "HIGH", "URGENT"] as const;
 const RECURRENCE = ["NONE", "DAILY", "WEEKLY", "MONTHLY"] as const;
 
 /** Response / resolution targets in hours by ticket priority. */
+const SLA_DEFAULT = { response: 8, resolution: 48 };
 const SLA_HOURS: Record<string, { response: number; resolution: number }> = {
   URGENT: { response: 1, resolution: 8 },
   HIGH: { response: 4, resolution: 24 },
@@ -63,7 +64,7 @@ export const getMyWorkspace = createServerFn({ method: "GET" }).handler(async ()
 
   const now = Date.now();
   const ticketRows = (tickets ?? []).map((t) => {
-    const sla = SLA_HOURS[t.priority] ?? SLA_HOURS.NORMAL;
+    const sla = SLA_HOURS[t.priority] ?? SLA_DEFAULT;
     const created = new Date(t.created_at).getTime();
     const resolutionDue = created + sla.resolution * 3600_000;
     const remaining = resolutionDue - now;
@@ -262,7 +263,7 @@ export const updateTask = createServerFn({ method: "POST" })
     if (!t) throw new Error("Not found");
     if (!a.superAdmin && t.assigned_staff_id !== a.staffId && t.department !== a.department) throw new Error("FORBIDDEN");
 
-    const patch: Record<string, unknown> = {};
+    const patch: { progress?: number; status?: string; completed_at?: string | null; completed_by?: string } = {};
     if (data.progress !== undefined) patch.progress = data.progress;
     const done = data.status === "DONE" || data.progress === 100;
     if (done) {

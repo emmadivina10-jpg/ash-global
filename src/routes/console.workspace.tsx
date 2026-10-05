@@ -163,7 +163,7 @@ function WorkspacePage() {
           <h2 className="mb-3 font-bold">Team availability</h2>
           <ul className="space-y-1.5">
             {data.team.map((m) => {
-              const a = AVAIL.find((x) => x.v === m.availability) ?? AVAIL[3];
+              const a = AVAIL.find((x) => x.v === m.availability) ?? AVAIL[3]!;
               return (
                 <li key={m.id} className="flex items-center justify-between text-sm">
                   <span className="truncate">

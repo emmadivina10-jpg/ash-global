@@ -301,7 +301,7 @@ function ConsoleLayout() {
         <main className="mx-auto w-full max-w-7xl space-y-5 px-4 py-6 sm:px-6">
           {hasAccess ? (
             <>
-              {!superAdmin && allowed.some((i) => i.to === pathname && i.dept === department && i.dept !== "ALL") ? <DepartmentCommandCenter /> : null}
+              {!superAdmin && allowed.some((i) => i.to === pathname && i.dept === department && (i.dept as string) !== "ALL") ? <DepartmentCommandCenter /> : null}
               <DailyTickets superAdmin={superAdmin} />
               <Outlet />
             </>
