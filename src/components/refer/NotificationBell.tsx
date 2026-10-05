@@ -1,6 +1,5 @@
-import { useEffect, useRef } from "react";
 import { playNotificationSound } from "@/lib/sound";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Bell, CheckCheck } from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { notificationLink } from "@/lib/push";
