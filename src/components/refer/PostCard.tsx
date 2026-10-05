@@ -191,6 +191,7 @@ export function PostCard({
               target_id: post.id,
               author_id: post.author_id,
             });
+            recordTagInterest(extractTags(post.caption), 1);
             react.mutate(
               { postId: post.id, reaction },
               { onError: (error) => toast.error(error instanceof Error ? error.message : "Could not react.") },

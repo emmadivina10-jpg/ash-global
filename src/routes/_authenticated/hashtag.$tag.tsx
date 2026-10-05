@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { extractTags, recordTagInterest } from "@/lib/interests";
+import { recordTagInterest } from "@/lib/interests";
 import { ChevronLeft, Hash, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { trackEvent } from "@/lib/activity";
