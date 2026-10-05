@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Plus, Send, ListTodo, History } from "lucide-react";
+import { Plus, Send, ListTodo, History, FlaskConical } from "lucide-react";
 import {
   EXPANSION_STAGES, SUPPORT_DEPARTMENTS, addOpportunityNote, createExpansionTask, getExpansionBoard,
-  getOpportunityHistory, moveOpportunityStage, saveOpportunity, submitOpportunityToCeo, type ExpansionOpportunity,
+  getOpportunityHistory, getOpportunityResearch, moveOpportunityStage, saveOpportunity, saveResearchReport,
+  submitOpportunityToCeo, submitResearchToCeo, type ExpansionOpportunity, type ExpansionResearch,
 } from "@/lib/expansion.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -232,6 +233,8 @@ function OpportunityDetail({ opp, superAdmin, tasks, onClose, onEdit, onChanged 
           {field("Competition", opp.competition)}{field("Risks", opp.risks)}
           {field("Required resources", opp.required_resources)}{field("Launch requirements", opp.launch_requirements)}
         </div>
+
+        <ResearchPanel opp={opp} run={run} />
 
         <div className="space-y-2 rounded-xl border border-border p-3">
           <p className="text-sm font-semibold">Add task or request support</p>
