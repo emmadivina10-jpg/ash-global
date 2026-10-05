@@ -30,7 +30,7 @@ export function MarketBrowser({ providers, loadingProviders, providerError, hasM
   const fr = lang === "fr";
   const region = useRegion();
   const deals = useDeals();
-  const properties = usePropertyListings({ country: region.seesEverything ? undefined : region.country });
+  const properties = usePropertyListings(region.seesEverything ? {} : { country: region.country });
   const claim = useServerFn(claimDeal);
   const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
