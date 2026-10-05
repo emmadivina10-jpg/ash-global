@@ -39,6 +39,7 @@ export function StaffProfileDialog({ trigger }: { trigger: React.ReactNode }) {
     await queryClient.invalidateQueries({ queryKey: ["console", "status"] });
     await queryClient.invalidateQueries({ queryKey: ["console", "workspace"] });
     await queryClient.invalidateQueries({ queryKey: ["console", "command-center"] });
+    await queryClient.invalidateQueries({ queryKey: ["console", "staff-chat"] });
   };
 
   const saveMutation = useMutation({

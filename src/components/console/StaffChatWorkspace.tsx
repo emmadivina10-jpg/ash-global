@@ -3,6 +3,7 @@ import { ArrowLeft, Hash, Loader2, LockKeyhole, MessagesSquare, Search, Send } f
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import type { StaffMessage } from "@/lib/ops.functions";
 import logo from "@/assets/ash-logo.png.asset.json";
@@ -22,6 +23,7 @@ type Props = {
   onChannelChange: (channel: string) => void;
   messages: StaffMessage[];
   me?: string | undefined;
+  meStaffId?: string | null | undefined;
   draft: string;
   onDraftChange: (value: string) => void;
   onSend: () => void;
@@ -36,6 +38,7 @@ export function StaffChatWorkspace({
   onChannelChange,
   messages,
   me,
+  meStaffId,
   draft,
   onDraftChange,
   onSend,
@@ -190,7 +193,10 @@ export function StaffChatWorkspace({
             </div>
           ) : null}
           {messages.map((message, index) => {
-            const mine = message.author_name === me;
+            const mine = message.author_staff_id && meStaffId
+              ? message.author_staff_id === meStaffId
+              : message.author_name === me;
+            const initials = message.author_name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
             const day = new Date(message.created_at).toLocaleDateString([], {
               day: "numeric",
               month: "short",
@@ -210,7 +216,11 @@ export function StaffChatWorkspace({
                     </span>
                   </div>
                 ) : null}
-                <div className={cn("mb-3 flex", mine ? "justify-end" : "justify-start")}>
+                <div className={cn("mb-3 flex items-end gap-2", mine ? "justify-end" : "justify-start")}>
+                  <Avatar className={cn("size-8 border border-team-line", mine && "order-2")}>
+                    <AvatarImage src={message.author_avatar_url ?? undefined} alt={`${message.author_name}'s profile photo`} className="object-cover" />
+                    <AvatarFallback className="bg-team-surface text-[10px] font-semibold text-team-gold">{initials}</AvatarFallback>
+                  </Avatar>
                   <div
                     className={cn(
                       "min-w-0 max-w-[88%] rounded-lg px-3 py-2 md:max-w-[75%]",
@@ -221,6 +231,7 @@ export function StaffChatWorkspace({
                   >
                     <p className="text-xs font-semibold text-team-gold">{message.author_name}</p>
                     <p className="mt-0.5 text-[10px] text-team-muted">
+                      {message.author_position ? `${message.author_position} · ` : ""}
                       {message.author_department.replace(/_/g, " ")}
                     </p>
                     <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-relaxed [overflow-wrap:anywhere]">
