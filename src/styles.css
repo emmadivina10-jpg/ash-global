@@ -1127,6 +1127,8 @@ a {
 }
 .member-roomy-tab button:has(> svg:only-child) { min-width: 2.75rem; }
 .member-roomy-tab .member-menu a.min-h-16 { min-height: 4.5rem; }
+.member-roomy-tab .member-menu section > .grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); }
+.member-roomy-tab .member-menu a > span.min-w-0 { overflow-wrap: normal; }
 .member-roomy-tab .member-menu :is(a[aria-label], button[aria-label]) { min-width: 2.75rem; min-height: 2.75rem; }
 .member-contact-name {
   background-image: linear-gradient(100deg, var(--verified-magenta), var(--verified-violet) 48%, var(--color-chat-emerald) 52%, var(--color-chat-emerald));
