@@ -1,0 +1,1 @@
+UPDATE public.shareholders SET user_id = 'a88a6e0b-ce9b-4725-adfd-01a24889ed64' WHERE id = '00000000-0000-4000-a000-000000000002' AND display_name = 'Fabrice';
