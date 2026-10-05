@@ -237,15 +237,58 @@ function FlightsPage() {
           </Field>
         </div>
 
-        <Button className="h-12 w-full rounded-xl text-base font-semibold" disabled={!valid || search.isPending || !!unavailable} onClick={() => search.mutate()}>
+        <Button className="h-14 w-full rounded-2xl text-base font-bold shadow-lg shadow-primary/25 transition-transform active:scale-[0.98]" disabled={!valid || search.isPending || !!unavailable} onClick={() => search.mutate()}>
           {search.isPending ? <Loader2 className="size-5 animate-spin" /> : <Plane className="size-5" />}
-          {fr ? "Rechercher des vols" : "Search Flights"}
+          {search.isPending ? (fr ? "Recherche des meilleurs vols…" : "Finding the best flights…") : fr ? "Rechercher des vols" : "Search Flights"}
         </Button>
       </section>
+      </div>
 
-      {search.error && <p className="rounded-xl border border-destructive/40 p-3 text-sm text-destructive">{(search.error as Error).message}</p>}
+      <div className="grid grid-cols-3 gap-2 text-center">
+        {[
+          { icon: BadgeCheck, t: fr ? "Prix en direct des compagnies" : "Live airline prices" },
+          { icon: ShieldCheck, t: fr ? "Frais ASH transparents" : "Transparent ASH fees" },
+          { icon: Headphones, t: fr ? "Aide ASH Support" : "ASH Support help" },
+        ].map(({ icon: I, t }) => (
+          <div key={t} className="rounded-2xl border border-border bg-card px-2 py-3">
+            <I className="mx-auto mb-1 size-5 text-primary" />
+            <p className="text-[11px] font-semibold leading-tight">{t}</p>
+          </div>
+        ))}
+      </div>
+
+      {search.error && <p className="rounded-2xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">{(search.error as Error).message}</p>}
       {search.data && !search.data.available && (
-        <p className="rounded-xl border border-border p-3 text-sm">{fr ? "Recherche de vols momentanément indisponible." : "Flight search temporarily unavailable."}</p>
+        <p className="rounded-2xl border border-border p-4 text-sm">{fr ? "Recherche de vols momentanément indisponible." : "Flight search temporarily unavailable."}</p>
+      )}
+
+      {search.isPending && (
+        <div className="space-y-3" aria-hidden>
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-40 animate-pulse rounded-3xl border border-border bg-muted/60" />
+          ))}
+        </div>
+      )}
+
+      {!search.data && !search.isPending && (
+        <section className="space-y-3">
+          <h2 className="font-display text-lg font-bold">{fr ? "Destinations populaires" : "Popular destinations"}</h2>
+          <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1">
+            {POPULAR.map((p) => (
+              <button
+                key={p.code}
+                type="button"
+                disabled={!!unavailable}
+                onClick={() => setLegs(legs.map((l, j) => (j === 0 ? { ...l, to: p } : l)))}
+                className="group w-36 shrink-0 snap-start rounded-2xl border border-border bg-card p-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg disabled:opacity-60"
+              >
+                <p className="font-mono text-2xl font-extrabold text-primary">{p.code}</p>
+                <p className="mt-1 truncate text-sm font-semibold">{p.city}</p>
+                <p className="truncate text-xs text-muted-foreground">{p.country}</p>
+              </button>
+            ))}
+          </div>
+        </section>
       )}
 
       {search.data?.available && (
