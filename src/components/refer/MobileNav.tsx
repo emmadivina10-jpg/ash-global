@@ -153,11 +153,9 @@ export function MobileNav({
                 pathname === "/menu" ? "text-primary" : "text-muted-foreground active:text-foreground",
               )}
             >
-              <span className="relative size-7">
-                <Avatar path={profile?.avatar_url} name={profile?.full_name} className="member-avatar-ring size-7 p-[2px]" />
-                <span className="absolute -bottom-0.5 -right-1 z-10 grid size-3.5 place-items-center rounded-full bg-background ring-1 ring-border">
-                  <span className="grid size-2.5 place-items-center [&_svg]:size-2.5"><MemberNavIcon icon={Menu} active={pathname === "/menu"} /></span>
-                </span>
+              <span className="relative grid size-7 place-items-center">
+                <MemberNavIcon icon={Menu} active={pathname === "/menu"} />
+                <Avatar path={profile?.avatar_url} name={profile?.full_name} className="member-avatar-ring absolute -bottom-0.5 -right-1 z-10 size-3.5 p-px" />
               </span>
               <span className="max-w-full truncate">{t("nav.more")}</span>
               {pathname === "/menu" ? <span className="absolute inset-x-2 top-0 h-0.5 rounded-b-full bg-primary" aria-hidden /> : null}
