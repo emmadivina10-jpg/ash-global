@@ -130,3 +130,9 @@
 ## Feed posting and flight banner
 - [x] Replace the Feed heading with a plus that opens existing posting controls in a dialog
 - [x] Replace the inline composer with a plane banner; signed-in preview verified dialog, gallery/camera controls, caption and Post enabled state; no post sent, nothing published
+
+## Services / Market and tab sound
+- [ ] Replace tab chime with short Facebook-inspired tap while retaining mute settings
+- [ ] Move tutoring banner into rounded shortcut immediately after Netflix
+- [ ] Add Market mode with matching tab label/icon and existing real marketplace browsing workflows
+- [ ] Verify mode switching, filters, layout and sound/mute behavior; do not publish
