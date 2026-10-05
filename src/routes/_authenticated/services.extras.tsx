@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, BriefcaseBusiness, GraduationCap, CalendarDays, House, Users, Lightbulb, FlaskConical, Tag, ExternalLink, Play, CreditCard } from "lucide-react";
+import { ArrowLeft, BriefcaseBusiness, GraduationCap, CalendarDays, House, Users, Lightbulb, FlaskConical, Tag, CreditCard } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { AppLauncher } from "@capacitor/app-launcher";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,7 @@ function ExtrasPage() {
     <header className="flex items-center gap-3 border-b border-border pb-5"><Button asChild size="icon" variant="secondary" className="rounded-full"><Link to="/services" aria-label={fr ? "Retour à Market" : "Back to Market"}><ArrowLeft /></Link></Button><h1 className="text-3xl font-bold">Extras</h1><img src={ashLogo.url} alt="ASH" className="ml-auto size-11 rounded-lg" /></header>
     <nav aria-label={fr ? "Applications" : "Apps"} className="grid grid-cols-3 gap-x-3 gap-y-8 sm:grid-cols-4 lg:grid-cols-6">{apps.map((app) => {
       const owned = "to" in app && !("thirdParty" in app);
-      const content = <><span className={`relative grid size-[72px] place-items-center rounded-[22px] border border-border shadow-card transition-transform group-hover:-translate-y-1 group-active:scale-95 motion-reduce:transform-none ${owned ? "brand-gradient text-on-dark" : "bg-card text-foreground"}`}>
+      const content = <><span className={`relative grid size-[72px] place-items-center rounded-[22px] border border-border shadow-card transition-transform group-hover:-translate-y-1 group-active:scale-95 motion-reduce:transform-none [&_svg]:size-8 ${owned ? "brand-gradient text-on-dark" : "bg-card text-foreground"}`}>
         {"icon" in app ? <app.icon className="size-8" strokeWidth={1.7} aria-hidden /> : <span className={`text-4xl font-black ${app.en === "Netflix" ? "text-destructive" : "text-foreground"}`}>{app.wordmark}</span>}
         {owned && <img src={ashLogo.url} alt="" className="absolute -bottom-1 -right-1 size-6 rounded-lg ring-2 ring-background" />}
       </span><span className="w-full whitespace-normal text-center text-sm font-semibold leading-5">{fr ? app.fr : app.en}</span></>;
