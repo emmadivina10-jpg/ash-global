@@ -2537,6 +2537,82 @@ export type Database = {
         }
         Relationships: []
       }
+      identity_photo_reviews: {
+        Row: {
+          approved: boolean
+          created_at: string
+          file_hash: string
+          object_path: string
+          pixel_hash: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approved?: boolean
+          created_at?: string
+          file_hash: string
+          object_path: string
+          pixel_hash?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approved?: boolean
+          created_at?: string
+          file_hash?: string
+          object_path?: string
+          pixel_hash?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "identity_photo_reviews_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      identity_restrictions: {
+        Row: {
+          attempts: number
+          banned_at: string | null
+          created_at: string
+          restored_at: string | null
+          restricted_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          banned_at?: string | null
+          created_at?: string
+          restored_at?: string | null
+          restricted_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          banned_at?: string | null
+          created_at?: string
+          restored_at?: string | null
+          restricted_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "identity_restrictions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       impersonation_attempts: {
         Row: {
           actor_id: string | null
@@ -6645,6 +6721,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      my_identity_status: { Args: never; Returns: Json }
       my_inventory_businesses: {
         Args: never
         Returns: {
@@ -6723,6 +6800,10 @@ export type Database = {
           total_score: number
         }[]
       }
+      record_identity_denial: {
+        Args: { _actor: string; _kind: string; _owner: string; _value: string }
+        Returns: Json
+      }
       record_media_moderation: {
         Args: {
           _confidence: number
@@ -6778,6 +6859,10 @@ export type Database = {
           _viewing_id: string
         }
         Returns: Json
+      }
+      restore_identity_access: {
+        Args: { _actor: string; _reason: string; _uid: string }
+        Returns: undefined
       }
       review_campus_instructor_application: {
         Args: {

@@ -40,7 +40,7 @@ export const loadTrustSafety = createServerFn({ method: "POST" })
   .inputValidator((data: { status?: string }) => ({ status: String(data?.status ?? "OPEN").toUpperCase() }))
   .handler(async ({ data }) => {
     const { requireDepartment, adminClient } = await import("./console.server");
-    await requireDepartment("TRUST", "SUPPORT");
+    const actor = await requireDepartment("TRUST", "SUPPORT");
     const db = await adminClient();
 
     let rq = db.from("content_reports").select("*").order("created_at", { ascending: true }).limit(300);
@@ -105,8 +105,15 @@ export const loadTrustSafety = createServerFn({ method: "POST" })
       (profs ?? []).forEach((p) => names.set(p.user_id, p.full_name || "Member"));
     }
     const nm = (id: string | null | undefined) => (id ? names.get(id) ?? "Member" : "—");
+    const identityRows = await db.from("identity_restrictions").select("user_id,attempts,restricted_at,banned_at").is("restored_at", null).not("restricted_at", "is", null);
+    if (identityRows.error) throw new Error(identityRows.error.message);
+    const identityIds = (identityRows.data ?? []).map((r) => r.user_id);
+    const identityProfiles = identityIds.length ? await db.from("profiles").select("user_id,full_name").in("user_id", identityIds) : { data: [] };
+    const identityNames = new Map((identityProfiles.data ?? []).map((p) => [p.user_id, p.full_name]));
 
     return {
+      canRestoreIdentity: actor.superAdmin || actor.elevated || actor.department === "TRUST" || actor.extraDepartments.includes("TRUST"),
+      identities: (identityRows.data ?? []).map((r) => ({ ...r, name: identityNames.get(r.user_id) || "Member" })),
       reports: reports.map((r) => ({
         ...r,
         reporter_name: nm(r.reporter_id),
@@ -186,6 +193,13 @@ export const moderationAction = createServerFn({ method: "POST" })
       if (error) throw new Error(error.message);
     }
     if (data.action === "UNBAN" && data.userId) {
+      const identity = await db.from("identity_restrictions").select("restricted_at,restored_at").eq("user_id", data.userId).maybeSingle();
+      if (identity.error) throw new Error(identity.error.message);
+      if (identity.data?.restricted_at && !identity.data.restored_at) {
+        await requireDepartment("TRUST");
+        const restored = await db.rpc("restore_identity_access", { _uid: data.userId, _actor: `${actor.name} (${actor.department})`, _reason: data.reason });
+        if (restored.error) throw new Error(restored.error.message);
+      }
       const { error } = await db.from("profiles").update({ moderation_banned_at: null, moderation_suspended_until: null }).eq("user_id", data.userId);
       if (error) throw new Error(error.message);
     }

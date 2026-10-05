@@ -1,5 +1,11 @@
 # Roadmap
 
+## Verified identity protection
+- [ ] Enforce protected verified names and profile images, with durable denied-attempt tracking
+- [ ] Show red Denied, restrict access, and ban/log out on the fourth attempt
+- [ ] Limit restoration to authorized admin and Trust & Verification staff
+- [ ] Verify enforcement and existing profile flows without publishing
+
 ## Message profile fixes and dual-colour accents
 - [x] Fix member-profile navigation, inbox strip and full-width composer
 - [x] Apply update-aware avatar rings, dual-colour tabs/wallet, light Market/Extras accents and Menu watermark

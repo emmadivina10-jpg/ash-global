@@ -18,12 +18,17 @@ import { Label } from "@/components/ui/label";
 import { ACTIVATION_FEE, formatDate, formatXAF, isValidPhone, normalizePhone, referralLink } from "@/lib/format";
 import { isNativeApp } from "@/lib/native";
 import { useI18n } from "@/lib/i18n";
+import { announceIdentityDenial, identityStatus, IDENTITY_DENIED } from "@/lib/identity-client";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
     meta: [
       { title: "Profile — ASH Glo" },
       { name: "description", content: "Manage your ASH Glo profile, referral link and account status." },
+      { property: "og:title", content: "Profile — ASH Glo" },
+      { property: "og:description", content: "Manage your ASH Glo profile and protected account identity." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: ProfilePage,
@@ -86,6 +91,12 @@ function ProfilePage() {
     setSaving(false);
     if (updateError) {
       setError(updateError.message || t("profile.err.save"));
+      return;
+    }
+    const identity = await identityStatus();
+    if (identity.restricted) {
+      setError(IDENTITY_DENIED);
+      announceIdentityDenial(identity);
       return;
     }
     if (!saved) {
@@ -196,6 +207,8 @@ function ProfilePage() {
                 .update({ avatar_url: avatarPath })
                 .eq("user_id", profile.user_id);
               if (avatarError) throw new Error(avatarError.message);
+              const identity = await identityStatus();
+              if (identity.restricted) { announceIdentityDenial(identity); throw new Error(IDENTITY_DENIED); }
               await queryClient.invalidateQueries({ queryKey: ["profile"] });
             }}
           />
