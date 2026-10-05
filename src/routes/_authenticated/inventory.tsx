@@ -42,7 +42,7 @@ function InventoryPage() {
   if (isLoading) return <LoadingState label="Loading inventory…" />;
   if (!businesses?.length)
     return <EmptyState title="No business yet" description="Inventory is available for registered ASH businesses. Create your business profile from Services, or ask a business owner to add you to their team." />;
-  const biz = businesses.find((b) => b.business_id === bizId) ?? businesses[0];
+  const biz = (businesses.find((b) => b.business_id === bizId) ?? businesses[0])!;
   return (
     <div className="mx-auto w-full max-w-6xl space-y-5 px-4 py-5">
       <header className="flex flex-wrap items-end justify-between gap-3">
@@ -309,7 +309,7 @@ function ProductDialog({ businessId, product, categories, locations, onClose, on
     <div className="space-y-1"><Label>{label}</Label><Input type={type} min={0} step="any" value={f[k]} onChange={(e) => setF({ ...f, [k]: e.target.value })} /></div>
   );
   async function save(extra: Record<string, unknown> = {}) {
-    if (!f.name.trim()) return toast.error("Name is required");
+    if (!f.name.trim()) { toast.error("Name is required"); return; }
     setBusy(true);
     const row = {
       name: f.name.trim(), sku: f.sku.trim() || null, unit: f.unit.trim() || "unit",
@@ -320,7 +320,7 @@ function ProductDialog({ businessId, product, categories, locations, onClose, on
       ? await db.from("inventory_products").update(row).eq("id", product.id)
       : await db.from("inventory_products").insert({ ...row, business_id: businessId });
     setBusy(false);
-    if (error) return toast.error(friendlyError(error));
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("Saved"); onDone(); onClose();
   }
   return (
@@ -397,7 +397,7 @@ function MovementDialog({ businessId, product, locations, stock, onClose, onDone
             _reference: ref || null, _reason: reason || null, _to_location: type === "TRANSFER_OUT" ? to || null : null,
           });
           setBusy(false);
-          if (error) return toast.error(friendlyError(error));
+          if (error) { toast.error(friendlyError(error)); return; }
           toast.success("Stock recorded"); onDone(); onClose();
         }}><TrendingUp className="size-4" />Record movement</Button>
       </DialogContent>
@@ -427,9 +427,9 @@ function Team({ businessId, role }: { businessId: string; role: InventoryRole })
         <form className="flex flex-wrap gap-2 rounded-2xl border border-border bg-card p-4" onSubmit={async (e) => {
           e.preventDefault();
           const { data: u } = await db.from("public_profiles").select("user_id").ilike("username", username.trim().replace(/^@/, "")).maybeSingle();
-          if (!u) return toast.error("No ASH member with that username.");
+          if (!u) { toast.error("No ASH member with that username."); return; }
           const { error } = await db.from("inventory_members").insert({ business_id: businessId, user_id: u.user_id, role: newRole });
-          if (error) return toast.error(friendlyError(error));
+          if (error) { toast.error(friendlyError(error)); return; }
           setUsername(""); refetch(); qc.invalidateQueries({ queryKey: ["inventory", "businesses"] });
         }}>
           <Users className="mt-2 size-4 text-gold" />
