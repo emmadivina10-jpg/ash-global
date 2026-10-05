@@ -1,11 +1,11 @@
 import { useSyncExternalStore } from "react";
 
 export type ServicesMode = "services" | "market";
-const KEY = "ash.services.mode";
+const KEY = "ash.services.mode.v2";
 const EVENT = "ash-services-mode";
 function snapshot(): ServicesMode {
-  try { return localStorage.getItem(KEY) === "market" ? "market" : "services"; }
-  catch { return "services"; }
+  try { return localStorage.getItem(KEY) === "services" ? "services" : "market"; }
+  catch { return "market"; }
 }
 function subscribe(callback: () => void) {
   window.addEventListener(EVENT, callback);
@@ -20,5 +20,5 @@ export function setServicesMode(mode: ServicesMode) {
   window.dispatchEvent(new Event(EVENT));
 }
 export function useServicesMode() {
-  return useSyncExternalStore(subscribe, snapshot, (): ServicesMode => "services");
+  return useSyncExternalStore(subscribe, snapshot, (): ServicesMode => "market");
 }
