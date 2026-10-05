@@ -349,6 +349,7 @@ function ConsoleLayout() {
         </div>
       ) : null}
     </div>
+    </EmployeeTermsGate>
   );
 }
 
