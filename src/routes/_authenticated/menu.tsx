@@ -76,6 +76,7 @@ const sections = [
       ["Jobs", "Emplois", "/jobs", BriefcaseBusiness],
       ["Create", "Créer", "/create", PlusCircle],
       ["Bookings", "Réservations", "/bookings", CalendarDays],
+      ["Inventory", "Inventaire", "/inventory", BarChart3],
     ],
   },
   {
