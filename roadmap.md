@@ -121,3 +121,7 @@
 - [ ] Next: Outreach CRM, Letters + CEO approval, Josephine profile/KPIs, Expansion AI
 - [x] Telma unified Advertising & Marketing Command Center (old content/growth pages kept until verified)
 - [ ] Content Safety & Integrity in Trust & Verification (later phase)
+
+## Feed posting and flight banner
+- [ ] Replace the Feed heading with a plus that opens existing posting controls in a dialog
+- [ ] Replace the inline composer with a plane banner and verify posting controls
