@@ -22,6 +22,8 @@ import {
 import { ArrowDownRight, ArrowUpRight, Banknote, Users2, Wallet } from "lucide-react";
 import { getConsoleAnalytics, getConsoleOverview } from "@/lib/console.functions";
 import { DailyBriefing } from "@/components/console/DailyTickets";
+import { AshIntelligencePanel } from "@/components/console/AshIntelligencePanel";
+import { StaffDirectMessages } from "@/components/console/StaffDirectMessages";
 import { SectionCard, StatCard } from "@/components/refer/cards";
 import { TransactionList } from "@/components/refer/TransactionList";
 import { ErrorState, SkeletonRows } from "@/components/refer/states";
@@ -433,6 +435,9 @@ function ConsoleOverview() {
       <SectionCard title="Recent ledger activity">
         <TransactionList items={data?.recent ?? []} />
       </SectionCard>
+
+      <AshIntelligencePanel superAdmin={true} />
+      <StaffDirectMessages />
     </div>
   );
 }
