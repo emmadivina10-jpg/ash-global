@@ -47,8 +47,15 @@ export const getWorkBoard = createServerFn({ method: "POST" })
     const { requireConsole, adminClient } = await import("./console.server");
     const actor = await requireConsole();
     // Only the CEO (super admin) may read another department's board.
+    // Exception: the merchant board is nested inside Operations — the
+    // Operations seat manages MERCHANT leads with the same login.
+    const requested = data.department || actor.department;
     const department =
-      actor.superAdmin || actor.elevated ? data.department || actor.department : actor.department;
+      actor.superAdmin || actor.elevated
+        ? requested
+        : actor.department === "OPERATIONS" && requested === "MERCHANT"
+          ? "MERCHANT"
+          : actor.department;
     const db = await adminClient();
     const since = todayStart();
 
@@ -127,7 +134,9 @@ export const saveLead = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { requireConsole, adminClient } = await import("./console.server");
     const actor = await requireConsole();
-    if (!actor.superAdmin && !actor.elevated && actor.department !== String(data.department).toUpperCase()) {
+    const targetDept = String(data.department).toUpperCase();
+    const opsMerchant = actor.department === "OPERATIONS" && targetDept === "MERCHANT";
+    if (!actor.superAdmin && !actor.elevated && actor.department !== targetDept && !opsMerchant) {
       return { ok: false as const, error: "You can only manage leads for your department." };
     }
     const name = String(data.name ?? "").trim().slice(0, 160);
@@ -170,7 +179,8 @@ export const moveLeadStage = createServerFn({ method: "POST" })
     const db = await adminClient();
     const { data: lead } = await db.from("leads").select("stage, department").eq("id", data.id).maybeSingle();
     if (!lead) return { ok: false as const, error: "Lead not found." };
-    if (!actor.superAdmin && !actor.elevated && actor.department !== lead.department) {
+    const opsMerchantLead = actor.department === "OPERATIONS" && lead.department === "MERCHANT";
+    if (!actor.superAdmin && !actor.elevated && actor.department !== lead.department && !opsMerchantLead) {
       return { ok: false as const, error: "You can only manage leads for your department." };
     }
 
