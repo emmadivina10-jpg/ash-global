@@ -1,0 +1,1 @@
+- Feed posting uses the existing Feed mutation in a dialog, not a second posting flow. Why: preserve uploads, safety, and feed refresh behavior.

@@ -28,4 +28,3 @@
 - Shareholder data (shareholders + append-only shareholder_events, service-role + deny-all) lives in shareholders.functions.ts; company figures come from computeFinanceLedger in finance.server.ts, shared with the Finance page. Why: one financial source of truth.
 - Feed/Stories/Services(Nearby) order via src/lib/rotation.ts atop safety-filtered queries. Why: rotation without a second feed system.
 
-- Feed posting stays in the existing Feed route and mutation; a dialog replaces the inline composer without creating a second posting flow. Why: preserve media upload, safety, and feed refresh behavior.
