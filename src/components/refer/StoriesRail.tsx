@@ -404,6 +404,7 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { viewerRequest?: 
   const activeStory = activeStoryGroup?.stories[storyIndex] ?? null;
   const activeSpotlight = spotlights[spotlightIndex] ?? null;
   const requestedViewerOpened = useRef(false);
+  const requestedViewerVisible = useRef(false);
   useEffect(() => {
     if (!viewerRequest || requestedViewerOpened.current) return;
     if (viewerRequest.kind === "story") {
@@ -421,7 +422,8 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { viewerRequest?: 
     requestedViewerOpened.current = true;
   }, [viewerRequest, stories, spotlights]);
   useEffect(() => {
-    if (requestedViewerOpened.current && !storyViewerOpen && !spotlightViewerOpen) onViewerClose?.();
+    if (storyViewerOpen || spotlightViewerOpen) requestedViewerVisible.current = true;
+    else if (requestedViewerVisible.current) onViewerClose?.();
   }, [storyViewerOpen, spotlightViewerOpen, onViewerClose]);
   const { data: storyViewers = [], isLoading: storyViewersLoading } = useStoryViewers(viewersStoryId);
   const viewersStory = activeStory?.id === viewersStoryId ? activeStory : null;

@@ -133,9 +133,9 @@ export function SelectChatRow({
         </div>
       </div>
 
+      {pinned ? <span title={fr ? "Épinglée" : "Pinned chat"} className="pointer-events-none absolute bottom-3 left-14 grid size-6 place-items-center rounded-full bg-success text-success-foreground ring-2 ring-background"><Pin className="size-3.5 fill-current" aria-hidden /></span> : null}
+      {locked ? <Lock className="absolute right-5 top-3 size-3.5 text-muted-foreground" aria-hidden /> : null}
       <div className="absolute bottom-3 right-3 flex items-center gap-1">
-        {pinned ? <span title={fr ? "Épinglée" : "Pinned chat"} className="grid size-6 place-items-center rounded-full bg-success/15 text-success"><Pin className="size-3.5 fill-current" aria-hidden /></span> : null}
-        {locked ? <Lock className="size-3.5 text-muted-foreground" aria-hidden /> : null}
         {selecting ? null : (
           <Button
             type="button"
