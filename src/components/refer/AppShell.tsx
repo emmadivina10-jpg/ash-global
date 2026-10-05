@@ -158,6 +158,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navLabel = (item: NavItem) =>
     item.key ? t(item.key) : ((lang === "fr" ? item.fr : item.en) ?? item.label ?? "");
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const onFeed = pathname === "/feed";
 
   useEffect(() => {
     let stopped = false;
