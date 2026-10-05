@@ -4,7 +4,13 @@ import { useServerFn } from "@tanstack/react-start";
 import { MessagesSquare } from "lucide-react";
 import { getStaffChat, postStaffMessage, type StaffMessage } from "@/lib/ops.functions";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { StaffChatWorkspace, STAFF_CHANNELS } from "@/components/console/StaffChatWorkspace";
 
 /** Existing staff channel transport, presented as an ASH chat workspace. */
@@ -27,13 +33,17 @@ export function StaffChat() {
       if (!result.ok) throw new Error("Message not sent. Please try again.");
     },
     onSuccess: async (_, { target, text }) => {
-      setDrafts((current) => current[target] === text ? { ...current, [target]: "" } : current);
+      setDrafts((current) => (current[target] === text ? { ...current, [target]: "" } : current));
       await queryClient.invalidateQueries({ queryKey: ["console", "staff-chat", target] });
     },
   });
   const previews: Record<string, StaffMessage | undefined> = {};
   for (const item of STAFF_CHANNELS) {
-    const cached = queryClient.getQueryData<{ messages: StaffMessage[] }>(["console", "staff-chat", item.id]);
+    const cached = queryClient.getQueryData<{ messages: StaffMessage[] }>([
+      "console",
+      "staff-chat",
+      item.id,
+    ]);
     previews[item.id] = cached?.messages.at(-1);
   }
   const draft = drafts[channel] ?? "";
@@ -41,7 +51,13 @@ export function StaffChat() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button type="button" variant="outline" size="sm" className="gap-1.5" aria-label="Open team chat">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="gap-1.5"
+          aria-label="Open team chat"
+        >
           <MessagesSquare className="size-4" aria-hidden />
           <span className="hidden sm:inline">Team chat</span>
         </Button>
@@ -51,7 +67,10 @@ export function StaffChat() {
         <DialogDescription className="sr-only">Employee department conversations</DialogDescription>
         <StaffChatWorkspace
           channel={channel}
-          onChannelChange={(value) => { setChannel(value); send.reset(); }}
+          onChannelChange={(value) => {
+            setChannel(value);
+            send.reset();
+          }}
           messages={query.data?.messages ?? []}
           me={query.data?.me}
           draft={draft}
@@ -59,7 +78,13 @@ export function StaffChat() {
           onSend={() => send.mutate({ text: draft, target: channel })}
           pending={send.isPending}
           loading={query.isPending && query.isFetching}
-          error={query.isError ? "Messages could not be loaded. Please reopen Team chat to try again." : send.isError ? "Message not sent. Please try again." : undefined}
+          error={
+            query.isError
+              ? "Messages could not be loaded. Please reopen Team chat to try again."
+              : send.isError
+                ? "Message not sent. Please try again."
+                : undefined
+          }
           previews={previews}
         />
       </DialogContent>
