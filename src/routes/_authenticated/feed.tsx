@@ -222,9 +222,10 @@ function FeedPage() {
         })}
       </div>
 
-      <section
+      <Link
+        to="/flights"
         aria-label={fr ? "Billets d’avion ASH" : "ASH flight tickets"}
-        className="relative isolate h-40 overflow-hidden rounded-lg sm:h-48"
+        className="relative isolate block h-40 overflow-hidden rounded-lg transition-transform active:scale-[0.99] sm:h-48"
       >
         <img
           src={flightBanner}
@@ -239,7 +240,7 @@ function FeedPage() {
             {fr ? "Payez votre billet d’avion avec ASH" : "Pay flight ticket with ASH"}
           </h2>
         </div>
-      </section>
+      </Link>
 
       <Dialog
         open={composerOpen}
