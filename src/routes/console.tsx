@@ -163,7 +163,7 @@ function SidebarNav({
                   className={cn(
                     "flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-semibold transition-colors",
                     active
-                      ? "bg-primary/10 text-primary"
+                      ? "console-brand text-primary-foreground shadow-md"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground",
                   )}
                 >
@@ -185,6 +185,7 @@ function SidebarNav({
 }
 
 function ConsoleLayout() {
+  useConsoleTheme();
   const queryClient = useQueryClient();
   const status = useServerFn(consoleStatus);
   const lock = useServerFn(lockConsole);
@@ -216,11 +217,11 @@ function ConsoleLayout() {
   return (
     <EmployeeTermsGate>
     <IdentityConfirmation>
-    <div className="safe-top min-h-dvh bg-background lg:grid lg:grid-cols-[260px_minmax(0,1fr)]">
+    <div className="safe-top console-ambient min-h-dvh bg-background lg:grid lg:grid-cols-[260px_minmax(0,1fr)]">
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-dvh flex-col border-r border-sidebar-border bg-sidebar p-4 lg:flex">
         <div className="flex items-center gap-2.5 px-2 pb-6">
-          <span className="grid size-9 place-items-center rounded-full bg-gradient-to-br from-primary to-gold text-primary-foreground">
+          <span className="console-brand grid size-9 place-items-center rounded-xl text-primary-foreground shadow-lg">
             <ShieldCheck className="size-4.5" aria-hidden />
           </span>
           <div className="min-w-0">
@@ -377,6 +378,7 @@ function ConsoleLayout() {
 }
 
 function UnlockScreen() {
+  useConsoleTheme();
   const queryClient = useQueryClient();
   const unlock = useServerFn(unlockConsole);
   const [username, setUsername] = useState("");
@@ -405,7 +407,7 @@ function UnlockScreen() {
         className="w-full max-w-sm space-y-5 rounded-3xl border border-border bg-card p-7 shadow-xl"
       >
         <div className="flex flex-col items-center text-center">
-          <span className="grid size-12 place-items-center rounded-full bg-gradient-to-br from-primary to-gold text-primary-foreground">
+          <span className="console-brand grid size-12 place-items-center rounded-2xl text-primary-foreground shadow-lg">
             <Lock className="size-5" aria-hidden />
           </span>
           <h1 className="mt-3 font-display text-xl font-extrabold text-foreground">ASH Console</h1>
