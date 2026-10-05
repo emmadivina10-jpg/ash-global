@@ -22,3 +22,4 @@
 
 - Employee console uses scoped `.console-premium` branding on `<html>` only while console routes are mounted via useConsoleTheme(); dark surface overrides require `.console-premium.dark`, while light mode inherits the light tokens. Why: preserve the light/dark switch and ASH branding without changing the member app theme.
 - Private staff avatar paths must be resolved to signed URLs server-side before rendering; profile edits invalidate workspace and command-center queries. Why: private photos cannot render as raw storage paths and dashboard identity must stay current.
+- Expansion opportunities live in src/lib/expansion.functions.ts (expansion_opportunities + append-only events, service-role + deny-all); linked tasks reuse department_tasks.expansion_opportunity_id; only the CEO can approve. Why: no parallel task system.
