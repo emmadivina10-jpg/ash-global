@@ -521,14 +521,27 @@ export function useStories() {
         seen: stories.every((story) => seen.has(story.id)),
       }));
 
-      groups.sort((a, b) => {
-        if (me && a.author.id === me) return -1;
-        if (me && b.author.id === me) return 1;
-        if (a.seen !== b.seen) return a.seen ? 1 : -1;
-        return (b.stories.at(-1)?.created_at ?? "").localeCompare(a.stories.at(-1)?.created_at ?? "");
-      });
+      // Own story first, then unseen before seen; each bucket is rotated per
+      // user + session (fresh seed every fetch) with cooldown and freshness.
+      const seed = newSessionSeed(me);
+      const toItems = (list: StoryGroup[]) =>
+        list.map((g) => ({
+          item: g,
+          id: g.author.id,
+          creator: g.author.id,
+          relevance: 0.6 * freshness(g.stories.at(-1)?.created_at, 8) + 0.4 * engagement(g.stories.reduce((n, s) => n + s.view_count, 0), 200),
+          explorable: g.stories.reduce((n, s) => n + s.view_count, 0) < 10,
+        }));
+      const mine = groups.filter((g) => me && g.author.id === me);
+      const others = groups.filter((g) => !(me && g.author.id === me));
+      const ordered = [
+        ...mine,
+        ...rotate("story", toItems(others.filter((g) => !g.seen)), seed),
+        ...rotate("story", toItems(others.filter((g) => g.seen)), seed),
+      ];
+      recordExposure("story", ordered.slice(0, 8).map((g) => g.author.id));
 
-      return { me, groups };
+      return { me, groups: ordered };
     },
   });
 }
@@ -718,7 +731,8 @@ export function useSocialFeed(limit = 40) {
     queryKey: ["social-feed", limit],
     staleTime: 15_000,
     queryFn: async (): Promise<FeedPost[]> => {
-      const { data, error } = await supabase.rpc("social_feed", { _limit: limit, _offset: 0 });
+      // Pull a wider safety-filtered pool, then rotate it per user + session.
+      const { data: pool, error } = await supabase.rpc("social_feed", { _limit: limit * 2, _offset: 0 });
       if (error) throw error;
       const rows = (data ?? []) as {
         id: string;
