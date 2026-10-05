@@ -38,6 +38,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedDealsRouteImport } from './routes/_authenticated/deals'
 import { Route as AuthenticatedElectricityRouteImport } from './routes/_authenticated/electricity'
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
+import { Route as AuthenticatedFlightsRouteImport } from './routes/_authenticated/flights'
 import { Route as AuthenticatedFriendsRouteImport } from './routes/_authenticated/friends'
 import { Route as AuthenticatedFxAnalyticsRouteImport } from './routes/_authenticated/fx-analytics'
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
@@ -277,6 +278,11 @@ const AuthenticatedElectricityRoute =
 const AuthenticatedFeedRoute = AuthenticatedFeedRouteImport.update({
   id: '/feed',
   path: '/feed',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFlightsRoute = AuthenticatedFlightsRouteImport.update({
+  id: '/flights',
+  path: '/flights',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedFriendsRoute = AuthenticatedFriendsRouteImport.update({
@@ -816,6 +822,7 @@ export interface FileRoutesByFullPath {
   '/deals': typeof AuthenticatedDealsRoute
   '/electricity': typeof AuthenticatedElectricityRoute
   '/feed': typeof AuthenticatedFeedRoute
+  '/flights': typeof AuthenticatedFlightsRoute
   '/friends': typeof AuthenticatedFriendsRoute
   '/fx-analytics': typeof AuthenticatedFxAnalyticsRoute
   '/groups': typeof AuthenticatedGroupsRoute
@@ -940,6 +947,7 @@ export interface FileRoutesByTo {
   '/deals': typeof AuthenticatedDealsRoute
   '/electricity': typeof AuthenticatedElectricityRoute
   '/feed': typeof AuthenticatedFeedRoute
+  '/flights': typeof AuthenticatedFlightsRoute
   '/friends': typeof AuthenticatedFriendsRoute
   '/fx-analytics': typeof AuthenticatedFxAnalyticsRoute
   '/groups': typeof AuthenticatedGroupsRoute
@@ -1067,6 +1075,7 @@ export interface FileRoutesById {
   '/_authenticated/deals': typeof AuthenticatedDealsRoute
   '/_authenticated/electricity': typeof AuthenticatedElectricityRoute
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
+  '/_authenticated/flights': typeof AuthenticatedFlightsRoute
   '/_authenticated/friends': typeof AuthenticatedFriendsRoute
   '/_authenticated/fx-analytics': typeof AuthenticatedFxAnalyticsRoute
   '/_authenticated/groups': typeof AuthenticatedGroupsRoute
@@ -1194,6 +1203,7 @@ export interface FileRouteTypes {
     | '/deals'
     | '/electricity'
     | '/feed'
+    | '/flights'
     | '/friends'
     | '/fx-analytics'
     | '/groups'
@@ -1318,6 +1328,7 @@ export interface FileRouteTypes {
     | '/deals'
     | '/electricity'
     | '/feed'
+    | '/flights'
     | '/friends'
     | '/fx-analytics'
     | '/groups'
@@ -1444,6 +1455,7 @@ export interface FileRouteTypes {
     | '/_authenticated/deals'
     | '/_authenticated/electricity'
     | '/_authenticated/feed'
+    | '/_authenticated/flights'
     | '/_authenticated/friends'
     | '/_authenticated/fx-analytics'
     | '/_authenticated/groups'
@@ -1778,6 +1790,13 @@ declare module '@tanstack/react-router' {
       path: '/feed'
       fullPath: '/feed'
       preLoaderRoute: typeof AuthenticatedFeedRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/flights': {
+      id: '/_authenticated/flights'
+      path: '/flights'
+      fullPath: '/flights'
+      preLoaderRoute: typeof AuthenticatedFlightsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/friends': {
@@ -2458,6 +2477,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDealsRoute: typeof AuthenticatedDealsRoute
   AuthenticatedElectricityRoute: typeof AuthenticatedElectricityRoute
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
+  AuthenticatedFlightsRoute: typeof AuthenticatedFlightsRoute
   AuthenticatedFriendsRoute: typeof AuthenticatedFriendsRoute
   AuthenticatedFxAnalyticsRoute: typeof AuthenticatedFxAnalyticsRoute
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRoute
@@ -2518,6 +2538,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDealsRoute: AuthenticatedDealsRoute,
   AuthenticatedElectricityRoute: AuthenticatedElectricityRoute,
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
+  AuthenticatedFlightsRoute: AuthenticatedFlightsRoute,
   AuthenticatedFriendsRoute: AuthenticatedFriendsRoute,
   AuthenticatedFxAnalyticsRoute: AuthenticatedFxAnalyticsRoute,
   AuthenticatedGroupsRoute: AuthenticatedGroupsRoute,
