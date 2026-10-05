@@ -16,12 +16,12 @@ async function db() {
 
 async function notifyDepartment(department: string, n: { type: string; title: string; body?: string; link?: string }) {
   const supabase = await db();
-  await supabase.from("staff_notifications").insert({ department, ...n });
+  await supabase.from("staff_notifications").insert({ department, type: n.type, title: n.title, body: n.body ?? null, link: n.link ?? null });
 }
 
 async function notifyStaff(staffId: string, n: { type: string; title: string; body?: string; link?: string }) {
   const supabase = await db();
-  await supabase.from("staff_notifications").insert({ staff_id: staffId, ...n });
+  await supabase.from("staff_notifications").insert({ staff_id: staffId, type: n.type, title: n.title, body: n.body ?? null, link: n.link ?? null });
 }
 
 // ---------- Employee terms ----------
@@ -111,7 +111,7 @@ export const getTicketBoard = createServerFn({ method: "GET" }).handler(async ()
   const { data: staff } = await supabase
     .from("staff_accounts")
     .select("id, username, employee_name, department")
-    .eq("active", true);
+    .eq("is_active", true);
   return { tickets: tickets ?? [], staff: staff ?? [], actor: { department: a.department, staffId: a.staffId, superAdmin: a.superAdmin } };
 });
 
@@ -146,7 +146,7 @@ export const escalateTicket = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const a = await actor();
     const supabase = await db();
-    const { data: departments } = await supabase.from("staff_accounts").select("department").eq("active", true);
+    const { data: departments } = await supabase.from("staff_accounts").select("department").eq("is_active", true);
     const valid = new Set((departments ?? []).map((r) => r.department));
     valid.add("SUPER_ADMIN");
     if (!valid.has(data.department)) throw new Error("Unknown department");
@@ -234,7 +234,7 @@ export const getStaffInbox = createServerFn({ method: "GET" }).handler(async () 
   const { data: colleagues } = await supabase
     .from("staff_accounts")
     .select("id, username, employee_name, department")
-    .eq("active", true)
+    .eq("is_active", true)
     .neq("id", a.staffId);
   return { messages: messages ?? [], colleagues: colleagues ?? [], me: a.staffId };
 });
@@ -289,7 +289,7 @@ export const askAshIntelligence = createServerFn({ method: "POST" })
           .eq("status", "RESOLVED")
           .gte("updated_at", new Date(Date.now() - 86400000).toISOString()),
         supabase.from("department_tasks").select("department, status"),
-        a.superAdmin ? supabase.from("staff_accounts").select("employee_name, department").eq("active", true) : Promise.resolve({ data: null }),
+        a.superAdmin ? supabase.from("staff_accounts").select("employee_name, department").eq("is_active", true) : Promise.resolve({ data: null }),
       ]);
 
     const taskRows = tasks ?? [];
