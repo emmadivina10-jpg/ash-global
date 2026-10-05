@@ -26,5 +26,6 @@
 - The merchant board is nested inside Operations: /console/merchant sits under the OPERATIONS department in console nav, and workforce.functions lets the OPERATIONS seat read/manage MERCHANT leads; the standalone merchant staff seat is deactivated (record kept). Why: one login (Operations) for both dashboards.
 - Department board access (getWorkBoard/saveLead/moveLeadStage) goes through canUseDept: own dept, staff_accounts.extra_departments, or Operations→Merchant; the ads seat's Content & Growth boards live inside the unified /console/advertising command center (marketing.functions.ts). Why: one login per person without duplicating boards.
 - Shareholder data (shareholders + append-only shareholder_events, service-role + deny-all) lives in shareholders.functions.ts; company figures come from computeFinanceLedger in finance.server.ts, shared with the Finance page. Why: one financial source of truth.
-- Feed/Stories/Services(Nearby) order via src/lib/rotation.ts atop safety-filtered queries. Why: rotation without a second feed system.
+- Feed/Stories/Services rank via rotation.ts after safety filtering. Why: no duplicate feed.
+- AppShell omits shared headers on Messages/Services/Flights/Menu. Why: pages own their controls.
 

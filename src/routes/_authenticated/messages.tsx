@@ -218,8 +218,8 @@ function MessagesPage() {
       if (!main || !nav) return;
       const navHeight = nav.getBoundingClientRect().height;
       if (navHeight <= 0) return;
-      const top = main.getBoundingClientRect().top + main.scrollTop;
-      if (top > 0) setChromeReservePx(Math.round(top + navHeight));
+      const top = Math.max(0, main.getBoundingClientRect().top + main.scrollTop);
+      setChromeReservePx(Math.round(top + navHeight));
     };
 
     const updateViewport = () => {
@@ -784,7 +784,7 @@ function MessagesPage() {
             }
           >
             <div className="border-b border-border bg-card/95 px-3 pb-2.5 pt-2.5 backdrop-blur">
-              <h2 className="mb-2 font-display text-xl font-bold text-foreground md:hidden">
+              <h2 className="mb-3 font-display text-3xl font-bold text-foreground md:hidden">
                 {t("chat.title")}
               </h2>
 
@@ -811,9 +811,9 @@ function MessagesPage() {
                 </div>
               ) : null}
 
-              <div className="flex items-center gap-2 rounded-full bg-muted px-3 py-2">
+              <div className="flex min-h-12 items-center gap-3 rounded-full bg-muted px-4 py-3">
                 <Search
-                  className="size-4 shrink-0 text-muted-foreground"
+                  className="size-5 shrink-0 text-muted-foreground"
                   aria-hidden
                 />
 
@@ -834,24 +834,24 @@ function MessagesPage() {
                 />
               </div>
 
-              <div className="mt-2 flex items-center gap-2">
+              <div className="mt-3 flex flex-wrap items-center gap-2">
                 <Button
                   type="button"
                   size="sm"
                   variant="outline"
-                  className="h-7 rounded-full px-2.5 text-[11px]"
+                  className="h-10 rounded-full px-3 text-sm"
                   onClick={() => setGroupDialog(true)}
                 >
-                  <Users className="size-3" aria-hidden />
+                  <Users className="size-4" aria-hidden />
                   {fr ? "Nouveau groupe" : "New group"}
                 </Button>
                 {archivedCount > 0 ? (
                   <button
                     type="button"
                     onClick={() => setShowArchived((value) => !value)}
-                    className="flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold text-muted-foreground"
+                    className="flex min-h-10 items-center gap-2 rounded-full bg-muted px-3 py-2 text-sm font-bold text-muted-foreground"
                   >
-                    <Archive className="size-3" aria-hidden />
+                    <Archive className="size-4" aria-hidden />
                     {showArchived
                       ? fr
                         ? "Masquer les archives"
@@ -864,9 +864,9 @@ function MessagesPage() {
                   <button
                     type="button"
                     onClick={() => setUnlockDialog(true)}
-                    className="flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold text-muted-foreground"
+                    className="flex min-h-10 items-center gap-2 rounded-full bg-muted px-3 py-2 text-sm font-bold text-muted-foreground"
                   >
-                    <Lock className="size-3" aria-hidden />
+                    <Lock className="size-4" aria-hidden />
                     {fr ? `Verrouillées (${lockedCount})` : `Locked (${lockedCount})`}
                   </button>
                 ) : null}
@@ -874,9 +874,9 @@ function MessagesPage() {
                 <button
                   type="button"
                   onClick={() => setPinDialog(true)}
-                  className="flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold text-muted-foreground"
+                  className="flex min-h-10 items-center gap-2 rounded-full bg-muted px-3 py-2 text-sm font-bold text-muted-foreground"
                 >
-                  <Lock className="size-3" aria-hidden />
+                  <Lock className="size-4" aria-hidden />
                   {lockPin
                     ? fr
                       ? "Code des discussions"

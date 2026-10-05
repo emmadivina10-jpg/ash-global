@@ -187,14 +187,14 @@ function FlightsPage() {
                 <ArrowRightLeft className="size-3.5" />
               </Button>
             </div>
-            <div className="grid gap-2">
+            <div className="grid min-w-0 grid-cols-1 gap-2">
               <Field label={fr ? "DÉPART" : "DEPARTURE"}>
-                <Input type="date" className="h-12 w-full" min={i > 0 ? legs[i - 1]!.date || today : today} value={leg.date}
+                <Input type="date" className="block h-12 min-w-0 w-full max-w-full appearance-none [&::-webkit-date-and-time-value]:min-w-0 [&::-webkit-date-and-time-value]:text-left" min={i > 0 ? legs[i - 1]?.date || today : today} value={leg.date}
                   onChange={(e) => setLegs(legs.map((l, j) => (j === i ? { ...l, date: e.target.value } : l)))} />
               </Field>
               {trip !== "multi" && (
                 <Field label={fr ? "RETOUR" : "RETURN"}>
-                  <Input type="date" className="h-12 w-full" disabled={trip === "oneway"} min={leg.date || today} value={trip === "oneway" ? "" : ret} onChange={(e) => setRet(e.target.value)} />
+                  <Input type="date" className="block h-12 min-w-0 w-full max-w-full appearance-none [&::-webkit-date-and-time-value]:min-w-0 [&::-webkit-date-and-time-value]:text-left" disabled={trip === "oneway"} min={leg.date || today} value={trip === "oneway" ? "" : ret} onChange={(e) => setRet(e.target.value)} />
                 </Field>
               )}
             </div>
@@ -358,7 +358,7 @@ function FlightsPage() {
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="block space-y-1">
+    <label className="block min-w-0 max-w-full space-y-1">
       <span className="text-[11px] font-semibold tracking-wide text-muted-foreground">{label}</span>
       {children}
     </label>

@@ -159,6 +159,9 @@ export function AppShell({ children }: { children: ReactNode }) {
     item.key ? t(item.key) : ((lang === "fr" ? item.fr : item.en) ?? item.label ?? "");
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const onFeed = true; // profile lives in the Menu tab; mobile header shows logo only
+  const pageOwnsHeader = ["/messages", "/services", "/flights", "/menu"].some(
+    (path) => pathname === path || pathname.startsWith(`${path}/`),
+  );
 
   useEffect(() => {
     let stopped = false;
@@ -257,7 +260,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <div className="app-shell-column flex min-w-0 flex-1 flex-col">
           {/* Web-only top bar: menu panel, notifications and the member photo. */}
-          <header className="sticky top-0 z-30 hidden border-b border-border bg-background/85 backdrop-blur-xl lg:block">
+          {!pageOwnsHeader && <header className="sticky top-0 z-30 hidden border-b border-border bg-background/85 backdrop-blur-xl lg:block">
             <div className="flex items-center justify-end gap-1.5 px-6 py-2.5">
               <DesktopMenu groups={WEB_MENU_GROUPS} create={WEB_MENU_CREATE} />
               <NotificationBell />
@@ -301,9 +304,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-          </header>
+          </header>}
 
-          <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl lg:hidden">
+          {!pageOwnsHeader && <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl lg:hidden">
             <div className={cn("grid items-center gap-3 px-4 py-3", onFeed ? "grid-cols-[minmax(0,1fr)_auto]" : "grid-cols-[auto_minmax(0,1fr)_auto]")}>
               {onFeed ? null : (
               <DropdownMenu>
@@ -351,11 +354,11 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <ThemeToggle />
               </div>
             </div>
-          </header>
+          </header>}
 
           <div className="flex min-h-0 min-w-0 flex-1">
             <main className="app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:px-8 lg:pb-10">{children}</main>
-            <RightRail />
+            {pathname !== "/messages" && <RightRail />}
           </div>
         </div>
       </div>
