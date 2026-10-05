@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, ArrowRightLeft, Loader2, Plane, PlaneTakeoff, PlaneLanding, Minus, Plus, Luggage, ShieldCheck, Info } from "lucide-react";
+import { ArrowLeft, ArrowRightLeft, Loader2, Plane, PlaneTakeoff, PlaneLanding, Minus, Plus, Luggage, ShieldCheck, Info, Ticket, LifeBuoy, BadgeCheck, Headphones } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useI18n } from "@/lib/i18n";
+import heroImg from "@/assets/feed-flight-banner.jpg";
 import {
   getFlightOffer,
   getFlightsStatus,
@@ -116,41 +117,38 @@ function FlightsPage() {
   const unavailable = status.data && !status.data.available;
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-5 px-4 pb-28 pt-4">
-      <header className="flex items-center gap-3">
-        <Button asChild variant="ghost" size="icon" className="rounded-full" aria-label={fr ? "Retour au fil" : "Back to Feed"}>
-          <Link to="/feed"><ArrowLeft className="size-5" /></Link>
-        </Button>
-        <div className="min-w-0 flex-1">
-          <h1 className="font-display text-2xl font-bold leading-tight">ASH Flights</h1>
-          <p className="text-sm text-muted-foreground">{fr ? "Recherchez, comparez et réservez vos vols avec ASH." : "Search, compare and book flights with ASH."}</p>
+    <div className="mx-auto w-full max-w-3xl space-y-6 pb-28">
+      <div className="relative isolate -mx-4 -mt-5 overflow-hidden sm:mx-0 sm:mt-0 sm:rounded-3xl">
+        <img src={heroImg} alt="" width={1536} height={768} className="absolute inset-0 -z-10 size-full object-cover" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background/10 via-background/40 to-background" />
+        <header className="flex items-center gap-2 px-4 pt-4">
+          <Button asChild variant="secondary" size="icon" className="size-10 rounded-full bg-card/80 backdrop-blur" aria-label={fr ? "Retour au fil" : "Back to Feed"}>
+            <Link to="/feed"><ArrowLeft className="size-5" /></Link>
+          </Button>
+          <div className="flex-1" />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="secondary" size="sm" className="rounded-full bg-card/80 backdrop-blur"><Ticket className="size-4" />{fr ? "Mes voyages" : "My Trips"}</Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-64 text-sm">
+              <p className="font-semibold">{fr ? "Aucun voyage pour l’instant" : "No trips yet"}</p>
+              <p className="text-muted-foreground">{fr ? "Vos vols réservés avec ASH apparaîtront ici." : "Flights you book with ASH will appear here."}</p>
+            </PopoverContent>
+          </Popover>
+          <Button asChild variant="secondary" size="icon" className="size-10 rounded-full bg-card/80 backdrop-blur" aria-label={fr ? "Aide" : "Help"}>
+            <Link to="/support"><LifeBuoy className="size-5" /></Link>
+          </Button>
+        </header>
+        <div className="px-5 pb-24 pt-10 sm:px-8">
+          <p className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-card/80 px-3 py-1 text-[11px] font-bold tracking-wider text-primary backdrop-blur"><Plane className="size-3.5" /> ASH FLIGHTS</p>
+          <h1 className="max-w-sm font-display text-3xl font-extrabold leading-[1.1] tracking-tight sm:text-4xl">{fr ? "Où allez-vous ensuite ?" : "Where to next?"}</h1>
+          <p className="mt-2 max-w-sm text-sm text-muted-foreground">{fr ? "Recherchez, comparez et réservez vos vols avec ASH." : "Search, compare and book flights with ASH."}</p>
         </div>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="rounded-full">{fr ? "Mes voyages" : "My Trips"}</Button>
-          </PopoverTrigger>
-          <PopoverContent align="end" className="w-64 text-sm">
-            <p className="font-semibold">{fr ? "Aucun voyage pour l’instant" : "No trips yet"}</p>
-            <p className="text-muted-foreground">{fr ? "Vos vols réservés avec ASH apparaîtront ici." : "Flights you book with ASH will appear here."}</p>
-          </PopoverContent>
-        </Popover>
-        <Button asChild variant="ghost" size="sm" className="rounded-full">
-          <Link to="/support">{fr ? "Aide" : "Help"}</Link>
-        </Button>
-      </header>
+      </div>
 
-      {unavailable && (
-        <div role="status" className="flex gap-3 rounded-xl border border-border bg-muted/50 p-4 text-sm">
-          <Info className="mt-0.5 size-4 shrink-0 text-primary" />
-          <div>
-            <p className="font-semibold">{fr ? "La recherche de vols en direct est momentanément indisponible." : "Live flight search is currently unavailable."}</p>
-            <p className="text-muted-foreground">{fr ? "ASH n’affiche jamais de vols ou de prix inventés. La recherche s’activera dès que le fournisseur sera connecté." : "ASH never shows invented flights or prices. Search turns on as soon as our flight provider is connected."}</p>
-          </div>
-        </div>
-      )}
-
-      <section className="space-y-4 rounded-2xl border border-border bg-card p-4 shadow-lg sm:p-5">
-        <div className="inline-flex rounded-full bg-muted p-1 text-sm">
+      <div className="relative z-10 -mt-24 space-y-4 px-0">
+      <section className="space-y-4 rounded-3xl border border-border bg-card/95 p-4 shadow-2xl backdrop-blur-xl sm:p-6">
+        <div className="grid grid-cols-3 rounded-full bg-muted p-1 text-sm">
           {(["round", "oneway", "multi"] as Trip[]).map((t) => (
             <button
               key={t}
@@ -159,7 +157,7 @@ function FlightsPage() {
                 setTrip(t);
                 if (t === "multi" && legs.length < 2) setLegs([...legs, { from: legs[0]!.to, to: null, date: "" }]);
               }}
-              className={`rounded-full px-4 py-1.5 font-medium transition-colors ${trip === t ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+              className={`rounded-full px-2 py-2 font-semibold transition-all ${trip === t ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
             >
               {t === "round" ? (fr ? "Aller-retour" : "Round trip") : t === "oneway" ? (fr ? "Aller simple" : "One way") : fr ? "Multi-villes" : "Multi-city"}
             </button>
@@ -175,7 +173,7 @@ function FlightsPage() {
               <PlacePicker label={fr ? "VERS" : "TO"} icon={<PlaneLanding className="size-4" />} value={leg.to} disabled={!!unavailable} fr={fr}
                 onChange={(p) => setLegs(legs.map((l, j) => (j === i ? { ...l, to: p } : l)))} />
               <Button type="button" variant="outline" size="icon" aria-label={fr ? "Inverser" : "Swap"}
-                className="absolute left-1/2 top-1/2 hidden size-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-card sm:inline-flex"
+                className="absolute right-4 top-1/2 z-10 size-9 -translate-y-1/2 rotate-90 rounded-full bg-card shadow-md sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:rotate-0"
                 onClick={() => setLegs(legs.map((l, j) => (j === i ? { ...l, from: l.to, to: l.from } : l)))}>
                 <ArrowRightLeft className="size-3.5" />
               </Button>
