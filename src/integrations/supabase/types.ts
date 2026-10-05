@@ -1586,6 +1586,7 @@ export type Database = {
       }
       department_tasks: {
         Row: {
+          assigned_staff_id: string | null
           completed_at: string | null
           completed_by: string | null
           created_at: string
@@ -1595,12 +1596,17 @@ export type Database = {
           due_date: string
           id: string
           priority: string
+          progress: number
+          recurrence: string
+          related_customer: string | null
+          related_ticket_id: string | null
           source: string
           status: string
           title: string
           updated_at: string
         }
         Insert: {
+          assigned_staff_id?: string | null
           completed_at?: string | null
           completed_by?: string | null
           created_at?: string
@@ -1610,12 +1616,17 @@ export type Database = {
           due_date?: string
           id?: string
           priority?: string
+          progress?: number
+          recurrence?: string
+          related_customer?: string | null
+          related_ticket_id?: string | null
           source?: string
           status?: string
           title: string
           updated_at?: string
         }
         Update: {
+          assigned_staff_id?: string | null
           completed_at?: string | null
           completed_by?: string | null
           created_at?: string
@@ -1625,12 +1636,24 @@ export type Database = {
           due_date?: string
           id?: string
           priority?: string
+          progress?: number
+          recurrence?: string
+          related_customer?: string | null
+          related_ticket_id?: string | null
           source?: string
           status?: string
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "department_tasks_assigned_staff_id_fkey"
+            columns: ["assigned_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       employee_terms_acceptance: {
         Row: {
@@ -4554,6 +4577,8 @@ export type Database = {
       }
       staff_accounts: {
         Row: {
+          availability: string
+          avatar_url: string | null
           created_at: string
           department: string
           email: string | null
@@ -4562,6 +4587,7 @@ export type Database = {
           extra_departments: string[]
           full_name: string
           id: string
+          identity_confirmed_at: string | null
           is_active: boolean
           last_login_at: string | null
           password_hash: string
@@ -4571,6 +4597,8 @@ export type Database = {
           username: string
         }
         Insert: {
+          availability?: string
+          avatar_url?: string | null
           created_at?: string
           department: string
           email?: string | null
@@ -4579,6 +4607,7 @@ export type Database = {
           extra_departments?: string[]
           full_name: string
           id?: string
+          identity_confirmed_at?: string | null
           is_active?: boolean
           last_login_at?: string | null
           password_hash: string
@@ -4588,6 +4617,8 @@ export type Database = {
           username: string
         }
         Update: {
+          availability?: string
+          avatar_url?: string | null
           created_at?: string
           department?: string
           email?: string | null
@@ -4596,6 +4627,7 @@ export type Database = {
           extra_departments?: string[]
           full_name?: string
           id?: string
+          identity_confirmed_at?: string | null
           is_active?: boolean
           last_login_at?: string | null
           password_hash?: string
@@ -4635,6 +4667,59 @@ export type Database = {
           id?: string
         }
         Relationships: []
+      }
+      staff_daily_reports: {
+        Row: {
+          accomplished: string | null
+          created_at: string
+          department: string
+          help_needed: string | null
+          id: string
+          management_info: string | null
+          problems: string | null
+          report_date: string
+          staff_id: string
+          staff_name: string
+          unfinished: string | null
+          updated_at: string
+        }
+        Insert: {
+          accomplished?: string | null
+          created_at?: string
+          department: string
+          help_needed?: string | null
+          id?: string
+          management_info?: string | null
+          problems?: string | null
+          report_date?: string
+          staff_id: string
+          staff_name: string
+          unfinished?: string | null
+          updated_at?: string
+        }
+        Update: {
+          accomplished?: string | null
+          created_at?: string
+          department?: string
+          help_needed?: string | null
+          id?: string
+          management_info?: string | null
+          problems?: string | null
+          report_date?: string
+          staff_id?: string
+          staff_name?: string
+          unfinished?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_daily_reports_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       staff_direct_messages: {
         Row: {
@@ -4771,6 +4856,48 @@ export type Database = {
             columns: ["staff_id"]
             isOneToOne: false
             referencedRelation: "staff_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_task_comments: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          staff_id: string | null
+          staff_name: string
+          task_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          staff_id?: string | null
+          staff_name: string
+          task_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          staff_id?: string | null
+          staff_name?: string
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_task_comments_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_task_comments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "department_tasks"
             referencedColumns: ["id"]
           },
         ]

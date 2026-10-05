@@ -40,6 +40,7 @@ import { getSupportAwaitingCount } from "@/lib/support.functions";
 import { StaffChat } from "@/components/console/StaffChat";
 import { StaffNotificationCenter } from "@/components/console/StaffNotificationCenter";
 import { EmployeeTermsGate } from "@/components/console/EmployeeTermsGate";
+import { IdentityConfirmation } from "@/components/console/IdentityConfirmation";
 import { DepartmentCommandCenter } from "@/components/console/DepartmentCommandCenter";
 import { DailyTickets } from "@/components/console/DailyTickets";
 import { Button } from "@/components/ui/button";
@@ -50,6 +51,7 @@ import { useTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
 const NAV = [
+  { to: "/console/workspace", label: "My Workspace", icon: CalendarCheck, group: "Insights", dept: "ALL" },
   { to: "/console", label: "Overview", icon: BarChart3, group: "Insights", dept: "SUPER_ADMIN" },
   { to: "/console/departments", label: "Departments", icon: Building2, group: "Insights", dept: "SUPER_ADMIN" },
   { to: "/console/revenue", label: "Revenue", icon: Target, group: "Insights", dept: "REVENUE" },
@@ -112,7 +114,7 @@ function ThemeToggle() {
 /** CEO sees everything; every other seat sees only its own department. */
 function allowedNav(superAdmin: boolean, department: string, extra: string[] = []) {
   if (superAdmin) return NAV.slice();
-  const own = NAV.filter((item) => item.dept === department);
+  const own = NAV.filter((item) => item.dept === department || item.dept === "ALL");
   return [...own, ...NAV.filter((item) => extra.includes(item.dept) && item.dept !== department)];
 }
 
@@ -201,6 +203,7 @@ function ConsoleLayout() {
 
   return (
     <EmployeeTermsGate>
+    <IdentityConfirmation>
     <div className="safe-top min-h-dvh bg-background lg:grid lg:grid-cols-[260px_minmax(0,1fr)]">
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-dvh flex-col border-r border-sidebar-border bg-sidebar p-4 lg:flex">
@@ -298,7 +301,7 @@ function ConsoleLayout() {
         <main className="mx-auto w-full max-w-7xl space-y-5 px-4 py-6 sm:px-6">
           {hasAccess ? (
             <>
-              {!superAdmin && allowed.some((i) => i.to === pathname && i.dept === department) ? <DepartmentCommandCenter /> : null}
+              {!superAdmin && allowed.some((i) => i.to === pathname && i.dept === department && (i.dept as string) !== "ALL") ? <DepartmentCommandCenter /> : null}
               <DailyTickets superAdmin={superAdmin} />
               <Outlet />
             </>
@@ -349,6 +352,7 @@ function ConsoleLayout() {
         </div>
       ) : null}
     </div>
+    </IdentityConfirmation>
     </EmployeeTermsGate>
   );
 }
