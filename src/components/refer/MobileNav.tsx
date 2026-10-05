@@ -1,3 +1,4 @@
+import { playTabSound } from "@/lib/sound";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu, Shield } from "lucide-react";
 import { useI18n, type TKey } from "@/lib/i18n";
@@ -38,6 +39,8 @@ export function MobileNav({
       <li key={item.to} className="min-w-0">
         <Link
           to={item.to}
+          preload="render"
+          onClick={() => { if (!active) playTabSound(); }}
           data-tour={item.tour}
           aria-current={active ? "page" : undefined}
           className={cn(
@@ -66,6 +69,8 @@ export function MobileNav({
           <li className="min-w-0">
             <Link
               to="/menu"
+              preload="render"
+              onClick={() => { if (pathname !== "/menu") playTabSound(); }}
               aria-current={pathname === "/menu" ? "page" : undefined}
               className={cn(
                 "premium-nav-item relative flex h-[3.75rem] min-w-0 flex-col items-center justify-center gap-0.5 px-0.5 pt-1 text-[10px] font-semibold",

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Loader2, ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { playRefreshDoneSound, playRefreshSound } from "@/lib/sound";
 
 const THRESHOLD = 70;
 const MAX = 110;
@@ -45,8 +46,10 @@ export function PullToRefresh({ onRefresh, children, label }: { onRefresh: () =>
         setRefreshing(true);
         setPull(56);
         navigator.vibrate?.(10);
+        playRefreshSound();
         try {
           await onRefresh();
+          playRefreshDoneSound();
         } finally {
           busy.current = false;
           setRefreshing(false);

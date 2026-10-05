@@ -1,3 +1,6 @@
+import { resetProviderRotation } from "@/lib/discovery.queries";
+import { useQueryClient } from "@tanstack/react-query";
+import { PullToRefresh } from "@/components/refer/PullToRefresh";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { trackEvent } from "@/lib/activity";
 import { createPortal } from "react-dom";
@@ -443,6 +446,7 @@ function DiscoveryPage() {
   const { data: cities } = useProviderCities();
 
   const region = useRegion();
+  const queryClient = useQueryClient();
 
   const [group, setGroup] =
     useState<GroupId | "ALL">("ALL");
@@ -804,6 +808,7 @@ function DiscoveryPage() {
     (filters.availableOnly ? 1 : 0);
 
   return (
+    <PullToRefresh onRefresh={() => { resetProviderRotation(); return queryClient.resetQueries({ predicate: (q) => q.state.status !== "pending" }); }} label={fr ? "Actualisation" : "Refreshing"}>
     <div className="mx-auto w-full max-w-5xl space-y-5">
       <Link
         to="/campus/instructors"
@@ -2026,5 +2031,6 @@ function DiscoveryPage() {
         </>
       )}
     </div>
+    </PullToRefresh>
   );
 }

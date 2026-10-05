@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { playNotificationSound } from "@/lib/sound";
+import { useEffect, useRef, useState } from "react";
 import { Bell, CheckCheck } from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { notificationLink } from "@/lib/push";
@@ -31,6 +32,13 @@ export function NotificationBell() {
   const items = data ?? [];
   const unread = items.filter((n) => !n.read_at);
   const shown = tab === "UNREAD" ? unread : items;
+  const seen = useRef<Set<string> | null>(null);
+  useEffect(() => {
+    if (!data) return;
+    const ids = data.filter((n) => !n.read_at).map((n) => n.id);
+    if (seen.current && ids.some((id) => !seen.current!.has(id))) playNotificationSound();
+    seen.current = new Set([...(seen.current ?? []), ...ids]);
+  }, [data]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
