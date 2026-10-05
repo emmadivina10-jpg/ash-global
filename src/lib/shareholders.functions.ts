@@ -91,6 +91,7 @@ export const getMyShareholding = createServerFn({ method: "GET" })
       cap: capSummary((all ?? []) as { ownership_pct: number; is_founder: boolean }[]),
       history: events ?? [],
       performance: await companyPerformance(),
+      valuation: await currentValuation(),
     };
   });
 
@@ -104,8 +105,35 @@ export const getShareholderCenter = createServerFn({ method: "GET" }).handler(as
     db.from("shareholder_events").select("shareholder_id, kind, detail, actor, created_at").order("created_at", { ascending: false }).limit(200),
   ]);
   const list = (rows ?? []) as ShareholderRow[];
-  return { shareholders: list, cap: capSummary(list), history: events ?? [], performance: await companyPerformance() };
+  return {
+    shareholders: list,
+    cap: capSummary(list),
+    history: events ?? [],
+    performance: await companyPerformance(),
+    valuation: await currentValuation(),
+  };
 });
+
+/** CEO only: set a new approved company valuation. Recalculates implied values everywhere; never touches ownership or cash. */
+export const updateCompanyValuation = createServerFn({ method: "POST" })
+  .inputValidator((d: { valuation: number }) => ({ valuation: Number(d.valuation) }))
+  .handler(async ({ data }) => {
+    const { requireSuperAdmin, adminClient } = await import("./console.server");
+    const actor = await requireSuperAdmin();
+    if (!(data.valuation > 0)) return { ok: false as const, error: "Enter a positive valuation." };
+    const db = await adminClient();
+    const { error } = await db
+      .from("company_valuation")
+      .insert({ valuation: data.valuation, currency: "CAD", approved_by: actor.name });
+    if (error) return { ok: false as const, error: error.message };
+    await db.from("shareholder_events").insert({
+      shareholder_id: null,
+      kind: "VALUATION_UPDATED",
+      detail: `Approved company valuation set to CAD ${data.valuation.toLocaleString()}`,
+      actor: actor.name,
+    });
+    return { ok: true as const };
+  });
 
 /** CEO only: record a confirmed payment against a shareholder's commitment. Never changes ownership. */
 export const recordShareholderPayment = createServerFn({ method: "POST" })
