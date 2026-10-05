@@ -102,3 +102,8 @@
 - [x] Verify member and admin flows without changing unrelated screens
 - [ ] Facebook Page connection for Advertising dashboard — blocked: needs ASH's Meta developer app (App ID + Secret) and Meta app review.
 - [ ] Staff dashboards: publish only after owner tests remaining seats (blocked on owner approval).
+
+## Dashboard consolidation brief (36 sections)
+- [x] Support message fix: per-employee unread tracking so every support employee sees new customer messages
+- [ ] Full read-only architecture audit + consolidation plan (35 console pages → 8 core groups) — awaiting go-ahead
+- [ ] Auto-assignment, SLA reassignment, realtime presence (brief §7, §19, §22–24)

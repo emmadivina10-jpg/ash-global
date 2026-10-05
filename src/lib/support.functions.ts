@@ -196,7 +196,7 @@ export const markMySupportRead = createServerFn({ method: "POST" })
 
 export const getConsoleTickets = createServerFn({ method: "GET" }).handler(async () => {
   const { requireDepartment, adminClient } = await import("./console.server");
-  await requireDepartment("SUPPORT");
+  const actor = await requireDepartment("SUPPORT");
   const db = await adminClient();
 
   const { data: tickets } = await db
@@ -214,11 +214,22 @@ export const getConsoleTickets = createServerFn({ method: "GET" }).handler(async
         .order("created_at", { ascending: true })
     : { data: [] as SupportMessage[] };
 
+  const myReads = new Map<string, string>();
+  if (actor.staffId && ids.length) {
+    const { data: rows } = await db
+      .from("support_ticket_reads")
+      .select("ticket_id, read_at")
+      .eq("staff_id", actor.staffId)
+      .in("ticket_id", ids);
+    for (const r of rows ?? []) myReads.set(r.ticket_id, r.read_at);
+  }
+
   const rows = (tickets ?? []).map((t) => ({
     ...t,
     reference: ref(t.id),
+    my_read_at: myReads.get(t.id) ?? null,
     messages: (messages ?? []).filter((m) => m.ticket_id === t.id),
-  })) as (SupportTicket & { reference: string })[];
+  })) as (SupportTicket & { reference: string; my_read_at: string | null })[];
 
   return {
     tickets: rows,
