@@ -73,6 +73,7 @@ export function StaffChat() {
           }}
           messages={query.data?.messages ?? []}
           me={query.data?.me}
+          meStaffId={query.data?.meStaffId}
           draft={draft}
           onDraftChange={(value) => setDrafts((current) => ({ ...current, [channel]: value }))}
           onSend={() => send.mutate({ text: draft, target: channel })}

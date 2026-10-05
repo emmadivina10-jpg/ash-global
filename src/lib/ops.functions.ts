@@ -11,6 +11,9 @@ export type StaffMessage = {
   channel: string;
   author_name: string;
   author_department: string;
+  author_staff_id?: string | null;
+  author_avatar_url?: string | null;
+  author_position?: string | null;
   body: string;
   created_at: string;
 };
@@ -55,17 +58,46 @@ export const getStaffChat = createServerFn({ method: "POST" })
     const actor = await requireConsole();
     const db = await adminClient();
 
-    const { data: rows } = await db
+    const { data: rows, error } = await db
       .from("staff_channel_messages")
-      .select("id, channel, author_name, author_department, body, created_at")
+      .select("id, channel, author_name, author_department, author_staff_id, body, created_at")
       .eq("channel", data.channel)
       .order("created_at", { ascending: false })
       .limit(120);
 
+    if (error) throw new Error("Team messages could not be loaded.");
+    const messages = (rows ?? []) as StaffMessage[];
+    const staffIds = [...new Set(messages.flatMap((message) => message.author_staff_id ? [message.author_staff_id] : []))];
+    const profiles = new Map<string, { name: string | null; position: string | null; avatar: string | null }>();
+    if (staffIds.length) {
+      const { data: staff, error: staffError } = await db.from("staff_accounts")
+        .select("id, employee_name, full_name, position, avatar_url")
+        .in("id", staffIds);
+      if (staffError) throw new Error("Employee profiles could not be loaded.");
+      await Promise.all((staff ?? []).map(async (profile) => {
+        const avatar = profile.avatar_url
+          ? (await db.storage.from("staff-avatars").createSignedUrl(profile.avatar_url, 60 * 60)).data?.signedUrl ?? null
+          : null;
+        profiles.set(profile.id, {
+          name: profile.employee_name || profile.full_name,
+          position: profile.position,
+          avatar,
+        });
+      }));
+    }
     return {
       channel: data.channel,
       me: actor.name,
-      messages: ((rows ?? []) as StaffMessage[]).slice().reverse(),
+      meStaffId: actor.staffId,
+      messages: messages.slice().reverse().map((message) => {
+        const profile = message.author_staff_id ? profiles.get(message.author_staff_id) : undefined;
+        return {
+          ...message,
+          author_name: profile?.name || message.author_name,
+          author_position: profile?.position ?? null,
+          author_avatar_url: profile?.avatar ?? null,
+        };
+      }),
     };
   });
 
