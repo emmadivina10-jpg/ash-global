@@ -9,6 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { verifyMediaFiles } from "./media-safety";
 import { directory } from "@/lib/public-profiles";
 import { trackEvent } from "./activity";
+import { engagement, freshness, newSessionSeed, recordExposure, rotate } from "./rotation";
+import { getCachedCity } from "./location";
 
 export const SOCIAL_BUCKET = "spotlight";
 /** Largest single photo accepted by a story or a feed post. */
@@ -521,14 +523,27 @@ export function useStories() {
         seen: stories.every((story) => seen.has(story.id)),
       }));
 
-      groups.sort((a, b) => {
-        if (me && a.author.id === me) return -1;
-        if (me && b.author.id === me) return 1;
-        if (a.seen !== b.seen) return a.seen ? 1 : -1;
-        return (b.stories.at(-1)?.created_at ?? "").localeCompare(a.stories.at(-1)?.created_at ?? "");
-      });
+      // Own story first, then unseen before seen; each bucket is rotated per
+      // user + session (fresh seed every fetch) with cooldown and freshness.
+      const seed = newSessionSeed(me);
+      const toItems = (list: StoryGroup[]) =>
+        list.map((g) => ({
+          item: g,
+          id: g.author.id,
+          creator: g.author.id,
+          relevance: 0.6 * freshness(g.stories.at(-1)?.created_at, 8) + 0.4 * engagement(g.stories.reduce((n, s) => n + s.view_count, 0), 200),
+          explorable: g.stories.reduce((n, s) => n + s.view_count, 0) < 10,
+        }));
+      const mine = groups.filter((g) => me && g.author.id === me);
+      const others = groups.filter((g) => !(me && g.author.id === me));
+      const ordered = [
+        ...mine,
+        ...rotate("story", toItems(others.filter((g) => !g.seen)), seed),
+        ...rotate("story", toItems(others.filter((g) => g.seen)), seed),
+      ];
+      recordExposure("story", ordered.slice(0, 8).map((g) => g.author.id));
 
-      return { me, groups };
+      return { me, groups: ordered };
     },
   });
 }
@@ -718,9 +733,10 @@ export function useSocialFeed(limit = 40) {
     queryKey: ["social-feed", limit],
     staleTime: 15_000,
     queryFn: async (): Promise<FeedPost[]> => {
-      const { data, error } = await supabase.rpc("social_feed", { _limit: limit, _offset: 0 });
+      // Pull a wider safety-filtered pool, then rotate it per user + session.
+      const { data: pool, error } = await supabase.rpc("social_feed", { _limit: limit * 2, _offset: 0 });
       if (error) throw error;
-      const rows = (data ?? []) as {
+      type FeedRow = {
         id: string;
         author_id: string;
         caption: string;
@@ -733,10 +749,33 @@ export function useSocialFeed(limit = 40) {
         created_at: string;
         liked: boolean;
         reposted: boolean;
-      }[];
-      if (rows.length === 0) return [];
-      const paths = rows.flatMap((r) => parseImages(r.media));
+      };
+      const candidates = (pool ?? []) as FeedRow[];
+      if (candidates.length === 0) return [];
       const me = await currentUserId();
+      const myCity = (getCachedCity() ?? "").trim().toLowerCase();
+      const n = candidates.length;
+      const rows = rotate(
+        "post",
+        candidates.map((r, i) => {
+          const eng = r.like_count + 2 * r.comment_count + 3 * r.repost_count;
+          return {
+            item: r,
+            id: r.id,
+            creator: r.author_id,
+            // Existing server rank (friends/engagement/freshness) + capped engagement + location.
+            relevance:
+              0.35 * (1 - i / n) +
+              0.3 * freshness(r.created_at, 48) +
+              0.2 * Math.min(1, engagement(eng)) +
+              0.15 * (myCity && (r.city ?? "").trim().toLowerCase() === myCity ? 1 : 0),
+            explorable: eng < 3,
+          };
+        }),
+        newSessionSeed(me),
+      ).slice(0, limit);
+      recordExposure("post", rows.slice(0, 10).map((r) => r.id));
+      const paths = rows.flatMap((r) => parseImages(r.media));
       const [signed, authors, reactionResult, marketResult] = await Promise.all([
         signPaths(paths),
         loadAuthors(rows.map((r) => r.author_id)),
