@@ -106,10 +106,27 @@ function playBell(notes: Note[], master: number) {
   }
 }
 
-/** Soft wooden "tok" when switching bottom tabs. */
+/** Original short, dry tab tap; no bell notes or sustained chime. */
 export function playTabSound(): void {
   if (typeof window === "undefined" || uiSoundMuted()) return;
-  playBell([{ f: 660, at: 0, dur: 0.09, vol: 0.9 }], 0.1);
+  const ctx = context();
+  if (!ctx) return;
+  try {
+    if (ctx.state === "suspended") void ctx.resume();
+    const now = ctx.currentTime;
+    const gain = ctx.createGain();
+    gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.19, now + 0.002);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.055);
+    const pop = ctx.createOscillator();
+    pop.type = "sine";
+    pop.frequency.setValueAtTime(1050, now);
+    pop.frequency.exponentialRampToValueAtTime(430, now + 0.035);
+    pop.connect(gain);
+    pop.start(now);
+    pop.stop(now + 0.06);
+  } catch { /* audio unavailable */ }
 }
 
 /** Gentle rising chime when a pull-to-refresh is released. */
