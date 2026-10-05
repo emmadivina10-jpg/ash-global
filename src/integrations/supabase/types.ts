@@ -1632,6 +1632,35 @@ export type Database = {
         }
         Relationships: []
       }
+      employee_terms_acceptance: {
+        Row: {
+          accepted_at: string
+          id: string
+          staff_id: string
+          terms_version: string
+        }
+        Insert: {
+          accepted_at?: string
+          id?: string
+          staff_id: string
+          terms_version: string
+        }
+        Update: {
+          accepted_at?: string
+          id?: string
+          staff_id?: string
+          terms_version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_terms_acceptance_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_tickets: {
         Row: {
           amount: number
@@ -4607,6 +4636,95 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_direct_messages: {
+        Row: {
+          body: string
+          created_at: string
+          from_name: string | null
+          from_staff_id: string | null
+          id: string
+          read_at: string | null
+          to_staff_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          from_name?: string | null
+          from_staff_id?: string | null
+          id?: string
+          read_at?: string | null
+          to_staff_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          from_name?: string | null
+          from_staff_id?: string | null
+          id?: string
+          read_at?: string | null
+          to_staff_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_direct_messages_from_staff_id_fkey"
+            columns: ["from_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_direct_messages_to_staff_id_fkey"
+            columns: ["to_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          department: string | null
+          id: string
+          link: string | null
+          read_at: string | null
+          staff_id: string | null
+          title: string
+          type: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          department?: string | null
+          id?: string
+          link?: string | null
+          read_at?: string | null
+          staff_id?: string | null
+          title: string
+          type?: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          department?: string | null
+          id?: string
+          link?: string | null
+          read_at?: string | null
+          staff_id?: string | null
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_notifications_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       staff_targets: {
         Row: {
           contacts_target: number
@@ -4856,9 +4974,13 @@ export type Database = {
       support_tickets: {
         Row: {
           admin_read_at: string | null
+          assigned_department: string | null
+          assigned_staff_id: string | null
           category: string
           created_at: string
           email: string
+          escalated_at: string | null
+          escalation_note: string | null
           id: string
           last_message_at: string
           member_read_at: string | null
@@ -4871,9 +4993,13 @@ export type Database = {
         }
         Insert: {
           admin_read_at?: string | null
+          assigned_department?: string | null
+          assigned_staff_id?: string | null
           category?: string
           created_at?: string
           email: string
+          escalated_at?: string | null
+          escalation_note?: string | null
           id?: string
           last_message_at?: string
           member_read_at?: string | null
@@ -4886,9 +5012,13 @@ export type Database = {
         }
         Update: {
           admin_read_at?: string | null
+          assigned_department?: string | null
+          assigned_staff_id?: string | null
           category?: string
           created_at?: string
           email?: string
+          escalated_at?: string | null
+          escalation_note?: string | null
           id?: string
           last_message_at?: string
           member_read_at?: string | null
@@ -4899,7 +5029,15 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_assigned_staff_id_fkey"
+            columns: ["assigned_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tag_preferences: {
         Row: {
@@ -4930,6 +5068,48 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      ticket_internal_notes: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          staff_id: string | null
+          staff_name: string | null
+          ticket_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          staff_id?: string | null
+          staff_name?: string | null
+          ticket_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          staff_id?: string | null
+          staff_name?: string | null
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_internal_notes_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticket_internal_notes_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
           },
         ]
       }
