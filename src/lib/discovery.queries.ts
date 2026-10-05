@@ -2,6 +2,18 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { signPortfolioPaths, type ServiceCategory } from "./marketplace";
 import type { ProviderProfile } from "./marketplace.queries";
+import { engagement, freshness, newSessionSeed, recordExposure, rotate } from "./rotation";
+
+// One seed per page load: pages of the same scroll stay consistent; a reload or
+// pull-to-refresh (which remounts/refetches from page 0) draws a new seed.
+let providerSeed: string | null = null;
+function providerSessionSeed() {
+  if (!providerSeed) providerSeed = newSessionSeed(null);
+  return providerSeed;
+}
+export function resetProviderRotation() {
+  providerSeed = null;
+}
 
 export const PAGE_SIZE = 12;
 
@@ -143,20 +155,35 @@ export function useDiscovery(filters: DiscoveryFilters) {
         });
       }
 
-      // Location-first discovery: active pros in the member's own city lead the feed.
-      const near = (filters.nearCity ?? "").trim().toLowerCase();
-      if (filters.sort === "NEARBY" && near) {
-        const score = (p: (typeof prepared)[number]) => {
-          const sameCity = (p.city ?? "").trim().toLowerCase() === near ? 0 : 2;
-          const active = p.accepting_bookings ? 0 : 1;
-          return sameCity + active;
-        };
-        prepared.sort((a, b) => {
-          const diff = score(a) - score(b);
-          if (diff !== 0) return diff;
-          return Number(b.rating_avg) - Number(a.rating_avg);
-        });
+      // Personalised rotation for the default ("Nearby") sort: city, availability,
+      // rating, completed bookings and freshness are signals, then a per-user +
+      // per-session seed and recent-exposure cooldown reorder within the page so
+      // two members in the same city don't all get the same first provider.
+      // Explicit sorts (price, newest) keep their exact order.
+      let ranked = prepared;
+      if (filters.sort === "NEARBY") {
+        const near = (filters.nearCity ?? "").trim().toLowerCase();
+        const { data: who } = await supabase.auth.getUser();
+        ranked = rotate(
+          "provider",
+          prepared.map((p) => ({
+            item: p,
+            id: p.id,
+            creator: p.user_id,
+            relevance:
+              0.3 * (near && (p.city ?? "").trim().toLowerCase() === near ? 1 : 0) +
+              0.2 * (p.accepting_bookings ? 1 : 0) +
+              0.2 * (Number(p.rating_avg) / 5) +
+              0.15 * Math.min(1, engagement(p.completed_bookings, 30)) +
+              0.15 * freshness(p.created_at, 24 * 30),
+            explorable: (p.completed_bookings ?? 0) < 3,
+          })),
+          // Stable within one scroll session so pagination doesn't reshuffle; new on refresh.
+          `${who.user?.id ?? "anon"}:${providerSessionSeed()}`,
+        );
+        recordExposure("provider", ranked.slice(0, 6).map((p) => p.id));
       }
+      prepared.splice(0, prepared.length, ...ranked);
 
       // A provider always sees their own storefront at the top of the first page.
       if (page === 0) {
