@@ -106,31 +106,6 @@ function stamp(iso: string | null | undefined, fr: boolean) {
   });
 }
 
-/**
- * ASH profile colors.
- *
- * Each conversation receives a stable color based on its conversation ID.
- * This means the same conversation keeps the same profile color.
- */
-const avatarColors = [{ wrapper: "bg-success/15", ring: "ring-success/30" }] as const;
-
-/**
- * Generate a stable color index from a conversation ID.
- */
-function avatarColorIndex(id: string) {
-  let hash = 0;
-
-  for (let index = 0; index < id.length; index += 1) {
-    hash = (hash * 31 + id.charCodeAt(index)) | 0;
-  }
-
-  return Math.abs(hash) % avatarColors.length;
-}
-
-function getAvatarColor(id: string) {
-  return avatarColors[avatarColorIndex(id)] ?? avatarColors[0];
-}
-
 const ASH_AI_ID = "ash-ai";
 const ASH_SUPPORT_ID = "ash-support";
 
@@ -1104,7 +1079,6 @@ function MessagesPage() {
               {filtered.map((conv) => {
                 const label = peerOf(conv);
                 const unread = conv.unread_count ?? 0;
-                const avatarColor = getAvatarColor(conv.id);
 
                 return (
                   <SelectChatRow
@@ -1261,7 +1235,7 @@ function MessagesPage() {
                 ? "hidden md:flex"
                 : cn(
                     "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:bottom-0 max-md:z-50 max-md:w-screen max-md:touch-pan-y",
-                    "max-md:h-auto",
+                    "max-md:h-[var(--ash-visual-height)]",
                   ),
               "md:h-[72vh]",
             )}

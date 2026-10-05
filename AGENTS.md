@@ -31,4 +31,4 @@
 - Market defaults via versioned services-mode at the existing Services URL; Extras is its child route. MarketBrowser reuses discovery/deals/property reads. Why: preserve commerce and URLs.
 
 
-- Avatar updates reuse viewer-only StoriesRail and safety-filtered queries; ChatActionDialog owns scoped blurred panels. Why: preserve media moderation and viewing.
+- Avatar updates reuse safety-filtered StoriesRail; ChatActionDialog owns panels; MemberNavIcon uses token-based SVG strokes. Why: shared safe viewing and branding.

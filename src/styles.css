@@ -1158,9 +1158,10 @@ a {
 .member-menu a.bg-card { background-color: color-mix(in oklab, var(--card) 80%, transparent); background-image: var(--member-dual-wash); }
 .member-menu a > span.bg-primary\/10 { background-image: var(--member-dual-wash); color: var(--foreground); }
 @media (min-width: 768px) and (max-width: 1023px) {
-  .app-shell-scroll:has(.member-messages) { padding-bottom: 0; }
-  .member-messages .messages-inbox { min-height: calc(100dvh - 80px); max-height: calc(100dvh - 80px); }
-  .member-messages .chat-surface { height: calc(100dvh - 80px); }
+  .app-shell-scroll:has(.member-messages) { padding: 0; }
+  .member-messages > .grid { border: 0; border-radius: 0; }
+  .member-messages .messages-inbox { min-height: calc(100dvh - 3.75rem - env(safe-area-inset-bottom)); max-height: calc(100dvh - 3.75rem - env(safe-area-inset-bottom)); }
+  .member-messages .chat-surface { height: calc(100dvh - 3.75rem - env(safe-area-inset-bottom)); }
 }
 @media (max-width: 767px) {
   .member-messages .messages-inbox { width: calc(100% + 2rem); }
