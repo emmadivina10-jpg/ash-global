@@ -28,14 +28,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher, ThemeToggle } from "@/components/refer/Preferences";
 import { useI18n } from "@/lib/i18n";
-import { ReviewsCarousel } from "@/components/refer/ReviewsCarousel";
 import { WelcomeIntro } from "@/components/refer/WelcomeIntro";
 
 const TITLE = "ASH — Where Opportunities Connect.";
 const DESCRIPTION =
   "ASH Glo is a digital opportunity, commerce, services, freelance, property, community and events platform that connects people, businesses, freelancers, service providers, communities and event organizers in one ecosystem, with a social feed, stories, Spotlight, friends, groups and supported payments.";
 
-const OG_IMAGE = "https://ashglogroup.company/ash-social.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -46,12 +44,7 @@ export const Route = createFileRoute("/")({
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://ashglogroup.company/" },
-      { property: "og:image", content: OG_IMAGE },
-      { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "630" },
-      { property: "og:image:alt", content: "ASH — Where Opportunities Connect." },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: OG_IMAGE },
+      { name: "twitter:card", content: "summary" },
     ],
     links: [{ rel: "canonical", href: "https://ashglogroup.company/" }],
     scripts: [
@@ -322,7 +315,6 @@ function Landing() {
               })}
             </div>
 
-            <ReviewsCarousel fr={fr} className="mt-3 w-full lg:mt-5 lg:max-w-xl" />
           </section>
 
           {/* Action side */}
