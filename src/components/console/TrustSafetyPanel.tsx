@@ -6,8 +6,9 @@ import { loadTrustSafety, moderationAction, type TSReport } from "@/lib/trust-sa
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { restoreIdentityAccount } from "@/lib/identity.functions";
 
-const TABS = ["Reports", "Block Events", "Flagged Content", "Removed Content", "Suspended Users", "Banned Users", "Moderation Activity"] as const;
+const TABS = ["Reports", "Identity Restrictions", "Block Events", "Flagged Content", "Removed Content", "Suspended Users", "Banned Users", "Moderation Activity"] as const;
 const FILTERS = ["OPEN", "ACTIONED", "DISMISSED", "ALL"] as const;
 const REMOVABLE = ["POST", "SPOTLIGHT", "COMMENT", "STORY", "MARKET", "EVENT", "PROPERTY", "PROVIDER"];
 
@@ -27,6 +28,7 @@ function Sla({ report }: { report: TSReport }) {
 export function TrustSafetyPanel() {
   const load = useServerFn(loadTrustSafety);
   const act = useServerFn(moderationAction);
+  const restoreIdentity = useServerFn(restoreIdentityAccount);
   const qc = useQueryClient();
   const [tab, setTab] = useState<(typeof TABS)[number]>("Reports");
   const [status, setStatus] = useState<(typeof FILTERS)[number]>("OPEN");
@@ -38,6 +40,11 @@ export function TrustSafetyPanel() {
       toast.success("Moderation action saved");
       await qc.invalidateQueries({ queryKey: ["console", "trust-safety"] });
     },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const reinstateIdentity = useMutation({
+    mutationFn: (input: { userId: string; reason: string }) => restoreIdentity({ data: input }),
+    onSuccess: async () => { toast.success("Identity access restored"); await qc.invalidateQueries({ queryKey: ["console", "trust-safety"] }); },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -127,6 +134,14 @@ export function TrustSafetyPanel() {
           })}
         </>
       ) : null}
+
+      {tab === "Identity Restrictions" && <div className="divide-y divide-border">
+        {!d?.identities.length && <p className="py-4 text-sm text-muted-foreground">No identity restrictions.</p>}
+        {d?.identities.map((member) => <article key={member.user_id} className="flex flex-wrap items-center justify-between gap-3 py-4">
+          <div><p className="text-sm font-bold text-foreground">{member.name}</p><p className="text-sm text-destructive">Denied · {member.banned_at ? "Banned" : "Restricted"} · {member.attempts} attempt(s)</p></div>
+          {d.canRestoreIdentity && <Button variant="outline" size="sm" disabled={reinstateIdentity.isPending} onClick={() => { const reason = ask("Identity review completed"); if (reason) reinstateIdentity.mutate({ userId: member.user_id, reason }); }}>Restore account</Button>}
+        </article>)}
+      </div>}
 
       {tab === "Block Events" ? (
         <List empty="No block events." rows={(d?.blocks ?? []).map((b) => ({ key: b.id, title: `${b.actor_name} ${b.kind === "USER_BLOCK" ? "blocked" : "unblocked"} ${b.target_name}`, sub: `Source: ${b.source} · ${new Date(b.created_at).toLocaleString("en-GB")}` }))} />

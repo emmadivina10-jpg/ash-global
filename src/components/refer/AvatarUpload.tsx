@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { verifyMediaFiles } from "@/lib/media-safety";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { reviewIdentityPhoto } from "@/lib/identity.functions";
+import { announceIdentityDenial, IDENTITY_DENIED } from "@/lib/identity-client";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const avatarUrlCache = new Map<string, { url: string; expiresAt: number }>();
@@ -111,6 +113,7 @@ export function AvatarUpload({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const [denied, setDenied] = useState(false);
 
   async function pick(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -126,6 +129,7 @@ export function AvatarUpload({
     }
 
     setBusy(true);
+    setDenied(false);
     try {
       await verifyMediaFiles([file], "PROFILE_AVATAR");
     } catch (error) {
@@ -146,6 +150,12 @@ export function AvatarUpload({
       return;
     }
     try {
+      const identity = await reviewIdentityPhoto({ data: { path: objectPath } });
+      if (!identity.ok) {
+        setDenied(true);
+        announceIdentityDenial(identity);
+        throw new Error(IDENTITY_DENIED);
+      }
       await onUploaded(objectPath);
       if (path && !path.startsWith("http")) await supabase.storage.from("avatars").remove([path]);
       toast.success("Profile picture updated.");
@@ -172,6 +182,7 @@ export function AvatarUpload({
           {path ? "Change photo" : "Add photo"}
         </Button>
         <p className="mt-1.5 text-xs text-muted-foreground">JPG or PNG, up to 5MB.</p>
+        {denied && <p role="alert" className="mt-2 text-sm font-semibold text-destructive">Denied</p>}
         <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={pick} />
       </div>
     </div>

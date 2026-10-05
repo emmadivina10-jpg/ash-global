@@ -1,5 +1,13 @@
 # Roadmap
 
+## Verified identity protection
+- [x] Enforce normalized protected verified names and exact JPG/PNG file/pixel copies, with durable denied-attempt tracking
+- [x] Show red Denied, restrict access, and ban/log out on the fourth attempt
+- [x] Limit identity restoration to authorized admin and Trust & Verification staff; member mutation access denied
+- [x] Verify enforcement without publishing: rollback-only four-strike/restore database test, isolated denial/logout UI, 38 unit/regression tests, clean preview build
+- [ ] Detect cropped, resized, or edited copies — not implemented; current comparisons are exact file/decoded-pixel matches
+- [ ] End-to-end real-account photo/ban/restoration check — blocked: no active verified profiles available; no member data changed during tests
+
 ## Message profile fixes and dual-colour accents
 - [x] Fix member-profile navigation, inbox strip and full-width composer
 - [x] Apply update-aware avatar rings, dual-colour tabs/wallet, light Market/Extras accents and Menu watermark

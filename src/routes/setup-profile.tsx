@@ -6,6 +6,7 @@ import { AuthLayout } from "@/components/refer/AuthLayout";
 import { AvatarUpload } from "@/components/refer/AvatarUpload";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
+import { announceIdentityDenial, identityStatus, IDENTITY_DENIED } from "@/lib/identity-client";
 
 export const Route = createFileRoute("/setup-profile")({
   ssr: false,
@@ -64,6 +65,8 @@ function SetupProfilePage() {
     if (!userId) return;
     const { error } = await supabase.from("profiles").update({ avatar_url: newPath }).eq("user_id", userId);
     if (error) throw error;
+    const identity = await identityStatus();
+    if (identity.restricted) { announceIdentityDenial(identity); throw new Error(IDENTITY_DENIED); }
     setPath(newPath);
   }
 

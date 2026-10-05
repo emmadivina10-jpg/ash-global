@@ -17,6 +17,7 @@ import { RegionProvider } from "@/lib/region-context";
 import { I18nProvider } from "@/lib/i18n";
 import { NativeBridge } from "@/components/refer/NativeBridge";
 import { Toaster } from "@/components/ui/sonner";
+import { IdentityAccessGuard } from "@/components/refer/IdentityAccessGuard";
 
 
 function NotFoundComponent() {
@@ -173,6 +174,7 @@ function RootComponent() {
         <I18nProvider>
           <RegionProvider>
             <NativeBridge />
+            <IdentityAccessGuard />
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />
             <Toaster />

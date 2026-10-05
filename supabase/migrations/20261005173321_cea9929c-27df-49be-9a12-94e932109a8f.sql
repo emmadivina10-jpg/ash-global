@@ -1,0 +1,1 @@
+CREATE POLICY "Reviewed avatar paths cannot be reused" ON storage.objects AS RESTRICTIVE FOR INSERT TO authenticated WITH CHECK(bucket_id<>'avatars' OR safety.avatar_write_allowed(name));
