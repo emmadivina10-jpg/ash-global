@@ -1594,6 +1594,7 @@ export type Database = {
           department: string
           detail: string | null
           due_date: string
+          expansion_opportunity_id: string | null
           id: string
           priority: string
           progress: number
@@ -1614,6 +1615,7 @@ export type Database = {
           department: string
           detail?: string | null
           due_date?: string
+          expansion_opportunity_id?: string | null
           id?: string
           priority?: string
           progress?: number
@@ -1634,6 +1636,7 @@ export type Database = {
           department?: string
           detail?: string | null
           due_date?: string
+          expansion_opportunity_id?: string | null
           id?: string
           priority?: string
           progress?: number
@@ -1651,6 +1654,13 @@ export type Database = {
             columns: ["assigned_staff_id"]
             isOneToOne: false
             referencedRelation: "staff_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "department_tasks_expansion_opportunity_id_fkey"
+            columns: ["expansion_opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "expansion_opportunities"
             referencedColumns: ["id"]
           },
         ]
@@ -1805,6 +1815,113 @@ export type Database = {
           views?: number
         }
         Relationships: []
+      }
+      expansion_opportunities: {
+        Row: {
+          assigned_departments: string[]
+          category: string | null
+          competition: string | null
+          created_at: string
+          created_by_name: string | null
+          created_by_staff_id: string | null
+          estimated_size: string | null
+          id: string
+          launch_requirements: string | null
+          market: string
+          name: string
+          potential_partners: string | null
+          priority: string
+          required_resources: string | null
+          research_notes: string | null
+          risks: string | null
+          stage: string
+          submitted_to_ceo_at: string | null
+          target_launch_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          assigned_departments?: string[]
+          category?: string | null
+          competition?: string | null
+          created_at?: string
+          created_by_name?: string | null
+          created_by_staff_id?: string | null
+          estimated_size?: string | null
+          id?: string
+          launch_requirements?: string | null
+          market: string
+          name: string
+          potential_partners?: string | null
+          priority?: string
+          required_resources?: string | null
+          research_notes?: string | null
+          risks?: string | null
+          stage?: string
+          submitted_to_ceo_at?: string | null
+          target_launch_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assigned_departments?: string[]
+          category?: string | null
+          competition?: string | null
+          created_at?: string
+          created_by_name?: string | null
+          created_by_staff_id?: string | null
+          estimated_size?: string | null
+          id?: string
+          launch_requirements?: string | null
+          market?: string
+          name?: string
+          potential_partners?: string | null
+          priority?: string
+          required_resources?: string | null
+          research_notes?: string | null
+          risks?: string | null
+          stage?: string
+          submitted_to_ceo_at?: string | null
+          target_launch_date?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      expansion_opportunity_events: {
+        Row: {
+          actor_name: string | null
+          actor_staff_id: string | null
+          body: string | null
+          created_at: string
+          id: string
+          kind: string
+          opportunity_id: string
+        }
+        Insert: {
+          actor_name?: string | null
+          actor_staff_id?: string | null
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          opportunity_id: string
+        }
+        Update: {
+          actor_name?: string | null
+          actor_staff_id?: string | null
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          opportunity_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expansion_opportunity_events_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "expansion_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       forum_comments: {
         Row: {

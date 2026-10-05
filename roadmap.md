@@ -115,3 +115,4 @@
 - [x] Part 1: Trust & Verification menu section grouping existing pages (same pages, links unchanged)
 - [ ] Trust Scores, Suspicious Activity, Investigations, Audit History sub-pages
 - [ ] Finance parts 2–30 (periods, archive, statements, finance chat) — awaiting choice of starting part
+- Expansion (Josephine): pipeline, tasks, dashboard, Submit to CEO done. Pending: research reports, outreach CRM, letters+approval, Expansion AI.
