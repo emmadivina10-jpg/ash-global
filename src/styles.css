@@ -1012,3 +1012,60 @@ a {
     0 2px 10px -2px rgb(212 175 55 / 0.35),
     inset 0 1px 1px rgb(255 255 255 / 0.28);
 }
+
+/* ===== ASH Console premium theme =====
+   Scoped dark command-center look for employee dashboards: deep navy
+   surfaces with the ASH red → magenta → violet brand gradient. Applied
+   to <html> while the console is mounted so portaled dialogs match. */
+.console-premium {
+  --radius: 1.25rem;
+  --background: oklch(0.15 0.02 280);
+  --foreground: oklch(0.96 0.01 285);
+  --card: oklch(0.19 0.024 278);
+  --card-foreground: oklch(0.96 0.01 285);
+  --popover: oklch(0.2 0.026 278);
+  --popover-foreground: oklch(0.96 0.01 285);
+  --primary: oklch(0.66 0.23 18);
+  --primary-foreground: oklch(0.99 0 0);
+  --primary-dark: oklch(0.62 0.24 350);
+  --primary-deep: oklch(0.15 0.02 280);
+  --secondary: oklch(0.23 0.03 280);
+  --secondary-foreground: oklch(0.96 0.01 285);
+  --muted: oklch(0.23 0.03 280);
+  --muted-foreground: oklch(0.7 0.02 285);
+  --accent: oklch(0.26 0.05 292);
+  --accent-foreground: oklch(0.96 0.01 285);
+  --gold: oklch(0.64 0.21 298);
+  --gold-soft: oklch(0.3 0.09 298);
+  --gold-foreground: oklch(0.99 0 0);
+  --border: oklch(0.96 0.01 285 / 10%);
+  --input: oklch(0.96 0.01 285 / 14%);
+  --ring: oklch(0.66 0.23 18);
+  --sidebar: oklch(0.17 0.022 280);
+  --sidebar-foreground: oklch(0.96 0.01 285);
+  --sidebar-primary: oklch(0.66 0.23 18);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.23 0.03 280);
+  --sidebar-accent-foreground: oklch(0.96 0.01 285);
+  --sidebar-border: oklch(0.96 0.01 285 / 8%);
+  --sidebar-ring: oklch(0.66 0.23 18);
+  --console-brand: linear-gradient(135deg, oklch(0.62 0.24 18) 0%, oklch(0.6 0.25 345) 45%, oklch(0.58 0.23 300) 100%);
+}
+
+@utility console-brand {
+  background-image: var(--console-brand);
+}
+
+@utility console-brand-text {
+  background-image: var(--console-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Soft ambient brand glow behind console content. */
+.console-ambient {
+  background:
+    radial-gradient(60% 50% at 12% 0%, oklch(0.62 0.24 18 / 0.09), transparent 70%),
+    radial-gradient(50% 45% at 92% 8%, oklch(0.58 0.23 300 / 0.11), transparent 70%);
+}
