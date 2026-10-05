@@ -1025,7 +1025,7 @@ function MessagesPage() {
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline justify-between gap-2">
-                      <span className="truncate text-base font-bold text-foreground">ASH Support · ASH Clean</span>
+                      <span className="member-contact-name truncate text-base font-bold">ASH Support</span>
                       {supportUnread > 0 ? (
                         <span className="grid min-w-5 shrink-0 place-items-center rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground">
                           {supportUnread > 99 ? "99+" : supportUnread}
@@ -1127,7 +1127,7 @@ function MessagesPage() {
                     <span className="min-w-0 flex-1">
                       <span className="flex items-baseline justify-between gap-2">
                         <span className="inline-flex min-w-0 items-center gap-1 text-base font-semibold text-foreground">
-                          <span className="truncate">{label}</span><VerifiedBadge tier={peerStateOf(conv)?.verified_tier} until={peerStateOf(conv)?.verified_until} size={14}/>
+                          <span className="member-contact-name truncate">{label}</span><VerifiedBadge tier={peerStateOf(conv)?.verified_tier} until={peerStateOf(conv)?.verified_until} size={14}/>
                         </span>
 
                         <span
@@ -1311,7 +1311,7 @@ function MessagesPage() {
 
                 <div className="min-w-0 flex-1">
                   <p className="flex items-center gap-1 truncate font-display text-[15px] font-semibold text-foreground">
-                    <span className="truncate">{activeId === ASH_AI_ID ? "ASH AI" : activeId === ASH_SUPPORT_ID ? "ASH Support" : active ? peerOf(active) : t("chat.title")}</span>{activeId !== ASH_AI_ID && activeId !== ASH_SUPPORT_ID && active ? <VerifiedBadge tier={peerStateOf(active)?.verified_tier} until={peerStateOf(active)?.verified_until} size={14}/> : null}
+                    <span className="member-contact-name truncate">{activeId === ASH_AI_ID ? "ASH AI" : activeId === ASH_SUPPORT_ID ? "ASH Support" : active ? peerOf(active) : t("chat.title")}</span>{activeId !== ASH_AI_ID && activeId !== ASH_SUPPORT_ID && active ? <VerifiedBadge tier={peerStateOf(active)?.verified_tier} until={peerStateOf(active)?.verified_until} size={14}/> : null}
                   </p>
 
                   {active?.booking ? (
