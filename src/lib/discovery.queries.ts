@@ -66,6 +66,7 @@ export function useDiscovery(filters: DiscoveryFilters) {
       last.length < PAGE_SIZE ? undefined : pages.length,
     queryFn: async ({ pageParam }) => {
       const page = pageParam as number;
+      if (page === 0) resetProviderRotation();
       const from = page * PAGE_SIZE;
       const needsServiceJoin = filters.maxPrice !== null;
 
