@@ -34,7 +34,7 @@ export function IdentityConfirmation({ children }: { children: React.ReactNode }
       <div className="w-full max-w-sm rounded-3xl border border-border/60 bg-card/70 p-8 text-center shadow-2xl backdrop-blur-xl">
         <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Confirm your identity</p>
         <div className="mx-auto mt-6 grid size-24 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-primary to-gold text-3xl font-bold text-primary-foreground ring-4 ring-gold/30">
-          {me.avatar_url ? <img src={me.avatar_url} alt={name} className="size-full object-cover" /> : name.slice(0, 1)}
+          {me.avatarSignedUrl ? <img src={me.avatarSignedUrl} alt={`${name} profile photo`} className="size-full object-cover" /> : name.slice(0, 1)}
         </div>
         <h1 className="mt-4 text-xl font-bold">{name}</h1>
         <p className="text-sm text-muted-foreground">{me.position ?? "Position not set"}</p>

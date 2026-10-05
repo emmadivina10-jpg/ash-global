@@ -1,5 +1,11 @@
 # Roadmap
 
+## Employee photo and analytics visibility
+- [x] Resolve private employee photos for the workspace and identity check, and refresh after profile edits
+- [x] Show the existing authorized performance graph on My Workspace using recorded data only
+- [x] Verify signed-in analytics section and insufficient-data state, clean runtime and build, and no mobile overflow; nothing published
+- [ ] Verify an existing saved employee photo loads end-to-end — tested employee has no saved photo; no profile records changed during this check
+
 ## Employee Team chat refinement
 - [x] Apply selected charcoal-and-emerald channel sidebar and conversation layout without changing messaging or permissions
 - [x] Verify isolated desktop/phone layout, channel search, selection, composer and back navigation; lint and preview build pass; nothing published

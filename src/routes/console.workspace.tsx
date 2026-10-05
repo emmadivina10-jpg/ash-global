@@ -18,9 +18,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { getMyCommandCenter } from "@/lib/staff-performance.functions";
+import { charterFor } from "@/lib/staff-charters";
+import { PerformanceChart } from "@/components/console/PerformanceChart";
 
 export const Route = createFileRoute("/console/workspace")({
-  head: () => ({ meta: [{ title: "My Workspace — ASH Console" }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({ meta: [
+    { title: "My Workspace — ASH Console" },
+    { name: "description", content: "Your ASH employee workspace, recorded performance, tasks and team updates." },
+    { property: "og:title", content: "My Workspace — ASH Console" },
+    { property: "og:description", content: "Your ASH employee workspace, recorded performance, tasks and team updates." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+    { name: "robots", content: "noindex, nofollow" },
+  ] }),
   component: WorkspacePage,
 });
 
@@ -60,8 +71,8 @@ function WorkspacePage() {
     <div className="space-y-5">
       <section className={cn(card, "bg-gradient-to-br from-primary/10 via-card/70 to-gold/10")}>
         <div className="flex flex-wrap items-center gap-4">
-          <div className="grid size-16 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-primary to-gold text-2xl font-bold text-primary-foreground">
-            {me?.avatar_url ? <img src={me.avatar_url} alt={name} className="size-full object-cover" /> : name.slice(0, 1)}
+          <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-primary to-gold text-2xl font-bold text-primary-foreground">
+            {me?.avatarSignedUrl ? <img src={me.avatarSignedUrl} alt={`${name} profile photo`} className="size-full object-cover" /> : name.slice(0, 1)}
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-sm text-muted-foreground">
@@ -108,6 +119,8 @@ function WorkspacePage() {
           Daily/weekly targets: {d.pendingTasks + d.completedWeek === 0 ? "Insufficient performance data" : `${d.completedWeek} of ${d.pendingTasks + d.completedWeek} tasks completed this week`}
         </p>
       </section>
+
+      <WorkspaceAnalytics />
 
       <div className="grid gap-5 lg:grid-cols-2">
         <section className={card}>
@@ -163,7 +176,7 @@ function WorkspacePage() {
           <h2 className="mb-3 font-bold">Team availability</h2>
           <ul className="space-y-1.5">
             {data.team.map((m) => {
-              const a = AVAIL.find((x) => x.v === m.availability) ?? AVAIL[3]!;
+              const a = AVAIL.find((x) => x.v === m.availability) ?? { v: "OFFLINE", label: "Offline", dot: "bg-muted-foreground" };
               return (
                 <li key={m.id} className="flex items-center justify-between text-sm">
                   <span className="truncate">
@@ -182,6 +195,32 @@ function WorkspacePage() {
       </div>
       {me && data.actor.superAdmin ? <ExecutiveSummary /> : null}
     </div>
+  );
+}
+
+function WorkspaceAnalytics() {
+  const load = useServerFn(getMyCommandCenter);
+  const { data, error, isPending } = useQuery({
+    queryKey: ["console", "command-center"],
+    queryFn: () => load(),
+    refetchInterval: 60_000,
+  });
+  const charter = data ? charterFor(data.identity.department) : null;
+  return (
+    <section aria-label="Employee analytics" className="space-y-3">
+      <h2 className="text-lg font-bold">Performance analytics</h2>
+      {data && charter ? (
+        <PerformanceChart
+          title={charter.chartTitle}
+          subtitle={`${data.performance.scope === "personal" ? "Your activity" : "Department activity"} · ${data.performance.seriesUnit}`}
+          series={data.performance.series}
+        />
+      ) : (
+        <div className="grid h-64 place-items-center rounded-2xl border border-border bg-card text-sm text-muted-foreground" role={error ? "alert" : "status"}>
+          {isPending ? <Loader2 className="size-5 animate-spin" aria-label="Loading analytics" /> : "Data not available"}
+        </div>
+      )}
+    </section>
   );
 }
 
