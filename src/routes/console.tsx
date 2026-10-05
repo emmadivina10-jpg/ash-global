@@ -89,7 +89,7 @@ const NAV = [
   { to: "/console/campus-instructors", label: "Instructors · Campus", icon: GraduationCap, group: "Trust & Verification", dept: "TRUST" },
   { to: "/console/instructors", label: "Instructors · FX", icon: GraduationCap, group: "Trust & Verification", dept: "TRUST" },
   { to: "/console/staff", label: "Staff & departments", icon: UserCog, group: "Admin", dept: "SUPER_ADMIN" },
-...
+];
 const GROUPS = ["Insights", "Money", "Trust & Verification", "People", "Workforce", "Admin"] as const;
 
 
