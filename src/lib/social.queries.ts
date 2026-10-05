@@ -755,20 +755,34 @@ export function useSocialFeed(limit = 40) {
       const me = await currentUserId();
       const myCity = (getCachedCity() ?? "").trim().toLowerCase();
       const n = candidates.length;
+      // Hashtag signals: platform-wide trending tags + this member's own interests.
+      const { extractTags, tagAffinity } = await import("@/lib/interests");
+      const { data: trendRows } = await supabase
+        .from("hashtags")
+        .select("name, usage_count")
+        .gt("usage_count", 0)
+        .order("usage_count", { ascending: false })
+        .limit(50);
+      const maxUse = Math.max(1, ...(trendRows ?? []).map((t) => t.usage_count));
+      const trend = new Map((trendRows ?? []).map((t) => [t.name.toLowerCase(), Math.log1p(t.usage_count) / Math.log1p(maxUse)]));
       const rows = rotate(
         "post",
         candidates.map((r, i) => {
           const eng = r.like_count + 2 * r.comment_count + 3 * r.repost_count;
+          const tags = extractTags(r.caption);
+          const trending = tags.reduce((m, t) => Math.max(m, trend.get(t) ?? 0), 0);
           return {
             item: r,
             id: r.id,
             creator: r.author_id,
-            // Existing server rank (friends/engagement/freshness) + capped engagement + location.
+            // Server rank + freshness + capped engagement + location + hashtag interest/trend.
             relevance:
-              0.35 * (1 - i / n) +
-              0.3 * freshness(r.created_at, 48) +
-              0.2 * Math.min(1, engagement(eng)) +
-              0.15 * (myCity && (r.city ?? "").trim().toLowerCase() === myCity ? 1 : 0),
+              0.27 * (1 - i / n) +
+              0.25 * freshness(r.created_at, 48) +
+              0.15 * Math.min(1, engagement(eng)) +
+              0.1 * (myCity && (r.city ?? "").trim().toLowerCase() === myCity ? 1 : 0) +
+              0.15 * tagAffinity(tags) +
+              0.08 * trending,
             explorable: eng < 3,
           };
         }),
