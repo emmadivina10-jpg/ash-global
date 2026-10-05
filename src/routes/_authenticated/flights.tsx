@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, ArrowRightLeft, Loader2, Plane, PlaneTakeoff, PlaneLanding, Minus, Plus, Luggage, ShieldCheck, Info } from "lucide-react";
+import { ArrowLeft, ArrowRightLeft, Loader2, Plane, PlaneTakeoff, PlaneLanding, Minus, Plus, Luggage, ShieldCheck, Info, Ticket, LifeBuoy, BadgeCheck, Headphones } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useI18n } from "@/lib/i18n";
+import heroImg from "@/assets/feed-flight-banner.jpg";
 import {
   getFlightOffer,
   getFlightsStatus,
@@ -35,6 +36,15 @@ export const Route = createFileRoute("/_authenticated/flights")({
 type Trip = "round" | "oneway" | "multi";
 type Cabin = "economy" | "premium_economy" | "business" | "first";
 type Leg = { from: Place | null; to: Place | null; date: string };
+const POPULAR: Place[] = [
+  { code: "DLA", name: "Douala International Airport", city: "Douala", country: "Cameroon", type: "airport" },
+  { code: "NSI", name: "Yaoundé Nsimalen International Airport", city: "Yaoundé", country: "Cameroon", type: "airport" },
+  { code: "LOS", name: "Murtala Muhammed International Airport", city: "Lagos", country: "Nigeria", type: "airport" },
+  { code: "YYZ", name: "Toronto Pearson International Airport", city: "Toronto", country: "Canada", type: "airport" },
+  { code: "CDG", name: "Paris Charles de Gaulle Airport", city: "Paris", country: "France", type: "airport" },
+  { code: "LHR", name: "London Heathrow Airport", city: "London", country: "United Kingdom", type: "airport" },
+  { code: "DXB", name: "Dubai International Airport", city: "Dubai", country: "United Arab Emirates", type: "airport" },
+];
 type Sort = "recommended" | "cheapest" | "fastest" | "earliest" | "latest";
 
 const isoDur = (d: string | null) => {
@@ -116,41 +126,38 @@ function FlightsPage() {
   const unavailable = status.data && !status.data.available;
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-5 px-4 pb-28 pt-4">
-      <header className="flex items-center gap-3">
-        <Button asChild variant="ghost" size="icon" className="rounded-full" aria-label={fr ? "Retour au fil" : "Back to Feed"}>
-          <Link to="/feed"><ArrowLeft className="size-5" /></Link>
-        </Button>
-        <div className="min-w-0 flex-1">
-          <h1 className="font-display text-2xl font-bold leading-tight">ASH Flights</h1>
-          <p className="text-sm text-muted-foreground">{fr ? "Recherchez, comparez et réservez vos vols avec ASH." : "Search, compare and book flights with ASH."}</p>
+    <div className="mx-auto w-full max-w-3xl space-y-6 pb-28">
+      <div className="relative isolate -mx-4 -mt-5 overflow-hidden sm:mx-0 sm:mt-0 sm:rounded-3xl">
+        <img src={heroImg} alt="" width={1536} height={768} className="absolute inset-0 -z-10 size-full object-cover" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background/10 via-background/40 to-background" />
+        <header className="flex items-center gap-2 px-4 pt-4">
+          <Button asChild variant="secondary" size="icon" className="size-10 rounded-full bg-card/80 backdrop-blur" aria-label={fr ? "Retour au fil" : "Back to Feed"}>
+            <Link to="/feed"><ArrowLeft className="size-5" /></Link>
+          </Button>
+          <div className="flex-1" />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="secondary" size="sm" className="rounded-full bg-card/80 backdrop-blur"><Ticket className="size-4" />{fr ? "Mes voyages" : "My Trips"}</Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-64 text-sm">
+              <p className="font-semibold">{fr ? "Aucun voyage pour l’instant" : "No trips yet"}</p>
+              <p className="text-muted-foreground">{fr ? "Vos vols réservés avec ASH apparaîtront ici." : "Flights you book with ASH will appear here."}</p>
+            </PopoverContent>
+          </Popover>
+          <Button asChild variant="secondary" size="icon" className="size-10 rounded-full bg-card/80 backdrop-blur" aria-label={fr ? "Aide" : "Help"}>
+            <Link to="/support"><LifeBuoy className="size-5" /></Link>
+          </Button>
+        </header>
+        <div className="px-5 pb-24 pt-10 sm:px-8">
+          <p className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-card/80 px-3 py-1 text-[11px] font-bold tracking-wider text-primary backdrop-blur"><Plane className="size-3.5" /> ASH FLIGHTS</p>
+          <h1 className="max-w-sm font-display text-3xl font-extrabold leading-[1.1] tracking-tight sm:text-4xl">{fr ? "Où allez-vous ensuite ?" : "Where to next?"}</h1>
+          <p className="mt-2 max-w-sm text-sm text-muted-foreground">{fr ? "Recherchez, comparez et réservez vos vols avec ASH." : "Search, compare and book flights with ASH."}</p>
         </div>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="rounded-full">{fr ? "Mes voyages" : "My Trips"}</Button>
-          </PopoverTrigger>
-          <PopoverContent align="end" className="w-64 text-sm">
-            <p className="font-semibold">{fr ? "Aucun voyage pour l’instant" : "No trips yet"}</p>
-            <p className="text-muted-foreground">{fr ? "Vos vols réservés avec ASH apparaîtront ici." : "Flights you book with ASH will appear here."}</p>
-          </PopoverContent>
-        </Popover>
-        <Button asChild variant="ghost" size="sm" className="rounded-full">
-          <Link to="/support">{fr ? "Aide" : "Help"}</Link>
-        </Button>
-      </header>
+      </div>
 
-      {unavailable && (
-        <div role="status" className="flex gap-3 rounded-xl border border-border bg-muted/50 p-4 text-sm">
-          <Info className="mt-0.5 size-4 shrink-0 text-primary" />
-          <div>
-            <p className="font-semibold">{fr ? "La recherche de vols en direct est momentanément indisponible." : "Live flight search is currently unavailable."}</p>
-            <p className="text-muted-foreground">{fr ? "ASH n’affiche jamais de vols ou de prix inventés. La recherche s’activera dès que le fournisseur sera connecté." : "ASH never shows invented flights or prices. Search turns on as soon as our flight provider is connected."}</p>
-          </div>
-        </div>
-      )}
-
-      <section className="space-y-4 rounded-2xl border border-border bg-card p-4 shadow-lg sm:p-5">
-        <div className="inline-flex rounded-full bg-muted p-1 text-sm">
+      <div className="relative z-10 -mt-24 space-y-4 px-0">
+      <section className="space-y-4 rounded-3xl border border-border bg-card/95 p-4 shadow-2xl backdrop-blur-xl sm:p-6">
+        <div className="grid grid-cols-3 rounded-full bg-muted p-1 text-sm">
           {(["round", "oneway", "multi"] as Trip[]).map((t) => (
             <button
               key={t}
@@ -159,7 +166,7 @@ function FlightsPage() {
                 setTrip(t);
                 if (t === "multi" && legs.length < 2) setLegs([...legs, { from: legs[0]!.to, to: null, date: "" }]);
               }}
-              className={`rounded-full px-4 py-1.5 font-medium transition-colors ${trip === t ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+              className={`rounded-full px-2 py-2 font-semibold transition-all ${trip === t ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
             >
               {t === "round" ? (fr ? "Aller-retour" : "Round trip") : t === "oneway" ? (fr ? "Aller simple" : "One way") : fr ? "Multi-villes" : "Multi-city"}
             </button>
@@ -175,7 +182,7 @@ function FlightsPage() {
               <PlacePicker label={fr ? "VERS" : "TO"} icon={<PlaneLanding className="size-4" />} value={leg.to} disabled={!!unavailable} fr={fr}
                 onChange={(p) => setLegs(legs.map((l, j) => (j === i ? { ...l, to: p } : l)))} />
               <Button type="button" variant="outline" size="icon" aria-label={fr ? "Inverser" : "Swap"}
-                className="absolute left-1/2 top-1/2 hidden size-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-card sm:inline-flex"
+                className="absolute right-4 top-1/2 z-10 size-9 -translate-y-1/2 rotate-90 rounded-full bg-card shadow-md sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:rotate-0"
                 onClick={() => setLegs(legs.map((l, j) => (j === i ? { ...l, from: l.to, to: l.from } : l)))}>
                 <ArrowRightLeft className="size-3.5" />
               </Button>
@@ -239,15 +246,68 @@ function FlightsPage() {
           </Field>
         </div>
 
-        <Button className="h-12 w-full rounded-xl text-base font-semibold" disabled={!valid || search.isPending || !!unavailable} onClick={() => search.mutate()}>
+        <Button className="h-14 w-full rounded-2xl text-base font-bold shadow-lg shadow-primary/25 transition-transform active:scale-[0.98]" disabled={!valid || search.isPending || !!unavailable} onClick={() => search.mutate()}>
           {search.isPending ? <Loader2 className="size-5 animate-spin" /> : <Plane className="size-5" />}
-          {fr ? "Rechercher des vols" : "Search Flights"}
+          {search.isPending ? (fr ? "Recherche des meilleurs vols…" : "Finding the best flights…") : fr ? "Rechercher des vols" : "Search Flights"}
         </Button>
       </section>
+      </div>
 
-      {search.error && <p className="rounded-xl border border-destructive/40 p-3 text-sm text-destructive">{(search.error as Error).message}</p>}
+      <div className="grid grid-cols-3 gap-2 text-center">
+        {[
+          { icon: BadgeCheck, t: fr ? "Prix en direct des compagnies" : "Live airline prices" },
+          { icon: ShieldCheck, t: fr ? "Frais ASH transparents" : "Transparent ASH fees" },
+          { icon: Headphones, t: fr ? "Aide ASH Support" : "ASH Support help" },
+        ].map(({ icon: I, t }) => (
+          <div key={t} className="rounded-2xl border border-border bg-card px-2 py-3">
+            <I className="mx-auto mb-1 size-5 text-primary" />
+            <p className="text-[11px] font-semibold leading-tight">{t}</p>
+          </div>
+        ))}
+      </div>
+
+      {unavailable && (
+        <div role="status" className="flex gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-4 text-sm">
+          <Info className="mt-0.5 size-5 shrink-0 text-primary" />
+          <div>
+            <p className="font-semibold">{fr ? "La recherche de vols en direct est momentanément indisponible." : "Live flight search is currently unavailable."}</p>
+            <p className="text-muted-foreground">{fr ? "ASH n’affiche jamais de vols ou de prix inventés. La recherche s’activera dès que le fournisseur sera connecté." : "ASH never shows invented flights or prices. Search turns on as soon as our flight provider is connected."}</p>
+          </div>
+        </div>
+      )}
+
+      {search.error && <p className="rounded-2xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">{(search.error as Error).message}</p>}
       {search.data && !search.data.available && (
-        <p className="rounded-xl border border-border p-3 text-sm">{fr ? "Recherche de vols momentanément indisponible." : "Flight search temporarily unavailable."}</p>
+        <p className="rounded-2xl border border-border p-4 text-sm">{fr ? "Recherche de vols momentanément indisponible." : "Flight search temporarily unavailable."}</p>
+      )}
+
+      {search.isPending && (
+        <div className="space-y-3" aria-hidden>
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-40 animate-pulse rounded-3xl border border-border bg-muted/60" />
+          ))}
+        </div>
+      )}
+
+      {!search.data && !search.isPending && (
+        <section className="space-y-3">
+          <h2 className="font-display text-lg font-bold">{fr ? "Destinations populaires" : "Popular destinations"}</h2>
+          <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1">
+            {POPULAR.map((p) => (
+              <button
+                key={p.code}
+                type="button"
+                disabled={!!unavailable}
+                onClick={() => setLegs(legs.map((l, j) => (j === 0 ? { ...l, to: p } : l)))}
+                className="group w-36 shrink-0 snap-start rounded-2xl border border-border bg-card p-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg disabled:opacity-60"
+              >
+                <p className="font-mono text-2xl font-extrabold text-primary">{p.code}</p>
+                <p className="mt-1 truncate text-sm font-semibold">{p.city}</p>
+                <p className="truncate text-xs text-muted-foreground">{p.country}</p>
+              </button>
+            ))}
+          </div>
+        </section>
       )}
 
       {search.data?.available && (
@@ -315,7 +375,7 @@ function PlacePicker({ label, icon, value, onChange, disabled, fr }: { label: st
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button type="button" disabled={disabled} className="flex w-full items-center gap-3 rounded-xl border border-border bg-background p-3 text-left disabled:opacity-60">
+        <button type="button" disabled={disabled} className="flex w-full items-center gap-3 rounded-2xl border border-border bg-background p-3.5 text-left transition-colors hover:border-primary/50 disabled:opacity-60">
           <span className="text-primary">{icon}</span>
           <span className="min-w-0">
             <span className="block text-[11px] font-semibold tracking-wide text-muted-foreground">{label}</span>
@@ -343,7 +403,7 @@ function PlacePicker({ label, icon, value, onChange, disabled, fr }: { label: st
 
 function OfferCard({ offer, fr, onOpen }: { offer: Offer; fr: boolean; onOpen: () => void }) {
   return (
-    <article className="rounded-2xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md">
+    <article className="rounded-3xl border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-xl">
       <div className="mb-3 flex items-center gap-2">
         {offer.airlineLogo ? <img src={offer.airlineLogo} alt="" className="size-6 object-contain" loading="lazy" /> : <Plane className="size-5 text-primary" />}
         <span className="text-sm font-semibold">{offer.airline}</span>

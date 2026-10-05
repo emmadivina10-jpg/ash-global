@@ -6,7 +6,6 @@ import {
   ImagePlus,
   Loader2,
   Plus,
-  RefreshCw,
   Sparkles,
   Users,
   X,
@@ -14,6 +13,7 @@ import {
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/refer/AvatarUpload";
+import { PullToRefresh } from "@/components/refer/PullToRefresh";
 import { PostCard } from "@/components/refer/PostCard";
 import { StoriesRail } from "@/components/refer/StoriesRail";
 import { SocialSuggestions } from "@/components/refer/SocialSuggestions";
@@ -27,7 +27,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import flightBanner from "@/assets/feed-flight-banner.jpg";
 import { useCreateSocialPost, useFriendships, useSocialFeed } from "@/lib/social.queries";
 import { useProfile } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
@@ -57,7 +56,7 @@ export const Route = createFileRoute("/_authenticated/feed")({
 function FeedPage() {
   const { lang } = useI18n();
   const fr = lang === "fr";
-  const { data: posts, isLoading, isFetching, refetch } = useSocialFeed();
+  const { data: posts, isLoading, refetch } = useSocialFeed();
   const { data: friendships } = useFriendships();
   const { data: profile } = useProfile();
   const { data: discovery } = useFeedDiscovery();
@@ -164,20 +163,14 @@ function FeedPage() {
   ];
 
   return (
+    <PullToRefresh onRefresh={refetch} label={fr ? "Actualisation" : "Refreshing"}>
     <div className="mx-auto w-full max-w-xl space-y-4">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0 self-center">
           <h1 className="sr-only">{fr ? "Fil ASH" : "ASH Feed"}</h1>
-          <Button
-            type="button"
-            size="icon"
-            className="size-11 rounded-full shadow-sm [&_svg]:size-6 motion-safe:transition-transform motion-safe:hover:rotate-90"
-            aria-label={fr ? "Créer une publication" : "Create a post"}
-            title={fr ? "Créer une publication" : "Create a post"}
-            onClick={() => setComposerOpen(true)}
-          >
-            <Plus aria-hidden />
-          </Button>
+          <Link to="/profile" aria-label={fr ? "Mon profil" : "My profile"} className="inline-flex rounded-full ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <Avatar path={profile?.avatar_url} name={profile?.full_name} online className="size-11 shrink-0" />
+          </Link>
         </div>
         <div className="flex items-center gap-1.5">
           <Link
@@ -188,14 +181,16 @@ function FeedPage() {
             <BarChart3 className="size-4" aria-hidden />
             <span className="hidden min-[390px]:inline">{fr ? "Analyse FX" : "FX Analytics"}</span>
           </Link>
-          <button
+          <Button
             type="button"
-            onClick={() => void refetch()}
-            aria-label={fr ? "Actualiser" : "Refresh"}
-            className="grid size-10 shrink-0 place-items-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-primary"
+            size="icon"
+            className="size-10 rounded-full shadow-sm [&_svg]:size-6 motion-safe:transition-transform motion-safe:hover:rotate-90"
+            aria-label={fr ? "Créer une publication" : "Create a post"}
+            title={fr ? "Créer une publication" : "Create a post"}
+            onClick={() => setComposerOpen(true)}
           >
-            <RefreshCw className={cn("size-4", isFetching && "animate-spin")} aria-hidden />
-          </button>
+            <Plus aria-hidden />
+          </Button>
         </div>
       </header>
 
@@ -222,25 +217,6 @@ function FeedPage() {
         })}
       </div>
 
-      <Link
-        to="/flights"
-        aria-label={fr ? "Billets d’avion ASH" : "ASH flight tickets"}
-        className="relative isolate block h-40 overflow-hidden rounded-lg transition-transform active:scale-[0.99] sm:h-48"
-      >
-        <img
-          src={flightBanner}
-          alt={fr ? "Avion au-dessus des nuages" : "Passenger plane above the clouds"}
-          width={1536}
-          height={768}
-          className="absolute inset-0 size-full object-cover"
-        />
-        <div className="relative flex h-full max-w-[52%] flex-col justify-center px-5 sm:px-7">
-          <p className="mb-2 text-xs font-bold text-primary-foreground">ASH</p>
-          <h2 className="font-display text-xl font-bold leading-tight text-primary-foreground sm:text-2xl">
-            {fr ? "Payez votre billet d’avion avec ASH" : "Pay flight ticket with ASH"}
-          </h2>
-        </div>
-      </Link>
 
       <Dialog
         open={composerOpen}
@@ -417,5 +393,6 @@ function FeedPage() {
         </div>
       )}
     </div>
+    </PullToRefresh>
   );
 }
