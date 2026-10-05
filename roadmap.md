@@ -8,7 +8,8 @@
 
 ## Employee Team chat refinement
 - [x] Show current employee names, positions and signed profile photos beside messages, with initials when no photo is available
-- [ ] Verify employee-profile chat rendering and checks for this update
+- [x] Verify photo rendering, initials fallback and desktop/phone chat layout using isolated sample messages; functional lint and preview build pass
+- [ ] Verify real saved employee photos in signed-in Team chat — no authenticated staff session used in this check
 - [x] Apply selected charcoal-and-emerald channel sidebar and conversation layout without changing messaging or permissions
 - [x] Verify isolated desktop/phone layout, channel search, selection, composer and back navigation; lint and preview build pass; nothing published
 - [ ] Verify signed-in staff sending and dialog closing — blocked: no authenticated employee console session available for this check
