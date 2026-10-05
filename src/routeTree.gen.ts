@@ -88,6 +88,7 @@ import { Route as ConsoleTrustRouteImport } from './routes/console.trust'
 import { Route as ConsoleUsersRouteImport } from './routes/console.users'
 import { Route as ConsoleVerificationRouteImport } from './routes/console.verification'
 import { Route as ConsoleWithdrawalsRouteImport } from './routes/console.withdrawals'
+import { Route as ConsoleWorkspaceRouteImport } from './routes/console.workspace'
 import { Route as PayCodeRouteImport } from './routes/pay.$code'
 import { Route as SSlugRouteImport } from './routes/s.$slug'
 import { Route as AuthenticatedArticlesIndexRouteImport } from './routes/_authenticated/articles.index'
@@ -528,6 +529,11 @@ const ConsoleWithdrawalsRoute = ConsoleWithdrawalsRouteImport.update({
   path: '/withdrawals',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const ConsoleWorkspaceRoute = ConsoleWorkspaceRouteImport.update({
+  id: '/workspace',
+  path: '/workspace',
+  getParentRoute: () => ConsoleRoute,
+} as any)
 const PayCodeRoute = PayCodeRouteImport.update({
   id: '/pay/$code',
   path: '/pay/$code',
@@ -834,6 +840,7 @@ export interface FileRoutesByFullPath {
   '/console/users': typeof ConsoleUsersRoute
   '/console/verification': typeof ConsoleVerificationRoute
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
+  '/console/workspace': typeof ConsoleWorkspaceRoute
   '/pay/$code': typeof PayCodeRoute
   '/s/$slug': typeof SSlugRoute
   '/console/': typeof ConsoleIndexRoute
@@ -953,6 +960,7 @@ export interface FileRoutesByTo {
   '/console/users': typeof ConsoleUsersRoute
   '/console/verification': typeof ConsoleVerificationRoute
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
+  '/console/workspace': typeof ConsoleWorkspaceRoute
   '/pay/$code': typeof PayCodeRoute
   '/s/$slug': typeof SSlugRoute
   '/console': typeof ConsoleIndexRoute
@@ -1075,6 +1083,7 @@ export interface FileRoutesById {
   '/console/users': typeof ConsoleUsersRoute
   '/console/verification': typeof ConsoleVerificationRoute
   '/console/withdrawals': typeof ConsoleWithdrawalsRoute
+  '/console/workspace': typeof ConsoleWorkspaceRoute
   '/pay/$code': typeof PayCodeRoute
   '/s/$slug': typeof SSlugRoute
   '/console/': typeof ConsoleIndexRoute
@@ -1197,6 +1206,7 @@ export interface FileRouteTypes {
     | '/console/users'
     | '/console/verification'
     | '/console/withdrawals'
+    | '/console/workspace'
     | '/pay/$code'
     | '/s/$slug'
     | '/console/'
@@ -1316,6 +1326,7 @@ export interface FileRouteTypes {
     | '/console/users'
     | '/console/verification'
     | '/console/withdrawals'
+    | '/console/workspace'
     | '/pay/$code'
     | '/s/$slug'
     | '/console'
@@ -1437,6 +1448,7 @@ export interface FileRouteTypes {
     | '/console/users'
     | '/console/verification'
     | '/console/withdrawals'
+    | '/console/workspace'
     | '/pay/$code'
     | '/s/$slug'
     | '/console/'
@@ -2069,6 +2081,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleWithdrawalsRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/console/workspace': {
+      id: '/console/workspace'
+      path: '/workspace'
+      fullPath: '/console/workspace'
+      preLoaderRoute: typeof ConsoleWorkspaceRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
     '/pay/$code': {
       id: '/pay/$code'
       path: '/pay/$code'
@@ -2509,6 +2528,7 @@ interface ConsoleRouteChildren {
   ConsoleUsersRoute: typeof ConsoleUsersRoute
   ConsoleVerificationRoute: typeof ConsoleVerificationRoute
   ConsoleWithdrawalsRoute: typeof ConsoleWithdrawalsRoute
+  ConsoleWorkspaceRoute: typeof ConsoleWorkspaceRoute
   ConsoleIndexRoute: typeof ConsoleIndexRoute
 }
 
@@ -2545,6 +2565,7 @@ const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsoleUsersRoute: ConsoleUsersRoute,
   ConsoleVerificationRoute: ConsoleVerificationRoute,
   ConsoleWithdrawalsRoute: ConsoleWithdrawalsRoute,
+  ConsoleWorkspaceRoute: ConsoleWorkspaceRoute,
   ConsoleIndexRoute: ConsoleIndexRoute,
 }
 
