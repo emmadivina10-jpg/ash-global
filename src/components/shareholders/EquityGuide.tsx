@@ -190,8 +190,9 @@ export function MarketAnalysisChart({
       </GlassCard>
     );
   }
-  const first = timeline[0].cumulative;
-  const last = timeline[timeline.length - 1].cumulative;
+  const first = timeline[0]!.cumulative;
+  const last = timeline[timeline.length - 1]!.cumulative;
+  const firstDate = timeline[0]!.date;
   const up = last >= first;
   return (
     <GlassCard title="ASH market analysis">
