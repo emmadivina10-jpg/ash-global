@@ -187,14 +187,14 @@ function FlightsPage() {
                 <ArrowRightLeft className="size-3.5" />
               </Button>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid gap-2">
               <Field label={fr ? "DÉPART" : "DEPARTURE"}>
-                <Input type="date" min={i > 0 ? legs[i - 1]!.date || today : today} value={leg.date}
+                <Input type="date" className="h-12 w-full" min={i > 0 ? legs[i - 1]!.date || today : today} value={leg.date}
                   onChange={(e) => setLegs(legs.map((l, j) => (j === i ? { ...l, date: e.target.value } : l)))} />
               </Field>
               {trip !== "multi" && (
                 <Field label={fr ? "RETOUR" : "RETURN"}>
-                  <Input type="date" disabled={trip === "oneway"} min={leg.date || today} value={trip === "oneway" ? "" : ret} onChange={(e) => setRet(e.target.value)} />
+                  <Input type="date" className="h-12 w-full" disabled={trip === "oneway"} min={leg.date || today} value={trip === "oneway" ? "" : ret} onChange={(e) => setRet(e.target.value)} />
                 </Field>
               )}
             </div>
