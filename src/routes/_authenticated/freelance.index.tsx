@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Briefcase, Plus, Star, Users } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Briefcase, MapPin, Plus, Search, Star, Users, Clock, FileText } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { useFreelancers, useMyProposals, useProjects } from "@/lib/ash.queries";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -28,24 +30,69 @@ function FreelancePage() {
   const freelancers = useFreelancers();
   const myProposals = useMyProposals();
 
+  const [q, setQ] = useState("");
+  const [where, setWhere] = useState("");
+  const [cat, setCat] = useState<string | null>(null);
+  const allProjects = projects.data ?? [];
+  const categories = useMemo(() => Array.from(new Set(allProjects.map((p) => p.category).filter(Boolean))).slice(0, 8), [allProjects]);
+  const term = q.trim().toLowerCase();
+  const place = where.trim().toLowerCase();
+  const filteredProjects = allProjects.filter((p: any) =>
+    (!cat || p.category === cat) &&
+    (!term || `${p.title} ${p.description} ${p.category}`.toLowerCase().includes(term)) &&
+    (!place || `${p.city ?? ""} ${p.country ?? ""} ${p.location ?? ""}`.toLowerCase().includes(place)),
+  );
+  const filteredTalent = (freelancers.data ?? []).filter((t: any) =>
+    (!term || `${t.headline} ${t.bio ?? ""} ${t.skills.join(" ")}`.toLowerCase().includes(term)) &&
+    (!place || `${t.city ?? ""} ${t.country ?? ""}`.toLowerCase().includes(place)),
+  );
+
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
-            {fr ? "ASH Freelance" : "ASH Freelance"}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {fr ? "Trouvez du travail ou recrutez les meilleurs talents." : "Find paid work, or hire the talent you need."}
-          </p>
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary-dark to-gold p-5 text-primary-foreground shadow-xl sm:p-8">
+        <div className="pointer-events-none absolute -right-16 -top-16 size-56 rounded-full bg-primary-foreground/10 blur-2xl" />
+        <div className="relative flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] opacity-80">ASH Freelance</p>
+            <h1 className="mt-1 font-display text-3xl font-extrabold leading-tight sm:text-4xl">
+              {fr ? "Votre prochain travail commence ici" : "Your next gig starts here"}
+            </h1>
+            <p className="mt-1 text-sm opacity-90">
+              {fr ? "Trouvez du travail payé ou recrutez les meilleurs talents." : "Find paid work, or hire the talent you need."}
+            </p>
+          </div>
+          <Button asChild size="sm" variant="secondary" className="rounded-full">
+            <Link to="/create">
+              <Plus className="size-4" aria-hidden />
+              {fr ? "Publier un projet" : "Post a project"}
+            </Link>
+          </Button>
         </div>
-        <Button asChild size="sm">
-          <Link to="/create">
-            <Plus className="size-4" aria-hidden />
-            {fr ? "Publier un projet" : "Post a project"}
-          </Link>
-        </Button>
-      </header>
+        <div className="relative mt-5 grid gap-2 rounded-2xl bg-card p-2 text-foreground shadow-lg sm:grid-cols-[1fr_1fr_auto]">
+          <label className="flex items-center gap-2 rounded-xl px-3">
+            <Search className="size-4 text-primary" aria-hidden />
+            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={fr ? "Métier, compétence ou mot-clé" : "Job title, skill or keyword"} className="h-11 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0" />
+          </label>
+          <label className="flex items-center gap-2 rounded-xl px-3 sm:border-l sm:border-border">
+            <MapPin className="size-4 text-primary" aria-hidden />
+            <Input value={where} onChange={(e) => setWhere(e.target.value)} placeholder={fr ? "Ville ou pays" : "City or country"} className="h-11 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0" />
+          </label>
+          <Button className="h-11 rounded-xl px-6 font-bold">{fr ? "Rechercher" : "Find work"}</Button>
+        </div>
+      </section>
+
+      {categories.length > 0 && (
+        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+          <button onClick={() => setCat(null)} className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-semibold transition ${!cat ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:border-primary/50"}`}>
+            {fr ? "Tout" : "All"}
+          </button>
+          {categories.map((c) => (
+            <button key={c} onClick={() => setCat(c === cat ? null : c)} className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-semibold transition ${cat === c ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:border-primary/50"}`}>
+              {c}
+            </button>
+          ))}
+        </div>
+      )}
 
       <Tabs defaultValue="projects">
         <TabsList>
@@ -57,32 +104,35 @@ function FreelancePage() {
         <TabsContent value="projects" className="mt-4">
           {projects.isLoading ? (
             <LoadingState label={fr ? "Chargement des projets…" : "Loading projects…"} />
-          ) : (projects.data ?? []).length === 0 ? (
+          ) : filteredProjects.length === 0 ? (
             <EmptyState
               icon={<Briefcase className="size-5" aria-hidden />}
               title={fr ? "Aucun projet ouvert" : "No open projects"}
               description={fr ? "Publiez le premier projet et recevez des propositions." : "Post the first project and start receiving proposals."}
             />
           ) : (
-            <ul className="grid gap-3 sm:grid-cols-2">
-              {(projects.data ?? []).map((project) => (
+            <ul className="space-y-3">
+              {filteredProjects.map((project: any) => (
                 <li key={project.id}>
                   <Link
                     to="/freelance/$projectId"
                     params={{ projectId: project.id }}
-                    className="tile flex h-full flex-col gap-2 p-4 transition hover:border-primary/40"
+                    className="tile flex h-full flex-col gap-2 border-l-4 border-l-primary p-4 transition hover:-translate-y-0.5 hover:shadow-lg"
                   >
-                    <span className="w-fit rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
-                      {project.category}
-                    </span>
-                    <h2 className="font-semibold text-foreground">{project.title}</h2>
+                    <div className="flex items-start justify-between gap-3">
+                      <h2 className="text-lg font-bold text-primary">{project.title}</h2>
+                      <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-primary">
+                        {project.category}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                      <span className="inline-flex items-center gap-1"><Clock className="size-3.5" aria-hidden />{project.deadline_days} {fr ? "jours" : "days"}</span>
+                      <span className="inline-flex items-center gap-1"><FileText className="size-3.5" aria-hidden />{project.proposals_count} {fr ? "propositions" : "proposals"}</span>
+                    </div>
                     <p className="line-clamp-2 text-sm text-muted-foreground">{project.description}</p>
                     <div className="mt-auto flex items-center justify-between pt-2 text-sm">
                       <span className="font-display font-extrabold text-foreground">{formatXAF(project.budget)}</span>
-                      <span className="text-muted-foreground">
-                        {project.proposals_count} {fr ? "propositions" : "proposals"} · {project.deadline_days}
-                        {fr ? "j" : "d"}
-                      </span>
+                      <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">{fr ? "Postuler" : "Apply"}</span>
                     </div>
                   </Link>
                 </li>
@@ -92,7 +142,7 @@ function FreelancePage() {
         </TabsContent>
 
         <TabsContent value="talent" className="mt-4">
-          {(freelancers.data ?? []).length === 0 ? (
+          {filteredTalent.length === 0 ? (
             <EmptyState
               icon={<Users className="size-5" aria-hidden />}
               title={fr ? "Aucun freelance publié" : "No published freelancers"}
@@ -105,7 +155,7 @@ function FreelancePage() {
             />
           ) : (
             <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {(freelancers.data ?? []).map((person) => (
+              {filteredTalent.map((person: any) => (
                 <li key={person.id} className="tile flex flex-col gap-2 p-4">
                   <h2 className="font-semibold text-foreground">{person.headline}</h2>
                   <p className="text-xs text-muted-foreground">
@@ -114,7 +164,7 @@ function FreelancePage() {
                   </p>
                   {person.bio ? <p className="line-clamp-3 text-sm text-muted-foreground">{person.bio}</p> : null}
                   <div className="flex flex-wrap gap-1.5">
-                    {person.skills.slice(0, 4).map((skill) => (
+                    {person.skills.slice(0, 4).map((skill: string) => (
                       <span key={skill} className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
                         {skill}
                       </span>

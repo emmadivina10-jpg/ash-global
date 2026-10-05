@@ -9,7 +9,7 @@ import { Capacitor } from "@capacitor/core";
 import { AppLauncher } from "@capacitor/app-launcher";
 import {
   Briefcase,
-  Shirt,
+  BriefcaseBusiness,
   Calendar,
   ArrowLeft,
   CreditCard,
@@ -76,13 +76,13 @@ import { cn } from "@/lib/utils";
  */
 const QUICK_LINKS = [
   {
-    to: "/clean",
-    en: "Laundry",
-    fr: "Pressing",
-    icon: Shirt,
-    tone: "text-sky-500",
+    to: "/freelance",
+    en: "Freelance",
+    fr: "Freelance",
+    icon: BriefcaseBusiness,
+    tone: "text-primary",
     ring:
-      "bg-sky-500/15 ring-sky-400/50 shadow-sky-500/20",
+      "bg-primary/15 ring-primary/50 shadow-primary/20",
   },
   {
     to: "/electricity",
