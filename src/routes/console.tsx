@@ -77,7 +77,7 @@ const NAV = [
   { to: "/console/growth", label: "Growth", icon: Rocket, group: "Workforce", dept: "GROWTH" },
   { to: "/console/sales", label: "Sales", icon: Target, group: "Workforce", dept: "SALES" },
   { to: "/console/marketplace", label: "Marketplace Ops", icon: Store, group: "Workforce", dept: "MARKETPLACE_OPS" },
-  { to: "/console/advertising", label: "Advertising", icon: Megaphone, group: "Workforce", dept: "ADVERTISING" },
+  { to: "/console/advertising", label: "Advertising & Marketing", icon: Megaphone, group: "Workforce", dept: "ADVERTISING" },
   { to: "/console/partnerships", label: "Partnerships", icon: Handshake, group: "Workforce", dept: "PARTNERSHIPS" },
   { to: "/console/content", label: "Content & Creators", icon: Video, group: "Workforce", dept: "CONTENT" },
   { to: "/console/expansion", label: "Expansion", icon: Map, group: "Workforce", dept: "EXPANSION" },
@@ -126,7 +126,12 @@ function ThemeToggle() {
 function allowedNav(superAdmin: boolean, department: string, extra: string[] = []) {
   if (superAdmin) return NAV.slice();
   const own = NAV.filter((item) => item.dept === department || item.dept === "ALL");
-  return [...own, ...NAV.filter((item) => extra.includes(item.dept) && item.dept !== department)];
+  // Advertising's Content & Growth access lives inside its unified command center.
+  const folded = department === "ADVERTISING" ? ["CONTENT", "GROWTH"] : [];
+  return [
+    ...own,
+    ...NAV.filter((item) => extra.includes(item.dept) && item.dept !== department && !folded.includes(item.dept)),
+  ];
 }
 
 function SidebarNav({

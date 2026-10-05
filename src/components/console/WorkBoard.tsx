@@ -55,7 +55,7 @@ export function WorkBoard({
   if (!data) return null;
 
   const targets = data.targets;
-  const canWrite = data.actor.superAdmin || data.actor.elevated || data.actor.department === department;
+  const canWrite = data.canWrite;
 
   return (
     <div className="space-y-6">

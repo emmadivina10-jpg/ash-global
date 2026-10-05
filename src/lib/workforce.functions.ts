@@ -32,6 +32,20 @@ export type Lead = {
   created_at: string;
 };
 
+/** CEO/elevated, own department, granted extra departments, or Operations→Merchant. */
+function canUseDept(
+  actor: { superAdmin: boolean; elevated: boolean; department: string; extraDepartments: string[] },
+  dept: string,
+) {
+  return (
+    actor.superAdmin ||
+    actor.elevated ||
+    actor.department === dept ||
+    actor.extraDepartments.includes(dept) ||
+    (actor.department === "OPERATIONS" && dept === "MERCHANT")
+  );
+}
+
 function todayStart() {
   const d = new Date();
   d.setUTCHours(0, 0, 0, 0);
@@ -50,12 +64,7 @@ export const getWorkBoard = createServerFn({ method: "POST" })
     // Exception: the merchant board is nested inside Operations — the
     // Operations seat manages MERCHANT leads with the same login.
     const requested = data.department || actor.department;
-    const department =
-      actor.superAdmin || actor.elevated
-        ? requested
-        : actor.department === "OPERATIONS" && requested === "MERCHANT"
-          ? "MERCHANT"
-          : actor.department;
+    const department = canUseDept(actor, requested) ? requested : actor.department;
     const db = await adminClient();
     const since = todayStart();
 
@@ -96,6 +105,7 @@ export const getWorkBoard = createServerFn({ method: "POST" })
     return {
       actor,
       department,
+      canWrite: canUseDept(actor, department),
       leads: (leads.data ?? []) as Lead[],
       pipeline,
       today: {
@@ -135,8 +145,7 @@ export const saveLead = createServerFn({ method: "POST" })
     const { requireConsole, adminClient } = await import("./console.server");
     const actor = await requireConsole();
     const targetDept = String(data.department).toUpperCase();
-    const opsMerchant = actor.department === "OPERATIONS" && targetDept === "MERCHANT";
-    if (!actor.superAdmin && !actor.elevated && actor.department !== targetDept && !opsMerchant) {
+    if (!canUseDept(actor, targetDept)) {
       return { ok: false as const, error: "You can only manage leads for your department." };
     }
     const name = String(data.name ?? "").trim().slice(0, 160);
@@ -179,8 +188,7 @@ export const moveLeadStage = createServerFn({ method: "POST" })
     const db = await adminClient();
     const { data: lead } = await db.from("leads").select("stage, department").eq("id", data.id).maybeSingle();
     if (!lead) return { ok: false as const, error: "Lead not found." };
-    const opsMerchantLead = actor.department === "OPERATIONS" && lead.department === "MERCHANT";
-    if (!actor.superAdmin && !actor.elevated && actor.department !== lead.department && !opsMerchantLead) {
+    if (!canUseDept(actor, lead.department)) {
       return { ok: false as const, error: "You can only manage leads for your department." };
     }
 
