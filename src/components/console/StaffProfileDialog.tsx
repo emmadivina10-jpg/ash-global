@@ -42,8 +42,9 @@ export function StaffProfileDialog({ trigger }: { trigger: React.ReactNode }) {
   const saveMutation = useMutation({
     mutationFn: async () => save({ data: { employeeName: name, phone } }),
     onSuccess: async () => {
-      toast.success("Profile updated");
+      toast.success("Profile saved successfully");
       await invalidate();
+      setOpen(false);
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not save profile"),
   });
