@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { PublicInfoShell } from "@/components/refer/PublicInfoShell";
 
-export const LEGAL_UPDATED = "19 September 2026";
+export const LEGAL_UPDATED = "5 October 2026";
 export const LEGAL_ENTITY = "ASH Global Technologies";
 export const PRODUCT_NAME = "ASH Glo";
 export const SUPPORT_EMAIL = "support@ashglogroup.company";

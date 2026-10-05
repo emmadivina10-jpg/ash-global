@@ -56,6 +56,7 @@ function PrivacyPage() {
           "Transaction and accounting information required for payments, wallet, referrals, commissions, activation, withdrawals and reconciliation, including provider/network, amount, currency, transaction reference and status. We do not receive or store Mobile Money PINs or full card credentials.",
           "Verification information where applicable, including private government-ID and selfie/face files, application answers, review status and reviewer notes. Submission is manually reviewed and is not a claim of completed external KYC.",
           "Device and technical information needed to run and secure the service, such as session, browser or app information, request and error data, notification token and security events.",
+          "Profile-photo file and decoded-pixel fingerprints used to detect exact JPG/PNG copies of an active verified member’s photo; denied identity attempts and account restriction/restoration records. This matching is not facial recognition and does not reliably detect cropped, resized or edited copies.",
           "Coarse location information. Precise device location may be requested only through the existing permission flow for nearby features and is kept on the device; recommendation events receive only a cached city and country when city-based personalization is enabled.",
         ]} />
       </LegalSection>

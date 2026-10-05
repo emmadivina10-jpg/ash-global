@@ -2,6 +2,10 @@
 
 Start here. Every document in the repository, what it answers, and who it is for.
 
+## Current source-of-truth notice — 5 October 2026
+
+The current in-app legal routes and this repository are authoritative for the current preview. Historical Files copies, native archives and store screenshots are dated snapshots, not proof that the latest app is published. Updated versioned policy/store-copy exports accompany the final publicity report. Do not use the August privacy draft, old `app.growrefer.ashglo` identifier, instant-withdrawal claims or flight/electricity payment claims in publicity.
+
 ## Product & setup
 
 | Document | What it covers |
@@ -11,6 +15,7 @@ Start here. Every document in the repository, what it answers, and who it is for
 | [STORE-SUBMISSION.md](./STORE-SUBMISSION.md) | App Store & Play Store submission pack — listing copy, review notes, App Privacy / Data safety answers, policy checklist |
 | [NATIVE.md](./NATIVE.md) | Capacitor workflow — `cap add`, `cap sync`, icons/splash, App Store & Play Store submission |
 | [AGENTS.md](./AGENTS.md) | Conventions for automated contributors working in this repo |
+| Files: `ASH-Glo-Publicity-Report-2026-10-05.md` | Detailed product overview, publicity copy, availability and verification limits |
 
 ## Security
 
@@ -29,8 +34,9 @@ Start here. Every document in the repository, what it answers, and who it is for
 | `/terms` (`src/routes/terms.tsx`) | Terms of service / EULA with the zero-tolerance user-content clause Apple requires |
 | `/account-deletion` (`src/routes/account-deletion.tsx`) | Public account & data deletion instructions required by Google Play |
 | `/console/reports` (`src/routes/console.reports.tsx`) | Trust & Safety moderation queue for in-app reports |
-| `/mnt/documents/store-listing-copy.md` | EN/FR app names, subtitles, descriptions, keywords, review notes |
-| `/mnt/documents/store-preview-video-script.md` | 30-second store preview script and storyboard |
+| Files: `store-listing-copy_v2.md` | Current EN/FR listing draft; replaces unqualified payout/referral claims |
+| Files: `store-preview-video-script_v2.md` | Current recording script; no invented earnings or store-availability claim |
+| Files: `ASH-Glo-Final-Legal-Policies-2026-10-05.md` | Text export of the seven current public policy pages |
 | `/mnt/documents/store-screenshots/` | Framed iOS 6.7" and Android store screenshots |
 
 ## Code map

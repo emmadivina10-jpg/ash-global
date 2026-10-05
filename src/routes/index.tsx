@@ -76,25 +76,121 @@ export const Route = createFileRoute("/")({
 });
 
 const WORLD = [
-  { icon: Store, en: "Services", fr: "Services", enHint: "Book verified pros", frHint: "Réservez des pros vérifiés" },
-  { icon: ShoppingBag, en: "ASH Hub", fr: "ASH Hub", enHint: "Buy, sell, get paid", frHint: "Achetez, vendez, encaissez" },
-  { icon: Briefcase, en: "Freelance", fr: "Freelance", enHint: "Hire talent, send offers", frHint: "Recrutez, proposez" },
-  { icon: Building2, en: "Property", fr: "Immobilier", enHint: "Rent, lease, visit", frHint: "Louez, gérez, visitez" },
-  { icon: CalendarDays, en: "Events", fr: "Événements", enHint: "Sell and scan tickets", frHint: "Vendez et scannez des billets" },
-  { icon: Tag, en: "Deals", fr: "Offres", enHint: "Claim weekly savings", frHint: "Profitez des offres" },
-  { icon: Users, en: "Social", fr: "Social", enHint: "Feed, stories & Spotlight", frHint: "Fil, stories et Spotlight" },
-  { icon: MessageCircle, en: "Chat", fr: "Chat", enHint: "Friends, groups & DMs", frHint: "Amis, groupes et messages" },
+  {
+    icon: Store,
+    en: "Services",
+    fr: "Services",
+    enHint: "Book verified pros",
+    frHint: "Réservez des pros vérifiés",
+  },
+  {
+    icon: ShoppingBag,
+    en: "ASH Hub",
+    fr: "ASH Hub",
+    enHint: "Buy, sell, get paid",
+    frHint: "Achetez, vendez, encaissez",
+  },
+  {
+    icon: Briefcase,
+    en: "Freelance",
+    fr: "Freelance",
+    enHint: "Hire talent, send offers",
+    frHint: "Recrutez, proposez",
+  },
+  {
+    icon: Building2,
+    en: "Property",
+    fr: "Immobilier",
+    enHint: "Rent, lease, visit",
+    frHint: "Louez, gérez, visitez",
+  },
+  {
+    icon: CalendarDays,
+    en: "Events",
+    fr: "Événements",
+    enHint: "Sell and scan tickets",
+    frHint: "Vendez et scannez des billets",
+  },
+  {
+    icon: Tag,
+    en: "Deals",
+    fr: "Offres",
+    enHint: "Claim weekly savings",
+    frHint: "Profitez des offres",
+  },
+  {
+    icon: Users,
+    en: "Social",
+    fr: "Social",
+    enHint: "Feed, stories & Spotlight",
+    frHint: "Fil, stories et Spotlight",
+  },
+  {
+    icon: MessageCircle,
+    en: "Chat",
+    fr: "Chat",
+    enHint: "Friends, groups & DMs",
+    frHint: "Amis, groupes et messages",
+  },
 ] as const;
 
 const MORE_WORLD = [
-  { icon: Gift, en: "Referrals", fr: "Parrainage", enHint: "Invite and earn", frHint: "Invitez et gagnez" },
-  { icon: Zap, en: "Electricity", fr: "Électricité", enHint: "Pay your bills in seconds", frHint: "Payez vos factures en secondes" },
-  { icon: Send, en: "TchokoPay", fr: "TchokoPay", enHint: "Send money across Africa", frHint: "Envoyez de l’argent en Afrique" },
-  { icon: Wallet, en: "Wallet", fr: "Portefeuille", enHint: "Mobile Money in and out", frHint: "Mobile Money entrées et sorties" },
-  { icon: LayoutGrid, en: "Other apps", fr: "Autres apps", enHint: "Browse the ASH family", frHint: "Découvrez la famille ASH" },
-  { icon: Newspaper, en: "Articles", fr: "Articles", enHint: "Read and publish", frHint: "Lisez et publiez" },
-  { icon: GraduationCap, en: "Mentors", fr: "Mentors", enHint: "Learn from doers", frHint: "Apprenez des experts" },
-  { icon: BadgeCheck, en: "ASH Verified", fr: "ASH Vérifié", enHint: "Protect your name", frHint: "Protégez votre nom" },
+  {
+    icon: Gift,
+    en: "Referrals",
+    fr: "Parrainage",
+    enHint: "Rewards for eligible CM/NG accounts",
+    frHint: "Récompenses pour les comptes CM/NG éligibles",
+  },
+  {
+    icon: Zap,
+    en: "Electricity",
+    fr: "Électricité",
+    enHint: "Bill payments · coming soon",
+    frHint: "Paiement des factures · bientôt",
+  },
+  {
+    icon: Send,
+    en: "TchokoPay",
+    fr: "TchokoPay",
+    enHint: "Visit our payment partner",
+    frHint: "Découvrez notre partenaire de paiement",
+  },
+  {
+    icon: Wallet,
+    en: "Wallet",
+    fr: "Portefeuille",
+    enHint: "Balances and supported withdrawals",
+    frHint: "Soldes et retraits disponibles",
+  },
+  {
+    icon: LayoutGrid,
+    en: "Other apps",
+    fr: "Autres apps",
+    enHint: "Browse the ASH family",
+    frHint: "Découvrez la famille ASH",
+  },
+  {
+    icon: Newspaper,
+    en: "Articles",
+    fr: "Articles",
+    enHint: "Read and publish",
+    frHint: "Lisez et publiez",
+  },
+  {
+    icon: GraduationCap,
+    en: "Mentors",
+    fr: "Mentors",
+    enHint: "Learn from doers",
+    frHint: "Apprenez des experts",
+  },
+  {
+    icon: BadgeCheck,
+    en: "ASH Verified",
+    fr: "ASH Vérifié",
+    enHint: "Protect your name",
+    frHint: "Protégez votre nom",
+  },
 ] as const;
 
 const WORLD_PAGES = [WORLD, MORE_WORLD] as const;
@@ -155,10 +251,7 @@ function Landing() {
   if (isNativeApp()) return <WelcomeIntro />;
 
   return (
-    <div className="safe-top relative min-h-dvh overflow-hidden bg-background">
-      <div className="ash-liquid ash-liquid-a" aria-hidden />
-      <div className="ash-liquid ash-liquid-b" aria-hidden />
-
+    <div className="ash-entry safe-top relative min-h-dvh overflow-hidden bg-background">
       <div className="relative mx-auto flex min-h-dvh w-full max-w-6xl flex-col px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1rem+env(safe-area-inset-top))] lg:px-10">
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -183,12 +276,14 @@ function Landing() {
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.16em] text-primary backdrop-blur sm:text-[10px]">
                 <Globe2 className="size-3" aria-hidden />
-                {fr ? "Opportunités, services et communauté" : "Opportunities, services and community"}
+                {fr
+                  ? "Opportunités, services et communauté"
+                  : "Opportunities, services and community"}
               </span>
             </div>
 
             <span className="mt-4 block h-1 w-10 rounded-full bg-primary lg:mt-6" aria-hidden />
-            <h1 className="mt-3 font-display text-[1.85rem] font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-4xl lg:mt-5 lg:text-[3.2rem]">
+            <h1 className="ash-entry-title mt-3 font-display text-[1.85rem] font-extrabold leading-[1.05] sm:text-4xl lg:mt-5 lg:text-[3.2rem]">
               {fr ? "Bienvenue sur ASH" : "Welcome to ASH"}
             </h1>
             <p className="mt-2 max-w-md text-[12.5px] leading-relaxed text-muted-foreground sm:text-sm lg:mt-4 lg:text-base">
@@ -214,11 +309,11 @@ function Landing() {
                     <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
                       <Icon className="size-4" aria-hidden />
                     </span>
-                    <span className="min-w-0">
-                      <span className="block truncate text-[12px] font-bold leading-tight text-foreground">
+                    <span className="flex min-w-0 flex-col gap-1">
+                      <span className="block text-[12px] font-bold leading-snug text-foreground">
                         {fr ? item.fr : item.en}
                       </span>
-                      <span className="block truncate text-[10px] leading-tight text-muted-foreground">
+                      <span className="block text-[10px] leading-snug text-muted-foreground">
                         {fr ? item.frHint : item.enHint}
                       </span>
                     </span>
@@ -275,14 +370,17 @@ function Landing() {
                   {fr ? "Paiements sécurisés." : "Secure payments."}
                 </span>{" "}
                 {fr
-                  ? "Les paiements et retraits se font par Mobile Money (MTN & Orange), traités par nos partenaires agréés. Les virements bancaires ne sont pas encore disponibles — ils arrivent bientôt."
+                  ? "Les paiements et retraits disponibles utilisent le moyen et le prestataire indiqués dans chaque parcours. ASH Glo ne demande jamais votre code PIN Mobile Money."
                   : "Supported payments and withdrawals use the method and provider shown in the relevant flow. ASH Glo never asks for your Mobile Money PIN."}
               </p>
             </div>
 
             <p className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
               <Lock className="size-3" aria-hidden />
-              <Link to="/support" className="font-semibold text-foreground underline-offset-4 hover:underline">
+              <Link
+                to="/support"
+                className="font-semibold text-foreground underline-offset-4 hover:underline"
+              >
                 {fr ? "Assistance" : "Support"}
               </Link>
               <Link to="/privacy" className="hover:underline">

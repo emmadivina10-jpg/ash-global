@@ -41,18 +41,24 @@ import {
   useSetChatLockPin,
   useSetChatPref,
 } from "@/lib/chat-prefs";
-import { useAddGroupMembers, useCreateGroup, useMemberSearch, useMemberStates, useRemoveGroupMember, useSendFriendRequest, useFriendships, useGroups, useUpdateGroup, useUpdateGroupAvatar } from "@/lib/social.queries";
+import {
+  useAddGroupMembers,
+  useCreateGroup,
+  useMemberSearch,
+  useMemberStates,
+  useRemoveGroupMember,
+  useSendFriendRequest,
+  useFriendships,
+  useGroups,
+  useUpdateGroup,
+  useUpdateGroupAvatar,
+} from "@/lib/social.queries";
 import { unlockChat, type LockedChatMessage } from "@/lib/chat-lock.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { getMySupportTickets } from "@/lib/support.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const searchSchema = z.object({ c: z.string().optional() });
 
@@ -63,8 +69,7 @@ export const Route = createFileRoute("/_authenticated/messages")({
       { title: "Messages — ASH Glo" },
       {
         name: "description",
-        content:
-          "Your conversations, groups, stories and support together in ASH Glo.",
+        content: "Your conversations, groups, stories and support together in ASH Glo.",
       },
       {
         property: "og:title",
@@ -72,8 +77,7 @@ export const Route = createFileRoute("/_authenticated/messages")({
       },
       {
         property: "og:description",
-        content:
-          "Stay connected with people, businesses and the ASH team.",
+        content: "Stay connected with people, businesses and the ASH team.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -96,8 +100,7 @@ function stamp(iso: string | null | undefined, fr: boolean) {
       minute: "2-digit",
     });
 
-  if (date.toDateString() === yesterday.toDateString())
-    return fr ? "Hier" : "Yesterday";
+  if (date.toDateString() === yesterday.toDateString()) return fr ? "Hier" : "Yesterday";
 
   return date.toLocaleDateString(fr ? "fr-FR" : "en-GB", {
     day: "2-digit",
@@ -139,8 +142,7 @@ function MessagesPage() {
   const [chromeReservePx, setChromeReservePx] = useState<number | null>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
-  const useIsoLayoutEffect =
-    typeof window !== "undefined" ? useLayoutEffect : useEffect;
+  const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
   // iOS Safari/WKWebView changes the visual viewport when the keyboard opens.
   // Track that viewport instead of relying on 100vh/100dvh, which can leave a
@@ -168,20 +170,27 @@ function MessagesPage() {
       );
       measureChromeReserve();
     };
+    const keepPhoneViewport = () => {
+      if (window.innerWidth >= 768 || mobileView !== "thread") return;
+      if (window.scrollY !== 0) window.scrollTo(0, 0);
+      updateViewport();
+    };
 
     updateViewport();
     viewport.addEventListener("resize", updateViewport);
-    window.addEventListener("focusin", updateViewport);
+    viewport.addEventListener("scroll", keepPhoneViewport);
+    window.addEventListener("focusin", keepPhoneViewport);
     window.addEventListener("focusout", updateViewport);
     window.addEventListener("resize", updateViewport);
 
     return () => {
       viewport.removeEventListener("resize", updateViewport);
-      window.removeEventListener("focusin", updateViewport);
+      viewport.removeEventListener("scroll", keepPhoneViewport);
+      window.removeEventListener("focusin", keepPhoneViewport);
       window.removeEventListener("focusout", updateViewport);
       window.removeEventListener("resize", updateViewport);
     };
-  }, []);
+  }, [mobileView]);
 
   // Mobile chat is a viewport-locked surface. The message list itself owns
   // scrolling; the outer shell stays still while the bottom navigation remains
@@ -189,12 +198,8 @@ function MessagesPage() {
   useEffect(() => {
     if (typeof window === "undefined" || window.innerWidth >= 768) return;
 
-    const shellScroll = document.querySelector<HTMLElement>(
-      ".app-shell-scroll",
-    );
-    const orbs = Array.from(
-      document.querySelectorAll<HTMLElement>(".orb-surface"),
-    );
+    const shellScroll = document.querySelector<HTMLElement>(".app-shell-scroll");
+    const orbs = Array.from(document.querySelectorAll<HTMLElement>(".orb-surface"));
 
     if (!shellScroll) return;
 
@@ -302,9 +307,12 @@ function MessagesPage() {
   });
   const supportTicket = supportTickets?.[0] ?? null;
   const latestSupportMessage = supportTicket?.messages.at(-1);
-  const supportUnread = supportTicket?.messages.filter(
-    (message) => message.sender === "ADMIN" && (!supportTicket.member_read_at || message.created_at > supportTicket.member_read_at),
-  ).length ?? 0;
+  const supportUnread =
+    supportTicket?.messages.filter(
+      (message) =>
+        message.sender === "ADMIN" &&
+        (!supportTicket.member_read_at || message.created_at > supportTicket.member_read_at),
+    ).length ?? 0;
   const [term, setTerm] = useState("");
   const [newChatOpen, setNewChatOpen] = useState(false);
 
@@ -341,27 +349,36 @@ function MessagesPage() {
   const unlockChatServer = useServerFn(unlockChat);
 
   const list = conversations ?? [];
-  const peerIds = list.map((conversation) => {
-    if (conversation.group_id) return null;
-    const providerIsMe = Boolean(user?.id) && conversation.provider?.user_id === user?.id;
-    return (providerIsMe ? conversation.client_id : conversation.provider?.user_id) ?? null;
-  }).filter((id): id is string => Boolean(id));
+  const peerIds = list
+    .map((conversation) => {
+      if (conversation.group_id) return null;
+      const providerIsMe = Boolean(user?.id) && conversation.provider?.user_id === user?.id;
+      return (providerIsMe ? conversation.client_id : conversation.provider?.user_id) ?? null;
+    })
+    .filter((id): id is string => Boolean(id));
   const { data: memberStates } = useMemberStates(peerIds);
   const [avatarChoice, setAvatarChoice] = useState<(typeof list)[number] | null>(null);
-  const [viewerRequest, setViewerRequest] = useState<{ authorId: string; kind: "story" | "spotlight" } | undefined>();
+  const [viewerRequest, setViewerRequest] = useState<
+    { authorId: string; kind: "story" | "spotlight" } | undefined
+  >();
   const { data: availableStories, isLoading: loadingStories } = useStories();
-  const { data: availableSpotlights, isLoading: loadingSpotlights } = useQuery({ queryKey: ["ash-spotlights"], queryFn: loadSpotlights, staleTime: 15_000 });
+  const { data: availableSpotlights, isLoading: loadingSpotlights } = useQuery({
+    queryKey: ["ash-spotlights"],
+    queryFn: loadSpotlights,
+    staleTime: 15_000,
+  });
   const avatarPeerId = avatarChoice ? peerUserIdOf(avatarChoice) : null;
-  const hasStory = Boolean(availableStories?.groups.some((group) => group.author.id === avatarPeerId));
-  const hasSpotlight = Boolean(availableSpotlights?.some((post) => post.provider.user_id === avatarPeerId));
+  const hasStory = Boolean(
+    availableStories?.groups.some((group) => group.author.id === avatarPeerId),
+  );
+  const hasSpotlight = Boolean(
+    availableSpotlights?.some((post) => post.provider.user_id === avatarPeerId),
+  );
 
   // Desktop falls back to the first conversation;
   // mobile requires an explicit conversation pick.
   const activeId =
-    c ??
-    (typeof window !== "undefined" && window.innerWidth >= 768
-      ? list[0]?.id
-      : undefined);
+    c ?? (typeof window !== "undefined" && window.innerWidth >= 768 ? list[0]?.id : undefined);
   const activeLockedPin = activeId ? lockedPins[activeId] : undefined;
 
   const active = list.find((conv) => conv.id === activeId);
@@ -396,7 +413,8 @@ function MessagesPage() {
     const viewerIsOwner = Boolean(user?.id) && ownerId === user?.id;
     const side = viewerIsOwner
       ? (conv as { client?: { full_name?: string | null; avatar_url?: string | null } }).client
-      : (conv as { owner?: { full_name?: string | null; avatar_url?: string | null } | null }).owner;
+      : (conv as { owner?: { full_name?: string | null; avatar_url?: string | null } | null })
+          .owner;
     return {
       id: (viewerIsOwner ? conv.client_id : ownerId) ?? null,
       name: side?.full_name ?? null,
@@ -410,16 +428,14 @@ function MessagesPage() {
     const direct = directPeerOf(conv);
     if (direct) return direct.name ?? (fr ? "Profil" : "Profile");
     if (conv.listing_id) {
-      const viewerIsOwner =
-        Boolean(user?.id) && conv.owner_id === user?.id;
+      const viewerIsOwner = Boolean(user?.id) && conv.owner_id === user?.id;
 
       return viewerIsOwner
         ? (conv.client?.full_name ?? (fr ? "Profil" : "Profile"))
         : (conv.listing?.title ?? "ASH Property");
     }
 
-    const viewerIsProvider =
-      Boolean(user?.id) && conv.provider?.user_id === user?.id;
+    const viewerIsProvider = Boolean(user?.id) && conv.provider?.user_id === user?.id;
 
     return viewerIsProvider
       ? (conv.client?.full_name ?? (fr ? "Profil" : "Profile"))
@@ -433,16 +449,12 @@ function MessagesPage() {
     const direct = directPeerOf(conv);
     if (direct) return direct.avatar_url ?? null;
     if (conv.listing_id) {
-      const viewerIsOwner =
-        Boolean(user?.id) && conv.owner_id === user?.id;
+      const viewerIsOwner = Boolean(user?.id) && conv.owner_id === user?.id;
 
-      return viewerIsOwner
-        ? (conv.client?.avatar_url ?? null)
-        : null;
+      return viewerIsOwner ? (conv.client?.avatar_url ?? null) : null;
     }
 
-    const viewerIsProvider =
-      Boolean(user?.id) && conv.provider?.user_id === user?.id;
+    const viewerIsProvider = Boolean(user?.id) && conv.provider?.user_id === user?.id;
 
     return viewerIsProvider
       ? (conv.client?.avatar_url ?? null)
@@ -459,20 +471,15 @@ function MessagesPage() {
     const direct = directPeerOf(conv);
     if (direct) return direct.id;
     if (conv.listing_id) {
-      const viewerIsOwner =
-        Boolean(user?.id) && conv.owner_id === user?.id;
+      const viewerIsOwner = Boolean(user?.id) && conv.owner_id === user?.id;
 
       return (viewerIsOwner ? conv.client_id : conv.owner_id) ?? null;
     }
 
-    const viewerIsProvider =
-      Boolean(user?.id) && conv.provider?.user_id === user?.id;
+    const viewerIsProvider = Boolean(user?.id) && conv.provider?.user_id === user?.id;
 
-    return (
-      (viewerIsProvider ? conv.client_id : conv.provider?.user_id) ?? null
-    );
+    return (viewerIsProvider ? conv.client_id : conv.provider?.user_id) ?? null;
   }
-
 
   /** Where the other side's public page lives, when they have one. */
   function peerProfileOf(conv: (typeof list)[number] | undefined) {
@@ -484,8 +491,7 @@ function MessagesPage() {
     }
 
     if (conv.listing_id) {
-      const viewerIsOwner =
-        Boolean(user?.id) && conv.owner_id === user?.id;
+      const viewerIsOwner = Boolean(user?.id) && conv.owner_id === user?.id;
 
       return viewerIsOwner || !conv.listing
         ? null
@@ -495,8 +501,7 @@ function MessagesPage() {
           };
     }
 
-    const viewerIsProvider =
-      Boolean(user?.id) && conv.provider?.user_id === user?.id;
+    const viewerIsProvider = Boolean(user?.id) && conv.provider?.user_id === user?.id;
 
     if (viewerIsProvider || !conv.provider) return null;
 
@@ -531,32 +536,22 @@ function MessagesPage() {
     if (!last) {
       if (conv.booking) return conv.booking.service_title;
 
-      if (conv.listing)
-        return `ASH Property · ${conv.listing.city}`;
+      if (conv.listing) return `ASH Property · ${conv.listing.city}`;
 
       return t("chat.pick");
     }
 
     const mine = last.sender_id === user?.id;
 
-    const text =
-      last.kind === "INVOICE"
-        ? fr
-          ? "Facture"
-          : "Invoice"
-        : last.body;
+    const text = last.kind === "INVOICE" ? (fr ? "Facture" : "Invoice") : last.body;
 
-    return `${mine ? (fr ? "Vous : " : "You: ") : ""}${text}`
-      .replace(/\s+/g, " ")
-      .trim();
+    return `${mine ? (fr ? "Vous : " : "You: ") : ""}${text}`.replace(/\s+/g, " ").trim();
   }
 
   const searchTerm = term.trim();
   const searched = searchTerm
     ? list.filter((conv) =>
-        `${peerOf(conv)} ${previewOf(conv)}`
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()),
+        `${peerOf(conv)} ${previewOf(conv)}`.toLowerCase().includes(searchTerm.toLowerCase()),
       )
     : list;
 
@@ -594,7 +589,9 @@ function MessagesPage() {
     const pinned = Boolean(prefs?.[conversationId]?.pinned);
     if (!pinned && pinnedCount >= MAX_PINNED) {
       toast.info(
-        fr ? `Vous pouvez épingler ${MAX_PINNED} discussions.` : `You can pin up to ${MAX_PINNED} chats.`,
+        fr
+          ? `Vous pouvez épingler ${MAX_PINNED} discussions.`
+          : `You can pin up to ${MAX_PINNED} chats.`,
       );
       return;
     }
@@ -651,7 +648,9 @@ function MessagesPage() {
     if (!unlockingId || pinValue.length < 4) return;
     try {
       const submittedPin = pinValue;
-      const result = await unlockChatServer({ data: { conversationId: unlockingId, pin: submittedPin } }) as { messages: LockedChatMessage[] };
+      const result = (await unlockChatServer({
+        data: { conversationId: unlockingId, pin: submittedPin },
+      })) as { messages: LockedChatMessage[] };
       setLockedMessages((current) => ({ ...current, [unlockingId]: result.messages }));
       setLockedPins((current) => ({ ...current, [unlockingId]: submittedPin }));
       setUnlockDialog(false);
@@ -661,7 +660,6 @@ function MessagesPage() {
       toast.error(fr ? "Code incorrect" : "Incorrect PIN");
     }
   }
-
 
   function toggleSelected(conversationId: string) {
     setSelection((list) =>
@@ -681,7 +679,10 @@ function MessagesPage() {
         await deleteChat.mutateAsync(id);
         removed += 1;
       } catch {
-        setPref.mutate({ conversationId: id, patch: { archived: true, locked: Boolean(prefs?.[id]?.locked) } });
+        setPref.mutate({
+          conversationId: id,
+          patch: { archived: true, locked: Boolean(prefs?.[id]?.locked) },
+        });
       }
     }
     if (removed > 0) {
@@ -709,7 +710,6 @@ function MessagesPage() {
       {isLoading ? (
         <SkeletonRows rows={3} />
       ) : (
-
         <div className="grid md:grid-cols-[minmax(320px,38%)_minmax(0,1fr)] md:overflow-hidden md:rounded-lg md:border md:border-border">
           {/* =========================================================
               CHAT LIST
@@ -733,12 +733,54 @@ function MessagesPage() {
             <div className="border-b border-border bg-card/75 px-4 pb-4 pt-5 backdrop-blur">
               <h2 className="mb-4 flex items-center justify-between font-display text-3xl font-bold text-foreground">
                 {t("chat.title")}
-                <Button size="icon" variant="default" className="size-11 rounded-full" aria-label={fr ? "Nouvelle discussion" : "New chat"} onClick={() => setNewChatOpen(true)}><Plus className="size-6" /></Button>
+                <Button
+                  size="icon"
+                  variant="default"
+                  className="size-11 rounded-full"
+                  aria-label={fr ? "Nouvelle discussion" : "New chat"}
+                  onClick={() => setNewChatOpen(true)}
+                >
+                  <Plus className="size-6" />
+                </Button>
               </h2>
-              <ChatActionDialog open={newChatOpen} onOpenChange={setNewChatOpen} title={fr ? "Nouvelle discussion" : "New chat"}>
-                <Button variant="ghost" className="h-14 w-full justify-start gap-3" onClick={() => { setNewChatOpen(false); void routerNavigate({ to: "/friends" }); }}><UserPlus />{fr ? "Choisir un contact" : "Choose a contact"}</Button>
-                <Button variant="ghost" className="h-14 w-full justify-start gap-3" onClick={() => { setNewChatOpen(false); setGroupDialog(true); }}><Users />{fr ? "Nouveau groupe" : "New group"}</Button>
-                <Button variant="ghost" className="h-14 w-full justify-start gap-3" onClick={() => { setNewChatOpen(false); void navigate({ search: { c: ASH_SUPPORT_ID } }); }}><LifeBuoy />{fr ? "Contacter ASH" : "Contact ASH support"}</Button>
+              <ChatActionDialog
+                open={newChatOpen}
+                onOpenChange={setNewChatOpen}
+                title={fr ? "Nouvelle discussion" : "New chat"}
+              >
+                <Button
+                  variant="ghost"
+                  className="h-14 w-full justify-start gap-3"
+                  onClick={() => {
+                    setNewChatOpen(false);
+                    void routerNavigate({ to: "/friends" });
+                  }}
+                >
+                  <UserPlus />
+                  {fr ? "Choisir un contact" : "Choose a contact"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="h-14 w-full justify-start gap-3"
+                  onClick={() => {
+                    setNewChatOpen(false);
+                    setGroupDialog(true);
+                  }}
+                >
+                  <Users />
+                  {fr ? "Nouveau groupe" : "New group"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="h-14 w-full justify-start gap-3"
+                  onClick={() => {
+                    setNewChatOpen(false);
+                    void navigate({ search: { c: ASH_SUPPORT_ID } });
+                  }}
+                >
+                  <LifeBuoy />
+                  {fr ? "Contacter ASH" : "Contact ASH support"}
+                </Button>
               </ChatActionDialog>
 
               {selection.length > 0 ? (
@@ -765,24 +807,15 @@ function MessagesPage() {
               ) : null}
 
               <div className="flex min-h-12 items-center gap-3 rounded-full bg-muted px-4 py-3">
-                <Search
-                  className="size-5 shrink-0 text-muted-foreground"
-                  aria-hidden
-                />
+                <Search className="size-5 shrink-0 text-muted-foreground" aria-hidden />
 
                 <input
                   value={term}
                   onChange={(event) => setTerm(event.target.value)}
                   placeholder={
-                    fr
-                       ? "Rechercher une discussion ou un membre"
-                       : "Search chats or people"
+                    fr ? "Rechercher une discussion ou un membre" : "Search chats or people"
                   }
-                  aria-label={
-                    fr
-                      ? "Rechercher une discussion"
-                      : "Search chats"
-                  }
+                  aria-label={fr ? "Rechercher une discussion" : "Search chats"}
                   className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                 />
               </div>
@@ -863,24 +896,57 @@ function MessagesPage() {
                   placeholder={fr ? "Rechercher un membre" : "Search people on ASH"}
                 />
                 <div className="max-h-64 space-y-1 overflow-y-auto">
-                  {[...(graph?.friends ?? []).map(({ other }) => other), ...(groupPeople ?? []).filter((person) => !(graph?.friends ?? []).some(({ other }) => other.id === person.id))].length === 0 ? (
+                  {[
+                    ...(graph?.friends ?? []).map(({ other }) => other),
+                    ...(groupPeople ?? []).filter(
+                      (person) =>
+                        !(graph?.friends ?? []).some(({ other }) => other.id === person.id),
+                    ),
+                  ].length === 0 ? (
                     <p className="py-4 text-center text-sm text-muted-foreground">
-                      {fr ? "Ajoutez d’abord des amis au groupe." : "Add friends before creating a group."}
+                      {fr
+                        ? "Ajoutez d’abord des amis au groupe."
+                        : "Add friends before creating a group."}
                     </p>
                   ) : (
-                    [...(graph?.friends ?? []).map(({ other }) => other), ...(groupPeople ?? []).filter((person) => !(graph?.friends ?? []).some(({ other }) => other.id === person.id))].map((other) => {
+                    [
+                      ...(graph?.friends ?? []).map(({ other }) => other),
+                      ...(groupPeople ?? []).filter(
+                        (person) =>
+                          !(graph?.friends ?? []).some(({ other }) => other.id === person.id),
+                      ),
+                    ].map((other) => {
                       const selected = groupMembers.includes(other.id);
                       return (
                         <Button
                           key={other.id}
                           type="button"
                           variant="ghost"
-                          className={cn("h-auto w-full justify-start gap-3 px-2 py-2", selected && "bg-primary/10")}
-                          onClick={() => setGroupMembers((ids) => selected ? ids.filter((id) => id !== other.id) : [...ids, other.id])}
+                          className={cn(
+                            "h-auto w-full justify-start gap-3 px-2 py-2",
+                            selected && "bg-primary/10",
+                          )}
+                          onClick={() =>
+                            setGroupMembers((ids) =>
+                              selected ? ids.filter((id) => id !== other.id) : [...ids, other.id],
+                            )
+                          }
                         >
-                          <Avatar path={other.avatar_url} name={other.name} online={other.online} hasUpdate={other.has_update} className="size-9" />
+                          <Avatar
+                            path={other.avatar_url}
+                            name={other.name}
+                            online={other.online}
+                            hasUpdate={other.has_update}
+                            className="size-9"
+                          />
                           <span className="min-w-0 flex-1 truncate text-left">{other.name}</span>
-                          {selected ? <span className="text-xs font-bold text-primary">{fr ? "Ajouté" : "Added"}</span> : <Plus className="size-4" aria-hidden />}
+                          {selected ? (
+                            <span className="text-xs font-bold text-primary">
+                              {fr ? "Ajouté" : "Added"}
+                            </span>
+                          ) : (
+                            <Plus className="size-4" aria-hidden />
+                          )}
                         </Button>
                       );
                     })
@@ -888,30 +954,66 @@ function MessagesPage() {
                 </div>
                 <Button
                   disabled={groupName.trim().length < 2 || createGroup.isPending}
-                  onClick={() => createGroup.mutate(
-                    { name: groupName, memberIds: groupMembers },
-                    {
-                      onSuccess: () => {
-                        setGroupDialog(false);
-                        setGroupName("");
-                        setGroupMembers([]);
-                        toast.success(fr ? "Groupe créé" : "Group created");
+                  onClick={() =>
+                    createGroup.mutate(
+                      { name: groupName, memberIds: groupMembers },
+                      {
+                        onSuccess: () => {
+                          setGroupDialog(false);
+                          setGroupName("");
+                          setGroupMembers([]);
+                          toast.success(fr ? "Groupe créé" : "Group created");
+                        },
+                        onError: (error) =>
+                          toast.error(
+                            error instanceof Error ? error.message : "Could not create the group.",
+                          ),
                       },
-                      onError: (error) => toast.error(error instanceof Error ? error.message : "Could not create the group."),
-                    },
-                  )}
+                    )
+                  }
                 >
                   {fr ? "Créer le groupe" : "Create group"}
                 </Button>
               </DialogContent>
             </Dialog>
 
-            <Dialog open={unlockDialog} onOpenChange={(open) => { setUnlockDialog(open); if (!open) { setUnlockingId(null); setPinValue(""); } }}>
+            <Dialog
+              open={unlockDialog}
+              onOpenChange={(open) => {
+                setUnlockDialog(open);
+                if (!open) {
+                  setUnlockingId(null);
+                  setPinValue("");
+                }
+              }}
+            >
               <DialogContent className="max-w-sm">
-                <DialogHeader><DialogTitle>{fr ? "Déverrouiller les discussions" : "Unlock chats"}</DialogTitle></DialogHeader>
-                <p className="text-xs text-muted-foreground">{fr ? "Entrez votre code. Le contenu reste inaccessible jusqu’à sa validation." : "Enter your PIN. Chat content remains unavailable until it is verified."}</p>
-                <Input type="password" inputMode="numeric" autoFocus value={pinValue} onChange={(event) => setPinValue(event.target.value.replace(/\D/g, "").slice(0, 8))} placeholder="••••" />
-                <Button disabled={pinValue.length < 4} onClick={() => void (unlockingId ? submitLockedChatUnlock() : revealLockedChats())}>{fr ? "Déverrouiller" : "Unlock"}</Button>
+                <DialogHeader>
+                  <DialogTitle>{fr ? "Déverrouiller les discussions" : "Unlock chats"}</DialogTitle>
+                </DialogHeader>
+                <p className="text-xs text-muted-foreground">
+                  {fr
+                    ? "Entrez votre code. Le contenu reste inaccessible jusqu’à sa validation."
+                    : "Enter your PIN. Chat content remains unavailable until it is verified."}
+                </p>
+                <Input
+                  type="password"
+                  inputMode="numeric"
+                  autoFocus
+                  value={pinValue}
+                  onChange={(event) =>
+                    setPinValue(event.target.value.replace(/\D/g, "").slice(0, 8))
+                  }
+                  placeholder="••••"
+                />
+                <Button
+                  disabled={pinValue.length < 4}
+                  onClick={() =>
+                    void (unlockingId ? submitLockedChatUnlock() : revealLockedChats())
+                  }
+                >
+                  {fr ? "Déverrouiller" : "Unlock"}
+                </Button>
               </DialogContent>
             </Dialog>
 
@@ -928,7 +1030,11 @@ function MessagesPage() {
                     : "The messages are permanently lost. You can still find the person again through search."}
                 </p>
                 <div className="flex gap-2">
-                  <Button variant="outline" className="flex-1" onClick={() => setConfirmBulkDelete(false)}>
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setConfirmBulkDelete(false)}
+                  >
                     {fr ? "Annuler" : "Cancel"}
                   </Button>
                   <Button
@@ -955,7 +1061,9 @@ function MessagesPage() {
                   type="password"
                   inputMode="numeric"
                   value={pinValue}
-                  onChange={(event) => setPinValue(event.target.value.replace(/\D/g, "").slice(0, 8))}
+                  onChange={(event) =>
+                    setPinValue(event.target.value.replace(/\D/g, "").slice(0, 8))
+                  }
                   placeholder="••••"
                   aria-label={fr ? "Code" : "PIN"}
                 />
@@ -1002,79 +1110,88 @@ function MessagesPage() {
                 .includes(term.trim().toLowerCase()) &&
               filtered.length === 0 ? (
                 <p className="p-6 text-center text-sm text-muted-foreground">
-                  {fr
-                    ? "Aucune discussion trouvée."
-                    : "No chats found."}
+                  {fr ? "Aucune discussion trouvée." : "No chats found."}
                 </p>
               ) : null}
 
-              {!showArchived && (!term.trim() ||
-                `${ashSupportConversation.label} ${ashSupportConversation.preview}`
-                  .toLowerCase()
-                  .includes(term.trim().toLowerCase())) && (
-                <button
-                  type="button"
-                  onClick={() => void navigate({ search: { c: ASH_SUPPORT_ID } })}
-                  className={cn(
-                    "flex w-full items-center gap-4 border-b border-border/60 px-4 py-5 text-left transition-colors",
-                    activeId === ASH_SUPPORT_ID ? "bg-primary/10" : "hover:bg-muted/70 active:bg-muted",
-                  )}
-                >
-                  <span className="grid size-12 shrink-0 place-items-center rounded-full bg-primary/10 text-primary ring-2 ring-primary/25">
-                    <LifeBuoy className="size-6" aria-hidden />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-baseline justify-between gap-2">
-                      <span className="member-contact-name truncate text-base font-bold">ASH Support</span>
-                      {supportUnread > 0 ? (
-                        <span className="grid min-w-5 shrink-0 place-items-center rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground">
-                          {supportUnread > 99 ? "99+" : supportUnread}
+              {!showArchived &&
+                (!term.trim() ||
+                  `${ashSupportConversation.label} ${ashSupportConversation.preview}`
+                    .toLowerCase()
+                    .includes(term.trim().toLowerCase())) && (
+                  <button
+                    type="button"
+                    onClick={() => void navigate({ search: { c: ASH_SUPPORT_ID } })}
+                    className={cn(
+                      "flex w-full items-center gap-4 border-b border-border/60 px-4 py-5 text-left transition-colors",
+                      activeId === ASH_SUPPORT_ID
+                        ? "bg-primary/10"
+                        : "hover:bg-muted/70 active:bg-muted",
+                    )}
+                  >
+                    <span className="grid size-12 shrink-0 place-items-center rounded-full bg-primary/10 text-primary ring-2 ring-primary/25">
+                      <LifeBuoy className="size-6" aria-hidden />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-baseline justify-between gap-2">
+                        <span className="member-contact-name truncate text-base font-bold">
+                          ASH Support
                         </span>
-                      ) : null}
-                    </span>
-                    <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">
-                      {latestSupportMessage?.body ?? (fr ? "Obtenez de l’aide de l’équipe ASH." : ashSupportConversation.preview)}
-                    </span>
-                  </span>
-                </button>
-              )}
-
-              {!showArchived && (!term.trim() ||
-                `${ashAiConversation.label} ${ashAiConversation.preview}`
-                  .toLowerCase()
-                  .includes(term.trim().toLowerCase())) && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    void navigate({
-                      search: { c: ASH_AI_ID },
-                    })
-                  }
-                  className={cn(
-                    "flex w-full items-center gap-4 border-b border-border/60 px-4 py-5 text-left transition-colors",
-                    activeId === ASH_AI_ID
-                      ? "bg-primary/10"
-                      : "hover:bg-muted/70 active:bg-muted",
-                  )}
-                >
-                  <img src={ashLogo.url} alt="ASH AI" className="size-14 shrink-0 rounded-full ring-2 ring-success/20" />
-
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-baseline justify-between gap-2">
-                      <span className="truncate text-base font-bold text-foreground">
-                        ASH AI
+                        {supportUnread > 0 ? (
+                          <span className="grid min-w-5 shrink-0 place-items-center rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground">
+                            {supportUnread > 99 ? "99+" : supportUnread}
+                          </span>
+                        ) : null}
                       </span>
-                      <span className="shrink-0 rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-bold text-success">
-                        {fr ? "En direct" : "Live"}
+                      <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">
+                        {latestSupportMessage?.body ??
+                          (fr
+                            ? "Obtenez de l’aide de l’équipe ASH."
+                            : ashSupportConversation.preview)}
                       </span>
                     </span>
+                  </button>
+                )}
 
-                    <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">
-                      {ashAiConversation.preview}
+              {!showArchived &&
+                (!term.trim() ||
+                  `${ashAiConversation.label} ${ashAiConversation.preview}`
+                    .toLowerCase()
+                    .includes(term.trim().toLowerCase())) && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      void navigate({
+                        search: { c: ASH_AI_ID },
+                      })
+                    }
+                    className={cn(
+                      "flex w-full items-center gap-4 border-b border-border/60 px-4 py-5 text-left transition-colors",
+                      activeId === ASH_AI_ID
+                        ? "bg-primary/10"
+                        : "hover:bg-muted/70 active:bg-muted",
+                    )}
+                  >
+                    <img
+                      src={ashLogo.url}
+                      alt="ASH AI"
+                      className="size-14 shrink-0 rounded-full ring-2 ring-success/20"
+                    />
+
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-baseline justify-between gap-2">
+                        <span className="truncate text-base font-bold text-foreground">ASH AI</span>
+                        <span className="shrink-0 rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-bold text-success">
+                          {fr ? "En direct" : "Live"}
+                        </span>
+                      </span>
+
+                      <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">
+                        {ashAiConversation.preview}
+                      </span>
                     </span>
-                  </span>
-                </button>
-              )}
+                  </button>
+                )}
 
               {filtered.map((conv) => {
                 const label = peerOf(conv);
@@ -1092,80 +1209,97 @@ function MessagesPage() {
                     selected={selection.includes(conv.id)}
                     onLongPress={() => toggleSelected(conv.id)}
                     onToggleSelect={() => toggleSelected(conv.id)}
-                    onOpen={() => prefs?.[conv.id]?.locked && !lockedMessages[conv.id] ? void openLockedChat(conv.id) : void navigate({ search: { c: conv.id } })}
+                    onOpen={() =>
+                      prefs?.[conv.id]?.locked && !lockedMessages[conv.id]
+                        ? void openLockedChat(conv.id)
+                        : void navigate({ search: { c: conv.id } })
+                    }
                     onTogglePin={() => void togglePin(conv.id)}
                     onArchive={() => toggleArchive(conv.id)}
                     onToggleLock={() => toggleLock(conv.id)}
                   >
-                  <div
-                    className={cn(
-                      "flex w-full items-center gap-4 px-4 py-5 pr-14 text-left transition-colors",
-                      conv.id === activeId
-                        ? "bg-primary/10"
-                        : "hover:bg-muted/70 active:bg-muted",
-                    )}
-                  >
-                    {/* COLORED ASH PROFILE CIRCLE */}
-                    <Button
-                      data-chat-avatar
-                      variant="ghost"
-                      aria-label={`${fr ? "Voir les actualités de" : "View updates from"} ${label}`}
-                      onClick={(event) => { event.stopPropagation(); if (conv.group_id) { openPeerProfile(conv); return; } setAvatarChoice(conv); }}
-                      className={cn("member-avatar-ring grid aspect-square size-14 min-w-14 shrink-0 place-items-center rounded-full p-[2px] shadow-sm", (availableStories?.groups.some((group) => group.author.id === peerUserIdOf(conv)) || availableSpotlights?.some((post) => post.provider.user_id === peerUserIdOf(conv))) && "member-avatar-update")}
+                    <div
+                      className={cn(
+                        "flex w-full items-center gap-4 px-4 py-5 pr-14 text-left transition-colors",
+                        conv.id === activeId
+                          ? "bg-primary/10"
+                          : "hover:bg-muted/70 active:bg-muted",
+                      )}
                     >
-                      <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
-                        <Avatar
-                          path={peerAvatarOf(conv)}
-                          name={label}
-                          online={peerStateOf(conv)?.online}
-                          hasUpdate={false}
-                          className="size-[52px] aspect-square rounded-full border-0 shadow-none"
-                        />
-                      </span>
-                    </Button>
-
-                    <span className="min-w-0 flex-1">
-                      <span className="flex items-baseline justify-between gap-2">
-                        <span className="inline-flex min-w-0 items-center gap-1 text-base font-semibold text-foreground">
-                          <span className="member-contact-name truncate">{label}</span><VerifiedBadge tier={peerStateOf(conv)?.verified_tier} until={peerStateOf(conv)?.verified_until} size={14}/>
+                      {/* COLORED ASH PROFILE CIRCLE */}
+                      <Button
+                        data-chat-avatar
+                        variant="ghost"
+                        aria-label={`${fr ? "Voir les actualités de" : "View updates from"} ${label}`}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          if (conv.group_id) {
+                            openPeerProfile(conv);
+                            return;
+                          }
+                          setAvatarChoice(conv);
+                        }}
+                        className={cn(
+                          "member-avatar-ring grid aspect-square size-14 min-w-14 shrink-0 place-items-center rounded-full p-[2px] shadow-sm",
+                          (availableStories?.groups.some(
+                            (group) => group.author.id === peerUserIdOf(conv),
+                          ) ||
+                            availableSpotlights?.some(
+                              (post) => post.provider.user_id === peerUserIdOf(conv),
+                            )) &&
+                            "member-avatar-update",
+                        )}
+                      >
+                        <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
+                          <Avatar
+                            path={peerAvatarOf(conv)}
+                            name={label}
+                            online={peerStateOf(conv)?.online}
+                            hasUpdate={false}
+                            className="size-[52px] aspect-square rounded-full border-0 shadow-none"
+                          />
                         </span>
+                      </Button>
 
-                        <span
-                          className={cn(
-                            "shrink-0 text-[11px]",
-                            unread > 0
-                              ? "font-semibold text-primary"
-                              : "text-muted-foreground",
-                          )}
-                        >
-                          {stamp(
-                            conv.last_message?.created_at ??
-                              conv.last_message_at,
-                            fr,
-                          )}
-                        </span>
-                      </span>
-
-                      <span className="mt-0.5 flex items-center justify-between gap-2">
-                        <span
-                          className={cn(
-                            "truncate text-sm",
-                            unread > 0
-                              ? "font-medium text-foreground"
-                              : "text-muted-foreground",
-                          )}
-                        >
-                          {previewOf(conv)}
-                        </span>
-
-                        {unread > 0 ? (
-                          <span className="grid min-w-5 shrink-0 place-items-center rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground">
-                            {unread > 99 ? "99+" : unread}
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-baseline justify-between gap-2">
+                          <span className="inline-flex min-w-0 items-center gap-1 text-base font-semibold text-foreground">
+                            <span className="member-contact-name truncate">{label}</span>
+                            <VerifiedBadge
+                              tier={peerStateOf(conv)?.verified_tier}
+                              until={peerStateOf(conv)?.verified_until}
+                              size={14}
+                            />
                           </span>
-                        ) : null}
+
+                          <span
+                            className={cn(
+                              "shrink-0 text-[11px]",
+                              unread > 0 ? "font-semibold text-primary" : "text-muted-foreground",
+                            )}
+                          >
+                            {stamp(conv.last_message?.created_at ?? conv.last_message_at, fr)}
+                          </span>
+                        </span>
+
+                        <span className="mt-0.5 flex items-center justify-between gap-2">
+                          <span
+                            className={cn(
+                              "truncate text-sm",
+                              unread > 0 ? "font-medium text-foreground" : "text-muted-foreground",
+                            )}
+                          >
+                            {previewOf(conv)}
+                          </span>
+
+                          {unread > 0 ? (
+                            <span className="grid min-w-5 shrink-0 place-items-center rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground">
+                              {unread > 99 ? "99+" : unread}
+                            </span>
+                          ) : null}
+                        </span>
                       </span>
-                    </span>
-                  </div>
+                    </div>
                   </SelectChatRow>
                 );
               })}
@@ -1178,7 +1312,13 @@ function MessagesPage() {
                   </p>
                   {newPeople.slice(0, 8).map((person) => (
                     <div key={person.id} className="flex items-center gap-2">
-                      <Avatar path={person.avatar_url} name={person.name} online={person.online} hasUpdate={person.has_update} className="size-9" />
+                      <Avatar
+                        path={person.avatar_url}
+                        name={person.name}
+                        online={person.online}
+                        hasUpdate={person.has_update}
+                        className="size-9"
+                      />
                       <button
                         type="button"
                         onClick={() =>
@@ -1186,7 +1326,14 @@ function MessagesPage() {
                         }
                         className="min-w-0 flex-1 truncate text-left text-[13px] font-semibold text-foreground"
                       >
-                        <span className="inline-flex items-center gap-1">{person.name}<VerifiedBadge tier={person.verified_tier} until={person.verified_until} size={13}/></span>
+                        <span className="inline-flex items-center gap-1">
+                          {person.name}
+                          <VerifiedBadge
+                            tier={person.verified_tier}
+                            until={person.verified_until}
+                            size={13}
+                          />
+                        </span>
                       </button>
                       <Button
                         size="sm"
@@ -1213,12 +1360,8 @@ function MessagesPage() {
               ACTIVE CHAT
               ========================================================= */}
           <div
-            onTouchStart={
-              mobileView === "thread" ? handleChatTouchStart : undefined
-            }
-            onTouchEnd={
-              mobileView === "thread" ? handleChatTouchEnd : undefined
-            }
+            onTouchStart={mobileView === "thread" ? handleChatTouchStart : undefined}
+            onTouchEnd={mobileView === "thread" ? handleChatTouchEnd : undefined}
             style={
               {
                 "--ash-visual-height": visualViewportHeight
@@ -1251,17 +1394,10 @@ function MessagesPage() {
                     search: {},
                   })
                 }
-                aria-label={
-                  fr
-                    ? "Retour aux messages"
-                    : "Back to messages"
-                }
+                aria-label={fr ? "Retour aux messages" : "Back to messages"}
                 className="grid size-10 shrink-0 place-items-center rounded-full bg-muted/70 text-foreground shadow-sm transition-all hover:bg-muted active:scale-95 md:hidden"
               >
-                <ArrowLeft
-                  className="size-5"
-                  aria-hidden
-                />
+                <ArrowLeft className="size-5" aria-hidden />
               </button>
 
               {/* ACTIVE PROFILE */}
@@ -1275,27 +1411,38 @@ function MessagesPage() {
                   }
                   if (active) setAvatarChoice(active);
                 }}
-                disabled={
-                  !active || (!activeGroup && !peerProfileOf(active))
-                }
+                disabled={!active || (!activeGroup && !peerProfileOf(active))}
                 aria-label={
                   activeGroup
-                    ? (fr ? "Voir le profil du groupe" : "View group profile")
+                    ? fr
+                      ? "Voir le profil du groupe"
+                      : "View group profile"
                     : fr
-                    ? "Voir le profil"
-                    : "View profile"
+                      ? "Voir le profil"
+                      : "View profile"
                 }
                 className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl px-1 py-0.5 text-left transition-colors enabled:hover:bg-muted/60"
               >
                 {activeId === ASH_AI_ID ? (
-                  <img src={ashLogo.url} alt="ASH AI" className="size-12 shrink-0 rounded-full ring-2 ring-success/20" />
+                  <img
+                    src={ashLogo.url}
+                    alt="ASH AI"
+                    className="size-12 shrink-0 rounded-full ring-2 ring-success/20"
+                  />
                 ) : activeId === ASH_SUPPORT_ID ? (
                   <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary/10 text-primary ring-2 ring-primary/25">
                     <LifeBuoy className="size-5" aria-hidden />
                   </span>
                 ) : active ? (
                   <span
-                    className={cn("member-avatar-ring grid size-10 shrink-0 place-items-center rounded-full p-[2px] shadow-sm", (availableStories?.groups.some((group) => group.author.id === activePeerId) || availableSpotlights?.some((post) => post.provider.user_id === activePeerId)) && "member-avatar-update")}
+                    className={cn(
+                      "member-avatar-ring grid size-10 shrink-0 place-items-center rounded-full p-[2px] shadow-sm",
+                      (availableStories?.groups.some((group) => group.author.id === activePeerId) ||
+                        availableSpotlights?.some(
+                          (post) => post.provider.user_id === activePeerId,
+                        )) &&
+                        "member-avatar-update",
+                    )}
                   >
                     <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
                       <Avatar
@@ -1311,23 +1458,32 @@ function MessagesPage() {
 
                 <div className="min-w-0 flex-1">
                   <p className="flex items-center gap-1 truncate font-display text-[15px] font-semibold text-foreground">
-                    <span className="member-contact-name truncate">{activeId === ASH_AI_ID ? "ASH AI" : activeId === ASH_SUPPORT_ID ? "ASH Support" : active ? peerOf(active) : t("chat.title")}</span>{activeId !== ASH_AI_ID && activeId !== ASH_SUPPORT_ID && active ? <VerifiedBadge tier={peerStateOf(active)?.verified_tier} until={peerStateOf(active)?.verified_until} size={14}/> : null}
+                    <span className="member-contact-name truncate">
+                      {activeId === ASH_AI_ID
+                        ? "ASH AI"
+                        : activeId === ASH_SUPPORT_ID
+                          ? "ASH Support"
+                          : active
+                            ? peerOf(active)
+                            : t("chat.title")}
+                    </span>
+                    {activeId !== ASH_AI_ID && activeId !== ASH_SUPPORT_ID && active ? (
+                      <VerifiedBadge
+                        tier={peerStateOf(active)?.verified_tier}
+                        until={peerStateOf(active)?.verified_until}
+                        size={14}
+                      />
+                    ) : null}
                   </p>
 
                   {active?.booking ? (
                     <p className="truncate text-[11px] text-muted-foreground">
-                      {active.booking.service_title} ·{" "}
-                      {formatDateTime(
-                        active.booking.scheduled_at,
-                      )}
-                      {active.booking.invoice_number
-                        ? ` · ${active.booking.invoice_number}`
-                        : ""}
+                      {active.booking.service_title} · {formatDateTime(active.booking.scheduled_at)}
+                      {active.booking.invoice_number ? ` · ${active.booking.invoice_number}` : ""}
                     </p>
                   ) : active?.listing ? (
                     <p className="truncate text-[11px] text-muted-foreground">
-                      ASH Property ·{" "}
-                      {active.listing.city}
+                      ASH Property · {active.listing.city}
                     </p>
                   ) : null}
                 </div>
@@ -1337,21 +1493,24 @@ function MessagesPage() {
               {active?.booking ? (
                 <div className="shrink-0 text-right">
                   <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
-                    {bookingStatusLabel(
-                      active.booking.status,
-                      lang,
-                    )}
+                    {bookingStatusLabel(active.booking.status, lang)}
                   </span>
 
                   <p className="tabular mt-1 text-xs font-bold text-foreground">
-                    {formatXAF(
-                      Number(active.booking.price),
-                    )}
+                    {formatXAF(Number(active.booking.price))}
                   </p>
                 </div>
               ) : null}
               {activeGroup ? (
-                <button type="button" onClick={() => { setGroupEditName(activeGroup.name); setGroupSettings(true); }} aria-label={fr ? "Gérer le groupe" : "Manage group"} className="grid size-9 place-items-center rounded-full bg-muted text-muted-foreground">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setGroupEditName(activeGroup.name);
+                    setGroupSettings(true);
+                  }}
+                  aria-label={fr ? "Gérer le groupe" : "Manage group"}
+                  className="grid size-9 place-items-center rounded-full bg-muted text-muted-foreground"
+                >
                   <Settings2 className="size-4" aria-hidden />
                 </button>
               ) : null}
@@ -1359,16 +1518,171 @@ function MessagesPage() {
 
             <Dialog open={groupSettings} onOpenChange={setGroupSettings}>
               <DialogContent className="max-h-[calc(100dvh-2rem)] max-w-sm overflow-y-auto">
-                <DialogHeader><DialogTitle>{fr ? "Gérer le groupe" : "Manage group"}</DialogTitle></DialogHeader>
-                {activeGroup ? <>
-                  <div className="flex items-center gap-3">
-                    <Avatar path={activeGroup.avatar_path} name={activeGroup.name} className="size-14" />
-                    {activeGroup.owner_id === user?.id ? <label className={cn("inline-flex items-center gap-2 text-sm font-semibold text-primary", updateGroupAvatar.isPending ? "cursor-wait opacity-60" : "cursor-pointer")}><Camera className="size-4" />{updateGroupAvatar.isPending ? (fr ? "Enregistrement…" : "Saving…") : (fr ? "Photo" : "Photo")}<input type="file" accept="image/*" className="sr-only" disabled={updateGroupAvatar.isPending} onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ""; if (!file) return; updateGroupAvatar.mutate({ groupId: activeGroup.id, file, currentPath: activeGroup.avatar_path }, { onSuccess: () => toast.success(fr ? "Photo du groupe enregistrée" : "Group photo saved"), onError: (error) => toast.error(error instanceof Error ? error.message : (fr ? "Impossible d’enregistrer la photo" : "Could not save the group photo")) }); }} /></label> : null}
-                  </div>
-                  {activeGroup.owner_id === user?.id ? <div className="flex gap-2"><Input value={groupEditName} onChange={(event) => setGroupEditName(event.target.value.slice(0, 60))} /><Button onClick={() => updateGroup.mutate({ groupId: activeGroup.id, name: groupEditName }, { onSuccess: () => toast.success(fr ? "Groupe mis à jour" : "Group updated") })}>{fr ? "Enregistrer" : "Save"}</Button></div> : null}
-                  <div className="space-y-2">{activeGroup.members.map((member) => <div key={member.id} className="flex items-center gap-2 rounded-xl bg-muted/50 p-2"><Avatar path={member.avatar_url} name={member.name} online={member.online} hasUpdate={member.has_update} className="size-9" /><span className="flex min-w-0 flex-1 items-center gap-1 text-sm font-semibold"><span className="truncate">{member.name}</span><VerifiedBadge tier={member.verified_tier} until={member.verified_until} size={13} /></span>{activeGroup.owner_id === user?.id && member.id !== user.id ? <Button size="icon" variant="ghost" className="text-destructive" onClick={() => removeGroupMember.mutate({ groupId: activeGroup.id, userId: member.id })}><UserMinus className="size-4" /></Button> : null}</div>)}</div>
-                  {activeGroup.owner_id === user?.id ? <><Input value={groupSearch} onChange={(event) => setGroupSearch(event.target.value)} placeholder={fr ? "Ajouter un membre" : "Add a member"} />{(groupPeople ?? []).filter((person) => !activeGroup.members.some((member) => member.id === person.id)).slice(0, 6).map((person) => <button key={person.id} type="button" onClick={() => addGroupMembers.mutate({ groupId: activeGroup.id, memberIds: [person.id] })} className="flex w-full items-center gap-2 rounded-xl p-2 text-left hover:bg-muted"><Avatar path={person.avatar_url} name={person.name} online={person.online} hasUpdate={person.has_update} className="size-9" /><span className="flex-1 truncate text-sm font-semibold">{person.name}</span><Plus className="size-4 text-primary" /></button>)}</> : null}
-                </> : null}
+                <DialogHeader>
+                  <DialogTitle>{fr ? "Gérer le groupe" : "Manage group"}</DialogTitle>
+                </DialogHeader>
+                {activeGroup ? (
+                  <>
+                    <div className="flex items-center gap-3">
+                      <Avatar
+                        path={activeGroup.avatar_path}
+                        name={activeGroup.name}
+                        className="size-14"
+                      />
+                      {activeGroup.owner_id === user?.id ? (
+                        <label
+                          className={cn(
+                            "inline-flex items-center gap-2 text-sm font-semibold text-primary",
+                            updateGroupAvatar.isPending
+                              ? "cursor-wait opacity-60"
+                              : "cursor-pointer",
+                          )}
+                        >
+                          <Camera className="size-4" />
+                          {updateGroupAvatar.isPending
+                            ? fr
+                              ? "Enregistrement…"
+                              : "Saving…"
+                            : fr
+                              ? "Photo"
+                              : "Photo"}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="sr-only"
+                            disabled={updateGroupAvatar.isPending}
+                            onChange={(event) => {
+                              const file = event.target.files?.[0];
+                              event.target.value = "";
+                              if (!file) return;
+                              updateGroupAvatar.mutate(
+                                {
+                                  groupId: activeGroup.id,
+                                  file,
+                                  currentPath: activeGroup.avatar_path,
+                                },
+                                {
+                                  onSuccess: () =>
+                                    toast.success(
+                                      fr ? "Photo du groupe enregistrée" : "Group photo saved",
+                                    ),
+                                  onError: (error) =>
+                                    toast.error(
+                                      error instanceof Error
+                                        ? error.message
+                                        : fr
+                                          ? "Impossible d’enregistrer la photo"
+                                          : "Could not save the group photo",
+                                    ),
+                                },
+                              );
+                            }}
+                          />
+                        </label>
+                      ) : null}
+                    </div>
+                    {activeGroup.owner_id === user?.id ? (
+                      <div className="flex gap-2">
+                        <Input
+                          value={groupEditName}
+                          onChange={(event) => setGroupEditName(event.target.value.slice(0, 60))}
+                        />
+                        <Button
+                          onClick={() =>
+                            updateGroup.mutate(
+                              { groupId: activeGroup.id, name: groupEditName },
+                              {
+                                onSuccess: () =>
+                                  toast.success(fr ? "Groupe mis à jour" : "Group updated"),
+                              },
+                            )
+                          }
+                        >
+                          {fr ? "Enregistrer" : "Save"}
+                        </Button>
+                      </div>
+                    ) : null}
+                    <div className="space-y-2">
+                      {activeGroup.members.map((member) => (
+                        <div
+                          key={member.id}
+                          className="flex items-center gap-2 rounded-xl bg-muted/50 p-2"
+                        >
+                          <Avatar
+                            path={member.avatar_url}
+                            name={member.name}
+                            online={member.online}
+                            hasUpdate={member.has_update}
+                            className="size-9"
+                          />
+                          <span className="flex min-w-0 flex-1 items-center gap-1 text-sm font-semibold">
+                            <span className="truncate">{member.name}</span>
+                            <VerifiedBadge
+                              tier={member.verified_tier}
+                              until={member.verified_until}
+                              size={13}
+                            />
+                          </span>
+                          {activeGroup.owner_id === user?.id && member.id !== user.id ? (
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="text-destructive"
+                              onClick={() =>
+                                removeGroupMember.mutate({
+                                  groupId: activeGroup.id,
+                                  userId: member.id,
+                                })
+                              }
+                            >
+                              <UserMinus className="size-4" />
+                            </Button>
+                          ) : null}
+                        </div>
+                      ))}
+                    </div>
+                    {activeGroup.owner_id === user?.id ? (
+                      <>
+                        <Input
+                          value={groupSearch}
+                          onChange={(event) => setGroupSearch(event.target.value)}
+                          placeholder={fr ? "Ajouter un membre" : "Add a member"}
+                        />
+                        {(groupPeople ?? [])
+                          .filter(
+                            (person) =>
+                              !activeGroup.members.some((member) => member.id === person.id),
+                          )
+                          .slice(0, 6)
+                          .map((person) => (
+                            <button
+                              key={person.id}
+                              type="button"
+                              onClick={() =>
+                                addGroupMembers.mutate({
+                                  groupId: activeGroup.id,
+                                  memberIds: [person.id],
+                                })
+                              }
+                              className="flex w-full items-center gap-2 rounded-xl p-2 text-left hover:bg-muted"
+                            >
+                              <Avatar
+                                path={person.avatar_url}
+                                name={person.name}
+                                online={person.online}
+                                hasUpdate={person.has_update}
+                                className="size-9"
+                              />
+                              <span className="flex-1 truncate text-sm font-semibold">
+                                {person.name}
+                              </span>
+                              <Plus className="size-4 text-primary" />
+                            </button>
+                          ))}
+                      </>
+                    ) : null}
+                  </>
+                ) : null}
               </DialogContent>
             </Dialog>
 
@@ -1400,16 +1714,24 @@ function MessagesPage() {
             ) : activeId && prefs?.[activeId]?.locked && !lockedMessages[activeId] ? (
               <div className="grid flex-1 place-items-center bg-background/80 p-6 text-center backdrop-blur-sm">
                 <div className="max-w-xs space-y-3">
-                  <span className="mx-auto grid size-14 place-items-center rounded-full bg-primary/10 text-primary"><Lock className="size-6" /></span>
-                  <p className="font-display text-lg font-bold">{fr ? "Discussion verrouillée" : "Locked chat"}</p>
-                  <p className="text-sm text-muted-foreground">{fr ? "Le contenu n’a pas été chargé. Entrez votre code pour l’ouvrir." : "Content has not been loaded. Enter your PIN to open it."}</p>
-                  <Button onClick={() => void openLockedChat(activeId)}>{fr ? "Déverrouiller" : "Unlock"}</Button>
+                  <span className="mx-auto grid size-14 place-items-center rounded-full bg-primary/10 text-primary">
+                    <Lock className="size-6" />
+                  </span>
+                  <p className="font-display text-lg font-bold">
+                    {fr ? "Discussion verrouillée" : "Locked chat"}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {fr
+                      ? "Le contenu n’a pas été chargé. Entrez votre code pour l’ouvrir."
+                      : "Content has not been loaded. Enter your PIN to open it."}
+                  </p>
+                  <Button onClick={() => void openLockedChat(activeId)}>
+                    {fr ? "Déverrouiller" : "Unlock"}
+                  </Button>
                 </div>
               </div>
             ) : activeId ? (
-              <div
-                className="member-chat-surface relative min-h-0 flex-1 overflow-hidden"
-              >
+              <div className="member-chat-surface relative min-h-0 flex-1 overflow-hidden">
                 <div
                   aria-hidden
                   className="pointer-events-none absolute inset-0 bg-background/10"
@@ -1417,40 +1739,40 @@ function MessagesPage() {
 
                 <div className="relative flex h-full min-h-0 flex-col">
                   <ChatThread
-                conversationId={activeId}
-                currentUserId={user?.id}
-                peerName={
-                  active ? peerOf(active) : (fr ? "Profil" : "Profile")
-                }
-                peerUserId={
-                  active
-                    ? peerUserIdOf(active)
-                    : null
-                }
-                peerAvatar={active ? peerAvatarOf(active) : null}
-                isGroup={Boolean(activeGroup)}
-                offPlatformGuard={Boolean(isCampusPeer)}
-                enforceFirstContactLimit={Boolean(
-                  active && !activeGroup && !active.provider_id && !active.booking_id && !active.listing_id,
-                )}
-                members={(activeGroup?.members ?? []).map((m) => ({
-                  id: m.id,
-                  name: m.name,
-                  avatar_url: m.avatar_url,
-                  online: m.online,
-                  verified_tier: m.verified_tier ?? null,
-                  verified_until: m.verified_until ?? null,
-                }))}
-                  initialMessages={activeId ? lockedMessages[activeId] : undefined}
-                  refreshMessages={activeId && activeLockedPin
-                    ? async () => {
-                        const result = await unlockChatServer({
-                          data: { conversationId: activeId, pin: activeLockedPin },
-                        }) as { messages: LockedChatMessage[] };
-                        return result.messages;
-                      }
-                    : undefined}
-                className="min-h-0 flex-1"
+                    conversationId={activeId}
+                    currentUserId={user?.id}
+                    peerName={active ? peerOf(active) : fr ? "Profil" : "Profile"}
+                    peerUserId={active ? peerUserIdOf(active) : null}
+                    peerAvatar={active ? peerAvatarOf(active) : null}
+                    isGroup={Boolean(activeGroup)}
+                    offPlatformGuard={Boolean(isCampusPeer)}
+                    enforceFirstContactLimit={Boolean(
+                      active &&
+                      !activeGroup &&
+                      !active.provider_id &&
+                      !active.booking_id &&
+                      !active.listing_id,
+                    )}
+                    members={(activeGroup?.members ?? []).map((m) => ({
+                      id: m.id,
+                      name: m.name,
+                      avatar_url: m.avatar_url,
+                      online: m.online,
+                      verified_tier: m.verified_tier ?? null,
+                      verified_until: m.verified_until ?? null,
+                    }))}
+                    initialMessages={activeId ? lockedMessages[activeId] : undefined}
+                    refreshMessages={
+                      activeId && activeLockedPin
+                        ? async () => {
+                            const result = (await unlockChatServer({
+                              data: { conversationId: activeId, pin: activeLockedPin },
+                            })) as { messages: LockedChatMessage[] };
+                            return result.messages;
+                          }
+                        : undefined
+                    }
+                    className="min-h-0 flex-1"
                     quickReplies={
                       lang === "fr"
                         ? [
@@ -1477,14 +1799,74 @@ function MessagesPage() {
           </div>
         </div>
       )}
-      <ChatActionDialog open={Boolean(avatarChoice)} onOpenChange={(open) => { if (!open) setAvatarChoice(null); }} title={avatarChoice ? peerOf(avatarChoice) : ""}>
-        {avatarChoice && <div className="mb-4 flex justify-center"><Avatar path={peerAvatarOf(avatarChoice)} name={peerOf(avatarChoice)} className="size-24" hasUpdate={hasStory || hasSpotlight} /></div>}
-        {(loadingStories || loadingSpotlights) && <p role="status" className="text-center text-sm text-muted-foreground">{fr ? "Chargement des actualités…" : "Loading updates…"}</p>}
-        {hasStory && <Button variant="secondary" className="h-14 w-full justify-start gap-4 text-base" onClick={() => { if (!avatarPeerId) return; setViewerRequest({ authorId: avatarPeerId, kind: "story" }); setAvatarChoice(null); }}><CircleUserRound className="text-success" />{fr ? "Voir la story" : "View story"}</Button>}
-        {hasSpotlight && <Button variant="secondary" className="h-14 w-full justify-start gap-4 text-base" onClick={() => { if (!avatarPeerId) return; setViewerRequest({ authorId: avatarPeerId, kind: "spotlight" }); setAvatarChoice(null); }}><Play className="text-success" />{fr ? "Voir le Spotlight" : "View Spotlight"}</Button>}
-        <Button variant="secondary" className="h-14 w-full justify-start gap-4 text-base" onClick={() => { if (avatarChoice) openPeerProfile(avatarChoice); setAvatarChoice(null); }}><CircleUserRound />{fr ? "Voir le profil" : "View profile"}</Button>
+      <ChatActionDialog
+        open={Boolean(avatarChoice)}
+        onOpenChange={(open) => {
+          if (!open) setAvatarChoice(null);
+        }}
+        title={avatarChoice ? peerOf(avatarChoice) : ""}
+      >
+        {avatarChoice && (
+          <div className="mb-4 flex justify-center">
+            <Avatar
+              path={peerAvatarOf(avatarChoice)}
+              name={peerOf(avatarChoice)}
+              className="size-24"
+              hasUpdate={hasStory || hasSpotlight}
+            />
+          </div>
+        )}
+        {(loadingStories || loadingSpotlights) && (
+          <p role="status" className="text-center text-sm text-muted-foreground">
+            {fr ? "Chargement des actualités…" : "Loading updates…"}
+          </p>
+        )}
+        {hasStory && (
+          <Button
+            variant="secondary"
+            className="h-14 w-full justify-start gap-4 text-base"
+            onClick={() => {
+              if (!avatarPeerId) return;
+              setViewerRequest({ authorId: avatarPeerId, kind: "story" });
+              setAvatarChoice(null);
+            }}
+          >
+            <CircleUserRound className="text-success" />
+            {fr ? "Voir la story" : "View story"}
+          </Button>
+        )}
+        {hasSpotlight && (
+          <Button
+            variant="secondary"
+            className="h-14 w-full justify-start gap-4 text-base"
+            onClick={() => {
+              if (!avatarPeerId) return;
+              setViewerRequest({ authorId: avatarPeerId, kind: "spotlight" });
+              setAvatarChoice(null);
+            }}
+          >
+            <Play className="text-success" />
+            {fr ? "Voir le Spotlight" : "View Spotlight"}
+          </Button>
+        )}
+        <Button
+          variant="secondary"
+          className="h-14 w-full justify-start gap-4 text-base"
+          onClick={() => {
+            if (avatarChoice) openPeerProfile(avatarChoice);
+            setAvatarChoice(null);
+          }}
+        >
+          <CircleUserRound />
+          {fr ? "Voir le profil" : "View profile"}
+        </Button>
       </ChatActionDialog>
-      {viewerRequest && <StoriesRail viewerRequest={viewerRequest} onViewerClose={() => setViewerRequest(undefined)} />}
+      {viewerRequest && (
+        <StoriesRail
+          viewerRequest={viewerRequest}
+          onViewerClose={() => setViewerRequest(undefined)}
+        />
+      )}
     </div>
   );
 }

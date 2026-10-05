@@ -33,15 +33,33 @@ function reference(prefix: string): string {
 /** Starts a mobile money charge for one month of ASH Verified. */
 export const startVerification = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { tier: string; provider: string; phone: string; country?: string | undefined }) => ({
-    tier: String(input?.tier ?? "INDIVIDUAL").toUpperCase().slice(0, 20),
-    provider: String(input?.provider ?? "").trim().slice(0, 40),
-    phone: String(input?.phone ?? "").trim().slice(0, 20),
-    country: (String(input?.country ?? "CM").toUpperCase().slice(0, 2) || "CM"),
-  }))
+  .inputValidator(
+    (input: { tier: string; provider: string; phone: string; country?: string | undefined }) => ({
+      tier: String(input?.tier ?? "INDIVIDUAL")
+        .toUpperCase()
+        .slice(0, 20),
+      provider: String(input?.provider ?? "")
+        .trim()
+        .slice(0, 40),
+      phone: String(input?.phone ?? "")
+        .trim()
+        .slice(0, 20),
+      country:
+        String(input?.country ?? "CM")
+          .toUpperCase()
+          .slice(0, 2) || "CM",
+    }),
+  )
   .handler(async ({ data, context }): Promise<VerificationCharge> => {
     const { userId } = context;
-    const base: VerificationCharge = { ok: false, reference: null, providerReference: null, status: "PENDING", error: null, message: null };
+    const base: VerificationCharge = {
+      ok: false,
+      reference: null,
+      providerReference: null,
+      status: "PENDING",
+      error: null,
+      message: null,
+    };
 
     const plan = VERIFICATION_TIERS[data.tier as VerificationTier];
     if (!plan) return { ...base, error: "INVALID_TIER" };
@@ -71,8 +89,17 @@ export const startVerification = createServerFn({ method: "POST" })
     });
 
     if (!charge.ok) {
-      await supabaseAdmin.from("verifications").update({ status: "FAILED" }).eq("payment_reference", merchantReference);
-      return { ...base, reference: merchantReference, error: charge.error ?? "PAYMENT_START_FAILED", message: charge.message ?? null, status: "FAILED" };
+      await supabaseAdmin
+        .from("verifications")
+        .update({ status: "FAILED" })
+        .eq("payment_reference", merchantReference);
+      return {
+        ...base,
+        reference: merchantReference,
+        error: charge.error ?? "PAYMENT_START_FAILED",
+        message: charge.message ?? null,
+        status: "FAILED",
+      };
     }
 
     await supabaseAdmin
@@ -80,13 +107,22 @@ export const startVerification = createServerFn({ method: "POST" })
       .update({ provider_transaction_id: charge.providerReference ?? null, status: "PROCESSING" })
       .eq("payment_reference", merchantReference);
 
-    return { ok: true, reference: merchantReference, providerReference: charge.providerReference ?? null, status: charge.status, error: null, message: null };
+    return {
+      ok: true,
+      reference: merchantReference,
+      providerReference: charge.providerReference ?? null,
+      status: charge.status,
+      error: null,
+      message: null,
+    };
   });
 
 /** "I have paid" check — asks the provider for the real outcome and settles it. */
 export const verifyVerificationCharge = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { reference: string }) => ({ reference: String(input?.reference ?? "").slice(0, 64) }))
+  .inputValidator((input: { reference: string }) => ({
+    reference: String(input?.reference ?? "").slice(0, 64),
+  }))
   .handler(async ({ data, context }) => {
     const { userId } = context;
     const { tchokoPay } = await import("./tchokopay.server");
@@ -122,67 +158,69 @@ export const verifyVerificationCharge = createServerFn({ method: "POST" })
 
 /** Admin: grants or revokes the badge by hand, with a reason. */
 export const consoleSetVerification = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: { userId: string; tier: string | null; days?: number | undefined; note?: string | undefined }) => ({
-    userId: String(input?.userId ?? "").slice(0, 64),
-    tier: input?.tier ? String(input.tier).toUpperCase().slice(0, 20) : null,
-    days: Number(input?.days ?? 30),
-    note: input?.note ? String(input.note).slice(0, 300) : undefined,
-  }))
-  .handler(async ({ data, context }) => {
-    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
-    if (!isAdmin) return { ok: false as const, error: "FORBIDDEN" };
-
+  .inputValidator(
+    (input: {
+      userId: string;
+      tier: string | null;
+      days?: number | undefined;
+      note?: string | undefined;
+    }) => ({
+      userId: String(input?.userId ?? "").slice(0, 64),
+      tier: input?.tier ? String(input.tier).toUpperCase().slice(0, 20) : null,
+      days: Number(input?.days ?? 30),
+      note: input?.note ? String(input.note).slice(0, 300) : undefined,
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { requireDepartment } = await import("./console.server");
+    const actor = await requireDepartment("TRUST");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.rpc("console_set_verification", {
       _user_id: data.userId,
       _tier: data.tier,
       _days: data.days,
       _note: data.note ?? null,
-      _actor: context.userId,
+      _actor: `${actor.name} (${actor.department})`,
     } as never);
     if (error) return { ok: false as const, error: error.message };
     return { ok: true as const, error: null };
   });
 
 /** Admin: verified members, recent purchases and blocked impersonation attempts. */
-export const consoleVerificationOverview = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
-    if (!isAdmin) return { ok: false as const, verified: [], purchases: [], attempts: [], revenue: 0 };
+export const consoleVerificationOverview = createServerFn({ method: "GET" }).handler(async () => {
+  const { requireDepartment } = await import("./console.server");
+  await requireDepartment("TRUST");
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const [verifiedRes, purchaseRes, attemptRes] = await Promise.all([
+    supabaseAdmin
+      .from("profiles")
+      .select("user_id, full_name, email, avatar_url, verified_tier, verified_until")
+      .not("verified_tier", "is", null)
+      .order("verified_until", { ascending: false })
+      .limit(200),
+    supabaseAdmin
+      .from("verifications")
+      .select("id, user_id, tier, status, amount, created_at, expires_at, granted_by, note")
+      .order("created_at", { ascending: false })
+      .limit(100),
+    supabaseAdmin
+      .from("impersonation_attempts")
+      .select("id, actor_id, protected_user_id, kind, attempted_value, created_at")
+      .order("created_at", { ascending: false })
+      .limit(100),
+  ]);
 
-    const [verifiedRes, purchaseRes, attemptRes] = await Promise.all([
-      supabaseAdmin
-        .from("profiles")
-        .select("user_id, full_name, email, avatar_url, verified_tier, verified_until")
-        .not("verified_tier", "is", null)
-        .order("verified_until", { ascending: false })
-        .limit(200),
-      supabaseAdmin
-        .from("verifications")
-        .select("id, user_id, tier, status, amount, created_at, expires_at, granted_by, note")
-        .order("created_at", { ascending: false })
-        .limit(100),
-      supabaseAdmin
-        .from("impersonation_attempts")
-        .select("id, actor_id, protected_user_id, kind, attempted_value, created_at")
-        .order("created_at", { ascending: false })
-        .limit(100),
-    ]);
+  const purchases = purchaseRes.data ?? [];
+  const revenue = purchases
+    .filter((row) => row.status === "PAID")
+    .reduce((sum, row) => sum + Number(row.amount ?? 0), 0);
 
-    const purchases = purchaseRes.data ?? [];
-    const revenue = purchases
-      .filter((row) => row.status === "PAID")
-      .reduce((sum, row) => sum + Number(row.amount ?? 0), 0);
-
-    return {
-      ok: true as const,
-      verified: verifiedRes.data ?? [],
-      purchases,
-      attempts: attemptRes.data ?? [],
-      revenue,
-    };
-  });
+  return {
+    ok: true as const,
+    verified: verifiedRes.data ?? [],
+    purchases,
+    attempts: attemptRes.data ?? [],
+    revenue,
+  };
+});

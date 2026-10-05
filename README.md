@@ -35,8 +35,13 @@ Auth: `/login`, `/register`, `/forgot-password`, `/reset-password`, `/auth/callb
 
 ## Core experience
 
+- **First visit and onboarding** — signed-out browser visitors see `/`; sign-up/sign-in and any required email confirmation lead through current Terms acceptance and a profile photo, then `/feed`. Terms acceptance is versioned.
+- **Mobile tabs** — Feed, Market/Services, Flights, Messages and Menu. Market is the default Services mode; Extras is `/services/extras`. Wallet remains the floating launcher and is also reachable from Menu/desktop navigation.
+- **Availability** — Flights and Electricity are coming soon; neither is a live ticket/bill payment service. TchokoPay in Extras is an external partner link, separate from ASH’s integrated Mobile Money flows.
+- **Identity protection** — normalized verified-name reuse and exact JPG/PNG file/pixel copies trigger a red Denied screen, access restriction and a fourth-attempt ban/sign-out. Only authorized admin/Trust staff restore identity access; cropped/edited-photo similarity detection is not implemented.
+
 - **Bilingual by default** — English and French, switchable in-app.
-- **Dark & light themes** — cinematic dark-first design with the emerald/gold ASH palette.
+- **Dark & light themes** — ASH magenta/violet and subtle green branding on member screens, entry screens and scoped staff dashboards.
 - **Region-aware** — referral earnings and Mobile Money are gated per country (CM/NG referrals, CM mobile money, 1% platform fee, 2% in high-fee markets).
 - **Fast navigation** — intent preloading and query caching keep tab switches instant.
 - **Notifications & push** — in-app notification bell plus device push with vibration and numeric app badges on installed iOS/Android apps.
@@ -95,6 +100,8 @@ verify callers themselves (e.g. HMAC-SHA256 webhook signatures).
 - Payment webhooks verify TchokoPay signatures; `/api/public/reconcile-activations`
   reconciles activation payments; `/api/public/security-selfcheck` runs a
   database integrity self-check. Daily CI runs the same checks.
+
+Finance and Shareholders reuse the same read-only ledger. Finance source reads are paginated so totals and wallet reconciliation do not silently stop at a fixed row limit; unavailable data fails rather than appearing as zero. Collection, payout execution, fees and withdrawal limits remain in their existing payment/settlement routines.
 
 ## Security
 

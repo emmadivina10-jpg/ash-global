@@ -29,12 +29,13 @@ export function AssistantPanel() {
   const [input, setInput] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
-  const endRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ block: "end" });
+    const messages = messagesRef.current;
+    if (messages) messages.scrollTop = messages.scrollHeight;
   }, [turns, busy]);
 
   async function pick(event: React.ChangeEvent<HTMLInputElement>) {
@@ -79,7 +80,10 @@ export function AssistantPanel() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
+      <div
+        ref={messagesRef}
+        className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain pr-1"
+      >
         {turns.length === 0 ? (
           <div className="space-y-3">
             <div className="flex flex-wrap gap-2">
@@ -103,8 +107,16 @@ export function AssistantPanel() {
         ) : null}
 
         {turns.map((turn, index) => (
-          <div key={index} className={cn("flex", turn.role === "user" ? "justify-end" : "justify-start")}>
-            <div className={cn("max-w-[85%] space-y-1.5", turn.role === "user" ? "items-end" : "items-start")}>
+          <div
+            key={index}
+            className={cn("flex", turn.role === "user" ? "justify-end" : "justify-start")}
+          >
+            <div
+              className={cn(
+                "max-w-[85%] space-y-1.5",
+                turn.role === "user" ? "items-end" : "items-start",
+              )}
+            >
               {(turn.images ?? []).length > 0 ? (
                 <div className="flex flex-wrap justify-end gap-1.5">
                   {(turn.images ?? []).map((src, i) => (
@@ -120,7 +132,9 @@ export function AssistantPanel() {
               <p
                 className={cn(
                   "whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2 text-sm",
-                  turn.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground",
+                  turn.role === "user"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-foreground",
                 )}
               >
                 {turn.content}
@@ -129,14 +143,17 @@ export function AssistantPanel() {
           </div>
         ))}
         {busy ? <p className="text-sm text-muted-foreground">{t("ai.busy")}</p> : null}
-        <div ref={endRef} />
       </div>
 
       {images.length > 0 ? (
         <div className="mt-2 flex flex-wrap gap-2">
           {images.map((src, index) => (
             <span key={index} className="relative">
-              <img src={src} alt="" className="size-16 rounded-xl border border-border object-cover" />
+              <img
+                src={src}
+                alt=""
+                className="size-16 rounded-xl border border-border object-cover"
+              />
               <button
                 type="button"
                 aria-label={fr ? "Retirer la photo" : "Remove photo"}

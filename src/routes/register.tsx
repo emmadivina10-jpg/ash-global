@@ -53,10 +53,12 @@ export const Route = createFileRoute("/register")({
       { title: "Create your ASH Glo account" },
       {
         name: "description",
-        content: "Join ASH Glo in minutes, activate for 5,000 XAF and start earning referral rewards on three levels.",
+        content: "Create your ASH Glo account for commerce, services, community, messaging and eligible regional referral rewards.",
       },
       { property: "og:title", content: "Create your ASH Glo account" },
       { property: "og:description", content: "Join ASH Glo and start earning referral rewards." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: RegisterPage,

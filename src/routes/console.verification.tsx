@@ -13,6 +13,22 @@ import { formatXAF } from "@/lib/format";
 
 export const Route = createFileRoute("/console/verification")({
   ssr: false,
+  head: () => ({
+    meta: [
+      { title: "Verified badges — ASH Staff Console" },
+      {
+        name: "description",
+        content: "Authorized ASH staff verification and protected-identity review.",
+      },
+      { property: "og:title", content: "Verified badges — ASH Staff Console" },
+      {
+        property: "og:description",
+        content: "Authorized ASH staff verification and protected-identity review.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: VerificationConsole,
 });
 
@@ -28,7 +44,9 @@ function VerificationConsole() {
   async function act(userId: string, tier: string | null) {
     setBusy(userId);
     try {
-      const result = await setVerification({ data: { userId, tier, days: 30, note: note || undefined } });
+      const result = await setVerification({
+        data: { userId, tier, days: 30, note: note || undefined },
+      });
       if (!result.ok) {
         toast.error(result.error === "FORBIDDEN" ? "Admins only." : "Could not update.");
         return;
@@ -64,15 +82,21 @@ function VerificationConsole() {
           { label: "Verification revenue", value: formatXAF(data.revenue) },
         ].map((tile) => (
           <div key={tile.label} className="rounded-2xl border border-border bg-card p-4">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{tile.label}</p>
-            <p className="mt-1 font-display text-2xl font-extrabold text-foreground">{tile.value}</p>
+            <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+              {tile.label}
+            </p>
+            <p className="mt-1 font-display text-2xl font-extrabold text-foreground">
+              {tile.value}
+            </p>
           </div>
         ))}
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-4">
         <p className="text-sm font-bold text-foreground">Grant or revoke</p>
-        <p className="text-xs text-muted-foreground">Reason is stored on the verification record.</p>
+        <p className="text-xs text-muted-foreground">
+          Reason is stored on the verification record.
+        </p>
         <Input
           className="mt-3"
           placeholder="Reason / note (optional)"
@@ -86,7 +110,10 @@ function VerificationConsole() {
             data.verified.map((row) => {
               const live = !row.verified_until || new Date(row.verified_until) > new Date();
               return (
-                <li key={row.user_id} className="flex flex-wrap items-center justify-between gap-2 py-3">
+                <li
+                  key={row.user_id}
+                  className="flex flex-wrap items-center justify-between gap-2 py-3"
+                >
                   <span className="min-w-0">
                     <span className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
                       <BadgeCheck className="size-4 text-[#1877F2]" aria-hidden />
@@ -140,7 +167,9 @@ function VerificationConsole() {
                 </span>
                 <span className="flex items-center gap-2 text-xs text-muted-foreground">
                   {new Date(row.created_at).toLocaleDateString("en-GB")}
-                  <Badge className="rounded-full border-0 bg-muted text-[10px] text-muted-foreground">{row.status}</Badge>
+                  <Badge className="rounded-full border-0 bg-muted text-[10px] text-muted-foreground">
+                    {row.status}
+                  </Badge>
                 </span>
               </li>
             ))
@@ -155,7 +184,9 @@ function VerificationConsole() {
         </p>
         <ul className="mt-3 divide-y divide-border">
           {data.attempts.length === 0 ? (
-            <li className="py-3 text-xs text-muted-foreground">Nobody has tried to copy a verified identity.</li>
+            <li className="py-3 text-xs text-muted-foreground">
+              Nobody has tried to copy a verified identity.
+            </li>
           ) : (
             data.attempts.map((row) => (
               <li key={row.id} className="py-2 text-sm">
@@ -163,7 +194,8 @@ function VerificationConsole() {
                   {row.kind}: “{row.attempted_value ?? "—"}”
                 </span>
                 <span className="block text-xs text-muted-foreground">
-                  actor {row.actor_id?.slice(0, 8) ?? "—"} · protected {row.protected_user_id?.slice(0, 8) ?? "—"} ·{" "}
+                  actor {row.actor_id?.slice(0, 8) ?? "—"} · protected{" "}
+                  {row.protected_user_id?.slice(0, 8) ?? "—"} ·{" "}
                   {new Date(row.created_at).toLocaleString("en-GB")}
                 </span>
               </li>

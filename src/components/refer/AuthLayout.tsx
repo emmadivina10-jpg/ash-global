@@ -30,31 +30,23 @@ export function AuthLayout({
     },
     {
       icon: Sparkles,
-      en: "Earn on three referral levels as your network grows",
-      fr: "Gagnez sur trois niveaux de parrainage",
+      en: "Referral rewards in eligible Cameroon and Nigeria accounts",
+      fr: "Récompenses de parrainage pour les comptes éligibles au Cameroun et au Nigeria",
     },
     {
       icon: ShieldCheck,
-      en: "Mobile Money payments handled by licensed partners",
-      fr: "Paiements Mobile Money via des partenaires agréés",
+      en: "MTN and Orange Money in supported payment flows",
+      fr: "MTN et Orange Money selon les paiements disponibles",
     },
   ];
 
   return (
-    <div className="min-h-dvh bg-background lg:grid lg:grid-cols-[1.05fr_minmax(0,1fr)]">
+    <div className="ash-entry min-h-dvh bg-background lg:grid lg:grid-cols-[1.05fr_minmax(0,1fr)]">
       {/* Brand panel — desktop only */}
-      <aside className="relative hidden overflow-hidden bg-primary-deep lg:flex lg:flex-col lg:justify-between lg:p-12">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-70"
-          style={{
-            backgroundImage:
-              "radial-gradient(60% 50% at 20% 15%, color-mix(in oklab, var(--primary) 55%, transparent), transparent 70%), radial-gradient(55% 45% at 85% 80%, color-mix(in oklab, var(--gold, #d4a017) 35%, transparent), transparent 70%)",
-          }}
-          aria-hidden
-        />
+      <aside className="ash-entry-brand relative hidden overflow-hidden border-r border-border lg:flex lg:flex-col lg:justify-between lg:p-12">
         <div className="relative">
           <Link to="/" className="inline-flex">
-            <Logo className="[&_span]:text-on-dark" />
+            <Logo />
           </Link>
         </div>
 
@@ -65,13 +57,13 @@ export function AuthLayout({
             aria-hidden
             className="size-20 rounded-2xl object-cover shadow-raised"
           />
-          <h2 className="mt-6 font-display text-4xl font-extrabold leading-tight text-on-dark">
+          <h2 className="ash-entry-title mt-6 font-display text-4xl font-extrabold leading-tight">
             {fr ? "Là où les opportunités se connectent." : "Where opportunities connect."}
           </h2>
           <ul className="mt-8 space-y-4">
             {points.map((p) => (
-              <li key={p.en} className="flex items-start gap-3 text-sm text-on-dark/80">
-                <span className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-full bg-on-dark/10">
+              <li key={p.en} className="flex items-start gap-3 text-sm text-foreground">
+                <span className="member-dual-wash mt-0.5 grid size-8 shrink-0 place-items-center rounded-full text-primary">
                   <p.icon className="size-4" aria-hidden />
                 </span>
                 <span>{fr ? p.fr : p.en}</span>
@@ -80,8 +72,10 @@ export function AuthLayout({
           </ul>
         </div>
 
-        <p className="relative text-xs text-on-dark/60">
-          {fr ? "ASH Glo — Là où les opportunités se connectent." : "ASH Glo — Where Opportunities Connect."}
+        <p className="relative text-xs text-muted-foreground">
+          {fr
+            ? "ASH Glo — Là où les opportunités se connectent."
+            : "ASH Glo — Where Opportunities Connect."}
         </p>
       </aside>
 

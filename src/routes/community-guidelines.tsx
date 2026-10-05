@@ -53,6 +53,7 @@ function CommunityGuidelinesPage() {
       <LegalSection id="authenticity" title="2. Be authentic">
         <LegalList items={[
           "Do not impersonate a person, business, provider or ASH representative.",
+          "Do not reuse an active verified account’s name or profile photo. Detected attempts show Denied and restrict access; a fourth denied attempt bans the account and triggers sign-out. Only an authorized administrator or Trust & Verification may restore identity-restricted access. Photo comparison currently detects exact JPG/PNG file or decoded-pixel copies, not all edited variants.",
           "Do not create fake accounts, buy or manipulate engagement, publish fabricated reviews, or coordinate fake referrals.",
           "Do not misrepresent qualifications, identity checks, prices, availability, ownership, work history or results.",
           "Verification badges indicate the checks described in the relevant ASH flow; they are not guarantees of skill, safety, ownership or future conduct.",
