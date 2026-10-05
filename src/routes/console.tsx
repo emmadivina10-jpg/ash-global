@@ -82,16 +82,15 @@ const NAV = [
   { to: "/console/merchant", label: "Merchants", icon: Store, group: "Workforce", dept: "MERCHANT" },
   { to: "/console/expansion", label: "Expansion", icon: Map, group: "Workforce", dept: "EXPANSION" },
   { to: "/console/property", label: "Property", icon: Building2, group: "Workforce", dept: "TRUST" },
-  { to: "/console/reports", label: "Safety reports", icon: ShieldCheck, group: "Workforce", dept: "TRUST" },
-  { to: "/console/trust", label: "Trust & Verification", icon: ShieldCheck, group: "Workforce", dept: "TRUST" },
-  { to: "/console/verification", label: "Verified badges", icon: BadgeCheck, group: "Workforce", dept: "TRUST" },
-  { to: "/console/instructors", label: "FX instructor reviews", icon: GraduationCap, group: "Workforce", dept: "TRUST" },
-  { to: "/console/campus-instructors", label: "Campus instructor reviews", icon: GraduationCap, group: "Workforce", dept: "TRUST" },
   { to: "/console/campus-catalogue", label: "Campus catalogue", icon: GraduationCap, group: "Workforce", dept: "TRUST" },
+  { to: "/console/trust", label: "Overview & user verification", icon: ShieldCheck, group: "Trust & Verification", dept: "TRUST" },
+  { to: "/console/reports", label: "Safety & reports", icon: ShieldAlert, group: "Trust & Verification", dept: "TRUST" },
+  { to: "/console/verification", label: "Verified badges", icon: BadgeCheck, group: "Trust & Verification", dept: "TRUST" },
+  { to: "/console/campus-instructors", label: "Instructors · Campus", icon: GraduationCap, group: "Trust & Verification", dept: "TRUST" },
+  { to: "/console/instructors", label: "Instructors · FX", icon: GraduationCap, group: "Trust & Verification", dept: "TRUST" },
   { to: "/console/staff", label: "Staff & departments", icon: UserCog, group: "Admin", dept: "SUPER_ADMIN" },
-] as const;
-
-const GROUPS = ["Insights", "Money", "People", "Workforce", "Admin"] as const;
+];
+const GROUPS = ["Insights", "Money", "Trust & Verification", "People", "Workforce", "Admin"] as const;
 
 
 export const Route = createFileRoute("/console")({
