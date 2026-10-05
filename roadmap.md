@@ -132,7 +132,9 @@
 - [x] Replace the inline composer with a plane banner; signed-in preview verified dialog, gallery/camera controls, caption and Post enabled state; no post sent, nothing published
 
 ## Services / Market and tab sound
-- [ ] Replace tab chime with short Facebook-inspired tap while retaining mute settings
-- [ ] Move tutoring banner into rounded shortcut immediately after Netflix
-- [ ] Add Market mode with matching tab label/icon and existing real marketplace browsing workflows
-- [ ] Verify mode switching, filters, layout and sound/mute behavior; do not publish
+- [x] Replace tab chime with short Facebook-inspired tap while retaining mute settings
+- [x] Move tutoring banner into rounded shortcut immediately after Netflix
+- [x] Add Market mode with matching tab label/icon and existing real marketplace browsing workflows
+- [x] Verify mode switching, filters, layout and sound/mute behavior; do not publish
+
+Market checks: signed-in Services/Market switching and reload persistence, tutoring after Netflix and destination, real listing detail navigation, search/city filters, selling chooser, no mobile/desktop overflow or runtime errors; tab mute verified; 45 commerce/region/format tests pass. Sound similarity requires listening by the owner; no publication.

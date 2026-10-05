@@ -1,4 +1,7 @@
 import { resetProviderRotation } from "@/lib/discovery.queries";
+import { MarketBrowser } from "@/components/refer/MarketBrowser";
+import { useServicesMode, setServicesMode } from "@/lib/services-mode";
+import { playTabSound } from "@/lib/sound";
 import { useQueryClient } from "@tanstack/react-query";
 import { PullToRefresh } from "@/components/refer/PullToRefresh";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -22,6 +25,7 @@ import {
   Search,
   SlidersHorizontal,
   Sparkles,
+  Store,
   Tag,
   Users,
 } from "lucide-react";
@@ -116,6 +120,11 @@ const QUICK_LINKS = [
       "h-8 w-8 object-contain",
     ring:
       "bg-white ring-red-500/60 shadow-red-500/20",
+  },
+  {
+    to: "/campus/instructors",
+    en: "Learn", fr: "Apprendre", icon: GraduationCap,
+    tone: "text-primary", ring: "bg-primary/15 ring-primary/50 shadow-primary/20",
   },
   {
     href: "https://www.tiktok.com/",
@@ -435,6 +444,7 @@ function DiscoveryPage() {
   const { t, lang } = useI18n();
   const fr = lang === "fr";
   const navigate = useNavigate();
+  const mode = useServicesMode();
 
   const {
     location,
@@ -574,10 +584,11 @@ function DiscoveryPage() {
   const {
     data,
     isLoading,
+    isError,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-  } = useDiscovery(filters);
+  } = useDiscovery(mode === "market" ? { ...DEFAULT_FILTERS, country: region.seesEverything ? null : region.country, nearCity: location?.label ?? null } : filters);
 
   const providers = useMemo(
     () =>
@@ -807,25 +818,16 @@ function DiscoveryPage() {
     (filters.verifiedOnly ? 1 : 0) +
     (filters.availableOnly ? 1 : 0);
 
+  if (mode === "market") return (
+    <PullToRefresh onRefresh={() => { resetProviderRotation(); return queryClient.resetQueries({ predicate: (q) => ["discovery", "property", "deals"].includes(String(q.queryKey[0])) }); }} label={fr ? "Actualisation" : "Refreshing"}>
+      <div className="mx-auto w-full max-w-5xl"><MarketBrowser providers={providers} loadingProviders={isLoading} providerError={isError} hasMore={Boolean(hasNextPage)} loadMore={() => { void fetchNextPage(); }} loadingMore={isFetchingNextPage} /></div>
+    </PullToRefresh>
+  );
+
   return (
     <PullToRefresh onRefresh={() => { resetProviderRotation(); return queryClient.resetQueries({ predicate: (q) => q.state.status !== "pending" }); }} label={fr ? "Actualisation" : "Refreshing"}>
     <div className="mx-auto w-full max-w-5xl space-y-5">
-      <Link
-        to="/campus/instructors"
-        className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-[linear-gradient(135deg,var(--color-verified-violet),var(--color-verified-magenta))] p-4 text-on-dark"
-      >
-        <span>
-          <span className="block text-[11px] font-bold uppercase tracking-[0.2em] opacity-90">ASH Campus</span>
-          <span className="block font-display text-base font-extrabold">
-            {fr ? "Trouvez quelqu'un qui peut vous apprendre." : "Find Someone Who Can Teach You."}
-          </span>
-          <span className="block text-xs opacity-90">
-            {fr
-              ? "École, université, langues, compétences pro et préparation aux examens."
-              : "School, university, languages, professional skills and exam preparation."}
-          </span>
-        </span>
-      </Link>
+      <h1 className="flex items-center gap-2 font-display text-2xl font-bold text-foreground"><Sparkles className="size-6 text-primary" aria-hidden />Services</h1>
 
 
 
@@ -944,6 +946,10 @@ function DiscoveryPage() {
         }
         className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 pt-1 scrollbar-none"
       >
+        <Button variant="ghost" onClick={() => { playTabSound(); setServicesMode("market"); }} className="group flex h-auto w-[72px] shrink-0 flex-col items-center gap-1.5 p-0 hover:bg-transparent" aria-label="Market">
+          <span className="grid size-14 place-items-center rounded-full bg-primary/15 p-[2px] shadow-lg ring-2 ring-primary/50"><span className="grid size-full place-items-center rounded-full bg-card"><Store className="size-6 text-primary" aria-hidden /></span></span>
+          <span className="text-xs font-semibold text-muted-foreground">Market</span>
+        </Button>
         {QUICK_LINKS.map((item) => {
           // Eneo is an internal ASH route and is always first.
           if ("to" in item && "logo" in item) {

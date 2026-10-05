@@ -60,6 +60,7 @@ import { useI18n, type TKey } from "@/lib/i18n";
 import { useRegion } from "@/lib/region-context";
 import { RegionSwitcher } from "./RegionSwitcher";
 import { cn } from "@/lib/utils";
+import { useServicesMode } from "@/lib/services-mode";
 
 type NavItem = {
   to: string;
@@ -153,8 +154,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { data: isAdmin } = useIsAdmin();
   const { t, lang } = useI18n();
   const region = useRegion();
-  const visible = (items: NavItem[]) =>
-    items.filter((item) => !item.referralOnly || region.referralEnabled);
+  const servicesMode = useServicesMode();
+  const visible = (items: NavItem[]): NavItem[] =>
+    items.filter((item) => !item.referralOnly || region.referralEnabled).map((item) => {
+      if (item.to !== "/services" || servicesMode !== "market") return item;
+      const marketItem: NavItem = { ...item, en: "Market", fr: "Market", icon: Store };
+      delete marketItem.key;
+      return marketItem;
+    });
   const navLabel = (item: NavItem) =>
     item.key ? t(item.key) : ((lang === "fr" ? item.fr : item.en) ?? item.label ?? "");
   const pathname = useRouterState({ select: (s) => s.location.pathname });
