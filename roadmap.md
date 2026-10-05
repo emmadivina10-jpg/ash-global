@@ -119,3 +119,5 @@
 
 - [x] Market Research Center: expansion_research table (service-role, deny-all RLS), research reports per opportunity, submit-to-CEO flow, panel in ExpansionWorkspace (preview only)
 - [ ] Next: Outreach CRM, Letters + CEO approval, Josephine profile/KPIs, Expansion AI
+- [x] Telma unified Advertising & Marketing Command Center (old content/growth pages kept until verified)
+- [ ] Content Safety & Integrity in Trust & Verification (later phase)
