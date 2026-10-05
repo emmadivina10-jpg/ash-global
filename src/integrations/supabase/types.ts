@@ -2943,6 +2943,197 @@ export type Database = {
         }
         Relationships: []
       }
+      ops_case_events: {
+        Row: {
+          body: string
+          case_id: string
+          created_at: string
+          id: string
+          kind: string
+          staff_id: string | null
+          staff_name: string
+        }
+        Insert: {
+          body: string
+          case_id: string
+          created_at?: string
+          id?: string
+          kind: string
+          staff_id?: string | null
+          staff_name: string
+        }
+        Update: {
+          body?: string
+          case_id?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          staff_id?: string | null
+          staff_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_case_events_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "ops_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_cases: {
+        Row: {
+          case_number: number
+          created_at: string
+          created_by: string
+          customer_name: string | null
+          customer_user_id: string | null
+          departments: string[]
+          id: string
+          priority: string
+          report_ids: string[]
+          resolution: string | null
+          staff_ids: string[]
+          status: string
+          ticket_ids: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          case_number?: number
+          created_at?: string
+          created_by: string
+          customer_name?: string | null
+          customer_user_id?: string | null
+          departments?: string[]
+          id?: string
+          priority?: string
+          report_ids?: string[]
+          resolution?: string | null
+          staff_ids?: string[]
+          status?: string
+          ticket_ids?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          case_number?: number
+          created_at?: string
+          created_by?: string
+          customer_name?: string | null
+          customer_user_id?: string | null
+          departments?: string[]
+          id?: string
+          priority?: string
+          report_ids?: string[]
+          resolution?: string | null
+          staff_ids?: string[]
+          status?: string
+          ticket_ids?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ops_workflow_runs: {
+        Row: {
+          assigned_staff_id: string | null
+          case_id: string | null
+          created_at: string
+          current_department: string | null
+          due_at: string | null
+          history: Json
+          id: string
+          started_by: string
+          status: string
+          step_index: number
+          ticket_id: string | null
+          updated_at: string
+          workflow_id: string
+          workflow_name: string
+        }
+        Insert: {
+          assigned_staff_id?: string | null
+          case_id?: string | null
+          created_at?: string
+          current_department?: string | null
+          due_at?: string | null
+          history?: Json
+          id?: string
+          started_by: string
+          status?: string
+          step_index?: number
+          ticket_id?: string | null
+          updated_at?: string
+          workflow_id: string
+          workflow_name: string
+        }
+        Update: {
+          assigned_staff_id?: string | null
+          case_id?: string | null
+          created_at?: string
+          current_department?: string | null
+          due_at?: string | null
+          history?: Json
+          id?: string
+          started_by?: string
+          status?: string
+          step_index?: number
+          ticket_id?: string | null
+          updated_at?: string
+          workflow_id?: string
+          workflow_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_workflow_runs_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "ops_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_workflow_runs_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "ops_workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_workflows: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          steps: Json
+          trigger_category: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          steps?: Json
+          trigger_category?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          steps?: Json
+          trigger_category?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       outreach_log: {
         Row: {
           body: string

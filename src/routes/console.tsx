@@ -34,6 +34,7 @@ import {
   Wallet,
   X,
   Shirt,
+  Briefcase,
 } from "lucide-react";
 import { consoleStatus, lockConsole, setElevatedMode, unlockConsole } from "@/lib/console.functions";
 import { getSupportAwaitingCount } from "@/lib/support.functions";
@@ -52,6 +53,7 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { to: "/console/workspace", label: "My Workspace", icon: CalendarCheck, group: "Insights", dept: "ALL" },
+  { to: "/console/cases", label: "Cases & Workflows", icon: Briefcase, group: "Insights", dept: "ALL" },
   { to: "/console", label: "Overview", icon: BarChart3, group: "Insights", dept: "SUPER_ADMIN" },
   { to: "/console/departments", label: "Departments", icon: Building2, group: "Insights", dept: "SUPER_ADMIN" },
   { to: "/console/revenue", label: "Revenue", icon: Target, group: "Insights", dept: "REVENUE" },
