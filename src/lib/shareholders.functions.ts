@@ -26,11 +26,20 @@ async function companyPerformance() {
   const { computeFinanceLedger } = await import("./finance.server");
   const { summary, entries } = await computeFinanceLedger();
   const monthly = new Map<string, number>();
+  const daily = new Map<string, number>();
   for (const e of entries) {
     if (e.category !== "REVENUE") continue;
     const k = e.createdAt.slice(0, 7);
     monthly.set(k, (monthly.get(k) ?? 0) + e.amount);
+    const d = e.createdAt.slice(0, 10);
+    daily.set(d, (daily.get(d) ?? 0) + e.amount);
   }
+  // Stock-style cumulative revenue timeline (oldest → newest).
+  let running = 0;
+  const revenueTimeline = [...daily.entries()].sort().map(([date, amount]) => {
+    running += amount;
+    return { date, amount, cumulative: running };
+  });
   return {
     currency: "XAF",
     revenue: summary.revenue,
@@ -38,7 +47,21 @@ async function companyPerformance() {
     memberObligations: summary.walletLiability,
     ownerWithdrawals: summary.ownerCompleted,
     revenueByMonth: [...monthly.entries()].sort().map(([month, amount]) => ({ month, amount })),
+    revenueTimeline,
   };
+}
+
+async function currentValuation() {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin
+    .from("company_valuation")
+    .select("valuation, currency, approved_at, approved_by")
+    .order("approved_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return data
+    ? { valuation: Number(data.valuation), currency: data.currency, approvedAt: data.approved_at, approvedBy: data.approved_by }
+    : null;
 }
 
 function capSummary(rows: { ownership_pct: number; is_founder: boolean }[]) {
@@ -68,6 +91,7 @@ export const getMyShareholding = createServerFn({ method: "GET" })
       cap: capSummary((all ?? []) as { ownership_pct: number; is_founder: boolean }[]),
       history: events ?? [],
       performance: await companyPerformance(),
+      valuation: await currentValuation(),
     };
   });
 
@@ -81,8 +105,35 @@ export const getShareholderCenter = createServerFn({ method: "GET" }).handler(as
     db.from("shareholder_events").select("shareholder_id, kind, detail, actor, created_at").order("created_at", { ascending: false }).limit(200),
   ]);
   const list = (rows ?? []) as ShareholderRow[];
-  return { shareholders: list, cap: capSummary(list), history: events ?? [], performance: await companyPerformance() };
+  return {
+    shareholders: list,
+    cap: capSummary(list),
+    history: events ?? [],
+    performance: await companyPerformance(),
+    valuation: await currentValuation(),
+  };
 });
+
+/** CEO only: set a new approved company valuation. Recalculates implied values everywhere; never touches ownership or cash. */
+export const updateCompanyValuation = createServerFn({ method: "POST" })
+  .inputValidator((d: { valuation: number }) => ({ valuation: Number(d.valuation) }))
+  .handler(async ({ data }) => {
+    const { requireSuperAdmin, adminClient } = await import("./console.server");
+    const actor = await requireSuperAdmin();
+    if (!(data.valuation > 0)) return { ok: false as const, error: "Enter a positive valuation." };
+    const db = await adminClient();
+    const { error } = await db
+      .from("company_valuation")
+      .insert({ valuation: data.valuation, currency: "CAD", approved_by: actor.name });
+    if (error) return { ok: false as const, error: error.message };
+    await db.from("shareholder_events").insert({
+      shareholder_id: null,
+      kind: "VALUATION_UPDATED",
+      detail: `Approved company valuation set to CAD ${data.valuation.toLocaleString()}`,
+      actor: actor.name,
+    });
+    return { ok: true as const };
+  });
 
 /** CEO only: record a confirmed payment against a shareholder's commitment. Never changes ownership. */
 export const recordShareholderPayment = createServerFn({ method: "POST" })

@@ -1218,6 +1218,30 @@ export type Database = {
           },
         ]
       }
+      company_valuation: {
+        Row: {
+          approved_at: string
+          approved_by: string | null
+          currency: string
+          id: string
+          valuation: number
+        }
+        Insert: {
+          approved_at?: string
+          approved_by?: string | null
+          currency?: string
+          id?: string
+          valuation: number
+        }
+        Update: {
+          approved_at?: string
+          approved_by?: string | null
+          currency?: string
+          id?: string
+          valuation?: number
+        }
+        Relationships: []
+      }
       content_mentions: {
         Row: {
           actor_id: string
