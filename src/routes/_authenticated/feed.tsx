@@ -56,7 +56,7 @@ export const Route = createFileRoute("/_authenticated/feed")({
 function FeedPage() {
   const { lang } = useI18n();
   const fr = lang === "fr";
-  const { data: posts, isLoading, isFetching, refetch } = useSocialFeed();
+  const { data: posts, isLoading, refetch } = useSocialFeed();
   const { data: friendships } = useFriendships();
   const { data: profile } = useProfile();
   const { data: discovery } = useFeedDiscovery();

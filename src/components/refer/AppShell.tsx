@@ -303,7 +303,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           </header>
 
           <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl lg:hidden">
-            <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4 py-3">
+            <div className={cn("grid items-center gap-3 px-4 py-3", onFeed ? "grid-cols-[minmax(0,1fr)_auto]" : "grid-cols-[auto_minmax(0,1fr)_auto]")}>
+              {onFeed ? null : (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button
@@ -339,6 +340,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              )}
               <Link to="/services" className="min-w-0">
                 <Logo compact />
               </Link>
