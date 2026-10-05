@@ -1,4 +1,7 @@
 import { resetProviderRotation } from "@/lib/discovery.queries";
+import { MarketBrowser } from "@/components/refer/MarketBrowser";
+import { useServicesMode, setServicesMode } from "@/lib/services-mode";
+import { playTabSound } from "@/lib/sound";
 import { useQueryClient } from "@tanstack/react-query";
 import { PullToRefresh } from "@/components/refer/PullToRefresh";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -22,6 +25,7 @@ import {
   Search,
   SlidersHorizontal,
   Sparkles,
+  Store,
   Tag,
   Users,
 } from "lucide-react";
