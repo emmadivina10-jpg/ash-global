@@ -5094,6 +5094,98 @@ export type Database = {
         }
         Relationships: []
       }
+      shareholder_events: {
+        Row: {
+          actor: string
+          created_at: string
+          detail: string | null
+          id: string
+          kind: string
+          shareholder_id: string | null
+        }
+        Insert: {
+          actor: string
+          created_at?: string
+          detail?: string | null
+          id?: string
+          kind: string
+          shareholder_id?: string | null
+        }
+        Update: {
+          actor?: string
+          created_at?: string
+          detail?: string | null
+          id?: string
+          kind?: string
+          shareholder_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shareholder_events_shareholder_id_fkey"
+            columns: ["shareholder_id"]
+            isOneToOne: false
+            referencedRelation: "shareholders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shareholders: {
+        Row: {
+          agreement_status: string
+          allocation_date: string | null
+          allocation_status: string
+          created_at: string
+          currency: string
+          display_name: string
+          id: string
+          investment_committed: number | null
+          investment_received: number
+          is_founder: boolean
+          ownership_pct: number
+          payment_status: string
+          role: string
+          transaction_reference: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          agreement_status?: string
+          allocation_date?: string | null
+          allocation_status?: string
+          created_at?: string
+          currency?: string
+          display_name: string
+          id?: string
+          investment_committed?: number | null
+          investment_received?: number
+          is_founder?: boolean
+          ownership_pct: number
+          payment_status?: string
+          role?: string
+          transaction_reference?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          agreement_status?: string
+          allocation_date?: string | null
+          allocation_status?: string
+          created_at?: string
+          currency?: string
+          display_name?: string
+          id?: string
+          investment_committed?: number | null
+          investment_received?: number
+          is_founder?: boolean
+          ownership_pct?: number
+          payment_status?: string
+          role?: string
+          transaction_reference?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       social_posts: {
         Row: {
           allow_reuse: boolean
