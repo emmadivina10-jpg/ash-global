@@ -38,6 +38,8 @@ import {
 import { consoleStatus, lockConsole, setElevatedMode, unlockConsole } from "@/lib/console.functions";
 import { getSupportAwaitingCount } from "@/lib/support.functions";
 import { StaffChat } from "@/components/console/StaffChat";
+import { StaffNotificationCenter } from "@/components/console/StaffNotificationCenter";
+import { EmployeeTermsGate } from "@/components/console/EmployeeTermsGate";
 import { DepartmentCommandCenter } from "@/components/console/DepartmentCommandCenter";
 import { DailyTickets } from "@/components/console/DailyTickets";
 import { Button } from "@/components/ui/button";
@@ -198,6 +200,7 @@ function ConsoleLayout() {
   const current = NAV.find((item) => item.to === pathname)?.label ?? "Overview";
 
   return (
+    <EmployeeTermsGate>
     <div className="safe-top min-h-dvh bg-background lg:grid lg:grid-cols-[260px_minmax(0,1fr)]">
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-dvh flex-col border-r border-sidebar-border bg-sidebar p-4 lg:flex">
@@ -250,7 +253,7 @@ function ConsoleLayout() {
             </Button>
             <div className="min-w-0">
               <h1 className="truncate font-display text-lg font-extrabold text-foreground">{current}</h1>
-              <p className="hidden text-xs text-muted-foreground sm:block">Live data, synced automatically</p>
+              <p className="hidden text-xs text-muted-foreground sm:block">Welcome back, {actor?.name}</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
@@ -276,6 +279,7 @@ function ConsoleLayout() {
               </Button>
             ) : null}
             <StaffChat />
+            <StaffNotificationCenter />
             <ThemeToggle />
             <Button
               variant="outline"
