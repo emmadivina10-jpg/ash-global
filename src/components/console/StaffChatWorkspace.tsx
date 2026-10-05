@@ -21,13 +21,13 @@ type Props = {
   channel: string;
   onChannelChange: (channel: string) => void;
   messages: StaffMessage[];
-  me?: string;
+  me?: string | undefined;
   draft: string;
   onDraftChange: (value: string) => void;
   onSend: () => void;
   pending: boolean;
   loading: boolean;
-  error?: string;
+  error?: string | undefined;
   previews: Record<string, StaffMessage | undefined>;
 };
 
