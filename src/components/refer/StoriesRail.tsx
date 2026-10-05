@@ -325,7 +325,7 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { viewerRequest?: 
     if (spotlightsError) console.warn("ASH Spotlights could not be loaded.");
   }, [spotlightsError]);
 
-  const stories = storyData?.groups ?? [];
+  const stories = useMemo(() => storyData?.groups ?? [], [storyData]);
 
   const { data: profile } = useQuery({
     queryKey: ["stories-rail-profile", me],
