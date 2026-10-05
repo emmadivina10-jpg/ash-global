@@ -119,6 +119,7 @@ import { Route as AuthenticatedPropertyManageRouteImport } from './routes/_authe
 import { Route as AuthenticatedPropertyNewRouteImport } from './routes/_authenticated/property.new'
 import { Route as AuthenticatedServicesIndexRouteImport } from './routes/_authenticated/services.index'
 import { Route as AuthenticatedServicesProviderIdRouteImport } from './routes/_authenticated/services.$providerId'
+import { Route as AuthenticatedServicesExtrasRouteImport } from './routes/_authenticated/services.extras'
 import { Route as AuthenticatedUUserIdRouteImport } from './routes/_authenticated/u.$userId'
 import { Route as ApiPublicCleanupSpotlightVideosRouteImport } from './routes/api/public/cleanup-spotlight-videos'
 import { Route as ApiPublicCleanupStoriesRouteImport } from './routes/api/public/cleanup-stories'
@@ -706,6 +707,12 @@ const AuthenticatedServicesProviderIdRoute =
     path: '/services/$providerId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedServicesExtrasRoute =
+  AuthenticatedServicesExtrasRouteImport.update({
+    id: '/services/extras',
+    path: '/services/extras',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedUUserIdRoute = AuthenticatedUUserIdRouteImport.update({
   id: '/u/$userId',
   path: '/u/$userId',
@@ -894,6 +901,7 @@ export interface FileRoutesByFullPath {
   '/property/manage': typeof AuthenticatedPropertyManageRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
+  '/services/extras': typeof AuthenticatedServicesExtrasRoute
   '/u/$userId': typeof AuthenticatedUUserIdRoute
   '/api/public/cleanup-spotlight-videos': typeof ApiPublicCleanupSpotlightVideosRoute
   '/api/public/cleanup-stories': typeof ApiPublicCleanupStoriesRoute
@@ -1019,6 +1027,7 @@ export interface FileRoutesByTo {
   '/property/manage': typeof AuthenticatedPropertyManageRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
+  '/services/extras': typeof AuthenticatedServicesExtrasRoute
   '/u/$userId': typeof AuthenticatedUUserIdRoute
   '/api/public/cleanup-spotlight-videos': typeof ApiPublicCleanupSpotlightVideosRoute
   '/api/public/cleanup-stories': typeof ApiPublicCleanupStoriesRoute
@@ -1147,6 +1156,7 @@ export interface FileRoutesById {
   '/_authenticated/property/manage': typeof AuthenticatedPropertyManageRoute
   '/_authenticated/property/new': typeof AuthenticatedPropertyNewRoute
   '/_authenticated/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
+  '/_authenticated/services/extras': typeof AuthenticatedServicesExtrasRoute
   '/_authenticated/u/$userId': typeof AuthenticatedUUserIdRoute
   '/api/public/cleanup-spotlight-videos': typeof ApiPublicCleanupSpotlightVideosRoute
   '/api/public/cleanup-stories': typeof ApiPublicCleanupStoriesRoute
@@ -1275,6 +1285,7 @@ export interface FileRouteTypes {
     | '/property/manage'
     | '/property/new'
     | '/services/$providerId'
+    | '/services/extras'
     | '/u/$userId'
     | '/api/public/cleanup-spotlight-videos'
     | '/api/public/cleanup-stories'
@@ -1400,6 +1411,7 @@ export interface FileRouteTypes {
     | '/property/manage'
     | '/property/new'
     | '/services/$providerId'
+    | '/services/extras'
     | '/u/$userId'
     | '/api/public/cleanup-spotlight-videos'
     | '/api/public/cleanup-stories'
@@ -1527,6 +1539,7 @@ export interface FileRouteTypes {
     | '/_authenticated/property/manage'
     | '/_authenticated/property/new'
     | '/_authenticated/services/$providerId'
+    | '/_authenticated/services/extras'
     | '/_authenticated/u/$userId'
     | '/api/public/cleanup-spotlight-videos'
     | '/api/public/cleanup-stories'
@@ -2359,6 +2372,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedServicesProviderIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/services/extras': {
+      id: '/_authenticated/services/extras'
+      path: '/services/extras'
+      fullPath: '/services/extras'
+      preLoaderRoute: typeof AuthenticatedServicesExtrasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/u/$userId': {
       id: '/_authenticated/u/$userId'
       path: '/u/$userId'
@@ -2510,6 +2530,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPropertyManageRoute: typeof AuthenticatedPropertyManageRoute
   AuthenticatedPropertyNewRoute: typeof AuthenticatedPropertyNewRoute
   AuthenticatedServicesProviderIdRoute: typeof AuthenticatedServicesProviderIdRoute
+  AuthenticatedServicesExtrasRoute: typeof AuthenticatedServicesExtrasRoute
   AuthenticatedUUserIdRoute: typeof AuthenticatedUUserIdRoute
   AuthenticatedArticlesIndexRoute: typeof AuthenticatedArticlesIndexRoute
   AuthenticatedCampusIndexRoute: typeof AuthenticatedCampusIndexRoute
@@ -2572,6 +2593,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPropertyManageRoute: AuthenticatedPropertyManageRoute,
   AuthenticatedPropertyNewRoute: AuthenticatedPropertyNewRoute,
   AuthenticatedServicesProviderIdRoute: AuthenticatedServicesProviderIdRoute,
+  AuthenticatedServicesExtrasRoute: AuthenticatedServicesExtrasRoute,
   AuthenticatedUUserIdRoute: AuthenticatedUUserIdRoute,
   AuthenticatedArticlesIndexRoute: AuthenticatedArticlesIndexRoute,
   AuthenticatedCampusIndexRoute: AuthenticatedCampusIndexRoute,
