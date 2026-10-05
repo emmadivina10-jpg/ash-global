@@ -34,6 +34,7 @@ import {
   Wallet,
   X,
   Shirt,
+  Briefcase,
 } from "lucide-react";
 import { consoleStatus, lockConsole, setElevatedMode, unlockConsole } from "@/lib/console.functions";
 import { getSupportAwaitingCount } from "@/lib/support.functions";
