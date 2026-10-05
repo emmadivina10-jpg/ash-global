@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { getMyShareholding } from "@/lib/shareholders.functions";
 import { LoadingState } from "@/components/refer/states";
 import { HistoryCard, InvestmentCard, NotYetCard, OwnershipPlan, PerformanceCard } from "@/components/shareholders/ShareholderViews";
+import { EquityGuide, EquityHeroCards, IncreaseOwnershipCalculator, MarketAnalysisChart } from "@/components/shareholders/EquityGuide";
 
 export const Route = createFileRoute("/_authenticated/shareholder")({
   head: () => ({
@@ -34,10 +35,23 @@ function ShareholderPage() {
         <h1 className="font-display text-2xl font-extrabold text-foreground">Shareholder Center</h1>
         <p className="text-sm text-muted-foreground">Welcome, {data.shareholder.display_name}. You hold {Number(data.shareholder.ownership_pct)}% of ASH.</p>
       </div>
+      <EquityHeroCards
+        valuation={data.valuation ?? null}
+        ownershipPct={Number(data.shareholder.ownership_pct)}
+        investment={data.shareholder.investment_received}
+        currency={data.shareholder.currency}
+      />
       <div className="grid gap-4 md:grid-cols-2">
         <InvestmentCard s={data.shareholder} />
         {data.cap ? <OwnershipPlan cap={data.cap} /> : null}
       </div>
+      {data.performance ? <MarketAnalysisChart timeline={data.performance.revenueTimeline} currency={data.performance.currency} /> : null}
+      {data.valuation ? (
+        <div className="grid gap-4 lg:grid-cols-2">
+          <EquityGuide valuation={data.valuation} />
+          <IncreaseOwnershipCalculator valuation={data.valuation} currentPct={Number(data.shareholder.ownership_pct)} />
+        </div>
+      ) : null}
       {data.performance ? <PerformanceCard p={data.performance} /> : null}
       <div className="grid gap-4 md:grid-cols-3">
         <NotYetCard title="Dividends & distributions" />
