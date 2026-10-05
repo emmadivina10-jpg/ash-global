@@ -73,8 +73,8 @@ function FlightsPage() {
         trip === "multi"
           ? legs.map((l) => ({ origin: l.from!.code, destination: l.to!.code, date: l.date }))
           : [
-              { origin: legs[0].from!.code, destination: legs[0].to!.code, date: legs[0].date },
-              ...(trip === "round" ? [{ origin: legs[0].to!.code, destination: legs[0].from!.code, date: ret }] : []),
+              { origin: legs[0]!.from!.code, destination: legs[0]!.to!.code, date: legs[0]!.date },
+              ...(trip === "round" ? [{ origin: legs[0]!.to!.code, destination: legs[0]!.from!.code, date: ret }] : []),
             ];
       return searchFn({ data: { slices, ...pax, cabin } });
     },
@@ -84,7 +84,7 @@ function FlightsPage() {
   const activeLegs = trip === "multi" ? legs : legs.slice(0, 1);
   const valid =
     activeLegs.every((l) => l.from && l.to && l.date && l.from.code !== l.to.code) &&
-    (trip !== "round" || (ret && ret >= legs[0].date)) &&
+    (trip !== "round" || (ret && ret >= legs[0]!.date)) &&
     pax.infants <= pax.adults;
 
   const offers = search.data?.available ? search.data.offers : [];
@@ -145,7 +145,7 @@ function FlightsPage() {
               type="button"
               onClick={() => {
                 setTrip(t);
-                if (t === "multi" && legs.length < 2) setLegs([...legs, { from: legs[0].to, to: null, date: "" }]);
+                if (t === "multi" && legs.length < 2) setLegs([...legs, { from: legs[0]!.to, to: null, date: "" }]);
               }}
               className={`rounded-full px-4 py-1.5 font-medium transition-colors ${trip === t ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
             >
@@ -170,7 +170,7 @@ function FlightsPage() {
             </div>
             <div className="grid grid-cols-2 gap-2">
               <Field label={fr ? "DÉPART" : "DEPARTURE"}>
-                <Input type="date" min={i > 0 ? legs[i - 1].date || today : today} value={leg.date}
+                <Input type="date" min={i > 0 ? legs[i - 1]!.date || today : today} value={leg.date}
                   onChange={(e) => setLegs(legs.map((l, j) => (j === i ? { ...l, date: e.target.value } : l)))} />
               </Field>
               {trip !== "multi" && (

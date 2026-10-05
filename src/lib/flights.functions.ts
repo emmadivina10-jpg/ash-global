@@ -128,7 +128,7 @@ export const searchPlaces = createServerFn({ method: "POST" })
     const json = await duffel(`/places/suggestions?query=${encodeURIComponent(data.query)}`);
     if (!json) return notConnected;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const places = ((json.data as any[]) ?? [])
+    const places = ((json["data"] as any[]) ?? [])
       .filter((p) => p.iata_code)
       .slice(0, 12)
       .map((p) => ({
@@ -180,7 +180,7 @@ export const searchFlights = createServerFn({ method: "POST" })
     });
     if (!json) return notConnected;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const offers = (((json.data as any)?.offers as any[]) ?? []).slice(0, 80).map(mapOffer);
+    const offers = (((json["data"] as any)?.offers as any[]) ?? []).slice(0, 80).map(mapOffer);
     return { available: true, offers };
   });
 
@@ -191,5 +191,5 @@ export const getFlightOffer = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<{ available: true; offer: Offer } | Unavailable> => {
     const json = await duffel(`/air/offers/${data.id}?return_available_services=false`);
     if (!json) return notConnected;
-    return { available: true, offer: mapOffer(json.data) };
+    return { available: true, offer: mapOffer(json["data"]) };
   });
