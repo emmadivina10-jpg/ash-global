@@ -160,7 +160,7 @@ function CaseDetail({ id, staff, canLinkReports }: { id: string; staff: { id: st
         </div>
         <div className="rounded-2xl bg-background/60 p-3">
           <p className="mb-1 text-xs font-semibold text-muted-foreground">Related safety reports</p>
-          {data.reportsHidden ? <p className="text-muted-foreground">Restricted to Trust &amp; Safety</p> : data.reports.length ? data.reports.map((r) => <p key={r.id}>{r.content_type}: {r.reason} <span className="text-xs text-muted-foreground">· {r.status}</span></p>) : <p className="text-muted-foreground">None</p>}
+          {data.reportsHidden ? <p className="text-muted-foreground">Restricted to Trust &amp; Safety</p> : data.reports.length ? data.reports.map((r) => <p key={r.id}>{r.target_type}: {r.reason} <span className="text-xs text-muted-foreground">· {r.status}</span></p>) : <p className="text-muted-foreground">None</p>}
           {canLinkReports ? <div className="mt-2 flex gap-2"><Input placeholder="Report ID" value={link.report} onChange={(e) => setLink({ ...link, report: e.target.value })} /><Button size="sm" disabled={!link.report} onClick={() => up.mutate({ addReportId: link.report })}>Link</Button></div> : null}
         </div>
       </div>

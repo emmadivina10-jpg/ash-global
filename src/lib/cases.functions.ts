@@ -6,7 +6,7 @@ export const CASE_STATUSES = ["OPEN", "UNDER_REVIEW", "ESCALATED", "ACTION_REQUI
 const EVENT_KINDS = ["NOTE", "EVIDENCE", "DECISION", "ACTION"] as const;
 
 export type WorkflowStep = { department: string; action: string; hours: number };
-type HistoryItem = { at: string; by: string; step: number; event: string; note?: string };
+type HistoryItem = { at: string; by: string; step: number; event: string; note?: string | undefined };
 
 async function ctx() {
   const { requireConsole, adminClient } = await import("./console.server");
@@ -93,7 +93,7 @@ export const getCase = createServerFn({ method: "POST" })
       : { data: [] };
     const showReports = a.superAdmin || a.department === "TRUST" || a.extraDepartments.includes("TRUST");
     const { data: reports } = showReports && c.report_ids.length
-      ? await db.from("content_reports").select("id, reason, status, content_type, created_at").in("id", c.report_ids)
+      ? await db.from("content_reports").select("id, reason, status, target_type, created_at").in("id", c.report_ids)
       : { data: [] };
     const { data: runs } = await db.from("ops_workflow_runs").select("*").eq("case_id", c.id).order("created_at");
     return { case: c, events: events ?? [], tickets: tickets ?? [], reports: reports ?? [], reportsHidden: !showReports && c.report_ids.length > 0, runs: runs ?? [] };
@@ -264,7 +264,7 @@ export const startWorkflow = createServerFn({ method: "POST" })
   });
 
 export const advanceWorkflow = createServerFn({ method: "POST" })
-  .inputValidator((d: { runId: string; note?: string; escalate?: boolean }) => ({
+  .inputValidator((d: { runId: string; note?: string | undefined; escalate?: boolean }) => ({
     runId: String(d.runId),
     note: d.note ? String(d.note).slice(0, 2000) : undefined,
     escalate: Boolean(d.escalate),
