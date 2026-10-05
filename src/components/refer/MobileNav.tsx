@@ -4,6 +4,7 @@ import { Menu, Shield } from "lucide-react";
 import { useI18n, type TKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { Avatar } from "./AvatarUpload";
+import { MemberNavIcon } from "./MemberNavIcon";
 
 export type MobileNavItem = {
   to: string;
@@ -54,7 +55,7 @@ export function MobileNav({
           )}
         >
           <span className="grid size-7 place-items-center">
-            <item.icon className={cn("size-[1.45rem] shrink-0", active && "fill-primary/10")} strokeWidth={active ? 2.5 : 2} aria-hidden />
+            <MemberNavIcon icon={item.icon} active={active} />
           </span>
           <span className="max-w-full truncate">{label(item)}</span>
           {active ? <span className="absolute inset-x-2 top-0 h-0.5 rounded-b-full bg-primary" aria-hidden /> : null}
@@ -83,9 +84,9 @@ export function MobileNav({
               )}
             >
               <span className="relative size-7">
-                <Avatar path={profile?.avatar_url} name={profile?.full_name} className="size-7 border border-border" />
+                <Avatar path={profile?.avatar_url} name={profile?.full_name} className="member-avatar-ring size-7 p-[2px]" />
                 <span className="absolute -bottom-0.5 -right-1 z-10 grid size-3.5 place-items-center rounded-full bg-background ring-1 ring-border">
-                  <Menu className="size-2.5" strokeWidth={3} aria-hidden />
+                  <span className="grid size-2.5 place-items-center [&_svg]:size-2.5"><MemberNavIcon icon={Menu} active={pathname === "/menu"} /></span>
                 </span>
               </span>
               <span className="max-w-full truncate">{t("nav.more")}</span>

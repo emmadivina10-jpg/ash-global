@@ -83,7 +83,7 @@ export function MarketBrowser({ providers, loadingProviders, providerError, hasM
     </div>
     <div className="space-y-0.5 px-0.5 py-2 text-left"><p className="break-words text-sm font-bold text-foreground sm:text-base">{l.priceLabel}</p><h3 className="line-clamp-2 text-sm font-medium text-foreground">{l.title}</h3><p className="truncate text-xs text-muted-foreground">{l.city || (fr ? "Lieu non précisé" : "Location not provided")}</p></div>
   </>;
-  return <div className="space-y-4">
+  return <div className="member-market space-y-4">
     <header className="flex items-center justify-between gap-2">
       <h1 className="flex min-w-0 items-center gap-2 font-display text-3xl font-bold text-foreground"><Store className="size-7 shrink-0 text-primary" aria-hidden />Market</h1>
       <div className="flex shrink-0 gap-1">

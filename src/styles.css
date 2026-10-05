@@ -119,6 +119,9 @@
 }
 
 :root {
+  --member-dual-wash: linear-gradient(110deg, color-mix(in oklab, var(--color-chat-emerald) 13%, var(--background)) 0%, color-mix(in oklab, var(--color-chat-emerald) 8%, var(--background)) 48%, color-mix(in oklab, var(--verified-magenta) 9%, var(--background)) 52%, color-mix(in oklab, var(--verified-violet) 12%, var(--background)) 100%);
+  --member-dual-ring: conic-gradient(from 0deg, var(--verified-magenta), var(--verified-violet) 50%, var(--color-chat-emerald) 50%, var(--color-chat-emerald));
+  --member-update-ring: linear-gradient(135deg, var(--verified-coral), var(--verified-magenta), var(--verified-violet));
   --chat-outgoing: oklch(0.91 0.065 160);
   --radius: 1rem;
 
@@ -1017,12 +1020,9 @@ a {
 /* Floating wallet launcher: brand gradient sampled from the ASH logo
    (deep violet #301080 → magenta → crimson #a00020) with a gold ring. */
 .wallet-orb {
-  background: radial-gradient(circle at 30% 25%, #c080f0 0%, #6020a0 34%, #3a1278 60%, #a00020 100%);
-  border: 2px solid oklch(0.78 0.14 90 / 0.9);
-  box-shadow:
-    0 10px 26px -8px rgb(58 18 120 / 0.65),
-    0 2px 10px -2px rgb(212 175 55 / 0.35),
-    inset 0 1px 1px rgb(255 255 255 / 0.28);
+  background: var(--member-dual-wash);
+  border: 2px solid color-mix(in oklab, var(--color-chat-emerald) 35%, var(--verified-magenta));
+  box-shadow: var(--shadow-card);
 }
 
 /* ===== ASH Console premium theme =====
@@ -1117,4 +1117,52 @@ a {
 @media (min-width: 768px) {
   .member-messages .messages-inbox { min-height: 76vh; max-height: 76vh; }
   .member-messages .member-chat-surface { height: 76vh; }
+}
+
+.member-icon-green { stop-color: var(--color-chat-emerald); }
+.member-icon-ash { stop-color: var(--verified-magenta); }
+.member-icon-violet { stop-color: var(--verified-violet); }
+.member-avatar-ring { background-image: var(--member-dual-ring); }
+.member-avatar-update { background-image: var(--member-update-ring); }
+.member-avatar-ring:hover { background-image: var(--member-dual-ring); }
+.member-avatar-update:hover { background-image: var(--member-update-ring); }
+.member-dual-wash, .member-chat-composer { background-image: var(--member-dual-wash); }
+.member-chat-composer { align-self: stretch; border-radius: 0; }
+.member-market nav[aria-label] a, .member-market nav[aria-label] button {
+  background-image: var(--member-dual-wash);
+  color: var(--foreground);
+  border-color: color-mix(in oklab, var(--color-chat-emerald) 15%, var(--border));
+}
+.member-market nav button[aria-pressed="true"] {
+  border-color: color-mix(in oklab, var(--color-chat-emerald) 50%, var(--verified-magenta));
+  box-shadow: inset 0 -2px color-mix(in oklab, var(--verified-magenta) 40%, transparent);
+}
+.member-menu, .member-extras { position: relative; isolation: isolate; }
+.member-menu::before {
+  content: "ASH";
+  position: absolute;
+  top: 180px;
+  inset-inline: 0;
+  font-size: 140px;
+  font-weight: 900;
+  text-align: center;
+  transform: rotate(-14deg);
+  background: var(--member-update-ring);
+  background-image: linear-gradient(110deg, var(--color-chat-emerald) 48%, var(--verified-magenta) 52%, var(--verified-violet));
+  background-clip: text;
+  color: transparent;
+  opacity: 0.075;
+  pointer-events: none;
+  z-index: -1;
+}
+.member-menu a.bg-card { background-color: color-mix(in oklab, var(--card) 80%, transparent); background-image: var(--member-dual-wash); }
+.member-menu a > span.bg-primary\/10 { background-image: var(--member-dual-wash); color: var(--foreground); }
+@media (min-width: 768px) and (max-width: 1023px) {
+  .app-shell-scroll:has(.member-messages) { padding: 0; }
+  .member-messages > .grid { border: 0; border-radius: 0; }
+  .member-messages .messages-inbox { min-height: calc(100dvh - 3.75rem - env(safe-area-inset-bottom)); max-height: calc(100dvh - 3.75rem - env(safe-area-inset-bottom)); }
+  .member-messages .chat-surface { height: calc(100dvh - 3.75rem - env(safe-area-inset-bottom)); }
+}
+@media (max-width: 767px) {
+  .member-messages .messages-inbox { width: calc(100% + 2rem); }
 }
