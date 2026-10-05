@@ -107,3 +107,8 @@
 - [x] Support message fix: per-employee unread tracking so every support employee sees new customer messages
 - [ ] Full read-only architecture audit + consolidation plan (35 console pages → 8 core groups) — awaiting go-ahead
 - [ ] Auto-assignment, SLA reassignment, realtime presence (brief §7, §19, §22–24)
+
+## Trust & Verification + Finance brief (32 parts)
+- [x] Part 1: Trust & Verification menu section grouping existing pages (same pages, links unchanged)
+- [ ] Trust Scores, Suspicious Activity, Investigations, Audit History sub-pages
+- [ ] Finance parts 2–30 (periods, archive, statements, finance chat) — awaiting choice of starting part
