@@ -34,7 +34,6 @@ const TITLE = "ASH — Where Opportunities Connect.";
 const DESCRIPTION =
   "ASH Glo is a digital opportunity, commerce, services, freelance, property, community and events platform that connects people, businesses, freelancers, service providers, communities and event organizers in one ecosystem, with a social feed, stories, Spotlight, friends, groups and supported payments.";
 
-
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -314,7 +313,6 @@ function Landing() {
                 );
               })}
             </div>
-
           </section>
 
           {/* Action side */}
