@@ -2349,6 +2349,330 @@ export type Database = {
         }
         Relationships: []
       }
+      inventory_audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          business_id: string
+          created_at: string
+          entity: string
+          entity_id: string | null
+          id: string
+          new_value: Json | null
+          previous_value: Json | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          business_id: string
+          created_at?: string
+          entity: string
+          entity_id?: string | null
+          id?: string
+          new_value?: Json | null
+          previous_value?: Json | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          business_id?: string
+          created_at?: string
+          entity?: string
+          entity_id?: string | null
+          id?: string
+          new_value?: Json | null
+          previous_value?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_audit_log_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_categories: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_categories_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_locations: {
+        Row: {
+          address: string | null
+          business_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          kind: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          business_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          kind?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          business_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          kind?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_locations_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_members: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["inventory_role"]
+          user_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["inventory_role"]
+          user_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["inventory_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_members_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_movements: {
+        Row: {
+          business_id: string
+          created_at: string
+          created_by: string
+          id: string
+          location_id: string
+          movement_type: Database["public"]["Enums"]["inventory_movement_type"]
+          new_quantity: number
+          previous_quantity: number
+          product_id: string
+          quantity: number
+          reason: string | null
+          reference: string | null
+          source: string
+          transfer_group: string | null
+          unit_cost: number | null
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          location_id: string
+          movement_type: Database["public"]["Enums"]["inventory_movement_type"]
+          new_quantity: number
+          previous_quantity: number
+          product_id: string
+          quantity: number
+          reason?: string | null
+          reference?: string | null
+          source?: string
+          transfer_group?: string | null
+          unit_cost?: number | null
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          location_id?: string
+          movement_type?: Database["public"]["Enums"]["inventory_movement_type"]
+          new_quantity?: number
+          previous_quantity?: number
+          product_id?: string
+          quantity?: number
+          reason?: string | null
+          reference?: string | null
+          source?: string
+          transfer_group?: string | null
+          unit_cost?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_movements_business_id_location_id_fkey"
+            columns: ["business_id", "location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_locations"
+            referencedColumns: ["business_id", "id"]
+          },
+          {
+            foreignKeyName: "inventory_movements_business_id_product_id_fkey"
+            columns: ["business_id", "product_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_products"
+            referencedColumns: ["business_id", "id"]
+          },
+        ]
+      }
+      inventory_products: {
+        Row: {
+          business_id: string
+          buying_price: number
+          category_id: string | null
+          created_at: string
+          default_location_id: string | null
+          id: string
+          is_active: boolean
+          min_stock: number
+          name: string
+          selling_price: number
+          sku: string | null
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          buying_price?: number
+          category_id?: string | null
+          created_at?: string
+          default_location_id?: string | null
+          id?: string
+          is_active?: boolean
+          min_stock?: number
+          name: string
+          selling_price?: number
+          sku?: string | null
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          buying_price?: number
+          category_id?: string | null
+          created_at?: string
+          default_location_id?: string | null
+          id?: string
+          is_active?: boolean
+          min_stock?: number
+          name?: string
+          selling_price?: number
+          sku?: string | null
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_products_business_id_category_id_fkey"
+            columns: ["business_id", "category_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_categories"
+            referencedColumns: ["business_id", "id"]
+          },
+          {
+            foreignKeyName: "inventory_products_business_id_default_location_id_fkey"
+            columns: ["business_id", "default_location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_locations"
+            referencedColumns: ["business_id", "id"]
+          },
+          {
+            foreignKeyName: "inventory_products_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_stock: {
+        Row: {
+          business_id: string
+          location_id: string
+          product_id: string
+          quantity: number
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          location_id: string
+          product_id: string
+          quantity?: number
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          location_id?: string
+          product_id?: string
+          quantity?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_stock_business_id_location_id_fkey"
+            columns: ["business_id", "location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_locations"
+            referencedColumns: ["business_id", "id"]
+          },
+          {
+            foreignKeyName: "inventory_stock_business_id_product_id_fkey"
+            columns: ["business_id", "product_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_products"
+            referencedColumns: ["business_id", "id"]
+          },
+        ]
+      }
       job_applications: {
         Row: {
           applicant_id: string
@@ -5928,6 +6252,28 @@ export type Database = {
           repost_count: number
         }[]
       }
+      inventory_can: {
+        Args: { _business: string; _level: string }
+        Returns: boolean
+      }
+      inventory_record_movement: {
+        Args: {
+          _business: string
+          _location: string
+          _product: string
+          _quantity: number
+          _reason?: string
+          _reference?: string
+          _to_location?: string
+          _type: Database["public"]["Enums"]["inventory_movement_type"]
+          _unit_cost?: number
+        }
+        Returns: string
+      }
+      inventory_role_of: {
+        Args: { _business: string; _user: string }
+        Returns: Database["public"]["Enums"]["inventory_role"]
+      }
       is_author_restricted: { Args: { _uid: string }; Returns: boolean }
       is_blocked_pair: { Args: { _a: string; _b: string }; Returns: boolean }
       is_clean_worker_on: {
@@ -5958,6 +6304,14 @@ export type Database = {
           _subject?: string
         }
         Returns: undefined
+      }
+      my_inventory_businesses: {
+        Args: never
+        Returns: {
+          business_id: string
+          business_name: string
+          role: Database["public"]["Enums"]["inventory_role"]
+        }[]
       }
       notify_actor: {
         Args: {
@@ -6207,6 +6561,23 @@ export type Database = {
         | "PAYMENT_PROCESSING"
         | "PAYMENT_FAILED"
         | "PAYMENT_EXPIRED"
+      inventory_movement_type:
+        | "OPENING"
+        | "PURCHASE"
+        | "SALE"
+        | "RETURN"
+        | "DAMAGE"
+        | "EXPIRED"
+        | "TRANSFER_IN"
+        | "TRANSFER_OUT"
+        | "ADJUSTMENT"
+        | "COUNT"
+      inventory_role:
+        | "OWNER"
+        | "MANAGER"
+        | "INVENTORY_MANAGER"
+        | "WAREHOUSE"
+        | "VIEWER"
       service_category:
         | "BRAIDER"
         | "NAIL_TECH"
@@ -6381,6 +6752,25 @@ export const Constants = {
         "PAYMENT_PROCESSING",
         "PAYMENT_FAILED",
         "PAYMENT_EXPIRED",
+      ],
+      inventory_movement_type: [
+        "OPENING",
+        "PURCHASE",
+        "SALE",
+        "RETURN",
+        "DAMAGE",
+        "EXPIRED",
+        "TRANSFER_IN",
+        "TRANSFER_OUT",
+        "ADJUSTMENT",
+        "COUNT",
+      ],
+      inventory_role: [
+        "OWNER",
+        "MANAGER",
+        "INVENTORY_MANAGER",
+        "WAREHOUSE",
+        "VIEWER",
       ],
       service_category: [
         "BRAIDER",
