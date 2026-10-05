@@ -164,7 +164,7 @@ export const escalateTicket = createServerFn({ method: "POST" })
     await notifyDepartment(data.department, {
       type: "TICKET_ESCALATED",
       title: "A ticket was escalated to your department",
-      body: data.note || undefined,
+      ...(data.note ? { body: data.note } : {}),
       link: "/console/support",
     });
     return { ok: true as const };
