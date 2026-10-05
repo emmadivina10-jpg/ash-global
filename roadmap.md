@@ -1,8 +1,9 @@
 # Roadmap
 
 ## Employee Team chat refinement
-- [ ] Apply selected charcoal-and-emerald channel sidebar and conversation layout without changing messaging or permissions
-- [ ] Verify desktop and phone layout, channel search, composer and closing behavior; do not publish
+- [x] Apply selected charcoal-and-emerald channel sidebar and conversation layout without changing messaging or permissions
+- [x] Verify isolated desktop/phone layout, channel search, selection, composer and back navigation; lint and preview build pass; nothing published
+- [ ] Verify signed-in staff sending and dialog closing — blocked: no authenticated employee console session available for this check
 
 ## Current verification
 - [x] Audit existing employee authentication and department dashboards without changing accounts, passwords, roles, or the Apple review account; CEO-only report verified in preview (11 supplied passwords mismatch; Trust works; employee Overview restricted)
