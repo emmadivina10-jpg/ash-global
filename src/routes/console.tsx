@@ -24,6 +24,7 @@ import {
   Map,
   Target,
   UserCog,
+  UserRound,
   Unlock,
   ShieldAlert,
   ShieldCheck,
@@ -40,6 +41,7 @@ import { consoleStatus, lockConsole, setElevatedMode, unlockConsole } from "@/li
 import { getSupportAwaitingCount } from "@/lib/support.functions";
 import { StaffChat } from "@/components/console/StaffChat";
 import { StaffNotificationCenter } from "@/components/console/StaffNotificationCenter";
+import { StaffProfileDialog } from "@/components/console/StaffProfileDialog";
 import { EmployeeTermsGate } from "@/components/console/EmployeeTermsGate";
 import { IdentityConfirmation } from "@/components/console/IdentityConfirmation";
 import { DepartmentCommandCenter } from "@/components/console/DepartmentCommandCenter";
@@ -283,6 +285,13 @@ function ConsoleLayout() {
                 </span>
               </Button>
             ) : null}
+            <StaffProfileDialog
+              trigger={
+                <Button variant="ghost" size="icon" aria-label="Edit my employee profile">
+                  <UserRound className="size-5" aria-hidden />
+                </Button>
+              }
+            />
             <StaffChat />
             <StaffNotificationCenter />
             <ThemeToggle />

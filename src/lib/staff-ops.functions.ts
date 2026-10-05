@@ -337,3 +337,68 @@ export const askAshIntelligence = createServerFn({ method: "POST" })
 
     return { answer };
   });
+
+// ---------- Employee profile (self-service) ----------
+
+const AVATAR_BUCKET = "staff-avatars";
+
+async function signAvatar(supabase: Awaited<ReturnType<typeof db>>, path: string | null): Promise<string | null> {
+  if (!path) return null;
+  const { data } = await supabase.storage.from(AVATAR_BUCKET).createSignedUrl(path, 60 * 60);
+  return data?.signedUrl ?? null;
+}
+
+export const getMyStaffProfile = createServerFn({ method: "GET" }).handler(async () => {
+  const a = await actor();
+  if (!a.staffId) throw new Error("Only employee accounts have an editable profile");
+  const supabase = await db();
+  const { data, error } = await supabase
+    .from("staff_accounts")
+    .select("id, username, employee_name, position, employee_id, department, phone, email, avatar_url")
+    .eq("id", a.staffId)
+    .single();
+  if (error) throw error;
+  return { profile: { ...data, avatarSignedUrl: await signAvatar(supabase, data.avatar_url) } };
+});
+
+export const updateMyStaffProfile = createServerFn({ method: "POST" })
+  .inputValidator((d: { employeeName?: string; phone?: string }) => ({
+    employeeName: String(d?.employeeName ?? "").trim().slice(0, 120),
+    phone: String(d?.phone ?? "").trim().slice(0, 40),
+  }))
+  .handler(async ({ data }) => {
+    const a = await actor();
+    if (!a.staffId) throw new Error("Only employee accounts have an editable profile");
+    if (!data.employeeName) throw new Error("Name is required");
+    const supabase = await db();
+    const { error } = await supabase
+      .from("staff_accounts")
+      .update({ employee_name: data.employeeName, phone: data.phone || null, updated_at: new Date().toISOString() })
+      .eq("id", a.staffId);
+    if (error) throw error;
+    return { ok: true as const };
+  });
+
+export const uploadMyStaffAvatar = createServerFn({ method: "POST" })
+  .inputValidator((d: { dataUrl?: string }) => ({ dataUrl: String(d?.dataUrl ?? "") }))
+  .handler(async ({ data }) => {
+    const a = await actor();
+    if (!a.staffId) throw new Error("Only employee accounts have an editable profile");
+    const match = /^data:image\/(png|jpeg|jpg|webp);base64,([A-Za-z0-9+/=]+)$/.exec(data.dataUrl);
+    if (!match) throw new Error("Upload a PNG, JPG or WebP image");
+    const bytes = Buffer.from(match[2]!, "base64");
+    if (bytes.length > 5 * 1024 * 1024) throw new Error("Image must be under 5 MB");
+    const ext = match[1] === "png" ? "png" : match[1] === "webp" ? "webp" : "jpg";
+    const path = `${a.staffId}/avatar.${ext}`;
+    const supabase = await db();
+    const { error: upErr } = await supabase.storage
+      .from(AVATAR_BUCKET)
+      .upload(path, bytes, { contentType: `image/${match[1] === "jpg" ? "jpeg" : match[1]}`, upsert: true });
+    if (upErr) throw upErr;
+    const { error } = await supabase
+      .from("staff_accounts")
+      .update({ avatar_url: path, updated_at: new Date().toISOString() })
+      .eq("id", a.staffId);
+    if (error) throw error;
+    return { ok: true as const, avatarSignedUrl: await signAvatar(supabase, path) };
+  });
