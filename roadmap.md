@@ -1,5 +1,10 @@
 # Roadmap
 
+## Message profile fixes and dual-colour accents
+- [ ] Fix member-profile navigation, inbox strip and full-width composer
+- [ ] Apply update-aware avatar rings, dual-colour tabs/wallet, light Market/Extras accents and Menu watermark
+- [ ] Verify profile interaction and layouts without publishing
+
 ## Tab space and flight dates
 - [x] Remove shared top bars from Messages, Services, Flights, Menu and enlarge Messages controls
 - [x] Keep stacked flight dates inside their panel

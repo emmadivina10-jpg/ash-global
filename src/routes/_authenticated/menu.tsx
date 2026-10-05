@@ -111,7 +111,7 @@ function MenuPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-4">
+    <div className="member-menu mx-auto w-full max-w-3xl space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-3xl font-bold text-foreground">Menu</h1>
         <Link to="/settings" aria-label={fr ? "Paramètres" : "Settings"} className="grid size-10 place-items-center rounded-full bg-muted text-foreground">

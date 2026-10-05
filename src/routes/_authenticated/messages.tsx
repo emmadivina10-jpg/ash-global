@@ -503,6 +503,11 @@ function MessagesPage() {
   function peerProfileOf(conv: (typeof list)[number] | undefined) {
     if (!conv) return null;
 
+    const memberId = peerUserIdOf(conv);
+    if (memberId && !conv.group_id) {
+      return { to: "/u/$userId", params: { userId: memberId } };
+    }
+
     if (conv.listing_id) {
       const viewerIsOwner =
         Boolean(user?.id) && conv.owner_id === user?.id;
@@ -528,6 +533,12 @@ function MessagesPage() {
 
   /** Open the other side's public page from the chat header. */
   function openPeerProfile(conv: (typeof list)[number]) {
+    const group = groupOf(conv);
+    if (group) {
+      setGroupEditName(group.name);
+      setGroupSettings(true);
+      return;
+    }
     const target = peerProfileOf(conv);
 
     if (!target) return;
@@ -1126,18 +1137,14 @@ function MessagesPage() {
                       variant="ghost"
                       aria-label={`${fr ? "Voir les actualités de" : "View updates from"} ${label}`}
                       onClick={(event) => { event.stopPropagation(); if (conv.group_id) { openPeerProfile(conv); return; } setAvatarChoice(conv); }}
-                      className={cn(
-                        "grid aspect-square size-14 min-w-14 shrink-0 place-items-center rounded-full p-[2px] shadow-sm ring-2",
-                        avatarColor.wrapper,
-                        avatarColor.ring,
-                      )}
+                      className={cn("member-avatar-ring grid aspect-square size-14 min-w-14 shrink-0 place-items-center rounded-full p-[2px] shadow-sm", (availableStories?.groups.some((group) => group.author.id === peerUserIdOf(conv)) || availableSpotlights?.some((post) => post.provider.user_id === peerUserIdOf(conv))) && "member-avatar-update")}
                     >
                       <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
                         <Avatar
                           path={peerAvatarOf(conv)}
                           name={label}
                           online={peerStateOf(conv)?.online}
-                          hasUpdate={peerStateOf(conv)?.has_update}
+                          hasUpdate={false}
                           className="size-[52px] aspect-square rounded-full border-0 shadow-none"
                         />
                       </span>
@@ -1314,18 +1321,14 @@ function MessagesPage() {
                   </span>
                 ) : active ? (
                   <span
-                    className={cn(
-                      "grid size-10 shrink-0 place-items-center rounded-full p-[2px] shadow-sm ring-2",
-                      getAvatarColor(active.id).wrapper,
-                      getAvatarColor(active.id).ring,
-                    )}
+                    className={cn("member-avatar-ring grid size-10 shrink-0 place-items-center rounded-full p-[2px] shadow-sm", (availableStories?.groups.some((group) => group.author.id === activePeerId) || availableSpotlights?.some((post) => post.provider.user_id === activePeerId)) && "member-avatar-update")}
                   >
                     <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
                       <Avatar
                         path={peerAvatarOf(active)}
                         name={peerOf(active)}
                         online={peerStateOf(active)?.online}
-                        hasUpdate={peerStateOf(active)?.has_update}
+                        hasUpdate={false}
                         className="size-9 aspect-square rounded-full border-0 shadow-none"
                       />
                     </span>
@@ -1473,7 +1476,7 @@ function MessagesPage() {
                         return result.messages;
                       }
                     : undefined}
-                className="min-h-0 flex-1 px-2"
+                className="min-h-0 flex-1"
                     quickReplies={
                       lang === "fr"
                         ? [

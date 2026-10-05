@@ -66,7 +66,7 @@ function ExtrasPage() {
   const { lang } = useI18n();
   const fr = lang === "fr";
   return (
-    <div className="mx-auto max-w-5xl space-y-8">
+    <div className="member-extras mx-auto max-w-5xl space-y-8">
       <header className="flex items-center gap-3 border-b border-border pb-5">
         <Button asChild size="icon" variant="secondary" className="rounded-full">
           <Link to="/services" aria-label={fr ? "Retour à Market" : "Back to Market"}>
@@ -85,7 +85,7 @@ function ExtrasPage() {
           const content = (
             <>
               <span
-                className={`relative grid size-[72px] place-items-center rounded-[22px] border border-border shadow-card transition-transform group-hover:-translate-y-1 group-active:scale-95 motion-reduce:transform-none [&_svg]:size-8 ${owned ? "brand-gradient text-on-dark" : "bg-card text-foreground"}`}
+                className={`relative grid size-[72px] place-items-center rounded-[22px] border border-border shadow-card transition-transform group-hover:-translate-y-1 group-active:scale-95 motion-reduce:transform-none [&_svg]:size-8 ${owned ? "member-dual-wash text-foreground" : "bg-card text-foreground"}`}
               >
                 {"icon" in app ? (
                   <app.icon className="size-8" strokeWidth={1.7} aria-hidden />
