@@ -339,7 +339,7 @@ function OfferCard({ offer, fr, onOpen }: { offer: Offer; fr: boolean; onOpen: (
       </div>
       <div className="space-y-3">
         {offer.slices.map((s, i) => {
-          const first = s.segments[0], last = s.segments.at(-1)!;
+          const first = s.segments[0]!, last = s.segments.at(-1)!;
           const stops = s.segments.length - 1;
           return (
             <div key={i} className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
