@@ -1014,11 +1014,15 @@ a {
 }
 
 /* ===== ASH Console premium theme =====
-   Scoped dark command-center look for employee dashboards: deep navy
-   surfaces with the ASH red → magenta → violet brand gradient. Applied
+   Theme-aware command-center look for employee dashboards: deep navy
+   dark surfaces and existing light surfaces with the ASH brand gradient. Applied
    to <html> while the console is mounted so portaled dialogs match. */
 .console-premium {
   --radius: 1.25rem;
+  --console-brand: linear-gradient(135deg, oklch(0.62 0.24 18) 0%, oklch(0.6 0.25 345) 45%, oklch(0.58 0.23 300) 100%);
+}
+
+.console-premium.dark {
   --background: oklch(0.15 0.02 280);
   --foreground: oklch(0.96 0.01 285);
   --card: oklch(0.19 0.024 278);
@@ -1049,7 +1053,6 @@ a {
   --sidebar-accent-foreground: oklch(0.96 0.01 285);
   --sidebar-border: oklch(0.96 0.01 285 / 8%);
   --sidebar-ring: oklch(0.66 0.23 18);
-  --console-brand: linear-gradient(135deg, oklch(0.62 0.24 18) 0%, oklch(0.6 0.25 345) 45%, oklch(0.58 0.23 300) 100%);
 }
 
 @utility console-brand {
