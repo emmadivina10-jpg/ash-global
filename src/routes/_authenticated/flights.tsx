@@ -121,10 +121,22 @@ function FlightsPage() {
         <Button asChild variant="ghost" size="icon" className="rounded-full" aria-label={fr ? "Retour au fil" : "Back to Feed"}>
           <Link to="/feed"><ArrowLeft className="size-5" /></Link>
         </Button>
-        <div>
+        <div className="min-w-0 flex-1">
           <h1 className="font-display text-2xl font-bold leading-tight">ASH Flights</h1>
-          <p className="text-sm text-muted-foreground">{fr ? "Réservez des vols dans le monde entier avec ASH" : "Book flights worldwide with ASH"}</p>
+          <p className="text-sm text-muted-foreground">{fr ? "Recherchez, comparez et réservez vos vols avec ASH." : "Search, compare and book flights with ASH."}</p>
         </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" className="rounded-full">{fr ? "Mes voyages" : "My Trips"}</Button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-64 text-sm">
+            <p className="font-semibold">{fr ? "Aucun voyage pour l’instant" : "No trips yet"}</p>
+            <p className="text-muted-foreground">{fr ? "Vos vols réservés avec ASH apparaîtront ici." : "Flights you book with ASH will appear here."}</p>
+          </PopoverContent>
+        </Popover>
+        <Button asChild variant="ghost" size="sm" className="rounded-full">
+          <Link to="/support">{fr ? "Aide" : "Help"}</Link>
+        </Button>
       </header>
 
       {unavailable && (
