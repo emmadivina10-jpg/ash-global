@@ -76,7 +76,8 @@ export const saveOpportunity = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { actor, db } = await ctx();
     if (!data.name || !data.market) return { ok: false as const, error: "Name and market are required." };
-    const { id, ...fields } = data;
+    const { id, ...rest } = data;
+    const fields = { ...rest, name: rest.name as string, market: rest.market as string };
     if (id) {
       const { error } = await db.from("expansion_opportunities").update(fields).eq("id", id);
       if (error) return { ok: false as const, error: "Could not save." };
