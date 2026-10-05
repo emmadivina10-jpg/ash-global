@@ -202,7 +202,7 @@ export function MarketAnalysisChart({
           <p className="font-display text-2xl font-extrabold text-foreground">{currency} {last.toLocaleString()}</p>
         </div>
         <p className={`text-sm font-bold ${up ? "text-emerald-500" : "text-red-500"}`}>
-          {up ? "▲" : "▼"} {currency} {Math.abs(last - first).toLocaleString()} since {timeline[0].date}
+          {up ? "▲" : "▼"} {currency} {Math.abs(last - first).toLocaleString()} since {firstDate}
         </p>
       </div>
       <div className="h-56">
