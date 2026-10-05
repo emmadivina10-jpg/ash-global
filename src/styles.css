@@ -83,6 +83,15 @@
   --color-market-positive: var(--market-positive);
   --color-market-negative: var(--market-negative);
   --color-market-feature: var(--market-feature);
+  --color-team-background: oklch(0.17 0.008 170);
+  --color-team-surface: oklch(0.21 0.008 170);
+  --color-team-elevated: oklch(0.27 0.009 170);
+  --color-team-line: oklch(0.34 0.012 170);
+  --color-team-foreground: oklch(0.96 0.004 170);
+  --color-team-muted: oklch(0.73 0.012 170);
+  --color-team-accent: oklch(0.67 0.15 164);
+  --color-team-outgoing: oklch(0.36 0.075 164);
+  --color-team-gold: oklch(0.82 0.13 88);
 
   --shadow-card: 0 1px 1px oklch(0.14 0.022 283 / 0.05), 0 12px 34px -18px oklch(0.14 0.022 283 / 0.3);
   --shadow-raised: 0 2px 6px oklch(0.14 0.022 283 / 0.08), 0 30px 64px -28px oklch(0.14 0.022 283 / 0.55);

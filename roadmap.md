@@ -1,5 +1,9 @@
 # Roadmap
 
+## Employee Team chat refinement
+- [ ] Apply selected charcoal-and-emerald channel sidebar and conversation layout without changing messaging or permissions
+- [ ] Verify desktop and phone layout, channel search, composer and closing behavior; do not publish
+
 ## Current verification
 - [x] Audit existing employee authentication and department dashboards without changing accounts, passwords, roles, or the Apple review account; CEO-only report verified in preview (11 supplied passwords mismatch; Trust works; employee Overview restricted)
 - [ ] Confirm on a physical iPhone that the full-screen post comment input stays above the keyboard (preview-only fix in place)
