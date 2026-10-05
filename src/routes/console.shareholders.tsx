@@ -26,7 +26,7 @@ function PaymentDialog({ s, onDone }: { s: ShareholderRow; onDone: () => void })
     setBusy(true);
     const r = await fn({ data: { id: s.id, amount: Number(amount), reference } });
     setBusy(false);
-    if (!r.ok) return toast.error(r.error);
+    if (!r.ok) { toast.error(r.error); return; }
     toast.success("Payment recorded");
     setOpen(false);
     onDone();
