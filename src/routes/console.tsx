@@ -106,7 +106,7 @@ export const Route = createFileRoute("/console")({
   component: ConsoleLayout,
 });
 
-/** Applies the premium dark console theme to <html> while the console is mounted. */
+/** Applies the theme-aware console branding to <html> while the console is mounted. */
 function useConsoleTheme() {
   useEffect(() => {
     document.documentElement.classList.add("console-premium");
