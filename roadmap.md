@@ -123,5 +123,5 @@
 - [ ] Content Safety & Integrity in Trust & Verification (later phase)
 
 ## Feed posting and flight banner
-- [ ] Replace the Feed heading with a plus that opens existing posting controls in a dialog
-- [ ] Replace the inline composer with a plane banner and verify posting controls
+- [x] Replace the Feed heading with a plus that opens existing posting controls in a dialog
+- [x] Replace the inline composer with a plane banner; signed-in preview verified dialog, gallery/camera controls, caption and Post enabled state; no post sent, nothing published
