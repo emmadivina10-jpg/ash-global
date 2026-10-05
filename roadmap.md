@@ -116,3 +116,6 @@
 - [ ] Trust Scores, Suspicious Activity, Investigations, Audit History sub-pages
 - [ ] Finance parts 2–30 (periods, archive, statements, finance chat) — awaiting choice of starting part
 - Expansion (Josephine): pipeline, tasks, dashboard, Submit to CEO done. Pending: research reports, outreach CRM, letters+approval, Expansion AI.
+
+- [x] Market Research Center: expansion_research table (service-role, deny-all RLS), research reports per opportunity, submit-to-CEO flow, panel in ExpansionWorkspace (preview only)
+- [ ] Next: Outreach CRM, Letters + CEO approval, Josephine profile/KPIs, Expansion AI

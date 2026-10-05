@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Plus, Send, ListTodo, History } from "lucide-react";
+import { Plus, Send, ListTodo, History, FlaskConical } from "lucide-react";
 import {
   EXPANSION_STAGES, SUPPORT_DEPARTMENTS, addOpportunityNote, createExpansionTask, getExpansionBoard,
-  getOpportunityHistory, moveOpportunityStage, saveOpportunity, submitOpportunityToCeo, type ExpansionOpportunity,
+  getOpportunityHistory, getOpportunityResearch, moveOpportunityStage, saveOpportunity, saveResearchReport,
+  submitOpportunityToCeo, submitResearchToCeo, type ExpansionOpportunity, type ExpansionResearch,
 } from "@/lib/expansion.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -233,6 +234,8 @@ function OpportunityDetail({ opp, superAdmin, tasks, onClose, onEdit, onChanged 
           {field("Required resources", opp.required_resources)}{field("Launch requirements", opp.launch_requirements)}
         </div>
 
+        <ResearchPanel opp={opp} run={run} />
+
         <div className="space-y-2 rounded-xl border border-border p-3">
           <p className="text-sm font-semibold">Add task or request support</p>
           <div className="grid gap-2 md:grid-cols-4">
@@ -273,6 +276,99 @@ function OpportunityDetail({ opp, superAdmin, tasks, onClose, onEdit, onChanged 
               </li>
             ))}
           </ul>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+type RunFn = (p: Promise<{ ok: boolean; error?: string }>, msg: string) => Promise<boolean>;
+
+function ResearchPanel({ opp, run }: { opp: ExpansionOpportunity; run: RunFn }) {
+  const qc = useQueryClient();
+  const fetchResearch = useServerFn(getOpportunityResearch);
+  const key = ["console", "expansion", "research", opp.id];
+  const { data: reports } = useQuery({ queryKey: key, queryFn: () => fetchResearch({ data: { opportunityId: opp.id } }) });
+  const submit = useServerFn(submitResearchToCeo);
+  const [editing, setEditing] = useState<Partial<ExpansionResearch> | null>(null);
+  const after = () => { qc.invalidateQueries({ queryKey: key }); run(Promise.resolve({ ok: true }), ""); };
+
+  return (
+    <div className="space-y-2 rounded-xl border border-border p-3">
+      <div className="flex items-center justify-between">
+        <p className="flex items-center gap-2 text-sm font-semibold"><FlaskConical className="h-4 w-4" />Market research</p>
+        <Button size="sm" variant="outline" onClick={() => setEditing({ opportunity_id: opp.id, competition_level: "UNKNOWN" })}>
+          <Plus className="mr-1 h-3 w-3" />New report
+        </Button>
+      </div>
+      {!reports?.length ? (
+        <p className="text-xs text-muted-foreground">No research recorded for this market yet.</p>
+      ) : (
+        <ul className="space-y-2">
+          {reports.map((r) => (
+            <li key={r.id} className="rounded-lg bg-muted/40 px-3 py-2 text-sm">
+              <div className="flex flex-wrap items-center gap-2">
+                <button className="font-medium underline-offset-2 hover:underline" onClick={() => setEditing(r)}>{r.title}</button>
+                <Badge variant={r.status === "SUBMITTED" ? "default" : "secondary"}>{r.status === "SUBMITTED" ? "Sent to CEO" : "Draft"}</Badge>
+                <Badge variant="outline">Competition: {r.competition_level}</Badge>
+                <span className="ml-auto text-xs text-muted-foreground">{r.created_by_name} · {new Date(r.updated_at).toLocaleDateString()}</span>
+              </div>
+              {r.findings && <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{r.findings}</p>}
+              {r.recommendation && <p className="mt-1 text-xs"><span className="text-muted-foreground">Recommendation: </span>{r.recommendation}</p>}
+              {r.status !== "SUBMITTED" && (
+                <Button size="sm" variant="ghost" className="mt-1 h-7 text-xs"
+                  onClick={() => run(submit({ data: { id: r.id } }), "Report submitted to the CEO")}>
+                  <Send className="mr-1 h-3 w-3" />Submit to CEO
+                </Button>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {editing && (
+        <ResearchForm initial={editing} onClose={() => setEditing(null)} onSaved={() => { setEditing(null); after(); }} />
+      )}
+    </div>
+  );
+}
+
+function ResearchForm({ initial, onClose, onSaved }: { initial: Partial<ExpansionResearch>; onClose: () => void; onSaved: () => void }) {
+  const save = useServerFn(saveResearchReport);
+  const [f, setF] = useState<Partial<ExpansionResearch>>(initial);
+  const set = (k: keyof ExpansionResearch) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
+  const mut = useMutation({
+    mutationFn: () => save({ data: f }),
+    onSuccess: (r) => { if (r.ok) { toast.success("Research saved"); onSaved(); } else toast.error(r.error); },
+    onError: () => toast.error("Could not save."),
+  });
+  const area = (k: keyof ExpansionResearch, label: string, span = true) => (
+    <div className={`space-y-1 ${span ? "md:col-span-2" : ""}`}><Label>{label}</Label><Textarea rows={2} value={(f[k] as string) ?? ""} onChange={set(k)} /></div>
+  );
+  return (
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+        <DialogHeader><DialogTitle>{f.id ? "Edit research report" : "New research report"}</DialogTitle></DialogHeader>
+        <div className="grid gap-3 md:grid-cols-2">
+          <div className="space-y-1"><Label>Report title *</Label><Input value={f.title ?? ""} onChange={set("title")} placeholder="e.g. Buea market study — Q4" /></div>
+          <div className="space-y-1"><Label>Competition level</Label>
+            <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={f.competition_level ?? "UNKNOWN"} onChange={set("competition_level")}>
+              <option>UNKNOWN</option><option>LOW</option><option>MEDIUM</option><option>HIGH</option>
+            </select>
+          </div>
+          <div className="space-y-1 md:col-span-2"><Label>Estimated market size</Label><Input value={f.market_size ?? ""} onChange={set("market_size")} placeholder="Your own estimate" /></div>
+          {area("demand", "Demand signals")}
+          {area("competition_detail", "Competitors")}
+          {area("entry_barriers", "Entry barriers")}
+          {area("regulations", "Regulations & legal requirements")}
+          {area("customer_segments", "Customer segments")}
+          {area("pricing_insights", "Pricing insights")}
+          {area("sources", "Sources (where the information came from)")}
+          {area("findings", "Key findings")}
+          {area("recommendation", "Recommendation")}
+        </div>
+        <div className="flex justify-end gap-2 pt-2">
+          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button disabled={mut.isPending} onClick={() => mut.mutate()}>{mut.isPending ? "Saving…" : "Save"}</Button>
         </div>
       </DialogContent>
     </Dialog>
