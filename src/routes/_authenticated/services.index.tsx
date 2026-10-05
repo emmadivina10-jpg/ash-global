@@ -9,7 +9,7 @@ import { Capacitor } from "@capacitor/core";
 import { AppLauncher } from "@capacitor/app-launcher";
 import {
   Briefcase,
-  Shirt,
+  BriefcaseBusiness,
   Calendar,
   ArrowLeft,
   CreditCard,
