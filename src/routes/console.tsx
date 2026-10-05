@@ -24,6 +24,7 @@ import {
   Map,
   Target,
   UserCog,
+  UserRound,
   Unlock,
   ShieldAlert,
   ShieldCheck,
