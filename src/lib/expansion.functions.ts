@@ -153,3 +153,64 @@ export const submitOpportunityToCeo = createServerFn({ method: "POST" })
     await db.from("expansion_opportunity_events").insert({ opportunity_id: opp.id, kind: "SUBMITTED", body: `Submitted to CEO as ${data.kind}${data.message ? ` — ${data.message}` : ""}`, actor_name: actor.name, actor_staff_id: actor.staffId });
     return { ok: true as const };
   });
+
+// ---- Market Research Center ----
+
+export type ExpansionResearch = {
+  id: string; opportunity_id: string; title: string; market_size: string | null; demand: string | null;
+  competition_level: string; competition_detail: string | null; entry_barriers: string | null; regulations: string | null;
+  customer_segments: string | null; pricing_insights: string | null; sources: string | null; findings: string | null;
+  recommendation: string | null; status: string; created_by_name: string | null; created_at: string; updated_at: string;
+};
+
+export const getOpportunityResearch = createServerFn({ method: "POST" })
+  .inputValidator((d: { opportunityId: string }) => ({ opportunityId: String(d?.opportunityId ?? "") }))
+  .handler(async ({ data }) => {
+    const { db } = await ctx();
+    const { data: rows, error } = await db.from("expansion_research").select("*")
+      .eq("opportunity_id", data.opportunityId).order("updated_at", { ascending: false }).limit(100);
+    if (error) throw new Error("Research could not be loaded.");
+    return (rows ?? []) as ExpansionResearch[];
+  });
+
+export const saveResearchReport = createServerFn({ method: "POST" })
+  .inputValidator((d: Partial<ExpansionResearch>) => ({
+    id: s(d?.id, 64), opportunity_id: String(d?.opportunity_id ?? ""), title: s(d?.title, 160),
+    market_size: s(d?.market_size, 400), demand: s(d?.demand),
+    competition_level: ["LOW", "MEDIUM", "HIGH", "UNKNOWN"].includes(String(d?.competition_level).toUpperCase()) ? String(d?.competition_level).toUpperCase() : "UNKNOWN",
+    competition_detail: s(d?.competition_detail), entry_barriers: s(d?.entry_barriers), regulations: s(d?.regulations),
+    customer_segments: s(d?.customer_segments), pricing_insights: s(d?.pricing_insights), sources: s(d?.sources),
+    findings: s(d?.findings, 6000), recommendation: s(d?.recommendation, 3000),
+  }))
+  .handler(async ({ data }) => {
+    const { actor, db } = await ctx();
+    if (!data.title || !data.opportunity_id) return { ok: false as const, error: "A title is required." };
+    const { id, ...fields } = data;
+    if (id) {
+      const { error } = await db.from("expansion_research").update(fields).eq("id", id);
+      if (error) return { ok: false as const, error: "Could not save." };
+      await db.from("expansion_opportunity_events").insert({ opportunity_id: data.opportunity_id, kind: "RESEARCH", body: `Research updated: ${data.title}`, actor_name: actor.name, actor_staff_id: actor.staffId });
+      return { ok: true as const, id };
+    }
+    const { data: row, error } = await db.from("expansion_research")
+      .insert({ ...fields, title: data.title, created_by_staff_id: actor.staffId, created_by_name: actor.name }).select("id").single();
+    if (error || !row) return { ok: false as const, error: "Could not create." };
+    await db.from("expansion_opportunity_events").insert({ opportunity_id: data.opportunity_id, kind: "RESEARCH", body: `Research added: ${data.title}`, actor_name: actor.name, actor_staff_id: actor.staffId });
+    return { ok: true as const, id: row.id };
+  });
+
+export const submitResearchToCeo = createServerFn({ method: "POST" })
+  .inputValidator((d: { id: string; message?: string }) => ({ id: String(d?.id ?? ""), message: s(d?.message, 2000) }))
+  .handler(async ({ data }) => {
+    const { actor, db } = await ctx();
+    const { data: rep } = await db.from("expansion_research").select("id, opportunity_id, title, status").eq("id", data.id).maybeSingle();
+    if (!rep) return { ok: false as const, error: "Not found." };
+    if (rep.status === "SUBMITTED") return { ok: false as const, error: "Already submitted to the CEO." };
+    const { data: opp } = await db.from("expansion_opportunities").select("id, name, market").eq("id", rep.opportunity_id).maybeSingle();
+    const now = new Date().toISOString();
+    await db.from("expansion_research").update({ status: "SUBMITTED" }).eq("id", rep.id);
+    await db.from("staff_notifications").insert({ department: "SUPER_ADMIN", type: "CEO_SUBMISSION", title: `Market report: ${rep.title}${opp ? ` (${opp.market})` : ""}`, body: data.message ?? `Submitted by ${actor.name}`, link: "/console/expansion" });
+    await db.from("department_tasks").insert({ department: "SUPER_ADMIN", title: `Review market report: ${rep.title}`.slice(0, 160), detail: data.message, due_date: now.slice(0, 10), priority: "HIGH", status: "OPEN", source: "EXPANSION", created_by: actor.name, expansion_opportunity_id: rep.opportunity_id });
+    await db.from("expansion_opportunity_events").insert({ opportunity_id: rep.opportunity_id, kind: "SUBMITTED", body: `Market report submitted to CEO: ${rep.title}${data.message ? ` — ${data.message}` : ""}`, actor_name: actor.name, actor_staff_id: actor.staffId });
+    return { ok: true as const };
+  });
