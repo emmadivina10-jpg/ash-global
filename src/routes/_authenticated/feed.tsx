@@ -393,5 +393,6 @@ function FeedPage() {
         </div>
       )}
     </div>
+    </PullToRefresh>
   );
 }
