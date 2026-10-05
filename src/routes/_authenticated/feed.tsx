@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BarChart3, Camera, ImagePlus, Loader2, RefreshCw, Sparkles, Users, X } from "lucide-react";
+import { BarChart3, Camera, ImagePlus, Loader2, Plus, RefreshCw, Sparkles, Users, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/refer/AvatarUpload";
@@ -10,6 +10,8 @@ import { SocialSuggestions } from "@/components/refer/SocialSuggestions";
 import { DiscoveryRow, useFeedDiscovery } from "@/components/refer/FeedDiscovery";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import flightBanner from "@/assets/feed-flight-banner.jpg";
 import { useCreateSocialPost, useFriendships, useSocialFeed } from "@/lib/social.queries";
 import { useProfile } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
@@ -142,9 +144,17 @@ function FeedPage() {
     <div className="mx-auto w-full max-w-xl space-y-4">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0 self-center">
-          <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
-            {fr ? "Fil ASH" : "ASH Feed"}
-          </h1>
+          <h1 className="sr-only">{fr ? "Fil ASH" : "ASH Feed"}</h1>
+          <Button
+            type="button"
+            size="icon"
+            className="size-11 rounded-full shadow-sm [&_svg]:size-6 motion-safe:transition-transform motion-safe:hover:rotate-90"
+            aria-label={fr ? "Créer une publication" : "Create a post"}
+            title={fr ? "Créer une publication" : "Create a post"}
+            onClick={() => setComposerOpen(true)}
+          >
+            <Plus aria-hidden />
+          </Button>
         </div>
         <div className="flex items-center gap-1.5">
           <Link
@@ -189,62 +199,39 @@ function FeedPage() {
         })}
       </div>
 
-      <section className="tile p-3">
-        <div className="flex items-center gap-2.5">
-          <Avatar path={profile?.avatar_url} name={profile?.full_name} online className="size-10 shrink-0" />
-          {composerOpen ? (
-            <Textarea
-              autoFocus
-              rows={3}
-              value={caption}
-              onChange={(event) => setCaption(event.target.value.slice(0, 1200))}
-              placeholder={firstName ? (fr ? `Quoi de neuf, ${firstName} ?` : `What's on your mind, ${firstName}?`) : fr ? "Quoi de neuf ?" : "What's on your mind?"}
-              aria-label={fr ? "Votre publication" : "Your post"}
-              className="min-h-11 resize-none rounded-2xl"
-            />
-          ) : (
-            <>
-              <button
-                type="button"
-                onClick={() => setComposerOpen(true)}
-                className="min-w-0 flex-1 truncate rounded-full bg-secondary px-4 py-2.5 text-left text-sm text-muted-foreground"
-              >
-                {firstName
-                  ? fr
-                    ? `Quoi de neuf, ${firstName} ?`
-                    : `What's on your mind, ${firstName}?`
-                  : fr
-                    ? "Quoi de neuf ?"
-                    : "What's on your mind?"}
-              </button>
-              <button
-                type="button"
-                aria-label={fr ? "Caméra" : "Camera"}
-                onClick={() => {
-                  setComposerOpen(true);
-                  cameraRef.current?.click();
-                }}
-                className="grid size-9 shrink-0 place-items-center rounded-full text-primary"
-              >
-                <Camera className="size-5" aria-hidden />
-              </button>
-              <button
-                type="button"
-                aria-label={fr ? "Galerie" : "Gallery"}
-                onClick={() => {
-                  setComposerOpen(true);
-                  fileRef.current?.click();
-                }}
-                className="grid size-9 shrink-0 place-items-center rounded-full text-accent"
-              >
-                <ImagePlus className="size-5" aria-hidden />
-              </button>
-            </>
-          )}
+      <section aria-label={fr ? "Billets d’avion ASH" : "ASH flight tickets"} className="relative isolate h-40 overflow-hidden rounded-lg sm:h-48">
+        <img src={flightBanner} alt={fr ? "Avion au-dessus des nuages" : "Passenger plane above the clouds"} width={1536} height={768} className="absolute inset-0 size-full object-cover" />
+        <div className="relative flex h-full max-w-[52%] flex-col justify-center px-5 sm:px-7">
+          <p className="mb-2 text-xs font-bold text-primary-foreground">ASH</p>
+          <h2 className="font-display text-xl font-bold leading-tight text-primary-foreground sm:text-2xl">
+            {fr ? "Payez votre billet d’avion avec ASH" : "Pay flight ticket with ASH"}
+          </h2>
         </div>
+      </section>
 
-        {composerOpen ? <SocialSuggestions value={caption} onChange={setCaption} /> : null}
-
+      <Dialog open={composerOpen} onOpenChange={(next) => { if (!create.isPending) setComposerOpen(next); }}>
+        <DialogContent className="max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] overflow-y-auto rounded-lg border-border bg-card p-5 sm:max-w-lg sm:p-6">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-foreground">
+              <span className="grid size-8 place-items-center rounded-full bg-primary/10 text-primary"><Plus className="size-4" aria-hidden /></span>
+              {fr ? "Créer une publication" : "Create a post"}
+            </DialogTitle>
+            <DialogDescription className="sr-only">{fr ? "Votre publication" : "Your post"}</DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center gap-3">
+            <Avatar path={profile?.avatar_url} name={profile?.full_name} online className="size-10 shrink-0" />
+            <p className="min-w-0 truncate text-sm font-semibold text-foreground">{profile?.full_name}</p>
+          </div>
+          <Textarea
+            rows={4}
+            maxLength={1200}
+            value={caption}
+            onChange={(event) => setCaption(event.target.value.slice(0, 1200))}
+            placeholder={firstName ? (fr ? `Quoi de neuf, ${firstName} ?` : `What's on your mind, ${firstName}?`) : fr ? "Quoi de neuf ?" : "What's on your mind?"}
+            aria-label={fr ? "Votre publication" : "Your post"}
+            className="min-h-28 resize-none border-border bg-background"
+          />
+          <SocialSuggestions value={caption} onChange={setCaption} />
 
         {files.length > 0 ? (
           <div className="mt-3 flex flex-wrap gap-2">
@@ -268,30 +255,24 @@ function FeedPage() {
           </div>
         ) : null}
 
-        {composerOpen ? (
-          <div className="mt-3 flex items-center justify-between">
-            <div className="flex items-center gap-1">
-              <Button type="button" variant="ghost" size="sm" onClick={() => fileRef.current?.click()}>
-                <ImagePlus className="size-4" aria-hidden />
-                {fr ? "Galerie" : "Gallery"}
-              </Button>
-              <Button type="button" variant="ghost" size="sm" onClick={() => cameraRef.current?.click()}>
-                <Camera className="size-4" aria-hidden />
-                {fr ? "Caméra" : "Camera"}
-              </Button>
-              <span className="ml-1 text-[11px] tabular-nums text-muted-foreground">{caption.length}/1200</span>
-            </div>
-            <Button
-              size="sm"
-              onClick={publish}
-              disabled={create.isPending || (caption.trim().length === 0 && files.length === 0)}
-              className="touch-manipulation min-w-20"
-            >
-              {create.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-              {create.isPending ? (fr ? "Publication..." : "Posting...") : (fr ? "Publier" : "Post")}
+          <div className="grid grid-cols-2 gap-3">
+            <Button type="button" variant="outline" disabled={files.length >= 4 || create.isPending} className="h-14 justify-start gap-3 rounded-lg border-border bg-background px-4" onClick={() => fileRef.current?.click()}>
+              <ImagePlus className="text-primary" aria-hidden />
+              {fr ? "Galerie" : "Gallery"}
+            </Button>
+            <Button type="button" variant="outline" disabled={files.length >= 4 || create.isPending} className="h-14 justify-start gap-3 rounded-lg border-border bg-background px-4" onClick={() => cameraRef.current?.click()}>
+              <Camera className="text-accent" aria-hidden />
+              {fr ? "Caméra" : "Camera"}
             </Button>
           </div>
-        ) : null}
+          <div className="flex items-center justify-between gap-2 text-[11px] tabular-nums text-muted-foreground">
+            <span>{files.length}/4 {fr ? "photos" : "photos"}</span>
+            <span>{caption.length}/1200</span>
+          </div>
+          <Button onClick={publish} disabled={create.isPending || (caption.trim().length === 0 && files.length === 0)} className="h-11 w-full touch-manipulation">
+            {create.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+            {create.isPending ? (fr ? "Publication..." : "Posting...") : (fr ? "Publier" : "Post")}
+          </Button>
         <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={pick} />
         <input
           ref={cameraRef}
@@ -301,7 +282,8 @@ function FeedPage() {
           className="hidden"
           onChange={pick}
         />
-      </section>
+        </DialogContent>
+      </Dialog>
 
       <StoriesRail />
 
