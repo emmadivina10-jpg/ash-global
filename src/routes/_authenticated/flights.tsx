@@ -36,6 +36,15 @@ export const Route = createFileRoute("/_authenticated/flights")({
 type Trip = "round" | "oneway" | "multi";
 type Cabin = "economy" | "premium_economy" | "business" | "first";
 type Leg = { from: Place | null; to: Place | null; date: string };
+const POPULAR: Place[] = [
+  { code: "DLA", name: "Douala International Airport", city: "Douala", country: "Cameroon", type: "airport" },
+  { code: "NSI", name: "Yaoundé Nsimalen International Airport", city: "Yaoundé", country: "Cameroon", type: "airport" },
+  { code: "LOS", name: "Murtala Muhammed International Airport", city: "Lagos", country: "Nigeria", type: "airport" },
+  { code: "YYZ", name: "Toronto Pearson International Airport", city: "Toronto", country: "Canada", type: "airport" },
+  { code: "CDG", name: "Paris Charles de Gaulle Airport", city: "Paris", country: "France", type: "airport" },
+  { code: "LHR", name: "London Heathrow Airport", city: "London", country: "United Kingdom", type: "airport" },
+  { code: "DXB", name: "Dubai International Airport", city: "Dubai", country: "United Arab Emirates", type: "airport" },
+];
 type Sort = "recommended" | "cheapest" | "fastest" | "earliest" | "latest";
 
 const isoDur = (d: string | null) => {
@@ -257,6 +266,16 @@ function FlightsPage() {
         ))}
       </div>
 
+      {unavailable && (
+        <div role="status" className="flex gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-4 text-sm">
+          <Info className="mt-0.5 size-5 shrink-0 text-primary" />
+          <div>
+            <p className="font-semibold">{fr ? "La recherche de vols en direct est momentanément indisponible." : "Live flight search is currently unavailable."}</p>
+            <p className="text-muted-foreground">{fr ? "ASH n’affiche jamais de vols ou de prix inventés. La recherche s’activera dès que le fournisseur sera connecté." : "ASH never shows invented flights or prices. Search turns on as soon as our flight provider is connected."}</p>
+          </div>
+        </div>
+      )}
+
       {search.error && <p className="rounded-2xl border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">{(search.error as Error).message}</p>}
       {search.data && !search.data.available && (
         <p className="rounded-2xl border border-border p-4 text-sm">{fr ? "Recherche de vols momentanément indisponible." : "Flight search temporarily unavailable."}</p>
@@ -356,7 +375,7 @@ function PlacePicker({ label, icon, value, onChange, disabled, fr }: { label: st
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button type="button" disabled={disabled} className="flex w-full items-center gap-3 rounded-xl border border-border bg-background p-3 text-left disabled:opacity-60">
+        <button type="button" disabled={disabled} className="flex w-full items-center gap-3 rounded-2xl border border-border bg-background p-3.5 text-left transition-colors hover:border-primary/50 disabled:opacity-60">
           <span className="text-primary">{icon}</span>
           <span className="min-w-0">
             <span className="block text-[11px] font-semibold tracking-wide text-muted-foreground">{label}</span>
@@ -384,7 +403,7 @@ function PlacePicker({ label, icon, value, onChange, disabled, fr }: { label: st
 
 function OfferCard({ offer, fr, onOpen }: { offer: Offer; fr: boolean; onOpen: () => void }) {
   return (
-    <article className="rounded-2xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md">
+    <article className="rounded-3xl border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-xl">
       <div className="mb-3 flex items-center gap-2">
         {offer.airlineLogo ? <img src={offer.airlineLogo} alt="" className="size-6 object-contain" loading="lazy" /> : <Plane className="size-5 text-primary" />}
         <span className="text-sm font-semibold">{offer.airline}</span>
