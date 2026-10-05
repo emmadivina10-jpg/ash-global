@@ -50,6 +50,7 @@ import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authen
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedShareholderRouteImport } from './routes/_authenticated/shareholder'
 import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
 import { Route as AuthenticatedTransactionsRouteImport } from './routes/_authenticated/transactions'
 import { Route as AuthenticatedVerifiedRouteImport } from './routes/_authenticated/verified'
@@ -84,6 +85,7 @@ import { Route as ConsoleReportsRouteImport } from './routes/console.reports'
 import { Route as ConsoleRevenueRouteImport } from './routes/console.revenue'
 import { Route as ConsoleSalesRouteImport } from './routes/console.sales'
 import { Route as ConsoleSecurityRouteImport } from './routes/console.security'
+import { Route as ConsoleShareholdersRouteImport } from './routes/console.shareholders'
 import { Route as ConsoleStaffRouteImport } from './routes/console.staff'
 import { Route as ConsoleSupportRouteImport } from './routes/console.support'
 import { Route as ConsoleTrustRouteImport } from './routes/console.trust'
@@ -339,6 +341,12 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedShareholderRoute =
+  AuthenticatedShareholderRouteImport.update({
+    id: '/shareholder',
+    path: '/shareholder',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStudioRoute = AuthenticatedStudioRouteImport.update({
   id: '/studio',
   path: '/studio',
@@ -509,6 +517,11 @@ const ConsoleSalesRoute = ConsoleSalesRouteImport.update({
 const ConsoleSecurityRoute = ConsoleSecurityRouteImport.update({
   id: '/security',
   path: '/security',
+  getParentRoute: () => ConsoleRoute,
+} as any)
+const ConsoleShareholdersRoute = ConsoleShareholdersRouteImport.update({
+  id: '/shareholders',
+  path: '/shareholders',
   getParentRoute: () => ConsoleRoute,
 } as any)
 const ConsoleStaffRoute = ConsoleStaffRouteImport.update({
@@ -815,6 +828,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/shareholder': typeof AuthenticatedShareholderRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/verified': typeof AuthenticatedVerifiedRoute
@@ -848,6 +862,7 @@ export interface FileRoutesByFullPath {
   '/console/revenue': typeof ConsoleRevenueRoute
   '/console/sales': typeof ConsoleSalesRoute
   '/console/security': typeof ConsoleSecurityRoute
+  '/console/shareholders': typeof ConsoleShareholdersRoute
   '/console/staff': typeof ConsoleStaffRoute
   '/console/support': typeof ConsoleSupportRoute
   '/console/trust': typeof ConsoleTrustRoute
@@ -937,6 +952,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/shareholder': typeof AuthenticatedShareholderRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/verified': typeof AuthenticatedVerifiedRoute
@@ -970,6 +986,7 @@ export interface FileRoutesByTo {
   '/console/revenue': typeof ConsoleRevenueRoute
   '/console/sales': typeof ConsoleSalesRoute
   '/console/security': typeof ConsoleSecurityRoute
+  '/console/shareholders': typeof ConsoleShareholdersRoute
   '/console/staff': typeof ConsoleStaffRoute
   '/console/support': typeof ConsoleSupportRoute
   '/console/trust': typeof ConsoleTrustRoute
@@ -1062,6 +1079,7 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/shareholder': typeof AuthenticatedShareholderRoute
   '/_authenticated/studio': typeof AuthenticatedStudioRoute
   '/_authenticated/transactions': typeof AuthenticatedTransactionsRoute
   '/_authenticated/verified': typeof AuthenticatedVerifiedRoute
@@ -1095,6 +1113,7 @@ export interface FileRoutesById {
   '/console/revenue': typeof ConsoleRevenueRoute
   '/console/sales': typeof ConsoleSalesRoute
   '/console/security': typeof ConsoleSecurityRoute
+  '/console/shareholders': typeof ConsoleShareholdersRoute
   '/console/staff': typeof ConsoleStaffRoute
   '/console/support': typeof ConsoleSupportRoute
   '/console/trust': typeof ConsoleTrustRoute
@@ -1187,6 +1206,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/search'
     | '/settings'
+    | '/shareholder'
     | '/studio'
     | '/transactions'
     | '/verified'
@@ -1220,6 +1240,7 @@ export interface FileRouteTypes {
     | '/console/revenue'
     | '/console/sales'
     | '/console/security'
+    | '/console/shareholders'
     | '/console/staff'
     | '/console/support'
     | '/console/trust'
@@ -1309,6 +1330,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/search'
     | '/settings'
+    | '/shareholder'
     | '/studio'
     | '/transactions'
     | '/verified'
@@ -1342,6 +1364,7 @@ export interface FileRouteTypes {
     | '/console/revenue'
     | '/console/sales'
     | '/console/security'
+    | '/console/shareholders'
     | '/console/staff'
     | '/console/support'
     | '/console/trust'
@@ -1433,6 +1456,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/search'
     | '/_authenticated/settings'
+    | '/_authenticated/shareholder'
     | '/_authenticated/studio'
     | '/_authenticated/transactions'
     | '/_authenticated/verified'
@@ -1466,6 +1490,7 @@ export interface FileRouteTypes {
     | '/console/revenue'
     | '/console/sales'
     | '/console/security'
+    | '/console/shareholders'
     | '/console/staff'
     | '/console/support'
     | '/console/trust'
@@ -1839,6 +1864,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/shareholder': {
+      id: '/_authenticated/shareholder'
+      path: '/shareholder'
+      fullPath: '/shareholder'
+      preLoaderRoute: typeof AuthenticatedShareholderRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/studio': {
       id: '/_authenticated/studio'
       path: '/studio'
@@ -2075,6 +2107,13 @@ declare module '@tanstack/react-router' {
       path: '/security'
       fullPath: '/console/security'
       preLoaderRoute: typeof ConsoleSecurityRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/shareholders': {
+      id: '/console/shareholders'
+      path: '/shareholders'
+      fullPath: '/console/shareholders'
+      preLoaderRoute: typeof ConsoleShareholdersRouteImport
       parentRoute: typeof ConsoleRoute
     }
     '/console/staff': {
@@ -2431,6 +2470,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedShareholderRoute: typeof AuthenticatedShareholderRoute
   AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
   AuthenticatedTransactionsRoute: typeof AuthenticatedTransactionsRoute
   AuthenticatedVerifiedRoute: typeof AuthenticatedVerifiedRoute
@@ -2490,6 +2530,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedShareholderRoute: AuthenticatedShareholderRoute,
   AuthenticatedStudioRoute: AuthenticatedStudioRoute,
   AuthenticatedTransactionsRoute: AuthenticatedTransactionsRoute,
   AuthenticatedVerifiedRoute: AuthenticatedVerifiedRoute,
@@ -2563,6 +2604,7 @@ interface ConsoleRouteChildren {
   ConsoleRevenueRoute: typeof ConsoleRevenueRoute
   ConsoleSalesRoute: typeof ConsoleSalesRoute
   ConsoleSecurityRoute: typeof ConsoleSecurityRoute
+  ConsoleShareholdersRoute: typeof ConsoleShareholdersRoute
   ConsoleStaffRoute: typeof ConsoleStaffRoute
   ConsoleSupportRoute: typeof ConsoleSupportRoute
   ConsoleTrustRoute: typeof ConsoleTrustRoute
@@ -2601,6 +2643,7 @@ const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsoleRevenueRoute: ConsoleRevenueRoute,
   ConsoleSalesRoute: ConsoleSalesRoute,
   ConsoleSecurityRoute: ConsoleSecurityRoute,
+  ConsoleShareholdersRoute: ConsoleShareholdersRoute,
   ConsoleStaffRoute: ConsoleStaffRoute,
   ConsoleSupportRoute: ConsoleSupportRoute,
   ConsoleTrustRoute: ConsoleTrustRoute,
