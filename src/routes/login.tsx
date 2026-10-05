@@ -19,6 +19,8 @@ export const Route = createFileRoute("/login")({
       { name: "description", content: "Sign in to your ASH Glo account to track referrals, earnings and withdrawals." },
       { property: "og:title", content: "Login — ASH Glo" },
       { property: "og:description", content: "Sign in to your ASH Glo account." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: LoginPage,

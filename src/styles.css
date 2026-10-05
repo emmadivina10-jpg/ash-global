@@ -1064,7 +1064,8 @@ a {
    to <html> while the console is mounted so portaled dialogs match. */
 .console-premium {
   --radius: 1.25rem;
-  --console-brand: linear-gradient(135deg, oklch(0.62 0.24 18) 0%, oklch(0.6 0.25 345) 45%, oklch(0.58 0.23 300) 100%);
+  --console-brand: linear-gradient(110deg, var(--color-chat-emerald) 0%, var(--color-chat-emerald) 40%, var(--verified-magenta) 60%, var(--verified-violet) 100%);
+  --sidebar-accent: color-mix(in oklab, var(--color-chat-emerald) 9%, var(--background));
 }
 
 .console-premium.dark {
@@ -1082,7 +1083,7 @@ a {
   --secondary-foreground: oklch(0.96 0.01 285);
   --muted: oklch(0.23 0.03 280);
   --muted-foreground: oklch(0.7 0.02 285);
-  --accent: oklch(0.26 0.05 292);
+  --accent: color-mix(in oklab, var(--color-chat-emerald) 17%, var(--background));
   --accent-foreground: oklch(0.96 0.01 285);
   --gold: oklch(0.64 0.21 298);
   --gold-soft: oklch(0.3 0.09 298);
@@ -1094,7 +1095,7 @@ a {
   --sidebar-foreground: oklch(0.96 0.01 285);
   --sidebar-primary: oklch(0.66 0.23 18);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.23 0.03 280);
+  --sidebar-accent: color-mix(in oklab, var(--color-chat-emerald) 13%, var(--background));
   --sidebar-accent-foreground: oklch(0.96 0.01 285);
   --sidebar-border: oklch(0.96 0.01 285 / 8%);
   --sidebar-ring: oklch(0.66 0.23 18);
@@ -1149,7 +1150,7 @@ a {
 .chat-action-overlay { background-color: color-mix(in oklab, var(--foreground) 20%, transparent); }
 @media (min-width: 768px) {
   .member-messages .messages-inbox { min-height: 76vh; max-height: 76vh; }
-  .member-messages .member-chat-surface { height: 76vh; }
+  .member-messages > .grid > .member-chat-surface { height: 76vh; }
 }
 
 .member-icon-green { stop-color: var(--color-chat-emerald); }
@@ -1179,7 +1180,8 @@ a {
 .member-avatar-ring:hover { background-image: var(--member-dual-ring); }
 .member-avatar-update:hover { background-image: var(--member-update-ring); }
 .member-dual-wash, .member-chat-composer { background-image: var(--member-dual-wash); }
-.member-chat-composer { align-self: stretch; border-radius: 0; }
+.member-chat-composer { align-self: stretch; border-radius: 0; overflow-anchor: none; }
+body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) { visibility: hidden; }
 .member-market nav[aria-label] a, .member-market nav[aria-label] button {
   background-image: var(--member-dual-wash);
   color: var(--foreground);
@@ -1209,11 +1211,30 @@ a {
 }
 .member-menu a.bg-card { background-color: color-mix(in oklab, var(--card) 80%, transparent); background-image: var(--member-dual-wash); }
 .member-menu a > span.bg-primary\/10 { background-image: var(--member-dual-wash); color: var(--foreground); }
+.ash-entry { position: relative; isolation: isolate; background-image: var(--member-dual-wash); }
+.ash-entry::before {
+  content: "ASH";
+  position: absolute;
+  top: 32%;
+  inset-inline: 0;
+  text-align: center;
+  font-size: 160px;
+  font-weight: 900;
+  color: var(--color-chat-emerald);
+  opacity: 0.055;
+  transform: rotate(-14deg);
+  pointer-events: none;
+  z-index: -1;
+}
+.ash-entry-brand { background-image: var(--member-dual-wash); }
+.ash-entry-title { background-image: var(--member-update-ring); background-clip: text; color: transparent; }
+.console-premium .console-brand { background-image: var(--console-brand); }
+.console-premium .bg-sidebar { background-image: var(--member-dual-wash); }
 @media (min-width: 768px) and (max-width: 1023px) {
   .app-shell-scroll:has(.member-messages) { padding: 0; }
   .member-messages > .grid { border: 0; border-radius: 0; }
   .member-messages .messages-inbox { min-height: calc(100dvh - 3.75rem - env(safe-area-inset-bottom)); max-height: calc(100dvh - 3.75rem - env(safe-area-inset-bottom)); }
-  .member-messages .chat-surface { height: calc(100dvh - 3.75rem - env(safe-area-inset-bottom)); }
+  .member-messages > .grid > .chat-surface { height: calc(100dvh - 3.75rem - env(safe-area-inset-bottom)); }
 }
 @media (max-width: 767px) {
   .member-messages .messages-inbox { width: calc(100% + 2rem); }

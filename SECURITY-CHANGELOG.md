@@ -18,6 +18,14 @@ Template:
 
 ---
 
+## 2026-10-05 — Verified identity restrictions and financial read integrity
+
+**Change:** Added durable identity strike/restriction records, server-reviewed JPG/PNG file/pixel fingerprints, reviewed-avatar replacement prevention, caller-scoped status reads, restricted-member RLS checks and server-function enforcement. Profile denials retain the previous identity instead of raising an exception that would roll back the strike. Identity restoration uses server-side Trust/CEO authorization. Verified-badge console tools now use that same authorized staff session.
+
+**Risk addressed:** Copied verified identities, lost audit attempts, self-restoration, modified reviewed photos, console/member authentication mismatch and false Finance reconciliation from truncated reads.
+
+**Verification:** Rollback-only protected-name/four-strike/restoration database check; exact-image and pagination tests; isolated red Denied/logout browser checks. Financial read-only audit found zero balance mismatches and duplicate reference/type pairs. Cropped/edited copy detection and real verified-account end-to-end checks remain pending. Pre-existing backend security warnings remain outside this review.
+
 ## 2026-08-26 — Security operations hardening
 
 **Change:**

@@ -28,7 +28,7 @@ export function SupportChatPanel({ topic }: { topic?: "clean" } = {}) {
   const markRead = useServerFn(markMySupportRead);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
-  const endRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
 
   const query = useQuery({
     queryKey: ["support", "mine"],
@@ -41,14 +41,16 @@ export function SupportChatPanel({ topic }: { topic?: "clean" } = {}) {
   useEffect(() => {
     if (!ticket) return;
     const latestAdmin = [...messages].reverse().find((message) => message.sender === "ADMIN");
-    if (!latestAdmin || (ticket.member_read_at && latestAdmin.created_at <= ticket.member_read_at)) return;
+    if (!latestAdmin || (ticket.member_read_at && latestAdmin.created_at <= ticket.member_read_at))
+      return;
     void markRead({ data: { ticketId: ticket.id } }).then(() =>
       queryClient.invalidateQueries({ queryKey: ["support", "mine"] }),
     );
   }, [markRead, messages, queryClient, ticket]);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ block: "end" });
+    const messages = messagesRef.current;
+    if (messages) messages.scrollTop = messages.scrollHeight;
   }, [messages.length]);
 
   async function send(event: React.FormEvent) {
@@ -80,7 +82,10 @@ export function SupportChatPanel({ topic }: { topic?: "clean" } = {}) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 py-4">
+      <div
+        ref={messagesRef}
+        className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-3 py-4"
+      >
         <div className="mr-8 rounded-2xl bg-muted px-3.5 py-2.5 text-sm text-foreground">
           {topic === "clean"
             ? fr
@@ -91,27 +96,47 @@ export function SupportChatPanel({ topic }: { topic?: "clean" } = {}) {
               : "Hello, you’re connected to ASH Support. Tell us what you need help with."}
         </div>
         {messages.map((message) => (
-          <div key={message.id} className={cn("flex", message.sender === "CUSTOMER" ? "justify-end" : "justify-start")}>
-            <p className={cn(
-              "max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2 text-sm",
-              message.sender === "CUSTOMER" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground",
-            )}>
+          <div
+            key={message.id}
+            className={cn("flex", message.sender === "CUSTOMER" ? "justify-end" : "justify-start")}
+          >
+            <p
+              className={cn(
+                "max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2 text-sm",
+                message.sender === "CUSTOMER"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-foreground",
+              )}
+            >
               {message.body}
             </p>
           </div>
         ))}
-        {query.isLoading ? <Loader2 className="mx-auto size-5 animate-spin text-muted-foreground" aria-hidden /> : null}
-        <div ref={endRef} />
+        {query.isLoading ? (
+          <Loader2 className="mx-auto size-5 animate-spin text-muted-foreground" aria-hidden />
+        ) : null}
       </div>
-      <form onSubmit={send} className="flex items-center gap-2 border-t border-border bg-background p-3">
+      <form
+        onSubmit={send}
+        className="flex items-center gap-2 border-t border-border bg-background p-3"
+      >
         <Input
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           placeholder={fr ? "Écrivez au support…" : "Message Support…"}
           aria-label={fr ? "Message au support" : "Message Support"}
         />
-        <Button type="submit" size="icon" disabled={busy || !draft.trim()} aria-label={fr ? "Envoyer" : "Send"}>
-          {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Send className="size-4" aria-hidden />}
+        <Button
+          type="submit"
+          size="icon"
+          disabled={busy || !draft.trim()}
+          aria-label={fr ? "Envoyer" : "Send"}
+        >
+          {busy ? (
+            <Loader2 className="size-4 animate-spin" aria-hidden />
+          ) : (
+            <Send className="size-4" aria-hidden />
+          )}
         </Button>
       </form>
     </div>

@@ -2,6 +2,12 @@
 
 How this project detects and prevents access-control regressions.
 
+## Current identity enforcement
+
+Verified-name matching normalizes case and repeated whitespace. Profile-photo review compares exact JPG/PNG file and decoded-pixel hashes; it does not identify faces or reliably match crops/resizes/edited copies. Denials are durably recorded, restrict member data/actions, and ban/sign out on the fourth attempt. The member can read only their own status and cannot change strikes or restore access. Authorized Trust/CEO console actions restore identity restrictions with an audit record. Existing unrelated safety bans are not automatically cleared by identity restoration.
+
+Browser Denied/logout checks use isolated fixtures; database escalation verification rolls all test writes back. No real verified-account or mobile-provider transaction test was performed in the final review. Existing security findings still require separate triage; passing unit tests alone is not a complete security certification.
+
 ## 1. Automated RLS regression tests
 
 `tests/rls-anonymous-access.test.ts` runs against the live project using **only

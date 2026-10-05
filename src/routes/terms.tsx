@@ -49,6 +49,7 @@ function TermsPage() {
           Provide accurate information, protect your credentials and use only accounts you are authorized to control. You are
           responsible for activity through your account. Contact Support promptly if you believe your account has been compromised.
         </p>
+        <p>Reusing an active verified member’s name or exact profile-photo copy is denied and restricts access. More than three denied attempts results in a ban and sign-out. Identity restrictions can be restored only by authorized administrators or Trust &amp; Verification following review.</p>
       </LegalSection>
 
       <LegalSection id="platform" title="2. What ASH Glo provides">

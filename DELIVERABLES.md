@@ -6,9 +6,9 @@ A complete inventory of what has been built. See [DOCS-INDEX.md](./DOCS-INDEX.md
 
 | Surface | Route | Notes |
 | --- | --- | --- |
-| Landing page | `/` | Bilingual (EN/FR), light/dark, marketplace-first hero |
+| Landing page | `/` | Bilingual EN/FR, light/dark, ASH/green branding and transparent green watermark; separate feature titles and descriptions |
 | Privacy policy | `/privacy` | Public, store-submission ready |
-| Auth | `/login`, `/register`, `/forgot-password`, `/reset-password` | Email + Google + Apple, password visibility toggle, fully translated |
+| Auth | `/login`, `/register`, `/forgot-password`, `/reset-password` | Existing email/social sign-in controls, password visibility; current Terms and profile-photo onboarding; hosted-provider settings need release testing |
 | Marketplace | `/services`, `/services/$providerId` | Location-first discovery, categories, portfolio media, reviews |
 | Bookings | `/bookings` | Full lifecycle with 24h pay-after-acceptance window |
 | Messages | `/messages` | Order-centric inbox, realtime + polling fallback |
@@ -17,11 +17,17 @@ A complete inventory of what has been built. See [DOCS-INDEX.md](./DOCS-INDEX.md
 | Provider Studio | `/studio` | Services, portfolio uploads, slots, storefront, payment links |
 | Storefront / pay links | `/s/$slug`, `/pay/$code` | Public, rate-limited |
 | Settings | `/settings` | Privacy summary, account deletion request |
+| Market / Extras | `/services`, `/services/extras` | Default Market mode, Services switching, additional products and external partner links |
+| Flights | `/flights` | Coming soon; no flight booking or payment is enabled |
+| Electricity | `/electricity` | Coming soon; provider integration is unavailable |
+| Identity review | `/safety-review`, staff Reports | Red Denied, durable attempts, fourth-attempt ban/logout, admin/Trust-only restoration; exact JPG/PNG copy detection |
 
 ## 2. Admin (ASH Console)
 
 Password-gated console at `/console`: financials with safe-to-withdraw calculation, users, providers and
 verification, bookings, withdrawals review, payments, referral ledger, deletion requests, security events.
+
+Dashboard colours share the ASH/green palette while retaining scoped themes and departmental workflows. Employee workspace, support, cases, inventory, expansion and shareholder tools use their existing app records. Verified-badge tools use the staff Trust/CEO session rather than requiring a second member-admin sign-in.
 
 ## 3. Backend (Lovable Cloud / Supabase)
 
@@ -47,6 +53,8 @@ verification, bookings, withdrawals review, payments, referral ledger, deletion 
 - TchokoPay Mobile Money (MTN MoMo, Orange Money) for Cameroon.
 - TchokoPay Mobile Money for supported payment and withdrawal flows.
 - 1% platform commission on paid bookings.
+- Rates and eligibility are determined by the existing category/region/payment flow; this line is not a universal fee for ASH Clean, Campus or every region.
+- Audit on 5 October 2026: 136 wallets, 51 ledger transactions, no stored-versus-ledger balance mismatches, no duplicate transaction reference/type pairs; nine completed and nine failed withdrawal records. No money was moved and no provider payout was tested in this review.
 
 ## 6. Native app (Capacitor)
 

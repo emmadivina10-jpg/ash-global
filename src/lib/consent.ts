@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
 /** Bump when the Terms of Use / Community Guidelines change materially. */
-export const TERMS_VERSION = "2026-10-03";
+export const TERMS_VERSION = "2026-10-05";
 
 /** Browser flag set when the agreement box is ticked on the sign-up screen. */
 const PENDING_KEY = "ash-terms-agreed";

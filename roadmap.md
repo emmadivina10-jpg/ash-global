@@ -1,5 +1,15 @@
 # Roadmap
 
+## Final app alignment and publicity report
+- [ ] Restore profile-first Menu icon with bottom-right three-line badge
+- [ ] Fix browser message composer focus jump
+- [ ] Audit wallet, MTN/Orange Money and dashboard financial connections without altering money logic
+- [ ] Show Coming soon on Flights
+- [ ] Align dashboard, landing, sign-up and login colours; fix joined landing labels
+- [ ] Repair confirmed missing dashboard connections only
+- [ ] Align documents with actual app flows and create a detailed publicity-ready report
+- [ ] Verify changed screens, regressions and preview status; do not publish
+
 ## Verified identity protection
 - [x] Enforce normalized protected verified names and exact JPG/PNG file/pixel copies, with durable denied-attempt tracking
 - [x] Show red Denied, restrict access, and ban/log out on the fourth attempt

@@ -1,6 +1,6 @@
 # ASH Glo — App Store & Play Store submission pack
 
-Verified against the current project on 19 September 2026. ASH Glo is the product; ASH Global Technologies is the legal entity.
+Updated against the current preview on 5 October 2026. ASH Glo is the product; ASH Global Technologies is the legal entity. This is not confirmation of publication, store approval or a completed provider transaction test.
 
 ## 1. App identity
 
@@ -42,6 +42,10 @@ ASH Markets and FX Analytics provide clearly labelled educational and demo infor
 ASH AI helps members understand ASH Glo features and their own account activity. AI output can be inaccurate and does not replace professional advice.
 
 Supported features, earning tools and payment methods vary by account and region. ASH Glo never asks for your Mobile Money PIN.
+
+Flights and Electricity are coming soon, not operational payment services. Referrals are three-level and region/account gated; withdrawals follow review/provider statuses and are not promised as instant. Mobile navigation is Feed, Market/Services, Flights, Messages and Menu, with a floating Wallet launcher. Sign-up/sign-in follows email confirmation when required, current Terms acceptance and profile-photo setup before Feed.
+
+Identity protection denies normalized verified-name reuse and exact JPG/PNG photo copies. Attempts restrict access; a fourth attempt bans and signs out. Only authorized admin/Trust staff can restore identity access. This is not facial recognition or a guarantee against edited-image impersonation.
 
 **Keywords:** social,services,booking,marketplace,jobs,freelance,events,property,wallet,community
 

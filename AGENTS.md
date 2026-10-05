@@ -16,7 +16,7 @@
 - Employee terms, notifications, tickets, DMs and ASH Intelligence use staff-ops.functions.ts and components/console; staff-only tables are service-role + deny-all. Why: one staff-ops module.
 - Workspace uses workspace.functions.ts, department_tasks and /console/workspace; staff-only tables are service-role + deny-all. Why: reuse tasks/tickets.
 - Case management and department workflows live in src/lib/cases.functions.ts and /console/cases (ops_cases, ops_case_events timeline/audit, ops_workflows, ops_workflow_runs); service-role + deny-all. Case visibility = involved department/employee/creator or CEO; safety reports linkable only by Trust/CEO; workflows configured by CEO only. Why: cross-department work without bypassing RBAC.
-- Business inventory (Phase 1) uses provider_profiles.id as business_id; inventory_* tables are RLS-scoped via inventory_can()/inventory_role_of() (owner = provider owner, others via inventory_members), and stock changes only through the inventory_record_movement RPC which writes the append-only ledger. UI at /inventory with src/lib/inventory.queries.ts. Why: reuse existing businesses, database-enforced tenant isolation, ledger is the source of truth for future inbox/report phases.
+- Inventory uses provider_profiles.id as business_id, inventory_can()/inventory_role_of() RLS and inventory_members; stock changes only through inventory_record_movement's append-only ledger. UI /inventory and inventory.queries.ts. Why: tenant isolation and one stock source.
 - Staff Team chat uses a presentational StaffChatWorkspace with existing ops.functions channel transport; scoped team color tokens do not change the global theme. Why: restyle internal chat without duplicating messaging or modifying access rules.
 - Team chat resolves sender names, positions and private signed photos from staff_accounts by author_staff_id; ownership uses staff IDs and profile saves invalidate chat queries. Why: show current employee profiles without exposing private storage paths or matching people by names.
 
@@ -25,7 +25,7 @@
 - Expansion opportunities live in src/lib/expansion.functions.ts (expansion_opportunities + append-only events, service-role + deny-all); linked tasks reuse department_tasks.expansion_opportunity_id; only the CEO can approve. Why: no parallel task system.
 - The merchant board is nested inside Operations: /console/merchant sits under the OPERATIONS department in console nav, and workforce.functions lets the OPERATIONS seat read/manage MERCHANT leads; the standalone merchant staff seat is deactivated (record kept). Why: one login (Operations) for both dashboards.
 - Department board access (getWorkBoard/saveLead/moveLeadStage) goes through canUseDept: own dept, staff_accounts.extra_departments, or Operations→Merchant; the ads seat's Content & Growth boards live inside the unified /console/advertising command center (marketing.functions.ts). Why: one login per person without duplicating boards.
-- Shareholder data (shareholders + append-only shareholder_events, service-role + deny-all) lives in shareholders.functions.ts; company figures come from computeFinanceLedger in finance.server.ts, shared with the Finance page. Why: one financial source of truth.
+- Shareholders uses shareholders.functions.ts and append-only service-role records; Finance shares computeFinanceLedger. Source reads use allFinanceRows with stable ordering and fail on errors. Why: one complete financial source, no silent truncation or zeros.
 - Feed/Stories/Services rank via rotation.ts after safety filtering. Why: no duplicate feed.
 - AppShell omits tab-owned headers; MobileNav owns hold/slide. Why: one navigation path.
 - Market defaults via versioned services-mode at the existing Services URL; Extras is its child route. MarketBrowser reuses discovery/deals/property reads. Why: preserve commerce and URLs.
@@ -33,3 +33,4 @@
 
 - Avatar updates reuse safety-filtered StoriesRail; ChatActionDialog owns panels; MemberNavIcon uses token-based SVG strokes. Why: shared safe viewing and branding.
 - Identity enforcement uses identity_restrictions, reviewed photo hashes, non-throwing denial triggers and identityMiddleware. Why: durable strikes and server-enforced bans.
+- Verified-badge console functions use requireDepartment("TRUST") before privileged access. Why: authorize the staff session, not a second member-admin login.
