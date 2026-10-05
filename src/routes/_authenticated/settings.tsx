@@ -28,7 +28,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ACTIVATION_FEE, formatXAF } from "@/lib/format";
 import { Switch } from "@/components/ui/switch";
-import { playMessageSound, setSoundMuted, soundMuted } from "@/lib/sound";
+import { playNotificationSound, playTabSound, setSoundMuted, setUiSoundMuted, soundMuted, uiSoundMuted } from "@/lib/sound";
 import { useLocation } from "@/lib/location";
 import { useOrbVisible } from "@/lib/orb-visibility";
 import {
@@ -90,6 +90,7 @@ function SettingsPage() {
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [soundOff, setSoundOff] = useState(false);
+  const [uiOff, setUiOff] = useState(false);
   const { data: recPrefs } = useRecommendationPrefs();
   const updateRecPrefs = useUpdateRecommendationPrefs();
   const clearHistory = useClearActivityHistory();
@@ -97,6 +98,7 @@ function SettingsPage() {
 
   useEffect(() => {
     setSoundOff(soundMuted());
+    setUiOff(uiSoundMuted());
   }, []);
 
   const { data: request } = useQuery({
@@ -183,17 +185,34 @@ function SettingsPage() {
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {fr
-              ? "Jouer un son quand un nouveau message arrive pendant que l'application est ouverte."
-              : "Play a sound when a new message arrives while the app is open."}
+              ? "Jouer un son quand un nouveau message ou une notification arrive pendant que l'application est ouverte."
+              : "Play a sound when a new message or notification arrives while the app is open."}
           </p>
           <Switch
             checked={!soundOff}
             onCheckedChange={(on) => {
               setSoundMuted(!on);
               setSoundOff(!on);
-              if (on) playMessageSound();
+              if (on) playNotificationSound();
             }}
             aria-label={fr ? "Sons de notification" : "Notification sounds"}
+          />
+        </div>
+      </SectionCard>
+
+      <SectionCard title={fr ? "Sons de navigation" : "Tap & refresh sounds"}>
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            {fr ? "Jouer un petit son en changeant d’onglet et en actualisant." : "Play a short sound when switching tabs and refreshing."}
+          </p>
+          <Switch
+            checked={!uiOff}
+            onCheckedChange={(on) => {
+              setUiSoundMuted(!on);
+              setUiOff(!on);
+              if (on) playTabSound();
+            }}
+            aria-label={fr ? "Sons de navigation" : "Tap and refresh sounds"}
           />
         </div>
       </SectionCard>

@@ -158,7 +158,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navLabel = (item: NavItem) =>
     item.key ? t(item.key) : ((lang === "fr" ? item.fr : item.en) ?? item.label ?? "");
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const onFeed = pathname === "/feed";
+  const onFeed = true; // profile lives in the Menu tab; mobile header shows logo only
 
   useEffect(() => {
     let stopped = false;
