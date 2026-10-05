@@ -13,6 +13,7 @@ import {
   listWorkflows,
   saveWorkflow,
   startWorkflow,
+  updateCase,
   type WorkflowStep,
 } from "@/lib/cases.functions";
 import { Button } from "@/components/ui/button";
@@ -104,7 +105,7 @@ function CaseDetail({ id, staff, canLinkReports }: { id: string; staff: { id: st
   const qc = useQueryClient();
   const load = useServerFn(getCase);
   const addEv = useServerFn(addCaseEvent);
-  const upd = useServerFn(updateCaseFn());
+  const upd = useServerFn(updateCase);
   const wfLoad = useServerFn(listWorkflows);
   const start = useServerFn(startWorkflow);
   const key = ["console", "case", id];
@@ -200,9 +201,6 @@ function CaseDetail({ id, staff, canLinkReports }: { id: string; staff: { id: st
   );
 }
 
-// Late import keeps the component tree readable.
-import { updateCase } from "@/lib/cases.functions";
-function updateCaseFn() { return updateCase; }
 
 function Workflows() {
   const qc = useQueryClient();
