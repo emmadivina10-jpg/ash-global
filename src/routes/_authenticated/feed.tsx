@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { extractTags, recordTagInterest } from "@/lib/interests";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   BarChart3,
@@ -117,6 +118,7 @@ function FeedPage() {
     }
 
     try {
+      recordTagInterest(extractTags(cleanCaption), 1.5);
       await create.mutateAsync({
         caption: cleanCaption,
         files,

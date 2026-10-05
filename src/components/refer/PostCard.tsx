@@ -1,4 +1,5 @@
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
+import { extractTags, recordTagInterest } from "@/lib/interests";
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "@tanstack/react-router";

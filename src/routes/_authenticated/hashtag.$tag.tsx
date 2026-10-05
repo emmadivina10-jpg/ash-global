@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { extractTags, recordTagInterest } from "@/lib/interests";
 import { ChevronLeft, Hash, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { trackEvent } from "@/lib/activity";
@@ -25,6 +26,7 @@ function HashtagPage() {
   const { data, isLoading } = useHashtagFeed(tag, page, sort);
   // Activity intelligence: opening a hashtag is a clear topic interest signal.
   useEffect(() => {
+    recordTagInterest([tag], 2);
     trackEvent({ event_type: "hashtag_view", surface: "hashtag", target_type: "hashtag", hashtags: [tag] });
   }, [tag]);
   return (
