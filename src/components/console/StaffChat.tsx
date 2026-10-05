@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { MessagesSquare } from "lucide-react";
@@ -21,9 +21,25 @@ export function StaffChat() {
   const queryClient = useQueryClient();
   const load = useServerFn(getStaffChat);
   const post = useServerFn(postStaffMessage);
+  // Signed photo links are re-minted on every refresh; keep the first link per
+  // employee (valid for an hour) so avatars don't flicker on each poll.
+  const avatarCache = useRef(new Map<string, string>());
   const query = useQuery({
     queryKey: ["console", "staff-chat", channel],
     queryFn: () => load({ data: { channel } }),
+    select: (data) => {
+      const cache = avatarCache.current;
+      return {
+        ...data,
+        messages: data.messages.map((m) => {
+          if (!m.author_staff_id || !m.author_avatar_url) return m;
+          const cached = cache.get(m.author_staff_id);
+          if (cached) return { ...m, author_avatar_url: cached };
+          cache.set(m.author_staff_id, m.author_avatar_url);
+          return m;
+        }),
+      };
+    },
     refetchInterval: open ? 8000 : false,
     enabled: open,
   });
