@@ -41,6 +41,7 @@ import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/f
 import { Route as AuthenticatedFriendsRouteImport } from './routes/_authenticated/friends'
 import { Route as AuthenticatedFxAnalyticsRouteImport } from './routes/_authenticated/fx-analytics'
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
+import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
 import { Route as AuthenticatedMentorsRouteImport } from './routes/_authenticated/mentors'
 import { Route as AuthenticatedMenuRouteImport } from './routes/_authenticated/menu'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
@@ -290,6 +291,11 @@ const AuthenticatedFxAnalyticsRoute =
 const AuthenticatedGroupsRoute = AuthenticatedGroupsRouteImport.update({
   id: '/groups',
   path: '/groups',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedInventoryRoute = AuthenticatedInventoryRouteImport.update({
+  id: '/inventory',
+  path: '/inventory',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMentorsRoute = AuthenticatedMentorsRouteImport.update({
@@ -800,6 +806,7 @@ export interface FileRoutesByFullPath {
   '/friends': typeof AuthenticatedFriendsRoute
   '/fx-analytics': typeof AuthenticatedFxAnalyticsRoute
   '/groups': typeof AuthenticatedGroupsRoute
+  '/inventory': typeof AuthenticatedInventoryRoute
   '/mentors': typeof AuthenticatedMentorsRoute
   '/menu': typeof AuthenticatedMenuRoute
   '/messages': typeof AuthenticatedMessagesRoute
@@ -921,6 +928,7 @@ export interface FileRoutesByTo {
   '/friends': typeof AuthenticatedFriendsRoute
   '/fx-analytics': typeof AuthenticatedFxAnalyticsRoute
   '/groups': typeof AuthenticatedGroupsRoute
+  '/inventory': typeof AuthenticatedInventoryRoute
   '/mentors': typeof AuthenticatedMentorsRoute
   '/menu': typeof AuthenticatedMenuRoute
   '/messages': typeof AuthenticatedMessagesRoute
@@ -1045,6 +1053,7 @@ export interface FileRoutesById {
   '/_authenticated/friends': typeof AuthenticatedFriendsRoute
   '/_authenticated/fx-analytics': typeof AuthenticatedFxAnalyticsRoute
   '/_authenticated/groups': typeof AuthenticatedGroupsRoute
+  '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
   '/_authenticated/mentors': typeof AuthenticatedMentorsRoute
   '/_authenticated/menu': typeof AuthenticatedMenuRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
@@ -1169,6 +1178,7 @@ export interface FileRouteTypes {
     | '/friends'
     | '/fx-analytics'
     | '/groups'
+    | '/inventory'
     | '/mentors'
     | '/menu'
     | '/messages'
@@ -1290,6 +1300,7 @@ export interface FileRouteTypes {
     | '/friends'
     | '/fx-analytics'
     | '/groups'
+    | '/inventory'
     | '/mentors'
     | '/menu'
     | '/messages'
@@ -1413,6 +1424,7 @@ export interface FileRouteTypes {
     | '/_authenticated/friends'
     | '/_authenticated/fx-analytics'
     | '/_authenticated/groups'
+    | '/_authenticated/inventory'
     | '/_authenticated/mentors'
     | '/_authenticated/menu'
     | '/_authenticated/messages'
@@ -1762,6 +1774,13 @@ declare module '@tanstack/react-router' {
       path: '/groups'
       fullPath: '/groups'
       preLoaderRoute: typeof AuthenticatedGroupsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/inventory': {
+      id: '/_authenticated/inventory'
+      path: '/inventory'
+      fullPath: '/inventory'
+      preLoaderRoute: typeof AuthenticatedInventoryRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/mentors': {
@@ -2403,6 +2422,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFriendsRoute: typeof AuthenticatedFriendsRoute
   AuthenticatedFxAnalyticsRoute: typeof AuthenticatedFxAnalyticsRoute
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRoute
+  AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
   AuthenticatedMentorsRoute: typeof AuthenticatedMentorsRoute
   AuthenticatedMenuRoute: typeof AuthenticatedMenuRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
@@ -2461,6 +2481,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFriendsRoute: AuthenticatedFriendsRoute,
   AuthenticatedFxAnalyticsRoute: AuthenticatedFxAnalyticsRoute,
   AuthenticatedGroupsRoute: AuthenticatedGroupsRoute,
+  AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
   AuthenticatedMentorsRoute: AuthenticatedMentorsRoute,
   AuthenticatedMenuRoute: AuthenticatedMenuRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,

@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.inventory_audit_trigger() FROM anon, authenticated, public;
