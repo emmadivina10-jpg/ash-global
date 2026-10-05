@@ -208,7 +208,7 @@ function spotlightMediaPath(value: unknown): string | null {
   return null;
 }
 
-async function loadSpotlights(): Promise<SpotlightPost[]> {
+export async function loadSpotlights(): Promise<SpotlightPost[]> {
   const { data: rows, error } = await supabase
     .from("spotlight_posts")
     .select("id, author_id, media, caption, created_at")
@@ -305,7 +305,7 @@ async function loadSpotlights(): Promise<SpotlightPost[]> {
   });
 }
 
-export function StoriesRail() {
+export function StoriesRail({ viewerRequest, onViewerClose }: { viewerRequest?: { authorId: string; kind: "story" | "spotlight" }; onViewerClose?: () => void } = {}) {
   const { user } = useUser();
   const me = user?.id ?? null;
   const queryClient = useQueryClient();
@@ -325,7 +325,7 @@ export function StoriesRail() {
     if (spotlightsError) console.warn("ASH Spotlights could not be loaded.");
   }, [spotlightsError]);
 
-  const stories = storyData?.groups ?? [];
+  const stories = useMemo(() => storyData?.groups ?? [], [storyData]);
 
   const { data: profile } = useQuery({
     queryKey: ["stories-rail-profile", me],
@@ -403,6 +403,28 @@ export function StoriesRail() {
   const activeStoryGroup = stories[storyGroupIndex] ?? null;
   const activeStory = activeStoryGroup?.stories[storyIndex] ?? null;
   const activeSpotlight = spotlights[spotlightIndex] ?? null;
+  const requestedViewerOpened = useRef(false);
+  const requestedViewerVisible = useRef(false);
+  useEffect(() => {
+    if (!viewerRequest || requestedViewerOpened.current) return;
+    if (viewerRequest.kind === "story") {
+      const index = stories.findIndex((group) => group.author.id === viewerRequest.authorId);
+      if (index < 0) return;
+      setStoryGroupIndex(index);
+      setStoryIndex(0);
+      setStoryViewerOpen(true);
+    } else {
+      const index = spotlights.findIndex((post) => post.provider.user_id === viewerRequest.authorId);
+      if (index < 0) return;
+      setSpotlightIndex(index);
+      setSpotlightViewerOpen(true);
+    }
+    requestedViewerOpened.current = true;
+  }, [viewerRequest, stories, spotlights]);
+  useEffect(() => {
+    if (storyViewerOpen || spotlightViewerOpen) requestedViewerVisible.current = true;
+    else if (requestedViewerVisible.current) onViewerClose?.();
+  }, [storyViewerOpen, spotlightViewerOpen, onViewerClose]);
   const { data: storyViewers = [], isLoading: storyViewersLoading } = useStoryViewers(viewersStoryId);
   const viewersStory = activeStory?.id === viewersStoryId ? activeStory : null;
 
@@ -857,7 +879,7 @@ export function StoriesRail() {
 
   return (
     <>
-      <section className="-mx-1" aria-label="ASH Stories and Spotlight">
+      <section className="-mx-1" hidden={Boolean(viewerRequest)} aria-label="ASH Stories and Spotlight">
         <div className="flex gap-3 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {/* The original Facebook-style Create card: user profile behind the lower half + plus at the seam. */}
           <button

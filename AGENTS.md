@@ -28,5 +28,7 @@
 - Shareholder data (shareholders + append-only shareholder_events, service-role + deny-all) lives in shareholders.functions.ts; company figures come from computeFinanceLedger in finance.server.ts, shared with the Finance page. Why: one financial source of truth.
 - Feed/Stories/Services rank via rotation.ts after safety filtering. Why: no duplicate feed.
 - AppShell omits shared headers on Messages/Services/Flights/Menu. Why: pages own their controls.
-- Services/Market share the Services route and services-mode store; MarketBrowser uses existing discovery/deals/property reads and creation/detail actions. Why: consistent tabs without duplicate commerce or safety logic.
+- Market defaults via versioned services-mode at the existing Services URL; Extras is its child route. MarketBrowser reuses discovery/deals/property reads. Why: preserve commerce and URLs.
 
+
+- Avatar updates reuse viewer-only StoriesRail and safety-filtered queries; ChatActionDialog owns scoped blurred panels. Why: preserve media moderation and viewing.

@@ -402,22 +402,22 @@ export const Route = createFileRoute("/_authenticated/services/")({
   head: () => ({
     meta: [
       {
-        title: "Discover beauty, tech, home & event pros — ASH Glo",
+        title: "Market — ASH Glo",
       },
       {
         name: "description",
         content:
-          "Discover verified professionals on ASH Glo: braiders, barbers, nail and lash artists, developers, electricians, photographers and more. See their work, then book.",
+          "Browse ASH Market for services, property and deals, or explore your apps in Extras.",
       },
       {
         property: "og:title",
         content:
-          "Discover beauty, tech, home & event pros — ASH Glo",
+          "Market — ASH Glo",
       },
       {
         property: "og:description",
         content:
-          "Browse verified ASH Glo providers by category, view portfolios and book in a few taps.",
+          "Discover services, property, deals and ASH apps in Market.",
       },
       {
         property: "og:type",

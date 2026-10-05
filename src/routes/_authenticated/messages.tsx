@@ -14,6 +14,11 @@ import { useQuery } from "@tanstack/react-query";
 
 import { useConversations } from "@/lib/marketplace.queries";
 import { useUser } from "@/lib/queries";
+import { ChatActionDialog } from "@/components/refer/ChatActionDialog";
+import { StoriesRail, loadSpotlights } from "@/components/refer/StoriesRail";
+import { useStories } from "@/lib/social.queries";
+import { Play, CircleUserRound } from "lucide-react";
+import ashLogo from "@/assets/ash-logo.png.asset.json";
 import { ChatThread } from "@/components/refer/ChatThread";
 import { AssistantPanel } from "@/components/refer/AssistantPanel";
 import { SupportChatPanel } from "@/components/refer/SupportChatPanel";
@@ -59,7 +64,7 @@ export const Route = createFileRoute("/_authenticated/messages")({
       {
         name: "description",
         content:
-          "Chat live with your beauty pro or your clients about upcoming bookings.",
+          "Your conversations, groups, stories and support together in ASH Glo.",
       },
       {
         property: "og:title",
@@ -68,7 +73,7 @@ export const Route = createFileRoute("/_authenticated/messages")({
       {
         property: "og:description",
         content:
-          "Live chat between clients and beauty providers on ASH Glo.",
+          "Stay connected with people, businesses and the ASH team.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -107,48 +112,7 @@ function stamp(iso: string | null | undefined, fr: boolean) {
  * Each conversation receives a stable color based on its conversation ID.
  * This means the same conversation keeps the same profile color.
  */
-const avatarColors = [
-  {
-    wrapper:
-      "bg-gradient-to-br from-fuchsia-500 via-pink-500 to-rose-500",
-    ring: "ring-fuchsia-300/60 dark:ring-fuchsia-400/40",
-  },
-  {
-    wrapper:
-      "bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-500",
-    ring: "ring-violet-300/60 dark:ring-violet-400/40",
-  },
-  {
-    wrapper:
-      "bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500",
-    ring: "ring-emerald-300/60 dark:ring-emerald-400/40",
-  },
-  {
-    wrapper:
-      "bg-gradient-to-br from-red-500 via-rose-500 to-pink-500",
-    ring: "ring-red-300/60 dark:ring-red-400/40",
-  },
-  {
-    wrapper:
-      "bg-gradient-to-br from-blue-500 via-sky-500 to-cyan-500",
-    ring: "ring-blue-300/60 dark:ring-blue-400/40",
-  },
-  {
-    wrapper:
-      "bg-gradient-to-br from-slate-500 via-gray-500 to-zinc-500",
-    ring: "ring-slate-300/60 dark:ring-slate-400/40",
-  },
-  {
-    wrapper:
-      "bg-gradient-to-br from-orange-400 via-amber-500 to-yellow-500",
-    ring: "ring-orange-300/60 dark:ring-orange-400/40",
-  },
-  {
-    wrapper:
-      "bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-500",
-    ring: "ring-cyan-300/60 dark:ring-cyan-400/40",
-  },
-] as const;
+const avatarColors = [{ wrapper: "bg-success/15", ring: "ring-success/30" }] as const;
 
 /**
  * Generate a stable color index from a conversation ID.
@@ -407,6 +371,13 @@ function MessagesPage() {
     return (providerIsMe ? conversation.client_id : conversation.provider?.user_id) ?? null;
   }).filter((id): id is string => Boolean(id));
   const { data: memberStates } = useMemberStates(peerIds);
+  const [avatarChoice, setAvatarChoice] = useState<(typeof list)[number] | null>(null);
+  const [viewerRequest, setViewerRequest] = useState<{ authorId: string; kind: "story" | "spotlight" } | undefined>();
+  const { data: availableStories, isLoading: loadingStories } = useStories();
+  const { data: availableSpotlights, isLoading: loadingSpotlights } = useQuery({ queryKey: ["ash-spotlights"], queryFn: loadSpotlights, staleTime: 15_000 });
+  const avatarPeerId = avatarChoice ? peerUserIdOf(avatarChoice) : null;
+  const hasStory = Boolean(availableStories?.groups.some((group) => group.author.id === avatarPeerId));
+  const hasSpotlight = Boolean(availableSpotlights?.some((post) => post.provider.user_id === avatarPeerId));
 
   // Desktop falls back to the first conversation;
   // mobile requires an explicit conversation pick.
@@ -747,29 +718,18 @@ function MessagesPage() {
   }
 
   return (
-    <div className="mx-auto min-h-0 w-full max-w-5xl md:space-y-4">
-      {/* DESKTOP PAGE HEADER */}
-      <header className="hidden md:block">
-        <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
-          {t("chat.title")}
-        </h1>
-
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("chat.pick")}
-        </p>
-      </header>
-
+    <div className="member-messages mx-auto min-h-0 w-full max-w-[1440px]">
       {isLoading ? (
         <SkeletonRows rows={3} />
       ) : (
 
-        <div className="grid md:gap-4 md:grid-cols-[320px_minmax(0,1fr)]">
+        <div className="grid md:grid-cols-[minmax(320px,38%)_minmax(0,1fr)] md:overflow-hidden md:rounded-lg md:border md:border-border">
           {/* =========================================================
               CHAT LIST
               ========================================================= */}
           <div
             className={cn(
-              "tile flex min-h-0 flex-col overflow-hidden bg-background p-0 max-md:rounded-none max-md:border-0",
+              "messages-inbox flex min-h-0 flex-col overflow-hidden border-r border-border p-0 max-md:rounded-none max-md:border-0",
               mobileView === "thread"
                 ? "hidden md:flex"
                 : chromeReservePx !== null
@@ -783,9 +743,10 @@ function MessagesPage() {
                 : undefined
             }
           >
-            <div className="border-b border-border bg-card/95 px-3 pb-2.5 pt-2.5 backdrop-blur">
-              <h2 className="mb-3 font-display text-3xl font-bold text-foreground md:hidden">
+            <div className="border-b border-border bg-card/75 px-4 pb-4 pt-5 backdrop-blur">
+              <h2 className="mb-4 flex items-center justify-between font-display text-3xl font-bold text-foreground">
                 {t("chat.title")}
+                <Button size="icon" variant="default" className="size-11 rounded-full" aria-label={fr ? "Nouvelle discussion" : "New chat"} onClick={() => document.querySelector<HTMLInputElement>('input[aria-label="Search chats"], input[aria-label="Rechercher une discussion"]')?.focus()}><Plus className="size-6" /></Button>
               </h2>
 
               {selection.length > 0 ? (
@@ -1063,7 +1024,7 @@ function MessagesPage() {
                   type="button"
                   onClick={() => void navigate({ search: { c: ASH_SUPPORT_ID } })}
                   className={cn(
-                    "flex w-full items-center gap-3 border-b border-border px-3 py-3 text-left transition-colors",
+                    "flex w-full items-center gap-4 border-b border-border/60 px-4 py-5 text-left transition-colors",
                     activeId === ASH_SUPPORT_ID ? "bg-primary/10" : "hover:bg-muted/70 active:bg-muted",
                   )}
                 >
@@ -1072,7 +1033,7 @@ function MessagesPage() {
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline justify-between gap-2">
-                      <span className="truncate text-[15px] font-bold text-foreground">ASH Support · ASH Clean</span>
+                      <span className="truncate text-base font-bold text-foreground">ASH Support · ASH Clean</span>
                       {supportUnread > 0 ? (
                         <span className="grid min-w-5 shrink-0 place-items-center rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground">
                           {supportUnread > 99 ? "99+" : supportUnread}
@@ -1098,24 +1059,20 @@ function MessagesPage() {
                     })
                   }
                   className={cn(
-                    "flex w-full items-center gap-3 border-b border-border px-3 py-3 text-left transition-colors",
+                    "flex w-full items-center gap-4 border-b border-border/60 px-4 py-5 text-left transition-colors",
                     activeId === ASH_AI_ID
                       ? "bg-primary/10"
                       : "hover:bg-muted/70 active:bg-muted",
                   )}
                 >
-                  <span className="grid size-12 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#D4AF37] via-[#8B6914] to-[#4B0082] p-[2px] shadow-lg shadow-[#4B0082]/20 ring-2 ring-[#D4AF37]/50">
-                    <span className="grid size-full place-items-center overflow-hidden rounded-full bg-[#0b0712]">
-                      <span className="font-display text-sm font-black tracking-tight text-[#D4AF37]">ASH</span>
-                    </span>
-                  </span>
+                  <img src={ashLogo.url} alt="ASH AI" className="size-14 shrink-0 rounded-full ring-2 ring-success/20" />
 
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline justify-between gap-2">
-                      <span className="truncate text-[15px] font-bold text-foreground">
+                      <span className="truncate text-base font-bold text-foreground">
                         ASH AI
                       </span>
-                      <span className="shrink-0 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#4B0082] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-white shadow-sm">
+                      <span className="shrink-0 rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-bold text-success">
                         {fr ? "En direct" : "Live"}
                       </span>
                     </span>
@@ -1136,6 +1093,7 @@ function MessagesPage() {
                   <SelectChatRow
                     key={conv.id}
                     fr={fr}
+                    label={label}
                     pinned={Boolean(prefs?.[conv.id]?.pinned)}
                     archived={Boolean(prefs?.[conv.id]?.archived)}
                     locked={Boolean(prefs?.[conv.id]?.locked)}
@@ -1150,16 +1108,20 @@ function MessagesPage() {
                   >
                   <div
                     className={cn(
-                      "flex w-full items-center gap-3 px-3 py-3 text-left transition-colors",
+                      "flex w-full items-center gap-4 px-4 py-5 pr-14 text-left transition-colors",
                       conv.id === activeId
                         ? "bg-primary/10"
                         : "hover:bg-muted/70 active:bg-muted",
                     )}
                   >
                     {/* COLORED ASH PROFILE CIRCLE */}
-                    <span
+                    <Button
+                      data-chat-avatar
+                      variant="ghost"
+                      aria-label={`${fr ? "Voir les actualités de" : "View updates from"} ${label}`}
+                      onClick={(event) => { event.stopPropagation(); if (conv.group_id) { openPeerProfile(conv); return; } setAvatarChoice(conv); }}
                       className={cn(
-                        "grid size-12 shrink-0 place-items-center rounded-full p-[2px] shadow-sm ring-2",
+                        "grid aspect-square size-14 min-w-14 shrink-0 place-items-center rounded-full p-[2px] shadow-sm ring-2",
                         avatarColor.wrapper,
                         avatarColor.ring,
                       )}
@@ -1173,11 +1135,11 @@ function MessagesPage() {
                           className="size-full rounded-full border-0 shadow-none"
                         />
                       </span>
-                    </span>
+                    </Button>
 
                     <span className="min-w-0 flex-1">
                       <span className="flex items-baseline justify-between gap-2">
-                        <span className="inline-flex min-w-0 items-center gap-1 text-[15px] font-semibold text-foreground">
+                        <span className="inline-flex min-w-0 items-center gap-1 text-base font-semibold text-foreground">
                           <span className="truncate">{label}</span><VerifiedBadge tier={peerStateOf(conv)?.verified_tier} until={peerStateOf(conv)?.verified_until} size={14}/>
                         </span>
 
@@ -1200,7 +1162,7 @@ function MessagesPage() {
                       <span className="mt-0.5 flex items-center justify-between gap-2">
                         <span
                           className={cn(
-                            "truncate text-[13px]",
+                            "truncate text-sm",
                             unread > 0
                               ? "font-medium text-foreground"
                               : "text-muted-foreground",
@@ -1281,7 +1243,7 @@ function MessagesPage() {
               } as CSSProperties
             }
             className={cn(
-              "tile chat-surface flex min-h-0 flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-0",
+              "member-chat-surface chat-surface flex min-h-0 flex-col overflow-hidden p-0 max-md:rounded-none max-md:border-0",
               mobileView === "list"
                 ? "hidden md:flex"
                 : cn(
@@ -1292,7 +1254,7 @@ function MessagesPage() {
             )}
           >
             {/* CHAT HEADER */}
-            <div className="flex items-center gap-2.5 border-b border-border bg-card/95 px-2.5 py-2 backdrop-blur max-md:pt-[calc(0.5rem+env(safe-area-inset-top))]">
+            <div className="flex items-center gap-2.5 border-b border-border bg-card/85 px-4 py-3 backdrop-blur max-md:pt-[calc(0.5rem+env(safe-area-inset-top))]">
               {/* BACK TO MESSAGES */}
               <button
                 type="button"
@@ -1324,7 +1286,7 @@ function MessagesPage() {
                     setGroupSettings(true);
                     return;
                   }
-                  if (active) openPeerProfile(active);
+                  if (active) setAvatarChoice(active);
                 }}
                 disabled={
                   !active || (!activeGroup && !peerProfileOf(active))
@@ -1339,9 +1301,7 @@ function MessagesPage() {
                 className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl px-1 py-0.5 text-left transition-colors enabled:hover:bg-muted/60"
               >
                 {activeId === ASH_AI_ID ? (
-                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#D4AF37] via-[#8B6914] to-[#4B0082] p-[2px] shadow-lg ring-2 ring-[#D4AF37]/50">
-                    <span className="grid size-full place-items-center rounded-full bg-[#0b0712] font-display text-[9px] font-black text-[#D4AF37]">ASH</span>
-                  </span>
+                  <img src={ashLogo.url} alt="ASH AI" className="size-12 shrink-0 rounded-full ring-2 ring-success/20" />
                 ) : activeId === ASH_SUPPORT_ID ? (
                   <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary/10 text-primary ring-2 ring-primary/25">
                     <LifeBuoy className="size-5" aria-hidden />
@@ -1444,7 +1404,7 @@ function MessagesPage() {
               >
                 <div
                   aria-hidden
-                  className="pointer-events-none absolute inset-0 bg-background/70 backdrop-blur-[1px] dark:bg-slate-950/75"
+                  className="pointer-events-none absolute inset-0 bg-background/70 backdrop-blur-[1px]"
                 />
                 <div className="relative flex min-h-0 flex-1 flex-col px-4 py-4">
                   <AssistantPanel />
@@ -1465,17 +1425,11 @@ function MessagesPage() {
               </div>
             ) : activeId ? (
               <div
-                className="relative min-h-0 flex-1 overflow-hidden bg-background"
-                style={{
-                  backgroundImage: `url(${ASH_CHAT_BACKGROUND})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
-                }}
+                className="member-chat-surface relative min-h-0 flex-1 overflow-hidden"
               >
                 <div
                   aria-hidden
-                  className="pointer-events-none absolute inset-0 bg-background/62 backdrop-blur-[1px] dark:bg-slate-950/70"
+                  className="pointer-events-none absolute inset-0 bg-background/10"
                 />
 
                 <div className="relative flex h-full min-h-0 flex-col">
@@ -1540,6 +1494,14 @@ function MessagesPage() {
           </div>
         </div>
       )}
+      <ChatActionDialog open={Boolean(avatarChoice)} onOpenChange={(open) => { if (!open) setAvatarChoice(null); }} title={avatarChoice ? peerOf(avatarChoice) : ""}>
+        {avatarChoice && <div className="mb-4 flex justify-center"><Avatar path={peerAvatarOf(avatarChoice)} name={peerOf(avatarChoice)} className="size-24" hasUpdate={hasStory || hasSpotlight} /></div>}
+        {(loadingStories || loadingSpotlights) && <p role="status" className="text-center text-sm text-muted-foreground">{fr ? "Chargement des actualités…" : "Loading updates…"}</p>}
+        {hasStory && <Button variant="secondary" className="h-14 w-full justify-start gap-4 text-base" onClick={() => { if (!avatarPeerId) return; setViewerRequest({ authorId: avatarPeerId, kind: "story" }); setAvatarChoice(null); }}><CircleUserRound className="text-success" />{fr ? "Voir la story" : "View story"}</Button>}
+        {hasSpotlight && <Button variant="secondary" className="h-14 w-full justify-start gap-4 text-base" onClick={() => { if (!avatarPeerId) return; setViewerRequest({ authorId: avatarPeerId, kind: "spotlight" }); setAvatarChoice(null); }}><Play className="text-success" />{fr ? "Voir le Spotlight" : "View Spotlight"}</Button>}
+        <Button variant="secondary" className="h-14 w-full justify-start gap-4 text-base" onClick={() => { if (avatarChoice) openPeerProfile(avatarChoice); setAvatarChoice(null); }}><CircleUserRound />{fr ? "Voir le profil" : "View profile"}</Button>
+      </ChatActionDialog>
+      {viewerRequest && <StoriesRail viewerRequest={viewerRequest} onViewerClose={() => setViewerRequest(undefined)} />}
     </div>
   );
 }

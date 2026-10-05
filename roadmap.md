@@ -140,7 +140,9 @@
 Market checks: signed-in Services/Market switching and reload persistence, tutoring after Netflix and destination, real listing detail navigation, search/city filters, selling chooser, no mobile/desktop overflow or runtime errors; tab mute verified; 45 commerce/region/format tests pass. Sound similarity requires listening by the owner; no publication.
 
 ## Messages and Market refinement
-- [ ] Spacious WhatsApp-inspired Messages with fading emerald branding
-- [ ] Animated blurred chat actions and avatar Story/Spotlight choices
-- [ ] Market default and dedicated Extras app grid with ASH-owned branding
-- [ ] Verify themes, layouts, interactions and regressions without publishing
+- [x] Spacious WhatsApp-inspired Messages with fading emerald branding
+- [x] Animated blurred chat actions and avatar Story/Spotlight choices
+- [x] Market default and dedicated Extras app grid with ASH-owned branding
+- [x] Verify themes, layouts, interactions and regressions without publishing
+
+Messages/Market checks: signed-in Market default and reload persistence, Extras grid and Learn navigation, phone/desktop and both themes, no overflow/runtime errors, and 45 regression tests pass. Chat options, 12px backdrop blur, avatar choices, Story/Spotlight viewers checked with isolated browser sample content because the tested account has no conversations; no records changed, no messages sent, nothing published.

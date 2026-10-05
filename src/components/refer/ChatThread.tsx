@@ -430,7 +430,7 @@ export function ChatThread({
 
       <div
         ref={messagesScrollRef}
-        className="messages-scroll min-h-0 min-w-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl px-1 py-2 touch-pan-y"
+        className="messages-scroll min-h-0 min-w-0 flex-1 space-y-4 overflow-x-hidden overflow-y-auto overscroll-contain rounded-lg px-3 py-4 touch-pan-y"
         style={wallpaperStyle}
       >
         {isLoading ? (
@@ -503,7 +503,7 @@ export function ChatThread({
                         path={(isGroup ? memberById.get(m.sender_id)?.avatar_url : peerAvatar) ?? null}
                         name={(isGroup ? memberById.get(m.sender_id)?.name : peerName) ?? "Profile"}
                         online={isGroup ? memberById.get(m.sender_id)?.online : undefined}
-                        className={cn("size-7 text-[10px]", !endsRun && "invisible")}
+                          className={cn("size-8 text-xs", !endsRun && "invisible")}
                       />
                     ) : null}
 
@@ -530,10 +530,10 @@ export function ChatThread({
                           window.clearTimeout(pressRef.current);
                       }}
                       className={cn(
-                        "group relative max-w-[78%] px-3.5 py-2 shadow-sm transition-colors",
+                        "group relative max-w-[82%] px-4 py-2.5 shadow-sm transition-colors",
                         mine
-                          ? "brand-gradient rounded-2xl text-on-dark shadow-md"
-                          : "rounded-2xl bg-muted text-foreground",
+                          ? "rounded-lg bg-chat-outgoing text-foreground shadow-sm"
+                          : "rounded-lg bg-card text-foreground",
                         mine && !endsRun && "rounded-br-md",
                         mine && endsRun && "rounded-br-sm",
                         !mine && !endsRun && "rounded-bl-md",
@@ -571,7 +571,7 @@ export function ChatThread({
                         </button>
                       ) : null}
 
-                      <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+                      <p className="whitespace-pre-wrap break-words text-[15px] leading-relaxed">
                         {m.body}
                       </p>
 
@@ -605,7 +605,7 @@ export function ChatThread({
                           className={cn(
                             "mt-1 flex items-center justify-end gap-1 text-[10px]",
                             mine
-                              ? "text-primary-foreground/75"
+                              ? "text-foreground/70"
                               : "text-muted-foreground",
                           )}
                         >

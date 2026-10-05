@@ -92,6 +92,9 @@
   --color-team-accent: oklch(0.67 0.15 164);
   --color-team-outgoing: oklch(0.36 0.075 164);
   --color-team-gold: oklch(0.82 0.13 88);
+  --color-chat-emerald: oklch(0.55 0.13 165);
+  --color-chat-wash: oklch(0.92 0.045 165);
+  --color-chat-outgoing: var(--chat-outgoing);
 
   --shadow-card: 0 1px 1px oklch(0.14 0.022 283 / 0.05), 0 12px 34px -18px oklch(0.14 0.022 283 / 0.3);
   --shadow-raised: 0 2px 6px oklch(0.14 0.022 283 / 0.08), 0 30px 64px -28px oklch(0.14 0.022 283 / 0.55);
@@ -116,6 +119,7 @@
 }
 
 :root {
+  --chat-outgoing: oklch(0.91 0.065 160);
   --radius: 1rem;
 
   --background: oklch(0.9885 0.0035 285);
@@ -181,6 +185,7 @@
 }
 
 .dark {
+  --chat-outgoing: oklch(0.43 0.068 165);
   --background: oklch(0.3 0.004 260);
   --foreground: oklch(0.9268 0.0065 264.5);
   --card: oklch(0.355 0.005 260);
@@ -1071,4 +1076,38 @@ a {
   background:
     radial-gradient(60% 50% at 12% 0%, oklch(0.62 0.24 18 / 0.09), transparent 70%),
     radial-gradient(50% 45% at 92% 8%, oklch(0.58 0.23 300 / 0.11), transparent 70%);
+}
+
+/* Member chat branding is local: employee console and other tabs are untouched. */
+.member-messages {
+  --primary: var(--color-chat-emerald);
+  --ring: var(--color-chat-emerald);
+  --success: var(--color-chat-emerald);
+  position: relative;
+}
+.dark .member-messages { --primary: oklch(0.73 0.14 165); --success: var(--primary); }
+.messages-inbox, .member-chat-surface {
+  position: relative;
+  isolation: isolate;
+  background: linear-gradient(155deg, color-mix(in oklab, var(--color-chat-emerald) 13%, var(--background)), var(--background) 62%);
+}
+.messages-inbox::before, .member-chat-surface::before {
+  content: "ASH";
+  position: absolute;
+  inset: 28% 0 auto;
+  text-align: center;
+  font-size: 100px;
+  font-weight: 900;
+  letter-spacing: 0;
+  color: color-mix(in oklab, var(--color-chat-emerald) 9%, transparent);
+  transform: rotate(-18deg);
+  pointer-events: none;
+  z-index: -1;
+  mask-image: linear-gradient(to bottom, transparent, black 25%, transparent);
+}
+.chat-action-panel { --primary: var(--color-chat-emerald); --ring: var(--primary); }
+.chat-action-overlay { background-color: color-mix(in oklab, var(--foreground) 20%, transparent); }
+@media (min-width: 768px) {
+  .member-messages .messages-inbox { min-height: 76vh; max-height: 76vh; }
+  .member-messages .member-chat-surface { height: 76vh; }
 }
