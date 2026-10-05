@@ -79,7 +79,7 @@ const NAV = [
   { to: "/console/advertising", label: "Advertising", icon: Megaphone, group: "Workforce", dept: "ADVERTISING" },
   { to: "/console/partnerships", label: "Partnerships", icon: Handshake, group: "Workforce", dept: "PARTNERSHIPS" },
   { to: "/console/content", label: "Content & Creators", icon: Video, group: "Workforce", dept: "CONTENT" },
-  { to: "/console/merchant", label: "Merchants", icon: Store, group: "Workforce", dept: "MERCHANT" },
+  { to: "/console/merchant", label: "Merchants", icon: Store, group: "Workforce", dept: "OPERATIONS" },
   { to: "/console/expansion", label: "Expansion", icon: Map, group: "Workforce", dept: "EXPANSION" },
   { to: "/console/property", label: "Property", icon: Building2, group: "Workforce", dept: "TRUST" },
   { to: "/console/campus-catalogue", label: "Campus catalogue", icon: GraduationCap, group: "Workforce", dept: "TRUST" },
