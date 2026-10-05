@@ -433,6 +433,9 @@ function ConsoleOverview() {
       <SectionCard title="Recent ledger activity">
         <TransactionList items={data?.recent ?? []} />
       </SectionCard>
+
+      <AshIntelligencePanel superAdmin={superAdmin} />
+      <StaffDirectMessages />
     </div>
   );
 }
