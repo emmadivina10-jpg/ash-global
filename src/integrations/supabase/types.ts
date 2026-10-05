@@ -1923,6 +1923,80 @@ export type Database = {
           },
         ]
       }
+      expansion_research: {
+        Row: {
+          competition_detail: string | null
+          competition_level: string
+          created_at: string
+          created_by_name: string | null
+          created_by_staff_id: string | null
+          customer_segments: string | null
+          demand: string | null
+          entry_barriers: string | null
+          findings: string | null
+          id: string
+          market_size: string | null
+          opportunity_id: string
+          pricing_insights: string | null
+          recommendation: string | null
+          regulations: string | null
+          sources: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          competition_detail?: string | null
+          competition_level?: string
+          created_at?: string
+          created_by_name?: string | null
+          created_by_staff_id?: string | null
+          customer_segments?: string | null
+          demand?: string | null
+          entry_barriers?: string | null
+          findings?: string | null
+          id?: string
+          market_size?: string | null
+          opportunity_id: string
+          pricing_insights?: string | null
+          recommendation?: string | null
+          regulations?: string | null
+          sources?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          competition_detail?: string | null
+          competition_level?: string
+          created_at?: string
+          created_by_name?: string | null
+          created_by_staff_id?: string | null
+          customer_segments?: string | null
+          demand?: string | null
+          entry_barriers?: string | null
+          findings?: string | null
+          id?: string
+          market_size?: string | null
+          opportunity_id?: string
+          pricing_insights?: string | null
+          recommendation?: string | null
+          regulations?: string | null
+          sources?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expansion_research_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "expansion_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       forum_comments: {
         Row: {
           author_id: string
