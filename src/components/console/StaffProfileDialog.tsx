@@ -37,6 +37,8 @@ export function StaffProfileDialog({ trigger }: { trigger: React.ReactNode }) {
   const invalidate = async () => {
     await queryClient.invalidateQueries({ queryKey: ["console", "my-staff-profile"] });
     await queryClient.invalidateQueries({ queryKey: ["console", "status"] });
+    await queryClient.invalidateQueries({ queryKey: ["console", "workspace"] });
+    await queryClient.invalidateQueries({ queryKey: ["console", "command-center"] });
   };
 
   const saveMutation = useMutation({
@@ -157,7 +159,7 @@ export function StaffProfileDialog({ trigger }: { trigger: React.ReactNode }) {
             </p>
             <Button
               className="w-full"
-              disabled={saveMutation.isPending || !name.trim()}
+              disabled={saveMutation.isPending || uploadMutation.isPending || !name.trim()}
               onClick={() => saveMutation.mutate()}
             >
               {saveMutation.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}

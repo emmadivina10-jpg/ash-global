@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import type { DailyPoint } from "@/lib/staff-performance.functions";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 type Range = "D" | "W" | "M" | "Y";
 type Candle = { label: string; open: number; close: number; high: number; low: number; volume: number };
@@ -39,7 +40,7 @@ function sma(values: number[], period: number, shift = 0) {
 }
 
 export function PerformanceChart({ title, subtitle, series }: { title: string; subtitle: string; series: DailyPoint[] }) {
-  const [range, setRange] = useState<Range>("W");
+  const [range, setRange] = useState<Range>("D");
   const candles = useMemo(() => buildCandles(series, range), [series, range]);
   const W = 720, H = 260, VOL = 50, PAD = 8;
   const enough = candles.length >= 2;
@@ -63,10 +64,10 @@ export function PerformanceChart({ title, subtitle, series }: { title: string; s
         </div>
         <div className="flex rounded-lg border border-border p-0.5">
           {(["D", "W", "M", "Y"] as Range[]).map((r) => (
-            <button key={r} type="button" onClick={() => setRange(r)}
-              className={cn("rounded-md px-2.5 py-1 text-xs font-bold", range === r ? "bg-primary text-primary-foreground" : "text-muted-foreground")}>
+            <Button key={r} type="button" size="sm" variant="ghost" onClick={() => setRange(r)} aria-pressed={range === r}
+              className={cn("h-7 rounded-md px-2.5 py-1 text-xs font-bold", range === r ? "bg-primary text-primary-foreground" : "text-muted-foreground")}>
               {{ D: "Daily", W: "Weekly", M: "Monthly", Y: "Yearly" }[r]}
-            </button>
+            </Button>
           ))}
         </div>
       </div>

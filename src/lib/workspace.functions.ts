@@ -39,6 +39,10 @@ export const getMyWorkspace = createServerFn({ method: "GET" }).handler(async ()
       ).data
     : null;
 
+  const avatarSignedUrl = me?.avatar_url
+    ? (await db.storage.from("staff-avatars").createSignedUrl(me.avatar_url, 60 * 60)).data?.signedUrl ?? null
+    : null;
+
   let taskQ = db
     .from("department_tasks")
     .select("id, title, due_date, status, priority, progress, assigned_staff_id, department")
@@ -107,7 +111,7 @@ export const getMyWorkspace = createServerFn({ method: "GET" }).handler(async ()
 
   return {
     actor: { name: a.name, department: a.department, superAdmin: a.superAdmin, staffId: a.staffId },
-    me,
+    me: me ? { ...me, avatarSignedUrl } : null,
     date: d,
     myDay: {
       dueToday: open.filter((t) => t.due_date === d).length,
