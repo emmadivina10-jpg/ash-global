@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -105,6 +105,14 @@ export const Route = createFileRoute("/console")({
   }),
   component: ConsoleLayout,
 });
+
+/** Applies the premium dark console theme to <html> while the console is mounted. */
+function useConsoleTheme() {
+  useEffect(() => {
+    document.documentElement.classList.add("console-premium");
+    return () => document.documentElement.classList.remove("console-premium");
+  }, []);
+}
 
 function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
