@@ -672,6 +672,13 @@ body {
   max-width: 100%;
 }
 
+/* Member surfaces share a quiet emerald-to-ASH tint without changing staff branding. */
+.app-shell {
+  --member-surface: linear-gradient(155deg, color-mix(in oklab, var(--color-chat-emerald) 7%, var(--background)), color-mix(in oklab, var(--color-verified-magenta) 3%, var(--background)) 52%, color-mix(in oklab, var(--color-verified-violet) 4%, var(--background)));
+  background: var(--member-surface);
+}
+.app-shell aside { background-image: var(--member-surface); }
+
 .app-shell,
 .app-shell-frame,
 .app-shell-column {

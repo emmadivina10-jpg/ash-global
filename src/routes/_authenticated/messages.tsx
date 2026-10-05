@@ -331,6 +331,7 @@ function MessagesPage() {
     (message) => message.sender === "ADMIN" && (!supportTicket.member_read_at || message.created_at > supportTicket.member_read_at),
   ).length ?? 0;
   const [term, setTerm] = useState("");
+  const [newChatOpen, setNewChatOpen] = useState(false);
 
   const { data: prefs } = useChatPrefs();
   const setPref = useSetChatPref();
@@ -578,7 +579,7 @@ function MessagesPage() {
   const visible = searched.filter((conv) => {
     const pref = prefs?.[conv.id];
     if (pref?.locked && !lockedUnlocked) return false;
-    if (pref?.archived && !showArchived) return false;
+    if (Boolean(pref?.archived) !== showArchived) return false;
     return true;
   });
 
@@ -746,8 +747,13 @@ function MessagesPage() {
             <div className="border-b border-border bg-card/75 px-4 pb-4 pt-5 backdrop-blur">
               <h2 className="mb-4 flex items-center justify-between font-display text-3xl font-bold text-foreground">
                 {t("chat.title")}
-                <Button size="icon" variant="default" className="size-11 rounded-full" aria-label={fr ? "Nouvelle discussion" : "New chat"} onClick={() => document.querySelector<HTMLInputElement>('input[aria-label="Search chats"], input[aria-label="Rechercher une discussion"]')?.focus()}><Plus className="size-6" /></Button>
+                <Button size="icon" variant="default" className="size-11 rounded-full" aria-label={fr ? "Nouvelle discussion" : "New chat"} onClick={() => setNewChatOpen(true)}><Plus className="size-6" /></Button>
               </h2>
+              <ChatActionDialog open={newChatOpen} onOpenChange={setNewChatOpen} title={fr ? "Nouvelle discussion" : "New chat"}>
+                <Button variant="ghost" className="h-14 w-full justify-start gap-3" onClick={() => { setNewChatOpen(false); void routerNavigate({ to: "/friends" }); }}><UserPlus />{fr ? "Choisir un contact" : "Choose a contact"}</Button>
+                <Button variant="ghost" className="h-14 w-full justify-start gap-3" onClick={() => { setNewChatOpen(false); setGroupDialog(true); }}><Users />{fr ? "Nouveau groupe" : "New group"}</Button>
+                <Button variant="ghost" className="h-14 w-full justify-start gap-3" onClick={() => { setNewChatOpen(false); void navigate({ search: { c: ASH_SUPPORT_ID } }); }}><LifeBuoy />{fr ? "Contacter ASH" : "Contact ASH support"}</Button>
+              </ChatActionDialog>
 
               {selection.length > 0 ? (
                 <div className="mb-2 flex items-center justify-between gap-2 rounded-full bg-primary/10 px-3 py-1.5">
@@ -1016,7 +1022,7 @@ function MessagesPage() {
                 </p>
               ) : null}
 
-              {(!term.trim() ||
+              {!showArchived && (!term.trim() ||
                 `${ashSupportConversation.label} ${ashSupportConversation.preview}`
                   .toLowerCase()
                   .includes(term.trim().toLowerCase())) && (
@@ -1047,7 +1053,7 @@ function MessagesPage() {
                 </button>
               )}
 
-              {(!term.trim() ||
+              {!showArchived && (!term.trim() ||
                 `${ashAiConversation.label} ${ashAiConversation.preview}`
                   .toLowerCase()
                   .includes(term.trim().toLowerCase())) && (
@@ -1132,7 +1138,7 @@ function MessagesPage() {
                           name={label}
                           online={peerStateOf(conv)?.online}
                           hasUpdate={peerStateOf(conv)?.has_update}
-                          className="size-full rounded-full border-0 shadow-none"
+                          className="size-[52px] aspect-square rounded-full border-0 shadow-none"
                         />
                       </span>
                     </Button>
@@ -1184,7 +1190,7 @@ function MessagesPage() {
               })}
 
               {/* People on ASH you have not met yet. */}
-              {term.trim().length >= 2 && newPeople.length > 0 ? (
+              {!showArchived && term.trim().length >= 2 && newPeople.length > 0 ? (
                 <div className="space-y-2 border-t border-border bg-muted/30 p-3">
                   <p className="text-[11px] font-extrabold uppercase tracking-wide text-muted-foreground">
                     {fr ? "Autres membres ASH" : "Other people on ASH"}
@@ -1320,7 +1326,7 @@ function MessagesPage() {
                         name={peerOf(active)}
                         online={peerStateOf(active)?.online}
                         hasUpdate={peerStateOf(active)?.has_update}
-                        className="size-full rounded-full border-0 shadow-none"
+                        className="size-9 aspect-square rounded-full border-0 shadow-none"
                       />
                     </span>
                   </span>
