@@ -234,31 +234,49 @@ export const getConsoleTickets = createServerFn({ method: "GET" }).handler(async
 /** Small polling payload for the Support badge in the console navigation. */
 export const getSupportAwaitingCount = createServerFn({ method: "GET" }).handler(async () => {
   const { requireDepartment, adminClient } = await import("./console.server");
-  await requireDepartment("SUPPORT");
+  const actor = await requireDepartment("SUPPORT");
   const db = await adminClient();
   const { data: tickets } = await db
     .from("support_tickets")
-    .select("id, admin_read_at, support_ticket_messages(sender, created_at)")
+    .select("id, support_ticket_messages(sender, created_at)")
     .order("last_message_at", { ascending: false })
     .limit(200);
+  const ids = (tickets ?? []).map((t) => t.id);
+  const reads = new Map<string, string>();
+  if (actor.staffId && ids.length) {
+    const { data: rows } = await db
+      .from("support_ticket_reads")
+      .select("ticket_id, read_at")
+      .eq("staff_id", actor.staffId)
+      .in("ticket_id", ids);
+    for (const r of rows ?? []) reads.set(r.ticket_id, r.read_at);
+  }
   const count = (tickets ?? []).filter((ticket) => {
     const messages = (ticket.support_ticket_messages ?? []) as Array<{ sender: string; created_at: string }>;
     const latestCustomer = messages
       .filter((message) => message.sender === "CUSTOMER")
       .reduce<string | null>((latest, message) => !latest || message.created_at > latest ? message.created_at : latest, null);
-    return Boolean(latestCustomer && (!ticket.admin_read_at || latestCustomer > ticket.admin_read_at));
+    const readAt = reads.get(ticket.id);
+    return Boolean(latestCustomer && (!readAt || latestCustomer > readAt));
   }).length;
   return { count };
 });
 
-/** Records that a support staff member has opened a customer conversation. */
+/** Records that THIS support staff member has opened a customer conversation (per-employee, not shared). */
 export const markSupportTicketRead = createServerFn({ method: "POST" })
   .inputValidator((data: { ticketId: string }) => ({ ticketId: String(data?.ticketId ?? "") }))
   .handler(async ({ data }) => {
     const { requireDepartment, adminClient } = await import("./console.server");
-    await requireDepartment("SUPPORT");
+    const actor = await requireDepartment("SUPPORT");
     const db = await adminClient();
-    await db.from("support_tickets").update({ admin_read_at: new Date().toISOString() }).eq("id", data.ticketId);
+    const now = new Date().toISOString();
+    if (actor.staffId) {
+      await db
+        .from("support_ticket_reads")
+        .upsert({ ticket_id: data.ticketId, staff_id: actor.staffId, read_at: now }, { onConflict: "ticket_id,staff_id" });
+    }
+    // Team-level "someone has seen it" marker kept for existing reporting.
+    await db.from("support_tickets").update({ admin_read_at: now }).eq("id", data.ticketId);
     return { ok: true as const };
   });
 
