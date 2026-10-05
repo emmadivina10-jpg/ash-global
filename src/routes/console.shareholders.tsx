@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { GlassCard, HistoryCard, InvestmentCard, OwnershipPlan, PerformanceCard } from "@/components/shareholders/ShareholderViews";
+import { EquityGuide, EquityHeroCards, MarketAnalysisChart } from "@/components/shareholders/EquityGuide";
 
 export const Route = createFileRoute("/console/shareholders")({
   ssr: false,
@@ -57,17 +58,32 @@ function ShareholdersConsole() {
   return (
     <div className="space-y-4">
       <h1 className="font-display text-2xl font-extrabold text-foreground">Shareholders & Investor Center</h1>
+      <EquityHeroCards valuation={data.valuation} ownershipPct={null} investment={null} currency="CAD" />
       <GlassCard title="Cap table">
         <table className="w-full text-sm">
-          <thead><tr className="text-left text-muted-foreground"><th>Shareholder</th><th>Role</th><th className="text-right">Ownership</th></tr></thead>
+          <thead><tr className="text-left text-muted-foreground"><th>Shareholder</th><th>Role</th><th className="text-right">Ownership</th>{data.valuation ? <th className="text-right">Implied value</th> : null}</tr></thead>
           <tbody>
             {data.shareholders.map((s) => (
-              <tr key={s.id} className="border-t border-border/50"><td className="py-2 font-semibold">{s.display_name}</td><td>{s.role}</td><td className="text-right">{Number(s.ownership_pct)}%</td></tr>
+              <tr key={s.id} className="border-t border-border/50">
+                <td className="py-2 font-semibold">{s.display_name}</td><td>{s.role}</td><td className="text-right">{Number(s.ownership_pct)}%</td>
+                {data.valuation ? <td className="text-right">CAD ${((data.valuation.valuation * Number(s.ownership_pct)) / 100).toLocaleString()}</td> : null}
+              </tr>
             ))}
-            <tr className="border-t border-border font-bold"><td className="py-2">Total issued</td><td /><td className="text-right">{data.cap.issued}%</td></tr>
+            <tr className="border-t border-border font-bold">
+              <td className="py-2">Total issued</td><td /><td className="text-right">{data.cap.issued}%</td>
+              {data.valuation ? <td className="text-right">CAD ${data.valuation.valuation.toLocaleString()}</td> : null}
+            </tr>
           </tbody>
         </table>
+        {data.valuation ? (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Approved valuation CAD ${data.valuation.valuation.toLocaleString()} ({new Date(data.valuation.approvedAt).toLocaleDateString()}
+            {data.valuation.approvedBy ? `, approved by ${data.valuation.approvedBy}` : ""}). Implied values are estimates, not sale prices.
+          </p>
+        ) : null}
       </GlassCard>
+      <MarketAnalysisChart timeline={data.performance.revenueTimeline} currency={data.performance.currency} />
+      {data.valuation ? <EquityGuide valuation={data.valuation} /> : null}
       <div className="grid gap-4 md:grid-cols-2">
         {data.shareholders.filter((s) => !s.is_founder).map((s) => (
           <div key={s.id} className="space-y-2">
