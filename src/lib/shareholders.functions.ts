@@ -26,11 +26,20 @@ async function companyPerformance() {
   const { computeFinanceLedger } = await import("./finance.server");
   const { summary, entries } = await computeFinanceLedger();
   const monthly = new Map<string, number>();
+  const daily = new Map<string, number>();
   for (const e of entries) {
     if (e.category !== "REVENUE") continue;
     const k = e.createdAt.slice(0, 7);
     monthly.set(k, (monthly.get(k) ?? 0) + e.amount);
+    const d = e.createdAt.slice(0, 10);
+    daily.set(d, (daily.get(d) ?? 0) + e.amount);
   }
+  // Stock-style cumulative revenue timeline (oldest → newest).
+  let running = 0;
+  const revenueTimeline = [...daily.entries()].sort().map(([date, amount]) => {
+    running += amount;
+    return { date, amount, cumulative: running };
+  });
   return {
     currency: "XAF",
     revenue: summary.revenue,
@@ -38,7 +47,21 @@ async function companyPerformance() {
     memberObligations: summary.walletLiability,
     ownerWithdrawals: summary.ownerCompleted,
     revenueByMonth: [...monthly.entries()].sort().map(([month, amount]) => ({ month, amount })),
+    revenueTimeline,
   };
+}
+
+async function currentValuation() {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin
+    .from("company_valuation")
+    .select("valuation, currency, approved_at, approved_by")
+    .order("approved_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return data
+    ? { valuation: Number(data.valuation), currency: data.currency, approvedAt: data.approved_at, approvedBy: data.approved_by }
+    : null;
 }
 
 function capSummary(rows: { ownership_pct: number; is_founder: boolean }[]) {
