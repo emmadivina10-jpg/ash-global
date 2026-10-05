@@ -3,7 +3,7 @@
 ## Tab space and flight dates
 - [x] Remove shared top bars from Messages, Services, Flights, Menu and enlarge Messages controls
 - [x] Keep stacked flight dates inside their panel
-- [ ] Verify signed-in tab layouts and date bounds
+- [x] Verify signed-in four-tab layouts, contained flight dates, no horizontal overflow or runtime errors, and clean preview build; nothing published
 
 ## Employee photo and analytics visibility
 - [x] Resolve private employee photos for the workspace and identity check, and refresh after profile edits
