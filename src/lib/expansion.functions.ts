@@ -185,7 +185,8 @@ export const saveResearchReport = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { actor, db } = await ctx();
     if (!data.title || !data.opportunity_id) return { ok: false as const, error: "A title is required." };
-    const { id, ...fields } = data;
+    const { id, ...rest } = data;
+    const fields = { ...rest, title: rest.title as string };
     if (id) {
       const { error } = await db.from("expansion_research").update(fields).eq("id", id);
       if (error) return { ok: false as const, error: "Could not save." };
