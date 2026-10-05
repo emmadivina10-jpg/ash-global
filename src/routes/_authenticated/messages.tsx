@@ -1247,7 +1247,7 @@ function MessagesPage() {
               mobileView === "list"
                 ? "hidden md:flex"
                 : cn(
-                    "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:bottom-[calc(3.75rem+env(safe-area-inset-bottom))] max-md:z-30 max-md:w-screen max-md:touch-pan-y",
+                    "max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:bottom-0 max-md:z-50 max-md:w-screen max-md:touch-pan-y",
                     "max-md:h-auto",
                   ),
               "md:h-[72vh]",

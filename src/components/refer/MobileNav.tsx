@@ -29,6 +29,11 @@ export function MobileNav({
   const { t, lang } = useI18n();
   const fr = lang === "fr";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const conversationOpen = useRouterState({
+    select: (s) => s.location.pathname === "/messages" && Boolean(s.location.search.c),
+  });
+
+  if (conversationOpen) return null;
 
   const label = (item: MobileNavItem) =>
     item.key ? t(item.key) : ((fr ? item.fr : item.en) ?? item.label ?? "");

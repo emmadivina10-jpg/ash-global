@@ -1089,7 +1089,7 @@ a {
 .messages-inbox, .member-chat-surface {
   position: relative;
   isolation: isolate;
-  background: linear-gradient(155deg, color-mix(in oklab, var(--color-chat-emerald) 13%, var(--background)), var(--background) 62%);
+  background: linear-gradient(155deg, color-mix(in oklab, var(--color-chat-emerald) 11%, var(--background)), color-mix(in oklab, var(--color-verified-magenta) 4%, var(--background)) 52%, color-mix(in oklab, var(--color-verified-violet) 5%, var(--background)));
 }
 .messages-inbox::before, .member-chat-surface::before {
   content: "ASH";
