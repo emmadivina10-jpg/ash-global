@@ -1,5 +1,14 @@
 import { type ReactNode, useRef, useState } from "react";
-import { Check, Lock, LockOpen, MoreHorizontal, Pin, PinOff, Archive, ArchiveRestore } from "lucide-react";
+import {
+  Check,
+  Lock,
+  LockOpen,
+  MoreHorizontal,
+  Pin,
+  PinOff,
+  Archive,
+  ArchiveRestore,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ChatActionDialog } from "./ChatActionDialog";
@@ -73,7 +82,7 @@ export function SelectChatRow({
     <div
       className={cn(
         "relative border-b border-border transition-colors",
-         selected ? "bg-primary/10" : "bg-background/70",
+        selected ? "bg-primary/10" : "bg-background/70",
       )}
       onTouchStart={(event) => {
         if ((event.target as HTMLElement).closest("button")) return;
@@ -88,7 +97,8 @@ export function SelectChatRow({
       onTouchCancel={clear}
       onPointerDown={(event) => {
         if ((event.target as HTMLElement).closest("button")) return;
-        if (event.pointerType === "mouse" && event.button === 0) start(event.clientX, event.clientY);
+        if (event.pointerType === "mouse" && event.button === 0)
+          start(event.clientX, event.clientY);
       }}
       onPointerMove={(event) => {
         if (event.pointerType === "mouse") moved(event.clientX, event.clientY);
@@ -120,7 +130,9 @@ export function SelectChatRow({
             <span
               className={cn(
                 "grid size-6 place-items-center rounded-full border-2 transition-colors",
-                selected ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground/40",
+                selected
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-muted-foreground/40",
               )}
               aria-hidden
             >
@@ -133,8 +145,17 @@ export function SelectChatRow({
         </div>
       </div>
 
-      {pinned ? <span title={fr ? "Épinglée" : "Pinned chat"} className="pointer-events-none absolute bottom-3 left-14 grid size-6 place-items-center rounded-full bg-success text-success-foreground ring-2 ring-background"><Pin className="size-3.5 fill-current" aria-hidden /></span> : null}
-      {locked ? <Lock className="absolute right-5 top-3 size-3.5 text-muted-foreground" aria-hidden /> : null}
+      {pinned ? (
+        <span
+          title={fr ? "Épinglée" : "Pinned chat"}
+          className="pointer-events-none absolute bottom-3 left-14 grid size-6 place-items-center rounded-full bg-success text-success-foreground ring-2 ring-background"
+        >
+          <Pin className="size-3.5 fill-current" aria-hidden />
+        </span>
+      ) : null}
+      {locked ? (
+        <Lock className="absolute right-5 top-3 size-3.5 text-muted-foreground" aria-hidden />
+      ) : null}
       <div className="absolute bottom-3 right-3 flex items-center gap-1">
         {selecting ? null : (
           <Button
@@ -153,37 +174,49 @@ export function SelectChatRow({
         )}
       </div>
 
-      <ChatActionDialog open={menuOpen && !selecting} onOpenChange={setMenuOpen} title={label ?? (fr ? "Options de discussion" : "Chat options")}>
-          <MenuItem
-            icon={pinned ? PinOff : Pin}
-            label={pinned ? (fr ? "Désépingler" : "Unpin") : fr ? "Épingler" : "Pin chat"}
-            onClick={() => {
-              setMenuOpen(false);
-              onTogglePin();
-            }}
-          />
-          <MenuItem
-            icon={locked ? LockOpen : Lock}
-            label={locked ? (fr ? "Déverrouiller" : "Unlock chat") : fr ? "Verrouiller" : "Lock chat"}
-            onClick={() => {
-              setMenuOpen(false);
-              onToggleLock();
-            }}
-          />
-          <MenuItem
-            icon={archived ? ArchiveRestore : Archive}
-            label={archived ? (fr ? "Désarchiver" : "Unarchive") : fr ? "Archiver" : "Archive"}
-            onClick={() => {
-              setMenuOpen(false);
-              onArchive();
-            }}
-          />
+      <ChatActionDialog
+        open={menuOpen && !selecting}
+        onOpenChange={setMenuOpen}
+        title={label ?? (fr ? "Options de discussion" : "Chat options")}
+      >
+        <MenuItem
+          icon={pinned ? PinOff : Pin}
+          label={pinned ? (fr ? "Désépingler" : "Unpin") : fr ? "Épingler" : "Pin chat"}
+          onClick={() => {
+            setMenuOpen(false);
+            onTogglePin();
+          }}
+        />
+        <MenuItem
+          icon={locked ? LockOpen : Lock}
+          label={locked ? (fr ? "Déverrouiller" : "Unlock chat") : fr ? "Verrouiller" : "Lock chat"}
+          onClick={() => {
+            setMenuOpen(false);
+            onToggleLock();
+          }}
+        />
+        <MenuItem
+          icon={archived ? ArchiveRestore : Archive}
+          label={archived ? (fr ? "Désarchiver" : "Unarchive") : fr ? "Archiver" : "Archive"}
+          onClick={() => {
+            setMenuOpen(false);
+            onArchive();
+          }}
+        />
       </ChatActionDialog>
     </div>
   );
 }
 
-function MenuItem({ icon: Icon, label, onClick }: { icon: typeof Pin; label: string; onClick: () => void }) {
+function MenuItem({
+  icon: Icon,
+  label,
+  onClick,
+}: {
+  icon: typeof Pin;
+  label: string;
+  onClick: () => void;
+}) {
   return (
     <Button
       type="button"

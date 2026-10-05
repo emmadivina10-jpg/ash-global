@@ -18,7 +18,6 @@ import { claimDeal } from "@/lib/commerce.functions";
 import { useI18n } from "@/lib/i18n";
 import { useRegion } from "@/lib/region-context";
 import { formatXAF } from "@/lib/format";
-import { setServicesMode } from "@/lib/services-mode";
 import { playTabSound } from "@/lib/sound";
 
 type Listing = { id: string; kind: "property" | "service" | "deal"; title: string; city: string; image: string | null; price: number | null; priceLabel: string; date: string; deal?: Deal };

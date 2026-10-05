@@ -17,7 +17,7 @@ import { useUser } from "@/lib/queries";
 import { ChatActionDialog } from "@/components/refer/ChatActionDialog";
 import { StoriesRail, loadSpotlights } from "@/components/refer/StoriesRail";
 import { useStories } from "@/lib/social.queries";
-import { Play, CircleUserRound, Sparkles, MessageCircle } from "lucide-react";
+import { Play, CircleUserRound } from "lucide-react";
 import ashLogo from "@/assets/ash-logo.png.asset.json";
 import { ChatThread } from "@/components/refer/ChatThread";
 import { AssistantPanel } from "@/components/refer/AssistantPanel";
@@ -1121,7 +1121,7 @@ function MessagesPage() {
                       aria-label={`${fr ? "Voir les actualités de" : "View updates from"} ${label}`}
                       onClick={(event) => { event.stopPropagation(); if (conv.group_id) { openPeerProfile(conv); return; } setAvatarChoice(conv); }}
                       className={cn(
-                        "grid size-14 shrink-0 place-items-center rounded-full p-[2px] shadow-sm ring-2",
+                        "grid aspect-square size-14 min-w-14 shrink-0 place-items-center rounded-full p-[2px] shadow-sm ring-2",
                         avatarColor.wrapper,
                         avatarColor.ring,
                       )}
@@ -1301,9 +1301,7 @@ function MessagesPage() {
                 className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl px-1 py-0.5 text-left transition-colors enabled:hover:bg-muted/60"
               >
                 {activeId === ASH_AI_ID ? (
-                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#D4AF37] via-[#8B6914] to-[#4B0082] p-[2px] shadow-lg ring-2 ring-[#D4AF37]/50">
-                    <span className="grid size-full place-items-center rounded-full bg-[#0b0712] font-display text-[9px] font-black text-[#D4AF37]">ASH</span>
-                  </span>
+                  <img src={ashLogo.url} alt="ASH AI" className="size-12 shrink-0 rounded-full ring-2 ring-success/20" />
                 ) : activeId === ASH_SUPPORT_ID ? (
                   <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary/10 text-primary ring-2 ring-primary/25">
                     <LifeBuoy className="size-5" aria-hidden />
@@ -1406,7 +1404,7 @@ function MessagesPage() {
               >
                 <div
                   aria-hidden
-                  className="pointer-events-none absolute inset-0 bg-background/70 backdrop-blur-[1px] dark:bg-slate-950/75"
+                  className="pointer-events-none absolute inset-0 bg-background/70 backdrop-blur-[1px]"
                 />
                 <div className="relative flex min-h-0 flex-1 flex-col px-4 py-4">
                   <AssistantPanel />
@@ -1427,17 +1425,11 @@ function MessagesPage() {
               </div>
             ) : activeId ? (
               <div
-                className="relative min-h-0 flex-1 overflow-hidden bg-background"
-                style={{
-                  backgroundImage: `url(${ASH_CHAT_BACKGROUND})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
-                }}
+                className="member-chat-surface relative min-h-0 flex-1 overflow-hidden"
               >
                 <div
                   aria-hidden
-                  className="pointer-events-none absolute inset-0 bg-background/62 backdrop-blur-[1px] dark:bg-slate-950/70"
+                  className="pointer-events-none absolute inset-0 bg-background/10"
                 />
 
                 <div className="relative flex h-full min-h-0 flex-col">
