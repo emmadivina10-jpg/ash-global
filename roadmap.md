@@ -1,9 +1,9 @@
 # Roadmap
 
 ## Message profile fixes and dual-colour accents
-- [ ] Fix member-profile navigation, inbox strip and full-width composer
-- [ ] Apply update-aware avatar rings, dual-colour tabs/wallet, light Market/Extras accents and Menu watermark
-- [ ] Verify profile interaction and layouts without publishing
+- [x] Fix member-profile navigation, inbox strip and full-width composer
+- [x] Apply update-aware avatar rings, dual-colour tabs/wallet, light Market/Extras accents and Menu watermark
+- [x] Verify profile interaction and layouts without publishing — isolated chat fixtures at 390/895/1280px, full-width composer, no overflow/runtime errors, 45 regression tests and clean preview build
 
 ## Tab space and flight dates
 - [x] Remove shared top bars from Messages, Services, Flights, Menu and enlarge Messages controls

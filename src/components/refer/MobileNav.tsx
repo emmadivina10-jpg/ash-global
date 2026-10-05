@@ -84,9 +84,9 @@ export function MobileNav({
               )}
             >
               <span className="relative size-7">
-                <Avatar path={profile?.avatar_url} name={profile?.full_name} className="size-7 border border-border" />
+                <Avatar path={profile?.avatar_url} name={profile?.full_name} className="member-avatar-ring size-7 p-[2px]" />
                 <span className="absolute -bottom-0.5 -right-1 z-10 grid size-3.5 place-items-center rounded-full bg-background ring-1 ring-border">
-                  <span className="[&_svg]:size-2.5"><MemberNavIcon icon={Menu} active={pathname === "/menu"} /></span>
+                  <span className="grid size-2.5 place-items-center [&_svg]:size-2.5"><MemberNavIcon icon={Menu} active={pathname === "/menu"} /></span>
                 </span>
               </span>
               <span className="max-w-full truncate">{t("nav.more")}</span>
