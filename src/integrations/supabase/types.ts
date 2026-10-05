@@ -5613,6 +5613,39 @@ export type Database = {
           },
         ]
       }
+      support_ticket_reads: {
+        Row: {
+          read_at: string
+          staff_id: string
+          ticket_id: string
+        }
+        Insert: {
+          read_at?: string
+          staff_id: string
+          ticket_id: string
+        }
+        Update: {
+          read_at?: string
+          staff_id?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_ticket_reads_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_ticket_reads_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       support_tickets: {
         Row: {
           admin_read_at: string | null

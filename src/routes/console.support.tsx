@@ -74,7 +74,7 @@ function SupportInboxPage() {
   useEffect(() => {
     if (!active) return;
     const latestCustomer = [...active.messages].reverse().find((message) => message.sender === "CUSTOMER");
-    if (!latestCustomer || (active.admin_read_at && latestCustomer.created_at <= active.admin_read_at)) return;
+    if (!latestCustomer || (active.my_read_at && latestCustomer.created_at <= active.my_read_at)) return;
     void markRead({ data: { ticketId: active.id } }).then(async () => {
       await queryClient.invalidateQueries({ queryKey: ["console", "support", "badge"] });
       await queryClient.invalidateQueries({ queryKey: ["console", "support"] });
