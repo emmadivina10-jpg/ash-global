@@ -18,6 +18,7 @@ import {
   Search,
   Settings as SettingsIcon,
   Shield,
+  Plane,
   Sparkles,
   Menu,
   Users,
@@ -74,7 +75,7 @@ type NavItem = {
 const MOBILE_NAV: NavItem[] = [
   { to: "/feed", en: "Feed", fr: "Fil", icon: Flame, tour: "feed" },
   { to: "/services", en: "Services", fr: "Services", icon: Sparkles, tour: "market" },
-  { to: "/wallet", en: "Earn", fr: "Gagner", icon: Wallet, tour: "wallet" },
+  { to: "/flights", en: "Flights", fr: "Vols", icon: Plane },
   { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle, tour: "messages" },
 ];
 
