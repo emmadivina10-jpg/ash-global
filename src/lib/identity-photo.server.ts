@@ -11,7 +11,7 @@ export function photoHashes(bytes: Uint8Array) {
   } else if (bytes[0] === 0x89 && bytes[1] === 0x50) {
     const buffer = Buffer.from(bytes);
     if (buffer.length < 24 || buffer.readUInt32BE(16) * buffer.readUInt32BE(20) > 20_000_000) throw new Error("PHOTO_TOO_LARGE");
-    image = PNG.sync.read(buffer);
+    image = toRgba(decodePng(bytes));
   } else {
     throw new Error("Please choose a JPG or PNG profile picture.");
   }
