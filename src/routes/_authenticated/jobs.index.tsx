@@ -17,23 +17,40 @@ import { formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { EMPLOYMENT_TYPES, LOCATION_TYPES, usePostJob, useJobs } from "@/lib/hub.queries";
+import { ComingSoon } from "@/components/refer/ComingSoon";
 
 export const Route = createFileRoute("/_authenticated/jobs/")({
   head: () => ({
     meta: [
-      { title: "ASH Jobs — post a role or apply in app" },
-      {
-        name: "description",
-        content: "Free job postings on ASH Hub. Browse open roles, apply in a tap, and manage applicants in app.",
-      },
-      { property: "og:title", content: "ASH Jobs — post a role or apply in app" },
-      { property: "og:description", content: "Free job postings and in-app applications on ASH." },
+      { title: "ASH Jobs — Coming soon" },
+      { name: "description", content: "Job postings and in-app applications are coming soon to ASH." },
+      { property: "og:title", content: "ASH Jobs — Coming soon" },
+      { property: "og:description", content: "Job postings and in-app applications are coming soon to ASH." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: JobsPage,
+  component: JobsSoon,
 });
+
+// Jobs are blocked behind a coming soon screen. Point this route back at
+// JobsPage to re-enable the feature.
+function JobsSoon() {
+  return (
+    <ComingSoon
+      icon={Briefcase}
+      eyebrow="ASH JOBS"
+      titleEn="Jobs"
+      titleFr="Emplois"
+      bodyEn="Job postings and in-app applications are coming soon to ASH Hub."
+      bodyFr="Les offres d'emploi et les candidatures dans l'app arrivent bientôt sur ASH Hub."
+      features={[
+        { icon: Search, en: "Browse open roles", fr: "Parcourez les postes ouverts" },
+        { icon: Briefcase, en: "Apply without leaving ASH", fr: "Postulez sans quitter ASH" },
+      ]}
+    />
+  );
+}
 
 function JobsPage() {
   const { lang } = useI18n();

@@ -15,20 +15,40 @@ import { useI18n } from "@/lib/i18n";
 import { useTrackView } from "@/lib/activity";
 import { useUser } from "@/lib/queries";
 import { SafetyMenu } from "@/components/refer/SafetyMenu";
+import { ComingSoon } from "@/components/refer/ComingSoon";
 
 export const Route = createFileRoute("/_authenticated/events/$eventId")({
   head: () => ({
     meta: [
-      { title: "Event details — ASH Events" },
-      { name: "description", content: "See the full programme, venue and ticket options for this ASH event and pay securely with mobile money." },
-      { property: "og:title", content: "Event details — ASH Events" },
-      { property: "og:description", content: "Programme, venue and tickets for this ASH event." },
+      { title: "Event details — Coming soon" },
+      { name: "description", content: "ASH Events are coming soon. Ticketing is not enabled yet." },
+      { property: "og:title", content: "Event details — Coming soon" },
+      { property: "og:description", content: "ASH Events are coming soon. Ticketing is not enabled yet." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: EventDetail,
+  component: EventSoon,
 });
+
+// Events are blocked behind a coming soon screen. Point this route back at
+// EventDetail to re-enable the feature.
+function EventSoon() {
+  return (
+    <ComingSoon
+      icon={CalendarDays}
+      eyebrow="ASH EVENTS"
+      titleEn="Events"
+      titleFr="Événements"
+      bodyEn="ASH Events are not live yet. Programme, venue and ticket options will appear here once events launch."
+      bodyFr="Les événements ASH ne sont pas encore actifs. Programme, lieu et billets apparaîtront ici au lancement."
+      features={[
+        { icon: MapPin, en: "Venue and programme details", fr: "Lieu et détails du programme" },
+        { icon: Ticket, en: "Ticket options in app", fr: "Options de billets dans l'app" },
+      ]}
+    />
+  );
+}
 
 function EventDetail() {
   const { eventId } = Route.useParams();

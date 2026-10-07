@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Briefcase } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useProject, useProposals } from "@/lib/ash.queries";
@@ -13,20 +13,37 @@ import { EmptyState, LoadingState } from "@/components/refer/states";
 import { formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 import { useTrackView } from "@/lib/activity";
+import { ComingSoon } from "@/components/refer/ComingSoon";
 
 export const Route = createFileRoute("/_authenticated/freelance/$projectId")({
   head: () => ({
     meta: [
-      { title: "Project brief — ASH Freelance" },
-      { name: "description", content: "Read the full brief, budget and required skills for this freelance project, then send your proposal on ASH." },
-      { property: "og:title", content: "Project brief — ASH Freelance" },
-      { property: "og:description", content: "Budget, deadline and skills for this freelance project." },
+      { title: "Project brief — Coming soon" },
+      { name: "description", content: "ASH Freelance is coming soon. Proposals are not open yet." },
+      { property: "og:title", content: "Project brief — Coming soon" },
+      { property: "og:description", content: "ASH Freelance is coming soon. Proposals are not open yet." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: ProjectDetail,
+  component: ProjectSoon,
 });
+
+// Freelance is blocked behind a coming soon screen. Point this route back at
+// ProjectDetail to re-enable the feature.
+function ProjectSoon() {
+  return (
+    <ComingSoon
+      icon={Briefcase}
+      eyebrow="ASH FREELANCE"
+      titleEn="Freelance"
+      titleFr="Freelance"
+      bodyEn="Freelance project briefs are not open yet. Budget, deadline and skills will appear here once Freelance launches."
+      bodyFr="Les briefs de projets freelance ne sont pas encore ouverts. Budget, échéance et compétences apparaîtront au lancement."
+      features={[{ icon: Briefcase, en: "Full project brief and budget", fr: "Brief et budget complets du projet" }]}
+    />
+  );
+}
 
 function ProjectDetail() {
   const { projectId } = Route.useParams();

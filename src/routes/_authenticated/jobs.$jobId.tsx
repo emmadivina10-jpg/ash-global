@@ -17,20 +17,40 @@ import {
   useSetApplicationStatus,
   openJobConversation,
 } from "@/lib/hub.queries";
+import { ComingSoon } from "@/components/refer/ComingSoon";
 
 export const Route = createFileRoute("/_authenticated/jobs/$jobId")({
   head: () => ({
     meta: [
-      { title: "Job opening — ASH Jobs" },
-      { name: "description", content: "See the full role description and apply without leaving ASH." },
-      { property: "og:title", content: "Job opening — ASH Jobs" },
-      { property: "og:description", content: "See the full role description and apply without leaving ASH." },
+      { title: "Job opening — Coming soon" },
+      { name: "description", content: "ASH Jobs are coming soon. Applications are not open yet." },
+      { property: "og:title", content: "Job opening — Coming soon" },
+      { property: "og:description", content: "ASH Jobs are coming soon. Applications are not open yet." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: JobDetail,
+  component: JobSoon,
 });
+
+// Jobs are blocked behind a coming soon screen. Point this route back at
+// JobDetail to re-enable the feature.
+function JobSoon() {
+  return (
+    <ComingSoon
+      icon={Briefcase}
+      eyebrow="ASH JOBS"
+      titleEn="Jobs"
+      titleFr="Emplois"
+      bodyEn="ASH Jobs are not live yet. Full role details and in-app applications will open once Jobs launch."
+      bodyFr="ASH Jobs n'est pas encore actif. Les détails du poste et les candidatures s'ouvriront au lancement."
+      features={[
+        { icon: Briefcase, en: "Full role description", fr: "Description complète du poste" },
+        { icon: MessageSquare, en: "Message the employer", fr: "Écrivez à l'employeur" },
+      ]}
+    />
+  );
+}
 
 function JobDetail() {
   const { jobId } = Route.useParams();

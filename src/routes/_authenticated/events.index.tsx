@@ -6,20 +6,40 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState, LoadingState } from "@/components/refer/states";
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
+import { ComingSoon } from "@/components/refer/ComingSoon";
 
 export const Route = createFileRoute("/_authenticated/events/")({
   head: () => ({
     meta: [
-      { title: "ASH Events — discover and ticket local events" },
-      { name: "description", content: "Find concerts, conferences, workshops and community events near you, and buy tickets straight from your phone." },
-      { property: "og:title", content: "ASH Events — discover and ticket local events" },
-      { property: "og:description", content: "Concerts, conferences and workshops near you, with mobile money ticketing." },
+      { title: "ASH Events — Coming soon" },
+      { name: "description", content: "Event discovery and ticketing are coming soon to ASH Glo." },
+      { property: "og:title", content: "ASH Events — Coming soon" },
+      { property: "og:description", content: "Concerts, conferences and workshops near you are on the way." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: EventsPage,
+  component: EventsSoon,
 });
+
+// Events are blocked behind a coming soon screen. Point this route back at
+// EventsPage to re-enable the feature.
+function EventsSoon() {
+  return (
+    <ComingSoon
+      icon={CalendarDays}
+      eyebrow="ASH EVENTS"
+      titleEn="Events"
+      titleFr="Événements"
+      bodyEn="Concerts, conferences, workshops and community events near you are coming to ASH, with ticketing built in."
+      bodyFr="Concerts, conférences, ateliers et événements communautaires près de vous arrivent sur ASH, billetterie incluse."
+      features={[
+        { icon: CalendarDays, en: "Discover local events", fr: "Découvrez les événements près de vous" },
+        { icon: Ticket, en: "Buy tickets in app", fr: "Achetez vos billets dans l'app" },
+      ]}
+    />
+  );
+}
 
 function EventsPage() {
   const { lang } = useI18n();

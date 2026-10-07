@@ -8,20 +8,40 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState, LoadingState } from "@/components/refer/states";
 import { formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
+import { ComingSoon } from "@/components/refer/ComingSoon";
 
 export const Route = createFileRoute("/_authenticated/freelance/")({
   head: () => ({
     meta: [
-      { title: "ASH Freelance — hire talent or find paid work" },
-      { name: "description", content: "Post a project, receive proposals from vetted freelancers, or offer your own skills and get hired on ASH." },
-      { property: "og:title", content: "ASH Freelance — hire talent or find paid work" },
-      { property: "og:description", content: "Projects, proposals and freelance talent in one place." },
+      { title: "ASH Freelance — Coming soon" },
+      { name: "description", content: "Freelance projects and proposals are coming soon to ASH." },
+      { property: "og:title", content: "ASH Freelance — Coming soon" },
+      { property: "og:description", content: "Projects, proposals and freelance talent are on the way." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: FreelancePage,
+  component: FreelanceSoon,
 });
+
+// Freelance is blocked behind a coming soon screen. Point this route back at
+// FreelancePage to re-enable the feature.
+function FreelanceSoon() {
+  return (
+    <ComingSoon
+      icon={Briefcase}
+      eyebrow="ASH FREELANCE"
+      titleEn="Freelance"
+      titleFr="Freelance"
+      bodyEn="Freelance projects, proposals and talent on ASH Hub are coming soon."
+      bodyFr="Projets, propositions et talents freelance sur ASH Hub arrivent bientôt."
+      features={[
+        { icon: Users, en: "Hire vetted talent", fr: "Recrutez des talents vérifiés" },
+        { icon: Star, en: "Offer your skills and get hired", fr: "Proposez vos compétences et soyez recruté" },
+      ]}
+    />
+  );
+}
 
 function FreelancePage() {
   const { lang } = useI18n();

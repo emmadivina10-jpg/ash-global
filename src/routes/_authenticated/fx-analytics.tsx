@@ -45,20 +45,43 @@ import {
   type MarketCategory,
 } from "@/lib/markets";
 import { cn } from "@/lib/utils";
+import { ComingSoon } from "@/components/refer/ComingSoon";
 
 export const Route = createFileRoute("/_authenticated/fx-analytics")({
   head: () => ({
     meta: [
-      { title: "ASH Markets — Learn, Discover, Connect, Grow" },
-      { name: "description", content: "Educational market updates, FX learning, approved instructors, demo snapshots, news, analysis, and economic events." },
-      { property: "og:title", content: "ASH Markets — Learn, Discover, Connect, Grow" },
-      { property: "og:description", content: "A professional educational Markets community from ASH Glo." },
+      { title: "ASH FX Analytics — Coming soon" },
+      { name: "description", content: "FX market analytics, updates and instructor learning are coming soon to ASH Glo." },
+      { property: "og:title", content: "ASH FX Analytics — Coming soon" },
+      { property: "og:description", content: "Market analytics, updates and learning are on the way." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: MarketsPage,
+  component: FxAnalyticsSoon,
 });
+
+// FX Analytics is blocked behind a coming soon screen. Point this route back
+// at MarketsPage to re-enable the feature.
+function FxAnalyticsSoon() {
+  return (
+    <ComingSoon
+      icon={TrendingUp}
+      eyebrow="ASH FX ANALYTICS"
+      titleEn="FX Analytics"
+      titleFr="Analyses de marché"
+      bodyEn="Market analysis, updates, news and instructor learning on ASH Markets are coming soon."
+      bodyFr="Analyses, actualités et apprentissage du marché sur ASH Markets arrivent bientôt."
+      features={[
+        { icon: BarChart3, en: "Market analysis snapshots", fr: "Instantanés d'analyse de marché" },
+        { icon: GraduationCap, en: "Learn from approved instructors", fr: "Apprenez avec des instructeurs approuvés" },
+      ]}
+      backTo="/feed"
+      backLabelEn="Back to Feed"
+      backLabelFr="Retour au Fil"
+    />
+  );
+}
 
 type Panel = "analysis" | "updates" | "news" | "calendar" | "instructors" | "learn" | "apply" | "publish" | null;
 const chartConfig = { price: { label: "Demo price", color: "var(--color-primary)" } } satisfies ChartConfig;
