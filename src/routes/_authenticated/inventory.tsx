@@ -17,20 +17,40 @@ import {
   useInventory, useMyBusinesses,
   type InventoryRole, type MovementType, type Product,
 } from "@/lib/inventory.queries";
+import { ComingSoon } from "@/components/refer/ComingSoon";
 
 export const Route = createFileRoute("/_authenticated/inventory")({
   head: () => ({
     meta: [
-      { title: "ASH Business Inventory — stock, products and history" },
-      { name: "description", content: "Manage your business inventory on ASH: products, locations, stock movements and a permanent history." },
-      { property: "og:title", content: "ASH Business Inventory" },
-      { property: "og:description", content: "Products, locations, stock movements and permanent inventory history for your business." },
+      { title: "ASH Business Inventory — Coming soon" },
+      { name: "description", content: "Business inventory management is coming soon to ASH Glo." },
+      { property: "og:title", content: "ASH Business Inventory — Coming soon" },
+      { property: "og:description", content: "Products, locations and stock history for your business are on the way." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: InventoryPage,
+  component: InventorySoon,
 });
+
+// Inventory is blocked behind a coming soon screen. Point this route back at
+// InventoryPage to re-enable the feature.
+function InventorySoon() {
+  return (
+    <ComingSoon
+      icon={Boxes}
+      eyebrow="ASH INVENTORY"
+      titleEn="Business inventory"
+      titleFr="Inventaire d'entreprise"
+      bodyEn="Multi-business inventory with products, locations and a permanent stock history is coming soon to ASH."
+      bodyFr="L'inventaire multi-entreprises avec produits, emplacements et historique permanent des stocks arrive bientôt sur ASH."
+      features={[
+        { icon: Package, en: "Products and locations", fr: "Produits et emplacements" },
+        { icon: TrendingUp, en: "Permanent stock movements", fr: "Mouvements de stocks permanents" },
+      ]}
+    />
+  );
+}
 
 const NO_DATA = "Insufficient data for this visualization.";
 const sel = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm";

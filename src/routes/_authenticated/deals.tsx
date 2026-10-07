@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { claimDeal } from "@/lib/commerce.functions";
 import { discountPercent, useDeals, useMyClaims, useMyDeals } from "@/lib/ash.queries";
 import { PromoteDialog } from "@/components/refer/PromoteDialog";
+import { ComingSoon } from "@/components/refer/ComingSoon";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState, LoadingState } from "@/components/refer/states";
@@ -17,16 +18,35 @@ import { useTrackView } from "@/lib/activity";
 export const Route = createFileRoute("/_authenticated/deals")({
   head: () => ({
     meta: [
-      { title: "ASH Deals — offers and discounts near you" },
-      { name: "description", content: "Claim limited-time offers from businesses and service providers around you, then redeem in person with your ASH code." },
-      { property: "og:title", content: "ASH Deals — offers and discounts near you" },
-      { property: "og:description", content: "Limited-time offers from businesses near you, claimable in one tap." },
+      { title: "ASH Deals — Coming soon" },
+      { name: "description", content: "Deals are coming soon to ASH Glo. Offers are not claimable yet." },
+      { property: "og:title", content: "ASH Deals — Coming soon" },
+      { property: "og:description", content: "Limited-time offers from businesses near you are on the way." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: DealsPage,
+  component: DealsSoon,
 });
+
+// Deals are blocked behind a coming soon screen. Point this route back at
+// DealsPage to re-enable the feature.
+function DealsSoon() {
+  return (
+    <ComingSoon
+      icon={Flame}
+      eyebrow="ASH DEALS"
+      titleEn="Deals"
+      titleFr="Offres"
+      bodyEn="Limited-time offers from businesses and service providers near you are on the way to ASH."
+      bodyFr="Les offres à durée limitée des commerces et prestataires près de vous arrivent bientôt sur ASH."
+      features={[
+        { icon: Ticket, en: "Claim offers in one tap", fr: "Réclamez une offre en un geste" },
+        { icon: Flame, en: "Redeem with your ASH code", fr: "Utilisez votre code ASH en magasin" },
+      ]}
+    />
+  );
+}
 
 function DealsPage() {
   const { lang } = useI18n();
