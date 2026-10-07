@@ -35,6 +35,7 @@ export function ComingSoon({
 }) {
   const { lang } = useI18n();
   const fr = lang === "fr";
+  const Icon = icon;
 
   return (
     <div className="mx-auto w-full max-w-4xl pb-10">
@@ -51,7 +52,7 @@ export function ComingSoon({
           <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-primary/10 blur-3xl" />
           <div className="relative mx-auto max-w-2xl">
             <div className="mx-auto grid size-20 place-items-center rounded-[26px] bg-primary/10 ring-1 ring-primary/20 shadow-sm">
-              <icon.type className="size-10 text-primary" aria-hidden />
+              <Icon className="size-10 text-primary" aria-hidden />
             </div>
             <p className="mt-6 text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">{eyebrow}</p>
             <h1 className="mt-2 font-display text-3xl font-black tracking-tight text-foreground sm:text-4xl">

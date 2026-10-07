@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, CalendarDays, MapPin, Minus, Plus } from "lucide-react";
+import { ArrowLeft, CalendarDays, MapPin, Minus, Plus, Ticket } from "lucide-react";
 import { toast } from "sonner";
 import { startTicketPurchase, verifyCommerceCharge } from "@/lib/commerce.functions";
 import { useEvent } from "@/lib/ash.queries";
