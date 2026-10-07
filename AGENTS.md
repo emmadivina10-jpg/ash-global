@@ -13,11 +13,10 @@
 - Staff authentication audit data must use a server-side super-admin guard and safe column projections; historical credential test results must never contain passwords or hashes.
 - Staff identity (employee name, position, employee ID, extra departments) lives on staff_accounts; seats without an employee name are shared team logins. Why: one source of truth for console headers and per-person performance.
 - Staff performance figures are computed only from existing records in staff-performance.functions.ts; workspace and department dashboards reuse getMyCommandCenter and PerformanceChart, showing an insufficient-data state otherwise. Why: one authorized source and no fabricated KPIs.
-- Employee terms, notifications, tickets, DMs and ASH Intelligence use staff-ops.functions.ts and components/console; staff-only tables are service-role + deny-all. Why: one staff-ops module.
-- Workspace uses workspace.functions.ts, department_tasks and /console/workspace; staff-only tables are service-role + deny-all. Why: reuse tasks/tickets.
+- Employee terms, notifications, tickets, DMs and ASH Intelligence use staff-ops.functions.ts; workspace uses workspace.functions.ts + department_tasks; staff-only tables are service-role + deny-all. Why: one module each, reuse tasks.
 - Case management and department workflows live in src/lib/cases.functions.ts and /console/cases (ops_cases, ops_case_events timeline/audit, ops_workflows, ops_workflow_runs); service-role + deny-all. Case visibility = involved department/employee/creator or CEO; safety reports linkable only by Trust/CEO; workflows configured by CEO only. Why: cross-department work without bypassing RBAC.
 - Inventory uses provider_profiles.id as business_id, inventory_can()/inventory_role_of() RLS and inventory_members; stock changes only through inventory_record_movement's append-only ledger. UI /inventory and inventory.queries.ts. Why: tenant isolation and one stock source.
-- Staff Team chat uses a presentational StaffChatWorkspace with existing ops.functions channel transport; scoped team color tokens do not change the global theme. Why: restyle internal chat without duplicating messaging or modifying access rules.
+- Staff Team chat: presentational StaffChatWorkspace over ops.functions transport; scoped tokens only. Why: no duplicate messaging.
 - Team chat resolves sender names, positions and private signed photos from staff_accounts by author_staff_id; ownership uses staff IDs and profile saves invalidate chat queries. Why: show current employee profiles without exposing private storage paths or matching people by names.
 
 - Employee console uses scoped `.console-premium` branding on `<html>` only while console routes are mounted via useConsoleTheme(); dark surface overrides require `.console-premium.dark`, while light mode inherits the light tokens. Why: preserve the light/dark switch and ASH branding without changing the member app theme.
@@ -30,7 +29,8 @@
 - AppShell omits tab-owned headers; MobileNav owns hold/slide. Why: one navigation path.
 - Market defaults via versioned services-mode at the existing Services URL; Extras is its child route. MarketBrowser reuses discovery/deals/property reads. Why: preserve commerce and URLs.
 
-
 - Avatar updates reuse safety-filtered StoriesRail; ChatActionDialog owns panels; MemberNavIcon uses token-based SVG strokes. Why: shared safe viewing and branding.
 - Identity enforcement uses identity_restrictions, reviewed photo hashes, non-throwing denial triggers and identityMiddleware. Why: durable strikes and server-enforced bans.
 - Verified-badge console functions use requireDepartment("TRUST") before privileged access. Why: authorize the staff session, not a second member-admin login.
+
+- Provider balance and reconciliation live in finance-reconciliation.server.ts (snapshots, runs, discrepancies; service-role + deny-all); reconciliation logs discrepancies and never changes balances. Why: TchokoPay is the source of truth for real funds.
