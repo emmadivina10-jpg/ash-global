@@ -49,50 +49,52 @@ export const Route = createFileRoute("/_authenticated/menu")({
   component: MenuPage,
 });
 
-const sections = [
+type MenuItem = { en: string; fr: string; to: string; icon: typeof Shield; referral?: boolean; soon?: boolean };
+
+const sections: { en: string; fr: string; items: MenuItem[] }[] = [
   {
     en: "Social",
     fr: "Social",
     items: [
-      ["Search ASH", "Rechercher sur ASH", "/search", Search],
-      ["Friends", "Amis", "/friends", Users],
-      ["Groups", "Groupes", "/groups", MessageCircle],
-      ["Notifications", "Notifications", "/notifications", Bell],
-      ["Articles", "Articles", "/articles", BookOpen],
-      ["Mentors", "Mentors", "/mentors", GraduationCap],
-      ["ASH Campus", "ASH Campus", "/campus", GraduationCap],
-      ["Incubator", "Incubateur", "/incubator", Sparkles],
+      { en: "Search ASH", fr: "Rechercher sur ASH", to: "/search", icon: Search },
+      { en: "Friends", fr: "Amis", to: "/friends", icon: Users },
+      { en: "Groups", fr: "Groupes", to: "/groups", icon: MessageCircle },
+      { en: "Notifications", fr: "Notifications", to: "/notifications", icon: Bell },
+      { en: "Articles", fr: "Articles", to: "/articles", icon: BookOpen },
+      { en: "Mentors", fr: "Mentors", to: "/mentors", icon: GraduationCap },
+      { en: "ASH Campus", fr: "ASH Campus", to: "/campus", icon: GraduationCap },
+      { en: "Incubator", fr: "Incubateur", to: "/incubator", icon: Sparkles },
     ],
   },
   {
     en: "Your activity",
     fr: "Votre activité",
     items: [
-      ["Services", "Services", "/services", Store],
-      ["Property", "Immobilier", "/property", Building2],
-      ["Deals", "Offres", "/deals", Flame],
-      ["Events", "Événements", "/events", CalendarDays],
-      ["Freelance", "Freelance", "/freelance", Briefcase],
-      ["Jobs", "Emplois", "/jobs", BriefcaseBusiness],
-      ["Create", "Créer", "/create", PlusCircle],
-      ["Bookings", "Réservations", "/bookings", CalendarDays],
-      ["Inventory", "Inventaire", "/inventory", BarChart3],
+      { en: "Services", fr: "Services", to: "/services", icon: Store },
+      { en: "Property", fr: "Immobilier", to: "/property", icon: Building2 },
+      { en: "Deals", fr: "Offres", to: "/deals", icon: Flame, soon: true },
+      { en: "Events", fr: "Événements", to: "/events", icon: CalendarDays, soon: true },
+      { en: "Freelance", fr: "Freelance", to: "/freelance", icon: Briefcase, soon: true },
+      { en: "Jobs", fr: "Emplois", to: "/jobs", icon: BriefcaseBusiness, soon: true },
+      { en: "Create", fr: "Créer", to: "/create", icon: PlusCircle },
+      { en: "Bookings", fr: "Réservations", to: "/bookings", icon: CalendarDays },
+      { en: "Inventory", fr: "Inventaire", to: "/inventory", icon: BarChart3, soon: true },
     ],
   },
   {
     en: "Earn and manage",
     fr: "Gagner et gérer",
     items: [
-      ["Wallet", "Portefeuille", "/wallet", Wallet],
-      ["Referral dashboard", "Tableau de parrainage", "/dashboard", TrendingUp, true],
-      ["My network", "Mon réseau", "/network", Users, true],
-      ["Transactions", "Transactions", "/transactions", Receipt],
-      ["Withdraw", "Retirer", "/withdraw", ArrowDownToLine, true],
-      ["Analytics", "Analyses", "/analytics", BarChart3],
-      ["Professional studio", "Studio professionnel", "/studio", Sparkles],
+      { en: "Wallet", fr: "Portefeuille", to: "/wallet", icon: Wallet },
+      { en: "Referral dashboard", fr: "Tableau de parrainage", to: "/dashboard", icon: TrendingUp, referral: true },
+      { en: "My network", fr: "Mon réseau", to: "/network", icon: Users, referral: true },
+      { en: "Transactions", fr: "Transactions", to: "/transactions", icon: Receipt },
+      { en: "Withdraw", fr: "Retirer", to: "/withdraw", icon: ArrowDownToLine, referral: true },
+      { en: "Analytics", fr: "Analyses", to: "/analytics", icon: BarChart3 },
+      { en: "Professional studio", fr: "Studio professionnel", to: "/studio", icon: Sparkles },
     ],
   },
-] as const;
+];
 
 function MenuPage() {
   const { lang } = useI18n();
@@ -136,13 +138,22 @@ function MenuPage() {
           <h2 className="mb-2 text-base font-bold text-foreground">{fr ? section.fr : section.en}</h2>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {section.items
-              .filter((item) => !item[4] || region.referralEnabled)
-              .map(([en, french, to, Icon]) => (
-                <Link key={to} to={to} className="flex min-h-16 items-center gap-3 rounded-lg border border-border bg-card px-3 py-2.5 text-sm font-semibold text-foreground shadow-sm transition-colors hover:bg-muted/50">
+              .filter((item) => !item.referral || region.referralEnabled)
+              .map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className="flex min-h-16 items-center gap-3 rounded-lg border border-border bg-card px-3 py-2.5 text-sm font-semibold text-foreground shadow-sm transition-colors hover:bg-muted/50"
+                >
                   <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
-                    <Icon className="size-5" aria-hidden />
+                    <item.icon className="size-5" aria-hidden />
                   </span>
-                  <span className="min-w-0 break-words">{fr ? french : en}</span>
+                  <span className="min-w-0 flex-1 break-words">{fr ? item.fr : item.en}</span>
+                  {item.soon ? (
+                    <span className="shrink-0 rounded-full border border-amber-500/25 bg-amber-500/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-amber-600 dark:text-amber-400">
+                      {fr ? "Bientôt" : "Soon"}
+                    </span>
+                  ) : null}
                 </Link>
               ))}
           </div>
