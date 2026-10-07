@@ -5,7 +5,7 @@ import { photoHashes } from "../src/lib/identity-photo.server";
 const png = (width: number, height: number, data: number[], extra?: Uint8Array) => {
   const file = encode({ width, height, channels: 4, depth: 8, data: new Uint8Array(data) });
   if (!extra) return file;
-  // Same pixels, different file bytes: append an ancillary-free trailing byte copy before IEND is not valid, so re-encode with text.
+  // Same pixels, different file bytes (extra text chunk).
   return encode({ width, height, channels: 4, depth: 8, data: new Uint8Array(data), text: { note: "copy" } });
 };
 
