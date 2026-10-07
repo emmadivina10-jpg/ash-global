@@ -4749,6 +4749,39 @@ export type Database = {
           },
         ]
       }
+      provider_balance_snapshots: {
+        Row: {
+          available_balance: number | null
+          currency: string
+          error: string | null
+          id: string
+          ok: boolean
+          provider: string
+          raw: Json
+          verified_at: string
+        }
+        Insert: {
+          available_balance?: number | null
+          currency?: string
+          error?: string | null
+          id?: string
+          ok: boolean
+          provider?: string
+          raw?: Json
+          verified_at?: string
+        }
+        Update: {
+          available_balance?: number | null
+          currency?: string
+          error?: string | null
+          id?: string
+          ok?: boolean
+          provider?: string
+          raw?: Json
+          verified_at?: string
+        }
+        Relationships: []
+      }
       provider_profiles: {
         Row: {
           accepting_bookings: boolean
@@ -5068,6 +5101,89 @@ export type Database = {
           use_activity_history?: boolean
           use_location?: boolean
           user_id?: string
+        }
+        Relationships: []
+      }
+      reconciliation_discrepancies: {
+        Row: {
+          actual: number | null
+          created_at: string
+          detail: Json
+          expected: number | null
+          id: string
+          kind: string
+          reference: string | null
+          run_id: string
+          user_id: string | null
+        }
+        Insert: {
+          actual?: number | null
+          created_at?: string
+          detail?: Json
+          expected?: number | null
+          id?: string
+          kind: string
+          reference?: string | null
+          run_id: string
+          user_id?: string | null
+        }
+        Update: {
+          actual?: number | null
+          created_at?: string
+          detail?: Json
+          expected?: number | null
+          id?: string
+          kind?: string
+          reference?: string | null
+          run_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reconciliation_discrepancies_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "reconciliation_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reconciliation_runs: {
+        Row: {
+          discrepancy_count: number
+          finished_at: string | null
+          id: string
+          provider_balance: number | null
+          started_at: string
+          status: string
+          summary: Json
+          trigger: string
+          triggered_by: string | null
+          wallet_liabilities: number | null
+        }
+        Insert: {
+          discrepancy_count?: number
+          finished_at?: string | null
+          id?: string
+          provider_balance?: number | null
+          started_at?: string
+          status?: string
+          summary?: Json
+          trigger: string
+          triggered_by?: string | null
+          wallet_liabilities?: number | null
+        }
+        Update: {
+          discrepancy_count?: number
+          finished_at?: string | null
+          id?: string
+          provider_balance?: number | null
+          started_at?: string
+          status?: string
+          summary?: Json
+          trigger?: string
+          triggered_by?: string | null
+          wallet_liabilities?: number | null
         }
         Relationships: []
       }
