@@ -319,6 +319,29 @@ export const tchokoPay = {
     return config().apiKey.length > 0;
   },
 
+  /** Reads the live merchant balance. Returns ok:false (never a guess) if TchokoPay can't provide it. */
+  async getBalance(): Promise<{ ok: boolean; available: number | null; currency: string; error?: string; raw: Record<string, unknown> }> {
+    if (!this.isConfigured()) return { ok: false, available: null, currency: "XAF", error: "NOT_CONFIGURED", raw: {} };
+    let lastError = "BALANCE_UNAVAILABLE";
+    for (const path of ["/account/balance", "/balance", "/account"]) {
+      try {
+        const res = await request(path, { method: "GET" });
+        if (!res.ok) { lastError = res.error.code ?? `HTTP_${res.status}`; continue; }
+        const d = res.data;
+        const nested = (d["balance"] && typeof d["balance"] === "object" ? d["balance"] : d["data"] && typeof d["data"] === "object" ? d["data"] : d) as Record<string, unknown>;
+        const pick = nested["available"] ?? nested["availableBalance"] ?? nested["available_balance"] ?? (typeof d["balance"] !== "object" ? d["balance"] : undefined) ?? nested["amount"];
+        const value = typeof pick === "number" ? pick : typeof pick === "string" && pick.trim() !== "" ? Number(pick) : NaN;
+        if (Number.isFinite(value)) {
+          return { ok: true, available: value, currency: String(nested["currency"] ?? d["currency"] ?? "XAF"), raw: { path } };
+        }
+        lastError = "BALANCE_FIELD_MISSING";
+      } catch {
+        lastError = "NETWORK_ERROR";
+      }
+    }
+    return { ok: false, available: null, currency: "XAF", error: lastError, raw: {} };
+  },
+
   webhookSecretConfigured(): boolean {
     return config().webhookSecret.length > 0;
   },
