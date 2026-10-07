@@ -136,6 +136,14 @@ async function reconcile(limit: number) {
     detail: { checked: pending.length, settled, payoutsChecked: (payouts ?? []).length, payoutsSettled },
   });
 
+  // Finance reconciliation (logs discrepancies only; never changes balances). At most once per 30 min.
+  const { data: recent } = await supabaseAdmin
+    .from("reconciliation_runs").select("id").gte("started_at", new Date(Date.now() - 30 * 60_000).toISOString()).limit(1);
+  if (!recent?.length) {
+    const { runFinanceReconciliation } = await import("@/lib/finance-reconciliation.server");
+    await runFinanceReconciliation("SCHEDULED", null).catch(() => null);
+  }
+
   return { ok: true as const, checked: pending.length, settled, payoutsSettled, results };
 }
 

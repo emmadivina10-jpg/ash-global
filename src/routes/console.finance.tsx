@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { ProviderTruthPanel } from "@/components/console/ProviderTruthPanel";
 
 export const Route = createFileRoute("/console/finance")({
   ssr: false,
@@ -62,6 +63,8 @@ function ConsoleFinance() {
           Every figure comes from an existing payment, wallet or payout record. Nothing here is estimated.
         </p>
       </div>
+
+      <ProviderTruthPanel />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
