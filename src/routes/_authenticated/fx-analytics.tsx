@@ -45,7 +45,7 @@ import {
   type MarketCategory,
 } from "@/lib/markets";
 import { cn } from "@/lib/utils";
-import { ComingSoon } from "@/components/refer/ComingSoon";
+import { ComingSoon as ComingSoonScreen } from "@/components/refer/ComingSoon";
 
 export const Route = createFileRoute("/_authenticated/fx-analytics")({
   head: () => ({
@@ -65,7 +65,7 @@ export const Route = createFileRoute("/_authenticated/fx-analytics")({
 // at MarketsPage to re-enable the feature.
 function FxAnalyticsSoon() {
   return (
-    <ComingSoon
+    <ComingSoonScreen
       icon={TrendingUp}
       eyebrow="ASH FX ANALYTICS"
       titleEn="FX Analytics"
