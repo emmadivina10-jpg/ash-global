@@ -57,7 +57,8 @@ export const Route = createFileRoute("/_authenticated/feed")({
 function FeedPage() {
   const { lang } = useI18n();
   const fr = lang === "fr";
-  const { data: posts, isLoading, refetch } = useSocialFeed();
+// Larger pool so the Mine/Friends tabs don't lose posts to the feed slice.
+  const { data: posts, isLoading, refetch } = useSocialFeed(120);
   const { data: friendships } = useFriendships();
   const { data: profile } = useProfile();
   const { data: discovery } = useFeedDiscovery();
