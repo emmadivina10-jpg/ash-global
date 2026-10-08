@@ -8,6 +8,13 @@
       "when": 1791403030486,
       "tag": "0000_finance_reconciliation",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791422712376,
+      "tag": "0001_central_payment_ledger_bank_stripe",
+      "breakpoints": true
     }
   ]
 }

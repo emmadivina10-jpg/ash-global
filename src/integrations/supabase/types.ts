@@ -259,6 +259,66 @@ export type Database = {
         }
         Relationships: []
       }
+      bank_accounts_config: {
+        Row: {
+          account_name: string
+          account_number: string
+          bank_name: string
+          branch: string | null
+          country: string | null
+          created_at: string
+          currency: string
+          iban: string | null
+          id: string
+          instructions: string | null
+          is_active: boolean
+          is_verified: boolean
+          swift: string | null
+          updated_at: string
+          updated_by: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          account_name: string
+          account_number: string
+          bank_name: string
+          branch?: string | null
+          country?: string | null
+          created_at?: string
+          currency?: string
+          iban?: string | null
+          id?: string
+          instructions?: string | null
+          is_active?: boolean
+          is_verified?: boolean
+          swift?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          account_name?: string
+          account_number?: string
+          bank_name?: string
+          branch?: string | null
+          country?: string | null
+          created_at?: string
+          currency?: string
+          iban?: string | null
+          id?: string
+          instructions?: string | null
+          is_active?: boolean
+          is_verified?: boolean
+          swift?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           accepted_at: string | null
@@ -3954,6 +4014,72 @@ export type Database = {
           },
         ]
       }
+      payment_transactions: {
+        Row: {
+          amount: number | null
+          bank_reference: string | null
+          completed_at: string | null
+          confirmed_by: string | null
+          created_at: string
+          currency: string
+          detail: Json
+          id: string
+          method: string
+          payer_name: string | null
+          provider: string
+          provider_reference: string | null
+          purpose: string
+          purpose_ref: string | null
+          reconciliation_status: string
+          reference: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          bank_reference?: string | null
+          completed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          currency?: string
+          detail?: Json
+          id?: string
+          method: string
+          payer_name?: string | null
+          provider: string
+          provider_reference?: string | null
+          purpose: string
+          purpose_ref?: string | null
+          reconciliation_status?: string
+          reference: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          bank_reference?: string | null
+          completed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          currency?: string
+          detail?: Json
+          id?: string
+          method?: string
+          payer_name?: string | null
+          provider?: string
+          provider_reference?: string | null
+          purpose?: string
+          purpose_ref?: string | null
+          reconciliation_status?: string
+          reference?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       platform_payouts: {
         Row: {
           amount: number
@@ -6598,6 +6724,10 @@ export type Database = {
       complete_verification: {
         Args: { _payment_reference: string; _provider_transaction_id?: string }
         Returns: Json
+      }
+      complete_wallet_topup: {
+        Args: { _payment_reference: string; _provider_transaction_id: string }
+        Returns: undefined
       }
       console_counts: { Args: never; Returns: Json }
       console_financials: { Args: never; Returns: Json }
