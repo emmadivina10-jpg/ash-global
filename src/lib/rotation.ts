@@ -18,6 +18,8 @@ export type RotationSettings = {
   exploration: number;
   /** Max consecutive items from the same creator/provider. */
   maxRun: number;
+  /** Skip the recent-exposure cooldown (keeps refetch order stable). */
+  skipCooldown?: boolean;
 };
 
 export const ROTATION_DEFAULTS: RotationSettings = {
@@ -136,7 +138,7 @@ export function rotate<T>(
     const explore = i.explorable ? settings.exploration * seededUnit(seed + "x", i.id) : 0;
     const score =
       (1 - s) * i.relevance + s * jitter + explore -
-      0.6 * cooldownPenalty(exposure, type, i.id, settings.cooldownHours);
+      (settings.skipCooldown ? 0 : 0.6 * cooldownPenalty(exposure, type, i.id, settings.cooldownHours));
     return { ...i, score };
   });
   scored.sort((a, b) => b.score - a.score);
