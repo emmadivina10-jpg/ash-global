@@ -73,7 +73,7 @@ async function startCard(input: {
   description: string;
   origin: string;
   returnPath: string;
-  email?: string;
+  email?: string | undefined;
 }): Promise<{ ok: boolean; url: string | null; id: string | null; error: string | null }> {
   const { stripePay } = await import("./stripe.server");
   const sep = input.returnPath.includes("?") ? "&" : "?";
@@ -96,7 +96,7 @@ export const getBankDetails = createServerFn({ method: "GET" }).handler(async ()
 
 export const startWalletTopup = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { method: PayMethod; amount: number; provider?: string; phone?: string; country?: string; origin?: string }) => ({
+  .inputValidator((i: { method: PayMethod; amount: number; provider?: string | undefined; phone?: string | undefined; country?: string; origin?: string }) => ({
     method: (["MOMO", "CARD", "BANK"].includes(i?.method) ? i.method : "MOMO") as PayMethod,
     amount: Math.floor(Number(i?.amount ?? 0)),
     provider: String(i?.provider ?? "").trim().slice(0, 40),
