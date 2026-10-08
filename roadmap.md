@@ -170,3 +170,4 @@ Market checks: signed-in Services/Market switching and reload persistence, tutor
 - [x] Verify themes, layouts, interactions and regressions without publishing
 
 Messages/Market checks: signed-in Market default and reload persistence, Extras grid and Learn navigation, phone/desktop and both themes, no overflow/runtime errors, and 45 regression tests pass. Chat options, 12px backdrop blur, avatar choices, Story/Spotlight viewers checked with isolated browser sample content because the tested account has no conversations; no records changed, no messages sent, nothing published.
+- [ ] Stripe webhook: user adds URL in Stripe, then saves signing secret (blocked on user)
