@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { CalendarDays, Clock, CreditCard, Landmark, MapPin, MessageCircle, RefreshCw, Smartphone, User } from "lucide-react";
@@ -446,6 +446,11 @@ function BookingsPage() {
                       ) : null}
                     </div>
                     {["CONFIRMED", "IN_PROGRESS"].includes(b.status) ? <CustomerVerificationCode bookingId={b.id} /> : null}
+                    {b["paid_at"] ? (
+                      <Link to="/booking/$bookingId/receipt" params={{ bookingId: b.id }} className="text-xs font-semibold text-primary underline">
+                        {fr ? "Voir le reçu" : "View receipt"}
+                      </Link>
+                    ) : null}
                   </li>
                 );
               })}
@@ -626,6 +631,11 @@ function ProviderBookingItem({
         </div>
       )}
       {["CONFIRMED", "IN_PROGRESS"].includes(b.status) ? <VerifyServiceForm bookingId={b.id} /> : null}
+      {b.paid_at ? (
+        <Link to="/booking/$bookingId/receipt" params={{ bookingId: b.id }} className="text-xs font-semibold text-primary underline">
+          {fr ? "Voir le reçu" : "View receipt"}
+        </Link>
+      ) : null}
     </li>
   );
 }

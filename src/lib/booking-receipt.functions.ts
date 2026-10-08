@@ -25,7 +25,7 @@ export type BookingReceipt = {
   entitlementStatus: string | null;
   verificationStatus: string | null;
   customer: { name: string | null; email: string | null; phone: string | null; avatar: string | null };
-  provider: { userId: string | null; name: string | null; phone: string | null; avatar: string | null; verified: boolean };
+  provider: { profileId: string; userId: string | null; name: string | null; phone: string | null; avatar: string | null; verified: boolean };
   /** Only ever filled for the paying customer. */
   verificationCode: string | null;
   codeExpiresAt: string | null;
@@ -97,6 +97,7 @@ async function buildReceipt(bookingId: string, viewer: BookingReceipt["viewer"],
       avatar: publicUrl(cust?.avatar_url),
     },
     provider: {
+      profileId: b.provider_id,
       userId: prov?.user_id ?? null,
       name: prov?.business_name ?? null,
       phone: showProviderContact || role !== "CUSTOMER" ? prov?.phone ?? null : null,

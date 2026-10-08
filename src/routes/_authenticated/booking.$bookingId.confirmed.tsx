@@ -77,9 +77,9 @@ function ConfirmedPage() {
   ] as const;
 
   async function chat() {
-    if (!data?.provider.userId) return;
-    const id = await openConversation(data.provider.userId);
-    if (id) void navigate({ to: "/messages/$conversationId", params: { conversationId: id } });
+    if (!data) return;
+    const id = await openConversation(data.provider.profileId, data.bookingId);
+    if (id) void navigate({ to: "/messages", search: { c: id } });
   }
 
   return (
