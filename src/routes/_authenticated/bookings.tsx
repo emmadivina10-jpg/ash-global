@@ -446,7 +446,7 @@ function BookingsPage() {
                       ) : null}
                     </div>
                     {["CONFIRMED", "IN_PROGRESS"].includes(b.status) ? <CustomerVerificationCode bookingId={b.id} /> : null}
-                    {b["paid_at"] ? (
+                    {b.invoice_number ? (
                       <Link to="/booking/$bookingId/receipt" params={{ bookingId: b.id }} className="text-xs font-semibold text-primary underline">
                         {fr ? "Voir le reçu" : "View receipt"}
                       </Link>
