@@ -319,6 +319,38 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_live_locations: {
+        Row: {
+          accuracy_m: number | null
+          booking_id: string
+          lat: number
+          lng: number
+          updated_at: string
+        }
+        Insert: {
+          accuracy_m?: number | null
+          booking_id: string
+          lat: number
+          lng: number
+          updated_at?: string
+        }
+        Update: {
+          accuracy_m?: number | null
+          booking_id?: string
+          lat?: number
+          lng?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_live_locations_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       booking_verification_codes: {
         Row: {
           booking_id: string
@@ -361,6 +393,7 @@ export type Database = {
         Row: {
           accepted_at: string | null
           address: string | null
+          arrived_at: string | null
           client_id: string
           commission_rate: number | null
           completed_at: string | null
@@ -388,6 +421,8 @@ export type Database = {
           service_id: string | null
           service_title: string
           status: Database["public"]["Enums"]["booking_status"]
+          trip_started_at: string | null
+          trip_status: string
           updated_at: string
           verification_status: string
           verified_at: string | null
@@ -395,6 +430,7 @@ export type Database = {
         Insert: {
           accepted_at?: string | null
           address?: string | null
+          arrived_at?: string | null
           client_id: string
           commission_rate?: number | null
           completed_at?: string | null
@@ -422,6 +458,8 @@ export type Database = {
           service_id?: string | null
           service_title: string
           status?: Database["public"]["Enums"]["booking_status"]
+          trip_started_at?: string | null
+          trip_status?: string
           updated_at?: string
           verification_status?: string
           verified_at?: string | null
@@ -429,6 +467,7 @@ export type Database = {
         Update: {
           accepted_at?: string | null
           address?: string | null
+          arrived_at?: string | null
           client_id?: string
           commission_rate?: number | null
           completed_at?: string | null
@@ -456,6 +495,8 @@ export type Database = {
           service_id?: string | null
           service_title?: string
           status?: Database["public"]["Enums"]["booking_status"]
+          trip_started_at?: string | null
+          trip_status?: string
           updated_at?: string
           verification_status?: string
           verified_at?: string | null
@@ -7253,6 +7294,15 @@ export type Database = {
         }
         Returns: Json
       }
+      share_booking_location: {
+        Args: {
+          _accuracy: number
+          _booking_id: string
+          _lat: number
+          _lng: number
+        }
+        Returns: Json
+      }
       slugify: { Args: { _value: string }; Returns: string }
       social_feed: {
         Args: { _limit?: number; _offset?: number }
@@ -7288,6 +7338,10 @@ export type Database = {
       }
       touch_member_presence: { Args: never; Returns: undefined }
       ugc_text_is_suspicious: { Args: { _text: string }; Returns: boolean }
+      update_trip_status: {
+        Args: { _booking_id: string; _status: string }
+        Returns: Json
+      }
       verify_booking_code: {
         Args: { _booking_id: string; _code: string }
         Returns: Json

@@ -29,6 +29,13 @@
       "when": 1791434166297,
       "tag": "0003_booking_payment_uses_marketplace_commission",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791434969471,
+      "tag": "0004_booking_live_tracking",
+      "breakpoints": true
     }
   ]
 }
