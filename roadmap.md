@@ -171,3 +171,13 @@ Market checks: signed-in Services/Market switching and reload persistence, tutor
 
 Messages/Market checks: signed-in Market default and reload persistence, Extras grid and Learn navigation, phone/desktop and both themes, no overflow/runtime errors, and 45 regression tests pass. Chat options, 12px backdrop blur, avatar choices, Story/Spotlight viewers checked with isolated browser sample content because the tested account has no conversations; no records changed, no messages sent, nothing published.
 - [ ] Stripe webhook: user adds URL in Stripe, then saves signing secret (blocked on user)
+
+## Provider payout brief (Oct 8)
+- [x] Verification code issued on paid booking; provider enters it; earnings released to wallet once (12% default commission, locked per booking)
+- [ ] CEO/Finance commission setting (12%/15%) screen
+- [ ] Booking-confirmed screen + full receipt with code
+- [ ] Booking tracking (on the way / arrived) with real location
+- [ ] Provider/customer KYC via an identity provider (needs provider choice)
+- [ ] Wallet redesign (available / pending / earned / spent)
+- [ ] House Rentals before Properties; globalization items
+- [ ] Direct Stripe Connect transfer at release (blocked: XAF prices vs CAD account; needs decision)
