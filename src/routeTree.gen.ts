@@ -127,6 +127,7 @@ import { Route as ApiPublicReconcileActivationsRouteImport } from './routes/api/
 import { Route as ApiPublicSecuritySelfcheckRouteImport } from './routes/api/public/security-selfcheck'
 import { Route as AuthenticatedBookingBookingIdConfirmedRouteImport } from './routes/_authenticated/booking.$bookingId.confirmed'
 import { Route as AuthenticatedBookingBookingIdReceiptRouteImport } from './routes/_authenticated/booking.$bookingId.receipt'
+import { Route as AuthenticatedBookingBookingIdTrackRouteImport } from './routes/_authenticated/booking.$bookingId.track'
 import { Route as AuthenticatedCampusInstructorsIndexRouteImport } from './routes/_authenticated/campus.instructors.index'
 import { Route as AuthenticatedCampusInstructorsInstructorIdRouteImport } from './routes/_authenticated/campus.instructors.$instructorId'
 import { Route as AuthenticatedCleanOrdersOrderIdRouteImport } from './routes/_authenticated/clean.orders.$orderId'
@@ -757,6 +758,12 @@ const AuthenticatedBookingBookingIdReceiptRoute =
     path: '/booking/$bookingId/receipt',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedBookingBookingIdTrackRoute =
+  AuthenticatedBookingBookingIdTrackRouteImport.update({
+    id: '/booking/$bookingId/track',
+    path: '/booking/$bookingId/track',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCampusInstructorsIndexRoute =
   AuthenticatedCampusInstructorsIndexRouteImport.update({
     id: '/campus/instructors/',
@@ -945,6 +952,7 @@ export interface FileRoutesByFullPath {
   '/services/': typeof AuthenticatedServicesIndexRoute
   '/booking/$bookingId/confirmed': typeof AuthenticatedBookingBookingIdConfirmedRoute
   '/booking/$bookingId/receipt': typeof AuthenticatedBookingBookingIdReceiptRoute
+  '/booking/$bookingId/track': typeof AuthenticatedBookingBookingIdTrackRoute
   '/campus/instructors/$instructorId': typeof AuthenticatedCampusInstructorsInstructorIdRoute
   '/clean/orders/$orderId': typeof AuthenticatedCleanOrdersOrderIdRoute
   '/clean/receipt/$orderId': typeof AuthenticatedCleanReceiptOrderIdRoute
@@ -1075,6 +1083,7 @@ export interface FileRoutesByTo {
   '/services': typeof AuthenticatedServicesIndexRoute
   '/booking/$bookingId/confirmed': typeof AuthenticatedBookingBookingIdConfirmedRoute
   '/booking/$bookingId/receipt': typeof AuthenticatedBookingBookingIdReceiptRoute
+  '/booking/$bookingId/track': typeof AuthenticatedBookingBookingIdTrackRoute
   '/campus/instructors/$instructorId': typeof AuthenticatedCampusInstructorsInstructorIdRoute
   '/clean/orders/$orderId': typeof AuthenticatedCleanOrdersOrderIdRoute
   '/clean/receipt/$orderId': typeof AuthenticatedCleanReceiptOrderIdRoute
@@ -1208,6 +1217,7 @@ export interface FileRoutesById {
   '/_authenticated/services/': typeof AuthenticatedServicesIndexRoute
   '/_authenticated/booking/$bookingId/confirmed': typeof AuthenticatedBookingBookingIdConfirmedRoute
   '/_authenticated/booking/$bookingId/receipt': typeof AuthenticatedBookingBookingIdReceiptRoute
+  '/_authenticated/booking/$bookingId/track': typeof AuthenticatedBookingBookingIdTrackRoute
   '/_authenticated/campus/instructors/$instructorId': typeof AuthenticatedCampusInstructorsInstructorIdRoute
   '/_authenticated/clean/orders/$orderId': typeof AuthenticatedCleanOrdersOrderIdRoute
   '/_authenticated/clean/receipt/$orderId': typeof AuthenticatedCleanReceiptOrderIdRoute
@@ -1341,6 +1351,7 @@ export interface FileRouteTypes {
     | '/services/'
     | '/booking/$bookingId/confirmed'
     | '/booking/$bookingId/receipt'
+    | '/booking/$bookingId/track'
     | '/campus/instructors/$instructorId'
     | '/clean/orders/$orderId'
     | '/clean/receipt/$orderId'
@@ -1471,6 +1482,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/booking/$bookingId/confirmed'
     | '/booking/$bookingId/receipt'
+    | '/booking/$bookingId/track'
     | '/campus/instructors/$instructorId'
     | '/clean/orders/$orderId'
     | '/clean/receipt/$orderId'
@@ -1603,6 +1615,7 @@ export interface FileRouteTypes {
     | '/_authenticated/services/'
     | '/_authenticated/booking/$bookingId/confirmed'
     | '/_authenticated/booking/$bookingId/receipt'
+    | '/_authenticated/booking/$bookingId/track'
     | '/_authenticated/campus/instructors/$instructorId'
     | '/_authenticated/clean/orders/$orderId'
     | '/_authenticated/clean/receipt/$orderId'
@@ -2481,6 +2494,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBookingBookingIdReceiptRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/booking/$bookingId/track': {
+      id: '/_authenticated/booking/$bookingId/track'
+      path: '/booking/$bookingId/track'
+      fullPath: '/booking/$bookingId/track'
+      preLoaderRoute: typeof AuthenticatedBookingBookingIdTrackRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/campus/instructors/': {
       id: '/_authenticated/campus/instructors/'
       path: '/campus/instructors'
@@ -2624,6 +2644,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedServicesIndexRoute: typeof AuthenticatedServicesIndexRoute
   AuthenticatedBookingBookingIdConfirmedRoute: typeof AuthenticatedBookingBookingIdConfirmedRoute
   AuthenticatedBookingBookingIdReceiptRoute: typeof AuthenticatedBookingBookingIdReceiptRoute
+  AuthenticatedBookingBookingIdTrackRoute: typeof AuthenticatedBookingBookingIdTrackRoute
   AuthenticatedCampusInstructorsInstructorIdRoute: typeof AuthenticatedCampusInstructorsInstructorIdRoute
   AuthenticatedCleanOrdersOrderIdRoute: typeof AuthenticatedCleanOrdersOrderIdRoute
   AuthenticatedCleanReceiptOrderIdRoute: typeof AuthenticatedCleanReceiptOrderIdRoute
@@ -2691,6 +2712,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedBookingBookingIdConfirmedRoute,
   AuthenticatedBookingBookingIdReceiptRoute:
     AuthenticatedBookingBookingIdReceiptRoute,
+  AuthenticatedBookingBookingIdTrackRoute:
+    AuthenticatedBookingBookingIdTrackRoute,
   AuthenticatedCampusInstructorsInstructorIdRoute:
     AuthenticatedCampusInstructorsInstructorIdRoute,
   AuthenticatedCleanOrdersOrderIdRoute: AuthenticatedCleanOrdersOrderIdRoute,
