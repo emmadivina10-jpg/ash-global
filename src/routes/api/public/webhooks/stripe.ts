@@ -44,7 +44,11 @@ export const Route = createFileRoute("/api/public/webhooks/stripe")({
 
         const { settleCollection } = await import("@/lib/payment-settlement.server");
 
-        if (
+        // Marketplace account only: flight references belong to the Flights
+        // Stripe account and are never settled here.
+        if (reference.startsWith("FLT-")) {
+          outcome = "REJECTED_FLIGHT_ON_MARKETPLACE";
+        } else if (
           (type === "checkout.session.completed" && obj["payment_status"] === "paid") ||
           type === "checkout.session.async_payment_succeeded"
         ) {
