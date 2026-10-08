@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { verifyStripeSignature } from "@/lib/stripe.server";
+import { verifyStripeSignature } from "../src/lib/stripe.server";
 
 const SECRET = "whsec_testdummy123";
 const PAYLOAD = '{"id":"evt_1","type":"checkout.session.completed","data":{"object":{}}}';
