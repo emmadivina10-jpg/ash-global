@@ -60,7 +60,7 @@ export const startBookingPayment = createServerFn({ method: "POST" })
             amountCents: (await import("./stripe.server")).xafToUsdCents(Number(booking.price)),
             currency: "USD",
             description: `ASH booking — ${booking.service_title}`,
-            successUrl: `${appUrl}/bookings`,
+            successUrl: `${appUrl}/booking/${booking.id}/confirmed`,
             cancelUrl: `${appUrl}/bookings`,
             metadata: { booking_id: booking.id },
           });
@@ -117,7 +117,7 @@ export const startBookingPayment = createServerFn({ method: "POST" })
         currency: "USD",
         description: `ASH booking — ${booking.service_title}`,
         ...(profile?.email ? { email: profile.email } : {}),
-        successUrl: `${appUrl}/bookings`,
+        successUrl: `${appUrl}/booking/${booking.id}/confirmed`,
         cancelUrl: `${appUrl}/bookings`,
         metadata: { booking_id: booking.id },
       });
