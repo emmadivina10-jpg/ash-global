@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { verifyMediaFiles } from "./media-safety";
 import { directory } from "@/lib/public-profiles";
 import { trackEvent } from "./activity";
-import { engagement, freshness, newSessionSeed, recordExposure, rotate } from "./rotation";
+import { engagement, freshness, newSessionSeed, recordExposure, rotate, ROTATION_DEFAULTS, stableSessionSeed } from "./rotation";
 import { getCachedCity } from "./location";
 
 export const SOCIAL_BUCKET = "spotlight";
@@ -786,9 +786,11 @@ export function useSocialFeed(limit = 40) {
             explorable: eng < 3,
           };
         }),
-        newSessionSeed(me),
+        // Stable per-session seed + no exposure cooldown: likes/comments/realtime
+        // refetches keep the feed in the same order so members don't lose their place.
+        stableSessionSeed(me),
+        { ...ROTATION_DEFAULTS, skipCooldown: true },
       ).slice(0, limit);
-      recordExposure("post", rows.slice(0, 10).map((r) => r.id));
       const paths = rows.flatMap((r) => parseImages(r.media));
       const [signed, authors, reactionResult, marketResult] = await Promise.all([
         signPaths(paths),

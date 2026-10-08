@@ -18,6 +18,8 @@ export type RotationSettings = {
   exploration: number;
   /** Max consecutive items from the same creator/provider. */
   maxRun: number;
+  /** Skip the recent-exposure cooldown (keeps refetch order stable). */
+  skipCooldown?: boolean;
 };
 
 export const ROTATION_DEFAULTS: RotationSettings = {
@@ -74,6 +76,22 @@ function cooldownPenalty(map: ExposureMap, type: string, id: string, hours: numb
   return 1 - age / hours;
 }
 
+/**
+ * Stable seed for the whole app session: the feed keeps the same order across
+ * refetches (likes, comments, realtime updates) so members don't lose their
+ * place. A new order only appears on a fresh app load.
+ */
+const sessionSeeds = new Map<string, string>();
+export function stableSessionSeed(userId: string | null) {
+  const key = userId ?? "anon";
+  let seed = sessionSeeds.get(key);
+  if (!seed) {
+    seed = newSessionSeed(userId);
+    sessionSeeds.set(key, seed);
+  }
+  return seed;
+}
+
 /** New random seed per fetch → refresh produces a new ordering. */
 export function newSessionSeed(userId: string | null) {
   const rand = typeof crypto !== "undefined" && crypto.getRandomValues
@@ -120,7 +138,7 @@ export function rotate<T>(
     const explore = i.explorable ? settings.exploration * seededUnit(seed + "x", i.id) : 0;
     const score =
       (1 - s) * i.relevance + s * jitter + explore -
-      0.6 * cooldownPenalty(exposure, type, i.id, settings.cooldownHours);
+      (settings.skipCooldown ? 0 : 0.6 * cooldownPenalty(exposure, type, i.id, settings.cooldownHours));
     return { ...i, score };
   });
   scored.sort((a, b) => b.score - a.score);
