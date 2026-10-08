@@ -445,6 +445,7 @@ function BookingsPage() {
                         </span>
                       ) : null}
                     </div>
+                    {["CONFIRMED", "IN_PROGRESS"].includes(b.status) ? <CustomerVerificationCode bookingId={b.id} /> : null}
                   </li>
                 );
               })}
@@ -613,11 +614,6 @@ function ProviderBookingItem({
               {fr ? "Démarrer" : "Start"}
             </Button>
           ) : null}
-          {b.status === "IN_PROGRESS" ? (
-            <Button size="sm" disabled={busy} onClick={() => void onProgress(b.id, "COMPLETED")}>
-              {t("book.complete")}
-            </Button>
-          ) : null}
           {["CONFIRMED", "IN_PROGRESS"].includes(b.status) ? (
             <Button size="sm" variant="ghost" disabled={busy} onClick={() => void onProgress(b.id, "NO_SHOW")}>
               {fr ? "Absence client" : "No show"}
@@ -629,7 +625,94 @@ function ProviderBookingItem({
           </Button>
         </div>
       )}
+      {["CONFIRMED", "IN_PROGRESS"].includes(b.status) ? <VerifyServiceForm bookingId={b.id} /> : null}
     </li>
+  );
+}
+
+/** Customer-only: the private code that releases the provider's earnings. */
+function CustomerVerificationCode({ bookingId }: { bookingId: string }) {
+  const { lang } = useI18n();
+  const fr = lang === "fr";
+  const [code, setCode] = useState<string | null>(null);
+  useEffect(() => {
+    let alive = true;
+    void supabase
+      .from("booking_verification_codes")
+      .select("code, used_at")
+      .eq("booking_id", bookingId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (alive) setCode(data && !data.used_at ? data.code : null);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [bookingId]);
+  if (!code) return null;
+  return (
+    <div className="mt-3 rounded-xl border border-primary/30 bg-primary/5 p-3">
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">
+        {fr ? "Code de vérification du service" : "Service verification code"}
+      </p>
+      <p className="mt-1 font-mono text-xl font-extrabold tracking-widest text-foreground">{code}</p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        {fr
+          ? "Donnez ce code au prestataire seulement une fois le service rendu. Il libère son paiement."
+          : "Give this code to the provider only after the service is done. It releases their payment."}
+      </p>
+    </div>
+  );
+}
+
+/** Provider-only: never shows the code, only lets them enter it. */
+function VerifyServiceForm({ bookingId }: { bookingId: string }) {
+  const { lang } = useI18n();
+  const fr = lang === "fr";
+  const queryClient = useQueryClient();
+  const [value, setValue] = useState("");
+  const [busy, setBusy] = useState(false);
+  async function submit() {
+    if (busy) return;
+    setBusy(true);
+    const { data, error } = await supabase.rpc("verify_booking_code", { _booking_id: bookingId, _code: value });
+    setBusy(false);
+    const r = data as { ok?: boolean; error?: string; attempts_left?: number } | null;
+    if (error || !r?.ok) {
+      const e = r?.error ?? "";
+      toast.error(
+        e === "WRONG_CODE"
+          ? fr ? `Code incorrect (${r?.attempts_left ?? 0} essais restants)` : `Wrong code (${r?.attempts_left ?? 0} tries left)`
+          : e === "LOCKED"
+            ? fr ? "Trop d'essais. Contactez le support ASH." : "Too many tries. Contact ASH support."
+            : e === "EXPIRED"
+              ? fr ? "Code expiré. Contactez le support ASH." : "Code expired. Contact ASH support."
+              : fr ? "Vérification impossible." : "Could not verify.",
+      );
+      return;
+    }
+    toast.success(fr ? "Service vérifié — vos gains sont dans votre portefeuille." : "Service verified — your earnings are in your wallet.");
+    setValue("");
+    void queryClient.invalidateQueries();
+  }
+  return (
+    <div className="mt-3 rounded-xl border border-border bg-muted/40 p-3">
+      <p className="text-xs font-semibold text-muted-foreground">
+        {fr ? "En attente de la vérification du client" : "Waiting for customer verification"}
+      </p>
+      <div className="mt-2 flex gap-2">
+        <input
+          value={value}
+          onChange={(e) => setValue(e.target.value.toUpperCase().slice(0, 12))}
+          placeholder="ASH-XXXXXX"
+          aria-label={fr ? "Code du client" : "Customer code"}
+          className="h-9 min-w-0 flex-1 rounded-lg border border-input bg-background px-3 font-mono text-sm tracking-widest"
+        />
+        <Button size="sm" disabled={busy || value.trim().length < 6} onClick={() => void submit()}>
+          {fr ? "Vérifier le service" : "Verify service"}
+        </Button>
+      </div>
+    </div>
   );
 }
 

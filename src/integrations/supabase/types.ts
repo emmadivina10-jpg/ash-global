@@ -319,11 +319,50 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_verification_codes: {
+        Row: {
+          booking_id: string
+          client_id: string
+          code: string
+          created_at: string
+          expires_at: string
+          failed_attempts: number
+          used_at: string | null
+        }
+        Insert: {
+          booking_id: string
+          client_id: string
+          code: string
+          created_at?: string
+          expires_at: string
+          failed_attempts?: number
+          used_at?: string | null
+        }
+        Update: {
+          booking_id?: string
+          client_id?: string
+          code?: string
+          created_at?: string
+          expires_at?: string
+          failed_attempts?: number
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_verification_codes_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           accepted_at: string | null
           address: string | null
           client_id: string
+          commission_rate: number | null
           completed_at: string | null
           created_at: string
           decline_reason: string | null
@@ -338,20 +377,26 @@ export type Database = {
           payment_reference: string | null
           platform_fee: number
           price: number
+          processing_fee: number | null
           provider_amount: number | null
           provider_id: string
           provider_transaction_id: string | null
+          provider_transfer_id: string | null
+          provider_transfer_status: string
           respond_by: string | null
           scheduled_at: string
           service_id: string | null
           service_title: string
           status: Database["public"]["Enums"]["booking_status"]
           updated_at: string
+          verification_status: string
+          verified_at: string | null
         }
         Insert: {
           accepted_at?: string | null
           address?: string | null
           client_id: string
+          commission_rate?: number | null
           completed_at?: string | null
           created_at?: string
           decline_reason?: string | null
@@ -366,20 +411,26 @@ export type Database = {
           payment_reference?: string | null
           platform_fee?: number
           price?: number
+          processing_fee?: number | null
           provider_amount?: number | null
           provider_id: string
           provider_transaction_id?: string | null
+          provider_transfer_id?: string | null
+          provider_transfer_status?: string
           respond_by?: string | null
           scheduled_at: string
           service_id?: string | null
           service_title: string
           status?: Database["public"]["Enums"]["booking_status"]
           updated_at?: string
+          verification_status?: string
+          verified_at?: string | null
         }
         Update: {
           accepted_at?: string | null
           address?: string | null
           client_id?: string
+          commission_rate?: number | null
           completed_at?: string | null
           created_at?: string
           decline_reason?: string | null
@@ -394,15 +445,20 @@ export type Database = {
           payment_reference?: string | null
           platform_fee?: number
           price?: number
+          processing_fee?: number | null
           provider_amount?: number | null
           provider_id?: string
           provider_transaction_id?: string | null
+          provider_transfer_id?: string | null
+          provider_transfer_status?: string
           respond_by?: string | null
           scheduled_at?: string
           service_id?: string | null
           service_title?: string
           status?: Database["public"]["Enums"]["booking_status"]
           updated_at?: string
+          verification_status?: string
+          verified_at?: string | null
         }
         Relationships: [
           {
@@ -3376,6 +3432,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      marketplace_settings: {
+        Row: {
+          commission_rate: number
+          id: boolean
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          commission_rate?: number
+          id?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          commission_rate?: number
+          id?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
       }
       member_presence: {
         Row: {
@@ -6820,6 +6897,7 @@ export type Database = {
         Args: { _conversation_id: string; _excerpt: string; _rule: string }
         Returns: number
       }
+      generate_booking_code: { Args: never; Returns: string }
       generate_referral_code: { Args: never; Returns: string }
       get_clean_public_settings: {
         Args: never
@@ -7210,6 +7288,10 @@ export type Database = {
       }
       touch_member_presence: { Args: never; Returns: undefined }
       ugc_text_is_suspicious: { Args: { _text: string }; Returns: boolean }
+      verify_booking_code: {
+        Args: { _booking_id: string; _code: string }
+        Returns: Json
+      }
       verify_story_cleanup_secret: {
         Args: { _secret: string }
         Returns: boolean

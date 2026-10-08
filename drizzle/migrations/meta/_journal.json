@@ -15,6 +15,20 @@
       "when": 1791422712376,
       "tag": "0001_central_payment_ledger_bank_stripe",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791434105992,
+      "tag": "0002_booking_verification_code_payout",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791434166297,
+      "tag": "0003_booking_payment_uses_marketplace_commission",
+      "breakpoints": true
     }
   ]
 }
