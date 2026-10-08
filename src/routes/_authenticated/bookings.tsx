@@ -368,7 +368,12 @@ function BookingsPage() {
                             {b.address}
                           </p>
                         ) : null}
-                        {b.invoice_number ? (
+                        {["CONFIRMED", "IN_PROGRESS"].includes(b.status) && b.invoice_number ? (
+                      <Link to="/booking/$bookingId/track" params={{ bookingId: b.id }} className="mr-3 inline-flex rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">
+                        {fr ? "Suivre le prestataire" : "Track provider"}
+                      </Link>
+                    ) : null}
+                    {b.invoice_number ? (
                           <p className="mt-0.5 text-[11px] font-semibold text-primary">{b.invoice_number}</p>
                         ) : null}
                         {b.decline_reason ? (
@@ -631,6 +636,11 @@ function ProviderBookingItem({
         </div>
       )}
       {["CONFIRMED", "IN_PROGRESS"].includes(b.status) ? <VerifyServiceForm bookingId={b.id} /> : null}
+      {["CONFIRMED", "IN_PROGRESS"].includes(b.status) && b.paid_at ? (
+        <Link to="/booking/$bookingId/track" params={{ bookingId: b.id }} className="mr-3 inline-flex rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">
+          {fr ? "Trajet : démarrer / arrivé" : "Trip: start / arrived"}
+        </Link>
+      ) : null}
       {b.paid_at ? (
         <Link to="/booking/$bookingId/receipt" params={{ bookingId: b.id }} className="text-xs font-semibold text-primary underline">
           {fr ? "Voir le reçu" : "View receipt"}

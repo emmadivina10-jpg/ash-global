@@ -120,8 +120,8 @@ function ConfirmedPage() {
           <Link to="/booking/$bookingId/receipt" params={{ bookingId }}>{fr ? "Voir le reçu" : "View receipt"}</Link>
         </Button>
         <Button variant="outline" className="rounded-full" onClick={() => void chat()}>{fr ? "Écrire au prestataire" : "Chat with provider"}</Button>
-        <Button variant="outline" className="rounded-full" disabled title={fr ? "Bientôt disponible" : "Coming soon"}>
-          {fr ? "Suivre (bientôt)" : "Track (coming soon)"}
+        <Button asChild variant="outline" className="rounded-full">
+          <Link to="/booking/$bookingId/track" params={{ bookingId }}>{fr ? "Suivre le prestataire" : "Track provider"}</Link>
         </Button>
       </div>
     </div>

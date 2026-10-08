@@ -24,6 +24,9 @@ export type BookingReceipt = {
   providerEntitlement: number | null;
   entitlementStatus: string | null;
   verificationStatus: string | null;
+  tripStatus: string;
+  tripStartedAt: string | null;
+  arrivedAt: string | null;
   customer: { name: string | null; email: string | null; phone: string | null; avatar: string | null };
   provider: { profileId: string; userId: string | null; name: string | null; phone: string | null; avatar: string | null; verified: boolean };
   /** Only ever filled for the paying customer. */
@@ -89,6 +92,9 @@ async function buildReceipt(bookingId: string, viewer: BookingReceipt["viewer"],
     providerEntitlement: b.provider_amount != null ? Number(b.provider_amount) : null,
     entitlementStatus: b.provider_transfer_status ?? null,
     verificationStatus: b.verification_status ?? null,
+    tripStatus: b.trip_status ?? "NOT_STARTED",
+    tripStartedAt: b.trip_started_at ?? null,
+    arrivedAt: b.arrived_at ?? null,
     customer: {
       name: cust?.full_name ?? null,
       // Provider sees only the customer's name and photo; staff and the customer see all.
