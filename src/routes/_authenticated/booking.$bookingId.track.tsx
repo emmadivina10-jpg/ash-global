@@ -76,7 +76,7 @@ function TrackPage() {
     const { data, error: e } = await supabase.rpc("update_trip_status", { _booking_id: bookingId, _status: status });
     setBusy(false);
     const res = data as { ok?: boolean; error?: string } | null;
-    if (e || !res?.ok) return toast.error(res?.error === "BOOKING_NOT_ACTIVE" ? (fr ? "Réservation non active." : "This booking isn't active.") : fr ? "Action impossible." : "Couldn't update the trip.");
+    if (e || !res?.ok) { toast.error(res?.error === "BOOKING_NOT_ACTIVE" ? (fr ? "Réservation non active." : "This booking isn't active.") : fr ? "Action impossible." : "Couldn't update the trip."); return; }
     void qc.invalidateQueries({ queryKey: ["bookings"] });
   }
 
