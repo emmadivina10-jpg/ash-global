@@ -25,6 +25,7 @@ import { TransactionList } from "@/components/refer/TransactionList";
 import { SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
 import { StatementDialog } from "@/components/refer/StatementDialog";
+import { WalletTopupDialog } from "@/components/refer/WalletTopupDialog";
 import { formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 
@@ -49,6 +50,7 @@ function WalletPage() {
   const { data: network } = useNetwork();
   const { data: statementRows } = useTransactions(500);
   const [statementOpen, setStatementOpen] = useState(false);
+  const [topupOpen, setTopupOpen] = useState(false);
   const active = profile?.account_status === "ACTIVE";
   const { t, lang } = useI18n();
 
@@ -121,6 +123,10 @@ function WalletPage() {
         </div>
 
         <div className="flex items-center gap-2">
+          <Button size="sm" onClick={() => setTopupOpen(true)}>
+            <ArrowDownToLine className="size-4" aria-hidden />
+            {lang === "fr" ? "Ajouter" : "Add money"}
+          </Button>
           <Button
             variant={goldMode ? "default" : "outline"}
             size="sm"
@@ -137,6 +143,7 @@ function WalletPage() {
         </div>
       </header>
 
+      <WalletTopupDialog open={topupOpen} onOpenChange={setTopupOpen} fr={lang === "fr"} />
       <StatementDialog
         open={statementOpen}
         onClose={() => setStatementOpen(false)}

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CalendarDays, Clock, CreditCard, MapPin, MessageCircle, RefreshCw, Smartphone, User } from "lucide-react";
+import { CalendarDays, Clock, CreditCard, Landmark, MapPin, MessageCircle, RefreshCw, Smartphone, User } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -14,6 +14,8 @@ import {
   type ProviderBookingRow,
 } from "@/lib/marketplace.queries";
 import { startBookingPayment, syncBookingPayment } from "@/lib/booking.functions";
+import { startBookingBankPayment, type BankDetails } from "@/lib/payments-ledger.functions";
+import { BankInstructions, BANK_UNAVAILABLE_TEXT } from "@/components/refer/PaymentMethodPicker";
 import { paymentErrorMessage } from "@/lib/payment-errors";
 import { MomoCharge } from "@/components/refer/MomoCharge";
 import { bookingStatusLabel, bookingStatusTone, formatCountdown, timeLeft } from "@/lib/booking";
@@ -98,6 +100,14 @@ function BookingsPage() {
   const syncPayment = useServerFn(syncBookingPayment);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [momoBooking, setMomoBooking] = useState<{ id: string; price: number } | null>(null);
+  const startBank = useServerFn(startBookingBankPayment);
+  const [bankInfo, setBankInfo] = useState<{ bank: BankDetails | null; reference: string | null; price: number; error: string | null } | null>(null);
+  async function payBank(id: string, price: number) {
+    setBusyId(id);
+    const r = await startBank({ data: { bookingId: id } });
+    setBusyId(null);
+    setBankInfo({ bank: r.bank, reference: r.reference, price, error: r.ok ? null : r.error === "BANK_UNAVAILABLE" ? BANK_UNAVAILABLE_TEXT : (r.error ?? "PAYMENT_START_FAILED") });
+  }
   const [tab, setTab] = useState<"client" | "provider">("client");
 
   const clientBookings = (mine ?? []) as Array<Record<string, unknown> & { id: string }>;
@@ -399,6 +409,17 @@ function BookingsPage() {
                           {fr ? "Payer par carte" : "Pay by card"}
                         </Button>
                       ) : null}
+                      {payable ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={busyId === b.id || expired}
+                          onClick={() => void payBank(b.id, Number(b.price ?? 0))}
+                        >
+                          <Landmark className="size-4" aria-hidden />
+                          {fr ? "Virement bancaire" : "Bank"}
+                        </Button>
+                      ) : null}
                       {b.status === "PAYMENT_PROCESSING" ? (
                         <Button size="sm" disabled={busyId === b.id} onClick={() => void sync(b.id)}>
                           <RefreshCw className="size-4" aria-hidden />
@@ -452,6 +473,19 @@ function BookingsPage() {
           )}
         </SectionCard>
       ) : null}
+
+      <Dialog open={Boolean(bankInfo)} onOpenChange={(open) => !open && setBankInfo(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{fr ? "Virement bancaire" : "Bank transfer"}</DialogTitle>
+          </DialogHeader>
+          {bankInfo?.bank && bankInfo.reference ? (
+            <BankInstructions bank={bankInfo.bank} reference={bankInfo.reference} amountLabel={formatXAF(bankInfo.price)} fr={fr} />
+          ) : (
+            <p className="text-sm">{bankInfo?.error}</p>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={Boolean(momoBooking)} onOpenChange={(open) => !open && setMomoBooking(null)}>
         <DialogContent className="max-w-md">
