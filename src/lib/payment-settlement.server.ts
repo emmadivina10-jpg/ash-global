@@ -7,7 +7,7 @@
  */
 import type { PaymentStatus } from "./tchokopay.server";
 
-export type SettlementKind = "ACTIVATION" | "BOOKING" | "PAYMENT_LINK" | "EVENT_TICKET" | "PROMOTION" | "VERIFICATION" | "CLEAN";
+export type SettlementKind = "ACTIVATION" | "BOOKING" | "PAYMENT_LINK" | "EVENT_TICKET" | "PROMOTION" | "VERIFICATION" | "CLEAN" | "WALLET_TOPUP";
 
 export function kindOf(merchantReference: string): SettlementKind {
   if (merchantReference.startsWith("BKG-")) return "BOOKING";
@@ -16,6 +16,7 @@ export function kindOf(merchantReference: string): SettlementKind {
   if (merchantReference.startsWith("PRM-")) return "PROMOTION";
   if (merchantReference.startsWith("VER-")) return "VERIFICATION";
   if (merchantReference.startsWith("CLN-")) return "CLEAN";
+  if (merchantReference.startsWith("TOP-")) return "WALLET_TOPUP";
   return "ACTIVATION";
 }
 
@@ -108,7 +109,9 @@ export async function settleCollection(input: SettleInput): Promise<SettleOutcom
                 ? "complete_verification"
                 : kind === "CLEAN"
                   ? "complete_clean_payment"
-                  : "complete_activation";
+                  : kind === "WALLET_TOPUP"
+                    ? "complete_wallet_topup"
+                    : "complete_activation";
     const { error: rpcError } = await supabaseAdmin.rpc(rpc, {
       _payment_reference: input.merchantReference,
       _provider_transaction_id: providerRef,
@@ -157,6 +160,8 @@ export async function settleCollection(input: SettleInput): Promise<SettleOutcom
         _payment_reference: input.merchantReference,
         _status: input.status,
       });
+    } else if (kind === "WALLET_TOPUP") {
+      // Ledger row below is the only record for a top-up.
     } else if (kind === "VERIFICATION") {
       await supabaseAdmin
         .from("verifications")
@@ -170,6 +175,22 @@ export async function settleCollection(input: SettleInput): Promise<SettleOutcom
         .eq("payment_reference", input.merchantReference)
         .neq("status", "PAID");
     }
+  }
+
+  // Mirror the verified outcome onto the central ledger (never downgrades a final row).
+  const ledgerStatus =
+    input.status === "PAID" && ok ? "SUCCESS" : input.status === "FAILED" || input.status === "CANCELLED" ? input.status : null;
+  if (ledgerStatus) {
+    await supabaseAdmin
+      .from("payment_transactions")
+      .update({
+        status: ledgerStatus,
+        updated_at: new Date().toISOString(),
+        ...(ledgerStatus === "SUCCESS" ? { completed_at: new Date().toISOString(), reconciliation_status: "RECONCILED" } : {}),
+        ...(input.providerReference ? { provider_reference: input.providerReference } : {}),
+      })
+      .eq("reference", input.merchantReference)
+      .not("status", "in", "(SUCCESS,REFUNDED)");
   }
 
   await supabaseAdmin.from("payment_events").insert({

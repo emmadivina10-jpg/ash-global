@@ -5,7 +5,8 @@ import { BadgeCheck, Smartphone, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { getPaymentLink, startLinkPayment, verifyLinkPayment } from "@/lib/storefront.functions";
 import { paymentErrorMessage } from "@/lib/payment-errors";
-import { MomoCharge } from "@/components/refer/MomoCharge";
+import { PaymentMethodPicker, BankInstructions, BANK_UNAVAILABLE_TEXT } from "@/components/refer/PaymentMethodPicker";
+import { startLinkAltPayment, syncLedgerPayment, type BankDetails } from "@/lib/payments-ledger.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -58,6 +59,9 @@ function PayPage() {
   const { link } = Route.useLoaderData();
   const start = useServerFn(startLinkPayment);
   const verify = useServerFn(verifyLinkPayment);
+  const startAlt = useServerFn(startLinkAltPayment);
+  const syncLedger = useServerFn(syncLedgerPayment);
+  const [bank, setBank] = useState<BankDetails | null>(null);
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [reference, setReference] = useState<string | null>(null);
@@ -69,6 +73,7 @@ function PayPage() {
   useEffect(() => {
     const fromUrl = new URLSearchParams(window.location.search).get("ref");
     if (fromUrl) setReference(fromUrl);
+    if (new URLSearchParams(window.location.search).get("card") === "cancel") setStatus("CANCELLED");
   }, []);
 
   useEffect(() => {
@@ -77,7 +82,13 @@ function PayPage() {
     async function check() {
       const result = await verify({ data: { reference: reference! } });
       if (cancelled) return;
-      if (result.ok) setStatus(result.status);
+      if (result.ok && result.status === "PAID") { setStatus("PAID"); return; }
+      // Card and bank payments are tracked on the central ledger.
+      const ledger = await syncLedger({ data: { reference: reference! } });
+      if (cancelled) return;
+      if (ledger.status === "SUCCESS") setStatus("PAID");
+      else if (ledger.status !== "NOT_FOUND") setStatus(ledger.status);
+      else if (result.ok) setStatus(result.status);
     }
     void check();
     const id = setInterval(() => void check(), 5000);
@@ -86,6 +97,26 @@ function PayPage() {
       clearInterval(id);
     };
   }, [reference, status, verify]);
+
+  async function payAlt(method: "CARD" | "BANK") {
+    if (!name.trim()) { setError("Please enter your name."); return; }
+    setBusy(true);
+    setError(null);
+    const result = await startAlt({ data: { code: link.code, name, method, origin: window.location.origin } });
+    setBusy(false);
+    if (!result.ok) {
+      setError(
+        result.error === "BANK_UNAVAILABLE" ? BANK_UNAVAILABLE_TEXT
+        : result.error === "CARD_UNAVAILABLE" ? "Card payment is currently unavailable. Please choose another payment method."
+        : paymentErrorMessage(result.error, false, result.message),
+      );
+      return;
+    }
+    if (result.checkoutUrl) { window.location.href = result.checkoutUrl; return; }
+    setBank(result.bank);
+    setReference(result.reference);
+    setStatus(result.status);
+  }
 
   async function pay(provider: string, phone: string) {
     setBusy(true);
@@ -136,6 +167,10 @@ function PayPage() {
             <p className="mt-5 rounded-2xl bg-muted p-4 text-sm text-muted-foreground">
               This payment link is no longer active.
             </p>
+          ) : reference && bank ? (
+            <div className="mt-5">
+              <BankInstructions bank={bank} reference={reference} amountLabel={formatXAF(link.amount)} />
+            </div>
           ) : reference ? (
             <div className="mt-5 rounded-2xl border border-border bg-muted/50 p-4">
               <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
@@ -148,9 +183,9 @@ function PayPage() {
                   ? `Last status: ${status}.`
                   : "We're checking with TchokoPay every few seconds."}
               </p>
-              {status === "FAILED" || status === "CANCELLED" ? (
-                <Button variant="outline" className="mt-3 w-full" onClick={() => setReference(null)}>
-                  Try again
+              {status === "FAILED" || status === "CANCELLED" || status === "EXPIRED" ? (
+                <Button variant="outline" className="mt-3 w-full" onClick={() => { setReference(null); setStatus(null); }}>
+                  Choose another method
                 </Button>
               ) : null}
             </div>
@@ -161,16 +196,18 @@ function PayPage() {
                   {error}
                 </p>
               ) : null}
-              <MomoCharge
+              <PaymentMethodPicker
                 busy={busy}
-                submitLabel={busy ? "Sending prompt…" : `Pay ${formatXAF(link.amount)}`}
-                onCharge={pay}
+                amountLabel={`Pay ${formatXAF(link.amount)}`}
+                onMomo={pay}
+                onCard={() => payAlt("CARD")}
+                onBank={() => payAlt("BANK")}
               >
                 <div className="space-y-1.5">
                   <Label htmlFor="name">Your name</Label>
                   <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required maxLength={80} />
                 </div>
-              </MomoCharge>
+              </PaymentMethodPicker>
             </div>
           )}
 

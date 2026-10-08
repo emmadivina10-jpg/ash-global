@@ -262,3 +262,39 @@ export const stripeConnect = {
     return { ok: true, transferId: (data["id"] as string) ?? null, error: null };
   },
 };
+
+/* ------------------------------------------------------------------ */
+/* Webhook signature verification (Stripe-Signature, v1 HMAC-SHA256)   */
+/* ------------------------------------------------------------------ */
+
+export async function verifyStripeSignature(
+  payload: string,
+  header: string | null,
+  secret: string,
+  toleranceSeconds = 300,
+): Promise<boolean> {
+  if (!header || !secret) return false;
+  const parts = header.split(",").map((p) => p.trim().split("=") as [string, string]);
+  const timestamp = parts.find(([k]) => k === "t")?.[1];
+  const signatures = parts.filter(([k]) => k === "v1").map(([, v]) => v);
+  if (!timestamp || signatures.length === 0) return false;
+  const age = Math.abs(Date.now() / 1000 - Number(timestamp));
+  if (!Number.isFinite(age) || age > toleranceSeconds) return false;
+
+  const enc = new TextEncoder();
+  const cryptoKey = await crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const mac = await crypto.subtle.sign("HMAC", cryptoKey, enc.encode(`${timestamp}.${payload}`));
+  const expected = Array.from(new Uint8Array(mac)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return signatures.some((sig) => {
+    if (sig.length !== expected.length) return false;
+    let diff = 0;
+    for (let i = 0; i < sig.length; i++) diff |= sig.charCodeAt(i) ^ expected.charCodeAt(i);
+    return diff === 0;
+  });
+}
+
+/** True only for a live-mode secret key (sk_live_ / rk_live_). */
+export function stripeIsLive(): boolean {
+  const value = process.env["STRIPE_SECRET_KEY"] ?? "";
+  return value.startsWith("sk_live_") || value.startsWith("rk_live_");
+}

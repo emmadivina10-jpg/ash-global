@@ -131,6 +131,7 @@ import { Route as AuthenticatedCleanOrdersOrderIdRouteImport } from './routes/_a
 import { Route as AuthenticatedCleanReceiptOrderIdRouteImport } from './routes/_authenticated/clean.receipt.$orderId'
 import { Route as AuthenticatedMarketsInstructorsInstructorIdRouteImport } from './routes/_authenticated/markets.instructors.$instructorId'
 import { Route as AuthenticatedMarketsUpdateMarketPostIdRouteImport } from './routes/_authenticated/markets.update.$marketPostId'
+import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 import { Route as ApiPublicWebhooksTchokopayRouteImport } from './routes/api/public/webhooks/tchokopay'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -777,6 +778,11 @@ const AuthenticatedMarketsUpdateMarketPostIdRoute =
     path: '/markets/update/$marketPostId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicWebhooksStripeRoute = ApiPublicWebhooksStripeRouteImport.update({
+  id: '/api/public/webhooks/stripe',
+  path: '/api/public/webhooks/stripe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicWebhooksTchokopayRoute =
   ApiPublicWebhooksTchokopayRouteImport.update({
     id: '/api/public/webhooks/tchokopay',
@@ -921,6 +927,7 @@ export interface FileRoutesByFullPath {
   '/clean/receipt/$orderId': typeof AuthenticatedCleanReceiptOrderIdRoute
   '/markets/instructors/$instructorId': typeof AuthenticatedMarketsInstructorsInstructorIdRoute
   '/markets/update/$marketPostId': typeof AuthenticatedMarketsUpdateMarketPostIdRoute
+  '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -1047,6 +1054,7 @@ export interface FileRoutesByTo {
   '/clean/receipt/$orderId': typeof AuthenticatedCleanReceiptOrderIdRoute
   '/markets/instructors/$instructorId': typeof AuthenticatedMarketsInstructorsInstructorIdRoute
   '/markets/update/$marketPostId': typeof AuthenticatedMarketsUpdateMarketPostIdRoute
+  '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -1176,6 +1184,7 @@ export interface FileRoutesById {
   '/_authenticated/clean/receipt/$orderId': typeof AuthenticatedCleanReceiptOrderIdRoute
   '/_authenticated/markets/instructors/$instructorId': typeof AuthenticatedMarketsInstructorsInstructorIdRoute
   '/_authenticated/markets/update/$marketPostId': typeof AuthenticatedMarketsUpdateMarketPostIdRoute
+  '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -1305,6 +1314,7 @@ export interface FileRouteTypes {
     | '/clean/receipt/$orderId'
     | '/markets/instructors/$instructorId'
     | '/markets/update/$marketPostId'
+    | '/api/public/webhooks/stripe'
     | '/api/public/webhooks/tchokopay'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1431,6 +1441,7 @@ export interface FileRouteTypes {
     | '/clean/receipt/$orderId'
     | '/markets/instructors/$instructorId'
     | '/markets/update/$marketPostId'
+    | '/api/public/webhooks/stripe'
     | '/api/public/webhooks/tchokopay'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1559,6 +1570,7 @@ export interface FileRouteTypes {
     | '/_authenticated/clean/receipt/$orderId'
     | '/_authenticated/markets/instructors/$instructorId'
     | '/_authenticated/markets/update/$marketPostId'
+    | '/api/public/webhooks/stripe'
     | '/api/public/webhooks/tchokopay'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1594,6 +1606,7 @@ export interface RootRouteChildren {
   ApiPublicCleanupStoriesRoute: typeof ApiPublicCleanupStoriesRoute
   ApiPublicReconcileActivationsRoute: typeof ApiPublicReconcileActivationsRoute
   ApiPublicSecuritySelfcheckRoute: typeof ApiPublicSecuritySelfcheckRoute
+  ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
   ApiPublicWebhooksTchokopayRoute: typeof ApiPublicWebhooksTchokopayRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -2456,6 +2469,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMarketsUpdateMarketPostIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/webhooks/stripe': {
+      id: '/api/public/webhooks/stripe'
+      path: '/api/public/webhooks/stripe'
+      fullPath: '/api/public/webhooks/stripe'
+      preLoaderRoute: typeof ApiPublicWebhooksStripeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/tchokopay': {
       id: '/api/public/webhooks/tchokopay'
       path: '/api/public/webhooks/tchokopay'
@@ -2728,6 +2748,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCleanupStoriesRoute: ApiPublicCleanupStoriesRoute,
   ApiPublicReconcileActivationsRoute: ApiPublicReconcileActivationsRoute,
   ApiPublicSecuritySelfcheckRoute: ApiPublicSecuritySelfcheckRoute,
+  ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
   ApiPublicWebhooksTchokopayRoute: ApiPublicWebhooksTchokopayRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,

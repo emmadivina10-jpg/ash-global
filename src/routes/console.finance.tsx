@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { ProviderTruthPanel } from "@/components/console/ProviderTruthPanel";
+import { PaymentLedgerPanel } from "@/components/console/PaymentLedgerPanel";
 
 export const Route = createFileRoute("/console/finance")({
   ssr: false,
@@ -65,6 +66,8 @@ function ConsoleFinance() {
       </div>
 
       <ProviderTruthPanel />
+
+      <PaymentLedgerPanel />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
