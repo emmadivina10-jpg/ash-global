@@ -374,7 +374,7 @@ export const consoleSaveBankConfig = createServerFn({ method: "POST" })
   });
 
 export const consoleDecideBankPayment = createServerFn({ method: "POST" })
-  .inputValidator((i: { reference: string; decision: "CONFIRM" | "REJECT"; bankReference?: string; reason?: string }) => {
+  .inputValidator((i: { reference: string; decision: "CONFIRM" | "REJECT"; bankReference?: string | undefined; reason?: string }) => {
     const out = {
       reference: String(i?.reference ?? "").slice(0, 64),
       decision: i?.decision === "CONFIRM" ? ("CONFIRM" as const) : ("REJECT" as const),

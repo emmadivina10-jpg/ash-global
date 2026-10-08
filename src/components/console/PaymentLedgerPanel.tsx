@@ -34,7 +34,7 @@ export function PaymentLedgerPanel() {
   });
   const decide = useServerFn(consoleDecideBankPayment);
   const decision = useMutation({
-    mutationFn: (v: { reference: string; decision: "CONFIRM" | "REJECT"; bankReference?: string }) => decide({ data: v }),
+    mutationFn: (v: { reference: string; decision: "CONFIRM" | "REJECT"; bankReference?: string | undefined }) => decide({ data: v }),
     onSuccess: () => { toast.success("Saved"); void qc.invalidateQueries({ queryKey: ["console"] }); },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Failed"),
   });
@@ -96,7 +96,7 @@ export function PaymentLedgerPanel() {
       <SectionCard title="Pending bank transfers">
         {pendingBank.length === 0 ? <p className="text-sm text-muted-foreground">No bank transfers waiting.</p> : (
           <ul className="space-y-2">
-            {pendingBank.map((r) => <BankRow key={r.id} reference={r.reference} amount={Number(r.amount ?? 0)} payer={r.payer_name} purpose={r.purpose} busy={decision.isPending} onDecide={(d, ref) => decision.mutate({ reference: r.reference, decision: d, bankReference: ref })} />)}
+            {pendingBank.map((r) => <BankRow key={r.id} reference={r.reference} amount={Number(r.amount ?? 0)} payer={r.payer_name} purpose={r.purpose} busy={decision.isPending} onDecide={(d, ref) => decision.mutate({ reference: r.reference, decision: d, bankReference: ref ?? "" })} />)}
           </ul>
         )}
       </SectionCard>
