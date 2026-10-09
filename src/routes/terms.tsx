@@ -1,3 +1,67 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import {
+  LEGAL_ENTITY,
+  LEGAL_UPDATED,
+  LegalIntro,
+  LegalLinks,
+  LegalList,
+  LegalPage,
+  LegalSection,
+  PRIVACY_EMAIL,
+  SUPPORT_EMAIL,
+} from "@/components/refer/LegalDocument";
+
+export const Route = createFileRoute("/terms")({
+  head: () => ({
+    meta: [
+      { title: "Terms of Service — ASH Glo" },
+      { name: "description", content: "Terms governing ASH Glo accounts, community features, services, payments, wallet, referrals, AI and Markets." },
+      { property: "og:title", content: "Terms of Service — ASH Glo" },
+      { property: "og:description", content: "The agreement governing access to and use of ASH Glo." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://ashglogroup.company/terms" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    links: [{ rel: "canonical", href: "https://ashglogroup.company/terms" }],
+  }),
+  component: TermsPage,
+});
+
+function TermsPage() {
+  return (
+    <LegalPage
+      eyebrow={`Effective and updated ${LEGAL_UPDATED}`}
+      title="Terms of Service"
+      description="The agreement that applies when you create an account or use the ASH Glo platform."
+    >
+      <LegalIntro>
+        These Terms are an agreement between you and {LEGAL_ENTITY}, the legal entity that operates ASH Glo. “ASH Glo” is
+        the product and platform. By creating an account or using ASH Glo, you agree to these Terms and the related policies linked below.
+      </LegalIntro>
+
+      <LegalSection id="eligibility" title="1. Eligibility and accounts">
+        <p>
+          You must be at least 13 years old to use ASH Glo. If the law where you live requires parental or guardian consent
+          for a person under the age of legal adulthood, you may use ASH Glo only with that consent. Some services, contracts,
+          earning features, payments or identity checks may require you to be older or legally capable of entering the transaction.
+        </p>
+        <p>
+          Provide accurate information, protect your credentials and use only accounts you are authorized to control. You are
+          responsible for activity through your account. Contact Support promptly if you believe your account has been compromised.
+        </p>
+        <p>Reusing an active verified member’s name or exact profile-photo copy is denied and restricts access. More than three denied attempts results in a ban and sign-out. Identity restrictions can be restored only by authorized administrators or Trust &amp; Verification following review.</p>
+      </LegalSection>
+
+      <LegalSection id="platform" title="2. What ASH Glo provides">
+        <p>
+          ASH Glo combines social and communications features with discovery of independent services, providers, jobs,
+          freelance opportunities, events, deals, products and property listings. It also offers optional referrals, wallet records,
+          educational Markets content and ASH AI. Features and payment methods vary by account, region and availability.
+        </p>
+        <p>
+          Except where a screen expressly says otherwise, members and providers—not {LEGAL_ENTITY}—create listings and deliver
+          the underlying real-world services, work, events, products or opportunities. Providers are independent and are responsible
+          for their offers, qualifications, licences where required, taxes, safety and legal compliance.
         </p>
       </LegalSection>
 
