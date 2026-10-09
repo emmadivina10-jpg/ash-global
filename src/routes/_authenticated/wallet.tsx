@@ -111,32 +111,24 @@ function WalletPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
-      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
-        <div className="min-w-0">
-          <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
-            {t("wallet.title")}
-          </h1>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button size="sm" onClick={() => setTopupOpen(true)}>
-            <ArrowDownToLine className="size-4" aria-hidden />
-            {lang === "fr" ? "Ajouter" : "Add money"}
-          </Button>
-          <Button
-            variant={goldMode ? "default" : "outline"}
-            size="sm"
-            onClick={toggleGold}
-            aria-pressed={goldMode}
-          >
-            <Crown className="size-4" aria-hidden />
-            {lang === "fr" ? "Or" : "Gold"}
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => setStatementOpen(true)}>
-            <Printer className="size-4" aria-hidden />
-            {lang === "fr" ? "Relevé" : "Statement"}
-          </Button>
-        </div>
+      <header className="flex flex-wrap items-center justify-end gap-2">
+        <Button size="sm" onClick={() => setTopupOpen(true)}>
+          <ArrowDownToLine className="size-4" aria-hidden />
+          {lang === "fr" ? "Ajouter" : "Add money"}
+        </Button>
+        <Button
+          variant={goldMode ? "default" : "outline"}
+          size="sm"
+          onClick={toggleGold}
+          aria-pressed={goldMode}
+        >
+          <Crown className="size-4" aria-hidden />
+          {lang === "fr" ? "Or" : "Gold"}
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => setStatementOpen(true)}>
+          <Printer className="size-4" aria-hidden />
+          {lang === "fr" ? "Relevé" : "Statement"}
+        </Button>
       </header>
 
       <WalletTopupDialog open={topupOpen} onOpenChange={setTopupOpen} fr={lang === "fr"} />
