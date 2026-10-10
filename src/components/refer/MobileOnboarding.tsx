@@ -28,7 +28,7 @@ export function MobileOnboarding() {
   const { tx } = useI18n();
   const [step, setStep] = useState(0);
   const last = step === SLIDES.length - 1;
-  const slide = SLIDES[step];
+  const slide = SLIDES[step] ?? SLIDES[0];
   const title = tx(slide.titleEn.join("|"), slide.titleFr.join("|")).split("|");
 
   return (
