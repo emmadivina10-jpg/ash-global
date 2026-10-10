@@ -136,7 +136,7 @@ function MenuPage() {
 
       {sections.map((section) => (
         <section key={section.en} className="border-b border-border pb-4">
-          <h2 className="mb-2 text-base font-bold text-foreground">{fr ? section.fr : section.en}</h2>
+          <h2 className="mb-2 text-base font-bold text-foreground">{tx(section.en, section.fr)}</h2>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {section.items
               .filter((item) => !item.referral || region.referralEnabled)

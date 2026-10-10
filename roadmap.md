@@ -1,11 +1,13 @@
 # Roadmap
 
 ## Booking history and language cleanup (Oct 10)
-- [ ] Add personal archive, restore and permanent history removal without changing bookings or financial records
-- [ ] Make Verify Customer open Received bookings and the selected code form
-- [ ] Complete supported-language dictionaries and replace hardcoded interface text where feasible; report any remaining untranslated surfaces
-- [ ] Replace overlapping Soon badges with compact accessible symbols
-- [ ] Run history/navigation/language checks and inspect preview; do not publish
+- [x] Add personal archive, restore and permanent history removal without changing bookings or financial records; additive preferences applied to shared backend
+- [x] Make Verify Customer open Received bookings and the selected code form
+- [x] Expand static dictionaries to 1,738 entries per additional language and connect existing language-aware member labels
+- [ ] Finish full-app translation coverage: consent safety list, structured category labels, legal copy, some dialogs and dynamic messages remain bilingual; no claim of complete translation
+- [x] Replace overlapping Soon badges with compact accessible symbols
+- [x] 17 tests passed; isolated archive/restore/permanent-removal browser interactions passed without writes; French/Spanish/Arabic checked, Arabic RTL works; preview build OK, not published
+- [ ] Signed-in booking list and code-focus end-to-end check — blocked by account terms-consent screen; no agreement accepted on user's behalf
 
 ## Service verification and native presentation (Oct 10)
 - [x] Fix service-code verification without enabling Stripe transfers or changing live financial records; missing transfer table confirmed by read-only query, authorized atomic code RPC preserved
