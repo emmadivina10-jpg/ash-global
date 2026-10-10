@@ -11,7 +11,7 @@ export function TrackingDock({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(true);
   const [tab, setTab] = useState<"map" | "wallet">("map");
   return <>
-    {open && <section aria-label={fr ? "Suivi et portefeuille" : "Tracking and wallet"} className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] right-3 z-40 flex max-h-[calc(100dvh-11rem)] w-[calc(100vw-1.5rem)] flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-[var(--shadow-raised)] sm:right-6 sm:w-[28rem] lg:bottom-28">
+    {open && <section aria-label={fr ? "Suivi et portefeuille" : "Tracking and wallet"} className="fixed bottom-[calc(10rem+env(safe-area-inset-bottom))] right-3 z-40 flex max-h-[calc(100dvh-12rem)] w-[calc(100vw-1.5rem)] flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-[var(--shadow-raised)] sm:right-6 sm:w-[28rem] lg:bottom-28 lg:max-h-[calc(100dvh-9rem)]">
       <div className="flex shrink-0 items-center gap-2 border-b border-border p-3">
         <div className="flex flex-1 gap-1" role="tablist" aria-label={fr ? "Suivi" : "Tracking"}>
           <Button role="tab" aria-selected={tab === "map"} aria-controls="tracking-map-panel" variant={tab === "map" ? "default" : "ghost"} onClick={() => setTab("map")} className="rounded-full"><Map className="size-4" />{fr ? "Carte" : "Map"}</Button>
