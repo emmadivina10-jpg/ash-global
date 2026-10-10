@@ -1,5 +1,10 @@
 # Roadmap
 
+## Support conversation and notification fixes
+- [ ] Make Support a conversation-first inbox with message bubbles, search, anchored composer and per-conversation drafts
+- [ ] Repair stale Support counts and staff notification read feedback without schema or financial changes
+- [ ] Verify focused regressions and preview; no publication
+
 ## Stripe booking payment and provider transfer completion
 - [ ] Install and validate staged migration in a positively isolated backend — blocked: the separate safeguards draft also targets production; no migration or validation rows applied
 - [x] Validate all 11 Marketplace webhook events, processed-event replays, refund/dispute holds and transfer reconciliation using isolated, network-blocked tests; 175 total tests pass
