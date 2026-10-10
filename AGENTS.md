@@ -29,3 +29,4 @@
 - Booking commission rate lives in marketplace_settings, changed only via commission.functions.ts (REVENUE/CEO, audit-logged); paid bookings keep the rate saved at payment. Trip arrival times come from trip-eta.functions.ts (Routes API via the Maps connector, only for booking parties). Why: historical earnings never change and Maps calls stay bounded.
 
 - Staff console rules (staff identity, cases, chat, boards, console theme) live in src/components/console/AGENTS.md.
+- Human Support conversations reuse support.functions.ts and the existing ticket/read records; support-state.ts owns notification lifecycle predicates. Why: no duplicate messaging or schema changes; AI-agent chat primitives are outside this human-to-human workflow.
