@@ -49,7 +49,7 @@ function TrackPage() {
     const check = async () => {
       try {
         await syncPayment({ data: { bookingId } });
-        if (!stopped) void qc.invalidateQueries({ queryKey: key });
+        if (!stopped) void qc.invalidateQueries({ queryKey: ["bookings", "receipt", bookingId] });
       } catch { /* Keep waiting: returning from checkout is not proof of payment. */ }
     };
     void check();
