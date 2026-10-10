@@ -96,6 +96,15 @@ export async function settleCollection(input: SettleInput): Promise<SettleOutcom
   let error: string | undefined;
 
   if (input.status === "PAID") {
+    if (kind === "BOOKING" && input.source === "STRIPE_WEBHOOK") {
+      if (!input.signatureVerified) return { ok: false, kind, outcome: "UNVERIFIED", error: "UNVERIFIED" };
+      // Atomic verified-payment and payable registration; no wallet transfer proof.
+      const db = supabaseAdmin as import("@supabase/supabase-js").SupabaseClient;
+      const { data, error: verifiedError } = await db.rpc("register_verified_stripe_booking", {
+        _reference: input.merchantReference, _intent: input.providerReference, _evidence: input.detail ?? {},
+      });
+      if (verifiedError || data?.ok !== true) return { ok: false, kind, outcome: "COMPLETE_FAILED", error: "VERIFIED_BOOKING_SETTLEMENT_FAILED" };
+    }
     const rpc =
       kind === "BOOKING"
         ? "complete_booking_payment"
@@ -112,13 +121,16 @@ export async function settleCollection(input: SettleInput): Promise<SettleOutcom
                   : kind === "WALLET_TOPUP"
                     ? "complete_wallet_topup"
                     : "complete_activation";
-    const { error: rpcError } = await supabaseAdmin.rpc(rpc, {
+    const { data: rpcData, error: rpcError } = kind === "BOOKING" && input.source === "STRIPE_WEBHOOK"
+      ? { data: { ok: true }, error: null }
+      : await supabaseAdmin.rpc(rpc, {
       _payment_reference: input.merchantReference,
       _provider_transaction_id: providerRef,
     });
-    if (rpcError) {
+    const result = rpcData as { ok?: boolean; error?: string } | null;
+    if (rpcError || result?.ok === false) {
       ok = false;
-      error = rpcError.message;
+      error = rpcError?.message ?? result?.error ?? "SETTLEMENT_REJECTED";
       outcome = "COMPLETE_FAILED";
     } else {
       outcome =
@@ -181,7 +193,7 @@ export async function settleCollection(input: SettleInput): Promise<SettleOutcom
   const ledgerStatus =
     input.status === "PAID" && ok ? "SUCCESS" : input.status === "FAILED" || input.status === "CANCELLED" ? input.status : null;
   if (ledgerStatus) {
-    await supabaseAdmin
+    const { error: ledgerError } = await supabaseAdmin
       .from("payment_transactions")
       .update({
         status: ledgerStatus,
@@ -191,9 +203,10 @@ export async function settleCollection(input: SettleInput): Promise<SettleOutcom
       })
       .eq("reference", input.merchantReference)
       .not("status", "in", "(SUCCESS,REFUNDED)");
+    if (ledgerError) return { ok: false, kind, outcome: "LEDGER_WRITE_FAILED", error: "LEDGER_WRITE_FAILED" };
   }
 
-  await supabaseAdmin.from("payment_events").insert({
+  const { error: eventError } = await supabaseAdmin.from("payment_events").insert({
     source: input.source,
     reference: input.merchantReference,
     status: input.status,
@@ -201,6 +214,7 @@ export async function settleCollection(input: SettleInput): Promise<SettleOutcom
     outcome,
     detail: { kind, provider_reference: input.providerReference, ...(input.detail ?? {}) },
   });
+  if (eventError) return { ok: false, kind, outcome: "EVENT_WRITE_FAILED", error: "EVENT_WRITE_FAILED" };
 
   return error ? { ok, kind, outcome, error } : { ok, kind, outcome };
 }

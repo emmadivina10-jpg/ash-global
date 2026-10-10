@@ -24,6 +24,7 @@
 
 - Provider balance and reconciliation live in finance-reconciliation.server.ts (snapshots, runs, discrepancies; service-role + deny-all); reconciliation logs discrepancies and never changes balances. Why: TchokoPay is the source of truth for real funds.
 - All payment methods (MTN/Orange via TchokoPay, Stripe card, bank) record on payment_transactions (service-role + deny-all) and settle only via settleCollection in payment-settlement.server.ts; bank rows succeed only through Finance confirmation in payments-ledger.functions.ts. Why: one ledger, exactly-once wallet credit.
+- Stripe booking releases use a durable service-only webhook inbox and release ledger, source-charge evidence and default-off execution controls; transfer and bank payout are distinct states. Why: internal wallet balances cannot prove money moved and ambiguous requests must reconcile rather than repay.
 - Booking commission rate lives in marketplace_settings, changed only via commission.functions.ts (REVENUE/CEO, audit-logged); paid bookings keep the rate saved at payment. Trip arrival times come from trip-eta.functions.ts (Routes API via the Maps connector, only for booking parties). Why: historical earnings never change and Maps calls stay bounded.
 
 - Staff console rules (staff identity, cases, chat, boards, console theme) live in src/components/console/AGENTS.md.

@@ -14,6 +14,7 @@ import {
   type ProviderBookingRow,
 } from "@/lib/marketplace.queries";
 import { startBookingPayment, syncBookingPayment } from "@/lib/booking.functions";
+import { verifyBookingService } from "@/lib/stripe-release.functions";
 import { startBookingBankPayment, type BankDetails } from "@/lib/payments-ledger.functions";
 import { BankInstructions, BANK_UNAVAILABLE_TEXT } from "@/components/refer/PaymentMethodPicker";
 import { paymentErrorMessage } from "@/lib/payment-errors";
@@ -678,8 +679,8 @@ function CustomerVerificationCode({ bookingId }: { bookingId: string }) {
       <p className="mt-1 font-mono text-xl font-extrabold tracking-widest text-foreground">{code}</p>
       <p className="mt-1 text-xs text-muted-foreground">
         {fr
-          ? "Donnez ce code au prestataire seulement une fois le service rendu. Il libère son paiement."
-          : "Give this code to the provider only after the service is done. It releases their payment."}
+          ? "Donnez ce code au prestataire seulement une fois le service rendu. Il autorise le traitement de sa part payable."
+          : "Give this code to the provider only after the service is done. It authorizes processing of their payable share."}
       </p>
     </div>
   );
@@ -692,13 +693,20 @@ function VerifyServiceForm({ bookingId }: { bookingId: string }) {
   const queryClient = useQueryClient();
   const [value, setValue] = useState("");
   const [busy, setBusy] = useState(false);
+  const verifyService = useServerFn(verifyBookingService);
   async function submit() {
     if (busy) return;
     setBusy(true);
-    const { data, error } = await supabase.rpc("verify_booking_code", { _booking_id: bookingId, _code: value });
-    setBusy(false);
-    const r = data as { ok?: boolean; error?: string; attempts_left?: number } | null;
-    if (error || !r?.ok) {
+    let r: { ok?: boolean; error?: string; attempts_left?: number; releaseStatus?: string };
+    try {
+      r = await verifyService({ data: { bookingId, code: value } });
+    } catch {
+      toast.error(fr ? "Vérification impossible." : "Could not verify.");
+      return;
+    } finally {
+      setBusy(false);
+    }
+    if (!r?.ok) {
       const e = r?.error ?? "";
       toast.error(
         e === "WRONG_CODE"
@@ -711,7 +719,9 @@ function VerifyServiceForm({ bookingId }: { bookingId: string }) {
       );
       return;
     }
-    toast.success(fr ? "Service vérifié — vos gains sont dans votre portefeuille." : "Service verified — your earnings are in your wallet.");
+    toast.success(r.releaseStatus === "TRANSFERRED"
+      ? fr ? "Service vérifié — transfert vers votre compte Stripe enregistré." : "Service verified — transfer to your Stripe account recorded."
+      : fr ? "Service vérifié — paiement du prestataire en attente." : "Service verified — provider payment pending.");
     setValue("");
     void queryClient.invalidateQueries();
   }

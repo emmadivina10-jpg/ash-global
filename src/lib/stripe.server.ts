@@ -14,12 +14,12 @@ export function xafToUsdCents(xaf: number): number {
 
 function key(): string | null {
   const value = process.env["STRIPE_SECRET_KEY"];
-  return value && value.length > 10 ? value : null;
+  return value && (value.startsWith("sk_live_") || value.startsWith("rk_live_")) ? value : null;
 }
 
 async function stripeRequest(
   path: string,
-  init?: { method?: string; body?: URLSearchParams },
+  init?: { method?: string; body?: URLSearchParams; idempotencyKey?: string },
 ): Promise<{ ok: boolean; status: number; data: Record<string, unknown> }> {
   const secret = key();
   if (!secret) return { ok: false, status: 0, data: { error: { message: "STRIPE_NOT_CONFIGURED" } } };
@@ -29,6 +29,7 @@ async function stripeRequest(
     headers: {
       Authorization: `Bearer ${secret}`,
       "Content-Type": "application/x-www-form-urlencoded",
+      ...(init?.idempotencyKey ? { "Idempotency-Key": init.idempotencyKey } : {}),
     },
     ...(init?.body ? { body: init.body } : {}),
   });
@@ -76,7 +77,7 @@ export const stripePay = {
     body.set("metadata[reference]", input.reference);
     for (const [k, v] of Object.entries(input.metadata ?? {})) body.set(`metadata[${k}]`, v);
 
-    const result = await stripeRequest("checkout/sessions", { method: "POST", body });
+    const result = await stripeRequest("checkout/sessions", { method: "POST", body, idempotencyKey: `ash_checkout_${input.reference}` });
     if (!result.ok) {
       const err = result.data["error"] as { message?: string } | undefined;
       return { ok: false, configured: true, id: null, checkoutUrl: null, error: err?.message ?? "STRIPE_ERROR" };
@@ -162,7 +163,7 @@ export const stripeConnect = {
   },
 
   /** Creates an Express connected account. ASH never sees the bank details. */
-  async createAccount(input: { email: string; country: string }): Promise<ConnectStatus> {
+  async createAccount(input: { email: string; country: string; userId: string }): Promise<ConnectStatus> {
     if (!key()) return EMPTY_CONNECT;
     const body = new URLSearchParams();
     body.set("type", "express");
@@ -171,7 +172,7 @@ export const stripeConnect = {
     body.set("capabilities[transfers][requested]", "true");
     body.set("business_type", "individual");
 
-    const result = await stripeRequest("accounts", { method: "POST", body });
+    const result = await stripeRequest("accounts", { method: "POST", body, idempotencyKey: `ash_provider_${input.userId}` });
     if (!result.ok) {
       const err = result.data["error"] as { message?: string } | undefined;
       return { ...EMPTY_CONNECT, configured: true, error: err?.message ?? "STRIPE_ERROR" };
@@ -234,6 +235,7 @@ export const stripeConnect = {
     currency: string;
     idempotencyKey: string;
     description?: string;
+    sourceTransaction?: string;
   }): Promise<{ ok: boolean; transferId: string | null; error: string | null }> {
     const secret = key();
     if (!secret) return { ok: false, transferId: null, error: "STRIPE_NOT_CONFIGURED" };
@@ -243,6 +245,7 @@ export const stripeConnect = {
     body.set("currency", input.currency.toLowerCase());
     body.set("destination", input.accountId);
     body.set("transfer_group", input.idempotencyKey);
+    if (input.sourceTransaction) body.set("source_transaction", input.sourceTransaction);
     if (input.description) body.set("description", input.description.slice(0, 200));
 
     const response = await fetch("https://api.stripe.com/v1/transfers", {
@@ -259,9 +262,17 @@ export const stripeConnect = {
       const err = data["error"] as { message?: string } | undefined;
       return { ok: false, transferId: null, error: err?.message ?? "STRIPE_ERROR" };
     }
-    return { ok: true, transferId: (data["id"] as string) ?? null, error: null };
+    const transferId = typeof data["id"] === "string" && data["id"].startsWith("tr_") ? data["id"] : null;
+    return transferId ? { ok: true, transferId, error: null } : { ok: false, transferId: null, error: "TRANSFER_RESPONSE_INVALID" };
   },
 };
+
+/** Server-only read helper for reconciliation; never returns credentials. */
+export async function stripeRead(path: string): Promise<Record<string, unknown>> {
+  const result = await stripeRequest(path);
+  if (!result.ok) throw new Error("STRIPE_READ_FAILED");
+  return result.data;
+}
 
 /* ------------------------------------------------------------------ */
 /* Webhook signature verification (Stripe-Signature, v1 HMAC-SHA256)   */

@@ -220,6 +220,12 @@ export const syncBookingPayment = createServerFn({ method: "POST" })
       return { ok: true as const, status: "PENDING" as const, bookingStatus: booking.status, error: null };
     }
 
+    // Only the verified Marketplace webhook can confirm a card booking.
+    // A Checkout return or API polling result is not a settlement authority.
+    if (booking.payment_provider === "STRIPE") {
+      return { ok: true as const, status: "PENDING" as const, bookingStatus: booking.status, error: null };
+    }
+
     let verification: {
       ok: boolean;
       status: "PAID" | "PENDING" | "FAILED" | "CANCELLED" | string;
@@ -227,19 +233,7 @@ export const syncBookingPayment = createServerFn({ method: "POST" })
       error?: string | null | undefined;
     };
 
-    if (booking.payment_provider === "STRIPE") {
-      const { stripePay } = await import("./stripe.server");
-      if (!booking.provider_transaction_id) {
-        return { ok: true as const, status: "PENDING" as const, bookingStatus: booking.status, error: null };
-      }
-      const session = await stripePay.verifySession(booking.provider_transaction_id);
-      verification = {
-        ok: session.ok,
-        status: session.status,
-        providerTransactionId: session.paymentIntentId,
-        error: session.error,
-      };
-    } else {
+    {
       const { tchokoPay } = await import("./tchokopay.server");
       const providerRef = booking.provider_transaction_id ?? "";
       const collection = providerRef.startsWith("REQ-")

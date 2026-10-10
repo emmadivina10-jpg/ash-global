@@ -3,7 +3,10 @@
 ## Stripe booking payment and provider transfer completion
 - [x] Read-only audit of configured Stripe account, webhooks, onboarding, transfers, database release and local payout handling
 - [x] Verify 15% calculations and signature rejection without sending money
-- [ ] Implement durable verified-webhook settlement and post-verification provider transfer records — awaiting approval of the plan; shared live database changes must not be applied without approval
+- [x] Stage verified-webhook settlement, service-code gated transfers, actual transfer/payout records and default-off controls in preview
+- [x] Run 31 commission, signature and release-policy tests without real financial transactions
+- [ ] Apply and validate staged database safeguards — requires separate approval because preview shares the production database; automatic release is disabled
+- [ ] Verify atomic settlement/concurrency and refund holds against the approved schema — blocked until safeguards can be installed in an isolated approved environment
 - [ ] Resolve TD Marketplace webhook mismatch — requires approval to change live Stripe webhook configuration, no duplicate integrations
 - [ ] Verify supported connected-provider onboarding and payout destination — no connected providers currently configured; no real transfers authorized
 

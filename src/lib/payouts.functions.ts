@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { z } from "zod";
 
 /**
  * Stripe Connect onboarding for provider bank payouts. Bank details are only
@@ -63,11 +64,14 @@ export const getPayoutAccount = createServerFn({ method: "POST" })
 
 export const startPayoutOnboarding = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { returnUrl: string; country?: string }) => {
-    if (!/^https?:\/\//.test(input.returnUrl)) throw new Error("INVALID_RETURN_URL");
-    return input;
-  })
+  .inputValidator((input: unknown) => z.object({ returnUrl: z.string().url(), country: z.literal("CA") }).parse(input))
   .handler(async ({ data, context }): Promise<{ ok: boolean; url: string | null; error: string | null }> => {
+    const { getRequest } = await import("@tanstack/react-start/server");
+    const returnUrl = new URL(data.returnUrl);
+    if (returnUrl.origin !== new URL(getRequest().url).origin) return { ok: false, url: null, error: "INVALID_RETURN_URL" };
+    const { providerOnboardingEnabled } = await import("./stripe-booking-release.server");
+    // Account creation remains disabled until the owner authorizes live onboarding.
+    if (!(await providerOnboardingEnabled())) return { ok: false, url: null, error: "ONBOARDING_AWAITING_APPROVAL" };
     const { stripeConnect } = await import("@/lib/stripe.server");
     if (!stripeConnect.configured()) return { ok: false, url: null, error: "STRIPE_NOT_CONFIGURED" };
 
@@ -83,14 +87,17 @@ export const startPayoutOnboarding = createServerFn({ method: "POST" })
     if (!accountId) {
       const created = await stripeConnect.createAccount({
         email: row?.email ?? (context.claims["email"] as string | undefined) ?? "",
-        country: (data.country ?? "US").toUpperCase(),
+        country: data.country,
+        userId: context.userId,
       });
       if (!created.accountId) return { ok: false, url: null, error: created.error ?? "STRIPE_ERROR" };
       accountId = created.accountId;
-      await context.supabase
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { error: saveError } = await supabaseAdmin
         .from("profiles")
         .update({ stripe_account_id: accountId })
         .eq("user_id", context.userId);
+      if (saveError) return { ok: false, url: null, error: "PROVIDER_ACCOUNT_SAVE_FAILED" };
     }
 
     return stripeConnect.onboardingLink({
