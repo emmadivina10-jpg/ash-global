@@ -42,7 +42,7 @@ Auth: `/login`, `/register`, `/forgot-password`, `/reset-password`, `/auth/callb
 
 - **Bilingual by default** — English and French, switchable in-app.
 - **Dark & light themes** — ASH magenta/violet and subtle green branding on member screens, entry screens and scoped staff dashboards.
-- **Region-aware** — referral earnings and Mobile Money are gated per country (CM/NG referrals, CM mobile money, 1% platform fee, 2% in high-fee markets).
+- **Region-aware** — referral earnings and Mobile Money are gated per country (CM/NG referrals, CM mobile money, 12% or 15% booking commission set by the CEO/Finance in Console → Commission, saved on each booking at payment).
 - **Fast navigation** — intent preloading and query caching keep tab switches instant.
 - **Notifications & push** — in-app notification bell plus device push with vibration and numeric app badges on installed iOS/Android apps.
 - **Public storefronts & payment links** — providers share `/s/$slug` storefronts and `/pay/$code` payment links; both are rate-limited.

@@ -65,6 +65,7 @@ import { Route as ConsoleCampusCatalogueRouteImport } from './routes/console.cam
 import { Route as ConsoleCampusInstructorsRouteImport } from './routes/console.campus-instructors'
 import { Route as ConsoleCasesRouteImport } from './routes/console.cases'
 import { Route as ConsoleCleanRouteImport } from './routes/console.clean'
+import { Route as ConsoleCommissionRouteImport } from './routes/console.commission'
 import { Route as ConsoleContentRouteImport } from './routes/console.content'
 import { Route as ConsoleDeletionsRouteImport } from './routes/console.deletions'
 import { Route as ConsoleDepartmentsRouteImport } from './routes/console.departments'
@@ -424,6 +425,11 @@ const ConsoleCasesRoute = ConsoleCasesRouteImport.update({
 const ConsoleCleanRoute = ConsoleCleanRouteImport.update({
   id: '/clean',
   path: '/clean',
+  getParentRoute: () => ConsoleRoute,
+} as any)
+const ConsoleCommissionRoute = ConsoleCommissionRouteImport.update({
+  id: '/commission',
+  path: '/commission',
   getParentRoute: () => ConsoleRoute,
 } as any)
 const ConsoleContentRoute = ConsoleContentRouteImport.update({
@@ -889,6 +895,7 @@ export interface FileRoutesByFullPath {
   '/console/campus-instructors': typeof ConsoleCampusInstructorsRoute
   '/console/cases': typeof ConsoleCasesRoute
   '/console/clean': typeof ConsoleCleanRoute
+  '/console/commission': typeof ConsoleCommissionRoute
   '/console/content': typeof ConsoleContentRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/departments': typeof ConsoleDepartmentsRoute
@@ -1020,6 +1027,7 @@ export interface FileRoutesByTo {
   '/console/campus-instructors': typeof ConsoleCampusInstructorsRoute
   '/console/cases': typeof ConsoleCasesRoute
   '/console/clean': typeof ConsoleCleanRoute
+  '/console/commission': typeof ConsoleCommissionRoute
   '/console/content': typeof ConsoleContentRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/departments': typeof ConsoleDepartmentsRoute
@@ -1154,6 +1162,7 @@ export interface FileRoutesById {
   '/console/campus-instructors': typeof ConsoleCampusInstructorsRoute
   '/console/cases': typeof ConsoleCasesRoute
   '/console/clean': typeof ConsoleCleanRoute
+  '/console/commission': typeof ConsoleCommissionRoute
   '/console/content': typeof ConsoleContentRoute
   '/console/deletions': typeof ConsoleDeletionsRoute
   '/console/departments': typeof ConsoleDepartmentsRoute
@@ -1288,6 +1297,7 @@ export interface FileRouteTypes {
     | '/console/campus-instructors'
     | '/console/cases'
     | '/console/clean'
+    | '/console/commission'
     | '/console/content'
     | '/console/deletions'
     | '/console/departments'
@@ -1419,6 +1429,7 @@ export interface FileRouteTypes {
     | '/console/campus-instructors'
     | '/console/cases'
     | '/console/clean'
+    | '/console/commission'
     | '/console/content'
     | '/console/deletions'
     | '/console/departments'
@@ -1552,6 +1563,7 @@ export interface FileRouteTypes {
     | '/console/campus-instructors'
     | '/console/cases'
     | '/console/clean'
+    | '/console/commission'
     | '/console/content'
     | '/console/deletions'
     | '/console/departments'
@@ -2058,6 +2070,13 @@ declare module '@tanstack/react-router' {
       path: '/clean'
       fullPath: '/console/clean'
       preLoaderRoute: typeof ConsoleCleanRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
+    '/console/commission': {
+      id: '/console/commission'
+      path: '/commission'
+      fullPath: '/console/commission'
+      preLoaderRoute: typeof ConsoleCommissionRouteImport
       parentRoute: typeof ConsoleRoute
     }
     '/console/content': {
@@ -2736,6 +2755,7 @@ interface ConsoleRouteChildren {
   ConsoleCampusInstructorsRoute: typeof ConsoleCampusInstructorsRoute
   ConsoleCasesRoute: typeof ConsoleCasesRoute
   ConsoleCleanRoute: typeof ConsoleCleanRoute
+  ConsoleCommissionRoute: typeof ConsoleCommissionRoute
   ConsoleContentRoute: typeof ConsoleContentRoute
   ConsoleDeletionsRoute: typeof ConsoleDeletionsRoute
   ConsoleDepartmentsRoute: typeof ConsoleDepartmentsRoute
@@ -2775,6 +2795,7 @@ const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsoleCampusInstructorsRoute: ConsoleCampusInstructorsRoute,
   ConsoleCasesRoute: ConsoleCasesRoute,
   ConsoleCleanRoute: ConsoleCleanRoute,
+  ConsoleCommissionRoute: ConsoleCommissionRoute,
   ConsoleContentRoute: ConsoleContentRoute,
   ConsoleDeletionsRoute: ConsoleDeletionsRoute,
   ConsoleDepartmentsRoute: ConsoleDepartmentsRoute,

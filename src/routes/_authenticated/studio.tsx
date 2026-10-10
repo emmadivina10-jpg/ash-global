@@ -423,7 +423,7 @@ function StudioPage() {
               </p>
             </div>
             <div className="rounded-xl border border-border p-3">
-              <p className="text-xs text-muted-foreground">{lang === "fr" ? "Gains nets (après 1%)" : "Net earnings (after 1% fee)"}</p>
+              <p className="text-xs text-muted-foreground">{lang === "fr" ? "Gains nets (après commission ASH)" : "Net earnings (after ASH commission)"}</p>
               <p className="mt-1 font-display text-lg font-bold text-foreground">{formatXAF(earnedNet)}</p>
             </div>
           </div>

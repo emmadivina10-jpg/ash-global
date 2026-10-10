@@ -6,6 +6,7 @@ import { CheckCircle2, Circle, MapPin, MessageCircle, Navigation, Phone, ShieldC
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { getBookingReceipt } from "@/lib/booking-receipt.functions";
+import { getTripEta } from "@/lib/trip-eta.functions";
 import { openConversation } from "@/lib/marketplace.queries";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/format";
@@ -50,6 +51,15 @@ function TrackPage() {
       const { data } = await supabase.from("booking_live_locations").select("lat, lng, accuracy_m, updated_at").eq("booking_id", bookingId).maybeSingle();
       return (data as Loc | null) ?? null;
     },
+  });
+
+  // Arrival time from Google Maps, from the provider's real latest position. Bounded to once a minute.
+  const fetchEta = useServerFn(getTripEta);
+  const { data: eta } = useQuery({
+    queryKey: ["bookings", "eta", bookingId],
+    enabled: sharing && !!loc && !!r?.location,
+    refetchInterval: 60000,
+    queryFn: () => fetchEta({ data: { bookingId } }),
   });
 
   // Provider device: share position only while this page is open and the trip is "on the way".
@@ -115,6 +125,28 @@ function TrackPage() {
   const directionsUrl = dest
     ? `https://www.google.com/maps/dir/?api=1&destination=${dest}${loc && !isProvider ? `&origin=${loc.lat},${loc.lng}` : ""}`
     : null;
+  const mapsKey = import.meta.env["VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY"] as string | undefined;
+  const mapSrc = !mapsKey
+    ? sharing && loc
+      ? `https://www.openstreetmap.org/export/embed.html?bbox=${loc.lng - 0.01},${loc.lat - 0.01},${loc.lng + 0.01},${loc.lat + 0.01}&layer=mapnik&marker=${loc.lat},${loc.lng}`
+      : null
+    : sharing && loc && dest
+      ? `https://www.google.com/maps/embed/v1/directions?key=${mapsKey}&origin=${loc.lat},${loc.lng}&destination=${dest}&mode=driving`
+      : sharing && loc
+        ? `https://www.google.com/maps/embed/v1/view?key=${mapsKey}&center=${loc.lat},${loc.lng}&zoom=15`
+        : dest && active
+          ? `https://www.google.com/maps/embed/v1/place?key=${mapsKey}&q=${dest}`
+          : null;
+  const etaOk = eta && "durationSeconds" in eta ? (eta as { durationSeconds: number; distanceMeters: number }) : null;
+  const etaText = !sharing
+    ? ts === "ARRIVED" ? (fr ? "Prestataire arrivé" : "Provider has arrived") : fr ? "Heure d'arrivée : dès que le trajet démarre" : "Arrival time: shown once the trip starts"
+    : etaOk
+      ? `${fr ? "Arrivée estimée dans" : "Arrives in about"} ${Math.max(1, Math.round(etaOk.durationSeconds / 60))} min · ${(etaOk.distanceMeters / 1000).toFixed(1)} km`
+      : !r.location
+        ? fr ? "Heure d'arrivée : adresse manquante" : "Arrival time: no address given"
+        : eta && "error" in eta
+          ? fr ? "Heure d'arrivée indisponible pour cette adresse" : "Arrival time unavailable for this address"
+          : fr ? "Calcul de l'heure d'arrivée…" : "Working out arrival time…";
   const other = isProvider ? { name: r.customer.name, avatar: r.customer.avatar, verified: false, phone: r.customer.phone } : r.provider;
 
   return (
@@ -142,12 +174,8 @@ function TrackPage() {
       </ol>
 
       <section className="overflow-hidden rounded-3xl border border-border bg-card">
-        {sharing && loc ? (
-          <iframe
-            title="map"
-            className="h-72 w-full"
-            src={`https://www.openstreetmap.org/export/embed.html?bbox=${loc.lng - 0.01},${loc.lat - 0.01},${loc.lng + 0.01},${loc.lat + 0.01}&layer=mapnik&marker=${loc.lat},${loc.lng}`}
-          />
+        {mapSrc ? (
+          <iframe title="map" className="h-72 w-full" loading="lazy" referrerPolicy="no-referrer-when-downgrade" src={mapSrc} />
         ) : (
           <div className="flex h-40 items-center justify-center p-4 text-center text-sm text-muted-foreground">
             {sharing
@@ -163,7 +191,7 @@ function TrackPage() {
               {loc.accuracy_m ? ` · ±${Math.round(loc.accuracy_m)} m` : ""}
             </p>
           ) : null}
-          <p className="text-xs text-muted-foreground">{fr ? "Heure d'arrivée estimée : non disponible" : "ETA: not available"}</p>
+          <p className="text-sm font-semibold text-foreground">{etaText}</p>
           {gpsError ? <p className="text-xs text-destructive">{gpsError}</p> : null}
         </div>
       </section>
