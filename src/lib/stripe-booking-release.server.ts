@@ -28,10 +28,12 @@ export async function releaseBookingTransfer(bookingId: string): Promise<{ statu
 
   const account = await stripeRead("account");
   if (account["id"] !== controls.marketplace_account_id || job.marketplace_account_id !== account["id"]) return { status: "ACCOUNT_MISMATCH" };
-  const { data: provider, error: providerError } = await db.from("bookings")
-    .select("provider_profiles(user_id)").eq("id", bookingId).single();
-  const providerProfile = provider?.provider_profiles;
-  if (providerError || !providerProfile || Array.isArray(providerProfile)) return { status: "PROVIDER_NOT_ONBOARDED" };
+  const { data: providerBooking, error: providerError } = await db.from("bookings")
+    .select("provider_id").eq("id", bookingId).single();
+  if (providerError || !providerBooking) return { status: "PROVIDER_NOT_ONBOARDED" };
+  const { data: providerProfile, error: profileError } = await db.from("provider_profiles")
+    .select("user_id").eq("id", providerBooking.provider_id).single();
+  if (profileError || !providerProfile) return { status: "PROVIDER_NOT_ONBOARDED" };
   const { data: mapping, error: mappingError } = await db.from("profiles").select("stripe_account_id")
     .eq("user_id", providerProfile.user_id).single();
   const destinationId = job.destination_account_id ?? mapping?.stripe_account_id;
