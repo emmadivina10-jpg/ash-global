@@ -1,5 +1,10 @@
 # Roadmap
 
+## Welcome and wallet setup (Oct 10)
+- [ ] Replace welcome tiles with four individual fading product snapshots and explicit Stripe/card + mobile-money availability
+- [ ] Add visible bank/card payout setup panel and recurring reminder with permanent opt-out; preserve disabled payouts
+- [ ] Verify preview and reminder rules; no publication or financial changes
+
 ## Live service-code rejection (Oct 10, 19:47)
 - [x] Diagnose published RPC error 23514: transactions_type_check excluded all four booking trigger types
 - [x] Obtain explicit approval and apply narrow constraint repair only; no financial rows changed, codes consumed or transfers sent
