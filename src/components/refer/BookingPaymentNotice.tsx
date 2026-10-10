@@ -25,7 +25,7 @@ export function BookingPaymentNotice({ provider, checking, feedback, onCheck }: 
           : fr ? "ASH attend la confirmation du service de paiement. Si vous avez été débité, ne payez pas à nouveau." : "ASH is waiting for confirmation from the payment service. If you were charged, do not pay again.";
   return <div className="mt-3 border-l-2 border-gold bg-muted/40 px-3 py-3">
     <div className="flex items-start gap-2">
-      {feedback === "unavailable" || feedback === "failed" ? <AlertCircle className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden /> : <Clock3 className="mt-0.5 size-4 shrink-0 text-gold-foreground" aria-hidden />}
+      {feedback === "unavailable" || feedback === "failed" ? <AlertCircle className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden /> : <Clock3 className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />}
       <div className="min-w-0 flex-1" role="status" aria-live="polite">
         <p className="text-sm font-semibold text-foreground">{checking ? fr ? "Actualisation…" : "Checking status…" : fr ? "En attente de confirmation" : "Awaiting confirmation"}</p>
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{text}</p>

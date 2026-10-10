@@ -61,7 +61,7 @@ function StatusPill({ status }: { status: string }) {
         tone === "neutral" && "bg-muted text-muted-foreground",
       )}
     >
-      {bookingStatusLabel(status, lang)}
+      {status === "PAYMENT_PROCESSING" ? (lang === "fr" ? "Confirmation en attente" : "Awaiting confirmation") : bookingStatusLabel(status, lang)}
     </span>
   );
 }
