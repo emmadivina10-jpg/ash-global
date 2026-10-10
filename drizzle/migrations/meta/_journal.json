@@ -57,6 +57,13 @@
       "when": 1791651761753,
       "tag": "0007_staff_member_insights",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791655023090,
+      "tag": "0008_booking_party_locations",
+      "breakpoints": true
     }
   ]
 }

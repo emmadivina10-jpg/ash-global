@@ -351,6 +351,41 @@ export type Database = {
           },
         ]
       }
+      booking_party_locations: {
+        Row: {
+          accuracy_m: number | null
+          booking_id: string
+          lat: number
+          lng: number
+          party: string
+          updated_at: string
+        }
+        Insert: {
+          accuracy_m?: number | null
+          booking_id: string
+          lat: number
+          lng: number
+          party: string
+          updated_at?: string
+        }
+        Update: {
+          accuracy_m?: number | null
+          booking_id?: string
+          lat?: number
+          lng?: number
+          party?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_party_locations_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       booking_verification_codes: {
         Row: {
           booking_id: string
@@ -7409,6 +7444,15 @@ export type Database = {
         Returns: Json
       }
       share_booking_location: {
+        Args: {
+          _accuracy: number
+          _booking_id: string
+          _lat: number
+          _lng: number
+        }
+        Returns: Json
+      }
+      share_booking_party_location: {
         Args: {
           _accuracy: number
           _booking_id: string
