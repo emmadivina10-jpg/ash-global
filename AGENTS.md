@@ -32,7 +32,7 @@
 - Checkout returns use payment-return.ts's app-owned origin allowlist and booking-specific tracking path; CompassSurface owns the single draggable Map/Wallet launcher; TrackingDock supplies its live map and AshOrb supplies app-wide booking access, with no duplicate launchers. Why: prevent transient-host returns and keep one clear floating control without changing settlement.
 - Booking payment actions use booking-payment-state.ts; Stripe/bank status checks refresh saved booking evidence, while mobile-money checks are serialized and show inline outcomes. Why: pending confirmation must never invite duplicate payment or impersonate verified settlement.
 - Tracking: parties opt in via share_booking_party_location (active bookings, cleared on end); Leaflet/OSM map client-only. Why: works worldwide, no key or address.
-- Service verification uses the existing authorized atomic code RPC independently of disabled Connect transfers. Why: absent transfer safeguards must not block service completion or turn transfers on.
+- Service verification uses the atomic code RPC independently of disabled transfers; constraint tests use isolated PGlite, not live inserts. Why: preserve verification and funds.
 - Phone alert banners belong to OS delivery, not PushBridge toasts; iOS launch storyboard owns native startup. Why: prevent duplicated notifications and opening screens.
 - Personal booking_history_preferences archives/restores/removes terminal history only, never bookings or payments. Why: independent histories and financial retention.
 - Verification links carry provider tab and booking ID. Why: reach the correct Received code form.
