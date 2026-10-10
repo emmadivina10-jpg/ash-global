@@ -1,139 +1,113 @@
-import { useEffect, useState } from "react";
-import { Building2, Sparkles, Store, Wallet } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { ArrowRight } from "lucide-react";
+import ashLogo from "@/assets/ash-logo.png.asset.json";
 import { useI18n } from "@/lib/i18n";
 
-const KEY = "ash-onboarding-v1";
-
-/** True once the first-run onboarding has been completed on this device. */
-function onboardingDone(): boolean {
-  try {
-    return window.localStorage.getItem(KEY) === "1";
-  } catch {
-    return true;
-  }
-}
-
-type Slide = {
-  icon: typeof Store;
-  title: [string, string];
-  body: [string, string];
-};
-
-const SLIDES: Slide[] = [
+const SLIDES = [
   {
-    icon: Sparkles,
-    title: ["Where opportunities connect", "Là où les opportunités se rencontrent"],
-    body: [
-      "One place for services, commerce, freelance, property, events and deals.",
-      "Un seul espace pour les services, le commerce, le freelance, l'immobilier, les événements et les offres.",
-    ],
+    kickerEn: "Welcome to ASH",
+    kickerFr: "Bienvenue sur ASH",
+    titleEn: ["Where", "opportunities", "connect."],
+    titleFr: ["Là où les", "opportunités", "se rencontrent."],
+    bodyEn: "Book trusted professionals, talk with your people, and share your moments — all in one place.",
+    bodyFr: "Réservez des professionnels de confiance, discutez et partagez vos moments — au même endroit.",
   },
   {
-    icon: Store,
-    title: ["Book trusted pros", "Réservez des pros de confiance"],
-    body: [
-      "Browse verified providers near you, see their work and book in a few taps.",
-      "Parcourez des prestataires vérifiés près de vous, voyez leur travail et réservez en quelques gestes.",
-    ],
+    kickerEn: "Pay your way",
+    kickerFr: "Payez à votre façon",
+    titleEn: ["Simple.", "Secure.", "Yours."],
+    titleFr: ["Simple.", "Sécurisé.", "À vous."],
+    bodyEn: "Card with Stripe, MTN MoMo and Orange Money. Every payment protected until the service is done.",
+    bodyFr: "Carte via Stripe, MTN MoMo et Orange Money. Chaque paiement protégé jusqu'au service rendu.",
   },
-  {
-    icon: Building2,
-    title: ["Sell, rent and hire", "Vendez, louez et recrutez"],
-    body: [
-      "List a service, a home, a product or a project and reach the whole ASH community.",
-      "Publiez un service, un logement, un produit ou un projet et touchez toute la communauté ASH.",
-    ],
-  },
-  {
-    icon: Wallet,
-    title: ["Get paid securely", "Soyez payé en toute sécurité"],
-    body: [
-      "Mobile money and card payments land in your ASH wallet, ready to withdraw.",
-      "Les paiements mobile money et carte arrivent dans votre portefeuille ASH, prêts à être retirés.",
-    ],
-  },
-];
+] as const;
 
-/**
- * First-run onboarding for the mobile experience: a few water-like animated
- * screens shown only once per device, before the member starts using ASH.
- */
+/** Two quiet, text-only onboarding screens shown in the app and on phones. */
 export function MobileOnboarding() {
-  const { lang } = useI18n();
-  const i = lang === "fr" ? 1 : 0;
-  const [show, setShow] = useState(false);
+  const { tx } = useI18n();
   const [step, setStep] = useState(0);
-
-  useEffect(() => {
-    if (onboardingDone()) return;
-    const mobile = typeof window.matchMedia === "function" && window.matchMedia("(max-width: 1023px)").matches;
-    if (!mobile) return;
-    // Let the launch animation finish first.
-    const t = window.setTimeout(() => setShow(true), 1200);
-    return () => window.clearTimeout(t);
-  }, []);
-
-  if (!show) return null;
-
-  const finish = () => {
-    try {
-      window.localStorage.setItem(KEY, "1");
-    } catch {
-      /* private mode — onboarding may appear again */
-    }
-    setShow(false);
-  };
-
-  const slide = SLIDES[step]!;
-  const Icon = slide.icon;
   const last = step === SLIDES.length - 1;
+  const slide = SLIDES[step] ?? SLIDES[0];
+  const title = tx(slide.titleEn.join("|"), slide.titleFr.join("|")).split("|");
 
   return (
-    <div className="fixed inset-0 z-[70] flex flex-col overflow-hidden bg-background">
-      <div className="ash-liquid ash-liquid-a" aria-hidden />
-      <div className="ash-liquid ash-liquid-b" aria-hidden />
-      <div className="ash-liquid ash-liquid-c" aria-hidden />
+    <div className="ash-entry safe-top relative flex min-h-dvh flex-col overflow-hidden bg-background px-7 pb-[calc(1.75rem+env(safe-area-inset-bottom))] pt-[calc(1.25rem+env(safe-area-inset-top))]">
+      <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full gold-gradient opacity-20 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-32 -left-24 size-80 rounded-full brand-gradient opacity-15 blur-3xl" />
 
-      <div className="relative flex flex-1 flex-col justify-between px-6 pb-[calc(2rem+env(safe-area-inset-bottom))] pt-[calc(3rem+env(safe-area-inset-top))]">
-        <div className="flex justify-end">
-          {!last ? (
-            <button type="button" onClick={finish} className="text-sm font-semibold text-muted-foreground">
-              {i ? "Passer" : "Skip"}
-            </button>
-          ) : null}
-        </div>
-
-        <div key={step} className="ash-fade-up flex flex-1 flex-col items-center justify-center text-center">
-          <div className="ash-launch-mark brand-gradient flex size-20 items-center justify-center rounded-full text-primary-foreground">
-            <Icon className="size-9" aria-hidden />
-          </div>
-          <h2 className="mt-8 font-display text-2xl font-bold leading-tight text-foreground">{slide.title[i]}</h2>
-          <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">{slide.body[i]}</p>
-        </div>
-
-        <div className="space-y-6">
-          <div className="flex justify-center gap-2">
-            {SLIDES.map((s, idx) => (
-              <span
-                key={s.title[0]}
-                className={
-                  idx === step
-                    ? "h-1.5 w-6 rounded-full bg-primary transition-all"
-                    : "h-1.5 w-1.5 rounded-full bg-muted-foreground/40 transition-all"
-                }
-              />
-            ))}
-          </div>
-          <Button
-            size="lg"
-            className="w-full"
-            onClick={() => (last ? finish() : setStep((s) => s + 1))}
+      <header className="relative flex items-center justify-between">
+        <img src={ashLogo.url} alt="ASH" className="size-9 rounded-xl shadow-sm" />
+        {!last && (
+          <button
+            type="button"
+            onClick={() => setStep(SLIDES.length - 1)}
+            className="rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground transition hover:text-foreground"
           >
-            {last ? (i ? "Commencer" : "Get started") : i ? "Suivant" : "Next"}
-          </Button>
+            {tx("Skip", "Passer")}
+          </button>
+        )}
+      </header>
+
+      <main key={step} className="relative flex flex-1 flex-col justify-center animate-in fade-in slide-in-from-right-4 duration-500">
+        <p className="mb-6 text-[11px] font-bold uppercase tracking-[0.32em] text-primary">
+          {tx(slide.kickerEn, slide.kickerFr)}
+        </p>
+        <h1 className="font-serif text-[3.1rem] font-normal leading-[1.02] tracking-tight text-foreground">
+          {title.map((line, i) => (
+            <span key={i} className={i === 1 ? "block italic gold-gradient bg-clip-text text-transparent" : "block"}>
+              {line}
+            </span>
+          ))}
+        </h1>
+        <div className="my-7 h-px w-16 gold-gradient" />
+        <p className="max-w-xs text-[15px] leading-relaxed text-muted-foreground">
+          {tx(slide.bodyEn, slide.bodyFr)}
+        </p>
+      </main>
+
+      <footer className="relative space-y-5">
+        <div className="flex items-center gap-2" aria-label={`${step + 1} / ${SLIDES.length}`}>
+          {SLIDES.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setStep(i)}
+              aria-label={`${i + 1}`}
+              className={`h-1.5 rounded-full transition-all duration-500 ${i === step ? "w-10 gold-gradient" : "w-3 bg-border"}`}
+            />
+          ))}
         </div>
-      </div>
+
+        {last ? (
+          <div className="space-y-3">
+            <Link
+              to="/register"
+              className="group flex h-14 w-full items-center justify-between rounded-full gold-gradient pl-7 pr-2 text-base font-bold text-primary-foreground shadow-[var(--shadow-brand)] transition active:scale-[0.98]"
+            >
+              {tx("Create account", "Créer un compte")}
+              <span className="grid size-10 place-items-center rounded-full bg-background/20 transition group-hover:translate-x-0.5">
+                <ArrowRight className="size-5" />
+              </span>
+            </Link>
+            <Link
+              to="/login"
+              className="flex h-14 w-full items-center justify-center rounded-full border border-border bg-card/40 text-base font-semibold text-foreground backdrop-blur transition active:scale-[0.98]"
+            >
+              {tx("I already have an account", "J'ai déjà un compte")}
+            </Link>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setStep(step + 1)}
+            className="group ml-auto flex h-16 w-16 items-center justify-center rounded-full gold-gradient text-primary-foreground shadow-[var(--shadow-brand)] transition active:scale-95"
+            aria-label={tx("Next", "Suivant")}
+          >
+            <ArrowRight className="size-6 transition group-hover:translate-x-0.5" />
+          </button>
+        )}
+      </footer>
     </div>
   );
 }

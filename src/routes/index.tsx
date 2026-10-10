@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { LanguageSwitcher, ThemeToggle } from "@/components/refer/Preferences";
 import { useI18n } from "@/lib/i18n";
 import { WelcomeIntro } from "@/components/refer/WelcomeIntro";
+import { MobileOnboarding } from "@/components/refer/MobileOnboarding";
 
 const TITLE = "ASH — Where Opportunities Connect.";
 const DESCRIPTION =
@@ -61,6 +62,16 @@ function Landing() {
   const navigate = useNavigate();
   const [out, setOut] = useState(false);
   const [reduced, setReduced] = useState(false);
+  const [isPhone, setIsPhone] = useState(false);
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return;
+    const media = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsPhone(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
@@ -97,8 +108,6 @@ function Landing() {
       if (cancelled) return;
       if (data.session?.user) {
         void navigate({ to: "/feed", replace: true });
-      } else if (isNativeApp()) {
-        void navigate({ to: "/login", replace: true });
       }
     });
     return () => {
@@ -106,7 +115,13 @@ function Landing() {
     };
   }, [navigate]);
 
-  if (isNativeApp()) return <WelcomeIntro />;
+  if (isNativeApp() || isPhone)
+    return (
+      <>
+        {isNativeApp() && <WelcomeIntro />}
+        <MobileOnboarding />
+      </>
+    );
 
   return (
     <div className="ash-entry safe-top relative min-h-dvh overflow-hidden bg-background">
