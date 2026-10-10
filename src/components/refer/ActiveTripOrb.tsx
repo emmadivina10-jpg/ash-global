@@ -18,13 +18,25 @@ export function useActiveTrip() {
       const { data: auth } = await supabase.auth.getUser();
       const uid = auth.user?.id;
       if (!uid) return null;
-      const { data: provs } = await supabase.from("provider_profiles").select("id").eq("user_id", uid);
+      const { data: provs } = await supabase
+        .from("provider_profiles")
+        .select("id")
+        .eq("user_id", uid);
       const ids = (provs ?? []).map((p) => p.id);
-      const filter = ids.length ? `client_id.eq.${uid},provider_id.in.(${ids.join(",")})` : `client_id.eq.${uid}`;
-      const { data } = await supabase.from("bookings").select("id, status, client_id, created_at")
-        .or(filter).in("status", LIVE).order("created_at", { ascending: false }).limit(1);
+      const filter = ids.length
+        ? `client_id.eq.${uid},provider_id.in.(${ids.join(",")})`
+        : `client_id.eq.${uid}`;
+      const { data } = await supabase
+        .from("bookings")
+        .select("id, status, client_id, created_at")
+        .or(filter)
+        .in("status", LIVE)
+        .order("created_at", { ascending: false })
+        .limit(1);
       const b = data?.[0];
-      return b ? { id: b.id as string, status: b.status as string, mine: b.client_id === uid } : null;
+      return b
+        ? { id: b.id as string, status: b.status as string, mine: b.client_id === uid }
+        : null;
     },
   });
 
@@ -33,7 +45,9 @@ export function useActiveTrip() {
     if (!trip || !trip.mine || trip.status !== "PAYMENT_PROCESSING") return;
     sync({ data: { bookingId: trip.id } })
       .then(() => void qc.invalidateQueries({ queryKey: ["bookings"] }))
-      .catch(() => { /* retried on next refresh */ });
+      .catch(() => {
+        /* retried on next refresh */
+      });
   }, [trip?.id, trip?.status, trip?.mine, sync, qc]);
 
   return trip;
