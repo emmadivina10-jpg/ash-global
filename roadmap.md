@@ -1,6 +1,9 @@
 # Roadmap
 
 ## Stripe booking payment and provider transfer completion
+- [ ] Isolated preparation: review staged migration and validate it in the separate Stripe safeguards draft; shared production changes remain prohibited
+- [ ] Validate all 11 Marketplace webhook events, replay handling, refund/dispute holds and transfer reconciliation without live operations
+- [ ] Confirm TD destination and signing-secret association — endpoint absent on TD; secure association requires a real TD-signed delivery
 - [x] Continue preview-only onboarding validation, separate status reporting and failed-transfer/payout reconciliation; helper-level live transfers/onboarding remain disabled
 - [x] Full suite: 147 tests passed across 13 files; production unsigned webhook still rejects with HTTP 400; Replit configuration untouched
 - [x] Read-only audit of configured Stripe account, webhooks, onboarding, transfers, database release and local payout handling
