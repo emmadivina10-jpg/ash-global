@@ -15,6 +15,7 @@
 - Shareholders uses shareholders.functions.ts and append-only service-role records; Finance shares computeFinanceLedger. Source reads use allFinanceRows with stable ordering and fail on errors. Why: one complete financial source, no silent truncation or zeros.
 - Feed/Stories/Services rank via rotation.ts after safety filtering. Why: no duplicate feed.
 - AppShell omits tab-owned headers; MobileNav owns hold/slide. Why: one navigation path.
+- Desktop Messages fills the content area beside the sidebar; desktop and mobile navigation both expose Flights. Why: use the available viewport and keep primary destinations accessible on both layouts.
 - Market defaults via versioned services-mode at the existing Services URL; Extras is its child route. MarketBrowser reuses discovery/deals/property reads. Why: preserve commerce and URLs.
 
 - Avatar updates reuse safety-filtered StoriesRail; ChatActionDialog owns panels; MemberNavIcon uses token-based SVG strokes. Why: shared safe viewing and branding.
