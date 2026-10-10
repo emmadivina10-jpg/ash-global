@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
+const LiveTripMap = lazy(() => import("@/components/refer/LiveTripMap"));
+function km(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
+  const R = 6371, d = Math.PI / 180, x = (b.lat - a.lat) * d, y = (b.lng - a.lng) * d;
+  const h = Math.sin(x / 2) ** 2 + Math.cos(a.lat * d) * Math.cos(b.lat * d) * Math.sin(y / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -98,6 +104,36 @@ function TrackPage() {
     return () => navigator.geolocation.clearWatch(id);
   }, [sharing, r?.viewer, bookingId, fr]);
 
+  // Both parties: share your own position while this active booking is open (opt-in).
+  const [shareOn, setShareOn] = useState(false);
+  const [mine, setMine] = useState<{ lat: number; lng: number } | null>(null);
+  const [locError, setLocError] = useState<string | null>(null);
+  const lastParty = useRef(0);
+  useEffect(() => {
+    if (!shareOn || !active || !("geolocation" in navigator)) return;
+    const id = navigator.geolocation.watchPosition(
+      async (p) => {
+        setMine({ lat: p.coords.latitude, lng: p.coords.longitude });
+        setLocError(null);
+        if (Date.now() - lastParty.current < 8000) return;
+        lastParty.current = Date.now();
+        await supabase.rpc("share_booking_party_location", { _booking_id: bookingId, _lat: p.coords.latitude, _lng: p.coords.longitude, _accuracy: p.coords.accuracy });
+      },
+      () => { setLocError(fr ? "Localisation refusée. Autorisez-la dans les réglages du navigateur." : "Location was blocked. Allow it in your browser settings."); setShareOn(false); },
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 },
+    );
+    return () => navigator.geolocation.clearWatch(id);
+  }, [shareOn, active, bookingId, fr]);
+  const { data: parties } = useQuery({
+    queryKey: ["bookings", "parties", bookingId],
+    enabled: active,
+    refetchInterval: 8000,
+    queryFn: async () => {
+      const { data } = await supabase.from("booking_party_locations").select("party, lat, lng, updated_at").eq("booking_id", bookingId);
+      return (data ?? []) as { party: "CUSTOMER" | "PROVIDER"; lat: number; lng: number; updated_at: string }[];
+    },
+  });
+
   const [busy, setBusy] = useState(false);
   async function setTrip(status: "ON_THE_WAY" | "ARRIVED") {
     setBusy(true);
@@ -194,17 +230,27 @@ function TrackPage() {
       </ol>
 
       <TrackingDock>
-        {mapSrc ? (
-          <iframe title={fr ? "Carte de la réservation" : "Booking tracking map"} className="h-[min(22rem,42dvh)] min-h-48 w-full border-0" referrerPolicy="no-referrer" src={mapSrc} />
-        ) : (
-          <div className="flex h-40 items-center justify-center p-4 text-center text-sm text-muted-foreground">
-            {sharing
-              ? fr ? "En attente de la première position du prestataire…" : "Waiting for the provider's first position…"
-              : !r.location
-                ? fr ? "Aucune adresse de rendez-vous enregistrée." : "No meeting address has been saved."
-                : fr ? "Carte indisponible. Ouvrez l’itinéraire pour voir cette adresse." : "Map unavailable. Open directions to view this address."}
-          </div>
-        )}
+        {(() => {
+          const myParty = isProvider ? "PROVIDER" : "CUSTOMER";
+          const me = mine ?? parties?.find((p) => p.party === myParty) ?? null;
+          const them = parties?.find((p) => p.party !== myParty) ?? (isProvider ? null : loc ? { lat: loc.lat, lng: loc.lng } : null);
+          const otherLabel = isProvider ? (fr ? "Client" : "Customer") : fr ? "Prestataire" : "Provider";
+          const pts = [
+            ...(me ? [{ lat: me.lat, lng: me.lng, label: fr ? "Vous" : "You", kind: "me" as const }] : []),
+            ...(them ? [{ lat: them.lat, lng: them.lng, label: otherLabel, kind: "other" as const }] : []),
+          ];
+          return <>
+            {typeof window !== "undefined" ? <Suspense fallback={<div className="h-56 animate-pulse bg-muted" />}><LiveTripMap points={pts} /></Suspense> : <div className="h-56 bg-muted" />}
+            <div className="space-y-2 border-b border-border p-4 text-sm">
+              {me && them ? <p className="font-bold text-foreground">{fr ? "Distance" : "Distance"}: {km(me, them) < 1 ? `${Math.round(km(me, them) * 1000)} m` : `${km(me, them).toFixed(1)} km`}</p> : null}
+              {!active ? <p className="text-muted-foreground">{waitingForPayment ? (fr ? "Le suivi démarre dès que le paiement est confirmé." : "Tracking starts as soon as payment is confirmed.") : fr ? "Le suivi n'est pas actif." : "Tracking isn't active for this booking."}</p>
+                : !shareOn ? <Button onClick={() => setShareOn(true)} className="w-full rounded-full"><MapPin className="size-4" />{fr ? "Activer ma localisation" : "Enable my location"}</Button>
+                : <p className="text-xs text-primary">{fr ? "Votre position est partagée avec cette réservation." : "Your location is shared with this booking only."}</p>}
+              {active && !them ? <p className="text-xs text-muted-foreground">{isProvider ? (fr ? "Le client n'a pas encore activé sa localisation." : "The customer hasn't enabled their location yet.") : fr ? "Le prestataire n'a pas encore activé sa localisation." : "The provider hasn't enabled their location yet."}</p> : null}
+              {locError ? <p className="text-xs text-destructive">{locError}</p> : null}
+            </div>
+          </>;
+        })()}
         <div className="space-y-1 p-4 text-sm">
           <p className="flex items-center gap-2"><MapPin className="size-4 text-primary" /> {r.location ?? (fr ? "Lieu non indiqué" : "No location given")}</p>
           {sharing && loc ? (
