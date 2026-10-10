@@ -117,8 +117,8 @@ function BookingsPage() {
   }
   const [tab, setTab] = useState<"client" | "provider">("client");
 
-  const clientBookings = (mine ?? []) as Array<Record<string, unknown> & { id: string }>;
-  const providerBookings = received ?? [];
+  const clientBookings = useMemo(() => (mine ?? []) as Array<Record<string, unknown> & { id: string }>, [mine]);
+  const providerBookings = useMemo(() => received ?? [], [received]);
 
   const pendingForProvider = useMemo(
     () => providerBookings.filter((b) => b.status === "PENDING").length,

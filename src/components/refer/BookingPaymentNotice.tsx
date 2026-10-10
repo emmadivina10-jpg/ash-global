@@ -8,7 +8,7 @@ export type PaymentCheckFeedback = "pending" | "failed" | "unavailable";
 export function BookingPaymentNotice({ provider, checking, feedback, onCheck }: {
   provider?: string | null;
   checking: boolean;
-  feedback?: PaymentCheckFeedback;
+  feedback?: PaymentCheckFeedback | undefined;
   onCheck: () => void;
 }) {
   const { lang } = useI18n();
