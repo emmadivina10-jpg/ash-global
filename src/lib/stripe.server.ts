@@ -100,6 +100,9 @@ export const stripePay = {
     status: "PAID" | "PENDING" | "FAILED" | "CANCELLED";
     paymentIntentId: string | null;
     error: string | null;
+    amountTotal?: number | null;
+    currency?: string | null;
+    reference?: string | null;
   }> {
     if (!key()) {
       return { ok: false, configured: false, status: "PENDING", paymentIntentId: null, error: "STRIPE_NOT_CONFIGURED" };
@@ -121,7 +124,12 @@ export const stripePay = {
           ? "CANCELLED"
           : "PENDING";
 
-    return { ok: true, configured: true, status, paymentIntentId, error: null };
+    return {
+      ok: true, configured: true, status, paymentIntentId, error: null,
+      amountTotal: typeof result.data["amount_total"] === "number" ? (result.data["amount_total"] as number) : null,
+      currency: typeof result.data["currency"] === "string" ? (result.data["currency"] as string) : null,
+      reference: typeof result.data["client_reference_id"] === "string" ? (result.data["client_reference_id"] as string) : null,
+    };
   },
 };
 
