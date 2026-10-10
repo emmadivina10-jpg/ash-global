@@ -1,5 +1,11 @@
 # Roadmap
 
+## Booking payment clarity and recovery
+- [ ] Replace misleading payment actions with one payment entry, clear confirmation feedback and direct tracking access
+- [ ] Prevent overlapping automatic checks and handle pending, failed and unavailable checks honestly
+- [ ] Test payment-state decisions and booking UI; keep Stripe settings, production records and publishing unchanged
+- [ ] Confirm genuine Stripe payment settlement — blocked by TD webhook alignment and staged safeguards requiring separate approval
+
 ## Payment return, floating tracking and Menu badge
 - [x] Correct app-owned checkout return origins and open booking tracking; existing payment verification remains authoritative
 - [x] Add floating Map/Wallet tabs, a round reopen control, and a visible three-line profile Menu badge; phone panel clears the round control
