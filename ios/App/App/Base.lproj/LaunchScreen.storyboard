@@ -12,11 +12,39 @@
         <scene sceneID="EHf-IW-A2E">
             <objects>
                 <viewController id="01J-lp-oVM" sceneMemberID="viewController">
-                    <imageView key="view" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Splash" id="snD-IY-ifK">
+                    <view key="view" contentMode="scaleToFill" id="snD-IY-ifK">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask"/>
-                        <color key="backgroundColor" red="0.02352941176" green="0.02352941176" blue="0.06274509804" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                    </imageView>
+                        <color key="backgroundColor" red="0.03137254902" green="0.03137254902" blue="0.07058823529" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <subviews>
+                            <imageView contentMode="scaleAspectFit" image="LaunchMark" translatesAutoresizingMaskIntoConstraints="NO" id="ash-mark">
+                                <rect key="frame" x="139.5" y="285.5" width="96" height="96"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="96" id="mark-width"/>
+                                    <constraint firstAttribute="height" constant="96" id="mark-height"/>
+                                </constraints>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="from" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="ash-from">
+                                <rect key="frame" x="170" y="596" width="35" height="14"/>
+                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="10"/>
+                                <color key="textColor" white="0.65" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="ASH GLO" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="ash-name">
+                                <rect key="frame" x="150" y="615" width="75" height="18"/>
+                                <fontDescription key="fontDescription" type="system" weight="heavy" pointSize="14"/>
+                                <color key="textColor" white="0.96" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </label>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="ash-safe"/>
+                        <constraints>
+                            <constraint firstItem="ash-mark" firstAttribute="centerX" secondItem="snD-IY-ifK" secondAttribute="centerX" id="mark-x"/>
+                            <constraint firstItem="ash-mark" firstAttribute="centerY" secondItem="snD-IY-ifK" secondAttribute="centerY" id="mark-y"/>
+                            <constraint firstItem="ash-name" firstAttribute="centerX" secondItem="snD-IY-ifK" secondAttribute="centerX" id="name-x"/>
+                            <constraint firstItem="ash-safe" firstAttribute="bottom" secondItem="ash-name" secondAttribute="bottom" constant="40" id="name-bottom"/>
+                            <constraint firstItem="ash-from" firstAttribute="centerX" secondItem="snD-IY-ifK" secondAttribute="centerX" id="from-x"/>
+                            <constraint firstItem="ash-name" firstAttribute="top" secondItem="ash-from" secondAttribute="bottom" constant="5" id="from-top"/>
+                        </constraints>
+                    </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -24,6 +52,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="Splash" width="1366" height="1366"/>
+        <image name="LaunchMark" width="192" height="192"/>
     </resources>
 </document>

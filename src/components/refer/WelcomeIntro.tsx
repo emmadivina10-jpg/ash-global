@@ -15,7 +15,9 @@ let played = false;
 export function welcomeSeen(): boolean {
   try {
     if (played) return true;
-    if (isNativeApp()) return false;
+    // The native launch storyboard owns the branded opening; don't replay it
+    // as a second full-screen web animation in TestFlight.
+    if (isNativeApp()) return true;
     return window.sessionStorage.getItem(KEY) === "1";
   } catch {
     return true;
