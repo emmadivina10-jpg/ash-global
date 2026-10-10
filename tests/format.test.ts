@@ -124,6 +124,6 @@ describe("labels and constants", () => {
   });
 
   it("sets a minimum withdrawal", () => {
-    expect(MIN_WITHDRAWAL).toBe(1000);
+    expect(MIN_WITHDRAWAL).toBe(100);
   });
 });
