@@ -1,5 +1,10 @@
 # Roadmap
 
+## Payment return, floating tracking and Menu badge
+- [ ] Correct app-owned checkout return origins and open the relevant tracking page without changing settlement
+- [ ] Show a clear floating Map with selectable Wallet, a round reopen control, and a visible three-line profile Menu badge
+- [ ] Verify navigation rules, isolated UI interactions and preview health; do not publish or make live financial operations
+
 ## Support conversation and notification fixes
 - [x] Make Support a conversation-first inbox with message bubbles, search, anchored composer and per-conversation drafts
 - [x] Repair resolved/answered Support counts, exact staff unread count, scoped read persistence and notification feedback; future ticket alerts open their conversation without schema or financial changes
