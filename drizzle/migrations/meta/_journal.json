@@ -50,6 +50,13 @@
       "when": 1791608786315,
       "tag": "0006_commission_default_15",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791651761753,
+      "tag": "0007_staff_member_insights",
+      "breakpoints": true
     }
   ]
 }
