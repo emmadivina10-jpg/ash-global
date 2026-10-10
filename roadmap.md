@@ -1,5 +1,12 @@
 # Roadmap
 
+## Service verification and native presentation (Oct 10)
+- [ ] Fix service-code verification without enabling Stripe transfers or changing live financial records
+- [ ] Remove duplicate in-app notification banners and inspect closed-app photo delivery support
+- [ ] Replace the initial native big-logo opening with the branded ASH Glo screen
+- [ ] Move Compass hiding inside its panel; keep Settings restoration
+- [ ] Run targeted tests and preview checks; no publishing or native distribution
+
 ## Shared staff member insights and AI support
 - [x] Shared registered-member/today counts, paginated name/photo directory and conservative presence on every staff console
 - [x] Authorized audited read-only member review for Finance/Revenue, Trust, Support and admins; existing department action links

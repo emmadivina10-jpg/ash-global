@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { LIVE_PROVIDER_TRANSFERS_ENABLED } from "./stripe-release-policy";
 
 export const verifyBookingService = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -12,7 +13,10 @@ export const verifyBookingService = createServerFn({ method: "POST" })
     if (bookingError || !provider || Array.isArray(provider) || provider.user_id !== context.userId) {
       return { ok: false, error: "VERIFICATION_FAILED" };
     }
-    if (booking.payment_provider === "STRIPE") {
+    // Service verification is independent of optional Connect transfers. The
+    // existing RPC authorizes the provider, validates payment and consumes the
+    // code atomically. Do not require uninstalled transfer tables when off.
+    if (booking.payment_provider === "STRIPE" && LIVE_PROVIDER_TRANSFERS_ENABLED) {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const db = supabaseAdmin as import("@supabase/supabase-js").SupabaseClient;
       const { data: payable, error } = await db.from("stripe_booking_releases").select("status")
@@ -21,7 +25,12 @@ export const verifyBookingService = createServerFn({ method: "POST" })
     }
     const { data: result, error } = await context.supabase.rpc("verify_booking_code", { _booking_id: data.bookingId, _code: data.code });
     const outcome = result as { ok?: boolean; error?: string; attempts_left?: number } | null;
-    if (error || !outcome?.ok) return { ...outcome, ok: false, error: outcome?.error ?? "VERIFICATION_FAILED" };
+    if (error) {
+      console.error("Service verification RPC failed", { code: error.code });
+      return { ok: false, error: "VERIFICATION_UNAVAILABLE" };
+    }
+    if (!outcome?.ok) return { ...outcome, ok: false, error: outcome?.error ?? "VERIFICATION_FAILED" };
+    if (!LIVE_PROVIDER_TRANSFERS_ENABLED) return { ...outcome, ok: true, releaseStatus: "AVAILABLE_IN_WALLET" };
     const { releaseBookingTransfer } = await import("./stripe-booking-release.server");
     const release = await releaseBookingTransfer(data.bookingId);
     return { ...outcome, ok: true, releaseStatus: release.status };

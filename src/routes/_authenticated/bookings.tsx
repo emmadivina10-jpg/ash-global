@@ -663,13 +663,23 @@ function VerifyServiceForm({ bookingId }: { bookingId: string }) {
             ? fr ? "Trop d'essais. Contactez le support ASH." : "Too many tries. Contact ASH support."
             : e === "EXPIRED"
               ? fr ? "Code expiré. Contactez le support ASH." : "Code expired. Contact ASH support."
+              : e === "NOT_PAYABLE_STATE"
+                ? fr ? "Le paiement doit être confirmé avant de vérifier le service." : "Payment must be confirmed before service verification."
+                : e === "NO_CODE"
+                  ? fr ? "Aucun code client disponible. Actualisez la réservation ou contactez le support ASH." : "No customer code is available. Refresh the booking or contact ASH support."
+                  : e === "STRIPE_RELEASE_AWAITING_APPROVAL"
+                    ? fr ? "Le transfert Stripe nécessite une vérification du support ASH." : "The Stripe transfer needs ASH support review."
+                    : e === "VERIFICATION_UNAVAILABLE"
+                      ? fr ? "Vérification temporairement indisponible. Réessayez ou contactez le support ASH." : "Verification is temporarily unavailable. Retry or contact ASH support."
               : fr ? "Vérification impossible." : "Could not verify.",
       );
       return;
     }
     toast.success(r.releaseStatus === "TRANSFERRED"
       ? fr ? "Service vérifié — transfert vers votre compte Stripe enregistré." : "Service verified — transfer to your Stripe account recorded."
-      : fr ? "Service vérifié — paiement du prestataire en attente." : "Service verified — provider payment pending.");
+      : r.releaseStatus === "AVAILABLE_IN_WALLET"
+        ? fr ? "Service vérifié — votre part est disponible dans le portefeuille ASH." : "Service verified — your share is available in your ASH wallet."
+        : fr ? "Service vérifié — paiement du prestataire en attente." : "Service verified — provider payment pending.");
     setValue("");
     void queryClient.invalidateQueries();
   }
