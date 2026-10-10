@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { EXTRA_DICTS, LANGUAGES, RTL_LANGS, type LangCode } from "@/lib/i18n.locales";
+import { GENERATED_DICTS } from "@/lib/i18n.generated";
 
 export type Lang = LangCode;
 
@@ -917,15 +918,22 @@ return lang === "fr" ? "fr" : "en";
 }
 
 function translate(lang: Lang, key: TKey, vars?: Vars) {
-const raw = DICT[lang]?.[key] ?? EN[key] ?? key;
+const raw = DICT[lang]?.[key] ?? GENERATED_DICTS[lang]?.[key] ?? EN[key] ?? key;
 if (!vars) return raw;
 return raw.replace(/{(\w+)}/g, (_m, name: string) => String(vars[name] ?? `{${name}}`));
 }
 
-const I18nContext = createContext<{ lang: Lang; setLang: (l: Lang) => void; t: (k: TKey, v?: Vars) => string }>({
+function translateText(lang: Lang, en: string, fr?: string) {
+  if (lang === "en") return en;
+  if (lang === "fr" && fr) return fr;
+  return GENERATED_DICTS[lang]?.[`literal:${en}`] ?? en;
+}
+
+const I18nContext = createContext<{ lang: Lang; setLang: (l: Lang) => void; t: (k: TKey, v?: Vars) => string; tx: (en: string, fr?: string) => string }>({
 lang: "en",
 setLang: () => {},
 t: (k, v) => translate("en", k, v),
+tx: en => en,
 });
 
 export function I18nProvider({ children }: { children: ReactNode }) {
@@ -952,7 +960,7 @@ localStorage.setItem(KEY, l);
 setLangState(l);
 }, []);
 
-const value = useMemo(() => ({ lang, setLang, t: (k: TKey, v?: Vars) => translate(lang, k, v) }), [lang, setLang]);
+const value = useMemo(() => ({ lang, setLang, t: (k: TKey, v?: Vars) => translate(lang, k, v), tx: (en: string, fr?: string) => translateText(lang, en, fr) }), [lang, setLang]);
 
 return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }

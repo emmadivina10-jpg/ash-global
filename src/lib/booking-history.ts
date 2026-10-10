@@ -6,7 +6,7 @@ export function historyMatches(state: HistoryState | undefined, view: HistoryVie
 export function canRemoveBookingHistory(status: string) {
   return ["COMPLETED", "SETTLED", "CANCELLED", "DECLINED", "NO_SHOW", "REFUNDED", "PAYMENT_FAILED", "PAYMENT_EXPIRED"].includes(status);
 }
-export function bookingSearch(input: { tab?: unknown; booking?: unknown }) {
+export function bookingSearch(input: { tab?: unknown; booking?: unknown }): { tab?: "provider" | "client"; booking?: string } {
   return { tab: input.tab === "provider" ? "provider" as const : "client" as const,
     booking: typeof input.booking === "string" ? input.booking : undefined };
 }

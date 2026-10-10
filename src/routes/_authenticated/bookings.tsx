@@ -123,7 +123,7 @@ function BookingsPage() {
     setBusyId(null);
     setBankInfo({ bank: r.bank, reference: r.reference, price, error: r.ok ? null : r.error === "BANK_UNAVAILABLE" ? BANK_UNAVAILABLE_TEXT : (r.error ?? "PAYMENT_START_FAILED") });
   }
-  const tab = search.tab;
+  const tab = search.tab ?? "client";
   useEffect(() => {
     if (!search.booking || tab !== "provider") return;
     const timer = setTimeout(() => {
