@@ -1,5 +1,7 @@
 # Staff console rules
 
+- Member names/photos are visible to all console employees, but member review and its AI require the server-side member-review guard; AI conversations are scoped to both staff identity and member, and suggestions never send or mutate member records. Why: shared visibility without impersonation or unauthorized private access.
+
 - Staff authentication audit data must use a server-side super-admin guard and safe column projections; historical credential test results must never contain passwords or hashes.
 - Staff identity (employee name, position, employee ID, extra departments) lives on staff_accounts; seats without an employee name are shared team logins. Why: one source of truth for console headers and per-person performance.
 - Staff performance figures are computed only from existing records in staff-performance.functions.ts; workspace and department dashboards reuse getMyCommandCenter and PerformanceChart, showing an insufficient-data state otherwise. Why: one authorized source and no fabricated KPIs.

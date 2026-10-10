@@ -177,7 +177,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     let stopped = false;
     const touch = () => {
-      if (!stopped) void supabase.rpc("touch_member_presence");
+      if (!stopped && document.visibilityState === "visible" && navigator.onLine) void supabase.rpc("touch_member_presence");
     };
     touch();
     const timer = window.setInterval(touch, 2 * 60_000);
