@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import ashLogo from "@/assets/ash-logo.png.asset.json";
@@ -10,8 +10,8 @@ const SLIDES = [
     kickerFr: "Bienvenue sur ASH",
     titleEn: ["Where", "opportunities", "connect."],
     titleFr: ["Là où les", "opportunités", "se rencontrent."],
-    bodyEn: "Book trusted professionals, talk with your people, and share your moments — all in one place.",
-    bodyFr: "Réservez des professionnels de confiance, discutez et partagez vos moments — au même endroit.",
+    bodyEn: "Book trusted professionals, chat with friends and family, and share your moments — all in one place.",
+    bodyFr: "Réservez des professionnels de confiance, discutez avec vos amis et votre famille, et partagez vos moments — au même endroit.",
   },
   {
     kickerEn: "Pay your way",
@@ -23,16 +23,43 @@ const SLIDES = [
   },
 ] as const;
 
+const SWIPE_THRESHOLD = 55;
+
 /** Two quiet, text-only onboarding screens shown in the app and on phones. */
 export function MobileOnboarding() {
   const { tx } = useI18n();
   const [step, setStep] = useState(0);
+  const [dragX, setDragX] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const startX = useRef(0);
   const last = step === SLIDES.length - 1;
-  const slide = SLIDES[step] ?? SLIDES[0];
-  const title = tx(slide.titleEn.join("|"), slide.titleFr.join("|")).split("|");
+
+  const clamp = (n: number) => Math.min(SLIDES.length - 1, Math.max(0, n));
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    startX.current = e.touches[0].clientX;
+    setDragging(true);
+  };
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (!dragging) return;
+    setDragX(e.touches[0].clientX - startX.current);
+  };
+  const onTouchEnd = () => {
+    if (dragging) {
+      if (dragX <= -SWIPE_THRESHOLD && !last) setStep(step + 1);
+      else if (dragX >= SWIPE_THRESHOLD && step > 0) setStep(step - 1);
+    }
+    setDragging(false);
+    setDragX(0);
+  };
 
   return (
-    <div className="ash-entry safe-top relative flex min-h-dvh flex-col overflow-hidden bg-background px-7 pb-[calc(1.75rem+env(safe-area-inset-bottom))] pt-[calc(1.25rem+env(safe-area-inset-top))]">
+    <div
+      className="ash-entry safe-top relative flex min-h-dvh flex-col overflow-hidden bg-background px-7 pb-[calc(1.75rem+env(safe-area-inset-bottom))] pt-[calc(1.25rem+env(safe-area-inset-top))]"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full gold-gradient opacity-20 blur-3xl" />
       <div aria-hidden className="pointer-events-none absolute -bottom-32 -left-24 size-80 rounded-full brand-gradient opacity-15 blur-3xl" />
 
@@ -49,21 +76,34 @@ export function MobileOnboarding() {
         )}
       </header>
 
-      <main key={step} className="relative flex flex-1 flex-col justify-center animate-in fade-in slide-in-from-right-4 duration-500">
-        <p className="mb-6 text-[11px] font-bold uppercase tracking-[0.32em] text-primary">
-          {tx(slide.kickerEn, slide.kickerFr)}
-        </p>
-        <h1 className="font-serif text-[3.1rem] font-normal leading-[1.02] tracking-tight text-foreground">
-          {title.map((line, i) => (
-            <span key={i} className={i === 1 ? "block italic gold-gradient bg-clip-text text-transparent" : "block"}>
-              {line}
-            </span>
+      <main className="relative flex-1 overflow-hidden">
+        <div
+          className="flex h-full"
+          style={{
+            width: `${SLIDES.length * 100}%`,
+            transform: `translateX(calc(-${step * (100 / SLIDES.length)}% + ${dragX}px))`,
+            transition: dragging ? "none" : "transform 500ms cubic-bezier(0.22, 1, 0.36, 1)",
+          }}
+        >
+          {SLIDES.map((s, i) => (
+            <section key={i} className="flex w-full flex-col justify-center pr-7" aria-hidden={i !== step}>
+              <p className="mb-6 text-[11px] font-bold uppercase tracking-[0.32em] text-primary">
+                {tx(s.kickerEn, s.kickerFr)}
+              </p>
+              <h1 className="font-serif text-[3.1rem] font-normal leading-[1.02] tracking-tight text-foreground">
+                {tx(s.titleEn.join("|"), s.titleFr.join("|")).split("|").map((line, j) => (
+                  <span key={j} className={j === 1 ? "block italic gold-gradient bg-clip-text text-transparent" : "block"}>
+                    {line}
+                  </span>
+                ))}
+              </h1>
+              <div className="my-7 h-px w-16 gold-gradient" />
+              <p className="max-w-xs text-[15px] leading-relaxed text-muted-foreground">
+                {tx(s.bodyEn, s.bodyFr)}
+              </p>
+            </section>
           ))}
-        </h1>
-        <div className="my-7 h-px w-16 gold-gradient" />
-        <p className="max-w-xs text-[15px] leading-relaxed text-muted-foreground">
-          {tx(slide.bodyEn, slide.bodyFr)}
-        </p>
+        </div>
       </main>
 
       <footer className="relative space-y-5">
@@ -100,7 +140,7 @@ export function MobileOnboarding() {
         ) : (
           <button
             type="button"
-            onClick={() => setStep(step + 1)}
+            onClick={() => setStep(clamp(step + 1))}
             className="group ml-auto flex h-16 w-16 items-center justify-center rounded-full gold-gradient text-primary-foreground shadow-[var(--shadow-brand)] transition active:scale-95"
             aria-label={tx("Next", "Suivant")}
           >
