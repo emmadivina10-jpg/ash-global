@@ -220,6 +220,12 @@ export const syncBookingPayment = createServerFn({ method: "POST" })
       return { ok: true as const, status: "PENDING" as const, bookingStatus: booking.status, error: null };
     }
 
+    // Only the verified Marketplace webhook can confirm a card booking.
+    // A Checkout return or API polling result is not a settlement authority.
+    if (booking.payment_provider === "STRIPE") {
+      return { ok: true as const, status: "PENDING" as const, bookingStatus: booking.status, error: null };
+    }
+
     let verification: {
       ok: boolean;
       status: "PAID" | "PENDING" | "FAILED" | "CANCELLED" | string;
