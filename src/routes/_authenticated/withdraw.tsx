@@ -580,9 +580,10 @@ function WithdrawPage() {
 
           {isBank ? (
             <p className="rounded-xl bg-muted/60 p-3 text-xs text-muted-foreground">
-              Funds are sent to the
-              bank account you verified
-              with Stripe above.
+              Funds are sent through
+              Stripe to the card or bank
+              account you connected in
+              your Wallet payout setup.
             </p>
           ) : (
             <div className="space-y-2">
