@@ -1,5 +1,13 @@
 # Roadmap
 
+## Shared staff member insights and AI support
+- [x] Shared registered-member/today counts, paginated name/photo directory and conservative presence on every staff console
+- [x] Authorized audited read-only member review for Finance/Revenue, Trust, Support and admins; existing department action links
+- [x] Prepared staff/member-scoped saved AI assistance and Support copy-to-draft suggestions; no automatic reply sending
+- [x] Staged additive metrics/history safeguards without applying shared-database changes; 199 regression tests passed, functional lint and preview build clean; unauthorized AI request rejected with 403
+- [ ] Activate and validate 30-day active metrics and saved AI — blocked until draft acceptance is separately approved; new structures not installed, live AI call and staff signed-in workflow unverified
+- [ ] Complete comprehensive account coverage beyond current bookings, transactions, support, posts and referrals — pending scope; current AI explicitly states its limited evidence
+
 ## Booking payment clarity and recovery
 - [x] Replace misleading payment actions with one payment entry, clear confirmation feedback and direct tracking access
 - [x] Prevent overlapping automatic mobile-money checks; card/bank refresh saved evidence; pending, failed and unavailable outcomes are visible

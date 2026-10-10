@@ -57,6 +57,7 @@ import { Route as AuthenticatedTransactionsRouteImport } from './routes/_authent
 import { Route as AuthenticatedVerifiedRouteImport } from './routes/_authenticated/verified'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedWithdrawRouteImport } from './routes/_authenticated/withdraw'
+import { Route as ApiStaffMemberAiRouteImport } from './routes/api/staff-member-ai'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ConsoleIndexRouteImport } from './routes/console.index'
 import { Route as ConsoleAdvertisingRouteImport } from './routes/console.advertising'
@@ -126,6 +127,7 @@ import { Route as ApiPublicCleanupSpotlightVideosRouteImport } from './routes/ap
 import { Route as ApiPublicCleanupStoriesRouteImport } from './routes/api/public/cleanup-stories'
 import { Route as ApiPublicReconcileActivationsRouteImport } from './routes/api/public/reconcile-activations'
 import { Route as ApiPublicSecuritySelfcheckRouteImport } from './routes/api/public/security-selfcheck'
+import { Route as ConsoleMembersMemberIdRouteImport } from './routes/console.members.$memberId'
 import { Route as AuthenticatedBookingBookingIdConfirmedRouteImport } from './routes/_authenticated/booking.$bookingId.confirmed'
 import { Route as AuthenticatedBookingBookingIdReceiptRouteImport } from './routes/_authenticated/booking.$bookingId.receipt'
 import { Route as AuthenticatedBookingBookingIdTrackRouteImport } from './routes/_authenticated/booking.$bookingId.track'
@@ -385,6 +387,11 @@ const AuthenticatedWithdrawRoute = AuthenticatedWithdrawRouteImport.update({
   id: '/withdraw',
   path: '/withdraw',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ApiStaffMemberAiRoute = ApiStaffMemberAiRouteImport.update({
+  id: '/api/staff-member-ai',
+  path: '/api/staff-member-ai',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth/callback',
@@ -752,6 +759,11 @@ const ApiPublicSecuritySelfcheckRoute =
     path: '/api/public/security-selfcheck',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ConsoleMembersMemberIdRoute = ConsoleMembersMemberIdRouteImport.update({
+  id: '/members/$memberId',
+  path: '/members/$memberId',
+  getParentRoute: () => ConsoleRoute,
+} as any)
 const AuthenticatedBookingBookingIdConfirmedRoute =
   AuthenticatedBookingBookingIdConfirmedRouteImport.update({
     id: '/booking/$bookingId/confirmed',
@@ -888,6 +900,7 @@ export interface FileRoutesByFullPath {
   '/verified': typeof AuthenticatedVerifiedRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
+  '/api/staff-member-ai': typeof ApiStaffMemberAiRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/console/advertising': typeof ConsoleAdvertisingRoute
   '/console/bookings': typeof ConsoleBookingsRoute
@@ -948,6 +961,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cleanup-stories': typeof ApiPublicCleanupStoriesRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
+  '/console/members/$memberId': typeof ConsoleMembersMemberIdRoute
   '/articles/': typeof AuthenticatedArticlesIndexRoute
   '/campus/': typeof AuthenticatedCampusIndexRoute
   '/clean/': typeof AuthenticatedCleanIndexRoute
@@ -1020,6 +1034,7 @@ export interface FileRoutesByTo {
   '/verified': typeof AuthenticatedVerifiedRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
+  '/api/staff-member-ai': typeof ApiStaffMemberAiRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/console/advertising': typeof ConsoleAdvertisingRoute
   '/console/bookings': typeof ConsoleBookingsRoute
@@ -1080,6 +1095,7 @@ export interface FileRoutesByTo {
   '/api/public/cleanup-stories': typeof ApiPublicCleanupStoriesRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
+  '/console/members/$memberId': typeof ConsoleMembersMemberIdRoute
   '/articles': typeof AuthenticatedArticlesIndexRoute
   '/campus': typeof AuthenticatedCampusIndexRoute
   '/clean': typeof AuthenticatedCleanIndexRoute
@@ -1155,6 +1171,7 @@ export interface FileRoutesById {
   '/_authenticated/verified': typeof AuthenticatedVerifiedRoute
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/_authenticated/withdraw': typeof AuthenticatedWithdrawRoute
+  '/api/staff-member-ai': typeof ApiStaffMemberAiRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/console/advertising': typeof ConsoleAdvertisingRoute
   '/console/bookings': typeof ConsoleBookingsRoute
@@ -1215,6 +1232,7 @@ export interface FileRoutesById {
   '/api/public/cleanup-stories': typeof ApiPublicCleanupStoriesRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
+  '/console/members/$memberId': typeof ConsoleMembersMemberIdRoute
   '/_authenticated/articles/': typeof AuthenticatedArticlesIndexRoute
   '/_authenticated/campus/': typeof AuthenticatedCampusIndexRoute
   '/_authenticated/clean/': typeof AuthenticatedCleanIndexRoute
@@ -1290,6 +1308,7 @@ export interface FileRouteTypes {
     | '/verified'
     | '/wallet'
     | '/withdraw'
+    | '/api/staff-member-ai'
     | '/auth/callback'
     | '/console/advertising'
     | '/console/bookings'
@@ -1350,6 +1369,7 @@ export interface FileRouteTypes {
     | '/api/public/cleanup-stories'
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
+    | '/console/members/$memberId'
     | '/articles/'
     | '/campus/'
     | '/clean/'
@@ -1422,6 +1442,7 @@ export interface FileRouteTypes {
     | '/verified'
     | '/wallet'
     | '/withdraw'
+    | '/api/staff-member-ai'
     | '/auth/callback'
     | '/console/advertising'
     | '/console/bookings'
@@ -1482,6 +1503,7 @@ export interface FileRouteTypes {
     | '/api/public/cleanup-stories'
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
+    | '/console/members/$memberId'
     | '/articles'
     | '/campus'
     | '/clean'
@@ -1556,6 +1578,7 @@ export interface FileRouteTypes {
     | '/_authenticated/verified'
     | '/_authenticated/wallet'
     | '/_authenticated/withdraw'
+    | '/api/staff-member-ai'
     | '/auth/callback'
     | '/console/advertising'
     | '/console/bookings'
@@ -1616,6 +1639,7 @@ export interface FileRouteTypes {
     | '/api/public/cleanup-stories'
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
+    | '/console/members/$memberId'
     | '/_authenticated/articles/'
     | '/_authenticated/campus/'
     | '/_authenticated/clean/'
@@ -1663,6 +1687,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SupportRoute: typeof SupportRoute
   TermsRoute: typeof TermsRoute
+  ApiStaffMemberAiRoute: typeof ApiStaffMemberAiRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   PayCodeRoute: typeof PayCodeRoute
   SSlugRoute: typeof SSlugRoute
@@ -2015,6 +2040,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/withdraw'
       preLoaderRoute: typeof AuthenticatedWithdrawRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/staff-member-ai': {
+      id: '/api/staff-member-ai'
+      path: '/api/staff-member-ai'
+      fullPath: '/api/staff-member-ai'
+      preLoaderRoute: typeof ApiStaffMemberAiRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/auth/callback': {
       id: '/auth/callback'
@@ -2499,6 +2531,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSecuritySelfcheckRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/console/members/$memberId': {
+      id: '/console/members/$memberId'
+      path: '/members/$memberId'
+      fullPath: '/console/members/$memberId'
+      preLoaderRoute: typeof ConsoleMembersMemberIdRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
     '/_authenticated/booking/$bookingId/confirmed': {
       id: '/_authenticated/booking/$bookingId/confirmed'
       path: '/booking/$bookingId/confirmed'
@@ -2786,6 +2825,7 @@ interface ConsoleRouteChildren {
   ConsoleWithdrawalsRoute: typeof ConsoleWithdrawalsRoute
   ConsoleWorkspaceRoute: typeof ConsoleWorkspaceRoute
   ConsoleIndexRoute: typeof ConsoleIndexRoute
+  ConsoleMembersMemberIdRoute: typeof ConsoleMembersMemberIdRoute
 }
 
 const ConsoleRouteChildren: ConsoleRouteChildren = {
@@ -2826,6 +2866,7 @@ const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsoleWithdrawalsRoute: ConsoleWithdrawalsRoute,
   ConsoleWorkspaceRoute: ConsoleWorkspaceRoute,
   ConsoleIndexRoute: ConsoleIndexRoute,
+  ConsoleMembersMemberIdRoute: ConsoleMembersMemberIdRoute,
 }
 
 const ConsoleRouteWithChildren =
@@ -2852,6 +2893,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SupportRoute: SupportRoute,
   TermsRoute: TermsRoute,
+  ApiStaffMemberAiRoute: ApiStaffMemberAiRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   PayCodeRoute: PayCodeRoute,
   SSlugRoute: SSlugRoute,

@@ -422,7 +422,9 @@ export const getMemberStatement = createServerFn({ method: "POST" })
   .inputValidator((data: { userId: string }) => ({ userId: String(data?.userId ?? "") }))
   .handler(async ({ data }) => {
     const { requireConsole, adminClient } = await import("./console.server");
-    await requireConsole();
+    const actor = await requireConsole();
+    const { canReviewMember } = await import("./member-insights");
+    if (!canReviewMember(actor)) throw new Error("FORBIDDEN_MEMBER_REVIEW");
     const db = await adminClient();
 
     const [profile, wallet, transactions] = await Promise.all([

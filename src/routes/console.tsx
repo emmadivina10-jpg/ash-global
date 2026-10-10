@@ -46,6 +46,8 @@ import { EmployeeTermsGate } from "@/components/console/EmployeeTermsGate";
 import { IdentityConfirmation } from "@/components/console/IdentityConfirmation";
 import { DepartmentCommandCenter } from "@/components/console/DepartmentCommandCenter";
 import { DailyTickets } from "@/components/console/DailyTickets";
+import { StaffMemberInsights } from "@/components/console/StaffMemberInsights";
+import { canReviewMember } from "@/lib/member-insights";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -102,6 +104,10 @@ export const Route = createFileRoute("/console")({
       { title: "ASH Console — Platform Operations" },
       { name: "description", content: "Private operations console for ASH Glo platform finance and payouts." },
       { name: "robots", content: "noindex, nofollow" },
+      { property: "og:title", content: "ASH Console — Platform Operations" },
+      { property: "og:description", content: "Private ASH Glo staff operations and member insights." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: ConsoleLayout,
@@ -217,7 +223,8 @@ function ConsoleLayout() {
   const department = actor?.department ?? "";
   const extra = (actor as { extraDepartments?: string[] } | null)?.extraDepartments ?? [];
   const allowed = allowedNav(superAdmin, department, extra);
-  const hasAccess = allowed.some((item) => item.to === pathname);
+  const hasAccess = allowed.some((item) => item.to === pathname) ||
+    (pathname.startsWith("/console/members/") && canReviewMember({ superAdmin, department, extraDepartments: extra }));
   const current = NAV.find((item) => item.to === pathname)?.label ?? "Overview";
 
   return (
@@ -327,6 +334,7 @@ function ConsoleLayout() {
         <main className="mx-auto w-full max-w-7xl space-y-5 px-4 py-6 sm:px-6">
           {hasAccess ? (
             <>
+              <StaffMemberInsights />
               {!superAdmin && allowed.some((i) => i.to === pathname && i.dept === department && (i.dept as string) !== "ALL") ? <DepartmentCommandCenter /> : null}
               <DailyTickets superAdmin={superAdmin} />
               <Outlet />
