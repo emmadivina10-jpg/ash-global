@@ -25,8 +25,8 @@ export const getTripEta = createServerFn({ method: "POST" })
     const address = (b?.address ?? "").trim();
     if (!address) return null;
 
-    const lovableKey = process.env.LOVABLE_API_KEY;
-    const mapsKey = process.env.GOOGLE_MAPS_API_KEY;
+    const lovableKey = process.env["LOVABLE_API_KEY"];
+    const mapsKey = process.env["GOOGLE_MAPS_API_KEY"];
     if (!lovableKey || !mapsKey) return { error: "MAPS_NOT_CONFIGURED" };
 
     const res = await fetch(`${GATEWAY_URL}/routes/directions/v2:computeRoutes`, {

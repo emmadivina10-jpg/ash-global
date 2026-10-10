@@ -137,7 +137,7 @@ function TrackPage() {
         : dest && active
           ? `https://www.google.com/maps/embed/v1/place?key=${mapsKey}&q=${dest}`
           : null;
-  const etaOk = eta && "durationSeconds" in eta ? eta : null;
+  const etaOk = eta && "durationSeconds" in eta ? (eta as { durationSeconds: number; distanceMeters: number }) : null;
   const etaText = !sharing
     ? ts === "ARRIVED" ? (fr ? "Prestataire arrivé" : "Provider has arrived") : fr ? "Heure d'arrivée : dès que le trajet démarre" : "Arrival time: shown once the trip starts"
     : etaOk
