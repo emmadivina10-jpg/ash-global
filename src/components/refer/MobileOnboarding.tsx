@@ -143,7 +143,7 @@ export function MobileOnboarding() {
         ) : (
           <button
             type="button"
-            onClick={() => setStep(clamp(step + 1))}
+            onClick={() => setStep(Math.min(SLIDES.length - 1, step + 1))}
             className="group ml-auto flex h-16 w-16 items-center justify-center rounded-full gold-gradient text-primary-foreground shadow-[var(--shadow-brand)] transition active:scale-95"
             aria-label={tx("Next", "Suivant")}
           >
