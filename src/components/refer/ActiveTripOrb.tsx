@@ -1,20 +1,14 @@
 import { useEffect } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Map } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { syncBookingPayment } from "@/lib/booking.functions";
-import { useI18n } from "@/lib/i18n";
 
 const LIVE = ["PAYMENT_PROCESSING", "CONFIRMED", "IN_PROGRESS"] as const;
 
-/** Always-visible Map button for the viewer's current booking (customer or provider). */
-export function ActiveTripOrb() {
-  const { lang } = useI18n();
-  const fr = lang === "fr";
+/** Shared current-booking read and payment recovery, without a second launcher. */
+export function useActiveTrip() {
   const qc = useQueryClient();
-  const onTrack = useRouterState({ select: (s) => /^\/booking\/[^/]+\/track\/?$/.test(s.location.pathname) });
   const sync = useServerFn(syncBookingPayment);
 
   const { data: trip } = useQuery({
@@ -42,18 +36,5 @@ export function ActiveTripOrb() {
       .catch(() => { /* retried on next refresh */ });
   }, [trip?.id, trip?.status, trip?.mine, sync, qc]);
 
-  if (!trip || onTrack) return null;
-  const paid = trip.status !== "PAYMENT_PROCESSING";
-  return (
-    <Link
-      to="/booking/$bookingId/track"
-      params={{ bookingId: trip.id }}
-      aria-label={fr ? "Ouvrir le suivi" : "Open tracking map"}
-      className="wallet-orb fixed bottom-44 right-4 z-40 flex size-16 flex-col items-center justify-center gap-0.5 rounded-full text-foreground lg:bottom-28 lg:right-8"
-    >
-      <Map className="size-6" />
-      <span className="text-[10px] font-bold">{paid ? (fr ? "Carte" : "Map") : "…"}</span>
-      {paid ? <span className="absolute right-1 top-1 size-3 animate-pulse rounded-full bg-primary" /> : null}
-    </Link>
-  );
+  return trip;
 }

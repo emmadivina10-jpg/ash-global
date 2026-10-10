@@ -32,7 +32,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin, useProfile } from "@/lib/queries";
 import { Button } from "@/components/ui/button";
 import { AshOrb } from "./AshOrb";
-import { ActiveTripOrb } from "./ActiveTripOrb";
 import { MobileNav } from "./MobileNav";
 import { LocationNudge } from "./LocationNudge";
 import { StatusBadge } from "./StatusBadge";
@@ -385,7 +384,6 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <LocationNudge />
       <AshOrb />
-      <ActiveTripOrb />
     </div>
   );
 }
