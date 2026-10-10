@@ -5,6 +5,7 @@
  */
 
 /** XAF per 1 USD. Used to present a card price for a XAF-denominated booking. */
+import { LIVE_PROVIDER_TRANSFERS_ENABLED, LIVE_PROVIDER_ONBOARDING_ENABLED } from "./stripe-release-policy";
 export const XAF_PER_USD = 620;
 
 export function xafToUsdCents(xaf: number): number {
@@ -128,6 +129,8 @@ export const stripePay = {
 /* ------------------------------------------------------------------ */
 
 export type ConnectStatus = {
+  country?: string;
+  transfersActive?: boolean;
   configured: boolean;
   accountId: string | null;
   detailsSubmitted: boolean;
@@ -149,6 +152,8 @@ function readAccount(data: Record<string, unknown>): ConnectStatus {
   const requirements = (data["requirements"] as { currently_due?: string[] } | undefined) ?? {};
   return {
     configured: true,
+    country: typeof data["country"] === "string" ? data["country"] : "",
+    transfersActive: (data["capabilities"] as Record<string, unknown> | undefined)?.["transfers"] === "active",
     accountId: (data["id"] as string) ?? null,
     detailsSubmitted: data["details_submitted"] === true,
     payoutsEnabled: data["payouts_enabled"] === true,
@@ -164,6 +169,7 @@ export const stripeConnect = {
 
   /** Creates an Express connected account. ASH never sees the bank details. */
   async createAccount(input: { email: string; country: string; userId: string }): Promise<ConnectStatus> {
+    if (!LIVE_PROVIDER_ONBOARDING_ENABLED) return { ...EMPTY_CONNECT, error: "ONBOARDING_AWAITING_APPROVAL" };
     if (!key()) return EMPTY_CONNECT;
     const body = new URLSearchParams();
     body.set("type", "express");
@@ -236,7 +242,8 @@ export const stripeConnect = {
     idempotencyKey: string;
     description?: string;
     sourceTransaction?: string;
-  }): Promise<{ ok: boolean; transferId: string | null; error: string | null }> {
+  }): Promise<{ ok: boolean; transferId: string | null; error: string | null; httpStatus?: number; errorCode?: string }> {
+    if (!LIVE_PROVIDER_TRANSFERS_ENABLED) return { ok: false, transferId: null, error: "TRANSFERS_AWAITING_APPROVAL" };
     const secret = key();
     if (!secret) return { ok: false, transferId: null, error: "STRIPE_NOT_CONFIGURED" };
 
@@ -259,8 +266,8 @@ export const stripeConnect = {
     });
     const data = (await response.json().catch(() => ({}))) as Record<string, unknown>;
     if (!response.ok) {
-      const err = data["error"] as { message?: string } | undefined;
-      return { ok: false, transferId: null, error: err?.message ?? "STRIPE_ERROR" };
+      const err = data["error"] as { code?: string } | undefined;
+      return { ok: false, transferId: null, error: "STRIPE_TRANSFER_REJECTED", httpStatus: response.status, errorCode: err?.code ?? "" };
     }
     const transferId = typeof data["id"] === "string" && data["id"].startsWith("tr_") ? data["id"] : null;
     return transferId ? { ok: true, transferId, error: null } : { ok: false, transferId: null, error: "TRANSFER_RESPONSE_INVALID" };

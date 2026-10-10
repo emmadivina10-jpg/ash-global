@@ -50,15 +50,6 @@ export const getPayoutAccount = createServerFn({ method: "POST" })
     }
 
     const status = await stripeConnect.getAccount(accountId);
-    // Keep our cached flags in step with Stripe, which is the source of truth.
-    await context.supabase
-      .from("profiles")
-      .update({
-        stripe_details_submitted: status.detailsSubmitted,
-        stripe_payouts_enabled: status.payoutsEnabled,
-      })
-      .eq("user_id", context.userId);
-
     return status;
   });
 
@@ -72,6 +63,9 @@ export const startPayoutOnboarding = createServerFn({ method: "POST" })
     const { providerOnboardingEnabled } = await import("./stripe-booking-release.server");
     // Account creation remains disabled until the owner authorizes live onboarding.
     if (!(await providerOnboardingEnabled())) return { ok: false, url: null, error: "ONBOARDING_AWAITING_APPROVAL" };
+    const { data: provider, error: providerError } = await context.supabase.from("provider_profiles")
+      .select("id").eq("user_id", context.userId).maybeSingle();
+    if (providerError || !provider) return { ok: false, url: null, error: "PROVIDER_REQUIRED" };
     const { stripeConnect } = await import("@/lib/stripe.server");
     if (!stripeConnect.configured()) return { ok: false, url: null, error: "STRIPE_NOT_CONFIGURED" };
 

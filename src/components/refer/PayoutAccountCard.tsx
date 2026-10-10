@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { getPayoutAccount, getPayoutDashboardLink, startPayoutOnboarding } from "@/lib/payouts.functions";
 import { SectionCard } from "@/components/refer/cards";
 import { Button } from "@/components/ui/button";
+import { payoutRoute, LIVE_PROVIDER_ONBOARDING_ENABLED } from "@/lib/stripe-release-policy";
 
 /**
  * Bank payouts via Stripe Connect. Onboarding and the payout dashboard both
@@ -26,9 +27,10 @@ export function PayoutAccountCard({ country }: { country: string }) {
   if (!data?.configured) return null;
 
   async function connect() {
+    if (country !== "CA") return;
     setBusy(true);
     const result = await startOnboarding({
-      data: { returnUrl: `${window.location.origin}/withdraw`, country },
+      data: { returnUrl: `${window.location.origin}/withdraw`, country: "CA" },
     }).catch(() => null);
     setBusy(false);
     if (!result?.url) {
@@ -63,10 +65,10 @@ export function PayoutAccountCard({ country }: { country: string }) {
     window.open(result.url, "_blank", "noopener,noreferrer");
   }
 
-  const ready = data.payoutsEnabled;
+  const ready = payoutRoute({country: data.country ?? country, detailsSubmitted: data.detailsSubmitted, transfersActive: data.transfersActive === true, payoutsEnabled: data.payoutsEnabled}) === "ELIGIBLE_CANADIAN_BANK";
 
   return (
-    <SectionCard title="Bank account (international payouts)">
+    <SectionCard title="Provider bank account">
       <div className="flex flex-wrap items-start gap-3">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
           <Building2 className="size-5" aria-hidden />
@@ -75,7 +77,7 @@ export function PayoutAccountCard({ country }: { country: string }) {
           {ready ? (
             <p className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
               <ShieldCheck className="size-4 text-primary" aria-hidden />
-              Bank payouts are active
+              Connected account verified
             </p>
           ) : (
             <p className="text-sm font-semibold text-foreground">
@@ -84,8 +86,8 @@ export function PayoutAccountCard({ country }: { country: string }) {
           )}
           <p className="mt-1 text-xs text-muted-foreground">
             {ready
-              ? "Choose “Bank account” below to withdraw earnings straight to your bank."
-              : "Your details are entered securely on Stripe — ASH never sees your bank credentials."}
+              ? "Transfers remain disabled pending approval. Bank payout is tracked separately."
+              : country !== "CA" ? "This Stripe payout route is not confirmed for your country." : "Provider onboarding is awaiting approval."}
           </p>
           {!ready && data.requirementsDue.length > 0 ? (
             <p className="mt-1 text-xs text-muted-foreground">
@@ -100,7 +102,7 @@ export function PayoutAccountCard({ country }: { country: string }) {
                 Payout dashboard
               </Button>
             ) : (
-              <Button size="sm" disabled={busy} onClick={() => void connect()}>
+              <Button size="sm" disabled={busy || country !== "CA" || !LIVE_PROVIDER_ONBOARDING_ENABLED} onClick={() => void connect()}>
                 {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
                 {data.accountId ? "Continue verification" : "Connect bank account"}
               </Button>
