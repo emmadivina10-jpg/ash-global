@@ -177,7 +177,7 @@ function ConsoleOverview() {
         <HeroMetric
           label="Platform earnings"
           value={Number(f?.platform_revenue ?? 0)}
-          hint="Everything ASH has earned: activations + subscriptions + 1% commission"
+          hint="Everything ASH has earned: activations + subscriptions + booking commission"
           icon={Banknote}
           tone="brand"
         />

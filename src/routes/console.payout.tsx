@@ -212,7 +212,7 @@ function ConsolePayout() {
 
           <div className="rounded-xl border border-border p-3">
             <p className="text-xs text-muted-foreground">
-              1% booking commission
+              Booking commission
             </p>
 
             <p className="mt-1 font-display text-lg font-bold text-foreground">
@@ -496,7 +496,7 @@ function ConsolePayout() {
 
       <SectionCard
         title="Booking revenue"
-        description="Each booking's status, price and the 1% platform fee it generated."
+        description="Each booking's status, price and the commission it generated."
       >
         {bookingRows.length === 0 ? (
           <EmptyState title="No bookings yet" />
@@ -522,7 +522,7 @@ function ConsolePayout() {
                   </th>
 
                   <th className="py-2 pr-3 text-right font-medium">
-                    1% fee
+                    Fee
                   </th>
 
                   <th className="py-2 font-medium">

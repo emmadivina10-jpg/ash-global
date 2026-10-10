@@ -1,7 +1,7 @@
 import type { TKey } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 
-/** The marketplace is free to join; ASH earns 1% of every paid booking. */
+/** 1% fee on payment links and other non-booking commerce. Service bookings use the 12%/15% rate in commission.ts. */
 export const PLATFORM_COMMISSION_RATE = 0.01;
 export const PORTFOLIO_BUCKET = "portfolio";
 

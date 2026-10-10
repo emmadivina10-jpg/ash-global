@@ -69,7 +69,7 @@ function ConsoleBookings() {
   return (
     <SectionCard
       title="Bookings"
-      description="Lifecycle: pending → confirmed → in progress → completed → settled. The 1% fee is only recognised at completion and reverses on refunds, disputes and no-shows."
+      description="Lifecycle: pending → confirmed → in progress → completed → settled. ASH keeps a 12% or 15% commission (set under Commission), saved on each booking at payment; the provider share is released when the customer's verification code is entered."
     >
       {disputes > 0 ? (
         <p className="mb-3 rounded-xl bg-destructive/10 px-3 py-2 text-sm font-semibold text-destructive">
