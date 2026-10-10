@@ -103,6 +103,8 @@ verify callers themselves (e.g. HMAC-SHA256 webhook signatures).
 
 Finance and Shareholders reuse the same read-only ledger. Finance source reads are paginated so totals and wallet reconciliation do not silently stop at a fixed row limit; unavailable data fails rather than appearing as zero. Collection, payout execution, fees and withdrawal limits remain in their existing payment/settlement routines.
 
+Stripe provider-release safeguards are staged in preview, not live: service completion and customer verification authorize a payable, not a bank payout. Transfers require verified charge evidence, a supported connected account, a durable per-booking release and explicit activation. Execution and onboarding default off. Shared-database safeguards in `pending-database/stripe-booking-release.sql` require separate approval before application; the Marketplace webhook fails closed until installed. The TD account's ASH webhook registration still requires owner approval. Cameroon MTN/Orange payouts remain on the existing funded TchokoPay rail; Stripe collections do not fund that rail automatically. Payment-link fees remain 1%.
+
 ## Security
 
 - RLS enforced on every table; anonymous visitors can read only curated public
