@@ -1,0 +1,1 @@
+ALTER TABLE public.marketplace_settings ALTER COLUMN commission_rate SET DEFAULT 0.15;

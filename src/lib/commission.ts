@@ -1,6 +1,6 @@
-/** ASH booking commission. Only these rates may be chosen; 12% is the default. */
+/** ASH booking commission. Only these rates may be chosen; 15% is the default. */
 export const ALLOWED_COMMISSION_RATES = [0.12, 0.15] as const;
-export const DEFAULT_COMMISSION_RATE = 0.12;
+export const DEFAULT_COMMISSION_RATE = 0.15;
 
 export function isAllowedCommissionRate(rate: number): boolean {
   return ALLOWED_COMMISSION_RATES.some((r) => Math.abs(r - rate) < 1e-9);
