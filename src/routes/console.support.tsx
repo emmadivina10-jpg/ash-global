@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MessageMemberDialog } from "@/components/console/MessageMemberDialog";
 import { TicketBoard } from "@/components/console/TicketBoard";
+import { SupportAccountAssistant } from "@/components/console/SupportAccountAssistant";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -475,7 +476,8 @@ function SupportInboxPage() {
                     <Send className="size-4" />
                   </Button>
                 </div>
-                <div className="flex justify-end">
+                <div className="flex flex-wrap justify-end gap-2">
+                  {active.user_id ? <SupportAccountAssistant key={active.id} userId={active.user_id} onUseReply={setDraft} /> : null}
                   <Button
                     type="button"
                     size="sm"
