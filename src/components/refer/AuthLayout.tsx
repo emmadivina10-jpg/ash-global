@@ -3,7 +3,6 @@ import { Link } from "@tanstack/react-router";
 import { ShieldCheck, Sparkles, Users } from "lucide-react";
 import { Logo } from "./Logo";
 import { LanguageSwitcher, ThemeToggle } from "./Preferences";
-import ashLogo from "@/assets/ash-logo.png.asset.json";
 import { useI18n } from "@/lib/i18n";
 
 /**
