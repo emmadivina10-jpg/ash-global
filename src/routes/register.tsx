@@ -150,6 +150,7 @@ function RegisterPage() {
     const code = (parsed.data.referralCode ?? "").trim().toUpperCase();
     if (code && refState === "invalid") {
       setErrors({ referralCode: t("auth.register.refMissing") });
+      setStep(2);
       return;
     }
 
@@ -288,7 +289,7 @@ function RegisterPage() {
           </div>
 
         </>
-        ) : (
+        ) : step === 2 ? (
         <>
           <Field label={t("auth.password")} id="password" error={errors["password"]}>
             <PasswordInput
@@ -331,8 +332,10 @@ function RegisterPage() {
               />
             </Field>
           </div>
-        {/* terms below */}
-        <section aria-labelledby="terms-heading" className="space-y-3 rounded-2xl border border-primary/30 bg-primary/5 p-4">
+        </>
+        ) : (
+        /* terms step */
+        <section aria-labelledby="terms-heading" className="space-y-3 rounded-2xl border border-primary/30 bg-primary/5 p-4 sm:col-span-2">
           <h2 id="terms-heading" className="text-sm font-bold text-foreground">
             {lang === "fr" ? "Conditions d'utilisation et règles de la communauté" : "Terms of Use & Community Standards"}
           </h2>
@@ -368,7 +371,6 @@ function RegisterPage() {
             </span>
           </label>
         </section>
-        </>
         )}
         </div>
 
