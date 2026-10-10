@@ -65,7 +65,7 @@ GRANT EXECUTE ON FUNCTION public.staff_member_metrics_v1() TO service_role;
 -- Atomically claim a per-staff/member chat; versioned finish prevents concurrent overwrites.
 CREATE OR REPLACE FUNCTION public.claim_staff_member_ai_v1(_id uuid,_scope text,_version integer)
 RETURNS SETOF public.staff_member_ai_threads LANGUAGE sql SECURITY DEFINER SET search_path=public AS $$
- UPDATE staff_member_ai_threads SET busy_until=now()+interval '15 minutes'
+ UPDATE staff_member_ai_threads SET busy_until=now()+interval '15 minutes',version=version+1
  WHERE id=_id AND staff_scope=_scope AND version=_version AND (busy_until IS NULL OR busy_until<now())
  AND current_setting('request.jwt.claims',true)::jsonb->>'role'='service_role' RETURNING *;
 $$;
