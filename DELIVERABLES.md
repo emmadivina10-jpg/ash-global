@@ -52,7 +52,7 @@ Dashboard colours share the ASH/green palette while retaining scoped themes and 
 
 - TchokoPay Mobile Money (MTN MoMo, Orange Money) for Cameroon.
 - TchokoPay Mobile Money for supported payment and withdrawal flows.
-- 12% booking commission by default (CEO/Finance can switch to 15% in Console → Commission); each booking keeps the rate it was paid at. Payment links keep a 1% fee.
+- 15% booking commission by default (CEO/Finance can switch between 12% and 15% in Console → Commission); each booking keeps the rate it was paid at. Payment links keep a 1% fee.
 - Rates and eligibility are determined by the existing category/region/payment flow; this line is not a universal fee for ASH Clean, Campus or every region.
 - Audit on 5 October 2026: 136 wallets, 51 ledger transactions, no stored-versus-ledger balance mismatches, no duplicate transaction reference/type pairs; nine completed and nine failed withdrawal records. No money was moved and no provider payout was tested in this review.
 
