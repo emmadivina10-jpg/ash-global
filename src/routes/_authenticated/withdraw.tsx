@@ -65,7 +65,7 @@ type Method =
 const METHOD_LABEL: Record<Method, string> = {
   MTN_MOMO: "MTN Mobile Money",
   ORANGE_MONEY: "Orange Money",
-  STRIPE_BANK: "Bank account",
+  STRIPE_BANK: "Card / Bank (Stripe)",
 };
 
 export const Route = createFileRoute(
