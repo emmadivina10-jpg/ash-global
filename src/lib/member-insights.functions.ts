@@ -39,3 +39,10 @@ export const getStaffMemberReview = createServerFn({method:'POST'})
 export const getStaffMemberAIThread=createServerFn({method:'POST'})
  .inputValidator((d:{userId:string})=>({userId:String(d.userId??'')}))
  .handler(async({data})=>{const {getMemberThread}=await import('./member-review.server');const thread=await getMemberThread(data.userId);return {id:thread.id,messagesJson:JSON.stringify(thread.messages)};});
+
+export const getStaffRegisteredCounts=createServerFn({method:'GET'}).handler(async()=>{
+ const {requireConsole,adminClient}=await import('./console.server');await requireConsole();const db=await adminClient();
+ const [total,today]=await Promise.all([db.from('profiles').select('user_id',{head:true,count:'exact'}),db.from('profiles').select('user_id',{head:true,count:'exact'}).gte('created_at',new Date().toISOString().slice(0,10)+'T00:00:00Z')]);
+ if(total.error||today.error||total.count===null||today.count===null)throw new Error('Member counts unavailable.');
+ return {total:total.count,joinedToday:today.count};
+});

@@ -9,7 +9,7 @@ import {
 
 export function createResponsesCall(
   request: Request,
-  config: { baseURL: string; apiKey: string; model: string },
+  config: { baseURL: string; apiKey: string; model: string; onGatewayError?: (status: number, message: string) => Promise<void> },
   messages: ModelMessage[],
   instructions?: string,
 ) {
@@ -18,7 +18,15 @@ export function createResponsesCall(
     baseURL: `${config.baseURL.replace(/\/+$/, "").replace(/\/v1$/, "")}/v1`,
     apiKey: config.apiKey,
     headers: { "Lovable-API-Key": config.apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
-    fetch: runIdFetch.fetch,
+    fetch: async (input,init) => {
+      const response=await runIdFetch.fetch(input,init);
+      if(!response.ok){
+        const body=await response.clone().json().catch(()=>null) as {message?:string;error?:{message?:string}} | null;
+        const message=body?.message??body?.error?.message??`Staff AI request failed (${response.status}).`;
+        await config.onGatewayError?.(response.status,message);
+      }
+      return response;
+    },
   });
   const reasoning = config.model !== "openai/chat-latest";
   const result = streamText({
@@ -27,6 +35,7 @@ export function createResponsesCall(
     ...(instructions ? { system: instructions } : {}),
     messages,
     abortSignal: request.signal,
+    maxRetries: 0,
     providerOptions: {
       openai: {
         store: false,
@@ -43,6 +52,7 @@ export function createResponsesCall(
   });
   return {
     result,
+    gateway: runIdFetch,
     response: () =>
       withLovableAiGatewayRunIdHeader(result.toUIMessageStreamResponse({ sendReasoning: true }), runIdFetch),
   };
