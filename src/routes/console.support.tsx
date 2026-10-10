@@ -92,7 +92,7 @@ function SupportInboxPage() {
   });
   const { data: delivery } = useQuery({ queryKey: ["console", "support", "logs"], queryFn: logs });
 
-  const tickets = data?.tickets ?? [];
+  const tickets = useMemo(() => data?.tickets ?? [], [data?.tickets]);
 
   const visible = useMemo(
     () =>
@@ -140,6 +140,7 @@ function SupportInboxPage() {
       .then(async () => {
         await queryClient.invalidateQueries({ queryKey: ["console", "support", "badge"] });
         await queryClient.invalidateQueries({ queryKey: ["console", "support"] });
+        await queryClient.invalidateQueries({ queryKey: ["console", "staff-notifications"] });
       })
       .catch(() => toast.error("Could not mark the conversation as read."))
       .finally(() => {

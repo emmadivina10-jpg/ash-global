@@ -102,10 +102,17 @@ export const getStaffNotifications = createServerFn({ method: "GET" }).handler(a
   } else {
     return { notifications: [] as never[], unread: 0 };
   }
-  const { data, error } = await q;
+  let unreadQuery = supabase
+    .from("staff_notifications")
+    .select("id", { count: "exact", head: true })
+    .is("read_at", null);
+  const scope = staffNotificationScope(a);
+  if (scope) unreadQuery = unreadQuery.or(scope);
+  const [{ data, error }, { count, error: countError }] = await Promise.all([q, unreadQuery]);
   if (error) throw error;
+  if (countError) throw countError;
   const rows = data ?? [];
-  return { notifications: rows, unread: rows.filter((r) => !r.read_at).length };
+  return { notifications: rows, unread: count ?? 0 };
 });
 
 export const markStaffNotificationRead = createServerFn({ method: "POST" })
