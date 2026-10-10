@@ -28,11 +28,17 @@ import { StatementDialog } from "@/components/refer/StatementDialog";
 import { WalletTopupDialog } from "@/components/refer/WalletTopupDialog";
 import { formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
+import { useRegion } from "@/lib/region-context";
+import { WalletPayoutSetup } from "@/components/refer/WalletPayoutSetup";
 
 export const Route = createFileRoute("/_authenticated/wallet")({
   head: () => ({
     meta: [
       { title: "Wallet — ASH Glo" },
+      { property: "og:title", content: "Wallet — ASH Glo" },
+      { property: "og:description", content: "ASH wallet balances, transaction history and payout account setup." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       {
         name: "description",
         content:
@@ -44,6 +50,7 @@ export const Route = createFileRoute("/_authenticated/wallet")({
 });
 
 function WalletPage() {
+  const { country } = useRegion();
   const { data: wallet, isLoading } = useWallet();
   const { data: profile } = useProfile();
   const { data: transactions, isLoading: txLoading } = useTransactions(20);
@@ -130,6 +137,8 @@ function WalletPage() {
           {lang === "fr" ? "Relevé" : "Statement"}
         </Button>
       </header>
+
+      <WalletPayoutSetup country={country} />
 
       <WalletTopupDialog open={topupOpen} onOpenChange={setTopupOpen} fr={lang === "fr"} />
       <StatementDialog

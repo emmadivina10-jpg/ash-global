@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { getPayoutAccount, getPayoutDashboardLink, startPayoutOnboarding } from "@/lib/payouts.functions";
 import { SectionCard } from "@/components/refer/cards";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/lib/i18n";
 import { payoutRoute, LIVE_PROVIDER_ONBOARDING_ENABLED } from "@/lib/stripe-release-policy";
 
 /**
@@ -13,18 +14,20 @@ import { payoutRoute, LIVE_PROVIDER_ONBOARDING_ENABLED } from "@/lib/stripe-rele
  * live on Stripe, so no bank credentials ever touch ASH.
  */
 export function PayoutAccountCard({ country }: { country: string }) {
+  const { tx } = useI18n();
   const fetchAccount = useServerFn(getPayoutAccount);
   const startOnboarding = useServerFn(startPayoutOnboarding);
   const dashboardLink = useServerFn(getPayoutDashboardLink);
   const [busy, setBusy] = useState(false);
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["payout-account"],
     queryFn: () => fetchAccount({ data: undefined as never }),
   });
 
-  if (isLoading) return null;
-  if (!data?.configured) return null;
+  if (isLoading) return <p className="text-sm text-muted-foreground">{tx("Checking payout availability…", "Vérification de la disponibilité…")}</p>;
+  if (error || !data) return <div className="space-y-3"><p className="text-sm text-muted-foreground">{tx("Payout account status is unavailable. No changes have been made.", "Le statut du compte de versement est indisponible. Aucune modification effectuée.")}</p><Button variant="outline" onClick={() => void refetch()}>{tx("Retry", "Réessayer")}</Button></div>;
+  if (!data.configured) return <p className="text-sm text-muted-foreground">{tx("Bank payout setup is not available yet.", "La configuration des versements bancaires n’est pas encore disponible.")}</p>;
 
   async function connect() {
     if (country !== "CA") return;
@@ -68,7 +71,7 @@ export function PayoutAccountCard({ country }: { country: string }) {
   const ready = payoutRoute({country: data.country ?? country, detailsSubmitted: data.detailsSubmitted, transfersActive: data.transfersActive === true, payoutsEnabled: data.payoutsEnabled}) === "ELIGIBLE_CANADIAN_BANK";
 
   return (
-    <SectionCard title="Provider bank account">
+    <SectionCard title={tx("Provider bank account", "Compte bancaire du prestataire")}>
       <div className="flex flex-wrap items-start gap-3">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
           <Building2 className="size-5" aria-hidden />
@@ -77,21 +80,21 @@ export function PayoutAccountCard({ country }: { country: string }) {
           {ready ? (
             <p className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
               <ShieldCheck className="size-4 text-primary" aria-hidden />
-              Connected account verified
+              {tx("Connected account verified", "Compte connecté vérifié")}
             </p>
           ) : (
             <p className="text-sm font-semibold text-foreground">
-              {data.accountId ? "Finish verifying your bank account" : "Add a bank account for payouts"}
+              {data.accountId ? tx("Finish verifying your bank account", "Terminer la vérification bancaire") : tx("Add a bank account for payouts", "Ajouter un compte bancaire pour les versements")}
             </p>
           )}
           <p className="mt-1 text-xs text-muted-foreground">
             {ready
-              ? "Transfers remain disabled pending approval. Bank payout is tracked separately."
-              : country !== "CA" ? "This Stripe payout route is not confirmed for your country." : "Provider onboarding is awaiting approval."}
+              ? tx("Transfers remain disabled pending approval. Bank payout is tracked separately.", "Les transferts restent désactivés en attente d’approbation. Le versement bancaire est suivi séparément.")
+              : country !== "CA" ? tx("This Stripe payout route is not confirmed for your country.", "Ce mode de versement Stripe n’est pas confirmé pour votre pays.") : tx("Provider onboarding is awaiting approval.", "L’inscription des prestataires est en attente d’approbation.")}
           </p>
           {!ready && data.requirementsDue.length > 0 ? (
             <p className="mt-1 text-xs text-muted-foreground">
-              Still needed: {data.requirementsDue.slice(0, 3).join(", ")}
+              {tx("Still needed:", "Éléments nécessaires :")} {data.requirementsDue.slice(0, 3).join(", ")}
             </p>
           ) : null}
 
@@ -99,12 +102,12 @@ export function PayoutAccountCard({ country }: { country: string }) {
             {ready ? (
               <Button size="sm" variant="outline" disabled={busy} onClick={() => void openDashboard()}>
                 {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <ExternalLink className="size-4" aria-hidden />}
-                Payout dashboard
+                {tx("Payout dashboard", "Espace de versement")}
               </Button>
             ) : (
               <Button size="sm" disabled={busy || country !== "CA" || !LIVE_PROVIDER_ONBOARDING_ENABLED} onClick={() => void connect()}>
                 {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-                {data.accountId ? "Continue verification" : "Connect bank account"}
+                {data.accountId ? tx("Continue verification", "Continuer la vérification") : tx("Connect bank account", "Connecter un compte bancaire")}
               </Button>
             )}
           </div>
