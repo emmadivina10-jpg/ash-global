@@ -160,6 +160,8 @@ function TrackPage() {
     ? fr ? "Votre réservation est terminée." : "Your booking has been completed."
     : waitingForPayment
       ? fr ? "Confirmation du paiement…" : "Confirming your payment…"
+    : !active && r.status === "PAYMENT_PROCESSING"
+      ? fr ? "En attente de la confirmation du paiement du client. Le suivi démarre automatiquement." : "Waiting for the customer's payment to be confirmed. Tracking starts automatically."
     : !active
       ? fr ? "Le suivi n'est pas disponible pour cette réservation." : "Tracking isn't available for this booking."
       : ts === "ARRIVED"
