@@ -19,7 +19,7 @@ export function AuthLayout({
   subtitle?: string;
   children: ReactNode;
 }) {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
 
   const points = [
@@ -58,7 +58,7 @@ export function AuthLayout({
             className="size-20 rounded-2xl object-cover shadow-raised"
           />
           <h2 className="ash-entry-title mt-6 font-display text-4xl font-extrabold leading-tight">
-            {fr ? "Là où les opportunités se connectent." : "Where opportunities connect."}
+            {tx("Where opportunities connect.", "Là où les opportunités se connectent.")}
           </h2>
           <ul className="mt-8 space-y-4">
             {points.map((p) => (
@@ -66,16 +66,14 @@ export function AuthLayout({
                 <span className="member-dual-wash mt-0.5 grid size-8 shrink-0 place-items-center rounded-full text-primary">
                   <p.icon className="size-4" aria-hidden />
                 </span>
-                <span>{fr ? p.fr : p.en}</span>
+                <span>{tx(p.en, p.fr)}</span>
               </li>
             ))}
           </ul>
         </div>
 
         <p className="relative text-xs text-muted-foreground">
-          {fr
-            ? "ASH Glo — Là où les opportunités se connectent."
-            : "ASH Glo — Where Opportunities Connect."}
+          {tx("ASH Glo — Where Opportunities Connect.", "ASH Glo — Là où les opportunités se connectent.")}
         </p>
       </aside>
 

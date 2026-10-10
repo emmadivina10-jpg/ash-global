@@ -41,7 +41,7 @@ export function BlockUserDialog({
   unblock?: boolean;
   onDone?: () => void;
 }) {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const [busy, setBusy] = useState(false);
   const refresh = useRefreshAfterBlock();
@@ -52,7 +52,7 @@ export function BlockUserDialog({
     const uid = data.session?.user.id;
     if (!uid) {
       setBusy(false);
-      toast.error(fr ? "Connectez-vous d'abord." : "Sign in first.");
+      toast.error(tx("Sign in first.", "Connectez-vous d'abord."));
       return;
     }
     const { error } = unblock
@@ -62,7 +62,7 @@ export function BlockUserDialog({
           .insert({ blocker_id: uid, blocked_id: targetUserId, reason: source.slice(0, 60) });
     setBusy(false);
     if (error && !error.message.toLowerCase().includes("duplicate")) {
-      toast.error(fr ? "Action impossible. Réessayez." : "Could not complete that. Try again.");
+      toast.error(tx("Could not complete that. Try again.", "Action impossible. Réessayez."));
       return;
     }
     onOpenChange(false);
@@ -70,8 +70,8 @@ export function BlockUserDialog({
     onDone?.();
     toast.success(
       unblock
-        ? fr ? "Utilisateur débloqué." : "User unblocked."
-        : fr ? "Utilisateur bloqué. Son contenu est masqué." : "User blocked. Their content is now hidden from you.",
+        ? tx("User unblocked.", "Utilisateur débloqué.")
+        : tx("User blocked. Their content is now hidden from you.", "Utilisateur bloqué. Son contenu est masqué."),
     );
   }
 
@@ -80,7 +80,7 @@ export function BlockUserDialog({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {unblock ? (fr ? "Débloquer cet utilisateur ?" : "Unblock this user?") : fr ? "Bloquer cet utilisateur ?" : "Block this user?"}
+            {unblock ? (tx("Unblock this user?", "Débloquer cet utilisateur ?")) : tx("Block this user?", "Bloquer cet utilisateur ?")}
           </AlertDialogTitle>
           <AlertDialogDescription>
             {unblock
@@ -93,7 +93,7 @@ export function BlockUserDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={busy}>{fr ? "Annuler" : "Cancel"}</AlertDialogCancel>
+          <AlertDialogCancel disabled={busy}>{tx("Cancel", "Annuler")}</AlertDialogCancel>
           <AlertDialogAction
             disabled={busy}
             onClick={(event) => {
@@ -103,7 +103,7 @@ export function BlockUserDialog({
             className={unblock ? undefined : "bg-destructive text-destructive-foreground hover:bg-destructive/90"}
           >
             {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <ShieldOff className="size-4" aria-hidden />}
-            {unblock ? (fr ? "Débloquer" : "Unblock") : fr ? "Bloquer" : "Block user"}
+            {unblock ? (tx("Unblock", "Débloquer")) : tx("Block user", "Bloquer")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

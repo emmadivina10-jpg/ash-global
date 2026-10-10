@@ -136,7 +136,7 @@ const offerMinutes = (o: Offer) => o.slices.reduce((t, s) => t + isoDur(s.durati
 const offerStops = (o: Offer) => Math.max(...o.slices.map((s) => s.segments.length - 1));
 
 function FlightsPage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const statusFn = useServerFn(getFlightsStatus);
   const searchFn = useServerFn(searchFlights);
@@ -224,7 +224,7 @@ function FlightsPage() {
             variant="secondary"
             size="icon"
             className="size-10 rounded-full bg-card/80 backdrop-blur"
-            aria-label={fr ? "Retour au fil" : "Back to Feed"}
+            aria-label={tx("Back to Feed", "Retour au fil")}
           >
             <Link to="/feed">
               <ArrowLeft className="size-5" />
@@ -239,15 +239,13 @@ function FlightsPage() {
                 className="rounded-full bg-card/80 backdrop-blur"
               >
                 <Ticket className="size-4" />
-                {fr ? "Mes voyages" : "My Trips"}
+                {tx("My Trips", "Mes voyages")}
               </Button>
             </PopoverTrigger>
             <PopoverContent align="end" className="w-64 text-sm">
-              <p className="font-semibold">{fr ? "Aucun voyage pour l’instant" : "No trips yet"}</p>
+              <p className="font-semibold">{tx("No trips yet", "Aucun voyage pour l’instant")}</p>
               <p className="text-muted-foreground">
-                {fr
-                  ? "Vos vols réservés avec ASH apparaîtront ici."
-                  : "Flights you book with ASH will appear here."}
+                {tx("Flights you book with ASH will appear here.", "Vos vols réservés avec ASH apparaîtront ici.")}
               </p>
             </PopoverContent>
           </Popover>
@@ -256,7 +254,7 @@ function FlightsPage() {
             variant="secondary"
             size="icon"
             className="size-10 rounded-full bg-card/80 backdrop-blur"
-            aria-label={fr ? "Aide" : "Help"}
+            aria-label={tx("Help", "Aide")}
           >
             <Link to="/support">
               <LifeBuoy className="size-5" />
@@ -268,15 +266,13 @@ function FlightsPage() {
             <Plane className="size-3.5" /> ASH FLIGHTS
           </p>
           <h1 className="max-w-sm font-display text-3xl font-extrabold leading-[1.1] tracking-tight sm:text-4xl">
-            {fr ? "Où allez-vous ensuite ?" : "Where to next?"}
+            {tx("Where to next?", "Où allez-vous ensuite ?")}
           </h1>
           <p className="mt-3 inline-flex rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-sm font-bold text-primary">
-            {fr ? "Bientôt disponible" : "Coming soon"}
+            {tx("Coming soon", "Bientôt disponible")}
           </p>
           <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-            {fr
-              ? "La recherche et la réservation de vols arrivent bientôt sur ASH."
-              : "Flight search and booking are coming to ASH."}
+            {tx("Flight search and booking are coming to ASH.", "La recherche et la réservation de vols arrivent bientôt sur ASH.")}
           </p>
         </div>
       </div>
@@ -296,16 +292,10 @@ function FlightsPage() {
                 className={`rounded-full px-2 py-2 font-semibold transition-all ${trip === t ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
               >
                 {t === "round"
-                  ? fr
-                    ? "Aller-retour"
-                    : "Round trip"
+                  ? tx("Round trip", "Aller-retour")
                   : t === "oneway"
-                    ? fr
-                      ? "Aller simple"
-                      : "One way"
-                    : fr
-                      ? "Multi-villes"
-                      : "Multi-city"}
+                    ? tx("One way", "Aller simple")
+                    : tx("Multi-city", "Multi-villes")}
               </button>
             ))}
           </div>
@@ -314,12 +304,12 @@ function FlightsPage() {
             <div key={i} className="space-y-3">
               {trip === "multi" && (
                 <p className="text-xs font-semibold text-muted-foreground">
-                  {fr ? "Vol" : "Flight"} {i + 1}
+                  {tx("Flight", "Vol")} {i + 1}
                 </p>
               )}
               <div className="relative grid gap-2 sm:grid-cols-2">
                 <PlacePicker
-                  label={fr ? "DE" : "FROM"}
+                  label={tx("FROM", "DE")}
                   icon={<PlaneTakeoff className="size-4" />}
                   value={leg.from}
                   disabled={!!unavailable}
@@ -327,7 +317,7 @@ function FlightsPage() {
                   onChange={(p) => setLegs(legs.map((l, j) => (j === i ? { ...l, from: p } : l)))}
                 />
                 <PlacePicker
-                  label={fr ? "VERS" : "TO"}
+                  label={tx("TO", "VERS")}
                   icon={<PlaneLanding className="size-4" />}
                   value={leg.to}
                   disabled={!!unavailable}
@@ -338,7 +328,7 @@ function FlightsPage() {
                   type="button"
                   variant="outline"
                   size="icon"
-                  aria-label={fr ? "Inverser" : "Swap"}
+                  aria-label={tx("Swap", "Inverser")}
                   className="absolute right-4 top-1/2 z-10 size-9 -translate-y-1/2 rotate-90 rounded-full bg-card shadow-md sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:rotate-0"
                   onClick={() =>
                     setLegs(legs.map((l, j) => (j === i ? { ...l, from: l.to, to: l.from } : l)))
@@ -348,7 +338,7 @@ function FlightsPage() {
                 </Button>
               </div>
               <div className="grid min-w-0 grid-cols-1 gap-2">
-                <Field label={fr ? "DÉPART" : "DEPARTURE"}>
+                <Field label={tx("DEPARTURE", "DÉPART")}>
                   <Input
                     type="date"
                     className="block h-12 min-w-0 w-full max-w-full appearance-none [&::-webkit-date-and-time-value]:min-w-0 [&::-webkit-date-and-time-value]:text-left"
@@ -360,7 +350,7 @@ function FlightsPage() {
                   />
                 </Field>
                 {trip !== "multi" && (
-                  <Field label={fr ? "RETOUR" : "RETURN"}>
+                  <Field label={tx("RETURN", "RETOUR")}>
                     <Input
                       type="date"
                       className="block h-12 min-w-0 w-full max-w-full appearance-none [&::-webkit-date-and-time-value]:min-w-0 [&::-webkit-date-and-time-value]:text-left"
@@ -383,7 +373,7 @@ function FlightsPage() {
                   size="sm"
                   onClick={() => setLegs([...legs, { from: legs.at(-1)!.to, to: null, date: "" }])}
                 >
-                  {fr ? "Ajouter un vol" : "Add flight"}
+                  {tx("Add flight", "Ajouter un vol")}
                 </Button>
               )}
               {legs.length > 2 && (
@@ -393,14 +383,14 @@ function FlightsPage() {
                   size="sm"
                   onClick={() => setLegs(legs.slice(0, -1))}
                 >
-                  {fr ? "Retirer" : "Remove"}
+                  {tx("Remove", "Retirer")}
                 </Button>
               )}
             </div>
           )}
 
           <div className="grid gap-2 sm:grid-cols-2">
-            <Field label={fr ? "PASSAGERS" : "PASSENGERS"}>
+            <Field label={tx("PASSENGERS", "PASSAGERS")}>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -408,15 +398,15 @@ function FlightsPage() {
                     variant="outline"
                     className="w-full justify-start font-normal"
                   >
-                    {pax.adults + pax.children + pax.infants} {fr ? "passager(s)" : "passenger(s)"}
+                    {pax.adults + pax.children + pax.infants} {tx("passenger(s)", "passager(s)")}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-72 space-y-3">
                   {(
                     [
-                      ["adults", fr ? "Adultes" : "Adults", "12+", 1],
-                      ["children", fr ? "Enfants" : "Children", "2–11", 0],
-                      ["infants", fr ? "Bébés" : "Infants", "<2", 0],
+                      ["adults", tx("Adults", "Adultes"), "12+", 1],
+                      ["children", tx("Children", "Enfants"), "2–11", 0],
+                      ["infants", tx("Infants", "Bébés"), "<2", 0],
                     ] as const
                   ).map(([k, l, sub, min]) => (
                     <div key={k} className="flex items-center justify-between">
@@ -455,18 +445,18 @@ function FlightsPage() {
                 </PopoverContent>
               </Popover>
             </Field>
-            <Field label={fr ? "CLASSE" : "CABIN CLASS"}>
+            <Field label={tx("CABIN CLASS", "CLASSE")}>
               <Select value={cabin} onValueChange={(v) => setCabin(v as Cabin)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="economy">{fr ? "Économique" : "Economy"}</SelectItem>
+                  <SelectItem value="economy">{tx("Economy", "Économique")}</SelectItem>
                   <SelectItem value="premium_economy">
-                    {fr ? "Économique premium" : "Premium Economy"}
+                    {tx("Premium Economy", "Économique premium")}
                   </SelectItem>
                   <SelectItem value="business">Business</SelectItem>
-                  <SelectItem value="first">{fr ? "Première" : "First"}</SelectItem>
+                  <SelectItem value="first">{tx("First", "Première")}</SelectItem>
                 </SelectContent>
               </Select>
             </Field>
@@ -483,21 +473,17 @@ function FlightsPage() {
               <Plane className="size-5" />
             )}
             {search.isPending
-              ? fr
-                ? "Recherche des meilleurs vols…"
-                : "Finding the best flights…"
-              : fr
-                ? "Rechercher des vols"
-                : "Search Flights"}
+              ? tx("Finding the best flights…", "Recherche des meilleurs vols…")
+              : tx("Search Flights", "Rechercher des vols")}
           </Button>
         </section>
       </div>
 
       <div className="grid grid-cols-3 gap-2 text-center">
         {[
-          { icon: BadgeCheck, t: fr ? "Prix en direct des compagnies" : "Live airline prices" },
-          { icon: ShieldCheck, t: fr ? "Frais ASH transparents" : "Transparent ASH fees" },
-          { icon: Headphones, t: fr ? "Aide ASH Support" : "ASH Support help" },
+          { icon: BadgeCheck, t: tx("Live airline prices", "Prix en direct des compagnies") },
+          { icon: ShieldCheck, t: tx("Transparent ASH fees", "Frais ASH transparents") },
+          { icon: Headphones, t: tx("ASH Support help", "Aide ASH Support") },
         ].map(({ icon: I, t }) => (
           <div key={t} className="rounded-2xl border border-border bg-card px-2 py-3">
             <I className="mx-auto mb-1 size-5 text-primary" />
@@ -514,14 +500,10 @@ function FlightsPage() {
           <Info className="mt-0.5 size-5 shrink-0 text-primary" />
           <div>
             <p className="font-semibold">
-              {fr
-                ? "La recherche de vols en direct est momentanément indisponible."
-                : "Live flight search is currently unavailable."}
+              {tx("Live flight search is currently unavailable.", "La recherche de vols en direct est momentanément indisponible.")}
             </p>
             <p className="text-muted-foreground">
-              {fr
-                ? "ASH n’affiche jamais de vols ou de prix inventés. La recherche s’activera dès que le fournisseur sera connecté."
-                : "ASH never shows invented flights or prices. Search turns on as soon as our flight provider is connected."}
+              {tx("ASH never shows invented flights or prices. Search turns on as soon as our flight provider is connected.", "ASH n’affiche jamais de vols ou de prix inventés. La recherche s’activera dès que le fournisseur sera connecté.")}
             </p>
           </div>
         </div>
@@ -534,9 +516,7 @@ function FlightsPage() {
       )}
       {search.data && !search.data.available && (
         <p className="rounded-2xl border border-border p-4 text-sm">
-          {fr
-            ? "Recherche de vols momentanément indisponible."
-            : "Flight search temporarily unavailable."}
+          {tx("Flight search temporarily unavailable.", "Recherche de vols momentanément indisponible.")}
         </p>
       )}
 
@@ -554,7 +534,7 @@ function FlightsPage() {
       {!search.data && !search.isPending && (
         <section className="space-y-3">
           <h2 className="font-display text-lg font-bold">
-            {fr ? "Destinations populaires" : "Popular destinations"}
+            {tx("Popular destinations", "Destinations populaires")}
           </h2>
           <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1">
             {POPULAR.map((p) => (
@@ -578,7 +558,7 @@ function FlightsPage() {
         <section className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="font-display text-lg font-bold">
-              {fr ? "Vols disponibles" : "Available Flights"}{" "}
+              {tx("Available Flights", "Vols disponibles")}{" "}
               <span className="text-sm font-normal text-muted-foreground">({shown.length})</span>
             </h2>
             <Select value={sort} onValueChange={(v) => setSort(v as Sort)}>
@@ -586,14 +566,14 @@ function FlightsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="recommended">{fr ? "Recommandés" : "Recommended"}</SelectItem>
-                <SelectItem value="cheapest">{fr ? "Moins chers" : "Cheapest"}</SelectItem>
-                <SelectItem value="fastest">{fr ? "Plus rapides" : "Fastest"}</SelectItem>
+                <SelectItem value="recommended">{tx("Recommended", "Recommandés")}</SelectItem>
+                <SelectItem value="cheapest">{tx("Cheapest", "Moins chers")}</SelectItem>
+                <SelectItem value="fastest">{tx("Fastest", "Plus rapides")}</SelectItem>
                 <SelectItem value="earliest">
-                  {fr ? "Départ le plus tôt" : "Earliest departure"}
+                  {tx("Earliest departure", "Départ le plus tôt")}
                 </SelectItem>
                 <SelectItem value="latest">
-                  {fr ? "Départ le plus tard" : "Latest departure"}
+                  {tx("Latest departure", "Départ le plus tard")}
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -607,20 +587,12 @@ function FlightsPage() {
                 className={`rounded-full border px-3 py-1 ${stopsFilter === s ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}
               >
                 {s === "any"
-                  ? fr
-                    ? "Toutes escales"
-                    : "Any stops"
+                  ? tx("Any stops", "Toutes escales")
                   : s === "0"
-                    ? fr
-                      ? "Direct"
-                      : "Nonstop"
+                    ? tx("Nonstop", "Direct")
                     : s === "1"
-                      ? fr
-                        ? "1 escale"
-                        : "1 stop"
-                      : fr
-                        ? "2+ escales"
-                        : "2+ stops"}
+                      ? tx("1 stop", "1 escale")
+                      : tx("2+ stops", "2+ escales")}
               </button>
             ))}
             <button
@@ -628,7 +600,7 @@ function FlightsPage() {
               onClick={() => setBaggageOnly(!baggageOnly)}
               className={`rounded-full border px-3 py-1 ${baggageOnly ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}
             >
-              {fr ? "Bagage en soute" : "Checked bag"}
+              {tx("Checked bag", "Bagage en soute")}
             </button>
             {airlines.length > 1 && (
               <Select value={airline} onValueChange={setAirline}>
@@ -636,7 +608,7 @@ function FlightsPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">{fr ? "Toutes compagnies" : "All airlines"}</SelectItem>
+                  <SelectItem value="all">{tx("All airlines", "Toutes compagnies")}</SelectItem>
                   {airlines.map((a) => (
                     <SelectItem key={a} value={a}>
                       {a}
@@ -648,7 +620,7 @@ function FlightsPage() {
           </div>
           {shown.length === 0 && (
             <p className="py-8 text-center text-sm text-muted-foreground">
-              {fr ? "Aucun vol trouvé pour ces critères." : "No flights match this search."}
+              {tx("No flights match this search.", "Aucun vol trouvé pour ces critères.")}
             </p>
           )}
           {shown.map((o) => (

@@ -34,7 +34,7 @@ export const Route = createFileRoute("/_authenticated/groups")({
 });
 
 function GroupsPage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const navigate = useNavigate();
   const { data: groups, isLoading } = useGroups();
@@ -72,44 +72,42 @@ function GroupsPage() {
       <header className="flex items-start justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
-            {fr ? "Groupes" : "Groups"}
+            {tx("Groups", "Groupes")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {fr ? "Créez un groupe et ajoutez vos amis." : "Create a group and add your friends."}
+            {tx("Create a group and add your friends.", "Créez un groupe et ajoutez vos amis.")}
           </p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="touch-manipulation">
               <Plus className="size-4" aria-hidden />
-              {fr ? "Nouveau" : "New"}
+              {tx("New", "Nouveau")}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{fr ? "Créer un groupe" : "Create a group"}</DialogTitle>
+              <DialogTitle>{tx("Create a group", "Créer un groupe")}</DialogTitle>
             </DialogHeader>
             <Input
               value={name}
               onChange={(event) => setName(event.target.value.slice(0, 60))}
-              placeholder={fr ? "Nom du groupe" : "Group name"}
-              aria-label={fr ? "Nom du groupe" : "Group name"}
+              placeholder={tx("Group name", "Nom du groupe")}
+              aria-label={tx("Group name", "Nom du groupe")}
             />
             <p className="text-xs font-semibold text-muted-foreground">
-              {fr ? "Choisissez les membres" : "Choose members"}
+              {tx("Choose members", "Choisissez les membres")}
             </p>
             <Input
               value={peopleTerm}
               onChange={(event) => setPeopleTerm(event.target.value)}
-              placeholder={fr ? "Rechercher un membre" : "Search people on ASH"}
-              aria-label={fr ? "Rechercher un membre" : "Search people"}
+              placeholder={tx("Search people on ASH", "Rechercher un membre")}
+              aria-label={tx("Search people", "Rechercher un membre")}
             />
             <div className="max-h-56 space-y-1 overflow-y-auto">
               {candidates.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  {fr
-                    ? "Cherchez un membre par son nom pour l'ajouter."
-                    : "Search someone by name to add them."}
+                  {tx("Search someone by name to add them.", "Cherchez un membre par son nom pour l'ajouter.")}
                 </p>
               ) : (
                 candidates.map((person) => (
@@ -127,7 +125,7 @@ function GroupsPage() {
                       {person.name}
                     </span>
                     {selected.includes(person.id) ? (
-                      <span className="text-xs font-bold text-primary">{fr ? "Ajouté" : "Added"}</span>
+                      <span className="text-xs font-bold text-primary">{tx("Added", "Ajouté")}</span>
                     ) : null}
                   </button>
                 ))
@@ -141,7 +139,7 @@ function GroupsPage() {
                   { name: name.trim(), memberIds: selected },
                   {
                     onSuccess: () => {
-                      toast.success(fr ? "Groupe créé" : "Group created");
+                      toast.success(tx("Group created", "Groupe créé"));
                       setOpen(false);
                       setName("");
                       setSelected([]);
@@ -154,7 +152,7 @@ function GroupsPage() {
               }
             >
               {create.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-              {fr ? "Créer" : "Create"}
+              {tx("Create", "Créer")}
             </Button>
           </DialogContent>
         </Dialog>
@@ -170,7 +168,7 @@ function GroupsPage() {
         <div className="tile grid place-items-center gap-2 p-10 text-center">
           <Users className="size-8 text-muted-foreground" aria-hidden />
           <p className="text-sm text-muted-foreground">
-            {fr ? "Aucun groupe pour l'instant." : "No groups yet."}
+            {tx("No groups yet.", "Aucun groupe pour l'instant.")}
           </p>
         </div>
       ) : (
@@ -184,11 +182,11 @@ function GroupsPage() {
                 <p className="flex items-center gap-1.5 truncate text-sm font-bold text-foreground">
                   <span className="truncate">{group.name}</span>
                   {group.owner_verified ? (
-                    <GroupVerifiedBadge label={fr ? "Groupe vérifié" : "Verified group"} />
+                    <GroupVerifiedBadge label={tx("Verified group", "Groupe vérifié")} />
                   ) : null}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {group.member_count} {fr ? "membres" : "members"}
+                  {group.member_count} {tx("members", "membres")}
                 </p>
               </div>
               <Button
@@ -205,7 +203,7 @@ function GroupsPage() {
                 <Button
                   size="sm"
                   variant="ghost"
-                  aria-label={fr ? "Supprimer le groupe" : "Delete group"}
+                  aria-label={tx("Delete group", "Supprimer le groupe")}
                   className="text-destructive"
                   onClick={() => setConfirmDelete(group.id)}
                 >
@@ -220,7 +218,7 @@ function GroupsPage() {
                 }
               >
                 <MessageSquare className="size-4" aria-hidden />
-                {fr ? "Ouvrir" : "Open"}
+                {tx("Open", "Ouvrir")}
               </Button>
             </article>
           ))}
@@ -230,16 +228,14 @@ function GroupsPage() {
       <Dialog open={Boolean(confirmDelete)} onOpenChange={(value) => !value && setConfirmDelete(null)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>{fr ? "Supprimer ce groupe ?" : "Delete this group?"}</DialogTitle>
+            <DialogTitle>{tx("Delete this group?", "Supprimer ce groupe ?")}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            {fr
-              ? "Le groupe et toute la conversation seront définitivement supprimés pour tous les membres."
-              : "The group and its whole conversation are permanently removed for every member."}
+            {tx("The group and its whole conversation are permanently removed for every member.", "Le groupe et toute la conversation seront définitivement supprimés pour tous les membres.")}
           </p>
           <div className="flex gap-2">
             <Button variant="outline" className="flex-1" onClick={() => setConfirmDelete(null)}>
-              {fr ? "Annuler" : "Cancel"}
+              {tx("Cancel", "Annuler")}
             </Button>
             <Button
               className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90"
@@ -249,15 +245,15 @@ function GroupsPage() {
                 if (!id) return;
                 removeGroup.mutate(id, {
                   onSuccess: () => {
-                    toast.success(fr ? "Groupe supprimé" : "Group deleted");
+                    toast.success(tx("Group deleted", "Groupe supprimé"));
                     setConfirmDelete(null);
                   },
-                  onError: () => toast.error(fr ? "Échec de la suppression" : "Could not delete the group"),
+                  onError: () => toast.error(tx("Could not delete the group", "Échec de la suppression")),
                 });
               }}
             >
               {removeGroup.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-              {fr ? "Supprimer" : "Delete"}
+              {tx("Delete", "Supprimer")}
             </Button>
           </div>
         </DialogContent>
@@ -266,13 +262,13 @@ function GroupsPage() {
       <Dialog open={Boolean(addingTo)} onOpenChange={(value) => !value && setAddingTo(null)}>
         <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{fr ? "Ajouter des membres" : "Add members"}</DialogTitle>
+            <DialogTitle>{tx("Add members", "Ajouter des membres")}</DialogTitle>
           </DialogHeader>
           <Input
             value={peopleTerm}
             onChange={(event) => setPeopleTerm(event.target.value)}
-            placeholder={fr ? "Rechercher un membre" : "Search people on ASH"}
-            aria-label={fr ? "Rechercher un membre" : "Search people"}
+            placeholder={tx("Search people on ASH", "Rechercher un membre")}
+            aria-label={tx("Search people", "Rechercher un membre")}
           />
           <div className="max-h-64 space-y-1 overflow-y-auto">
             {candidates.map((person) => (
@@ -300,16 +296,16 @@ function GroupsPage() {
                 { groupId: addingTo, memberIds: addSelected },
                 {
                   onSuccess: () => {
-                    toast.success(fr ? "Membres ajoutés" : "Members added");
+                    toast.success(tx("Members added", "Membres ajoutés"));
                     setAddingTo(null);
                   },
-                  onError: () => toast.error(fr ? "Échec" : "Could not add members"),
+                  onError: () => toast.error(tx("Could not add members", "Échec")),
                 },
               );
             }}
           >
             {addMembers.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-            {fr ? "Ajouter" : "Add"}
+            {tx("Add", "Ajouter")}
           </Button>
         </DialogContent>
       </Dialog>

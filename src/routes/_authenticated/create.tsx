@@ -45,34 +45,32 @@ function databaseMessage(prefix: string, error: unknown): string {
 }
 
 function CreatePage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const navigate = useNavigate();
 
   return (
     <div className="relative mx-auto w-full max-w-2xl space-y-5">
       <header>
-        <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">{fr ? "Créer" : "Create"}</h1>
+        <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">{tx("Create", "Créer")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {fr
-            ? "Publiez une offre, un événement, un projet ou votre profil freelance."
-            : "Publish a deal, an event, a project or your freelance profile."}
+          {tx("Publish a deal, an event, a project or your freelance profile.", "Publiez une offre, un événement, un projet ou votre profil freelance.")}
         </p>
       </header>
 
       <Tabs defaultValue="deal">
         <TabsList className="w-full">
           <TabsTrigger value="deal" className="flex-1">
-            {fr ? "Offre" : "Deal"}
+            {tx("Deal", "Offre")}
           </TabsTrigger>
           <TabsTrigger value="event" className="flex-1">
-            {fr ? "Événement" : "Event"}
+            {tx("Event", "Événement")}
           </TabsTrigger>
           <TabsTrigger value="project" className="flex-1">
-            {fr ? "Projet" : "Project"}
+            {tx("Project", "Projet")}
           </TabsTrigger>
           <TabsTrigger value="freelancer" className="flex-1">
-            {fr ? "Freelance" : "Freelance"}
+            {tx("Freelance", "Freelance")}
           </TabsTrigger>
         </TabsList>
 
@@ -100,19 +98,17 @@ function CreatePage() {
       >
         <div className="w-full max-w-lg px-4 py-8 text-center sm:py-10">
           <h2 id="create-coming-soon-title" className="font-display text-3xl font-bold text-foreground sm:text-4xl">
-            {fr ? "Bientôt disponible !" : "Coming Soon!"}
+            {tx("Coming Soon!", "Bientôt disponible !")}
           </h2>
           <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground sm:text-base">
-            {fr
-              ? "La création d'offres, d'événements, de projets et de profils freelance sera disponible prochainement."
-              : "Deal, event, project and freelance profile creation will be available soon."}
+            {tx("Deal, event, project and freelance profile creation will be available soon.", "La création d'offres, d'événements, de projets et de profils freelance sera disponible prochainement.")}
           </p>
 
           <Button
             className="mt-7 h-12 w-full rounded-2xl text-base font-semibold"
             onClick={() => void navigate({ to: "/feed" })}
           >
-            {fr ? "Retour au fil" : "Return to Feed"}
+            {tx("Return to Feed", "Retour au fil")}
           </Button>
         </div>
       </div>

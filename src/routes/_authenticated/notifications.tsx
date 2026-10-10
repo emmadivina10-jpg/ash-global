@@ -77,7 +77,7 @@ function sectionOf(iso: string, fr: boolean) {
 }
 
 function NotificationsPage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const navigate = useNavigate();
   const { data, isLoading } = useNotifications(60);
@@ -109,12 +109,12 @@ function NotificationsPage() {
   }, [filtered, fr]);
 
   const chips: { id: Bucket; label: string }[] = [
-    { id: "all", label: fr ? "Tout" : "All" },
-    { id: "social", label: fr ? "Social" : "Social" },
-    { id: "messages", label: fr ? "Messages" : "Messages" },
-    { id: "bookings", label: fr ? "Réservations" : "Bookings" },
-    { id: "money", label: fr ? "Argent" : "Money" },
-    { id: "system", label: fr ? "Système" : "System" },
+    { id: "all", label: tx("All", "Tout") },
+    { id: "social", label: tx("Social", "Social") },
+    { id: "messages", label: tx("Messages", "Messages") },
+    { id: "bookings", label: tx("Bookings", "Réservations") },
+    { id: "money", label: tx("Money", "Argent") },
+    { id: "system", label: tx("System", "Système") },
   ];
 
   function open(item: AppNotification) {
@@ -136,22 +136,20 @@ function NotificationsPage() {
               ? fr
                 ? `${unread.length} non lue(s)`
                 : `${unread.length} unread`
-              : fr
-                ? "Vous êtes à jour."
-                : "You're all caught up."}
+              : tx("You're all caught up.", "Vous êtes à jour.")}
           </p>
         </div>
         <div className="flex flex-wrap justify-end gap-2">
           {unread.length > 0 ? (
             <Button variant="outline" size="sm" onClick={() => markRead.mutate(unread.map((n) => n.id))}>
               <CheckCheck className="size-4" aria-hidden />
-              {fr ? "Tout lire" : "Mark all read"}
+              {tx("Mark all read", "Tout lire")}
             </Button>
           ) : null}
           {items.length > 0 ? (
             <Button variant="ghost" size="sm" onClick={() => remove.mutate(items.map((n) => n.id))} disabled={remove.isPending}>
               <Trash2 className="size-4" aria-hidden />
-              {fr ? "Tout supprimer" : "Clear all"}
+              {tx("Clear all", "Tout supprimer")}
             </Button>
           ) : null}
         </div>
@@ -184,7 +182,7 @@ function NotificationsPage() {
           )}
         >
           <Settings2 className="size-3.5" aria-hidden />
-          {fr ? "Non lues" : "Unread"}
+          {tx("Unread", "Non lues")}
         </button>
       </div>
 
@@ -198,7 +196,7 @@ function NotificationsPage() {
         <div className="tile grid place-items-center gap-2 p-10 text-center">
           <Bell className="size-8 text-muted-foreground" aria-hidden />
           <p className="text-sm text-muted-foreground">
-            {fr ? "Aucune notification ici." : "Nothing here yet."}
+            {tx("Nothing here yet.", "Aucune notification ici.")}
           </p>
         </div>
       ) : (
@@ -246,7 +244,7 @@ function NotificationsPage() {
                       variant="ghost"
                       size="icon"
                       className="size-8 shrink-0"
-                      aria-label={fr ? "Supprimer la notification" : "Delete notification"}
+                      aria-label={tx("Delete notification", "Supprimer la notification")}
                       onClick={() => remove.mutate([item.id])}
                     >
                       <Trash2 className="size-4" aria-hidden />

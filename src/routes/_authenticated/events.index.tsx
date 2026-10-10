@@ -42,7 +42,7 @@ function EventsSoon() {
 }
 
 function EventsPage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const events = useEvents();
   const tickets = useMyTickets();
@@ -52,34 +52,34 @@ function EventsPage() {
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
-            {fr ? "Événements ASH" : "ASH Events"}
+            {tx("ASH Events", "Événements ASH")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {fr ? "Concerts, conférences, ateliers et rencontres près de vous." : "Concerts, conferences, workshops and meetups near you."}
+            {tx("Concerts, conferences, workshops and meetups near you.", "Concerts, conférences, ateliers et rencontres près de vous.")}
           </p>
         </div>
         <Button asChild size="sm">
           <Link to="/create">
             <Plus className="size-4" aria-hidden />
-            {fr ? "Créer un événement" : "Create an event"}
+            {tx("Create an event", "Créer un événement")}
           </Link>
         </Button>
       </header>
 
       <Tabs defaultValue="upcoming">
         <TabsList>
-          <TabsTrigger value="upcoming">{fr ? "À venir" : "Upcoming"}</TabsTrigger>
-          <TabsTrigger value="tickets">{fr ? "Mes billets" : "My tickets"}</TabsTrigger>
+          <TabsTrigger value="upcoming">{tx("Upcoming", "À venir")}</TabsTrigger>
+          <TabsTrigger value="tickets">{tx("My tickets", "Mes billets")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="upcoming" className="mt-4">
           {events.isLoading ? (
-            <LoadingState label={fr ? "Chargement des événements…" : "Loading events…"} />
+            <LoadingState label={tx("Loading events…", "Chargement des événements…")} />
           ) : (events.data ?? []).length === 0 ? (
             <EmptyState
               icon={<CalendarDays className="size-5" aria-hidden />}
-              title={fr ? "Aucun événement publié" : "No published events yet"}
-              description={fr ? "Créez le premier événement de votre ville." : "Create the first event in your city."}
+              title={tx("No published events yet", "Aucun événement publié")}
+              description={tx("Create the first event in your city.", "Créez le premier événement de votre ville.")}
             />
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -101,10 +101,10 @@ function EventsPage() {
                     </p>
                     <div className="mt-auto flex items-center justify-between pt-2">
                       <span className="font-display text-lg font-extrabold text-foreground">
-                        {event.is_free ? (fr ? "Gratuit" : "Free") : formatXAF(event.ticket_price)}
+                        {event.is_free ? (tx("Free", "Gratuit")) : formatXAF(event.ticket_price)}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {left} {fr ? "places" : "seats"}
+                        {left} {tx("seats", "places")}
                       </span>
                     </div>
                   </Link>
@@ -118,8 +118,8 @@ function EventsPage() {
           {(tickets.data ?? []).length === 0 ? (
             <EmptyState
               icon={<Ticket className="size-5" aria-hidden />}
-              title={fr ? "Aucun billet" : "No tickets yet"}
-              description={fr ? "Vos billets payés apparaîtront ici avec leur code." : "Your paid tickets appear here with their entry code."}
+              title={tx("No tickets yet", "Aucun billet")}
+              description={tx("Your paid tickets appear here with their entry code.", "Vos billets payés apparaîtront ici avec leur code.")}
             />
           ) : (
             <ul className="space-y-3">

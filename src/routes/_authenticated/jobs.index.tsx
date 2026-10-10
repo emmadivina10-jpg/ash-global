@@ -53,7 +53,7 @@ function JobsSoon() {
 }
 
 function JobsPage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const [search, setSearch] = useState("");
   const [employmentType, setEmploymentType] = useState("ALL");
@@ -64,12 +64,10 @@ function JobsPage() {
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
-            {fr ? "ASH Jobs" : "ASH Jobs"}
+            {tx("ASH Jobs", "ASH Jobs")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {fr
-              ? "Publiez une offre gratuitement, ou postulez directement dans l'app."
-              : "Post a role for free, or apply right inside the app."}
+            {tx("Post a role for free, or apply right inside the app.", "Publiez une offre gratuitement, ou postulez directement dans l'app.")}
           </p>
         </div>
         <PostJobDialog fr={fr} />
@@ -81,7 +79,7 @@ function JobsPage() {
           <Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder={fr ? "Poste ou entreprise" : "Role or company"}
+            placeholder={tx("Role or company", "Poste ou entreprise")}
             className="pl-9"
           />
         </div>
@@ -100,18 +98,18 @@ function JobsPage() {
                 : "border-border bg-card text-muted-foreground hover:border-primary/40",
             )}
           >
-            {fr ? item.fr : item.en}
+            {tx(item.en, item.fr)}
           </button>
         ))}
       </div>
 
       {jobs.isLoading ? (
-        <LoadingState label={fr ? "Chargement des offres…" : "Loading jobs…"} />
+        <LoadingState label={tx("Loading jobs…", "Chargement des offres…")} />
       ) : (jobs.data ?? []).length === 0 ? (
         <EmptyState
           icon={<Briefcase className="size-5" aria-hidden />}
-          title={fr ? "Aucune offre ouverte" : "No open roles"}
-          description={fr ? "Publiez la première offre, c'est gratuit." : "Post the first role — it's free."}
+          title={tx("No open roles", "Aucune offre ouverte")}
+          description={tx("Post the first role — it's free.", "Publiez la première offre, c'est gratuit.")}
         />
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2">
@@ -143,13 +141,11 @@ function JobsPage() {
                   <span className="font-display font-extrabold text-foreground">
                     {job.salary_min || job.salary_max
                       ? `${formatXAF(job.salary_min ?? job.salary_max ?? 0)}${job.salary_max && job.salary_min ? ` – ${formatXAF(job.salary_max)}` : ""}`
-                      : fr
-                        ? "À négocier"
-                        : "Negotiable"}
+                      : tx("Negotiable", "À négocier")}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {job.applications_count} {fr ? "candidature(s)" : "applicants"}
+                  {job.applications_count} {tx("applicants", "candidature(s)")}
                 </p>
                 </div>
               </Link>
@@ -162,6 +158,7 @@ function JobsPage() {
 }
 
 function PostJobDialog({ fr }: { fr: boolean }) {
+  const { tx } = useI18n();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [company, setCompany] = useState("");
@@ -238,7 +235,7 @@ function PostJobDialog({ fr }: { fr: boolean }) {
             >
               {EMPLOYMENT_TYPES.map((item) => (
                 <option key={item.key} value={item.key}>
-                  {fr ? item.fr : item.en}
+                  {tx(item.en, item.fr)}
                 </option>
               ))}
             </select>
@@ -249,7 +246,7 @@ function PostJobDialog({ fr }: { fr: boolean }) {
             >
               {LOCATION_TYPES.map((item) => (
                 <option key={item.key} value={item.key}>
-                  {fr ? item.fr : item.en}
+                  {tx(item.en, item.fr)}
                 </option>
               ))}
             </select>

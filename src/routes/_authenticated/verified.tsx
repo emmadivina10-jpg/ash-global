@@ -56,7 +56,7 @@ const TIER_COPY: Record<VerificationTier, { en: string; fr: string; enHint: stri
 };
 
 function VerifiedPage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const queryClient = useQueryClient();
 
@@ -88,11 +88,11 @@ function VerifiedPage() {
     try {
       const result = await start({ data: { tier, provider, phone } });
       if (!result.ok) {
-        toast.error(result.message ?? (fr ? "Le paiement n'a pas démarré." : "The payment could not start."));
+        toast.error(result.message ?? (tx("The payment could not start.", "Le paiement n'a pas démarré.")));
         return;
       }
       setReference(result.reference);
-      toast.success(fr ? "Validez la demande sur votre téléphone." : "Approve the prompt on your phone.");
+      toast.success(tx("Approve the prompt on your phone.", "Validez la demande sur votre téléphone."));
     } finally {
       setBusy(false);
     }
@@ -104,18 +104,18 @@ function VerifiedPage() {
     try {
       const result = await verify({ data: { reference } });
       if (result.ok) {
-        toast.success(fr ? "Vous êtes vérifié !" : "You're verified!");
+        toast.success(tx("You're verified!", "Vous êtes vérifié !"));
         setReference(null);
         await queryClient.invalidateQueries({ queryKey: ["verified", "me"] });
       } else {
-        toast.error(fr ? "Paiement pas encore confirmé." : "Payment not confirmed yet.");
+        toast.error(tx("Payment not confirmed yet.", "Paiement pas encore confirmé."));
       }
     } finally {
       setBusy(false);
     }
   }
 
-  if (isLoading) return <LoadingState label={fr ? "Chargement…" : "Loading…"} />;
+  if (isLoading) return <LoadingState label={tx("Loading…", "Chargement…")} />;
 
   const benefits = fr
     ? [
@@ -140,10 +140,10 @@ function VerifiedPage() {
           </span>
           <div className="min-w-0">
             <h1 className="font-display text-xl font-extrabold text-foreground">
-              {fr ? "ASH Vérifié" : "ASH Verified"}
+              {tx("ASH Verified", "ASH Vérifié")}
             </h1>
             <p className="text-sm text-muted-foreground">
-              {fr ? "Protégez votre identité et gagnez la confiance." : "Protect your identity and earn trust."}
+              {tx("Protect your identity and earn trust.", "Protégez votre identité et gagnez la confiance.")}
             </p>
           </div>
         </div>
@@ -152,11 +152,11 @@ function VerifiedPage() {
           <div className="mt-4 flex flex-wrap items-center gap-2 rounded-2xl bg-[#1877F2]/10 p-3 text-sm">
             <VerifiedBadge tier={me?.verified_tier ?? null} until={me?.verified_until ?? null} size={16} />
             <span className="font-semibold text-foreground">
-              {fr ? "Votre compte est vérifié" : "Your account is verified"}
+              {tx("Your account is verified", "Votre compte est vérifié")}
             </span>
             {me?.verified_until ? (
               <span className="text-muted-foreground">
-                · {fr ? "jusqu'au" : "until"} {new Date(me.verified_until).toLocaleDateString(fr ? "fr-FR" : "en-GB")}
+                · {tx("until", "jusqu'au")} {new Date(me.verified_until).toLocaleDateString(fr ? "fr-FR" : "en-GB")}
               </span>
             ) : null}
           </div>
@@ -164,7 +164,7 @@ function VerifiedPage() {
       </header>
 
       <section className="rounded-3xl border border-border bg-card p-5">
-        <p className="text-sm font-bold text-foreground">{fr ? "Ce que vous obtenez" : "What you get"}</p>
+        <p className="text-sm font-bold text-foreground">{tx("What you get", "Ce que vous obtenez")}</p>
         <ul className="mt-3 space-y-2">
           {benefits.map((line) => (
             <li key={line} className="flex items-start gap-2 text-sm text-muted-foreground">
@@ -177,7 +177,7 @@ function VerifiedPage() {
 
       <section className="rounded-3xl border border-border bg-card p-5">
         <p className="text-sm font-bold text-foreground">
-          {active ? (fr ? "Renouveler ou changer de niveau" : "Renew or change tier") : fr ? "Choisissez un niveau" : "Choose a tier"}
+          {active ? (tx("Renew or change tier", "Renouveler ou changer de niveau")) : tx("Choose a tier", "Choisissez un niveau")}
         </p>
 
         <div className="mt-3 grid gap-2">
@@ -202,7 +202,7 @@ function VerifiedPage() {
                 <span className="shrink-0 text-right">
                   <span className="block text-sm font-extrabold text-foreground">{formatXAF(plan.amount)}</span>
                   <span className="block text-[10px] uppercase tracking-wide text-muted-foreground">
-                    / {plan.days} {fr ? "jours" : "days"}
+                    / {plan.days} {tx("days", "jours")}
                   </span>
                 </span>
               </button>
@@ -214,19 +214,17 @@ function VerifiedPage() {
           {reference ? (
             <div className="space-y-3">
               <p className="rounded-2xl bg-muted p-4 text-sm text-muted-foreground">
-                {fr
-                  ? "Validez la demande Mobile Money sur votre téléphone, puis confirmez ici."
-                  : "Approve the mobile money prompt on your phone, then confirm here."}
+                {tx("Approve the mobile money prompt on your phone, then confirm here.", "Validez la demande Mobile Money sur votre téléphone, puis confirmez ici.")}
               </p>
               <Button className="w-full" disabled={busy} onClick={() => void confirm()}>
-                {fr ? "J'ai payé" : "I have paid"}
+                {tx("I have paid", "J'ai payé")}
               </Button>
             </div>
           ) : (
             <MomoCharge
               busy={busy}
               fr={fr}
-              submitLabel={fr ? "Payer et être vérifié" : "Pay and get verified"}
+              submitLabel={tx("Pay and get verified", "Payer et être vérifié")}
               onCharge={charge}
             />
           )}
@@ -234,9 +232,7 @@ function VerifiedPage() {
 
         <p className="mt-3 flex items-start gap-2 text-[11px] text-muted-foreground">
           <ShieldCheck className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-          {fr
-            ? "Paiement par Mobile Money (MTN & Orange). Les virements bancaires arrivent bientôt."
-            : "Paid with Mobile Money (MTN & Orange). Bank transfers are coming soon."}
+          {tx("Paid with Mobile Money (MTN & Orange). Bank transfers are coming soon.", "Paiement par Mobile Money (MTN & Orange). Les virements bancaires arrivent bientôt.")}
         </p>
       </section>
     </div>

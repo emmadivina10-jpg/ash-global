@@ -53,7 +53,7 @@ const SECTIONS: { en: string; fr: string; icon: typeof BookOpen; to?: string; so
 ];
 
 function CampusPage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const { data: instructor } = useMyInstructorProfile();
   const { data: application } = useMyCampusApplication();
@@ -63,12 +63,10 @@ function CampusPage() {
       <header>
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">ASH Campus</p>
         <h1 className="mt-1 font-display text-2xl font-extrabold text-foreground sm:text-3xl">
-          {fr ? "Apprenez. Enseignez. Progressez." : "Learn. Teach. Grow."}
+          {tx("Learn. Teach. Grow.", "Apprenez. Enseignez. Progressez.")}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {fr
-            ? "Tout votre apprentissage au même endroit, avec de vrais instructeurs ASH."
-            : "Everything you study in one place, with real ASH instructors."}
+          {tx("Everything you study in one place, with real ASH instructors.", "Tout votre apprentissage au même endroit, avec de vrais instructeurs ASH.")}
         </p>
       </header>
 
@@ -76,26 +74,24 @@ function CampusPage() {
         <div className="absolute -right-10 -top-10 size-40 rounded-full bg-white/10 blur-2xl" aria-hidden />
         <div className="relative">
           <p className="text-[11px] font-bold uppercase tracking-[0.22em] opacity-90">
-            {fr ? "Trouver un instructeur" : "Find an instructor"}
+            {tx("Find an instructor", "Trouver un instructeur")}
           </p>
           <h2 className="mt-2 font-display text-2xl font-extrabold leading-tight sm:text-3xl">
-            {fr ? "Trouvez quelqu'un qui peut vous apprendre." : "Find Someone Who Can Teach You."}
+            {tx("Find Someone Who Can Teach You.", "Trouvez quelqu'un qui peut vous apprendre.")}
           </h2>
           <p className="mt-2 max-w-lg text-sm opacity-95">
-            {fr
-              ? "Des instructeurs pour l'école, l'université, les langues, les compétences professionnelles et la préparation aux examens internationaux — au Cameroun et dans le monde."
-              : "Connect with instructors for school, university, languages, professional skills and international exam preparation — in Cameroon and around the world."}
+            {tx("Connect with instructors for school, university, languages, professional skills and international exam preparation — in Cameroon and around the world.", "Des instructeurs pour l'école, l'université, les langues, les compétences professionnelles et la préparation aux examens internationaux — au Cameroun et dans le monde.")}
           </p>
           <p className="mt-2 text-xs font-semibold opacity-90">
-            TCF Canada · TEF Canada · IELTS · CELPIP · {fr ? "Français" : "French"} · {fr ? "Anglais" : "English"} ·{" "}
-            {fr ? "Allemand" : "German"} · {fr ? "Mathématiques" : "Mathematics"} · {fr ? "Physique" : "Physics"} ·
+            TCF Canada · TEF Canada · IELTS · CELPIP · {tx("French", "Français")} · {tx("English", "Anglais")} ·{" "}
+            {tx("German", "Allemand")} · {tx("Mathematics", "Mathématiques")} · {tx("Physics", "Physique")} ·
             Programming · Cybersecurity
           </p>
           <div className="mt-5 flex flex-wrap gap-2">
             <Button asChild size="lg" variant="secondary" className="rounded-full font-bold">
               <Link to="/campus/instructors">
                 <Search className="size-4" aria-hidden />
-                {fr ? "Trouver un instructeur" : "Find an Instructor"}
+                {tx("Find an Instructor", "Trouver un instructeur")}
               </Link>
             </Button>
             <Button
@@ -107,18 +103,14 @@ function CampusPage() {
               <Link to={instructor ? "/campus/teaching" : "/campus/become-instructor"}>
                 <UserPlus className="size-4" aria-hidden />
                 {instructor
-                  ? fr
-                    ? "Espace instructeur"
-                    : "Instructor dashboard"
-                  : fr
-                    ? "Devenir instructeur"
-                    : "Become an Instructor"}
+                  ? tx("Instructor dashboard", "Espace instructeur")
+                  : tx("Become an Instructor", "Devenir instructeur")}
               </Link>
             </Button>
           </div>
           {application && !instructor ? (
             <p className="mt-3 text-xs font-semibold opacity-95">
-              {fr ? "Statut de votre candidature : " : "Your application status: "}
+              {tx("Your application status: ", "Statut de votre candidature : ")}
               {application.status.replaceAll("_", " ").toLowerCase()}
             </p>
           ) : null}
@@ -127,7 +119,7 @@ function CampusPage() {
 
       <section>
         <h2 className="mb-3 font-display text-lg font-bold text-foreground">
-          {fr ? "Explorer ASH Campus" : "Explore ASH Campus"}
+          {tx("Explore ASH Campus", "Explorer ASH Campus")}
         </h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {SECTIONS.map((section) => {
@@ -138,7 +130,7 @@ function CampusPage() {
                 <span className="mt-2 block text-sm font-semibold text-foreground">{label}</span>
                 {section.soon ? (
                   <span className="mt-1 block text-[11px] font-medium text-muted-foreground">
-                    {fr ? "Bientôt disponible" : "Coming soon"}
+                    {tx("Coming soon", "Bientôt disponible")}
                   </span>
                 ) : null}
               </>
@@ -164,9 +156,7 @@ function CampusPage() {
         <div className="flex gap-3">
           <Sparkles className="size-5 shrink-0 text-primary" aria-hidden />
           <p className="text-xs leading-relaxed text-muted-foreground">
-            {fr
-              ? "Les instructeurs ASH sont examinés manuellement par notre équipe avant d'être affichés comme « Instructeur vérifié ASH ». ASH ne réalise pas de vérification d'antécédents judiciaires ni de contrôle gouvernemental."
-              : "ASH instructors are manually reviewed by our team before they appear as an ASH Verified Instructor. ASH does not perform criminal background checks or government verification."}
+            {tx("ASH instructors are manually reviewed by our team before they appear as an ASH Verified Instructor. ASH does not perform criminal background checks or government verification.", "Les instructeurs ASH sont examinés manuellement par notre équipe avant d'être affichés comme « Instructeur vérifié ASH ». ASH ne réalise pas de vérification d'antécédents judiciaires ni de contrôle gouvernemental.")}
           </p>
         </div>
       </section>

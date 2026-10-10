@@ -56,7 +56,7 @@ export const Route = createFileRoute("/_authenticated/property/$listingId")({
 
 function PropertyDetail() {
   const { listingId } = Route.useParams();
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const queryClient = useQueryClient();
   const navigate = Route.useNavigate();
@@ -85,16 +85,16 @@ function PropertyDetail() {
     });
   }, [listingId]);
 
-  if (isLoading) return <LoadingState label={fr ? "Chargement du bien…" : "Loading property…"} />;
+  if (isLoading) return <LoadingState label={tx("Loading property…", "Chargement du bien…")} />;
   if (!data)
     return (
       <EmptyState
         icon={<MapPin className="size-5" aria-hidden />}
-        title={fr ? "Annonce introuvable" : "Listing not found"}
-        description={fr ? "Cette annonce n’est plus disponible." : "This listing is no longer available."}
+        title={tx("Listing not found", "Annonce introuvable")}
+        description={tx("This listing is no longer available.", "Cette annonce n’est plus disponible.")}
         action={
           <Button asChild>
-            <Link to="/property">{fr ? "Retour" : "Back to Property"}</Link>
+            <Link to="/property">{tx("Back to Property", "Retour")}</Link>
           </Button>
         }
       />
@@ -118,12 +118,12 @@ function PropertyDetail() {
       target_id: listingId,
     });
     await queryClient.invalidateQueries({ queryKey: ["property"] });
-    toast.success(saved ? (fr ? "Retiré" : "Removed") : fr ? "Enregistré" : "Saved");
+    toast.success(saved ? (tx("Removed", "Retiré")) : tx("Saved", "Enregistré"));
   }
 
   async function requestViewing() {
     if (!when) {
-      toast.error(fr ? "Choisissez une date et une heure." : "Pick a date and time.");
+      toast.error(tx("Pick a date and time.", "Choisissez une date et une heure."));
       return;
     }
     setBusy(true);
@@ -135,14 +135,14 @@ function PropertyDetail() {
     setBusy(false);
     const payload = result as { ok?: boolean; error?: string } | null;
     if (error || !payload?.ok) {
-      toast.error(payload?.error ?? error?.message ?? (fr ? "Échec de la demande." : "Request failed."));
+      toast.error(payload?.error ?? error?.message ?? (tx("Request failed.", "Échec de la demande.")));
       return;
     }
     setViewingOpen(false);
     setWhen("");
     setMessage("");
     await queryClient.invalidateQueries({ queryKey: ["property"] });
-    toast.success(fr ? "Demande de visite envoyée." : "Viewing request sent.");
+    toast.success(tx("Viewing request sent.", "Demande de visite envoyée."));
   }
 
   async function messageOwner() {
@@ -159,12 +159,8 @@ function PropertyDetail() {
     } catch (cause) {
       toast.error(
         cause instanceof Error && cause.message === "OWN_LISTING"
-          ? fr
-            ? "C’est votre propre annonce."
-            : "This is your own listing."
-          : fr
-            ? "Impossible d’ouvrir la discussion."
-            : "Could not open the chat.",
+          ? tx("This is your own listing.", "C’est votre propre annonce.")
+          : tx("Could not open the chat.", "Impossible d’ouvrir la discussion."),
       );
     } finally {
       setBusy(false);
@@ -183,16 +179,16 @@ function PropertyDetail() {
           <Button
             variant="ghost"
             size="icon"
-            aria-label={fr ? "Partager" : "Share"}
+            aria-label={tx("Share", "Partager")}
             onClick={() => {
               void navigator.clipboard.writeText(window.location.href);
               trackEvent({ event_type: "share", surface: "property", target_type: "property", target_id: listingId });
-              toast.success(fr ? "Lien copié" : "Link copied");
+              toast.success(tx("Link copied", "Lien copié"));
             }}
           >
             <Share2 className="size-4" aria-hidden />
           </Button>
-          <Button variant="ghost" size="icon" aria-label={fr ? "Enregistrer" : "Save"} onClick={toggleSave}>
+          <Button variant="ghost" size="icon" aria-label={tx("Save", "Enregistrer")} onClick={toggleSave}>
             <Heart className={cn("size-4", saved && "fill-primary text-primary")} aria-hidden />
           </Button>
           <ReportDialog
@@ -233,7 +229,7 @@ function PropertyDetail() {
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
               {categoryLabel(listing.category, fr)} ·{" "}
-              {listing.listing_kind === "SALE" ? (fr ? "À vendre" : "For sale") : fr ? "À louer" : "For rent"}
+              {listing.listing_kind === "SALE" ? (tx("For sale", "À vendre")) : tx("For rent", "À louer")}
             </p>
             <h1 className="mt-1 font-display text-2xl font-extrabold text-foreground sm:text-3xl">{listing.title}</h1>
             <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -248,12 +244,12 @@ function PropertyDetail() {
           <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
             {listing.bedrooms > 0 ? (
               <span className="inline-flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5">
-                <BedDouble className="size-4" aria-hidden /> {listing.bedrooms} {fr ? "chambres" : "bedrooms"}
+                <BedDouble className="size-4" aria-hidden /> {listing.bedrooms} {tx("bedrooms", "chambres")}
               </span>
             ) : null}
             {listing.bathrooms > 0 ? (
               <span className="inline-flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5">
-                <Bath className="size-4" aria-hidden /> {listing.bathrooms} {fr ? "salles de bain" : "bathrooms"}
+                <Bath className="size-4" aria-hidden /> {listing.bathrooms} {tx("bathrooms", "salles de bain")}
               </span>
             ) : null}
             {listing.size_value ? (
@@ -271,14 +267,14 @@ function PropertyDetail() {
 
           {listing.description ? (
             <section>
-              <h2 className="mb-2 text-sm font-bold text-foreground">{fr ? "Description" : "Description"}</h2>
+              <h2 className="mb-2 text-sm font-bold text-foreground">{tx("Description", "Description")}</h2>
               <p className="whitespace-pre-wrap text-sm text-muted-foreground">{listing.description}</p>
             </section>
           ) : null}
 
           {listing.amenities.length > 0 ? (
             <section>
-              <h2 className="mb-2 text-sm font-bold text-foreground">{fr ? "Commodités" : "Amenities"}</h2>
+              <h2 className="mb-2 text-sm font-bold text-foreground">{tx("Amenities", "Commodités")}</h2>
               <div className="flex flex-wrap gap-2">
                 {listing.amenities.map((code) => (
                   <span key={code} className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground">
@@ -290,15 +286,13 @@ function PropertyDetail() {
           ) : null}
 
           <section className="rounded-2xl border border-border bg-card p-4">
-            <h2 className="text-sm font-bold text-foreground">{fr ? "Vérification" : "Verification"}</h2>
+            <h2 className="text-sm font-bold text-foreground">{tx("Verification", "Vérification")}</h2>
             <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-muted-foreground">
               <BadgeCheck className="size-4 text-primary" aria-hidden />
               {labelOf(VERIFICATION_STATES, listing.verification_status, fr)}
             </p>
             <p className="mt-2 text-xs text-muted-foreground">
-              {fr
-                ? "ASH n’affiche que les vérifications réellement effectuées. Une annonce « simple » n’a pas été vérifiée — visitez toujours le bien avant de payer."
-                : "ASH only shows checks it has actually performed. A basic listing has not been verified — always visit a property before paying anything."}
+              {tx("ASH only shows checks it has actually performed. A basic listing has not been verified — always visit a property before paying anything.", "ASH n’affiche que les vérifications réellement effectuées. Une annonce « simple » n’a pas été vérifiée — visitez toujours le bien avant de payer.")}
             </p>
           </section>
         </div>
@@ -306,11 +300,11 @@ function PropertyDetail() {
         <aside className="space-y-3 lg:sticky lg:top-4 lg:self-start">
           <div className="rounded-2xl border border-border bg-card p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              {fr ? "Publié par" : "Listed by"}
+              {tx("Listed by", "Publié par")}
             </p>
-            <p className="mt-1 font-semibold text-foreground">{owner?.full_name ?? (fr ? "Profil indisponible" : "Profile unavailable")}</p>
+            <p className="mt-1 font-semibold text-foreground">{owner?.full_name ?? (tx("Profile unavailable", "Profil indisponible"))}</p>
             <p className="text-xs text-muted-foreground">
-              {fr ? "Annonce publiée le" : "Listed"} {formatDateTime(listing.created_at)}
+              {tx("Listed", "Annonce publiée le")} {formatDateTime(listing.created_at)}
             </p>
 
             <div className="mt-3 grid gap-2">
@@ -318,19 +312,19 @@ function PropertyDetail() {
                 <DialogTrigger asChild>
                   <Button className="w-full">
                     <CalendarClock className="size-4" aria-hidden />
-                    {fr ? "Demander une visite" : "Request viewing"}
+                    {tx("Request viewing", "Demander une visite")}
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>{fr ? "Demander une visite" : "Request a viewing"}</DialogTitle>
+                    <DialogTitle>{tx("Request a viewing", "Demander une visite")}</DialogTitle>
                     <DialogDescription>
-                      {fr ? "Le propriétaire peut accepter, refuser ou proposer un autre créneau." : "The owner can accept, decline or propose another time."}
+                      {tx("The owner can accept, decline or propose another time.", "Le propriétaire peut accepter, refuser ou proposer un autre créneau.")}
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-3">
                     <div className="space-y-1.5">
-                      <Label htmlFor="viewing-when">{fr ? "Date et heure" : "Date and time"}</Label>
+                      <Label htmlFor="viewing-when">{tx("Date and time", "Date et heure")}</Label>
                       <Input
                         id="viewing-when"
                         type="datetime-local"
@@ -339,17 +333,17 @@ function PropertyDetail() {
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="viewing-message">{fr ? "Message" : "Message"}</Label>
+                      <Label htmlFor="viewing-message">{tx("Message", "Message")}</Label>
                       <Textarea
                         id="viewing-message"
                         rows={3}
                         value={message}
                         onChange={(event) => setMessage(event.target.value)}
-                        placeholder={fr ? "Présentez-vous en une ligne." : "Introduce yourself in one line."}
+                        placeholder={tx("Introduce yourself in one line.", "Présentez-vous en une ligne.")}
                       />
                     </div>
                     <Button className="w-full" disabled={busy} onClick={requestViewing}>
-                      {busy ? (fr ? "Envoi…" : "Sending…") : fr ? "Envoyer la demande" : "Send request"}
+                      {busy ? (tx("Sending…", "Envoi…")) : tx("Send request", "Envoyer la demande")}
                     </Button>
                   </div>
                 </DialogContent>
@@ -358,7 +352,7 @@ function PropertyDetail() {
               {user?.id && user.id !== listing.owner_id ? (
                 <Button variant="outline" className="w-full" disabled={busy} onClick={messageOwner}>
                   <MessageCircle className="size-4" aria-hidden />
-                  {fr ? "Discuter avec le propriétaire" : "Message owner"}
+                  {tx("Message owner", "Discuter avec le propriétaire")}
                 </Button>
               ) : null}
 
@@ -380,7 +374,7 @@ function PropertyDetail() {
                 <Button variant="outline" asChild className="w-full">
                   <a href={`tel:${listing.contact_phone}`}>
                     <Phone className="size-4" aria-hidden />
-                    {fr ? "Appeler" : "Call"}
+                    {tx("Call", "Appeler")}
                   </a>
                 </Button>
               ) : null}
@@ -388,9 +382,7 @@ function PropertyDetail() {
           </div>
 
           <div className="rounded-2xl border border-border bg-card p-4 text-xs text-muted-foreground">
-            {fr
-              ? "Ne payez jamais un dépôt avant d’avoir visité le bien et vérifié l’identité du propriétaire. Signalez toute annonce suspecte."
-              : "Never pay a deposit before visiting the property and confirming the owner's identity. Report anything suspicious."}
+            {tx("Never pay a deposit before visiting the property and confirming the owner's identity. Report anything suspicious.", "Ne payez jamais un dépôt avant d’avoir visité le bien et vérifié l’identité du propriétaire. Signalez toute annonce suspecte.")}
           </div>
         </aside>
       </div>
@@ -398,7 +390,7 @@ function PropertyDetail() {
       {(similar?.length ?? 0) > 0 ? (
         <section>
           <h2 className="mb-3 font-display text-lg font-extrabold text-foreground">
-            {fr ? "Biens similaires" : "Similar properties"}
+            {tx("Similar properties", "Biens similaires")}
           </h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {similar?.map((item) => <PropertyCard key={item.id} listing={item} />)}

@@ -31,7 +31,7 @@ import { useDeletePost, useUpdatePost } from "@/lib/social.queries";
 import { useI18n } from "@/lib/i18n";
 
 export function SocialPostOwnerActions({ postId, caption }: { postId: string; caption: string }) {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -47,7 +47,7 @@ export function SocialPostOwnerActions({ postId, caption }: { postId: string; ca
       {
         onSuccess: () => {
           setEditOpen(false);
-          toast.success(fr ? "Publication modifiée" : "Post updated");
+          toast.success(tx("Post updated", "Publication modifiée"));
         },
         onError: (error) => toast.error(error instanceof Error ? error.message : "Could not update post."),
       },
@@ -58,7 +58,7 @@ export function SocialPostOwnerActions({ postId, caption }: { postId: string; ca
     remove.mutate(postId, {
       onSuccess: () => {
         setDeleteOpen(false);
-        toast.success(fr ? "Publication supprimée" : "Post deleted");
+        toast.success(tx("Post deleted", "Publication supprimée"));
       },
       onError: (error) => toast.error(error instanceof Error ? error.message : "Could not delete post."),
     });
@@ -68,18 +68,18 @@ export function SocialPostOwnerActions({ postId, caption }: { postId: string; ca
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="size-8 shrink-0" aria-label={fr ? "Options de publication" : "Post options"}>
+          <Button variant="ghost" size="icon" className="size-8 shrink-0" aria-label={tx("Post options", "Options de publication")}>
             <MoreHorizontal className="size-5" aria-hidden />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onSelect={() => setEditOpen(true)}>
             <Pencil aria-hidden />
-            {fr ? "Modifier" : "Edit post"}
+            {tx("Edit post", "Modifier")}
           </DropdownMenuItem>
           <DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={() => setDeleteOpen(true)}>
             <Trash2 aria-hidden />
-            {fr ? "Supprimer" : "Delete post"}
+            {tx("Delete post", "Supprimer")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -87,13 +87,13 @@ export function SocialPostOwnerActions({ postId, caption }: { postId: string; ca
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{fr ? "Modifier la publication" : "Edit post"}</DialogTitle>
-            <DialogDescription>{fr ? "Modifiez le texte de votre publication." : "Update the text on your post."}</DialogDescription>
+            <DialogTitle>{tx("Edit post", "Modifier la publication")}</DialogTitle>
+            <DialogDescription>{tx("Update the text on your post.", "Modifiez le texte de votre publication.")}</DialogDescription>
           </DialogHeader>
           <Textarea value={draft} onChange={(event) => setDraft(event.target.value.slice(0, 2200))} rows={6} autoFocus />
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditOpen(false)}>{fr ? "Annuler" : "Cancel"}</Button>
-            <Button onClick={save} disabled={update.isPending || draft === caption}>{fr ? "Enregistrer" : "Save"}</Button>
+            <Button variant="outline" onClick={() => setEditOpen(false)}>{tx("Cancel", "Annuler")}</Button>
+            <Button onClick={save} disabled={update.isPending || draft === caption}>{tx("Save", "Enregistrer")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -101,15 +101,15 @@ export function SocialPostOwnerActions({ postId, caption }: { postId: string; ca
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{fr ? "Supprimer cette publication ?" : "Delete this post?"}</AlertDialogTitle>
+            <AlertDialogTitle>{tx("Delete this post?", "Supprimer cette publication ?")}</AlertDialogTitle>
             <AlertDialogDescription>
-              {fr ? "La publication et ses photos seront supprimées définitivement." : "The post and its photos will be permanently deleted."}
+              {tx("The post and its photos will be permanently deleted.", "La publication et ses photos seront supprimées définitivement.")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{fr ? "Annuler" : "Cancel"}</AlertDialogCancel>
+            <AlertDialogCancel>{tx("Cancel", "Annuler")}</AlertDialogCancel>
             <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={confirmDelete} disabled={remove.isPending}>
-              {fr ? "Supprimer" : "Delete"}
+              {tx("Delete", "Supprimer")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -33,7 +33,7 @@ export function ComingSoon({
   backLabelEn?: string;
   backLabelFr?: string;
 }) {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const Icon = icon;
 
@@ -60,7 +60,7 @@ export function ComingSoon({
             </h1>
             <p className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-amber-500/25 bg-amber-500/10 px-3 py-1.5 text-xs font-bold text-amber-600 dark:text-amber-400">
               <Clock3 className="size-3.5" aria-hidden />
-              {fr ? "Bientôt disponible" : "Coming soon"}
+              {tx("Coming soon", "Bientôt disponible")}
             </p>
             <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-muted-foreground">{fr ? bodyFr : bodyEn}</p>
 
@@ -74,7 +74,7 @@ export function ComingSoon({
                       </span>
                       <div className="min-w-0">
                         <p className="text-sm font-bold text-foreground">{fr ? feature.fr : feature.en}</p>
-                        <p className="text-[11px] text-muted-foreground">{fr ? "Bientôt disponible" : "Coming soon"}</p>
+                        <p className="text-[11px] text-muted-foreground">{tx("Coming soon", "Bientôt disponible")}</p>
                       </div>
                     </div>
                   </div>
@@ -85,9 +85,7 @@ export function ComingSoon({
             <div className="mt-6 flex items-start gap-3 rounded-2xl border border-border bg-muted/30 p-4 text-left">
               <ShieldCheck className="mt-0.5 size-5 shrink-0 text-emerald-500" aria-hidden />
               <p className="text-xs leading-relaxed text-muted-foreground">
-                {fr
-                  ? "Cette section n'est pas encore active sur ASH. Rien ne peut être réservé, réclamé ou acheté ici pour le moment."
-                  : "This section is not live on ASH yet. Nothing can be booked, claimed or purchased here for now."}
+                {tx("This section is not live on ASH yet. Nothing can be booked, claimed or purchased here for now.", "Cette section n'est pas encore active sur ASH. Rien ne peut être réservé, réclamé ou acheté ici pour le moment.")}
               </p>
             </div>
           </div>

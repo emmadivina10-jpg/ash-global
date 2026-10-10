@@ -30,7 +30,7 @@ export function StoryViewer({
   currentUserId: string | null;
   onClose: () => void;
 }) {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const [groupIndex, setGroupIndex] = useState(startIndex);
   const [storyIndex, setStoryIndex] = useState(0);
@@ -146,17 +146,17 @@ export function StoryViewer({
             type="button"
             disabled={deleteStory.isPending}
             onClick={() => {
-              if (!window.confirm(fr ? "Supprimer cette story ?" : "Delete this story?")) return;
+              if (!window.confirm(tx("Delete this story?", "Supprimer cette story ?"))) return;
               deleteStory.mutate(story.id, {
                 onSuccess: () => {
-                  toast.success(fr ? "Story supprimée" : "Story deleted");
+                  toast.success(tx("Story deleted", "Story supprimée"));
                   onClose();
                 },
                 onError: (error) =>
-                  toast.error(error instanceof Error ? error.message : fr ? "Suppression impossible." : "Could not delete story."),
+                  toast.error(error instanceof Error ? error.message : tx("Could not delete story.", "Suppression impossible.")),
               });
             }}
-            aria-label={fr ? "Supprimer" : "Delete"}
+            aria-label={tx("Delete", "Supprimer")}
             className="grid size-9 place-items-center rounded-full bg-white/10 text-white"
           >
             <Trash2 className="size-4" aria-hidden />
@@ -165,7 +165,7 @@ export function StoryViewer({
         <button
           type="button"
           onClick={onClose}
-          aria-label={fr ? "Fermer" : "Close"}
+          aria-label={tx("Close", "Fermer")}
           className="grid size-9 place-items-center rounded-full bg-white/10 text-white"
         >
           <X className="size-5" aria-hidden />
@@ -212,7 +212,7 @@ export function StoryViewer({
             className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white"
           >
             <Eye className="size-4" aria-hidden />
-            {story.view_count} {fr ? "vues" : "views"}
+            {story.view_count} {tx("views", "vues")}
           </button>
         ) : null}
         </div>
@@ -222,15 +222,15 @@ export function StoryViewer({
         <div className="absolute inset-x-0 bottom-0 z-10 max-h-[60%] overflow-y-auto rounded-t-3xl bg-background p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
           <div className="mb-3 flex items-center justify-between">
             <p className="font-display text-base font-extrabold text-foreground">
-              {fr ? "Vu par" : "Viewed by"} ({viewers?.length ?? 0})
+              {tx("Viewed by", "Vu par")} ({viewers?.length ?? 0})
             </p>
-            <button type="button" onClick={() => setViewersOpen(false)} aria-label={fr ? "Fermer" : "Close"}>
+            <button type="button" onClick={() => setViewersOpen(false)} aria-label={tx("Close", "Fermer")}>
               <X className="size-5 text-muted-foreground" aria-hidden />
             </button>
           </div>
           {(viewers ?? []).length === 0 ? (
             <p className="py-6 text-center text-sm text-muted-foreground">
-              {fr ? "Personne ne l'a encore vue." : "Nobody has watched it yet."}
+              {tx("Nobody has watched it yet.", "Personne ne l'a encore vue.")}
             </p>
           ) : (
             <ul className="space-y-2">

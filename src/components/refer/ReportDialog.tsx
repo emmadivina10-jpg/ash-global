@@ -64,7 +64,7 @@ export function ReportDialog({
   onOpenChange?: (open: boolean) => void;
   hideTrigger?: boolean;
 }) {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const [openState, setOpenState] = useState(false);
   const open = openProp ?? openState;
@@ -84,7 +84,7 @@ export function ReportDialog({
     const uid = auth.user?.id;
     if (!uid) {
       setBusy(false);
-      toast.error(fr ? "Connectez-vous pour signaler." : "Sign in to report.");
+      toast.error(tx("Sign in to report.", "Connectez-vous pour signaler."));
       return;
     }
     const { error } = await supabase.from("content_reports").insert({
@@ -99,10 +99,10 @@ export function ReportDialog({
     if (error) {
       if (error.message.includes("DUPLICATE_REPORT")) {
         setOpen(false);
-        toast.info(fr ? "Vous avez déjà signalé ce contenu. Il est en cours d'examen." : "You already reported this. It is being reviewed.");
+        toast.info(tx("You already reported this. It is being reviewed.", "Vous avez déjà signalé ce contenu. Il est en cours d'examen."));
         return;
       }
-      toast.error(fr ? "Signalement échoué. Réessayez." : "Report failed. Try again.");
+      toast.error(tx("Report failed. Try again.", "Signalement échoué. Réessayez."));
       return;
     }
     trackEvent({
@@ -115,21 +115,19 @@ export function ReportDialog({
     setOpen(false);
     setDetails("");
     toast.success(
-      fr
-        ? "Merci. Votre signalement a été envoyé et sera examiné par l'équipe ASH Trust & Safety."
-        : "Thank you. Your report has been submitted and will be reviewed by ASH Trust & Safety.",
+      tx("Thank you. Your report has been submitted and will be reviewed by ASH Trust & Safety.", "Merci. Votre signalement a été envoyé et sera examiné par l'équipe ASH Trust & Safety."),
     );
   }
 
   async function block() {
     if (!targetUserId) return;
-    if (!window.confirm(fr ? "Bloquer cet utilisateur ? Vous ne verrez plus son contenu et il ne pourra plus interagir avec vous." : "Block this user? You will no longer see their content and they cannot interact with you.")) return;
+    if (!window.confirm(tx("Block this user? You will no longer see their content and they cannot interact with you.", "Bloquer cet utilisateur ? Vous ne verrez plus son contenu et il ne pourra plus interagir avec vous."))) return;
     setBlocking(true);
     const { data: auth } = await supabase.auth.getUser();
     const uid = auth.user?.id;
     if (!uid) {
       setBlocking(false);
-      toast.error(fr ? "Connectez-vous d'abord." : "Sign in first.");
+      toast.error(tx("Sign in first.", "Connectez-vous d'abord."));
       return;
     }
     const { error } = await supabase
@@ -143,7 +141,7 @@ export function ReportDialog({
     setOpen(false);
     await refreshAfterBlock();
     toast.success(
-      fr ? "Utilisateur bloqué. Son contenu est masqué." : "User blocked. Their content is now hidden from you.",
+      tx("User blocked. Their content is now hidden from you.", "Utilisateur bloqué. Son contenu est masqué."),
     );
   }
 
@@ -158,32 +156,30 @@ export function ReportDialog({
           className={cn("gap-1.5 text-muted-foreground", className)}
         >
           <Flag className="size-4" aria-hidden />
-          {compact ? null : fr ? "Signaler" : "Report"}
-          {compact ? <span className="sr-only">{fr ? "Signaler" : "Report"}</span> : null}
+          {compact ? null : tx("Report", "Signaler")}
+          {compact ? <span className="sr-only">{tx("Report", "Signaler")}</span> : null}
         </Button>
       </DialogTrigger>
       )}
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{fr ? "Signaler un contenu" : "Report content"}</DialogTitle>
+          <DialogTitle>{tx("Report content", "Signaler un contenu")}</DialogTitle>
           <DialogDescription>
             {targetLabel
               ? fr
                 ? `Signalement de « ${targetLabel} ». `
                 : `Reporting “${targetLabel}”. `
               : ""}
-            {fr
-              ? "ASH Glo applique une tolérance zéro pour les contenus abusifs. Les signalements sont examinés par l'équipe Trust & Safety. "
-              : "ASH Glo has zero tolerance for objectionable content. Reports are reviewed by the Trust & Safety team. "}
+            {tx("ASH Glo has zero tolerance for objectionable content. Reports are reviewed by the Trust & Safety team. ", "ASH Glo applique une tolérance zéro pour les contenus abusifs. Les signalements sont examinés par l'équipe Trust & Safety. ")}
             <Link to="/community-guidelines" className="font-semibold text-primary hover:underline">
-              {fr ? "Règles de la communauté" : "Community Guidelines"}
+              {tx("Community Guidelines", "Règles de la communauté")}
             </Link>
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>{fr ? "Motif" : "Reason"}</Label>
+            <Label>{tx("Reason", "Motif")}</Label>
             <RadioGroup value={reason} onValueChange={setReason} className="grid gap-1.5">
               {REASONS.map((r) => (
                 <label
@@ -199,13 +195,13 @@ export function ReportDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="report-details">{fr ? "Détails (optionnel)" : "Details (optional)"}</Label>
+            <Label htmlFor="report-details">{tx("Details (optional)", "Détails (optionnel)")}</Label>
             <Textarea
               id="report-details"
               rows={3}
               value={details}
               onChange={(event) => setDetails(event.target.value)}
-              placeholder={fr ? "Que s'est-il passé ?" : "What happened?"}
+              placeholder={tx("What happened?", "Que s'est-il passé ?")}
             />
           </div>
         </div>
@@ -218,14 +214,14 @@ export function ReportDialog({
               ) : (
                 <ShieldOff className="size-4" aria-hidden />
               )}
-              {fr ? "Bloquer" : "Block user"}
+              {tx("Block user", "Bloquer")}
             </Button>
           ) : (
             <span />
           )}
           <Button type="button" onClick={() => void submit()} disabled={busy}>
             {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Flag className="size-4" aria-hidden />}
-            {fr ? "Envoyer le signalement" : "Submit report"}
+            {tx("Submit report", "Envoyer le signalement")}
           </Button>
         </DialogFooter>
       </DialogContent>

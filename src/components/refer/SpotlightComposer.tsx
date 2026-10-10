@@ -42,7 +42,7 @@ export function SpotlightComposer({
   onOpenChange?: (open: boolean) => void;
   hideTrigger?: boolean;
 } = {}) {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const { data: identity } = useMyIdentity();
   const { data: provider } = useMyProviderProfile();
@@ -86,7 +86,7 @@ export function SpotlightComposer({
 
   const submit = async () => {
     if (files.length === 0) {
-      toast.error(fr ? "Ajoutez une photo ou une vidéo." : "Add a photo or a video.");
+      toast.error(tx("Add a photo or a video.", "Ajoutez une photo ou une vidéo."));
       return;
     }
     try {
@@ -95,21 +95,19 @@ export function SpotlightComposer({
         files,
         providerId: asBusiness && provider ? provider.id : null,
       });
-      toast.success(fr ? "Votre Spotlight est en ligne." : "Your Spotlight is live.");
+      toast.success(tx("Your Spotlight is live.", "Votre Spotlight est en ligne."));
       reset();
       setOpen(false);
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
-          : fr
-            ? "Publication impossible pour le moment."
-            : "Could not publish right now.",
+          : tx("Could not publish right now.", "Publication impossible pour le moment."),
       );
     }
   };
 
-  const displayName = provider && asBusiness ? provider.business_name : (identity?.full_name ?? (fr ? "Profil" : "Profile"));
+  const displayName = provider && asBusiness ? provider.business_name : (identity?.full_name ?? (tx("Profile", "Profil")));
 
   return (
     <>
@@ -121,11 +119,11 @@ export function SpotlightComposer({
         >
           <Avatar path={identity?.avatar_url ?? null} name={displayName} className="size-9" />
           <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">
-            {fr ? "Partagez un Spotlight…" : "Share a spotlight…"}
+            {tx("Share a spotlight…", "Partagez un Spotlight…")}
           </span>
           <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-[11px] font-bold text-primary">
             <ImagePlus className="size-3.5" aria-hidden />
-            {fr ? "Photo / Vidéo" : "Photo / Video"}
+            {tx("Photo / Video", "Photo / Vidéo")}
           </span>
         </button>
       )}
@@ -142,7 +140,7 @@ export function SpotlightComposer({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Sparkles className="size-4 text-primary" aria-hidden />
-              {fr ? "Créer un Spotlight" : "Create a Spotlight"}
+              {tx("Create a Spotlight", "Créer un Spotlight")}
             </DialogTitle>
           </DialogHeader>
 
@@ -158,16 +156,12 @@ export function SpotlightComposer({
                     className="text-[11px] font-semibold text-primary"
                   >
                     {asBusiness
-                      ? fr
-                        ? "Publier en mon nom"
-                        : "Post as myself"
-                      : fr
-                        ? "Publier comme entreprise"
-                        : "Post as my business"}
+                      ? tx("Post as myself", "Publier en mon nom")
+                      : tx("Post as my business", "Publier comme entreprise")}
                   </button>
                 ) : (
                   <p className="text-[11px] text-muted-foreground">
-                    {fr ? "Publication personnelle" : "Personal post"}
+                    {tx("Personal post", "Publication personnelle")}
                   </p>
                 )}
               </div>
@@ -179,9 +173,7 @@ export function SpotlightComposer({
               rows={4}
               maxLength={600}
               placeholder={
-                fr
-                  ? "Que voulez-vous partager ? Offre, nouveauté, coulisses…"
-                  : "What do you want to share? An offer, a new drop, behind the scenes…"
+                tx("What do you want to share? An offer, a new drop, behind the scenes…", "Que voulez-vous partager ? Offre, nouveauté, coulisses…")
               }
             />
             <SocialSuggestions value={caption} onChange={setCaption} />
@@ -210,7 +202,7 @@ export function SpotlightComposer({
                       type="button"
                       onClick={() => removeAt(index)}
                       className="absolute right-1.5 top-1.5 grid size-7 place-items-center rounded-full bg-background/85 text-foreground"
-                      aria-label={fr ? "Retirer" : "Remove"}
+                      aria-label={tx("Remove", "Retirer")}
                     >
                       <X className="size-3.5" aria-hidden />
                     </button>
@@ -240,7 +232,7 @@ export function SpotlightComposer({
                 onClick={() => inputRef.current?.click()}
               >
                 <ImagePlus className="size-4" aria-hidden />
-                {fr ? "Photo" : "Photo"}
+                {tx("Photo", "Photo")}
               </Button>
               <Button
                 type="button"
@@ -250,14 +242,12 @@ export function SpotlightComposer({
                 onClick={() => inputRef.current?.click()}
               >
                 <Film className="size-4" aria-hidden />
-                {fr ? "Vidéo" : "Video"}
+                {tx("Video", "Vidéo")}
               </Button>
             </div>
 
             <p className="text-[11px] text-muted-foreground">
-              {fr
-                ? "Jusqu’à 4 fichiers, 50 Mo maximum par fichier."
-                : "Up to 4 files, 50 MB maximum per file."}
+              {tx("Up to 4 files, 50 MB maximum per file.", "Jusqu’à 4 fichiers, 50 Mo maximum par fichier.")}
             </p>
 
             <Button
@@ -268,7 +258,7 @@ export function SpotlightComposer({
               onClick={() => void submit()}
             >
               {create.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-              {fr ? "Publier" : "Publish"}
+              {tx("Publish", "Publier")}
             </Button>
           </div>
         </DialogContent>

@@ -27,7 +27,7 @@ type MenuGroup = { en: string; fr: string; items: MenuEntry[] };
  * The mobile shell keeps its own bottom navigation and More sheet.
  */
 export function DesktopMenu({ groups, create }: { groups: MenuGroup[]; create: MenuEntry[] }) {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const [open, setOpen] = useState(false);
   const [term, setTerm] = useState("");
@@ -54,7 +54,7 @@ export function DesktopMenu({ groups, create }: { groups: MenuGroup[]; create: M
       }}
     >
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full" aria-label={fr ? "Menu" : "Menu"}>
+        <Button variant="ghost" size="icon" className="rounded-full" aria-label={tx("Menu", "Menu")}>
           <Menu className="size-5" aria-hidden />
         </Button>
       </PopoverTrigger>
@@ -70,9 +70,9 @@ export function DesktopMenu({ groups, create }: { groups: MenuGroup[]; create: M
               <Input
                 value={term}
                 onChange={(event) => setTerm(event.target.value)}
-                placeholder={fr ? "Rechercher dans le menu" : "Search menu"}
+                placeholder={tx("Search menu", "Rechercher dans le menu")}
                 className="rounded-full pl-9"
-                aria-label={fr ? "Rechercher dans le menu" : "Search menu"}
+                aria-label={tx("Search menu", "Rechercher dans le menu")}
               />
             </div>
 
@@ -93,10 +93,10 @@ export function DesktopMenu({ groups, create }: { groups: MenuGroup[]; create: M
                         </span>
                         <span className="min-w-0">
                           <span className="block text-sm font-bold text-foreground">
-                            {fr ? item.fr : item.en}
+                            {tx(item.en, item.fr)}
                           </span>
                           <span className="block text-xs leading-snug text-muted-foreground">
-                            {fr ? item.frHint : item.enHint}
+                            {tx(item.enHint, item.frHint)}
                           </span>
                         </span>
                       </Link>
@@ -106,14 +106,14 @@ export function DesktopMenu({ groups, create }: { groups: MenuGroup[]; create: M
               ))}
               {filtered.length === 0 ? (
                 <p className="px-1 py-6 text-sm text-muted-foreground">
-                  {fr ? "Aucun résultat." : "Nothing matches that."}
+                  {tx("Nothing matches that.", "Aucun résultat.")}
                 </p>
               ) : null}
             </div>
           </div>
 
           <div className="min-h-0 overflow-y-auto overscroll-contain p-4">
-            <h3 className="font-display text-lg font-extrabold text-foreground">{fr ? "Créer" : "Create"}</h3>
+            <h3 className="font-display text-lg font-extrabold text-foreground">{tx("Create", "Créer")}</h3>
             <div className="mt-3 space-y-0.5">
               {create.map((item) => (
                 <Link
@@ -126,7 +126,7 @@ export function DesktopMenu({ groups, create }: { groups: MenuGroup[]; create: M
                     <item.icon className="size-4" aria-hidden />
                   </span>
                   <span className="truncate text-sm font-semibold text-foreground">
-                    {fr ? item.fr : item.en}
+                    {tx(item.en, item.fr)}
                   </span>
                 </Link>
               ))}

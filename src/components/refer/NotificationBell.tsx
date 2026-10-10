@@ -23,7 +23,7 @@ function timeAgo(iso: string) {
 
 export function NotificationBell() {
   const navigate = useNavigate();
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const { data } = useNotifications();
   const markRead = useMarkNotificationsRead();
@@ -67,7 +67,7 @@ export function NotificationBell() {
                 disabled={markRead.isPending}
               >
                 <CheckCheck className="size-4" aria-hidden />
-                {fr ? "Tout lire" : "Mark all read"}
+                {tx("Mark all read", "Tout lire")}
               </Button>
             ) : null}
           </div>
@@ -95,7 +95,7 @@ export function NotificationBell() {
               onClick={() => setOpen(false)}
               className="ml-auto text-sm font-semibold text-primary hover:underline"
             >
-              {fr ? "Tout voir" : "See all"}
+              {tx("See all", "Tout voir")}
             </Link>
           </div>
         </div>
@@ -103,7 +103,7 @@ export function NotificationBell() {
         <div className="max-h-[22rem] overflow-y-auto p-1.5">
           {shown.length === 0 ? (
             <p className="px-4 py-8 text-center text-sm text-muted-foreground">
-              {fr ? "Rien pour l’instant." : "Nothing here yet."}
+              {tx("Nothing here yet.", "Rien pour l’instant.")}
             </p>
           ) : (
             shown.map((n) => (
@@ -124,7 +124,7 @@ export function NotificationBell() {
                   <span className="relative z-0 shrink-0">
                   <Avatar
                     path={n.actor?.avatar_url ?? null}
-                    name={n.actor?.name ?? (fr ? "Profil" : "Profile")}
+                    name={n.actor?.name ?? (tx("Profile", "Profil"))}
                     className="size-11"
                      online={false}
                   />

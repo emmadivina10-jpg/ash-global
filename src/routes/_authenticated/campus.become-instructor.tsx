@@ -45,7 +45,7 @@ const DAYS_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const DAYS_FR = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
 
 function BecomeInstructorPage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const navigate = useNavigate();
   const subjects = useCampusSubjects();
@@ -135,7 +135,7 @@ function BecomeInstructorPage() {
         qualificationDocument,
         declarationsAccepted: accepted,
       });
-      toast.success(fr ? "Candidature envoyée pour examen." : "Application submitted for review.");
+      toast.success(tx("Application submitted for review.", "Candidature envoyée pour examen."));
       void navigate({ to: "/campus" });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not submit the application.";
@@ -155,12 +155,10 @@ function BecomeInstructorPage() {
 
       <header>
         <h1 className="font-display text-2xl font-extrabold text-foreground">
-          {fr ? "Devenir instructeur" : "Become an Instructor"}
+          {tx("Become an Instructor", "Devenir instructeur")}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {fr
-            ? "Votre candidature est examinée manuellement par l'équipe ASH. Vos documents restent privés."
-            : "Your application is reviewed manually by the ASH team. Your documents stay private."}
+          {tx("Your application is reviewed manually by the ASH team. Your documents stay private.", "Votre candidature est examinée manuellement par l'équipe ASH. Vos documents restent privés.")}
         </p>
       </header>
 
@@ -173,12 +171,8 @@ function BecomeInstructorPage() {
           {locked ? (
             <p className="mt-2 text-xs text-muted-foreground">
               {status === "APPROVED"
-                ? fr
-                  ? "Votre profil instructeur est actif."
-                  : "Your instructor profile is active."
-                : fr
-                  ? "Votre candidature est en cours d'examen. Vous serez informé de la décision."
-                  : "Your application is being reviewed. You will be told the decision."}
+                ? tx("Your instructor profile is active.", "Votre profil instructeur est actif.")
+                : tx("Your application is being reviewed. You will be told the decision.", "Votre candidature est en cours d'examen. Vous serez informé de la décision.")}
             </p>
           ) : null}
         </div>
@@ -186,41 +180,41 @@ function BecomeInstructorPage() {
 
       {locked ? null : (
         <>
-          <Card title={fr ? "Informations personnelles" : "Personal information"}>
-            <Field label={fr ? "Nom légal complet" : "Legal full name"}>
+          <Card title={tx("Personal information", "Informations personnelles")}>
+            <Field label={tx("Legal full name", "Nom légal complet")}>
               <Input value={legalFullName} onChange={(event) => setLegalFullName(event.target.value)} />
             </Field>
-            <Field label={fr ? "Nom affiché" : "Display name"}>
+            <Field label={tx("Display name", "Nom affiché")}>
               <Input value={displayName} onChange={(event) => setDisplayName(event.target.value)} />
             </Field>
             <div className="grid gap-3 sm:grid-cols-2">
-              <Field label={fr ? "Pays" : "Country"}>
+              <Field label={tx("Country", "Pays")}>
                 <Input value={country} onChange={(event) => setCountry(event.target.value)} />
               </Field>
-              <Field label={fr ? "Ville" : "City"}>
+              <Field label={tx("City", "Ville")}>
                 <Input value={city} onChange={(event) => setCity(event.target.value)} />
               </Field>
             </div>
-            <Field label={fr ? "Date de naissance" : "Date of birth"}>
+            <Field label={tx("Date of birth", "Date de naissance")}>
               <Input type="date" value={dateOfBirth} onChange={(event) => setDateOfBirth(event.target.value)} />
             </Field>
           </Card>
 
-          <Card title={fr ? "Enseignement" : "Teaching information"}>
-            <Field label={fr ? "Titre du profil" : "Profile headline"}>
+          <Card title={tx("Teaching information", "Enseignement")}>
+            <Field label={tx("Profile headline", "Titre du profil")}>
               <Input value={headline} onChange={(event) => setHeadline(event.target.value)} />
             </Field>
-            <Field label={fr ? "Présentation" : "About you"}>
+            <Field label={tx("About you", "Présentation")}>
               <Textarea value={bio} onChange={(event) => setBio(event.target.value)} rows={4} />
             </Field>
-            <Field label={fr ? "Méthode d'enseignement" : "Teaching methodology"}>
+            <Field label={tx("Teaching methodology", "Méthode d'enseignement")}>
               <Textarea value={methodology} onChange={(event) => setMethodology(event.target.value)} rows={3} />
             </Field>
-            <Field label={fr ? "Expérience d'enseignement" : "Teaching experience"}>
+            <Field label={tx("Teaching experience", "Expérience d'enseignement")}>
               <Textarea value={teachingExperience} onChange={(event) => setTeachingExperience(event.target.value)} rows={3} />
             </Field>
 
-            <Field label={fr ? "Type d'instructeur" : "Instructor type"}>
+            <Field label={tx("Instructor type", "Type d'instructeur")}>
               <div className="flex flex-wrap gap-1.5">
                 {INSTRUCTOR_TYPES.map((type) => (
                   <Chip
@@ -234,7 +228,7 @@ function BecomeInstructorPage() {
               </div>
             </Field>
 
-            <Field label={fr ? "Matières" : "Subjects"}>
+            <Field label={tx("Subjects", "Matières")}>
               <div className="flex flex-wrap gap-1.5">
                 {catalogueOf(subjects.data, "SUBJECT").map((subject) => (
                   <Chip
@@ -248,7 +242,7 @@ function BecomeInstructorPage() {
               </div>
             </Field>
 
-            <Field label={fr ? "Examens préparés" : "Exams you prepare learners for"}>
+            <Field label={tx("Exams you prepare learners for", "Examens préparés")}>
               <div className="flex flex-wrap gap-1.5">
                 {catalogueOf(subjects.data, "EXAM").map((item) => (
                   <Chip key={item.id} active={exams.includes(item.name_en)} onClick={() => toggle(exams, item.name_en, setExams)}>
@@ -257,13 +251,11 @@ function BecomeInstructorPage() {
                 ))}
               </div>
               <p className="mt-1 text-[11px] text-muted-foreground">
-                {fr
-                  ? "Vos services s'affichent comme « Préparation TCF Canada ». ASH n'affirme aucune affiliation avec un organisme d'examen."
-                  : "Your services appear as “TCF Canada Preparation”. ASH never claims affiliation with an examination organisation."}
+                {tx("Your services appear as “TCF Canada Preparation”. ASH never claims affiliation with an examination organisation.", "Vos services s'affichent comme « Préparation TCF Canada ». ASH n'affirme aucune affiliation avec un organisme d'examen.")}
               </p>
             </Field>
 
-            <Field label={fr ? "Compétences professionnelles et techniques" : "Professional and technical skills"}>
+            <Field label={tx("Professional and technical skills", "Compétences professionnelles et techniques")}>
               <div className="flex flex-wrap gap-1.5">
                 {catalogueOf(subjects.data, "SKILL").map((item) => (
                   <Chip key={item.id} active={skills.includes(item.name_en)} onClick={() => toggle(skills, item.name_en, setSkills)}>
@@ -274,7 +266,7 @@ function BecomeInstructorPage() {
             </Field>
 
 
-            <Field label={fr ? "Niveaux" : "Education levels"}>
+            <Field label={tx("Education levels", "Niveaux")}>
               <div className="flex flex-wrap gap-1.5">
                 {CAMPUS_LEVELS.map((level) => (
                   <Chip key={level} active={levels.includes(level)} onClick={() => toggle(levels, level, setLevels)}>
@@ -284,7 +276,7 @@ function BecomeInstructorPage() {
               </div>
             </Field>
 
-            <Field label={fr ? "Format" : "Teaching mode"}>
+            <Field label={tx("Teaching mode", "Format")}>
               <div className="flex flex-wrap gap-1.5">
                 {CAMPUS_MODES.map((mode) => (
                   <Chip key={mode} active={modes.includes(mode)} onClick={() => toggle(modes, mode, setModes)}>
@@ -294,7 +286,7 @@ function BecomeInstructorPage() {
               </div>
             </Field>
 
-            <Field label={fr ? "Langues enseignées" : "Languages you teach"}>
+            <Field label={tx("Languages you teach", "Langues enseignées")}>
               <div className="flex flex-wrap gap-1.5">
                 {catalogueOf(subjects.data, "LANGUAGE").map((item) => (
                   <Chip
@@ -312,7 +304,7 @@ function BecomeInstructorPage() {
             </Field>
 
             {languages.length ? (
-              <Field label={fr ? "Niveaux et objectifs par langue" : "Level and focus for each language"}>
+              <Field label={tx("Level and focus for each language", "Niveaux et objectifs par langue")}>
                 <div className="space-y-2">
                   {languages.map((language) => (
                     <div key={language} className="rounded-xl border border-border p-3">
@@ -345,18 +337,16 @@ function BecomeInstructorPage() {
               </Field>
             ) : null}
 
-            <Field label={fr ? "Fuseau horaire" : "Time zone"}>
+            <Field label={tx("Time zone", "Fuseau horaire")}>
               <Input value={timezone} onChange={(event) => setTimezone(event.target.value)} placeholder="Africa/Douala" />
               <p className="mt-1 text-[11px] text-muted-foreground">
-                {fr
-                  ? "Vos disponibilités sont affichées aux apprenants dans leur propre fuseau horaire."
-                  : "Your availability is shown to learners in their own time zone."}
+                {tx("Your availability is shown to learners in their own time zone.", "Vos disponibilités sont affichées aux apprenants dans leur propre fuseau horaire.")}
               </p>
             </Field>
 
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <Field label={fr ? "Années d'expérience" : "Years of experience"}>
+              <Field label={tx("Years of experience", "Années d'expérience")}>
                 <Input
                   type="number"
                   min={0}
@@ -364,20 +354,20 @@ function BecomeInstructorPage() {
                   onChange={(event) => setYearsExperience(event.target.value)}
                 />
               </Field>
-              <Field label={fr ? "Tarif horaire à partir de (XAF)" : "Starting hourly price (XAF)"}>
+              <Field label={tx("Starting hourly price (XAF)", "Tarif horaire à partir de (XAF)")}>
                 <Input type="number" min={0} value={hourlyFrom} onChange={(event) => setHourlyFrom(event.target.value)} />
               </Field>
             </div>
-            <Field label={fr ? "Zones couvertes" : "Areas served"}>
+            <Field label={tx("Areas served", "Zones couvertes")}>
               <Input value={areasServed} onChange={(event) => setAreasServed(event.target.value)} />
             </Field>
           </Card>
 
-          <Card title={fr ? "Qualifications" : "Qualifications"}>
+          <Card title={tx("Qualifications", "Qualifications")}>
             <div className="grid gap-2 sm:grid-cols-3">
-              <Input placeholder={fr ? "Diplôme" : "Degree or certificate"} value={qualTitle} onChange={(event) => setQualTitle(event.target.value)} />
-              <Input placeholder={fr ? "Établissement" : "Institution"} value={qualInstitution} onChange={(event) => setQualInstitution(event.target.value)} />
-              <Input placeholder={fr ? "Année" : "Year"} value={qualYear} onChange={(event) => setQualYear(event.target.value)} />
+              <Input placeholder={tx("Degree or certificate", "Diplôme")} value={qualTitle} onChange={(event) => setQualTitle(event.target.value)} />
+              <Input placeholder={tx("Institution", "Établissement")} value={qualInstitution} onChange={(event) => setQualInstitution(event.target.value)} />
+              <Input placeholder={tx("Year", "Année")} value={qualYear} onChange={(event) => setQualYear(event.target.value)} />
             </div>
             <Button
               type="button"
@@ -395,7 +385,7 @@ function BecomeInstructorPage() {
                 setQualYear("");
               }}
             >
-              {fr ? "Ajouter" : "Add"}
+              {tx("Add", "Ajouter")}
             </Button>
             {qualifications.length ? (
               <ul className="mt-3 space-y-2">
@@ -412,7 +402,7 @@ function BecomeInstructorPage() {
                       size="sm"
                       onClick={() => setQualifications(qualifications.filter((_, i) => i !== index))}
                     >
-                      {fr ? "Retirer" : "Remove"}
+                      {tx("Remove", "Retirer")}
                     </Button>
                   </li>
                 ))}
@@ -420,7 +410,7 @@ function BecomeInstructorPage() {
             ) : null}
           </Card>
 
-          <Card title={fr ? "Disponibilités" : "Availability"}>
+          <Card title={tx("Availability", "Disponibilités")}>
             <div className="space-y-2">
               {(fr ? DAYS_FR : DAYS_EN).map((day, index) => (
                 <div key={day} className="flex flex-wrap items-center gap-2">
@@ -432,16 +422,10 @@ function BecomeInstructorPage() {
                       onClick={() => toggleSlot(index, part)}
                     >
                       {part === "MORNING"
-                        ? fr
-                          ? "Matin"
-                          : "Morning"
+                        ? tx("Morning", "Matin")
                         : part === "AFTERNOON"
-                          ? fr
-                            ? "Après-midi"
-                            : "Afternoon"
-                          : fr
-                            ? "Soir"
-                            : "Evening"}
+                          ? tx("Afternoon", "Après-midi")
+                          : tx("Evening", "Soir")}
                     </Chip>
                   ))}
                 </div>
@@ -449,13 +433,11 @@ function BecomeInstructorPage() {
             </div>
           </Card>
 
-          <Card title={fr ? "Vérification des documents" : "Document verification"}>
+          <Card title={tx("Document verification", "Vérification des documents")}>
             <p className="text-xs leading-relaxed text-muted-foreground">
-              {fr
-                ? "Vos documents sont stockés de manière privée et ne sont visibles que par l'équipe d'examen ASH. Ils ne sont jamais publics."
-                : "Your documents are stored privately and are only visible to the ASH review team. They are never public."}
+              {tx("Your documents are stored privately and are only visible to the ASH review team. They are never public.", "Vos documents sont stockés de manière privée et ne sont visibles que par l'équipe d'examen ASH. Ils ne sont jamais publics.")}
             </p>
-            <Field label={fr ? "Pièce d'identité" : "Identity document"}>
+            <Field label={tx("Identity document", "Pièce d'identité")}>
               <input
                 type="file"
                 accept="image/*,application/pdf"
@@ -463,7 +445,7 @@ function BecomeInstructorPage() {
                 className="text-sm text-muted-foreground"
               />
             </Field>
-            <Field label={fr ? "Diplôme ou certification (optionnel)" : "Qualification document (optional)"}>
+            <Field label={tx("Qualification document (optional)", "Diplôme ou certification (optionnel)")}>
               <input
                 type="file"
                 accept="image/*,application/pdf"
@@ -474,9 +456,7 @@ function BecomeInstructorPage() {
             <label className="mt-3 flex items-start gap-2 text-xs text-muted-foreground">
               <Checkbox checked={accepted} onCheckedChange={(value) => setAccepted(value === true)} />
               <span>
-                {fr
-                  ? "Je confirme que ces informations sont exactes et j'accepte l'examen manuel d'ASH. Je comprends qu'ASH ne réalise pas de vérification d'antécédents judiciaires."
-                  : "I confirm this information is accurate and accept ASH's manual review. I understand ASH does not perform criminal background checks."}
+                {tx("I confirm this information is accurate and accept ASH's manual review. I understand ASH does not perform criminal background checks.", "Je confirme que ces informations sont exactes et j'accepte l'examen manuel d'ASH. Je comprends qu'ASH ne réalise pas de vérification d'antécédents judiciaires.")}
               </span>
             </label>
           </Card>
@@ -493,11 +473,11 @@ function BecomeInstructorPage() {
           <div className="flex items-center gap-3">
             <Button size="lg" disabled={submit.isPending} onClick={() => void send()}>
               <Upload className="size-4" aria-hidden />
-              {fr ? "Envoyer la candidature" : "Submit application"}
+              {tx("Submit application", "Envoyer la candidature")}
             </Button>
             <p className="flex items-center gap-1 text-xs text-muted-foreground">
               <ShieldCheck className="size-4" aria-hidden />
-              {fr ? "Examen manuel par ASH" : "Manual ASH review"}
+              {tx("Manual ASH review", "Examen manuel par ASH")}
             </p>
           </div>
         </>

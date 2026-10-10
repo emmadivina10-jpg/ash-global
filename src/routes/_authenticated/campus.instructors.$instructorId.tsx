@@ -43,7 +43,7 @@ const DAYS_FR = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", 
 
 function InstructorProfilePage() {
   const { instructorId } = Route.useParams();
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const navigate = useNavigate();
   const { data: instructor, isLoading } = useInstructor(instructorId);
@@ -57,15 +57,15 @@ function InstructorProfilePage() {
     if (instructor) trackInstructorView(instructor.id, instructor.subjects);
   }, [instructor]);
 
-  if (isLoading) return <LoadingState label={fr ? "Chargement du profil…" : "Loading profile…"} />;
+  if (isLoading) return <LoadingState label={tx("Loading profile…", "Chargement du profil…")} />;
   if (!instructor) {
     return (
       <EmptyState
-        title={fr ? "Instructeur introuvable" : "Instructor not found"}
-        description={fr ? "Ce profil n'est plus disponible." : "This profile is no longer available."}
+        title={tx("Instructor not found", "Instructeur introuvable")}
+        description={tx("This profile is no longer available.", "Ce profil n'est plus disponible.")}
         action={
           <Button asChild>
-            <Link to="/campus/instructors">{fr ? "Retour" : "Back to instructors"}</Link>
+            <Link to="/campus/instructors">{tx("Back to instructors", "Retour")}</Link>
           </Button>
         }
       />
@@ -93,7 +93,7 @@ function InstructorProfilePage() {
       <Button asChild variant="ghost" size="sm" className="-ml-2">
         <Link to="/campus/instructors">
           <ArrowLeft className="size-4" aria-hidden />
-          {fr ? "Instructeurs" : "Instructors"}
+          {tx("Instructors", "Instructeurs")}
         </Link>
       </Button>
 
@@ -135,13 +135,13 @@ function InstructorProfilePage() {
         <div className="mt-4 flex flex-wrap gap-2">
           <Button onClick={() => void message()} disabled={busy}>
             <MessageCircle className="size-4" aria-hidden />
-            {fr ? "Message" : "Message"}
+            {tx("Message", "Message")}
           </Button>
           {instructor.provider_id ? (
             <Button asChild variant="outline">
               <Link to="/services/$providerId" params={{ providerId: instructor.provider_id }}>
                 <CalendarDays className="size-4" aria-hidden />
-                {fr ? "Réserver une séance" : "Book a Session"}
+                {tx("Book a Session", "Réserver une séance")}
               </Link>
             </Button>
           ) : null}
@@ -149,7 +149,7 @@ function InstructorProfilePage() {
             <Button asChild variant="outline">
               <Link to="/services/$providerId" params={{ providerId: instructor.provider_id }}>
                 <Store className="size-4" aria-hidden />
-                {fr ? "Voir les services" : "View Services"}
+                {tx("View Services", "Voir les services")}
               </Link>
             </Button>
           ) : null}
@@ -158,28 +158,28 @@ function InstructorProfilePage() {
             disabled={follow.isPending}
             onClick={() =>
               follow.mutate(instructor.user_id, {
-                onSuccess: () => toast.success(fr ? "Demande envoyée." : "Request sent."),
+                onSuccess: () => toast.success(tx("Request sent.", "Demande envoyée.")),
                 onError: (error) => toast.error(error instanceof Error ? error.message : "Could not send the request."),
               })
             }
           >
             <UserPlus className="size-4" aria-hidden />
-            {fr ? "Suivre" : "Follow"}
+            {tx("Follow", "Suivre")}
           </Button>
           <ReportDialog targetType="USER" targetUserId={instructor.user_id} targetLabel={name} />
         </div>
       </section>
 
-      <Section title={fr ? "Ce qui est enseigné" : "What is taught"}>
+      <Section title={tx("What is taught", "Ce qui est enseigné")}>
         <div className="flex flex-wrap gap-2">
           {instructor.years_experience > 0 ? (
             <Badge variant="outline">
-              {instructor.years_experience} {fr ? "ans d'expérience" : "years experience"}
+              {instructor.years_experience} {tx("years experience", "ans d'expérience")}
             </Badge>
           ) : null}
           {instructor.exams.map((exam) => (
             <Badge key={exam} variant="outline">
-              {exam} {fr ? "— préparation" : "Preparation"}
+              {exam} {tx("Preparation", "— préparation")}
             </Badge>
           ))}
           {instructor.subjects.map((subject) => (
@@ -215,17 +215,15 @@ function InstructorProfilePage() {
         ) : null}
         {instructor.exams.length ? (
           <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
-            {fr
-              ? "Cet instructeur propose une préparation indépendante. Il n'est ni affilié, ni approuvé, ni certifié par l'organisme qui administre ces examens."
-              : "This instructor offers independent preparation. They are not affiliated with, endorsed by or certified by the organisation that administers these examinations."}
+            {tx("This instructor offers independent preparation. They are not affiliated with, endorsed by or certified by the organisation that administers these examinations.", "Cet instructeur propose une préparation indépendante. Il n'est ni affilié, ni approuvé, ni certifié par l'organisme qui administre ces examens.")}
           </p>
         ) : null}
       </Section>
 
-      <Section title={fr ? "Qualifications" : "Qualifications"}>
+      <Section title={tx("Qualifications", "Qualifications")}>
         {!details?.qualifications.length ? (
           <p className="text-sm text-muted-foreground">
-            {fr ? "Aucune qualification publiée." : "No qualifications published."}
+            {tx("No qualifications published.", "Aucune qualification publiée.")}
           </p>
         ) : (
           <ul className="space-y-2">
@@ -241,28 +239,28 @@ function InstructorProfilePage() {
         )}
       </Section>
 
-      <Section title={fr ? "Enseignement" : "Teaching"}>
+      <Section title={tx("Teaching", "Enseignement")}>
         <p className="whitespace-pre-wrap text-sm text-foreground">
-          {instructor.methodology || (fr ? "Méthode non renseignée." : "No teaching method provided.")}
+          {instructor.methodology || (tx("No teaching method provided.", "Méthode non renseignée."))}
         </p>
         {instructor.areas_served ? (
           <p className="mt-2 text-xs text-muted-foreground">
-            {fr ? "Zones couvertes : " : "Areas served: "}
+            {tx("Areas served: ", "Zones couvertes : ")}
             {instructor.areas_served}
           </p>
         ) : null}
       </Section>
 
-      <Section title={fr ? "Disponibilités" : "Availability"}>
+      <Section title={tx("Availability", "Disponibilités")}>
         <p className="mb-2 text-xs text-muted-foreground">
-          {fr ? "Fuseau de l'instructeur : " : "Instructor's time zone: "}
+          {tx("Instructor's time zone: ", "Fuseau de l'instructeur : ")}
           {zoneLabel(instructor.timezone || providerTimeZone(instructor.country))} ·{" "}
-          {fr ? "Votre fuseau : " : "Your time zone: "}
+          {tx("Your time zone: ", "Votre fuseau : ")}
           {zoneLabel(Intl.DateTimeFormat().resolvedOptions().timeZone)}
         </p>
         {!details?.availability.length ? (
           <p className="text-sm text-muted-foreground">
-            {fr ? "Aucune disponibilité publiée." : "No availability published."}
+            {tx("No availability published.", "Aucune disponibilité publiée.")}
           </p>
         ) : (
           <div className="flex flex-wrap gap-2">
@@ -270,26 +268,20 @@ function InstructorProfilePage() {
               <Badge key={slot.id} variant="outline">
                 {(fr ? DAYS_FR : DAYS_EN)[slot.day_of_week]} ·{" "}
                 {slot.part_of_day === "MORNING"
-                  ? fr
-                    ? "Matin"
-                    : "Morning"
+                  ? tx("Morning", "Matin")
                   : slot.part_of_day === "AFTERNOON"
-                    ? fr
-                      ? "Après-midi"
-                      : "Afternoon"
-                    : fr
-                      ? "Soir"
-                      : "Evening"}
+                    ? tx("Afternoon", "Après-midi")
+                    : tx("Evening", "Soir")}
               </Badge>
             ))}
           </div>
         )}
       </Section>
 
-      <Section title={fr ? "Services" : "Services"}>
+      <Section title={tx("Services", "Services")}>
         {!instructor.provider_id || !services.data?.length ? (
           <p className="text-sm text-muted-foreground">
-            {fr ? "Aucun service publié pour l'instant." : "No services published yet."}
+            {tx("No services published yet.", "Aucun service publié pour l'instant.")}
           </p>
         ) : (
           <ul className="space-y-2">
@@ -310,12 +302,10 @@ function InstructorProfilePage() {
         )}
       </Section>
 
-      <Section title={fr ? "Avis" : "Reviews"}>
+      <Section title={tx("Reviews", "Avis")}>
         {!reviews.data?.length ? (
           <p className="text-sm text-muted-foreground">
-            {fr
-              ? "Aucun avis pour l'instant. Les avis proviennent uniquement de séances terminées."
-              : "No reviews yet. Reviews come only from completed sessions."}
+            {tx("No reviews yet. Reviews come only from completed sessions.", "Aucun avis pour l'instant. Les avis proviennent uniquement de séances terminées.")}
           </p>
         ) : (
           <ul className="space-y-3">
@@ -334,9 +324,7 @@ function InstructorProfilePage() {
 
       <p className="flex items-start gap-2 rounded-2xl border border-border bg-card p-4 text-xs leading-relaxed text-muted-foreground">
         <Star className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
-        {fr
-          ? "« Instructeur vérifié ASH » signifie que l'équipe ASH a examiné la candidature et les documents fournis. ASH ne réalise pas de vérification d'antécédents judiciaires, de contrôle gouvernemental ni de licence professionnelle."
-          : "“ASH Verified Instructor” means the ASH team reviewed the application and submitted documents. ASH does not perform criminal background checks, government verification or professional licensing checks."}
+        {tx("“ASH Verified Instructor” means the ASH team reviewed the application and submitted documents. ASH does not perform criminal background checks, government verification or professional licensing checks.", "« Instructeur vérifié ASH » signifie que l'équipe ASH a examiné la candidature et les documents fournis. ASH ne réalise pas de vérification d'antécédents judiciaires, de contrôle gouvernemental ni de licence professionnelle.")}
       </p>
     </div>
   );

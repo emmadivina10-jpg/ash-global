@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
  * payment is confirmed, and refreshes until then.
  */
 export function CustomerVerificationCode({ bookingId, className }: { bookingId: string; className?: string }) {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const [code, setCode] = useState<string | null>(null);
   useEffect(() => {
@@ -34,13 +34,11 @@ export function CustomerVerificationCode({ bookingId, className }: { bookingId: 
   return (
     <div className={cn("mt-3 rounded-xl border border-primary/30 bg-primary/5 p-3", className)}>
       <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">
-        {fr ? "Code de vérification du service" : "Service verification code"}
+        {tx("Service verification code", "Code de vérification du service")}
       </p>
       <p className="mt-1 font-mono text-2xl font-extrabold tracking-widest text-foreground">{code}</p>
       <p className="mt-1 text-xs text-muted-foreground">
-        {fr
-          ? "Donnez ce code au prestataire seulement une fois le service rendu. Il autorise le traitement de sa part payable."
-          : "Give this code to the provider only after the service is done. It authorizes processing of their payable share."}
+        {tx("Give this code to the provider only after the service is done. It authorizes processing of their payable share.", "Donnez ce code au prestataire seulement une fois le service rendu. Il autorise le traitement de sa part payable.")}
       </p>
     </div>
   );

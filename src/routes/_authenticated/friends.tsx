@@ -32,7 +32,7 @@ export const Route = createFileRoute("/_authenticated/friends")({
 });
 
 function FriendsPage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const navigate = useNavigate();
   const { data } = useFriendships();
@@ -72,7 +72,7 @@ function FriendsPage() {
         .select("id")
         .single();
       if (error) {
-        toast.error(fr ? "Impossible d'ouvrir la discussion." : "Could not open the chat.");
+        toast.error(tx("Could not open the chat.", "Impossible d'ouvrir la discussion."));
         return;
       }
       conversationId = created.id;
@@ -84,12 +84,10 @@ function FriendsPage() {
     <div className="mx-auto w-full max-w-2xl space-y-5">
       <header>
         <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
-          {fr ? "Amis" : "Friends"}
+          {tx("Friends", "Amis")}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {fr
-            ? "Ajoutez de vrais membres ASH et discutez directement."
-            : "Add real ASH members and chat with them directly."}
+          {tx("Add real ASH members and chat with them directly.", "Ajoutez de vrais membres ASH et discutez directement.")}
         </p>
       </header>
 
@@ -99,14 +97,14 @@ function FriendsPage() {
           <Input
             value={term}
             onChange={(event) => setTerm(event.target.value)}
-            placeholder={fr ? "Rechercher un membre…" : "Search members…"}
-            aria-label={fr ? "Rechercher un membre" : "Search members"}
+            placeholder={tx("Search members…", "Rechercher un membre…")}
+            aria-label={tx("Search members", "Rechercher un membre")}
             className="pl-9"
           />
         </div>
         {term.trim().length >= 2 ? (
           (results ?? []).length === 0 ? (
-            <p className="text-sm text-muted-foreground">{fr ? "Aucun membre trouvé." : "No members found."}</p>
+            <p className="text-sm text-muted-foreground">{tx("No members found.", "Aucun membre trouvé.")}</p>
           ) : (
             <ul className="space-y-2">
               {(results ?? []).map((person) => (
@@ -116,19 +114,19 @@ function FriendsPage() {
                     <span className="inline-flex items-center gap-1">{person.name}<VerifiedBadge tier={person.verified_tier} until={person.verified_until} size={13}/></span>
                   </span>
                   {known.has(person.id) ? (
-                    <span className="text-xs text-muted-foreground">{fr ? "Déjà lié" : "Already linked"}</span>
+                    <span className="text-xs text-muted-foreground">{tx("Already linked", "Déjà lié")}</span>
                   ) : (
                     <Button
                       size="sm"
                       onClick={() =>
                         send.mutate(person.id, {
-                          onSuccess: () => toast.success(fr ? "Demande envoyée" : "Request sent"),
-                          onError: () => toast.error(fr ? "Échec de l'envoi" : "Could not send"),
+                          onSuccess: () => toast.success(tx("Request sent", "Demande envoyée")),
+                          onError: () => toast.error(tx("Could not send", "Échec de l'envoi")),
                         })
                       }
                     >
                       <UserPlus className="size-4" aria-hidden />
-                      {fr ? "Ajouter" : "Add"}
+                      {tx("Add", "Ajouter")}
                     </Button>
                   )}
                 </li>
@@ -141,7 +139,7 @@ function FriendsPage() {
       {(suggestions ?? []).length > 0 ? (
         <section className="tile space-y-3 p-4">
           <h2 className="font-display text-base font-extrabold text-foreground">
-            {fr ? "Suggestions d'amis" : "People you may know"}
+            {tx("People you may know", "Suggestions d'amis")}
           </h2>
           <ul className="space-y-2">
             {(suggestions ?? []).filter((p) => !known.has(p.id)).map((person) => (
@@ -165,13 +163,13 @@ function FriendsPage() {
                   variant="outline"
                   onClick={() =>
                     send.mutate(person.id, {
-                      onSuccess: () => toast.success(fr ? "Demande envoyée" : "Request sent"),
-                      onError: () => toast.error(fr ? "Échec de l'envoi" : "Could not send"),
+                      onSuccess: () => toast.success(tx("Request sent", "Demande envoyée")),
+                      onError: () => toast.error(tx("Could not send", "Échec de l'envoi")),
                     })
                   }
                 >
                   <UserPlus className="size-4" aria-hidden />
-                  {fr ? "Ajouter" : "Add"}
+                  {tx("Add", "Ajouter")}
                 </Button>
               </li>
             ))}
@@ -182,7 +180,7 @@ function FriendsPage() {
       {incoming.length > 0 ? (
         <section className="tile space-y-3 p-4">
           <h2 className="font-display text-base font-extrabold text-foreground">
-            {fr ? "Demandes reçues" : "Friend requests"}
+            {tx("Friend requests", "Demandes reçues")}
           </h2>
           {incoming.map((entry) => (
             <div key={entry.id} className="flex items-center gap-3">
@@ -193,7 +191,7 @@ function FriendsPage() {
               <Button
                 size="sm"
                 onClick={() => respond.mutate({ id: entry.id, accept: true })}
-                aria-label={fr ? "Accepter" : "Accept"}
+                aria-label={tx("Accept", "Accepter")}
               >
                 <Check className="size-4" aria-hidden />
               </Button>
@@ -201,7 +199,7 @@ function FriendsPage() {
                 size="sm"
                 variant="outline"
                 onClick={() => respond.mutate({ id: entry.id, accept: false })}
-                aria-label={fr ? "Refuser" : "Decline"}
+                aria-label={tx("Decline", "Refuser")}
               >
                 <X className="size-4" aria-hidden />
               </Button>
@@ -213,13 +211,13 @@ function FriendsPage() {
       {outgoing.length > 0 ? (
         <section className="tile space-y-2 p-4">
           <h2 className="font-display text-base font-extrabold text-foreground">
-            {fr ? "Demandes envoyées" : "Sent requests"}
+            {tx("Sent requests", "Demandes envoyées")}
           </h2>
           {outgoing.map((entry) => (
             <div key={entry.id} className="flex items-center gap-3">
                <Avatar path={entry.other.avatar_url} name={entry.other.name} online={entry.other.online} hasUpdate={entry.other.has_update} className="size-9" />
               <span className="min-w-0 flex flex-1 items-center gap-1 truncate text-sm text-foreground">{entry.other.name}<VerifiedBadge tier={entry.other.verified_tier} until={entry.other.verified_until} size={13}/></span>
-              <span className="text-xs text-muted-foreground">{fr ? "En attente" : "Pending"}</span>
+              <span className="text-xs text-muted-foreground">{tx("Pending", "En attente")}</span>
             </div>
           ))}
         </section>
@@ -231,7 +229,7 @@ function FriendsPage() {
         </h2>
         {friends.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            {fr ? "Pas encore d'amis — cherchez un membre ci-dessus." : "No friends yet — search for a member above."}
+            {tx("No friends yet — search for a member above.", "Pas encore d'amis — cherchez un membre ci-dessus.")}
           </p>
         ) : (
           friends.map((entry) => (
@@ -242,12 +240,12 @@ function FriendsPage() {
               </span>
               <Button size="sm" variant="outline" onClick={() => void openChat(entry.other.id)}>
                 <MessageSquare className="size-4" aria-hidden />
-                {fr ? "Message" : "Message"}
+                {tx("Message", "Message")}
               </Button>
               <Button
                 size="sm"
                 variant="ghost"
-                aria-label={fr ? "Retirer" : "Remove"}
+                aria-label={tx("Remove", "Retirer")}
                 onClick={() => remove.mutate(entry.id)}
               >
                 <UserMinus className="size-4" aria-hidden />

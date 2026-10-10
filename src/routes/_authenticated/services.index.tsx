@@ -441,7 +441,7 @@ const PRICE_STEPS = [
 ];
 
 function DiscoveryPage() {
-  const { t, lang } = useI18n();
+  const { tx, t, lang } = useI18n();
   const fr = lang === "fr";
   const navigate = useNavigate();
   const mode = useServicesMode();
@@ -712,7 +712,7 @@ function DiscoveryPage() {
       ? await openConversation(providerId)
       : await openMemberConversation(context?.authorId);
     if (!conversationId) {
-      toast.error(fr ? "Impossible d'ouvrir la discussion." : "Could not open the chat.");
+      toast.error(tx("Could not open the chat.", "Impossible d'ouvrir la discussion."));
       return;
     }
 
@@ -819,13 +819,13 @@ function DiscoveryPage() {
     (filters.availableOnly ? 1 : 0);
 
   if (mode === "market") return (
-    <PullToRefresh onRefresh={() => { resetProviderRotation(); return queryClient.resetQueries({ predicate: (q) => ["discovery", "property", "deals"].includes(String(q.queryKey[0])) }); }} label={fr ? "Actualisation" : "Refreshing"}>
+    <PullToRefresh onRefresh={() => { resetProviderRotation(); return queryClient.resetQueries({ predicate: (q) => ["discovery", "property", "deals"].includes(String(q.queryKey[0])) }); }} label={tx("Refreshing", "Actualisation")}>
       <div className="mx-auto w-full max-w-5xl"><MarketBrowser providers={providers} loadingProviders={isLoading} providerError={isError} hasMore={Boolean(hasNextPage)} loadMore={() => { void fetchNextPage(); }} loadingMore={isFetchingNextPage} /></div>
     </PullToRefresh>
   );
 
   return (
-    <PullToRefresh onRefresh={() => { resetProviderRotation(); return queryClient.resetQueries({ predicate: (q) => q.state.status !== "pending" }); }} label={fr ? "Actualisation" : "Refreshing"}>
+    <PullToRefresh onRefresh={() => { resetProviderRotation(); return queryClient.resetQueries({ predicate: (q) => q.state.status !== "pending" }); }} label={tx("Refreshing", "Actualisation")}>
     <div className="mx-auto w-full max-w-5xl space-y-5">
       <h1 className="flex items-center gap-2 font-display text-2xl font-bold text-foreground"><Sparkles className="size-6 text-primary" aria-hidden />Services</h1>
 
@@ -841,9 +841,7 @@ function DiscoveryPage() {
           </span>
 
           <p className="min-w-0 text-sm text-muted-foreground">
-            {fr
-              ? "Activez la localisation pour voir les pros près de vous."
-              : "Enable location to see pros near you."}
+            {tx("Enable location to see pros near you.", "Activez la localisation pour voir les pros près de vous.")}
           </p>
 
           <div className="col-span-2 flex gap-2 sm:col-span-1">
@@ -853,9 +851,7 @@ function DiscoveryPage() {
                 void request()
               }
             >
-              {fr
-                ? "Activer"
-                : "Enable"}
+              {tx("Enable", "Activer")}
             </Button>
 
             <Button
@@ -863,9 +859,7 @@ function DiscoveryPage() {
               variant="ghost"
               onClick={dismiss}
             >
-              {fr
-                ? "Plus tard"
-                : "Later"}
+              {tx("Later", "Plus tard")}
             </Button>
           </div>
         </div>
@@ -887,9 +881,7 @@ function DiscoveryPage() {
               )
             }
             placeholder={
-              fr
-                ? "Rechercher un pro, une ville…"
-                : "Search a pro, a city…"
+              tx("Search a pro, a city…", "Rechercher un pro, une ville…")
             }
             className="h-11 rounded-full pl-9 shadow-[var(--shadow-card)]"
             aria-label={t(
@@ -921,9 +913,7 @@ function DiscoveryPage() {
           />
 
           <span className="hidden sm:inline">
-            {fr
-              ? "Filtres"
-              : "Filters"}
+            {tx("Filters", "Filtres")}
           </span>
 
           {activeFilterCount >
@@ -940,9 +930,7 @@ function DiscoveryPage() {
           ========================================================= */}
       <nav
         aria-label={
-          fr
-            ? "Sections ASH"
-            : "ASH sections"
+          tx("ASH sections", "Sections ASH")
         }
         className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 pt-1 scrollbar-none"
       >
@@ -971,7 +959,7 @@ function DiscoveryPage() {
                 </span>
 
                 <span className="w-full text-center text-xs font-semibold leading-tight text-muted-foreground group-hover:text-foreground">
-                  {fr ? item.fr : item.en}
+                  {tx(item.en, item.fr)}
                 </span>
               </Link>
             );
@@ -985,7 +973,7 @@ function DiscoveryPage() {
                 type="button"
                 onClick={() => void openExternalService(item.href)}
                 className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
-                aria-label={fr ? item.fr : item.en}
+                aria-label={tx(item.en, item.fr)}
               >
                 <span
                   className={cn(
@@ -1007,7 +995,7 @@ function DiscoveryPage() {
                 </span>
 
                 <span className="w-full text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-                  {fr ? item.fr : item.en}
+                  {tx(item.en, item.fr)}
                 </span>
               </button>
             );
@@ -1036,7 +1024,7 @@ function DiscoveryPage() {
               </span>
 
               <span className="w-full text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-                {fr ? item.fr : item.en}
+                {tx(item.en, item.fr)}
               </span>
             </Link>
           );
@@ -1051,7 +1039,7 @@ function DiscoveryPage() {
           className="fixed inset-0 z-[110] bg-background/88 backdrop-blur-xl"
           role="dialog"
           aria-modal="true"
-          aria-label={fr ? "Flux ASH Spotlight" : "ASH Spotlight feed"}
+          aria-label={tx("ASH Spotlight feed", "Flux ASH Spotlight")}
           onClick={(event) => {
             if (event.target === event.currentTarget) {
               setSpotlightFeedOpen(false);
@@ -1069,9 +1057,7 @@ function DiscoveryPage() {
                     ASH Spotlight
                   </p>
                   <p className="truncate text-[10px] font-semibold text-muted-foreground">
-                    {fr
-                      ? "Faites défiler pour découvrir les vendeurs. Touchez une vidéo pour l’ouvrir en plein écran."
-                      : "Scroll to discover vendors. Tap a video to open it fullscreen."}
+                    {tx("Scroll to discover vendors. Tap a video to open it fullscreen.", "Faites défiler pour découvrir les vendeurs. Touchez une vidéo pour l’ouvrir en plein écran.")}
                   </p>
                 </div>
               </div>
@@ -1080,7 +1066,7 @@ function DiscoveryPage() {
                 type="button"
                 onClick={() => setSpotlightFeedOpen(false)}
                 className="grid size-10 shrink-0 place-items-center rounded-full bg-muted text-foreground transition-colors hover:bg-muted/80 active:scale-95"
-                aria-label={fr ? "Fermer" : "Close"}
+                aria-label={tx("Close", "Fermer")}
               >
                 <X className="size-5" aria-hidden />
               </button>
@@ -1143,7 +1129,7 @@ function DiscoveryPage() {
 
                         <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/35 px-2.5 py-1.5 text-[9px] font-bold text-white backdrop-blur-md">
                           <Play className="size-3 fill-current" aria-hidden />
-                          {fr ? "Plein écran" : "Fullscreen"}
+                          {tx("Fullscreen", "Plein écran")}
                         </span>
                       </span>
 
@@ -1182,7 +1168,7 @@ function DiscoveryPage() {
 
                         <span className="mt-4 flex items-center justify-center gap-2 rounded-2xl bg-white/12 px-4 py-3 text-xs font-bold text-white backdrop-blur-md ring-1 ring-white/15">
                           <Play className="size-3.5 fill-current" aria-hidden />
-                          {fr ? "Touchez pour ouvrir en plein écran" : "Tap to open fullscreen"}
+                          {tx("Tap to open fullscreen", "Touchez pour ouvrir en plein écran")}
                         </span>
                       </span>
                     </button>
@@ -1202,9 +1188,7 @@ function DiscoveryPage() {
               role="dialog"
               aria-modal="true"
               aria-label={
-                fr
-                  ? "ASH Spotlight plein écran"
-                  : "ASH Spotlight fullscreen"
+                tx("ASH Spotlight fullscreen", "ASH Spotlight plein écran")
               }
             >
               {/* Portal-mounted overlay: deliberately rendered under document.body so
@@ -1218,7 +1202,7 @@ function DiscoveryPage() {
                       type="button"
                       onClick={() => setSpotlightOpen(false)}
                       className="grid size-11 shrink-0 place-items-center rounded-full border border-white/15 bg-black/45 text-white shadow-lg backdrop-blur-xl transition-all hover:bg-white/10 active:scale-95"
-                      aria-label={fr ? "Retour aux vidéos" : "Back to videos"}
+                      aria-label={tx("Back to videos", "Retour aux vidéos")}
                     >
                       <ArrowLeft className="size-5" aria-hidden />
                     </button>
@@ -1231,8 +1215,8 @@ function DiscoveryPage() {
                           setSpotlightSearch(event.target.value);
                           setSpotlightIndex(0);
                         }}
-                        placeholder={fr ? "Rechercher un vendeur, une offre, une entreprise…" : "Search vendors, offers, businesses…"}
-                        aria-label={fr ? "Rechercher dans ASH Spotlight" : "Search ASH Spotlight"}
+                        placeholder={tx("Search vendors, offers, businesses…", "Rechercher un vendeur, une offre, une entreprise…")}
+                        aria-label={tx("Search ASH Spotlight", "Rechercher dans ASH Spotlight")}
                         className="h-11 w-full rounded-full border border-white/15 bg-black/45 pl-9 pr-4 text-sm font-medium text-white outline-none backdrop-blur-xl placeholder:text-white/45 focus:border-[#D4AF37]/55 focus:ring-2 focus:ring-[#D4AF37]/20"
                       />
                     </div>
@@ -1244,7 +1228,7 @@ function DiscoveryPage() {
 
                   {filteredSpotlightPosts.length === 0 && spotlightSearch.trim() ? (
                     <p className="mx-auto mt-2 max-w-3xl px-14 text-center text-[11px] font-semibold text-white/65">
-                      {fr ? "Aucun Spotlight correspondant." : "No matching Spotlight found."}
+                      {tx("No matching Spotlight found.", "Aucun Spotlight correspondant.")}
                     </p>
                   ) : null}
                 </div>
@@ -1335,7 +1319,7 @@ function DiscoveryPage() {
                                         {city}
                                       </span>
                                     ) : null}
-                                    <span>{fr ? "Vendeur ASH" : "ASH vendor"}</span>
+                                    <span>{tx("ASH vendor", "Vendeur ASH")}</span>
                                   </span>
                                 ) : null}
                               </span>
@@ -1353,7 +1337,7 @@ function DiscoveryPage() {
                             {offerDescription ? (
                               <div className="max-w-2xl rounded-2xl border border-white/10 bg-black/25 px-3 py-2.5 backdrop-blur-md">
                                 <p className="text-[9px] font-extrabold uppercase tracking-[0.16em] text-[#D4AF37]">
-                                  {fr ? "Ce que propose ce vendeur" : "What this vendor offers"}
+                                  {tx("What this vendor offers", "Ce que propose ce vendeur")}
                                 </p>
                                 <p className="mt-1 text-sm leading-relaxed text-white/95 sm:text-[15px]">
                                   {offerDescription}
@@ -1378,18 +1362,12 @@ function DiscoveryPage() {
                             >
                               <MessageCircle className="size-4" aria-hidden />
                               {post.provider.id
-                                ? fr
-                                  ? "Contacter le vendeur"
-                                  : "Contact Vendor"
-                                : fr
-                                  ? "Envoyer un message"
-                                  : "Send a message"}
+                                ? tx("Contact Vendor", "Contacter le vendeur")
+                                : tx("Send a message", "Envoyer un message")}
                             </button>
 
                             <p className="mt-2 text-center text-[10px] text-white/45">
-                              {fr
-                                ? "Découvrez · contactez · commandez"
-                                : "Discover · contact · order"}
+                              {tx("Discover · contact · order", "Découvrez · contactez · commandez")}
                             </p>
                           </div>
                         </div>
@@ -1482,9 +1460,7 @@ function DiscoveryPage() {
         <div className="grid gap-4 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-1.5">
             <Label>
-              {fr
-                ? "Ville"
-                : "City"}
+              {tx("City", "Ville")}
             </Label>
 
             <Select
@@ -1504,18 +1480,14 @@ function DiscoveryPage() {
               <SelectTrigger>
                 <SelectValue
                   placeholder={
-                    fr
-                      ? "Toutes"
-                      : "All"
+                    tx("All", "Toutes")
                   }
                 />
               </SelectTrigger>
 
               <SelectContent>
                 <SelectItem value="ALL">
-                  {fr
-                    ? "Toutes les villes"
-                    : "All cities"}
+                  {tx("All cities", "Toutes les villes")}
                 </SelectItem>
 
                 {(cities ??
@@ -1534,9 +1506,7 @@ function DiscoveryPage() {
 
           <div className="space-y-1.5">
             <Label>
-              {fr
-                ? "Note minimum"
-                : "Minimum rating"}
+              {tx("Minimum rating", "Note minimum")}
             </Label>
 
             <Select
@@ -1564,9 +1534,7 @@ function DiscoveryPage() {
                       )}
                     >
                       {r === 0
-                        ? fr
-                          ? "Toutes"
-                          : "Any"
+                        ? tx("Any", "Toutes")
                         : `${r}+ ★`}
                     </SelectItem>
                   ),
@@ -1577,9 +1545,7 @@ function DiscoveryPage() {
 
           <div className="space-y-1.5">
             <Label>
-              {fr
-                ? "Prix max"
-                : "Max price"}
+              {tx("Max price", "Prix max")}
             </Label>
 
             <Select
@@ -1606,9 +1572,7 @@ function DiscoveryPage() {
 
               <SelectContent>
                 <SelectItem value="ALL">
-                  {fr
-                    ? "Tous les prix"
-                    : "Any price"}
+                  {tx("Any price", "Tous les prix")}
                 </SelectItem>
 
                 {PRICE_STEPS.map(
@@ -1632,9 +1596,7 @@ function DiscoveryPage() {
 
           <div className="space-y-1.5">
             <Label>
-              {fr
-                ? "Trier par"
-                : "Sort by"}
+              {tx("Sort by", "Trier par")}
             </Label>
 
             <Select
@@ -1653,33 +1615,23 @@ function DiscoveryPage() {
 
               <SelectContent>
                 <SelectItem value="TOP_RATED">
-                  {fr
-                    ? "Mieux notés"
-                    : "Top rated"}
+                  {tx("Top rated", "Mieux notés")}
                 </SelectItem>
 
                 <SelectItem value="NEARBY">
-                  {fr
-                    ? "Près de moi"
-                    : "Near me"}
+                  {tx("Near me", "Près de moi")}
                 </SelectItem>
 
                 <SelectItem value="PRICE_LOW">
-                  {fr
-                    ? "Prix croissant"
-                    : "Price: low to high"}
+                  {tx("Price: low to high", "Prix croissant")}
                 </SelectItem>
 
                 <SelectItem value="PRICE_HIGH">
-                  {fr
-                    ? "Prix décroissant"
-                    : "Price: high to low"}
+                  {tx("Price: high to low", "Prix décroissant")}
                 </SelectItem>
 
                 <SelectItem value="NEWEST">
-                  {fr
-                    ? "Nouveaux"
-                    : "Newest"}
+                  {tx("Newest", "Nouveaux")}
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -1690,9 +1642,7 @@ function DiscoveryPage() {
               htmlFor="verified-only"
               className="text-sm"
             >
-              {fr
-                ? "Pros vérifiés"
-                : "Verified pros"}
+              {tx("Verified pros", "Pros vérifiés")}
             </Label>
 
             <Switch
@@ -1713,9 +1663,7 @@ function DiscoveryPage() {
               htmlFor="available-only"
               className="text-sm"
             >
-              {fr
-                ? "Disponibles"
-                : "Available now"}
+              {tx("Available now", "Disponibles")}
             </Label>
 
             <Switch
@@ -1751,9 +1699,7 @@ function DiscoveryPage() {
                 setGroup("ALL");
               }}
             >
-              {fr
-                ? "Réinitialiser les filtres"
-                : "Reset filters"}
+              {tx("Reset filters", "Réinitialiser les filtres")}
             </Button>
           </div>
         </div>
@@ -1771,9 +1717,7 @@ function DiscoveryPage() {
             ? fr
               ? `Pros à ${location.label} affichés en premier.`
               : `Showing pros in ${location.label} first.`
-            : fr
-              ? "Localisation activée."
-              : "Location on."}
+            : tx("Location on.", "Localisation activée.")}
         </p>
       ) : null}
 
@@ -1783,17 +1727,13 @@ function DiscoveryPage() {
         0 ? (
         <section
           aria-label={
-            fr
-              ? "Recommandé pour vous"
-              : "Recommended for you"
+            tx("Recommended for you", "Recommandé pour vous")
           }
           className="space-y-3"
         >
           <div className="flex items-center justify-between">
             <h2 className="font-display text-lg font-bold text-foreground">
-              {fr
-                ? "Recommandé pour vous"
-                : "Recommended for you"}
+              {tx("Recommended for you", "Recommandé pour vous")}
             </h2>
           </div>
 
@@ -1859,16 +1799,12 @@ function DiscoveryPage() {
         .length > 0 ? (
         <section
           aria-label={
-            fr
-              ? "Dernières nouvelles de la communauté"
-              : "Latest from the community"
+            tx("Latest from the community", "Dernières nouvelles de la communauté")
           }
           className="space-y-3"
         >
           <h2 className="font-display text-lg font-bold text-foreground">
-            {fr
-              ? "Dernières nouvelles de la communauté"
-              : "Latest from the community"}
+            {tx("Latest from the community", "Dernières nouvelles de la communauté")}
           </h2>
 
           <div className="-mx-1 flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto px-1 pb-1">
@@ -2029,9 +1965,7 @@ function DiscoveryPage() {
           displayedProviders.length >
             0 ? (
             <p className="pb-2 text-center text-xs text-muted-foreground">
-              {fr
-                ? "Vous avez tout vu."
-                : "You have seen everyone."}
+              {tx("You have seen everyone.", "Vous avez tout vu.")}
             </p>
           ) : null}
         </>

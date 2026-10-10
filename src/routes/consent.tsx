@@ -30,7 +30,7 @@ export const Route = createFileRoute("/consent")({
 
 function ConsentPage() {
   const navigate = useNavigate();
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const [checked, setChecked] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -62,7 +62,7 @@ function ConsentPage() {
     setSaving(false);
     if (updateError) {
       setError(
-        fr ? "Nous n'avons pas pu enregistrer votre accord. Réessayez." : "We could not save your agreement. Try again.",
+        tx("We could not save your agreement. Try again.", "Nous n'avons pas pu enregistrer votre accord. Réessayez."),
       );
       return;
     }
@@ -71,20 +71,16 @@ function ConsentPage() {
 
   return (
     <AuthLayout
-      title={fr ? "Conditions d'utilisation d'ASH Glo" : "ASH Glo Terms of Use"}
+      title={tx("ASH Glo Terms of Use", "Conditions d'utilisation d'ASH Glo")}
       subtitle={
-        fr
-          ? "Lisez et acceptez nos conditions et notre politique de confidentialité."
-          : "Read and accept our terms and privacy policy."
+        tx("Read and accept our terms and privacy policy.", "Lisez et acceptez nos conditions et notre politique de confidentialité.")
       }
     >
       <div className="space-y-5">
         <div className="flex items-start gap-3 rounded-xl bg-primary/5 p-4">
           <ShieldCheck className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
           <p className="text-sm text-muted-foreground">
-            {fr
-              ? "Vous devez avoir au moins 13 ans. Consultez nos règles sur la confidentialité, la sécurité, les paiements et la personnalisation avant de continuer."
-              : "You must be at least 13. Review our privacy, safety, payment and personalization rules before continuing."}
+            {tx("You must be at least 13. Review our privacy, safety, payment and personalization rules before continuing.", "Vous devez avoir au moins 13 ans. Consultez nos règles sur la confidentialité, la sécurité, les paiements et la personnalisation avant de continuer.")}
           </p>
         </div>
 
@@ -95,20 +91,20 @@ function ConsentPage() {
             checked={checked}
             onCheckedChange={(value) => setChecked(value === true)}
             className="mt-0.5"
-            aria-label={fr ? "J'accepte" : "I agree"}
+            aria-label={tx("I agree", "J'accepte")}
           />
           <span className="text-sm text-foreground">
-            {fr ? "J'accepte les " : "I agree to the ASH Glo "}
+            {tx("I agree to the ASH Glo ", "J'accepte les ")}
             <Link to="/terms" className="font-semibold text-primary hover:underline">
-              {fr ? "Conditions d'utilisation d'ASH Glo" : "Terms of Use"}
+              {tx("Terms of Use", "Conditions d'utilisation d'ASH Glo")}
             </Link>
-            {fr ? " et les " : " and "}
+            {tx(" and ", " et les ")}
             <Link to="/community-guidelines" className="font-semibold text-primary hover:underline">
-              {fr ? "Règles de la communauté" : "Community Guidelines"}
+              {tx("Community Guidelines", "Règles de la communauté")}
             </Link>
-            {fr ? ", et j'ai lu la " : ", and I have read the "}
+            {tx(", and I have read the ", ", et j'ai lu la ")}
             <Link to="/privacy" className="font-semibold text-primary hover:underline">
-              {fr ? "Politique de confidentialité" : "Privacy Policy"}
+              {tx("Privacy Policy", "Politique de confidentialité")}
             </Link>
             .
           </span>
@@ -122,12 +118,12 @@ function ConsentPage() {
 
         <Button className="h-12 w-full" disabled={!checked || saving} onClick={() => void accept()}>
           {saving ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-          {fr ? "Accepter et continuer" : "Agree and continue"}
+          {tx("Agree and continue", "Accepter et continuer")}
         </Button>
 
         <p className="text-center text-xs text-muted-foreground">
           <Link to="/support" className="hover:underline">
-            {fr ? "Aide et support" : "Help & Support"}
+            {tx("Help & Support", "Aide et support")}
           </Link>
         </p>
       </div>

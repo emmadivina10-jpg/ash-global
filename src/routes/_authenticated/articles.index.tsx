@@ -42,7 +42,7 @@ export const Route = createFileRoute("/_authenticated/articles/")({
 });
 
 function ArticlesPage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const [category, setCategory] = useState<string>("ALL");
   const articles = useArticles(category);
@@ -53,12 +53,10 @@ function ArticlesPage() {
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
-            {fr ? "ASH Stories" : "ASH Stories"}
+            {tx("ASH Stories", "ASH Stories")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {fr
-              ? "Écrivez, publiez et lisez les articles de la communauté ASH."
-              : "Write, publish and read articles from the ASH community."}
+            {tx("Write, publish and read articles from the ASH community.", "Écrivez, publiez et lisez les articles de la communauté ASH.")}
           </p>
         </div>
         <WriteArticleDialog fr={fr} />
@@ -77,18 +75,18 @@ function ArticlesPage() {
                 : "border-border bg-card text-muted-foreground hover:border-primary/40",
             )}
           >
-            {fr ? item.fr : item.en}
+            {tx(item.en, item.fr)}
           </button>
         ))}
       </div>
 
       {articles.isLoading ? (
-        <LoadingState label={fr ? "Chargement des articles…" : "Loading articles…"} />
+        <LoadingState label={tx("Loading articles…", "Chargement des articles…")} />
       ) : (articles.data ?? []).length === 0 ? (
         <EmptyState
           icon={<BookOpen className="size-5" aria-hidden />}
-          title={fr ? "Aucun article pour le moment" : "No articles yet"}
-          description={fr ? "Soyez le premier à publier." : "Be the first to publish one."}
+          title={tx("No articles yet", "Aucun article pour le moment")}
+          description={tx("Be the first to publish one.", "Soyez le premier à publier.")}
         />
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2">
@@ -145,6 +143,7 @@ function ArticlesPage() {
 }
 
 function WriteArticleDialog({ fr }: { fr: boolean }) {
+  const { tx } = useI18n();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [excerpt, setExcerpt] = useState("");
@@ -242,7 +241,7 @@ function WriteArticleDialog({ fr }: { fr: boolean }) {
             >
               {ARTICLE_CATEGORIES.map((item) => (
                 <option key={item.key} value={item.key}>
-                  {fr ? item.fr : item.en}
+                  {tx(item.en, item.fr)}
                 </option>
               ))}
             </select>

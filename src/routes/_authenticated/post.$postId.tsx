@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_authenticated/post/$postId")({
 function PostPage() {
   const { postId } = Route.useParams();
   const navigate = useNavigate();
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const { data, isLoading } = usePost(postId);
   const [me, setMe] = useState<string | null>(null);
@@ -43,12 +43,12 @@ function PostPage() {
         <button
           type="button"
           onClick={back}
-          aria-label={fr ? "Retour" : "Back"}
+          aria-label={tx("Back", "Retour")}
           className="grid size-10 shrink-0 place-items-center rounded-full text-foreground transition-colors hover:bg-muted"
         >
           <ArrowLeft className="size-5" aria-hidden />
         </button>
-        <p className="min-w-0 truncate text-sm font-bold text-foreground">{fr ? "Publication" : "Post"}</p>
+        <p className="min-w-0 truncate text-sm font-bold text-foreground">{tx("Post", "Publication")}</p>
       </header>
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[calc(1rem+env(safe-area-inset-bottom))]">
@@ -62,10 +62,10 @@ function PostPage() {
           ) : (
             <div className="p-8 text-center">
               <p className="text-sm font-semibold text-foreground">
-                {fr ? "Cette publication n'existe plus." : "This post is no longer available."}
+                {tx("This post is no longer available.", "Cette publication n'existe plus.")}
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
-                {fr ? "Elle a peut-être été supprimée par son auteur." : "It may have been removed by its author."}
+                {tx("It may have been removed by its author.", "Elle a peut-être été supprimée par son auteur.")}
               </p>
             </div>
           )}

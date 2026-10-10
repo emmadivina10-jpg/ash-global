@@ -54,7 +54,7 @@ function JobSoon() {
 
 function JobDetail() {
   const { jobId } = Route.useParams();
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const navigate = useNavigate();
   const job = useJob(jobId);
@@ -69,14 +69,14 @@ function JobDetail() {
   const [coverLetter, setCoverLetter] = useState("");
   const [phone, setPhone] = useState("");
 
-  if (job.isLoading) return <LoadingState label={fr ? "Chargement…" : "Loading…"} />;
+  if (job.isLoading) return <LoadingState label={tx("Loading…", "Chargement…")} />;
   if (!job.data)
     return (
       <EmptyState
-        title={fr ? "Offre introuvable" : "Job not found"}
+        title={tx("Job not found", "Offre introuvable")}
         action={
           <Button asChild>
-            <Link to="/jobs">{fr ? "Voir les offres" : "Browse jobs"}</Link>
+            <Link to="/jobs">{tx("Browse jobs", "Voir les offres")}</Link>
           </Button>
         }
       />
@@ -88,16 +88,16 @@ function JobDetail() {
 
   async function submit() {
     if (coverLetter.trim().length < 20) {
-      toast.error(fr ? "Écrivez quelques lignes de motivation." : "Write a few lines about yourself.");
+      toast.error(tx("Write a few lines about yourself.", "Écrivez quelques lignes de motivation."));
       return;
     }
     try {
       await apply.mutateAsync({ jobId, coverLetter, phone });
-      toast.success(fr ? "Candidature envoyée." : "Application sent.");
+      toast.success(tx("Application sent.", "Candidature envoyée."));
       setCoverLetter("");
       setPhone("");
     } catch {
-      toast.error(fr ? "Envoi impossible — avez-vous déjà postulé ?" : "Could not send — have you already applied?");
+      toast.error(tx("Could not send — have you already applied?", "Envoi impossible — avez-vous déjà postulé ?"));
     }
   }
 
@@ -106,7 +106,7 @@ function JobDetail() {
       const conversationId = await openJobConversation(jobId);
       void navigate({ to: "/messages", search: { c: conversationId } } as never);
     } catch {
-      toast.error(fr ? "Impossible d'ouvrir la discussion." : "Could not open the conversation.");
+      toast.error(tx("Could not open the conversation.", "Impossible d'ouvrir la discussion."));
     }
   }
 
@@ -114,7 +114,7 @@ function JobDetail() {
     <div className="mx-auto w-full max-w-3xl space-y-5">
       <Link to="/jobs" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
         <ArrowLeft className="size-4" aria-hidden />
-        {fr ? "Offres" : "Jobs"}
+        {tx("Jobs", "Offres")}
       </Link>
 
       <header className="tile space-y-2 p-5">
@@ -137,9 +137,7 @@ function JobDetail() {
           <span className="font-display font-extrabold text-foreground">
             {row.salary_min || row.salary_max
               ? `${formatXAF(row.salary_min ?? row.salary_max ?? 0)}${row.salary_max && row.salary_min ? ` – ${formatXAF(row.salary_max)}` : ""}`
-              : fr
-                ? "À négocier"
-                : "Negotiable"}
+              : tx("Negotiable", "À négocier")}
           </span>
         </div>
       </header>
@@ -147,23 +145,23 @@ function JobDetail() {
       {!mine ? (
         <Button onClick={() => void contactPoster()} className="w-full sm:w-auto">
           <MessageSquare className="size-4" aria-hidden />
-          {fr ? "Contacter le recruteur" : "Message job poster"}
+          {tx("Message job poster", "Contacter le recruteur")}
         </Button>
       ) : null}
 
       <section className="tile space-y-2 p-5">
-        <h2 className="font-semibold text-foreground">{fr ? "Description" : "About the role"}</h2>
+        <h2 className="font-semibold text-foreground">{tx("About the role", "Description")}</h2>
         <p className="whitespace-pre-wrap text-sm leading-6 text-muted-foreground">{row.description}</p>
       </section>
 
       {mine ? (
         <section className="tile space-y-3 p-5">
           <h2 className="font-semibold text-foreground">
-            {fr ? "Candidatures" : "Applications"} ({(applications.data ?? []).length})
+            {tx("Applications", "Candidatures")} ({(applications.data ?? []).length})
           </h2>
           {(applications.data ?? []).length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              {fr ? "Aucune candidature pour le moment." : "No applications yet."}
+              {tx("No applications yet.", "Aucune candidature pour le moment.")}
             </p>
           ) : (
             <ul className="space-y-3">
@@ -194,7 +192,7 @@ function JobDetail() {
                         setStatus.mutate({ id: application.id, jobId, status: "ACCEPTED" })
                       }
                     >
-                      {fr ? "Retenir" : "Shortlist"}
+                      {tx("Shortlist", "Retenir")}
                     </Button>
                     <Button
                       size="sm"
@@ -204,7 +202,7 @@ function JobDetail() {
                         setStatus.mutate({ id: application.id, jobId, status: "DECLINED" })
                       }
                     >
-                      {fr ? "Refuser" : "Decline"}
+                      {tx("Decline", "Refuser")}
                     </Button>
                   </div>
                 </li>
@@ -215,27 +213,25 @@ function JobDetail() {
       ) : alreadyApplied ? (
         <section className="tile p-5">
           <p className="text-sm text-muted-foreground">
-            {fr
-              ? "Votre candidature a été envoyée. L'employeur vous répondra ici."
-              : "Your application is in. The employer will get back to you here."}
+            {tx("Your application is in. The employer will get back to you here.", "Votre candidature a été envoyée. L'employeur vous répondra ici.")}
           </p>
         </section>
       ) : (
         <section className="tile space-y-3 p-5">
-          <h2 className="font-semibold text-foreground">{fr ? "Postuler" : "Apply"}</h2>
+          <h2 className="font-semibold text-foreground">{tx("Apply", "Postuler")}</h2>
           <Textarea
             value={coverLetter}
             onChange={(event) => setCoverLetter(event.target.value)}
             rows={6}
-            placeholder={fr ? "Pourquoi vous ? Quelques lignes suffisent." : "Why you? A few lines is enough."}
+            placeholder={tx("Why you? A few lines is enough.", "Pourquoi vous ? Quelques lignes suffisent.")}
           />
           <Input
             value={phone}
             onChange={(event) => setPhone(event.target.value)}
-            placeholder={fr ? "Téléphone (optionnel)" : "Phone (optional)"}
+            placeholder={tx("Phone (optional)", "Téléphone (optionnel)")}
           />
           <Button onClick={submit} disabled={apply.isPending} className="w-full touch-manipulation">
-            {apply.isPending ? (fr ? "Envoi…" : "Sending…") : fr ? "Envoyer ma candidature" : "Send application"}
+            {apply.isPending ? (tx("Sending…", "Envoi…")) : tx("Send application", "Envoyer ma candidature")}
           </Button>
         </section>
       )}

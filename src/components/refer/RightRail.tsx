@@ -151,7 +151,7 @@ function timeAgo(value: string | null, fr: boolean): string {
  * trending posts and fresh articles. Scrolls on its own.
  */
 export function RightRail() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
 
   const place = useRailPlace();
@@ -182,10 +182,10 @@ export function RightRail() {
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-foreground">
-                {place.data ? `${place.data.city}, ${place.data.country}` : fr ? "Votre région" : "Your area"}
+                {place.data ? `${place.data.city}, ${place.data.country}` : tx("Your area", "Votre région")}
               </p>
               <p className="text-xs text-muted-foreground">
-                {weather.data ? weatherLabel(weather.data.code, fr) : fr ? "Chargement de la météo…" : "Loading weather…"}
+                {weather.data ? weatherLabel(weather.data.code, fr) : tx("Loading weather…", "Chargement de la météo…")}
               </p>
               {weather.data ? (
                 <p className="mt-1 text-[11px] text-muted-foreground">
@@ -201,7 +201,7 @@ export function RightRail() {
         </section>
 
         {/* Birthdays */}
-        <Block icon={Cake} title={fr ? "Anniversaires" : "Birthdays"}>
+        <Block icon={Cake} title={tx("Birthdays", "Anniversaires")}>
           {birthdays.data && birthdays.data.length > 0 ? (
             <ul className="divide-y divide-border/60">
               {birthdays.data.map((person) => (
@@ -211,9 +211,7 @@ export function RightRail() {
           ) : (
             <Empty
               text={
-                fr
-                  ? "Aucun anniversaire cette quinzaine. Ajoutez le vôtre dans votre profil."
-                  : "No birthdays in the next two weeks. Add yours in your profile."
+                tx("No birthdays in the next two weeks. Add yours in your profile.", "Aucun anniversaire cette quinzaine. Ajoutez le vôtre dans votre profil.")
               }
             />
           )}
@@ -240,12 +238,12 @@ export function RightRail() {
               ))}
             </ul>
           ) : (
-            <Empty text={fr ? "Actualités indisponibles pour le moment." : "Headlines are unavailable right now."} />
+            <Empty text={tx("Headlines are unavailable right now.", "Actualités indisponibles pour le moment.")} />
           )}
         </Block>
 
         {/* Events */}
-        <Block icon={CalendarDays} title={fr ? "Événements à venir" : "Upcoming events"} action={{ label: fr ? "Tout voir" : "See all", to: "/events" }}>
+        <Block icon={CalendarDays} title={tx("Upcoming events", "Événements à venir")} action={{ label: tx("See all", "Tout voir"), to: "/events" }}>
           {events.data && events.data.length > 0 ? (
             <ul className="space-y-2">
               {events.data.map((event) => (
@@ -257,7 +255,7 @@ export function RightRail() {
                     <span className="min-w-0">
                       <span className="block truncate text-[13px] font-medium text-foreground">{event.title}</span>
                       <span className="block truncate text-[11px] text-muted-foreground">
-                        {event.city ?? ""} {event.is_free ? (fr ? "· Gratuit" : "· Free") : ""}
+                        {event.city ?? ""} {event.is_free ? (tx("· Free", "· Gratuit")) : ""}
                       </span>
                     </span>
                   </Link>
@@ -265,18 +263,18 @@ export function RightRail() {
               ))}
             </ul>
           ) : (
-            <Empty text={fr ? "Rien de prévu pour l'instant." : "Nothing scheduled yet."} />
+            <Empty text={tx("Nothing scheduled yet.", "Rien de prévu pour l'instant.")} />
           )}
         </Block>
 
         {/* Trending posts */}
-        <Block icon={Flame} title={fr ? "Publications populaires" : "Trending posts"} action={{ label: fr ? "Fil" : "Feed", to: "/feed" }}>
+        <Block icon={Flame} title={tx("Trending posts", "Publications populaires")} action={{ label: tx("Feed", "Fil"), to: "/feed" }}>
           {posts.data && posts.data.length > 0 ? (
             <ul className="space-y-2">
               {posts.data.map((post) => (
                 <li key={post.id}>
                   <Link to="/post/$postId" params={{ postId: post.id }} className="block rounded-xl p-1.5 hover:bg-muted/60">
-                    <span className="line-clamp-2 text-[13px] text-foreground">{post.caption || (fr ? "Photo partagée" : "Shared photo")}</span>
+                    <span className="line-clamp-2 text-[13px] text-foreground">{post.caption || (tx("Shared photo", "Photo partagée"))}</span>
                     <span className="mt-0.5 block text-[11px] text-muted-foreground">
                       {post.author} · {post.like_count} ♥ · {post.comment_count} 💬
                     </span>
@@ -285,12 +283,12 @@ export function RightRail() {
               ))}
             </ul>
           ) : (
-            <Empty text={fr ? "Encore rien de populaire cette semaine." : "Nothing trending this week yet."} />
+            <Empty text={tx("Nothing trending this week yet.", "Encore rien de populaire cette semaine.")} />
           )}
         </Block>
 
         {/* Articles */}
-        <Block icon={Sparkles} title={fr ? "Articles récents" : "Fresh articles"} action={{ label: fr ? "Tout voir" : "See all", to: "/articles" }}>
+        <Block icon={Sparkles} title={tx("Fresh articles", "Articles récents")} action={{ label: tx("See all", "Tout voir"), to: "/articles" }}>
           {articles.data && articles.data.length > 0 ? (
             <ul className="space-y-2">
               {articles.data.map((article) => (
@@ -305,12 +303,12 @@ export function RightRail() {
               ))}
             </ul>
           ) : (
-            <Empty text={fr ? "Publiez le premier article." : "Be the first to publish an article."} />
+            <Empty text={tx("Be the first to publish an article.", "Publiez le premier article.")} />
           )}
         </Block>
 
         {/* Deals */}
-        <Block icon={Tag} title={fr ? "Bons plans" : "Deals near you"} action={{ label: fr ? "Tout voir" : "See all", to: "/deals" }}>
+        <Block icon={Tag} title={tx("Deals near you", "Bons plans")} action={{ label: tx("See all", "Tout voir"), to: "/deals" }}>
           {deals.data && deals.data.length > 0 ? (
             <ul className="space-y-2">
               {deals.data.map((deal) => (
@@ -328,12 +326,12 @@ export function RightRail() {
               ))}
             </ul>
           ) : (
-            <Empty text={fr ? "Aucune offre active." : "No live deals right now."} />
+            <Empty text={tx("No live deals right now.", "Aucune offre active.")} />
           )}
         </Block>
 
         {/* Jobs */}
-        <Block icon={Briefcase} title={fr ? "Offres d'emploi" : "Open roles"} action={{ label: fr ? "Tout voir" : "See all", to: "/jobs" }}>
+        <Block icon={Briefcase} title={tx("Open roles", "Offres d'emploi")} action={{ label: tx("See all", "Tout voir"), to: "/jobs" }}>
           {jobs.data && jobs.data.length > 0 ? (
             <ul className="space-y-2">
               {jobs.data.map((job) => (
@@ -348,12 +346,12 @@ export function RightRail() {
               ))}
             </ul>
           ) : (
-            <Empty text={fr ? "Aucune offre ouverte." : "No open roles yet."} />
+            <Empty text={tx("No open roles yet.", "Aucune offre ouverte.")} />
           )}
         </Block>
 
         <p className="pb-6 text-center text-[11px] text-muted-foreground">
-          {fr ? "Météo et actualités publiques · ASH" : "Public weather and headlines · ASH"}
+          {tx("Public weather and headlines · ASH", "Météo et actualités publiques · ASH")}
         </p>
       </div>
     </aside>

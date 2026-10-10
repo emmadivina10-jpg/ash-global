@@ -40,7 +40,7 @@ const ACTIVE = ["CONFIRMED", "IN_PROGRESS"];
 
 function TrackPage() {
   const { bookingId } = Route.useParams();
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const qc = useQueryClient();
   const navigate = useNavigate();
@@ -99,7 +99,7 @@ function TrackPage() {
         setGpsError(null);
         await supabase.rpc("share_booking_location", { _booking_id: bookingId, _lat: p.coords.latitude, _lng: p.coords.longitude, _accuracy: p.coords.accuracy });
       },
-      () => setGpsError(fr ? "Autorisez la localisation pour partager votre trajet." : "Allow location access to share your trip."),
+      () => setGpsError(tx("Allow location access to share your trip.", "Autorisez la localisation pour partager votre trajet.")),
       { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 },
     );
     return () => navigator.geolocation.clearWatch(id);
@@ -120,7 +120,7 @@ function TrackPage() {
         lastParty.current = Date.now();
         await supabase.rpc("share_booking_party_location", { _booking_id: bookingId, _lat: p.coords.latitude, _lng: p.coords.longitude, _accuracy: p.coords.accuracy });
       },
-      () => { setLocError(fr ? "Localisation refusée. Autorisez-la dans les réglages du navigateur." : "Location was blocked. Allow it in your browser settings."); setShareOn(false); },
+      () => { setLocError(tx("Location was blocked. Allow it in your browser settings.", "Localisation refusée. Autorisez-la dans les réglages du navigateur.")); setShareOn(false); },
       { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 },
     );
     return () => navigator.geolocation.clearWatch(id);
@@ -141,7 +141,7 @@ function TrackPage() {
     const { data, error: e } = await supabase.rpc("update_trip_status", { _booking_id: bookingId, _status: status });
     setBusy(false);
     const res = data as { ok?: boolean; error?: string } | null;
-    if (e || !res?.ok) { toast.error(res?.error === "BOOKING_NOT_ACTIVE" ? (fr ? "Réservation non active." : "This booking isn't active.") : fr ? "Action impossible." : "Couldn't update the trip."); return; }
+    if (e || !res?.ok) { toast.error(res?.error === "BOOKING_NOT_ACTIVE" ? (tx("This booking isn't active.", "Réservation non active.")) : tx("Couldn't update the trip.", "Action impossible.")); return; }
     void qc.invalidateQueries({ queryKey: ["bookings"] });
   }
 
@@ -151,33 +151,33 @@ function TrackPage() {
     if (id) void navigate({ to: "/messages", search: { c: id } });
   }
 
-  if (error) return <p className="p-6 text-sm text-muted-foreground">{fr ? "Réservation introuvable." : "Booking not found."}</p>;
+  if (error) return <p className="p-6 text-sm text-muted-foreground">{tx("Booking not found.", "Réservation introuvable.")}</p>;
   if (!r) return <p className="p-6 text-sm text-muted-foreground">…</p>;
 
   const isProvider = r.viewer === "PROVIDER";
   const ts = r.tripStatus;
   const done = r.status === "COMPLETED" || r.status === "SETTLED";
   const message = done
-    ? fr ? "Votre réservation est terminée." : "Your booking has been completed."
+    ? tx("Your booking has been completed.", "Votre réservation est terminée.")
     : waitingForPayment
-      ? fr ? "Confirmation du paiement…" : "Confirming your payment…"
+      ? tx("Confirming your payment…", "Confirmation du paiement…")
     : !active && r.status === "PAYMENT_PROCESSING"
-      ? fr ? "En attente de la confirmation du paiement du client. Le suivi démarre automatiquement." : "Waiting for the customer's payment to be confirmed. Tracking starts automatically."
+      ? tx("Waiting for the customer's payment to be confirmed. Tracking starts automatically.", "En attente de la confirmation du paiement du client. Le suivi démarre automatiquement.")
     : !active
-      ? fr ? "Le suivi n'est pas disponible pour cette réservation." : "Tracking isn't available for this booking."
+      ? tx("Tracking isn't available for this booking.", "Le suivi n'est pas disponible pour cette réservation.")
       : ts === "ARRIVED"
         ? isProvider
-          ? fr ? "Demandez au client son code de vérification." : "Ask the customer for their verification code."
-          : fr ? "Votre prestataire est arrivé. Donnez-lui votre code de vérification pour terminer le service." : "Your provider has arrived. Please provide your verification code to the provider to complete the service."
+          ? tx("Ask the customer for their verification code.", "Demandez au client son code de vérification.")
+          : tx("Your provider has arrived. Please provide your verification code to the provider to complete the service.", "Votre prestataire est arrivé. Donnez-lui votre code de vérification pour terminer le service.")
         : ts === "ON_THE_WAY"
-          ? isProvider ? (fr ? "Vous êtes en route. Gardez cette page ouverte." : "You're on the way. Keep this page open to share your position.") : fr ? "Votre prestataire est en route." : "Your provider is on the way."
-          : isProvider ? (fr ? "Réservation payée. Démarrez le trajet quand vous partez." : "Booking paid. Start the trip when you leave.") : fr ? "Votre réservation est confirmée." : "Your booking is confirmed.";
+          ? isProvider ? (tx("You're on the way. Keep this page open to share your position.", "Vous êtes en route. Gardez cette page ouverte.")) : tx("Your provider is on the way.", "Votre prestataire est en route.")
+          : isProvider ? (tx("Booking paid. Start the trip when you leave.", "Réservation payée. Démarrez le trajet quand vous partez.")) : tx("Your booking is confirmed.", "Votre réservation est confirmée.");
 
   const steps = [
-    [fr ? "Payée" : "Paid", r.paid],
-    [fr ? "En route" : "On the way", ["ON_THE_WAY", "ARRIVED"].includes(ts) || done],
-    [fr ? "Arrivé" : "Arrived", ts === "ARRIVED" || done],
-    [fr ? "Vérifiée" : "Verified", done],
+    [tx("Paid", "Payée"), r.paid],
+    [tx("On the way", "En route"), ["ON_THE_WAY", "ARRIVED"].includes(ts) || done],
+    [tx("Arrived", "Arrivé"), ts === "ARRIVED" || done],
+    [tx("Verified", "Vérifiée"), done],
   ] as const;
 
   const dest = r.location ? encodeURIComponent(r.location) : null;
@@ -186,14 +186,14 @@ function TrackPage() {
     : null;
   const etaOk = eta && "durationSeconds" in eta ? (eta as { durationSeconds: number; distanceMeters: number }) : null;
   const etaText = !sharing
-    ? ts === "ARRIVED" ? (fr ? "Prestataire arrivé" : "Provider has arrived") : fr ? "Heure d'arrivée : dès que le trajet démarre" : "Arrival time: shown once the trip starts"
+    ? ts === "ARRIVED" ? (tx("Provider has arrived", "Prestataire arrivé")) : tx("Arrival time: shown once the trip starts", "Heure d'arrivée : dès que le trajet démarre")
     : etaOk
-      ? `${fr ? "Arrivée estimée dans" : "Arrives in about"} ${Math.max(1, Math.round(etaOk.durationSeconds / 60))} min · ${(etaOk.distanceMeters / 1000).toFixed(1)} km`
+      ? `${tx("Arrives in about", "Arrivée estimée dans")} ${Math.max(1, Math.round(etaOk.durationSeconds / 60))} min · ${(etaOk.distanceMeters / 1000).toFixed(1)} km`
       : !r.location
-        ? fr ? "Heure d'arrivée : adresse manquante" : "Arrival time: no address given"
+        ? tx("Arrival time: no address given", "Heure d'arrivée : adresse manquante")
         : eta && "error" in eta
-          ? fr ? "Heure d'arrivée indisponible pour cette adresse" : "Arrival time unavailable for this address"
-          : fr ? "Calcul de l'heure d'arrivée…" : "Working out arrival time…";
+          ? tx("Arrival time unavailable for this address", "Heure d'arrivée indisponible pour cette adresse")
+          : tx("Working out arrival time…", "Calcul de l'heure d'arrivée…");
   const other = isProvider ? { name: r.customer.name, avatar: r.customer.avatar, verified: false, phone: r.customer.phone } : r.provider;
 
   return (
@@ -227,47 +227,47 @@ function TrackPage() {
           const myParty = isProvider ? "PROVIDER" : "CUSTOMER";
           const me = mine ?? parties?.find((p) => p.party === myParty) ?? null;
           const them = parties?.find((p) => p.party !== myParty) ?? (isProvider ? null : loc ? { lat: loc.lat, lng: loc.lng } : null);
-          const otherLabel = isProvider ? (fr ? "Client" : "Customer") : fr ? "Prestataire" : "Provider";
+          const otherLabel = isProvider ? (tx("Customer", "Client")) : tx("Provider", "Prestataire");
           const pts = [
-            ...(me ? [{ lat: me.lat, lng: me.lng, label: fr ? "Vous" : "You", kind: "me" as const }] : []),
+            ...(me ? [{ lat: me.lat, lng: me.lng, label: tx("You", "Vous"), kind: "me" as const }] : []),
             ...(them ? [{ lat: them.lat, lng: them.lng, label: otherLabel, kind: "other" as const }] : []),
           ];
           return <>
             {typeof window !== "undefined" ? <Suspense fallback={<div className="h-56 animate-pulse bg-muted" />}><LiveTripMap points={pts} /></Suspense> : <div className="h-56 bg-muted" />}
             <div className="space-y-2 border-b border-border p-4 text-sm">
-              {me && them ? <p className="font-bold text-foreground">{fr ? "Distance" : "Distance"}: {km(me, them) < 1 ? `${Math.round(km(me, them) * 1000)} m` : `${km(me, them).toFixed(1)} km`}</p> : null}
-              {!active ? <p className="text-muted-foreground">{waitingForPayment ? (fr ? "Le suivi démarre dès que le paiement est confirmé." : "Tracking starts as soon as payment is confirmed.") : fr ? "Le suivi n'est pas actif." : "Tracking isn't active for this booking."}</p>
-                : !shareOn ? <Button onClick={() => setShareOn(true)} className="w-full rounded-full"><MapPin className="size-4" />{fr ? "Activer ma localisation" : "Enable my location"}</Button>
-                : <p className="text-xs text-primary">{fr ? "Votre position est partagée avec cette réservation." : "Your location is shared with this booking only."}</p>}
-              {active && !them ? <p className="text-xs text-muted-foreground">{isProvider ? (fr ? "Le client n'a pas encore activé sa localisation." : "The customer hasn't enabled their location yet.") : fr ? "Le prestataire n'a pas encore activé sa localisation." : "The provider hasn't enabled their location yet."}</p> : null}
+              {me && them ? <p className="font-bold text-foreground">{tx("Distance", "Distance")}: {km(me, them) < 1 ? `${Math.round(km(me, them) * 1000)} m` : `${km(me, them).toFixed(1)} km`}</p> : null}
+              {!active ? <p className="text-muted-foreground">{waitingForPayment ? (tx("Tracking starts as soon as payment is confirmed.", "Le suivi démarre dès que le paiement est confirmé.")) : tx("Tracking isn't active for this booking.", "Le suivi n'est pas actif.")}</p>
+                : !shareOn ? <Button onClick={() => setShareOn(true)} className="w-full rounded-full"><MapPin className="size-4" />{tx("Enable my location", "Activer ma localisation")}</Button>
+                : <p className="text-xs text-primary">{tx("Your location is shared with this booking only.", "Votre position est partagée avec cette réservation.")}</p>}
+              {active && !them ? <p className="text-xs text-muted-foreground">{isProvider ? (tx("The customer hasn't enabled their location yet.", "Le client n'a pas encore activé sa localisation.")) : tx("The provider hasn't enabled their location yet.", "Le prestataire n'a pas encore activé sa localisation.")}</p> : null}
               {locError ? <p className="text-xs text-destructive">{locError}</p> : null}
             </div>
           </>;
         })()}
         <div className="space-y-1 p-4 text-sm">
-          <p className="flex items-center gap-2"><MapPin className="size-4 text-primary" /> {r.location ?? (fr ? "Lieu non indiqué" : "No location given")}</p>
+          <p className="flex items-center gap-2"><MapPin className="size-4 text-primary" /> {r.location ?? (tx("No location given", "Lieu non indiqué"))}</p>
           {sharing && loc ? (
             <p className="text-xs text-muted-foreground">
-              {fr ? "Position mise à jour" : "Position updated"} {formatDateTime(loc.updated_at)}
+              {tx("Position updated", "Position mise à jour")} {formatDateTime(loc.updated_at)}
               {loc.accuracy_m ? ` · ±${Math.round(loc.accuracy_m)} m` : ""}
             </p>
           ) : null}
           <p className="text-sm font-semibold text-foreground">{etaText}</p>
           {gpsError ? <p className="text-xs text-destructive">{gpsError}</p> : null}
-          {directionsUrl ? <Button asChild variant="outline" className="mt-3 w-full rounded-full"><a href={directionsUrl} target="_blank" rel="noreferrer"><Navigation className="size-4" />{fr ? "Itinéraire" : "Directions"}</a></Button> : null}
+          {directionsUrl ? <Button asChild variant="outline" className="mt-3 w-full rounded-full"><a href={directionsUrl} target="_blank" rel="noreferrer"><Navigation className="size-4" />{tx("Directions", "Itinéraire")}</a></Button> : null}
         </div>
       </TrackingDock>
 
       {isProvider && active ? (
         <div className="grid grid-cols-2 gap-2">
           <Button disabled={busy || ts !== "NOT_STARTED"} onClick={() => void setTrip("ON_THE_WAY")} className="rounded-full">
-            {fr ? "Démarrer le trajet" : "Start trip"}
+            {tx("Start trip", "Démarrer le trajet")}
           </Button>
           <Button disabled={busy || ts !== "ON_THE_WAY"} onClick={() => void setTrip("ARRIVED")} className="rounded-full">
-            {fr ? "Je suis arrivé" : "Arrived"}
+            {tx("Arrived", "Je suis arrivé")}
           </Button>
           <Button asChild variant={ts === "ARRIVED" ? "default" : "outline"} className="col-span-2 rounded-full">
-            <Link to="/bookings">{fr ? "Vérifier le client (saisir le code)" : "Verify customer (enter code)"}</Link>
+            <Link to="/bookings" search={{ tab: "provider", booking: bookingId }}>{tx("Verify customer (enter code)", "Vérifier le client (saisir le code)")}</Link>
           </Button>
         </div>
       ) : null}
@@ -275,17 +275,17 @@ function TrackPage() {
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {directionsUrl ? (
           <Button asChild variant="outline" className="rounded-full">
-            <a href={directionsUrl} target="_blank" rel="noreferrer"><Navigation className="size-4" /> {fr ? "Itinéraire" : "Directions"}</a>
+            <a href={directionsUrl} target="_blank" rel="noreferrer"><Navigation className="size-4" /> {tx("Directions", "Itinéraire")}</a>
           </Button>
         ) : null}
         {!isProvider ? (
           <Button variant="outline" className="rounded-full" onClick={() => void chat()}><MessageCircle className="size-4" /> Chat</Button>
         ) : null}
         {other.phone && active ? (
-          <Button asChild variant="outline" className="rounded-full"><a href={`tel:${other.phone}`}><Phone className="size-4" /> {fr ? "Appeler" : "Call"}</a></Button>
+          <Button asChild variant="outline" className="rounded-full"><a href={`tel:${other.phone}`}><Phone className="size-4" /> {tx("Call", "Appeler")}</a></Button>
         ) : null}
         <Button asChild variant="outline" className="rounded-full">
-          <Link to="/booking/$bookingId/receipt" params={{ bookingId }}>{fr ? "Reçu" : "Receipt"}</Link>
+          <Link to="/booking/$bookingId/receipt" params={{ bookingId }}>{tx("Receipt", "Reçu")}</Link>
         </Button>
       </div>
     </div>

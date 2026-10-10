@@ -36,7 +36,7 @@ export const Route = createFileRoute("/_authenticated/property/manage")({
 type Tab = "LISTINGS" | "VIEWINGS" | "SAVED" | "ANALYTICS";
 
 function ManageProperty() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -47,7 +47,7 @@ function ManageProperty() {
       const conversationId = await openPropertyConversation(listingId);
       await navigate({ to: "/messages", search: { c: conversationId } });
     } catch {
-      toast.error(fr ? "Impossible d’ouvrir la discussion." : "Could not open the chat.");
+      toast.error(tx("Could not open the chat.", "Impossible d’ouvrir la discussion."));
     }
   }
 
@@ -72,7 +72,7 @@ function ManageProperty() {
       return;
     }
     await queryClient.invalidateQueries({ queryKey: ["property"] });
-    toast.success(fr ? "Statut mis à jour." : "Status updated.");
+    toast.success(tx("Status updated.", "Statut mis à jour."));
   }
 
   async function respond(id: string, status: string, fallbackAt: string) {
@@ -88,7 +88,7 @@ function ManageProperty() {
       return;
     }
     await queryClient.invalidateQueries({ queryKey: ["property"] });
-    toast.success(fr ? "Réponse envoyée." : "Response sent.");
+    toast.success(tx("Response sent.", "Réponse envoyée."));
   }
 
   const TABS: Array<{ key: Tab; en: string; fr: string }> = [
@@ -103,26 +103,26 @@ function ManageProperty() {
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-extrabold text-foreground sm:text-3xl">
-            {fr ? "Mes biens" : "My Property"}
+            {tx("My Property", "Mes biens")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {fr ? "Annonces, visites et performances réelles." : "Listings, viewings and real performance."}
+            {tx("Listings, viewings and real performance.", "Annonces, visites et performances réelles.")}
           </p>
         </div>
         <Button asChild>
           <Link to="/property/new">
             <Plus className="size-4" aria-hidden />
-            {fr ? "Ajouter un bien" : "Add property"}
+            {tx("Add property", "Ajouter un bien")}
           </Link>
         </Button>
       </header>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { label: fr ? "Annonces actives" : "Active listings", value: totals.active },
-          { label: fr ? "Vues" : "Views", value: totals.views },
-          { label: fr ? "Demandes" : "Inquiries", value: totals.inquiries },
-          { label: fr ? "Visites" : "Viewing requests", value: totals.viewings },
+          { label: tx("Active listings", "Annonces actives"), value: totals.active },
+          { label: tx("Views", "Vues"), value: totals.views },
+          { label: tx("Inquiries", "Demandes"), value: totals.inquiries },
+          { label: tx("Viewing requests", "Visites"), value: totals.viewings },
         ].map((card) => (
           <div key={card.label} className="rounded-2xl border border-border bg-card p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{card.label}</p>
@@ -142,7 +142,7 @@ function ManageProperty() {
               tab === item.key ? "border-primary/60 bg-primary/10 text-primary" : "text-muted-foreground",
             )}
           >
-            {fr ? item.fr : item.en}
+            {tx(item.en, item.fr)}
           </button>
         ))}
       </div>
@@ -153,11 +153,11 @@ function ManageProperty() {
         ) : totals.listings === 0 ? (
           <EmptyState
             icon={<Home className="size-5" aria-hidden />}
-            title={fr ? "Aucune annonce" : "No listings yet"}
-            description={fr ? "Publier est gratuit." : "Listing is free."}
+            title={tx("No listings yet", "Aucune annonce")}
+            description={tx("Listing is free.", "Publier est gratuit.")}
             action={
               <Button asChild>
-                <Link to="/property/new">{fr ? "Publier" : "List a property"}</Link>
+                <Link to="/property/new">{tx("List a property", "Publier")}</Link>
               </Button>
             }
           />
@@ -179,8 +179,8 @@ function ManageProperty() {
                       {formatPropertyPrice(listing.price, listing.currency, listing.price_period, fr)}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {listing.view_count} {fr ? "vues" : "views"} · {listing.inquiry_count}{" "}
-                      {fr ? "demandes" : "inquiries"} · {fr ? "expire le" : "expires"}{" "}
+                      {listing.view_count} {tx("views", "vues")} · {listing.inquiry_count}{" "}
+                      {tx("inquiries", "demandes")} · {tx("expires", "expire le")}{" "}
                       {formatDateTime(listing.expires_at)}
                     </p>
                   </div>
@@ -194,7 +194,7 @@ function ManageProperty() {
                     value={listing.status}
                     onChange={(event) => void setStatus(listing.id, event.target.value)}
                     className="h-9 rounded-xl border border-border bg-background px-2 text-xs"
-                    aria-label={fr ? "Statut" : "Status"}
+                    aria-label={tx("Status", "Statut")}
                   >
                     {PROPERTY_STATUSES.map((status) => (
                       <option key={status} value={status}>
@@ -210,7 +210,7 @@ function ManageProperty() {
                     category={listing.category}
                     trigger={
                       <Button variant="outline" size="sm">
-                        {fr ? "Promouvoir" : "Promote"}
+                        {tx("Promote", "Promouvoir")}
                       </Button>
                     }
                   />
@@ -225,10 +225,10 @@ function ManageProperty() {
         <div className="space-y-4">
           <section>
             <h2 className="mb-2 text-sm font-bold text-foreground">
-              {fr ? "Reçues" : "Received"}
+              {tx("Received", "Reçues")}
             </h2>
             {(incoming?.length ?? 0) === 0 ? (
-              <EmptyState icon={<CalendarClock className="size-5" aria-hidden />} title={fr ? "Aucune demande" : "No viewing requests"} />
+              <EmptyState icon={<CalendarClock className="size-5" aria-hidden />} title={tx("No viewing requests", "Aucune demande")} />
             ) : (
               <div className="space-y-2">
                 {incoming?.map((row) => (
@@ -241,24 +241,24 @@ function ManageProperty() {
                     {row.status === "PENDING" ? (
                       <div className="mt-3 flex gap-2">
                         <Button size="sm" onClick={() => void respond(row.id, "ACCEPTED", row.requested_at)}>
-                          {fr ? "Accepter" : "Accept"}
+                          {tx("Accept", "Accepter")}
                         </Button>
                         <Button size="sm" variant="outline" onClick={() => void respond(row.id, "DECLINED", row.requested_at)}>
-                          {fr ? "Refuser" : "Decline"}
+                          {tx("Decline", "Refuser")}
                         </Button>
                         <Button size="sm" variant="ghost" onClick={() => void (async () => {
                             const input = window.prompt(
-                              fr ? "Nouvelle date/heure (AAAA-MM-JJ HH:MM)" : "New date/time (YYYY-MM-DD HH:MM)",
+                              tx("New date/time (YYYY-MM-DD HH:MM)", "Nouvelle date/heure (AAAA-MM-JJ HH:MM)"),
                             );
                             if (!input) return;
                             const when = new Date(input);
                             if (Number.isNaN(when.getTime())) {
-                              toast.error(fr ? "Date invalide." : "Invalid date.");
+                              toast.error(tx("Invalid date.", "Date invalide."));
                               return;
                             }
                             await respond(row.id, "RESCHEDULED", when.toISOString());
                           })()}>
-                          {fr ? "Proposer un autre créneau" : "Propose another time"}
+                          {tx("Propose another time", "Proposer un autre créneau")}
                         </Button>
                       </div>
                     ) : null}
@@ -269,9 +269,9 @@ function ManageProperty() {
           </section>
 
           <section>
-            <h2 className="mb-2 text-sm font-bold text-foreground">{fr ? "Envoyées" : "Sent"}</h2>
+            <h2 className="mb-2 text-sm font-bold text-foreground">{tx("Sent", "Envoyées")}</h2>
             {(outgoing?.length ?? 0) === 0 ? (
-              <EmptyState icon={<CalendarClock className="size-5" aria-hidden />} title={fr ? "Aucune visite demandée" : "No viewings requested"} />
+              <EmptyState icon={<CalendarClock className="size-5" aria-hidden />} title={tx("No viewings requested", "Aucune visite demandée")} />
             ) : (
               <div className="space-y-2">
                 {outgoing?.map((row) => (
@@ -290,7 +290,7 @@ function ManageProperty() {
                       onClick={() => void chatAboutListing(row.listing_id)}
                     >
                       <MessageCircle className="size-4" aria-hidden />
-                      {fr ? "Discuter avec le propriétaire" : "Message owner"}
+                      {tx("Message owner", "Discuter avec le propriétaire")}
                     </Button>
                   </div>
 
@@ -303,7 +303,7 @@ function ManageProperty() {
 
       {tab === "SAVED" ? (
         (saved?.length ?? 0) === 0 ? (
-          <EmptyState icon={<Heart className="size-5" aria-hidden />} title={fr ? "Aucun favori" : "Nothing saved yet"} />
+          <EmptyState icon={<Heart className="size-5" aria-hidden />} title={tx("Nothing saved yet", "Aucun favori")} />
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {saved?.map((listing) => <PropertyCard key={listing.id} listing={listing} />)}
@@ -316,19 +316,19 @@ function ManageProperty() {
           <div className="rounded-2xl border border-border bg-card p-4">
             <h2 className="inline-flex items-center gap-2 text-sm font-bold text-foreground">
               <BarChart3 className="size-4" aria-hidden />
-              {fr ? "Rapport de performance" : "Property performance report"}
+              {tx("Property performance report", "Rapport de performance")}
             </h2>
             <p className="mt-1 text-xs text-muted-foreground">
-              {fr ? "Données réelles de vos annonces." : "Real data from your own listings."}
+              {tx("Real data from your own listings.", "Données réelles de vos annonces.")}
             </p>
             <dl className="mt-3 grid gap-2 sm:grid-cols-2">
               {[
-                [fr ? "Annonces" : "Listings", totals.listings],
-                [fr ? "Actives" : "Active", totals.active],
-                [fr ? "Vues totales" : "Total views", totals.views],
-                [fr ? "Demandes" : "Inquiries", totals.inquiries],
-                [fr ? "Visites demandées" : "Viewing requests", totals.viewings],
-                [fr ? "Enregistrements" : "Saved by users", saved?.length ?? 0],
+                [tx("Listings", "Annonces"), totals.listings],
+                [tx("Active", "Actives"), totals.active],
+                [tx("Total views", "Vues totales"), totals.views],
+                [tx("Inquiries", "Demandes"), totals.inquiries],
+                [tx("Viewing requests", "Visites demandées"), totals.viewings],
+                [tx("Saved by users", "Enregistrements"), saved?.length ?? 0],
               ].map(([label, value]) => (
                 <div key={String(label)} className="flex items-center justify-between rounded-xl border border-border px-3 py-2 text-sm">
                   <dt className="text-muted-foreground">{label}</dt>
@@ -363,7 +363,7 @@ function ManageProperty() {
                 URL.revokeObjectURL(url);
               }}
             >
-              {fr ? "Télécharger le rapport (CSV)" : "Download report (CSV)"}
+              {tx("Download report (CSV)", "Télécharger le rapport (CSV)")}
             </Button>
           </div>
         </section>

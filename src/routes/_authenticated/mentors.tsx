@@ -44,7 +44,7 @@ export const Route = createFileRoute("/_authenticated/mentors")({
 });
 
 function MentorsPage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const mentors = useMentors();
   const requests = useMentorRequests();
@@ -55,21 +55,19 @@ function MentorsPage() {
         <div>
           <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">ASH Mentors</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {fr
-              ? "Apprenez de membres qui ont une longueur d'avance — ou partagez votre expérience."
-              : "Learn from members a step ahead of you — or share what you know."}
+            {tx("Learn from members a step ahead of you — or share what you know.", "Apprenez de membres qui ont une longueur d'avance — ou partagez votre expérience.")}
           </p>
         </div>
         <BecomeMentorDialog fr={fr} />
       </header>
 
       {mentors.isLoading ? (
-        <LoadingState label={fr ? "Chargement des mentors…" : "Loading mentors…"} />
+        <LoadingState label={tx("Loading mentors…", "Chargement des mentors…")} />
       ) : (mentors.data ?? []).length === 0 ? (
         <EmptyState
           icon={<GraduationCap className="size-5" aria-hidden />}
-          title={fr ? "Aucun mentor pour l'instant" : "No mentors yet"}
-          description={fr ? "Soyez le premier à proposer votre aide." : "Be the first to offer your help."}
+          title={tx("No mentors yet", "Aucun mentor pour l'instant")}
+          description={tx("Be the first to offer your help.", "Soyez le premier à proposer votre aide.")}
         />
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2">
@@ -82,7 +80,7 @@ function MentorsPage() {
       {(requests.data ?? []).length > 0 ? (
         <section className="space-y-3">
           <h2 className="font-display text-lg font-bold text-foreground">
-            {fr ? "Demandes de mentorat" : "Mentoring requests"}
+            {tx("Mentoring requests", "Demandes de mentorat")}
           </h2>
           <ul className="space-y-2">
             {(requests.data ?? []).map((request) => (

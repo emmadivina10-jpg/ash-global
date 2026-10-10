@@ -25,7 +25,7 @@ export const Route = createFileRoute("/_authenticated/clean/")({
 });
 
 function CleanHome() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const workerFn = useServerFn(amICleanWorker);
   const { data: worker } = useQuery({ queryKey: ["clean", "worker"], queryFn: () => workerFn() });
@@ -57,7 +57,7 @@ function CleanHome() {
       <section className="overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary/70 p-6 text-primary-foreground shadow-[var(--shadow-card)]">
         <p className="text-xs font-bold uppercase tracking-widest opacity-80">ASH Clean</p>
         <h1 className="mt-1 font-display text-3xl font-extrabold leading-tight">
-          {fr ? "Votre linge, collecté et livré." : "Your laundry, picked up and delivered."}
+          {tx("Your laundry, picked up and delivered.", "Votre linge, collecté et livré.")}
         </h1>
         <p className="mt-2 text-sm opacity-90">
           {fr
@@ -65,15 +65,15 @@ function CleanHome() {
             : `No need to know the weight. We weigh it at ASH Clean — ${fcfa(settings?.price_per_kg ?? 1500)}/kg — and you approve the price before washing.`}
         </p>
         <Button asChild size="lg" variant="secondary" className="mt-4 rounded-full font-bold">
-          <Link to="/clean/book">{fr ? "Réserver une collecte" : "Book a pickup"}</Link>
+          <Link to="/clean/book">{tx("Book a pickup", "Réserver une collecte")}</Link>
         </Button>
       </section>
 
       <section className="overflow-hidden rounded-3xl bg-card shadow-[var(--shadow-card)]">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <p className="font-bold text-foreground">{fr ? "Discuter avec ASH Clean" : "Chat with ASH Clean"}</p>
+          <p className="font-bold text-foreground">{tx("Chat with ASH Clean", "Discuter avec ASH Clean")}</p>
           <Link to="/messages" search={{ c: "ash-support" } as never} className="text-xs font-bold text-primary">
-            {fr ? "Plein écran" : "Open in Messages"}
+            {tx("Open in Messages", "Plein écran")}
           </Link>
         </div>
         <div className="flex h-80 flex-col">
@@ -93,23 +93,23 @@ function CleanHome() {
       <div className="grid grid-cols-2 gap-2 text-sm">
         <div className="flex items-center gap-2 rounded-2xl bg-card p-3 shadow-[var(--shadow-card)]">
           <Footprints className="size-5 text-primary" aria-hidden />
-          <span>{fr ? "Près de chez nous : collecte gratuite par ASH Staff" : "Nearby: free ASH Staff pickup"}</span>
+          <span>{tx("Nearby: free ASH Staff pickup", "Près de chez nous : collecte gratuite par ASH Staff")}</span>
         </div>
         <div className="flex items-center gap-2 rounded-2xl bg-card p-3 shadow-[var(--shadow-card)]">
           <Bike className="size-5 text-primary" aria-hidden />
-          <span>{fr ? "Plus loin : ASH Rider, frais affichés à l'avance" : "Further: ASH Rider, fee shown upfront"}</span>
+          <span>{tx("Further: ASH Rider, fee shown upfront", "Plus loin : ASH Rider, frais affichés à l'avance")}</span>
         </div>
       </div>
 
       {worker?.worker ? (
         <Link to="/clean/jobs" className="flex items-center justify-between rounded-2xl border border-primary/30 bg-primary/5 p-4 font-semibold text-foreground">
-          {fr ? "Mes courses ASH Clean (staff / rider)" : "My ASH Clean jobs (staff / rider)"}
+          {tx("My ASH Clean jobs (staff / rider)", "Mes courses ASH Clean (staff / rider)")}
           <ChevronRight className="size-4" aria-hidden />
         </Link>
       ) : null}
 
       <section>
-        <h2 className="mb-2 font-display text-lg font-extrabold text-foreground">{fr ? "Mes commandes" : "My orders"}</h2>
+        <h2 className="mb-2 font-display text-lg font-extrabold text-foreground">{tx("My orders", "Mes commandes")}</h2>
         {orders && orders.length ? (
           <ul className="space-y-2">
             {orders.map((o) => (
@@ -126,7 +126,7 @@ function CleanHome() {
                   <span className="text-right">
                     <span className="block text-xs font-bold text-primary">{cleanStatusLabel(o.status, fr)}</span>
                     <span className="block text-xs text-muted-foreground">
-                      {o.total ? fcfa(o.total) : fr ? "Prix après pesée" : "Priced after weighing"}
+                      {o.total ? fcfa(o.total) : tx("Priced after weighing", "Prix après pesée")}
                     </span>
                   </span>
                 </Link>
@@ -135,7 +135,7 @@ function CleanHome() {
           </ul>
         ) : (
           <p className="rounded-2xl bg-card p-5 text-sm text-muted-foreground shadow-[var(--shadow-card)]">
-            {fr ? "Aucune commande pour l'instant." : "No orders yet."}
+            {tx("No orders yet.", "Aucune commande pour l'instant.")}
           </p>
         )}
       </section>

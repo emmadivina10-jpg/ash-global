@@ -43,7 +43,7 @@ const NEXT: Record<string, { to: "ACCEPTED" | "ON_THE_WAY" | "ARRIVED" | "DONE";
 };
 
 function CleanJobs() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const jobsFn = useServerFn(getCleanJobs);
   const update = useServerFn(updateCleanJob);
@@ -68,7 +68,7 @@ function CleanJobs() {
         for (const id of activeIds.split(","))
           void push({ data: { assignmentId: id, lat: p.coords.latitude, lng: p.coords.longitude } });
       },
-      () => toast.error(fr ? "Activez la localisation pour le suivi" : "Turn on location so customers can track you"),
+      () => toast.error(tx("Turn on location so customers can track you", "Activez la localisation pour le suivi")),
       { enableHighAccuracy: true, maximumAge: 5000 },
     );
     return () => {
@@ -76,13 +76,13 @@ function CleanJobs() {
     };
   }, [activeIds, push, fr]);
 
-  if (error) return <p className="p-6 text-sm text-muted-foreground">{fr ? "Réservé aux équipes ASH Clean." : "Only ASH Clean staff and riders can open this page."}</p>;
+  if (error) return <p className="p-6 text-sm text-muted-foreground">{tx("Only ASH Clean staff and riders can open this page.", "Réservé aux équipes ASH Clean.")}</p>;
 
   return (
     <div className="mx-auto w-full max-w-2xl space-y-4 pb-12">
-      <h1 className="font-display text-2xl font-extrabold text-foreground">{fr ? "Mes courses ASH Clean" : "My ASH Clean jobs"}</h1>
-      {active.length ? <p className="rounded-2xl bg-primary/10 p-3 text-sm text-foreground">{fr ? "Votre position est partagée pendant la course." : "Your location is shared only while a job is active."}</p> : null}
-      {(jobs ?? []).length === 0 ? <p className="rounded-2xl bg-card p-5 text-sm text-muted-foreground">{fr ? "Aucune course pour le moment." : "No jobs right now."}</p> : null}
+      <h1 className="font-display text-2xl font-extrabold text-foreground">{tx("My ASH Clean jobs", "Mes courses ASH Clean")}</h1>
+      {active.length ? <p className="rounded-2xl bg-primary/10 p-3 text-sm text-foreground">{tx("Your location is shared only while a job is active.", "Votre position est partagée pendant la course.")}</p> : null}
+      {(jobs ?? []).length === 0 ? <p className="rounded-2xl bg-card p-5 text-sm text-muted-foreground">{tx("No jobs right now.", "Aucune course pour le moment.")}</p> : null}
       {(jobs ?? []).map((j) => {
         const o = j.clean_orders;
         const pickup = j.direction === "PICKUP";
@@ -93,7 +93,7 @@ function CleanJobs() {
             <div className="flex items-center justify-between">
               <p className="font-mono font-bold text-foreground">{o.order_no}</p>
               <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-bold">
-                {pickup ? (fr ? "COLLECTE" : "PICKUP") : fr ? "LIVRAISON" : "DELIVERY"} · {methodLabel(j.method)}
+                {pickup ? (tx("PICKUP", "COLLECTE")) : tx("DELIVERY", "LIVRAISON")} · {methodLabel(j.method)}
               </span>
             </div>
             <p className="text-sm text-foreground">{dest.address}</p>
@@ -101,7 +101,7 @@ function CleanJobs() {
             <div className="flex gap-2">
               <Button asChild variant="outline" className="flex-1 rounded-full">
                 <a href={`https://www.google.com/maps/dir/?api=1&destination=${dest.lat},${dest.lng}`} target="_blank" rel="noopener noreferrer">
-                  <Navigation className="size-4" /> {fr ? "Itinéraire" : "Navigate"}
+                  <Navigation className="size-4" /> {tx("Navigate", "Itinéraire")}
                 </a>
               </Button>
               {next ? (
@@ -109,7 +109,7 @@ function CleanJobs() {
                   className="flex-1 rounded-full"
                   onClick={async () => {
                     const r = await update({ data: { assignmentId: j.id, status: next.to } }).catch(() => ({ ok: false as const }));
-                    if (!r.ok) toast.error(fr ? "Action impossible" : "Couldn't update this job");
+                    if (!r.ok) toast.error(tx("Couldn't update this job", "Action impossible"));
                     void refetch();
                   }}
                 >

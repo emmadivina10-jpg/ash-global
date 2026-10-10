@@ -28,7 +28,7 @@ export function MobileNav({
   items: MobileNavItem[];
   profile: { full_name?: string | null; avatar_url?: string | null } | null | undefined;
 }) {
-  const { t, lang } = useI18n();
+  const { tx, t, lang } = useI18n();
   const fr = lang === "fr";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
@@ -44,7 +44,7 @@ export function MobileNav({
   });
 
   const label = (item: MobileNavItem) =>
-    item.key ? t(item.key) : ((fr ? item.fr : item.en) ?? item.label ?? "");
+    item.key ? t(item.key) : tx(item.en ?? item.label ?? "", item.fr);
   const tabs = [...items, { to: "/menu", icon: Menu, label: t("nav.more") }];
   const indexAt = (x: number) => {
     const rect = gridRef.current?.getBoundingClientRect();
@@ -121,7 +121,7 @@ export function MobileNav({
   return (
     <nav
       className="premium-mobile-nav fixed inset-x-0 z-40 lg:hidden"
-      aria-label={fr ? "Navigation principale" : "Primary navigation"}
+      aria-label={tx("Primary navigation", "Navigation principale")}
     >
       <div className="premium-nav-pill nav-bar-fill relative w-full border-t border-border">
         <ul

@@ -35,7 +35,7 @@ export function PromoteDialog({
   category?: string | null;
   trigger?: React.ReactNode;
 }) {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const start = useServerFn(startPromotion);
   const verify = useServerFn(verifyCommerceCharge);
@@ -53,11 +53,11 @@ export function PromoteDialog({
         data: { targetType, targetId, headline, plan, city: city ?? undefined, category: category ?? undefined, provider, phone },
       });
       if (!result.ok) {
-        toast.error(result.message ?? (fr ? "Le paiement n'a pas démarré." : "The payment could not start."));
+        toast.error(result.message ?? (tx("The payment could not start.", "Le paiement n'a pas démarré.")));
         return;
       }
       setReference(result.reference);
-      toast.success(fr ? "Validez la demande sur votre téléphone." : "Approve the prompt on your phone.");
+      toast.success(tx("Approve the prompt on your phone.", "Validez la demande sur votre téléphone."));
     } finally {
       setBusy(false);
     }
@@ -69,11 +69,11 @@ export function PromoteDialog({
     try {
       const result = await verify({ data: { reference } });
       if (result.ok) {
-        toast.success(fr ? "Promotion active !" : "Promotion is live!");
+        toast.success(tx("Promotion is live!", "Promotion active !"));
         setOpen(false);
         setReference(null);
       } else {
-        toast.error(fr ? "Paiement pas encore confirmé." : "Payment not confirmed yet.");
+        toast.error(tx("Payment not confirmed yet.", "Paiement pas encore confirmé."));
       }
     } finally {
       setBusy(false);
@@ -86,41 +86,37 @@ export function PromoteDialog({
         {trigger ?? (
           <Button variant="outline" size="sm">
             <Megaphone className="size-4" aria-hidden />
-            {fr ? "Promouvoir" : "Promote"}
+            {tx("Promote", "Promouvoir")}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{fr ? "ASH Promote" : "ASH Promote"}</DialogTitle>
+          <DialogTitle>{tx("ASH Promote", "ASH Promote")}</DialogTitle>
           <DialogDescription>
-            {fr
-              ? "Placez ceci en tête des résultats et de l'accueil pendant la durée choisie."
-              : "Put this at the top of search and the home feed for the period you choose."}
+            {tx("Put this at the top of search and the home feed for the period you choose.", "Placez ceci en tête des résultats et de l'accueil pendant la durée choisie.")}
           </DialogDescription>
         </DialogHeader>
 
         {reference ? (
           <div className="space-y-4">
             <p className="rounded-2xl bg-muted p-4 text-sm text-muted-foreground">
-              {fr
-                ? "Validez la demande Mobile Money sur votre téléphone, puis confirmez ici."
-                : "Approve the mobile money prompt on your phone, then confirm here."}
+              {tx("Approve the mobile money prompt on your phone, then confirm here.", "Validez la demande Mobile Money sur votre téléphone, puis confirmez ici.")}
             </p>
             <Button className="w-full" disabled={busy} onClick={() => void confirm()}>
-              {fr ? "J'ai payé" : "I have paid"}
+              {tx("I have paid", "J'ai payé")}
             </Button>
           </div>
         ) : (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="promo-headline">{fr ? "Accroche" : "Headline"}</Label>
+              <Label htmlFor="promo-headline">{tx("Headline", "Accroche")}</Label>
               <Input
                 id="promo-headline"
                 value={headline}
                 maxLength={120}
                 onChange={(event) => setHeadline(event.target.value)}
-                placeholder={fr ? "20% aujourd'hui chez Mama's Kitchen" : "20% off today at Mama's Kitchen"}
+                placeholder={tx("20% off today at Mama's Kitchen", "20% aujourd'hui chez Mama's Kitchen")}
               />
             </div>
 
@@ -137,7 +133,7 @@ export function PromoteDialog({
                   )}
                 >
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    {PROMOTION_PLANS[key].days} {fr ? "jour(s)" : "day(s)"}
+                    {PROMOTION_PLANS[key].days} {tx("day(s)", "jour(s)")}
                   </p>
                   <p className="mt-1 font-display text-base font-extrabold text-foreground">
                     {formatXAF(PROMOTION_PLANS[key].amount)}
@@ -150,7 +146,7 @@ export function PromoteDialog({
               country="CM"
               busy={busy || headline.trim().length < 4}
               fr={fr}
-              submitLabel={`${fr ? "Payer" : "Pay"} ${formatXAF(PROMOTION_PLANS[plan].amount)}`}
+              submitLabel={`${tx("Pay", "Payer")} ${formatXAF(PROMOTION_PLANS[plan].amount)}`}
               onCharge={charge}
             />
           </div>

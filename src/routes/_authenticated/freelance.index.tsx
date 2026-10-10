@@ -44,7 +44,7 @@ function FreelanceSoon() {
 }
 
 function FreelancePage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const projects = useProjects("OPEN");
   const freelancers = useFreelancers();
@@ -75,36 +75,36 @@ function FreelancePage() {
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] opacity-80">ASH Freelance</p>
             <h1 className="mt-1 font-display text-3xl font-extrabold leading-tight sm:text-4xl">
-              {fr ? "Votre prochain travail commence ici" : "Your next gig starts here"}
+              {tx("Your next gig starts here", "Votre prochain travail commence ici")}
             </h1>
             <p className="mt-1 text-sm opacity-90">
-              {fr ? "Trouvez du travail payé ou recrutez les meilleurs talents." : "Find paid work, or hire the talent you need."}
+              {tx("Find paid work, or hire the talent you need.", "Trouvez du travail payé ou recrutez les meilleurs talents.")}
             </p>
           </div>
           <Button asChild size="sm" variant="secondary" className="rounded-full">
             <Link to="/create">
               <Plus className="size-4" aria-hidden />
-              {fr ? "Publier un projet" : "Post a project"}
+              {tx("Post a project", "Publier un projet")}
             </Link>
           </Button>
         </div>
         <div className="relative mt-5 grid gap-2 rounded-2xl bg-card p-2 text-foreground shadow-lg sm:grid-cols-[1fr_1fr_auto]">
           <label className="flex items-center gap-2 rounded-xl px-3">
             <Search className="size-4 text-primary" aria-hidden />
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={fr ? "Métier, compétence ou mot-clé" : "Job title, skill or keyword"} className="h-11 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0" />
+            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={tx("Job title, skill or keyword", "Métier, compétence ou mot-clé")} className="h-11 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0" />
           </label>
           <label className="flex items-center gap-2 rounded-xl px-3 sm:border-l sm:border-border">
             <MapPin className="size-4 text-primary" aria-hidden />
-            <Input value={where} onChange={(e) => setWhere(e.target.value)} placeholder={fr ? "Ville ou pays" : "City or country"} className="h-11 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0" />
+            <Input value={where} onChange={(e) => setWhere(e.target.value)} placeholder={tx("City or country", "Ville ou pays")} className="h-11 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0" />
           </label>
-          <Button className="h-11 rounded-xl px-6 font-bold">{fr ? "Rechercher" : "Find work"}</Button>
+          <Button className="h-11 rounded-xl px-6 font-bold">{tx("Find work", "Rechercher")}</Button>
         </div>
       </section>
 
       {categories.length > 0 && (
         <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
           <button onClick={() => setCat(null)} className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-semibold transition ${!cat ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:border-primary/50"}`}>
-            {fr ? "Tout" : "All"}
+            {tx("All", "Tout")}
           </button>
           {categories.map((c) => (
             <button key={c} onClick={() => setCat(c === cat ? null : c)} className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-semibold transition ${cat === c ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:border-primary/50"}`}>
@@ -116,19 +116,19 @@ function FreelancePage() {
 
       <Tabs defaultValue="projects">
         <TabsList>
-          <TabsTrigger value="projects">{fr ? "Projets" : "Projects"}</TabsTrigger>
-          <TabsTrigger value="talent">{fr ? "Talents" : "Talent"}</TabsTrigger>
-          <TabsTrigger value="proposals">{fr ? "Mes offres" : "My proposals"}</TabsTrigger>
+          <TabsTrigger value="projects">{tx("Projects", "Projets")}</TabsTrigger>
+          <TabsTrigger value="talent">{tx("Talent", "Talents")}</TabsTrigger>
+          <TabsTrigger value="proposals">{tx("My proposals", "Mes offres")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="projects" className="mt-4">
           {projects.isLoading ? (
-            <LoadingState label={fr ? "Chargement des projets…" : "Loading projects…"} />
+            <LoadingState label={tx("Loading projects…", "Chargement des projets…")} />
           ) : filteredProjects.length === 0 ? (
             <EmptyState
               icon={<Briefcase className="size-5" aria-hidden />}
-              title={fr ? "Aucun projet ouvert" : "No open projects"}
-              description={fr ? "Publiez le premier projet et recevez des propositions." : "Post the first project and start receiving proposals."}
+              title={tx("No open projects", "Aucun projet ouvert")}
+              description={tx("Post the first project and start receiving proposals.", "Publiez le premier projet et recevez des propositions.")}
             />
           ) : (
             <ul className="space-y-3">
@@ -146,13 +146,13 @@ function FreelancePage() {
                       </span>
                     </div>
                     <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                      <span className="inline-flex items-center gap-1"><Clock className="size-3.5" aria-hidden />{project.deadline_days} {fr ? "jours" : "days"}</span>
-                      <span className="inline-flex items-center gap-1"><FileText className="size-3.5" aria-hidden />{project.proposals_count} {fr ? "propositions" : "proposals"}</span>
+                      <span className="inline-flex items-center gap-1"><Clock className="size-3.5" aria-hidden />{project.deadline_days} {tx("days", "jours")}</span>
+                      <span className="inline-flex items-center gap-1"><FileText className="size-3.5" aria-hidden />{project.proposals_count} {tx("proposals", "propositions")}</span>
                     </div>
                     <p className="line-clamp-2 text-sm text-muted-foreground">{project.description}</p>
                     <div className="mt-auto flex items-center justify-between pt-2 text-sm">
                       <span className="font-display font-extrabold text-foreground">{formatXAF(project.budget)}</span>
-                      <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">{fr ? "Postuler" : "Apply"}</span>
+                      <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">{tx("Apply", "Postuler")}</span>
                     </div>
                   </Link>
                 </li>
@@ -165,11 +165,11 @@ function FreelancePage() {
           {filteredTalent.length === 0 ? (
             <EmptyState
               icon={<Users className="size-5" aria-hidden />}
-              title={fr ? "Aucun freelance publié" : "No published freelancers"}
-              description={fr ? "Créez votre profil freelance et soyez trouvé." : "Publish your freelance profile and get discovered."}
+              title={tx("No published freelancers", "Aucun freelance publié")}
+              description={tx("Publish your freelance profile and get discovered.", "Créez votre profil freelance et soyez trouvé.")}
               action={
                 <Button asChild>
-                  <Link to="/create">{fr ? "Créer mon profil" : "Create my profile"}</Link>
+                  <Link to="/create">{tx("Create my profile", "Créer mon profil")}</Link>
                 </Button>
               }
             />
@@ -180,7 +180,7 @@ function FreelancePage() {
                   <h2 className="font-semibold text-foreground">{person.headline}</h2>
                   <p className="text-xs text-muted-foreground">
                     {person.city ?? person.country} · {person.years_experience}
-                    {fr ? " an(s)" : " yrs"}
+                    {tx(" yrs", " an(s)")}
                   </p>
                   {person.bio ? <p className="line-clamp-3 text-sm text-muted-foreground">{person.bio}</p> : null}
                   <div className="flex flex-wrap gap-1.5">
@@ -192,7 +192,7 @@ function FreelancePage() {
                   </div>
                   <div className="mt-auto flex items-center justify-between pt-2 text-sm">
                     <span className="font-display font-extrabold text-foreground">
-                      {fr ? "dès" : "from"} {formatXAF(person.starting_price)}
+                      {tx("from", "dès")} {formatXAF(person.starting_price)}
                     </span>
                     <span className="inline-flex items-center gap-1 text-muted-foreground">
                       <Star className="size-3.5 fill-gold text-gold" aria-hidden />
@@ -208,8 +208,8 @@ function FreelancePage() {
         <TabsContent value="proposals" className="mt-4">
           {(myProposals.data ?? []).length === 0 ? (
             <EmptyState
-              title={fr ? "Aucune proposition envoyée" : "No proposals sent"}
-              description={fr ? "Postulez à un projet ouvert pour démarrer." : "Apply to an open project to get started."}
+              title={tx("No proposals sent", "Aucune proposition envoyée")}
+              description={tx("Apply to an open project to get started.", "Postulez à un projet ouvert pour démarrer.")}
             />
           ) : (
             <ul className="space-y-3">
@@ -218,7 +218,7 @@ function FreelancePage() {
                   <div className="min-w-0">
                     <p className="truncate font-semibold text-foreground">{row.project?.title ?? "—"}</p>
                     <p className="text-xs text-muted-foreground">
-                      {formatXAF(row.amount)} · {row.delivery_days} {fr ? "jours" : "days"}
+                      {formatXAF(row.amount)} · {row.delivery_days} {tx("days", "jours")}
                     </p>
                   </div>
                   <span className="rounded-full bg-muted px-3 py-1 text-xs font-bold uppercase tracking-wide text-muted-foreground">

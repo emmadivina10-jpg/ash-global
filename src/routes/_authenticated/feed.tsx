@@ -55,7 +55,7 @@ export const Route = createFileRoute("/_authenticated/feed")({
 });
 
 function FeedPage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
 // Larger pool so the Mine/Friends tabs don't lose posts to the feed slice.
   const { data: posts, isLoading, refetch } = useSocialFeed(120);
@@ -84,7 +84,7 @@ function FeedPage() {
     event.target.value = "";
 
     if (picked.length === 0) {
-      toast.error(fr ? "Veuillez choisir une image." : "Please choose an image.");
+      toast.error(tx("Please choose an image.", "Veuillez choisir une image."));
       return;
     }
 
@@ -113,7 +113,7 @@ function FeedPage() {
 
     if (!cleanCaption && files.length === 0) {
       toast.error(
-        fr ? "Ajoutez une photo ou écrivez quelque chose." : "Add a photo or write something.",
+        tx("Add a photo or write something.", "Ajoutez une photo ou écrivez quelque chose."),
       );
       return;
     }
@@ -126,14 +126,12 @@ function FeedPage() {
       });
 
       clearComposer();
-      toast.success(fr ? "Publication créée" : "Post published");
+      toast.success(tx("Post published", "Publication créée"));
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
-          : fr
-            ? "Impossible de publier. Veuillez réessayer."
-            : "Could not publish. Please try again.",
+          : tx("Could not publish. Please try again.", "Impossible de publier. Veuillez réessayer."),
       );
     }
   }
@@ -166,30 +164,30 @@ function FeedPage() {
   ];
 
   return (
-    <PullToRefresh onRefresh={refetch} label={fr ? "Actualisation" : "Refreshing"}>
+    <PullToRefresh onRefresh={refetch} label={tx("Refreshing", "Actualisation")}>
     <div className="mx-auto w-full max-w-xl space-y-4">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0 self-center">
-          <h1 className="sr-only">{fr ? "Fil ASH" : "ASH Feed"}</h1>
-          <Link to="/profile" aria-label={fr ? "Mon profil" : "My profile"} className="inline-flex rounded-full ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <h1 className="sr-only">{tx("ASH Feed", "Fil ASH")}</h1>
+          <Link to="/profile" aria-label={tx("My profile", "Mon profil")} className="inline-flex rounded-full ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <Avatar path={profile?.avatar_url} name={profile?.full_name} online className="size-11 shrink-0" />
           </Link>
         </div>
         <div className="flex items-center gap-1.5">
           <Link
             to="/fx-analytics"
-            aria-label={fr ? "Ouvrir Analyse FX" : "Open FX Analytics"}
+            aria-label={tx("Open FX Analytics", "Ouvrir Analyse FX")}
             className="inline-flex h-10 items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3 text-xs font-bold text-primary transition-colors hover:bg-primary/15"
           >
             <BarChart3 className="size-4" aria-hidden />
-            <span className="hidden min-[390px]:inline">{fr ? "Analyse FX" : "FX Analytics"}</span>
+            <span className="hidden min-[390px]:inline">{tx("FX Analytics", "Analyse FX")}</span>
           </Link>
           <Button
             type="button"
             size="icon"
             className="size-10 rounded-full shadow-sm [&_svg]:size-6 motion-safe:transition-transform motion-safe:hover:rotate-90"
-            aria-label={fr ? "Créer une publication" : "Create a post"}
-            title={fr ? "Créer une publication" : "Create a post"}
+            aria-label={tx("Create a post", "Créer une publication")}
+            title={tx("Create a post", "Créer une publication")}
             onClick={() => setComposerOpen(true)}
           >
             <Plus aria-hidden />
@@ -214,7 +212,7 @@ function FeedPage() {
               )}
             >
               <Icon className="size-3.5" aria-hidden />
-              {fr ? item.fr : item.en}
+              {tx(item.en, item.fr)}
             </button>
           );
         })}
@@ -233,10 +231,10 @@ function FeedPage() {
               <span className="grid size-8 place-items-center rounded-full bg-primary/10 text-primary">
                 <Plus className="size-4" aria-hidden />
               </span>
-              {fr ? "Créer une publication" : "Create a post"}
+              {tx("Create a post", "Créer une publication")}
             </DialogTitle>
             <DialogDescription className="sr-only">
-              {fr ? "Votre publication" : "Your post"}
+              {tx("Your post", "Votre publication")}
             </DialogDescription>
           </DialogHeader>
           <div className="flex items-center gap-3">
@@ -260,11 +258,9 @@ function FeedPage() {
                 ? fr
                   ? `Quoi de neuf, ${firstName} ?`
                   : `What's on your mind, ${firstName}?`
-                : fr
-                  ? "Quoi de neuf ?"
-                  : "What's on your mind?"
+                : tx("What's on your mind?", "Quoi de neuf ?")
             }
-            aria-label={fr ? "Votre publication" : "Your post"}
+            aria-label={tx("Your post", "Votre publication")}
             className="min-h-28 resize-none border-border bg-background"
           />
           <SocialSuggestions value={caption} onChange={setCaption} />
@@ -280,7 +276,7 @@ function FeedPage() {
                   />
                   <button
                     type="button"
-                    aria-label={fr ? "Retirer" : "Remove"}
+                    aria-label={tx("Remove", "Retirer")}
                     onClick={() => removeFile(index)}
                     className="absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-foreground text-background shadow-sm"
                   >
@@ -300,7 +296,7 @@ function FeedPage() {
               onClick={() => fileRef.current?.click()}
             >
               <ImagePlus className="text-primary" aria-hidden />
-              {fr ? "Galerie" : "Gallery"}
+              {tx("Gallery", "Galerie")}
             </Button>
             <Button
               type="button"
@@ -310,12 +306,12 @@ function FeedPage() {
               onClick={() => cameraRef.current?.click()}
             >
               <Camera className="text-accent" aria-hidden />
-              {fr ? "Caméra" : "Camera"}
+              {tx("Camera", "Caméra")}
             </Button>
           </div>
           <div className="flex items-center justify-between gap-2 text-[11px] tabular-nums text-muted-foreground">
             <span>
-              {files.length}/4 {fr ? "photos" : "photos"}
+              {files.length}/4 {tx("photos", "photos")}
             </span>
             <span>{caption.length}/1200</span>
           </div>
@@ -325,7 +321,7 @@ function FeedPage() {
             className="h-11 w-full touch-manipulation"
           >
             {create.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-            {create.isPending ? (fr ? "Publication..." : "Posting...") : fr ? "Publier" : "Post"}
+            {create.isPending ? (tx("Posting...", "Publication...")) : tx("Post", "Publier")}
           </Button>
           <input
             ref={fileRef}
@@ -361,21 +357,13 @@ function FeedPage() {
           </span>
           <p className="mt-3 text-sm font-bold text-foreground">
             {tab === "friends"
-              ? fr
-                ? "Vos amis n'ont rien publié"
-                : "Your friends haven't posted yet"
+              ? tx("Your friends haven't posted yet", "Vos amis n'ont rien publié")
               : tab === "mine"
-                ? fr
-                  ? "Vous n'avez rien publié"
-                  : "You haven't posted yet"
-                : fr
-                  ? "Rien encore"
-                  : "Nothing here yet"}
+                ? tx("You haven't posted yet", "Vous n'avez rien publié")
+                : tx("Nothing here yet", "Rien encore")}
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
-            {fr
-              ? "Partagez une photo — c'est ainsi que le fil prend vie."
-              : "Share a photo — that is how the feed comes alive."}
+            {tx("Share a photo — that is how the feed comes alive.", "Partagez une photo — c'est ainsi que le fil prend vie.")}
           </p>
         </div>
       ) : (
