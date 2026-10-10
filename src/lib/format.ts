@@ -1,6 +1,6 @@
 export const ACTIVATION_FEE = 5000;
 export const COMMISSIONS = { 1: 1500, 2: 750, 3: 250 } as const;
-export const MIN_WITHDRAWAL = 1000;
+export const MIN_WITHDRAWAL = 100;
 
 export function formatXAF(value: number | string | null | undefined): string {
   const n = Number(value ?? 0);

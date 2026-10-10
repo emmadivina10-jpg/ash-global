@@ -92,6 +92,13 @@
       "when": 1791661822663,
       "tag": "0012_restore_booking_transaction_types",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1791663085954,
+      "tag": "0013_lower_withdrawal_minimum_to_100",
+      "breakpoints": true
     }
   ]
 }
