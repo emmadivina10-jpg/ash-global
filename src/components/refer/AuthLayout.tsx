@@ -89,9 +89,11 @@ export function AuthLayout({
           </div>
         </header>
 
-        <main className="flex flex-1 items-start justify-center px-5 pb-16 sm:px-8 sm:items-center">
-          <div className="w-full max-w-[26rem]">
-            <div className="mb-7">
+        <main className="relative flex flex-1 items-start justify-center overflow-hidden px-5 pb-16 sm:px-8 sm:items-center">
+          <span aria-hidden className="auth-orb auth-orb-a" />
+          <span aria-hidden className="auth-orb auth-orb-b" />
+          <div className="auth-card relative w-full max-w-[26rem] rounded-3xl border border-border/60 bg-card/70 p-6 shadow-raised backdrop-blur-xl sm:p-8">
+            <div className="auth-rise mb-7" style={{ animationDelay: "60ms" }}>
               <h1 className="font-display text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
                 {title}
               </h1>
@@ -99,7 +101,7 @@ export function AuthLayout({
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{subtitle}</p>
               ) : null}
             </div>
-            {children}
+            <div className="auth-rise" style={{ animationDelay: "160ms" }}>{children}</div>
           </div>
         </main>
       </div>

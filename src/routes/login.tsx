@@ -85,7 +85,7 @@ function LoginPage() {
 
   return (
     <AuthLayout title={t("auth.login.title")} subtitle={t("auth.login.subtitle")}>
-      <form onSubmit={onSubmit} className="space-y-4" noValidate>
+      <form onSubmit={onSubmit} className="auth-step space-y-4" noValidate>
         <div className="space-y-2">
           <Label htmlFor="email">{t("auth.email")}</Label>
           <Input
@@ -134,7 +134,7 @@ function LoginPage() {
           </div>
         ) : null}
 
-        <Button type="submit" className="h-12 w-full rounded-xl text-base" disabled={loading}>
+        <Button type="submit" className="auth-cta h-12 w-full rounded-xl text-base" disabled={loading}>
           {loading ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
           {loading ? t("auth.login.submitting") : t("auth.login.submit")}
         </Button>

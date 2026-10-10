@@ -1264,3 +1264,23 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
 @media (max-width: 767px) {
   .member-messages .messages-inbox { width: calc(100% + 2rem); }
 }
+
+/* Auth screens */
+@keyframes auth-card-in { from { opacity: 0; transform: translateY(18px) scale(0.98); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes auth-rise-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes auth-step-in { from { opacity: 0; transform: translateX(22px); } to { opacity: 1; transform: none; } }
+@keyframes auth-orb-float { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(24px,-30px) scale(1.12); } }
+@keyframes auth-sheen { from { background-position: -200% 0; } to { background-position: 200% 0; } }
+.auth-card { animation: auth-card-in 0.7s cubic-bezier(.2,.8,.2,1) both; }
+.auth-rise { animation: auth-rise-in 0.6s cubic-bezier(.2,.8,.2,1) both; }
+.auth-step > * { animation: auth-step-in 0.45s cubic-bezier(.2,.8,.2,1) both; }
+.auth-step > *:nth-child(2) { animation-delay: 60ms; }
+.auth-step > *:nth-child(3) { animation-delay: 120ms; }
+.auth-step > *:nth-child(4) { animation-delay: 180ms; }
+.auth-orb { position: absolute; width: 22rem; height: 22rem; border-radius: 9999px; filter: blur(70px); opacity: 0.35; pointer-events: none; animation: auth-orb-float 14s ease-in-out infinite; }
+.auth-orb-a { top: -6rem; right: -8rem; background: var(--primary); }
+.auth-orb-b { bottom: -8rem; left: -8rem; background: var(--accent); animation-delay: -7s; }
+.auth-cta { background-image: linear-gradient(110deg, transparent 30%, color-mix(in oklab, var(--primary-foreground) 22%, transparent) 50%, transparent 70%); background-size: 200% 100%; animation: auth-sheen 3.2s linear infinite; transition: transform .2s, box-shadow .2s; }
+.auth-cta:hover { transform: translateY(-1px); box-shadow: 0 12px 28px -12px var(--primary); }
+.auth-cta:active { transform: scale(0.98); }
+@media (prefers-reduced-motion: reduce) { .auth-card, .auth-rise, .auth-step > *, .auth-orb, .auth-cta { animation: none; } }
