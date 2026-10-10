@@ -8,6 +8,7 @@ import {
   BriefcaseBusiness,
   CalendarDays,
   ChevronRight,
+  Hourglass,
   Flame,
   GraduationCap,
   LogOut,
@@ -150,8 +151,8 @@ function MenuPage() {
                   </span>
                   <span className="min-w-0 flex-1 break-words">{fr ? item.fr : item.en}</span>
                   {item.soon ? (
-                    <span className="shrink-0 rounded-full border border-amber-500/25 bg-amber-500/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-amber-600 dark:text-amber-400">
-                      {fr ? "Bientôt" : "Soon"}
+                    <span className="grid size-5 shrink-0 place-items-center text-gold-foreground" title={fr ? "Bientôt disponible" : "Coming soon"} aria-label={fr ? "Bientôt disponible" : "Coming soon"}>
+                      <Hourglass className="size-3.5" aria-hidden />
                     </span>
                   ) : null}
                 </Link>

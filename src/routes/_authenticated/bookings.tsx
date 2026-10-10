@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CustomerVerificationCode } from "@/components/refer/CustomerVerificationCode";
+import { BookingHistoryActions } from "@/components/refer/BookingHistoryActions";
+import { useBookingHistory } from "@/lib/booking-history.queries";
+import { bookingSearch, canRemoveBookingHistory, historyMatches, type HistoryView } from "@/lib/booking-history";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -36,6 +39,7 @@ import { useRegion } from "@/lib/region-context";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/bookings")({
+  validateSearch: bookingSearch,
   head: () => ({
     meta: [
       { title: "Bookings — ASH Glo" },
@@ -92,6 +96,9 @@ function Countdown({ deadline, label }: { deadline: string | null; label: string
 
 function BookingsPage() {
   const { t, lang } = useI18n();
+  const search = Route.useSearch();
+  const history = useBookingHistory();
+  const [historyView, setHistoryView] = useState<HistoryView>("CURRENT");
   const fr = lang === "fr";
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -116,10 +123,21 @@ function BookingsPage() {
     setBusyId(null);
     setBankInfo({ bank: r.bank, reference: r.reference, price, error: r.ok ? null : r.error === "BANK_UNAVAILABLE" ? BANK_UNAVAILABLE_TEXT : (r.error ?? "PAYMENT_START_FAILED") });
   }
-  const [tab, setTab] = useState<"client" | "provider">("client");
+  const tab = search.tab;
+  useEffect(() => {
+    if (!search.booking || tab !== "provider") return;
+    const timer = setTimeout(() => {
+      const target = document.getElementById(`verify-${search.booking}`);
+      target?.scrollIntoView({ block: "center", behavior: "smooth" });
+      target?.querySelector("input")?.focus({ preventScroll: true });
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [search.booking, tab, received]);
 
   const clientBookings = useMemo(() => (mine ?? []) as Array<Record<string, unknown> & { id: string }>, [mine]);
   const providerBookings = useMemo(() => received ?? [], [received]);
+  const visibleClients = clientBookings.filter(b => historyMatches(history.data?.[b.id], historyView));
+  const visibleProviders = providerBookings.filter(b => historyMatches(history.data?.[b.id], historyView));
 
   const pendingForProvider = useMemo(
     () => providerBookings.filter((b) => b.status === "PENDING").length,
@@ -338,7 +356,7 @@ function BookingsPage() {
       </header>
 
       {studio ? (
-        <Tabs value={tab} onValueChange={(value) => setTab(value === "provider" ? "provider" : "client")}>
+        <Tabs value={tab} onValueChange={(value) => void navigate({ to: "/bookings", search: { tab: value === "provider" ? "provider" : "client" } })}>
           <TabsList className="grid h-11 w-full grid-cols-2">
             <TabsTrigger value="client">{fr ? "Mes réservations" : "My bookings"}</TabsTrigger>
             <TabsTrigger value="provider">{fr ? "Reçues" : "Received"}{pendingForProvider > 0 ? <span className="ml-2 rounded-full bg-primary px-1.5 text-[10px] text-primary-foreground">{pendingForProvider}</span> : null}</TabsTrigger>
@@ -346,11 +364,16 @@ function BookingsPage() {
         </Tabs>
       ) : null}
 
+      <Tabs value={historyView} onValueChange={value => setHistoryView(value === "ARCHIVED" ? "ARCHIVED" : "CURRENT")}>
+        <TabsList className="grid w-full grid-cols-2"><TabsTrigger value="CURRENT">{fr ? "Historique" : "History"}</TabsTrigger><TabsTrigger value="ARCHIVED">{fr ? "Archives" : "Archived"}</TabsTrigger></TabsList>
+      </Tabs>
+      {history.isError ? <p className="text-sm text-destructive">{fr ? "Impossible de charger les archives." : "Could not load archived history."}</p> : null}
+
       {(!studio || tab === "client") && (
         <section aria-label={fr ? "Mes réservations" : "My bookings"}>
-          {isLoading ? (
+          {isLoading || history.isLoading ? (
             <SkeletonRows rows={3} />
-          ) : clientBookings.length === 0 ? (
+          ) : visibleClients.length === 0 ? (
             <EmptyState
               title={t("book.none")}
               description={fr ? "Trouvez un pro dans Découvrir." : "Find a pro in Discover."}
@@ -358,7 +381,7 @@ function BookingsPage() {
             />
           ) : (
             <ul className="space-y-3">
-              {clientBookings.map((raw) => {
+              {visibleClients.map((raw) => {
                 const b = raw as unknown as {
                   id: string;
                   provider_id: string;
@@ -411,6 +434,7 @@ function BookingsPage() {
                     </div>
 
                     <div className="mt-3 flex flex-wrap gap-2">
+                      {canRemoveBookingHistory(b.status) ? <BookingHistoryActions archived={historyView === "ARCHIVED"} change={state => history.change(b.id, state)} /> : null}
                       {payable ? <Button size="sm" disabled={busyId === b.id || expired} onClick={() => setPaymentBooking({ id: b.id, price: Number(b.price) })}><CreditCard className="size-4" aria-hidden />{fr ? "Payer" : "Pay now"}</Button> : null}
                       {action === "track" ? <Button asChild size="sm"><Link to="/booking/$bookingId/track" params={{ bookingId: b.id }}><MapPin className="size-4" aria-hidden />{fr ? "Suivre le prestataire" : "Track provider"}</Link></Button> : null}
                       <Button size="sm" variant="outline" onClick={() => void chat(b.provider_id, b.id)}>
@@ -427,7 +451,7 @@ function BookingsPage() {
                       ) : null}
                       {reviewed?.[b.id] ? (
                         <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <RatingStars value={reviewed[b.id]!.rating} size={12} />
+                          <RatingStars value={reviewed[b.id]?.rating ?? 0} size={12} />
                           {fr ? "Avis envoyé" : "Review sent"}
                         </span>
                       ) : null}
@@ -449,11 +473,11 @@ function BookingsPage() {
 
       {studio && tab === "provider" ? (
         <SectionCard title={fr ? "Demandes reçues" : "Requests received"}>
-          {providerBookings.length === 0 ? (
+          {visibleProviders.length === 0 ? (
             <EmptyState title={t("book.none")} icon={<CalendarDays className="size-5" aria-hidden />} />
           ) : (
             <ul className="space-y-3">
-              {providerBookings.map((b) => (
+              {visibleProviders.map((b) => (
                 <ProviderBookingItem
                   key={b.id}
                   booking={b}
@@ -461,6 +485,7 @@ function BookingsPage() {
                   onDecide={decide}
                   onProgress={progress}
                   onChat={() => void chat(b.provider_id, b.id)}
+                  historyActions={canRemoveBookingHistory(b.status) ? <BookingHistoryActions archived={historyView === "ARCHIVED"} change={state => history.change(b.id, state)} /> : null}
                 />
               ))}
             </ul>
@@ -516,12 +541,14 @@ function ProviderBookingItem({
   onDecide,
   onProgress,
   onChat,
+  historyActions,
 }: {
   booking: ProviderBookingRow;
   busy: boolean;
   onDecide: (id: string, decision: "ACCEPT" | "DECLINE", reason?: string) => Promise<void>;
   onProgress: (id: string, next: "IN_PROGRESS" | "COMPLETED" | "NO_SHOW") => Promise<void>;
   onChat: () => void;
+  historyActions: React.ReactNode;
 }) {
   const { t, lang } = useI18n();
   const fr = lang === "fr";
@@ -592,6 +619,7 @@ function ProviderBookingItem({
         </div>
       ) : (
         <div className="mt-3 flex flex-wrap gap-2">
+          {historyActions}
           {b.status === "PENDING" ? (
             <>
               <Button size="sm" disabled={busy} onClick={() => void onDecide(b.id, "ACCEPT")}>
@@ -684,7 +712,7 @@ function VerifyServiceForm({ bookingId }: { bookingId: string }) {
     void queryClient.invalidateQueries();
   }
   return (
-    <div className="mt-3 rounded-xl border border-border bg-muted/40 p-3">
+    <div id={`verify-${bookingId}`} className="mt-3 scroll-mt-6 rounded-xl border border-border bg-muted/40 p-3">
       <p className="text-xs font-semibold text-muted-foreground">
         {fr ? "En attente de la vérification du client" : "Waiting for customer verification"}
       </p>

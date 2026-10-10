@@ -267,7 +267,7 @@ function TrackPage() {
             {fr ? "Je suis arrivé" : "Arrived"}
           </Button>
           <Button asChild variant={ts === "ARRIVED" ? "default" : "outline"} className="col-span-2 rounded-full">
-            <Link to="/bookings">{fr ? "Vérifier le client (saisir le code)" : "Verify customer (enter code)"}</Link>
+            <Link to="/bookings" search={{ tab: "provider", booking: bookingId }}>{fr ? "Vérifier le client (saisir le code)" : "Verify customer (enter code)"}</Link>
           </Button>
         </div>
       ) : null}
