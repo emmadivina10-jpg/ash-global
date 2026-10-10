@@ -233,19 +233,7 @@ export const syncBookingPayment = createServerFn({ method: "POST" })
       error?: string | null | undefined;
     };
 
-    if (booking.payment_provider === "STRIPE") {
-      const { stripePay } = await import("./stripe.server");
-      if (!booking.provider_transaction_id) {
-        return { ok: true as const, status: "PENDING" as const, bookingStatus: booking.status, error: null };
-      }
-      const session = await stripePay.verifySession(booking.provider_transaction_id);
-      verification = {
-        ok: session.ok,
-        status: session.status,
-        providerTransactionId: session.paymentIntentId,
-        error: session.error,
-      };
-    } else {
+    {
       const { tchokoPay } = await import("./tchokopay.server");
       const providerRef = booking.provider_transaction_id ?? "";
       const collection = providerRef.startsWith("REQ-")

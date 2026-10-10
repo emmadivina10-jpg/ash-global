@@ -24,8 +24,6 @@ export const Route = createFileRoute("/api/public/webhooks/stripe")({
           return new Response("Bad payload", { status: 400 });
         }
         const eventId = String(event.id ?? "");
-        const type = String(event.type ?? "");
-        const obj = event.data?.object ?? {};
         if (!eventId) return new Response("Bad payload", { status: 400 });
 
         // Durable booking releases need separately approved shared-db safeguards.

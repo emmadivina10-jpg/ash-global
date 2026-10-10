@@ -28,8 +28,15 @@ export async function releaseBookingTransfer(bookingId: string): Promise<{ statu
 
   const account = await stripeRead("account");
   if (account["id"] !== controls.marketplace_account_id || job.marketplace_account_id !== account["id"]) return { status: "ACCOUNT_MISMATCH" };
-  if (!job.destination_account_id) return { status: "PROVIDER_NOT_ONBOARDED" };
-  const destination = await stripeRead(`accounts/${encodeURIComponent(job.destination_account_id)}`);
+  const { data: provider, error: providerError } = await db.from("bookings")
+    .select("provider_profiles(user_id)").eq("id", bookingId).single();
+  const providerProfile = provider?.provider_profiles;
+  if (providerError || !providerProfile || Array.isArray(providerProfile)) return { status: "PROVIDER_NOT_ONBOARDED" };
+  const { data: mapping, error: mappingError } = await db.from("profiles").select("stripe_account_id")
+    .eq("user_id", providerProfile.user_id).single();
+  const destinationId = job.destination_account_id ?? mapping?.stripe_account_id;
+  if (mappingError || !destinationId || (job.destination_account_id && job.destination_account_id !== mapping?.stripe_account_id)) return { status: "PROVIDER_NOT_ONBOARDED" };
+  const destination = await stripeRead(`accounts/${encodeURIComponent(destinationId)}`);
   const capabilities = destination["capabilities"] as Record<string, unknown> | undefined;
   const { data: booking, error: bookingError } = await db.from("bookings")
     .select("paid_at, status, verification_status").eq("id", bookingId).maybeSingle();
@@ -46,6 +53,7 @@ export async function releaseBookingTransfer(bookingId: string): Promise<{ statu
   // and payable. A competing worker cannot submit the same payable twice.
   const { data: claimed, error: claimError } = await db.rpc("claim_stripe_booking_release", { _booking_id: bookingId });
   if (claimError || !claimed?.ok) return { status: "NOT_CLAIMED" };
+  if (claimed.destination_account_id !== destinationId) return { status: "REQUIRES_REVIEW" };
   try {
     const result = await stripeConnect.transfer({
       accountId: claimed.destination_account_id,
