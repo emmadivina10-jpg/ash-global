@@ -82,7 +82,7 @@ function RegisterPage() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [done, setDone] = useState(false);
   const [refState, setRefState] = useState<"idle" | "checking" | "valid" | "invalid">("idle");
 
@@ -105,21 +105,32 @@ function RegisterPage() {
   }
 
   function goNext() {
-    const parsed = buildSchema(t).safeParse({ ...form, password: "xxxxxxxx", confirmPassword: "xxxxxxxx" });
+    const schema = buildSchema(t);
     const fieldErrors: Record<string, string> = {};
-    if (!parsed.success) {
-      for (const issue of parsed.error.issues) {
-        const key = String(issue.path[0]);
-        if (["fullName", "email", "phone"].includes(key) && !fieldErrors[key]) fieldErrors[key] = issue.message;
+    if (step === 1) {
+      const parsed = schema.safeParse({ ...form, password: "xxxxxxxx", confirmPassword: "xxxxxxxx" });
+      if (!parsed.success) {
+        for (const issue of parsed.error.issues) {
+          const key = String(issue.path[0]);
+          if (["fullName", "email", "phone"].includes(key) && !fieldErrors[key]) fieldErrors[key] = issue.message;
+        }
+      }
+    } else if (step === 2) {
+      const parsed = schema.safeParse(form);
+      if (!parsed.success) {
+        for (const issue of parsed.error.issues) {
+          const key = String(issue.path[0]);
+          if (["password", "confirmPassword"].includes(key) && !fieldErrors[key]) fieldErrors[key] = issue.message;
+        }
       }
     }
     setErrors(fieldErrors);
-    if (Object.keys(fieldErrors).length === 0) setStep(2);
+    if (Object.keys(fieldErrors).length === 0) setStep(step === 1 ? 2 : 3);
   }
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
-    if (step === 1) {
+    if (step !== 3) {
       goNext();
       return;
     }
@@ -132,6 +143,7 @@ function RegisterPage() {
       }
       setErrors(fieldErrors);
       if (fieldErrors["fullName"] || fieldErrors["email"] || fieldErrors["phone"]) setStep(1);
+      else if (fieldErrors["password"] || fieldErrors["confirmPassword"]) setStep(2);
       return;
     }
 
