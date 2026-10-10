@@ -231,4 +231,4 @@ Messages/Market checks: signed-in Market default and reload persistence, Extras 
 
 ## Unified floating Compass
 - [x] Combine Map and Wallet into one draggable, closable ASH-colour control on app and tracking screens
-- [ ] Verify switching, movement, dismissal and preview without publishing
+- [x] Isolated desktop/phone checks: Map/Wallet switching, drag without accidental opening, dismissal, restore, viewport bounds; no runtime errors or publishing
