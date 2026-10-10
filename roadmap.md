@@ -1,5 +1,12 @@
 # Roadmap
 
+## Booking history and language cleanup (Oct 10)
+- [ ] Add personal archive, restore and permanent history removal without changing bookings or financial records
+- [ ] Make Verify Customer open Received bookings and the selected code form
+- [ ] Complete supported-language dictionaries and replace hardcoded interface text where feasible; report any remaining untranslated surfaces
+- [ ] Replace overlapping Soon badges with compact accessible symbols
+- [ ] Run history/navigation/language checks and inspect preview; do not publish
+
 ## Service verification and native presentation (Oct 10)
 - [x] Fix service-code verification without enabling Stripe transfers or changing live financial records; missing transfer table confirmed by read-only query, authorized atomic code RPC preserved
 - [x] Remove duplicate in-app banners and native realtime-to-local duplication; preserve native remote banner ownership and APNs registration callbacks
