@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { DEFAULT_COMMISSION_RATE, effectiveRate, isAllowedCommissionRate, splitBooking } from "../src/lib/commission";
 
 describe("booking commission", () => {
-  it("defaults to 12%", () => expect(DEFAULT_COMMISSION_RATE).toBe(0.12));
+  it("defaults to 15%", () => expect(DEFAULT_COMMISSION_RATE).toBe(0.15));
   it("allows only 12% and 15%", () => {
     expect(isAllowedCommissionRate(0.12)).toBe(true);
     expect(isAllowedCommissionRate(0.15)).toBe(true);

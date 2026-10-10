@@ -173,7 +173,7 @@ function TrackPage() {
         ))}
       </ol>
 
-      <section className="overflow-hidden rounded-3xl border border-border bg-card">
+      <section className="ash-rise sticky top-3 z-30 overflow-hidden rounded-3xl border border-border bg-card shadow-[var(--shadow-raised)]">
         {mapSrc ? (
           <iframe title="map" className="h-72 w-full" loading="lazy" referrerPolicy="no-referrer-when-downgrade" src={mapSrc} />
         ) : (

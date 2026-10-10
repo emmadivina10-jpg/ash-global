@@ -49,6 +49,11 @@ function ConfirmedPage() {
     return () => clearInterval(t);
   }, [waiting, bookingId, sync, refetch]);
 
+  // Card payment confirmed: go straight to the live tracking map.
+  useEffect(() => {
+    if (data?.paid) void navigate({ to: "/booking/$bookingId/track", params: { bookingId }, replace: true });
+  }, [data?.paid, bookingId, navigate]);
+
   if (!data) return <p className="p-6 text-sm text-muted-foreground">…</p>;
 
   if (!data.paid) {
