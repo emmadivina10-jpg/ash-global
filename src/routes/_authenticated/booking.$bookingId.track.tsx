@@ -181,18 +181,6 @@ function TrackPage() {
   const directionsUrl = dest
     ? `https://www.google.com/maps/dir/?api=1&destination=${dest}${loc && !isProvider ? `&origin=${loc.lat},${loc.lng}` : ""}`
     : null;
-  const mapsKey = import.meta.env["VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY"] as string | undefined;
-  const mapSrc = !mapsKey
-    ? sharing && loc
-      ? `https://www.openstreetmap.org/export/embed.html?bbox=${loc.lng - 0.01},${loc.lat - 0.01},${loc.lng + 0.01},${loc.lat + 0.01}&layer=mapnik&marker=${loc.lat},${loc.lng}`
-      : null
-    : sharing && loc && dest
-      ? `https://www.google.com/maps/embed/v1/directions?key=${mapsKey}&origin=${loc.lat},${loc.lng}&destination=${dest}&mode=driving`
-      : sharing && loc
-        ? `https://www.google.com/maps/embed/v1/view?key=${mapsKey}&center=${loc.lat},${loc.lng}&zoom=15`
-        : dest && (active || waitingForPayment)
-          ? `https://www.google.com/maps/embed/v1/place?key=${mapsKey}&q=${dest}`
-          : null;
   const etaOk = eta && "durationSeconds" in eta ? (eta as { durationSeconds: number; distanceMeters: number }) : null;
   const etaText = !sharing
     ? ts === "ARRIVED" ? (fr ? "Prestataire arrivé" : "Provider has arrived") : fr ? "Heure d'arrivée : dès que le trajet démarre" : "Arrival time: shown once the trip starts"
