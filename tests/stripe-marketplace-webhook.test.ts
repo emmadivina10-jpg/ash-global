@@ -48,6 +48,7 @@ function event(type: string, object: Record<string, unknown> = {}) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.stubGlobal("fetch", vi.fn(() => { throw new Error("NETWORK_FORBIDDEN_IN_ISOLATED_TEST"); }));
   harness.queries.length = 0;
   harness.inboxStatus = "RECEIVED";
   harness.controlsMissing = false;

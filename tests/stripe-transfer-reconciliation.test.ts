@@ -12,6 +12,7 @@ import { reconcileRelease, releaseBookingTransfer, providerOnboardingEnabled } f
 const transfer = { id: "tr_isolated", destination: "acct_provider_isolated", amount: 8500, currency: "cad", source_transaction: "ch_isolated", reversed: false, amount_reversed: 0 };
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.stubGlobal("fetch", vi.fn(() => { throw new Error("NETWORK_FORBIDDEN_IN_ISOLATED_TEST"); }));
   harness.job = { marketplace_account_id: "acct_isolated", destination_account_id: "acct_provider_isolated", amount_minor: 8500, currency: "cad", source_charge_id: "ch_isolated", transfer_id: "tr_isolated" };
   harness.rpc.mockResolvedValue({ error: null });
   harness.read.mockImplementation(async (path: string) => path === "account" ? { id: "acct_isolated" } : transfer);
