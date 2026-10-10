@@ -3495,6 +3495,35 @@ export type Database = {
         }
         Relationships: []
       }
+      member_metric_exclusions: {
+        Row: {
+          reason: string
+          reviewed_at: string
+          reviewed_by: string
+          user_id: string
+        }
+        Insert: {
+          reason: string
+          reviewed_at?: string
+          reviewed_by: string
+          user_id: string
+        }
+        Update: {
+          reason?: string
+          reviewed_at?: string
+          reviewed_by?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_metric_exclusions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       member_presence: {
         Row: {
           last_active_at: string
@@ -5896,6 +5925,27 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_ai_access_blocks: {
+        Row: {
+          created_at: string
+          message: string
+          scope: string
+          status: number
+        }
+        Insert: {
+          created_at?: string
+          message: string
+          scope: string
+          status: number
+        }
+        Update: {
+          created_at?: string
+          message?: string
+          scope?: string
+          status?: number
+        }
+        Relationships: []
+      }
       staff_channel_messages: {
         Row: {
           author_department: string
@@ -6021,6 +6071,47 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "staff_accounts"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_member_ai_threads: {
+        Row: {
+          busy_until: string | null
+          created_at: string
+          id: string
+          member_id: string
+          messages: Json
+          staff_scope: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          busy_until?: string | null
+          created_at?: string
+          id?: string
+          member_id: string
+          messages?: Json
+          staff_scope: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          busy_until?: string | null
+          created_at?: string
+          id?: string
+          member_id?: string
+          messages?: Json
+          staff_scope?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_member_ai_threads_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -6810,6 +6901,25 @@ export type Database = {
         Args: { _deal_id: string; _user_id: string }
         Returns: Json
       }
+      claim_staff_member_ai_v1: {
+        Args: { _id: string; _scope: string; _version: number }
+        Returns: {
+          busy_until: string | null
+          created_at: string
+          id: string
+          member_id: string
+          messages: Json
+          staff_scope: string
+          updated_at: string
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "staff_member_ai_threads"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       clear_my_activity_history: { Args: never; Returns: undefined }
       complete_activation: {
         Args: { _payment_reference: string; _provider_transaction_id: string }
@@ -6933,6 +7043,10 @@ export type Database = {
       finalize_spotlight_video_cleanup: {
         Args: { _post_id: string; _removed_paths: string[] }
         Returns: string
+      }
+      finish_staff_member_ai_v1: {
+        Args: { _id: string; _messages: Json; _scope: string; _version: number }
+        Returns: boolean
       }
       flag_offplatform_attempt: {
         Args: { _conversation_id: string; _excerpt: string; _rule: string }
@@ -7323,6 +7437,7 @@ export type Database = {
           score: number
         }[]
       }
+      staff_member_metrics_v1: { Args: never; Returns: Json }
       submit_community_review: {
         Args: { _comment?: string; _provider_id: string; _rating: number }
         Returns: Json
