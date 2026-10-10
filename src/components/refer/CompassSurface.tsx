@@ -1,0 +1,223 @@
+import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from "react";
+import { Compass, Map, Wallet, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useI18n } from "@/lib/i18n";
+import { useOrbVisible } from "@/lib/orb-visibility";
+import { WalletSummary } from "./WalletSummary";
+
+/** One viewport-owned launcher and panel, shared by app and tracking screens. */
+export function CompassSurface({
+  map,
+  initiallyOpen = false,
+  active = false,
+}: {
+  map: ReactNode;
+  initiallyOpen?: boolean;
+  active?: boolean;
+}) {
+  const { lang } = useI18n();
+  const fr = lang === "fr";
+  const { visible, setVisible } = useOrbVisible();
+  const [open, setOpen] = useState(initiallyOpen);
+  const [tab, setTab] = useState<"map" | "wallet">(active ? "map" : "wallet");
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const launcher = useRef<HTMLButtonElement>(null);
+  const drag = useRef<{ px: number; py: number; x: number; y: number; moved: boolean } | null>(
+    null,
+  );
+  const moved = useRef(false);
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem("ash-compass-position") ?? "null");
+      if (saved && Number.isFinite(saved.x) && Number.isFinite(saved.y))
+        setOffset({ x: saved.x, y: saved.y });
+    } catch {
+      /* Storage is optional. */
+    }
+  }, []);
+
+  useEffect(() => {
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onEscape);
+    return () => window.removeEventListener("keydown", onEscape);
+  }, []);
+
+  useEffect(() => {
+    const clamp = () => {
+      const bounds = launcher.current?.getBoundingClientRect();
+      if (!bounds) return;
+      setOffset((value) => ({
+        x:
+          value.x +
+          (bounds.left < 12
+            ? 12 - bounds.left
+            : bounds.right > window.innerWidth - 12
+              ? window.innerWidth - 12 - bounds.right
+              : 0),
+        y:
+          value.y +
+          (bounds.top < 48
+            ? 48 - bounds.top
+            : bounds.bottom > window.innerHeight - 80
+              ? window.innerHeight - 80 - bounds.bottom
+              : 0),
+      }));
+    };
+    const frame = window.requestAnimationFrame(clamp);
+    window.addEventListener("resize", clamp);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("resize", clamp);
+    };
+  }, [visible]);
+
+  function pointerDown(event: PointerEvent<HTMLButtonElement>) {
+    moved.current = false;
+    drag.current = { px: event.clientX, py: event.clientY, x: offset.x, y: offset.y, moved: false };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+  function pointerMove(event: PointerEvent<HTMLButtonElement>) {
+    const start = drag.current;
+    if (!start) return;
+    const dx = event.clientX - start.px;
+    const dy = event.clientY - start.py;
+    if (!start.moved && Math.hypot(dx, dy) < 6) return;
+    start.moved = true;
+    moved.current = true;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const baseX = bounds.left - offset.x;
+    const baseY = bounds.top - offset.y;
+    setOffset({
+      x: Math.max(12 - baseX, Math.min(window.innerWidth - 84 - baseX, start.x + dx)),
+      y: Math.max(48 - baseY, Math.min(window.innerHeight - 152 - baseY, start.y + dy)),
+    });
+  }
+  function pointerUp(event: PointerEvent<HTMLButtonElement>) {
+    if (drag.current?.moved) {
+      try {
+        window.localStorage.setItem("ash-compass-position", JSON.stringify(offset));
+      } catch {
+        /* Storage is optional. */
+      }
+    }
+    drag.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId))
+      event.currentTarget.releasePointerCapture(event.pointerId);
+  }
+
+  if (!visible) return null;
+  return (
+    <>
+      {open && (
+        <section
+          aria-label="ASH Compass"
+          className="ash-rise fixed bottom-[calc(11rem+env(safe-area-inset-bottom))] right-3 z-40 flex max-h-[calc(100dvh-13rem)] w-[calc(100vw-1.5rem)] flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-[var(--shadow-raised)] sm:right-6 sm:w-[28rem] lg:bottom-32 lg:max-h-[calc(100dvh-10rem)]"
+        >
+          <header className="compass-header flex shrink-0 items-center justify-between border-b border-border px-4 py-3">
+            <span className="flex items-center gap-2 text-sm font-bold">
+              <Compass className="size-5 text-success" />
+              ASH Compass
+            </span>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={fr ? "Réduire ASH Compass" : "Minimize ASH Compass"}
+              onClick={() => {
+                setOpen(false);
+                launcher.current?.focus();
+              }}
+            >
+              <X className="size-4" />
+            </Button>
+          </header>
+          <div
+            role="tablist"
+            aria-label="ASH Compass"
+            className="flex shrink-0 gap-2 border-b border-border p-3"
+          >
+            <Button
+              role="tab"
+              aria-selected={tab === "map"}
+              aria-controls="compass-map-panel"
+              id="compass-map-tab"
+              variant={tab === "map" ? "secondary" : "ghost"}
+              className="flex-1"
+              onClick={() => setTab("map")}
+            >
+              <Map className="size-4 text-success" />
+              {fr ? "Carte" : "Map"}
+            </Button>
+            <Button
+              role="tab"
+              aria-selected={tab === "wallet"}
+              aria-controls="compass-wallet-panel"
+              id="compass-wallet-tab"
+              variant={tab === "wallet" ? "secondary" : "ghost"}
+              className="flex-1"
+              onClick={() => setTab("wallet")}
+            >
+              <Wallet className="size-4 text-verified-magenta" />
+              {fr ? "Portefeuille" : "Wallet"}
+            </Button>
+          </div>
+          <div
+            className="min-h-0 overflow-y-auto"
+            role="tabpanel"
+            id={`compass-${tab}-panel`}
+            aria-labelledby={`compass-${tab}-tab`}
+          >
+            {tab === "map" ? map : <WalletSummary onClose={() => setOpen(false)} />}
+          </div>
+        </section>
+      )}
+      <div
+        style={{ transform: `translate3d(${offset.x}px, ${offset.y}px, 0)` }}
+        className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] right-4 z-40 lg:bottom-8 lg:right-8"
+      >
+        <Button
+          ref={launcher}
+          variant="ghost"
+          onPointerDown={pointerDown}
+          onPointerMove={pointerMove}
+          onPointerUp={pointerUp}
+          onPointerCancel={() => {
+            drag.current = null;
+            moved.current = true;
+          }}
+          onClick={() => {
+            if (!moved.current) setOpen((value) => !value);
+            moved.current = false;
+          }}
+          aria-expanded={open}
+          aria-label={fr ? "Ouvrir ASH Compass" : "Open ASH Compass"}
+          title="ASH Compass"
+          className="compass-orb wallet-orb relative size-[72px] touch-none rounded-full p-0 text-on-dark [&_svg]:size-7"
+        >
+          <span className="flex flex-col items-center gap-1">
+            <Compass aria-hidden />
+            <span className="text-[9px] font-bold">Compass</span>
+          </span>
+          {active && (
+            <span className="absolute bottom-1 right-1 size-3 rounded-full border-2 border-card bg-success" />
+          )}
+        </Button>
+        <Button
+          size="icon-sm"
+          variant="secondary"
+          className="absolute -right-1 -top-2 size-6 rounded-full border border-border shadow-[var(--shadow-card)]"
+          aria-label={fr ? "Masquer ASH Compass" : "Hide ASH Compass"}
+          title={fr ? "Masquer ASH Compass" : "Hide ASH Compass"}
+          onClick={() => {
+            setOpen(false);
+            setVisible(false);
+          }}
+        >
+          <X className="size-3" />
+        </Button>
+      </div>
+    </>
+  );
+}

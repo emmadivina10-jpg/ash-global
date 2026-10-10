@@ -1058,6 +1058,19 @@ a {
   box-shadow: var(--shadow-card);
 }
 
+:root {
+  --compass-fill: linear-gradient(135deg, var(--color-chat-emerald) 0%, var(--color-chat-emerald) 38%, var(--verified-magenta) 68%, var(--verified-violet) 100%);
+  --compass-shadow: 0 8px 24px -8px color-mix(in oklab, var(--verified-magenta) 45%, transparent), 0 3px 10px color-mix(in oklab, var(--color-chat-emerald) 25%, transparent);
+}
+.compass-orb {
+  background: var(--compass-fill);
+  border: 2px solid color-mix(in oklab, var(--primary-foreground) 65%, var(--color-chat-emerald));
+  box-shadow: var(--compass-shadow);
+  cursor: grab;
+}
+.compass-orb:active { cursor: grabbing; }
+.compass-header { background: var(--member-dual-wash); }
+
 /* ===== ASH Console premium theme =====
    Theme-aware command-center look for employee dashboards: deep navy
    dark surfaces and existing light surfaces with the ASH brand gradient. Applied

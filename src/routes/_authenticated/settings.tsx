@@ -217,17 +217,17 @@ function SettingsPage() {
         </div>
       </SectionCard>
 
-      <SectionCard title={fr ? "Bouton Portefeuille flottant" : "Floating Wallet button"}>
+      <SectionCard title="ASH Compass">
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {fr
-              ? "Afficher le bouton rond qui ouvre un aperçu rapide de votre portefeuille."
-              : "Show the round button that opens a quick preview of your wallet."}
+              ? "Carte et portefeuille"
+              : "Map and Wallet"}
           </p>
           <Switch
             checked={orbVisible}
             onCheckedChange={(on) => setOrbVisible(on)}
-            aria-label={fr ? "Bouton ASH flottant" : "Floating ASH button"}
+            aria-label={fr ? "Afficher ASH Compass" : "Show ASH Compass"}
           />
         </div>
       </SectionCard>
