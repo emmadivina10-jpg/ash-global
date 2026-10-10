@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { syncBookingPayment } from "@/lib/booking.functions";
 import { useI18n } from "@/lib/i18n";
 
-const LIVE = ["PAYMENT_PROCESSING", "CONFIRMED", "IN_PROGRESS"];
+const LIVE = ["PAYMENT_PROCESSING", "CONFIRMED", "IN_PROGRESS"] as const;
 
 /** Always-visible Map button for the viewer's current booking (customer or provider). */
 export function ActiveTripOrb() {
