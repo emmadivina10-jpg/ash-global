@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { getBookingReceipt } from "@/lib/booking-receipt.functions";
 import { getTripEta } from "@/lib/trip-eta.functions";
+import { syncBookingPayment } from "@/lib/booking.functions";
+import { TrackingDock } from "@/components/refer/TrackingDock";
 import { openConversation } from "@/lib/marketplace.queries";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/format";
@@ -38,6 +40,22 @@ function TrackPage() {
   const fetchReceipt = useServerFn(getBookingReceipt);
   const key = ["bookings", "receipt", bookingId];
   const { data: r, error } = useQuery({ queryKey: key, queryFn: () => fetchReceipt({ data: { bookingId } }), refetchInterval: 15000 });
+
+  const syncPayment = useServerFn(syncBookingPayment);
+  const waitingForPayment = r?.viewer === "CUSTOMER" && !r.paid && r.status === "PAYMENT_PROCESSING";
+  useEffect(() => {
+    if (!waitingForPayment) return;
+    let stopped = false;
+    const check = async () => {
+      try {
+        await syncPayment({ data: { bookingId } });
+        if (!stopped) void qc.invalidateQueries({ queryKey: key });
+      } catch { /* Keep waiting: returning from checkout is not proof of payment. */ }
+    };
+    void check();
+    const timer = setInterval(() => void check(), 4000);
+    return () => { stopped = true; clearInterval(timer); };
+  }, [waitingForPayment, bookingId, syncPayment, qc]);
 
   const active = !!r && r.paid && ACTIVE.includes(r.status);
   const sharing = active && r.tripStatus === "ON_THE_WAY";
@@ -104,6 +122,8 @@ function TrackPage() {
   const done = r.status === "COMPLETED" || r.status === "SETTLED";
   const message = done
     ? fr ? "Votre réservation est terminée." : "Your booking has been completed."
+    : waitingForPayment
+      ? fr ? "Confirmation du paiement…" : "Confirming your payment…"
     : !active
       ? fr ? "Le suivi n'est pas disponible pour cette réservation." : "Tracking isn't available for this booking."
       : ts === "ARRIVED"
@@ -134,7 +154,7 @@ function TrackPage() {
       ? `https://www.google.com/maps/embed/v1/directions?key=${mapsKey}&origin=${loc.lat},${loc.lng}&destination=${dest}&mode=driving`
       : sharing && loc
         ? `https://www.google.com/maps/embed/v1/view?key=${mapsKey}&center=${loc.lat},${loc.lng}&zoom=15`
-        : dest && active
+        : dest && (active || waitingForPayment)
           ? `https://www.google.com/maps/embed/v1/place?key=${mapsKey}&q=${dest}`
           : null;
   const etaOk = eta && "durationSeconds" in eta ? (eta as { durationSeconds: number; distanceMeters: number }) : null;
@@ -173,14 +193,16 @@ function TrackPage() {
         ))}
       </ol>
 
-      <section className="ash-rise sticky top-3 z-30 overflow-hidden rounded-3xl border border-border bg-card shadow-[var(--shadow-raised)]">
+      <TrackingDock>
         {mapSrc ? (
-          <iframe title="map" className="h-72 w-full" loading="lazy" referrerPolicy="no-referrer-when-downgrade" src={mapSrc} />
+          <iframe title={fr ? "Carte de la réservation" : "Booking tracking map"} className="h-[min(22rem,42dvh)] min-h-48 w-full border-0" referrerPolicy="no-referrer" src={mapSrc} />
         ) : (
           <div className="flex h-40 items-center justify-center p-4 text-center text-sm text-muted-foreground">
             {sharing
               ? fr ? "En attente de la première position du prestataire…" : "Waiting for the provider's first position…"
-              : fr ? "La position s'affiche seulement quand le prestataire est en route." : "Location appears only while the provider is on the way."}
+              : !r.location
+                ? fr ? "Aucune adresse de rendez-vous enregistrée." : "No meeting address has been saved."
+                : fr ? "Carte indisponible. Ouvrez l’itinéraire pour voir cette adresse." : "Map unavailable. Open directions to view this address."}
           </div>
         )}
         <div className="space-y-1 p-4 text-sm">
@@ -193,8 +215,9 @@ function TrackPage() {
           ) : null}
           <p className="text-sm font-semibold text-foreground">{etaText}</p>
           {gpsError ? <p className="text-xs text-destructive">{gpsError}</p> : null}
+          {directionsUrl ? <Button asChild variant="outline" className="mt-3 w-full rounded-full"><a href={directionsUrl} target="_blank" rel="noreferrer"><Navigation className="size-4" />{fr ? "Itinéraire" : "Directions"}</a></Button> : null}
         </div>
-      </section>
+      </TrackingDock>
 
       {isProvider && active ? (
         <div className="grid grid-cols-2 gap-2">
