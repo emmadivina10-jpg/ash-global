@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { releaseBlocker, transferKey } from "./stripe-release-policy";
+import { releaseBlocker, transferKey, transferFailure, LIVE_PROVIDER_TRANSFERS_ENABLED, LIVE_PROVIDER_ONBOARDING_ENABLED } from "./stripe-release-policy";
 import { stripeConnect, stripeRead } from "./stripe.server";
 
 // Pending schema is intentionally not applied to the shared production database.
@@ -10,12 +10,14 @@ async function database(): Promise<SupabaseClient> {
 }
 
 export async function providerOnboardingEnabled(): Promise<boolean> {
+  if (!LIVE_PROVIDER_ONBOARDING_ENABLED) return false;
   const db = await database();
   const { data, error } = await db.from("stripe_marketplace_controls").select("onboarding_enabled").eq("id", true).maybeSingle();
   return !error && data?.onboarding_enabled === true;
 }
 
 export async function releaseBookingTransfer(bookingId: string): Promise<{ status: string; transferId?: string }> {
+  if (!LIVE_PROVIDER_TRANSFERS_ENABLED) return { status: "AWAITING_APPROVAL" };
   const db = await database();
   const { data: controls, error: controlsError } = await db.from("stripe_marketplace_controls")
     .select("transfers_enabled, marketplace_account_id").eq("id", true).maybeSingle();
@@ -69,8 +71,9 @@ export async function releaseBookingTransfer(bookingId: string): Promise<{ statu
     });
     if (!result.ok || !result.transferId) {
       // Ambiguous responses must be reconciled, never sent under a fresh key.
-      await db.from("stripe_booking_releases").update({ status: "UNKNOWN", last_error: "TRANSFER_REQUIRES_RECONCILIATION" }).eq("booking_id", bookingId).eq("status", "SUBMITTING");
-      return { status: "UNKNOWN" };
+      const status = transferFailure(result.httpStatus ?? 0, result.errorCode ?? "");
+      const { error } = await db.from("stripe_booking_releases").update({ status, last_error: status }).eq("booking_id", bookingId).eq("status", "SUBMITTING");
+      return { status: error ? "UNKNOWN" : status };
     }
     const { error } = await db.rpc("finish_stripe_booking_release", { _booking_id: bookingId, _transfer_id: result.transferId, _reversed: false });
     return error ? { status: "UNKNOWN" } : { status: "TRANSFERRED", transferId: result.transferId };
@@ -108,10 +111,10 @@ export async function reconcileRelease(bookingId: string): Promise<{ status: str
 /** Batch dispatcher for the existing authorized Finance session; controls default off. */
 export async function dispatchEligibleReleases() {
   const db = await database();
-  const { data, error } = await db.from("stripe_booking_releases").select("booking_id").eq("status", "ELIGIBLE")
+  const { data, error } = await db.from("stripe_booking_releases").select("booking_id,status").in("status", ["ELIGIBLE", "SUBMITTING", "UNKNOWN"])
     .order("created_at", { ascending: true }).limit(10);
   if (error) return { status: "SCHEMA_AWAITING_APPROVAL", results: [] };
   const results = [];
-  for (const row of data ?? []) results.push({ bookingId: row.booking_id, ...await releaseBookingTransfer(row.booking_id) });
+  for (const row of data ?? []) results.push({ bookingId: row.booking_id, ...(row.status === "ELIGIBLE" ? await releaseBookingTransfer(row.booking_id) : await reconcileRelease(row.booking_id)) });
   return { status: "CHECKED", results };
 }

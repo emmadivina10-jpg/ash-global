@@ -50,3 +50,19 @@ export function checkoutMatches(input: {
 export function transferKey(bookingId: string): string {
   return `ash_marketplace_booking_${bookingId}_v1`;
 }
+
+/** Explicit release authorization is not supplied by a wallet or UI flag. */
+export const LIVE_PROVIDER_TRANSFERS_ENABLED = false;
+export const LIVE_PROVIDER_ONBOARDING_ENABLED = false;
+
+export function transferFailure(httpStatus: number, code: string): "INSUFFICIENT_FUNDS" | "FAILED" | "UNKNOWN" {
+  if (httpStatus === 0 || httpStatus >= 500 || httpStatus === 409 || httpStatus === 429) return "UNKNOWN";
+  if (code === "balance_insufficient") return "INSUFFICIENT_FUNDS";
+  return "FAILED";
+}
+
+export function payoutRoute(input: { country: string; transfersActive: boolean; payoutsEnabled: boolean; detailsSubmitted: boolean }): string {
+  if (input.country !== "CA") return "UNSUPPORTED_DESTINATION";
+  if (!input.detailsSubmitted || !input.transfersActive || !input.payoutsEnabled) return "VERIFICATION_REQUIRED";
+  return "ELIGIBLE_CANADIAN_BANK";
+}

@@ -61,7 +61,7 @@ export async function handleMarketplaceEvent(payload: unknown): Promise<Response
         if (!r.ok) throw new Error("SETTLEMENT_FAILED");
         outcome = r.outcome;
       }
-    } else if (["charge.refunded", "charge.dispute.created"].includes(event.type)) {
+    } else if (["charge.refunded", "charge.dispute.created", "charge.dispute.updated", "charge.dispute.closed"].includes(event.type)) {
       if (event.account) throw new Error("CONNECTED_CHARGE_NOT_MARKETPLACE");
       const chargeId = event.type === "charge.refunded" ? obj["id"] : obj["charge"];
       const { error } = await db.rpc("hold_stripe_booking_charge", { _charge_id: chargeId, _reason: event.type });
@@ -84,7 +84,11 @@ export async function handleMarketplaceEvent(payload: unknown): Promise<Response
       }
     } else if (event.type.startsWith("payout.") && event.account) {
       // A payout aggregates a connected account's funds, not necessarily one booking.
-      const { error } = await db.from("stripe_connected_payouts").upsert({ account_id: event.account, payout_id: obj["id"], status: obj["status"], amount_minor: obj["amount"], currency: obj["currency"], failure_code: obj["failure_code"] ?? null }, { onConflict: "account_id,payout_id" });
+      // Read current Stripe state, so delayed events cannot overwrite paid/failed
+      // payouts with an older pending state.
+      const payout = await stripeRead(`payouts/${encodeURIComponent(String(obj["id"] ?? ""))}`, event.account);
+      if (payout["livemode"] !== true) throw new Error("INVALID_PAYOUT");
+      const { error } = await db.from("stripe_connected_payouts").upsert({ account_id: event.account, payout_id: payout["id"], status: payout["status"], amount_minor: payout["amount"], currency: payout["currency"], failure_code: payout["failure_code"] ?? null, updated_at: new Date().toISOString() }, { onConflict: "account_id,payout_id" });
       if (error) throw new Error("PAYOUT_SAVE_FAILED");
       outcome = "CONNECTED_PAYOUT_RECORDED";
     } else if (event.type === "account.updated" && event.account) {

@@ -38,7 +38,7 @@ CREATE TABLE public.stripe_booking_releases (
   commission_rate numeric NOT NULL,
   currency text NOT NULL CHECK (currency IN ('usd','cad')),
   idempotency_key text NOT NULL UNIQUE,
-  status text NOT NULL DEFAULT 'PENDING_VERIFICATION' CHECK (status IN ('PENDING_VERIFICATION','ELIGIBLE','SUBMITTING','UNKNOWN','TRANSFERRED','HELD','REVERSED')),
+  status text NOT NULL DEFAULT 'PENDING_VERIFICATION' CHECK (status IN ('PENDING_VERIFICATION','ELIGIBLE','SUBMITTING','UNKNOWN','FAILED','INSUFFICIENT_FUNDS','TRANSFERRED','HELD','REVERSED')),
   transfer_id text UNIQUE,
   last_error text,
   created_at timestamptz NOT NULL DEFAULT now(),

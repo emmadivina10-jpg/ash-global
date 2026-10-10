@@ -107,6 +107,14 @@ Stripe provider-release safeguards are staged in preview, not live: service comp
 
 ## Security
 
+### Preview provider release readiness
+- Live transfer and provider-account creation are disabled both at the API helper and execution-control layers. A database flag alone cannot enable them.
+- Rejected transfers distinguish `FAILED`, `INSUFFICIENT_FUNDS`, and ambiguous `UNKNOWN`. Ambiguous attempts only reconcile using the existing transfer group; no fresh payment identity is issued.
+- `getBookingStripeStages` authorizes booking parties and returns payment, saved commission, payable, actual transfer and account-level bank payout records separately. Account-level payouts are not proof that a particular booking reached a bank.
+- Connected payout events retrieve current payout state from the correct connected account, avoiding stale event status regression. Disputes and refunds hold releases for review; no automatic refund, reversal, balance correction or money movement occurs.
+- Manual Stripe work: bind the existing ASH Marketplace address to TD without editing Replit, confirm its signing secret belongs to TD, and subscribe to transfer/dispute events plus connected-account payout/account events. Existing credentials are reused; replacement signing secret is needed only if the current destination belongs to a different account.
+- Shared schema application, live provider onboarding, cross-border routes and transfer activation each require separate approval. Canadian bank eligibility remains subject to the provider's actual Stripe capability, verification and bank-currency configuration.
+
 - RLS enforced on every table; anonymous visitors can read only curated public
   data (storefronts, payment links, public listings), never user or financial data.
 - Roles in a separate table + security-definer checks prevent privilege escalation.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkoutMatches, providerMinorShare, releaseBlocker, transferKey } from "../src/lib/stripe-release-policy";
+import { checkoutMatches, providerMinorShare, releaseBlocker, transferKey, transferFailure, payoutRoute, LIVE_PROVIDER_TRANSFERS_ENABLED, LIVE_PROVIDER_ONBOARDING_ENABLED } from "../src/lib/stripe-release-policy";
 
 const eligible = { paid: true, verified: true, completed: true, held: false, destinationCountry: "CA", transfersActive: true, payoutsEnabled: true, currency: "cad" };
 const checkout = { expectedSession: "cs_live_one", actualSession: "cs_live_one", expectedReference: "BKG-one", actualReference: "BKG-one", expectedMinor: 10000, actualMinor: 10000, expectedCurrency: "USD", actualCurrency: "usd", live: true, paid: true };
@@ -25,4 +25,14 @@ describe("verified provider releases", () => {
   it("rejects sandbox payments", () => expect(checkoutMatches({ ...checkout, live: false })).toBe(false));
   it("rejects unpaid sessions", () => expect(checkoutMatches({ ...checkout, paid: false })).toBe(false));
   it("rejects Flights references on Marketplace", () => expect(checkoutMatches({ ...checkout, actualReference: "FLT-one" })).toBe(false));
+  it("keeps live transfers disabled", () => expect(LIVE_PROVIDER_TRANSFERS_ENABLED).toBe(false));
+  it("keeps live account creation disabled", () => expect(LIVE_PROVIDER_ONBOARDING_ENABLED).toBe(false));
+  it("records insufficient funds separately from success", () => expect(transferFailure(400, "balance_insufficient")).toBe("INSUFFICIENT_FUNDS"));
+  it("requires reconciliation on a lost response", () => expect(transferFailure(0, "")).toBe("UNKNOWN"));
+  it("requires reconciliation on a server error", () => expect(transferFailure(503, "")).toBe("UNKNOWN"));
+  it("does not automatically retry rate-limited transfers", () => expect(transferFailure(429, "rate_limit")).toBe("UNKNOWN"));
+  it("records a rejected destination as failed", () => expect(transferFailure(400, "account_invalid")).toBe("FAILED"));
+  it("requires all Canadian onboarding flags", () => expect(payoutRoute({country: "CA", detailsSubmitted: true, transfersActive: false, payoutsEnabled: true})).toBe("VERIFICATION_REQUIRED"));
+  it("does not infer global payout support from readiness flags", () => expect(payoutRoute({country: "NG", detailsSubmitted: true, transfersActive: true, payoutsEnabled: true})).toBe("UNSUPPORTED_DESTINATION"));
+  it("recognizes a ready Canadian connected account", () => expect(payoutRoute({country: "CA", detailsSubmitted: true, transfersActive: true, payoutsEnabled: true})).toBe("ELIGIBLE_CANADIAN_BANK"));
 });
