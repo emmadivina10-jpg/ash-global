@@ -64,6 +64,13 @@
       "when": 1791655023090,
       "tag": "0008_booking_party_locations",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791659282259,
+      "tag": "0009_fix_booking_payment_confirmation",
+      "breakpoints": true
     }
   ]
 }
