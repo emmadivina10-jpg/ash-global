@@ -632,40 +632,6 @@ function ProviderBookingItem({
   );
 }
 
-/** Customer-only: the private code that releases the provider's earnings. */
-function CustomerVerificationCode({ bookingId }: { bookingId: string }) {
-  const { lang } = useI18n();
-  const fr = lang === "fr";
-  const [code, setCode] = useState<string | null>(null);
-  useEffect(() => {
-    let alive = true;
-    void supabase
-      .from("booking_verification_codes")
-      .select("code, used_at")
-      .eq("booking_id", bookingId)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (alive) setCode(data && !data.used_at ? data.code : null);
-      });
-    return () => {
-      alive = false;
-    };
-  }, [bookingId]);
-  if (!code) return null;
-  return (
-    <div className="mt-3 rounded-xl border border-primary/30 bg-primary/5 p-3">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">
-        {fr ? "Code de vérification du service" : "Service verification code"}
-      </p>
-      <p className="mt-1 font-mono text-xl font-extrabold tracking-widest text-foreground">{code}</p>
-      <p className="mt-1 text-xs text-muted-foreground">
-        {fr
-          ? "Donnez ce code au prestataire seulement une fois le service rendu. Il autorise le traitement de sa part payable."
-          : "Give this code to the provider only after the service is done. It authorizes processing of their payable share."}
-      </p>
-    </div>
-  );
-}
 
 /** Provider-only: never shows the code, only lets them enter it. */
 function VerifyServiceForm({ bookingId }: { bookingId: string }) {
