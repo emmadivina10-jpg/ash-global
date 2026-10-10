@@ -325,6 +325,18 @@ export const markSupportTicketRead = createServerFn({ method: "POST" })
       .update({ admin_read_at: now })
       .eq("id", data.ticketId);
     if (error) throw error;
+    // Clear only this employee's ticket-specific alerts, never another employee's
+    // or a shared department alert. Old generic links cannot identify a ticket.
+    if (actor.staffId) {
+      const { error: notificationError } = await db
+        .from("staff_notifications")
+        .update({ read_at: now })
+        .eq("staff_id", actor.staffId)
+        .eq("link", `/console/support?ticket=${encodeURIComponent(data.ticketId)}`)
+        .in("type", ["TICKET_ASSIGNED", "TICKET_ESCALATED"])
+        .is("read_at", null);
+      if (notificationError) throw notificationError;
+    }
     return { ok: true as const };
   });
 

@@ -196,13 +196,13 @@ export const assignTicket = createServerFn({ method: "POST" })
       await notifyStaff(data.staffId, {
         type: "TICKET_ASSIGNED",
         title: "A ticket was assigned to you",
-        link: "/console/support",
+        link: `/console/support?ticket=${encodeURIComponent(data.ticketId)}`,
       });
     } else if (data.department) {
       await notifyDepartment(data.department, {
         type: "TICKET_ASSIGNED",
         title: "A ticket was assigned to your department",
-        link: "/console/support",
+        link: `/console/support?ticket=${encodeURIComponent(data.ticketId)}`,
       });
     }
     return { ok: true as const };
@@ -239,7 +239,7 @@ export const escalateTicket = createServerFn({ method: "POST" })
       type: "TICKET_ESCALATED",
       title: "A ticket was escalated to your department",
       ...(data.note ? { body: data.note } : {}),
-      link: "/console/support",
+      link: `/console/support?ticket=${encodeURIComponent(data.ticketId)}`,
     });
     return { ok: true as const };
   });

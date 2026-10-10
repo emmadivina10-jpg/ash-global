@@ -35,6 +35,9 @@ import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/console/support")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    ticket: typeof search.ticket === "string" ? search.ticket : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Support Conversations | ASH Glo Console" },
@@ -68,6 +71,7 @@ function StatTile({ label, value, tone }: { label: string; value: number; tone?:
 }
 
 function SupportInboxPage() {
+  const { ticket: linkedTicket } = Route.useSearch();
   const queryClient = useQueryClient();
   const list = useServerFn(getConsoleTickets);
   const logs = useServerFn(getEmailDeliveryLogs);
@@ -76,8 +80,11 @@ function SupportInboxPage() {
   const priority = useServerFn(setTicketPriority);
   const markRead = useServerFn(markSupportTicketRead);
 
-  const [filter, setFilter] = useState<Filter>("AWAITING");
-  const [selected, setSelected] = useState<string | null>(null);
+  const [filter, setFilter] = useState<Filter>(linkedTicket ? "ALL" : "AWAITING");
+  const [selected, setSelected] = useState<string | null>(linkedTicket ?? null);
+  useEffect(() => {
+    if (linkedTicket) { setSelected(linkedTicket); setFilter("ALL"); }
+  }, [linkedTicket]);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [search, setSearch] = useState("");
   const transcript = useRef<HTMLDivElement>(null);
