@@ -180,11 +180,13 @@ function WithdrawPage() {
   const momoAvailable =
     mobileMoneyEnabled;
 
-  // Bank payouts are a coming-soon feature: Mobile Money is the only live
-  // destination anywhere in ASH today.
+  // Card/bank payouts run through the member's connected Stripe payout
+  // account. The server rejects the request when that account is not ready,
+  // so the option is always visible and the error explains the next step.
   const methodOptions: Method[] = [
     "MTN_MOMO",
     "ORANGE_MONEY",
+    "STRIPE_BANK",
   ];
 
   useEffect(() => {
