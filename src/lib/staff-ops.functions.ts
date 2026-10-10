@@ -3,7 +3,15 @@ import { staffNotificationScope } from "./support-state";
 
 export const EMPLOYEE_TERMS_VERSION = "2026-10-05";
 
-const TICKET_STATUSES = ["NEW", "OPEN", "IN_PROGRESS", "WAITING", "ESCALATED", "RESOLVED", "CLOSED"] as const;
+const TICKET_STATUSES = [
+  "NEW",
+  "OPEN",
+  "IN_PROGRESS",
+  "WAITING",
+  "ESCALATED",
+  "RESOLVED",
+  "CLOSED",
+] as const;
 
 async function actor() {
   const { requireConsole } = await import("./console.server");
@@ -15,21 +23,44 @@ async function db() {
   return adminClient();
 }
 
-async function notifyDepartment(department: string, n: { type: string; title: string; body?: string; link?: string }) {
+async function notifyDepartment(
+  department: string,
+  n: { type: string; title: string; body?: string; link?: string },
+) {
   const supabase = await db();
-  await supabase.from("staff_notifications").insert({ department, type: n.type, title: n.title, body: n.body ?? null, link: n.link ?? null });
+  await supabase
+    .from("staff_notifications")
+    .insert({
+      department,
+      type: n.type,
+      title: n.title,
+      body: n.body ?? null,
+      link: n.link ?? null,
+    });
 }
 
-async function notifyStaff(staffId: string, n: { type: string; title: string; body?: string; link?: string }) {
+async function notifyStaff(
+  staffId: string,
+  n: { type: string; title: string; body?: string; link?: string },
+) {
   const supabase = await db();
-  await supabase.from("staff_notifications").insert({ staff_id: staffId, type: n.type, title: n.title, body: n.body ?? null, link: n.link ?? null });
+  await supabase
+    .from("staff_notifications")
+    .insert({
+      staff_id: staffId,
+      type: n.type,
+      title: n.title,
+      body: n.body ?? null,
+      link: n.link ?? null,
+    });
 }
 
 // ---------- Employee terms ----------
 
 export const getEmployeeTermsStatus = createServerFn({ method: "GET" }).handler(async () => {
   const a = await actor();
-  if (!a.staffId) return { required: false as const, accepted: true as const, version: EMPLOYEE_TERMS_VERSION };
+  if (!a.staffId)
+    return { required: false as const, accepted: true as const, version: EMPLOYEE_TERMS_VERSION };
   const supabase = await db();
   const { data } = await supabase
     .from("employee_terms_acceptance")
@@ -46,7 +77,10 @@ export const acceptEmployeeTerms = createServerFn({ method: "POST" }).handler(as
   const supabase = await db();
   const { error } = await supabase
     .from("employee_terms_acceptance")
-    .upsert({ staff_id: a.staffId, terms_version: EMPLOYEE_TERMS_VERSION }, { onConflict: "staff_id,terms_version" });
+    .upsert(
+      { staff_id: a.staffId, terms_version: EMPLOYEE_TERMS_VERSION },
+      { onConflict: "staff_id,terms_version" },
+    );
   if (error) throw error;
   return { ok: true as const };
 });
@@ -79,7 +113,11 @@ export const markStaffNotificationRead = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const a = await actor();
     const supabase = await db();
-    let q = supabase.from("staff_notifications").update({ read_at: new Date().toISOString() }).eq("id", data.id).is("read_at", null);
+    let q = supabase
+      .from("staff_notifications")
+      .update({ read_at: new Date().toISOString() })
+      .eq("id", data.id)
+      .is("read_at", null);
     const scope = staffNotificationScope(a);
     if (scope) q = q.or(scope);
     const { error } = await q;
@@ -87,16 +125,21 @@ export const markStaffNotificationRead = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
-export const markAllStaffNotificationsRead = createServerFn({ method: "POST" }).handler(async () => {
-  const a = await actor();
-  const supabase = await db();
-  let q = supabase.from("staff_notifications").update({ read_at: new Date().toISOString() }).is("read_at", null);
-  const scope = staffNotificationScope(a);
-  if (scope) q = q.or(scope);
-  const { error } = await q;
-  if (error) throw error;
-  return { ok: true as const };
-});
+export const markAllStaffNotificationsRead = createServerFn({ method: "POST" }).handler(
+  async () => {
+    const a = await actor();
+    const supabase = await db();
+    let q = supabase
+      .from("staff_notifications")
+      .update({ read_at: new Date().toISOString() })
+      .is("read_at", null);
+    const scope = staffNotificationScope(a);
+    if (scope) q = q.or(scope);
+    const { error } = await q;
+    if (error) throw error;
+    return { ok: true as const };
+  },
+);
 
 // ---------- Customer ticketing ----------
 
@@ -119,27 +162,45 @@ export const getTicketBoard = createServerFn({ method: "GET" }).handler(async ()
     .from("staff_accounts")
     .select("id, username, employee_name, department")
     .eq("is_active", true);
-  return { tickets: tickets ?? [], staff: staff ?? [], actor: { department: a.department, staffId: a.staffId, superAdmin: a.superAdmin } };
+  return {
+    tickets: tickets ?? [],
+    staff: staff ?? [],
+    actor: { department: a.department, staffId: a.staffId, superAdmin: a.superAdmin },
+  };
 });
 
 export const assignTicket = createServerFn({ method: "POST" })
-  .inputValidator((d: { ticketId: string; staffId?: string | null; department?: string | null }) => ({
-    ticketId: String(d?.ticketId ?? ""),
-    staffId: d?.staffId ? String(d.staffId) : null,
-    department: d?.department ? String(d.department) : null,
-  }))
+  .inputValidator(
+    (d: { ticketId: string; staffId?: string | null; department?: string | null }) => ({
+      ticketId: String(d?.ticketId ?? ""),
+      staffId: d?.staffId ? String(d.staffId) : null,
+      department: d?.department ? String(d.department) : null,
+    }),
+  )
   .handler(async ({ data }) => {
     await actor();
     const supabase = await db();
     const { error } = await supabase
       .from("support_tickets")
-      .update({ assigned_staff_id: data.staffId, assigned_department: data.department, status: "OPEN" })
+      .update({
+        assigned_staff_id: data.staffId,
+        assigned_department: data.department,
+        status: "OPEN",
+      })
       .eq("id", data.ticketId);
     if (error) throw error;
     if (data.staffId) {
-      await notifyStaff(data.staffId, { type: "TICKET_ASSIGNED", title: "A ticket was assigned to you", link: "/console/support" });
+      await notifyStaff(data.staffId, {
+        type: "TICKET_ASSIGNED",
+        title: "A ticket was assigned to you",
+        link: "/console/support",
+      });
     } else if (data.department) {
-      await notifyDepartment(data.department, { type: "TICKET_ASSIGNED", title: "A ticket was assigned to your department", link: "/console/support" });
+      await notifyDepartment(data.department, {
+        type: "TICKET_ASSIGNED",
+        title: "A ticket was assigned to your department",
+        link: "/console/support",
+      });
     }
     return { ok: true as const };
   });
@@ -153,7 +214,10 @@ export const escalateTicket = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const a = await actor();
     const supabase = await db();
-    const { data: departments } = await supabase.from("staff_accounts").select("department").eq("is_active", true);
+    const { data: departments } = await supabase
+      .from("staff_accounts")
+      .select("department")
+      .eq("is_active", true);
     const valid = new Set((departments ?? []).map((r) => r.department));
     valid.add("SUPER_ADMIN");
     if (!valid.has(data.department)) throw new Error("Unknown department");
@@ -178,10 +242,14 @@ export const escalateTicket = createServerFn({ method: "POST" })
   });
 
 export const setTicketBoardStatus = createServerFn({ method: "POST" })
-  .inputValidator((d: { ticketId: string; status: string }) => ({ ticketId: String(d?.ticketId ?? ""), status: String(d?.status ?? "").toUpperCase() }))
+  .inputValidator((d: { ticketId: string; status: string }) => ({
+    ticketId: String(d?.ticketId ?? ""),
+    status: String(d?.status ?? "").toUpperCase(),
+  }))
   .handler(async ({ data }) => {
     await actor();
-    if (!TICKET_STATUSES.includes(data.status as (typeof TICKET_STATUSES)[number])) throw new Error("Invalid status");
+    if (!TICKET_STATUSES.includes(data.status as (typeof TICKET_STATUSES)[number]))
+      throw new Error("Invalid status");
     const supabase = await db();
     // Map extended statuses onto the existing ticket status column values where possible.
     const existing = ["OPEN", "PENDING", "RESOLVED"].includes(data.status)
@@ -193,7 +261,10 @@ export const setTicketBoardStatus = createServerFn({ method: "POST" })
           : data.status === "ESCALATED"
             ? "ESCALATED"
             : "OPEN";
-    const { error } = await supabase.from("support_tickets").update({ status: existing }).eq("id", data.ticketId);
+    const { error } = await supabase
+      .from("support_tickets")
+      .update({ status: existing })
+      .eq("id", data.ticketId);
     if (error) throw error;
     return { ok: true as const };
   });
@@ -213,14 +284,24 @@ export const getTicketNotes = createServerFn({ method: "POST" })
   });
 
 export const addTicketNote = createServerFn({ method: "POST" })
-  .inputValidator((d: { ticketId: string; body: string }) => ({ ticketId: String(d?.ticketId ?? ""), body: String(d?.body ?? "").trim().slice(0, 2000) }))
+  .inputValidator((d: { ticketId: string; body: string }) => ({
+    ticketId: String(d?.ticketId ?? ""),
+    body: String(d?.body ?? "")
+      .trim()
+      .slice(0, 2000),
+  }))
   .handler(async ({ data }) => {
     const a = await actor();
     if (!data.body) throw new Error("Note is empty");
     const supabase = await db();
     const { error } = await supabase
       .from("ticket_internal_notes")
-      .insert({ ticket_id: data.ticketId, staff_id: a.staffId, staff_name: a.name, body: data.body });
+      .insert({
+        ticket_id: data.ticketId,
+        staff_id: a.staffId,
+        staff_name: a.name,
+        body: data.body,
+      });
     if (error) throw error;
     return { ok: true as const };
   });
@@ -247,7 +328,12 @@ export const getStaffInbox = createServerFn({ method: "GET" }).handler(async () 
 });
 
 export const sendDirectMessage = createServerFn({ method: "POST" })
-  .inputValidator((d: { toStaffId: string; body: string }) => ({ toStaffId: String(d?.toStaffId ?? ""), body: String(d?.body ?? "").trim().slice(0, 2000) }))
+  .inputValidator((d: { toStaffId: string; body: string }) => ({
+    toStaffId: String(d?.toStaffId ?? ""),
+    body: String(d?.body ?? "")
+      .trim()
+      .slice(0, 2000),
+  }))
   .handler(async ({ data }) => {
     const a = await actor();
     if (!a.staffId) throw new Error("Only employee accounts can send direct messages");
@@ -255,9 +341,18 @@ export const sendDirectMessage = createServerFn({ method: "POST" })
     const supabase = await db();
     const { error } = await supabase
       .from("staff_direct_messages")
-      .insert({ from_staff_id: a.staffId, from_name: a.name, to_staff_id: data.toStaffId, body: data.body });
+      .insert({
+        from_staff_id: a.staffId,
+        from_name: a.name,
+        to_staff_id: data.toStaffId,
+        body: data.body,
+      });
     if (error) throw error;
-    await notifyStaff(data.toStaffId, { type: "DIRECT_MESSAGE", title: `New message from ${a.name}`, link: "/console" });
+    await notifyStaff(data.toStaffId, {
+      type: "DIRECT_MESSAGE",
+      title: `New message from ${a.name}`,
+      link: "/console",
+    });
     return { ok: true as const };
   });
 
@@ -279,25 +374,42 @@ export const markDirectMessagesRead = createServerFn({ method: "POST" })
 // ---------- ASH Intelligence (data-driven, department-scoped) ----------
 
 export const askAshIntelligence = createServerFn({ method: "POST" })
-  .inputValidator((d: { question: string }) => ({ question: String(d?.question ?? "").trim().slice(0, 500) }))
+  .inputValidator((d: { question: string }) => ({
+    question: String(d?.question ?? "")
+      .trim()
+      .slice(0, 500),
+  }))
   .handler(async ({ data }) => {
     const a = await actor();
     const supabase = await db();
     const q = data.question.toLowerCase();
 
     // Gather real figures
-    const [{ count: openTickets }, { count: escalated }, { count: resolvedToday }, { data: tasks }, { data: accounts }] =
-      await Promise.all([
-        supabase.from("support_tickets").select("id", { count: "exact", head: true }).in("status", ["OPEN", "PENDING", "ESCALATED"]),
-        supabase.from("support_tickets").select("id", { count: "exact", head: true }).eq("status", "ESCALATED"),
-        supabase
-          .from("support_tickets")
-          .select("id", { count: "exact", head: true })
-          .eq("status", "RESOLVED")
-          .gte("updated_at", new Date(Date.now() - 86400000).toISOString()),
-        supabase.from("department_tasks").select("department, status"),
-        a.superAdmin ? supabase.from("staff_accounts").select("employee_name, department").eq("is_active", true) : Promise.resolve({ data: null }),
-      ]);
+    const [
+      { count: openTickets },
+      { count: escalated },
+      { count: resolvedToday },
+      { data: tasks },
+      { data: accounts },
+    ] = await Promise.all([
+      supabase
+        .from("support_tickets")
+        .select("id", { count: "exact", head: true })
+        .in("status", ["OPEN", "PENDING", "ESCALATED"]),
+      supabase
+        .from("support_tickets")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "ESCALATED"),
+      supabase
+        .from("support_tickets")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "RESOLVED")
+        .gte("updated_at", new Date(Date.now() - 86400000).toISOString()),
+      supabase.from("department_tasks").select("department, status"),
+      a.superAdmin
+        ? supabase.from("staff_accounts").select("employee_name, department").eq("is_active", true)
+        : Promise.resolve({ data: null }),
+    ]);
 
     const taskRows = tasks ?? [];
     const pendingTasks = taskRows.filter((t) => t.status !== "DONE").length;
@@ -330,11 +442,15 @@ export const askAshIntelligence = createServerFn({ method: "POST" })
     } else if (q.includes("ticket")) {
       answer = `${openTickets ?? 0} tickets are open, ${escalated ?? 0} escalated, ${resolvedToday ?? 0} resolved in the last 24 hours.`;
     } else if (q.includes("department") || q.includes("compare")) {
-      if (!a.superAdmin) return { answer: "That question is outside your department's authorization." };
-      const lines = [...byDept.entries()].map(([d, s]) => `${d}: ${s.pending} pending / ${s.done} done`);
+      if (!a.superAdmin)
+        return { answer: "That question is outside your department's authorization." };
+      const lines = [...byDept.entries()].map(
+        ([d, s]) => `${d}: ${s.pending} pending / ${s.done} done`,
+      );
       answer = lines.length ? `Department workload — ${lines.join("; ")}.` : unavailable;
     } else if (q.includes("employee") || q.includes("who needs")) {
-      if (!a.superAdmin) return { answer: "That question is outside your department's authorization." };
+      if (!a.superAdmin)
+        return { answer: "That question is outside your department's authorization." };
       answer = accounts?.length
         ? `${accounts.length} active employee seats across ${new Set(accounts.map((r) => r.department)).size} departments. Per-person performance figures require recorded activity; where none exists the dashboards show "Data not available".`
         : unavailable;
@@ -349,7 +465,10 @@ export const askAshIntelligence = createServerFn({ method: "POST" })
 
 const AVATAR_BUCKET = "staff-avatars";
 
-async function signAvatar(supabase: Awaited<ReturnType<typeof db>>, path: string | null): Promise<string | null> {
+async function signAvatar(
+  supabase: Awaited<ReturnType<typeof db>>,
+  path: string | null,
+): Promise<string | null> {
   if (!path) return null;
   const { data } = await supabase.storage.from(AVATAR_BUCKET).createSignedUrl(path, 60 * 60);
   return data?.signedUrl ?? null;
@@ -361,7 +480,9 @@ export const getMyStaffProfile = createServerFn({ method: "GET" }).handler(async
   const supabase = await db();
   const { data, error } = await supabase
     .from("staff_accounts")
-    .select("id, username, employee_name, position, employee_id, department, phone, email, avatar_url")
+    .select(
+      "id, username, employee_name, position, employee_id, department, phone, email, avatar_url",
+    )
     .eq("id", a.staffId)
     .single();
   if (error) throw error;
@@ -370,8 +491,12 @@ export const getMyStaffProfile = createServerFn({ method: "GET" }).handler(async
 
 export const updateMyStaffProfile = createServerFn({ method: "POST" })
   .inputValidator((d: { employeeName?: string; phone?: string }) => ({
-    employeeName: String(d?.employeeName ?? "").trim().slice(0, 120),
-    phone: String(d?.phone ?? "").trim().slice(0, 40),
+    employeeName: String(d?.employeeName ?? "")
+      .trim()
+      .slice(0, 120),
+    phone: String(d?.phone ?? "")
+      .trim()
+      .slice(0, 40),
   }))
   .handler(async ({ data }) => {
     const a = await actor();
@@ -380,7 +505,11 @@ export const updateMyStaffProfile = createServerFn({ method: "POST" })
     const supabase = await db();
     const { error } = await supabase
       .from("staff_accounts")
-      .update({ employee_name: data.employeeName, phone: data.phone || null, updated_at: new Date().toISOString() })
+      .update({
+        employee_name: data.employeeName,
+        phone: data.phone || null,
+        updated_at: new Date().toISOString(),
+      })
       .eq("id", a.staffId);
     if (error) throw error;
     return { ok: true as const };
@@ -400,7 +529,10 @@ export const uploadMyStaffAvatar = createServerFn({ method: "POST" })
     const supabase = await db();
     const { error: upErr } = await supabase.storage
       .from(AVATAR_BUCKET)
-      .upload(path, bytes, { contentType: `image/${match[1] === "jpg" ? "jpeg" : match[1]}`, upsert: true });
+      .upload(path, bytes, {
+        contentType: `image/${match[1] === "jpg" ? "jpeg" : match[1]}`,
+        upsert: true,
+      });
     if (upErr) throw upErr;
     const { error } = await supabase
       .from("staff_accounts")
