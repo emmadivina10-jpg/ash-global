@@ -29,7 +29,9 @@ const SWIPE_THRESHOLD = 55;
 export function MobileOnboarding() {
   const { tx } = useI18n();
   const [step, setStep] = useState(0);
+  const [dragX, setDragX] = useState(0);
   const startX = useRef(0);
+  const dragXRef = useRef(0);
   const dragging = useRef(false);
   const last = step === SLIDES.length - 1;
 
@@ -39,14 +41,18 @@ export function MobileOnboarding() {
   };
   const onTouchMove = (e: React.TouchEvent) => {
     if (!dragging.current) return;
-    setDragX(e.touches[0].clientX - startX.current);
+    const x = e.touches[0].clientX - startX.current;
+    dragXRef.current = x;
+    setDragX(x);
   };
   const onTouchEnd = () => {
+    const x = dragXRef.current;
     if (dragging.current) {
-      if (dragX <= -SWIPE_THRESHOLD && !last) setStep(step + 1);
-      else if (dragX >= SWIPE_THRESHOLD && step > 0) setStep(step - 1);
+      if (x <= -SWIPE_THRESHOLD && !last) setStep(step + 1);
+      else if (x >= SWIPE_THRESHOLD && step > 0) setStep(step - 1);
     }
     dragging.current = false;
+    dragXRef.current = 0;
     setDragX(0);
   };
 
