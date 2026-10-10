@@ -1152,6 +1152,18 @@ a {
   .member-messages .messages-inbox { min-height: 76vh; max-height: 76vh; }
   .member-messages > .grid > .member-chat-surface { height: 76vh; }
 }
+@media (min-width: 1024px) {
+  .app-shell-scroll:has(.member-messages) { padding: 0; }
+  .member-messages { max-width: none; }
+  .member-messages > .grid { border-radius: 0; }
+  .member-messages .messages-inbox {
+    min-height: calc(100dvh - env(safe-area-inset-top) - 2px);
+    max-height: calc(100dvh - env(safe-area-inset-top) - 2px);
+  }
+  .member-messages > .grid > .member-chat-surface {
+    height: calc(100dvh - env(safe-area-inset-top) - 2px);
+  }
+}
 
 .member-icon-green { stop-color: var(--color-chat-emerald); }
 .member-roomy-tab .text-sm { font-size: 1rem; line-height: 1.5; }

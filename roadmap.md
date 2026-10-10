@@ -1,5 +1,10 @@
 # Roadmap
 
+## Desktop Messages and Flights
+- [ ] Extend Messages to the right and bottom edges of the desktop content area, preserving phone/tablet layouts
+- [ ] Restore Flights in desktop navigation and verify its destination
+- [ ] Check desktop layout, overflow and preview errors without publishing
+
 ## Final app alignment and publicity report
 - [ ] Restore profile-first Menu icon with bottom-right three-line badge
 - [ ] Fix browser message composer focus jump

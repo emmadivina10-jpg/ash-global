@@ -83,6 +83,7 @@ const MOBILE_NAV: NavItem[] = [
 const DESKTOP_NAV: NavItem[] = [
   { to: "/services", key: "nav.services" as TKey, icon: Store, tour: "market" },
   { to: "/feed", en: "Feed", fr: "Fil", icon: Flame, tour: "feed" },
+  { to: "/flights", en: "Flights", fr: "Vols", icon: Plane },
   { to: "/search", key: "nav.search" as TKey, label: "Search", icon: Search, tour: "search" },
   { to: "/campus", en: "Learn", fr: "Apprendre", label: "Learn", icon: GraduationCap },
   { to: "/create", key: "nav.create" as TKey, label: "Create", icon: PlusCircle, tour: "create" },
