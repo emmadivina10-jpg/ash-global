@@ -1,5 +1,11 @@
 # Roadmap
 
+## Live service-code rejection (Oct 10, 19:47)
+- [x] Diagnose published RPC error 23514: transactions_type_check excluded all four booking trigger types
+- [x] Obtain explicit approval and apply narrow constraint repair only; no financial rows changed, codes consumed or transfers sent
+- [x] Reproduce rejection in isolated PostgreSQL and pass 17 repair/verification tests; confirm live constraint and clean preview build
+- [ ] Provider retry with customer code — pending provider action; real service completion was not performed on their behalf
+
 ## Booking history and language cleanup (Oct 10)
 - [x] Add personal archive, restore and permanent history removal without changing bookings or financial records; additive preferences applied to shared backend
 - [x] Make Verify Customer open Received bookings and the selected code form
