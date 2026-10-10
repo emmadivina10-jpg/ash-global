@@ -398,14 +398,9 @@ function RegisterPage() {
           </DialogContent>
         </Dialog>
 
-        {step === 1 ? (
-          <Button type="submit" className="auth-cta group h-12 w-full rounded-xl text-base">
-            {lang === "fr" ? "Continuer" : "Continue"}
-            <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
-          </Button>
-        ) : (
+        {step === 3 ? (
           <div className="flex gap-3">
-            <Button type="button" variant="outline" className="h-12 rounded-xl px-4" onClick={() => setStep(1)} aria-label="Back">
+            <Button type="button" variant="outline" className="h-12 rounded-xl px-4" onClick={() => setStep(2)} aria-label="Back">
               <ArrowLeft className="size-4" aria-hidden />
             </Button>
             <Button type="submit" className="auth-cta h-12 flex-1 rounded-xl text-base" disabled={loading || !agreed}>
@@ -413,6 +408,11 @@ function RegisterPage() {
               {loading ? t("auth.register.submitting") : t("auth.register.submit")}
             </Button>
           </div>
+        ) : (
+          <Button type="submit" className="auth-cta group h-12 w-full rounded-xl text-base">
+            {lang === "fr" ? (step === 1 ? "Continuer" : "Suivant") : step === 1 ? "Continue" : "Next"}
+            <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
+          </Button>
         )}
 
       </form>
@@ -429,15 +429,15 @@ function RegisterPage() {
   );
 }
 
-function StepBar({ step }: { step: 1 | 2 }) {
+function StepBar({ step }: { step: 1 | 2 | 3 }) {
   return (
-    <div className="flex items-center gap-2" aria-label={`Step ${step} of 2`}>
-      {[1, 2].map((n) => (
+    <div className="flex items-center gap-2" aria-label={`Step ${step} of 3`}>
+      {[1, 2, 3].map((n) => (
         <span key={n} className="h-1 flex-1 overflow-hidden rounded-full bg-muted">
           <span className={`block h-full rounded-full bg-primary transition-all duration-500 ${step >= n ? "w-full" : "w-0"}`} />
         </span>
       ))}
-      <span className="ml-1 text-xs font-semibold text-muted-foreground">{step}/2</span>
+      <span className="ml-1 text-xs font-semibold text-muted-foreground">{step}/3</span>
     </div>
   );
 }
