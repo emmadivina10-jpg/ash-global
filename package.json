@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
+    "postinstall": "node scripts/postinstall-entities-shim.mjs",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
@@ -86,6 +87,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.6.0",
+    "entities": "^6",
     "fast-png": "^8.0.0",
     "input-otp": "^1.4.2",
     "jpeg-js": "^0.4.4",
