@@ -9,7 +9,7 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Full-screen post composer stays outside the post scroll pane, against the visible native viewport. Why: nested sticky inputs clip or fall under mobile chrome.
+- Full-screen post composer stays outside the scroll pane against the native viewport. Why: prevent mobile clipping.
 - Inventory uses provider_profiles.id as business_id, inventory_can()/inventory_role_of() RLS and inventory_members; stock changes only through inventory_record_movement's append-only ledger. UI /inventory and inventory.queries.ts. Why: tenant isolation and one stock source.
 
 - Shareholders uses shareholders.functions.ts and append-only service-role records; Finance shares computeFinanceLedger. Source reads use allFinanceRows with stable ordering and fail on errors. Why: one complete financial source, no silent truncation or zeros.
@@ -28,7 +28,7 @@
 
 - Staff console rules (staff identity, cases, chat, boards, console theme) live in src/components/console/AGENTS.md.
 - Staff member metrics/directory share member-insights.functions.ts in the console layout; member-review.server.ts authorizes and audits account review, and per-staff/member AI threads use versioned service-only storage. Why: consistent measurements, no member impersonation, no cross-staff history leaks.
-- Human Support conversations reuse support.functions.ts and the existing ticket/read records; support-state.ts owns notification lifecycle predicates. Why: no duplicate messaging or schema changes; AI-agent chat primitives are outside this human-to-human workflow.
+- Human Support reuses support.functions.ts and ticket/read records; support-state.ts owns notifications; AI chat stays separate. Why: no duplicate messaging or schema.
 - Checkout returns use payment-return.ts's app-owned origin allowlist and booking-specific tracking path; CompassSurface owns the single draggable Map/Wallet launcher; TrackingDock supplies its live map and AshOrb supplies app-wide booking access, with no duplicate launchers. Why: prevent transient-host returns and keep one clear floating control without changing settlement.
 - Booking payment actions use booking-payment-state.ts; Stripe/bank status checks refresh saved booking evidence, while mobile-money checks are serialized and show inline outcomes. Why: pending confirmation must never invite duplicate payment or impersonate verified settlement.
 - Tracking: parties opt in via share_booking_party_location (active bookings, cleared on end); Leaflet/OSM map client-only. Why: works worldwide, no key or address.
@@ -39,3 +39,4 @@
 - Localize interface copy with static dictionaries and explicit tx calls, never DOM rewriting or user-content translation. Why: privacy and stable React state.
 
 - WalletPayoutSetup reuses guarded Stripe Connect; PayoutSetupReminder saves account-scoped opt-out/cadence locally. Why: visible setup, no card collection or restricted payouts.
+- WebsiteAppShowcase stays separate from MobileOnboarding; use only confirmed store links. Why: preserve native entry and honest downloads.

@@ -1,5 +1,10 @@
 # Roadmap
 
+## Website app screenshots (Oct 10)
+- [x] Replace generic website images with supplied Feed, Messages and Flights screenshots; rotate single/paired views with blur/fade, preserving phone onboarding
+- [x] Add truthful app download invitation; browser verified images, paired transitions, controls, no overflow/runtime errors; preview build OK, not published
+- [ ] Connect public App Store/Google Play downloads — blocked: owner has not supplied released store links; current button explains availability and offers web access
+
 ## Welcome and wallet setup (Oct 10)
 - [x] Replace welcome tiles with four individual fading product previews and explicit Stripe/card + mobile-money availability
 - [x] Add visible bank/card payout setup panel and recurring reminder with permanent opt-out; preserve disabled payouts
