@@ -11,7 +11,7 @@ const harness = vi.hoisted(() => ({
   reconcile: vi.fn(),
 }));
 
-vi.mock("@/integrations/supabase/client.server", () => ({
+vi.mock("../src/integrations/supabase/client.server", () => ({
   supabaseAdmin: {
     rpc: harness.rpc,
     from(table: string) {

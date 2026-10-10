@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // Network and database replacements are restricted to this test process.
 const harness = vi.hoisted(() => ({ read: vi.fn(), rpc: vi.fn(), job: {} as Record<string, unknown> }));
 vi.mock("../src/lib/stripe.server", () => ({ stripeRead: harness.read, stripeConnect: { transfer: vi.fn() } }));
-vi.mock("@/integrations/supabase/client.server", () => ({ supabaseAdmin: {
+vi.mock("../src/integrations/supabase/client.server", () => ({ supabaseAdmin: {
   rpc: harness.rpc,
   from: () => { const query = { select: () => query, eq: () => query, maybeSingle: async () => ({ data: harness.job, error: null }) }; return query; },
 } }));
