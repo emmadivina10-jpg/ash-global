@@ -220,7 +220,32 @@ export const syncBookingPayment = createServerFn({ method: "POST" })
 
     // Only the verified Marketplace webhook can confirm a card booking.
     // A Checkout return or API polling result is not a settlement authority.
+    // Card: confirm only from Stripe's own server-side record of this exact Checkout session.
     if (booking.payment_provider === "STRIPE") {
+      const sessionId = booking.provider_transaction_id ?? "";
+      if (!sessionId.startsWith("cs_")) return { ok: true as const, status: "PENDING" as const, bookingStatus: booking.status, error: null };
+      const { stripePay } = await import("./stripe.server");
+      const s = await stripePay.verifySession(sessionId);
+      if (!s.ok) return { ok: false as const, error: s.error ?? "UNVERIFIED", bookingStatus: booking.status };
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: full } = await supabaseAdmin.from("bookings").select("payment_amount, payment_currency").eq("id", booking.id).maybeSingle();
+      const expectedCents = Math.round(Number(full?.payment_amount ?? 0) * 100);
+      const matches = s.reference === booking.payment_reference && s.amountTotal === expectedCents &&
+        (s.currency ?? "").toUpperCase() === String(full?.payment_currency ?? "").toUpperCase();
+      if (s.status === "PAID" && matches) {
+        const { settleCollection } = await import("./payment-settlement.server");
+        const out = await settleCollection({
+          merchantReference: booking.payment_reference, providerReference: s.paymentIntentId ?? sessionId,
+          status: "PAID", source: "STRIPE_API_VERIFIED", detail: { booking_id: booking.id, session_id: sessionId },
+        });
+        if (!out.ok) return { ok: false as const, error: out.error ?? "SETTLEMENT_FAILED", bookingStatus: booking.status };
+        return { ok: true as const, status: "PAID" as const, bookingStatus: "CONFIRMED", error: null };
+      }
+      if (s.status === "PAID" && !matches) return { ok: false as const, error: "PAYMENT_MISMATCH", bookingStatus: booking.status };
+      if (s.status === "CANCELLED") {
+        await supabaseAdmin.rpc("fail_booking_payment", { _payment_reference: booking.payment_reference, _status: "EXPIRED" });
+        return { ok: true as const, status: "EXPIRED" as const, bookingStatus: "PAYMENT_EXPIRED", error: null };
+      }
       return { ok: true as const, status: "PENDING" as const, bookingStatus: booking.status, error: null };
     }
 

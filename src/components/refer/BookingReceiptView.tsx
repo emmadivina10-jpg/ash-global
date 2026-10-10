@@ -16,7 +16,7 @@ export function BookingReceiptView({ r, fr }: { r: BookingReceipt; fr: boolean }
           <Printer className="size-4" /> {fr ? "Imprimer / PDF" : "Print / save PDF"}
         </Button>
       </div>
-      <article className="space-y-4 rounded-3xl border border-border bg-card p-6 text-foreground print:border-0">
+      <article className="ash-statement space-y-4 rounded-3xl border border-border bg-card p-6 text-foreground print:border-0">
         <header className="flex items-start justify-between gap-3">
           <div>
             <p className="font-display text-xl font-extrabold text-primary">ASH Glo</p>
