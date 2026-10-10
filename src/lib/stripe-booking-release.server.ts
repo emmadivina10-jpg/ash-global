@@ -48,6 +48,10 @@ export async function releaseBookingTransfer(bookingId: string): Promise<{ statu
     currency: job.currency,
   });
   if (blocked) return { status: blocked };
+  const charge = await stripeRead(`charges/${encodeURIComponent(job.source_charge_id)}`);
+  if (charge["paid"] !== true || charge["refunded"] === true || charge["disputed"] === true ||
+    Number(charge["amount_refunded"] ?? 0) > 0 || charge["payment_intent"] !== job.payment_intent_id ||
+    charge["currency"] !== job.currency || charge["amount"] !== Number(job.gross_minor)) return { status: "PAYMENT_HELD" };
 
   // The service-only SQL claim repeats eligibility checks and locks the booking
   // and payable. A competing worker cannot submit the same payable twice.

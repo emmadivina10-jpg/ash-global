@@ -149,7 +149,7 @@ BEGIN
   SELECT * INTO b FROM public.bookings WHERE id=_booking_id FOR UPDATE;
   SELECT * INTO r FROM public.stripe_booking_releases WHERE booking_id=_booking_id FOR UPDATE;
   SELECT * INTO c FROM public.stripe_marketplace_controls WHERE id;
-  IF c.transfers_enabled IS NOT TRUE OR r.marketplace_account_id IS DISTINCT FROM c.marketplace_account_id OR r.status<>'ELIGIBLE' OR b.status::text<>'COMPLETED' OR b.verification_status<>'VERIFIED' OR b.paid_at IS NULL THEN RETURN jsonb_build_object('ok',false); END IF;
+  IF b.id IS NULL OR r.booking_id IS NULL OR c.transfers_enabled IS NOT TRUE OR r.marketplace_account_id IS DISTINCT FROM c.marketplace_account_id OR r.status IS DISTINCT FROM 'ELIGIBLE' OR b.status::text IS DISTINCT FROM 'COMPLETED' OR b.verification_status IS DISTINCT FROM 'VERIFIED' OR b.paid_at IS NULL OR NOT EXISTS (SELECT 1 FROM public.booking_verification_codes WHERE booking_id=b.id AND used_at IS NOT NULL) THEN RETURN jsonb_build_object('ok',false); END IF;
   SELECT p.stripe_account_id INTO destination FROM public.provider_profiles pp JOIN public.profiles p ON p.user_id=pp.user_id WHERE pp.id=b.provider_id;
   IF destination IS NULL THEN RETURN jsonb_build_object('ok',false); END IF;
   IF r.destination_account_id IS NOT NULL AND r.destination_account_id<>destination THEN RAISE EXCEPTION 'DESTINATION_CHANGED'; END IF;
@@ -173,12 +173,30 @@ REVOKE ALL ON FUNCTION public.finish_stripe_booking_release(uuid,text,boolean) F
 GRANT EXECUTE ON FUNCTION public.finish_stripe_booking_release(uuid,text,boolean) TO service_role;
 
 CREATE FUNCTION public.hold_stripe_booking_charge(_charge_id text,_reason text) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE booking uuid;
 BEGIN
+  SELECT booking_id INTO booking FROM public.stripe_booking_releases WHERE source_charge_id=_charge_id;
+  IF booking IS NOT NULL THEN PERFORM 1 FROM public.bookings WHERE id=booking FOR UPDATE; END IF;
   -- Persist the hold without reversing balances or initiating a refund.
   UPDATE public.stripe_booking_releases SET status='HELD',last_error=_reason WHERE source_charge_id=_charge_id;
 END $$;
 REVOKE ALL ON FUNCTION public.hold_stripe_booking_charge(text,text) FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.hold_stripe_booking_charge(text,text) TO service_role;
+
+-- Payment and verification evidence cannot be forged through a member UPDATE.
+CREATE FUNCTION public.guard_stripe_booking_evidence() RETURNS trigger LANGUAGE plpgsql SET search_path=public AS $$
+BEGIN
+  IF current_user NOT IN ('postgres','service_role','supabase_admin') AND
+    (NEW.commission_rate IS DISTINCT FROM OLD.commission_rate OR
+     NEW.verification_status IS DISTINCT FROM OLD.verification_status OR
+     NEW.verified_at IS DISTINCT FROM OLD.verified_at OR
+     NEW.provider_transfer_status IS DISTINCT FROM OLD.provider_transfer_status OR
+     NEW.provider_transfer_id IS DISTINCT FROM OLD.provider_transfer_id) THEN
+    RAISE EXCEPTION 'BOOKING_EVIDENCE_SERVER_ONLY';
+  END IF;
+  RETURN NEW;
+END $$;
+CREATE TRIGGER guard_stripe_booking_evidence BEFORE UPDATE ON public.bookings FOR EACH ROW EXECUTE FUNCTION public.guard_stripe_booking_evidence();
 
 -- Account binding, execution activation and any historical repair remain
 -- separate owner-approved actions, never seed data in this migration.
