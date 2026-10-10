@@ -85,6 +85,13 @@
       "when": 1791661217348,
       "tag": "0011_booking_history_visibility_guards",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1791661822663,
+      "tag": "0012_restore_booking_transaction_types",
+      "breakpoints": true
     }
   ]
 }
