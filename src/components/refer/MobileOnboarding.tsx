@@ -29,27 +29,24 @@ const SWIPE_THRESHOLD = 55;
 export function MobileOnboarding() {
   const { tx } = useI18n();
   const [step, setStep] = useState(0);
-  const [dragX, setDragX] = useState(0);
-  const [dragging, setDragging] = useState(false);
   const startX = useRef(0);
+  const dragging = useRef(false);
   const last = step === SLIDES.length - 1;
-
-  const clamp = (n: number) => Math.min(SLIDES.length - 1, Math.max(0, n));
 
   const onTouchStart = (e: React.TouchEvent) => {
     startX.current = e.touches[0].clientX;
-    setDragging(true);
+    dragging.current = true;
   };
   const onTouchMove = (e: React.TouchEvent) => {
-    if (!dragging) return;
+    if (!dragging.current) return;
     setDragX(e.touches[0].clientX - startX.current);
   };
   const onTouchEnd = () => {
-    if (dragging) {
+    if (dragging.current) {
       if (dragX <= -SWIPE_THRESHOLD && !last) setStep(step + 1);
       else if (dragX >= SWIPE_THRESHOLD && step > 0) setStep(step - 1);
     }
-    setDragging(false);
+    dragging.current = false;
     setDragX(0);
   };
 
