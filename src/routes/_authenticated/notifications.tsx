@@ -11,7 +11,7 @@ import {
   Trash2,
   UserPlus,
 } from "lucide-react";
-import { Avatar } from "@/components/refer/AvatarUpload";
+import { NotificationAvatar, NotificationAvatarBadge } from "@/components/refer/NotificationAvatar";
 import { Button } from "@/components/ui/button";
 import { useDeleteNotifications, useMarkNotificationsRead, useNotifications, type AppNotification } from "@/lib/notifications";
 import { notificationLink } from "@/lib/push";
@@ -219,15 +219,15 @@ function NotificationsPage() {
                     <button type="button" onClick={() => open(item)} className="contents">
                     <span className="relative z-0 shrink-0">
                       {item.actor ? (
-                        <Avatar path={item.actor.avatar_url} name={item.actor.name} online={false} className="size-11" />
+                        <NotificationAvatar path={item.actor.avatar_url} name={item.actor.name} className="size-11" />
                       ) : (
-                        <span className="grid size-11 place-items-center rounded-full bg-muted text-muted-foreground">
-                          <Icon className="size-5" aria-hidden />
+                        <span className="relative inline-block size-11">
+                          <span className="grid size-11 place-items-center rounded-full bg-muted text-muted-foreground">
+                            <Icon className="size-5" aria-hidden />
+                          </span>
+                          <NotificationAvatarBadge />
                         </span>
                       )}
-                      <span className="absolute -bottom-0.5 -right-0.5 z-10 grid size-5 place-items-center rounded-full border-2 border-background bg-primary text-primary-foreground">
-                        <Icon className="size-2.5" aria-hidden />
-                      </span>
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="flex items-start justify-between gap-3">

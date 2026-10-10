@@ -67,6 +67,9 @@ export function useNotifications(limit = 30) {
         void queryClient.invalidateQueries({ queryKey: ["wallet"] });
         void queryClient.invalidateQueries({ queryKey: ["profile"] });
         void queryClient.invalidateQueries({ queryKey: ["transactions"] });
+        // Booking changes (paid, confirmed, trip started) arrive as notifications:
+        // refresh every booking screen so the provider sees them instantly.
+        void queryClient.invalidateQueries({ queryKey: ["bookings"] });
       })
       .subscribe();
     return () => {
