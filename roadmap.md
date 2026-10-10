@@ -1,9 +1,10 @@
 # Roadmap
 
 ## Desktop Messages and Flights
-- [ ] Extend Messages to the right and bottom edges of the desktop content area, preserving phone/tablet layouts
-- [ ] Restore Flights in desktop navigation and verify its destination
-- [ ] Check desktop layout, overflow and preview errors without publishing
+- [x] Extend Messages to the right and bottom edges of the desktop content area, preserving phone/tablet layouts
+- [x] Restore Flights in desktop navigation, linking to the existing /flights page
+- [x] Check isolated desktop layout at 1280/1920px: right/bottom edges reached, no overflow/runtime errors, preview build OK; nothing published
+- [ ] Signed-in Messages and Flights interaction check — blocked by the account's terms-consent screen; no legal acceptance recorded on the user's behalf
 
 ## Final app alignment and publicity report
 - [ ] Restore profile-first Menu icon with bottom-right three-line badge
