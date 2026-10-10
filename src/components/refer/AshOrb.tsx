@@ -10,7 +10,7 @@ export function AshOrb() {
     select: (s) => /^\/booking\/[^/]+\/track\/?$/.test(s.location.pathname),
   });
   const trip = useActiveTrip();
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   if (onTrack) return null;
   return (
@@ -22,26 +22,20 @@ export function AshOrb() {
           <p className="text-sm font-medium">
             {trip
               ? trip.status === "PAYMENT_PROCESSING"
-                ? fr
-                  ? "Vérification du paiement"
-                  : "Verifying payment"
-                : fr
-                  ? "Réservation en cours"
-                  : "Active booking"
-              : fr
-                ? "Aucune réservation en cours"
-                : "No active booking"}
+                ? tx("Verifying payment", "Vérification du paiement")
+                : tx("Active booking", "Réservation en cours")
+              : tx("No active booking", "Aucune réservation en cours")}
           </p>
           {trip ? (
             <Button asChild className="w-full">
               <Link to="/booking/$bookingId/track" params={{ bookingId: trip.id }}>
-                {fr ? "Ouvrir le suivi" : "Open tracking"}
+                {tx("Open tracking", "Ouvrir le suivi")}
                 <ArrowUpRight className="size-4" />
               </Link>
             </Button>
           ) : (
             <Button asChild variant="secondary" className="w-full">
-              <Link to="/bookings">{fr ? "Réservations" : "Bookings"}</Link>
+              <Link to="/bookings">{tx("Bookings", "Réservations")}</Link>
             </Button>
           )}
         </div>

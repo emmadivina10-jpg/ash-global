@@ -44,7 +44,7 @@ export const Route = createFileRoute("/_authenticated/mentors")({
 });
 
 function MentorsPage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const mentors = useMentors();
   const requests = useMentorRequests();
@@ -55,21 +55,19 @@ function MentorsPage() {
         <div>
           <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">ASH Mentors</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {fr
-              ? "Apprenez de membres qui ont une longueur d'avance — ou partagez votre expérience."
-              : "Learn from members a step ahead of you — or share what you know."}
+            {tx("Learn from members a step ahead of you — or share what you know.", "Apprenez de membres qui ont une longueur d'avance — ou partagez votre expérience.")}
           </p>
         </div>
         <BecomeMentorDialog fr={fr} />
       </header>
 
       {mentors.isLoading ? (
-        <LoadingState label={fr ? "Chargement des mentors…" : "Loading mentors…"} />
+        <LoadingState label={tx("Loading mentors…", "Chargement des mentors…")} />
       ) : (mentors.data ?? []).length === 0 ? (
         <EmptyState
           icon={<GraduationCap className="size-5" aria-hidden />}
-          title={fr ? "Aucun mentor pour l'instant" : "No mentors yet"}
-          description={fr ? "Soyez le premier à proposer votre aide." : "Be the first to offer your help."}
+          title={tx("No mentors yet", "Aucun mentor pour l'instant")}
+          description={tx("Be the first to offer your help.", "Soyez le premier à proposer votre aide.")}
         />
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2">
@@ -82,7 +80,7 @@ function MentorsPage() {
       {(requests.data ?? []).length > 0 ? (
         <section className="space-y-3">
           <h2 className="font-display text-lg font-bold text-foreground">
-            {fr ? "Demandes de mentorat" : "Mentoring requests"}
+            {tx("Mentoring requests", "Demandes de mentorat")}
           </h2>
           <ul className="space-y-2">
             {(requests.data ?? []).map((request) => (
@@ -111,17 +109,17 @@ function MentorCard({ mentor, fr }: { mentor: Mentor; fr: boolean }) {
 
   async function submit() {
     if (topic.trim().length < 3) {
-      toast.error(fr ? "Indiquez le sujet." : "Add a topic.");
+      toast.error(tx("Add a topic.", "Indiquez le sujet."));
       return;
     }
     try {
       await request.mutateAsync({ mentorId: mentor.id, topic, message });
-      toast.success(fr ? "Demande envoyée." : "Request sent.");
+      toast.success(tx("Request sent.", "Demande envoyée."));
       setOpen(false);
       setTopic("");
       setMessage("");
     } catch {
-      toast.error(fr ? "Envoi impossible." : "Could not send the request.");
+      toast.error(tx("Could not send the request.", "Envoi impossible."));
     }
   }
 
@@ -148,35 +146,35 @@ function MentorCard({ mentor, fr }: { mentor: Mentor; fr: boolean }) {
       </div>
       <div className="mt-auto flex items-center justify-between gap-2 pt-2">
         <span className="font-display text-sm font-extrabold text-foreground">
-          {mentor.is_free ? (fr ? "Gratuit" : "Free") : formatXAF(mentor.session_price)}
+          {mentor.is_free ? (tx("Free", "Gratuit")) : formatXAF(mentor.session_price)}
         </span>
         {mentor.is_mine ? (
-          <span className="text-xs text-muted-foreground">{fr ? "Votre profil" : "Your profile"}</span>
+          <span className="text-xs text-muted-foreground">{tx("Your profile", "Votre profil")}</span>
         ) : (
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button size="sm" className="touch-manipulation">
-                {fr ? "Demander une session" : "Request a session"}
+                {tx("Request a session", "Demander une session")}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-h-[calc(100dvh-2rem-env(safe-area-inset-bottom))] overflow-y-auto overscroll-contain">
               <DialogHeader>
-                <DialogTitle>{fr ? "Demande de mentorat" : "Mentoring request"}</DialogTitle>
+                <DialogTitle>{tx("Mentoring request", "Demande de mentorat")}</DialogTitle>
               </DialogHeader>
               <div className="space-y-3">
                 <Input
                   value={topic}
                   onChange={(event) => setTopic(event.target.value)}
-                  placeholder={fr ? "Sujet (ex. lancer ma boutique)" : "Topic (e.g. launching my shop)"}
+                  placeholder={tx("Topic (e.g. launching my shop)", "Sujet (ex. lancer ma boutique)")}
                 />
                 <Textarea
                   value={message}
                   onChange={(event) => setMessage(event.target.value)}
                   rows={5}
-                  placeholder={fr ? "Où en êtes-vous ? Que cherchez-vous ?" : "Where are you now, and what do you need?"}
+                  placeholder={tx("Where are you now, and what do you need?", "Où en êtes-vous ? Que cherchez-vous ?")}
                 />
                 <Button onClick={submit} disabled={request.isPending} className="w-full touch-manipulation">
-                  {request.isPending ? (fr ? "Envoi…" : "Sending…") : fr ? "Envoyer" : "Send request"}
+                  {request.isPending ? (tx("Sending…", "Envoi…")) : tx("Send request", "Envoyer")}
                 </Button>
               </div>
             </DialogContent>
@@ -200,7 +198,7 @@ function BecomeMentorDialog({ fr }: { fr: boolean }) {
 
   async function submit() {
     if (headline.trim().length < 5) {
-      toast.error(fr ? "Ajoutez une accroche." : "Add a headline.");
+      toast.error(tx("Add a headline.", "Ajoutez une accroche."));
       return;
     }
     try {
@@ -217,10 +215,10 @@ function BecomeMentorDialog({ fr }: { fr: boolean }) {
         session_price: price ? Number(price) : 0,
         city,
       });
-      toast.success(fr ? "Profil de mentor publié." : "Mentor profile published.");
+      toast.success(tx("Mentor profile published.", "Profil de mentor publié."));
       setOpen(false);
     } catch {
-      toast.error(fr ? "Publication impossible." : "Could not publish your profile.");
+      toast.error(tx("Could not publish your profile.", "Publication impossible."));
     }
   }
 
@@ -229,38 +227,38 @@ function BecomeMentorDialog({ fr }: { fr: boolean }) {
       <DialogTrigger asChild>
         <Button size="sm" className="touch-manipulation">
           <Sparkles className="size-4" aria-hidden />
-          {fr ? "Devenir mentor" : "Become a mentor"}
+          {tx("Become a mentor", "Devenir mentor")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[calc(100dvh-2rem-env(safe-area-inset-bottom))] overflow-y-auto overscroll-contain">
         <DialogHeader>
-          <DialogTitle>{fr ? "Votre profil de mentor" : "Your mentor profile"}</DialogTitle>
+          <DialogTitle>{tx("Your mentor profile", "Votre profil de mentor")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <Input
             value={headline}
             onChange={(event) => setHeadline(event.target.value)}
-            placeholder={fr ? "Accroche (ex. J'aide les coiffeuses à grandir)" : "Headline (e.g. I help stylists grow)"}
+            placeholder={tx("Headline (e.g. I help stylists grow)", "Accroche (ex. J'aide les coiffeuses à grandir)")}
           />
           <Textarea
             value={bio}
             onChange={(event) => setBio(event.target.value)}
             rows={5}
-            placeholder={fr ? "Votre parcours en quelques lignes" : "A few lines about your experience"}
+            placeholder={tx("A few lines about your experience", "Votre parcours en quelques lignes")}
           />
           <Input
             value={skills}
             onChange={(event) => setSkills(event.target.value)}
-            placeholder={fr ? "Compétences, séparées par des virgules" : "Skills, comma separated"}
+            placeholder={tx("Skills, comma separated", "Compétences, séparées par des virgules")}
           />
           <Input
             value={availability}
             onChange={(event) => setAvailability(event.target.value)}
-            placeholder={fr ? "Disponibilités (ex. week-ends)" : "Availability (e.g. weekends)"}
+            placeholder={tx("Availability (e.g. weekends)", "Disponibilités (ex. week-ends)")}
           />
-          <Input value={city} onChange={(event) => setCity(event.target.value)} placeholder={fr ? "Ville" : "City"} />
+          <Input value={city} onChange={(event) => setCity(event.target.value)} placeholder={tx("City", "Ville")} />
           <div className="flex items-center justify-between rounded-xl border border-border px-3 py-2">
-            <span className="text-sm text-foreground">{fr ? "Sessions gratuites" : "Free sessions"}</span>
+            <span className="text-sm text-foreground">{tx("Free sessions", "Sessions gratuites")}</span>
             <Switch checked={isFree} onCheckedChange={setIsFree} />
           </div>
           {!isFree ? (
@@ -268,11 +266,11 @@ function BecomeMentorDialog({ fr }: { fr: boolean }) {
               value={price}
               onChange={(event) => setPrice(event.target.value.replace(/\D/g, ""))}
               inputMode="numeric"
-              placeholder={fr ? "Prix par session" : "Price per session"}
+              placeholder={tx("Price per session", "Prix par session")}
             />
           ) : null}
           <Button onClick={submit} disabled={become.isPending} className="w-full touch-manipulation">
-            {become.isPending ? (fr ? "Enregistrement…" : "Saving…") : fr ? "Publier" : "Publish"}
+            {become.isPending ? (tx("Saving…", "Enregistrement…")) : tx("Publish", "Publier")}
           </Button>
         </div>
       </DialogContent>

@@ -49,7 +49,7 @@ function DealsSoon() {
 }
 
 function DealsPage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const queryClient = useQueryClient();
   const claim = useServerFn(claimDeal);
@@ -67,15 +67,15 @@ function DealsPage() {
       if (!result.ok) {
         toast.error(
           result.error === "SOLD_OUT"
-            ? fr ? "Cette offre est épuisée." : "This deal is sold out."
+            ? tx("This deal is sold out.", "Cette offre est épuisée.")
             : result.error === "EXPIRED"
-              ? fr ? "Cette offre est terminée." : "This deal has ended."
-              : fr ? "Impossible de réclamer l'offre." : "Could not claim this deal.",
+              ? tx("This deal has ended.", "Cette offre est terminée.")
+              : tx("Could not claim this deal.", "Impossible de réclamer l'offre."),
         );
         return;
       }
-      toast.success(`${fr ? "Code" : "Code"} ${result.code}`, {
-        description: fr ? "Montrez ce code au commerçant." : "Show this code to the business.",
+      toast.success(`${tx("Code", "Code")} ${result.code}`, {
+        description: tx("Show this code to the business.", "Montrez ce code au commerçant."),
       });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["deals"] }),
@@ -91,35 +91,35 @@ function DealsPage() {
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
-            {fr ? "Bons plans ASH" : "ASH Deals"}
+            {tx("ASH Deals", "Bons plans ASH")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {fr ? "Offres limitées des commerces et prestataires près de vous." : "Limited-time offers from businesses and providers near you."}
+            {tx("Limited-time offers from businesses and providers near you.", "Offres limitées des commerces et prestataires près de vous.")}
           </p>
         </div>
         <Button asChild size="sm">
           <Link to="/create">
             <Plus className="size-4" aria-hidden />
-            {fr ? "Créer une offre" : "Create a deal"}
+            {tx("Create a deal", "Créer une offre")}
           </Link>
         </Button>
       </header>
 
       <Tabs defaultValue="live">
         <TabsList>
-          <TabsTrigger value="live">{fr ? "En cours" : "Live"}</TabsTrigger>
-          <TabsTrigger value="claims">{fr ? "Mes codes" : "My codes"}</TabsTrigger>
-          <TabsTrigger value="mine">{fr ? "Mes offres" : "My deals"}</TabsTrigger>
+          <TabsTrigger value="live">{tx("Live", "En cours")}</TabsTrigger>
+          <TabsTrigger value="claims">{tx("My codes", "Mes codes")}</TabsTrigger>
+          <TabsTrigger value="mine">{tx("My deals", "Mes offres")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="live" className="mt-4">
           {deals.isLoading ? (
-            <LoadingState label={fr ? "Chargement des offres…" : "Loading deals…"} />
+            <LoadingState label={tx("Loading deals…", "Chargement des offres…")} />
           ) : (deals.data ?? []).length === 0 ? (
             <EmptyState
               icon={<Flame className="size-5" aria-hidden />}
-              title={fr ? "Aucune offre pour l'instant" : "No live deals yet"}
-              description={fr ? "Soyez le premier commerce à publier une offre." : "Be the first business to publish an offer."}
+              title={tx("No live deals yet", "Aucune offre pour l'instant")}
+              description={tx("Be the first business to publish an offer.", "Soyez le premier commerce à publier une offre.")}
             />
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -132,7 +132,7 @@ function DealsPage() {
                       <div className="min-w-0">
                         <h2 className="truncate font-semibold text-foreground">{deal.title}</h2>
                         <p className="text-xs text-muted-foreground">
-                          {deal.city ?? deal.country} · {fr ? "jusqu'au" : "until"} {formatDateTime(deal.ends_at)}
+                          {deal.city ?? deal.country} · {tx("until", "jusqu'au")} {formatDateTime(deal.ends_at)}
                         </p>
                       </div>
                       {off > 0 ? (
@@ -155,10 +155,10 @@ function DealsPage() {
 
                     <div className="mt-auto flex items-center justify-between gap-2">
                       <span className="text-xs text-muted-foreground">
-                        {left} {fr ? "restant(s)" : "left"}
+                        {left} {tx("left", "restant(s)")}
                       </span>
                       <Button size="sm" disabled={pending === deal.id || left === 0} onClick={() => void onClaim(deal.id)}>
-                        {fr ? "Réclamer" : "Claim deal"}
+                        {tx("Claim deal", "Réclamer")}
                       </Button>
                     </div>
                   </article>
@@ -172,8 +172,8 @@ function DealsPage() {
           {(claims.data ?? []).length === 0 ? (
             <EmptyState
               icon={<Ticket className="size-5" aria-hidden />}
-              title={fr ? "Aucun code réclamé" : "No claimed codes"}
-              description={fr ? "Réclamez une offre pour obtenir votre code." : "Claim a deal to get your redemption code."}
+              title={tx("No claimed codes", "Aucun code réclamé")}
+              description={tx("Claim a deal to get your redemption code.", "Réclamez une offre pour obtenir votre code.")}
             />
           ) : (
             <ul className="space-y-3">
@@ -193,11 +193,11 @@ function DealsPage() {
         <TabsContent value="mine" className="mt-4">
           {(mine.data ?? []).length === 0 ? (
             <EmptyState
-              title={fr ? "Vous n'avez publié aucune offre" : "You have not published a deal"}
-              description={fr ? "Les offres attirent les clients qui reviennent chaque jour." : "Deals bring customers back every single day."}
+              title={tx("You have not published a deal", "Vous n'avez publié aucune offre")}
+              description={tx("Deals bring customers back every single day.", "Les offres attirent les clients qui reviennent chaque jour.")}
               action={
                 <Button asChild>
-                  <Link to="/create">{fr ? "Créer une offre" : "Create a deal"}</Link>
+                  <Link to="/create">{tx("Create a deal", "Créer une offre")}</Link>
                 </Button>
               }
             />
@@ -208,7 +208,7 @@ function DealsPage() {
                   <div className="min-w-0">
                     <p className="truncate font-semibold text-foreground">{deal.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {deal.claimed_count}/{deal.claim_limit} {fr ? "réclamés" : "claimed"} · {formatXAF(deal.deal_price)}
+                      {deal.claimed_count}/{deal.claim_limit} {tx("claimed", "réclamés")} · {formatXAF(deal.deal_price)}
                     </p>
                   </div>
                   <PromoteDialog targetType="DEAL" targetId={deal.id} defaultHeadline={deal.title} city={deal.city} category={deal.category} />

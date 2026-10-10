@@ -42,7 +42,7 @@ export const Route = createFileRoute("/_authenticated/articles/")({
 });
 
 function ArticlesPage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const [category, setCategory] = useState<string>("ALL");
   const articles = useArticles(category);
@@ -53,12 +53,10 @@ function ArticlesPage() {
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
-            {fr ? "ASH Stories" : "ASH Stories"}
+            {tx("ASH Stories", "ASH Stories")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {fr
-              ? "Écrivez, publiez et lisez les articles de la communauté ASH."
-              : "Write, publish and read articles from the ASH community."}
+            {tx("Write, publish and read articles from the ASH community.", "Écrivez, publiez et lisez les articles de la communauté ASH.")}
           </p>
         </div>
         <WriteArticleDialog fr={fr} />
@@ -83,12 +81,12 @@ function ArticlesPage() {
       </div>
 
       {articles.isLoading ? (
-        <LoadingState label={fr ? "Chargement des articles…" : "Loading articles…"} />
+        <LoadingState label={tx("Loading articles…", "Chargement des articles…")} />
       ) : (articles.data ?? []).length === 0 ? (
         <EmptyState
           icon={<BookOpen className="size-5" aria-hidden />}
-          title={fr ? "Aucun article pour le moment" : "No articles yet"}
-          description={fr ? "Soyez le premier à publier." : "Be the first to publish one."}
+          title={tx("No articles yet", "Aucun article pour le moment")}
+          description={tx("Be the first to publish one.", "Soyez le premier à publier.")}
         />
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2">
@@ -165,7 +163,7 @@ function WriteArticleDialog({ fr }: { fr: boolean }) {
 
   async function submit() {
     if (title.trim().length < 4 || body.trim().length < 40) {
-      toast.error(fr ? "Ajoutez un titre et un contenu plus long." : "Add a title and a longer body.");
+      toast.error(tx("Add a title and a longer body.", "Ajoutez un titre et un contenu plus long."));
       return;
     }
     try {
@@ -181,18 +179,14 @@ function WriteArticleDialog({ fr }: { fr: boolean }) {
           .slice(0, 6),
         cover,
       });
-      toast.success(fr ? "Article publié." : "Article published.");
+      toast.success(tx("Article published.", "Article publié."));
       reset();
       setOpen(false);
     } catch (error) {
       toast.error(
         (error as Error).message === "FILE_TOO_LARGE"
-          ? fr
-            ? "Image trop lourde (50 Mo max)."
-            : "Image too large (50MB max)."
-          : fr
-            ? "Publication impossible."
-            : "Could not publish.",
+          ? tx("Image too large (50MB max).", "Image trop lourde (50 Mo max).")
+          : tx("Could not publish.", "Publication impossible."),
       );
     }
   }
@@ -202,37 +196,37 @@ function WriteArticleDialog({ fr }: { fr: boolean }) {
       <DialogTrigger asChild>
         <Button size="sm" className="touch-manipulation">
           <PenLine className="size-4" aria-hidden />
-          {fr ? "Écrire un article" : "Write an article"}
+          {tx("Write an article", "Écrire un article")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[calc(100dvh-2rem-env(safe-area-inset-bottom))] overflow-y-auto overscroll-contain">
         <DialogHeader>
-          <DialogTitle>{fr ? "Nouvel article" : "New article"}</DialogTitle>
+          <DialogTitle>{tx("New article", "Nouvel article")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <Input
             value={title}
             onChange={(event) => setTitle(event.target.value)}
-            placeholder={fr ? "Titre" : "Title"}
+            placeholder={tx("Title", "Titre")}
             maxLength={140}
           />
           <Input
             value={excerpt}
             onChange={(event) => setExcerpt(event.target.value)}
-            placeholder={fr ? "Résumé court (optionnel)" : "Short summary (optional)"}
+            placeholder={tx("Short summary (optional)", "Résumé court (optionnel)")}
             maxLength={220}
           />
           <Textarea
             value={body}
             onChange={(event) => setBody(event.target.value)}
-            placeholder={fr ? "Votre article…" : "Your article…"}
+            placeholder={tx("Your article…", "Votre article…")}
             rows={10}
             maxLength={20000}
           />
           <Input
             value={tags}
             onChange={(event) => setTags(event.target.value)}
-            placeholder={fr ? "Mots-clés, séparés par des virgules" : "Tags, comma separated"}
+            placeholder={tx("Tags, comma separated", "Mots-clés, séparés par des virgules")}
           />
           <div className="flex flex-wrap items-center gap-2">
             <select
@@ -248,7 +242,7 @@ function WriteArticleDialog({ fr }: { fr: boolean }) {
             </select>
             <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground">
               <ImagePlus className="size-4" aria-hidden />
-              {cover ? cover.name.slice(0, 18) : fr ? "Image de couverture" : "Cover image"}
+              {cover ? cover.name.slice(0, 18) : tx("Cover image", "Image de couverture")}
               <input
                 type="file"
                 accept="image/*"
@@ -262,7 +256,7 @@ function WriteArticleDialog({ fr }: { fr: boolean }) {
             disabled={publish.isPending}
             className="w-full touch-manipulation"
           >
-            {publish.isPending ? (fr ? "Publication…" : "Publishing…") : fr ? "Publier" : "Publish"}
+            {publish.isPending ? (tx("Publishing…", "Publication…")) : tx("Publish", "Publier")}
           </Button>
         </div>
       </DialogContent>

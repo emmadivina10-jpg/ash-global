@@ -29,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/campus/teaching")({
 });
 
 function TeachingDashboard() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const { data: instructor, isLoading } = useMyInstructorProfile();
   const application = useMyCampusApplication();
@@ -39,7 +39,7 @@ function TeachingDashboard() {
   const bookings = useMyBookings();
   const earnings = useInstructorEarnings(instructor?.provider_id, instructor?.currency ?? "XAF");
 
-  if (isLoading) return <LoadingState label={fr ? "Chargement…" : "Loading…"} />;
+  if (isLoading) return <LoadingState label={tx("Loading…", "Chargement…")} />;
 
   if (!instructor) {
     return (
@@ -51,19 +51,17 @@ function TeachingDashboard() {
           </Link>
         </Button>
         <EmptyState
-          title={fr ? "Pas encore instructeur" : "Not an instructor yet"}
+          title={tx("Not an instructor yet", "Pas encore instructeur")}
           description={
             application.data
               ? fr
                 ? `Statut de votre candidature : ${application.data.status.replaceAll("_", " ").toLowerCase()}.`
                 : `Your application status: ${application.data.status.replaceAll("_", " ").toLowerCase()}.`
-              : fr
-                ? "Envoyez votre candidature pour enseigner sur ASH Campus."
-                : "Apply to teach on ASH Campus."
+              : tx("Apply to teach on ASH Campus.", "Envoyez votre candidature pour enseigner sur ASH Campus.")
           }
           action={
             <Button asChild>
-              <Link to="/campus/become-instructor">{fr ? "Devenir instructeur" : "Become an Instructor"}</Link>
+              <Link to="/campus/become-instructor">{tx("Become an Instructor", "Devenir instructeur")}</Link>
             </Button>
           }
         />
@@ -93,57 +91,57 @@ function TeachingDashboard() {
         <p className="text-sm text-muted-foreground">{instructor.headline}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           <Badge variant="outline">
-            {instructor.subjects.length} {fr ? "matières" : "subjects"}
+            {instructor.subjects.length} {tx("subjects", "matières")}
           </Badge>
           <Badge variant="outline">
-            {details.data?.availability.length ?? 0} {fr ? "créneaux" : "time slots"}
+            {details.data?.availability.length ?? 0} {tx("time slots", "créneaux")}
           </Badge>
-          <Badge variant="outline">{instructor.is_active ? (fr ? "Visible" : "Visible") : fr ? "Masqué" : "Hidden"}</Badge>
+          <Badge variant="outline">{instructor.is_active ? (tx("Visible", "Visible")) : tx("Hidden", "Masqué")}</Badge>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
           <Button asChild variant="outline" size="sm">
             <Link to="/campus/instructors/$instructorId" params={{ instructorId: instructor.id }}>
-              {fr ? "Voir mon profil public" : "View public profile"}
+              {tx("View public profile", "Voir mon profil public")}
             </Link>
           </Button>
           <Button asChild variant="outline" size="sm">
             <Link to="/studio">
               <Store className="size-4" aria-hidden />
-              {fr ? "Gérer mes services" : "Manage services"}
+              {tx("Manage services", "Gérer mes services")}
             </Link>
           </Button>
           <Button asChild variant="outline" size="sm">
             <Link to="/messages">
               <MessageCircle className="size-4" aria-hidden />
-              {fr ? "Messages" : "Messages"}
+              {tx("Messages", "Messages")}
             </Link>
           </Button>
           <Button asChild variant="outline" size="sm">
             <Link to="/wallet">
               <Wallet className="size-4" aria-hidden />
-              {fr ? "Portefeuille" : "Wallet"}
+              {tx("Wallet", "Portefeuille")}
             </Link>
           </Button>
         </div>
       </header>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <Stat label={fr ? "Séances à venir" : "Upcoming sessions"} value={upcoming.length} icon={CalendarDays} />
-        <Stat label={fr ? "Séances terminées" : "Completed sessions"} value={completed.length} icon={CalendarDays} />
-        <Stat label={fr ? "Avis" : "Reviews"} value={reviews.data?.length ?? 0} icon={Star} />
+        <Stat label={tx("Upcoming sessions", "Séances à venir")} value={upcoming.length} icon={CalendarDays} />
+        <Stat label={tx("Completed sessions", "Séances terminées")} value={completed.length} icon={CalendarDays} />
+        <Stat label={tx("Reviews", "Avis")} value={reviews.data?.length ?? 0} icon={Star} />
       </div>
 
       <section className="rounded-2xl border border-border bg-card p-5">
-        <h2 className="mb-3 font-display text-base font-bold text-foreground">{fr ? "Gains" : "Earnings"}</h2>
+        <h2 className="mb-3 font-display text-base font-bold text-foreground">{tx("Earnings", "Gains")}</h2>
         <div className="grid gap-3 sm:grid-cols-4">
-          <Money label={fr ? "Revenu brut" : "Gross revenue"} value={earnings.data?.gross ?? 0} currency={instructor.currency} />
+          <Money label={tx("Gross revenue", "Revenu brut")} value={earnings.data?.gross ?? 0} currency={instructor.currency} />
           <Money
-            label={fr ? "Commission ASH (10 %)" : "ASH commission (10%)"}
+            label={tx("ASH commission (10%)", "Commission ASH (10 %)")}
             value={earnings.data?.commission ?? 0}
             currency={instructor.currency}
           />
-          <Money label={fr ? "Vos gains" : "Your earnings"} value={earnings.data?.net ?? 0} currency={instructor.currency} />
-          <Money label={fr ? "En attente" : "Pending"} value={earnings.data?.pending ?? 0} currency={instructor.currency} />
+          <Money label={tx("Your earnings", "Vos gains")} value={earnings.data?.net ?? 0} currency={instructor.currency} />
+          <Money label={tx("Pending", "En attente")} value={earnings.data?.pending ?? 0} currency={instructor.currency} />
         </div>
         <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
           {fr
@@ -153,16 +151,14 @@ function TeachingDashboard() {
       </section>
 
       <section className="rounded-2xl border border-border bg-card p-5">
-        <h2 className="mb-3 font-display text-base font-bold text-foreground">{fr ? "Mes services" : "My services"}</h2>
+        <h2 className="mb-3 font-display text-base font-bold text-foreground">{tx("My services", "Mes services")}</h2>
         {!instructor.provider_id ? (
           <p className="text-sm text-muted-foreground">
-            {fr
-              ? "Créez d'abord votre espace prestataire dans le Studio pour publier des services et accepter des réservations."
-              : "Create your provider space in Studio first to publish services and accept bookings."}
+            {tx("Create your provider space in Studio first to publish services and accept bookings.", "Créez d'abord votre espace prestataire dans le Studio pour publier des services et accepter des réservations.")}
           </p>
         ) : !services.data?.length ? (
           <p className="text-sm text-muted-foreground">
-            {fr ? "Aucun service publié pour l'instant." : "No services published yet."}
+            {tx("No services published yet.", "Aucun service publié pour l'instant.")}
           </p>
         ) : (
           <ul className="space-y-2">
@@ -179,9 +175,7 @@ function TeachingDashboard() {
       </section>
 
       <p className="rounded-2xl border border-border bg-card p-4 text-xs leading-relaxed text-muted-foreground">
-        {fr
-          ? "Les paiements, réservations et gains passent par l'infrastructure ASH existante. Les montants sont calculés côté serveur."
-          : "Payments, bookings and earnings run through the existing ASH infrastructure. All amounts are calculated server-side."}
+        {tx("Payments, bookings and earnings run through the existing ASH infrastructure. All amounts are calculated server-side.", "Les paiements, réservations et gains passent par l'infrastructure ASH existante. Les montants sont calculés côté serveur.")}
       </p>
     </div>
   );

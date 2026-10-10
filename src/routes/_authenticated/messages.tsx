@@ -100,7 +100,7 @@ function stamp(iso: string | null | undefined, fr: boolean) {
       minute: "2-digit",
     });
 
-  if (date.toDateString() === yesterday.toDateString()) return fr ? "Hier" : "Yesterday";
+  if (date.toDateString() === yesterday.toDateString()) return tx("Yesterday", "Hier");
 
   return date.toLocaleDateString(fr ? "fr-FR" : "en-GB", {
     day: "2-digit",
@@ -125,7 +125,7 @@ const ashSupportConversation = {
 const ASH_CHAT_BACKGROUND = "/images/ash-chat-background.png";
 
 function MessagesPage() {
-  const { t, lang } = useI18n();
+  const { tx, t, lang } = useI18n();
   const fr = lang === "fr";
   const { user } = useUser();
   const { c } = Route.useSearch();
@@ -426,19 +426,19 @@ function MessagesPage() {
     const group = groupOf(conv);
     if (group) return group.name;
     const direct = directPeerOf(conv);
-    if (direct) return direct.name ?? (fr ? "Profil" : "Profile");
+    if (direct) return direct.name ?? (tx("Profile", "Profil"));
     if (conv.listing_id) {
       const viewerIsOwner = Boolean(user?.id) && conv.owner_id === user?.id;
 
       return viewerIsOwner
-        ? (conv.client?.full_name ?? (fr ? "Profil" : "Profile"))
+        ? (conv.client?.full_name ?? (tx("Profile", "Profil")))
         : (conv.listing?.title ?? "ASH Property");
     }
 
     const viewerIsProvider = Boolean(user?.id) && conv.provider?.user_id === user?.id;
 
     return viewerIsProvider
-      ? (conv.client?.full_name ?? (fr ? "Profil" : "Profile"))
+      ? (conv.client?.full_name ?? (tx("Profile", "Profil")))
       : (conv.provider?.business_name ?? t("chat.title"));
   }
 
@@ -543,9 +543,9 @@ function MessagesPage() {
 
     const mine = last.sender_id === user?.id;
 
-    const text = last.kind === "INVOICE" ? (fr ? "Facture" : "Invoice") : last.body;
+    const text = last.kind === "INVOICE" ? (tx("Invoice", "Facture")) : last.body;
 
-    return `${mine ? (fr ? "Vous : " : "You: ") : ""}${text}`.replace(/\s+/g, " ").trim();
+    return `${mine ? (tx("You: ", "Vous : ")) : ""}${text}`.replace(/\s+/g, " ").trim();
   }
 
   const searchTerm = term.trim();
@@ -615,12 +615,8 @@ function MessagesPage() {
         onSuccess: () =>
           toast.success(
             locked
-              ? fr
-                ? "Discussion déverrouillée"
-                : "Chat unlocked"
-              : fr
-                ? "Discussion verrouillée et masquée"
-                : "Chat locked and hidden",
+              ? tx("Chat unlocked", "Discussion déverrouillée")
+              : tx("Chat locked and hidden", "Discussion verrouillée et masquée"),
           ),
       },
     );
@@ -630,13 +626,13 @@ function MessagesPage() {
     if (!lockPin || pinValue.length < 4) return;
     const hash = await hashPin(pinValue);
     if (hash !== lockPin) {
-      toast.error(fr ? "Code incorrect" : "Incorrect PIN");
+      toast.error(tx("Incorrect PIN", "Code incorrect"));
       return;
     }
     setLockedUnlocked(true);
     setUnlockDialog(false);
     setPinValue("");
-    toast.success(fr ? "Discussions verrouillées affichées" : "Locked chats shown");
+    toast.success(tx("Locked chats shown", "Discussions verrouillées affichées"));
   }
 
   async function openLockedChat(conversationId: string) {
@@ -657,7 +653,7 @@ function MessagesPage() {
       setPinValue("");
       void navigate({ search: { c: unlockingId } });
     } catch {
-      toast.error(fr ? "Code incorrect" : "Incorrect PIN");
+      toast.error(tx("Incorrect PIN", "Code incorrect"));
     }
   }
 
@@ -698,9 +694,7 @@ function MessagesPage() {
     }
     if (removed < ids.length) {
       toast.info(
-        fr
-          ? "Certaines discussions sont liées à une réservation — elles ont été archivées."
-          : "Some chats belong to a booking — they were archived instead.",
+        tx("Some chats belong to a booking — they were archived instead.", "Certaines discussions sont liées à une réservation — elles ont été archivées."),
       );
     }
   }
@@ -737,7 +731,7 @@ function MessagesPage() {
                   size="icon"
                   variant="default"
                   className="size-11 rounded-full"
-                  aria-label={fr ? "Nouvelle discussion" : "New chat"}
+                  aria-label={tx("New chat", "Nouvelle discussion")}
                   onClick={() => setNewChatOpen(true)}
                 >
                   <Plus className="size-6" />
@@ -746,7 +740,7 @@ function MessagesPage() {
               <ChatActionDialog
                 open={newChatOpen}
                 onOpenChange={setNewChatOpen}
-                title={fr ? "Nouvelle discussion" : "New chat"}
+                title={tx("New chat", "Nouvelle discussion")}
               >
                 <Button
                   variant="ghost"
@@ -757,7 +751,7 @@ function MessagesPage() {
                   }}
                 >
                   <UserPlus />
-                  {fr ? "Choisir un contact" : "Choose a contact"}
+                  {tx("Choose a contact", "Choisir un contact")}
                 </Button>
                 <Button
                   variant="ghost"
@@ -768,7 +762,7 @@ function MessagesPage() {
                   }}
                 >
                   <Users />
-                  {fr ? "Nouveau groupe" : "New group"}
+                  {tx("New group", "Nouveau groupe")}
                 </Button>
                 <Button
                   variant="ghost"
@@ -779,7 +773,7 @@ function MessagesPage() {
                   }}
                 >
                   <LifeBuoy />
-                  {fr ? "Contacter ASH" : "Contact ASH support"}
+                  {tx("Contact ASH support", "Contacter ASH")}
                 </Button>
               </ChatActionDialog>
 
@@ -790,15 +784,15 @@ function MessagesPage() {
                     onClick={() => setSelection([])}
                     className="text-[12px] font-bold text-primary"
                   >
-                    {fr ? "Annuler" : "Cancel"}
+                    {tx("Cancel", "Annuler")}
                   </button>
                   <span className="text-[12px] font-bold text-foreground">
-                    {selection.length} {fr ? "sélectionnée(s)" : "selected"}
+                    {selection.length} {tx("selected", "sélectionnée(s)")}
                   </span>
                   <button
                     type="button"
                     onClick={() => setConfirmBulkDelete(true)}
-                    aria-label={fr ? "Supprimer" : "Delete"}
+                    aria-label={tx("Delete", "Supprimer")}
                     className="grid size-8 place-items-center rounded-full text-destructive transition-colors hover:bg-destructive/10"
                   >
                     <Trash2 className="size-4" aria-hidden />
@@ -813,9 +807,9 @@ function MessagesPage() {
                   value={term}
                   onChange={(event) => setTerm(event.target.value)}
                   placeholder={
-                    fr ? "Rechercher une discussion ou un membre" : "Search chats or people"
+                    tx("Search chats or people", "Rechercher une discussion ou un membre")
                   }
-                  aria-label={fr ? "Rechercher une discussion" : "Search chats"}
+                  aria-label={tx("Search chats", "Rechercher une discussion")}
                   className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                 />
               </div>
@@ -829,7 +823,7 @@ function MessagesPage() {
                   onClick={() => setGroupDialog(true)}
                 >
                   <Users className="size-4" aria-hidden />
-                  {fr ? "Nouveau groupe" : "New group"}
+                  {tx("New group", "Nouveau groupe")}
                 </Button>
                 {archivedCount > 0 ? (
                   <button
@@ -839,10 +833,8 @@ function MessagesPage() {
                   >
                     <Archive className="size-4" aria-hidden />
                     {showArchived
-                      ? fr
-                        ? "Masquer les archives"
-                        : "Hide archived"
-                      : `${fr ? "Archivées" : "Archived"} (${archivedCount})`}
+                      ? tx("Hide archived", "Masquer les archives")
+                      : `${tx("Archived", "Archivées")} (${archivedCount})`}
                   </button>
                 ) : null}
 
@@ -864,17 +856,13 @@ function MessagesPage() {
                 >
                   <Lock className="size-4" aria-hidden />
                   {lockPin
-                    ? fr
-                      ? "Code des discussions"
-                      : "Chat lock PIN"
-                    : fr
-                      ? "Créer un code"
-                      : "Set a PIN"}
+                    ? tx("Chat lock PIN", "Code des discussions")
+                    : tx("Set a PIN", "Créer un code")}
                 </button>
 
                 {lockedUnlocked ? (
                   <span className="rounded-full bg-primary/15 px-2.5 py-1 text-[11px] font-bold text-primary">
-                    {fr ? "Discussions verrouillées affichées" : "Locked chats shown"}
+                    {tx("Locked chats shown", "Discussions verrouillées affichées")}
                   </span>
                 ) : null}
               </div>
@@ -883,17 +871,17 @@ function MessagesPage() {
             <Dialog open={groupDialog} onOpenChange={setGroupDialog}>
               <DialogContent className="max-h-[calc(100dvh-2rem)] max-w-sm overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle>{fr ? "Créer un groupe" : "Create a group"}</DialogTitle>
+                  <DialogTitle>{tx("Create a group", "Créer un groupe")}</DialogTitle>
                 </DialogHeader>
                 <Input
                   value={groupName}
                   onChange={(event) => setGroupName(event.target.value.slice(0, 60))}
-                  placeholder={fr ? "Nom du groupe" : "Group name"}
+                  placeholder={tx("Group name", "Nom du groupe")}
                 />
                 <Input
                   value={groupSearch}
                   onChange={(event) => setGroupSearch(event.target.value)}
-                  placeholder={fr ? "Rechercher un membre" : "Search people on ASH"}
+                  placeholder={tx("Search people on ASH", "Rechercher un membre")}
                 />
                 <div className="max-h-64 space-y-1 overflow-y-auto">
                   {[
@@ -904,9 +892,7 @@ function MessagesPage() {
                     ),
                   ].length === 0 ? (
                     <p className="py-4 text-center text-sm text-muted-foreground">
-                      {fr
-                        ? "Ajoutez d’abord des amis au groupe."
-                        : "Add friends before creating a group."}
+                      {tx("Add friends before creating a group.", "Ajoutez d’abord des amis au groupe.")}
                     </p>
                   ) : (
                     [
@@ -942,7 +928,7 @@ function MessagesPage() {
                           <span className="min-w-0 flex-1 truncate text-left">{other.name}</span>
                           {selected ? (
                             <span className="text-xs font-bold text-primary">
-                              {fr ? "Ajouté" : "Added"}
+                              {tx("Added", "Ajouté")}
                             </span>
                           ) : (
                             <Plus className="size-4" aria-hidden />
@@ -962,7 +948,7 @@ function MessagesPage() {
                           setGroupDialog(false);
                           setGroupName("");
                           setGroupMembers([]);
-                          toast.success(fr ? "Groupe créé" : "Group created");
+                          toast.success(tx("Group created", "Groupe créé"));
                         },
                         onError: (error) =>
                           toast.error(
@@ -972,7 +958,7 @@ function MessagesPage() {
                     )
                   }
                 >
-                  {fr ? "Créer le groupe" : "Create group"}
+                  {tx("Create group", "Créer le groupe")}
                 </Button>
               </DialogContent>
             </Dialog>
@@ -989,12 +975,10 @@ function MessagesPage() {
             >
               <DialogContent className="max-w-sm">
                 <DialogHeader>
-                  <DialogTitle>{fr ? "Déverrouiller les discussions" : "Unlock chats"}</DialogTitle>
+                  <DialogTitle>{tx("Unlock chats", "Déverrouiller les discussions")}</DialogTitle>
                 </DialogHeader>
                 <p className="text-xs text-muted-foreground">
-                  {fr
-                    ? "Entrez votre code. Le contenu reste inaccessible jusqu’à sa validation."
-                    : "Enter your PIN. Chat content remains unavailable until it is verified."}
+                  {tx("Enter your PIN. Chat content remains unavailable until it is verified.", "Entrez votre code. Le contenu reste inaccessible jusqu’à sa validation.")}
                 </p>
                 <Input
                   type="password"
@@ -1012,7 +996,7 @@ function MessagesPage() {
                     void (unlockingId ? submitLockedChatUnlock() : revealLockedChats())
                   }
                 >
-                  {fr ? "Déverrouiller" : "Unlock"}
+                  {tx("Unlock", "Déverrouiller")}
                 </Button>
               </DialogContent>
             </Dialog>
@@ -1021,13 +1005,11 @@ function MessagesPage() {
               <DialogContent className="max-w-sm">
                 <DialogHeader>
                   <DialogTitle>
-                    {fr ? "Supprimer ces discussions ?" : "Delete these chats?"}
+                    {tx("Delete these chats?", "Supprimer ces discussions ?")}
                   </DialogTitle>
                 </DialogHeader>
                 <p className="text-sm text-muted-foreground">
-                  {fr
-                    ? "Les messages seront définitivement perdus. Vous pourrez toujours retrouver la personne par la recherche."
-                    : "The messages are permanently lost. You can still find the person again through search."}
+                  {tx("The messages are permanently lost. You can still find the person again through search.", "Les messages seront définitivement perdus. Vous pourrez toujours retrouver la personne par la recherche.")}
                 </p>
                 <div className="flex gap-2">
                   <Button
@@ -1035,13 +1017,13 @@ function MessagesPage() {
                     className="flex-1"
                     onClick={() => setConfirmBulkDelete(false)}
                   >
-                    {fr ? "Annuler" : "Cancel"}
+                    {tx("Cancel", "Annuler")}
                   </Button>
                   <Button
                     className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     onClick={() => void deleteSelected()}
                   >
-                    {fr ? "Supprimer" : "Delete"}
+                    {tx("Delete", "Supprimer")}
                   </Button>
                 </div>
               </DialogContent>
@@ -1050,12 +1032,10 @@ function MessagesPage() {
             <Dialog open={pinDialog} onOpenChange={setPinDialog}>
               <DialogContent className="max-w-sm">
                 <DialogHeader>
-                  <DialogTitle>{fr ? "Code des discussions" : "Chat lock PIN"}</DialogTitle>
+                  <DialogTitle>{tx("Chat lock PIN", "Code des discussions")}</DialogTitle>
                 </DialogHeader>
                 <p className="text-xs text-muted-foreground">
-                  {fr
-                    ? "Choisissez un code d'au moins 4 chiffres. Les discussions verrouillées disparaissent de la liste et réapparaissent quand vous tapez ce code dans la recherche."
-                    : "Pick a PIN of at least 4 digits. Locked chats disappear from the list and come back when you type this PIN into the search box."}
+                  {tx("Pick a PIN of at least 4 digits. Locked chats disappear from the list and come back when you type this PIN into the search box.", "Choisissez un code d'au moins 4 chiffres. Les discussions verrouillées disparaissent de la liste et réapparaissent quand vous tapez ce code dans la recherche.")}
                 </p>
                 <Input
                   type="password"
@@ -1065,7 +1045,7 @@ function MessagesPage() {
                     setPinValue(event.target.value.replace(/\D/g, "").slice(0, 8))
                   }
                   placeholder="••••"
-                  aria-label={fr ? "Code" : "PIN"}
+                  aria-label={tx("PIN", "Code")}
                 />
                 <div className="flex gap-2">
                   <Button
@@ -1076,13 +1056,13 @@ function MessagesPage() {
                         onSuccess: () => {
                           setPinValue("");
                           setPinDialog(false);
-                          toast.success(fr ? "Code enregistré" : "PIN saved");
+                          toast.success(tx("PIN saved", "Code enregistré"));
                         },
-                        onError: () => toast.error(fr ? "Échec" : "Could not save the PIN"),
+                        onError: () => toast.error(tx("Could not save the PIN", "Échec")),
                       })
                     }
                   >
-                    {fr ? "Enregistrer" : "Save PIN"}
+                    {tx("Save PIN", "Enregistrer")}
                   </Button>
                   {lockPin ? (
                     <Button
@@ -1091,12 +1071,12 @@ function MessagesPage() {
                         saveLockPin.mutate(null, {
                           onSuccess: () => {
                             setPinDialog(false);
-                            toast.success(fr ? "Code retiré" : "PIN removed");
+                            toast.success(tx("PIN removed", "Code retiré"));
                           },
                         })
                       }
                     >
-                      {fr ? "Retirer" : "Remove"}
+                      {tx("Remove", "Retirer")}
                     </Button>
                   ) : null}
                 </div>
@@ -1110,7 +1090,7 @@ function MessagesPage() {
                 .includes(term.trim().toLowerCase()) &&
               filtered.length === 0 ? (
                 <p className="p-6 text-center text-sm text-muted-foreground">
-                  {fr ? "Aucune discussion trouvée." : "No chats found."}
+                  {tx("No chats found.", "Aucune discussion trouvée.")}
                 </p>
               ) : null}
 
@@ -1182,7 +1162,7 @@ function MessagesPage() {
                       <span className="flex items-baseline justify-between gap-2">
                         <span className="truncate text-base font-bold text-foreground">ASH AI</span>
                         <span className="shrink-0 rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-bold text-success">
-                          {fr ? "En direct" : "Live"}
+                          {tx("Live", "En direct")}
                         </span>
                       </span>
 
@@ -1230,7 +1210,7 @@ function MessagesPage() {
                       <Button
                         data-chat-avatar
                         variant="ghost"
-                        aria-label={`${fr ? "Voir les actualités de" : "View updates from"} ${label}`}
+                        aria-label={`${tx("View updates from", "Voir les actualités de")} ${label}`}
                         onClick={(event) => {
                           event.stopPropagation();
                           if (conv.group_id) {
@@ -1308,7 +1288,7 @@ function MessagesPage() {
               {!showArchived && term.trim().length >= 2 && newPeople.length > 0 ? (
                 <div className="space-y-2 border-t border-border bg-muted/30 p-3">
                   <p className="text-[11px] font-extrabold uppercase tracking-wide text-muted-foreground">
-                    {fr ? "Autres membres ASH" : "Other people on ASH"}
+                    {tx("Other people on ASH", "Autres membres ASH")}
                   </p>
                   {newPeople.slice(0, 8).map((person) => (
                     <div key={person.id} className="flex items-center gap-2">
@@ -1341,13 +1321,13 @@ function MessagesPage() {
                         onClick={() =>
                           sendFriendRequest.mutate(person.id, {
                             onSuccess: () =>
-                              toast.success(fr ? "Demande envoyée" : "Friend request sent"),
-                            onError: () => toast.error(fr ? "Échec de l'envoi" : "Could not send"),
+                              toast.success(tx("Friend request sent", "Demande envoyée")),
+                            onError: () => toast.error(tx("Could not send", "Échec de l'envoi")),
                           })
                         }
                       >
                         <UserPlus className="size-4" aria-hidden />
-                        {fr ? "Ajouter" : "Add"}
+                        {tx("Add", "Ajouter")}
                       </Button>
                     </div>
                   ))}
@@ -1394,7 +1374,7 @@ function MessagesPage() {
                     search: {},
                   })
                 }
-                aria-label={fr ? "Retour aux messages" : "Back to messages"}
+                aria-label={tx("Back to messages", "Retour aux messages")}
                 className="grid size-10 shrink-0 place-items-center rounded-full bg-muted/70 text-foreground shadow-sm transition-all hover:bg-muted active:scale-95 md:hidden"
               >
                 <ArrowLeft className="size-5" aria-hidden />
@@ -1414,12 +1394,8 @@ function MessagesPage() {
                 disabled={!active || (!activeGroup && !peerProfileOf(active))}
                 aria-label={
                   activeGroup
-                    ? fr
-                      ? "Voir le profil du groupe"
-                      : "View group profile"
-                    : fr
-                      ? "Voir le profil"
-                      : "View profile"
+                    ? tx("View group profile", "Voir le profil du groupe")
+                    : tx("View profile", "Voir le profil")
                 }
                 className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl px-1 py-0.5 text-left transition-colors enabled:hover:bg-muted/60"
               >
@@ -1508,7 +1484,7 @@ function MessagesPage() {
                     setGroupEditName(activeGroup.name);
                     setGroupSettings(true);
                   }}
-                  aria-label={fr ? "Gérer le groupe" : "Manage group"}
+                  aria-label={tx("Manage group", "Gérer le groupe")}
                   className="grid size-9 place-items-center rounded-full bg-muted text-muted-foreground"
                 >
                   <Settings2 className="size-4" aria-hidden />
@@ -1519,7 +1495,7 @@ function MessagesPage() {
             <Dialog open={groupSettings} onOpenChange={setGroupSettings}>
               <DialogContent className="max-h-[calc(100dvh-2rem)] max-w-sm overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle>{fr ? "Gérer le groupe" : "Manage group"}</DialogTitle>
+                  <DialogTitle>{tx("Manage group", "Gérer le groupe")}</DialogTitle>
                 </DialogHeader>
                 {activeGroup ? (
                   <>
@@ -1540,12 +1516,8 @@ function MessagesPage() {
                         >
                           <Camera className="size-4" />
                           {updateGroupAvatar.isPending
-                            ? fr
-                              ? "Enregistrement…"
-                              : "Saving…"
-                            : fr
-                              ? "Photo"
-                              : "Photo"}
+                            ? tx("Saving…", "Enregistrement…")
+                            : tx("Photo", "Photo")}
                           <input
                             type="file"
                             accept="image/*"
@@ -1564,15 +1536,13 @@ function MessagesPage() {
                                 {
                                   onSuccess: () =>
                                     toast.success(
-                                      fr ? "Photo du groupe enregistrée" : "Group photo saved",
+                                      tx("Group photo saved", "Photo du groupe enregistrée"),
                                     ),
                                   onError: (error) =>
                                     toast.error(
                                       error instanceof Error
                                         ? error.message
-                                        : fr
-                                          ? "Impossible d’enregistrer la photo"
-                                          : "Could not save the group photo",
+                                        : tx("Could not save the group photo", "Impossible d’enregistrer la photo"),
                                     ),
                                 },
                               );
@@ -1593,12 +1563,12 @@ function MessagesPage() {
                               { groupId: activeGroup.id, name: groupEditName },
                               {
                                 onSuccess: () =>
-                                  toast.success(fr ? "Groupe mis à jour" : "Group updated"),
+                                  toast.success(tx("Group updated", "Groupe mis à jour")),
                               },
                             )
                           }
                         >
-                          {fr ? "Enregistrer" : "Save"}
+                          {tx("Save", "Enregistrer")}
                         </Button>
                       </div>
                     ) : null}
@@ -1646,7 +1616,7 @@ function MessagesPage() {
                         <Input
                           value={groupSearch}
                           onChange={(event) => setGroupSearch(event.target.value)}
-                          placeholder={fr ? "Ajouter un membre" : "Add a member"}
+                          placeholder={tx("Add a member", "Ajouter un membre")}
                         />
                         {(groupPeople ?? [])
                           .filter(
@@ -1718,15 +1688,13 @@ function MessagesPage() {
                     <Lock className="size-6" />
                   </span>
                   <p className="font-display text-lg font-bold">
-                    {fr ? "Discussion verrouillée" : "Locked chat"}
+                    {tx("Locked chat", "Discussion verrouillée")}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {fr
-                      ? "Le contenu n’a pas été chargé. Entrez votre code pour l’ouvrir."
-                      : "Content has not been loaded. Enter your PIN to open it."}
+                    {tx("Content has not been loaded. Enter your PIN to open it.", "Le contenu n’a pas été chargé. Entrez votre code pour l’ouvrir.")}
                   </p>
                   <Button onClick={() => void openLockedChat(activeId)}>
-                    {fr ? "Déverrouiller" : "Unlock"}
+                    {tx("Unlock", "Déverrouiller")}
                   </Button>
                 </div>
               </div>
@@ -1741,7 +1709,7 @@ function MessagesPage() {
                   <ChatThread
                     conversationId={activeId}
                     currentUserId={user?.id}
-                    peerName={active ? peerOf(active) : fr ? "Profil" : "Profile"}
+                    peerName={active ? peerOf(active) : tx("Profile", "Profil")}
                     peerUserId={active ? peerUserIdOf(active) : null}
                     peerAvatar={active ? peerAvatarOf(active) : null}
                     isGroup={Boolean(activeGroup)}
@@ -1818,7 +1786,7 @@ function MessagesPage() {
         )}
         {(loadingStories || loadingSpotlights) && (
           <p role="status" className="text-center text-sm text-muted-foreground">
-            {fr ? "Chargement des actualités…" : "Loading updates…"}
+            {tx("Loading updates…", "Chargement des actualités…")}
           </p>
         )}
         {hasStory && (
@@ -1832,7 +1800,7 @@ function MessagesPage() {
             }}
           >
             <CircleUserRound className="text-success" />
-            {fr ? "Voir la story" : "View story"}
+            {tx("View story", "Voir la story")}
           </Button>
         )}
         {hasSpotlight && (
@@ -1846,7 +1814,7 @@ function MessagesPage() {
             }}
           >
             <Play className="text-success" />
-            {fr ? "Voir le Spotlight" : "View Spotlight"}
+            {tx("View Spotlight", "Voir le Spotlight")}
           </Button>
         )}
         <Button
@@ -1858,7 +1826,7 @@ function MessagesPage() {
           }}
         >
           <CircleUserRound />
-          {fr ? "Voir le profil" : "View profile"}
+          {tx("View profile", "Voir le profil")}
         </Button>
       </ChatActionDialog>
       {viewerRequest && (

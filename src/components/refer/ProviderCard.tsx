@@ -31,7 +31,7 @@ export function ProviderCard({
   completedBookings?: number;
   nearby?: boolean;
 }) {
-  const { t, lang } = useI18n();
+  const { tx, t, lang } = useI18n();
   const fr = lang === "fr";
   const cover = photos[0];
   const thumbs = photos.slice(1, 3);
@@ -108,7 +108,7 @@ export function ProviderCard({
           {nearby ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-primary px-2 py-1 text-[10px] font-bold text-primary-foreground shadow-sm">
               <MapPin className="size-3" aria-hidden />
-              {fr ? "Près de vous" : "Near you"}
+              {tx("Near you", "Près de vous")}
             </span>
           ) : null}
           <span className="ml-auto flex items-center gap-1.5">
@@ -194,7 +194,7 @@ export function ProviderCard({
             ))}
             {services.length > topServices.length ? (
               <li className="py-2 text-xs font-semibold text-primary">
-                +{services.length - topServices.length} {fr ? "autres prestations" : "more services"}
+                +{services.length - topServices.length} {tx("more services", "autres prestations")}
               </li>
             ) : null}
           </ul>

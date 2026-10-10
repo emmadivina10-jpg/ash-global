@@ -45,34 +45,32 @@ function databaseMessage(prefix: string, error: unknown): string {
 }
 
 function CreatePage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const navigate = useNavigate();
 
   return (
     <div className="relative mx-auto w-full max-w-2xl space-y-5">
       <header>
-        <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">{fr ? "Créer" : "Create"}</h1>
+        <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">{tx("Create", "Créer")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {fr
-            ? "Publiez une offre, un événement, un projet ou votre profil freelance."
-            : "Publish a deal, an event, a project or your freelance profile."}
+          {tx("Publish a deal, an event, a project or your freelance profile.", "Publiez une offre, un événement, un projet ou votre profil freelance.")}
         </p>
       </header>
 
       <Tabs defaultValue="deal">
         <TabsList className="w-full">
           <TabsTrigger value="deal" className="flex-1">
-            {fr ? "Offre" : "Deal"}
+            {tx("Deal", "Offre")}
           </TabsTrigger>
           <TabsTrigger value="event" className="flex-1">
-            {fr ? "Événement" : "Event"}
+            {tx("Event", "Événement")}
           </TabsTrigger>
           <TabsTrigger value="project" className="flex-1">
-            {fr ? "Projet" : "Project"}
+            {tx("Project", "Projet")}
           </TabsTrigger>
           <TabsTrigger value="freelancer" className="flex-1">
-            {fr ? "Freelance" : "Freelance"}
+            {tx("Freelance", "Freelance")}
           </TabsTrigger>
         </TabsList>
 
@@ -100,19 +98,17 @@ function CreatePage() {
       >
         <div className="w-full max-w-lg px-4 py-8 text-center sm:py-10">
           <h2 id="create-coming-soon-title" className="font-display text-3xl font-bold text-foreground sm:text-4xl">
-            {fr ? "Bientôt disponible !" : "Coming Soon!"}
+            {tx("Coming Soon!", "Bientôt disponible !")}
           </h2>
           <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground sm:text-base">
-            {fr
-              ? "La création d'offres, d'événements, de projets et de profils freelance sera disponible prochainement."
-              : "Deal, event, project and freelance profile creation will be available soon."}
+            {tx("Deal, event, project and freelance profile creation will be available soon.", "La création d'offres, d'événements, de projets et de profils freelance sera disponible prochainement.")}
           </p>
 
           <Button
             className="mt-7 h-12 w-full rounded-2xl text-base font-semibold"
             onClick={() => void navigate({ to: "/feed" })}
           >
-            {fr ? "Retour au fil" : "Return to Feed"}
+            {tx("Return to Feed", "Retour au fil")}
           </Button>
         </div>
       </div>
@@ -148,7 +144,7 @@ function DealForm({ fr }: { fr: boolean }) {
     const original = Number(form.original);
     const price = Number(form.price);
     if (form.title.trim().length < 3 || !(original > 0) || !(price > 0) || price >= original) {
-      toast.error(fr ? "Vérifiez le titre et les prix." : "Check the title and prices.");
+      toast.error(tx("Check the title and prices.", "Vérifiez le titre et les prix."));
       return;
     }
     setBusy(true);
@@ -168,10 +164,10 @@ function DealForm({ fr }: { fr: boolean }) {
         is_active: true,
       });
       if (error) {
-        toast.error(databaseMessage(fr ? "Publication impossible" : "Could not publish the deal", error));
+        toast.error(databaseMessage(tx("Could not publish the deal", "Publication impossible"), error));
         return;
       }
-      toast.success(fr ? "Offre publiée !" : "Deal published!");
+      toast.success(tx("Deal published!", "Offre publiée !"));
       void queryClient.invalidateQueries({ queryKey: ["deals"] });
       void navigate({ to: "/deals" });
     } finally {
@@ -181,10 +177,10 @@ function DealForm({ fr }: { fr: boolean }) {
 
   return (
     <div className="tile space-y-4 p-5">
-      <Field id="deal-title" label={fr ? "Titre de l'offre" : "Deal title"}>
+      <Field id="deal-title" label={tx("Deal title", "Titre de l'offre")}>
         <Input id="deal-title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
       </Field>
-      <Field id="deal-desc" label={fr ? "Description" : "Description"}>
+      <Field id="deal-desc" label={tx("Description", "Description")}>
         <Textarea
           id="deal-desc"
           rows={3}
@@ -193,7 +189,7 @@ function DealForm({ fr }: { fr: boolean }) {
         />
       </Field>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field id="deal-original" label={fr ? "Prix normal (XAF)" : "Normal price (XAF)"}>
+        <Field id="deal-original" label={tx("Normal price (XAF)", "Prix normal (XAF)")}>
           <Input
             id="deal-original"
             inputMode="numeric"
@@ -201,7 +197,7 @@ function DealForm({ fr }: { fr: boolean }) {
             onChange={(e) => setForm({ ...form, original: e.target.value })}
           />
         </Field>
-        <Field id="deal-price" label={fr ? "Prix promo (XAF)" : "Deal price (XAF)"}>
+        <Field id="deal-price" label={tx("Deal price (XAF)", "Prix promo (XAF)")}>
           <Input
             id="deal-price"
             inputMode="numeric"
@@ -209,10 +205,10 @@ function DealForm({ fr }: { fr: boolean }) {
             onChange={(e) => setForm({ ...form, price: e.target.value })}
           />
         </Field>
-        <Field id="deal-city" label={fr ? "Ville" : "City"}>
+        <Field id="deal-city" label={tx("City", "Ville")}>
           <Input id="deal-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
         </Field>
-        <Field id="deal-limit" label={fr ? "Nombre max" : "Claim limit"}>
+        <Field id="deal-limit" label={tx("Claim limit", "Nombre max")}>
           <Input
             id="deal-limit"
             inputMode="numeric"
@@ -220,7 +216,7 @@ function DealForm({ fr }: { fr: boolean }) {
             onChange={(e) => setForm({ ...form, limit: e.target.value })}
           />
         </Field>
-        <Field id="deal-days" label={fr ? "Durée (jours)" : "Runs for (days)"}>
+        <Field id="deal-days" label={tx("Runs for (days)", "Durée (jours)")}>
           <Input
             id="deal-days"
             inputMode="numeric"
@@ -230,7 +226,7 @@ function DealForm({ fr }: { fr: boolean }) {
         </Field>
       </div>
       <Button className="w-full" disabled={busy} onClick={() => void submit()}>
-        {fr ? "Publier l'offre" : "Publish deal"}
+        {tx("Publish deal", "Publier l'offre")}
       </Button>
     </div>
   );
@@ -253,7 +249,7 @@ function EventForm({ fr }: { fr: boolean }) {
 
   async function submit() {
     if (form.title.trim().length < 3 || !form.startsAt) {
-      toast.error(fr ? "Titre et date requis." : "Title and date are required.");
+      toast.error(tx("Title and date are required.", "Titre et date requis."));
       return;
     }
     const price = Number(form.price) || 0;
@@ -274,10 +270,10 @@ function EventForm({ fr }: { fr: boolean }) {
         is_published: true,
       });
       if (error) {
-        toast.error(databaseMessage(fr ? "Publication impossible" : "Could not publish the event", error));
+        toast.error(databaseMessage(tx("Could not publish the event", "Publication impossible"), error));
         return;
       }
-      toast.success(fr ? "Événement publié !" : "Event published!");
+      toast.success(tx("Event published!", "Événement publié !"));
       void queryClient.invalidateQueries({ queryKey: ["events"] });
       void navigate({ to: "/events" });
     } finally {
@@ -287,10 +283,10 @@ function EventForm({ fr }: { fr: boolean }) {
 
   return (
     <div className="tile space-y-4 p-5">
-      <Field id="ev-title" label={fr ? "Titre" : "Title"}>
+      <Field id="ev-title" label={tx("Title", "Titre")}>
         <Input id="ev-title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
       </Field>
-      <Field id="ev-desc" label={fr ? "Description" : "Description"}>
+      <Field id="ev-desc" label={tx("Description", "Description")}>
         <Textarea
           id="ev-desc"
           rows={3}
@@ -299,7 +295,7 @@ function EventForm({ fr }: { fr: boolean }) {
         />
       </Field>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field id="ev-start" label={fr ? "Date et heure" : "Date and time"}>
+        <Field id="ev-start" label={tx("Date and time", "Date et heure")}>
           <Input
             id="ev-start"
             type="datetime-local"
@@ -307,13 +303,13 @@ function EventForm({ fr }: { fr: boolean }) {
             onChange={(e) => setForm({ ...form, startsAt: e.target.value })}
           />
         </Field>
-        <Field id="ev-venue" label={fr ? "Lieu" : "Venue"}>
+        <Field id="ev-venue" label={tx("Venue", "Lieu")}>
           <Input id="ev-venue" value={form.venue} onChange={(e) => setForm({ ...form, venue: e.target.value })} />
         </Field>
-        <Field id="ev-city" label={fr ? "Ville" : "City"}>
+        <Field id="ev-city" label={tx("City", "Ville")}>
           <Input id="ev-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
         </Field>
-        <Field id="ev-price" label={fr ? "Prix du billet (0 = gratuit)" : "Ticket price (0 = free)"}>
+        <Field id="ev-price" label={tx("Ticket price (0 = free)", "Prix du billet (0 = gratuit)")}>
           <Input
             id="ev-price"
             inputMode="numeric"
@@ -321,7 +317,7 @@ function EventForm({ fr }: { fr: boolean }) {
             onChange={(e) => setForm({ ...form, price: e.target.value })}
           />
         </Field>
-        <Field id="ev-cap" label={fr ? "Places" : "Capacity"}>
+        <Field id="ev-cap" label={tx("Capacity", "Places")}>
           <Input
             id="ev-cap"
             inputMode="numeric"
@@ -331,7 +327,7 @@ function EventForm({ fr }: { fr: boolean }) {
         </Field>
       </div>
       <Button className="w-full" disabled={busy} onClick={() => void submit()}>
-        {fr ? "Publier l'événement" : "Publish event"}
+        {tx("Publish event", "Publier l'événement")}
       </Button>
     </div>
   );
@@ -354,7 +350,7 @@ function ProjectForm({ fr }: { fr: boolean }) {
   async function submit() {
     const budget = Number(form.budget);
     if (form.title.trim().length < 3 || form.description.trim().length < 20 || !(budget > 0)) {
-      toast.error(fr ? "Titre, description et budget requis." : "Title, description and budget are required.");
+      toast.error(tx("Title, description and budget are required.", "Titre, description et budget requis."));
       return;
     }
     setBusy(true);
@@ -375,10 +371,10 @@ function ProjectForm({ fr }: { fr: boolean }) {
         status: "OPEN",
       });
       if (error) {
-        toast.error(databaseMessage(fr ? "Publication impossible" : "Could not publish the project", error));
+        toast.error(databaseMessage(tx("Could not publish the project", "Publication impossible"), error));
         return;
       }
-      toast.success(fr ? "Projet publié !" : "Project published!");
+      toast.success(tx("Project published!", "Projet publié !"));
       void queryClient.invalidateQueries({ queryKey: ["freelance-projects"] });
       void navigate({ to: "/freelance" });
     } finally {
@@ -388,10 +384,10 @@ function ProjectForm({ fr }: { fr: boolean }) {
 
   return (
     <div className="tile space-y-4 p-5">
-      <Field id="pr-title" label={fr ? "Titre du projet" : "Project title"}>
+      <Field id="pr-title" label={tx("Project title", "Titre du projet")}>
         <Input id="pr-title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
       </Field>
-      <Field id="pr-desc" label={fr ? "Ce dont vous avez besoin" : "What you need"}>
+      <Field id="pr-desc" label={tx("What you need", "Ce dont vous avez besoin")}>
         <Textarea
           id="pr-desc"
           rows={5}
@@ -400,7 +396,7 @@ function ProjectForm({ fr }: { fr: boolean }) {
         />
       </Field>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field id="pr-budget" label={fr ? "Budget (XAF)" : "Budget (XAF)"}>
+        <Field id="pr-budget" label={tx("Budget (XAF)", "Budget (XAF)")}>
           <Input
             id="pr-budget"
             inputMode="numeric"
@@ -408,7 +404,7 @@ function ProjectForm({ fr }: { fr: boolean }) {
             onChange={(e) => setForm({ ...form, budget: e.target.value })}
           />
         </Field>
-        <Field id="pr-days" label={fr ? "Délai (jours)" : "Deadline (days)"}>
+        <Field id="pr-days" label={tx("Deadline (days)", "Délai (jours)")}>
           <Input
             id="pr-days"
             inputMode="numeric"
@@ -416,15 +412,15 @@ function ProjectForm({ fr }: { fr: boolean }) {
             onChange={(e) => setForm({ ...form, days: e.target.value })}
           />
         </Field>
-        <Field id="pr-skills" label={fr ? "Compétences (séparées par ,)" : "Skills (comma separated)"}>
+        <Field id="pr-skills" label={tx("Skills (comma separated)", "Compétences (séparées par ,)")}>
           <Input id="pr-skills" value={form.skills} onChange={(e) => setForm({ ...form, skills: e.target.value })} />
         </Field>
-        <Field id="pr-city" label={fr ? "Ville" : "City"}>
+        <Field id="pr-city" label={tx("City", "Ville")}>
           <Input id="pr-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
         </Field>
       </div>
       <Button className="w-full" disabled={busy} onClick={() => void submit()}>
-        {fr ? "Publier le projet" : "Post project"}
+        {tx("Post project", "Publier le projet")}
       </Button>
     </div>
   );
@@ -438,7 +434,7 @@ function FreelancerForm({ fr }: { fr: boolean }) {
 
   async function submit() {
     if (form.headline.trim().length < 5) {
-      toast.error(fr ? "Ajoutez une accroche claire." : "Add a clear headline.");
+      toast.error(tx("Add a clear headline.", "Ajoutez une accroche claire."));
       return;
     }
     setBusy(true);
@@ -461,10 +457,10 @@ function FreelancerForm({ fr }: { fr: boolean }) {
         { onConflict: "user_id" },
       );
       if (error) {
-        toast.error(databaseMessage(fr ? "Enregistrement impossible" : "Could not save your profile", error));
+        toast.error(databaseMessage(tx("Could not save your profile", "Enregistrement impossible"), error));
         return;
       }
-      toast.success(fr ? "Profil freelance publié !" : "Freelance profile published!");
+      toast.success(tx("Freelance profile published!", "Profil freelance publié !"));
       void queryClient.invalidateQueries({ queryKey: ["freelancers"] });
       void queryClient.invalidateQueries({ queryKey: ["freelancer-profile", "mine"] });
       void navigate({ to: "/freelance" });
@@ -475,25 +471,25 @@ function FreelancerForm({ fr }: { fr: boolean }) {
 
   return (
     <div className="tile space-y-4 p-5">
-      <Field id="fl-headline" label={fr ? "Accroche" : "Headline"}>
+      <Field id="fl-headline" label={tx("Headline", "Accroche")}>
         <Input
           id="fl-headline"
           value={form.headline}
           onChange={(e) => setForm({ ...form, headline: e.target.value })}
-          placeholder={fr ? "Développeur frontend React / TypeScript" : "Frontend developer — React / TypeScript"}
+          placeholder={tx("Frontend developer — React / TypeScript", "Développeur frontend React / TypeScript")}
         />
       </Field>
-      <Field id="fl-bio" label={fr ? "À propos" : "About you"}>
+      <Field id="fl-bio" label={tx("About you", "À propos")}>
         <Textarea id="fl-bio" rows={4} value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} />
       </Field>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field id="fl-skills" label={fr ? "Compétences (séparées par ,)" : "Skills (comma separated)"}>
+        <Field id="fl-skills" label={tx("Skills (comma separated)", "Compétences (séparées par ,)")}>
           <Input id="fl-skills" value={form.skills} onChange={(e) => setForm({ ...form, skills: e.target.value })} />
         </Field>
-        <Field id="fl-city" label={fr ? "Ville" : "City"}>
+        <Field id="fl-city" label={tx("City", "Ville")}>
           <Input id="fl-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
         </Field>
-        <Field id="fl-start" label={fr ? "À partir de (XAF)" : "Starting from (XAF)"}>
+        <Field id="fl-start" label={tx("Starting from (XAF)", "À partir de (XAF)")}>
           <Input
             id="fl-start"
             inputMode="numeric"
@@ -501,7 +497,7 @@ function FreelancerForm({ fr }: { fr: boolean }) {
             onChange={(e) => setForm({ ...form, starting: e.target.value })}
           />
         </Field>
-        <Field id="fl-years" label={fr ? "Années d'expérience" : "Years of experience"}>
+        <Field id="fl-years" label={tx("Years of experience", "Années d'expérience")}>
           <Input
             id="fl-years"
             inputMode="numeric"
@@ -511,7 +507,7 @@ function FreelancerForm({ fr }: { fr: boolean }) {
         </Field>
       </div>
       <Button className="w-full" disabled={busy} onClick={() => void submit()}>
-        {fr ? "Publier mon profil" : "Publish my profile"}
+        {tx("Publish my profile", "Publier mon profil")}
       </Button>
     </div>
   );

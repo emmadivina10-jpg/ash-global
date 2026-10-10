@@ -81,7 +81,7 @@ function AddressPicker({
   }, [term, search]);
 
   const pick = async (lat: number, lng: number) => {
-    onChange({ address: fr ? "Position choisie…" : "Pinned location…", lat, lng });
+    onChange({ address: tx("Pinned location…", "Position choisie…"), lat, lng });
     const { address } = await reverse({ data: { lat, lng } }).catch(() => ({ address: `${lat.toFixed(5)}, ${lng.toFixed(5)}` }));
     onChange({ address, lat, lng });
   };
@@ -93,7 +93,7 @@ function AddressPicker({
         <Input
           value={term}
           onChange={(e) => setTerm(e.target.value)}
-          placeholder={fr ? "Rechercher ou saisir une adresse" : "Search or type an address"}
+          placeholder={tx("Search or type an address", "Rechercher ou saisir une adresse")}
           className="rounded-full pl-9"
         />
         {results.length ? (
@@ -109,7 +109,7 @@ function AddressPicker({
                     const d = await details({ data: { placeId: r.placeId, sessionToken: token.current } });
                     token.current = crypto.randomUUID();
                     if (d) onChange(d);
-                    else toast.error(fr ? "Adresse introuvable" : "Couldn't find that address");
+                    else toast.error(tx("Couldn't find that address", "Adresse introuvable"));
                   }}
                 >
                   {r.text}
@@ -127,7 +127,7 @@ function AddressPicker({
         disabled={locating}
         onClick={() => {
           if (!navigator.geolocation) {
-            toast.error(fr ? "Localisation indisponible" : "Location unavailable");
+            toast.error(tx("Location unavailable", "Localisation indisponible"));
             return;
           }
           setLocating(true);
@@ -138,14 +138,14 @@ function AddressPicker({
             },
             () => {
               setLocating(false);
-              toast.error(fr ? "Autorisez la localisation ou recherchez votre adresse" : "Allow location, or search your address");
+              toast.error(tx("Allow location, or search your address", "Autorisez la localisation ou recherchez votre adresse"));
             },
             { enableHighAccuracy: true, timeout: 12000 },
           );
         }}
       >
         {locating ? <Loader2 className="size-4 animate-spin" /> : <LocateFixed className="size-4" />}
-        {fr ? "Utiliser ma position" : "Use my current location"}
+        {tx("Use my current location", "Utiliser ma position")}
       </Button>
       {value ? (
         <p className="flex items-start gap-2 text-sm font-medium text-foreground">
@@ -157,11 +157,11 @@ function AddressPicker({
 }
 
 function QuoteCard({ q, loading, direction, fr }: { q: Quote | undefined; loading: boolean; direction: "PICKUP" | "DELIVERY"; fr: boolean }) {
-  if (loading) return <div className="flex items-center gap-2 rounded-2xl bg-muted p-4 text-sm"><Loader2 className="size-4 animate-spin" /> {fr ? "Calcul de la distance…" : "Working out road distance…"}</div>;
+  if (loading) return <div className="flex items-center gap-2 rounded-2xl bg-muted p-4 text-sm"><Loader2 className="size-4 animate-spin" /> {tx("Working out road distance…", "Calcul de la distance…")}</div>;
   if (!q) return null;
   const staff = q.method === "STAFF";
   const Icon = staff ? Footprints : Bike;
-  const word = direction === "PICKUP" ? (fr ? "COLLECTE" : "PICKUP") : fr ? "LIVRAISON" : "DELIVERY";
+  const word = direction === "PICKUP" ? (tx("PICKUP", "COLLECTE")) : tx("DELIVERY", "LIVRAISON");
   return (
     <div className={cn("rounded-2xl border p-4", staff ? "border-primary/40 bg-primary/5" : "border-border bg-card")}>
       <p className="flex items-center gap-2 font-extrabold text-foreground">
@@ -169,20 +169,20 @@ function QuoteCard({ q, loading, direction, fr }: { q: Quote | undefined; loadin
       </p>
       <p className="mt-1 text-sm text-muted-foreground">
         {staff
-          ? fr ? "Votre adresse est dans notre zone staff." : "Your location is within our staff area."
-          : fr ? "Un ASH Rider s'en charge." : "An ASH Rider will handle this."}
+          ? tx("Your location is within our staff area.", "Votre adresse est dans notre zone staff.")
+          : tx("An ASH Rider will handle this.", "Un ASH Rider s'en charge.")}
       </p>
       <div className="mt-2 grid grid-cols-3 gap-2 text-sm">
-        <span><b className="block text-foreground">{q.km} km</b><span className="text-xs text-muted-foreground">{q.source === "ROAD" ? (fr ? "par la route" : "by road") : fr ? "estimé" : "estimated"}</span></span>
-        <span><b className="block text-foreground">~{q.etaMin} min</b><span className="text-xs text-muted-foreground">{fr ? "trajet" : "travel"}</span></span>
-        <span><b className="block text-foreground">{q.fee > 0 ? fcfa(q.fee) : fr ? "GRATUIT" : "FREE"}</b><span className="text-xs text-muted-foreground">{fr ? "frais" : "fee"}</span></span>
+        <span><b className="block text-foreground">{q.km} km</b><span className="text-xs text-muted-foreground">{q.source === "ROAD" ? (tx("by road", "par la route")) : tx("estimated", "estimé")}</span></span>
+        <span><b className="block text-foreground">~{q.etaMin} min</b><span className="text-xs text-muted-foreground">{tx("travel", "trajet")}</span></span>
+        <span><b className="block text-foreground">{q.fee > 0 ? fcfa(q.fee) : tx("FREE", "GRATUIT")}</b><span className="text-xs text-muted-foreground">{tx("fee", "frais")}</span></span>
       </div>
     </div>
   );
 }
 
 function BookClean() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const navigate = useNavigate();
   const create = useServerFn(createCleanOrder);
@@ -216,11 +216,11 @@ function BookClean() {
 
   const submit = async () => {
     if (!pickup || !deliveryLoc) {
-      toast.error(fr ? "Choisissez votre adresse" : "Set your address first");
+      toast.error(tx("Set your address first", "Choisissez votre adresse"));
       return;
     }
     if (!services.length) {
-      toast.error(fr ? "Choisissez au moins un service" : "Choose at least one service");
+      toast.error(tx("Choose at least one service", "Choisissez au moins un service"));
       return;
     }
     setBusy(true);
@@ -230,7 +230,7 @@ function BookClean() {
         toast.error(r.error);
         return;
       }
-      toast.success(`${fr ? "Réservé" : "Booked"} · ${r.orderNo}`);
+      toast.success(`${tx("Booked", "Réservé")} · ${r.orderNo}`);
       void navigate({ to: "/clean/orders/$orderId", params: { orderId: r.id } });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Error");
@@ -241,10 +241,10 @@ function BookClean() {
 
   return (
     <div className="mx-auto w-full max-w-2xl space-y-5 pb-12">
-      <h1 className="font-display text-2xl font-extrabold text-foreground">{fr ? "Réserver une collecte" : "Book a pickup"}</h1>
+      <h1 className="font-display text-2xl font-extrabold text-foreground">{tx("Book a pickup", "Réserver une collecte")}</h1>
 
       <section className="space-y-2 rounded-3xl bg-card p-4 shadow-[var(--shadow-card)]">
-        <Label className="font-bold">{fr ? "Services" : "Services"}</Label>
+        <Label className="font-bold">{tx("Services", "Services")}</Label>
         <div className="flex flex-wrap gap-2">
           {(base?.services ?? []).filter((s) => s.kind === "SERVICE").map((s) => (
             <button key={s.code} type="button" onClick={() => toggle(s.code)}
@@ -254,13 +254,13 @@ function BookClean() {
           ))}
         </div>
         <p className="text-xs text-muted-foreground">
-          {fr ? "Articles spéciaux (costume, couette…) comptés à la réception : " : "Special items (suits, duvets…) are counted on arrival: "}
+          {tx("Special items (suits, duvets…) are counted on arrival: ", "Articles spéciaux (costume, couette…) comptés à la réception : ")}
           {(base?.services ?? []).filter((s) => s.kind === "SPECIAL").map((s) => `${fr ? s.name_fr : s.name_en} ${fcfa(s.price)}`).join(" · ")}
         </p>
       </section>
 
       <section className="space-y-3 rounded-3xl bg-card p-4 shadow-[var(--shadow-card)]">
-        <Label className="font-bold">{fr ? "Adresse de collecte" : "Pickup location"}</Label>
+        <Label className="font-bold">{tx("Pickup location", "Adresse de collecte")}</Label>
         <AddressPicker value={pickup} onChange={setPickup} center={center} fr={fr} />
         <QuoteCard q={pq.data} loading={pq.isFetching} direction="PICKUP" fr={fr} />
       </section>
@@ -268,7 +268,7 @@ function BookClean() {
       <section className="space-y-3 rounded-3xl bg-card p-4 shadow-[var(--shadow-card)]">
         <label className="flex items-center gap-2 text-sm font-semibold">
           <input type="checkbox" checked={sameDelivery} onChange={(e) => setSameDelivery(e.target.checked)} />
-          {fr ? "Livrer à la même adresse" : "Deliver to the same address"}
+          {tx("Deliver to the same address", "Livrer à la même adresse")}
         </label>
         {!sameDelivery ? <AddressPicker value={delivery} onChange={setDelivery} center={center} fr={fr} /> : null}
         <QuoteCard q={dq.data} loading={dq.isFetching} direction="DELIVERY" fr={fr} />
@@ -276,22 +276,20 @@ function BookClean() {
 
       <section className="space-y-3 rounded-3xl bg-card p-4 shadow-[var(--shadow-card)]">
         <div>
-          <Label htmlFor="cl-phone">{fr ? "Téléphone de contact" : "Contact phone"}</Label>
+          <Label htmlFor="cl-phone">{tx("Contact phone", "Téléphone de contact")}</Label>
           <Input id="cl-phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="6XX XXX XXX" inputMode="tel" />
         </div>
         <div>
-          <Label htmlFor="cl-notes">{fr ? "Instructions (optionnel)" : "Instructions (optional)"}</Label>
+          <Label htmlFor="cl-notes">{tx("Instructions (optional)", "Instructions (optionnel)")}</Label>
           <Textarea id="cl-notes" value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} />
         </div>
         <p className="rounded-2xl bg-muted p-3 text-sm text-foreground">
-          {fr
-            ? "Votre linge sera pesé chez ASH Clean. Le prix final est calculé à partir du poids vérifié. Vous validez le prix avant le lavage."
-            : "Your laundry will be weighed at ASH Clean. Your final charge is calculated from the verified weight. You approve the final price before washing begins."}
+          {tx("Your laundry will be weighed at ASH Clean. Your final charge is calculated from the verified weight. You approve the final price before washing begins.", "Votre linge sera pesé chez ASH Clean. Le prix final est calculé à partir du poids vérifié. Vous validez le prix avant le lavage.")}
         </p>
         <Button className="w-full rounded-full" size="lg" disabled={busy || !pickup || pq.isFetching || dq.isFetching} onClick={() => void submit()}>
           {busy ? <Loader2 className="size-4 animate-spin" /> : null}
-          {fr ? "Confirmer la collecte" : "Confirm pickup"}
-          {pq.data && dq.data ? ` · ${fr ? "transport" : "transport"} ${fcfa(pq.data.fee + dq.data.fee)}` : ""}
+          {tx("Confirm pickup", "Confirmer la collecte")}
+          {pq.data && dq.data ? ` · ${tx("transport", "transport")} ${fcfa(pq.data.fee + dq.data.fee)}` : ""}
         </Button>
       </section>
     </div>

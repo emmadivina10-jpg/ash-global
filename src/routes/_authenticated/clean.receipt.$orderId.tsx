@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_authenticated/clean/receipt/$orderId")({
 
 function CleanReceipt() {
   const { orderId } = Route.useParams();
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const { data } = useQuery({
     queryKey: ["clean", "receipt", orderId],
@@ -49,7 +49,7 @@ function CleanReceipt() {
     <div className="mx-auto w-full max-w-md pb-12">
       <div className="mb-3 flex justify-end print:hidden">
         <Button onClick={() => window.print()} className="rounded-full">
-          <Printer className="size-4" /> {fr ? "Imprimer / PDF" : "Print / save PDF"}
+          <Printer className="size-4" /> {tx("Print / save PDF", "Imprimer / PDF")}
         </Button>
       </div>
       <article className="space-y-4 rounded-3xl border border-border bg-card p-6 text-foreground print:border-0 print:shadow-none">
@@ -63,20 +63,20 @@ function CleanReceipt() {
           <QRCodeSVG value={`ASHCLEAN:${o.order_no}:${o.id}`} size={96} level="M" includeMargin={false} />
         </header>
         <div className="rounded-2xl bg-muted p-3 text-center">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">{fr ? "Commande" : "Order"}</p>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">{tx("Order", "Commande")}</p>
           <p className="font-mono text-2xl font-extrabold">{o.order_no}</p>
-          {o.receipt_no ? <p className="font-mono text-xs">{fr ? "Reçu" : "Receipt"} {o.receipt_no}</p> : null}
+          {o.receipt_no ? <p className="font-mono text-xs">{tx("Receipt", "Reçu")} {o.receipt_no}</p> : null}
           <p className={paid ? "mt-1 text-sm font-bold text-primary" : "mt-1 text-sm font-bold text-muted-foreground"}>
-            {paid ? (fr ? "PAYÉ" : "PAID") : q ? (fr ? "EN ATTENTE DE PAIEMENT" : "AWAITING PAYMENT") : fr ? "PRIX APRÈS PESÉE" : "PRICED AFTER WEIGHING"}
+            {paid ? (tx("PAID", "PAYÉ")) : q ? (tx("AWAITING PAYMENT", "EN ATTENTE DE PAIEMENT")) : tx("PRICED AFTER WEIGHING", "PRIX APRÈS PESÉE")}
           </p>
         </div>
         <dl className="space-y-1 text-sm">
-          <L k={fr ? "Client" : "Customer"} v={data.profile?.full_name ?? "—"} />
-          <L k={fr ? "Téléphone" : "Phone"} v={o.contact_phone ?? data.profile?.phone ?? "—"} />
-          <L k={fr ? "Réservé le" : "Booked"} v={formatDateTime(o.created_at)} />
-          <L k={fr ? "Statut" : "Status"} v={cleanStatusLabel(o.status, fr)} />
-          <L k={fr ? "Collecte" : "Pickup"} v={`${methodLabel(o.pickup_method)} · ${o.pickup_distance_km} km`} />
-          <L k={fr ? "Livraison" : "Delivery"} v={`${methodLabel(o.delivery_method)} · ${o.delivery_distance_km} km`} />
+          <L k={tx("Customer", "Client")} v={data.profile?.full_name ?? "—"} />
+          <L k={tx("Phone", "Téléphone")} v={o.contact_phone ?? data.profile?.phone ?? "—"} />
+          <L k={tx("Booked", "Réservé le")} v={formatDateTime(o.created_at)} />
+          <L k={tx("Status", "Statut")} v={cleanStatusLabel(o.status, fr)} />
+          <L k={tx("Pickup", "Collecte")} v={`${methodLabel(o.pickup_method)} · ${o.pickup_distance_km} km`} />
+          <L k={tx("Delivery", "Livraison")} v={`${methodLabel(o.delivery_method)} · ${o.delivery_distance_km} km`} />
         </dl>
         <dl className="space-y-1 border-t border-border pt-3 text-sm">
           {q ? (
@@ -85,22 +85,22 @@ function CleanReceipt() {
               {((q.special_items as { name: string; qty: number; amount: number }[]) ?? []).map((s) => (
                 <L key={s.name} k={`${s.name} × ${s.qty}`} v={fcfa(s.amount)} />
               ))}
-              <L k={fr ? "Frais de collecte" : "Pickup fee"} v={fcfa(q.pickup_fee)} />
-              <L k={fr ? "Frais de livraison" : "Delivery fee"} v={fcfa(q.delivery_fee)} />
+              <L k={tx("Pickup fee", "Frais de collecte")} v={fcfa(q.pickup_fee)} />
+              <L k={tx("Delivery fee", "Frais de livraison")} v={fcfa(q.delivery_fee)} />
               <div className="flex justify-between border-t border-border pt-2 text-base font-extrabold"><span>Total</span><span>{fcfa(q.total)}</span></div>
             </>
           ) : (
             <>
-              <L k={fr ? "Frais de collecte" : "Pickup fee"} v={fcfa(o.pickup_fee)} />
-              <L k={fr ? "Frais de livraison" : "Delivery fee"} v={fcfa(o.delivery_fee)} />
-              <p className="text-xs text-muted-foreground">{fr ? "Le linge est facturé au poids vérifié à la réception." : "Laundry is charged on the verified weight at reception."}</p>
+              <L k={tx("Pickup fee", "Frais de collecte")} v={fcfa(o.pickup_fee)} />
+              <L k={tx("Delivery fee", "Frais de livraison")} v={fcfa(o.delivery_fee)} />
+              <p className="text-xs text-muted-foreground">{tx("Laundry is charged on the verified weight at reception.", "Le linge est facturé au poids vérifié à la réception.")}</p>
             </>
           )}
-          {paid ? <L k={fr ? "Payé le" : "Paid on"} v={`${formatDateTime(o.paid_at)} · Mobile Money`} /> : null}
-          {o.payment_reference ? <L k={fr ? "Référence" : "Reference"} v={o.payment_reference} /> : null}
+          {paid ? <L k={tx("Paid on", "Payé le")} v={`${formatDateTime(o.paid_at)} · Mobile Money`} /> : null}
+          {o.payment_reference ? <L k={tx("Reference", "Référence")} v={o.payment_reference} /> : null}
         </dl>
         <p className="text-center text-xs text-muted-foreground">
-          {fr ? "Présentez ce reçu (ou son QR code) au bureau ASH Clean pour déposer ou retirer votre linge." : "Show this receipt (or its QR code) at the ASH Clean office to drop off or collect your laundry."}
+          {tx("Show this receipt (or its QR code) at the ASH Clean office to drop off or collect your laundry.", "Présentez ce reçu (ou son QR code) au bureau ASH Clean pour déposer ou retirer votre linge.")}
         </p>
       </article>
     </div>

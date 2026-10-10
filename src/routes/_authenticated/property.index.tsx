@@ -59,7 +59,7 @@ function filtersFor(tab: TabKey): Pick<PropertyFilters, "kind" | "category"> {
 }
 
 function PropertyLanding() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -103,14 +103,14 @@ function PropertyLanding() {
     if (!auth.user) return;
     if (saved.has(listingId)) {
       await supabase.from("property_saves").delete().eq("listing_id", listingId).eq("user_id", auth.user.id);
-      toast.success(fr ? "Retiré des favoris" : "Removed from saved");
+      toast.success(tx("Removed from saved", "Retiré des favoris"));
     } else {
       const { error } = await supabase.from("property_saves").insert({ listing_id: listingId, user_id: auth.user.id });
       if (error) {
         toast.error(error.message);
         return;
       }
-      toast.success(fr ? "Enregistré" : "Saved");
+      toast.success(tx("Saved", "Enregistré"));
     }
     await queryClient.invalidateQueries({ queryKey: ["property"] });
   }
@@ -138,19 +138,17 @@ function PropertyLanding() {
             className="mt-7 h-11 w-full rounded-xl text-sm font-bold"
             onClick={() => void navigate({ to: "/feed" })}
           >
-            {fr ? "Retour au fil" : "Return to Feed"}
+            {tx("Return to Feed", "Retour au fil")}
           </Button>
         </div>
       </div>
       <header className="tile overflow-hidden p-5 sm:p-7">
         <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary">ASH Property</p>
         <h1 className="mt-1 font-display text-2xl font-extrabold text-foreground sm:text-3xl">
-          {fr ? "Trouvez un logement. Trouvez un terrain." : "Find a place. Find land. Find opportunities."}
+          {tx("Find a place. Find land. Find opportunities.", "Trouvez un logement. Trouvez un terrain.")}
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          {fr
-            ? "Recherche, consultation et contact 100% gratuits. Publier une annonce est également gratuit."
-            : "Searching, browsing and contacting is completely free — and listing your property is free too."}
+          {tx("Searching, browsing and contacting is completely free — and listing your property is free too.", "Recherche, consultation et contact 100% gratuits. Publier une annonce est également gratuit.")}
         </p>
 
         <div className="mt-4 flex flex-wrap gap-2">
@@ -186,21 +184,19 @@ function PropertyLanding() {
               onChange={(event) => setTerm(event.target.value)}
               className="pl-9"
               placeholder={
-                fr
-                  ? "Où cherchez-vous ? Ville, quartier, université"
-                  : "Where are you looking? City, neighborhood or university"
+                tx("Where are you looking? City, neighborhood or university", "Où cherchez-vous ? Ville, quartier, université")
               }
-              aria-label={fr ? "Rechercher un bien" : "Search property"}
+              aria-label={tx("Search property", "Rechercher un bien")}
             />
           </div>
           <Button variant="outline" onClick={() => setShowFilters((value) => !value)}>
             <SlidersHorizontal className="size-4" aria-hidden />
-            {fr ? "Filtres" : "Filters"}
+            {tx("Filters", "Filtres")}
           </Button>
           <Button asChild>
             <Link to="/property/new">
               <Plus className="size-4" aria-hidden />
-              {fr ? "Publier" : "List property"}
+              {tx("List property", "Publier")}
             </Link>
           </Button>
         </div>
@@ -208,7 +204,7 @@ function PropertyLanding() {
         {showFilters ? (
           <div className="mt-4 grid gap-4 rounded-2xl border border-border bg-background/60 p-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-1.5">
-              <Label>{fr ? "Pays" : "Country"}</Label>
+              <Label>{tx("Country", "Pays")}</Label>
               <select
                 value={country}
                 onChange={(event) => {
@@ -225,13 +221,13 @@ function PropertyLanding() {
               </select>
             </div>
             <div className="space-y-1.5">
-              <Label>{fr ? "Ville" : "City"}</Label>
+              <Label>{tx("City", "Ville")}</Label>
               <select
                 value={city}
                 onChange={(event) => setCity(event.target.value)}
                 className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm"
               >
-                <option value="">{fr ? "Toutes les villes" : "All cities"}</option>
+                <option value="">{tx("All cities", "Toutes les villes")}</option>
                 {cities.map((item) => (
                   <option key={item} value={item}>
                     {item}
@@ -240,13 +236,13 @@ function PropertyLanding() {
               </select>
             </div>
             <div className="space-y-1.5">
-              <Label>{fr ? "Type de bien" : "Property type"}</Label>
+              <Label>{tx("Property type", "Type de bien")}</Label>
               <select
                 value={category}
                 onChange={(event) => setCategory(event.target.value)}
                 className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm"
               >
-                <option value="">{fr ? "Tous les types" : "All types"}</option>
+                <option value="">{tx("All types", "Tous les types")}</option>
                 {PROPERTY_CATEGORIES.map((item) => (
                   <option key={item.code} value={item.code}>
                     {fr ? item.fr : item.en}
@@ -255,7 +251,7 @@ function PropertyLanding() {
               </select>
             </div>
             <div className="space-y-1.5">
-              <Label>{fr ? "Prix maximum" : "Max price"}</Label>
+              <Label>{tx("Max price", "Prix maximum")}</Label>
               <Input
                 inputMode="numeric"
                 value={maxPrice}
@@ -264,7 +260,7 @@ function PropertyLanding() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label>{fr ? "Chambres min." : "Min bedrooms"}</Label>
+              <Label>{tx("Min bedrooms", "Chambres min.")}</Label>
               <Input
                 inputMode="numeric"
                 value={bedrooms}
@@ -273,20 +269,20 @@ function PropertyLanding() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label>{fr ? "Trier par" : "Sort by"}</Label>
+              <Label>{tx("Sort by", "Trier par")}</Label>
               <select
                 value={sort}
                 onChange={(event) => setSort(event.target.value as PropertyFilters["sort"])}
                 className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm"
               >
-                <option value="recent">{fr ? "Plus récents" : "Recently added"}</option>
-                <option value="price_asc">{fr ? "Prix croissant" : "Price: low to high"}</option>
-                <option value="price_desc">{fr ? "Prix décroissant" : "Price: high to low"}</option>
+                <option value="recent">{tx("Recently added", "Plus récents")}</option>
+                <option value="price_asc">{tx("Price: low to high", "Prix croissant")}</option>
+                <option value="price_desc">{tx("Price: high to low", "Prix décroissant")}</option>
               </select>
             </div>
 
             <div className="sm:col-span-2 lg:col-span-3">
-              <Label className="mb-2 block">{fr ? "Commodités" : "Amenities"}</Label>
+              <Label className="mb-2 block">{tx("Amenities", "Commodités")}</Label>
               <div className="flex flex-wrap gap-2">
                 {AMENITIES.map((item) => {
                   const active = amenities.includes(item.code);
@@ -313,11 +309,11 @@ function PropertyLanding() {
 
             <label className="flex items-center gap-2 text-sm text-foreground">
               <Checkbox checked={furnished} onCheckedChange={(value) => setFurnished(value === true)} />
-              {fr ? "Meublé" : "Furnished"}
+              {tx("Furnished", "Meublé")}
             </label>
             <label className="flex items-center gap-2 text-sm text-foreground">
               <Checkbox checked={verifiedOnly} onCheckedChange={(value) => setVerifiedOnly(value === true)} />
-              {fr ? "Annonces vérifiées uniquement" : "Verified listings only"}
+              {tx("Verified listings only", "Annonces vérifiées uniquement")}
             </label>
           </div>
         ) : null}
@@ -326,7 +322,7 @@ function PropertyLanding() {
       {tab === "STUDENT" && areas.length > 0 ? (
         <section>
           <h2 className="mb-2 text-sm font-bold text-foreground">
-            {fr ? "Zones étudiantes populaires" : "Popular student areas"}
+            {tx("Popular student areas", "Zones étudiantes populaires")}
           </h2>
           <div className="flex flex-wrap gap-2">
             {areas.map((area) => (
@@ -346,30 +342,28 @@ function PropertyLanding() {
       <section>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-display text-lg font-extrabold text-foreground">
-            {fr ? "Annonces" : "Listings"}
+            {tx("Listings", "Annonces")}
             {listings ? (
               <span className="ml-2 text-sm font-normal text-muted-foreground">{listings.length}</span>
             ) : null}
           </h2>
           <Link to="/property/manage" className="text-xs font-semibold text-primary">
-            {fr ? "Mes biens" : "My property"}
+            {tx("My property", "Mes biens")}
           </Link>
         </div>
 
         {isLoading ? (
-          <LoadingState label={fr ? "Recherche en cours…" : "Searching…"} />
+          <LoadingState label={tx("Searching…", "Recherche en cours…")} />
         ) : (listings?.length ?? 0) === 0 ? (
           <EmptyState
             icon={<Home className="size-5" aria-hidden />}
-            title={fr ? "Aucune annonce pour l’instant" : "No listings yet"}
+            title={tx("No listings yet", "Aucune annonce pour l’instant")}
             description={
-              fr
-                ? "Soyez le premier à publier dans cette catégorie — c’est gratuit."
-                : "Be the first to list here — it is free."
+              tx("Be the first to list here — it is free.", "Soyez le premier à publier dans cette catégorie — c’est gratuit.")
             }
             action={
               <Button asChild>
-                <Link to="/property/new">{fr ? "Publier une annonce" : "List a property"}</Link>
+                <Link to="/property/new">{tx("List a property", "Publier une annonce")}</Link>
               </Button>
             }
           />

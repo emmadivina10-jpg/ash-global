@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_authenticated/search")({
 });
 
 function SearchPage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const [term, setTerm] = useState("");
   const { data, isFetching } = useUniversalSearch(term);
@@ -46,17 +46,17 @@ function SearchPage() {
     ? [
         {
           key: "providers",
-          label: fr ? "Entreprises" : "Businesses",
+          label: tx("Businesses", "Entreprises"),
           items: data.providers.map((row) => ({ id: row.id, title: row.business_name, meta: row.city ?? "", href: `/services/${row.id}` })),
         },
         {
           key: "services",
-          label: fr ? "Services" : "Services",
+          label: tx("Services", "Services"),
           items: data.services.map((row) => ({ id: row.id, title: row.title, meta: formatXAF(row.price), href: `/services/${row.provider_id}` })),
         },
         {
           key: "instructors",
-          label: fr ? "Instructeurs" : "Instructors",
+          label: tx("Instructors", "Instructeurs"),
           items: data.instructors.map((row) => ({
             id: row.id,
             title: row.display_name,
@@ -66,17 +66,17 @@ function SearchPage() {
         },
         {
           key: "freelancers",
-          label: fr ? "Freelances" : "Freelancers",
+          label: tx("Freelancers", "Freelances"),
           items: data.freelancers.map((row) => ({ id: row.id, title: row.headline, meta: row.city ?? row.country, href: "/freelance" })),
         },
         {
           key: "projects",
-          label: fr ? "Projets" : "Projects",
+          label: tx("Projects", "Projets"),
           items: data.projects.map((row) => ({ id: row.id, title: row.title, meta: formatXAF(row.budget), href: `/freelance/${row.id}` })),
         },
         {
           key: "properties",
-          label: fr ? "Immobilier" : "Property",
+          label: tx("Property", "Immobilier"),
           items: data.properties.map((row) => ({
             id: row.id,
             title: row.title,
@@ -86,12 +86,12 @@ function SearchPage() {
         },
         {
           key: "deals",
-          label: fr ? "Bons plans" : "Deals",
+          label: tx("Deals", "Bons plans"),
           items: data.deals.map((row) => ({ id: row.id, title: row.title, meta: formatXAF(row.deal_price), href: "/deals" })),
         },
         {
           key: "events",
-          label: fr ? "Événements" : "Events",
+          label: tx("Events", "Événements"),
           items: data.events.map((row) => ({ id: row.id, title: row.title, meta: row.city ?? row.country, href: `/events/${row.id}` })),
         },
       ].filter((group) => group.items.length > 0)
@@ -100,9 +100,9 @@ function SearchPage() {
   return (
     <div className="mx-auto w-full max-w-3xl space-y-5">
       <header>
-        <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">{fr ? "Recherche" : "Search"}</h1>
+        <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">{tx("Search", "Recherche")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {fr ? "Talents, immobilier, projets, bons plans, événements, entreprises et services." : "Talent, property, projects, deals, events, businesses and services."}
+          {tx("Talent, property, projects, deals, events, businesses and services.", "Talents, immobilier, projets, bons plans, événements, entreprises et services.")}
         </p>
       </header>
 
@@ -112,21 +112,21 @@ function SearchPage() {
           value={term}
           onChange={(event) => setTerm(event.target.value)}
           className="pl-9"
-          placeholder={fr ? "Plombier à Douala, tech summit, 30% off…" : "Plumber in Douala, tech summit, 30% off…"}
-          aria-label={fr ? "Rechercher sur ASH" : "Search ASH"}
+          placeholder={tx("Plumber in Douala, tech summit, 30% off…", "Plombier à Douala, tech summit, 30% off…")}
+          aria-label={tx("Search ASH", "Rechercher sur ASH")}
         />
       </div>
 
       {term.trim().length < 2 ? (
         <EmptyState
           icon={<SearchIcon className="size-5" aria-hidden />}
-          title={fr ? "Que cherchez-vous ?" : "What are you looking for?"}
-          description={fr ? "Tapez au moins deux caractères pour lancer la recherche." : "Type at least two characters to start searching."}
+          title={tx("What are you looking for?", "Que cherchez-vous ?")}
+          description={tx("Type at least two characters to start searching.", "Tapez au moins deux caractères pour lancer la recherche.")}
         />
       ) : isFetching ? (
-        <LoadingState label={fr ? "Recherche…" : "Searching…"} />
+        <LoadingState label={tx("Searching…", "Recherche…")} />
       ) : groups.length === 0 ? (
-        <EmptyState title={fr ? "Aucun résultat" : "No results"} description={fr ? "Essayez un autre mot-clé." : "Try a different keyword."} />
+        <EmptyState title={tx("No results", "Aucun résultat")} description={tx("Try a different keyword.", "Essayez un autre mot-clé.")} />
       ) : (
         <div className="space-y-6">
           {groups.map((group) => (
@@ -151,7 +151,7 @@ function SearchPage() {
       )}
 
       <p className="text-center text-xs text-muted-foreground">
-        {fr ? "Vous ne trouvez pas ? Demandez à " : "Can't find it? Ask "}
+        {tx("Can't find it? Ask ", "Vous ne trouvez pas ? Demandez à ")}
         <Link to="/assistant" className="font-semibold text-primary">
           ASH AI
         </Link>

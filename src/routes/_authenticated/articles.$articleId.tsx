@@ -23,20 +23,20 @@ export const Route = createFileRoute("/_authenticated/articles/$articleId")({
 
 function ArticleDetail() {
   const { articleId } = Route.useParams();
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const article = useArticle(articleId);
   const like = useToggleArticleLike();
 
-  if (article.isLoading) return <LoadingState label={fr ? "Chargement…" : "Loading…"} />;
+  if (article.isLoading) return <LoadingState label={tx("Loading…", "Chargement…")} />;
   if (!article.data)
     return (
       <EmptyState
-        title={fr ? "Article introuvable" : "Article not found"}
-        description={fr ? "Il a peut-être été retiré." : "It may have been removed."}
+        title={tx("Article not found", "Article introuvable")}
+        description={tx("It may have been removed.", "Il a peut-être été retiré.")}
         action={
           <Button asChild>
-            <Link to="/articles">{fr ? "Voir les articles" : "Browse articles"}</Link>
+            <Link to="/articles">{tx("Browse articles", "Voir les articles")}</Link>
           </Button>
         }
       />
@@ -48,7 +48,7 @@ function ArticleDetail() {
     <article className="mx-auto w-full max-w-3xl space-y-5">
       <Link to="/articles" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
         <ArrowLeft className="size-4" aria-hidden />
-        {fr ? "Articles" : "Articles"}
+        {tx("Articles", "Articles")}
       </Link>
 
       {post.cover_url ? (

@@ -16,7 +16,7 @@ function ArrivalAlert({ arrived, id, fr }: { arrived: boolean; id: string; fr: b
     const k = `ash-clean-arrived:${id}`;
     if (sessionStorage.getItem(k)) return;
     sessionStorage.setItem(k, "1");
-    toast.success(fr ? "Votre agent ASH Clean est arrivé !" : "Your ASH Clean worker has arrived!");
+    toast.success(tx("Your ASH Clean worker has arrived!", "Votre agent ASH Clean est arrivé !"));
     navigator.vibrate?.(200);
   }, [arrived, id, fr]);
   return null;
@@ -42,7 +42,7 @@ export const Route = createFileRoute("/_authenticated/clean/orders/$orderId")({
 
 function CleanOrder() {
   const { orderId } = Route.useParams();
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const qc = useQueryClient();
   const pay = useServerFn(payCleanOrder);
@@ -82,10 +82,10 @@ function CleanOrder() {
     const t = setInterval(async () => {
       const r = await sync({ data: { orderId } }).catch(() => null);
       if (r?.status === "PAID") {
-        toast.success(fr ? "Paiement reçu !" : "Payment received!");
+        toast.success(tx("Payment received!", "Paiement reçu !"));
         void refetch();
       } else if (r?.status === "FAILED") {
-        toast.error(fr ? "Paiement refusé. Réessayez." : "Payment declined. Please try again.");
+        toast.error(tx("Payment declined. Please try again.", "Paiement refusé. Réessayez."));
         void refetch();
       }
     }, 6000);
@@ -93,7 +93,7 @@ function CleanOrder() {
   }, [processing, orderId, sync, refetch, fr]);
 
   const o = data?.order;
-  if (!o) return <p className="p-6 text-sm text-muted-foreground">{fr ? "Chargement…" : "Loading…"}</p>;
+  if (!o) return <p className="p-6 text-sm text-muted-foreground">{tx("Loading…", "Chargement…")}</p>;
   const idx = cleanStepIndex(o.status);
   const activeJob = data.jobs.find((j) => ["ACCEPTED", "ON_THE_WAY", "ARRIVED"].includes(j.status));
   const live = activeJob ? data.locations.find((l) => l.assignment_id === activeJob.id) : null;
@@ -110,7 +110,7 @@ function CleanOrder() {
         </div>
         <Button asChild variant="outline" className="rounded-full">
           <Link to="/clean/receipt/$orderId" params={{ orderId }}>
-            <ReceiptText className="size-4" /> {fr ? "Reçu" : "Receipt"}
+            <ReceiptText className="size-4" /> {tx("Receipt", "Reçu")}
           </Link>
         </Button>
       </div>
@@ -119,12 +119,12 @@ function CleanOrder() {
         <section className="space-y-2 rounded-3xl bg-card p-4 shadow-[var(--shadow-card)]">
           <p className="font-bold text-foreground">
             {methodLabel(activeJob.method, fr)} ·{" "}
-            {activeJob.direction === "PICKUP" ? (fr ? "collecte en route" : "pickup on the way") : fr ? "livraison en route" : "delivery on the way"}
+            {activeJob.direction === "PICKUP" ? (tx("pickup on the way", "collecte en route")) : tx("delivery on the way", "livraison en route")}
           </p>
           <p className="text-sm text-muted-foreground">
             {km != null
               ? `${km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`} · ETA ~${Math.max(1, Math.round((km / (activeJob.method === "STAFF" ? 5 : 20)) * 60))} min`
-              : fr ? "Position en attente…" : "Waiting for live position…"}
+              : tx("Waiting for live position…", "Position en attente…")}
           </p>
           <CleanTrack
             className="h-56 w-full"
@@ -140,25 +140,25 @@ function CleanOrder() {
 
       {o.status === "AWAITING_APPROVAL" && data.quote ? (
         <section className="space-y-3 rounded-3xl border-2 border-primary bg-card p-4 shadow-[var(--shadow-card)]">
-          <h2 className="font-display text-lg font-extrabold text-foreground">{fr ? "Votre prix est prêt" : "Your price is ready"}</h2>
+          <h2 className="font-display text-lg font-extrabold text-foreground">{tx("Your price is ready", "Votre prix est prêt")}</h2>
           <dl className="space-y-1 text-sm">
-            <Row k={`${fr ? "Linge" : "Laundry"}: ${data.quote.weight_kg} kg × ${fcfa(data.quote.rate_per_kg)}`} v={fcfa(data.quote.laundry_amount)} />
+            <Row k={`${tx("Laundry", "Linge")}: ${data.quote.weight_kg} kg × ${fcfa(data.quote.rate_per_kg)}`} v={fcfa(data.quote.laundry_amount)} />
             {((data.quote.special_items as { name: string; qty: number; amount: number }[]) ?? []).map((s) => (
               <Row key={s.name} k={`${s.name} × ${s.qty}`} v={fcfa(s.amount)} />
             ))}
-            <Row k={`${fr ? "Collecte" : "Pickup"} (${methodLabel(o.pickup_method)})`} v={fcfa(data.quote.pickup_fee)} />
-            <Row k={`${fr ? "Livraison" : "Delivery"} (${methodLabel(o.delivery_method)})`} v={fcfa(data.quote.delivery_fee)} />
+            <Row k={`${tx("Pickup", "Collecte")} (${methodLabel(o.pickup_method)})`} v={fcfa(data.quote.pickup_fee)} />
+            <Row k={`${tx("Delivery", "Livraison")} (${methodLabel(o.delivery_method)})`} v={fcfa(data.quote.delivery_fee)} />
             <div className="flex justify-between border-t border-border pt-2 text-base font-extrabold text-foreground">
               <span>Total</span><span>{fcfa(data.quote.total)}</span>
             </div>
           </dl>
           {processing ? (
-            <p className="rounded-2xl bg-muted p-3 text-sm">{fr ? "Validez la demande sur votre téléphone…" : "Approve the prompt on your phone…"}</p>
+            <p className="rounded-2xl bg-muted p-3 text-sm">{tx("Approve the prompt on your phone…", "Validez la demande sur votre téléphone…")}</p>
           ) : (
             <MomoCharge
               fr={fr}
               busy={busy}
-              submitLabel={`${fr ? "Confirmer et payer" : "Confirm & pay"} ${fcfa(data.quote.total)}`}
+              submitLabel={`${tx("Confirm & pay", "Confirmer et payer")} ${fcfa(data.quote.total)}`}
               onCharge={async (provider, phone) => {
                 setBusy(true);
                 const r = await pay({ data: { orderId, provider, phone } }).catch((e) => ({ ok: false as const, error: String(e) }));
@@ -167,7 +167,7 @@ function CleanOrder() {
                   toast.error(("message" in r && r.message) || r.error);
                   return;
                 }
-                toast.info(fr ? "Validez la demande sur votre téléphone" : "Approve the prompt on your phone");
+                toast.info(tx("Approve the prompt on your phone", "Validez la demande sur votre téléphone"));
                 void qc.invalidateQueries({ queryKey: ["clean", "order", orderId] });
               }}
             />
@@ -177,19 +177,19 @@ function CleanOrder() {
               variant="ghost"
               className="w-full text-destructive"
               onClick={async () => {
-                if (!confirm(fr ? "Refuser le prix et demander le retour de votre linge ?" : "Decline the price and ask for your laundry back?")) return;
+                if (!confirm(tx("Decline the price and ask for your laundry back?", "Refuser le prix et demander le retour de votre linge ?"))) return;
                 await decline({ data: { orderId } });
                 void refetch();
               }}
             >
-              {fr ? "Refuser / demander le retour" : "Decline / request return"}
+              {tx("Decline / request return", "Refuser / demander le retour")}
             </Button>
           ) : null}
         </section>
       ) : null}
 
       <section className="rounded-3xl bg-card p-4 shadow-[var(--shadow-card)]">
-        <h2 className="mb-3 font-bold text-foreground">{fr ? "Suivi" : "Progress"}</h2>
+        <h2 className="mb-3 font-bold text-foreground">{tx("Progress", "Suivi")}</h2>
         <ol className="space-y-2">
           {CLEAN_TIMELINE.map((s, i) => {
             const done = idx >= i;
@@ -210,9 +210,9 @@ function CleanOrder() {
       </section>
 
       <section className="grid gap-2 rounded-3xl bg-card p-4 text-sm shadow-[var(--shadow-card)]">
-        <Row k={fr ? "Collecte" : "Pickup"} v={`${methodLabel(o.pickup_method)} · ${o.pickup_distance_km} km · ${Number(o.pickup_fee) ? fcfa(o.pickup_fee) : fr ? "gratuit" : "free"}`} />
+        <Row k={tx("Pickup", "Collecte")} v={`${methodLabel(o.pickup_method)} · ${o.pickup_distance_km} km · ${Number(o.pickup_fee) ? fcfa(o.pickup_fee) : tx("free", "gratuit")}`} />
         <p className="text-xs text-muted-foreground">{o.pickup_address}</p>
-        <Row k={fr ? "Livraison" : "Delivery"} v={`${methodLabel(o.delivery_method)} · ${o.delivery_distance_km} km · ${Number(o.delivery_fee) ? fcfa(o.delivery_fee) : fr ? "gratuit" : "free"}`} />
+        <Row k={tx("Delivery", "Livraison")} v={`${methodLabel(o.delivery_method)} · ${o.delivery_distance_km} km · ${Number(o.delivery_fee) ? fcfa(o.delivery_fee) : tx("free", "gratuit")}`} />
         <p className="text-xs text-muted-foreground">{o.delivery_address}</p>
       </section>
     </div>

@@ -40,7 +40,7 @@ export const Route = createFileRoute("/_authenticated/property/new")({
 const MAX_PHOTOS = 8;
 
 function NewProperty() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -83,22 +83,22 @@ function NewProperty() {
 
   async function submit() {
     if (title.trim().length < 6) {
-      toast.error(fr ? "Donnez un titre clair (6 caractères min)." : "Give a clear title (6 characters min).");
+      toast.error(tx("Give a clear title (6 characters min).", "Donnez un titre clair (6 caractères min)."));
       return;
     }
     if (!city.trim()) {
-      toast.error(fr ? "La ville est obligatoire." : "City is required.");
+      toast.error(tx("City is required.", "La ville est obligatoire."));
       return;
     }
     if (!price || Number(price) <= 0) {
-      toast.error(fr ? "Indiquez un prix." : "Enter a price.");
+      toast.error(tx("Enter a price.", "Indiquez un prix."));
       return;
     }
 
     setBusy(true);
     try {
       const { data: auth } = await supabase.auth.getUser();
-      if (!auth.user) throw new Error(fr ? "Session expirée." : "Session expired.");
+      if (!auth.user) throw new Error(tx("Session expired.", "Session expirée."));
       await verifyMediaFiles(files, "PROPERTY_LISTING");
 
       const { data: created, error } = await supabase
@@ -141,7 +141,7 @@ function NewProperty() {
         const path = `${auth.user.id}/${created.id}/${crypto.randomUUID()}.${ext}`;
         const upload = await supabase.storage.from(PROPERTY_BUCKET).upload(path, file, { upsert: false });
         if (upload.error) {
-          toast.error(`${fr ? "Photo non envoyée" : "Photo not uploaded"}: ${upload.error.message}`);
+          toast.error(`${tx("Photo not uploaded", "Photo non envoyée")}: ${upload.error.message}`);
           continue;
         }
         await supabase.from("property_images").insert({
@@ -152,7 +152,7 @@ function NewProperty() {
       }
 
       await queryClient.invalidateQueries({ queryKey: ["property"] });
-      toast.success(fr ? "Annonce publiée !" : "Your listing is live!");
+      toast.success(tx("Your listing is live!", "Annonce publiée !"));
       void navigate({ to: "/property/$listingId", params: { listingId: created.id } });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : String(error));
@@ -167,18 +167,16 @@ function NewProperty() {
     <div className="mx-auto w-full max-w-3xl space-y-5">
       <header>
         <h1 className="font-display text-2xl font-extrabold text-foreground sm:text-3xl">
-          {fr ? "Publier un bien" : "List a property"}
+          {tx("List a property", "Publier un bien")}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {fr
-            ? "Gratuit. Ne publiez que des biens réels que vous êtes autorisé à louer ou vendre."
-            : "Free. Only list real property you are allowed to rent or sell."}
+          {tx("Free. Only list real property you are allowed to rent or sell.", "Gratuit. Ne publiez que des biens réels que vous êtes autorisé à louer ou vendre.")}
         </p>
       </header>
 
       <section className="tile space-y-4 p-4 sm:p-5">
         <div className="space-y-1.5">
-          <Label>{fr ? "Type de bien" : "Property type"}</Label>
+          <Label>{tx("Property type", "Type de bien")}</Label>
           <div className="flex flex-wrap gap-2">
             {PROPERTY_CATEGORIES.map((item) => (
               <button
@@ -195,34 +193,34 @@ function NewProperty() {
             ))}
           </div>
           <p className="text-xs text-muted-foreground">
-            {kind === "SALE" ? (fr ? "Annonce : à vendre" : "Listing: for sale") : fr ? "Annonce : à louer" : "Listing: for rent"}
+            {kind === "SALE" ? (tx("Listing: for sale", "Annonce : à vendre")) : tx("Listing: for rent", "Annonce : à louer")}
           </p>
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="p-title">{fr ? "Titre" : "Title"}</Label>
+          <Label htmlFor="p-title">{tx("Title", "Titre")}</Label>
           <Input
             id="p-title"
             value={title}
             onChange={(event) => setTitle(event.target.value)}
-            placeholder={fr ? "Chambre simple à Molyko" : "Single room in Molyko"}
+            placeholder={tx("Single room in Molyko", "Chambre simple à Molyko")}
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="p-desc">{fr ? "Description" : "Description"}</Label>
+          <Label htmlFor="p-desc">{tx("Description", "Description")}</Label>
           <Textarea
             id="p-desc"
             rows={4}
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            placeholder={fr ? "Décrivez le bien, l’environnement et les conditions." : "Describe the property, the area and the conditions."}
+            placeholder={tx("Describe the property, the area and the conditions.", "Décrivez le bien, l’environnement et les conditions.")}
           />
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label>{fr ? "Pays" : "Country"}</Label>
+            <Label>{tx("Country", "Pays")}</Label>
             <select
               value={country}
               onChange={(event) => setCountry(event.target.value)}
@@ -236,11 +234,11 @@ function NewProperty() {
             </select>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="p-region">{fr ? "Région / État" : "Region / state"}</Label>
+            <Label htmlFor="p-region">{tx("Region / state", "Région / État")}</Label>
             <Input id="p-region" value={region} onChange={(event) => setRegion(event.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="p-city">{fr ? "Ville" : "City"}</Label>
+            <Label htmlFor="p-city">{tx("City", "Ville")}</Label>
             <Input
               id="p-city"
               list="property-cities"
@@ -254,15 +252,15 @@ function NewProperty() {
             </datalist>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="p-hood">{fr ? "Quartier (approximatif)" : "Neighborhood (approximate)"}</Label>
+            <Label htmlFor="p-hood">{tx("Neighborhood (approximate)", "Quartier (approximatif)")}</Label>
             <Input id="p-hood" value={neighborhood} onChange={(event) => setNeighborhood(event.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="p-uni">{fr ? "Université proche (optionnel)" : "Nearby university (optional)"}</Label>
+            <Label htmlFor="p-uni">{tx("Nearby university (optional)", "Université proche (optionnel)")}</Label>
             <Input id="p-uni" value={university} onChange={(event) => setUniversity(event.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="p-dist">{fr ? "Distance (km)" : "Distance (km)"}</Label>
+            <Label htmlFor="p-dist">{tx("Distance (km)", "Distance (km)")}</Label>
             <Input
               id="p-dist"
               inputMode="decimal"
@@ -273,14 +271,12 @@ function NewProperty() {
         </div>
 
         <p className="text-xs text-muted-foreground">
-          {fr
-            ? "N’indiquez pas votre adresse exacte publiquement — le quartier suffit jusqu’au premier contact."
-            : "Do not publish your exact address — a neighborhood is enough until someone contacts you."}
+          {tx("Do not publish your exact address — a neighborhood is enough until someone contacts you.", "N’indiquez pas votre adresse exacte publiquement — le quartier suffit jusqu’au premier contact.")}
         </p>
 
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="space-y-1.5">
-            <Label htmlFor="p-price">{fr ? "Prix" : "Price"}</Label>
+            <Label htmlFor="p-price">{tx("Price", "Prix")}</Label>
             <Input
               id="p-price"
               inputMode="numeric"
@@ -289,7 +285,7 @@ function NewProperty() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label>{fr ? "Devise" : "Currency"}</Label>
+            <Label>{tx("Currency", "Devise")}</Label>
             <select
               value={currency}
               onChange={(event) => setCurrency(event.target.value)}
@@ -304,7 +300,7 @@ function NewProperty() {
           </div>
           {kind === "RENT" ? (
             <div className="space-y-1.5">
-              <Label>{fr ? "Période" : "Period"}</Label>
+              <Label>{tx("Period", "Période")}</Label>
               <select
                 value={period}
                 onChange={(event) => setPeriod(event.target.value)}
@@ -323,7 +319,7 @@ function NewProperty() {
         {isLand ? (
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="space-y-1.5">
-              <Label htmlFor="p-size">{fr ? "Superficie" : "Land size"}</Label>
+              <Label htmlFor="p-size">{tx("Land size", "Superficie")}</Label>
               <Input
                 id="p-size"
                 inputMode="decimal"
@@ -332,7 +328,7 @@ function NewProperty() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label>{fr ? "Unité" : "Unit"}</Label>
+              <Label>{tx("Unit", "Unité")}</Label>
               <select
                 value={sizeUnit}
                 onChange={(event) => setSizeUnit(event.target.value)}
@@ -346,7 +342,7 @@ function NewProperty() {
               </select>
             </div>
             <div className="space-y-1.5">
-              <Label>{fr ? "Usage" : "Land use"}</Label>
+              <Label>{tx("Land use", "Usage")}</Label>
               <select
                 value={landUse}
                 onChange={(event) => setLandUse(event.target.value)}
@@ -363,7 +359,7 @@ function NewProperty() {
         ) : (
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="space-y-1.5">
-              <Label htmlFor="p-bed">{fr ? "Chambres" : "Bedrooms"}</Label>
+              <Label htmlFor="p-bed">{tx("Bedrooms", "Chambres")}</Label>
               <Input
                 id="p-bed"
                 inputMode="numeric"
@@ -372,7 +368,7 @@ function NewProperty() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="p-bath">{fr ? "Salles de bain" : "Bathrooms"}</Label>
+              <Label htmlFor="p-bath">{tx("Bathrooms", "Salles de bain")}</Label>
               <Input
                 id="p-bath"
                 inputMode="numeric"
@@ -381,7 +377,7 @@ function NewProperty() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="p-avail">{fr ? "Disponible à partir du" : "Available from"}</Label>
+              <Label htmlFor="p-avail">{tx("Available from", "Disponible à partir du")}</Label>
               <Input
                 id="p-avail"
                 type="date"
@@ -393,7 +389,7 @@ function NewProperty() {
         )}
 
         <div>
-          <Label className="mb-2 block">{fr ? "Commodités" : "Amenities"}</Label>
+          <Label className="mb-2 block">{tx("Amenities", "Commodités")}</Label>
           <div className="flex flex-wrap gap-2">
             {AMENITIES.map((item) => {
               const active = amenities.includes(item.code);
@@ -419,25 +415,25 @@ function NewProperty() {
         {!isLand ? (
           <label className="flex items-center gap-2 text-sm text-foreground">
             <Checkbox checked={furnished} onCheckedChange={(value) => setFurnished(value === true)} />
-            {fr ? "Meublé" : "Furnished"}
+            {tx("Furnished", "Meublé")}
           </label>
         ) : null}
 
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="space-y-1.5">
-            <Label>{fr ? "Je suis" : "I am"}</Label>
+            <Label>{tx("I am", "Je suis")}</Label>
             <select
               value={ownerKind}
               onChange={(event) => setOwnerKind(event.target.value)}
               className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm"
             >
-              <option value="LANDLORD">{fr ? "Propriétaire" : "Landlord"}</option>
-              <option value="AGENT">{fr ? "Agent immobilier" : "Property agent"}</option>
-              <option value="OWNER_REP">{fr ? "Représentant" : "Owner representative"}</option>
+              <option value="LANDLORD">{tx("Landlord", "Propriétaire")}</option>
+              <option value="AGENT">{tx("Property agent", "Agent immobilier")}</option>
+              <option value="OWNER_REP">{tx("Owner representative", "Représentant")}</option>
             </select>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="p-phone">{fr ? "Téléphone de contact" : "Contact phone"}</Label>
+            <Label htmlFor="p-phone">{tx("Contact phone", "Téléphone de contact")}</Label>
             <Input id="p-phone" value={phone} onChange={(event) => setPhone(event.target.value)} />
           </div>
           <div className="space-y-1.5">
@@ -481,7 +477,7 @@ function NewProperty() {
 
         <Button className="w-full" disabled={busy} onClick={submit}>
           {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-          {busy ? (fr ? "Publication…" : "Publishing…") : fr ? "Publier gratuitement" : "Publish for free"}
+          {busy ? (tx("Publishing…", "Publication…")) : tx("Publish for free", "Publier gratuitement")}
         </Button>
       </section>
     </div>

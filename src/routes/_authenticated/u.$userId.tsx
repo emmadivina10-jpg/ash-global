@@ -36,7 +36,7 @@ export const Route = createFileRoute("/_authenticated/u/$userId")({
 
 function MemberProfilePage() {
   const { userId } = Route.useParams();
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const navigate = useNavigate();
   const { data: person, isLoading } = useMemberProfile(userId);
@@ -69,20 +69,20 @@ function MemberProfilePage() {
   async function message() {
     const conversationId = await openMemberConversation(userId);
     if (!conversationId) {
-      toast.error(fr ? "Impossible d'ouvrir la discussion." : "Could not open the chat.");
+      toast.error(tx("Could not open the chat.", "Impossible d'ouvrir la discussion."));
       return;
     }
     void navigate({ to: "/messages", search: { c: conversationId } } as never);
   }
 
   if (isLoading) {
-    return <p className="p-6 text-sm text-muted-foreground">{fr ? "Chargement…" : "Loading…"}</p>;
+    return <p className="p-6 text-sm text-muted-foreground">{tx("Loading…", "Chargement…")}</p>;
   }
 
   if (!person) {
     return (
       <p className="p-6 text-sm text-muted-foreground">
-        {fr ? "Ce membre est introuvable." : "We could not find this member."}
+        {tx("We could not find this member.", "Ce membre est introuvable.")}
       </p>
     );
   }
@@ -97,7 +97,7 @@ function MemberProfilePage() {
             <VerifiedBadge tier={person.verified_tier} until={person.verified_until} size={18} />
           </h1>
           <p className="mt-1 text-xs text-muted-foreground">
-            {(posts ?? []).length} {fr ? "publications" : "posts"}
+            {(posts ?? []).length} {tx("posts", "publications")}
           </p>
         </div>
         {isMe ? null : (
@@ -108,10 +108,10 @@ function MemberProfilePage() {
       {!isMe && iBlocked ? (
         <div className="tile flex items-center justify-between gap-3 p-4">
           <p className="text-sm text-muted-foreground">
-            {fr ? "Vous avez bloqué ce membre. Son contenu est masqué." : "You blocked this member. Their content is hidden."}
+            {tx("You blocked this member. Their content is hidden.", "Vous avez bloqué ce membre. Son contenu est masqué.")}
           </p>
           <Button variant="outline" size="sm" onClick={() => setUnblockOpen(true)}>
-            {fr ? "Débloquer" : "Unblock User"}
+            {tx("Unblock User", "Débloquer")}
           </Button>
           <BlockUserDialog
             open={unblockOpen}
@@ -128,7 +128,7 @@ function MemberProfilePage() {
         <div className="flex gap-2">
           <Button className="flex-1" onClick={() => void message()}>
             <MessageSquare className="size-4" aria-hidden />
-            {fr ? "Message" : "Message"}
+            {tx("Message", "Message")}
           </Button>
           <Button
             variant="outline"
@@ -136,13 +136,13 @@ function MemberProfilePage() {
             disabled={linked || send.isPending}
             onClick={() =>
               send.mutate(userId, {
-                onSuccess: () => toast.success(fr ? "Demande envoyée" : "Request sent"),
-                onError: () => toast.error(fr ? "Échec de l'envoi" : "Could not send"),
+                onSuccess: () => toast.success(tx("Request sent", "Demande envoyée")),
+                onError: () => toast.error(tx("Could not send", "Échec de l'envoi")),
               })
             }
           >
             <UserPlus className="size-4" aria-hidden />
-            {linked ? (fr ? "Déjà lié" : "Already linked") : fr ? "Ajouter" : "Add friend"}
+            {linked ? (tx("Already linked", "Déjà lié")) : tx("Add friend", "Ajouter")}
           </Button>
         </div>
       )}
@@ -150,7 +150,7 @@ function MemberProfilePage() {
       <section className="space-y-3">
         {(posts ?? []).length === 0 ? (
           <p className="tile p-6 text-center text-sm text-muted-foreground">
-            {fr ? "Aucune publication pour le moment." : "No posts yet."}
+            {tx("No posts yet.", "Aucune publication pour le moment.")}
           </p>
         ) : (
           (posts ?? []).map((post) => (

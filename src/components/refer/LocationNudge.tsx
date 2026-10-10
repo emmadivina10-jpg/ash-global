@@ -12,7 +12,7 @@ const SNOOZE_MS = 3 * 24 * 60 * 60 * 1000;
  * when nothing is saved yet and stays away for three days after a dismissal.
  */
 export function LocationNudge() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const { location } = useLocation();
   const [show, setShow] = useState(false);
@@ -40,25 +40,23 @@ export function LocationNudge() {
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-foreground">
-            {fr ? "Ajoutez votre position" : "Add your location"}
+            {tx("Add your location", "Ajoutez votre position")}
           </p>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            {fr
-              ? "Voyez d'abord ce qui se passe près de vous."
-              : "See what's happening near you first."}
+            {tx("See what's happening near you first.", "Voyez d'abord ce qui se passe près de vous.")}
           </p>
           <Link
             to="/settings"
             onClick={dismiss}
             className="mt-2 inline-block text-xs font-bold text-primary underline-offset-4 hover:underline"
           >
-            {fr ? "Ouvrir les paramètres" : "Open settings"}
+            {tx("Open settings", "Ouvrir les paramètres")}
           </Link>
         </div>
         <button
           type="button"
           onClick={dismiss}
-          aria-label={fr ? "Fermer" : "Dismiss"}
+          aria-label={tx("Dismiss", "Fermer")}
           className="text-muted-foreground transition-colors hover:text-foreground"
         >
           <X className="size-4" aria-hidden />

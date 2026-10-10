@@ -15,7 +15,7 @@ export function CompassSurface({
   initiallyOpen?: boolean;
   active?: boolean;
 }) {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const { visible, setVisible } = useOrbVisible();
   const [open, setOpen] = useState(initiallyOpen);
@@ -124,7 +124,7 @@ export function CompassSurface({
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label={fr ? "Réduire ASH Compass" : "Minimize ASH Compass"}
+              aria-label={tx("Minimize ASH Compass", "Réduire ASH Compass")}
               onClick={() => {
                 setOpen(false);
                 launcher.current?.focus();
@@ -148,7 +148,7 @@ export function CompassSurface({
               onClick={() => setTab("map")}
             >
               <Map className="size-4 text-success" />
-              {fr ? "Carte" : "Map"}
+              {tx("Map", "Carte")}
             </Button>
             <Button
               role="tab"
@@ -160,7 +160,7 @@ export function CompassSurface({
               onClick={() => setTab("wallet")}
             >
               <Wallet className="size-4 text-verified-magenta" />
-              {fr ? "Portefeuille" : "Wallet"}
+              {tx("Wallet", "Portefeuille")}
             </Button>
           </div>
           <div
@@ -181,7 +181,7 @@ export function CompassSurface({
               }}
             >
               <EyeOff className="size-4" />
-              {fr ? "Masquer ASH Compass" : "Turn off ASH Compass"}
+              {tx("Turn off ASH Compass", "Masquer ASH Compass")}
             </Button>
           </footer>
         </section>
@@ -205,7 +205,7 @@ export function CompassSurface({
             moved.current = false;
           }}
           aria-expanded={open}
-          aria-label={fr ? "Ouvrir ASH Compass" : "Open ASH Compass"}
+          aria-label={tx("Open ASH Compass", "Ouvrir ASH Compass")}
           title="ASH Compass"
           className="compass-orb wallet-orb relative size-[72px] touch-none rounded-full p-0 text-on-dark [&_svg]:size-7"
         >

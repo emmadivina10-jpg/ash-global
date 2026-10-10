@@ -52,7 +52,7 @@ function EventSoon() {
 
 function EventDetail() {
   const { eventId } = Route.useParams();
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const queryClient = useQueryClient();
   const { data: event, isLoading } = useEvent(eventId);
@@ -68,14 +68,14 @@ function EventDetail() {
   const [busy, setBusy] = useState(false);
   const [reference, setReference] = useState<string | null>(null);
 
-  if (isLoading) return <LoadingState label={fr ? "Chargement…" : "Loading…"} />;
+  if (isLoading) return <LoadingState label={tx("Loading…", "Chargement…")} />;
   if (!event) {
     return (
       <EmptyState
-        title={fr ? "Événement introuvable" : "Event not found"}
+        title={tx("Event not found", "Événement introuvable")}
         action={
           <Button asChild variant="outline">
-            <Link to="/events">{fr ? "Retour aux événements" : "Back to events"}</Link>
+            <Link to="/events">{tx("Back to events", "Retour aux événements")}</Link>
           </Button>
         }
       />
@@ -92,13 +92,13 @@ function EventDetail() {
       if (!result.ok) {
         toast.error(
           result.error === "SOLD_OUT"
-            ? fr ? "Plus de places disponibles." : "No seats left."
-            : (result.message ?? (fr ? "Le paiement n'a pas démarré." : "The payment could not start.")),
+            ? tx("No seats left.", "Plus de places disponibles.")
+            : (result.message ?? (tx("The payment could not start.", "Le paiement n'a pas démarré."))),
         );
         return;
       }
       setReference(result.reference);
-      toast.success(fr ? "Validez la demande sur votre téléphone." : "Approve the prompt on your phone.");
+      toast.success(tx("Approve the prompt on your phone.", "Validez la demande sur votre téléphone."));
     } finally {
       setBusy(false);
     }
@@ -110,14 +110,14 @@ function EventDetail() {
     try {
       const result = await verify({ data: { reference } });
       if (result.ok) {
-        toast.success(fr ? "Billet confirmé !" : "Ticket confirmed!");
+        toast.success(tx("Ticket confirmed!", "Billet confirmé !"));
         setReference(null);
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: ["event", eventId] }),
           queryClient.invalidateQueries({ queryKey: ["event-tickets", "mine"] }),
         ]);
       } else {
-        toast.error(fr ? "Paiement pas encore confirmé." : "Payment not confirmed yet.");
+        toast.error(tx("Payment not confirmed yet.", "Paiement pas encore confirmé."));
       }
     } finally {
       setBusy(false);
@@ -128,7 +128,7 @@ function EventDetail() {
     <div className="mx-auto w-full max-w-3xl space-y-5">
       <Link to="/events" className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" aria-hidden />
-        {fr ? "Événements" : "Events"}
+        {tx("Events", "Événements")}
       </Link>
 
       <header className="tile space-y-3 p-5">
@@ -156,49 +156,49 @@ function EventDetail() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              {fr ? "Billet" : "Ticket"}
+              {tx("Ticket", "Billet")}
             </p>
             <p className="font-display text-2xl font-extrabold text-foreground">
-              {event.is_free ? (fr ? "Gratuit" : "Free") : formatXAF(event.ticket_price)}
+              {event.is_free ? (tx("Free", "Gratuit")) : formatXAF(event.ticket_price)}
             </p>
           </div>
           <p className="text-sm text-muted-foreground">
-            {left} {fr ? "places restantes" : "seats left"}
+            {left} {tx("seats left", "places restantes")}
           </p>
         </div>
 
         {event.is_free ? (
           <p className="rounded-2xl bg-muted p-4 text-sm text-muted-foreground">
-            {fr ? "Entrée libre — présentez-vous simplement sur place." : "Free entry — just show up at the venue."}
+            {tx("Free entry — just show up at the venue.", "Entrée libre — présentez-vous simplement sur place.")}
           </p>
         ) : left === 0 ? (
-          <p className="rounded-2xl bg-muted p-4 text-sm text-muted-foreground">{fr ? "Complet." : "Sold out."}</p>
+          <p className="rounded-2xl bg-muted p-4 text-sm text-muted-foreground">{tx("Sold out.", "Complet.")}</p>
         ) : reference ? (
           <div className="space-y-3">
             <p className="rounded-2xl bg-muted p-4 text-sm text-muted-foreground">
-              {fr ? "Validez la demande Mobile Money puis confirmez ici." : "Approve the mobile money prompt, then confirm here."}
+              {tx("Approve the mobile money prompt, then confirm here.", "Validez la demande Mobile Money puis confirmez ici.")}
             </p>
             <Button className="w-full" disabled={busy} onClick={() => void confirm()}>
-              {fr ? "J'ai payé" : "I have paid"}
+              {tx("I have paid", "J'ai payé")}
             </Button>
           </div>
         ) : (
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <Button variant="outline" size="icon" aria-label={fr ? "Moins" : "Fewer"} onClick={() => setQuantity((q) => Math.max(1, q - 1))}>
+              <Button variant="outline" size="icon" aria-label={tx("Fewer", "Moins")} onClick={() => setQuantity((q) => Math.max(1, q - 1))}>
                 <Minus className="size-4" aria-hidden />
               </Button>
               <span className="min-w-10 text-center font-display text-lg font-extrabold text-foreground">{quantity}</span>
               <Button
                 variant="outline"
                 size="icon"
-                aria-label={fr ? "Plus" : "More"}
+                aria-label={tx("More", "Plus")}
                 onClick={() => setQuantity((q) => Math.min(10, left, q + 1))}
               >
                 <Plus className="size-4" aria-hidden />
               </Button>
               <span className="ml-auto text-sm text-muted-foreground">
-                {fr ? "Total" : "Total"} <strong className="text-foreground">{formatXAF(total)}</strong>
+                {tx("Total", "Total")} <strong className="text-foreground">{formatXAF(total)}</strong>
               </span>
             </div>
 
@@ -206,7 +206,7 @@ function EventDetail() {
               country={event.country || "CM"}
               busy={busy}
               fr={fr}
-              submitLabel={`${fr ? "Payer" : "Pay"} ${formatXAF(total)}`}
+              submitLabel={`${tx("Pay", "Payer")} ${formatXAF(total)}`}
               onCharge={charge}
             />
           </div>

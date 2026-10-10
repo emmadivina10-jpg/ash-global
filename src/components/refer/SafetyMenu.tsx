@@ -35,7 +35,7 @@ export function SafetyMenu({
   triggerClassName?: string;
   allowBlock?: boolean;
 }) {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const [reportOpen, setReportOpen] = useState(false);
   const [blockOpen, setBlockOpen] = useState(false);
@@ -49,7 +49,7 @@ export function SafetyMenu({
             variant="ghost"
             size="icon"
             className={cn("size-8 rounded-full text-muted-foreground", triggerClassName)}
-            aria-label={fr ? "Plus d'options" : "More options"}
+            aria-label={tx("More options", "Plus d'options")}
           >
             <MoreHorizontal className="size-5" aria-hidden />
           </Button>
@@ -57,19 +57,19 @@ export function SafetyMenu({
         <DropdownMenuContent align="end">
           <DropdownMenuItem onSelect={() => setReportOpen(true)}>
             <Flag className="size-4" aria-hidden />
-            {fr ? "Signaler" : "Report"}
+            {tx("Report", "Signaler")}
           </DropdownMenuItem>
           {allowBlock && targetUserId ? (
             <DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={() => setBlockOpen(true)}>
               <ShieldOff className="size-4" aria-hidden />
-              {fr ? "Bloquer l'utilisateur" : "Block User"}
+              {tx("Block User", "Bloquer l'utilisateur")}
             </DropdownMenuItem>
           ) : null}
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <Link to="/community-guidelines">
               <BookOpen className="size-4" aria-hidden />
-              {fr ? "Règles de la communauté" : "Community Guidelines"}
+              {tx("Community Guidelines", "Règles de la communauté")}
             </Link>
           </DropdownMenuItem>
         </DropdownMenuContent>

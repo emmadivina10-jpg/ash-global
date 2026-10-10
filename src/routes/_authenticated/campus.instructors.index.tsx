@@ -86,7 +86,7 @@ const SHORTCUTS = [
 ];
 
 function FindInstructorPage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const [term, setTerm] = useState("");
   const [category, setCategory] = useState("");
@@ -139,17 +139,15 @@ function FindInstructorPage() {
         <div className="relative">
           <p className="text-[11px] font-bold uppercase tracking-[0.22em] opacity-90">ASH Campus</p>
           <h1 className="mt-2 font-display text-2xl font-extrabold leading-tight sm:text-3xl">
-            {fr ? "Trouvez quelqu'un qui peut vous apprendre." : "Find Someone Who Can Teach You."}
+            {tx("Find Someone Who Can Teach You.", "Trouvez quelqu'un qui peut vous apprendre.")}
           </h1>
           <p className="mt-2 max-w-xl text-sm opacity-95">
-            {fr
-              ? "Des instructeurs pour l'école, l'université, les langues, les compétences professionnelles et la préparation aux examens internationaux."
-              : "Connect with instructors for school, university, languages, professional skills and international exam preparation."}
+            {tx("Connect with instructors for school, university, languages, professional skills and international exam preparation.", "Des instructeurs pour l'école, l'université, les langues, les compétences professionnelles et la préparation aux examens internationaux.")}
           </p>
           <Button asChild size="sm" variant="secondary" className="mt-4 rounded-full font-bold">
             <Link to="/campus/become-instructor">
               <UserPlus className="size-4" aria-hidden />
-              {fr ? "Devenir instructeur — gratuit" : "Become an Instructor — free"}
+              {tx("Become an Instructor — free", "Devenir instructeur — gratuit")}
             </Link>
           </Button>
         </div>
@@ -159,14 +157,12 @@ function FindInstructorPage() {
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border pb-3">
           <div className="min-w-0">
             <h2 id="campus-instructors-heading" className="font-display text-xl font-extrabold text-foreground">
-              {fr ? "Instructeurs" : "Instructors"}
+              {tx("Instructors", "Instructeurs")}
             </h2>
             <p className="truncate text-xs text-muted-foreground">
               {isLoading
-                ? fr
-                  ? "Recherche en cours…"
-                  : "Finding instructors…"
-                : `${data?.length ?? 0} ${fr ? "profils disponibles" : "profiles available"}`}
+                ? tx("Finding instructors…", "Recherche en cours…")
+                : `${data?.length ?? 0} ${tx("profiles available", "profils disponibles")}`}
             </p>
           </div>
           <Button
@@ -179,7 +175,7 @@ function FindInstructorPage() {
             onClick={() => setShowDiscovery((current) => !current)}
           >
             <SlidersHorizontal className="size-4" aria-hidden />
-            {fr ? "Rechercher" : "Find & filter"}
+            {tx("Find & filter", "Rechercher")}
             {activeFilterCount ? <Badge className="min-w-5 justify-center px-1.5">{activeFilterCount}</Badge> : null}
             <ChevronDown className={`size-4 transition-transform ${showDiscovery ? "rotate-180" : ""}`} aria-hidden />
           </Button>
@@ -193,7 +189,7 @@ function FindInstructorPage() {
             <Input
               value={term}
               onChange={(event) => setTerm(event.target.value)}
-              placeholder={fr ? "Que voulez-vous apprendre ?" : "What do you want to learn?"}
+              placeholder={tx("What do you want to learn?", "Que voulez-vous apprendre ?")}
               className="pl-9"
               autoFocus
             />
@@ -235,35 +231,35 @@ function FindInstructorPage() {
           </div>
 
           <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            <Select value={exam} onChange={setExam} label={fr ? "Examen" : "Exam"}>
-              <option value="">{fr ? "Tous les examens" : "All exams"}</option>
+            <Select value={exam} onChange={setExam} label={tx("Exam", "Examen")}>
+              <option value="">{tx("All exams", "Tous les examens")}</option>
               {exams.map((item) => <option key={item.id} value={item.name_en}>{fr ? item.name_fr : item.name_en}</option>)}
             </Select>
-            <Select value={language} onChange={setLanguage} label={fr ? "Langue" : "Language"}>
-              <option value="">{fr ? "Toutes les langues" : "All languages"}</option>
+            <Select value={language} onChange={setLanguage} label={tx("Language", "Langue")}>
+              <option value="">{tx("All languages", "Toutes les langues")}</option>
               {languages.map((item) => <option key={item.id} value={item.name_en}>{fr ? item.name_fr : item.name_en}</option>)}
             </Select>
-            <Select value={level} onChange={setLevel} label={fr ? "Niveau" : "Level"}>
-              <option value="">{fr ? "Tous les niveaux" : "All levels"}</option>
+            <Select value={level} onChange={setLevel} label={tx("Level", "Niveau")}>
+              <option value="">{tx("All levels", "Tous les niveaux")}</option>
               {CAMPUS_LEVELS.map((item) => <option key={item} value={item}>{levelLabel(item, fr)}</option>)}
             </Select>
-            <Select value={mode} onChange={setMode} label={fr ? "Format" : "Teaching mode"}>
-              <option value="">{fr ? "En ligne et présentiel" : "Online and in-person"}</option>
+            <Select value={mode} onChange={setMode} label={tx("Teaching mode", "Format")}>
+              <option value="">{tx("Online and in-person", "En ligne et présentiel")}</option>
               {CAMPUS_MODES.map((item) => <option key={item} value={item}>{modeLabel(item, fr)}</option>)}
             </Select>
           </div>
 
           <div className="mt-2 grid gap-2 sm:grid-cols-3">
             <label className="block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
-              {fr ? "Pays" : "Country"}
+              {tx("Country", "Pays")}
               <Input className="mt-1" value={country} onChange={(event) => setCountry(event.target.value)} placeholder="CM, CA, NG…" />
             </label>
             <label className="block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
-              {fr ? "Ville" : "City"}
-              <Input className="mt-1" value={city} onChange={(event) => setCity(event.target.value)} placeholder={fr ? "Ville" : "City"} />
+              {tx("City", "Ville")}
+              <Input className="mt-1" value={city} onChange={(event) => setCity(event.target.value)} placeholder={tx("City", "Ville")} />
             </label>
             <label className="block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
-              {fr ? "Prix maximum / heure" : "Max price per hour"}
+              {tx("Max price per hour", "Prix maximum / heure")}
               <Input className="mt-1" type="number" min={0} value={maxPrice} onChange={(event) => setMaxPrice(event.target.value)} placeholder="10000" />
             </label>
           </div>
@@ -271,7 +267,7 @@ function FindInstructorPage() {
           <div className="mt-3 flex flex-wrap items-center gap-2">
             {(["relevance", "experience", "price"] as const).map((option) => (
               <Button key={option} type="button" size="sm" variant={sort === option ? "secondary" : "outline"} className="h-7 rounded-full text-xs" onClick={() => setSort(option)}>
-                {option === "relevance" ? (fr ? "Pertinence" : "Relevance") : option === "experience" ? (fr ? "Expérience" : "Experience") : fr ? "Prix" : "Price"}
+                {option === "relevance" ? (tx("Relevance", "Pertinence")) : option === "experience" ? (tx("Experience", "Expérience")) : tx("Price", "Prix")}
               </Button>
             ))}
           </div>
@@ -279,8 +275,8 @@ function FindInstructorPage() {
           <Button type="button" variant="ghost" className="mt-3 h-auto w-full justify-start gap-3 px-2 py-2 text-left" onClick={() => setParentMode((current) => !current)}>
             <Baby className="size-5 shrink-0 text-primary" aria-hidden />
             <span className="min-w-0 whitespace-normal">
-              <span className="block text-sm font-bold text-foreground">{fr ? "Vous cherchez un instructeur pour votre enfant ?" : "Looking for an instructor for your child?"}</span>
-              <span className="block text-xs font-normal text-muted-foreground">{fr ? "Affichez les options adaptées aux parents." : "Show the parent-friendly options."}</span>
+              <span className="block text-sm font-bold text-foreground">{tx("Looking for an instructor for your child?", "Vous cherchez un instructeur pour votre enfant ?")}</span>
+              <span className="block text-xs font-normal text-muted-foreground">{tx("Show the parent-friendly options.", "Affichez les options adaptées aux parents.")}</span>
             </span>
             <ChevronDown className={`ml-auto size-4 shrink-0 transition-transform ${parentMode ? "rotate-180" : ""}`} aria-hidden />
           </Button>
@@ -288,19 +284,17 @@ function FindInstructorPage() {
           {parentMode ? (
             <div className="mt-2 border-t border-border pt-3">
               <div className="grid gap-2 sm:grid-cols-2">
-                <Select value={level} onChange={setLevel} label={fr ? "Niveau de l'enfant" : "Child's education level"}>
-                  <option value="">{fr ? "Choisir un niveau" : "Select a level"}</option>
+                <Select value={level} onChange={setLevel} label={tx("Child's education level", "Niveau de l'enfant")}>
+                  <option value="">{tx("Select a level", "Choisir un niveau")}</option>
                   {CAMPUS_LEVELS.map((item) => <option key={item} value={item}>{levelLabel(item, fr)}</option>)}
                 </Select>
-                <Select value={mode} onChange={setMode} label={fr ? "Format" : "Format"}>
-                  <option value="">{fr ? "En ligne et présentiel" : "Online and in-person"}</option>
+                <Select value={mode} onChange={setMode} label={tx("Format", "Format")}>
+                  <option value="">{tx("Online and in-person", "En ligne et présentiel")}</option>
                   {CAMPUS_MODES.map((item) => <option key={item} value={item}>{modeLabel(item, fr)}</option>)}
                 </Select>
               </div>
               <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                {fr
-                  ? "Pour un élève mineur, le parent ou tuteur garde la réservation, le paiement, la communication principale et les avis. Les enfants ne doivent pas contacter directement un instructeur."
-                  : "Where the learner is a minor, the parent or guardian keeps the booking, payment, main communication and reviews. Children should not contact an instructor directly."}
+                {tx("Where the learner is a minor, the parent or guardian keeps the booking, payment, main communication and reviews. Children should not contact an instructor directly.", "Pour un élève mineur, le parent ou tuteur garde la réservation, le paiement, la communication principale et les avis. Les enfants ne doivent pas contacter directement un instructeur.")}
               </p>
             </div>
           ) : null}
@@ -308,19 +302,17 @@ function FindInstructorPage() {
       ) : null}
 
       {isLoading ? (
-        <LoadingState label={fr ? "Chargement des instructeurs…" : "Loading instructors…"} />
+        <LoadingState label={tx("Loading instructors…", "Chargement des instructeurs…")} />
       ) : !data?.length ? (
         <EmptyState
-          title={fr ? "Aucun instructeur pour l'instant" : "No instructors yet"}
+          title={tx("No instructors yet", "Aucun instructeur pour l'instant")}
           description={
-            fr
-              ? "Aucun instructeur approuvé ne correspond encore à cette recherche. Revenez bientôt ou proposez votre candidature."
-              : "No approved instructor matches this search yet. Check back soon, or apply to teach."
+            tx("No approved instructor matches this search yet. Check back soon, or apply to teach.", "Aucun instructeur approuvé ne correspond encore à cette recherche. Revenez bientôt ou proposez votre candidature.")
           }
           icon={<UserPlus className="size-5" aria-hidden />}
           action={
             <Button asChild>
-              <Link to="/campus/become-instructor">{fr ? "Devenir instructeur" : "Become an Instructor"}</Link>
+              <Link to="/campus/become-instructor">{tx("Become an Instructor", "Devenir instructeur")}</Link>
             </Button>
           }
         />
@@ -333,9 +325,7 @@ function FindInstructorPage() {
       )}
 
       <p className="rounded-2xl border border-border bg-card p-4 text-xs leading-relaxed text-muted-foreground">
-        {fr
-          ? "Les instructeurs ASH sont indépendants. Ils ne sont ni affiliés, ni approuvés, ni certifiés par TCF, TEF, IELTS, CELPIP, Goethe, DELF, DALF ou toute autre organisation d'examen. ASH n'effectue pas de vérification d'antécédents judiciaires."
-          : "ASH instructors are independent. They are not affiliated with, endorsed by or certified by TCF, TEF, IELTS, CELPIP, Goethe, DELF, DALF or any examination organisation. ASH does not perform criminal background checks."}
+        {tx("ASH instructors are independent. They are not affiliated with, endorsed by or certified by TCF, TEF, IELTS, CELPIP, Goethe, DELF, DALF or any examination organisation. ASH does not perform criminal background checks.", "Les instructeurs ASH sont indépendants. Ils ne sont ni affiliés, ni approuvés, ni certifiés par TCF, TEF, IELTS, CELPIP, Goethe, DELF, DALF ou toute autre organisation d'examen. ASH n'effectue pas de vérification d'antécédents judiciaires.")}
       </p>
     </div>
   );
@@ -417,7 +407,7 @@ function InstructorCard({ instructor, fr }: { instructor: CampusInstructor; fr: 
             {instructor.teaching_modes.includes("ONLINE") ? (
               <span className="inline-flex items-center gap-1">
                 <Globe2 className="size-3" aria-hidden />
-                {fr ? "En ligne" : "Online"}
+                {tx("Online", "En ligne")}
               </span>
             ) : null}
             {rating ? (
@@ -425,23 +415,23 @@ function InstructorCard({ instructor, fr }: { instructor: CampusInstructor; fr: 
                 <Star className="size-3 fill-gold text-gold" aria-hidden />
                 {rating.toFixed(1)}
                 <span className="text-muted-foreground">
-                  ({instructor.rating_count} {fr ? "avis" : "reviews"})
+                  ({instructor.rating_count} {tx("reviews", "avis")})
                 </span>
               </span>
             ) : (
-              <span>{fr ? "Pas encore d'avis" : "No reviews yet"}</span>
+              <span>{tx("No reviews yet", "Pas encore d'avis")}</span>
             )}
           </div>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             {instructor.years_experience > 0 ? (
               <Badge variant="outline">
-                {instructor.years_experience} {fr ? "ans d'expérience" : "years experience"}
+                {instructor.years_experience} {tx("years experience", "ans d'expérience")}
               </Badge>
             ) : null}
             {instructor.hourly_from ? (
               <Badge variant="outline">
-                {fr ? "À partir de" : "From"} {instructor.hourly_from} {instructor.currency}
-                {fr ? "/heure" : "/hour"}
+                {tx("From", "À partir de")} {instructor.hourly_from} {instructor.currency}
+                {tx("/hour", "/heure")}
               </Badge>
             ) : null}
             {instructor.languages.length ? <Badge variant="outline">{instructor.languages.join(" • ")}</Badge> : null}

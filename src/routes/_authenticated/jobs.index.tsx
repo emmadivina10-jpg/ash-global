@@ -53,7 +53,7 @@ function JobsSoon() {
 }
 
 function JobsPage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const [search, setSearch] = useState("");
   const [employmentType, setEmploymentType] = useState("ALL");
@@ -64,12 +64,10 @@ function JobsPage() {
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
-            {fr ? "ASH Jobs" : "ASH Jobs"}
+            {tx("ASH Jobs", "ASH Jobs")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {fr
-              ? "Publiez une offre gratuitement, ou postulez directement dans l'app."
-              : "Post a role for free, or apply right inside the app."}
+            {tx("Post a role for free, or apply right inside the app.", "Publiez une offre gratuitement, ou postulez directement dans l'app.")}
           </p>
         </div>
         <PostJobDialog fr={fr} />
@@ -81,7 +79,7 @@ function JobsPage() {
           <Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder={fr ? "Poste ou entreprise" : "Role or company"}
+            placeholder={tx("Role or company", "Poste ou entreprise")}
             className="pl-9"
           />
         </div>
@@ -106,12 +104,12 @@ function JobsPage() {
       </div>
 
       {jobs.isLoading ? (
-        <LoadingState label={fr ? "Chargement des offres…" : "Loading jobs…"} />
+        <LoadingState label={tx("Loading jobs…", "Chargement des offres…")} />
       ) : (jobs.data ?? []).length === 0 ? (
         <EmptyState
           icon={<Briefcase className="size-5" aria-hidden />}
-          title={fr ? "Aucune offre ouverte" : "No open roles"}
-          description={fr ? "Publiez la première offre, c'est gratuit." : "Post the first role — it's free."}
+          title={tx("No open roles", "Aucune offre ouverte")}
+          description={tx("Post the first role — it's free.", "Publiez la première offre, c'est gratuit.")}
         />
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2">
@@ -143,13 +141,11 @@ function JobsPage() {
                   <span className="font-display font-extrabold text-foreground">
                     {job.salary_min || job.salary_max
                       ? `${formatXAF(job.salary_min ?? job.salary_max ?? 0)}${job.salary_max && job.salary_min ? ` – ${formatXAF(job.salary_max)}` : ""}`
-                      : fr
-                        ? "À négocier"
-                        : "Negotiable"}
+                      : tx("Negotiable", "À négocier")}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {job.applications_count} {fr ? "candidature(s)" : "applicants"}
+                  {job.applications_count} {tx("applicants", "candidature(s)")}
                 </p>
                 </div>
               </Link>
@@ -177,7 +173,7 @@ function PostJobDialog({ fr }: { fr: boolean }) {
 
   async function submit() {
     if (title.trim().length < 3 || company.trim().length < 2 || description.trim().length < 20) {
-      toast.error(fr ? "Complétez le poste, l'entreprise et la description." : "Fill in role, company and description.");
+      toast.error(tx("Fill in role, company and description.", "Complétez le poste, l'entreprise et la description."));
       return;
     }
     try {
@@ -194,7 +190,7 @@ function PostJobDialog({ fr }: { fr: boolean }) {
         contact_email: email.trim() || null,
         imageFile,
       });
-      toast.success(fr ? "Offre publiée." : "Job posted.");
+      toast.success(tx("Job posted.", "Offre publiée."));
       setOpen(false);
       setTitle("");
       setCompany("");
@@ -205,7 +201,7 @@ function PostJobDialog({ fr }: { fr: boolean }) {
       setEmail("");
       setImageFile(null);
     } catch {
-      toast.error(fr ? "Publication impossible." : "Could not post the job.");
+      toast.error(tx("Could not post the job.", "Publication impossible."));
     }
   }
 
@@ -214,21 +210,21 @@ function PostJobDialog({ fr }: { fr: boolean }) {
       <DialogTrigger asChild>
         <Button size="sm" className="touch-manipulation">
           <Plus className="size-4" aria-hidden />
-          {fr ? "Publier une offre" : "Post a job"}
+          {tx("Post a job", "Publier une offre")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[calc(100dvh-2rem-env(safe-area-inset-bottom))] overflow-y-auto overscroll-contain">
         <DialogHeader>
-          <DialogTitle>{fr ? "Nouvelle offre" : "New job posting"}</DialogTitle>
+          <DialogTitle>{tx("New job posting", "Nouvelle offre")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={fr ? "Intitulé du poste" : "Job title"} />
-          <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder={fr ? "Entreprise" : "Company"} />
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={tx("Job title", "Intitulé du poste")} />
+          <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder={tx("Company", "Entreprise")} />
           <Textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={6}
-            placeholder={fr ? "Missions, profil recherché…" : "Responsibilities, who you're looking for…"}
+            placeholder={tx("Responsibilities, who you're looking for…", "Missions, profil recherché…")}
           />
           <div className="flex flex-wrap gap-2">
             <select
@@ -254,31 +250,31 @@ function PostJobDialog({ fr }: { fr: boolean }) {
               ))}
             </select>
           </div>
-          <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder={fr ? "Ville" : "City"} />
+          <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder={tx("City", "Ville")} />
           <div className="flex gap-2">
             <Input
               value={salaryMin}
               onChange={(e) => setSalaryMin(e.target.value.replace(/\D/g, ""))}
               inputMode="numeric"
-              placeholder={fr ? "Salaire min" : "Salary min"}
+              placeholder={tx("Salary min", "Salaire min")}
             />
             <Input
               value={salaryMax}
               onChange={(e) => setSalaryMax(e.target.value.replace(/\D/g, ""))}
               inputMode="numeric"
-              placeholder={fr ? "Salaire max" : "Salary max"}
+              placeholder={tx("Salary max", "Salaire max")}
             />
           </div>
           <Input
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             type="email"
-            placeholder={fr ? "Email de contact (optionnel)" : "Contact email (optional)"}
+            placeholder={tx("Contact email (optional)", "Email de contact (optionnel)")}
           />
           <div className="rounded-lg border border-dashed border-border p-3">
             <label className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-foreground">
               <ImagePlus className="size-4 text-primary" aria-hidden />
-              {fr ? "Ajouter une image (optionnel)" : "Add one image (optional)"}
+              {tx("Add one image (optional)", "Ajouter une image (optionnel)")}
               <input
                 type="file"
                 accept="image/*"
@@ -289,14 +285,14 @@ function PostJobDialog({ fr }: { fr: boolean }) {
             {imageFile ? (
               <div className="mt-2 flex items-center justify-between gap-2 text-xs text-muted-foreground">
                 <span className="truncate">{imageFile.name}</span>
-                <Button variant="ghost" size="icon" className="size-7" onClick={() => setImageFile(null)} aria-label={fr ? "Retirer l'image" : "Remove image"}>
+                <Button variant="ghost" size="icon" className="size-7" onClick={() => setImageFile(null)} aria-label={tx("Remove image", "Retirer l'image")}>
                   <X className="size-4" aria-hidden />
                 </Button>
               </div>
             ) : null}
           </div>
           <Button onClick={submit} disabled={post.isPending} className="w-full touch-manipulation">
-            {post.isPending ? (fr ? "Publication…" : "Posting…") : fr ? "Publier l'offre" : "Post the job"}
+            {post.isPending ? (tx("Posting…", "Publication…")) : tx("Post the job", "Publier l'offre")}
           </Button>
         </div>
       </DialogContent>

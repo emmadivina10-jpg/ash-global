@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 export function SupportChatPanel({ topic }: { topic?: "clean" } = {}) {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const { user } = useUser();
   const { data: profile } = useProfile();
@@ -74,7 +74,7 @@ export function SupportChatPanel({ topic }: { topic?: "clean" } = {}) {
       setDraft("");
       await queryClient.invalidateQueries({ queryKey: ["support", "mine"] });
     } catch {
-      toast.error(fr ? "Message non envoyé. Réessayez." : "Message not sent. Please try again.");
+      toast.error(tx("Message not sent. Please try again.", "Message non envoyé. Réessayez."));
     } finally {
       setBusy(false);
     }
@@ -88,12 +88,8 @@ export function SupportChatPanel({ topic }: { topic?: "clean" } = {}) {
       >
         <div className="mr-8 rounded-2xl bg-muted px-3.5 py-2.5 text-sm text-foreground">
           {topic === "clean"
-            ? fr
-              ? "Bonjour, ici ASH Clean. Posez vos questions sur votre linge, collecte ou livraison."
-              : "Hi, this is ASH Clean. Ask us anything about your laundry, pickup or delivery."
-            : fr
-              ? "Bonjour, vous êtes connecté au support ASH. Expliquez-nous ce dont vous avez besoin."
-              : "Hello, you’re connected to ASH Support. Tell us what you need help with."}
+            ? tx("Hi, this is ASH Clean. Ask us anything about your laundry, pickup or delivery.", "Bonjour, ici ASH Clean. Posez vos questions sur votre linge, collecte ou livraison.")
+            : tx("Hello, you’re connected to ASH Support. Tell us what you need help with.", "Bonjour, vous êtes connecté au support ASH. Expliquez-nous ce dont vous avez besoin.")}
         </div>
         {messages.map((message) => (
           <div
@@ -123,14 +119,14 @@ export function SupportChatPanel({ topic }: { topic?: "clean" } = {}) {
         <Input
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
-          placeholder={fr ? "Écrivez au support…" : "Message Support…"}
-          aria-label={fr ? "Message au support" : "Message Support"}
+          placeholder={tx("Message Support…", "Écrivez au support…")}
+          aria-label={tx("Message Support", "Message au support")}
         />
         <Button
           type="submit"
           size="icon"
           disabled={busy || !draft.trim()}
-          aria-label={fr ? "Envoyer" : "Send"}
+          aria-label={tx("Send", "Envoyer")}
         >
           {busy ? (
             <Loader2 className="size-4 animate-spin" aria-hidden />

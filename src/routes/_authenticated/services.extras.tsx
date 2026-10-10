@@ -63,13 +63,13 @@ async function openExternal(url: string) {
   await Browser.open({ url });
 }
 function ExtrasPage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   return (
     <div className="member-extras mx-auto max-w-5xl space-y-8">
       <header className="flex items-center gap-3 border-b border-border pb-5">
         <Button asChild size="icon" variant="secondary" className="rounded-full">
-          <Link to="/services" aria-label={fr ? "Retour à Market" : "Back to Market"}>
+          <Link to="/services" aria-label={tx("Back to Market", "Retour à Market")}>
             <ArrowLeft />
           </Link>
         </Button>
@@ -77,7 +77,7 @@ function ExtrasPage() {
         <img src={ashLogo.url} alt="ASH" className="ml-auto size-11 rounded-lg" />
       </header>
       <nav
-        aria-label={fr ? "Applications" : "Apps"}
+        aria-label={tx("Apps", "Applications")}
         className="grid grid-cols-3 gap-x-3 gap-y-8 sm:grid-cols-4 lg:grid-cols-6"
       >
         {apps.map((app) => {
