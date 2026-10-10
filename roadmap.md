@@ -1,11 +1,14 @@
 # Roadmap
 
 ## Service verification and native presentation (Oct 10)
-- [ ] Fix service-code verification without enabling Stripe transfers or changing live financial records
-- [ ] Remove duplicate in-app notification banners and inspect closed-app photo delivery support
-- [ ] Replace the initial native big-logo opening with the branded ASH Glo screen
-- [ ] Move Compass hiding inside its panel; keep Settings restoration
-- [ ] Run targeted tests and preview checks; no publishing or native distribution
+- [x] Fix service-code verification without enabling Stripe transfers or changing live financial records; missing transfer table confirmed by read-only query, authorized atomic code RPC preserved
+- [x] Remove duplicate in-app banners and native realtime-to-local duplication; preserve native remote banner ownership and APNs registration callbacks
+- [x] Replace iOS big-logo opening with smaller ASH mark and bottom ASH GLO wordmark; skip second native WelcomeIntro; XML validated
+- [x] Move Compass hiding inside its panel; existing Settings restoration preserved; isolated browser hide/restore checked with no runtime errors
+- [x] 51 targeted tests passed and preview build OK; no publishing, real code consumption, database writes, transfers or native distribution
+- [ ] Closed-app sender photo + ASH badge — blocked: remote APNs/FCM sender is not configured in this repository, and iOS needs a communication notification service extension plus signed device testing
+- [ ] Verify iOS opening on device — blocked: requires a new signed TestFlight build; current installed binary cannot change via preview edits
+- [ ] Verify this booking's real code completion — blocked: provider must submit the private customer code after publishing; no service completion or wallet credit performed on the user's behalf
 
 ## Shared staff member insights and AI support
 - [x] Shared registered-member/today counts, paginated name/photo directory and conservative presence on every staff console
