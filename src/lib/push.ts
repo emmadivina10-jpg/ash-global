@@ -6,8 +6,8 @@
  * `notifications` table by database triggers. This module turns those rows into
  * something the member actually sees outside the app:
  *
- *  - native (Capacitor): registers the device with APNs / FCM, stores the token
- *    in `push_tokens`, and mirrors incoming events as local notifications;
+ *  - native (Capacitor): registers with APNs / FCM and stores the token;
+ *    native remote push owns the banner, without a duplicate local alert;
  *  - web: uses the browser Notification API when the member grants permission.
  *
  * Everything degrades to a no-op when the platform or permission is missing.
@@ -16,6 +16,7 @@ import { useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { isNativeApp, nativePlatform } from "@/lib/native";
 import { playMessageSound } from "@/lib/sound";
+import { shouldMirrorDeviceAlert } from "./notification-delivery";
 
 /** Categories that are important enough to interrupt the member. */
 export const PUSH_CATEGORIES = [
@@ -375,13 +376,13 @@ export function usePushNotifications(
           },
           (payload) => {
             const row = payload.new as IncomingNotification;
-            void vibrateDevice();
             // Audible chime while the app is open (muted from Settings if the
             // member prefers silence).
             playMessageSound();
             if (!row?.title) return;
             onIncomingRef.current?.(row, me);
             if (!isPushCategory(row.category ?? "")) return;
+            if (!shouldMirrorDeviceAlert(isNativeApp(), document.visibilityState)) return;
             void (async () => {
               const icon = await notificationIconFor(row, me);
               void showDeviceNotification(row.title ?? "", row.body ?? "", icon);

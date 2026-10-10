@@ -1,5 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { PUSH_CATEGORIES, isPushCategory, notificationLink } from "../src/lib/push";
+import { shouldMirrorDeviceAlert } from "../src/lib/notification-delivery";
+
+describe("single device alert ownership", () => {
+  it("does not duplicate native remote banners with local notifications", () => {
+    expect(shouldMirrorDeviceAlert(true, "visible")).toBe(false);
+    expect(shouldMirrorDeviceAlert(true, "hidden")).toBe(false);
+  });
+  it("does not interrupt the foreground web app with a duplicate banner", () => {
+    expect(shouldMirrorDeviceAlert(false, "visible")).toBe(false);
+  });
+  it("keeps browser OS alerts for a background tab", () => {
+    expect(shouldMirrorDeviceAlert(false, "hidden")).toBe(true);
+  });
+});
 
 describe("push categories", () => {
   it("covers the money-critical events", () => {

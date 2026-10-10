@@ -160,8 +160,9 @@ and push notifications that make this build more than a wrapper.
 - PushBridge no longer emits a second in-app popup. The native OS owns remote
   push banners; Capacitor foreground presentation is enabled and iOS forwards
   APNs registration callbacks to the plugin.
-- Realtime-to-local alerts only run while the web app is alive. They are not
-  proof that closed-app remote delivery is configured.
+- Realtime browser alerts only run in a background tab while the web app is
+  alive; native realtime events no longer generate duplicate local banners.
+  Neither mechanism proves closed-app remote delivery is configured.
 - Closed-app sender avatars remain blocked: this repository has no configured
   remote notification sender or iOS Notification Service Extension. Completing
   that requires authorized APNs/FCM delivery configuration and an iOS extension
