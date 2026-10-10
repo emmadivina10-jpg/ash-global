@@ -1,0 +1,33 @@
+.website-app-stage {
+  position: relative;
+  isolation: isolate;
+  height: 560px;
+  max-width: 1000px;
+  margin-inline: auto;
+}
+.website-app-scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 28px;
+  opacity: 0;
+  visibility: hidden;
+  filter: blur(12px);
+  transform: translateY(16px) scale(0.96);
+  transition: opacity 1000ms ease, filter 1000ms ease, transform 1000ms ease, visibility 1000ms;
+  pointer-events: none;
+}
+.website-app-scene.is-active { opacity: 1; visibility: visible; filter: blur(0); transform: none; }
+.website-app-image {
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+}
+.is-paired .website-app-image { max-width: calc(50% - 14px); }
+@media (min-width: 1440px) { .website-app-stage { height: 620px; } }
+@media (prefers-reduced-motion: reduce) { .website-app-scene { transition: none; transform: none; filter: none; } }
