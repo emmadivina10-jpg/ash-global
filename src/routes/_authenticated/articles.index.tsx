@@ -143,6 +143,7 @@ function ArticlesPage() {
 }
 
 function WriteArticleDialog({ fr }: { fr: boolean }) {
+  const { tx } = useI18n();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [excerpt, setExcerpt] = useState("");

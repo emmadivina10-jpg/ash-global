@@ -158,6 +158,7 @@ function JobsPage() {
 }
 
 function PostJobDialog({ fr }: { fr: boolean }) {
+  const { tx } = useI18n();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [company, setCompany] = useState("");
