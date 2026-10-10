@@ -102,7 +102,7 @@ export function WebsiteAppShowcase() {
         </h2>
         <div className="my-6 h-px w-16 gold-gradient" aria-hidden />
         <p className="max-w-md text-sm leading-relaxed text-muted-foreground">{tx(active.bodyEn, active.bodyFr)}</p>
-        <div className="flex items-center gap-2" aria-label={`${index + 1} / ${SCREENS.length}`}>
+        <div className="mt-8 flex items-center gap-2" aria-label={`${index + 1} / ${SCREENS.length}`}>
           {SCREENS.map((_, i) => (
             <button
               key={i}
