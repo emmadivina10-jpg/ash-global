@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { AuthLayout } from "@/components/refer/AuthLayout";
+import { CountryPhoneInput } from "@/components/refer/CountryPhoneInput";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { SocialAuth } from "@/components/refer/SocialAuth";
 import { isValidPhone, normalizePhone } from "@/lib/format";
 import { useI18n, type TKey } from "@/lib/i18n";
@@ -80,6 +82,7 @@ function RegisterPage() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState<1 | 2>(1);
   const [done, setDone] = useState(false);
   const [refState, setRefState] = useState<"idle" | "checking" | "valid" | "invalid">("idle");
 
@@ -101,8 +104,25 @@ function RegisterPage() {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
+  function goNext() {
+    const parsed = buildSchema(t).safeParse({ ...form, password: "xxxxxxxx", confirmPassword: "xxxxxxxx" });
+    const fieldErrors: Record<string, string> = {};
+    if (!parsed.success) {
+      for (const issue of parsed.error.issues) {
+        const key = String(issue.path[0]);
+        if (["fullName", "email", "phone"].includes(key) && !fieldErrors[key]) fieldErrors[key] = issue.message;
+      }
+    }
+    setErrors(fieldErrors);
+    if (Object.keys(fieldErrors).length === 0) setStep(2);
+  }
+
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
+    if (step === 1) {
+      goNext();
+      return;
+    }
     const parsed = buildSchema(t).safeParse(form);
     if (!parsed.success) {
       const fieldErrors: Record<string, string> = {};
@@ -111,6 +131,7 @@ function RegisterPage() {
         if (!fieldErrors[key]) fieldErrors[key] = issue.message;
       }
       setErrors(fieldErrors);
+      if (fieldErrors["fullName"] || fieldErrors["email"] || fieldErrors["phone"]) setStep(1);
       return;
     }
 
@@ -218,8 +239,11 @@ function RegisterPage() {
 
   return (
     <AuthLayout title={t("auth.register.title")} subtitle={t("auth.register.subtitle")}>
-      <form onSubmit={onSubmit} className="space-y-4" noValidate>
-        <div className="grid gap-4 sm:grid-cols-2">
+      <form onSubmit={onSubmit} className="space-y-5" noValidate>
+        <StepBar step={step} />
+        <div key={step} className="auth-step grid gap-4">
+        {step === 1 ? (
+        <>
           <div className="sm:col-span-2">
             <Field label={t("auth.register.fullName")} id="fullName" error={errors["fullName"]}>
               <Input
@@ -246,24 +270,14 @@ function RegisterPage() {
           </div>
 
           <div className="sm:col-span-2">
-            <Field
-              label={t("auth.register.phone")}
-              id="phone"
-              error={errors["phone"]}
-              hint={t("auth.register.phoneHint")}
-            >
-              <Input
-                id="phone"
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel"
-                value={form.phone}
-                onChange={(event) => update("phone", event.target.value)}
-                placeholder="+237 6XX XXX XXX"
-              />
+            <Field label={t("auth.register.phone")} id="phone" error={errors["phone"]}>
+              <CountryPhoneInput id="phone" onChange={(v) => update("phone", v)} />
             </Field>
           </div>
 
+        </>
+        ) : (
+        <>
           <Field label={t("auth.password")} id="password" error={errors["password"]}>
             <PasswordInput
               id="password"
@@ -305,16 +319,9 @@ function RegisterPage() {
               />
             </Field>
           </div>
-        </div>
-
-        {errors["form"] ? (
-          <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
-            {errors["form"]}
-          </p>
-        ) : null}
-
+        {/* terms below */}
         <section aria-labelledby="terms-heading" className="space-y-3 rounded-2xl border border-primary/30 bg-primary/5 p-4">
-          <h2 id="terms-heading" className="text-base font-bold text-foreground">
+          <h2 id="terms-heading" className="text-sm font-bold text-foreground">
             {lang === "fr" ? "Conditions d'utilisation et règles de la communauté" : "Terms of Use & Community Standards"}
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -349,6 +356,17 @@ function RegisterPage() {
             </span>
           </label>
         </section>
+        </>
+        )}
+        </div>
+
+        {errors["form"] ? (
+          <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
+            {errors["form"]}
+          </p>
+        ) : null}
+
+
 
         <Dialog open={termsOpen} onOpenChange={setTermsOpen}>
           <DialogContent className="flex h-[85dvh] max-w-2xl flex-col gap-3 p-4">
@@ -366,17 +384,26 @@ function RegisterPage() {
           </DialogContent>
         </Dialog>
 
-        <Button type="submit" className="h-12 w-full rounded-xl text-base" disabled={loading || !agreed}>
-          {loading ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-          {loading ? t("auth.register.submitting") : t("auth.register.submit")}
-        </Button>
-        <p className="text-center text-xs text-muted-foreground">
-          {t("auth.register.activationNote")}
-        </p>
+        {step === 1 ? (
+          <Button type="submit" className="auth-cta group h-12 w-full rounded-xl text-base">
+            {lang === "fr" ? "Continuer" : "Continue"}
+            <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
+          </Button>
+        ) : (
+          <div className="flex gap-3">
+            <Button type="button" variant="outline" className="h-12 rounded-xl px-4" onClick={() => setStep(1)} aria-label="Back">
+              <ArrowLeft className="size-4" aria-hidden />
+            </Button>
+            <Button type="submit" className="auth-cta h-12 flex-1 rounded-xl text-base" disabled={loading || !agreed}>
+              {loading ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+              {loading ? t("auth.register.submitting") : t("auth.register.submit")}
+            </Button>
+          </div>
+        )}
 
       </form>
 
-      {agreed ? <SocialAuth label={t("auth.register.orSignUp")} /> : null}
+      {step === 1 || agreed ? <SocialAuth label={t("auth.register.orSignUp")} /> : null}
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         {t("auth.register.haveAccount")}{" "}
@@ -385,6 +412,19 @@ function RegisterPage() {
         </Link>
       </p>
     </AuthLayout>
+  );
+}
+
+function StepBar({ step }: { step: 1 | 2 }) {
+  return (
+    <div className="flex items-center gap-2" aria-label={`Step ${step} of 2`}>
+      {[1, 2].map((n) => (
+        <span key={n} className="h-1 flex-1 overflow-hidden rounded-full bg-muted">
+          <span className={`block h-full rounded-full bg-primary transition-all duration-500 ${step >= n ? "w-full" : "w-0"}`} />
+        </span>
+      ))}
+      <span className="ml-1 text-xs font-semibold text-muted-foreground">{step}/2</span>
+    </div>
   );
 }
 
