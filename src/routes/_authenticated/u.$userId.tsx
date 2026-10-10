@@ -96,6 +96,12 @@ function MemberProfilePage() {
             <span className="truncate">{person.name}</span>
             <VerifiedBadge tier={person.verified_tier} until={person.verified_until} size={18} />
           </h1>
+          {person.online ? (
+            <p className="mt-0.5 flex items-center gap-1.5 text-xs font-semibold text-primary">
+              <span className="size-2 rounded-full bg-primary" aria-hidden />
+              {tx("Online", "En ligne")}
+            </p>
+          ) : null}
           <p className="mt-1 text-xs text-muted-foreground">
             {(posts ?? []).length} {tx("posts", "publications")}
           </p>

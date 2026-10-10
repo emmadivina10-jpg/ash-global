@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import ashLogo from "@/assets/ash-logo.png.asset.json";
-import { isNativeApp } from "@/lib/native";
 
 const KEY = "ash-welcome-v1";
 
@@ -15,9 +14,6 @@ let played = false;
 export function welcomeSeen(): boolean {
   try {
     if (played) return true;
-    // The native launch storyboard owns the branded opening; don't replay it
-    // as a second full-screen web animation in TestFlight.
-    if (isNativeApp()) return true;
     return window.sessionStorage.getItem(KEY) === "1";
   } catch {
     return true;

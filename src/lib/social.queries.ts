@@ -273,6 +273,7 @@ export function useMemberStates(ids: string[]) {
     queryKey: ["member-states", unique],
     enabled: unique.length > 0,
     staleTime: 30_000,
+    refetchInterval: 60_000,
     queryFn: () => loadAuthors(unique),
   });
 }
@@ -1942,6 +1943,7 @@ export function useMemberProfile(userId: string | null | undefined) {
   return useQuery({
     queryKey: ["member-profile", userId],
     enabled: Boolean(userId),
+    refetchInterval: 60_000,
     queryFn: async (): Promise<SocialAuthor | null> => {
       const authors = await loadAuthors([userId!]);
       return authors.get(userId!) ?? null;

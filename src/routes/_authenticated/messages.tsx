@@ -1452,6 +1452,12 @@ function MessagesPage() {
                     ) : null}
                   </p>
 
+                  {activeId !== ASH_AI_ID && activeId !== ASH_SUPPORT_ID && active && peerStateOf(active)?.online ? (
+                    <p className="flex items-center gap-1 text-[11px] font-semibold text-primary">
+                      <span className="size-1.5 rounded-full bg-primary" aria-hidden />
+                      {tx("Online", "En ligne")}
+                    </p>
+                  ) : null}
                   {active?.booking ? (
                     <p className="truncate text-[11px] text-muted-foreground">
                       {active.booking.service_title} · {formatDateTime(active.booking.scheduled_at)}
