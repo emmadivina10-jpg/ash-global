@@ -47,6 +47,8 @@ const ERRORS: Record<string, string> = {
     "Please sign in again.",
   BANK_NOT_CONNECTED:
     "Connect and verify your bank account before requesting a bank payout.",
+  BANK_PAYOUTS_NOT_READY:
+    "Connect your Stripe payout account first. Open your Wallet and finish the bank/card payout setup.",
   PAYMENT_PROVIDER_NOT_CONFIGURED:
     "Mobile-money payouts are temporarily unavailable.",
   PROVIDER_UNREACHABLE:
@@ -63,7 +65,7 @@ type Method =
 const METHOD_LABEL: Record<Method, string> = {
   MTN_MOMO: "MTN Mobile Money",
   ORANGE_MONEY: "Orange Money",
-  STRIPE_BANK: "Bank account",
+  STRIPE_BANK: "Card / Bank (Stripe)",
 };
 
 export const Route = createFileRoute(
@@ -178,11 +180,13 @@ function WithdrawPage() {
   const momoAvailable =
     mobileMoneyEnabled;
 
-  // Bank payouts are a coming-soon feature: Mobile Money is the only live
-  // destination anywhere in ASH today.
+  // Card/bank payouts run through the member's connected Stripe payout
+  // account. The server rejects the request when that account is not ready,
+  // so the option is always visible and the error explains the next step.
   const methodOptions: Method[] = [
     "MTN_MOMO",
     "ORANGE_MONEY",
+    "STRIPE_BANK",
   ];
 
   useEffect(() => {
@@ -576,9 +580,10 @@ function WithdrawPage() {
 
           {isBank ? (
             <p className="rounded-xl bg-muted/60 p-3 text-xs text-muted-foreground">
-              Funds are sent to the
-              bank account you verified
-              with Stripe above.
+              Funds are sent through
+              Stripe to the card or bank
+              account you connected in
+              your Wallet payout setup.
             </p>
           ) : (
             <div className="space-y-2">
