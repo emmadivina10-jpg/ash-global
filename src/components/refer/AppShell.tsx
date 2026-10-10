@@ -60,6 +60,7 @@ import { useI18n, type TKey } from "@/lib/i18n";
 import { useRegion } from "@/lib/region-context";
 import { RegionSwitcher } from "./RegionSwitcher";
 import { cn } from "@/lib/utils";
+import { PayoutSetupReminder } from "./PayoutSetupReminder";
 import { useServicesMode } from "@/lib/services-mode";
 
 type NavItem = {
@@ -366,6 +367,8 @@ export function AppShell({ children }: { children: ReactNode }) {
               </div>
             </div>
           </header>}
+
+          {profile && <PayoutSetupReminder userId={profile.user_id} connected={Boolean(profile.stripe_account_id)} />}
 
           <div className="flex min-h-0 min-w-0 flex-1">
             <main className={cn("app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:px-8 lg:pb-10", roomyMemberTab && "member-roomy-tab")}>{children}</main>

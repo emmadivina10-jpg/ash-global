@@ -37,3 +37,5 @@
 - Personal booking_history_preferences archives/restores/removes terminal history only, never bookings or payments. Why: independent histories and financial retention.
 - Verification links carry provider tab and booking ID. Why: reach the correct Received code form.
 - Localize interface copy with static dictionaries and explicit tx calls, never DOM rewriting or user-content translation. Why: privacy and stable React state.
+
+- WalletPayoutSetup reuses guarded Stripe Connect onboarding; PayoutSetupReminder stores account-scoped opt-out and weekly cadence locally. Why: discoverable setup without collecting card data or enabling restricted payouts.
