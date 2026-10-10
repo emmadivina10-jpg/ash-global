@@ -37,10 +37,10 @@ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
     AND (event_type IN ('story_view','spotlight_view','service_view','provider_view','product_view','listing_view','booking','comment','reply','repost','share','story_reaction','spotlight_reaction','reaction','like','save','follow')
       OR (event_type='view' AND coalesce(dwell_ms,0)>=1500))
   UNION ALL SELECT sender_id,created_at FROM messages WHERE created_at>=now()-interval '30 days' AND created_at<=now()
-  UNION ALL SELECT user_id,created_at FROM social_posts WHERE created_at>=now()-interval '30 days' AND created_at<=now()
+  UNION ALL SELECT author_id,created_at FROM social_posts WHERE created_at>=now()-interval '30 days' AND created_at<=now()
   UNION ALL SELECT client_id,created_at FROM bookings WHERE created_at>=now()-interval '30 days' AND created_at<=now()
   UNION ALL SELECT referrer_id,created_at FROM referrals WHERE created_at>=now()-interval '30 days' AND created_at<=now()
-  UNION ALL SELECT user_id,created_at FROM transactions WHERE created_at>=now()-interval '30 days' AND created_at<=now() AND status='SUCCESS'
+  UNION ALL SELECT user_id,created_at FROM transactions WHERE created_at>=now()-interval '30 days' AND created_at<=now() AND status='COMPLETED'
  ), eligible AS (
   SELECT DISTINCT p.user_id FROM profiles p JOIN qualified q ON q.user_id=p.user_id
   WHERE NOT EXISTS (SELECT 1 FROM member_metric_exclusions e WHERE e.user_id=p.user_id)

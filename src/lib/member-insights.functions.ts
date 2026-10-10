@@ -38,4 +38,4 @@ export const getStaffMemberReview = createServerFn({method:'POST'})
  });
 export const getStaffMemberAIThread=createServerFn({method:'POST'})
  .inputValidator((d:{userId:string})=>({userId:String(d.userId??'')}))
- .handler(async({data})=>{const {getMemberThread}=await import('./member-review.server');return getMemberThread(data.userId);});
+ .handler(async({data})=>{const {getMemberThread}=await import('./member-review.server');const thread=await getMemberThread(data.userId);return {id:thread.id,messagesJson:JSON.stringify(thread.messages)};});
