@@ -216,6 +216,7 @@ function BookingsPage() {
       refresh();
       if (result.ok && result.status === "PAID") {
         toast.success(fr ? "Paiement confirmé. Réservation confirmée." : "Payment confirmed. Booking confirmed.");
+        void navigate({ to: "/booking/$bookingId/track", params: { bookingId } });
       } else if (result.ok) {
         toast.message(fr ? "Paiement encore en attente." : "Payment still pending.");
       } else {

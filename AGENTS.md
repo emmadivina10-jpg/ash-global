@@ -30,3 +30,4 @@
 
 - Staff console rules (staff identity, cases, chat, boards, console theme) live in src/components/console/AGENTS.md.
 - Human Support conversations reuse support.functions.ts and the existing ticket/read records; support-state.ts owns notification lifecycle predicates. Why: no duplicate messaging or schema changes; AI-agent chat primitives are outside this human-to-human workflow.
+- Checkout returns use payment-return.ts's app-owned origin allowlist and booking-specific tracking path; TrackingDock owns the viewport-floating Map/Wallet surface and suppresses the separate Wallet orb on tracking. Why: prevent transient-host returns and keep one clear floating control without changing settlement.

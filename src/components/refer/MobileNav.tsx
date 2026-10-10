@@ -155,8 +155,8 @@ export function MobileNav({
             >
               <span className="relative grid size-7 place-items-center">
                 <Avatar path={profile?.avatar_url} name={profile?.full_name} className="member-avatar-ring size-7 p-[2px]" />
-                <span className="absolute -bottom-0.5 -right-1 z-10 grid size-4 place-items-center rounded-full bg-background ring-1 ring-border">
-                  <span className="grid size-3 place-items-center [&_svg]:size-3"><MemberNavIcon icon={Menu} active={pathname === "/menu"} /></span>
+                <span className="absolute -bottom-1 -right-1.5 z-10 grid size-[18px] place-items-center rounded-full border border-border bg-background text-foreground shadow-sm">
+                  <Menu className="size-3.5" strokeWidth={3} aria-hidden />
                 </span>
               </span>
               <span className="max-w-full truncate">{t("nav.more")}</span>

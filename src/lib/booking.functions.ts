@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { paymentReturnOrigin, bookingTrackingPath } from "./payment-return";
 
 function makeReference(): string {
   return `BKG-${crypto.randomUUID().replace(/-/g, "").slice(0, 16).toUpperCase()}`;
@@ -14,10 +15,7 @@ export const startBookingPayment = createServerFn({ method: "POST" })
   .inputValidator((input: { bookingId: string; method?: "MOMO" | "CARD"; provider?: string; phone?: string; country?: string; origin?: string }) => {
     if (!input?.bookingId) throw new Error("bookingId required");
     // Only same-app origins are allowed for Stripe success/cancel URLs.
-    const rawOrigin = String(input.origin ?? "").trim();
-    const origin = /^https:\/\/[\w.-]+\.lovable\.app$/.test(rawOrigin) || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(rawOrigin)
-      ? rawOrigin
-      : "";
+    const origin = paymentReturnOrigin(input.origin);
     return {
       bookingId: input.bookingId,
       method: input.method === "CARD" ? ("CARD" as const) : ("MOMO" as const),
@@ -33,7 +31,7 @@ export const startBookingPayment = createServerFn({ method: "POST" })
 
     // The back/cancel link on Stripe must land on the app the payer came
     // from, so the session URLs follow the caller's origin when available.
-    const appUrl = data.origin || process.env["APP_URL"] || "https://ashglogroup.company";
+    const appUrl = data.origin;
 
     const { data: booking } = await supabase
       .from("bookings")
@@ -60,7 +58,7 @@ export const startBookingPayment = createServerFn({ method: "POST" })
             amountCents: (await import("./stripe.server")).xafToUsdCents(Number(booking.price)),
             currency: "USD",
             description: `ASH booking — ${booking.service_title}`,
-            successUrl: `${appUrl}/booking/${booking.id}/confirmed`,
+            successUrl: `${appUrl}${bookingTrackingPath(booking.id)}`,
             cancelUrl: `${appUrl}/bookings`,
             metadata: { booking_id: booking.id },
           });
@@ -117,7 +115,7 @@ export const startBookingPayment = createServerFn({ method: "POST" })
         currency: "USD",
         description: `ASH booking — ${booking.service_title}`,
         ...(profile?.email ? { email: profile.email } : {}),
-        successUrl: `${appUrl}/booking/${booking.id}/confirmed`,
+        successUrl: `${appUrl}${bookingTrackingPath(booking.id)}`,
         cancelUrl: `${appUrl}/bookings`,
         metadata: { booking_id: booking.id },
       });
