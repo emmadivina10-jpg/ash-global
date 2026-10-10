@@ -1,27 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import {
-  BadgeCheck,
-  Briefcase,
-  Building2,
-  CalendarDays,
-  Gift,
-  Globe2,
-  GraduationCap,
-  LayoutGrid,
-  Lock,
-  MessageCircle,
-  Newspaper,
-  Send,
-  ShieldCheck,
-  ShoppingBag,
-  Sparkles,
-  Store,
-  Tag,
-  Users,
-  Wallet,
-  Zap,
-} from "lucide-react";
+import { CreditCard, Globe2, Lock, MessageCircle, Plane, ShieldCheck, Smartphone, Sparkles, Store, Flame } from "lucide-react";
+import marketImage from "@/assets/market-beauty.jpg";
+import feedImage from "@/assets/hero-events.jpg";
+import flightImage from "@/assets/feed-flight-banner.jpg";
 import { isNativeApp } from "@/lib/native";
 import ashLogo from "@/assets/ash-logo.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
@@ -67,131 +49,16 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
-const WORLD = [
-  {
-    icon: Store,
-    en: "Services",
-    fr: "Services",
-    enHint: "Book verified pros",
-    frHint: "Réservez des pros vérifiés",
-  },
-  {
-    icon: ShoppingBag,
-    en: "ASH Hub",
-    fr: "ASH Hub",
-    enHint: "Buy, sell, get paid",
-    frHint: "Achetez, vendez, encaissez",
-  },
-  {
-    icon: Briefcase,
-    en: "Freelance",
-    fr: "Freelance",
-    enHint: "Hire talent, send offers",
-    frHint: "Recrutez, proposez",
-  },
-  {
-    icon: Building2,
-    en: "Property",
-    fr: "Immobilier",
-    enHint: "Rent, lease, visit",
-    frHint: "Louez, gérez, visitez",
-  },
-  {
-    icon: CalendarDays,
-    en: "Events",
-    fr: "Événements",
-    enHint: "Sell and scan tickets",
-    frHint: "Vendez et scannez des billets",
-  },
-  {
-    icon: Tag,
-    en: "Deals",
-    fr: "Offres",
-    enHint: "Claim weekly savings",
-    frHint: "Profitez des offres",
-  },
-  {
-    icon: Users,
-    en: "Social",
-    fr: "Social",
-    enHint: "Feed, stories & Spotlight",
-    frHint: "Fil, stories et Spotlight",
-  },
-  {
-    icon: MessageCircle,
-    en: "Chat",
-    fr: "Chat",
-    enHint: "Friends, groups & DMs",
-    frHint: "Amis, groupes et messages",
-  },
+const SNAPSHOTS = [
+  { icon: Store, en: "Marketplace bookings", fr: "Réservations du marché", enHint: "Find a service. Book a professional.", frHint: "Trouvez un service. Réservez un professionnel.", image: marketImage, alt: "Beauty service", kind: "market" },
+  { icon: MessageCircle, en: "Text messaging", fr: "Messagerie", enHint: "Your conversations, together.", frHint: "Vos conversations, réunies.", image: null, alt: "", kind: "messages" },
+  { icon: Flame, en: "Feed", fr: "Fil", enHint: "Stories and moments from your community.", frHint: "Stories et moments de votre communauté.", image: feedImage, alt: "Community gathering", kind: "feed" },
+  { icon: Plane, en: "Flights", fr: "Vols", enHint: "Travel with ASH · coming soon", frHint: "Voyagez avec ASH · bientôt", image: flightImage, alt: "Airplane", kind: "flights" },
 ] as const;
-
-const MORE_WORLD = [
-  {
-    icon: Gift,
-    en: "Referrals",
-    fr: "Parrainage",
-    enHint: "Rewards for eligible CM/NG accounts",
-    frHint: "Récompenses pour les comptes CM/NG éligibles",
-  },
-  {
-    icon: Zap,
-    en: "Electricity",
-    fr: "Électricité",
-    enHint: "Bill payments · coming soon",
-    frHint: "Paiement des factures · bientôt",
-  },
-  {
-    icon: Send,
-    en: "TchokoPay",
-    fr: "TchokoPay",
-    enHint: "Visit our payment partner",
-    frHint: "Découvrez notre partenaire de paiement",
-  },
-  {
-    icon: Wallet,
-    en: "Wallet",
-    fr: "Portefeuille",
-    enHint: "Balances and supported withdrawals",
-    frHint: "Soldes et retraits disponibles",
-  },
-  {
-    icon: LayoutGrid,
-    en: "Other apps",
-    fr: "Autres apps",
-    enHint: "Browse the ASH family",
-    frHint: "Découvrez la famille ASH",
-  },
-  {
-    icon: Newspaper,
-    en: "Articles",
-    fr: "Articles",
-    enHint: "Read and publish",
-    frHint: "Lisez et publiez",
-  },
-  {
-    icon: GraduationCap,
-    en: "Mentors",
-    fr: "Mentors",
-    enHint: "Learn from doers",
-    frHint: "Apprenez des experts",
-  },
-  {
-    icon: BadgeCheck,
-    en: "ASH Verified",
-    fr: "ASH Vérifié",
-    enHint: "Protect your name",
-    frHint: "Protégez votre nom",
-  },
-] as const;
-
-const WORLD_PAGES = [WORLD, MORE_WORLD] as const;
 
 function Landing() {
-  const { tx, lang } = useI18n();
-  const fr = lang === "fr";
+  const { tx } = useI18n();
   const navigate = useNavigate();
-  const [page, setPage] = useState(0);
   const [out, setOut] = useState(false);
   const [reduced, setReduced] = useState(false);
 
@@ -213,7 +80,6 @@ function Landing() {
     const id = window.setInterval(() => {
       setOut(true);
       swapTimer = window.setTimeout(() => {
-        setPage((p) => (p + 1) % WORLD_PAGES.length);
         setOut(false);
       }, 3400);
     }, 10000);
@@ -277,34 +143,39 @@ function Landing() {
               {tx("Welcome to ASH", "Bienvenue sur ASH")}
             </h1>
             <p className="mt-2 max-w-md text-[12.5px] leading-relaxed text-muted-foreground sm:text-sm lg:mt-4 lg:text-base">
-              {tx("Where opportunities connect. Book verified pros, sell, rent, hire, share with friends, chat, and get paid securely by Mobile Money.", "Là où les opportunités se connectent. Réservez des pros vérifiés, vendez, louez, recrutez, partagez avec vos amis, discutez et soyez payé en toute sécurité par Mobile Money.")}
+              {tx("Book through the marketplace, message friends and share your moments. Pay securely by card with Stripe or MTN / Orange Money.", "Réservez sur le marché, discutez avec vos amis et partagez vos moments. Payez par carte avec Stripe ou MTN / Orange Money.")}
             </p>
 
             <div
-              key={page}
               className="mt-4 grid w-full grid-cols-2 gap-1.5 sm:gap-2.5 lg:mt-7 lg:max-w-xl"
             >
-              {(WORLD_PAGES[page] ?? WORLD).map((item, i) => {
+              {SNAPSHOTS.map((item, i) => {
                 const Icon = item.icon;
                 return (
                   <div
                     key={item.en}
                     style={{ animationDelay: `${i * 160}ms` }}
-                    className={`flex items-center gap-2.5 rounded-2xl border border-border/70 bg-card/50 px-3 py-2.5 text-left backdrop-blur-md transition-colors hover:border-primary/40 hover:bg-card/70 ${
-                      out ? "ash-tiles-out" : "ash-tiles-in"
-                    }`}
+                    className={`overflow-hidden rounded-lg border border-border/70 bg-card/60 text-left transition-colors ${out ? "ash-tiles-out" : "ash-tiles-in"}`}
                   >
-                    <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-                      <Icon className="size-4" aria-hidden />
-                    </span>
-                    <span className="flex min-w-0 flex-col gap-1">
-                      <span className="block text-[12px] font-bold leading-snug text-foreground">
-                        {tx(item.en, item.fr)}
+                    <div className="relative aspect-[16/9] overflow-hidden bg-muted" aria-label={tx("Preview", "Aperçu")}>
+                      {item.image ? <img src={item.image} alt={item.alt} className="size-full object-cover" /> : (
+                        <div className="flex h-full flex-col justify-center gap-2 p-3 sm:p-4">
+                          <div className="flex items-center gap-2 text-xs font-semibold text-foreground"><MessageCircle className="size-4 text-primary" />{tx("Messages", "Messages")}</div>
+                          <span className="w-fit rounded-lg bg-primary/15 px-3 py-1.5 text-[11px] text-foreground">{tx("Hello! How are you?", "Salut ! Comment vas-tu ?")}</span>
+                          <span className="ms-auto w-fit rounded-lg bg-secondary px-3 py-1.5 text-[11px] text-secondary-foreground">{tx("See you soon!", "À bientôt !")}</span>
+                        </div>
+                      )}
+                      <span className="absolute start-2 top-2 rounded-md bg-background/90 px-2 py-1 text-[9px] font-semibold text-foreground">{tx("Preview", "Aperçu")}</span>
+                      {item.kind === "market" && <span className="absolute bottom-2 start-2 rounded-md bg-background/90 px-2 py-1 text-[10px] font-semibold text-foreground">{tx("Services · Bookings", "Services · Réservations")}</span>}
+                      {item.kind === "feed" && <span className="absolute bottom-2 start-2 rounded-md bg-background/90 px-2 py-1 text-[10px] font-semibold text-foreground">{tx("Stories · Feed", "Stories · Fil")}</span>}
+                    </div>
+                    <div className="flex items-start gap-2 p-3">
+                      <Icon className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
+                      <span className="flex min-w-0 flex-col gap-1">
+                        <span className="text-xs font-bold leading-snug text-foreground">{tx(item.en, item.fr)}</span>
+                        <span className="text-[10px] leading-snug text-muted-foreground">{tx(item.enHint, item.frHint)}</span>
                       </span>
-                      <span className="block text-[10px] leading-snug text-muted-foreground">
-                        {tx(item.enHint, item.frHint)}
-                      </span>
-                    </span>
+                    </div>
                   </div>
                 );
               })}
@@ -345,6 +216,13 @@ function Landing() {
               >
                 <Link to="/login">{tx("I already have an account", "J’ai déjà un compte")}</Link>
               </Button>
+            </div>
+
+            <div className="mt-5 space-y-2 border-t border-border pt-4">
+              <p className="text-xs font-bold text-foreground">{tx("Active payment methods", "Moyens de paiement actifs")}</p>
+              <p className="flex items-center gap-2 text-xs text-foreground"><CreditCard className="size-4 text-primary" />{tx("Card payments · Stripe", "Paiements par carte · Stripe")}<ShieldCheck className="ms-auto size-3.5 text-primary" /></p>
+              <p className="flex items-center gap-2 text-xs text-foreground"><Smartphone className="size-4 text-gold" />MTN MoMo · Orange Money<ShieldCheck className="ms-auto size-3.5 text-primary" /></p>
+              <p className="text-[10px] text-muted-foreground">{tx("Available methods depend on your country and checkout.", "Les moyens disponibles dépendent de votre pays et du paiement.")}</p>
             </div>
 
             <div className="mt-5 flex items-start gap-2.5 rounded-2xl border border-border/70 bg-background/40 px-3.5 py-3">
