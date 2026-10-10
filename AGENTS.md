@@ -34,3 +34,6 @@
 - Tracking: parties opt in via share_booking_party_location (active bookings, cleared on end); Leaflet/OSM map client-only. Why: works worldwide, no key or address.
 - Service verification uses the existing authorized atomic code RPC independently of disabled Connect transfers. Why: absent transfer safeguards must not block service completion or turn transfers on.
 - Phone alert banners belong to OS delivery, not PushBridge toasts; iOS launch storyboard owns native startup. Why: prevent duplicated notifications and opening screens.
+- Personal booking_history_preferences archives/restores/removes terminal history only, never bookings or payments. Why: independent histories and financial retention.
+- Verification links carry provider tab and booking ID. Why: reach the correct Received code form.
+- Localize interface copy with static dictionaries and explicit tx calls, never DOM rewriting or user-content translation. Why: privacy and stable React state.

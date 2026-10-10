@@ -8,5 +8,5 @@ export function canRemoveBookingHistory(status: string) {
 }
 export function bookingSearch(input: { tab?: unknown; booking?: unknown }): { tab?: "provider" | "client"; booking?: string } {
   return { tab: input.tab === "provider" ? "provider" as const : "client" as const,
-    booking: typeof input.booking === "string" ? input.booking : undefined };
+    ...(typeof input.booking === "string" ? { booking: input.booking } : {}) };
 }
