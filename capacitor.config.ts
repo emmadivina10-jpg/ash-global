@@ -47,6 +47,10 @@ const config: CapacitorConfig = {
     backgroundColor: "#080812",
   },
   plugins: {
+    PushNotifications: {
+      // Native remote alerts are the one banner, even in the foreground.
+      presentationOptions: ["badge", "sound", "alert"],
+    },
     SplashScreen: {
       launchShowDuration: 500,
       launchAutoHide: false,

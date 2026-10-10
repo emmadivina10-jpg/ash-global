@@ -155,6 +155,23 @@ and push notifications that make this build more than a wrapper.
 
 ## What's wired in the codebase
 
+### Notification delivery and launch status
+
+- PushBridge no longer emits a second in-app popup. The native OS owns remote
+  push banners; Capacitor foreground presentation is enabled and iOS forwards
+  APNs registration callbacks to the plugin.
+- Realtime browser alerts only run in a background tab while the web app is
+  alive; native realtime events no longer generate duplicate local banners.
+  Neither mechanism proves closed-app remote delivery is configured.
+- Closed-app sender avatars remain blocked: this repository has no configured
+  remote notification sender or iOS Notification Service Extension. Completing
+  that requires authorized APNs/FCM delivery configuration and an iOS extension
+  using communication notifications; neither is simulated by a browser canvas.
+- The iOS launch storyboard now shows a 96-point ASH mark and bottom ASH GLO
+  wordmark rather than the oversized Splash bitmap. Native launches do not
+  replay WelcomeIntro. These changes require a new signed TestFlight build;
+  web publication cannot change an already installed native launch storyboard.
+
 - `capacitor.config.ts` — app identity, remote server URL, allowed domains,
   splash/status-bar/keyboard plugin config.
 - `native/www/index.html` — offline bootstrap screen bundled inside the binary.

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from "react";
-import { Compass, Map, Wallet, X } from "lucide-react";
+import { Compass, EyeOff, Map, Wallet, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import { useOrbVisible } from "@/lib/orb-visibility";
@@ -171,6 +171,19 @@ export function CompassSurface({
           >
             {tab === "map" ? map : <WalletSummary onClose={() => setOpen(false)} />}
           </div>
+          <footer className="shrink-0 border-t border-border p-2">
+            <Button
+              variant="ghost"
+              className="w-full text-muted-foreground"
+              onClick={() => {
+                setOpen(false);
+                setVisible(false);
+              }}
+            >
+              <EyeOff className="size-4" />
+              {fr ? "Masquer ASH Compass" : "Turn off ASH Compass"}
+            </Button>
+          </footer>
         </section>
       )}
       <div
@@ -203,19 +216,6 @@ export function CompassSurface({
           {active && (
             <span className="absolute bottom-1 right-1 size-3 rounded-full border-2 border-card bg-success" />
           )}
-        </Button>
-        <Button
-          size="icon-sm"
-          variant="secondary"
-          className="absolute -right-1 -top-2 size-6 rounded-full border border-border shadow-[var(--shadow-card)]"
-          aria-label={fr ? "Masquer ASH Compass" : "Hide ASH Compass"}
-          title={fr ? "Masquer ASH Compass" : "Hide ASH Compass"}
-          onClick={() => {
-            setOpen(false);
-            setVisible(false);
-          }}
-        >
-          <X className="size-3" />
         </Button>
       </div>
     </>
