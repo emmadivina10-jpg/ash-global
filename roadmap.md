@@ -1,5 +1,12 @@
 # Roadmap
 
+## Stripe booking payment and provider transfer completion
+- [x] Read-only audit of configured Stripe account, webhooks, onboarding, transfers, database release and local payout handling
+- [x] Verify 15% calculations and signature rejection without sending money
+- [ ] Implement durable verified-webhook settlement and post-verification provider transfer records — awaiting approval of the plan; shared live database changes must not be applied without approval
+- [ ] Resolve TD Marketplace webhook mismatch — requires approval to change live Stripe webhook configuration, no duplicate integrations
+- [ ] Verify supported connected-provider onboarding and payout destination — no connected providers currently configured; no real transfers authorized
+
 ## Desktop Messages and Flights
 - [x] Extend Messages to the right and bottom edges of the desktop content area, preserving phone/tablet layouts
 - [x] Restore Flights in desktop navigation, linking to the existing /flights page
