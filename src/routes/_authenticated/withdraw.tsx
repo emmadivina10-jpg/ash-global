@@ -47,6 +47,8 @@ const ERRORS: Record<string, string> = {
     "Please sign in again.",
   BANK_NOT_CONNECTED:
     "Connect and verify your bank account before requesting a bank payout.",
+  BANK_PAYOUTS_NOT_READY:
+    "Connect your Stripe payout account first. Open your Wallet and finish the bank/card payout setup.",
   PAYMENT_PROVIDER_NOT_CONFIGURED:
     "Mobile-money payouts are temporarily unavailable.",
   PROVIDER_UNREACHABLE:
