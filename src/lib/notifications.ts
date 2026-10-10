@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { directory } from "@/lib/public-profiles";
+import { actorIdFor, loadActors } from "@/lib/notification-actor";
 
 export type AppNotification = {
   id: string;
@@ -33,30 +33,23 @@ export function useNotifications(limit = 30) {
 
       const rows = (data ?? []) as unknown as AppNotification[];
       // Attach the person behind each notification so the screen can show their
-      // photo and name (a like, comment, friend request or group invite).
-      const actorIds = Array.from(
-        new Set(rows.map((row) => row.actor_id).filter((id): id is string => Boolean(id))),
-      );
+      // photo and name (a like, comment, booking, friend request or group invite).
+      const rowActorIds = await Promise.all(rows.map((row) => actorIdFor(row, auth.user!.id)));
+      const actorIds = Array.from(new Set(rowActorIds.filter((id): id is string => Boolean(id))));
       if (actorIds.length === 0) return rows.map((row) => ({ ...row, actor: null }));
 
       const since = new Date(Date.now() - 5 * 60_000).toISOString();
-      const [{ data: profiles }, { data: presence }] = await Promise.all([
-        directory().select("user_id, full_name, avatar_url, verified_tier, verified_until").in("user_id", actorIds),
+      const [map, { data: presence }] = await Promise.all([
+        loadActors(actorIds),
         supabase.from("member_presence").select("user_id").in("user_id", actorIds).gte("last_active_at", since),
       ]);
       const onlineIds = new Set((presence ?? []).map((row) => row.user_id));
-      const map = new Map(
-        ((profiles ?? []) as { user_id: string; full_name: string | null; avatar_url: string | null; verified_tier: string | null; verified_until: string | null }[]).map(
-          (row) => [row.user_id, row],
-        ),
-      );
-      return rows.map((row) => {
-        const profile = row.actor_id ? map.get(row.actor_id) : undefined;
+      return rows.map((row, i) => {
+        const id = rowActorIds[i];
+        const profile = id ? map.get(id) : undefined;
         return {
           ...row,
-          actor: profile
-            ? { id: profile.user_id, name: profile.full_name ?? "Profile", avatar_url: profile.avatar_url, verified_tier: profile.verified_tier, verified_until: profile.verified_until, online: onlineIds.has(profile.user_id) }
-            : null,
+          actor: profile ? { ...profile, online: onlineIds.has(profile.id) } : null,
         };
       });
     },
@@ -74,6 +67,9 @@ export function useNotifications(limit = 30) {
         void queryClient.invalidateQueries({ queryKey: ["wallet"] });
         void queryClient.invalidateQueries({ queryKey: ["profile"] });
         void queryClient.invalidateQueries({ queryKey: ["transactions"] });
+        // Booking changes (paid, confirmed, trip started) arrive as notifications:
+        // refresh every booking screen so the provider sees them instantly.
+        void queryClient.invalidateQueries({ queryKey: ["bookings"] });
       })
       .subscribe();
     return () => {

@@ -12,7 +12,7 @@ const MAX_BYTES = 5 * 1024 * 1024;
 const avatarUrlCache = new Map<string, { url: string; expiresAt: number }>();
 const pendingAvatarUrls = new Map<string, Promise<string | null>>();
 
-async function resolveAvatarUrl(path: string) {
+export async function resolveAvatarUrl(path: string) {
   if (path.startsWith("http")) return path;
   const cached = avatarUrlCache.get(path);
   if (cached && cached.expiresAt > Date.now()) return cached.url;

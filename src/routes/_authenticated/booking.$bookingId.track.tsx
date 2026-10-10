@@ -15,6 +15,7 @@ import { getBookingReceipt } from "@/lib/booking-receipt.functions";
 import { getTripEta } from "@/lib/trip-eta.functions";
 import { syncBookingPayment } from "@/lib/booking.functions";
 import { TrackingDock } from "@/components/refer/TrackingDock";
+import { CustomerVerificationCode } from "@/components/refer/CustomerVerificationCode";
 import { openConversation } from "@/lib/marketplace.queries";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/format";
@@ -209,6 +210,8 @@ function TrackPage() {
       </section>
 
       <div className="rounded-2xl bg-primary/10 p-4 text-sm font-semibold text-foreground">{message}</div>
+
+      {!isProvider && active ? <CustomerVerificationCode bookingId={bookingId} className="mt-0" /> : null}
 
       <ol className="grid grid-cols-4 gap-1 text-center text-[11px] font-semibold">
         {steps.map(([label, ok]) => (
