@@ -51,14 +51,14 @@ export const getBookingStripeStages = createServerFn({ method: "POST" })
       .select("status,transfer_id,gross_minor,amount_minor,currency,destination_account_id,last_error")
       .eq("booking_id", data.bookingId).maybeSingle();
     const { destination_account_id: destination, ...safeRelease } = release ?? {};
-    let payouts: unknown[] = [];
+    let payouts: { payoutId: string; status: string; amountMinor: number; currency: string; failureCode: string | null; updatedAt: string }[] = [];
     let payoutReadStatus = "NO_RECORDED_PAYOUT";
     if (destination && provider?.user_id === context.userId) {
       const { data: rows, error: payoutError } = await db.from("stripe_connected_payouts")
         .select("payout_id,status,amount_minor,currency,failure_code,updated_at").eq("account_id", destination)
         .order("updated_at", { ascending: false }).limit(20);
       payoutReadStatus = payoutError ? "DATA_NOT_AVAILABLE" : "ACCOUNT_PAYOUTS_NOT_BOOKING_ALLOCATION";
-      payouts = rows ?? [];
+      payouts = (rows ?? []).map(row => ({ payoutId: String(row.payout_id), status: String(row.status), amountMinor: Number(row.amount_minor), currency: String(row.currency), failureCode: row.failure_code ? String(row.failure_code) : null, updatedAt: String(row.updated_at) }));
     }
     return {
       paymentStatus: booking.paid_at ? "VERIFIED" : "AWAITING_PAYMENT",

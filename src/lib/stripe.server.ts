@@ -277,7 +277,7 @@ export const stripeConnect = {
 
 /** Server-only read helper for reconciliation; never returns credentials. */
 export async function stripeRead(path: string, connectedAccount?: string): Promise<Record<string, unknown>> {
-  const result = await stripeRequest(path, { connectedAccount });
+  const result = await stripeRequest(path, connectedAccount ? { connectedAccount } : undefined);
   if (!result.ok) throw new Error("STRIPE_READ_FAILED");
   return result.data;
 }

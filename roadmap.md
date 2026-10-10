@@ -1,7 +1,8 @@
 # Roadmap
 
 ## Stripe booking payment and provider transfer completion
-- [ ] Continue preview-only onboarding validation, separate status reporting, failed-transfer/payout reconciliation and full-suite checks; live transfers remain disabled
+- [x] Continue preview-only onboarding validation, separate status reporting and failed-transfer/payout reconciliation; helper-level live transfers/onboarding remain disabled
+- [x] Full suite: 147 tests passed across 13 files; production unsigned webhook still rejects with HTTP 400; Replit configuration untouched
 - [x] Read-only audit of configured Stripe account, webhooks, onboarding, transfers, database release and local payout handling
 - [x] Verify 15% calculations and signature rejection without sending money
 - [x] Stage verified-webhook settlement, service-code gated transfers, actual transfer/payout records and default-off controls in preview

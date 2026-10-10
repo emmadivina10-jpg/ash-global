@@ -8,6 +8,8 @@ import { z } from "zod";
  */
 
 export type PayoutAccountState = {
+  country?: string;
+  transfersActive?: boolean;
   configured: boolean;
   accountId: string | null;
   detailsSubmitted: boolean;
