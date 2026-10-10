@@ -83,7 +83,10 @@ function SupportInboxPage() {
   const [filter, setFilter] = useState<Filter>(linkedTicket ? "ALL" : "AWAITING");
   const [selected, setSelected] = useState<string | null>(linkedTicket ?? null);
   useEffect(() => {
-    if (linkedTicket) { setSelected(linkedTicket); setFilter("ALL"); }
+    if (linkedTicket) {
+      setSelected(linkedTicket);
+      setFilter("ALL");
+    }
   }, [linkedTicket]);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [search, setSearch] = useState("");
