@@ -1,9 +1,10 @@
 # Roadmap
 
 ## Welcome and wallet setup (Oct 10)
-- [ ] Replace welcome tiles with four individual fading product snapshots and explicit Stripe/card + mobile-money availability
-- [ ] Add visible bank/card payout setup panel and recurring reminder with permanent opt-out; preserve disabled payouts
-- [ ] Verify preview and reminder rules; no publication or financial changes
+- [x] Replace welcome tiles with four individual fading product previews and explicit Stripe/card + mobile-money availability
+- [x] Add visible bank/card payout setup panel and recurring reminder with permanent opt-out; preserve disabled payouts
+- [x] Welcome browser check: four labels, images loaded, Stripe visible, no overflow/runtime errors; card disclosure checked in isolated UI; 36 reminder/payout policy tests pass; preview build OK; no financial changes or publishing
+- [ ] Signed-in bank onboarding end-to-end — blocked by existing disabled live onboarding; no account created, card saved or payout enabled
 
 ## Live service-code rejection (Oct 10, 19:47)
 - [x] Diagnose published RPC error 23514: transactions_type_check excluded all four booking trigger types
