@@ -36,12 +36,12 @@ export function MobileOnboarding() {
   const last = step === SLIDES.length - 1;
 
   const onTouchStart = (e: React.TouchEvent) => {
-    startX.current = e.touches[0].clientX;
+    startX.current = e.touches[0]?.clientX ?? 0;
     dragging.current = true;
   };
   const onTouchMove = (e: React.TouchEvent) => {
     if (!dragging.current) return;
-    const x = e.touches[0].clientX - startX.current;
+    const x = (e.touches[0]?.clientX ?? 0) - startX.current;
     dragXRef.current = x;
     setDragX(x);
   };
