@@ -20,7 +20,7 @@ function key(): string | null {
 
 async function stripeRequest(
   path: string,
-  init?: { method?: string; body?: URLSearchParams; idempotencyKey?: string },
+  init?: { method?: string; body?: URLSearchParams; idempotencyKey?: string; connectedAccount?: string },
 ): Promise<{ ok: boolean; status: number; data: Record<string, unknown> }> {
   const secret = key();
   if (!secret) return { ok: false, status: 0, data: { error: { message: "STRIPE_NOT_CONFIGURED" } } };
@@ -31,6 +31,7 @@ async function stripeRequest(
       Authorization: `Bearer ${secret}`,
       "Content-Type": "application/x-www-form-urlencoded",
       ...(init?.idempotencyKey ? { "Idempotency-Key": init.idempotencyKey } : {}),
+      ...(init?.connectedAccount ? { "Stripe-Account": init.connectedAccount } : {}),
     },
     ...(init?.body ? { body: init.body } : {}),
   });
@@ -275,8 +276,8 @@ export const stripeConnect = {
 };
 
 /** Server-only read helper for reconciliation; never returns credentials. */
-export async function stripeRead(path: string): Promise<Record<string, unknown>> {
-  const result = await stripeRequest(path);
+export async function stripeRead(path: string, connectedAccount?: string): Promise<Record<string, unknown>> {
+  const result = await stripeRequest(path, { connectedAccount });
   if (!result.ok) throw new Error("STRIPE_READ_FAILED");
   return result.data;
 }
