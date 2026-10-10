@@ -28,15 +28,13 @@ async function notifyDepartment(
   n: { type: string; title: string; body?: string; link?: string },
 ) {
   const supabase = await db();
-  await supabase
-    .from("staff_notifications")
-    .insert({
-      department,
-      type: n.type,
-      title: n.title,
-      body: n.body ?? null,
-      link: n.link ?? null,
-    });
+  await supabase.from("staff_notifications").insert({
+    department,
+    type: n.type,
+    title: n.title,
+    body: n.body ?? null,
+    link: n.link ?? null,
+  });
 }
 
 async function notifyStaff(
@@ -44,15 +42,13 @@ async function notifyStaff(
   n: { type: string; title: string; body?: string; link?: string },
 ) {
   const supabase = await db();
-  await supabase
-    .from("staff_notifications")
-    .insert({
-      staff_id: staffId,
-      type: n.type,
-      title: n.title,
-      body: n.body ?? null,
-      link: n.link ?? null,
-    });
+  await supabase.from("staff_notifications").insert({
+    staff_id: staffId,
+    type: n.type,
+    title: n.title,
+    body: n.body ?? null,
+    link: n.link ?? null,
+  });
 }
 
 // ---------- Employee terms ----------
@@ -301,14 +297,12 @@ export const addTicketNote = createServerFn({ method: "POST" })
     const a = await actor();
     if (!data.body) throw new Error("Note is empty");
     const supabase = await db();
-    const { error } = await supabase
-      .from("ticket_internal_notes")
-      .insert({
-        ticket_id: data.ticketId,
-        staff_id: a.staffId,
-        staff_name: a.name,
-        body: data.body,
-      });
+    const { error } = await supabase.from("ticket_internal_notes").insert({
+      ticket_id: data.ticketId,
+      staff_id: a.staffId,
+      staff_name: a.name,
+      body: data.body,
+    });
     if (error) throw error;
     return { ok: true as const };
   });
@@ -346,14 +340,12 @@ export const sendDirectMessage = createServerFn({ method: "POST" })
     if (!a.staffId) throw new Error("Only employee accounts can send direct messages");
     if (!data.body) throw new Error("Message is empty");
     const supabase = await db();
-    const { error } = await supabase
-      .from("staff_direct_messages")
-      .insert({
-        from_staff_id: a.staffId,
-        from_name: a.name,
-        to_staff_id: data.toStaffId,
-        body: data.body,
-      });
+    const { error } = await supabase.from("staff_direct_messages").insert({
+      from_staff_id: a.staffId,
+      from_name: a.name,
+      to_staff_id: data.toStaffId,
+      body: data.body,
+    });
     if (error) throw error;
     await notifyStaff(data.toStaffId, {
       type: "DIRECT_MESSAGE",
@@ -534,12 +526,10 @@ export const uploadMyStaffAvatar = createServerFn({ method: "POST" })
     const ext = match[1] === "png" ? "png" : match[1] === "webp" ? "webp" : "jpg";
     const path = `${a.staffId}/avatar.${ext}`;
     const supabase = await db();
-    const { error: upErr } = await supabase.storage
-      .from(AVATAR_BUCKET)
-      .upload(path, bytes, {
-        contentType: `image/${match[1] === "jpg" ? "jpeg" : match[1]}`,
-        upsert: true,
-      });
+    const { error: upErr } = await supabase.storage.from(AVATAR_BUCKET).upload(path, bytes, {
+      contentType: `image/${match[1] === "jpg" ? "jpeg" : match[1]}`,
+      upsert: true,
+    });
     if (upErr) throw upErr;
     const { error } = await supabase
       .from("staff_accounts")
