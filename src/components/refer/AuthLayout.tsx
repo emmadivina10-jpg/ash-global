@@ -3,7 +3,6 @@ import { Link } from "@tanstack/react-router";
 import { ShieldCheck, Sparkles, Users } from "lucide-react";
 import { Logo } from "./Logo";
 import { LanguageSwitcher, ThemeToggle } from "./Preferences";
-import ashLogo from "@/assets/ash-logo.png.asset.json";
 import { useI18n } from "@/lib/i18n";
 
 /**
@@ -51,13 +50,7 @@ export function AuthLayout({
         </div>
 
         <div className="relative max-w-md">
-          <img
-            src={ashLogo.url}
-            alt=""
-            aria-hidden
-            className="size-20 rounded-2xl object-cover shadow-raised"
-          />
-          <h2 className="ash-entry-title mt-6 font-display text-4xl font-extrabold leading-tight">
+          <h2 className="ash-entry-title font-display text-4xl font-extrabold leading-tight">
             {tx("Where opportunities connect.", "Là où les opportunités se connectent.")}
           </h2>
           <ul className="mt-8 space-y-4">

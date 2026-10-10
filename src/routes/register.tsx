@@ -82,7 +82,7 @@ function RegisterPage() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [done, setDone] = useState(false);
   const [refState, setRefState] = useState<"idle" | "checking" | "valid" | "invalid">("idle");
 
@@ -105,21 +105,32 @@ function RegisterPage() {
   }
 
   function goNext() {
-    const parsed = buildSchema(t).safeParse({ ...form, password: "xxxxxxxx", confirmPassword: "xxxxxxxx" });
+    const schema = buildSchema(t);
     const fieldErrors: Record<string, string> = {};
-    if (!parsed.success) {
-      for (const issue of parsed.error.issues) {
-        const key = String(issue.path[0]);
-        if (["fullName", "email", "phone"].includes(key) && !fieldErrors[key]) fieldErrors[key] = issue.message;
+    if (step === 1) {
+      const parsed = schema.safeParse({ ...form, password: "xxxxxxxx", confirmPassword: "xxxxxxxx" });
+      if (!parsed.success) {
+        for (const issue of parsed.error.issues) {
+          const key = String(issue.path[0]);
+          if (["fullName", "email", "phone"].includes(key) && !fieldErrors[key]) fieldErrors[key] = issue.message;
+        }
+      }
+    } else if (step === 2) {
+      const parsed = schema.safeParse(form);
+      if (!parsed.success) {
+        for (const issue of parsed.error.issues) {
+          const key = String(issue.path[0]);
+          if (["password", "confirmPassword"].includes(key) && !fieldErrors[key]) fieldErrors[key] = issue.message;
+        }
       }
     }
     setErrors(fieldErrors);
-    if (Object.keys(fieldErrors).length === 0) setStep(2);
+    if (Object.keys(fieldErrors).length === 0) setStep(step === 1 ? 2 : 3);
   }
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
-    if (step === 1) {
+    if (step !== 3) {
       goNext();
       return;
     }
@@ -132,12 +143,14 @@ function RegisterPage() {
       }
       setErrors(fieldErrors);
       if (fieldErrors["fullName"] || fieldErrors["email"] || fieldErrors["phone"]) setStep(1);
+      else if (fieldErrors["password"] || fieldErrors["confirmPassword"]) setStep(2);
       return;
     }
 
     const code = (parsed.data.referralCode ?? "").trim().toUpperCase();
     if (code && refState === "invalid") {
       setErrors({ referralCode: t("auth.register.refMissing") });
+      setStep(2);
       return;
     }
 
@@ -276,7 +289,7 @@ function RegisterPage() {
           </div>
 
         </>
-        ) : (
+        ) : step === 2 ? (
         <>
           <Field label={t("auth.password")} id="password" error={errors["password"]}>
             <PasswordInput
@@ -319,8 +332,10 @@ function RegisterPage() {
               />
             </Field>
           </div>
-        {/* terms below */}
-        <section aria-labelledby="terms-heading" className="space-y-3 rounded-2xl border border-primary/30 bg-primary/5 p-4">
+        </>
+        ) : (
+        /* terms step */
+        <section aria-labelledby="terms-heading" className="space-y-3 rounded-2xl border border-primary/30 bg-primary/5 p-4 sm:col-span-2">
           <h2 id="terms-heading" className="text-sm font-bold text-foreground">
             {lang === "fr" ? "Conditions d'utilisation et règles de la communauté" : "Terms of Use & Community Standards"}
           </h2>
@@ -356,7 +371,6 @@ function RegisterPage() {
             </span>
           </label>
         </section>
-        </>
         )}
         </div>
 
@@ -384,14 +398,9 @@ function RegisterPage() {
           </DialogContent>
         </Dialog>
 
-        {step === 1 ? (
-          <Button type="submit" className="auth-cta group h-12 w-full rounded-xl text-base">
-            {lang === "fr" ? "Continuer" : "Continue"}
-            <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
-          </Button>
-        ) : (
+        {step === 3 ? (
           <div className="flex gap-3">
-            <Button type="button" variant="outline" className="h-12 rounded-xl px-4" onClick={() => setStep(1)} aria-label="Back">
+            <Button type="button" variant="outline" className="h-12 rounded-xl px-4" onClick={() => setStep(2)} aria-label="Back">
               <ArrowLeft className="size-4" aria-hidden />
             </Button>
             <Button type="submit" className="auth-cta h-12 flex-1 rounded-xl text-base" disabled={loading || !agreed}>
@@ -399,6 +408,11 @@ function RegisterPage() {
               {loading ? t("auth.register.submitting") : t("auth.register.submit")}
             </Button>
           </div>
+        ) : (
+          <Button type="submit" className="auth-cta group h-12 w-full rounded-xl text-base">
+            {lang === "fr" ? (step === 1 ? "Continuer" : "Suivant") : step === 1 ? "Continue" : "Next"}
+            <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
+          </Button>
         )}
 
       </form>
@@ -415,15 +429,15 @@ function RegisterPage() {
   );
 }
 
-function StepBar({ step }: { step: 1 | 2 }) {
+function StepBar({ step }: { step: 1 | 2 | 3 }) {
   return (
-    <div className="flex items-center gap-2" aria-label={`Step ${step} of 2`}>
-      {[1, 2].map((n) => (
+    <div className="flex items-center gap-2" aria-label={`Step ${step} of 3`}>
+      {[1, 2, 3].map((n) => (
         <span key={n} className="h-1 flex-1 overflow-hidden rounded-full bg-muted">
           <span className={`block h-full rounded-full bg-primary transition-all duration-500 ${step >= n ? "w-full" : "w-0"}`} />
         </span>
       ))}
-      <span className="ml-1 text-xs font-semibold text-muted-foreground">{step}/2</span>
+      <span className="ml-1 text-xs font-semibold text-muted-foreground">{step}/3</span>
     </div>
   );
 }
