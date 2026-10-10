@@ -141,11 +141,13 @@ function JobsPage() {
                   <span className="font-display font-extrabold text-foreground">
                     {job.salary_min || job.salary_max
                       ? `${formatXAF(job.salary_min ?? job.salary_max ?? 0)}${job.salary_max && job.salary_min ? ` – ${formatXAF(job.salary_max)}` : ""}`
-                      : tx("Negotiable", "À négocier")}
+                      : fr
+                        ? "À négocier"
+                        : "Negotiable"}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {job.applications_count} {tx("applicants", "candidature(s)")}
+                  {job.applications_count} {fr ? "candidature(s)" : "applicants"}
                 </p>
                 </div>
               </Link>
@@ -173,7 +175,7 @@ function PostJobDialog({ fr }: { fr: boolean }) {
 
   async function submit() {
     if (title.trim().length < 3 || company.trim().length < 2 || description.trim().length < 20) {
-      toast.error(tx("Fill in role, company and description.", "Complétez le poste, l'entreprise et la description."));
+      toast.error(fr ? "Complétez le poste, l'entreprise et la description." : "Fill in role, company and description.");
       return;
     }
     try {
@@ -190,7 +192,7 @@ function PostJobDialog({ fr }: { fr: boolean }) {
         contact_email: email.trim() || null,
         imageFile,
       });
-      toast.success(tx("Job posted.", "Offre publiée."));
+      toast.success(fr ? "Offre publiée." : "Job posted.");
       setOpen(false);
       setTitle("");
       setCompany("");
@@ -201,7 +203,7 @@ function PostJobDialog({ fr }: { fr: boolean }) {
       setEmail("");
       setImageFile(null);
     } catch {
-      toast.error(tx("Could not post the job.", "Publication impossible."));
+      toast.error(fr ? "Publication impossible." : "Could not post the job.");
     }
   }
 
@@ -210,21 +212,21 @@ function PostJobDialog({ fr }: { fr: boolean }) {
       <DialogTrigger asChild>
         <Button size="sm" className="touch-manipulation">
           <Plus className="size-4" aria-hidden />
-          {tx("Post a job", "Publier une offre")}
+          {fr ? "Publier une offre" : "Post a job"}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[calc(100dvh-2rem-env(safe-area-inset-bottom))] overflow-y-auto overscroll-contain">
         <DialogHeader>
-          <DialogTitle>{tx("New job posting", "Nouvelle offre")}</DialogTitle>
+          <DialogTitle>{fr ? "Nouvelle offre" : "New job posting"}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={tx("Job title", "Intitulé du poste")} />
-          <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder={tx("Company", "Entreprise")} />
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={fr ? "Intitulé du poste" : "Job title"} />
+          <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder={fr ? "Entreprise" : "Company"} />
           <Textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={6}
-            placeholder={tx("Responsibilities, who you're looking for…", "Missions, profil recherché…")}
+            placeholder={fr ? "Missions, profil recherché…" : "Responsibilities, who you're looking for…"}
           />
           <div className="flex flex-wrap gap-2">
             <select
@@ -250,31 +252,31 @@ function PostJobDialog({ fr }: { fr: boolean }) {
               ))}
             </select>
           </div>
-          <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder={tx("City", "Ville")} />
+          <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder={fr ? "Ville" : "City"} />
           <div className="flex gap-2">
             <Input
               value={salaryMin}
               onChange={(e) => setSalaryMin(e.target.value.replace(/\D/g, ""))}
               inputMode="numeric"
-              placeholder={tx("Salary min", "Salaire min")}
+              placeholder={fr ? "Salaire min" : "Salary min"}
             />
             <Input
               value={salaryMax}
               onChange={(e) => setSalaryMax(e.target.value.replace(/\D/g, ""))}
               inputMode="numeric"
-              placeholder={tx("Salary max", "Salaire max")}
+              placeholder={fr ? "Salaire max" : "Salary max"}
             />
           </div>
           <Input
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             type="email"
-            placeholder={tx("Contact email (optional)", "Email de contact (optionnel)")}
+            placeholder={fr ? "Email de contact (optionnel)" : "Contact email (optional)"}
           />
           <div className="rounded-lg border border-dashed border-border p-3">
             <label className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-foreground">
               <ImagePlus className="size-4 text-primary" aria-hidden />
-              {tx("Add one image (optional)", "Ajouter une image (optionnel)")}
+              {fr ? "Ajouter une image (optionnel)" : "Add one image (optional)"}
               <input
                 type="file"
                 accept="image/*"
@@ -285,14 +287,14 @@ function PostJobDialog({ fr }: { fr: boolean }) {
             {imageFile ? (
               <div className="mt-2 flex items-center justify-between gap-2 text-xs text-muted-foreground">
                 <span className="truncate">{imageFile.name}</span>
-                <Button variant="ghost" size="icon" className="size-7" onClick={() => setImageFile(null)} aria-label={tx("Remove image", "Retirer l'image")}>
+                <Button variant="ghost" size="icon" className="size-7" onClick={() => setImageFile(null)} aria-label={fr ? "Retirer l'image" : "Remove image"}>
                   <X className="size-4" aria-hidden />
                 </Button>
               </div>
             ) : null}
           </div>
           <Button onClick={submit} disabled={post.isPending} className="w-full touch-manipulation">
-            {post.isPending ? (tx("Posting…", "Publication…")) : tx("Post the job", "Publier l'offre")}
+            {post.isPending ? (fr ? "Publication…" : "Posting…") : fr ? "Publier l'offre" : "Post the job"}
           </Button>
         </div>
       </DialogContent>

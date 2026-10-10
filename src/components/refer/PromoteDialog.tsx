@@ -53,11 +53,11 @@ export function PromoteDialog({
         data: { targetType, targetId, headline, plan, city: city ?? undefined, category: category ?? undefined, provider, phone },
       });
       if (!result.ok) {
-        toast.error(result.message ?? (tx("The payment could not start.", "Le paiement n'a pas démarré.")));
+        toast.error(result.message ?? (fr ? "Le paiement n'a pas démarré." : "The payment could not start."));
         return;
       }
       setReference(result.reference);
-      toast.success(tx("Approve the prompt on your phone.", "Validez la demande sur votre téléphone."));
+      toast.success(fr ? "Validez la demande sur votre téléphone." : "Approve the prompt on your phone.");
     } finally {
       setBusy(false);
     }
@@ -69,11 +69,11 @@ export function PromoteDialog({
     try {
       const result = await verify({ data: { reference } });
       if (result.ok) {
-        toast.success(tx("Promotion is live!", "Promotion active !"));
+        toast.success(fr ? "Promotion active !" : "Promotion is live!");
         setOpen(false);
         setReference(null);
       } else {
-        toast.error(tx("Payment not confirmed yet.", "Paiement pas encore confirmé."));
+        toast.error(fr ? "Paiement pas encore confirmé." : "Payment not confirmed yet.");
       }
     } finally {
       setBusy(false);
@@ -133,7 +133,7 @@ export function PromoteDialog({
                   )}
                 >
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    {PROMOTION_PLANS[key].days} {tx("day(s)", "jour(s)")}
+                    {PROMOTION_PLANS[key].days} {fr ? "jour(s)" : "day(s)"}
                   </p>
                   <p className="mt-1 font-display text-base font-extrabold text-foreground">
                     {formatXAF(PROMOTION_PLANS[key].amount)}

@@ -125,7 +125,7 @@ function GroupsPage() {
                       {person.name}
                     </span>
                     {selected.includes(person.id) ? (
-                      <span className="text-xs font-bold text-primary">{tx("Added", "Ajouté")}</span>
+                      <span className="text-xs font-bold text-primary">{fr ? "Ajouté" : "Added"}</span>
                     ) : null}
                   </button>
                 ))
@@ -139,7 +139,7 @@ function GroupsPage() {
                   { name: name.trim(), memberIds: selected },
                   {
                     onSuccess: () => {
-                      toast.success(tx("Group created", "Groupe créé"));
+                      toast.success(fr ? "Groupe créé" : "Group created");
                       setOpen(false);
                       setName("");
                       setSelected([]);
@@ -182,11 +182,11 @@ function GroupsPage() {
                 <p className="flex items-center gap-1.5 truncate text-sm font-bold text-foreground">
                   <span className="truncate">{group.name}</span>
                   {group.owner_verified ? (
-                    <GroupVerifiedBadge label={tx("Verified group", "Groupe vérifié")} />
+                    <GroupVerifiedBadge label={fr ? "Groupe vérifié" : "Verified group"} />
                   ) : null}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {group.member_count} {tx("members", "membres")}
+                  {group.member_count} {fr ? "membres" : "members"}
                 </p>
               </div>
               <Button
@@ -203,7 +203,7 @@ function GroupsPage() {
                 <Button
                   size="sm"
                   variant="ghost"
-                  aria-label={tx("Delete group", "Supprimer le groupe")}
+                  aria-label={fr ? "Supprimer le groupe" : "Delete group"}
                   className="text-destructive"
                   onClick={() => setConfirmDelete(group.id)}
                 >
@@ -218,7 +218,7 @@ function GroupsPage() {
                 }
               >
                 <MessageSquare className="size-4" aria-hidden />
-                {tx("Open", "Ouvrir")}
+                {fr ? "Ouvrir" : "Open"}
               </Button>
             </article>
           ))}
@@ -245,10 +245,10 @@ function GroupsPage() {
                 if (!id) return;
                 removeGroup.mutate(id, {
                   onSuccess: () => {
-                    toast.success(tx("Group deleted", "Groupe supprimé"));
+                    toast.success(fr ? "Groupe supprimé" : "Group deleted");
                     setConfirmDelete(null);
                   },
-                  onError: () => toast.error(tx("Could not delete the group", "Échec de la suppression")),
+                  onError: () => toast.error(fr ? "Échec de la suppression" : "Could not delete the group"),
                 });
               }}
             >
@@ -296,10 +296,10 @@ function GroupsPage() {
                 { groupId: addingTo, memberIds: addSelected },
                 {
                   onSuccess: () => {
-                    toast.success(tx("Members added", "Membres ajoutés"));
+                    toast.success(fr ? "Membres ajoutés" : "Members added");
                     setAddingTo(null);
                   },
-                  onError: () => toast.error(tx("Could not add members", "Échec")),
+                  onError: () => toast.error(fr ? "Échec" : "Could not add members"),
                 },
               );
             }}

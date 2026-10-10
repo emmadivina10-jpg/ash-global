@@ -267,7 +267,7 @@ function FindInstructorPage() {
           <div className="mt-3 flex flex-wrap items-center gap-2">
             {(["relevance", "experience", "price"] as const).map((option) => (
               <Button key={option} type="button" size="sm" variant={sort === option ? "secondary" : "outline"} className="h-7 rounded-full text-xs" onClick={() => setSort(option)}>
-                {option === "relevance" ? (tx("Relevance", "Pertinence")) : option === "experience" ? (tx("Experience", "Expérience")) : tx("Price", "Prix")}
+                {option === "relevance" ? (fr ? "Pertinence" : "Relevance") : option === "experience" ? (fr ? "Expérience" : "Experience") : fr ? "Prix" : "Price"}
               </Button>
             ))}
           </div>
@@ -407,7 +407,7 @@ function InstructorCard({ instructor, fr }: { instructor: CampusInstructor; fr: 
             {instructor.teaching_modes.includes("ONLINE") ? (
               <span className="inline-flex items-center gap-1">
                 <Globe2 className="size-3" aria-hidden />
-                {tx("Online", "En ligne")}
+                {fr ? "En ligne" : "Online"}
               </span>
             ) : null}
             {rating ? (
@@ -415,23 +415,23 @@ function InstructorCard({ instructor, fr }: { instructor: CampusInstructor; fr: 
                 <Star className="size-3 fill-gold text-gold" aria-hidden />
                 {rating.toFixed(1)}
                 <span className="text-muted-foreground">
-                  ({instructor.rating_count} {tx("reviews", "avis")})
+                  ({instructor.rating_count} {fr ? "avis" : "reviews"})
                 </span>
               </span>
             ) : (
-              <span>{tx("No reviews yet", "Pas encore d'avis")}</span>
+              <span>{fr ? "Pas encore d'avis" : "No reviews yet"}</span>
             )}
           </div>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             {instructor.years_experience > 0 ? (
               <Badge variant="outline">
-                {instructor.years_experience} {tx("years experience", "ans d'expérience")}
+                {instructor.years_experience} {fr ? "ans d'expérience" : "years experience"}
               </Badge>
             ) : null}
             {instructor.hourly_from ? (
               <Badge variant="outline">
-                {tx("From", "À partir de")} {instructor.hourly_from} {instructor.currency}
-                {tx("/hour", "/heure")}
+                {fr ? "À partir de" : "From"} {instructor.hourly_from} {instructor.currency}
+                {fr ? "/heure" : "/hour"}
               </Badge>
             ) : null}
             {instructor.languages.length ? <Badge variant="outline">{instructor.languages.join(" • ")}</Badge> : null}

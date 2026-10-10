@@ -68,7 +68,7 @@ function CleanJobs() {
         for (const id of activeIds.split(","))
           void push({ data: { assignmentId: id, lat: p.coords.latitude, lng: p.coords.longitude } });
       },
-      () => toast.error(tx("Turn on location so customers can track you", "Activez la localisation pour le suivi")),
+      () => toast.error(fr ? "Activez la localisation pour le suivi" : "Turn on location so customers can track you"),
       { enableHighAccuracy: true, maximumAge: 5000 },
     );
     return () => {
@@ -93,7 +93,7 @@ function CleanJobs() {
             <div className="flex items-center justify-between">
               <p className="font-mono font-bold text-foreground">{o.order_no}</p>
               <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-bold">
-                {pickup ? (tx("PICKUP", "COLLECTE")) : tx("DELIVERY", "LIVRAISON")} · {methodLabel(j.method)}
+                {pickup ? (fr ? "COLLECTE" : "PICKUP") : fr ? "LIVRAISON" : "DELIVERY"} · {methodLabel(j.method)}
               </span>
             </div>
             <p className="text-sm text-foreground">{dest.address}</p>
@@ -101,7 +101,7 @@ function CleanJobs() {
             <div className="flex gap-2">
               <Button asChild variant="outline" className="flex-1 rounded-full">
                 <a href={`https://www.google.com/maps/dir/?api=1&destination=${dest.lat},${dest.lng}`} target="_blank" rel="noopener noreferrer">
-                  <Navigation className="size-4" /> {tx("Navigate", "Itinéraire")}
+                  <Navigation className="size-4" /> {fr ? "Itinéraire" : "Navigate"}
                 </a>
               </Button>
               {next ? (
@@ -109,7 +109,7 @@ function CleanJobs() {
                   className="flex-1 rounded-full"
                   onClick={async () => {
                     const r = await update({ data: { assignmentId: j.id, status: next.to } }).catch(() => ({ ok: false as const }));
-                    if (!r.ok) toast.error(tx("Couldn't update this job", "Action impossible"));
+                    if (!r.ok) toast.error(fr ? "Action impossible" : "Couldn't update this job");
                     void refetch();
                   }}
                 >

@@ -292,10 +292,16 @@ function FlightsPage() {
                 className={`rounded-full px-2 py-2 font-semibold transition-all ${trip === t ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
               >
                 {t === "round"
-                  ? tx("Round trip", "Aller-retour")
+                  ? fr
+                    ? "Aller-retour"
+                    : "Round trip"
                   : t === "oneway"
-                    ? tx("One way", "Aller simple")
-                    : tx("Multi-city", "Multi-villes")}
+                    ? fr
+                      ? "Aller simple"
+                      : "One way"
+                    : fr
+                      ? "Multi-villes"
+                      : "Multi-city"}
               </button>
             ))}
           </div>
@@ -304,12 +310,12 @@ function FlightsPage() {
             <div key={i} className="space-y-3">
               {trip === "multi" && (
                 <p className="text-xs font-semibold text-muted-foreground">
-                  {tx("Flight", "Vol")} {i + 1}
+                  {fr ? "Vol" : "Flight"} {i + 1}
                 </p>
               )}
               <div className="relative grid gap-2 sm:grid-cols-2">
                 <PlacePicker
-                  label={tx("FROM", "DE")}
+                  label={fr ? "DE" : "FROM"}
                   icon={<PlaneTakeoff className="size-4" />}
                   value={leg.from}
                   disabled={!!unavailable}
@@ -317,7 +323,7 @@ function FlightsPage() {
                   onChange={(p) => setLegs(legs.map((l, j) => (j === i ? { ...l, from: p } : l)))}
                 />
                 <PlacePicker
-                  label={tx("TO", "VERS")}
+                  label={fr ? "VERS" : "TO"}
                   icon={<PlaneLanding className="size-4" />}
                   value={leg.to}
                   disabled={!!unavailable}
@@ -328,7 +334,7 @@ function FlightsPage() {
                   type="button"
                   variant="outline"
                   size="icon"
-                  aria-label={tx("Swap", "Inverser")}
+                  aria-label={fr ? "Inverser" : "Swap"}
                   className="absolute right-4 top-1/2 z-10 size-9 -translate-y-1/2 rotate-90 rounded-full bg-card shadow-md sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:rotate-0"
                   onClick={() =>
                     setLegs(legs.map((l, j) => (j === i ? { ...l, from: l.to, to: l.from } : l)))
@@ -338,7 +344,7 @@ function FlightsPage() {
                 </Button>
               </div>
               <div className="grid min-w-0 grid-cols-1 gap-2">
-                <Field label={tx("DEPARTURE", "DÉPART")}>
+                <Field label={fr ? "DÉPART" : "DEPARTURE"}>
                   <Input
                     type="date"
                     className="block h-12 min-w-0 w-full max-w-full appearance-none [&::-webkit-date-and-time-value]:min-w-0 [&::-webkit-date-and-time-value]:text-left"
@@ -350,7 +356,7 @@ function FlightsPage() {
                   />
                 </Field>
                 {trip !== "multi" && (
-                  <Field label={tx("RETURN", "RETOUR")}>
+                  <Field label={fr ? "RETOUR" : "RETURN"}>
                     <Input
                       type="date"
                       className="block h-12 min-w-0 w-full max-w-full appearance-none [&::-webkit-date-and-time-value]:min-w-0 [&::-webkit-date-and-time-value]:text-left"
@@ -587,12 +593,20 @@ function FlightsPage() {
                 className={`rounded-full border px-3 py-1 ${stopsFilter === s ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}
               >
                 {s === "any"
-                  ? tx("Any stops", "Toutes escales")
+                  ? fr
+                    ? "Toutes escales"
+                    : "Any stops"
                   : s === "0"
-                    ? tx("Nonstop", "Direct")
+                    ? fr
+                      ? "Direct"
+                      : "Nonstop"
                     : s === "1"
-                      ? tx("1 stop", "1 escale")
-                      : tx("2+ stops", "2+ escales")}
+                      ? fr
+                        ? "1 escale"
+                        : "1 stop"
+                      : fr
+                        ? "2+ escales"
+                        : "2+ stops"}
               </button>
             ))}
             <button
@@ -687,7 +701,9 @@ function PlacePicker({
             <span className="block truncate font-medium">
               {value
                 ? `${value.city} (${value.code})`
-                : tx("City or airport", "Ville ou aéroport")}
+                : fr
+                  ? "Ville ou aéroport"
+                  : "City or airport"}
             </span>
           </span>
         </button>
@@ -695,7 +711,7 @@ function PlacePicker({
       <PopoverContent className="w-[min(22rem,calc(100vw-2rem))] p-2" align="start">
         <Input
           autoFocus
-          placeholder={tx("City, airport, code or country", "Ville, aéroport, code, pays")}
+          placeholder={fr ? "Ville, aéroport, code, pays" : "City, airport, code or country"}
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
@@ -703,12 +719,12 @@ function PlacePicker({
           {res.isFetching && <Loader2 className="mx-auto my-4 size-4 animate-spin" />}
           {res.data && !res.data.available && (
             <p className="p-3 text-sm text-muted-foreground">
-              {tx("Search unavailable.", "Recherche indisponible.")}
+              {fr ? "Recherche indisponible." : "Search unavailable."}
             </p>
           )}
           {res.data?.available && res.data.places.length === 0 && (
             <p className="p-3 text-sm text-muted-foreground">
-              {tx("No results", "Aucun résultat")}
+              {fr ? "Aucun résultat" : "No results"}
             </p>
           )}
           {res.data?.available &&
@@ -772,7 +788,9 @@ function OfferCard({ offer, fr, onOpen }: { offer: Offer; fr: boolean; onOpen: (
                 </div>
                 <p>
                   {stops === 0
-                    ? tx("Nonstop", "Direct")
+                    ? fr
+                      ? "Direct"
+                      : "Nonstop"
                     : `${stops} ${fr ? "escale(s)" : stops === 1 ? "stop" : "stops"}`}
                 </p>
               </div>
@@ -797,12 +815,12 @@ function OfferCard({ offer, fr, onOpen }: { offer: Offer; fr: boolean; onOpen: (
           )}
         </div>
         <div className="text-right">
-          <p className="text-xs text-muted-foreground">{tx("Total", "Total")}</p>
+          <p className="text-xs text-muted-foreground">{fr ? "Total" : "Total"}</p>
           <p className="text-xl font-bold text-primary">
             {money(offer.totalAmount, offer.currency)}
           </p>
           <Button size="sm" className="mt-1 rounded-full" onClick={onOpen}>
-            {tx("View Flight", "Voir le vol")}
+            {fr ? "Voir le vol" : "View Flight"}
           </Button>
         </div>
       </div>
@@ -824,17 +842,19 @@ function OfferSheet({ id, fr, onClose }: { id: string | null; fr: boolean; onClo
     <Sheet open={!!id} onOpenChange={(o) => !o && onClose()}>
       <SheetContent side="bottom" className="max-h-[92dvh] overflow-y-auto rounded-t-2xl">
         <SheetHeader>
-          <SheetTitle>{tx("Flight details", "Détails du vol")}</SheetTitle>
+          <SheetTitle>{fr ? "Détails du vol" : "Flight details"}</SheetTitle>
         </SheetHeader>
         {q.isLoading && (
           <p className="flex items-center gap-2 py-8 text-sm text-muted-foreground">
             <Loader2 className="size-4 animate-spin" />
-            {tx("Checking the latest live price…", "Vérification du prix en direct…")}
+            {fr ? "Vérification du prix en direct…" : "Checking the latest live price…"}
           </p>
         )}
         {q.error && (
           <p className="py-6 text-sm text-destructive">
-            {tx("This offer is no longer available. Please search again.", "Cette offre n’est plus disponible. Relancez la recherche.")}
+            {fr
+              ? "Cette offre n’est plus disponible. Relancez la recherche."
+              : "This offer is no longer available. Please search again."}
           </p>
         )}
         {offer && (
@@ -869,7 +889,7 @@ function OfferSheet({ id, fr, onClose }: { id: string | null; fr: boolean; onClo
                         </div>
                         {next && (
                           <p className="text-xs text-muted-foreground">
-                            {tx("Layover", "Escale")} {g.toName}: {fmtDur(lay)}
+                            {fr ? "Escale" : "Layover"} {g.toName}: {fmtDur(lay)}
                           </p>
                         )}
                       </li>
@@ -879,22 +899,22 @@ function OfferSheet({ id, fr, onClose }: { id: string | null; fr: boolean; onClo
               </div>
             ))}
             <div className="space-y-1 rounded-xl border border-border p-3 text-sm">
-              <p className="font-semibold">{tx("Fare conditions", "Conditions tarifaires")}</p>
+              <p className="font-semibold">{fr ? "Conditions tarifaires" : "Fare conditions"}</p>
               {offer.conditionsText.length ? (
                 offer.conditionsText.map((c) => <p key={c}>{c}</p>)
               ) : (
                 <p className="text-muted-foreground">
-                  {tx("Not provided by the airline.", "Non communiquées par la compagnie.")}
+                  {fr ? "Non communiquées par la compagnie." : "Not provided by the airline."}
                 </p>
               )}
             </div>
             <div className="space-y-1 rounded-xl border border-border p-3 text-sm">
               {offer.baseAmount && (
-                <Row l={tx("Flight fare", "Tarif")} v={money(offer.baseAmount, offer.currency)} />
+                <Row l={fr ? "Tarif" : "Flight fare"} v={money(offer.baseAmount, offer.currency)} />
               )}
               {offer.taxAmount && (
                 <Row
-                  l={tx("Taxes & airline fees", "Taxes et frais")}
+                  l={fr ? "Taxes et frais" : "Taxes & airline fees"}
                   v={money(offer.taxAmount, offer.currency)}
                 />
               )}
@@ -903,11 +923,13 @@ function OfferSheet({ id, fr, onClose }: { id: string | null; fr: boolean; onClo
             <div className="flex gap-2 rounded-xl bg-muted/50 p-3 text-sm">
               <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
               <p>
-                {tx("ASH Flights booking and payment are not switched on yet. No payment will be taken.", "La réservation et le paiement ASH Flights ne sont pas encore activés. Aucun paiement ne sera demandé.")}
+                {fr
+                  ? "La réservation et le paiement ASH Flights ne sont pas encore activés. Aucun paiement ne sera demandé."
+                  : "ASH Flights booking and payment are not switched on yet. No payment will be taken."}
               </p>
             </div>
             <Button className="h-12 w-full rounded-xl" disabled>
-              {tx("Continue to Passenger Details", "Continuer vers les passagers")}
+              {fr ? "Continuer vers les passagers" : "Continue to Passenger Details"}
             </Button>
           </div>
         )}

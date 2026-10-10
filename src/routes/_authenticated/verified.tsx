@@ -88,11 +88,11 @@ function VerifiedPage() {
     try {
       const result = await start({ data: { tier, provider, phone } });
       if (!result.ok) {
-        toast.error(result.message ?? (tx("The payment could not start.", "Le paiement n'a pas démarré.")));
+        toast.error(result.message ?? (fr ? "Le paiement n'a pas démarré." : "The payment could not start."));
         return;
       }
       setReference(result.reference);
-      toast.success(tx("Approve the prompt on your phone.", "Validez la demande sur votre téléphone."));
+      toast.success(fr ? "Validez la demande sur votre téléphone." : "Approve the prompt on your phone.");
     } finally {
       setBusy(false);
     }
@@ -104,11 +104,11 @@ function VerifiedPage() {
     try {
       const result = await verify({ data: { reference } });
       if (result.ok) {
-        toast.success(tx("You're verified!", "Vous êtes vérifié !"));
+        toast.success(fr ? "Vous êtes vérifié !" : "You're verified!");
         setReference(null);
         await queryClient.invalidateQueries({ queryKey: ["verified", "me"] });
       } else {
-        toast.error(tx("Payment not confirmed yet.", "Paiement pas encore confirmé."));
+        toast.error(fr ? "Paiement pas encore confirmé." : "Payment not confirmed yet.");
       }
     } finally {
       setBusy(false);
@@ -202,7 +202,7 @@ function VerifiedPage() {
                 <span className="shrink-0 text-right">
                   <span className="block text-sm font-extrabold text-foreground">{formatXAF(plan.amount)}</span>
                   <span className="block text-[10px] uppercase tracking-wide text-muted-foreground">
-                    / {plan.days} {tx("days", "jours")}
+                    / {plan.days} {fr ? "jours" : "days"}
                   </span>
                 </span>
               </button>

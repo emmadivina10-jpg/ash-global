@@ -124,7 +124,7 @@ export function NotificationBell() {
                   <span className="relative z-0 shrink-0">
                   <Avatar
                     path={n.actor?.avatar_url ?? null}
-                    name={n.actor?.name ?? (tx("Profile", "Profil"))}
+                    name={n.actor?.name ?? (fr ? "Profil" : "Profile")}
                     className="size-11"
                      online={false}
                   />

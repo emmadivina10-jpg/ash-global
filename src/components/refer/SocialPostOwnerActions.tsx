@@ -47,7 +47,7 @@ export function SocialPostOwnerActions({ postId, caption }: { postId: string; ca
       {
         onSuccess: () => {
           setEditOpen(false);
-          toast.success(tx("Post updated", "Publication modifiée"));
+          toast.success(fr ? "Publication modifiée" : "Post updated");
         },
         onError: (error) => toast.error(error instanceof Error ? error.message : "Could not update post."),
       },
@@ -58,7 +58,7 @@ export function SocialPostOwnerActions({ postId, caption }: { postId: string; ca
     remove.mutate(postId, {
       onSuccess: () => {
         setDeleteOpen(false);
-        toast.success(tx("Post deleted", "Publication supprimée"));
+        toast.success(fr ? "Publication supprimée" : "Post deleted");
       },
       onError: (error) => toast.error(error instanceof Error ? error.message : "Could not delete post."),
     });

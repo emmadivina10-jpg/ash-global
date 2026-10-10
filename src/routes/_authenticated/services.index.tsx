@@ -712,7 +712,7 @@ function DiscoveryPage() {
       ? await openConversation(providerId)
       : await openMemberConversation(context?.authorId);
     if (!conversationId) {
-      toast.error(tx("Could not open the chat.", "Impossible d'ouvrir la discussion."));
+      toast.error(fr ? "Impossible d'ouvrir la discussion." : "Could not open the chat.");
       return;
     }
 
@@ -1129,7 +1129,7 @@ function DiscoveryPage() {
 
                         <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/35 px-2.5 py-1.5 text-[9px] font-bold text-white backdrop-blur-md">
                           <Play className="size-3 fill-current" aria-hidden />
-                          {tx("Fullscreen", "Plein écran")}
+                          {fr ? "Plein écran" : "Fullscreen"}
                         </span>
                       </span>
 
@@ -1168,7 +1168,7 @@ function DiscoveryPage() {
 
                         <span className="mt-4 flex items-center justify-center gap-2 rounded-2xl bg-white/12 px-4 py-3 text-xs font-bold text-white backdrop-blur-md ring-1 ring-white/15">
                           <Play className="size-3.5 fill-current" aria-hidden />
-                          {tx("Tap to open fullscreen", "Touchez pour ouvrir en plein écran")}
+                          {fr ? "Touchez pour ouvrir en plein écran" : "Tap to open fullscreen"}
                         </span>
                       </span>
                     </button>
@@ -1319,7 +1319,7 @@ function DiscoveryPage() {
                                         {city}
                                       </span>
                                     ) : null}
-                                    <span>{tx("ASH vendor", "Vendeur ASH")}</span>
+                                    <span>{fr ? "Vendeur ASH" : "ASH vendor"}</span>
                                   </span>
                                 ) : null}
                               </span>
@@ -1337,7 +1337,7 @@ function DiscoveryPage() {
                             {offerDescription ? (
                               <div className="max-w-2xl rounded-2xl border border-white/10 bg-black/25 px-3 py-2.5 backdrop-blur-md">
                                 <p className="text-[9px] font-extrabold uppercase tracking-[0.16em] text-[#D4AF37]">
-                                  {tx("What this vendor offers", "Ce que propose ce vendeur")}
+                                  {fr ? "Ce que propose ce vendeur" : "What this vendor offers"}
                                 </p>
                                 <p className="mt-1 text-sm leading-relaxed text-white/95 sm:text-[15px]">
                                   {offerDescription}
@@ -1362,12 +1362,18 @@ function DiscoveryPage() {
                             >
                               <MessageCircle className="size-4" aria-hidden />
                               {post.provider.id
-                                ? tx("Contact Vendor", "Contacter le vendeur")
-                                : tx("Send a message", "Envoyer un message")}
+                                ? fr
+                                  ? "Contacter le vendeur"
+                                  : "Contact Vendor"
+                                : fr
+                                  ? "Envoyer un message"
+                                  : "Send a message"}
                             </button>
 
                             <p className="mt-2 text-center text-[10px] text-white/45">
-                              {tx("Discover · contact · order", "Découvrez · contactez · commandez")}
+                              {fr
+                                ? "Découvrez · contactez · commandez"
+                                : "Discover · contact · order"}
                             </p>
                           </div>
                         </div>
@@ -1534,7 +1540,9 @@ function DiscoveryPage() {
                       )}
                     >
                       {r === 0
-                        ? tx("Any", "Toutes")
+                        ? fr
+                          ? "Toutes"
+                          : "Any"
                         : `${r}+ ★`}
                     </SelectItem>
                   ),

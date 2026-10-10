@@ -74,7 +74,7 @@ export function ComingSoon({
                       </span>
                       <div className="min-w-0">
                         <p className="text-sm font-bold text-foreground">{fr ? feature.fr : feature.en}</p>
-                        <p className="text-[11px] text-muted-foreground">{tx("Coming soon", "Bientôt disponible")}</p>
+                        <p className="text-[11px] text-muted-foreground">{fr ? "Bientôt disponible" : "Coming soon"}</p>
                       </div>
                     </div>
                   </div>

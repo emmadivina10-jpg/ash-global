@@ -74,7 +74,7 @@ export function SupportChatPanel({ topic }: { topic?: "clean" } = {}) {
       setDraft("");
       await queryClient.invalidateQueries({ queryKey: ["support", "mine"] });
     } catch {
-      toast.error(tx("Message not sent. Please try again.", "Message non envoyé. Réessayez."));
+      toast.error(fr ? "Message non envoyé. Réessayez." : "Message not sent. Please try again.");
     } finally {
       setBusy(false);
     }

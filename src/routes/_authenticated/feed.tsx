@@ -84,7 +84,7 @@ function FeedPage() {
     event.target.value = "";
 
     if (picked.length === 0) {
-      toast.error(tx("Please choose an image.", "Veuillez choisir une image."));
+      toast.error(fr ? "Veuillez choisir une image." : "Please choose an image.");
       return;
     }
 
@@ -113,7 +113,7 @@ function FeedPage() {
 
     if (!cleanCaption && files.length === 0) {
       toast.error(
-        tx("Add a photo or write something.", "Ajoutez une photo ou écrivez quelque chose."),
+        fr ? "Ajoutez une photo ou écrivez quelque chose." : "Add a photo or write something.",
       );
       return;
     }
@@ -126,12 +126,14 @@ function FeedPage() {
       });
 
       clearComposer();
-      toast.success(tx("Post published", "Publication créée"));
+      toast.success(fr ? "Publication créée" : "Post published");
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
-          : tx("Could not publish. Please try again.", "Impossible de publier. Veuillez réessayer."),
+          : fr
+            ? "Impossible de publier. Veuillez réessayer."
+            : "Could not publish. Please try again.",
       );
     }
   }
@@ -276,7 +278,7 @@ function FeedPage() {
                   />
                   <button
                     type="button"
-                    aria-label={tx("Remove", "Retirer")}
+                    aria-label={fr ? "Retirer" : "Remove"}
                     onClick={() => removeFile(index)}
                     className="absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-foreground text-background shadow-sm"
                   >

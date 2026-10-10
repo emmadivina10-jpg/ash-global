@@ -163,7 +163,7 @@ function WriteArticleDialog({ fr }: { fr: boolean }) {
 
   async function submit() {
     if (title.trim().length < 4 || body.trim().length < 40) {
-      toast.error(tx("Add a title and a longer body.", "Ajoutez un titre et un contenu plus long."));
+      toast.error(fr ? "Ajoutez un titre et un contenu plus long." : "Add a title and a longer body.");
       return;
     }
     try {
@@ -179,14 +179,18 @@ function WriteArticleDialog({ fr }: { fr: boolean }) {
           .slice(0, 6),
         cover,
       });
-      toast.success(tx("Article published.", "Article publié."));
+      toast.success(fr ? "Article publié." : "Article published.");
       reset();
       setOpen(false);
     } catch (error) {
       toast.error(
         (error as Error).message === "FILE_TOO_LARGE"
-          ? tx("Image too large (50MB max).", "Image trop lourde (50 Mo max).")
-          : tx("Could not publish.", "Publication impossible."),
+          ? fr
+            ? "Image trop lourde (50 Mo max)."
+            : "Image too large (50MB max)."
+          : fr
+            ? "Publication impossible."
+            : "Could not publish.",
       );
     }
   }
@@ -196,37 +200,37 @@ function WriteArticleDialog({ fr }: { fr: boolean }) {
       <DialogTrigger asChild>
         <Button size="sm" className="touch-manipulation">
           <PenLine className="size-4" aria-hidden />
-          {tx("Write an article", "Écrire un article")}
+          {fr ? "Écrire un article" : "Write an article"}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[calc(100dvh-2rem-env(safe-area-inset-bottom))] overflow-y-auto overscroll-contain">
         <DialogHeader>
-          <DialogTitle>{tx("New article", "Nouvel article")}</DialogTitle>
+          <DialogTitle>{fr ? "Nouvel article" : "New article"}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <Input
             value={title}
             onChange={(event) => setTitle(event.target.value)}
-            placeholder={tx("Title", "Titre")}
+            placeholder={fr ? "Titre" : "Title"}
             maxLength={140}
           />
           <Input
             value={excerpt}
             onChange={(event) => setExcerpt(event.target.value)}
-            placeholder={tx("Short summary (optional)", "Résumé court (optionnel)")}
+            placeholder={fr ? "Résumé court (optionnel)" : "Short summary (optional)"}
             maxLength={220}
           />
           <Textarea
             value={body}
             onChange={(event) => setBody(event.target.value)}
-            placeholder={tx("Your article…", "Votre article…")}
+            placeholder={fr ? "Votre article…" : "Your article…"}
             rows={10}
             maxLength={20000}
           />
           <Input
             value={tags}
             onChange={(event) => setTags(event.target.value)}
-            placeholder={tx("Tags, comma separated", "Mots-clés, séparés par des virgules")}
+            placeholder={fr ? "Mots-clés, séparés par des virgules" : "Tags, comma separated"}
           />
           <div className="flex flex-wrap items-center gap-2">
             <select
@@ -242,7 +246,7 @@ function WriteArticleDialog({ fr }: { fr: boolean }) {
             </select>
             <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground">
               <ImagePlus className="size-4" aria-hidden />
-              {cover ? cover.name.slice(0, 18) : tx("Cover image", "Image de couverture")}
+              {cover ? cover.name.slice(0, 18) : fr ? "Image de couverture" : "Cover image"}
               <input
                 type="file"
                 accept="image/*"
@@ -256,7 +260,7 @@ function WriteArticleDialog({ fr }: { fr: boolean }) {
             disabled={publish.isPending}
             className="w-full touch-manipulation"
           >
-            {publish.isPending ? (tx("Publishing…", "Publication…")) : tx("Publish", "Publier")}
+            {publish.isPending ? (fr ? "Publication…" : "Publishing…") : fr ? "Publier" : "Publish"}
           </Button>
         </div>
       </DialogContent>

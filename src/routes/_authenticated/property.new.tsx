@@ -83,22 +83,22 @@ function NewProperty() {
 
   async function submit() {
     if (title.trim().length < 6) {
-      toast.error(tx("Give a clear title (6 characters min).", "Donnez un titre clair (6 caractères min)."));
+      toast.error(fr ? "Donnez un titre clair (6 caractères min)." : "Give a clear title (6 characters min).");
       return;
     }
     if (!city.trim()) {
-      toast.error(tx("City is required.", "La ville est obligatoire."));
+      toast.error(fr ? "La ville est obligatoire." : "City is required.");
       return;
     }
     if (!price || Number(price) <= 0) {
-      toast.error(tx("Enter a price.", "Indiquez un prix."));
+      toast.error(fr ? "Indiquez un prix." : "Enter a price.");
       return;
     }
 
     setBusy(true);
     try {
       const { data: auth } = await supabase.auth.getUser();
-      if (!auth.user) throw new Error(tx("Session expired.", "Session expirée."));
+      if (!auth.user) throw new Error(fr ? "Session expirée." : "Session expired.");
       await verifyMediaFiles(files, "PROPERTY_LISTING");
 
       const { data: created, error } = await supabase
@@ -141,7 +141,7 @@ function NewProperty() {
         const path = `${auth.user.id}/${created.id}/${crypto.randomUUID()}.${ext}`;
         const upload = await supabase.storage.from(PROPERTY_BUCKET).upload(path, file, { upsert: false });
         if (upload.error) {
-          toast.error(`${tx("Photo not uploaded", "Photo non envoyée")}: ${upload.error.message}`);
+          toast.error(`${fr ? "Photo non envoyée" : "Photo not uploaded"}: ${upload.error.message}`);
           continue;
         }
         await supabase.from("property_images").insert({
@@ -152,7 +152,7 @@ function NewProperty() {
       }
 
       await queryClient.invalidateQueries({ queryKey: ["property"] });
-      toast.success(tx("Your listing is live!", "Annonce publiée !"));
+      toast.success(fr ? "Annonce publiée !" : "Your listing is live!");
       void navigate({ to: "/property/$listingId", params: { listingId: created.id } });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : String(error));

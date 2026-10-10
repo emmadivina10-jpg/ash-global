@@ -77,9 +77,13 @@ function BirthdayRow({ person, fr }: { person: BirthdayPerson; fr: boolean }) {
 
   const today = person.inDays === 0;
   const when = today
-    ? tx("Today", "Aujourd'hui")
+    ? fr
+      ? "Aujourd'hui"
+      : "Today"
     : person.inDays === 1
-      ? tx("Tomorrow", "Demain")
+      ? fr
+        ? "Demain"
+        : "Tomorrow"
       : fr
         ? `Dans ${person.inDays} jours`
         : `In ${person.inDays} days`;
@@ -89,7 +93,7 @@ function BirthdayRow({ person, fr }: { person: BirthdayPerson; fr: boolean }) {
     try {
       const conversationId = await openMemberConversation(person.user_id);
       if (!conversationId) {
-        toast.error(tx("Could not open the chat.", "Impossible d'ouvrir la discussion."));
+        toast.error(fr ? "Impossible d'ouvrir la discussion." : "Could not open the chat.");
         return;
       }
       const first = person.full_name.split(" ")[0] ?? person.full_name;
@@ -99,7 +103,7 @@ function BirthdayRow({ person, fr }: { person: BirthdayPerson; fr: boolean }) {
           ? `Joyeux anniversaire ${first} ! 🎉 Que cette année t'apporte santé, joie et de belles réussites.`
           : `Happy birthday ${first}! 🎉 Wishing you health, joy and a brilliant year ahead.`,
       );
-      toast.success(tx("Celebration sent", "Message de célébration envoyé"));
+      toast.success(fr ? "Message de célébration envoyé" : "Celebration sent");
       navigate({ to: "/messages", search: { c: conversationId } });
     } finally {
       setBusy(false);
@@ -117,7 +121,7 @@ function BirthdayRow({ person, fr }: { person: BirthdayPerson; fr: boolean }) {
         <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
           {today ? (
             <span className="rounded-full bg-amber-500/15 px-1.5 py-0.5 font-semibold text-amber-600">
-              🎂 {tx("Birthday", "Anniversaire")}
+              🎂 {fr ? "Anniversaire" : "Birthday"}
             </span>
           ) : null}
           {when}
@@ -125,7 +129,7 @@ function BirthdayRow({ person, fr }: { person: BirthdayPerson; fr: boolean }) {
       </div>
       <Button size="sm" variant={today ? "default" : "outline"} className="h-7 px-2 text-[11px]" disabled={busy} onClick={celebrate}>
         <PartyPopper className="mr-1 size-3" />
-        {tx("Celebrate", "Fêter")}
+        {fr ? "Fêter" : "Celebrate"}
       </Button>
     </li>
   );
@@ -251,7 +255,7 @@ export function RightRail() {
                     <span className="min-w-0">
                       <span className="block truncate text-[13px] font-medium text-foreground">{event.title}</span>
                       <span className="block truncate text-[11px] text-muted-foreground">
-                        {event.city ?? ""} {event.is_free ? (tx("· Free", "· Gratuit")) : ""}
+                        {event.city ?? ""} {event.is_free ? (fr ? "· Gratuit" : "· Free") : ""}
                       </span>
                     </span>
                   </Link>
@@ -270,7 +274,7 @@ export function RightRail() {
               {posts.data.map((post) => (
                 <li key={post.id}>
                   <Link to="/post/$postId" params={{ postId: post.id }} className="block rounded-xl p-1.5 hover:bg-muted/60">
-                    <span className="line-clamp-2 text-[13px] text-foreground">{post.caption || (tx("Shared photo", "Photo partagée"))}</span>
+                    <span className="line-clamp-2 text-[13px] text-foreground">{post.caption || (fr ? "Photo partagée" : "Shared photo")}</span>
                     <span className="mt-0.5 block text-[11px] text-muted-foreground">
                       {post.author} · {post.like_count} ♥ · {post.comment_count} 💬
                     </span>

@@ -16,7 +16,7 @@ function ArrivalAlert({ arrived, id, fr }: { arrived: boolean; id: string; fr: b
     const k = `ash-clean-arrived:${id}`;
     if (sessionStorage.getItem(k)) return;
     sessionStorage.setItem(k, "1");
-    toast.success(tx("Your ASH Clean worker has arrived!", "Votre agent ASH Clean est arrivé !"));
+    toast.success(fr ? "Votre agent ASH Clean est arrivé !" : "Your ASH Clean worker has arrived!");
     navigator.vibrate?.(200);
   }, [arrived, id, fr]);
   return null;
@@ -82,10 +82,10 @@ function CleanOrder() {
     const t = setInterval(async () => {
       const r = await sync({ data: { orderId } }).catch(() => null);
       if (r?.status === "PAID") {
-        toast.success(tx("Payment received!", "Paiement reçu !"));
+        toast.success(fr ? "Paiement reçu !" : "Payment received!");
         void refetch();
       } else if (r?.status === "FAILED") {
-        toast.error(tx("Payment declined. Please try again.", "Paiement refusé. Réessayez."));
+        toast.error(fr ? "Paiement refusé. Réessayez." : "Payment declined. Please try again.");
         void refetch();
       }
     }, 6000);
@@ -167,7 +167,7 @@ function CleanOrder() {
                   toast.error(("message" in r && r.message) || r.error);
                   return;
                 }
-                toast.info(tx("Approve the prompt on your phone", "Validez la demande sur votre téléphone"));
+                toast.info(fr ? "Validez la demande sur votre téléphone" : "Approve the prompt on your phone");
                 void qc.invalidateQueries({ queryKey: ["clean", "order", orderId] });
               }}
             />
@@ -177,7 +177,7 @@ function CleanOrder() {
               variant="ghost"
               className="w-full text-destructive"
               onClick={async () => {
-                if (!confirm(tx("Decline the price and ask for your laundry back?", "Refuser le prix et demander le retour de votre linge ?"))) return;
+                if (!confirm(fr ? "Refuser le prix et demander le retour de votre linge ?" : "Decline the price and ask for your laundry back?")) return;
                 await decline({ data: { orderId } });
                 void refetch();
               }}

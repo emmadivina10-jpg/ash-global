@@ -144,7 +144,7 @@ function DealForm({ fr }: { fr: boolean }) {
     const original = Number(form.original);
     const price = Number(form.price);
     if (form.title.trim().length < 3 || !(original > 0) || !(price > 0) || price >= original) {
-      toast.error(tx("Check the title and prices.", "Vérifiez le titre et les prix."));
+      toast.error(fr ? "Vérifiez le titre et les prix." : "Check the title and prices.");
       return;
     }
     setBusy(true);
@@ -164,10 +164,10 @@ function DealForm({ fr }: { fr: boolean }) {
         is_active: true,
       });
       if (error) {
-        toast.error(databaseMessage(tx("Could not publish the deal", "Publication impossible"), error));
+        toast.error(databaseMessage(fr ? "Publication impossible" : "Could not publish the deal", error));
         return;
       }
-      toast.success(tx("Deal published!", "Offre publiée !"));
+      toast.success(fr ? "Offre publiée !" : "Deal published!");
       void queryClient.invalidateQueries({ queryKey: ["deals"] });
       void navigate({ to: "/deals" });
     } finally {
@@ -177,10 +177,10 @@ function DealForm({ fr }: { fr: boolean }) {
 
   return (
     <div className="tile space-y-4 p-5">
-      <Field id="deal-title" label={tx("Deal title", "Titre de l'offre")}>
+      <Field id="deal-title" label={fr ? "Titre de l'offre" : "Deal title"}>
         <Input id="deal-title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
       </Field>
-      <Field id="deal-desc" label={tx("Description", "Description")}>
+      <Field id="deal-desc" label={fr ? "Description" : "Description"}>
         <Textarea
           id="deal-desc"
           rows={3}
@@ -189,7 +189,7 @@ function DealForm({ fr }: { fr: boolean }) {
         />
       </Field>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field id="deal-original" label={tx("Normal price (XAF)", "Prix normal (XAF)")}>
+        <Field id="deal-original" label={fr ? "Prix normal (XAF)" : "Normal price (XAF)"}>
           <Input
             id="deal-original"
             inputMode="numeric"
@@ -197,7 +197,7 @@ function DealForm({ fr }: { fr: boolean }) {
             onChange={(e) => setForm({ ...form, original: e.target.value })}
           />
         </Field>
-        <Field id="deal-price" label={tx("Deal price (XAF)", "Prix promo (XAF)")}>
+        <Field id="deal-price" label={fr ? "Prix promo (XAF)" : "Deal price (XAF)"}>
           <Input
             id="deal-price"
             inputMode="numeric"
@@ -205,10 +205,10 @@ function DealForm({ fr }: { fr: boolean }) {
             onChange={(e) => setForm({ ...form, price: e.target.value })}
           />
         </Field>
-        <Field id="deal-city" label={tx("City", "Ville")}>
+        <Field id="deal-city" label={fr ? "Ville" : "City"}>
           <Input id="deal-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
         </Field>
-        <Field id="deal-limit" label={tx("Claim limit", "Nombre max")}>
+        <Field id="deal-limit" label={fr ? "Nombre max" : "Claim limit"}>
           <Input
             id="deal-limit"
             inputMode="numeric"
@@ -216,7 +216,7 @@ function DealForm({ fr }: { fr: boolean }) {
             onChange={(e) => setForm({ ...form, limit: e.target.value })}
           />
         </Field>
-        <Field id="deal-days" label={tx("Runs for (days)", "Durée (jours)")}>
+        <Field id="deal-days" label={fr ? "Durée (jours)" : "Runs for (days)"}>
           <Input
             id="deal-days"
             inputMode="numeric"
@@ -226,7 +226,7 @@ function DealForm({ fr }: { fr: boolean }) {
         </Field>
       </div>
       <Button className="w-full" disabled={busy} onClick={() => void submit()}>
-        {tx("Publish deal", "Publier l'offre")}
+        {fr ? "Publier l'offre" : "Publish deal"}
       </Button>
     </div>
   );
@@ -249,7 +249,7 @@ function EventForm({ fr }: { fr: boolean }) {
 
   async function submit() {
     if (form.title.trim().length < 3 || !form.startsAt) {
-      toast.error(tx("Title and date are required.", "Titre et date requis."));
+      toast.error(fr ? "Titre et date requis." : "Title and date are required.");
       return;
     }
     const price = Number(form.price) || 0;
@@ -270,10 +270,10 @@ function EventForm({ fr }: { fr: boolean }) {
         is_published: true,
       });
       if (error) {
-        toast.error(databaseMessage(tx("Could not publish the event", "Publication impossible"), error));
+        toast.error(databaseMessage(fr ? "Publication impossible" : "Could not publish the event", error));
         return;
       }
-      toast.success(tx("Event published!", "Événement publié !"));
+      toast.success(fr ? "Événement publié !" : "Event published!");
       void queryClient.invalidateQueries({ queryKey: ["events"] });
       void navigate({ to: "/events" });
     } finally {
@@ -283,10 +283,10 @@ function EventForm({ fr }: { fr: boolean }) {
 
   return (
     <div className="tile space-y-4 p-5">
-      <Field id="ev-title" label={tx("Title", "Titre")}>
+      <Field id="ev-title" label={fr ? "Titre" : "Title"}>
         <Input id="ev-title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
       </Field>
-      <Field id="ev-desc" label={tx("Description", "Description")}>
+      <Field id="ev-desc" label={fr ? "Description" : "Description"}>
         <Textarea
           id="ev-desc"
           rows={3}
@@ -295,7 +295,7 @@ function EventForm({ fr }: { fr: boolean }) {
         />
       </Field>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field id="ev-start" label={tx("Date and time", "Date et heure")}>
+        <Field id="ev-start" label={fr ? "Date et heure" : "Date and time"}>
           <Input
             id="ev-start"
             type="datetime-local"
@@ -303,13 +303,13 @@ function EventForm({ fr }: { fr: boolean }) {
             onChange={(e) => setForm({ ...form, startsAt: e.target.value })}
           />
         </Field>
-        <Field id="ev-venue" label={tx("Venue", "Lieu")}>
+        <Field id="ev-venue" label={fr ? "Lieu" : "Venue"}>
           <Input id="ev-venue" value={form.venue} onChange={(e) => setForm({ ...form, venue: e.target.value })} />
         </Field>
-        <Field id="ev-city" label={tx("City", "Ville")}>
+        <Field id="ev-city" label={fr ? "Ville" : "City"}>
           <Input id="ev-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
         </Field>
-        <Field id="ev-price" label={tx("Ticket price (0 = free)", "Prix du billet (0 = gratuit)")}>
+        <Field id="ev-price" label={fr ? "Prix du billet (0 = gratuit)" : "Ticket price (0 = free)"}>
           <Input
             id="ev-price"
             inputMode="numeric"
@@ -317,7 +317,7 @@ function EventForm({ fr }: { fr: boolean }) {
             onChange={(e) => setForm({ ...form, price: e.target.value })}
           />
         </Field>
-        <Field id="ev-cap" label={tx("Capacity", "Places")}>
+        <Field id="ev-cap" label={fr ? "Places" : "Capacity"}>
           <Input
             id="ev-cap"
             inputMode="numeric"
@@ -327,7 +327,7 @@ function EventForm({ fr }: { fr: boolean }) {
         </Field>
       </div>
       <Button className="w-full" disabled={busy} onClick={() => void submit()}>
-        {tx("Publish event", "Publier l'événement")}
+        {fr ? "Publier l'événement" : "Publish event"}
       </Button>
     </div>
   );
@@ -350,7 +350,7 @@ function ProjectForm({ fr }: { fr: boolean }) {
   async function submit() {
     const budget = Number(form.budget);
     if (form.title.trim().length < 3 || form.description.trim().length < 20 || !(budget > 0)) {
-      toast.error(tx("Title, description and budget are required.", "Titre, description et budget requis."));
+      toast.error(fr ? "Titre, description et budget requis." : "Title, description and budget are required.");
       return;
     }
     setBusy(true);
@@ -371,10 +371,10 @@ function ProjectForm({ fr }: { fr: boolean }) {
         status: "OPEN",
       });
       if (error) {
-        toast.error(databaseMessage(tx("Could not publish the project", "Publication impossible"), error));
+        toast.error(databaseMessage(fr ? "Publication impossible" : "Could not publish the project", error));
         return;
       }
-      toast.success(tx("Project published!", "Projet publié !"));
+      toast.success(fr ? "Projet publié !" : "Project published!");
       void queryClient.invalidateQueries({ queryKey: ["freelance-projects"] });
       void navigate({ to: "/freelance" });
     } finally {
@@ -384,10 +384,10 @@ function ProjectForm({ fr }: { fr: boolean }) {
 
   return (
     <div className="tile space-y-4 p-5">
-      <Field id="pr-title" label={tx("Project title", "Titre du projet")}>
+      <Field id="pr-title" label={fr ? "Titre du projet" : "Project title"}>
         <Input id="pr-title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
       </Field>
-      <Field id="pr-desc" label={tx("What you need", "Ce dont vous avez besoin")}>
+      <Field id="pr-desc" label={fr ? "Ce dont vous avez besoin" : "What you need"}>
         <Textarea
           id="pr-desc"
           rows={5}
@@ -396,7 +396,7 @@ function ProjectForm({ fr }: { fr: boolean }) {
         />
       </Field>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field id="pr-budget" label={tx("Budget (XAF)", "Budget (XAF)")}>
+        <Field id="pr-budget" label={fr ? "Budget (XAF)" : "Budget (XAF)"}>
           <Input
             id="pr-budget"
             inputMode="numeric"
@@ -404,7 +404,7 @@ function ProjectForm({ fr }: { fr: boolean }) {
             onChange={(e) => setForm({ ...form, budget: e.target.value })}
           />
         </Field>
-        <Field id="pr-days" label={tx("Deadline (days)", "Délai (jours)")}>
+        <Field id="pr-days" label={fr ? "Délai (jours)" : "Deadline (days)"}>
           <Input
             id="pr-days"
             inputMode="numeric"
@@ -412,15 +412,15 @@ function ProjectForm({ fr }: { fr: boolean }) {
             onChange={(e) => setForm({ ...form, days: e.target.value })}
           />
         </Field>
-        <Field id="pr-skills" label={tx("Skills (comma separated)", "Compétences (séparées par ,)")}>
+        <Field id="pr-skills" label={fr ? "Compétences (séparées par ,)" : "Skills (comma separated)"}>
           <Input id="pr-skills" value={form.skills} onChange={(e) => setForm({ ...form, skills: e.target.value })} />
         </Field>
-        <Field id="pr-city" label={tx("City", "Ville")}>
+        <Field id="pr-city" label={fr ? "Ville" : "City"}>
           <Input id="pr-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
         </Field>
       </div>
       <Button className="w-full" disabled={busy} onClick={() => void submit()}>
-        {tx("Post project", "Publier le projet")}
+        {fr ? "Publier le projet" : "Post project"}
       </Button>
     </div>
   );
@@ -434,7 +434,7 @@ function FreelancerForm({ fr }: { fr: boolean }) {
 
   async function submit() {
     if (form.headline.trim().length < 5) {
-      toast.error(tx("Add a clear headline.", "Ajoutez une accroche claire."));
+      toast.error(fr ? "Ajoutez une accroche claire." : "Add a clear headline.");
       return;
     }
     setBusy(true);
@@ -457,10 +457,10 @@ function FreelancerForm({ fr }: { fr: boolean }) {
         { onConflict: "user_id" },
       );
       if (error) {
-        toast.error(databaseMessage(tx("Could not save your profile", "Enregistrement impossible"), error));
+        toast.error(databaseMessage(fr ? "Enregistrement impossible" : "Could not save your profile", error));
         return;
       }
-      toast.success(tx("Freelance profile published!", "Profil freelance publié !"));
+      toast.success(fr ? "Profil freelance publié !" : "Freelance profile published!");
       void queryClient.invalidateQueries({ queryKey: ["freelancers"] });
       void queryClient.invalidateQueries({ queryKey: ["freelancer-profile", "mine"] });
       void navigate({ to: "/freelance" });
@@ -471,25 +471,25 @@ function FreelancerForm({ fr }: { fr: boolean }) {
 
   return (
     <div className="tile space-y-4 p-5">
-      <Field id="fl-headline" label={tx("Headline", "Accroche")}>
+      <Field id="fl-headline" label={fr ? "Accroche" : "Headline"}>
         <Input
           id="fl-headline"
           value={form.headline}
           onChange={(e) => setForm({ ...form, headline: e.target.value })}
-          placeholder={tx("Frontend developer — React / TypeScript", "Développeur frontend React / TypeScript")}
+          placeholder={fr ? "Développeur frontend React / TypeScript" : "Frontend developer — React / TypeScript"}
         />
       </Field>
-      <Field id="fl-bio" label={tx("About you", "À propos")}>
+      <Field id="fl-bio" label={fr ? "À propos" : "About you"}>
         <Textarea id="fl-bio" rows={4} value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} />
       </Field>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field id="fl-skills" label={tx("Skills (comma separated)", "Compétences (séparées par ,)")}>
+        <Field id="fl-skills" label={fr ? "Compétences (séparées par ,)" : "Skills (comma separated)"}>
           <Input id="fl-skills" value={form.skills} onChange={(e) => setForm({ ...form, skills: e.target.value })} />
         </Field>
-        <Field id="fl-city" label={tx("City", "Ville")}>
+        <Field id="fl-city" label={fr ? "Ville" : "City"}>
           <Input id="fl-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
         </Field>
-        <Field id="fl-start" label={tx("Starting from (XAF)", "À partir de (XAF)")}>
+        <Field id="fl-start" label={fr ? "À partir de (XAF)" : "Starting from (XAF)"}>
           <Input
             id="fl-start"
             inputMode="numeric"
@@ -497,7 +497,7 @@ function FreelancerForm({ fr }: { fr: boolean }) {
             onChange={(e) => setForm({ ...form, starting: e.target.value })}
           />
         </Field>
-        <Field id="fl-years" label={tx("Years of experience", "Années d'expérience")}>
+        <Field id="fl-years" label={fr ? "Années d'expérience" : "Years of experience"}>
           <Input
             id="fl-years"
             inputMode="numeric"
@@ -507,7 +507,7 @@ function FreelancerForm({ fr }: { fr: boolean }) {
         </Field>
       </div>
       <Button className="w-full" disabled={busy} onClick={() => void submit()}>
-        {tx("Publish my profile", "Publier mon profil")}
+        {fr ? "Publier mon profil" : "Publish my profile"}
       </Button>
     </div>
   );

@@ -103,14 +103,14 @@ function PropertyLanding() {
     if (!auth.user) return;
     if (saved.has(listingId)) {
       await supabase.from("property_saves").delete().eq("listing_id", listingId).eq("user_id", auth.user.id);
-      toast.success(tx("Removed from saved", "Retiré des favoris"));
+      toast.success(fr ? "Retiré des favoris" : "Removed from saved");
     } else {
       const { error } = await supabase.from("property_saves").insert({ listing_id: listingId, user_id: auth.user.id });
       if (error) {
         toast.error(error.message);
         return;
       }
-      toast.success(tx("Saved", "Enregistré"));
+      toast.success(fr ? "Enregistré" : "Saved");
     }
     await queryClient.invalidateQueries({ queryKey: ["property"] });
   }

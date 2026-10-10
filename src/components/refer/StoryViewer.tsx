@@ -146,14 +146,14 @@ export function StoryViewer({
             type="button"
             disabled={deleteStory.isPending}
             onClick={() => {
-              if (!window.confirm(tx("Delete this story?", "Supprimer cette story ?"))) return;
+              if (!window.confirm(fr ? "Supprimer cette story ?" : "Delete this story?")) return;
               deleteStory.mutate(story.id, {
                 onSuccess: () => {
-                  toast.success(tx("Story deleted", "Story supprimée"));
+                  toast.success(fr ? "Story supprimée" : "Story deleted");
                   onClose();
                 },
                 onError: (error) =>
-                  toast.error(error instanceof Error ? error.message : tx("Could not delete story.", "Suppression impossible.")),
+                  toast.error(error instanceof Error ? error.message : fr ? "Suppression impossible." : "Could not delete story."),
               });
             }}
             aria-label={tx("Delete", "Supprimer")}

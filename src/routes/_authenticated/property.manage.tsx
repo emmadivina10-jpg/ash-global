@@ -47,7 +47,7 @@ function ManageProperty() {
       const conversationId = await openPropertyConversation(listingId);
       await navigate({ to: "/messages", search: { c: conversationId } });
     } catch {
-      toast.error(tx("Could not open the chat.", "Impossible d’ouvrir la discussion."));
+      toast.error(fr ? "Impossible d’ouvrir la discussion." : "Could not open the chat.");
     }
   }
 
@@ -72,7 +72,7 @@ function ManageProperty() {
       return;
     }
     await queryClient.invalidateQueries({ queryKey: ["property"] });
-    toast.success(tx("Status updated.", "Statut mis à jour."));
+    toast.success(fr ? "Statut mis à jour." : "Status updated.");
   }
 
   async function respond(id: string, status: string, fallbackAt: string) {
@@ -88,7 +88,7 @@ function ManageProperty() {
       return;
     }
     await queryClient.invalidateQueries({ queryKey: ["property"] });
-    toast.success(tx("Response sent.", "Réponse envoyée."));
+    toast.success(fr ? "Réponse envoyée." : "Response sent.");
   }
 
   const TABS: Array<{ key: Tab; en: string; fr: string }> = [
@@ -179,8 +179,8 @@ function ManageProperty() {
                       {formatPropertyPrice(listing.price, listing.currency, listing.price_period, fr)}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {listing.view_count} {tx("views", "vues")} · {listing.inquiry_count}{" "}
-                      {tx("inquiries", "demandes")} · {tx("expires", "expire le")}{" "}
+                      {listing.view_count} {fr ? "vues" : "views"} · {listing.inquiry_count}{" "}
+                      {fr ? "demandes" : "inquiries"} · {fr ? "expire le" : "expires"}{" "}
                       {formatDateTime(listing.expires_at)}
                     </p>
                   </div>
@@ -194,7 +194,7 @@ function ManageProperty() {
                     value={listing.status}
                     onChange={(event) => void setStatus(listing.id, event.target.value)}
                     className="h-9 rounded-xl border border-border bg-background px-2 text-xs"
-                    aria-label={tx("Status", "Statut")}
+                    aria-label={fr ? "Statut" : "Status"}
                   >
                     {PROPERTY_STATUSES.map((status) => (
                       <option key={status} value={status}>
@@ -210,7 +210,7 @@ function ManageProperty() {
                     category={listing.category}
                     trigger={
                       <Button variant="outline" size="sm">
-                        {tx("Promote", "Promouvoir")}
+                        {fr ? "Promouvoir" : "Promote"}
                       </Button>
                     }
                   />
@@ -241,24 +241,24 @@ function ManageProperty() {
                     {row.status === "PENDING" ? (
                       <div className="mt-3 flex gap-2">
                         <Button size="sm" onClick={() => void respond(row.id, "ACCEPTED", row.requested_at)}>
-                          {tx("Accept", "Accepter")}
+                          {fr ? "Accepter" : "Accept"}
                         </Button>
                         <Button size="sm" variant="outline" onClick={() => void respond(row.id, "DECLINED", row.requested_at)}>
-                          {tx("Decline", "Refuser")}
+                          {fr ? "Refuser" : "Decline"}
                         </Button>
                         <Button size="sm" variant="ghost" onClick={() => void (async () => {
                             const input = window.prompt(
-                              tx("New date/time (YYYY-MM-DD HH:MM)", "Nouvelle date/heure (AAAA-MM-JJ HH:MM)"),
+                              fr ? "Nouvelle date/heure (AAAA-MM-JJ HH:MM)" : "New date/time (YYYY-MM-DD HH:MM)",
                             );
                             if (!input) return;
                             const when = new Date(input);
                             if (Number.isNaN(when.getTime())) {
-                              toast.error(tx("Invalid date.", "Date invalide."));
+                              toast.error(fr ? "Date invalide." : "Invalid date.");
                               return;
                             }
                             await respond(row.id, "RESCHEDULED", when.toISOString());
                           })()}>
-                          {tx("Propose another time", "Proposer un autre créneau")}
+                          {fr ? "Proposer un autre créneau" : "Propose another time"}
                         </Button>
                       </div>
                     ) : null}
@@ -290,7 +290,7 @@ function ManageProperty() {
                       onClick={() => void chatAboutListing(row.listing_id)}
                     >
                       <MessageCircle className="size-4" aria-hidden />
-                      {tx("Message owner", "Discuter avec le propriétaire")}
+                      {fr ? "Discuter avec le propriétaire" : "Message owner"}
                     </Button>
                   </div>
 

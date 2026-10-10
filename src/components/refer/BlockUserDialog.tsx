@@ -52,7 +52,7 @@ export function BlockUserDialog({
     const uid = data.session?.user.id;
     if (!uid) {
       setBusy(false);
-      toast.error(tx("Sign in first.", "Connectez-vous d'abord."));
+      toast.error(fr ? "Connectez-vous d'abord." : "Sign in first.");
       return;
     }
     const { error } = unblock
@@ -62,7 +62,7 @@ export function BlockUserDialog({
           .insert({ blocker_id: uid, blocked_id: targetUserId, reason: source.slice(0, 60) });
     setBusy(false);
     if (error && !error.message.toLowerCase().includes("duplicate")) {
-      toast.error(tx("Could not complete that. Try again.", "Action impossible. Réessayez."));
+      toast.error(fr ? "Action impossible. Réessayez." : "Could not complete that. Try again.");
       return;
     }
     onOpenChange(false);
@@ -70,8 +70,8 @@ export function BlockUserDialog({
     onDone?.();
     toast.success(
       unblock
-        ? tx("User unblocked.", "Utilisateur débloqué.")
-        : tx("User blocked. Their content is now hidden from you.", "Utilisateur bloqué. Son contenu est masqué."),
+        ? fr ? "Utilisateur débloqué." : "User unblocked."
+        : fr ? "Utilisateur bloqué. Son contenu est masqué." : "User blocked. Their content is now hidden from you.",
     );
   }
 

@@ -67,15 +67,15 @@ function DealsPage() {
       if (!result.ok) {
         toast.error(
           result.error === "SOLD_OUT"
-            ? tx("This deal is sold out.", "Cette offre est épuisée.")
+            ? fr ? "Cette offre est épuisée." : "This deal is sold out."
             : result.error === "EXPIRED"
-              ? tx("This deal has ended.", "Cette offre est terminée.")
-              : tx("Could not claim this deal.", "Impossible de réclamer l'offre."),
+              ? fr ? "Cette offre est terminée." : "This deal has ended."
+              : fr ? "Impossible de réclamer l'offre." : "Could not claim this deal.",
         );
         return;
       }
-      toast.success(`${tx("Code", "Code")} ${result.code}`, {
-        description: tx("Show this code to the business.", "Montrez ce code au commerçant."),
+      toast.success(`${fr ? "Code" : "Code"} ${result.code}`, {
+        description: fr ? "Montrez ce code au commerçant." : "Show this code to the business.",
       });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["deals"] }),
@@ -132,7 +132,7 @@ function DealsPage() {
                       <div className="min-w-0">
                         <h2 className="truncate font-semibold text-foreground">{deal.title}</h2>
                         <p className="text-xs text-muted-foreground">
-                          {deal.city ?? deal.country} · {tx("until", "jusqu'au")} {formatDateTime(deal.ends_at)}
+                          {deal.city ?? deal.country} · {fr ? "jusqu'au" : "until"} {formatDateTime(deal.ends_at)}
                         </p>
                       </div>
                       {off > 0 ? (
@@ -155,10 +155,10 @@ function DealsPage() {
 
                     <div className="mt-auto flex items-center justify-between gap-2">
                       <span className="text-xs text-muted-foreground">
-                        {left} {tx("left", "restant(s)")}
+                        {left} {fr ? "restant(s)" : "left"}
                       </span>
                       <Button size="sm" disabled={pending === deal.id || left === 0} onClick={() => void onClaim(deal.id)}>
-                        {tx("Claim deal", "Réclamer")}
+                        {fr ? "Réclamer" : "Claim deal"}
                       </Button>
                     </div>
                   </article>
@@ -208,7 +208,7 @@ function DealsPage() {
                   <div className="min-w-0">
                     <p className="truncate font-semibold text-foreground">{deal.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {deal.claimed_count}/{deal.claim_limit} {tx("claimed", "réclamés")} · {formatXAF(deal.deal_price)}
+                      {deal.claimed_count}/{deal.claim_limit} {fr ? "réclamés" : "claimed"} · {formatXAF(deal.deal_price)}
                     </p>
                   </div>
                   <PromoteDialog targetType="DEAL" targetId={deal.id} defaultHeadline={deal.title} city={deal.city} category={deal.category} />

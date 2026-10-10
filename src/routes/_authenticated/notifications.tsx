@@ -62,7 +62,7 @@ function iconFor(category: string) {
 
 function timeAgo(iso: string, fr: boolean) {
   const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
-  if (mins < 1) return tx("just now", "à l'instant");
+  if (mins < 1) return fr ? "à l'instant" : "just now";
   if (mins < 60) return `${mins}m`;
   const hours = Math.round(mins / 60);
   if (hours < 24) return `${hours}h`;
@@ -71,9 +71,9 @@ function timeAgo(iso: string, fr: boolean) {
 
 function sectionOf(iso: string, fr: boolean) {
   const days = (Date.now() - new Date(iso).getTime()) / 86_400_000;
-  if (days < 1) return tx("Today", "Aujourd'hui");
-  if (days < 7) return tx("This week", "Cette semaine");
-  return tx("Earlier", "Plus tôt");
+  if (days < 1) return fr ? "Aujourd'hui" : "Today";
+  if (days < 7) return fr ? "Cette semaine" : "This week";
+  return fr ? "Plus tôt" : "Earlier";
 }
 
 function NotificationsPage() {
@@ -244,7 +244,7 @@ function NotificationsPage() {
                       variant="ghost"
                       size="icon"
                       className="size-8 shrink-0"
-                      aria-label={tx("Delete notification", "Supprimer la notification")}
+                      aria-label={fr ? "Supprimer la notification" : "Delete notification"}
                       onClick={() => remove.mutate([item.id])}
                     >
                       <Trash2 className="size-4" aria-hidden />
