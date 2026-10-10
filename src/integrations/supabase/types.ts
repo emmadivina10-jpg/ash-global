@@ -319,6 +319,35 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_history_preferences: {
+        Row: {
+          booking_id: string
+          state: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          booking_id: string
+          state?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          booking_id?: string
+          state?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_history_preferences_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       booking_live_locations: {
         Row: {
           accuracy_m: number | null
