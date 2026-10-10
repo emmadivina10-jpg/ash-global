@@ -36,7 +36,7 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/console/support")({
   validateSearch: (search: Record<string, unknown>) => ({
-    ticket: typeof search.ticket === "string" ? search.ticket : undefined,
+    ticket: typeof search["ticket"] === "string" ? search["ticket"] : undefined,
   }),
   head: () => ({
     meta: [

@@ -1,9 +1,10 @@
 # Roadmap
 
 ## Support conversation and notification fixes
-- [ ] Make Support a conversation-first inbox with message bubbles, search, anchored composer and per-conversation drafts
-- [ ] Repair stale Support counts and staff notification read feedback without schema or financial changes
-- [ ] Verify focused regressions and preview; no publication
+- [x] Make Support a conversation-first inbox with message bubbles, search, anchored composer and per-conversation drafts
+- [x] Repair resolved/answered Support counts, exact staff unread count, scoped read persistence and notification feedback; future ticket alerts open their conversation without schema or financial changes
+- [x] Full regression suite: 185 tests passed; changed-file lint clean; staff access check has no runtime errors; no publication
+- [ ] Signed-in Support sending and badge verification — blocked: no authenticated staff session available; no staff credentials or records changed
 
 ## Stripe booking payment and provider transfer completion
 - [ ] Install and validate staged migration in a positively isolated backend — blocked: the separate safeguards draft also targets production; no migration or validation rows applied
