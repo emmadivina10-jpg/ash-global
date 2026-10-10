@@ -9,7 +9,7 @@ export function WalletSummary({ onClose }: { onClose?: () => void }) {
   const { lang } = useI18n();
   const fr = lang === "fr";
   const { data: wallet, isLoading, error } = useWallet();
-  const amount = (value: number | undefined) => isLoading ? "…" : error ? "—" : formatXAF(value ?? 0);
+  const amount = (value: number | undefined) => isLoading ? "…" : error || value === undefined ? "—" : formatXAF(value);
   return <div className="p-4">
     <div className="virtual-card grain relative overflow-hidden p-5">
       <div className="flex items-center justify-between"><span className="text-xs font-extrabold uppercase opacity-70">ASH Card</span><CreditCard className="size-5" /></div>
