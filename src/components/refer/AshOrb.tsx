@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { CreditCard, Wallet, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useWallet } from "@/lib/queries";
@@ -8,6 +8,7 @@ import { useI18n } from "@/lib/i18n";
 import { useOrbVisible } from "@/lib/orb-visibility";
 
 export function AshOrb() {
+  const trackingOpen = useRouterState({ select: (s) => /^\/booking\/[^/]+\/track\/?$/.test(s.location.pathname) });
   const { lang } = useI18n();
   const fr = lang === "fr";
   const { visible } = useOrbVisible();
@@ -55,7 +56,7 @@ export function AshOrb() {
     setOpen(true);
   }
 
-  if (!visible) return null;
+  if (!visible || trackingOpen) return null;
   return (
     <>
       <div style={{ transform: `translate3d(${offset.x}px, ${offset.y}px, 0)` }} className="fixed bottom-24 right-4 z-40 touch-none lg:bottom-8 lg:right-8">

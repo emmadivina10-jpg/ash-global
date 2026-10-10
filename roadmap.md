@@ -1,5 +1,11 @@
 # Roadmap
 
+## Payment return, floating tracking and Menu badge
+- [x] Correct app-owned checkout return origins and open booking tracking; existing payment verification remains authoritative
+- [x] Add floating Map/Wallet tabs, a round reopen control, and a visible three-line profile Menu badge; phone panel clears the round control
+- [x] 189 regression tests passed; isolated desktop/phone tab switching, minimize/reopen and Menu badge checked without runtime errors; preview build OK; nothing published
+- [ ] Genuine post-payment arrival and Google Maps rendering — unverified: no payment initiated; Google Maps must be checked on an authorized deployed origin
+
 ## Support conversation and notification fixes
 - [x] Make Support a conversation-first inbox with message bubbles, search, anchored composer and per-conversation drafts
 - [x] Repair resolved/answered Support counts, exact staff unread count, scoped read persistence and notification feedback; future ticket alerts open their conversation without schema or financial changes
@@ -28,7 +34,7 @@
 - [ ] Signed-in Messages and Flights interaction check — blocked by the account's terms-consent screen; no legal acceptance recorded on the user's behalf
 
 ## Final app alignment and publicity report
-- [ ] Restore profile-first Menu icon with bottom-right three-line badge
+- [x] Restore profile-first Menu icon with bottom-right three-line badge
 - [ ] Fix browser message composer focus jump
 - [ ] Audit wallet, MTN/Orange Money and dashboard financial connections without altering money logic
 - [ ] Show Coming soon on Flights

@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { paymentReturnOrigin } from "./payment-return";
 
 /**
  * Central ASH payment ledger: wallet top-ups, payment links and bookings by
@@ -39,14 +40,7 @@ function ref(prefix: string) {
 }
 
 function safeOrigin(raw: unknown): string {
-  const o = String(raw ?? "").trim();
-  if (
-    /^https:\/\/[\w.-]+\.lovable\.app$/.test(o) ||
-    /^https:\/\/(www\.)?(ashglogroup\.company|growrefer\.app)$/.test(o) ||
-    /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o)
-  )
-    return o;
-  return process.env["APP_URL"] || "https://ashglogroup.company";
+  return paymentReturnOrigin(raw);
 }
 
 function fail(error: string, message: string | null = null, reference: string | null = null): StartPaymentResult {
