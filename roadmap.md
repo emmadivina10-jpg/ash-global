@@ -1,5 +1,12 @@
 # Roadmap
 
+## Shared staff member insights and AI support
+- [ ] Show real total members, daily growth and qualifying 30-day active members on every staff dashboard; target 10,000 from November 18, 2026 to May 18, 2027
+- [ ] Shared paginated name/photo directory and evidence-based online status
+- [ ] Authorized read-only member review for Revenue/Finance, Trust, Support and admins; department-scoped audited actions only
+- [ ] Secure per-member staff AI history, account analysis and human-reviewed suggested replies
+- [ ] Stage required additive changes without touching the shared production database; verify rules and report activation blockers
+
 ## Booking payment clarity and recovery
 - [x] Replace misleading payment actions with one payment entry, clear confirmation feedback and direct tracking access
 - [x] Prevent overlapping automatic mobile-money checks; card/bank refresh saved evidence; pending, failed and unavailable outcomes are visible
