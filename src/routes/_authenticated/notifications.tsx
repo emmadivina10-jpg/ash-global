@@ -244,7 +244,7 @@ function NotificationsPage() {
                       variant="ghost"
                       size="icon"
                       className="size-8 shrink-0"
-                      aria-label={fr ? "Supprimer la notification" : "Delete notification"}
+                      aria-label={tx("Delete notification", "Supprimer la notification")}
                       onClick={() => remove.mutate([item.id])}
                     >
                       <Trash2 className="size-4" aria-hidden />

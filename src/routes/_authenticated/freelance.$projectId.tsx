@@ -80,7 +80,7 @@ function ProjectDetail() {
   async function submitProposal() {
     const value = Number(amount);
     if (cover.trim().length < 20 || !Number.isFinite(value) || value <= 0) {
-      toast.error(fr ? "Ajoutez un message et un montant valide." : "Add a message and a valid amount.");
+      toast.error(tx("Add a message and a valid amount.", "Ajoutez un message et un montant valide."));
       return;
     }
     setBusy(true);
@@ -97,12 +97,12 @@ function ProjectDetail() {
       if (error) {
         toast.error(
           error.code === "23505"
-            ? fr ? "Vous avez déjà postulé." : "You already applied to this project."
-            : fr ? "Envoi impossible." : "Could not send the proposal.",
+            ? tx("You already applied to this project.", "Vous avez déjà postulé.")
+            : tx("Could not send the proposal.", "Envoi impossible."),
         );
         return;
       }
-      toast.success(fr ? "Proposition envoyée !" : "Proposal sent!");
+      toast.success(tx("Proposal sent!", "Proposition envoyée !"));
       setCover("");
       setAmount("");
       await Promise.all([
@@ -195,7 +195,7 @@ function ProjectDetail() {
                 <div className="flex items-center justify-between gap-3">
                   <span className="font-display font-extrabold text-foreground">{formatXAF(row.amount)}</span>
                   <span className="text-xs text-muted-foreground">
-                    {row.delivery_days} {fr ? "jours" : "days"} · {row.status}
+                    {row.delivery_days} {tx("days", "jours")} · {row.status}
                   </span>
                 </div>
                 <p className="whitespace-pre-wrap text-sm text-muted-foreground">{row.cover_letter}</p>

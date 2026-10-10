@@ -84,7 +84,7 @@ export function ReportDialog({
     const uid = auth.user?.id;
     if (!uid) {
       setBusy(false);
-      toast.error(fr ? "Connectez-vous pour signaler." : "Sign in to report.");
+      toast.error(tx("Sign in to report.", "Connectez-vous pour signaler."));
       return;
     }
     const { error } = await supabase.from("content_reports").insert({
@@ -99,10 +99,10 @@ export function ReportDialog({
     if (error) {
       if (error.message.includes("DUPLICATE_REPORT")) {
         setOpen(false);
-        toast.info(fr ? "Vous avez déjà signalé ce contenu. Il est en cours d'examen." : "You already reported this. It is being reviewed.");
+        toast.info(tx("You already reported this. It is being reviewed.", "Vous avez déjà signalé ce contenu. Il est en cours d'examen."));
         return;
       }
-      toast.error(fr ? "Signalement échoué. Réessayez." : "Report failed. Try again.");
+      toast.error(tx("Report failed. Try again.", "Signalement échoué. Réessayez."));
       return;
     }
     trackEvent({
@@ -115,21 +115,19 @@ export function ReportDialog({
     setOpen(false);
     setDetails("");
     toast.success(
-      fr
-        ? "Merci. Votre signalement a été envoyé et sera examiné par l'équipe ASH Trust & Safety."
-        : "Thank you. Your report has been submitted and will be reviewed by ASH Trust & Safety.",
+      tx("Thank you. Your report has been submitted and will be reviewed by ASH Trust & Safety.", "Merci. Votre signalement a été envoyé et sera examiné par l'équipe ASH Trust & Safety."),
     );
   }
 
   async function block() {
     if (!targetUserId) return;
-    if (!window.confirm(fr ? "Bloquer cet utilisateur ? Vous ne verrez plus son contenu et il ne pourra plus interagir avec vous." : "Block this user? You will no longer see their content and they cannot interact with you.")) return;
+    if (!window.confirm(tx("Block this user? You will no longer see their content and they cannot interact with you.", "Bloquer cet utilisateur ? Vous ne verrez plus son contenu et il ne pourra plus interagir avec vous."))) return;
     setBlocking(true);
     const { data: auth } = await supabase.auth.getUser();
     const uid = auth.user?.id;
     if (!uid) {
       setBlocking(false);
-      toast.error(fr ? "Connectez-vous d'abord." : "Sign in first.");
+      toast.error(tx("Sign in first.", "Connectez-vous d'abord."));
       return;
     }
     const { error } = await supabase
@@ -143,7 +141,7 @@ export function ReportDialog({
     setOpen(false);
     await refreshAfterBlock();
     toast.success(
-      fr ? "Utilisateur bloqué. Son contenu est masqué." : "User blocked. Their content is now hidden from you.",
+      tx("User blocked. Their content is now hidden from you.", "Utilisateur bloqué. Son contenu est masqué."),
     );
   }
 

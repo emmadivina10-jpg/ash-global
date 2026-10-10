@@ -103,14 +103,14 @@ function PropertyLanding() {
     if (!auth.user) return;
     if (saved.has(listingId)) {
       await supabase.from("property_saves").delete().eq("listing_id", listingId).eq("user_id", auth.user.id);
-      toast.success(fr ? "Retiré des favoris" : "Removed from saved");
+      toast.success(tx("Removed from saved", "Retiré des favoris"));
     } else {
       const { error } = await supabase.from("property_saves").insert({ listing_id: listingId, user_id: auth.user.id });
       if (error) {
         toast.error(error.message);
         return;
       }
-      toast.success(fr ? "Enregistré" : "Saved");
+      toast.success(tx("Saved", "Enregistré"));
     }
     await queryClient.invalidateQueries({ queryKey: ["property"] });
   }
@@ -168,7 +168,7 @@ function PropertyLanding() {
               )}
             >
               <item.icon className="size-3.5" aria-hidden />
-              {fr ? item.fr : item.en}
+              {tx(item.en, item.fr)}
             </button>
           ))}
         </div>
@@ -245,7 +245,7 @@ function PropertyLanding() {
                 <option value="">{tx("All types", "Tous les types")}</option>
                 {PROPERTY_CATEGORIES.map((item) => (
                   <option key={item.code} value={item.code}>
-                    {fr ? item.fr : item.en}
+                    {tx(item.en, item.fr)}
                   </option>
                 ))}
               </select>
@@ -300,7 +300,7 @@ function PropertyLanding() {
                         active ? "border-primary/60 bg-primary/10 text-primary" : "text-muted-foreground",
                       )}
                     >
-                      {fr ? item.fr : item.en}
+                      {tx(item.en, item.fr)}
                     </button>
                   );
                 })}

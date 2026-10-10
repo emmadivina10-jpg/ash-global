@@ -426,19 +426,19 @@ function MessagesPage() {
     const group = groupOf(conv);
     if (group) return group.name;
     const direct = directPeerOf(conv);
-    if (direct) return direct.name ?? (fr ? "Profil" : "Profile");
+    if (direct) return direct.name ?? (tx("Profile", "Profil"));
     if (conv.listing_id) {
       const viewerIsOwner = Boolean(user?.id) && conv.owner_id === user?.id;
 
       return viewerIsOwner
-        ? (conv.client?.full_name ?? (fr ? "Profil" : "Profile"))
+        ? (conv.client?.full_name ?? (tx("Profile", "Profil")))
         : (conv.listing?.title ?? "ASH Property");
     }
 
     const viewerIsProvider = Boolean(user?.id) && conv.provider?.user_id === user?.id;
 
     return viewerIsProvider
-      ? (conv.client?.full_name ?? (fr ? "Profil" : "Profile"))
+      ? (conv.client?.full_name ?? (tx("Profile", "Profil")))
       : (conv.provider?.business_name ?? t("chat.title"));
   }
 
@@ -543,9 +543,9 @@ function MessagesPage() {
 
     const mine = last.sender_id === user?.id;
 
-    const text = last.kind === "INVOICE" ? (fr ? "Facture" : "Invoice") : last.body;
+    const text = last.kind === "INVOICE" ? (tx("Invoice", "Facture")) : last.body;
 
-    return `${mine ? (fr ? "Vous : " : "You: ") : ""}${text}`.replace(/\s+/g, " ").trim();
+    return `${mine ? (tx("You: ", "Vous : ")) : ""}${text}`.replace(/\s+/g, " ").trim();
   }
 
   const searchTerm = term.trim();
@@ -615,12 +615,8 @@ function MessagesPage() {
         onSuccess: () =>
           toast.success(
             locked
-              ? fr
-                ? "Discussion déverrouillée"
-                : "Chat unlocked"
-              : fr
-                ? "Discussion verrouillée et masquée"
-                : "Chat locked and hidden",
+              ? tx("Chat unlocked", "Discussion déverrouillée")
+              : tx("Chat locked and hidden", "Discussion verrouillée et masquée"),
           ),
       },
     );
@@ -630,13 +626,13 @@ function MessagesPage() {
     if (!lockPin || pinValue.length < 4) return;
     const hash = await hashPin(pinValue);
     if (hash !== lockPin) {
-      toast.error(fr ? "Code incorrect" : "Incorrect PIN");
+      toast.error(tx("Incorrect PIN", "Code incorrect"));
       return;
     }
     setLockedUnlocked(true);
     setUnlockDialog(false);
     setPinValue("");
-    toast.success(fr ? "Discussions verrouillées affichées" : "Locked chats shown");
+    toast.success(tx("Locked chats shown", "Discussions verrouillées affichées"));
   }
 
   async function openLockedChat(conversationId: string) {
@@ -657,7 +653,7 @@ function MessagesPage() {
       setPinValue("");
       void navigate({ search: { c: unlockingId } });
     } catch {
-      toast.error(fr ? "Code incorrect" : "Incorrect PIN");
+      toast.error(tx("Incorrect PIN", "Code incorrect"));
     }
   }
 
@@ -698,9 +694,7 @@ function MessagesPage() {
     }
     if (removed < ids.length) {
       toast.info(
-        fr
-          ? "Certaines discussions sont liées à une réservation — elles ont été archivées."
-          : "Some chats belong to a booking — they were archived instead.",
+        tx("Some chats belong to a booking — they were archived instead.", "Certaines discussions sont liées à une réservation — elles ont été archivées."),
       );
     }
   }
@@ -934,7 +928,7 @@ function MessagesPage() {
                           <span className="min-w-0 flex-1 truncate text-left">{other.name}</span>
                           {selected ? (
                             <span className="text-xs font-bold text-primary">
-                              {fr ? "Ajouté" : "Added"}
+                              {tx("Added", "Ajouté")}
                             </span>
                           ) : (
                             <Plus className="size-4" aria-hidden />
@@ -954,7 +948,7 @@ function MessagesPage() {
                           setGroupDialog(false);
                           setGroupName("");
                           setGroupMembers([]);
-                          toast.success(fr ? "Groupe créé" : "Group created");
+                          toast.success(tx("Group created", "Groupe créé"));
                         },
                         onError: (error) =>
                           toast.error(
@@ -1062,9 +1056,9 @@ function MessagesPage() {
                         onSuccess: () => {
                           setPinValue("");
                           setPinDialog(false);
-                          toast.success(fr ? "Code enregistré" : "PIN saved");
+                          toast.success(tx("PIN saved", "Code enregistré"));
                         },
-                        onError: () => toast.error(fr ? "Échec" : "Could not save the PIN"),
+                        onError: () => toast.error(tx("Could not save the PIN", "Échec")),
                       })
                     }
                   >
@@ -1077,7 +1071,7 @@ function MessagesPage() {
                         saveLockPin.mutate(null, {
                           onSuccess: () => {
                             setPinDialog(false);
-                            toast.success(fr ? "Code retiré" : "PIN removed");
+                            toast.success(tx("PIN removed", "Code retiré"));
                           },
                         })
                       }
@@ -1216,7 +1210,7 @@ function MessagesPage() {
                       <Button
                         data-chat-avatar
                         variant="ghost"
-                        aria-label={`${fr ? "Voir les actualités de" : "View updates from"} ${label}`}
+                        aria-label={`${tx("View updates from", "Voir les actualités de")} ${label}`}
                         onClick={(event) => {
                           event.stopPropagation();
                           if (conv.group_id) {
@@ -1327,13 +1321,13 @@ function MessagesPage() {
                         onClick={() =>
                           sendFriendRequest.mutate(person.id, {
                             onSuccess: () =>
-                              toast.success(fr ? "Demande envoyée" : "Friend request sent"),
-                            onError: () => toast.error(fr ? "Échec de l'envoi" : "Could not send"),
+                              toast.success(tx("Friend request sent", "Demande envoyée")),
+                            onError: () => toast.error(tx("Could not send", "Échec de l'envoi")),
                           })
                         }
                       >
                         <UserPlus className="size-4" aria-hidden />
-                        {fr ? "Ajouter" : "Add"}
+                        {tx("Add", "Ajouter")}
                       </Button>
                     </div>
                   ))}
@@ -1542,15 +1536,13 @@ function MessagesPage() {
                                 {
                                   onSuccess: () =>
                                     toast.success(
-                                      fr ? "Photo du groupe enregistrée" : "Group photo saved",
+                                      tx("Group photo saved", "Photo du groupe enregistrée"),
                                     ),
                                   onError: (error) =>
                                     toast.error(
                                       error instanceof Error
                                         ? error.message
-                                        : fr
-                                          ? "Impossible d’enregistrer la photo"
-                                          : "Could not save the group photo",
+                                        : tx("Could not save the group photo", "Impossible d’enregistrer la photo"),
                                     ),
                                 },
                               );
@@ -1571,7 +1563,7 @@ function MessagesPage() {
                               { groupId: activeGroup.id, name: groupEditName },
                               {
                                 onSuccess: () =>
-                                  toast.success(fr ? "Groupe mis à jour" : "Group updated"),
+                                  toast.success(tx("Group updated", "Groupe mis à jour")),
                               },
                             )
                           }

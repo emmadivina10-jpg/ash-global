@@ -69,7 +69,7 @@ function MemberProfilePage() {
   async function message() {
     const conversationId = await openMemberConversation(userId);
     if (!conversationId) {
-      toast.error(fr ? "Impossible d'ouvrir la discussion." : "Could not open the chat.");
+      toast.error(tx("Could not open the chat.", "Impossible d'ouvrir la discussion."));
       return;
     }
     void navigate({ to: "/messages", search: { c: conversationId } } as never);
@@ -136,8 +136,8 @@ function MemberProfilePage() {
             disabled={linked || send.isPending}
             onClick={() =>
               send.mutate(userId, {
-                onSuccess: () => toast.success(fr ? "Demande envoyée" : "Request sent"),
-                onError: () => toast.error(fr ? "Échec de l'envoi" : "Could not send"),
+                onSuccess: () => toast.success(tx("Request sent", "Demande envoyée")),
+                onError: () => toast.error(tx("Could not send", "Échec de l'envoi")),
               })
             }
           >

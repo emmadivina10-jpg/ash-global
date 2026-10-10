@@ -88,16 +88,16 @@ function JobDetail() {
 
   async function submit() {
     if (coverLetter.trim().length < 20) {
-      toast.error(fr ? "Écrivez quelques lignes de motivation." : "Write a few lines about yourself.");
+      toast.error(tx("Write a few lines about yourself.", "Écrivez quelques lignes de motivation."));
       return;
     }
     try {
       await apply.mutateAsync({ jobId, coverLetter, phone });
-      toast.success(fr ? "Candidature envoyée." : "Application sent.");
+      toast.success(tx("Application sent.", "Candidature envoyée."));
       setCoverLetter("");
       setPhone("");
     } catch {
-      toast.error(fr ? "Envoi impossible — avez-vous déjà postulé ?" : "Could not send — have you already applied?");
+      toast.error(tx("Could not send — have you already applied?", "Envoi impossible — avez-vous déjà postulé ?"));
     }
   }
 
@@ -106,7 +106,7 @@ function JobDetail() {
       const conversationId = await openJobConversation(jobId);
       void navigate({ to: "/messages", search: { c: conversationId } } as never);
     } catch {
-      toast.error(fr ? "Impossible d'ouvrir la discussion." : "Could not open the conversation.");
+      toast.error(tx("Could not open the conversation.", "Impossible d'ouvrir la discussion."));
     }
   }
 
@@ -192,7 +192,7 @@ function JobDetail() {
                         setStatus.mutate({ id: application.id, jobId, status: "ACCEPTED" })
                       }
                     >
-                      {fr ? "Retenir" : "Shortlist"}
+                      {tx("Shortlist", "Retenir")}
                     </Button>
                     <Button
                       size="sm"
@@ -202,7 +202,7 @@ function JobDetail() {
                         setStatus.mutate({ id: application.id, jobId, status: "DECLINED" })
                       }
                     >
-                      {fr ? "Refuser" : "Decline"}
+                      {tx("Decline", "Refuser")}
                     </Button>
                   </div>
                 </li>

@@ -146,13 +146,13 @@ function FreelancePage() {
                       </span>
                     </div>
                     <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                      <span className="inline-flex items-center gap-1"><Clock className="size-3.5" aria-hidden />{project.deadline_days} {fr ? "jours" : "days"}</span>
-                      <span className="inline-flex items-center gap-1"><FileText className="size-3.5" aria-hidden />{project.proposals_count} {fr ? "propositions" : "proposals"}</span>
+                      <span className="inline-flex items-center gap-1"><Clock className="size-3.5" aria-hidden />{project.deadline_days} {tx("days", "jours")}</span>
+                      <span className="inline-flex items-center gap-1"><FileText className="size-3.5" aria-hidden />{project.proposals_count} {tx("proposals", "propositions")}</span>
                     </div>
                     <p className="line-clamp-2 text-sm text-muted-foreground">{project.description}</p>
                     <div className="mt-auto flex items-center justify-between pt-2 text-sm">
                       <span className="font-display font-extrabold text-foreground">{formatXAF(project.budget)}</span>
-                      <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">{fr ? "Postuler" : "Apply"}</span>
+                      <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">{tx("Apply", "Postuler")}</span>
                     </div>
                   </Link>
                 </li>
@@ -180,7 +180,7 @@ function FreelancePage() {
                   <h2 className="font-semibold text-foreground">{person.headline}</h2>
                   <p className="text-xs text-muted-foreground">
                     {person.city ?? person.country} · {person.years_experience}
-                    {fr ? " an(s)" : " yrs"}
+                    {tx(" yrs", " an(s)")}
                   </p>
                   {person.bio ? <p className="line-clamp-3 text-sm text-muted-foreground">{person.bio}</p> : null}
                   <div className="flex flex-wrap gap-1.5">
@@ -192,7 +192,7 @@ function FreelancePage() {
                   </div>
                   <div className="mt-auto flex items-center justify-between pt-2 text-sm">
                     <span className="font-display font-extrabold text-foreground">
-                      {fr ? "dès" : "from"} {formatXAF(person.starting_price)}
+                      {tx("from", "dès")} {formatXAF(person.starting_price)}
                     </span>
                     <span className="inline-flex items-center gap-1 text-muted-foreground">
                       <Star className="size-3.5 fill-gold text-gold" aria-hidden />
@@ -218,7 +218,7 @@ function FreelancePage() {
                   <div className="min-w-0">
                     <p className="truncate font-semibold text-foreground">{row.project?.title ?? "—"}</p>
                     <p className="text-xs text-muted-foreground">
-                      {formatXAF(row.amount)} · {row.delivery_days} {fr ? "jours" : "days"}
+                      {formatXAF(row.amount)} · {row.delivery_days} {tx("days", "jours")}
                     </p>
                   </div>
                   <span className="rounded-full bg-muted px-3 py-1 text-xs font-bold uppercase tracking-wide text-muted-foreground">

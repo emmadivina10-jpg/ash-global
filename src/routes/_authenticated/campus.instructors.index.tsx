@@ -267,7 +267,7 @@ function FindInstructorPage() {
           <div className="mt-3 flex flex-wrap items-center gap-2">
             {(["relevance", "experience", "price"] as const).map((option) => (
               <Button key={option} type="button" size="sm" variant={sort === option ? "secondary" : "outline"} className="h-7 rounded-full text-xs" onClick={() => setSort(option)}>
-                {option === "relevance" ? (fr ? "Pertinence" : "Relevance") : option === "experience" ? (fr ? "Expérience" : "Experience") : fr ? "Prix" : "Price"}
+                {option === "relevance" ? (tx("Relevance", "Pertinence")) : option === "experience" ? (tx("Experience", "Expérience")) : tx("Price", "Prix")}
               </Button>
             ))}
           </div>

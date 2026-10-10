@@ -86,7 +86,7 @@ export function SpotlightComposer({
 
   const submit = async () => {
     if (files.length === 0) {
-      toast.error(fr ? "Ajoutez une photo ou une vidéo." : "Add a photo or a video.");
+      toast.error(tx("Add a photo or a video.", "Ajoutez une photo ou une vidéo."));
       return;
     }
     try {
@@ -95,16 +95,14 @@ export function SpotlightComposer({
         files,
         providerId: asBusiness && provider ? provider.id : null,
       });
-      toast.success(fr ? "Votre Spotlight est en ligne." : "Your Spotlight is live.");
+      toast.success(tx("Your Spotlight is live.", "Votre Spotlight est en ligne."));
       reset();
       setOpen(false);
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
-          : fr
-            ? "Publication impossible pour le moment."
-            : "Could not publish right now.",
+          : tx("Could not publish right now.", "Publication impossible pour le moment."),
       );
     }
   };
@@ -204,7 +202,7 @@ export function SpotlightComposer({
                       type="button"
                       onClick={() => removeAt(index)}
                       className="absolute right-1.5 top-1.5 grid size-7 place-items-center rounded-full bg-background/85 text-foreground"
-                      aria-label={fr ? "Retirer" : "Remove"}
+                      aria-label={tx("Remove", "Retirer")}
                     >
                       <X className="size-3.5" aria-hidden />
                     </button>

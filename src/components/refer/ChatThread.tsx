@@ -106,7 +106,7 @@ export function ChatThread({
   initialMessages?: ChatMessage[] | undefined;
   refreshMessages?: (() => Promise<ChatMessage[]>) | undefined;
 }) {
-  const { t, lang } = useI18n();
+  const { tx, t, lang } = useI18n();
   const fr = lang === "fr";
   const queryClient = useQueryClient();
   const { data, isLoading } = useMessages(conversationId, initialMessages === undefined);
@@ -263,9 +263,7 @@ export function ChatThread({
 
     if (awaitingReply) {
       toast.info(
-        fr
-          ? "Attendez la réponse avant d'envoyer un autre message."
-          : "Wait for a reply before sending another message.",
+        tx("Wait for a reply before sending another message.", "Attendez la réponse avant d'envoyer un autre message."),
       );
       return;
     }
@@ -310,9 +308,7 @@ export function ChatThread({
       if (count > 2) {
         toast.warning(
           warning +
-            (fr
-              ? " Ces messages répétés sont transmis à l'équipe ASH."
-              : " Repeated messages like this are sent to the ASH review team."),
+            (tx(" Repeated messages like this are sent to the ASH review team.", " Ces messages répétés sont transmis à l'équipe ASH.")),
         );
       } else {
         toast.info(warning);
@@ -341,12 +337,12 @@ export function ChatThread({
       console.error("chat delete failed", error);
       toast.error(
         error.message ||
-          (fr ? "Message non supprimé" : "Message not deleted"),
+          (tx("Message not deleted", "Message non supprimé")),
       );
       return;
     }
 
-    toast.success(fr ? "Message supprimé" : "Message deleted");
+    toast.success(tx("Message deleted", "Message supprimé"));
 
     if (refreshMessages) {
       try {
@@ -370,13 +366,13 @@ export function ChatThread({
       <div className="flex shrink-0 items-center justify-end gap-1 px-1">
         <Dialog open={wallpaperOpen} onOpenChange={setWallpaperOpen}>
           <DialogTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label={fr ? "Fond d'écran" : "Chat wallpaper"}>
+            <Button variant="ghost" size="icon" aria-label={tx("Chat wallpaper", "Fond d'écran")}>
               <ImageIcon className="size-4" aria-hidden />
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{fr ? "Fond de discussion" : "Chat wallpaper"}</DialogTitle>
+              <DialogTitle>{tx("Chat wallpaper", "Fond de discussion")}</DialogTitle>
             </DialogHeader>
             <div className="grid grid-cols-3 gap-3">
               {CHAT_WALLPAPERS.map((option) => (
@@ -415,7 +411,7 @@ export function ChatThread({
               }}
             />
             <Button variant="outline" onClick={() => wallpaperRef.current?.click()}>
-              {fr ? "Choisir dans ma galerie" : "Choose from my gallery"}
+              {tx("Choose from my gallery", "Choisir dans ma galerie")}
             </Button>
           </DialogContent>
         </Dialog>
@@ -545,7 +541,7 @@ export function ChatThread({
                           className="mb-0.5 flex items-center gap-1 text-[11px] font-bold"
                           style={{ color: groupColorFor(m.sender_id) }}
                         >
-                          <span className="truncate">{memberById.get(m.sender_id)?.name ?? (fr ? "Membre" : "Member")}</span>
+                          <span className="truncate">{memberById.get(m.sender_id)?.name ?? (tx("Member", "Membre"))}</span>
                           <VerifiedBadge
                             tier={memberById.get(m.sender_id)?.verified_tier}
                             until={memberById.get(m.sender_id)?.verified_until}
@@ -558,9 +554,7 @@ export function ChatThread({
                           type="button"
                           onClick={() => setConfirmDelete(m.id)}
                           aria-label={
-                            fr
-                              ? "Supprimer le message"
-                              : "Delete message"
+                            tx("Delete message", "Supprimer le message")
                           }
                           className="absolute -left-8 top-1/2 hidden size-7 -translate-y-1/2 place-items-center rounded-full bg-card text-muted-foreground shadow-sm group-hover:grid hover:text-destructive"
                         >
@@ -587,7 +581,7 @@ export function ChatThread({
                                 : "bg-background",
                             )}
                           >
-                            {fr ? "Annuler" : "Cancel"}
+                            {tx("Cancel", "Annuler")}
                           </button>
 
                           <button
@@ -595,7 +589,7 @@ export function ChatThread({
                             onClick={() => void remove(m.id)}
                             className="rounded-full bg-destructive px-2 py-0.5 text-destructive-foreground"
                           >
-                            {fr ? "Supprimer" : "Delete"}
+                            {tx("Delete", "Supprimer")}
                           </button>
                         </span>
                       ) : null}
@@ -649,7 +643,7 @@ export function ChatThread({
                   className="size-3 animate-spin"
                   aria-hidden
                 />
-                {fr ? "Envoi…" : "Sending…"}
+                {tx("Sending…", "Envoi…")}
               </span>
             </div>
           </div>
@@ -666,9 +660,7 @@ export function ChatThread({
                 className="size-3"
                 aria-hidden
               />
-              {fr
-                ? "Échec — réessayer"
-                : "Failed — tap to retry"}
+              {tx("Failed — tap to retry", "Échec — réessayer")}
             </button>
           </div>
         ) : null}
@@ -685,7 +677,7 @@ export function ChatThread({
                   aria-hidden
                 />
               ))}
-              <span className="sr-only">{fr ? "En train d'écrire" : "Typing"}</span>
+              <span className="sr-only">{tx("Typing", "En train d'écrire")}</span>
             </span>
           </div>
         ) : null}
@@ -744,9 +736,7 @@ export function ChatThread({
           <span className="mt-1 px-1 text-[10px] text-muted-foreground">
             {body.length > 800
               ? `${body.length}/1000`
-              : fr
-                ? "Entrée pour envoyer · Maj+Entrée = nouvelle ligne"
-                : "Enter to send · Shift+Enter = new line"}
+              : tx("Enter to send · Shift+Enter = new line", "Entrée pour envoyer · Maj+Entrée = nouvelle ligne")}
           </span>
         </div>
 
@@ -786,7 +776,7 @@ function InvoiceMessage({
   body: string;
   metadata: Record<string, unknown>;
 }) {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
 
   if (kind === "SYSTEM") {
@@ -795,7 +785,7 @@ function InvoiceMessage({
     if (metadata["source"] === "job_contact" && jobTitle) {
       return (
         <article className="mx-auto w-full max-w-[92%] rounded-lg border border-primary/30 bg-primary/5 p-3">
-          <span className="text-xs font-bold text-primary">{fr ? "Référence de l'offre" : "Job reference"}</span>
+          <span className="text-xs font-bold text-primary">{tx("Job reference", "Référence de l'offre")}</span>
           <p className="mt-1 text-sm font-semibold text-foreground">{jobTitle}</p>
           {company ? <p className="text-xs text-muted-foreground">{company}</p> : null}
           <p className="mt-2 text-xs leading-5 text-muted-foreground">{body}</p>
@@ -837,7 +827,7 @@ function InvoiceMessage({
             className="size-4"
             aria-hidden
           />
-          {fr ? "Facture ASH" : "ASH invoice"}
+          {tx("ASH invoice", "Facture ASH")}
         </span>
 
         {invoice ? (
@@ -856,7 +846,7 @@ function InvoiceMessage({
       <dl className="mt-2 space-y-1 text-xs">
         <div className="flex justify-between gap-3">
           <dt className="text-muted-foreground">
-            {fr ? "Total payé" : "Total paid"}
+            {tx("Total paid", "Total payé")}
           </dt>
           <dd className="tabular font-bold text-foreground">
             {formatXAF(total)}
@@ -866,7 +856,7 @@ function InvoiceMessage({
         {fee > 0 ? (
           <div className="flex justify-between gap-3">
             <dt className="text-muted-foreground">
-              {fr ? "Frais ASH" : "ASH fee"}
+              {tx("ASH fee", "Frais ASH")}
             </dt>
             <dd className="tabular text-foreground">
               {formatXAF(fee)}
@@ -877,7 +867,7 @@ function InvoiceMessage({
         {net > 0 ? (
           <div className="flex justify-between gap-3">
             <dt className="text-muted-foreground">
-              {fr ? "Reçu par le pro" : "Provider receives"}
+              {tx("Provider receives", "Reçu par le pro")}
             </dt>
             <dd className="tabular text-foreground">
               {formatXAF(net)}

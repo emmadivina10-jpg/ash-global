@@ -216,11 +216,11 @@ function BookClean() {
 
   const submit = async () => {
     if (!pickup || !deliveryLoc) {
-      toast.error(fr ? "Choisissez votre adresse" : "Set your address first");
+      toast.error(tx("Set your address first", "Choisissez votre adresse"));
       return;
     }
     if (!services.length) {
-      toast.error(fr ? "Choisissez au moins un service" : "Choose at least one service");
+      toast.error(tx("Choose at least one service", "Choisissez au moins un service"));
       return;
     }
     setBusy(true);
@@ -230,7 +230,7 @@ function BookClean() {
         toast.error(r.error);
         return;
       }
-      toast.success(`${fr ? "Réservé" : "Booked"} · ${r.orderNo}`);
+      toast.success(`${tx("Booked", "Réservé")} · ${r.orderNo}`);
       void navigate({ to: "/clean/orders/$orderId", params: { orderId: r.id } });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Error");

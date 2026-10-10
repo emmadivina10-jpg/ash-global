@@ -97,7 +97,7 @@ function customService(fr: boolean): ServiceRow {
 
 function ProviderPage() {
   const { providerId } = Route.useParams();
-  const { t, lang } = useI18n();
+  const { tx, t, lang } = useI18n();
   const fr = lang === "fr";
   const navigate = useNavigate();
   const { user } = useUser();
@@ -158,13 +158,9 @@ function ProviderPage() {
 
   // Say *why* booking is unavailable instead of showing a dead grey button.
   const blockedReason = isOwner
-    ? fr
-      ? "C'est votre propre vitrine — vous ne pouvez pas vous réserver."
-      : "This is your own storefront, so you can't book yourself."
+    ? tx("This is your own storefront, so you can't book yourself.", "C'est votre propre vitrine — vous ne pouvez pas vous réserver.")
     : !bookable
-      ? fr
-        ? "Ce pro n'accepte pas de nouvelles réservations pour le moment. Vous pouvez quand même discuter."
-        : "This pro isn't accepting new bookings right now. You can still start a chat."
+      ? tx("This pro isn't accepting new bookings right now. You can still start a chat.", "Ce pro n'accepte pas de nouvelles réservations pour le moment. Vous pouvez quand même discuter.")
       : null;
 
 
@@ -190,7 +186,7 @@ function ProviderPage() {
               {verified ? (
                 <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary">
                   <BadgeCheck className="size-3.5" aria-hidden />
-                  {fr ? "Vérifié" : "Verified"}
+                  {tx("Verified", "Vérifié")}
                 </span>
               ) : null}
               <span
@@ -200,7 +196,7 @@ function ProviderPage() {
                     : "rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground"
                 }
               >
-                {bookable ? (fr ? "Disponible" : "Available") : fr ? "Indisponible" : "Unavailable"}
+                {bookable ? (tx("Available", "Disponible")) : tx("Unavailable", "Indisponible")}
               </span>
             </div>
 
@@ -220,7 +216,7 @@ function ProviderPage() {
               {completed > 0 ? (
                 <span className="flex items-center gap-1">
                   <CalendarCheck className="size-3.5" aria-hidden />
-                  {completed} {fr ? "prestations terminées" : "completed bookings"}
+                  {completed} {tx("completed bookings", "prestations terminées")}
                 </span>
               ) : null}
             </div>
@@ -237,7 +233,7 @@ function ProviderPage() {
 
             {areas.length > 0 ? (
               <p className="mt-3 text-xs text-muted-foreground">
-                {fr ? "Zones desservies : " : "Service areas: "}
+                {tx("Service areas: ", "Zones desservies : ")}
                 {areas.join(", ")}
               </p>
             ) : null}
@@ -254,7 +250,7 @@ function ProviderPage() {
                 disabled={Boolean(blockedReason)}
                 onClick={() => setBooking(activeServices[0] ?? customService(fr))}
               >
-                {fr ? "Réserver un service" : "Book service"}
+                {tx("Book service", "Réserver un service")}
               </Button>
 
               <Button variant="outline" onClick={() => void chat()} disabled={isOwner}>
@@ -277,9 +273,9 @@ function ProviderPage() {
         </div>
       </SectionCard>
 
-      <SectionCard title={fr ? "Services" : "Services"}>
+      <SectionCard title={tx("Services", "Services")}>
         {activeServices.length === 0 ? (
-          <EmptyState title={fr ? "Aucun service actif" : "No active service"} />
+          <EmptyState title={tx("No active service", "Aucun service actif")} />
         ) : (
           <ul className="divide-y divide-border">
             {activeServices.map((service) => (
@@ -305,7 +301,7 @@ function ProviderPage() {
 
       <SectionCard title={t("svc.portfolio")}>
         {(portfolio ?? []).length === 0 ? (
-          <EmptyState title={fr ? "Pas encore de médias" : "No photos or videos yet"} />
+          <EmptyState title={tx("No photos or videos yet", "Pas encore de médias")} />
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {(portfolio ?? []).map((item) => {
@@ -318,12 +314,8 @@ function ProviderPage() {
                     className="relative block w-full"
                     aria-label={
                       video
-                        ? fr
-                          ? "Regarder la vidéo"
-                          : "Play video"
-                        : fr
-                          ? "Voir la photo"
-                          : "View photo"
+                        ? tx("Play video", "Regarder la vidéo")
+                        : tx("View photo", "Voir la photo")
                     }
                     onClick={() =>
                       setLightbox({ url: item.url!, caption: item.caption, isVideo: video })
@@ -372,7 +364,7 @@ function ProviderPage() {
 
         {(reviews ?? []).length === 0 ? (
           <div className="mt-3">
-            <EmptyState title={fr ? "Pas encore d'avis" : "No reviews yet"} />
+            <EmptyState title={tx("No reviews yet", "Pas encore d'avis")} />
           </div>
         ) : (
           <ul className="mt-3 space-y-3">
@@ -393,7 +385,7 @@ function ProviderPage() {
                       {isVerified ? (
                         <>
                           <ShieldCheck className="size-3" aria-hidden />
-                          {fr ? "Réservation vérifiée" : "Verified booking"}
+                          {tx("Verified booking", "Réservation vérifiée")}
                         </>
                       ) : fr ? (
                         "Avis communautaire"
@@ -425,19 +417,19 @@ function ProviderPage() {
               {detail.description ? <p className="text-foreground/90">{detail.description}</p> : null}
               <dl className="grid grid-cols-2 gap-2 text-muted-foreground">
                 <div>
-                  <dt className="text-xs">{fr ? "Prix" : "Price"}</dt>
+                  <dt className="text-xs">{tx("Price", "Prix")}</dt>
                   <dd className="tabular font-bold text-foreground">{formatXAF(detail.price)}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs">{fr ? "Durée" : "Duration"}</dt>
+                  <dt className="text-xs">{tx("Duration", "Durée")}</dt>
                   <dd className="font-semibold text-foreground">{detail.duration_minutes} min</dd>
                 </div>
                 <div>
-                  <dt className="text-xs">{fr ? "Pro" : "Provider"}</dt>
+                  <dt className="text-xs">{tx("Provider", "Pro")}</dt>
                   <dd className="font-semibold text-foreground">{provider.business_name}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs">{fr ? "Zone" : "Service area"}</dt>
+                  <dt className="text-xs">{tx("Service area", "Zone")}</dt>
                   <dd className="font-semibold text-foreground">
                     {areas.length > 0 ? areas.join(", ") : (provider.city ?? "—")}
                   </dd>
@@ -451,7 +443,7 @@ function ProviderPage() {
                   setDetail(null);
                 }}
               >
-                {bookable ? t("svc.book") : fr ? "Indisponible" : "Unavailable"}
+                {bookable ? t("svc.book") : tx("Unavailable", "Indisponible")}
               </Button>
             </div>
           ) : null}
@@ -494,7 +486,7 @@ function BookingRequestDialog({
   onClose: () => void;
   onDone: () => void;
 }) {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const zone = providerTimeZone(provider.country);
   const showZone = isDifferentZone(zone);
@@ -578,17 +570,17 @@ function BookingRequestDialog({
 
     const scheduledAt = new Date(when);
     if (!when || Number.isNaN(scheduledAt.getTime())) {
-      toast.error(fr ? "Choisissez une date et une heure valides." : "Please choose a valid date and time.");
+      toast.error(tx("Please choose a valid date and time.", "Choisissez une date et une heure valides."));
       return;
     }
 
     if (isCustom && !customTitle.trim()) {
-      toast.error(fr ? "Décrivez le service demandé." : "Please describe the service you need.");
+      toast.error(tx("Please describe the service you need.", "Décrivez le service demandé."));
       return;
     }
 
     if (isCustom && effPrice < 0) {
-      toast.error(fr ? "Le budget est invalide." : "The budget is invalid.");
+      toast.error(tx("The budget is invalid.", "Le budget est invalide."));
       return;
     }
 
@@ -674,18 +666,14 @@ function BookingRequestDialog({
       });
 
       toast.success(
-        fr
-          ? "Demande envoyée. Le pro a 24 h pour répondre."
-          : "Request sent. The pro has 24 hours to respond.",
+        tx("Request sent. The pro has 24 hours to respond.", "Demande envoyée. Le pro a 24 h pour répondre."),
       );
 
       onDone();
     } catch (err) {
       console.error("Unexpected request_booking error:", err);
       toast.error(
-        fr
-          ? "Une erreur inattendue est survenue. Réessayez."
-          : "Something went wrong while sending the request. Please try again.",
+        tx("Something went wrong while sending the request. Please try again.", "Une erreur inattendue est survenue. Réessayez."),
       );
     } finally {
       setBusy(false);
@@ -697,7 +685,7 @@ function BookingRequestDialog({
     <Dialog open onOpenChange={(v) => !v && !busy && onClose()}>
       <DialogContent className="max-h-[calc(100dvh-2rem-env(safe-area-inset-bottom,0px))] overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]">
         <DialogHeader>
-          <DialogTitle>{step === "form" ? (fr ? "Demander une réservation" : "Request a booking") : fr ? "Confirmer" : "Confirm"}</DialogTitle>
+          <DialogTitle>{step === "form" ? (tx("Request a booking", "Demander une réservation")) : tx("Confirm", "Confirmer")}</DialogTitle>
         </DialogHeader>
 
 
@@ -708,18 +696,18 @@ function BookingRequestDialog({
               e.preventDefault();
 
               if (!when) {
-                toast.error(fr ? "Choisissez une date et une heure." : "Please choose a date and time.");
+                toast.error(tx("Please choose a date and time.", "Choisissez une date et une heure."));
                 return;
               }
 
               const selectedDate = new Date(when);
               if (Number.isNaN(selectedDate.getTime())) {
-                toast.error(fr ? "Date ou heure invalide." : "Invalid date or time.");
+                toast.error(tx("Invalid date or time.", "Date ou heure invalide."));
                 return;
               }
 
               if (isCustom && !customTitle.trim()) {
-                toast.error(fr ? "Décrivez le service demandé." : "Please describe the service you need.");
+                toast.error(tx("Please describe the service you need.", "Décrivez le service demandé."));
                 return;
               }
 
@@ -729,18 +717,18 @@ function BookingRequestDialog({
             {isCustom ? (
               <>
                 <div className="space-y-1.5">
-                  <Label htmlFor="ctitle">{fr ? "Que voulez-vous ?" : "What do you need?"}</Label>
+                  <Label htmlFor="ctitle">{tx("What do you need?", "Que voulez-vous ?")}</Label>
                   <Input
                     id="ctitle"
                     value={customTitle}
                     onChange={(e) => setCustomTitle(e.target.value)}
-                    placeholder={fr ? "ex. Tresses box, coupe homme…" : "e.g. Box braids, men's haircut…"}
+                    placeholder={tx("e.g. Box braids, men's haircut…", "ex. Tresses box, coupe homme…")}
                     maxLength={120}
                     required
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="cprice">{fr ? "Votre budget (XAF)" : "Your budget (XAF)"}</Label>
+                  <Label htmlFor="cprice">{tx("Your budget (XAF)", "Votre budget (XAF)")}</Label>
                   <Input
                     id="cprice"
                     type="number"
@@ -752,15 +740,13 @@ function BookingRequestDialog({
                     placeholder="5000"
                   />
                   <p className="text-xs text-muted-foreground">
-                    {fr
-                      ? "Le pro confirme le prix avant tout paiement."
-                      : "The pro confirms the price before any payment."}
+                    {tx("The pro confirms the price before any payment.", "Le pro confirme le prix avant tout paiement.")}
                   </p>
                 </div>
               </>
             ) : (
               <div className="space-y-1.5">
-                <Label htmlFor="svc">{fr ? "Service" : "Service"}</Label>
+                <Label htmlFor="svc">{tx("Service", "Service")}</Label>
                 <select
                   id="svc"
                   value={serviceId}
@@ -778,7 +764,7 @@ function BookingRequestDialog({
             {hours && hours.length > 0 ? (
               <div className="rounded-xl border border-border bg-muted/40 p-3">
                 <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
-                  {fr ? "Horaires du pro" : "Pro's opening hours"}
+                  {tx("Pro's opening hours", "Horaires du pro")}
                   {showZone ? ` · ${zoneLabel(zone, baseLang(lang))}` : ""}
                 </p>
                 <ul className="mt-2 space-y-1 text-xs text-foreground">
@@ -795,7 +781,7 @@ function BookingRequestDialog({
             ) : null}
 
             <div className="space-y-1.5">
-              <Label htmlFor="day">{fr ? "Date" : "Date"}</Label>
+              <Label htmlFor="day">{tx("Date", "Date")}</Label>
 
               <Input
                 id="day"
@@ -819,30 +805,24 @@ function BookingRequestDialog({
 
             {day ? (
               <div className="space-y-1.5">
-                <Label>{fr ? "Créneaux disponibles" : "Available slots"}</Label>
+                <Label>{tx("Available slots", "Créneaux disponibles")}</Label>
                 {loadingSlots ? (
-                  <p className="text-sm text-muted-foreground">{fr ? "Chargement…" : "Loading…"}</p>
+                  <p className="text-sm text-muted-foreground">{tx("Loading…", "Chargement…")}</p>
                 ) : (slots ?? []).length === 0 ? (
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">
                       {slotError
-                        ? fr
-                          ? "Impossible de charger les créneaux. Réessayez."
-                          : "Could not load the slots. Please try again."
-                        : fr
-                          ? "Plus de créneau libre ce jour-là. Choisissez une autre date, ou proposez une heure au pro."
-                          : "No free slot left that day. Pick another date, or propose a time to the pro."}
+                        ? tx("Could not load the slots. Please try again.", "Impossible de charger les créneaux. Réessayez.")
+                        : tx("No free slot left that day. Pick another date, or propose a time to the pro.", "Plus de créneau libre ce jour-là. Choisissez une autre date, ou proposez une heure au pro.")}
                     </p>
                     <Input
                       type="datetime-local"
-                      aria-label={fr ? "Proposer une heure" : "Propose a time"}
+                      aria-label={tx("Propose a time", "Proposer une heure")}
                       value={when}
                       onChange={(e) => setWhen(e.target.value)}
                     />
                     <p className="text-xs text-muted-foreground">
-                      {fr
-                        ? "Heure saisie dans votre fuseau ; le pro doit l'accepter."
-                        : "Entered in your own timezone — the pro still has to accept it."}
+                      {tx("Entered in your own timezone — the pro still has to accept it.", "Heure saisie dans votre fuseau ; le pro doit l'accepter.")}
                     </p>
                   </div>
                 ) : (
@@ -880,50 +860,48 @@ function BookingRequestDialog({
               </div>
             ) : null}
             <div className="space-y-1.5">
-              <Label htmlFor="addr">{fr ? "Lieu / adresse" : "Location / address"}</Label>
+              <Label htmlFor="addr">{tx("Location / address", "Lieu / adresse")}</Label>
               <Input
                 id="addr"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                placeholder={provider.city ?? (fr ? "Où ?" : "Where?")}
+                placeholder={provider.city ?? (tx("Where?", "Où ?"))}
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="notes">{fr ? "Détails" : "Details"}</Label>
+              <Label htmlFor="notes">{tx("Details", "Détails")}</Label>
               <Textarea id="notes" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
             </div>
             <Button type="submit" className="w-full touch-manipulation" disabled={!when || (isCustom && !customTitle.trim())}>
-              {fr ? "Continuer" : "Continue"}
+              {tx("Continue", "Continuer")}
             </Button>
           </form>
         ) : (
           <div className="space-y-4">
             <dl className="space-y-2 rounded-xl border border-border p-3 text-sm">
-              <Row label={fr ? "Pro" : "Provider"} value={provider.name} />
-              <Row label={fr ? "Service" : "Service"} value={effTitle} />
+              <Row label={tx("Provider", "Pro")} value={provider.name} />
+              <Row label={tx("Service", "Service")} value={effTitle} />
               <Row
-                label={fr ? "Date" : "Date"}
+                label={tx("Date", "Date")}
                 value={`${formatDateTimeInZone(new Date(when).toISOString(), zone, baseLang(lang))}${
                   showZone ? ` (${zoneLabel(zone, baseLang(lang))})` : ""
                 }`}
               />
-              <Row label={fr ? "Durée" : "Duration"} value={`${selected.duration_minutes} min`} />
-              <Row label={fr ? "Lieu" : "Location"} value={address || provider.city || "—"} />
+              <Row label={tx("Duration", "Durée")} value={`${selected.duration_minutes} min`} />
+              <Row label={tx("Location", "Lieu")} value={address || provider.city || "—"} />
               <Row
-                label={isCustom ? (fr ? "Budget" : "Budget") : fr ? "Total" : "Total"}
-                value={effPrice > 0 ? formatXAF(effPrice) : fr ? "À confirmer" : "To be confirmed"}
+                label={isCustom ? (tx("Budget", "Budget")) : tx("Total", "Total")}
+                value={effPrice > 0 ? formatXAF(effPrice) : tx("To be confirmed", "À confirmer")}
               />
             </dl>
 
             <p className="flex items-start gap-2 rounded-xl bg-muted p-3 text-xs text-muted-foreground">
               <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden />
-              {fr
-                ? "Aucun paiement maintenant. Vous paierez seulement après l'acceptation du pro."
-                : "No payment now. You only pay after the pro accepts."}
+              {tx("No payment now. You only pay after the pro accepts.", "Aucun paiement maintenant. Vous paierez seulement après l'acceptation du pro.")}
             </p>
             <div className="flex gap-2">
               <Button variant="ghost" className="flex-1" onClick={() => setStep("form")} disabled={busy}>
-                {fr ? "Retour" : "Back"}
+                {tx("Back", "Retour")}
               </Button>
               <Button
                 type="button"
@@ -933,12 +911,8 @@ function BookingRequestDialog({
                 aria-busy={busy}
               >
                 {busy
-                  ? fr
-                    ? "Envoi…"
-                    : "Sending…"
-                  : fr
-                    ? "Envoyer la demande"
-                    : "Send request"}
+                  ? tx("Sending…", "Envoi…")
+                  : tx("Send request", "Envoyer la demande")}
               </Button>
             </div>
           </div>

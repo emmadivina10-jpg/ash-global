@@ -135,7 +135,7 @@ function BecomeInstructorPage() {
         qualificationDocument,
         declarationsAccepted: accepted,
       });
-      toast.success(fr ? "Candidature envoyée pour examen." : "Application submitted for review.");
+      toast.success(tx("Application submitted for review.", "Candidature envoyée pour examen."));
       void navigate({ to: "/campus" });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not submit the application.";
@@ -402,7 +402,7 @@ function BecomeInstructorPage() {
                       size="sm"
                       onClick={() => setQualifications(qualifications.filter((_, i) => i !== index))}
                     >
-                      {fr ? "Retirer" : "Remove"}
+                      {tx("Remove", "Retirer")}
                     </Button>
                   </li>
                 ))}
@@ -422,16 +422,10 @@ function BecomeInstructorPage() {
                       onClick={() => toggleSlot(index, part)}
                     >
                       {part === "MORNING"
-                        ? fr
-                          ? "Matin"
-                          : "Morning"
+                        ? tx("Morning", "Matin")
                         : part === "AFTERNOON"
-                          ? fr
-                            ? "Après-midi"
-                            : "Afternoon"
-                          : fr
-                            ? "Soir"
-                            : "Evening"}
+                          ? tx("Afternoon", "Après-midi")
+                          : tx("Evening", "Soir")}
                     </Chip>
                   ))}
                 </div>

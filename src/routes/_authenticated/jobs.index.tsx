@@ -98,7 +98,7 @@ function JobsPage() {
                 : "border-border bg-card text-muted-foreground hover:border-primary/40",
             )}
           >
-            {fr ? item.fr : item.en}
+            {tx(item.en, item.fr)}
           </button>
         ))}
       </div>
@@ -141,13 +141,11 @@ function JobsPage() {
                   <span className="font-display font-extrabold text-foreground">
                     {job.salary_min || job.salary_max
                       ? `${formatXAF(job.salary_min ?? job.salary_max ?? 0)}${job.salary_max && job.salary_min ? ` – ${formatXAF(job.salary_max)}` : ""}`
-                      : fr
-                        ? "À négocier"
-                        : "Negotiable"}
+                      : tx("Negotiable", "À négocier")}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {job.applications_count} {fr ? "candidature(s)" : "applicants"}
+                  {job.applications_count} {tx("applicants", "candidature(s)")}
                 </p>
                 </div>
               </Link>
@@ -236,7 +234,7 @@ function PostJobDialog({ fr }: { fr: boolean }) {
             >
               {EMPLOYMENT_TYPES.map((item) => (
                 <option key={item.key} value={item.key}>
-                  {fr ? item.fr : item.en}
+                  {tx(item.en, item.fr)}
                 </option>
               ))}
             </select>
@@ -247,7 +245,7 @@ function PostJobDialog({ fr }: { fr: boolean }) {
             >
               {LOCATION_TYPES.map((item) => (
                 <option key={item.key} value={item.key}>
-                  {fr ? item.fr : item.en}
+                  {tx(item.en, item.fr)}
                 </option>
               ))}
             </select>

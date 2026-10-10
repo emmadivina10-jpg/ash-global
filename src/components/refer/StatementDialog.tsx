@@ -126,7 +126,7 @@ export function StatementDialog({
                   : "rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
               }
             >
-              {fr ? item.fr : item.en}
+              {tx(item.en, item.fr)}
             </button>
           ))}
           <div className="ml-auto flex gap-2">

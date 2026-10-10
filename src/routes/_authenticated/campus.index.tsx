@@ -130,7 +130,7 @@ function CampusPage() {
                 <span className="mt-2 block text-sm font-semibold text-foreground">{label}</span>
                 {section.soon ? (
                   <span className="mt-1 block text-[11px] font-medium text-muted-foreground">
-                    {fr ? "Bientôt disponible" : "Coming soon"}
+                    {tx("Coming soon", "Bientôt disponible")}
                   </span>
                 ) : null}
               </>

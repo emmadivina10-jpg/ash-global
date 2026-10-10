@@ -23,7 +23,7 @@ export type DiscoveryBlock = {
 
 /** Light-touch discovery data for the feed: listings the member can act on. */
 export function useFeedDiscovery() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
 
   return useQuery({
@@ -73,8 +73,8 @@ export function useFeedDiscovery() {
         blocks.push({
           id: "jobs",
           icon: Briefcase,
-          title: fr ? "Offres d'emploi" : "Jobs hiring now",
-          hint: fr ? "Postulez en un clic depuis l'app" : "Apply in-app in one tap",
+          title: tx("Jobs hiring now", "Offres d'emploi"),
+          hint: tx("Apply in-app in one tap", "Postulez en un clic depuis l'app"),
           seeAll: "/jobs",
           cards: jobs.data.map((job) => ({
             id: job.id,
@@ -91,8 +91,8 @@ export function useFeedDiscovery() {
         blocks.push({
           id: "events",
           icon: CalendarDays,
-          title: fr ? "Événements à venir" : "Upcoming events",
-          hint: fr ? "Réservez votre place" : "Grab your ticket",
+          title: tx("Upcoming events", "Événements à venir"),
+          hint: tx("Grab your ticket", "Réservez votre place"),
           seeAll: "/events",
           cards: events.data.map((event) => ({
             id: event.id,
@@ -103,7 +103,7 @@ export function useFeedDiscovery() {
                 month: "short",
               }),
               event.city ?? "",
-              event.is_free ? (fr ? "Gratuit" : "Free") : formatXAF(Number(event.ticket_price ?? 0)),
+              event.is_free ? (tx("Free", "Gratuit")) : formatXAF(Number(event.ticket_price ?? 0)),
             ]
               .filter(Boolean)
               .join(" · "),
@@ -116,8 +116,8 @@ export function useFeedDiscovery() {
         blocks.push({
           id: "property",
           icon: Home,
-          title: fr ? "Biens immobiliers" : "Property listings",
-          hint: fr ? "À louer et à vendre" : "To rent and to buy",
+          title: tx("Property listings", "Biens immobiliers"),
+          hint: tx("To rent and to buy", "À louer et à vendre"),
           seeAll: "/property",
           cards: property.data.map((listing) => ({
             id: listing.id,
@@ -132,8 +132,8 @@ export function useFeedDiscovery() {
         blocks.push({
           id: "deals",
           icon: Tag,
-          title: fr ? "Bons plans" : "Deals near you",
-          hint: fr ? "Offres limitées" : "Limited-time offers",
+          title: tx("Deals near you", "Bons plans"),
+          hint: tx("Limited-time offers", "Offres limitées"),
           seeAll: "/deals",
           cards: deals.data.map((deal) => ({
             id: deal.id,
@@ -148,8 +148,8 @@ export function useFeedDiscovery() {
         blocks.push({
           id: "freelance",
           icon: Laptop,
-          title: fr ? "Missions freelance" : "Freelance projects",
-          hint: fr ? "Envoyez une proposition" : "Send a proposal",
+          title: tx("Freelance projects", "Missions freelance"),
+          hint: tx("Send a proposal", "Envoyez une proposition"),
           seeAll: "/freelance",
           cards: freelance.data.map((project) => ({
             id: project.id,
@@ -167,7 +167,7 @@ export function useFeedDiscovery() {
 
 /** One calm, swipeable row of listings — designed to be easy to scroll past. */
 export function DiscoveryRow({ block }: { block: DiscoveryBlock }) {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const Icon = block.icon;
 
@@ -185,7 +185,7 @@ export function DiscoveryRow({ block }: { block: DiscoveryBlock }) {
           to={block.seeAll}
           className="inline-flex shrink-0 items-center gap-0.5 text-xs font-bold text-primary"
         >
-          {fr ? "Voir tout" : "See all"}
+          {tx("See all", "Voir tout")}
           <ChevronRight className="size-3.5" aria-hidden />
         </Link>
       </div>

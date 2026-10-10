@@ -72,7 +72,7 @@ function FriendsPage() {
         .select("id")
         .single();
       if (error) {
-        toast.error(fr ? "Impossible d'ouvrir la discussion." : "Could not open the chat.");
+        toast.error(tx("Could not open the chat.", "Impossible d'ouvrir la discussion."));
         return;
       }
       conversationId = created.id;
@@ -114,19 +114,19 @@ function FriendsPage() {
                     <span className="inline-flex items-center gap-1">{person.name}<VerifiedBadge tier={person.verified_tier} until={person.verified_until} size={13}/></span>
                   </span>
                   {known.has(person.id) ? (
-                    <span className="text-xs text-muted-foreground">{fr ? "Déjà lié" : "Already linked"}</span>
+                    <span className="text-xs text-muted-foreground">{tx("Already linked", "Déjà lié")}</span>
                   ) : (
                     <Button
                       size="sm"
                       onClick={() =>
                         send.mutate(person.id, {
-                          onSuccess: () => toast.success(fr ? "Demande envoyée" : "Request sent"),
-                          onError: () => toast.error(fr ? "Échec de l'envoi" : "Could not send"),
+                          onSuccess: () => toast.success(tx("Request sent", "Demande envoyée")),
+                          onError: () => toast.error(tx("Could not send", "Échec de l'envoi")),
                         })
                       }
                     >
                       <UserPlus className="size-4" aria-hidden />
-                      {fr ? "Ajouter" : "Add"}
+                      {tx("Add", "Ajouter")}
                     </Button>
                   )}
                 </li>
@@ -163,13 +163,13 @@ function FriendsPage() {
                   variant="outline"
                   onClick={() =>
                     send.mutate(person.id, {
-                      onSuccess: () => toast.success(fr ? "Demande envoyée" : "Request sent"),
-                      onError: () => toast.error(fr ? "Échec de l'envoi" : "Could not send"),
+                      onSuccess: () => toast.success(tx("Request sent", "Demande envoyée")),
+                      onError: () => toast.error(tx("Could not send", "Échec de l'envoi")),
                     })
                   }
                 >
                   <UserPlus className="size-4" aria-hidden />
-                  {fr ? "Ajouter" : "Add"}
+                  {tx("Add", "Ajouter")}
                 </Button>
               </li>
             ))}
@@ -191,7 +191,7 @@ function FriendsPage() {
               <Button
                 size="sm"
                 onClick={() => respond.mutate({ id: entry.id, accept: true })}
-                aria-label={fr ? "Accepter" : "Accept"}
+                aria-label={tx("Accept", "Accepter")}
               >
                 <Check className="size-4" aria-hidden />
               </Button>
@@ -199,7 +199,7 @@ function FriendsPage() {
                 size="sm"
                 variant="outline"
                 onClick={() => respond.mutate({ id: entry.id, accept: false })}
-                aria-label={fr ? "Refuser" : "Decline"}
+                aria-label={tx("Decline", "Refuser")}
               >
                 <X className="size-4" aria-hidden />
               </Button>
@@ -217,7 +217,7 @@ function FriendsPage() {
             <div key={entry.id} className="flex items-center gap-3">
                <Avatar path={entry.other.avatar_url} name={entry.other.name} online={entry.other.online} hasUpdate={entry.other.has_update} className="size-9" />
               <span className="min-w-0 flex flex-1 items-center gap-1 truncate text-sm text-foreground">{entry.other.name}<VerifiedBadge tier={entry.other.verified_tier} until={entry.other.verified_until} size={13}/></span>
-              <span className="text-xs text-muted-foreground">{fr ? "En attente" : "Pending"}</span>
+              <span className="text-xs text-muted-foreground">{tx("Pending", "En attente")}</span>
             </div>
           ))}
         </section>
@@ -240,12 +240,12 @@ function FriendsPage() {
               </span>
               <Button size="sm" variant="outline" onClick={() => void openChat(entry.other.id)}>
                 <MessageSquare className="size-4" aria-hidden />
-                {fr ? "Message" : "Message"}
+                {tx("Message", "Message")}
               </Button>
               <Button
                 size="sm"
                 variant="ghost"
-                aria-label={fr ? "Retirer" : "Remove"}
+                aria-label={tx("Remove", "Retirer")}
                 onClick={() => remove.mutate(entry.id)}
               >
                 <UserMinus className="size-4" aria-hidden />

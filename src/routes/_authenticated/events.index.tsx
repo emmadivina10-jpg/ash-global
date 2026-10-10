@@ -101,10 +101,10 @@ function EventsPage() {
                     </p>
                     <div className="mt-auto flex items-center justify-between pt-2">
                       <span className="font-display text-lg font-extrabold text-foreground">
-                        {event.is_free ? (fr ? "Gratuit" : "Free") : formatXAF(event.ticket_price)}
+                        {event.is_free ? (tx("Free", "Gratuit")) : formatXAF(event.ticket_price)}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {left} {fr ? "places" : "seats"}
+                        {left} {tx("seats", "places")}
                       </span>
                     </div>
                   </Link>

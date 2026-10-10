@@ -81,7 +81,7 @@ function Paragraphs({ keys, vars }: { keys: TKey[]; vars?: Record<string, string
 }
 
 function SettingsPage() {
-  const { t, lang } = useI18n();
+  const { tx, t, lang } = useI18n();
   const fr = lang === "fr";
   const { location, request: requestLocation, busy: locationBusy } = useLocation();
   const { visible: orbVisible, setVisible: setOrbVisible } = useOrbVisible();
@@ -144,7 +144,7 @@ function SettingsPage() {
       <header>
         <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{t("settings.title")}</h1>
         <p className="mt-1 text-sm font-semibold text-primary">
-          ASH — {fr ? "Là où les opportunités se connectent." : "Where Opportunities Connect."}
+          ASH — {tx("Where Opportunities Connect.", "Là où les opportunités se connectent.")}
         </p>
         <p className="mt-1 text-sm text-muted-foreground">{t("settings.subtitle")}</p>
       </header>
@@ -173,7 +173,7 @@ function SettingsPage() {
       </SectionCard>
 
       <SectionCard
-        title={fr ? "Sons de notification" : "Notification sounds"}
+        title={tx("Notification sounds", "Sons de notification")}
         action={
           soundOff ? (
             <BellOff className="size-4 text-muted-foreground" aria-hidden />
@@ -184,9 +184,7 @@ function SettingsPage() {
       >
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm leading-relaxed text-muted-foreground">
-            {fr
-              ? "Jouer un son quand un nouveau message ou une notification arrive pendant que l'application est ouverte."
-              : "Play a sound when a new message or notification arrives while the app is open."}
+            {tx("Play a sound when a new message or notification arrives while the app is open.", "Jouer un son quand un nouveau message ou une notification arrive pendant que l'application est ouverte.")}
           </p>
           <Switch
             checked={!soundOff}
@@ -195,15 +193,15 @@ function SettingsPage() {
               setSoundOff(!on);
               if (on) playNotificationSound();
             }}
-            aria-label={fr ? "Sons de notification" : "Notification sounds"}
+            aria-label={tx("Notification sounds", "Sons de notification")}
           />
         </div>
       </SectionCard>
 
-      <SectionCard title={fr ? "Sons de navigation" : "Tap & refresh sounds"}>
+      <SectionCard title={tx("Tap & refresh sounds", "Sons de navigation")}>
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm leading-relaxed text-muted-foreground">
-            {fr ? "Jouer un petit son en changeant d’onglet et en actualisant." : "Play a short sound when switching tabs and refreshing."}
+            {tx("Play a short sound when switching tabs and refreshing.", "Jouer un petit son en changeant d’onglet et en actualisant.")}
           </p>
           <Switch
             checked={!uiOff}
@@ -212,7 +210,7 @@ function SettingsPage() {
               setUiOff(!on);
               if (on) playTabSound();
             }}
-            aria-label={fr ? "Sons de navigation" : "Tap and refresh sounds"}
+            aria-label={tx("Tap and refresh sounds", "Sons de navigation")}
           />
         </div>
       </SectionCard>
@@ -220,80 +218,70 @@ function SettingsPage() {
       <SectionCard title="ASH Compass">
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm leading-relaxed text-muted-foreground">
-            {fr
-              ? "Carte et portefeuille"
-              : "Map and Wallet"}
+            {tx("Map and Wallet", "Carte et portefeuille")}
           </p>
           <Switch
             checked={orbVisible}
             onCheckedChange={(on) => setOrbVisible(on)}
-            aria-label={fr ? "Afficher ASH Compass" : "Show ASH Compass"}
+            aria-label={tx("Show ASH Compass", "Afficher ASH Compass")}
           />
         </div>
       </SectionCard>
 
-      <SectionCard title={fr ? "Recommandations personnalisées" : "Personalized recommendations"}>
+      <SectionCard title={tx("Personalized recommendations", "Recommandations personnalisées")}>
         <div className="space-y-4">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-sm font-semibold">
-                {fr ? "Recommandations personnalisées" : "Personalized recommendations"}
+                {tx("Personalized recommendations", "Recommandations personnalisées")}
               </p>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                {fr
-                  ? "Laisser ASH choisir ce qui vous est montré en fonction de ce qui vous intéresse. Désactivé, vous voyez le contenu récent et populaire comme tout le monde."
-                  : "Let ASH choose what you see based on what interests you. Turned off, you simply see recent and popular content like everyone else."}
+                {tx("Let ASH choose what you see based on what interests you. Turned off, you simply see recent and popular content like everyone else.", "Laisser ASH choisir ce qui vous est montré en fonction de ce qui vous intéresse. Désactivé, vous voyez le contenu récent et populaire comme tout le monde.")}
               </p>
             </div>
             <Switch
               checked={recPrefs?.personalization_enabled ?? true}
               onCheckedChange={(on) => updateRecPrefs.mutate({ personalization_enabled: on })}
-              aria-label={fr ? "Recommandations personnalisées" : "Personalized recommendations"}
+              aria-label={tx("Personalized recommendations", "Recommandations personnalisées")}
             />
           </div>
 
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold">{fr ? "Utiliser ma ville" : "Use my city"}</p>
+              <p className="text-sm font-semibold">{tx("Use my city", "Utiliser ma ville")}</p>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                {fr
-                  ? "Mettre en avant les personnes, services et offres proches de vous. Seul le nom de la ville est utilisé, jamais votre position exacte."
-                  : "Show people, services and offers closer to you. Only the city name is used — never your exact position."}
+                {tx("Show people, services and offers closer to you. Only the city name is used — never your exact position.", "Mettre en avant les personnes, services et offres proches de vous. Seul le nom de la ville est utilisé, jamais votre position exacte.")}
               </p>
             </div>
             <Switch
               checked={recPrefs?.use_location ?? false}
               onCheckedChange={(on) => updateRecPrefs.mutate({ use_location: on })}
-              aria-label={fr ? "Utiliser ma ville" : "Use my city"}
+              aria-label={tx("Use my city", "Utiliser ma ville")}
             />
           </div>
 
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-sm font-semibold">
-                {fr ? "Utiliser mon activité" : "Use my activity"}
+                {tx("Use my activity", "Utiliser mon activité")}
               </p>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                {fr
-                  ? "Tenir compte de ce que vous ouvrez, aimez ou enregistrez. Désactivé, ASH arrête d'enregistrer cette activité."
-                  : "Take into account what you open, like or save. Turned off, ASH stops recording this activity."}
+                {tx("Take into account what you open, like or save. Turned off, ASH stops recording this activity.", "Tenir compte de ce que vous ouvrez, aimez ou enregistrez. Désactivé, ASH arrête d'enregistrer cette activité.")}
               </p>
             </div>
             <Switch
               checked={recPrefs?.use_activity_history ?? true}
               onCheckedChange={(on) => updateRecPrefs.mutate({ use_activity_history: on })}
-              aria-label={fr ? "Utiliser mon activité" : "Use my activity"}
+              aria-label={tx("Use my activity", "Utiliser mon activité")}
             />
           </div>
 
           <div className="rounded-xl border border-border/60 p-3">
             <p className="text-sm font-semibold">
-              {fr ? "Effacer mon historique de personnalisation" : "Clear my personalization history"}
+              {tx("Clear my personalization history", "Effacer mon historique de personnalisation")}
             </p>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              {fr
-                ? "Supprime uniquement ce qu'ASH a retenu de votre activité. Vos publications, commentaires, messages, réservations, portefeuille, parrainages et amis ne sont pas touchés."
-                : "Deletes only what ASH learned from your activity. Your posts, comments, messages, bookings, wallet, referrals and friends are not touched."}
+              {tx("Deletes only what ASH learned from your activity. Your posts, comments, messages, bookings, wallet, referrals and friends are not touched.", "Supprime uniquement ce qu'ASH a retenu de votre activité. Vos publications, commentaires, messages, réservations, portefeuille, parrainages et amis ne sont pas touchés.")}
             </p>
             <Button
               variant="outline"
@@ -304,27 +292,25 @@ function SettingsPage() {
                 setClearingHistory(true);
                 clearHistory.mutate(undefined, {
                   onSuccess: () =>
-                    toast.success(fr ? "Historique effacé." : "Personalization history cleared."),
+                    toast.success(tx("Personalization history cleared.", "Historique effacé.")),
                   onError: () =>
-                    toast.error(fr ? "Impossible d'effacer." : "Could not clear the history."),
+                    toast.error(tx("Could not clear the history.", "Impossible d'effacer.")),
                   onSettled: () => setClearingHistory(false),
                 });
               }}
             >
-              {fr ? "Effacer l'historique" : "Clear history"}
+              {tx("Clear history", "Effacer l'historique")}
             </Button>
           </div>
         </div>
       </SectionCard>
 
       <SectionCard
-        title={fr ? "Localisation" : "Location"}
+        title={tx("Location", "Localisation")}
         action={<MapPin className="size-4 text-muted-foreground" aria-hidden />}
       >
         <p className="text-sm leading-relaxed text-muted-foreground">
-          {fr
-            ? "Ajoutez votre position pour voir en priorité les prestataires, services et opportunités près de vous. Elle reste sur cet appareil."
-            : "Add your location for nearby results. Precise coordinates stay on this device; your city can support recommendations only when you enable that setting."}
+          {tx("Add your location for nearby results. Precise coordinates stay on this device; your city can support recommendations only when you enable that setting.", "Ajoutez votre position pour voir en priorité les prestataires, services et opportunités près de vous. Elle reste sur cet appareil.")}
         </p>
         {location ? (
           <p className="mt-3 text-sm font-semibold text-foreground">
@@ -334,7 +320,7 @@ function SettingsPage() {
         <div className="mt-3">
           <Button onClick={() => void requestLocation()} disabled={locationBusy}>
             <MapPin className="size-4" aria-hidden />
-            {location ? (fr ? "Mettre à jour" : "Update location") : fr ? "Activer la localisation" : "Enable location"}
+            {location ? (tx("Update location", "Mettre à jour")) : tx("Enable location", "Activer la localisation")}
           </Button>
         </div>
       </SectionCard>

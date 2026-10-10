@@ -149,7 +149,7 @@ function MenuPage() {
                   <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
                     <item.icon className="size-5" aria-hidden />
                   </span>
-                  <span className="min-w-0 flex-1 break-words">{fr ? item.fr : item.en}</span>
+                  <span className="min-w-0 flex-1 break-words">{tx(item.en, item.fr)}</span>
                   {item.soon ? (
                     <span className="grid size-5 shrink-0 place-items-center text-gold-foreground" title={tx("Coming soon", "Bientôt disponible")} aria-label={tx("Coming soon", "Bientôt disponible")}>
                       <Hourglass className="size-3.5" aria-hidden />

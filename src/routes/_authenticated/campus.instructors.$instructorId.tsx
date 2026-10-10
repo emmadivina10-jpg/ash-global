@@ -158,7 +158,7 @@ function InstructorProfilePage() {
             disabled={follow.isPending}
             onClick={() =>
               follow.mutate(instructor.user_id, {
-                onSuccess: () => toast.success(fr ? "Demande envoyée." : "Request sent."),
+                onSuccess: () => toast.success(tx("Request sent.", "Demande envoyée.")),
                 onError: (error) => toast.error(error instanceof Error ? error.message : "Could not send the request."),
               })
             }
@@ -179,7 +179,7 @@ function InstructorProfilePage() {
           ) : null}
           {instructor.exams.map((exam) => (
             <Badge key={exam} variant="outline">
-              {exam} {fr ? "— préparation" : "Preparation"}
+              {exam} {tx("Preparation", "— préparation")}
             </Badge>
           ))}
           {instructor.subjects.map((subject) => (
@@ -268,16 +268,10 @@ function InstructorProfilePage() {
               <Badge key={slot.id} variant="outline">
                 {(fr ? DAYS_FR : DAYS_EN)[slot.day_of_week]} ·{" "}
                 {slot.part_of_day === "MORNING"
-                  ? fr
-                    ? "Matin"
-                    : "Morning"
+                  ? tx("Morning", "Matin")
                   : slot.part_of_day === "AFTERNOON"
-                    ? fr
-                      ? "Après-midi"
-                      : "Afternoon"
-                    : fr
-                      ? "Soir"
-                      : "Evening"}
+                    ? tx("Afternoon", "Après-midi")
+                    : tx("Evening", "Soir")}
               </Badge>
             ))}
           </div>

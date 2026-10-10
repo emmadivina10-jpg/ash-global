@@ -67,7 +67,7 @@ function spaceLabel(key: string, fr: boolean) {
 }
 
 function Composer({ space }: { space: ForumSpace }) {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const { data: profile } = useProfile();
   const create = useCreateForumPost();
@@ -80,16 +80,12 @@ function Composer({ space }: { space: ForumSpace }) {
       await create.mutateAsync({ body, space, image });
       setBody("");
       setImage(null);
-      toast.success(fr ? "Publié dans le forum." : "Posted to the forum.");
+      toast.success(tx("Posted to the forum.", "Publié dans le forum."));
     } catch (error) {
       toast.error(
         error instanceof Error && error.message === "FILE_TOO_LARGE"
-          ? fr
-            ? "Image trop lourde (50 Mo max)."
-            : "Image is too large (50MB max)."
-          : fr
-            ? "Publication impossible."
-            : "Could not post right now.",
+          ? tx("Image is too large (50MB max).", "Image trop lourde (50 Mo max).")
+          : tx("Could not post right now.", "Publication impossible."),
       );
     }
   }
@@ -104,7 +100,7 @@ function Composer({ space }: { space: ForumSpace }) {
             onChange={(event) => setBody(event.target.value)}
             rows={2}
             maxLength={2000}
-            placeholder={fr ? "Que construisez-vous ?" : "What are you building?"}
+            placeholder={tx("What are you building?", "Que construisez-vous ?")}
             className="min-h-[60px] resize-none border-0 bg-transparent px-0 text-base shadow-none focus-visible:ring-0"
           />
 
@@ -115,7 +111,7 @@ function Composer({ space }: { space: ForumSpace }) {
                 type="button"
                 onClick={() => setImage(null)}
                 className="absolute right-2 top-2 grid size-8 place-items-center rounded-full bg-background/80 text-foreground backdrop-blur"
-                aria-label={fr ? "Retirer l’image" : "Remove image"}
+                aria-label={tx("Remove image", "Retirer l’image")}
               >
                 <X className="size-4" aria-hidden />
               </button>
@@ -125,7 +121,7 @@ function Composer({ space }: { space: ForumSpace }) {
           <div className="mt-3 flex items-center justify-between gap-3">
             <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-full px-2 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10">
               <ImageIcon className="size-4" aria-hidden />
-              {fr ? "Photo" : "Photo"}
+              {tx("Photo", "Photo")}
               <input
                 type="file"
                 accept="image/*"
@@ -140,7 +136,7 @@ function Composer({ space }: { space: ForumSpace }) {
               onClick={() => void publish()}
             >
               {create.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-              {fr ? "Publier" : "Post"}
+              {tx("Post", "Publier")}
             </Button>
           </div>
         </div>
@@ -150,7 +146,7 @@ function Composer({ space }: { space: ForumSpace }) {
 }
 
 function Replies({ postId }: { postId: string }) {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const { data: comments, isLoading } = useForumComments(postId);
   const { data: profile } = useProfile();
@@ -163,14 +159,14 @@ function Replies({ postId }: { postId: string }) {
       await create.mutateAsync({ postId, body });
       setBody("");
     } catch {
-      toast.error(fr ? "Réponse impossible." : "Could not reply right now.");
+      toast.error(tx("Could not reply right now.", "Réponse impossible."));
     }
   }
 
   return (
     <div className="mt-3 space-y-3 border-t border-border pt-3">
       {isLoading ? (
-        <p className="text-xs text-muted-foreground">{fr ? "Chargement…" : "Loading…"}</p>
+        <p className="text-xs text-muted-foreground">{tx("Loading…", "Chargement…")}</p>
       ) : null}
 
       {(comments ?? []).map((comment) => (
@@ -197,7 +193,7 @@ function Replies({ postId }: { postId: string }) {
               void reply();
             }
           }}
-          placeholder={fr ? "Écrire une réponse…" : "Write a reply…"}
+          placeholder={tx("Write a reply…", "Écrire une réponse…")}
           className="h-10 min-w-0 flex-1 rounded-full border border-border bg-background px-4 text-sm text-foreground outline-none focus:border-primary"
         />
         <Button
@@ -205,7 +201,7 @@ function Replies({ postId }: { postId: string }) {
           className="size-10 shrink-0 touch-manipulation rounded-full"
           disabled={!body.trim() || create.isPending}
           onClick={() => void reply()}
-          aria-label={fr ? "Répondre" : "Reply"}
+          aria-label={tx("Reply", "Répondre")}
         >
           <Send className="size-4" aria-hidden />
         </Button>
@@ -274,7 +270,7 @@ function PostCard({ post }: { post: ForumPost }) {
 }
 
 function IncubatorForumPage() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const [space, setSpace] = useState<ForumSpace>("BUILD_IN_PUBLIC");
   const [filter, setFilter] = useState<ForumSpace | "ALL">("ALL");
@@ -290,12 +286,10 @@ function IncubatorForumPage() {
             ASH Incubator
           </span>
           <h1 className="mt-3 font-display text-2xl font-extrabold tracking-tight text-foreground">
-            {fr ? "Le forum des builders ASH" : "The ASH builders forum"}
+            {tx("The ASH builders forum", "Le forum des builders ASH")}
           </h1>
           <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
-            {fr
-              ? "Partagez ce que vous construisez, posez vos questions et avancez avec des étudiants, fondateurs et builders tech."
-              : "Share what you are building, ask your questions and move forward with students, founders and tech builders."}
+            {tx("Share what you are building, ask your questions and move forward with students, founders and tech builders.", "Partagez ce que vous construisez, posez vos questions et avancez avec des étudiants, fondateurs et builders tech.")}
           </p>
         </div>
       </section>
@@ -311,7 +305,7 @@ function IncubatorForumPage() {
               : "border-border bg-card text-muted-foreground",
           )}
         >
-          {fr ? "Tout" : "All"}
+          {tx("All", "Tout")}
         </button>
         {FORUM_SPACES.map((item) => (
           <button
@@ -328,7 +322,7 @@ function IncubatorForumPage() {
                 : "border-border bg-card text-muted-foreground",
             )}
           >
-            {fr ? item.fr : item.en}
+            {tx(item.en, item.fr)}
           </button>
         ))}
       </div>
@@ -336,17 +330,15 @@ function IncubatorForumPage() {
       <Composer space={space} />
 
       {isLoading ? (
-        <p className="px-1 text-sm text-muted-foreground">{fr ? "Chargement du forum…" : "Loading the forum…"}</p>
+        <p className="px-1 text-sm text-muted-foreground">{tx("Loading the forum…", "Chargement du forum…")}</p>
       ) : (posts ?? []).length === 0 ? (
         <div className="rounded-3xl border border-dashed border-border bg-card/60 p-8 text-center">
           <Sparkles className="mx-auto size-5 text-primary" aria-hidden />
           <p className="mt-3 text-sm font-bold text-foreground">
-            {fr ? "Soyez le premier à publier." : "Be the first to post."}
+            {tx("Be the first to post.", "Soyez le premier à publier.")}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            {fr
-              ? "Présentez-vous ou partagez le projet sur lequel vous travaillez."
-              : "Introduce yourself or share the project you are working on."}
+            {tx("Introduce yourself or share the project you are working on.", "Présentez-vous ou partagez le projet sur lequel vous travaillez.")}
           </p>
         </div>
       ) : (

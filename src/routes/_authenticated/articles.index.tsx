@@ -75,7 +75,7 @@ function ArticlesPage() {
                 : "border-border bg-card text-muted-foreground hover:border-primary/40",
             )}
           >
-            {fr ? item.fr : item.en}
+            {tx(item.en, item.fr)}
           </button>
         ))}
       </div>
@@ -240,7 +240,7 @@ function WriteArticleDialog({ fr }: { fr: boolean }) {
             >
               {ARTICLE_CATEGORIES.map((item) => (
                 <option key={item.key} value={item.key}>
-                  {fr ? item.fr : item.en}
+                  {tx(item.en, item.fr)}
                 </option>
               ))}
             </select>

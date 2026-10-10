@@ -93,10 +93,10 @@ export function DesktopMenu({ groups, create }: { groups: MenuGroup[]; create: M
                         </span>
                         <span className="min-w-0">
                           <span className="block text-sm font-bold text-foreground">
-                            {fr ? item.fr : item.en}
+                            {tx(item.en, item.fr)}
                           </span>
                           <span className="block text-xs leading-snug text-muted-foreground">
-                            {fr ? item.frHint : item.enHint}
+                            {tx(item.enHint, item.frHint)}
                           </span>
                         </span>
                       </Link>
@@ -126,7 +126,7 @@ export function DesktopMenu({ groups, create }: { groups: MenuGroup[]; create: M
                     <item.icon className="size-4" aria-hidden />
                   </span>
                   <span className="truncate text-sm font-semibold text-foreground">
-                    {fr ? item.fr : item.en}
+                    {tx(item.en, item.fr)}
                   </span>
                 </Link>
               ))}

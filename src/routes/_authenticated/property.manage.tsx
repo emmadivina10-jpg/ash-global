@@ -47,7 +47,7 @@ function ManageProperty() {
       const conversationId = await openPropertyConversation(listingId);
       await navigate({ to: "/messages", search: { c: conversationId } });
     } catch {
-      toast.error(fr ? "Impossible d’ouvrir la discussion." : "Could not open the chat.");
+      toast.error(tx("Could not open the chat.", "Impossible d’ouvrir la discussion."));
     }
   }
 
@@ -72,7 +72,7 @@ function ManageProperty() {
       return;
     }
     await queryClient.invalidateQueries({ queryKey: ["property"] });
-    toast.success(fr ? "Statut mis à jour." : "Status updated.");
+    toast.success(tx("Status updated.", "Statut mis à jour."));
   }
 
   async function respond(id: string, status: string, fallbackAt: string) {
@@ -88,7 +88,7 @@ function ManageProperty() {
       return;
     }
     await queryClient.invalidateQueries({ queryKey: ["property"] });
-    toast.success(fr ? "Réponse envoyée." : "Response sent.");
+    toast.success(tx("Response sent.", "Réponse envoyée."));
   }
 
   const TABS: Array<{ key: Tab; en: string; fr: string }> = [
@@ -142,7 +142,7 @@ function ManageProperty() {
               tab === item.key ? "border-primary/60 bg-primary/10 text-primary" : "text-muted-foreground",
             )}
           >
-            {fr ? item.fr : item.en}
+            {tx(item.en, item.fr)}
           </button>
         ))}
       </div>
@@ -179,8 +179,8 @@ function ManageProperty() {
                       {formatPropertyPrice(listing.price, listing.currency, listing.price_period, fr)}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {listing.view_count} {fr ? "vues" : "views"} · {listing.inquiry_count}{" "}
-                      {fr ? "demandes" : "inquiries"} · {fr ? "expire le" : "expires"}{" "}
+                      {listing.view_count} {tx("views", "vues")} · {listing.inquiry_count}{" "}
+                      {tx("inquiries", "demandes")} · {tx("expires", "expire le")}{" "}
                       {formatDateTime(listing.expires_at)}
                     </p>
                   </div>
@@ -194,7 +194,7 @@ function ManageProperty() {
                     value={listing.status}
                     onChange={(event) => void setStatus(listing.id, event.target.value)}
                     className="h-9 rounded-xl border border-border bg-background px-2 text-xs"
-                    aria-label={fr ? "Statut" : "Status"}
+                    aria-label={tx("Status", "Statut")}
                   >
                     {PROPERTY_STATUSES.map((status) => (
                       <option key={status} value={status}>
@@ -210,7 +210,7 @@ function ManageProperty() {
                     category={listing.category}
                     trigger={
                       <Button variant="outline" size="sm">
-                        {fr ? "Promouvoir" : "Promote"}
+                        {tx("Promote", "Promouvoir")}
                       </Button>
                     }
                   />
@@ -241,24 +241,24 @@ function ManageProperty() {
                     {row.status === "PENDING" ? (
                       <div className="mt-3 flex gap-2">
                         <Button size="sm" onClick={() => void respond(row.id, "ACCEPTED", row.requested_at)}>
-                          {fr ? "Accepter" : "Accept"}
+                          {tx("Accept", "Accepter")}
                         </Button>
                         <Button size="sm" variant="outline" onClick={() => void respond(row.id, "DECLINED", row.requested_at)}>
-                          {fr ? "Refuser" : "Decline"}
+                          {tx("Decline", "Refuser")}
                         </Button>
                         <Button size="sm" variant="ghost" onClick={() => void (async () => {
                             const input = window.prompt(
-                              fr ? "Nouvelle date/heure (AAAA-MM-JJ HH:MM)" : "New date/time (YYYY-MM-DD HH:MM)",
+                              tx("New date/time (YYYY-MM-DD HH:MM)", "Nouvelle date/heure (AAAA-MM-JJ HH:MM)"),
                             );
                             if (!input) return;
                             const when = new Date(input);
                             if (Number.isNaN(when.getTime())) {
-                              toast.error(fr ? "Date invalide." : "Invalid date.");
+                              toast.error(tx("Invalid date.", "Date invalide."));
                               return;
                             }
                             await respond(row.id, "RESCHEDULED", when.toISOString());
                           })()}>
-                          {fr ? "Proposer un autre créneau" : "Propose another time"}
+                          {tx("Propose another time", "Proposer un autre créneau")}
                         </Button>
                       </div>
                     ) : null}
@@ -290,7 +290,7 @@ function ManageProperty() {
                       onClick={() => void chatAboutListing(row.listing_id)}
                     >
                       <MessageCircle className="size-4" aria-hidden />
-                      {fr ? "Discuter avec le propriétaire" : "Message owner"}
+                      {tx("Message owner", "Discuter avec le propriétaire")}
                     </Button>
                   </div>
 

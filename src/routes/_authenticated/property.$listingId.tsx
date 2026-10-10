@@ -118,12 +118,12 @@ function PropertyDetail() {
       target_id: listingId,
     });
     await queryClient.invalidateQueries({ queryKey: ["property"] });
-    toast.success(saved ? (fr ? "Retiré" : "Removed") : fr ? "Enregistré" : "Saved");
+    toast.success(saved ? (tx("Removed", "Retiré")) : tx("Saved", "Enregistré"));
   }
 
   async function requestViewing() {
     if (!when) {
-      toast.error(fr ? "Choisissez une date et une heure." : "Pick a date and time.");
+      toast.error(tx("Pick a date and time.", "Choisissez une date et une heure."));
       return;
     }
     setBusy(true);
@@ -135,14 +135,14 @@ function PropertyDetail() {
     setBusy(false);
     const payload = result as { ok?: boolean; error?: string } | null;
     if (error || !payload?.ok) {
-      toast.error(payload?.error ?? error?.message ?? (fr ? "Échec de la demande." : "Request failed."));
+      toast.error(payload?.error ?? error?.message ?? (tx("Request failed.", "Échec de la demande.")));
       return;
     }
     setViewingOpen(false);
     setWhen("");
     setMessage("");
     await queryClient.invalidateQueries({ queryKey: ["property"] });
-    toast.success(fr ? "Demande de visite envoyée." : "Viewing request sent.");
+    toast.success(tx("Viewing request sent.", "Demande de visite envoyée."));
   }
 
   async function messageOwner() {
@@ -159,12 +159,8 @@ function PropertyDetail() {
     } catch (cause) {
       toast.error(
         cause instanceof Error && cause.message === "OWN_LISTING"
-          ? fr
-            ? "C’est votre propre annonce."
-            : "This is your own listing."
-          : fr
-            ? "Impossible d’ouvrir la discussion."
-            : "Could not open the chat.",
+          ? tx("This is your own listing.", "C’est votre propre annonce.")
+          : tx("Could not open the chat.", "Impossible d’ouvrir la discussion."),
       );
     } finally {
       setBusy(false);
@@ -187,7 +183,7 @@ function PropertyDetail() {
             onClick={() => {
               void navigator.clipboard.writeText(window.location.href);
               trackEvent({ event_type: "share", surface: "property", target_type: "property", target_id: listingId });
-              toast.success(fr ? "Lien copié" : "Link copied");
+              toast.success(tx("Link copied", "Lien copié"));
             }}
           >
             <Share2 className="size-4" aria-hidden />

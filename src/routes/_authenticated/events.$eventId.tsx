@@ -92,13 +92,13 @@ function EventDetail() {
       if (!result.ok) {
         toast.error(
           result.error === "SOLD_OUT"
-            ? fr ? "Plus de places disponibles." : "No seats left."
-            : (result.message ?? (fr ? "Le paiement n'a pas démarré." : "The payment could not start.")),
+            ? tx("No seats left.", "Plus de places disponibles.")
+            : (result.message ?? (tx("The payment could not start.", "Le paiement n'a pas démarré."))),
         );
         return;
       }
       setReference(result.reference);
-      toast.success(fr ? "Validez la demande sur votre téléphone." : "Approve the prompt on your phone.");
+      toast.success(tx("Approve the prompt on your phone.", "Validez la demande sur votre téléphone."));
     } finally {
       setBusy(false);
     }
@@ -110,14 +110,14 @@ function EventDetail() {
     try {
       const result = await verify({ data: { reference } });
       if (result.ok) {
-        toast.success(fr ? "Billet confirmé !" : "Ticket confirmed!");
+        toast.success(tx("Ticket confirmed!", "Billet confirmé !"));
         setReference(null);
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: ["event", eventId] }),
           queryClient.invalidateQueries({ queryKey: ["event-tickets", "mine"] }),
         ]);
       } else {
-        toast.error(fr ? "Paiement pas encore confirmé." : "Payment not confirmed yet.");
+        toast.error(tx("Payment not confirmed yet.", "Paiement pas encore confirmé."));
       }
     } finally {
       setBusy(false);

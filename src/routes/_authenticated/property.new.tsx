@@ -83,22 +83,22 @@ function NewProperty() {
 
   async function submit() {
     if (title.trim().length < 6) {
-      toast.error(fr ? "Donnez un titre clair (6 caractères min)." : "Give a clear title (6 characters min).");
+      toast.error(tx("Give a clear title (6 characters min).", "Donnez un titre clair (6 caractères min)."));
       return;
     }
     if (!city.trim()) {
-      toast.error(fr ? "La ville est obligatoire." : "City is required.");
+      toast.error(tx("City is required.", "La ville est obligatoire."));
       return;
     }
     if (!price || Number(price) <= 0) {
-      toast.error(fr ? "Indiquez un prix." : "Enter a price.");
+      toast.error(tx("Enter a price.", "Indiquez un prix."));
       return;
     }
 
     setBusy(true);
     try {
       const { data: auth } = await supabase.auth.getUser();
-      if (!auth.user) throw new Error(fr ? "Session expirée." : "Session expired.");
+      if (!auth.user) throw new Error(tx("Session expired.", "Session expirée."));
       await verifyMediaFiles(files, "PROPERTY_LISTING");
 
       const { data: created, error } = await supabase
@@ -141,7 +141,7 @@ function NewProperty() {
         const path = `${auth.user.id}/${created.id}/${crypto.randomUUID()}.${ext}`;
         const upload = await supabase.storage.from(PROPERTY_BUCKET).upload(path, file, { upsert: false });
         if (upload.error) {
-          toast.error(`${fr ? "Photo non envoyée" : "Photo not uploaded"}: ${upload.error.message}`);
+          toast.error(`${tx("Photo not uploaded", "Photo non envoyée")}: ${upload.error.message}`);
           continue;
         }
         await supabase.from("property_images").insert({
@@ -152,7 +152,7 @@ function NewProperty() {
       }
 
       await queryClient.invalidateQueries({ queryKey: ["property"] });
-      toast.success(fr ? "Annonce publiée !" : "Your listing is live!");
+      toast.success(tx("Your listing is live!", "Annonce publiée !"));
       void navigate({ to: "/property/$listingId", params: { listingId: created.id } });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : String(error));
@@ -188,7 +188,7 @@ function NewProperty() {
                   category === item.code ? "border-primary/60 bg-primary/10 text-primary" : "text-muted-foreground",
                 )}
               >
-                {fr ? item.fr : item.en}
+                {tx(item.en, item.fr)}
               </button>
             ))}
           </div>
@@ -308,7 +308,7 @@ function NewProperty() {
               >
                 {PRICE_PERIODS.filter((item) => item.code !== "TOTAL").map((item) => (
                   <option key={item.code} value={item.code}>
-                    {fr ? item.fr : item.en}
+                    {tx(item.en, item.fr)}
                   </option>
                 ))}
               </select>
@@ -350,7 +350,7 @@ function NewProperty() {
               >
                 {LAND_USES.map((item) => (
                   <option key={item.code} value={item.code}>
-                    {fr ? item.fr : item.en}
+                    {tx(item.en, item.fr)}
                   </option>
                 ))}
               </select>
@@ -405,7 +405,7 @@ function NewProperty() {
                     active ? "border-primary/60 bg-primary/10 text-primary" : "text-muted-foreground",
                   )}
                 >
-                  {fr ? item.fr : item.en}
+                  {tx(item.en, item.fr)}
                 </button>
               );
             })}

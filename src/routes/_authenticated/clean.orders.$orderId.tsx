@@ -82,10 +82,10 @@ function CleanOrder() {
     const t = setInterval(async () => {
       const r = await sync({ data: { orderId } }).catch(() => null);
       if (r?.status === "PAID") {
-        toast.success(fr ? "Paiement reçu !" : "Payment received!");
+        toast.success(tx("Payment received!", "Paiement reçu !"));
         void refetch();
       } else if (r?.status === "FAILED") {
-        toast.error(fr ? "Paiement refusé. Réessayez." : "Payment declined. Please try again.");
+        toast.error(tx("Payment declined. Please try again.", "Paiement refusé. Réessayez."));
         void refetch();
       }
     }, 6000);
@@ -167,7 +167,7 @@ function CleanOrder() {
                   toast.error(("message" in r && r.message) || r.error);
                   return;
                 }
-                toast.info(fr ? "Validez la demande sur votre téléphone" : "Approve the prompt on your phone");
+                toast.info(tx("Approve the prompt on your phone", "Validez la demande sur votre téléphone"));
                 void qc.invalidateQueries({ queryKey: ["clean", "order", orderId] });
               }}
             />
@@ -177,7 +177,7 @@ function CleanOrder() {
               variant="ghost"
               className="w-full text-destructive"
               onClick={async () => {
-                if (!confirm(fr ? "Refuser le prix et demander le retour de votre linge ?" : "Decline the price and ask for your laundry back?")) return;
+                if (!confirm(tx("Decline the price and ask for your laundry back?", "Refuser le prix et demander le retour de votre linge ?"))) return;
                 await decline({ data: { orderId } });
                 void refetch();
               }}

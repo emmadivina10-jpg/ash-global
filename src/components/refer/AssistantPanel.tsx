@@ -44,7 +44,7 @@ export function AssistantPanel() {
     for (const file of files.slice(0, 2)) {
       if (!file.type.startsWith("image/")) continue;
       if (file.size > MAX_IMAGE_BYTES) {
-        toast.error(fr ? "Photo trop lourde (6 Mo max)." : "Photo is too large (6 MB max).");
+        toast.error(tx("Photo is too large (6 MB max).", "Photo trop lourde (6 Mo max)."));
         continue;
       }
       const url = await readAsDataUrl(file);
@@ -57,7 +57,7 @@ export function AssistantPanel() {
     if ((!message && images.length === 0) || busy) return;
     const turn: ChatTurn = {
       role: "user",
-      content: message || (fr ? "Regarde cette photo." : "Look at this photo."),
+      content: message || (tx("Look at this photo.", "Regarde cette photo.")),
       ...(images.length > 0 ? { images } : {}),
     };
     const next: ChatTurn[] = [...turns, turn];
@@ -154,7 +154,7 @@ export function AssistantPanel() {
               />
               <button
                 type="button"
-                aria-label={fr ? "Retirer la photo" : "Remove photo"}
+                aria-label={tx("Remove photo", "Retirer la photo")}
                 onClick={() => setImages((current) => current.filter((_, i) => i !== index))}
                 className="absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-foreground text-background"
               >

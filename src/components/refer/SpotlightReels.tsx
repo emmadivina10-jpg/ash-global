@@ -122,13 +122,13 @@ export function SpotlightReels({
       }
 
       if (!conversationId) {
-        toast.error(fr ? "Discussion indisponible." : "Chat is not available for this post.");
+        toast.error(tx("Chat is not available for this post.", "Discussion indisponible."));
         return;
       }
       onClose();
       void navigate({ to: "/messages", search: { c: conversationId } });
     } catch {
-      toast.error(fr ? "Impossible d’ouvrir la discussion." : "Could not open the chat.");
+      toast.error(tx("Could not open the chat.", "Impossible d’ouvrir la discussion."));
     } finally {
       setBusy(null);
     }
@@ -211,17 +211,17 @@ export function SpotlightReels({
                     variant="ghost"
                     size="icon"
                     disabled={remove.isPending}
-                    aria-label={fr ? "Supprimer le Spotlight" : "Delete Spotlight"}
+                    aria-label={tx("Delete Spotlight", "Supprimer le Spotlight")}
                     className="shrink-0 rounded-full bg-white/15 text-white hover:bg-white/25 hover:text-white"
                     onClick={() => {
-                      if (!window.confirm(fr ? "Supprimer ce Spotlight ?" : "Delete this Spotlight?")) return;
+                      if (!window.confirm(tx("Delete this Spotlight?", "Supprimer ce Spotlight ?"))) return;
                       remove.mutate(entry, {
                         onSuccess: () => {
-                          toast.success(fr ? "Spotlight supprimé" : "Spotlight deleted");
+                          toast.success(tx("Spotlight deleted", "Spotlight supprimé"));
                           onClose();
                         },
                         onError: (error) =>
-                          toast.error(error instanceof Error ? error.message : fr ? "Suppression impossible." : "Could not delete Spotlight."),
+                          toast.error(error instanceof Error ? error.message : tx("Could not delete Spotlight.", "Suppression impossible.")),
                       });
                     }}
                   >
@@ -251,7 +251,7 @@ export function SpotlightReels({
                 ) : (
                   <MessageCircle className="size-4" aria-hidden />
                 )}
-                {fr ? "Contacter le vendeur" : "Contact vendor"}
+                {tx("Contact vendor", "Contacter le vendeur")}
               </Button>
             </div>
           </section>

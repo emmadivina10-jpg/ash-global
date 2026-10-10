@@ -66,7 +66,7 @@ export function AuthLayout({
                 <span className="member-dual-wash mt-0.5 grid size-8 shrink-0 place-items-center rounded-full text-primary">
                   <p.icon className="size-4" aria-hidden />
                 </span>
-                <span>{fr ? p.fr : p.en}</span>
+                <span>{tx(p.en, p.fr)}</span>
               </li>
             ))}
           </ul>

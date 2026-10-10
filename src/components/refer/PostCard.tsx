@@ -52,7 +52,7 @@ export function PostCard({
   /** The standalone post view has a full-height comment composer. */
   fullScreen?: boolean;
 }) {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const navigate = useNavigate();
   const [commentsOpen, setCommentsOpen] = useState(detail);
@@ -173,8 +173,8 @@ export function PostCard({
       <div className="flex items-center justify-between px-4 pt-2">
         <ReactionSummary breakdown={post.reaction_breakdown} />
         <span className="text-[11px] text-muted-foreground">
-          {post.comment_count} {fr ? "commentaires" : "comments"} · {post.repost_count}{" "}
-          {fr ? "republications" : "reposts"}
+          {post.comment_count} {tx("comments", "commentaires")} · {post.repost_count}{" "}
+          {tx("reposts", "republications")}
         </span>
       </div>
       <div className="flex items-center gap-1 px-2 pb-2">
@@ -221,7 +221,7 @@ export function PostCard({
               {
                 onSuccess: () =>
                   toast.success(
-                    post.reposted ? (fr ? "Republication retirée" : "Repost removed") : fr ? "Republié" : "Reposted",
+                    post.reposted ? (tx("Repost removed", "Republication retirée")) : tx("Reposted", "Republié"),
                   ),
                 onError: (error) => toast.error(error instanceof Error ? error.message : "Could not repost."),
               },
@@ -237,12 +237,12 @@ export function PostCard({
         <div className="flex items-center justify-between gap-3 border-t border-border px-4 py-3">
           <span className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
             <ShieldCheck className="size-4" aria-hidden />
-            {fr ? "Filtrer les commentaires inappropriés" : "Filter inappropriate comments"}
+            {tx("Filter inappropriate comments", "Filtrer les commentaires inappropriés")}
           </span>
           <Switch
             checked={post.filter_comments}
             onCheckedChange={(on) => setFilter.mutate({ postId: post.id, on })}
-            aria-label={fr ? "Filtrer les commentaires" : "Filter comments"}
+            aria-label={tx("Filter comments", "Filtrer les commentaires")}
           />
         </div>
       ) : null}
@@ -261,7 +261,7 @@ function Comments({
   currentUserId: string | null;
   fullScreen?: boolean;
 }) {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const { data, isLoading } = useComments(post.id);
   const add = useAddComment();
@@ -301,11 +301,11 @@ function Comments({
             submit();
           }
         }}
-        placeholder={fr ? "Écrire un commentaire…" : "Write a comment…"}
-        aria-label={fr ? "Commentaire" : "Comment"}
+        placeholder={tx("Write a comment…", "Écrire un commentaire…")}
+        aria-label={tx("Comment", "Commentaire")}
       />
       <Button size="sm" onClick={submit} disabled={add.isPending || body.trim().length === 0}>
-        {fr ? "Envoyer" : "Send"}
+        {tx("Send", "Envoyer")}
       </Button>
     </div>
   );
@@ -313,10 +313,10 @@ function Comments({
   return (
     <div className={cn("space-y-3 border-t border-border p-4", fullScreen && "pb-24")}>
       {isLoading ? (
-        <p className="text-xs text-muted-foreground">{fr ? "Chargement…" : "Loading…"}</p>
+        <p className="text-xs text-muted-foreground">{tx("Loading…", "Chargement…")}</p>
       ) : (data ?? []).length === 0 ? (
         <p className="text-xs text-muted-foreground">
-          {fr ? "Soyez le premier à commenter." : "Be the first to comment."}
+          {tx("Be the first to comment.", "Soyez le premier à commenter.")}
         </p>
       ) : (
         (data ?? []).map((comment) => (
@@ -326,9 +326,9 @@ function Comments({
 
       {replyTo ? (
         <p className="text-xs text-muted-foreground">
-          {fr ? "Réponse à" : "Replying to"} <strong>{replyTo.author.name}</strong>{" "}
+          {tx("Replying to", "Réponse à")} <strong>{replyTo.author.name}</strong>{" "}
           <button type="button" className="underline" onClick={() => setReplyTo(null)}>
-            {fr ? "annuler" : "cancel"}
+            {tx("cancel", "annuler")}
           </button>
         </p>
       ) : null}
@@ -349,7 +349,7 @@ function CommentRow({
   currentUserId: string | null;
   depth?: number;
 }) {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const reactComment = useSetCommentReaction();
   const navigate = useNavigate();
@@ -386,7 +386,7 @@ function CommentRow({
             }
           />
           <button type="button" onClick={() => onReply(comment)} className="hover:text-primary">
-            {fr ? "Répondre" : "Reply"}
+            {tx("Reply", "Répondre")}
           </button>
           <span className="font-normal">{new Date(comment.created_at).toLocaleDateString(fr ? "fr-FR" : "en-GB")}</span>
           {currentUserId && currentUserId !== comment.author.id ? (

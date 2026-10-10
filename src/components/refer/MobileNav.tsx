@@ -44,7 +44,7 @@ export function MobileNav({
   });
 
   const label = (item: MobileNavItem) =>
-    item.key ? t(item.key) : ((fr ? item.fr : item.en) ?? item.label ?? "");
+    item.key ? t(item.key) : ((tx(item.en, item.fr)) ?? item.label ?? "");
   const tabs = [...items, { to: "/menu", icon: Menu, label: t("nav.more") }];
   const indexAt = (x: number) => {
     const rect = gridRef.current?.getBoundingClientRect();

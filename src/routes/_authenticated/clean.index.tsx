@@ -126,7 +126,7 @@ function CleanHome() {
                   <span className="text-right">
                     <span className="block text-xs font-bold text-primary">{cleanStatusLabel(o.status, fr)}</span>
                     <span className="block text-xs text-muted-foreground">
-                      {o.total ? fcfa(o.total) : fr ? "Prix après pesée" : "Priced after weighing"}
+                      {o.total ? fcfa(o.total) : tx("Priced after weighing", "Prix après pesée")}
                     </span>
                   </span>
                 </Link>

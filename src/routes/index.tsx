@@ -188,7 +188,7 @@ const MORE_WORLD = [
 const WORLD_PAGES = [WORLD, MORE_WORLD] as const;
 
 function Landing() {
-  const { lang } = useI18n();
+  const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
@@ -249,7 +249,7 @@ function Landing() {
           <div className="flex items-center gap-2.5">
             <img src={ashLogo.url} alt="ASH" className="h-9 w-auto rounded-xl shadow-sm" />
             <span className="hidden rounded-full border border-border/70 bg-card/50 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-muted-foreground backdrop-blur sm:inline">
-              {fr ? "Mondial" : "Global"}
+              {tx("Global", "Mondial")}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
@@ -264,24 +264,20 @@ function Landing() {
             <div className="flex flex-wrap items-center justify-center gap-1.5 lg:justify-start">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/60 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.16em] text-muted-foreground backdrop-blur sm:text-[10px]">
                 <Sparkles className="size-3 text-primary" aria-hidden />
-                {fr ? "L’écosystème ASH" : "The ASH ecosystem"}
+                {tx("The ASH ecosystem", "L’écosystème ASH")}
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.16em] text-primary backdrop-blur sm:text-[10px]">
                 <Globe2 className="size-3" aria-hidden />
-                {fr
-                  ? "Opportunités, services et communauté"
-                  : "Opportunities, services and community"}
+                {tx("Opportunities, services and community", "Opportunités, services et communauté")}
               </span>
             </div>
 
             <span className="mt-4 block h-1 w-10 rounded-full bg-primary lg:mt-6" aria-hidden />
             <h1 className="ash-entry-title mt-3 font-display text-[1.85rem] font-extrabold leading-[1.05] sm:text-4xl lg:mt-5 lg:text-[3.2rem]">
-              {fr ? "Bienvenue sur ASH" : "Welcome to ASH"}
+              {tx("Welcome to ASH", "Bienvenue sur ASH")}
             </h1>
             <p className="mt-2 max-w-md text-[12.5px] leading-relaxed text-muted-foreground sm:text-sm lg:mt-4 lg:text-base">
-              {fr
-                ? "Là où les opportunités se connectent. Réservez des pros vérifiés, vendez, louez, recrutez, partagez avec vos amis, discutez et soyez payé en toute sécurité par Mobile Money."
-                : "Where opportunities connect. Book verified pros, sell, rent, hire, share with friends, chat, and get paid securely by Mobile Money."}
+              {tx("Where opportunities connect. Book verified pros, sell, rent, hire, share with friends, chat, and get paid securely by Mobile Money.", "Là où les opportunités se connectent. Réservez des pros vérifiés, vendez, louez, recrutez, partagez avec vos amis, discutez et soyez payé en toute sécurité par Mobile Money.")}
             </p>
 
             <div
@@ -303,10 +299,10 @@ function Landing() {
                     </span>
                     <span className="flex min-w-0 flex-col gap-1">
                       <span className="block text-[12px] font-bold leading-snug text-foreground">
-                        {fr ? item.fr : item.en}
+                        {tx(item.en, item.fr)}
                       </span>
                       <span className="block text-[10px] leading-snug text-muted-foreground">
-                        {fr ? item.frHint : item.enHint}
+                        {tx(item.enHint, item.frHint)}
                       </span>
                     </span>
                   </div>
@@ -325,10 +321,10 @@ function Landing() {
               />
               <div className="min-w-0">
                 <p className="text-base font-extrabold leading-tight text-foreground">
-                  {fr ? "Rejoignez ASH" : "Join ASH"}
+                  {tx("Join ASH", "Rejoignez ASH")}
                 </p>
                 <p className="text-[12px] leading-tight text-muted-foreground">
-                  {fr ? "Une minute pour commencer." : "One minute to get started."}
+                  {tx("One minute to get started.", "Une minute pour commencer.")}
                 </p>
               </div>
             </div>
@@ -339,7 +335,7 @@ function Landing() {
                 size="lg"
                 className="h-13 w-full rounded-2xl text-base font-bold shadow-[var(--shadow-brand)] transition-transform active:scale-[0.99]"
               >
-                <Link to="/register">{fr ? "Commencer" : "Get started"}</Link>
+                <Link to="/register">{tx("Get started", "Commencer")}</Link>
               </Button>
               <Button
                 asChild
@@ -347,7 +343,7 @@ function Landing() {
                 variant="outline"
                 className="h-13 w-full rounded-2xl border-border bg-card/60 text-base font-semibold backdrop-blur transition-transform active:scale-[0.99]"
               >
-                <Link to="/login">{fr ? "J’ai déjà un compte" : "I already have an account"}</Link>
+                <Link to="/login">{tx("I already have an account", "J’ai déjà un compte")}</Link>
               </Button>
             </div>
 
@@ -357,11 +353,9 @@ function Landing() {
               </span>
               <p className="text-[11px] leading-5 text-muted-foreground">
                 <span className="font-bold text-foreground">
-                  {fr ? "Paiements sécurisés." : "Secure payments."}
+                  {tx("Secure payments.", "Paiements sécurisés.")}
                 </span>{" "}
-                {fr
-                  ? "Les paiements et retraits disponibles utilisent le moyen et le prestataire indiqués dans chaque parcours. ASH Glo ne demande jamais votre code PIN Mobile Money."
-                  : "Supported payments and withdrawals use the method and provider shown in the relevant flow. ASH Glo never asks for your Mobile Money PIN."}
+                {tx("Supported payments and withdrawals use the method and provider shown in the relevant flow. ASH Glo never asks for your Mobile Money PIN.", "Les paiements et retraits disponibles utilisent le moyen et le prestataire indiqués dans chaque parcours. ASH Glo ne demande jamais votre code PIN Mobile Money.")}
               </p>
             </div>
 
@@ -371,13 +365,13 @@ function Landing() {
                 to="/support"
                 className="font-semibold text-foreground underline-offset-4 hover:underline"
               >
-                {fr ? "Assistance" : "Support"}
+                {tx("Support", "Assistance")}
               </Link>
               <Link to="/privacy" className="hover:underline">
-                {fr ? "Confidentialité" : "Privacy"}
+                {tx("Privacy", "Confidentialité")}
               </Link>
               <Link to="/terms" className="hover:underline">
-                {fr ? "Conditions" : "Terms"}
+                {tx("Terms", "Conditions")}
               </Link>
               <Link to="/contact" className="hover:underline">
                 Contact

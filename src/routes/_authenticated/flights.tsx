@@ -292,16 +292,10 @@ function FlightsPage() {
                 className={`rounded-full px-2 py-2 font-semibold transition-all ${trip === t ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
               >
                 {t === "round"
-                  ? fr
-                    ? "Aller-retour"
-                    : "Round trip"
+                  ? tx("Round trip", "Aller-retour")
                   : t === "oneway"
-                    ? fr
-                      ? "Aller simple"
-                      : "One way"
-                    : fr
-                      ? "Multi-villes"
-                      : "Multi-city"}
+                    ? tx("One way", "Aller simple")
+                    : tx("Multi-city", "Multi-villes")}
               </button>
             ))}
           </div>
@@ -310,12 +304,12 @@ function FlightsPage() {
             <div key={i} className="space-y-3">
               {trip === "multi" && (
                 <p className="text-xs font-semibold text-muted-foreground">
-                  {fr ? "Vol" : "Flight"} {i + 1}
+                  {tx("Flight", "Vol")} {i + 1}
                 </p>
               )}
               <div className="relative grid gap-2 sm:grid-cols-2">
                 <PlacePicker
-                  label={fr ? "DE" : "FROM"}
+                  label={tx("FROM", "DE")}
                   icon={<PlaneTakeoff className="size-4" />}
                   value={leg.from}
                   disabled={!!unavailable}
@@ -323,7 +317,7 @@ function FlightsPage() {
                   onChange={(p) => setLegs(legs.map((l, j) => (j === i ? { ...l, from: p } : l)))}
                 />
                 <PlacePicker
-                  label={fr ? "VERS" : "TO"}
+                  label={tx("TO", "VERS")}
                   icon={<PlaneLanding className="size-4" />}
                   value={leg.to}
                   disabled={!!unavailable}
@@ -334,7 +328,7 @@ function FlightsPage() {
                   type="button"
                   variant="outline"
                   size="icon"
-                  aria-label={fr ? "Inverser" : "Swap"}
+                  aria-label={tx("Swap", "Inverser")}
                   className="absolute right-4 top-1/2 z-10 size-9 -translate-y-1/2 rotate-90 rounded-full bg-card shadow-md sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:rotate-0"
                   onClick={() =>
                     setLegs(legs.map((l, j) => (j === i ? { ...l, from: l.to, to: l.from } : l)))
@@ -344,7 +338,7 @@ function FlightsPage() {
                 </Button>
               </div>
               <div className="grid min-w-0 grid-cols-1 gap-2">
-                <Field label={fr ? "DÉPART" : "DEPARTURE"}>
+                <Field label={tx("DEPARTURE", "DÉPART")}>
                   <Input
                     type="date"
                     className="block h-12 min-w-0 w-full max-w-full appearance-none [&::-webkit-date-and-time-value]:min-w-0 [&::-webkit-date-and-time-value]:text-left"
@@ -356,7 +350,7 @@ function FlightsPage() {
                   />
                 </Field>
                 {trip !== "multi" && (
-                  <Field label={fr ? "RETOUR" : "RETURN"}>
+                  <Field label={tx("RETURN", "RETOUR")}>
                     <Input
                       type="date"
                       className="block h-12 min-w-0 w-full max-w-full appearance-none [&::-webkit-date-and-time-value]:min-w-0 [&::-webkit-date-and-time-value]:text-left"
@@ -593,20 +587,12 @@ function FlightsPage() {
                 className={`rounded-full border px-3 py-1 ${stopsFilter === s ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}
               >
                 {s === "any"
-                  ? fr
-                    ? "Toutes escales"
-                    : "Any stops"
+                  ? tx("Any stops", "Toutes escales")
                   : s === "0"
-                    ? fr
-                      ? "Direct"
-                      : "Nonstop"
+                    ? tx("Nonstop", "Direct")
                     : s === "1"
-                      ? fr
-                        ? "1 escale"
-                        : "1 stop"
-                      : fr
-                        ? "2+ escales"
-                        : "2+ stops"}
+                      ? tx("1 stop", "1 escale")
+                      : tx("2+ stops", "2+ escales")}
               </button>
             ))}
             <button

@@ -712,7 +712,7 @@ function DiscoveryPage() {
       ? await openConversation(providerId)
       : await openMemberConversation(context?.authorId);
     if (!conversationId) {
-      toast.error(fr ? "Impossible d'ouvrir la discussion." : "Could not open the chat.");
+      toast.error(tx("Could not open the chat.", "Impossible d'ouvrir la discussion."));
       return;
     }
 
@@ -959,7 +959,7 @@ function DiscoveryPage() {
                 </span>
 
                 <span className="w-full text-center text-xs font-semibold leading-tight text-muted-foreground group-hover:text-foreground">
-                  {fr ? item.fr : item.en}
+                  {tx(item.en, item.fr)}
                 </span>
               </Link>
             );
@@ -973,7 +973,7 @@ function DiscoveryPage() {
                 type="button"
                 onClick={() => void openExternalService(item.href)}
                 className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
-                aria-label={fr ? item.fr : item.en}
+                aria-label={tx(item.en, item.fr)}
               >
                 <span
                   className={cn(
@@ -995,7 +995,7 @@ function DiscoveryPage() {
                 </span>
 
                 <span className="w-full text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-                  {fr ? item.fr : item.en}
+                  {tx(item.en, item.fr)}
                 </span>
               </button>
             );
@@ -1024,7 +1024,7 @@ function DiscoveryPage() {
               </span>
 
               <span className="w-full text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-                {fr ? item.fr : item.en}
+                {tx(item.en, item.fr)}
               </span>
             </Link>
           );
@@ -1129,7 +1129,7 @@ function DiscoveryPage() {
 
                         <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/35 px-2.5 py-1.5 text-[9px] font-bold text-white backdrop-blur-md">
                           <Play className="size-3 fill-current" aria-hidden />
-                          {fr ? "Plein écran" : "Fullscreen"}
+                          {tx("Fullscreen", "Plein écran")}
                         </span>
                       </span>
 
@@ -1168,7 +1168,7 @@ function DiscoveryPage() {
 
                         <span className="mt-4 flex items-center justify-center gap-2 rounded-2xl bg-white/12 px-4 py-3 text-xs font-bold text-white backdrop-blur-md ring-1 ring-white/15">
                           <Play className="size-3.5 fill-current" aria-hidden />
-                          {fr ? "Touchez pour ouvrir en plein écran" : "Tap to open fullscreen"}
+                          {tx("Tap to open fullscreen", "Touchez pour ouvrir en plein écran")}
                         </span>
                       </span>
                     </button>
@@ -1319,7 +1319,7 @@ function DiscoveryPage() {
                                         {city}
                                       </span>
                                     ) : null}
-                                    <span>{fr ? "Vendeur ASH" : "ASH vendor"}</span>
+                                    <span>{tx("ASH vendor", "Vendeur ASH")}</span>
                                   </span>
                                 ) : null}
                               </span>
@@ -1337,7 +1337,7 @@ function DiscoveryPage() {
                             {offerDescription ? (
                               <div className="max-w-2xl rounded-2xl border border-white/10 bg-black/25 px-3 py-2.5 backdrop-blur-md">
                                 <p className="text-[9px] font-extrabold uppercase tracking-[0.16em] text-[#D4AF37]">
-                                  {fr ? "Ce que propose ce vendeur" : "What this vendor offers"}
+                                  {tx("What this vendor offers", "Ce que propose ce vendeur")}
                                 </p>
                                 <p className="mt-1 text-sm leading-relaxed text-white/95 sm:text-[15px]">
                                   {offerDescription}
@@ -1362,18 +1362,12 @@ function DiscoveryPage() {
                             >
                               <MessageCircle className="size-4" aria-hidden />
                               {post.provider.id
-                                ? fr
-                                  ? "Contacter le vendeur"
-                                  : "Contact Vendor"
-                                : fr
-                                  ? "Envoyer un message"
-                                  : "Send a message"}
+                                ? tx("Contact Vendor", "Contacter le vendeur")
+                                : tx("Send a message", "Envoyer un message")}
                             </button>
 
                             <p className="mt-2 text-center text-[10px] text-white/45">
-                              {fr
-                                ? "Découvrez · contactez · commandez"
-                                : "Discover · contact · order"}
+                              {tx("Discover · contact · order", "Découvrez · contactez · commandez")}
                             </p>
                           </div>
                         </div>
@@ -1540,9 +1534,7 @@ function DiscoveryPage() {
                       )}
                     >
                       {r === 0
-                        ? fr
-                          ? "Toutes"
-                          : "Any"
+                        ? tx("Any", "Toutes")
                         : `${r}+ ★`}
                     </SelectItem>
                   ),

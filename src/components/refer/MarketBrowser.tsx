@@ -42,7 +42,7 @@ export function MarketBrowser({ providers, loadingProviders, providerError, hasM
   const [selected, setSelected] = useState<Deal | null>(null);
   const [claiming, setClaiming] = useState(false);
   const listings = useMemo(() => {
-    const items: Listing[] = providers.map((p) => ({ id: p.id, kind: "service", title: p.business_name, city: p.city ?? "", image: p.photos[0]?.url ?? null, price: p.fromPrice, priceLabel: p.fromPrice === null ? (fr ? "Voir les services" : "View services") : `${fr ? "Dès" : "From"} ${formatXAF(p.fromPrice)}`, date: p.created_at }));
+    const items: Listing[] = providers.map((p) => ({ id: p.id, kind: "service", title: p.business_name, city: p.city ?? "", image: p.photos[0]?.url ?? null, price: p.fromPrice, priceLabel: p.fromPrice === null ? (tx("View services", "Voir les services")) : `${tx("From", "Dès")} ${formatXAF(p.fromPrice)}`, date: p.created_at }));
     for (const p of properties.data ?? []) items.push({ id: p.id, kind: "property", title: p.title, city: p.city, image: p.cover, price: p.price, priceLabel: formatPropertyPrice(p.price, p.currency, p.price_period, fr), date: p.created_at });
     for (const d of deals.data ?? []) {
       if (!region.seesEverything && d.country !== region.country) continue;
@@ -69,19 +69,19 @@ export function MarketBrowser({ providers, loadingProviders, providerError, hasM
     setClaiming(true);
     try {
       const result = await claim({ data: { dealId: selected.id } });
-      if (!result.ok) { toast.error(fr ? "Cette offre n’est plus disponible." : "This deal is no longer available."); return; }
-      toast.success(`${fr ? "Votre code" : "Your code"}: ${result.code}`, { description: fr ? "Présentez ce code au commerce." : "Show this code to the business." });
+      if (!result.ok) { toast.error(tx("This deal is no longer available.", "Cette offre n’est plus disponible.")); return; }
+      toast.success(`${tx("Your code", "Votre code")}: ${result.code}`, { description: tx("Show this code to the business.", "Présentez ce code au commerce.") });
       await Promise.all([queryClient.invalidateQueries({ queryKey: ["deals"] }), queryClient.invalidateQueries({ queryKey: ["deal-claims"] })]);
       setSelected(null);
-    } catch { toast.error(fr ? "Impossible de réclamer cette offre." : "Could not claim this deal."); }
+    } catch { toast.error(tx("Could not claim this deal.", "Impossible de réclamer cette offre.")); }
     finally { setClaiming(false); }
   }
   const listingContent = (l: Listing) => <>
     <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
-      {l.image ? <img src={l.image} alt={l.title} loading="lazy" className="size-full object-cover transition-transform duration-200 group-hover:scale-105" /> : <div className="flex size-full flex-col items-center justify-center gap-2 text-muted-foreground"><ImageOff className="size-8" aria-hidden /><span className="text-xs">{fr ? "Sans photo" : "No photo"}</span></div>}
+      {l.image ? <img src={l.image} alt={l.title} loading="lazy" className="size-full object-cover transition-transform duration-200 group-hover:scale-105" /> : <div className="flex size-full flex-col items-center justify-center gap-2 text-muted-foreground"><ImageOff className="size-8" aria-hidden /><span className="text-xs">{tx("No photo", "Sans photo")}</span></div>}
       <span className="absolute bottom-2 left-2 rounded-md bg-background/95 px-2 py-1 text-[11px] font-semibold text-foreground">{categories.find((c) => c.value === l.kind)?.label}</span>
     </div>
-    <div className="space-y-0.5 px-0.5 py-2 text-left"><p className="break-words text-sm font-bold text-foreground sm:text-base">{l.priceLabel}</p><h3 className="line-clamp-2 text-sm font-medium text-foreground">{l.title}</h3><p className="truncate text-xs text-muted-foreground">{l.city || (fr ? "Lieu non précisé" : "Location not provided")}</p></div>
+    <div className="space-y-0.5 px-0.5 py-2 text-left"><p className="break-words text-sm font-bold text-foreground sm:text-base">{l.priceLabel}</p><h3 className="line-clamp-2 text-sm font-medium text-foreground">{l.title}</h3><p className="truncate text-xs text-muted-foreground">{l.city || (tx("Location not provided", "Lieu non précisé"))}</p></div>
   </>;
   return <div className="member-market space-y-4">
     <header className="flex items-center justify-between gap-2">

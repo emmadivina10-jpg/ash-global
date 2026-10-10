@@ -255,7 +255,7 @@ export function RightRail() {
                     <span className="min-w-0">
                       <span className="block truncate text-[13px] font-medium text-foreground">{event.title}</span>
                       <span className="block truncate text-[11px] text-muted-foreground">
-                        {event.city ?? ""} {event.is_free ? (fr ? "· Gratuit" : "· Free") : ""}
+                        {event.city ?? ""} {event.is_free ? (tx("· Free", "· Gratuit")) : ""}
                       </span>
                     </span>
                   </Link>
@@ -274,7 +274,7 @@ export function RightRail() {
               {posts.data.map((post) => (
                 <li key={post.id}>
                   <Link to="/post/$postId" params={{ postId: post.id }} className="block rounded-xl p-1.5 hover:bg-muted/60">
-                    <span className="line-clamp-2 text-[13px] text-foreground">{post.caption || (fr ? "Photo partagée" : "Shared photo")}</span>
+                    <span className="line-clamp-2 text-[13px] text-foreground">{post.caption || (tx("Shared photo", "Photo partagée"))}</span>
                     <span className="mt-0.5 block text-[11px] text-muted-foreground">
                       {post.author} · {post.like_count} ♥ · {post.comment_count} 💬
                     </span>
