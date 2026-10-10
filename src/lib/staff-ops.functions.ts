@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { staffNotificationScope } from "./support-state";
 
 export const EMPLOYEE_TERMS_VERSION = "2026-10-05";
 
@@ -76,9 +77,13 @@ export const getStaffNotifications = createServerFn({ method: "GET" }).handler(a
 export const markStaffNotificationRead = createServerFn({ method: "POST" })
   .inputValidator((d: { id: string }) => ({ id: String(d?.id ?? "") }))
   .handler(async ({ data }) => {
-    await actor();
+    const a = await actor();
     const supabase = await db();
-    await supabase.from("staff_notifications").update({ read_at: new Date().toISOString() }).eq("id", data.id);
+    let q = supabase.from("staff_notifications").update({ read_at: new Date().toISOString() }).eq("id", data.id).is("read_at", null);
+    const scope = staffNotificationScope(a);
+    if (scope) q = q.or(scope);
+    const { error } = await q;
+    if (error) throw error;
     return { ok: true as const };
   });
 
@@ -86,8 +91,10 @@ export const markAllStaffNotificationsRead = createServerFn({ method: "POST" }).
   const a = await actor();
   const supabase = await db();
   let q = supabase.from("staff_notifications").update({ read_at: new Date().toISOString() }).is("read_at", null);
-  if (!a.superAdmin && a.staffId) q = q.or(`staff_id.eq.${a.staffId},department.eq.${a.department}`);
-  await q;
+  const scope = staffNotificationScope(a);
+  if (scope) q = q.or(scope);
+  const { error } = await q;
+  if (error) throw error;
   return { ok: true as const };
 });
 

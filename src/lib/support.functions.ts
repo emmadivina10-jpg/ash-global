@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { awaitingSupportReply, unreadSupportMessages } from "./support-state";
 
 export type TicketStatus = "OPEN" | "PENDING" | "RESOLVED";
 
@@ -199,35 +200,38 @@ export const getConsoleTickets = createServerFn({ method: "GET" }).handler(async
   const actor = await requireDepartment("SUPPORT");
   const db = await adminClient();
 
-  const { data: tickets } = await db
+  const { data: tickets, error: ticketError } = await db
     .from("support_tickets")
     .select("*")
     .order("last_message_at", { ascending: false })
     .limit(200);
+  if (ticketError) throw ticketError;
 
   const ids = (tickets ?? []).map((t) => t.id);
-  const { data: messages } = ids.length
+  const { data: messages, error: messageError } = ids.length
     ? await db
         .from("support_ticket_messages")
         .select("*")
         .in("ticket_id", ids)
         .order("created_at", { ascending: true })
-    : { data: [] as SupportMessage[] };
+    : { data: [] as SupportMessage[], error: null };
+  if (messageError) throw messageError;
 
   const myReads = new Map<string, string>();
   if (actor.staffId && ids.length) {
-    const { data: rows } = await db
+    const { data: rows, error } = await db
       .from("support_ticket_reads")
       .select("ticket_id, read_at")
       .eq("staff_id", actor.staffId)
       .in("ticket_id", ids);
+    if (error) throw error;
     for (const r of rows ?? []) myReads.set(r.ticket_id, r.read_at);
   }
 
   const rows = (tickets ?? []).map((t) => ({
     ...t,
     reference: ref(t.id),
-    my_read_at: myReads.get(t.id) ?? null,
+    my_read_at: actor.staffId ? myReads.get(t.id) ?? null : t.admin_read_at,
     messages: (messages ?? []).filter((m) => m.ticket_id === t.id),
   })) as (SupportTicket & { reference: string; my_read_at: string | null })[];
 
@@ -237,7 +241,7 @@ export const getConsoleTickets = createServerFn({ method: "GET" }).handler(async
       open: rows.filter((t) => t.status === "OPEN").length,
       pending: rows.filter((t) => t.status === "PENDING").length,
       resolved: rows.filter((t) => t.status === "RESOLVED").length,
-      awaitingReply: rows.filter((t) => t.messages.at(-1)?.sender === "CUSTOMER").length,
+      awaitingReply: rows.filter(awaitingSupportReply).length,
     },
   };
 });
@@ -247,28 +251,27 @@ export const getSupportAwaitingCount = createServerFn({ method: "GET" }).handler
   const { requireDepartment, adminClient } = await import("./console.server");
   const actor = await requireDepartment("SUPPORT");
   const db = await adminClient();
-  const { data: tickets } = await db
+  const { data: tickets, error: ticketError } = await db
     .from("support_tickets")
-    .select("id, support_ticket_messages(sender, created_at)")
+    .select("id, status, admin_read_at, support_ticket_messages(sender, created_at)")
     .order("last_message_at", { ascending: false })
     .limit(200);
+  if (ticketError) throw ticketError;
   const ids = (tickets ?? []).map((t) => t.id);
   const reads = new Map<string, string>();
   if (actor.staffId && ids.length) {
-    const { data: rows } = await db
+    const { data: rows, error } = await db
       .from("support_ticket_reads")
       .select("ticket_id, read_at")
       .eq("staff_id", actor.staffId)
       .in("ticket_id", ids);
+    if (error) throw error;
     for (const r of rows ?? []) reads.set(r.ticket_id, r.read_at);
   }
   const count = (tickets ?? []).filter((ticket) => {
     const messages = (ticket.support_ticket_messages ?? []) as Array<{ sender: string; created_at: string }>;
-    const latestCustomer = messages
-      .filter((message) => message.sender === "CUSTOMER")
-      .reduce<string | null>((latest, message) => !latest || message.created_at > latest ? message.created_at : latest, null);
-    const readAt = reads.get(ticket.id);
-    return Boolean(latestCustomer && (!readAt || latestCustomer > readAt));
+    const readAt = actor.staffId ? reads.get(ticket.id) ?? null : ticket.admin_read_at;
+    return !["RESOLVED", "CLOSED"].includes(ticket.status) && unreadSupportMessages(messages, readAt) > 0;
   }).length;
   return { count };
 });
@@ -282,12 +285,14 @@ export const markSupportTicketRead = createServerFn({ method: "POST" })
     const db = await adminClient();
     const now = new Date().toISOString();
     if (actor.staffId) {
-      await db
+      const { error } = await db
         .from("support_ticket_reads")
         .upsert({ ticket_id: data.ticketId, staff_id: actor.staffId, read_at: now }, { onConflict: "ticket_id,staff_id" });
+      if (error) throw error;
     }
     // Team-level "someone has seen it" marker kept for existing reporting.
-    await db.from("support_tickets").update({ admin_read_at: now }).eq("id", data.ticketId);
+    const { error } = await db.from("support_tickets").update({ admin_read_at: now }).eq("id", data.ticketId);
+    if (error) throw error;
     return { ok: true as const };
   });
 
