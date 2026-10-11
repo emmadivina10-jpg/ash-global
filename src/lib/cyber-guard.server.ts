@@ -53,6 +53,19 @@ export async function blockedResponse(request: Request): Promise<Response | null
   }
 }
 
+/** Approximate visitor location from Cloudflare (city level at best). */
+export function requestGeo(request: Request): { country: string | null; city: string | null; lat: number | null; lng: number | null } {
+  const cf = (request as unknown as { cf?: { country?: string; city?: string; latitude?: string; longitude?: string } }).cf;
+  const h = (n: string) => request.headers.get(n);
+  const num = (v: string | null | undefined) => (v != null && v !== "" && Number.isFinite(Number(v)) ? Number(v) : null);
+  return {
+    country: cf?.country ?? h("cf-ipcountry"),
+    city: cf?.city ?? h("cf-ipcity"),
+    lat: num(cf?.latitude ?? h("cf-iplatitude")),
+    lng: num(cf?.longitude ?? h("cf-iplongitude")),
+  };
+}
+
 /** Records the signed-in member's IP and browser, at most once per 10 minutes per isolate. */
 export async function recordFingerprint(request: Request, userId: string) {
   try {
@@ -65,7 +78,7 @@ export async function recordFingerprint(request: Request, userId: string) {
     if (recent.size > 5000) recent.clear();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const ua = request.headers.get("user-agent")?.slice(0, 300) ?? null;
-    const country = request.headers.get("cf-ipcountry");
+    const { country, city, lat, lng } = requestGeo(request);
     const { data: existing } = await supabaseAdmin
       .from("access_fingerprints")
       .select("id, hits")
@@ -74,9 +87,9 @@ export async function recordFingerprint(request: Request, userId: string) {
       .eq("fingerprint", fp)
       .maybeSingle();
     if (existing) {
-      await supabaseAdmin.from("access_fingerprints").update({ hits: existing.hits + 1, last_seen: new Date().toISOString() }).eq("id", existing.id);
+      await supabaseAdmin.from("access_fingerprints").update({ hits: existing.hits + 1, last_seen: new Date().toISOString(), ...(country ? { country } : {}), ...(city ? { city } : {}), ...(lat != null && lng != null ? { lat, lng } : {}) }).eq("id", existing.id);
     } else {
-      await supabaseAdmin.from("access_fingerprints").insert({ user_id: userId, ip, fingerprint: fp, user_agent: ua, country });
+      await supabaseAdmin.from("access_fingerprints").insert({ user_id: userId, ip, fingerprint: fp, user_agent: ua, country, city, lat, lng });
       if (ua && AUTOMATION_UA.test(ua)) {
         await supabaseAdmin.from("security_events").insert({ kind: "AUTOMATION_BROWSER", severity: "WARN", subject: fp, actor_user_id: userId, detail: { ua } });
       }
