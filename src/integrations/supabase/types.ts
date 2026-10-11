@@ -6991,18 +6991,21 @@ export type Database = {
         Row: {
           id: boolean
           marketplace_account_id: string | null
+          onboarding_allowed_user_ids: string[]
           onboarding_enabled: boolean
           transfers_enabled: boolean
         }
         Insert: {
           id?: boolean
           marketplace_account_id?: string | null
+          onboarding_allowed_user_ids?: string[]
           onboarding_enabled?: boolean
           transfers_enabled?: boolean
         }
         Update: {
           id?: boolean
           marketplace_account_id?: string | null
+          onboarding_allowed_user_ids?: string[]
           onboarding_enabled?: boolean
           transfers_enabled?: boolean
         }

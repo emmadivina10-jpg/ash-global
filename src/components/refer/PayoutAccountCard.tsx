@@ -89,8 +89,10 @@ export function PayoutAccountCard({ country }: { country: string }) {
           )}
           <p className="mt-1 text-xs text-muted-foreground">
             {ready
-              ? tx("Transfers remain disabled pending approval. Bank payout is tracked separately.", "Les transferts restent désactivés en attente d’approbation. Le versement bancaire est suivi séparément.")
-              : country !== "CA" ? tx("This Stripe payout route is not confirmed for your country.", "Ce mode de versement Stripe n’est pas confirmé pour votre pays.") : tx("Provider onboarding is awaiting approval.", "L’inscription des prestataires est en attente d’approbation.")}
+              ? tx("Your bank is connected. Earnings from verified card bookings are released here once payouts are switched on.", "Votre banque est connectée. Les gains des réservations par carte vérifiées seront versés ici dès l’activation des versements.")
+              : country !== "CA" ? tx("This Stripe payout route is not confirmed for your country.", "Ce mode de versement Stripe n’est pas confirmé pour votre pays.")
+              : data.onboardingAvailable ? tx("Your bank details are entered securely on Stripe, never in ASH.", "Vos coordonnées bancaires sont saisies en toute sécurité sur Stripe, jamais dans ASH.")
+              : tx("Provider onboarding is awaiting approval.", "L’inscription des prestataires est en attente d’approbation.")}
           </p>
           {!ready && data.requirementsDue.length > 0 ? (
             <p className="mt-1 text-xs text-muted-foreground">
@@ -105,7 +107,7 @@ export function PayoutAccountCard({ country }: { country: string }) {
                 {tx("Payout dashboard", "Espace de versement")}
               </Button>
             ) : (
-              <Button size="sm" disabled={busy || country !== "CA" || !LIVE_PROVIDER_ONBOARDING_ENABLED} onClick={() => void connect()}>
+              <Button size="sm" disabled={busy || country !== "CA" || !LIVE_PROVIDER_ONBOARDING_ENABLED || !data.onboardingAvailable} onClick={() => void connect()}>
                 {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
                 {data.accountId ? tx("Continue verification", "Continuer la vérification") : tx("Connect bank account", "Connecter un compte bancaire")}
               </Button>

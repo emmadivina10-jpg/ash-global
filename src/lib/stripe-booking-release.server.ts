@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { releaseBlocker, transferKey, transferFailure, LIVE_PROVIDER_TRANSFERS_ENABLED, LIVE_PROVIDER_ONBOARDING_ENABLED } from "./stripe-release-policy";
+import { releaseBlocker, transferKey, transferFailure, onboardingAllowed, LIVE_PROVIDER_TRANSFERS_ENABLED, LIVE_PROVIDER_ONBOARDING_ENABLED } from "./stripe-release-policy";
 import { stripeConnect, stripeRead } from "./stripe.server";
 
 // Pending schema is intentionally not applied to the shared production database.
@@ -9,11 +9,12 @@ async function database(): Promise<SupabaseClient> {
   return supabaseAdmin;
 }
 
-export async function providerOnboardingEnabled(): Promise<boolean> {
+export async function providerOnboardingEnabled(userId: string): Promise<boolean> {
   if (!LIVE_PROVIDER_ONBOARDING_ENABLED) return false;
   const db = await database();
-  const { data, error } = await db.from("stripe_marketplace_controls").select("onboarding_enabled").eq("id", true).maybeSingle();
-  return !error && data?.onboarding_enabled === true;
+  const { data, error } = await db.from("stripe_marketplace_controls")
+    .select("onboarding_enabled, onboarding_allowed_user_ids").eq("id", true).maybeSingle();
+  return !error && onboardingAllowed(data, userId);
 }
 
 export async function releaseBookingTransfer(bookingId: string): Promise<{ status: string; transferId?: string }> {

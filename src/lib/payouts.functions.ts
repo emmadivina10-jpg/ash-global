@@ -11,6 +11,8 @@ export type PayoutAccountState = {
   country?: string;
   transfersActive?: boolean;
   configured: boolean;
+  /** Server decision: this member may open Stripe's bank onboarding now. */
+  onboardingAvailable: boolean;
   accountId: string | null;
   detailsSubmitted: boolean;
   payoutsEnabled: boolean;
@@ -25,6 +27,7 @@ export const getPayoutAccount = createServerFn({ method: "POST" })
     if (!stripeConnect.configured()) {
       return {
         configured: false,
+        onboardingAvailable: false,
         accountId: null,
         detailsSubmitted: false,
         payoutsEnabled: false,
@@ -32,6 +35,8 @@ export const getPayoutAccount = createServerFn({ method: "POST" })
         error: null,
       };
     }
+    const { providerOnboardingEnabled } = await import("./stripe-booking-release.server");
+    const onboardingAvailable = await providerOnboardingEnabled(context.userId);
 
     const { data: profile } = await context.supabase
       .from("profiles")
@@ -43,6 +48,7 @@ export const getPayoutAccount = createServerFn({ method: "POST" })
     if (!accountId) {
       return {
         configured: true,
+        onboardingAvailable,
         accountId: null,
         detailsSubmitted: false,
         payoutsEnabled: false,
@@ -52,7 +58,7 @@ export const getPayoutAccount = createServerFn({ method: "POST" })
     }
 
     const status = await stripeConnect.getAccount(accountId);
-    return status;
+    return { ...status, onboardingAvailable };
   });
 
 export const startPayoutOnboarding = createServerFn({ method: "POST" })
@@ -63,8 +69,8 @@ export const startPayoutOnboarding = createServerFn({ method: "POST" })
     const returnUrl = new URL(data.returnUrl);
     if (returnUrl.origin !== new URL(getRequest().url).origin) return { ok: false, url: null, error: "INVALID_RETURN_URL" };
     const { providerOnboardingEnabled } = await import("./stripe-booking-release.server");
-    // Account creation remains disabled until the owner authorizes live onboarding.
-    if (!(await providerOnboardingEnabled())) return { ok: false, url: null, error: "ONBOARDING_AWAITING_APPROVAL" };
+    // Only owner-approved providers on the server allowlist may connect a bank.
+    if (!(await providerOnboardingEnabled(context.userId))) return { ok: false, url: null, error: "ONBOARDING_AWAITING_APPROVAL" };
     const { data: provider, error: providerError } = await context.supabase.from("provider_profiles")
       .select("id").eq("user_id", context.userId).maybeSingle();
     if (providerError || !provider) return { ok: false, url: null, error: "PROVIDER_REQUIRED" };
