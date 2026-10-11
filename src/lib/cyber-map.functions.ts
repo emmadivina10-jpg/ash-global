@@ -55,7 +55,9 @@ export type MapProvider = {
 export type MapDevice = { userId: string; name: string; ip: string; city: string | null; country: string | null; lat: number; lng: number; precise: boolean; suspicious: boolean; lastSeen: string; userAgent: string | null };
 export type MapTrip = { bookingId: string; title: string; status: string; tripStatus: string; points: { party: string; lat: number; lng: number; updatedAt: string }[] };
 
-export const getCyberMap = createServerFn({ method: "GET" }).handler(async () => {
+export const getCyberMap = createServerFn({ method: "POST" })
+  .inputValidator((d: { poll?: boolean } | undefined) => ({ poll: Boolean(d?.poll) }))
+  .handler(async ({ data: input }) => {
   const { actor, db } = await cyber();
   const [{ default: cities }, { default: countries }] = await Promise.all([import("./geo/cities.json"), import("./geo/countries.json")]);
   const cityList = cities as unknown as [string, string, number, number][];
@@ -130,7 +132,7 @@ export const getCyberMap = createServerFn({ method: "GET" }).handler(async () =>
     }))
     .filter((t) => t.points.length > 0);
 
-  await log(db, actor, "VIEW_MAP", {}, null, { providers: mapProviders.length, devices: devices.length, trips: trips.length });
+  if (!input.poll) await log(db, actor, "VIEW_MAP", {}, null, { providers: mapProviders.length, devices: devices.length, trips: trips.length });
   return { providers: mapProviders, devices, trips, generatedAt: new Date().toISOString() };
 });
 
