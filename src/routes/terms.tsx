@@ -164,8 +164,7 @@ function TermsPage() {
         <p>
           You may submit an <Link to="/account-deletion" className="text-primary hover:underline">account-deletion request</Link>.
           The request is reviewed by authorized staff and may be delayed or rejected while outstanding balances, withdrawals,
-          bookings, disputes, investigations or legal obligations are resolved. Approval currently closes the account; data is then
-          handled according to the Privacy Policy and applicable retention obligations. Submission does not cause immediate or automatic deletion.
+          bookings, disputes, investigations or legal obligations are resolved. Approval currently closes the profile, not an automatic erasure of the login account or associated data. Further data handling requires administrative follow-up under the Privacy Policy. Submission does not cause immediate or automatic deletion.
         </p>
         <p>{LEGAL_ENTITY} may restrict or close an account that violates these Terms, another policy, the rights of others or applicable law.</p>
       </LegalSection>

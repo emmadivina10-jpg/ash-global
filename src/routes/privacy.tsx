@@ -196,8 +196,7 @@ function PrivacyPage() {
         <p>
           An account-deletion submission is a request, not immediate deletion. Authorized staff review it and may
           require pending balances, withdrawals, bookings, disputes, investigations or other obligations to be resolved.
-          Approval currently closes the profile account. Data is then deleted, anonymized, restricted or retained
-          according to its purpose and the retention rules above. See{" "}
+          Approval currently closes the profile account; this is not an automated erasure of the login account or all associated data. Further deletion, anonymization or lawful retention requires administrative handling. Contact the privacy address to request follow-up and confirmation of the data handled. See{" "}
           <Link to="/account-deletion" className="text-primary hover:underline">
             Account &amp; Data Deletion
           </Link>{" "}

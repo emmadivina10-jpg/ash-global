@@ -22,7 +22,7 @@ native iOS and Android apps via Capacitor.
 | **Deals & Promotions** | Discount deals with claim codes, ASH Promote for sellers. | `/deals` |
 | **Events & Ticketing** | Event pages, free and paid tickets, mobile-money entry codes. | `/events`, `/events/$eventId` |
 | **Refer & Earn** | 3-level referral commissions with a collapsible network tree and full ledger (live in CM/NG). | `/dashboard`, `/network` |
-| **Wallet & Payouts** | Balances, statements and supported Mobile Money withdrawals. | `/wallet`, `/transactions`, `/withdraw` |
+| **Wallet & Payouts** | One currency-selectable wallet, actual Stripe-settled card amounts, XAF Mobile Money, Money flow chart; gated matching-rail withdrawals. | `/wallet`, `/transactions`, `/withdraw` |
 | **Bookings & Messaging** | Full booking lifecycle with a 24h pay-after-acceptance window; order-centric chat with realtime + polling fallback. | `/bookings`, `/messages` |
 | **Universal Search** | One search across services, businesses, freelancers, projects, property, deals and events. | `/search` |
 | **Analytics** | Personal and business analytics dashboards. | `/analytics` |
@@ -36,7 +36,7 @@ Auth: `/login`, `/register`, `/forgot-password`, `/reset-password`, `/auth/callb
 ## Core experience
 
 - **First visit and onboarding** — signed-out browser visitors see `/`; sign-up/sign-in and any required email confirmation lead through current Terms acceptance and a profile photo, then `/feed`. Terms acceptance is versioned.
-- **Mobile tabs** — Feed, Market/Services, Flights, Messages and Menu. Market is the default Services mode; Extras is `/services/extras`. Wallet remains the floating launcher and is also reachable from Menu/desktop navigation.
+- **Mobile tabs** — Feed, Market/Services, Flights, Messages and Menu. Market is the default Services mode; Extras is `/services/extras`. ASH Compass is the single floating Map/Wallet launcher and is also reachable from Menu/desktop navigation.
 - **Availability** — Flights and Electricity are coming soon; neither is a live ticket/bill payment service. TchokoPay in Extras is an external partner link, separate from ASH’s integrated Mobile Money flows.
 - **Identity protection** — normalized verified-name reuse and exact JPG/PNG file/pixel copies trigger a red Denied screen, access restriction and a fourth-attempt ban/sign-out. Only authorized admin/Trust staff restore identity access; cropped/edited-photo similarity detection is not implemented.
 
@@ -52,7 +52,7 @@ Auth: `/login`, `/register`, `/forgot-password`, `/reset-password`, `/auth/callb
 - **Frontend / framework**: TanStack Start v1 (React 19, Vite, TypeScript), TanStack Router + React Query
 - **Styling**: Tailwind CSS v4 with OKLCH design tokens (shadcn-style component system)
 - **Backend / auth / storage**: Lovable Cloud (Supabase) — Postgres, Row-Level Security, Auth, Storage
-- **Payments**: TchokoPay for supported Mobile Money flows; any additional checkout method is presented in its relevant flow
+- **Payments**: Stripe-hosted card collection; TchokoPay MTN/Orange in Cameroon (XAF), not M-PESA; conditional Finance-confirmed bank collections. Availability is checkout-specific, not determined by a display currency.
 - **Emails**: React Email templates for auth, invites, support and outreach
 - **Native shell**: Capacitor 8 (iOS `com.ashglogroup.mobile`, Android `com.ashglogroup.app`)
 
@@ -103,16 +103,16 @@ verify callers themselves (e.g. HMAC-SHA256 webhook signatures).
 
 Finance and Shareholders reuse the same read-only ledger. Finance source reads are paginated so totals and wallet reconciliation do not silently stop at a fixed row limit; unavailable data fails rather than appearing as zero. Collection, payout execution, fees and withdrawal limits remain in their existing payment/settlement routines.
 
-Stripe provider-release safeguards are staged in preview, not live: service completion and customer verification authorize a payable, not a bank payout. Transfers require verified charge evidence, a supported connected account, a durable per-booking release and explicit activation. Execution and onboarding default off. Shared-database safeguards in `pending-database/stripe-booking-release.sql` require separate approval before application; the Marketplace webhook fails closed until installed. The TD account's ASH webhook registration still requires owner approval. Cameroon MTN/Orange payouts remain on the existing funded TchokoPay rail; Stripe collections do not fund that rail automatically. Payment-link fees remain 1%.
+Current code verifies Stripe card collections and retains payout-release safeguards/migrations. Customer verification authorizes a payable, not proof of bank receipt. Automatic transfers remain helper-disabled. Onboarding is helper-enabled but also requires saved controls and approved-provider eligibility; actual provider capability and account status must be checked. The established Marketplace webhook is `/api/public/webhooks/stripe`; this audit did not reverify hosted account/delivery configuration or change it. Cameroon MTN/Orange withdrawals use funded TchokoPay money, not Stripe funds. Wallet card top-ups use actual settlement currency; selectors do not convert balances. Payment-link fees remain 1%. See STORE-READINESS.md for code evidence versus unverified release checks.
 
 ## Security
 
 ### Preview provider release readiness
-- Live transfer and provider-account creation are disabled both at the API helper and execution-control layers. A database flag alone cannot enable them.
+- Automatic provider transfers are helper-disabled. Provider onboarding is helper-enabled and separately gated by saved controls, approved-provider status and Stripe requirements.
 - Rejected transfers distinguish `FAILED`, `INSUFFICIENT_FUNDS`, and ambiguous `UNKNOWN`. Ambiguous attempts only reconcile using the existing transfer group; no fresh payment identity is issued.
 - `getBookingStripeStages` authorizes booking parties and returns payment, saved commission, payable, actual transfer and account-level bank payout records separately. Account-level payouts are not proof that a particular booking reached a bank.
 - Connected payout events retrieve current payout state from the correct connected account, avoiding stale event status regression. Disputes and refunds hold releases for review; no automatic refund, reversal, balance correction or money movement occurs.
-- Manual Stripe work: bind the existing ASH Marketplace address to TD without editing Replit, confirm its signing secret belongs to TD, and subscribe to transfer/dispute events plus connected-account payout/account events. Existing credentials are reused; replacement signing secret is needed only if the current destination belongs to a different account.
+- Before enabling transfers, verify the existing Marketplace webhook/account association, signed deliveries, provider capabilities and completed end-to-end payout evidence. This documentation audit does not authorize credential changes, new endpoints, real transactions or Replit changes.
 - Shared schema application, live provider onboarding, cross-border routes and transfer activation each require separate approval. Canadian bank eligibility remains subject to the provider's actual Stripe capability, verification and bank-currency configuration.
 
 - RLS enforced on every table; anonymous visitors can read only curated public
@@ -187,6 +187,10 @@ keys or passwords live in this repository.
 
 CI (`.github/workflows/security.yml`) runs the unit suites, the RLS regression
 suite and a database self-check.
+
+## Store readiness
+
+External digital Promote, paid Verified badge and optional referral activation are not automatically exempt from native billing rules. Profile closure is not complete account/data deletion. Signed-device, sign-in, photo-access, location and push checks remain necessary; see [STORE-READINESS.md](./STORE-READINESS.md). Documentation is not store approval.
 
 ## Documentation
 

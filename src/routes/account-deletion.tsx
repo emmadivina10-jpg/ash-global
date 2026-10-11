@@ -23,7 +23,7 @@ const steps = [
   ["Submit a request", "Sign in, open Menu → Settings → Account, and submit an account-deletion request. You can also contact official Support if you cannot access the account."],
   ["Administrative review", "Authorized Support staff verify the account and review pending balances, withdrawals, bookings, disputes, safety matters and other unresolved obligations."],
   ["Decision", "The request is approved or rejected with a review record. It may remain pending while an obligation or investigation is resolved."],
-  ["Closure and data handling", "Approval currently closes the ASH Glo profile. Information is then deleted, anonymized, restricted or retained according to the Privacy Policy and applicable obligations."],
+  ["Closure and data handling", "Approval currently closes the ASH Glo profile; it does not automatically erase the login account or all associated records. Further data deletion, anonymization or lawful retention requires administrative handling. Request follow-up and confirmation from the privacy contact listed in the Privacy Policy."],
 ] as const;
 
 export function AccountDeletionContent() {
