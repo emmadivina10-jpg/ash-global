@@ -536,7 +536,9 @@ export const saveTraining = createServerFn({ method: "POST" })
     if (!data.title || !data.lessons.length || !data.quiz.length) throw new Error("INCOMPLETE_TRAINING");
     await db.from("security_trainings").update({ active: false }).eq("active", true);
     await db.from("security_trainings").insert({ title: data.title, lessons: data.lessons, quiz: data.quiz, pass_mark: data.passMark, created_by: actor.name });
-    await db.from("staff_notifications").insert({ department: "ALL", type: "SECURITY_TRAINING", title: `New security awareness training: ${data.title}`, body: "Complete it from Security updates.", link: "/console/security-updates" });
+    const { data: seats } = await db.from("staff_accounts").select("department").eq("is_active", true);
+    const depts = [...new Set((seats ?? []).map((s) => s.department))];
+    if (depts.length) await db.from("staff_notifications").insert(depts.map((department) => ({ department, type: "SECURITY_TRAINING", title: `New security awareness training: ${data.title}`, body: "Complete it from Security updates.", link: "/console/security-updates" })));
     return { ok: true };
   });
 

@@ -37,6 +37,8 @@ export function isPushCategory(category: string): category is PushCategory {
 /** Deep link for a notification payload, used when the member taps it. */
 export function notificationLink(category: string, data: Record<string, unknown> = {}): string {
   switch (category) {
+    case "SECURITY_UPDATE":
+      return typeof data["bulletin_id"] === "string" ? `/security-update/${data["bulletin_id"]}` : "/notifications";
     case "WITHDRAWAL":
       return "/withdraw";
     case "ACTIVATION":
