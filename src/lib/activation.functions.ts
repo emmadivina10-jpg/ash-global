@@ -18,7 +18,11 @@ export const activateWithWallet = createServerFn({ method: "POST" })
     const { data, error } = await supabase.rpc("activate_with_wallet");
     if (error) return { ok: false, error: "ACTIVATION_FAILED" };
     const result = data as { ok?: boolean; error?: string; reference?: string; balance?: number } | null;
-    if (!result?.ok) return { ok: false, error: result?.error ?? "ACTIVATION_FAILED", balance: result?.balance };
+    if (!result?.ok) {
+      return result?.balance != null
+        ? { ok: false, error: result.error ?? "ACTIVATION_FAILED", balance: result.balance }
+        : { ok: false, error: result?.error ?? "ACTIVATION_FAILED" };
+    }
     return { ok: true, reference: result.reference!, balance: result.balance ?? 0 };
   });
 
