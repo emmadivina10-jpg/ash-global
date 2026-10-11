@@ -5891,6 +5891,7 @@ export type Database = {
           no_posting: boolean
           no_transactions: boolean
           reason: string | null
+          sessions_revoked_at: string | null
           updated_at: string
           updated_by: string | null
           user_id: string
@@ -5903,6 +5904,7 @@ export type Database = {
           no_posting?: boolean
           no_transactions?: boolean
           reason?: string | null
+          sessions_revoked_at?: string | null
           updated_at?: string
           updated_by?: string | null
           user_id: string
@@ -5915,6 +5917,7 @@ export type Database = {
           no_posting?: boolean
           no_transactions?: boolean
           reason?: string | null
+          sessions_revoked_at?: string | null
           updated_at?: string
           updated_by?: string | null
           user_id?: string

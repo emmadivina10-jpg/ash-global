@@ -127,6 +127,13 @@
       "when": 1791681408444,
       "tag": "0017_cyber_map_reports_holds",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1791681493198,
+      "tag": "0018_security_sessions_revoked_at",
+      "breakpoints": true
     }
   ]
 }
