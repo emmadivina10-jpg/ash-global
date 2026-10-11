@@ -214,17 +214,15 @@ function WalletPage() {
                 label={t("dash.availableBalance")}
                 amount={formatXAF(wallet?.available_balance ?? 0)}
                 action={
-                  active ? (
-                    <Button asChild variant="secondary">
-                      <Link to="/withdraw">
-                        <ArrowDownToLine
-                          className="size-4"
-                          aria-hidden
-                        />
-                        {t("wallet.withdraw")}
-                      </Link>
-                    </Button>
-                  ) : null
+                  <Button asChild variant="secondary">
+                    <Link to="/withdraw">
+                      <ArrowDownToLine
+                        className="size-4"
+                        aria-hidden
+                      />
+                      {t("wallet.withdraw")}
+                    </Link>
+                  </Button>
                 }
               />
 
