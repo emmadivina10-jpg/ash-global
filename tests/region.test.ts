@@ -37,6 +37,12 @@ describe("region gating", () => {
     expect(showsMobileMoney("NG")).toBe(false);
   });
 
+  it("does not imply M-PESA support from an East African country", () => {
+    expect(showsMobileMoney("KE")).toBe(false);
+    expect(showsMobileMoney("TZ")).toBe(false);
+    expect(MOMO_COUNTRIES).toEqual(["CM"]);
+  });
+
   it("keeps the referral and momo country lists non-empty", () => {
     expect(REFERRAL_COUNTRIES.length).toBeGreaterThan(0);
     expect(MOMO_COUNTRIES.length).toBeGreaterThan(0);
