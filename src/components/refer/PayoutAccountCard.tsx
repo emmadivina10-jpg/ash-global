@@ -30,7 +30,8 @@ export function PayoutAccountCard({ country }: { country: string }) {
   if (!data.configured) return <p className="text-sm text-muted-foreground">{tx("Bank payout setup is not available yet.", "La configuration des versements bancaires n’est pas encore disponible.")}</p>;
 
   async function connect() {
-    if (country !== "CA") return;
+    // The bank's country (Canada) is what matters, not where the phone is
+    // right now, so approved providers can connect from anywhere.
     setBusy(true);
     const result = await startOnboarding({
       data: { returnUrl: `${window.location.origin}/withdraw`, country: "CA" },
@@ -68,7 +69,8 @@ export function PayoutAccountCard({ country }: { country: string }) {
     window.open(result.url, "_blank", "noopener,noreferrer");
   }
 
-  const ready = payoutRoute({country: data.country ?? country, detailsSubmitted: data.detailsSubmitted, transfersActive: data.transfersActive === true, payoutsEnabled: data.payoutsEnabled}) === "ELIGIBLE_CANADIAN_BANK";
+  const ready = payoutRoute({country: data.country ?? "CA", detailsSubmitted: data.detailsSubmitted, transfersActive: data.transfersActive === true, payoutsEnabled: data.payoutsEnabled}) === "ELIGIBLE_CANADIAN_BANK";
+  void country;
 
   return (
     <SectionCard title={tx("Provider bank account", "Compte bancaire du prestataire")}>
@@ -90,8 +92,7 @@ export function PayoutAccountCard({ country }: { country: string }) {
           <p className="mt-1 text-xs text-muted-foreground">
             {ready
               ? tx("Your bank is connected. Earnings from verified card bookings are released here once payouts are switched on.", "Votre banque est connectée. Les gains des réservations par carte vérifiées seront versés ici dès l’activation des versements.")
-              : country !== "CA" ? tx("This Stripe payout route is not confirmed for your country.", "Ce mode de versement Stripe n’est pas confirmé pour votre pays.")
-              : data.onboardingAvailable ? tx("Your bank details are entered securely on Stripe, never in ASH.", "Vos coordonnées bancaires sont saisies en toute sécurité sur Stripe, jamais dans ASH.")
+              : data.onboardingAvailable ? tx("Canadian bank accounts only for now. Your bank details are entered securely on Stripe, never in ASH.", "Comptes bancaires canadiens uniquement pour l’instant. Vos coordonnées bancaires sont saisies en toute sécurité sur Stripe, jamais dans ASH.")
               : tx("Provider onboarding is awaiting approval.", "L’inscription des prestataires est en attente d’approbation.")}
           </p>
           {!ready && data.requirementsDue.length > 0 ? (
@@ -107,7 +108,7 @@ export function PayoutAccountCard({ country }: { country: string }) {
                 {tx("Payout dashboard", "Espace de versement")}
               </Button>
             ) : (
-              <Button size="sm" disabled={busy || country !== "CA" || !LIVE_PROVIDER_ONBOARDING_ENABLED || !data.onboardingAvailable} onClick={() => void connect()}>
+              <Button size="sm" disabled={busy || !LIVE_PROVIDER_ONBOARDING_ENABLED || !data.onboardingAvailable} onClick={() => void connect()}>
                 {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
                 {data.accountId ? tx("Continue verification", "Continuer la vérification") : tx("Connect bank account", "Connecter un compte bancaire")}
               </Button>
