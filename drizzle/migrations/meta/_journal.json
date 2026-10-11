@@ -190,6 +190,13 @@
       "when": 1791701314061,
       "tag": "0026_wallet_card_balance_clamp",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1791702729336,
+      "tag": "0027_wallet_currency_balances",
+      "breakpoints": true
     }
   ]
 }
