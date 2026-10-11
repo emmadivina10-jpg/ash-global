@@ -79,7 +79,7 @@ export function MobileOnboarding() {
         )}
       </header>
 
-      <main className="relative flex-1 overflow-hidden">
+      <main className="relative flex-1 overflow-hidden pt-[min(16vh,110px)]">
         <div
           className="flex h-full"
           style={{
