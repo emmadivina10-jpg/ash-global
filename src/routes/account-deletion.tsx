@@ -23,7 +23,7 @@ const steps = [
   ["Submit a request", "Sign in, open Menu → Settings → Account, and submit an account-deletion request. You can also contact official Support if you cannot access the account."],
   ["Administrative review", "Authorized Support staff verify the account and review pending balances, withdrawals, bookings, disputes, safety matters and other unresolved obligations."],
   ["Decision", "The request is approved or rejected with a review record. It may remain pending while an obligation or investigation is resolved."],
-  ["Closure and data handling", "Approval currently closes the ASH Glo profile. Information is then deleted, anonymized, restricted or retained according to the Privacy Policy and applicable obligations."],
+  ["Closure and data handling", "Approval currently closes the ASH Glo profile; it does not automatically erase the login account or all associated records. Further data deletion, anonymization or lawful retention requires administrative handling. Request follow-up and confirmation from the privacy contact listed in the Privacy Policy."],
 ] as const;
 
 export function AccountDeletionContent() {
@@ -53,6 +53,7 @@ export function AccountDeletionContent() {
       </section>
 
       <section className="space-y-3">
+        <p className="text-sm leading-6 text-muted-foreground">Archiving or removing personal booking history does not delete bookings, payments or the other party’s history. Without signing in, use the public Support form, choose Account and give your account email and deletion request. Never send a password or private service code.</p>
         <div className="flex items-start gap-3"><ShieldCheck className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden /><div><h2 className="font-bold text-foreground">Personalization history</h2><p className="mt-1 text-sm leading-6 text-muted-foreground">You can clear only your personalization activity and interest signals at any time in Settings without closing your account. This does not delete posts, comments, messages, bookings, wallet records, referrals or friendships.</p></div></div>
         <div className="flex items-start gap-3"><CheckCircle2 className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden /><div><h2 className="font-bold text-foreground">Before submitting</h2><p className="mt-1 text-sm leading-6 text-muted-foreground">Save information you need, cancel eligible future bookings, and resolve pending withdrawals, balances or disputes. Do not submit a second request while one is pending.</p></div></div>
       </section>

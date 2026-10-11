@@ -83,7 +83,7 @@ function CommunityGuidelinesPage() {
         <p>
           ASH Markets and FX Analytics are for general information and education. Do not present content as guaranteed,
           risk-free, personalized investment advice, managed trading, or an offer to execute a trade through ASH Glo.
-          Instructors must disclose uncertainty and avoid fabricated performance claims.
+          Instructors must disclose uncertainty and avoid fabricated performance claims. The member ASH Investment chart is inactive and illustrative; do not present it as live performance, a real valuation or a way to deposit investment funds.
         </p>
       </LegalSection>
 

@@ -46,7 +46,7 @@ is not shared between instances — precisely what a scraper relies on.
 | Starting a payment | 5 |
 
 Visitors are identified by a **salted SHA-256 of the IP** (`RATE_LIMIT_SALT`),
-so neither the counters nor the audit log ever store a raw IP address.
+so those rate-limit counters do not store a raw IP. Separate restricted Cyber access-fingerprint records do store raw IP, user-agent and approximate IP-derived location; active opt-in booking locations are stored separately. Do not describe all security data as IP-free.
 Throttling fails **open** — if the counter itself errors the request is served
 rather than taking storefronts down — and blocked bursts are written to the
 audit log (with flood protection so an attacker cannot spam the log).
@@ -75,7 +75,7 @@ Three layers, so a bad migration cannot slip through:
 1. **Database schedule (pg_cron)** — no external infrastructure required:
    - `ash-security-selfcheck-daily` — 03:15 UTC daily
    - `ash-security-selfcheck-6h` — every 6 hours
-   - `ash-security-housekeeping` — weekly cleanup (counters > 1 day, audit > 180 days)
+   - `ash-security-housekeeping` — historical weekly cleanup configuration; confirm the actual installed schedule and record scope. Public safety policy retains relevant safety records for 24 months, subject to case/law exceptions; do not assume an older 180-day audit cleanup applies to every safety record.
 2. **CI** (`.github/workflows/security.yml`) — runs the RLS suite and calls the
    scan endpoint on every change to `supabase/migrations/`, `src/lib/`,
    `src/routes/api/`, plus daily. The endpoint returns **409** on critical

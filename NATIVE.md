@@ -128,30 +128,32 @@ Full listing copy, review notes and privacy answers live in
    https://ashglogroup.company/community-guidelines, marketplace policy
    https://ashglogroup.company/marketplace-policy, referral and wallet terms
    https://ashglogroup.company/referral-wallet-terms, and support
-   https://ashglogroup.company/support. All are live public routes.
+   https://ashglogroup.company/support. Verify all URLs publicly after approved publication; preview changes are not proof of updated live wording.
 2. **iOS purpose strings** — paste `native/ios-info-plist-additions.xml` into
    `ios/App/App/Info.plist`. Without them iOS terminates the app when a user taps
    a portfolio upload field (automatic rejection, Guideline 5.1.1).
 3. **Android manifest** — merge `native/android-manifest-additions.xml` into
    `android/app/src/main/AndroidManifest.xml`. Never add `QUERY_ALL_PACKAGES`.
 4. **Target SDK 35+**, 64-bit AAB, and Play App Signing enabled.
-5. **User-generated content controls** (Apple 1.2 / Play UGC policy) are shipped:
+5. **User-generated content controls** (Apple 1.2 / Play UGC policy) exist in code; verify on the release binary:
    zero-tolerance clause in `/terms` §3, in-app report flag on provider profiles,
    reviews and chat, user blocking, and the `/console/reports` moderation queue.
-6. **Account deletion in-app** — More → Settings → Delete account (Apple 5.1.1(v)).
-7. **Sign in with Apple** ships alongside Google sign-in (Apple 4.8).
-8. **Payments** — ASH Glo sells real-world services, so supported external payment
-   methods are allowed and in-app purchase is not required. Never add digital-only unlocks
-   without adding IAP first.
+6. **Account deletion** — Menu → Settings → Account. Approval currently only closes a profile; implement and test full account/data erasure and lawful retained-data exceptions before declaring compliance.
+7. **Sign in with Apple/Google** — controls exist; hosted settings and signed-device OAuth remain unverified by this audit.
+8. **Payments** — real-world services can use Stripe cards and MTN/Orange (CM/XAF); M-PESA is absent. External digital Promote, paid Verified badge and referral activation are present: resolve native billing rules or legitimately remove these purchases from the native release, including server access, before submission. No store billing implementation was identified; do not claim universal IAP exemption. Check tutoring/event delivery classification as well.
 9. **Demo account** — create a pre-activated reviewer account with a published
    storefront and put the credentials in the App Store Connect review notes and
    the Play Console testing instructions.
-10. **Push notifications** — booking, payment and payout events only; the Android
+10. **Push notifications** — configured categories include social and booking/account activity; remote closed-app delivery remains unverified. The Android
     13 runtime prompt is requested at the point of use.
 
 Apple reviews web-container apps against Guideline 4.2, so keep the native
 splash, status bar handling, hardware back button, in-app browser, native share
 and push notifications that make this build more than a wrapper.
+
+## Release blockers and disclosures
+
+See STORE-READINESS.md: stored opt-in precise trip tracking must be reflected in the iOS location purpose string and store privacy forms. Android broad photo/video permissions need a permitted core-use justification or system-picker treatment. Check actual native geolocation permissions, manifests, privacy SDK declarations and closed-app delivery on signed devices. No native configuration or real-money setting was changed by this documentation audit.
 
 ## What's wired in the codebase
 
@@ -188,7 +190,7 @@ and push notifications that make this build more than a wrapper.
 Native projects are generated and committed: `android/` (Gradle) and `ios/` (Xcode).
 Icons/splash are generated from `assets/` via `npx @capacitor/assets generate`.
 
-Android builds produced from this repo:
+Historical artifact names (not recompiled, located or signature-verified in this audit):
 
 | File | Use |
 |---|---|
@@ -196,8 +198,7 @@ Android builds produced from this repo:
 | `ASH-Glo-release.apk` | signed release, direct install/distribution |
 | `ASH-Glo-release.aab` | upload to Google Play Console |
 
-Signed with `ash-glo-release.keystore` (alias `ashglo`). **Keep this keystore safe —
-Play requires the same key for every future update.** Rotate the password after download.
+Signing must be verified in the authorized release environment. Keep the existing signing identity safe; this audit does not establish which key signed historical artifacts or authorize key/password changes.
 
 Rebuild:
 ```bash

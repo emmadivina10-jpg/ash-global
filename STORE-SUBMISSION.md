@@ -1,6 +1,8 @@
 # ASH Glo — App Store & Play Store submission pack
 
-Updated against the current preview on 5 October 2026. ASH Glo is the product; ASH Global Technologies is the legal entity. This is not confirmation of publication, store approval or a completed provider transaction test.
+Updated against the current preview on 11 October 2026. ASH Glo is the product; ASH Global Technologies is the legal entity. This is not confirmation of publication, store approval or a completed provider transaction test.
+
+**Status: documentation prepared; NOT ready for unconditional store submission.** Digital external-payment flows, full account/data erasure, signed-device testing and hosted sign-in settings remain release checks/blockers. See [STORE-READINESS.md](./STORE-READINESS.md). No publishing, store submission, keys, payment settings or funds changed in this audit.
 
 ## 1. App identity
 
@@ -37,13 +39,13 @@ Connect with people, share Feed posts and Stories, discover Spotlight, message f
 
 Providers can build a storefront, publish services and availability, receive booking requests, communicate with customers and follow transaction status. Members can report content, block users and manage privacy and personalization choices.
 
-ASH Markets and FX Analytics provide clearly labelled educational and demo information only. ASH Glo does not execute trades, provide trading signals, guarantee returns or provide personalized investment advice.
+ASH Markets and FX Analytics provide educational and labelled demo information. ASH Investment is an inactive illustrative member chart, not a live valuation or investment offer; private staff shareholder records are separate. ASH Glo does not execute trades, provide trading signals, guarantee returns or provide personalized investment advice.
 
 ASH AI helps members understand ASH Glo features and their own account activity. AI output can be inaccurate and does not replace professional advice.
 
-Supported features, earning tools and payment methods vary by account and region. ASH Glo never asks for your Mobile Money PIN.
+Supported features and payment methods vary by account and region. Card collections use Stripe; MTN MoMo and Orange Money use TchokoPay in Cameroon (XAF). M-PESA is not supported. ASH Glo never asks for your Mobile Money PIN. Bank transfer collection is available only with verified instructions and Finance confirmation. Stripe bank payout setup is approved-provider-only; direct saved-card payouts and automatic provider transfers are not enabled.
 
-Flights and Electricity are coming soon, not operational payment services. Referrals are three-level and region/account gated; withdrawals follow review/provider statuses and are not promised as instant. Mobile navigation is Feed, Market/Services, Flights, Messages and Menu, with a floating Wallet launcher. Sign-up/sign-in follows email confirmation when required, current Terms acceptance and profile-photo setup before Feed.
+Flights and Electricity are coming soon, not operational payment services. Referrals are three-level and region/account gated; withdrawals follow review/provider statuses and are not promised as instant. Mobile navigation is Feed, Market/Services, Flights, Messages and Menu, with a single floating ASH Compass (Map/Wallet). Sign-up/sign-in follows email confirmation when required, current Terms acceptance and profile-photo setup before Feed.
 
 Identity protection denies normalized verified-name reuse and exact JPG/PNG photo copies. Attempts restrict access; a fourth attempt bans and signs out. Only authorized admin/Trust staff can restore identity access. This is not facial recognition or a guarantee against edited-image impersonation.
 
@@ -73,12 +75,20 @@ UGC safety:
 Account deletion:
   • In app: Menu → Settings → Account deletion
   • Public instructions: /account-deletion
-  • This is an administrative request. Approval closes the account; retained
-    information follows /privacy and outstanding financial/safety obligations.
+  • Administrative approval currently closes the profile only. Full login/data
+    erasure is not automated. Do not submit until a compliant deletion workflow
+    and retained-data exceptions have been implemented and tested.
 
 Payments:
-  • Transactions relate to real-world services or other supported real-world
-    activities. Supported Mobile Money flows use TchokoPay.
+  • Real-world bookings: Stripe card Checkout; MTN/Orange via TchokoPay (CM/XAF).
+    M-PESA is unavailable. Conditional bank collections require Finance confirmation.
+  • Collections are verified server-side against provider status or signed callbacks;
+    browser redirects and pending prompts are not payment evidence.
+  • Stripe provider transfers remain disabled. Collection, held payable and bank
+    receipt are separate. Do not claim every completed booking has been paid out.
+  • CURRENT BLOCKER: external-payment digital Promote, paid Verified badge and
+    referral activation require compliant native billing/eligibility treatment.
+    They have NOT been disabled or converted to store billing in this audit.
   • ASH Glo does not receive or store Mobile Money PINs or full card credentials.
   • Referral/wallet terms: /referral-wallet-terms
 
@@ -90,9 +100,11 @@ FX Analytics:
 Privacy:
   • /privacy discloses account/profile data, UGC, messages, transaction records,
     activity_events, interest signals, personalization controls, city permission,
-    ASH AI context, media screening, instructor ID/selfie review and retention.
+    ASH AI/staff AI context, media screening, ID/selfie review, raw IP/device
+    fingerprints, approximate access locations, opt-in precise trip tracking and retention.
 
-Sign in with Apple is offered alongside Google sign-in.
+Apple/Google sign-in controls exist; confirm hosted provider settings and final
+release sign-in before describing them as working to reviewers.
 ```
 
 ## 4. Apple App Privacy answers to verify in App Store Connect
@@ -105,23 +117,24 @@ Sign in with Apple is offered alongside Google sign-in.
 | User ID | Yes | Yes | No | Authentication and app functionality |
 | Photos / videos | Yes | Yes | No | Profile, UGC, listings, verification and AI when submitted |
 | Messages / customer support | Yes | Yes | No | Communications, safety and support |
-| Coarse location (city/country) | Optional | Yes | No | Nearby discovery and recommendations when enabled |
-| Precise location | Device permission only | No server storage in inspected flow | No | Resolve nearby city on device |
+| Coarse location (city/country and IP-derived location) | Yes for security; optional discovery | Yes | No | Security, nearby discovery and recommendations |
+| Precise location | Optional active trip sharing | Yes, linked to booking/account | No | Stored active booking-party tracking; nearby city resolution separately stays on device |
 | Purchase / transaction history | Yes | Yes | No | Booking, wallet, referral, withdrawal and reconciliation |
 | Product interaction / app activity | Yes | Yes | No | App functionality, safety and personalization |
 | Search history | Privacy-minimized event | Yes | No | Discovery and personalization |
-| Device ID (push token) | Yes | Yes | No | Notifications |
+| Device ID / access fingerprint / push token | Yes | Yes | No | Security and notifications |
+| IP / browser / approximate device location | Yes | Yes where authenticated | No | Restricted security review |
 | Crash / diagnostic data | Yes | May vary | No | Reliability and security |
-| Sensitive ID/selfie | Instructor applicants only | Yes | No | Manual verification review |
+| Sensitive ID/selfie | Applicable verification applicants | Yes | No | Manual review; Stripe-hosted onboarding separately collects provider identity/bank information |
 
-No advertising SDK or cross-app advertising tracking was identified in the inspected project. Re-check the final binary and all third-party SDK privacy manifests before submission.
+These are draft classifications, not submitted console answers. No advertising SDK or cross-app advertising tracking was identified in reviewed code. Re-check all SDKs, hosting diagnostics, map/IP processing, AI and payment providers in the final binary; confirm Apple definitions of collection/linking/tracking. Never answer precise location as device-only for live trip sharing.
 
 ## 5. Google Play Data safety notes
 
 - Data is encrypted in transit.
-- Account-deletion requests are available in app and at https://ashglogroup.company/account-deletion.
-- Data collected includes personal information, UGC, messages, transaction/accounting information, app activity, push tokens, optional city signals, and ID/selfie files for instructor applicants.
-- Supported Mobile Money transaction data is shared with TchokoPay. AI requests, submitted images and relevant account context are processed through the AI service supporting ASH Glo.
+- Deletion requests are accessible in app and at https://ashglogroup.company/account-deletion. Current approval closes the profile only; full account/data erasure must be completed and tested before claiming compliant deletion.
+- Declare personal information, UGC/messages, transactions, app activity, push/device identifiers, IP/user-agent/access fingerprints, coarse security location, optional precise trip location and applicable ID/selfie files. Saved staff AI reviews may process limited account/security records.
+- TchokoPay processes MTN/Orange transaction data; Stripe processes hosted card payments and eligible provider onboarding. AI services process submitted text/images and relevant context; maps/directions services receive map requests and necessary route data. Classify each under Google’s sharing/service-provider exceptions rather than assuming all processing is “not shared.”
 - Data is not sold and is not used for advertising tracking in the inspected implementation.
 - ASH Glo policy minimum is 13+. Complete the store’s content-rating and target-audience questionnaires truthfully; do not claim that 13+ guarantees approval or a particular rating.
 - Child-safety contact: privacy@ashglogroup.company. Do not describe this address as a formally appointed DPO.
@@ -134,9 +147,13 @@ Leave blank / not applicable unless distribution in mainland China or a store wo
 
 - [ ] Add real reviewer credentials; never submit placeholders.
 - [ ] Confirm all seven canonical documents are live and readable without signing in.
-- [ ] Test report, block and account-deletion request flows using the reviewer account.
+- [ ] Test report/block/moderation and full account/data deletion with retained-data exceptions; profile closure alone is insufficient.
+- [ ] Resolve native billing treatment for paid digital Promote, Verified badges, referral activation and any digital content; do not conceal them in review notes.
+- [ ] Verify real-world vs digital tutoring/event classification; payment method depends on actual service delivery.
 - [ ] Complete age/content questionnaires from actual app content; do not copy an assumed rating.
 - [ ] Re-check final-binary privacy manifests and connected provider disclosures.
 - [ ] Confirm screenshots and listing copy do not advertise live trading, guaranteed earnings, completed KYC or unsupported payment methods.
 - [ ] Provide a business address only if required and confirmed by the owner.
-- [ ] Confirm iOS purpose strings, Android permissions, Sign in with Apple and deep links in the release build.
+- [ ] Confirm iOS purpose strings (including live booking location), Android permissions/photo-picker compliance, Apple/Google sign-in, deep links, privacy manifests and store-required SDK targets in the signed release.
+- [ ] Replace screenshots/copy that show old wallet conversions, duplicate launchers, live investment/flight claims or guaranteed payouts.
+- [ ] Verify final public URLs after an explicitly approved publication; this audit changes preview wording only.

@@ -6,6 +6,7 @@ import {
   LegalLinks,
   LegalList,
   LegalPage,
+  LegalPaymentDisclosure,
   LegalSection,
   SUPPORT_EMAIL,
 } from "@/components/refer/LegalDocument";
@@ -61,10 +62,14 @@ function MarketplacePolicyPage() {
           The current flow gives a provider up to 24 hours to accept or decline. After acceptance, the customer generally has
           24 hours to complete payment. Unanswered or unpaid requests may expire automatically. The app displays the controlling status and deadline for each booking.
         </p>
+        <p>After verified payment, the customer sees the receipt and private service code; the provider does not see that code. Paid booking parties can access contact and tracking information and each can choose to share location. The provider records trip progress and enters the code supplied by the customer after service; server validation records completion. Payment alone does not complete service or prove payout.</p>
         <p>Customers must provide accurate scheduling and service details. Providers should not begin work unless the booking and payment status supports doing so.</p>
       </LegalSection>
 
       <LegalSection id="payment" title="4. Payments and fees">
+        <LegalPaymentDisclosure />
+        <p>The default booking commission is 15%; authorized CEO/Finance staff can select 12% or 15%. The rate saved at payment remains with that booking. Payment-link fees are separate at 1%. Automatic Stripe provider transfers are currently disabled: a verified service can authorize a held provider payable without proving money reached a bank.</p>
+        <p>The quoted booking currency, Stripe checkout charge currency, card billing currency and platform settlement currency can differ. Review checkout before authorizing payment. Your issuer may apply exchange rates or fees; the wallet does not convert its recorded balances.</p>
         <p>
           Available payment methods are shown at checkout. Supported Mobile Money transactions are sent to TchokoPay using
           the phone number, provider/network, amount, currency and transaction reference needed to request and verify payment.

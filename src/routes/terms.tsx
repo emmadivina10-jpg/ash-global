@@ -6,6 +6,7 @@ import {
   LegalLinks,
   LegalList,
   LegalPage,
+  LegalPaymentDisclosure,
   LegalSection,
   PRIVACY_EMAIL,
   SUPPORT_EMAIL,
@@ -86,6 +87,8 @@ function TermsPage() {
       </LegalSection>
 
       <LegalSection id="marketplace" title="4. Marketplace, bookings and payments">
+        <LegalPaymentDisclosure />
+        
         <p>
           The <Link to="/marketplace-policy" className="text-primary hover:underline">Marketplace, Services, Booking &amp; Refund Policy</Link>
           governs listings, provider duties, booking status, cancellations, disputes and refunds. Booking requests require provider
@@ -136,6 +139,10 @@ function TermsPage() {
         </p>
       </LegalSection>
 
+      <LegalSection id="investment-preview" title="ASH Investment preview">
+        <p>The member ASH Investment chart is an inactive illustration. Its moving lines are decorative, not a live company price, valuation, investment recommendation or invitation to invest. Currency and period controls do not trade, accept investments or change funds. Private staff shareholder records are separate.</p>
+      </LegalSection>
+
       <LegalSection id="verification" title="8. Verification">
         <p>
           Some features may ask for a government ID and selfie/face image for manual verification. Submission does not mean that
@@ -157,8 +164,7 @@ function TermsPage() {
         <p>
           You may submit an <Link to="/account-deletion" className="text-primary hover:underline">account-deletion request</Link>.
           The request is reviewed by authorized staff and may be delayed or rejected while outstanding balances, withdrawals,
-          bookings, disputes, investigations or legal obligations are resolved. Approval currently closes the account; data is then
-          handled according to the Privacy Policy and applicable retention obligations. Submission does not cause immediate or automatic deletion.
+          bookings, disputes, investigations or legal obligations are resolved. Approval currently closes the profile, not an automatic erasure of the login account or associated data. Further data handling requires administrative follow-up under the Privacy Policy. Submission does not cause immediate or automatic deletion.
         </p>
         <p>{LEGAL_ENTITY} may restrict or close an account that violates these Terms, another policy, the rights of others or applicable law.</p>
       </LegalSection>
