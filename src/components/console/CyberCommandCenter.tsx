@@ -15,8 +15,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { AccountControlTab, AccountIntelligence, ReportsTab, WorldMapTab } from "./CyberDeskTabs";
 
-const TABS = ["Daily review", "Accounts", "IP & browsers", "Alerts", "Staff logins", "Training", "Posture", "Actions"] as const;
+const TABS = ["World map", "Daily review", "Accounts", "Account control", "Reports", "IP & browsers", "Alerts", "Staff logins", "Training", "Posture", "Actions"] as const;
 type Tab = (typeof TABS)[number];
 
 function errMsg(e: unknown) {
@@ -37,7 +38,8 @@ function Card({ title, children, desc }: { title: string; desc?: string; childre
 }
 
 export function CyberCommandCenter() {
-  const [tab, setTab] = useState<Tab>("Daily review");
+  const [tab, setTab] = useState<Tab>("World map");
+  const [focusUser, setFocusUser] = useState<string | null>(null);
   return (
     <div className="space-y-4">
       <div className="flex gap-2 overflow-x-auto pb-1">
@@ -45,8 +47,11 @@ export function CyberCommandCenter() {
           <button key={t} type="button" onClick={() => setTab(t)} className={cn("shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold", tab === t ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>{t}</button>
         ))}
       </div>
+      {tab === "World map" && <WorldMapTab onOpenAccount={(id) => { setFocusUser(id); setTab("Accounts"); }} />}
       {tab === "Daily review" && <DailyReview />}
-      {tab === "Accounts" && <Accounts />}
+      {tab === "Accounts" && <Accounts initialUserId={focusUser} />}
+      {tab === "Account control" && <AccountControlTab initialUserId={focusUser} />}
+      {tab === "Reports" && <ReportsTab />}
       {tab === "IP & browsers" && <IpBlocks />}
       {tab === "Alerts" && <Alerts />}
       {tab === "Staff logins" && <Rotation />}
@@ -111,12 +116,12 @@ function DailyReview() {
   );
 }
 
-function Accounts() {
+function Accounts({ initialUserId }: { initialUserId?: string | null }) {
   const search = useServerFn(searchSecurityAccounts);
   const getAcc = useServerFn(getSecurityAccount);
   const setR = useServerFn(setAccountRestrictions);
   const [q, setQ] = useState("");
-  const [sel, setSel] = useState<string | null>(null);
+  const [sel, setSel] = useState<string | null>(initialUserId ?? null);
   const results = useMutation({ mutationFn: (x: string) => search({ data: { q: x } }) });
   const detail = useQuery({ queryKey: ["cyber", "acc", sel], enabled: Boolean(sel), queryFn: () => getAcc({ data: { userId: sel! } }) });
   const [state, setState] = useState<RestrictionState>(EMPTY_RESTRICTIONS);
@@ -162,6 +167,7 @@ function Accounts() {
                 <ul className="space-y-1 text-xs">{d.fingerprints.map((f) => <li key={f.ip + f.fingerprint} className="font-mono">{f.ip} · {f.country ?? "?"} · {f.fingerprint} · {f.hits}× · {f.user_agent?.slice(0, 60)}</li>)}</ul>
               )}
             </div>
+            <AccountIntelligence userId={sel} />
             {d.protected ? <p className="rounded-2xl bg-primary/10 p-3 text-xs font-semibold">Protected owner/admin account. Cyber cannot restrict, freeze or sign it out.</p> : (
               <div className="space-y-2">
                 <p className="font-semibold">Restriction levels</p>

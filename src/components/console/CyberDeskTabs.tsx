@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Brain, FileText, KeyRound, Loader2, LogOut, Mail, MapPin, Phone, Plane, Printer, Search, Send, ShieldAlert, Trash2, X } from "lucide-react";
+import { Brain, FileText, KeyRound, Loader2, LogOut, Mail, MapPin, Phone, Printer, Search, Send, ShieldAlert, Trash2, X } from "lucide-react";
 import {
   askAccountIntelligence, deleteSecurityReport, disputeTransaction, forceLogoutAccount, generateSecurityReport, getCyberMap,
   getLiveTrip, listAccountTransactions, listSecurityReports, releaseTransactionHold, sendAccountRecovery, sendReportToCeo,
@@ -344,4 +344,3 @@ export function ReportsTab() {
   );
 }
 
-export { Plane };
