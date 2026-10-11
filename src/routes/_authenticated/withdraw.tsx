@@ -41,6 +41,8 @@ const ERRORS: Record<string, string> = {
     `The minimum withdrawal is ${formatXAF(MIN_WITHDRAWAL)}.`,
   INSUFFICIENT_BALANCE:
     "You do not have enough available balance.",
+  WRONG_FUNDING_SOURCE:
+    "Money must be withdrawn the same way it was added. Card money goes back through Card / Bank, Mobile Money through MTN or Orange.",
   PENDING_WITHDRAWAL_EXISTS:
     "You already have a withdrawal being processed.",
   UNAUTHENTICATED:
@@ -182,6 +184,8 @@ function WithdrawPage() {
 
   const isBank =
     method === "STRIPE_BANK";
+
+  const available = isBank ? cardFunds : momoFunds;
 
   const momoAvailable =
     mobileMoneyEnabled;
@@ -531,6 +535,19 @@ function WithdrawPage() {
               )}
               .
             </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 text-xs">
+            <div className="rounded-xl border border-border p-3">
+              <p className="text-muted-foreground">Mobile Money funds</p>
+              <p className="mt-1 text-sm font-bold text-foreground">{formatXAF(momoFunds)}</p>
+              <p className="mt-1 text-muted-foreground">Withdraw with MTN or Orange</p>
+            </div>
+            <div className="rounded-xl border border-border p-3">
+              <p className="text-muted-foreground">Card funds</p>
+              <p className="mt-1 text-sm font-bold text-foreground">{formatXAF(cardFunds)}</p>
+              <p className="mt-1 text-muted-foreground">Withdraw with Card / Bank</p>
+            </div>
           </div>
 
           <fieldset className="space-y-2">
