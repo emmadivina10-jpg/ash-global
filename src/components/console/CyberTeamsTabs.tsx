@@ -185,7 +185,7 @@ export function TrustDeskTab() {
           <Stat label="Copy attempts" value={d.impersonation.length} />
         </div>
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {DEPT_PAGES.TRUST!.map((p) => <Link key={p.to} to={p.to} className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold hover:bg-primary hover:text-primary-foreground">{p.label}</Link>)}
+          {DEPT_PAGES["TRUST"]!.map((p) => <Link key={p.to} to={p.to} className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold hover:bg-primary hover:text-primary-foreground">{p.label}</Link>)}
         </div>
       </Card>
       <div className="grid gap-4 lg:grid-cols-2">

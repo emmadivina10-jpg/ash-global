@@ -123,8 +123,9 @@ export function parseUserAgent(ua: string | null) {
   const device = /mobile|iphone|android/i.test(s) ? "Phone" : /ipad|tablet/i.test(s) ? "Tablet" : s ? "Computer" : "Unknown";
   let browser = "Unknown"; let version = 0;
   const m = s.match(/(Edg|OPR|Chrome|Firefox|Version)\/(\d+)/);
-  if (m) { browser = m[1] === "Edg" ? "Edge" : m[1] === "OPR" ? "Opera" : m[1] === "Version" ? "Safari" : m[1]; version = Number(m[2]); }
+  if (m) { const k = m[1] ?? ""; browser = k === "Edg" ? "Edge" : k === "OPR" ? "Opera" : k === "Version" ? "Safari" : k; version = Number(m[2] ?? 0); }
   const minimum: Record<string, number> = { Chrome: 120, Edge: 120, Firefox: 115, Safari: 16, Opera: 100 };
-  const outdated = Boolean(minimum[browser] && version < minimum[browser]);
+  const min = minimum[browser];
+  const outdated = Boolean(min && version < min);
   return { os, device, browser, version, bot, outdated };
 }
