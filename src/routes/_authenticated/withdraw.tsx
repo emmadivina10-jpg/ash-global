@@ -227,7 +227,7 @@ function WithdrawPage() {
 
     if (value > available) {
       setError(
-        ERRORS["INSUFFICIENT_BALANCE"] ??
+        ERRORS[value <= totalAvailable ? "WRONG_FUNDING_SOURCE" : "INSUFFICIENT_BALANCE"] ??
           null,
       );
       return;
