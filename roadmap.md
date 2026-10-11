@@ -1,5 +1,10 @@
 # Roadmap
 
+## Wallet dropdown and ASH Investment (Oct 11)
+- [ ] Replace wallet currency chips with a dropdown and expand display currencies without converting balances
+- [ ] Add ASH Investment to Messages with an inactive, clearly illustrative alligator-style chart and currency/time controls
+- [ ] Verify selector, chart and navigation; preserve funds/settings, no publishing
+
 ## Website app screenshots (Oct 10)
 - [x] Replace generic website images with supplied Feed, Messages and Flights screenshots; rotate single/paired views with blur/fade, preserving phone onboarding
 - [x] Add truthful app download invitation; browser verified images, paired transitions, controls, no overflow/runtime errors; preview build OK, not published
