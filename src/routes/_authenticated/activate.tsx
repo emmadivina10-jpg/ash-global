@@ -98,6 +98,26 @@ function ActivatePage() {
     toast.message("Check your phone and approve the payment prompt.");
   }
 
+  async function payWithWallet() {
+    setPhase("charging");
+    setMessage(null);
+    const result = await payFromWallet({ data: undefined });
+    if (!result.ok) {
+      setPhase("error");
+      setMessage(
+        result.error === "INSUFFICIENT_BALANCE"
+          ? `Your wallet balance (${formatXAF(result.balance ?? 0)}) is below the ${formatXAF(ACTIVATION_FEE)} fee. Top up your wallet first, or pay with Mobile Money below.`
+          : result.error === "ALREADY_ACTIVE"
+            ? "Your account is already active."
+            : "We could not complete the wallet payment. Please try again.",
+      );
+      return;
+    }
+    setPhase("active");
+    toast.success("Payment confirmed. Your account is now active.");
+    await queryClient.invalidateQueries();
+  }
+
   async function verify() {
     setPhase("verifying");
     setMessage(null);
@@ -176,6 +196,34 @@ function ActivatePage() {
           <p>{message}</p>
         </div>
       ) : null}
+
+      <SectionCard title="Pay from your wallet">
+        <div className="flex items-center justify-between rounded-xl bg-muted px-4 py-3">
+          <span className="flex items-center gap-2 text-sm font-medium text-foreground">
+            <Wallet className="size-4 text-primary" aria-hidden />
+            Wallet balance
+          </span>
+          <span className="tabular font-bold text-foreground">{formatXAF(walletBalance)}</span>
+        </div>
+        <Button
+          className="mt-3 w-full"
+          onClick={payWithWallet}
+          disabled={phase === "charging" || !walletCanCover}
+        >
+          {phase === "charging" ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+          Pay {formatXAF(ACTIVATION_FEE)} from wallet
+        </Button>
+        {!walletCanCover ? (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Your balance is below the fee. Top up your wallet by card or Mobile Money first, or pay directly
+            with Mobile Money below.
+          </p>
+        ) : (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Instant — the fee leaves your wallet and your account activates right away.
+          </p>
+        )}
+      </SectionCard>
 
       <SectionCard title="Pay with Mobile Money">
         <MomoCharge
