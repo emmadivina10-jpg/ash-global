@@ -51,6 +51,27 @@ function PaymentDialog({ s, onDone }: { s: ShareholderRow; onDone: () => void })
   );
 }
 
+function ProviderNetworkMap() {
+  const fn = useServerFn(getInvestorProviderMap);
+  const { data } = useQuery({ queryKey: ["console", "investor-provider-map"], queryFn: fn, staleTime: 60_000 });
+  if (!data) return null;
+  return (
+    <GlassCard title="Provider network around the world">
+      <p className="mb-3 text-xs text-muted-foreground">
+        {data.total} provider{data.total === 1 ? "" : "s"} across {data.points.length} location{data.points.length === 1 ? "" : "s"}
+        {data.unmapped > 0 ? ` (${data.unmapped} without a saved location)` : ""}. Counts only — member details stay private.
+      </p>
+      {data.points.length > 0 ? (
+        <Suspense fallback={<div className="grid h-[46vh] min-h-72 w-full place-items-center rounded-xl border border-border text-sm text-muted-foreground">Loading map…</div>}>
+          <InvestorWorldMap points={data.points} />
+        </Suspense>
+      ) : (
+        <p className="text-sm text-muted-foreground">No provider locations to show yet.</p>
+      )}
+    </GlassCard>
+  );
+}
+
 function ShareholdersConsole() {
   const qc = useQueryClient();
   const fn = useServerFn(getShareholderCenter);
