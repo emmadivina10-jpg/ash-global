@@ -63,7 +63,7 @@ export function WorldMapTab({ onOpenAccount }: { onOpenAccount: (userId: string)
   const [layers, setLayers] = useState<Layers>({ providers: true, devices: true, trips: true, airports: false });
   const [sel, setSel] = useState<Selection>(null);
   const d = q.data;
-  const toggles: { key: keyof Layers; label: string; count?: number }[] = [
+  const toggles: { key: keyof Layers; label: string; count?: number | undefined }[] = [
     { key: "providers", label: "Providers", count: d?.providers.length },
     { key: "devices", label: "Devices & IPs", count: d?.devices.length },
     { key: "trips", label: "Live trips", count: d?.trips.length },
@@ -214,7 +214,7 @@ function AccountControls({ userId }: { userId: string }) {
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const run = async (key: string, fn: () => Promise<unknown>, ok: string) => {
-    if (!reason.trim() && key !== "release") return toast.error("Write a reason first.");
+    if (!reason.trim() && key !== "release") { toast.error("Write a reason first."); return; }
     setBusy(key);
     try { await fn(); toast.success(ok); await qc.invalidateQueries({ queryKey: ["cyber", "tx", userId] }); } catch (e) { toast.error(errMsg(e)); } finally { setBusy(null); }
   };
