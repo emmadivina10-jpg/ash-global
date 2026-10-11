@@ -91,6 +91,13 @@ export const unlockConsole = createServerFn({ method: "POST" })
       .maybeSingle();
 
     if (!staff || !staff.is_active || !verifyStaffPassword(data.password, staff.password_hash)) {
+      await db.from("security_events").insert({
+        kind: "STAFF_LOGIN_FAILED",
+        severity: "WARN",
+        subject: data.username.slice(0, 64),
+        route: "/console",
+        detail: { known_seat: Boolean(staff) },
+      });
       return { ok: false as const };
     }
 

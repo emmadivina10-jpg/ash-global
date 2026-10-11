@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_fingerprints: {
+        Row: {
+          country: string | null
+          fingerprint: string
+          first_seen: string
+          hits: number
+          id: string
+          ip: string
+          last_seen: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          country?: string | null
+          fingerprint: string
+          first_seen?: string
+          hits?: number
+          id?: string
+          ip: string
+          last_seen?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          country?: string | null
+          fingerprint?: string
+          first_seen?: string
+          hits?: number
+          id?: string
+          ip?: string
+          last_seen?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       account_deletion_requests: {
         Row: {
           admin_note: string | null
@@ -3185,6 +3221,39 @@ export type Database = {
           },
         ]
       }
+      ip_blocks: {
+        Row: {
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          id: string
+          kind: string
+          lifted_at: string | null
+          reason: string | null
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          expires_at?: string | null
+          id?: string
+          kind: string
+          lifted_at?: string | null
+          reason?: string | null
+          value: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          id?: string
+          kind?: string
+          lifted_at?: string | null
+          reason?: string | null
+          value?: string
+        }
+        Relationships: []
+      }
       job_applications: {
         Row: {
           applicant_id: string
@@ -5614,6 +5683,123 @@ export type Database = {
           },
         ]
       }
+      security_actions: {
+        Row: {
+          action: string
+          actor_name: string
+          actor_staff_id: string | null
+          after_state: Json | null
+          before_state: Json | null
+          created_at: string
+          id: string
+          reason: string | null
+          reverted_at: string | null
+          reverted_by: string | null
+          target_ref: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_name: string
+          actor_staff_id?: string | null
+          after_state?: Json | null
+          before_state?: Json | null
+          created_at?: string
+          id?: string
+          reason?: string | null
+          reverted_at?: string | null
+          reverted_by?: string | null
+          target_ref?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_name?: string
+          actor_staff_id?: string | null
+          after_state?: Json | null
+          before_state?: Json | null
+          created_at?: string
+          id?: string
+          reason?: string | null
+          reverted_at?: string | null
+          reverted_by?: string | null
+          target_ref?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
+      security_bulletins: {
+        Row: {
+          audience: string
+          body: string
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          id: string
+          severity: string
+          target_departments: string[]
+          target_user_ids: string[]
+          title: string
+        }
+        Insert: {
+          audience: string
+          body: string
+          created_at?: string
+          created_by: string
+          deleted_at?: string | null
+          id?: string
+          severity?: string
+          target_departments?: string[]
+          target_user_ids?: string[]
+          title: string
+        }
+        Update: {
+          audience?: string
+          body?: string
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          id?: string
+          severity?: string
+          target_departments?: string[]
+          target_user_ids?: string[]
+          title?: string
+        }
+        Relationships: []
+      }
+      security_daily_reviews: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          generated_at: string
+          id: string
+          items: Json
+          metrics: Json
+          review_date: string
+          summary: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          generated_at?: string
+          id?: string
+          items?: Json
+          metrics?: Json
+          review_date: string
+          summary: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          generated_at?: string
+          id?: string
+          items?: Json
+          metrics?: Json
+          review_date?: string
+          summary?: string
+        }
+        Relationships: []
+      }
       security_events: {
         Row: {
           actor_user_id: string | null
@@ -5644,6 +5830,113 @@ export type Database = {
           route?: string | null
           severity?: string
           subject?: string | null
+        }
+        Relationships: []
+      }
+      security_restrictions: {
+        Row: {
+          locked: boolean
+          no_commerce: boolean
+          no_posting: boolean
+          no_transactions: boolean
+          reason: string | null
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+          wallet_frozen: boolean
+          watch: boolean
+        }
+        Insert: {
+          locked?: boolean
+          no_commerce?: boolean
+          no_posting?: boolean
+          no_transactions?: boolean
+          reason?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+          wallet_frozen?: boolean
+          watch?: boolean
+        }
+        Update: {
+          locked?: boolean
+          no_commerce?: boolean
+          no_posting?: boolean
+          no_transactions?: boolean
+          reason?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
+          wallet_frozen?: boolean
+          watch?: boolean
+        }
+        Relationships: []
+      }
+      security_training_completions: {
+        Row: {
+          completed_at: string
+          id: string
+          passed: boolean
+          score: number
+          staff_id: string
+          training_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          passed: boolean
+          score: number
+          staff_id: string
+          training_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          passed?: boolean
+          score?: number
+          staff_id?: string
+          training_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "security_training_completions_training_id_fkey"
+            columns: ["training_id"]
+            isOneToOne: false
+            referencedRelation: "security_trainings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      security_trainings: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string
+          id: string
+          lessons: Json
+          pass_mark: number
+          quiz: Json
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by: string
+          id?: string
+          lessons?: Json
+          pass_mark?: number
+          quiz?: Json
+          title: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string
+          id?: string
+          lessons?: Json
+          pass_mark?: number
+          quiz?: Json
+          title?: string
         }
         Relationships: []
       }
@@ -5941,6 +6234,7 @@ export type Database = {
           identity_confirmed_at: string | null
           is_active: boolean
           last_login_at: string | null
+          password_changed_at: string | null
           password_hash: string
           phone: string | null
           position: string | null
@@ -5961,6 +6255,7 @@ export type Database = {
           identity_confirmed_at?: string | null
           is_active?: boolean
           last_login_at?: string | null
+          password_changed_at?: string | null
           password_hash: string
           phone?: string | null
           position?: string | null
@@ -5981,6 +6276,7 @@ export type Database = {
           identity_confirmed_at?: string | null
           is_active?: boolean
           last_login_at?: string | null
+          password_changed_at?: string | null
           password_hash?: string
           phone?: string | null
           position?: string | null
@@ -7249,6 +7545,7 @@ export type Database = {
         Args: { _project_id: string; _user_id: string }
         Returns: boolean
       }
+      is_protected_account: { Args: { _uid: string }; Returns: boolean }
       is_provider_owner: { Args: { _provider_id: string }; Returns: boolean }
       is_provider_visible: { Args: { _provider_id: string }; Returns: boolean }
       is_verified: { Args: { _user_id: string }; Returns: boolean }
