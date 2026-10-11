@@ -53,6 +53,7 @@ export function AccountDeletionContent() {
       </section>
 
       <section className="space-y-3">
+        <p className="text-sm leading-6 text-muted-foreground">Archiving or removing personal booking history does not delete bookings, payments or the other party’s history. Without signing in, use the public Support form, choose Account and give your account email and deletion request. Never send a password or private service code.</p>
         <div className="flex items-start gap-3"><ShieldCheck className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden /><div><h2 className="font-bold text-foreground">Personalization history</h2><p className="mt-1 text-sm leading-6 text-muted-foreground">You can clear only your personalization activity and interest signals at any time in Settings without closing your account. This does not delete posts, comments, messages, bookings, wallet records, referrals or friendships.</p></div></div>
         <div className="flex items-start gap-3"><CheckCircle2 className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden /><div><h2 className="font-bold text-foreground">Before submitting</h2><p className="mt-1 text-sm leading-6 text-muted-foreground">Save information you need, cancel eligible future bookings, and resolve pending withdrawals, balances or disputes. Do not submit a second request while one is pending.</p></div></div>
       </section>

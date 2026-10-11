@@ -40,4 +40,5 @@
 
 - WalletPayoutSetup reuses guarded Stripe Connect; PayoutSetupReminder saves account-scoped opt-out/cadence locally. Why: visible setup, no card collection or restricted payouts.
 - WebsiteAppShowcase stays separate from MobileOnboarding; use only confirmed store links. Why: preserve native entry and honest downloads.
-- currency-catalog.ts lists display choices; Investment is an authenticated illustration-only route. Why: no preview prices or currency conversions affect real funds.
+- Member Investment/currencies are display-only, separate from staff equity records. Why: protect funds.
+- LegalDocument shares payment disclosures; store docs distinguish code from release evidence. Why: truthful claims.

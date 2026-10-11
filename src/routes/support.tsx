@@ -89,7 +89,7 @@ function SupportPage() {
     <PublicInfoShell
       eyebrow={fr ? "Aide aux membres" : "Member care"}
       title={fr ? "Support ASH" : "ASH Support"}
-      description={fr ? "Obtenez de l’aide pour votre compte, vos réservations et vos paiements Mobile Money." : "Get help with your account, bookings and Mobile Money payments."}
+      description={fr ? "Aide pour votre compte, réservations, paiements carte/Stripe, MTN/Orange Money et retraits disponibles." : "Get help with your account, bookings, card/Stripe payments, MTN/Orange Money and supported withdrawals."}
     >
       <div className="mb-6 flex items-center gap-3 rounded-2xl border border-border bg-card p-4">
         <span className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary">

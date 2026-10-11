@@ -26,7 +26,7 @@ const CONTACTS = [
   {
     icon: LifeBuoy,
     title: "Account & payment support",
-    copy: "Bookings, Mobile Money, withdrawals, verification, access or technical help.",
+    copy: "Bookings, card/Stripe payments, MTN/Orange Money, supported withdrawals, verification, access or technical help.",
     email: "support@ashglogroup.company",
   },
   {

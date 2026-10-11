@@ -63,9 +63,9 @@ function PrivacyPage() {
             "Commerce information, including services, provider profiles, products, jobs, freelance projects, events, deals and property listings; booking details; prices; status history; and dispute evidence.",
             "Transaction and accounting information required for payments, wallet, referrals, commissions, activation, withdrawals and reconciliation, including payment provider, amount, currency, transaction reference, booking reference and transaction status. For card payments through Stripe-hosted Checkout, Stripe processes card information on its checkout page. ASH Glo may receive related transaction and payment-status information. ASH Glo does not receive or store full card numbers or card security codes through this hosted Checkout flow. We do not receive or store Mobile Money PINs.",
             "Verification information where applicable, including private government-ID and selfie/face files, application answers, review status and reviewer notes. Submission is manually reviewed and is not a claim of completed external KYC.",
-            "Device and technical information needed to run and secure the service, such as session, browser or app information, request and error data, notification token and security events.",
+            "Device and technical information needed to run and secure the service, such as session, browser or app information, request and error data, notification token and security events. Restricted security records can include raw IP addresses, user-agent strings, device/access fingerprints, approximate IP-derived city/country/coordinates, access timestamps and audited restrictions.",
             "Profile-photo file and decoded-pixel fingerprints used to detect exact JPG/PNG copies of an active verified member’s photo; denied identity attempts and account restriction/restoration records. This matching is not facial recognition and does not reliably detect cropped, resized or edited copies.",
-            "Coarse location information. Precise device location may be requested only through the existing permission flow for nearby features and is kept on the device; recommendation events receive only a cached city and country when city-based personalization is enabled.",
+            "For nearby discovery, coordinates resolve a city on the device; personalization receives a cached city/country when enabled. Separately, opt-in active booking tracking transmits and stores precise coordinates, accuracy and update time so booking parties can see each other. Authorized security staff can access active trip locations for safety review. Sharing records are cleared when the booking ends; you can stop sharing through booking controls or device permissions.",
           ]}
         />
       </LegalSection>
@@ -129,11 +129,17 @@ function PrivacyPage() {
         </p>
       </LegalSection>
 
+      <LegalSection id="staff-ai" title="Staff account and security review">
+        <p>Authorized staff AI can process limited account, booking, access and audit information needed for their role. Staff conversations and generated reports may be saved in restricted records, separately from the member assistant. AI suggestions do not establish a security certification or replace authorized human review.</p>
+      </LegalSection>
+
       <LegalSection id="sharing" title="6. When information is shared">
         <LegalList
           items={[
             "With other members according to the feature used—for example public or selected-audience profiles, posts, listings, reviews, group activity and messages to recipients.",
-            "With TchokoPay for supported Mobile Money collection or disbursement requests, using information needed to request and verify the transaction.",
+            "With TchokoPay for MTN MoMo and Orange Money collection/disbursement in Cameroon (XAF). M-PESA is not integrated. Transaction outcomes must be verified; a pending prompt is not confirmed payment.",
+            "With Stripe for eligible provider hosted bank-account onboarding, identity/capability checks and available payout processing. This is separate from card checkout; direct saved-card withdrawals and automatic provider transfers are not enabled.",
+            "With map/directions services for booking maps and route estimates. Tile requests can reveal your IP and requested map area to the map provider; routes use relevant party locations. Precise sharing is optional and separate from approximate IP-based security location.",
             "With Stripe when customers choose card payments through Stripe-hosted Checkout, to process payments and support transaction confirmation, refunds, fraud prevention and dispute handling. Stripe processes payment information under its applicable terms and privacy policy. ASH Glo may receive transaction references, payment status, amounts, currency and related booking information, but does not receive or store full card numbers or card security codes through the hosted Checkout flow.",
             "With the AI service supporting ASH AI and media screening for the processing described above.",
             "With hosting, storage, notification, email and technical service providers needed to run and secure ASH Glo.",
@@ -149,8 +155,7 @@ function PrivacyPage() {
       <LegalSection id="device-storage" title="7. Device storage, diagnostics and tracking">
         <p>
           ASH Glo uses local storage on your device for items such as authentication state, language, theme, onboarding
-          choices, sound and interface preferences, and cached location choices. No cookie usage or advertising SDK was
-          found in the inspected implementation. Technical request, error, reliability and security information may
+          choices, sound and interface preferences, selected currency, payout-reminder choices, Compass visibility/position and cached location choices. Authentication and service delivery may also use session cookies. No advertising SDK was identified in reviewed app code. Technical request, error, reliability and security information may
           still be processed to operate and protect the service. ASH Glo does not use this information for cross-app
           advertising tracking.
         </p>

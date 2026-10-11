@@ -6,6 +6,7 @@ import {
   LegalLinks,
   LegalList,
   LegalPage,
+  LegalPaymentDisclosure,
   LegalSection,
   PRIVACY_EMAIL,
   SUPPORT_EMAIL,
@@ -86,6 +87,8 @@ function TermsPage() {
       </LegalSection>
 
       <LegalSection id="marketplace" title="4. Marketplace, bookings and payments">
+        <LegalPaymentDisclosure />
+        
         <p>
           The <Link to="/marketplace-policy" className="text-primary hover:underline">Marketplace, Services, Booking &amp; Refund Policy</Link>
           governs listings, provider duties, booking status, cancellations, disputes and refunds. Booking requests require provider
@@ -134,6 +137,10 @@ function TermsPage() {
           They do not provide personalized investment advice, trading signals, guaranteed results, brokerage, custody or trade execution.
           Verify market information independently and seek qualified advice appropriate to your circumstances before making financial decisions.
         </p>
+      </LegalSection>
+
+      <LegalSection id="investment-preview" title="ASH Investment preview">
+        <p>The member ASH Investment chart is an inactive illustration. Its moving lines are decorative, not a live company price, valuation, investment recommendation or invitation to invest. Currency and period controls do not trade, accept investments or change funds. Private staff shareholder records are separate.</p>
       </LegalSection>
 
       <LegalSection id="verification" title="8. Verification">

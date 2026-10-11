@@ -6,6 +6,7 @@ import {
   LegalLinks,
   LegalList,
   LegalPage,
+  LegalPaymentDisclosure,
   LegalSection,
   SUPPORT_EMAIL,
 } from "@/components/refer/LegalDocument";
@@ -45,6 +46,10 @@ function ReferralWalletTermsPage() {
         </p>
       </LegalSection>
 
+      <LegalSection id="activation" title="Optional referral activation">
+        <p>Referral earning is region-gated to Cameroon and Nigeria. Optional activation costs 5,000 XAF, not a general registration fee. The current activation screen accepts supported Mobile Money or eligible XAF wallet funds, not direct card checkout. Card top-ups settled in another currency cannot automatically pay an XAF activation fee.</p>
+      </LegalSection>
+
       <LegalSection id="referrals" title="2. Referral attribution and rewards">
         <LegalList items={[
           "A referral is attributed using a valid referral code or link recorded during the supported registration flow.",
@@ -63,6 +68,8 @@ function ReferralWalletTermsPage() {
       </LegalSection>
 
       <LegalSection id="wallet" title="4. Wallet records">
+        <LegalPaymentDisclosure />
+        <p>One wallet has a currency dropdown: Mobile Money funds are recorded in XAF; card top-ups use the gross amount and currency actually settled into ASH’s Stripe balance, not necessarily your card’s country or billing currency. Selecting a currency does not exchange money; unfunded currencies show zero. The Money flow chart summarizes recorded completed movements, not a bank statement or investment forecast.</p>
         <p>
           The ASH wallet is an account ledger showing eligible balances, earnings, commissions, adjustments, transactions and
           withdrawal status. It is not a bank account, deposit account, savings product or investment product. Wallet values do not earn interest.
@@ -74,6 +81,8 @@ function ReferralWalletTermsPage() {
       </LegalSection>
 
       <LegalSection id="withdrawals" title="5. Withdrawals">
+        <p>XAF Mobile Money funds use MTN/Orange withdrawals, with a 100 XAF minimum. Card-funded balances use the matching-currency Stripe bank route, with an app minimum of 1 currency unit, subject to provider eligibility, funding and execution controls. Stripe collections cannot fund TchokoPay withdrawals; balances are not converted between rails.</p>
+        <p>Stripe bank setup is shown only to approved providers and depends on identity requirements and account capabilities. Hosted onboarding collects requirements currently due; more may be requested later. Ineligible customers do not gain a bank withdrawal destination by topping up by card. Direct withdrawal to a saved card and automatic provider transfers are not currently enabled. A credited balance does not guarantee an immediately available withdrawal. No instant payout or automatic e-Transfer is promised.</p>
         <p>
           Supported withdrawal methods, destinations, minimums and fees are shown before submission. Mobile Money withdrawals
           use TchokoPay where supported. Withdrawal requests are reviewed by authorized staff and may remain pending while ASH Glo

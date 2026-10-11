@@ -2,11 +2,19 @@ import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { PublicInfoShell } from "@/components/refer/PublicInfoShell";
 
-export const LEGAL_UPDATED = "5 October 2026";
+export const LEGAL_UPDATED = "11 October 2026";
 export const LEGAL_ENTITY = "ASH Global Technologies";
 export const PRODUCT_NAME = "ASH Glo";
 export const SUPPORT_EMAIL = "support@ashglogroup.company";
 export const PRIVACY_EMAIL = "privacy@ashglogroup.company";
+
+export function LegalPaymentDisclosure() {
+  return <>
+    <p>Card collections, where offered, use Stripe-hosted Checkout. Supported Mobile Money means MTN MoMo and Orange Money through TchokoPay in Cameroon (XAF). M-PESA is not integrated or available. A country or currency selector does not establish payment or withdrawal support.</p>
+    <p>A checkout return, phone prompt, screenshot or pending entry is not proof of payment. Card collections are confirmed using verified Stripe webhook evidence or a server-side check against Stripe. Mobile Money collections are checked against TchokoPay’s transaction status or verified callback. Bank transfers are available only when verified bank instructions are supplied and remain pending until Finance confirms receipt; this is separate from Stripe bank payout setup.</p>
+    <p>Collection, wallet credit, service completion, provider transfer and bank receipt are separate statuses. A payment receipt does not prove service delivery or bank payout. Pending or failed payments are not received funds. ASH Glo does not collect full card numbers, card security codes or Mobile Money PINs through these hosted flows.</p>
+  </>;
+}
 
 export function LegalPage({
   eyebrow,
