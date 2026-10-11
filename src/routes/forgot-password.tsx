@@ -11,11 +11,15 @@ import { useI18n } from "@/lib/i18n";
 export const Route = createFileRoute("/forgot-password")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: "https://ashglogroup.company/forgot-password" },
       { title: "Reset your password — ASH Glo" },
       { name: "description", content: "Request a secure password reset link for your ASH Glo account." },
       { property: "og:title", content: "Reset your password — ASH Glo" },
       { property: "og:description", content: "Request a secure password reset link." },
     ],
+    links: [{ rel: "canonical", href: "https://ashglogroup.company/forgot-password" }],
   }),
   component: ForgotPasswordPage,
 });
