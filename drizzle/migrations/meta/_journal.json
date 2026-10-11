@@ -176,6 +176,13 @@
       "when": 1791700087302,
       "tag": "0024_request_withdrawal_restore_full",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1791701288776,
+      "tag": "0025_wallet_funding_source_split",
+      "breakpoints": true
     }
   ]
 }
