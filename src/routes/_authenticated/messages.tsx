@@ -6,9 +6,9 @@ import {
   useRef,
   useState,
 } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, Camera, LifeBuoy, Search, Settings2, UserMinus } from "lucide-react";
+import { ArrowLeft, Camera, LifeBuoy, Search, Settings2, UserMinus, ChartNoAxesCombined } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 
@@ -859,6 +859,10 @@ function MessagesPage() {
                     ? tx("Chat lock PIN", "Code des discussions")
                     : tx("Set a PIN", "Créer un code")}
                 </button>
+
+                <Button asChild variant="outline" size="sm" className="h-10 rounded-full border-success/30 bg-success/10 px-3 text-sm text-foreground hover:bg-success/20">
+                  <Link to="/investment"><ChartNoAxesCombined className="size-4 text-success" aria-hidden />ASH Investment</Link>
+                </Button>
 
                 {lockedUnlocked ? (
                   <span className="rounded-full bg-primary/15 px-2.5 py-1 text-[11px] font-bold text-primary">

@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { DISPLAY_CURRENCIES } from "@/lib/currency-catalog";
 
 /**
  * One wallet, real money per currency. XAF is Mobile Money (TchokoPay) money;
  * every other currency is card money exactly as Stripe settled it. Amounts are
  * never converted between currencies for display or withdrawal.
  */
-export const BASE_CURRENCIES = ["XAF", "CAD", "USD"] as const;
+export const BASE_CURRENCIES = DISPLAY_CURRENCIES;
 
 export type CurrencyBalance = {
   currency: string;
@@ -123,7 +124,7 @@ export function buildMoneyFlow(rows: TxLike[], currency: string, range: FlowRang
     keys.push(monthly ? d.toISOString().slice(0, 7) : d.toISOString().slice(0, 10));
     labels.push(monthly ? d.toLocaleDateString("en-GB", { month: "short", timeZone: "UTC" }) : d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", timeZone: "UTC" }));
   }
-  const map = new Map(keys.map((k, i) => [k, { label: labels[i]!, in: 0, out: 0 }]));
+  const map = new Map(keys.map((k, i) => [k, { label: labels[i] ?? "", in: 0, out: 0 }]));
   let totalIn = 0;
   let totalOut = 0;
   for (const r of rows) {

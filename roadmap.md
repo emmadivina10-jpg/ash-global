@@ -1,5 +1,11 @@
 # Roadmap
 
+## Wallet dropdown and ASH Investment (Oct 11)
+- [x] Replace wallet currency chips with a dropdown and 30 display currencies without converting balances
+- [x] Add ASH Investment after the Messages PIN action with an inactive, illustrative three-line chart and currency/time controls
+- [x] Eight currency tests pass; isolated browser verified 30 options, EUR selection, three curves, period/currency controls and return navigation without runtime errors; preview build OK; no funds/settings changes or publishing
+- [ ] Signed-in Messages-to-Investment check — not performed; isolated navigation/controls verified without accepting member terms or changing account records
+
 ## Website app screenshots (Oct 10)
 - [x] Replace generic website images with supplied Feed, Messages and Flights screenshots; rotate single/paired views with blur/fade, preserving phone onboarding
 - [x] Add truthful app download invitation; browser verified images, paired transitions, controls, no overflow/runtime errors; preview build OK, not published
