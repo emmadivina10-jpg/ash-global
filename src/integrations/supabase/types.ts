@@ -7440,6 +7440,7 @@ export type Database = {
       wallets: {
         Row: {
           available_balance: number
+          card_balance: number
           created_at: string
           currency: string
           id: string
@@ -7451,6 +7452,7 @@ export type Database = {
         }
         Insert: {
           available_balance?: number
+          card_balance?: number
           created_at?: string
           currency?: string
           id?: string
@@ -7462,6 +7464,7 @@ export type Database = {
         }
         Update: {
           available_balance?: number
+          card_balance?: number
           created_at?: string
           currency?: string
           id?: string
