@@ -1,13 +1,26 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { Building2, CreditCard, ArrowUpRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { PayoutAccountCard } from "./PayoutAccountCard";
+import { getPayoutSetupVisibility } from "@/lib/payouts.functions";
 
 export function WalletPayoutSetup({ country }: { country: string }) {
   const { tx } = useI18n();
   const [mode, setMode] = useState<"bank" | "card" | null>(null);
+  const visibility = useServerFn(getPayoutSetupVisibility);
+  // Option A: bank payout setup is entirely hidden for anyone who is not an
+  // approved provider — customers never see the option, not even disabled.
+  const { data: gate } = useQuery({
+    queryKey: ["payout-setup-visibility"],
+    queryFn: () => visibility({ data: undefined as never }),
+    staleTime: 60_000,
+  });
+  if (!gate) return null;
+  if (!gate.canSetUpBank) return null;
   return <section id="payout-setup" className="scroll-mt-5 border-y border-border py-5">
     <h2 className="text-base font-bold text-foreground">{tx("Payout accounts", "Comptes de versement")}</h2>
     <div className="mt-3 grid gap-3 sm:grid-cols-2">
