@@ -129,7 +129,7 @@ const MORE_GROUPS: { en: string; fr: string; items: NavItem[] }[] = [
       { to: "/dashboard", key: "nav.home" as TKey, icon: TrendingUp, referralOnly: true },
       { to: "/network", key: "nav.network" as TKey, icon: Users, referralOnly: true },
       { to: "/transactions", key: "nav.transactions" as TKey, icon: Receipt },
-      { to: "/withdraw", key: "nav.withdraw" as TKey, icon: ArrowDownToLine, referralOnly: true },
+      { to: "/withdraw", key: "nav.withdraw" as TKey, icon: ArrowDownToLine },
       { to: "/analytics", key: "nav.analytics" as TKey, label: "Analytics", icon: BarChart3 },
     ],
   },
