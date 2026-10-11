@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkoutMatches, providerMinorShare, releaseBlocker, transferKey, transferFailure, payoutRoute, LIVE_PROVIDER_TRANSFERS_ENABLED, LIVE_PROVIDER_ONBOARDING_ENABLED } from "../src/lib/stripe-release-policy";
+import { checkoutMatches, providerMinorShare, releaseBlocker, transferKey, transferFailure, payoutRoute, onboardingAllowed, LIVE_PROVIDER_TRANSFERS_ENABLED, LIVE_PROVIDER_ONBOARDING_ENABLED } from "../src/lib/stripe-release-policy";
 
 const eligible = { paid: true, verified: true, completed: true, held: false, destinationCountry: "CA", transfersActive: true, payoutsEnabled: true, currency: "cad" };
 const checkout = { expectedSession: "cs_live_one", actualSession: "cs_live_one", expectedReference: "BKG-one", actualReference: "BKG-one", expectedMinor: 10000, actualMinor: 10000, expectedCurrency: "USD", actualCurrency: "usd", live: true, paid: true };
@@ -26,7 +26,10 @@ describe("verified provider releases", () => {
   it("rejects unpaid sessions", () => expect(checkoutMatches({ ...checkout, paid: false })).toBe(false));
   it("rejects Flights references on Marketplace", () => expect(checkoutMatches({ ...checkout, actualReference: "FLT-one" })).toBe(false));
   it("keeps live transfers disabled", () => expect(LIVE_PROVIDER_TRANSFERS_ENABLED).toBe(false));
-  it("keeps live account creation disabled", () => expect(LIVE_PROVIDER_ONBOARDING_ENABLED).toBe(false));
+  it("allows live account creation only through the server allowlist", () => expect(LIVE_PROVIDER_ONBOARDING_ENABLED).toBe(true));
+  it("lets an approved provider connect a bank", () => expect(onboardingAllowed({ onboarding_enabled: true, onboarding_allowed_user_ids: ["emmanuel"] }, "emmanuel")).toBe(true));
+  it("blocks other members while only Emmanuel is approved", () => expect(onboardingAllowed({ onboarding_enabled: true, onboarding_allowed_user_ids: ["emmanuel"] }, "vibes")).toBe(false));
+  it("blocks everyone when bank connection is switched off", () => expect(onboardingAllowed({ onboarding_enabled: false, onboarding_allowed_user_ids: ["emmanuel"] }, "emmanuel")).toBe(false));
   it("records insufficient funds separately from success", () => expect(transferFailure(400, "balance_insufficient")).toBe("INSUFFICIENT_FUNDS"));
   it("requires reconciliation on a lost response", () => expect(transferFailure(0, "")).toBe("UNKNOWN"));
   it("requires reconciliation on a server error", () => expect(transferFailure(503, "")).toBe("UNKNOWN"));
