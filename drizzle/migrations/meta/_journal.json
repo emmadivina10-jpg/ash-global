@@ -141,6 +141,13 @@
       "when": 1791685296461,
       "tag": "0019_security_reports_audit_kinds",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1791686319991,
+      "tag": "0020_stripe_booking_release_hardened",
+      "breakpoints": true
     }
   ]
 }

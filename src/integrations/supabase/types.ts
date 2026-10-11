@@ -6859,6 +6859,206 @@ export type Database = {
           },
         ]
       }
+      stripe_booking_releases: {
+        Row: {
+          amount_minor: number
+          attempt: number
+          booking_id: string
+          commission_rate: number
+          created_at: string
+          currency: string
+          destination_account_id: string | null
+          gross_minor: number
+          idempotency_key: string
+          last_error: string | null
+          marketplace_account_id: string
+          payment_intent_id: string
+          review_required: boolean
+          session_id: string
+          source_charge_id: string
+          status: string
+          submitted_at: string | null
+          transfer_id: string | null
+          transferred_at: string | null
+          verified_event_id: string
+        }
+        Insert: {
+          amount_minor: number
+          attempt?: number
+          booking_id: string
+          commission_rate: number
+          created_at?: string
+          currency: string
+          destination_account_id?: string | null
+          gross_minor: number
+          idempotency_key: string
+          last_error?: string | null
+          marketplace_account_id: string
+          payment_intent_id: string
+          review_required?: boolean
+          session_id: string
+          source_charge_id: string
+          status?: string
+          submitted_at?: string | null
+          transfer_id?: string | null
+          transferred_at?: string | null
+          verified_event_id: string
+        }
+        Update: {
+          amount_minor?: number
+          attempt?: number
+          booking_id?: string
+          commission_rate?: number
+          created_at?: string
+          currency?: string
+          destination_account_id?: string | null
+          gross_minor?: number
+          idempotency_key?: string
+          last_error?: string | null
+          marketplace_account_id?: string
+          payment_intent_id?: string
+          review_required?: boolean
+          session_id?: string
+          source_charge_id?: string
+          status?: string
+          submitted_at?: string | null
+          transfer_id?: string | null
+          transferred_at?: string | null
+          verified_event_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_booking_releases_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stripe_charge_holds: {
+        Row: {
+          charge_id: string
+          created_at: string
+          kind: string
+          reason: string
+        }
+        Insert: {
+          charge_id: string
+          created_at?: string
+          kind: string
+          reason: string
+        }
+        Update: {
+          charge_id?: string
+          created_at?: string
+          kind?: string
+          reason?: string
+        }
+        Relationships: []
+      }
+      stripe_connected_payouts: {
+        Row: {
+          account_id: string
+          amount_minor: number
+          currency: string
+          failure_code: string | null
+          payout_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          amount_minor: number
+          currency: string
+          failure_code?: string | null
+          payout_id: string
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          amount_minor?: number
+          currency?: string
+          failure_code?: string | null
+          payout_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      stripe_marketplace_controls: {
+        Row: {
+          id: boolean
+          marketplace_account_id: string | null
+          onboarding_enabled: boolean
+          transfers_enabled: boolean
+        }
+        Insert: {
+          id?: boolean
+          marketplace_account_id?: string | null
+          onboarding_enabled?: boolean
+          transfers_enabled?: boolean
+        }
+        Update: {
+          id?: boolean
+          marketplace_account_id?: string | null
+          onboarding_enabled?: boolean
+          transfers_enabled?: boolean
+        }
+        Relationships: []
+      }
+      stripe_release_install_snapshot: {
+        Row: {
+          captured_at: string
+          definition: string
+          trigger_name: string
+        }
+        Insert: {
+          captured_at?: string
+          definition: string
+          trigger_name: string
+        }
+        Update: {
+          captured_at?: string
+          definition?: string
+          trigger_name?: string
+        }
+        Relationships: []
+      }
+      stripe_webhook_inbox: {
+        Row: {
+          created_at: string
+          event_account_id: string
+          event_id: string
+          event_type: string
+          marketplace_account_id: string
+          outcome: string | null
+          processed_at: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          event_account_id: string
+          event_id: string
+          event_type: string
+          marketplace_account_id: string
+          outcome?: string | null
+          processed_at?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          event_account_id?: string
+          event_id?: string
+          event_type?: string
+          marketplace_account_id?: string
+          outcome?: string | null
+          processed_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       support_ticket_messages: {
         Row: {
           body: string
@@ -7373,6 +7573,10 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      claim_stripe_booking_release: {
+        Args: { _booking_id: string }
+        Returns: Json
+      }
       clear_my_activity_history: { Args: never; Returns: undefined }
       complete_activation: {
         Args: { _payment_reference: string; _provider_transaction_id: string }
@@ -7501,6 +7705,10 @@ export type Database = {
         Args: { _id: string; _messages: Json; _scope: string; _version: number }
         Returns: boolean
       }
+      finish_stripe_booking_release: {
+        Args: { _booking_id: string; _reversed: boolean; _transfer_id: string }
+        Returns: Json
+      }
       flag_offplatform_attempt: {
         Args: { _conversation_id: string; _excerpt: string; _rule: string }
         Returns: number
@@ -7599,6 +7807,10 @@ export type Database = {
           media: Json
           repost_count: number
         }[]
+      }
+      hold_stripe_booking_charge: {
+        Args: { _charge_id: string; _reason: string }
+        Returns: undefined
       }
       inventory_can: {
         Args: { _business: string; _level: string }
@@ -7763,6 +7975,10 @@ export type Database = {
         Args: { _days?: number; _user_id?: string }
         Returns: number
       }
+      register_verified_stripe_booking: {
+        Args: { _evidence: Json; _intent: string; _reference: string }
+        Returns: Json
+      }
       release_housekeeping: { Args: never; Returns: Json }
       request_booking: {
         Args: {
@@ -7796,6 +8012,10 @@ export type Database = {
       restore_identity_access: {
         Args: { _actor: string; _reason: string; _uid: string }
         Returns: undefined
+      }
+      retry_stripe_booking_release: {
+        Args: { _booking_id: string }
+        Returns: Json
       }
       review_campus_instructor_application: {
         Args: {
