@@ -27,7 +27,7 @@
 - Booking commission rate lives in marketplace_settings, changed only via commission.functions.ts (REVENUE/CEO, audit-logged); paid bookings keep the rate saved at payment. Trip arrival times come from trip-eta.functions.ts (Routes API via the Maps connector, only for booking parties). Why: historical earnings never change and Maps calls stay bounded.
 
 - Staff console rules (staff identity, cases, chat, boards, console theme) live in src/components/console/AGENTS.md.
-- Staff member metrics/directory share member-insights.functions.ts in the console layout; member-review.server.ts authorizes and audits account review, and per-staff/member AI threads use versioned service-only storage. Why: consistent measurements, no member impersonation, no cross-staff history leaks.
+- Staff metrics share member-insights.functions.ts; member-review.server.ts authorizes/audits account review; staff AI threads use service-only storage. Why: consistent numbers, no impersonation or history leaks.
 - Human Support reuses support.functions.ts and ticket/read records; support-state.ts owns notifications; AI chat stays separate. Why: no duplicate messaging or schema.
 - Checkout returns use payment-return.ts's origin allowlist; CompassSurface owns the single Map/Wallet launcher (TrackingDock map, AshOrb access). Why: safe returns, one floating control.
 - Booking payment actions use booking-payment-state.ts; Stripe/bank status checks refresh saved booking evidence, while mobile-money checks are serialized and show inline outcomes. Why: pending confirmation must never invite duplicate payment or impersonate verified settlement.
