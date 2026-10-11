@@ -23,13 +23,13 @@
 - Verified-badge console functions use requireDepartment("TRUST") before privileged access. Why: authorize the staff session, not a second member-admin login.
 
 - Provider balance and reconciliation live in finance-reconciliation.server.ts (snapshots, runs, discrepancies; service-role + deny-all); reconciliation logs discrepancies and never changes balances. Why: TchokoPay is the source of truth for real funds.
-- All payment methods (MTN/Orange via TchokoPay, Stripe card, bank) record on payment_transactions (service-role + deny-all) and settle only via settleCollection in payment-settlement.server.ts; bank rows succeed only through Finance confirmation in payments-ledger.functions.ts. Why: one ledger, exactly-once wallet credit.
+- All payments record on payment_transactions (service-role, deny-all) and settle only via settleCollection; bank rows succeed only by Finance confirmation. Wallet money is per currency: XAF (Mobile Money) in wallets, card money in wallet_balances at Stripe's settled currency; withdrawals use request_wallet_withdrawal; UI helpers in wallet-currency.ts. Why: exactly-once credit, no cross-rail payouts or conversions shown as balances.
 - Booking commission rate lives in marketplace_settings, changed only via commission.functions.ts (REVENUE/CEO, audit-logged); paid bookings keep the rate saved at payment. Trip arrival times come from trip-eta.functions.ts (Routes API via the Maps connector, only for booking parties). Why: historical earnings never change and Maps calls stay bounded.
 
 - Staff console rules (staff identity, cases, chat, boards, console theme) live in src/components/console/AGENTS.md.
 - Staff member metrics/directory share member-insights.functions.ts in the console layout; member-review.server.ts authorizes and audits account review, and per-staff/member AI threads use versioned service-only storage. Why: consistent measurements, no member impersonation, no cross-staff history leaks.
 - Human Support reuses support.functions.ts and ticket/read records; support-state.ts owns notifications; AI chat stays separate. Why: no duplicate messaging or schema.
-- Checkout returns use payment-return.ts's app-owned origin allowlist and booking-specific tracking path; CompassSurface owns the single draggable Map/Wallet launcher; TrackingDock supplies its live map and AshOrb supplies app-wide booking access, with no duplicate launchers. Why: prevent transient-host returns and keep one clear floating control without changing settlement.
+- Checkout returns use payment-return.ts's origin allowlist; CompassSurface owns the single Map/Wallet launcher (TrackingDock map, AshOrb access). Why: safe returns, one floating control.
 - Booking payment actions use booking-payment-state.ts; Stripe/bank status checks refresh saved booking evidence, while mobile-money checks are serialized and show inline outcomes. Why: pending confirmation must never invite duplicate payment or impersonate verified settlement.
 - Tracking: parties opt in via share_booking_party_location (active bookings, cleared on end); Leaflet/OSM map client-only. Why: works worldwide, no key or address.
 - Service verification uses the atomic code RPC independently of disabled transfers; constraint tests use isolated PGlite, not live inserts. Why: preserve verification and funds.
@@ -40,4 +40,3 @@
 
 - WalletPayoutSetup reuses guarded Stripe Connect; PayoutSetupReminder saves account-scoped opt-out/cadence locally. Why: visible setup, no card collection or restricted payouts.
 - WebsiteAppShowcase stays separate from MobileOnboarding; use only confirmed store links. Why: preserve native entry and honest downloads.
-- Wallet money is held per currency: XAF (Mobile Money) in wallets, card money in wallet_balances at Stripe's settled currency via complete_wallet_topup_stripe; withdrawals use request_wallet_withdrawal for the matching method; UI helpers live in wallet-currency.ts. Why: never pay out money that never entered that rail, and never show conversions as balances.
