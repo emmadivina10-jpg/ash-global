@@ -351,7 +351,11 @@ export const listSecurityBulletins = createServerFn({ method: "GET" }).handler(a
   const { actor, db } = await anyStaff();
   const { data } = await db.from("security_bulletins").select("*").is("deleted_at", null).order("created_at", { ascending: false }).limit(100);
   const canDelete = actor.superAdmin || actor.department === "CYBERSECURITY";
-  const visible = (data ?? []).filter((b) => canDelete || b.audience !== "STAFF" ? canDelete || b.audience === "ALL_MEMBERS" : b.target_departments.length === 0 || b.target_departments.includes(actor.department) || actor.extraDepartments.some((d) => b.target_departments.includes(d)));
+  const mine = (b: { target_departments: string[] }) =>
+    b.target_departments.length === 0 ||
+    b.target_departments.includes(actor.department) ||
+    actor.extraDepartments.some((d) => b.target_departments.includes(d));
+  const visible = (data ?? []).filter((b) => canDelete || b.audience === "ALL_MEMBERS" || (b.audience === "STAFF" && mine(b)));
   return { canDelete, bulletins: visible };
 });
 
