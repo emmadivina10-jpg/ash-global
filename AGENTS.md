@@ -29,7 +29,7 @@
 - Staff console rules (staff identity, cases, chat, boards, console theme) live in src/components/console/AGENTS.md.
 - Staff metrics share member-insights.functions.ts; member-review.server.ts authorizes/audits account review; staff AI threads use service-only storage. Why: consistent numbers, no impersonation or history leaks.
 - Human Support reuses support.functions.ts and ticket/read records; support-state.ts owns notifications; AI chat stays separate. Why: no duplicate messaging or schema.
-- Checkout returns use payment-return.ts's origin allowlist; CompassSurface owns the single Map/Wallet launcher (TrackingDock map, AshOrb access). Why: safe returns, one floating control.
+- Checkout uses payment-return.ts allowlist; CompassSurface owns Map/Wallet (TrackingDock/AshOrb). PullToRefresh handles content-only vertical gestures, excluding controls/cancels. Why: safe returns, no drag conflicts.
 - Booking actions use booking-payment-state.ts; Stripe/bank checks refresh saved evidence; Mobile Money checks are serialized with inline outcomes. Why: pending status must not invite duplicate payment or imply settlement.
 - Tracking: parties opt in via share_booking_party_location (active bookings, cleared on end); Leaflet/OSM map client-only. Why: works worldwide, no key or address.
 - Service verification uses the atomic code RPC independently of disabled transfers; constraint tests use isolated PGlite, not live inserts. Why: preserve verification and funds.

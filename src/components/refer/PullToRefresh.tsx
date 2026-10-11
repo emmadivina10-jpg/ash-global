@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils";
 import { playRefreshDoneSound, playRefreshSound } from "@/lib/sound";
 
 const THRESHOLD = 70;
-const MAX = 110;
+const MAX = 84;
+const DEAD_ZONE = 12;
 
 /** Facebook-style pull-down-to-refresh for the app's scroll pane (or the window). */
 export function PullToRefresh({ onRefresh, children, label }: { onRefresh: () => Promise<unknown>; children: ReactNode; label: string }) {
@@ -13,27 +14,57 @@ export function PullToRefresh({ onRefresh, children, label }: { onRefresh: () =>
   const start = useRef<number | null>(null);
   const pullRef = useRef(0);
   const busy = useRef(false);
+  const root = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const scroller = () => document.querySelector<HTMLElement>(".app-shell-scroll");
-    const atTop = () => {
-      const el = scroller();
-      const elTop = !el || el.scrollTop <= 0;
-      return elTop && window.scrollY <= 0;
+    const surface = root.current;
+    if (!surface) return;
+    let startX = 0;
+    let vertical = false;
+    let scrollParents: HTMLElement[] = [];
+    const atTop = () => scrollParents.every((el) => el.scrollTop <= 0) && window.scrollY <= 0;
+    const reset = () => {
+      start.current = null;
+      pullRef.current = 0;
+      if (!busy.current) setPull(0);
     };
     const onStart = (e: TouchEvent) => {
-      if (busy.current || !atTop()) return;
-      start.current = e.touches[0]?.clientY ?? null;
+      reset();
+      const target = e.target;
+      const touch = e.touches[0];
+      if (busy.current || e.touches.length !== 1 || !touch || !(target instanceof Element)) return;
+      if (target.closest("[data-pull-refresh-ignore], .touch-none, button, input, textarea, select, [role='slider'], [role='dialog']")) return;
+      scrollParents = [];
+      for (let el: HTMLElement | null = target instanceof HTMLElement ? target : target.parentElement; el; el = el.parentElement) {
+        if (el.scrollHeight > el.clientHeight) scrollParents.push(el);
+      }
+      if (!atTop()) return;
+      start.current = touch.clientY;
+      startX = touch.clientX;
+      vertical = false;
     };
     const onMove = (e: TouchEvent) => {
       if (start.current == null) return;
-      const dy = (e.touches[0]?.clientY ?? 0) - start.current;
-      if (dy <= 0 || !atTop()) {
-        pullRef.current = 0;
-        setPull(0);
+      const touch = e.touches[0];
+      if (e.touches.length !== 1 || !touch || !atTop()) {
+        reset();
         return;
       }
-      const eased = Math.min(MAX, dy * 0.5);
+      const dy = touch.clientY - start.current;
+      const dx = Math.abs(touch.clientX - startX);
+      if (!vertical) {
+        if (Math.hypot(dx, dy) < DEAD_ZONE) return;
+        if (dy <= 0 || dy < dx * 1.5) {
+          reset();
+          return;
+        }
+        vertical = true;
+      }
+      if (dy <= 0) {
+        reset();
+        return;
+      }
+      const eased = Math.min(MAX, Math.max(0, dy - DEAD_ZONE) * 0.35);
       pullRef.current = eased;
       setPull(eased);
       if (e.cancelable && eased > 4) e.preventDefault();
@@ -50,6 +81,8 @@ export function PullToRefresh({ onRefresh, children, label }: { onRefresh: () =>
         try {
           await onRefresh();
           playRefreshDoneSound();
+        } catch {
+          /* The refresh owner displays read errors; always release the gesture. */
         } finally {
           busy.current = false;
           setRefreshing(false);
@@ -61,21 +94,21 @@ export function PullToRefresh({ onRefresh, children, label }: { onRefresh: () =>
         pullRef.current = 0;
       }
     };
-    window.addEventListener("touchstart", onStart, { passive: true });
-    window.addEventListener("touchmove", onMove, { passive: false });
-    window.addEventListener("touchend", onEnd);
-    window.addEventListener("touchcancel", onEnd);
+    surface.addEventListener("touchstart", onStart, { passive: true });
+    surface.addEventListener("touchmove", onMove, { passive: false });
+    surface.addEventListener("touchend", onEnd);
+    surface.addEventListener("touchcancel", reset);
     return () => {
-      window.removeEventListener("touchstart", onStart);
-      window.removeEventListener("touchmove", onMove);
-      window.removeEventListener("touchend", onEnd);
-      window.removeEventListener("touchcancel", onEnd);
+      surface.removeEventListener("touchstart", onStart);
+      surface.removeEventListener("touchmove", onMove);
+      surface.removeEventListener("touchend", onEnd);
+      surface.removeEventListener("touchcancel", reset);
     };
   }, [onRefresh]);
 
   const ready = pull >= THRESHOLD;
   return (
-    <div className="relative">
+    <div ref={root} className="relative">
       <div
         aria-live="polite"
         className="pointer-events-none absolute inset-x-0 top-0 z-10 flex justify-center"
@@ -89,7 +122,7 @@ export function PullToRefresh({ onRefresh, children, label }: { onRefresh: () =>
           )}
         </span>
       </div>
-      <div style={{ transform: `translateY(${pull}px)`, transition: start.current == null ? "transform 220ms ease" : "none" }}>{children}</div>
+      <div style={{ transform: pull > 0 ? `translateY(${pull}px)` : "none", transition: start.current == null ? "transform 220ms ease" : "none" }}>{children}</div>
     </div>
   );
 }
