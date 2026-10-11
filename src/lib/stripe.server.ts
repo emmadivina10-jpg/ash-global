@@ -268,7 +268,10 @@ export const stripeConnect = {
           account_onboarding: {
             refresh_url: input.refreshUrl,
             return_url: input.returnUrl,
-            collection_options: { fields: "eventually_due" },
+            // Collect only what Stripe needs right now; the rest is asked
+            // later, inside the provider's Express dashboard. This keeps the
+            // first onboarding flow as short as Stripe allows.
+            collection_options: { fields: "currently_due", future_requirements: "omit" },
           },
         },
       },
