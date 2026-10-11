@@ -1,10 +1,13 @@
 # Roadmap
 
 ## Policy and store alignment (Oct 11)
-- [ ] Audit payment availability, verification, privacy and native store requirements without changing live settings or funds
-- [ ] Align canonical policies and current documentation; distinguish Stripe, MTN/Orange and unsupported M-PESA
-- [ ] Prepare Apple/Google submission answers, verification checklist and explicit remaining blockers
-- [ ] Verify public documents and preview health; do not publish or submit
+- [x] Audit payment availability, verification, privacy and native store requirements without changing live settings or funds
+- [x] Align canonical policies and README/native/submission/inventory/security docs; distinguish Stripe, Cameroon MTN/Orange, conditional banks and unsupported M-PESA
+- [x] Prepare Apple/Google submission answers and STORE-READINESS.md with explicit billing, deletion, permissions, payout and signed-device blockers
+- [x] Verify eight public policy/help routes and welcome metadata without login/overflow/runtime errors; visually inspect policy/support screenshots; 94 focused tests pass and preview build OK; no publication/submission
+
+- [ ] Store submission clearance — blocked: compliant digital billing/earning treatment, full account/data erasure, native permission/release testing, reviewer inputs and authorized payout verification are unresolved; documentation alone cannot clear them
+- [ ] Activation help-copy correction — card top-ups settled outside XAF cannot cover XAF activation; existing screen suggestion needs a separately scoped presentation update
 
 ## Wallet dropdown and ASH Investment (Oct 11)
 - [x] Replace wallet currency chips with a dropdown and 30 display currencies without converting balances

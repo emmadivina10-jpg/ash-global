@@ -63,4 +63,4 @@ Pages retrieved successfully on 11 October 2026; policies/program exceptions can
 
 ## Audit verification
 
-Public preview rendering, relevant tests and current preview health are checked separately before reporting this documentation update complete. No hosted signup settings, signed binary or completed provider payout is established by source inspection. No new downloadable policy export was requested; existing Files copies remain historical.
+Eight public policy/help pages and the welcome page opened without login, horizontal overflow or runtime errors; unique titles/descriptions/Open Graph metadata were verified. Privacy, wallet terms and Support screenshots were visually inspected. 94 focused payment/currency/region tests passed; the latest preview build reported OK. No hosted signup settings, signed binary or completed provider payout is established by source inspection. No new downloadable policy export was requested; existing Files copies remain historical.
