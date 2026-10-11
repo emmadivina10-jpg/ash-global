@@ -119,9 +119,17 @@ function WithdrawPage() {
     useState(false);
 
 
-  const available = Number(
+  const totalAvailable = Number(
     wallet?.available_balance ?? 0,
   );
+  // Money leaves the same way it came in: card/bank top-ups only via
+  // Stripe, everything else only via Mobile Money.
+  const cardFunds = Math.min(
+    totalAvailable,
+    Number((wallet as { card_balance?: number | null } | null)?.card_balance ?? 0),
+  );
+  const momoFunds = Math.max(totalAvailable - cardFunds, 0);
+
 
   const pending = Number(
     wallet?.pending_balance ?? 0,
