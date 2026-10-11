@@ -169,6 +169,13 @@
       "when": 1791700038612,
       "tag": "0023_withdrawal_without_activation",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1791700087302,
+      "tag": "0024_request_withdrawal_restore_full",
+      "breakpoints": true
     }
   ]
 }
