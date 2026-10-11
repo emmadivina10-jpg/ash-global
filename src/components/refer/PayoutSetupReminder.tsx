@@ -1,17 +1,29 @@
 import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { CreditCard } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
+import { getPayoutSetupVisibility } from "@/lib/payouts.functions";
 import { PAYOUT_REMINDER_DELAY, parsePayoutReminder, shouldShowPayoutReminder } from "@/lib/payout-reminder";
 
 export function PayoutSetupReminder({ userId, connected }: { userId: string; connected: boolean }) {
   const { tx } = useI18n();
+  const visibility = useServerFn(getPayoutSetupVisibility);
+  // Option A: the reminder is only for approved providers; customers see nothing.
+  const { data: gate } = useQuery({
+    queryKey: ["payout-setup-visibility"],
+    queryFn: () => visibility({ data: undefined as never }),
+    staleTime: 60_000,
+  });
+  const canSetUpBank = gate?.canSetUpBank === true;
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [visible, setVisible] = useState(false);
   const storageKey = `ash.payout-reminder.v1.${userId}`;
   useEffect(() => {
     setVisible(false);
+    if (!canSetUpBank) return;
     const check = () => {
       if (document.visibilityState !== "visible") return;
       try {
@@ -24,7 +36,8 @@ export function PayoutSetupReminder({ userId, connected }: { userId: string; con
     const timer = window.setTimeout(check, PAYOUT_REMINDER_DELAY);
     const interval = window.setInterval(check, PAYOUT_REMINDER_DELAY);
     return () => { window.clearTimeout(timer); window.clearInterval(interval); };
-  }, [storageKey, connected]);
+  }, [storageKey, connected, canSetUpBank]);
+
 
   function dismiss(permanent: boolean) {
     try { localStorage.setItem(storageKey, JSON.stringify({ disabled: permanent, lastShown: Date.now() })); } catch { /* Private mode. */ }
