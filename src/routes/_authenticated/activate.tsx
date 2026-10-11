@@ -170,7 +170,8 @@ function ActivatePage() {
         <p className="text-sm opacity-85">One-time activation fee</p>
         <p className="tabular mt-1 text-5xl font-bold">{formatXAF(ACTIVATION_FEE)}</p>
         <p className="mt-4 text-sm opacity-85">
-          Paid with Mobile Money through TchokoPay. Your account activates only after the payment clears.
+          Pay from your wallet balance or with Mobile Money. Your account activates only after the payment
+          clears.
         </p>
       </div>
 
