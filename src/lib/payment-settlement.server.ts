@@ -105,6 +105,24 @@ export async function settleCollection(input: SettleInput): Promise<SettleOutcom
       });
       if (verifiedError || data?.ok !== true) return { ok: false, kind, outcome: "COMPLETE_FAILED", error: "VERIFIED_BOOKING_SETTLEMENT_FAILED" };
     }
+    if (kind === "WALLET_TOPUP" && typeof input.providerReference === "string" && input.providerReference.startsWith("pi_")) {
+      // Card money is held in the currency Stripe actually settled (e.g. CAD), never converted into XAF.
+      const settled = await stripeSettledAmount(input.providerReference);
+      if (!settled) return { ok: false, kind, outcome: "COMPLETE_FAILED", error: "STRIPE_SETTLEMENT_UNREADABLE" };
+      const db = supabaseAdmin as import("@supabase/supabase-js").SupabaseClient;
+      const { data, error: fxError } = await db.rpc("complete_wallet_topup_stripe", {
+        _payment_reference: input.merchantReference, _provider_transaction_id: input.providerReference,
+        _currency: settled.currency, _amount: settled.amount,
+      });
+      const res = data as { ok?: boolean; error?: string } | null;
+      if (fxError || res?.ok !== true) return { ok: false, kind, outcome: "COMPLETE_FAILED", error: fxError?.message ?? res?.error ?? "SETTLEMENT_REJECTED" };
+      await supabaseAdmin.from("payment_events").insert({
+        source: input.source, reference: input.merchantReference, status: input.status,
+        signature_verified: Boolean(input.signatureVerified), outcome: "PAID",
+        detail: { kind, provider_reference: input.providerReference, settled_currency: settled.currency, settled_amount: settled.amount },
+      });
+      return { ok: true, kind, outcome: "PAID" };
+    }
     const rpc =
       kind === "BOOKING"
         ? "complete_booking_payment"
@@ -217,4 +235,28 @@ export async function settleCollection(input: SettleInput): Promise<SettleOutcom
   if (eventError) return { ok: false, kind, outcome: "EVENT_WRITE_FAILED", error: "EVENT_WRITE_FAILED" };
 
   return error ? { ok, kind, outcome, error } : { ok, kind, outcome };
+}
+
+const ZERO_DECIMAL = new Set(["BIF","CLP","DJF","GNF","JPY","KMF","KRW","MGA","PYG","RWF","UGX","VND","VUV","XAF","XOF","XPF"]);
+
+/** Converts a Stripe minor-unit amount to major units. */
+export function fromStripeMinor(amount: number, currency: string): number {
+  const cur = currency.toUpperCase();
+  return ZERO_DECIMAL.has(cur) ? amount : Math.round(amount) / 100;
+}
+
+/** Reads the gross amount and currency Stripe actually settled into the ASH balance. */
+async function stripeSettledAmount(intentId: string): Promise<{ currency: string; amount: number } | null> {
+  try {
+    const { stripeRead } = await import("./stripe.server");
+    const pi = await stripeRead(`payment_intents/${encodeURIComponent(intentId)}?expand[]=latest_charge.balance_transaction`);
+    const charge = pi["latest_charge"] as Record<string, unknown> | null;
+    const bt = charge?.["balance_transaction"] as Record<string, unknown> | null;
+    const amount = typeof bt?.["amount"] === "number" ? (bt["amount"] as number) : null;
+    const currency = typeof bt?.["currency"] === "string" ? (bt["currency"] as string).toUpperCase() : null;
+    if (amount === null || !currency || amount <= 0) return null;
+    return { currency, amount: fromStripeMinor(amount, currency) };
+  } catch {
+    return null;
+  }
 }

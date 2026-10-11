@@ -29,6 +29,8 @@ import {
   normalizePhone,
 } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { CurrencySwitcher } from "@/components/refer/WalletCurrency";
+import { balanceFor, currencyOptions, formatMoney, minWithdrawalFor, useWalletBalances, useWalletCurrency, withdrawalMethodsFor } from "@/lib/wallet-currency";
 
 const ERRORS: Record<string, string> = {
   ACCOUNT_NOT_ACTIVE:
@@ -121,21 +123,16 @@ function WithdrawPage() {
     useState(false);
 
 
-  const totalAvailable = Number(
-    wallet?.available_balance ?? 0,
-  );
-  // Money leaves the same way it came in: card/bank top-ups only via
-  // Stripe, everything else only via Mobile Money.
-  const cardFunds = Math.min(
-    totalAvailable,
-    Number((wallet as { card_balance?: number | null } | null)?.card_balance ?? 0),
-  );
-  const momoFunds = Math.max(totalAvailable - cardFunds, 0);
+  // One wallet, real money per currency: XAF leaves by Mobile Money,
+  // card money leaves by Card / Bank in the currency Stripe settled.
+  const { data: balances } = useWalletBalances();
+  const [currency, setCurrency] = useWalletCurrency();
+  const current = balanceFor(balances ?? [], currency);
+  const money = (v: number | string | null | undefined) => formatMoney(v, currency);
+  const minimum = minWithdrawalFor(currency);
+  void wallet;
 
-
-  const pending = Number(
-    wallet?.pending_balance ?? 0,
-  );
+  const pending = current.pending;
 
   /*
    * Show where the user's withdrawable money came from.
@@ -185,7 +182,7 @@ function WithdrawPage() {
   const isBank =
     method === "STRIPE_BANK";
 
-  const available = isBank ? cardFunds : momoFunds;
+  const available = current.available;
 
   const momoAvailable =
     mobileMoneyEnabled;
@@ -193,19 +190,15 @@ function WithdrawPage() {
   // Card/bank payouts run through the member's connected Stripe payout
   // account. The server rejects the request when that account is not ready,
   // so the option is always visible and the error explains the next step.
-  const methodOptions: Method[] = [
-    "MTN_MOMO",
-    "ORANGE_MONEY",
-    "STRIPE_BANK",
-  ];
+  const methodOptions: Method[] = withdrawalMethodsFor(currency);
 
   useEffect(() => {
     if (
       !methodOptions.includes(method)
     ) {
-      setMethod("MTN_MOMO");
+      setMethod(methodOptions[0] ?? "MTN_MOMO");
     }
-  }, [method, momoAvailable]);
+  }, [method, momoAvailable, currency]);
 
   function review(
     event: React.FormEvent,
@@ -216,18 +209,15 @@ function WithdrawPage() {
 
     if (
       !Number.isFinite(value) ||
-      value < MIN_WITHDRAWAL
+      value < minimum
     ) {
-      setError(
-        ERRORS["MIN_AMOUNT_1000"] ??
-          null,
-      );
+      setError(`The minimum withdrawal is ${money(minimum)}.`);
       return;
     }
 
     if (value > available) {
       setError(
-        ERRORS[value <= totalAvailable ? "WRONG_FUNDING_SOURCE" : "INSUFFICIENT_BALANCE"] ??
+        ERRORS["INSUFFICIENT_BALANCE"] ??
           null,
       );
       return;
@@ -269,8 +259,9 @@ function WithdrawPage() {
         data,
         error: rpcError,
       } = await supabase.rpc(
-        "request_withdrawal",
+        "request_wallet_withdrawal",
         {
+          _currency: currency,
           _amount: Number(amount),
           _method: method,
           _phone: isBank
@@ -430,9 +421,12 @@ function WithdrawPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           Available balance:{" "}
           <span className="tabular font-semibold text-foreground">
-            {formatXAF(available)}
+            {money(available)}
           </span>
         </p>
+        <div className="mt-3">
+          <CurrencySwitcher options={currencyOptions(balances ?? [])} value={currency} onChange={(c) => { setCurrency(c); setAmount(""); setError(null); }} fr={false} />
+        </div>
       </header>
 
       <SectionCard title="Where your money came from">
@@ -480,7 +474,7 @@ function WithdrawPage() {
               <dd
                 className={`tabular mt-1 text-base font-bold ${item.tone}`}
               >
-                {formatXAF(
+                {money(
                   item.value,
                 )}
               </dd>
@@ -507,48 +501,36 @@ function WithdrawPage() {
         >
           <div className="space-y-2">
             <Label htmlFor="amount">
-              Amount (XAF)
+              Amount ({currency})
             </Label>
 
             <Input
               id="amount"
-              inputMode="numeric"
+              inputMode={currency === "XAF" ? "numeric" : "decimal"}
               value={amount}
               onChange={(event) =>
                 setAmount(
-                  event.target.value.replace(
-                    /[^\d]/g,
-                    "",
-                  ),
+                  currency === "XAF"
+                    ? event.target.value.replace(/[^\d]/g, "")
+                    : event.target.value.replace(/[^\d.]/g, "").replace(/^(\d*\.\d{0,2}).*$/, "$1"),
                 )
               }
-              placeholder={String(
-                MIN_WITHDRAWAL,
-              )}
+              placeholder={String(minimum)}
               className="h-12 text-lg"
             />
 
             <p className="text-xs text-muted-foreground">
               Minimum{" "}
-              {formatXAF(
-                MIN_WITHDRAWAL,
-              )}
+              {money(minimum)}
               .
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 text-xs">
-            <div className="rounded-xl border border-border p-3">
-              <p className="text-muted-foreground">Mobile Money funds</p>
-              <p className="mt-1 text-sm font-bold text-foreground">{formatXAF(momoFunds)}</p>
-              <p className="mt-1 text-muted-foreground">Withdraw with MTN or Orange</p>
-            </div>
-            <div className="rounded-xl border border-border p-3">
-              <p className="text-muted-foreground">Card funds</p>
-              <p className="mt-1 text-sm font-bold text-foreground">{formatXAF(cardFunds)}</p>
-              <p className="mt-1 text-muted-foreground">Withdraw with Card / Bank</p>
-            </div>
-          </div>
+          <p className="rounded-xl bg-muted/60 p-3 text-xs text-muted-foreground">
+            {currency === "XAF"
+              ? "Francs come from Mobile Money and go out by MTN or Orange."
+              : `${currency} is card money held by Stripe and goes out by Card / Bank.`}
+          </p>
 
           <fieldset className="space-y-2">
             <legend className="mb-2 text-sm font-medium">
@@ -651,8 +633,9 @@ function WithdrawPage() {
                   >
                     <div className="min-w-0">
                       <p className="tabular text-sm font-bold text-foreground">
-                        {formatXAF(
+                        {formatMoney(
                           item.amount,
+                          item.currency ?? "XAF",
                         )}
                       </p>
 
@@ -730,7 +713,7 @@ function WithdrawPage() {
               </dt>
 
               <dd className="tabular font-bold">
-                {formatXAF(
+                {money(
                   Number(
                     amount || 0,
                   ),

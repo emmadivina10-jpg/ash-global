@@ -7437,6 +7437,36 @@ export type Database = {
         }
         Relationships: []
       }
+      wallet_balances: {
+        Row: {
+          available: number
+          currency: string
+          pending: number
+          total_in: number
+          total_out: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          available?: number
+          currency: string
+          pending?: number
+          total_in?: number
+          total_out?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          available?: number
+          currency?: string
+          pending?: number
+          total_in?: number
+          total_out?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       wallets: {
         Row: {
           available_balance: number
@@ -7543,6 +7573,13 @@ export type Database = {
         Args: { _actor?: string; _reason: string; _user_id: string }
         Returns: Json
       }
+      apply_withdrawal_settlement: {
+        Args: {
+          _status: string
+          wd: Database["public"]["Tables"]["withdrawals"]["Row"]
+        }
+        Returns: undefined
+      }
       are_friends: { Args: { _a: string; _b: string }; Returns: boolean }
       begin_booking_payment: {
         Args: { _booking_id: string; _reference: string }
@@ -7620,6 +7657,15 @@ export type Database = {
       complete_wallet_topup: {
         Args: { _payment_reference: string; _provider_transaction_id: string }
         Returns: undefined
+      }
+      complete_wallet_topup_stripe: {
+        Args: {
+          _amount: number
+          _currency: string
+          _payment_reference: string
+          _provider_transaction_id: string
+        }
+        Returns: Json
       }
       console_counts: { Args: never; Returns: Json }
       console_financials: { Args: never; Returns: Json }
@@ -8001,6 +8047,15 @@ export type Database = {
       }
       request_property_viewing: {
         Args: { _listing_id: string; _message: string; _requested_at: string }
+        Returns: Json
+      }
+      request_wallet_withdrawal: {
+        Args: {
+          _amount: number
+          _currency: string
+          _method: string
+          _phone: string
+        }
         Returns: Json
       }
       request_withdrawal: {

@@ -30,6 +30,8 @@ import { formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 import { useRegion } from "@/lib/region-context";
 import { WalletPayoutSetup } from "@/components/refer/WalletPayoutSetup";
+import { CurrencySwitcher, MoneyFlowChart } from "@/components/refer/WalletCurrency";
+import { balanceFor, currencyOptions, formatMoney, useWalletBalances, useWalletCurrency } from "@/lib/wallet-currency";
 
 export const Route = createFileRoute("/_authenticated/wallet")({
   head: () => ({
@@ -59,6 +61,9 @@ function WalletPage() {
   const [statementOpen, setStatementOpen] = useState(false);
   const [topupOpen, setTopupOpen] = useState(false);
   const { t, lang } = useI18n();
+  const { data: balances } = useWalletBalances();
+  const [currency, setCurrency] = useWalletCurrency();
+  const current = balanceFor(balances ?? [], currency);
 
   const GOLD_KEY = "ash.wallet.gold";
   const [goldMode, setGoldMode] = useState(() => {
@@ -137,6 +142,10 @@ function WalletPage() {
         </Button>
       </header>
 
+      <div className="flex justify-center">
+        <CurrencySwitcher options={currencyOptions(balances ?? [])} value={currency} onChange={setCurrency} fr={lang === "fr"} />
+      </div>
+
       <WalletPayoutSetup country={country} />
 
       <WalletTopupDialog open={topupOpen} onOpenChange={setTopupOpen} fr={lang === "fr"} />
@@ -211,7 +220,7 @@ function WalletPage() {
               <BalanceCard
                 gold={goldMode}
                 label={t("dash.availableBalance")}
-                amount={formatXAF(wallet?.available_balance ?? 0)}
+                amount={formatMoney(current.available, currency)}
                 action={
                   <Button asChild variant="secondary">
                     <Link to="/withdraw">
@@ -259,25 +268,27 @@ function WalletPage() {
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
             <StatCard
               label={t("wallet.pending")}
-              value={formatXAF(wallet?.pending_balance ?? 0)}
+              value={formatMoney(current.pending, currency)}
               hint={t("wallet.pendingHint")}
               icon={<Clock className="size-4" aria-hidden />}
             />
 
             <StatCard
               label={t("dash.stat.earned")}
-              value={formatXAF(wallet?.total_earned ?? 0)}
+              value={formatMoney(currency === "XAF" ? Number(wallet?.total_earned ?? 0) : current.totalIn, currency)}
               accent
               icon={<Coins className="size-4" aria-hidden />}
             />
 
             <StatCard
               label={t("dash.stat.withdrawn")}
-              value={formatXAF(wallet?.total_withdrawn ?? 0)}
+              value={formatMoney(current.totalOut, currency)}
               icon={<WalletMinimal className="size-4" aria-hidden />}
               className="col-span-2 lg:col-span-1"
             />
           </div>
+
+          <MoneyFlowChart rows={statementRows ?? []} currency={currency} fr={lang === "fr"} />
 
           {/* =========================================================
               NETWORK PENDING NOTICE
