@@ -79,9 +79,9 @@ export function MobileOnboarding() {
         )}
       </header>
 
-      <main className="relative flex-1 overflow-hidden pt-[min(16vh,110px)]">
+      <main className="relative flex min-h-0 flex-1 flex-col overflow-hidden pt-[min(16vh,110px)]">
         <div
-          className="flex h-full"
+          className="flex min-h-0 flex-1"
           style={{
             width: `${SLIDES.length * 100}%`,
             transform: `translateX(calc(-${step * (100 / SLIDES.length)}% + ${dragX}px))`,
