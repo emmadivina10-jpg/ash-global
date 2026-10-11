@@ -61,6 +61,7 @@ import { useRegion } from "@/lib/region-context";
 import { RegionSwitcher } from "./RegionSwitcher";
 import { cn } from "@/lib/utils";
 import { PayoutSetupReminder } from "./PayoutSetupReminder";
+import { SecurityAlertBanner } from "./SecurityAlertBanner";
 import { useServicesMode } from "@/lib/services-mode";
 
 type NavItem = {
@@ -368,6 +369,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </header>}
 
+          {profile && <SecurityAlertBanner />}
           {profile && <PayoutSetupReminder userId={profile.user_id} connected={Boolean(profile.stripe_account_id)} />}
 
           <div className="flex min-h-0 min-w-0 flex-1">

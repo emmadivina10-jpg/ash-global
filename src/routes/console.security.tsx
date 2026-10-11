@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import { getSecurityAudit, runSecuritySelfCheck, type SecurityEvent } from "@/lib/console.functions";
 import { getCyberOps } from "@/lib/cyber.functions";
+import { CyberCommandCenter } from "@/components/console/CyberCommandCenter";
 import { MessageMemberDialog } from "@/components/console/MessageMemberDialog";
 import { SectionCard, StatCard } from "@/components/refer/cards";
 import { ErrorState, SkeletonRows } from "@/components/refer/states";
@@ -155,6 +156,7 @@ function ConsoleSecurity() {
 
   return (
     <div className="space-y-5">
+      <CyberCommandCenter />
       <div className="flex flex-wrap items-center gap-2">
         {RANGES.map((r) => (
           <button
