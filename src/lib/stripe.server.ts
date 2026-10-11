@@ -157,16 +157,47 @@ const EMPTY_CONNECT: ConnectStatus = {
   error: "STRIPE_NOT_CONFIGURED",
 };
 
+/** Accounts v2 endpoints are JSON-only and require the preview version header. */
+async function stripeV2Request(
+  path: string,
+  init?: { method?: string; body?: Record<string, unknown>; idempotencyKey?: string },
+): Promise<{ ok: boolean; status: number; data: Record<string, unknown> }> {
+  const secret = key();
+  if (!secret) return { ok: false, status: 0, data: { error: { message: "STRIPE_NOT_CONFIGURED" } } };
+
+  const response = await fetch(`https://api.stripe.com/v2/${path}`, {
+    method: init?.method ?? "GET",
+    headers: {
+      Authorization: `Bearer ${secret}`,
+      "Content-Type": "application/json",
+      "Stripe-Version": "2026-09-30.preview",
+      ...(init?.idempotencyKey ? { "Idempotency-Key": init.idempotencyKey } : {}),
+    },
+    ...(init?.body ? { body: JSON.stringify(init.body) } : {}),
+  });
+  const data = (await response.json().catch(() => ({}))) as Record<string, unknown>;
+  return { ok: response.ok, status: response.status, data };
+}
+
 function readAccount(data: Record<string, unknown>): ConnectStatus {
-  const requirements = (data["requirements"] as { currently_due?: string[] } | undefined) ?? {};
+  // Accounts v2 shape: identity.country, configuration.recipient capabilities,
+  // requirements.entries (empty once onboarding is complete).
+  const identity = (data["identity"] as { country?: string } | undefined) ?? {};
+  const configuration = (data["configuration"] as Record<string, unknown> | undefined) ?? {};
+  const recipient = (configuration["recipient"] as Record<string, unknown> | undefined) ?? {};
+  const capabilities = (recipient["capabilities"] as Record<string, unknown> | undefined) ?? {};
+  const stripeBalance = (capabilities["stripe_balance"] as Record<string, unknown> | undefined) ?? {};
+  const transfers = (stripeBalance["stripe_transfers"] as { status?: string } | undefined) ?? {};
+  const requirements = (data["requirements"] as { entries?: Array<{ code?: string }> } | undefined) ?? {};
+  const entries = requirements.entries ?? [];
   return {
     configured: true,
-    country: typeof data["country"] === "string" ? data["country"] : "",
-    transfersActive: (data["capabilities"] as Record<string, unknown> | undefined)?.["transfers"] === "active",
+    country: typeof identity["country"] === "string" ? identity["country"] : "",
+    transfersActive: transfers.status === "active",
     accountId: (data["id"] as string) ?? null,
-    detailsSubmitted: data["details_submitted"] === true,
-    payoutsEnabled: data["payouts_enabled"] === true,
-    requirementsDue: requirements.currently_due ?? [],
+    detailsSubmitted: entries.length === 0,
+    payoutsEnabled: transfers.status === "active",
+    requirementsDue: entries.map((e) => e.code ?? "").filter(Boolean),
     error: null,
   };
 }
@@ -176,18 +207,28 @@ export const stripeConnect = {
     return key() !== null;
   },
 
-  /** Creates an Express connected account. ASH never sees the bank details. */
+  /**
+   * Creates a recipient-configured connected account (Accounts v2).
+   * ASH never sees the bank details. The platform collects fees/losses, which
+   * requires the platform's loss-liability acknowledgement in the Dashboard.
+   */
   async createAccount(input: { email: string; country: string; userId: string }): Promise<ConnectStatus> {
     if (!LIVE_PROVIDER_ONBOARDING_ENABLED) return { ...EMPTY_CONNECT, error: "ONBOARDING_AWAITING_APPROVAL" };
     if (!key()) return EMPTY_CONNECT;
-    const body = new URLSearchParams();
-    body.set("type", "express");
-    body.set("country", input.country.toUpperCase());
-    body.set("email", input.email);
-    body.set("capabilities[transfers][requested]", "true");
-    body.set("business_type", "individual");
-
-    const result = await stripeRequest("accounts", { method: "POST", body, idempotencyKey: `ash_provider_${input.userId}` });
+    const result = await stripeV2Request("core/accounts", {
+      method: "POST",
+      idempotencyKey: `ash_provider_${input.userId}`,
+      body: {
+        contact_email: input.email,
+        dashboard: "express",
+        identity: { country: input.country.toUpperCase() },
+        defaults: { responsibilities: { fees_collector: "application", losses_collector: "application" } },
+        configuration: {
+          recipient: { capabilities: { stripe_balance: { stripe_transfers: { requested: true } } } },
+        },
+        metadata: { ash_user_id: input.userId },
+      },
+    });
     if (!result.ok) {
       const err = result.data["error"] as { message?: string } | undefined;
       return { ...EMPTY_CONNECT, configured: true, error: err?.message ?? "STRIPE_ERROR" };
@@ -197,7 +238,7 @@ export const stripeConnect = {
 
   async getAccount(accountId: string): Promise<ConnectStatus> {
     if (!key()) return EMPTY_CONNECT;
-    const result = await stripeRequest(`accounts/${encodeURIComponent(accountId)}`);
+    const result = await stripeV2Request(`core/accounts/${encodeURIComponent(accountId)}?include[]=configuration.recipient&include[]=requirements&include[]=identity`);
     if (!result.ok) {
       const err = result.data["error"] as { message?: string } | undefined;
       return { ...EMPTY_CONNECT, configured: true, error: err?.message ?? "STRIPE_ERROR" };
@@ -212,13 +253,20 @@ export const stripeConnect = {
     returnUrl: string;
   }): Promise<{ ok: boolean; url: string | null; error: string | null }> {
     if (!key()) return { ok: false, url: null, error: "STRIPE_NOT_CONFIGURED" };
-    const body = new URLSearchParams();
-    body.set("account", input.accountId);
-    body.set("refresh_url", input.refreshUrl);
-    body.set("return_url", input.returnUrl);
-    body.set("type", "account_onboarding");
-
-    const result = await stripeRequest("account_links", { method: "POST", body });
+    const result = await stripeV2Request("core/account_links", {
+      method: "POST",
+      body: {
+        account: input.accountId,
+        use_case: {
+          type: "account_onboarding",
+          account_onboarding: {
+            refresh_url: input.refreshUrl,
+            return_url: input.returnUrl,
+            collection_options: { fields: "eventually_due" },
+          },
+        },
+      },
+    });
     if (!result.ok) {
       const err = result.data["error"] as { message?: string } | undefined;
       return { ok: false, url: null, error: err?.message ?? "STRIPE_ERROR" };
