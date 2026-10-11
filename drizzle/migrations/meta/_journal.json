@@ -134,6 +134,13 @@
       "when": 1791681493198,
       "tag": "0018_security_sessions_revoked_at",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1791685296461,
+      "tag": "0019_security_reports_audit_kinds",
+      "breakpoints": true
     }
   ]
 }
