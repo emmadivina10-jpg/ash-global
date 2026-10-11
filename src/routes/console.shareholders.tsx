@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { Suspense, lazy, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { getShareholderCenter, recordShareholderPayment, type ShareholderRow } from "@/lib/shareholders.functions";
+import { getInvestorProviderMap } from "@/lib/investor-map.functions";
+
+const InvestorWorldMap = lazy(() => import("@/components/console/InvestorWorldMap"));
 import { LoadingState } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
