@@ -217,13 +217,19 @@ export const stripeConnect = {
     if (!key()) return EMPTY_CONNECT;
     const result = await stripeV2Request("core/accounts", {
       method: "POST",
-      idempotencyKey: `ash_provider_${input.userId}`,
+      // Versioned key: earlier attempts with a different body were rejected by
+      // Stripe, and reusing their key with a new body would be refused.
+      idempotencyKey: `ash_provider_v2m_${input.userId}`,
       body: {
         contact_email: input.email,
         dashboard: "express",
         identity: { country: input.country.toUpperCase() },
         defaults: { responsibilities: { fees_collector: "application", losses_collector: "application" } },
+        // Same-region recipients on this platform must also hold card_payments
+        // before Stripe allows stripe_transfers (Stripe rejects transfers alone).
+        // ASH still never charges cards on the provider's account.
         configuration: {
+          merchant: { capabilities: { card_payments: { requested: true } } },
           recipient: { capabilities: { stripe_balance: { stripe_transfers: { requested: true } } } },
         },
         metadata: { ash_user_id: input.userId },
