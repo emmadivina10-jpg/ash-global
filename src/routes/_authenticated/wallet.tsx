@@ -58,7 +58,6 @@ function WalletPage() {
   const { data: statementRows } = useTransactions(500);
   const [statementOpen, setStatementOpen] = useState(false);
   const [topupOpen, setTopupOpen] = useState(false);
-  const active = profile?.account_status === "ACTIVE";
   const { t, lang } = useI18n();
 
   const GOLD_KEY = "ash.wallet.gold";

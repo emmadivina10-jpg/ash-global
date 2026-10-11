@@ -118,8 +118,6 @@ function WithdrawPage() {
   const [submitting, setSubmitting] =
     useState(false);
 
-  const active =
-    profile?.account_status === "ACTIVE";
 
   const available = Number(
     wallet?.available_balance ?? 0,

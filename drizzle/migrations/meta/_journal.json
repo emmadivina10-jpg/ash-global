@@ -162,6 +162,13 @@
       "when": 1791699771478,
       "tag": "0022_activate_with_wallet",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1791700038612,
+      "tag": "0023_withdrawal_without_activation",
+      "breakpoints": true
     }
   ]
 }
