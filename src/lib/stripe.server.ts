@@ -251,6 +251,8 @@ export const stripeConnect = {
     idempotencyKey: string;
     description?: string;
     sourceTransaction?: string;
+    /** Per-attempt request key; transfer_group stays the stable idempotencyKey. */
+    requestKey?: string;
   }): Promise<{ ok: boolean; transferId: string | null; error: string | null; httpStatus?: number; errorCode?: string }> {
     if (!LIVE_PROVIDER_TRANSFERS_ENABLED) return { ok: false, transferId: null, error: "TRANSFERS_AWAITING_APPROVAL" };
     const secret = key();
@@ -269,7 +271,7 @@ export const stripeConnect = {
       headers: {
         Authorization: `Bearer ${secret}`,
         "Content-Type": "application/x-www-form-urlencoded",
-        "Idempotency-Key": `wd_${input.idempotencyKey}`,
+        "Idempotency-Key": `wd_${input.requestKey ?? input.idempotencyKey}`,
       },
       body,
     });
