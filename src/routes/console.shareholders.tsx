@@ -82,6 +82,7 @@ function ShareholdersConsole() {
   return (
     <div className="space-y-4">
       <h1 className="font-display text-2xl font-extrabold text-foreground">Shareholders & Investor Center</h1>
+      <ProviderNetworkMap />
       <EquityHeroCards valuation={data.valuation} ownershipPct={null} investment={null} currency="CAD" />
       <GlassCard title="Cap table">
         <table className="w-full text-sm">
