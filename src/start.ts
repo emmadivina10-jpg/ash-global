@@ -36,7 +36,14 @@ const identityMiddleware = createMiddleware({ type: "function" }).server(async (
   return next();
 });
 
+const ipBlockMiddleware = createMiddleware().server(async ({ next, request }) => {
+  const { blockedResponse } = await import("./lib/cyber-guard.server");
+  const blocked = await blockedResponse(request);
+  if (blocked) return blocked as never;
+  return next();
+});
+
 export const startInstance = createStart(() => ({
   functionMiddleware: [attachSupabaseAuth, identityMiddleware],
-  requestMiddleware: [errorMiddleware, csrfMiddleware],
+  requestMiddleware: [errorMiddleware, ipBlockMiddleware, csrfMiddleware],
 }));
