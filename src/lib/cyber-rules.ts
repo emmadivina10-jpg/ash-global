@@ -100,3 +100,31 @@ export const POSTURE_BASELINE: PostureItem[] = [
   { area: "Recovery", control: "Tested backup restore drills", framework: "NIST RC.RP", status: "MISSING" },
   { area: "Governance", control: "Formal certification (SOC 2 / ISO 27001)", framework: "ISO 27001", status: "MISSING" },
 ];
+
+/** HEAD = Head of Cybersecurity (or CEO / elevated); TRUST_OFFICER = view + non-critical tools only. */
+export type CyberRole = "HEAD" | "TRUST_OFFICER" | "NONE";
+export function cyberRole(a: { superAdmin: boolean; elevated: boolean; department: string; extraDepartments: string[] }): CyberRole {
+  if (a.superAdmin || a.elevated || a.department === "CYBERSECURITY") return "HEAD";
+  if (a.extraDepartments.includes("CYBERSECURITY")) return "TRUST_OFFICER";
+  return "NONE";
+}
+
+/** Departments whose dashboards Cyber may audit in view-only mode. The CEO's own dashboards are excluded. */
+export const AUDITABLE_DEPARTMENTS = ["OPERATIONS", "SUPPORT", "REVENUE", "MARKETPLACE_OPS", "ADVERTISING", "TRUST", "GROWTH", "SALES", "PARTNERSHIPS", "CONTENT", "EXPANSION"] as const;
+export function canAuditDept(role: CyberRole, dept: string): boolean {
+  return role !== "NONE" && (AUDITABLE_DEPARTMENTS as readonly string[]).includes(dept);
+}
+
+/** Simple user-agent parse for endpoint inventory. */
+export function parseUserAgent(ua: string | null) {
+  const s = ua ?? "";
+  const bot = /bot|crawl|spider|headless|curl|wget|python|playwright|puppeteer|selenium/i.test(s);
+  const os = /iphone|ipad|ios/i.test(s) ? "iOS" : /android/i.test(s) ? "Android" : /windows/i.test(s) ? "Windows" : /mac os/i.test(s) ? "macOS" : /linux/i.test(s) ? "Linux" : "Unknown";
+  const device = /mobile|iphone|android/i.test(s) ? "Phone" : /ipad|tablet/i.test(s) ? "Tablet" : s ? "Computer" : "Unknown";
+  let browser = "Unknown"; let version = 0;
+  const m = s.match(/(Edg|OPR|Chrome|Firefox|Version)\/(\d+)/);
+  if (m) { browser = m[1] === "Edg" ? "Edge" : m[1] === "OPR" ? "Opera" : m[1] === "Version" ? "Safari" : m[1]; version = Number(m[2]); }
+  const minimum: Record<string, number> = { Chrome: 120, Edge: 120, Firefox: 115, Safari: 16, Opera: 100 };
+  const outdated = Boolean(minimum[browser] && version < minimum[browser]);
+  return { os, device, browser, version, bot, outdated };
+}

@@ -117,3 +117,11 @@ export async function adminClient() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
 }
+
+/** Critical cyber actions (restrictions, locks, force logout, rotation, holds): Head of Cybersecurity or CEO only. */
+export async function requireCyberHead(): Promise<ConsoleActor> {
+  const actor = await requireDepartment("CYBERSECURITY");
+  const { cyberRole } = await import("@/lib/cyber-rules");
+  if (cyberRole(actor) !== "HEAD") throw new Error("FORBIDDEN_CYBER_HEAD_ONLY");
+  return actor;
+}
