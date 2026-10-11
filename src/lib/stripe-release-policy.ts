@@ -53,7 +53,16 @@ export function transferKey(bookingId: string): string {
 
 /** Explicit release authorization is not supplied by a wallet or UI flag. */
 export const LIVE_PROVIDER_TRANSFERS_ENABLED = false;
-export const LIVE_PROVIDER_ONBOARDING_ENABLED = false;
+/** Owner-approved; who may connect is still decided by the server allowlist. */
+export const LIVE_PROVIDER_ONBOARDING_ENABLED = true;
+
+export function onboardingAllowed(
+  controls: { onboarding_enabled?: boolean | null; onboarding_allowed_user_ids?: string[] | null } | null,
+  userId: string,
+): boolean {
+  if (!LIVE_PROVIDER_ONBOARDING_ENABLED || !controls?.onboarding_enabled) return false;
+  return (controls.onboarding_allowed_user_ids ?? []).includes(userId);
+}
 
 export function transferFailure(httpStatus: number, code: string): "INSUFFICIENT_FUNDS" | "FAILED" | "UNKNOWN" {
   if (httpStatus === 0 || httpStatus >= 500 || httpStatus === 409 || httpStatus === 429) return "UNKNOWN";
