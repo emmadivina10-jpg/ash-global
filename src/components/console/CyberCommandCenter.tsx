@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -124,6 +124,7 @@ function Accounts({ initialUserId }: { initialUserId?: string | null }) {
   const [sel, setSel] = useState<string | null>(initialUserId ?? null);
   const results = useMutation({ mutationFn: (x: string) => search({ data: { q: x } }) });
   const detail = useQuery({ queryKey: ["cyber", "acc", sel], enabled: Boolean(sel), queryFn: () => getAcc({ data: { userId: sel! } }) });
+  useEffect(() => { if (detail.data) setState(detail.data.restrictions); }, [detail.data]);
   const [state, setState] = useState<RestrictionState>(EMPTY_RESTRICTIONS);
   const [reason, setReason] = useState("");
   const d = detail.data;
