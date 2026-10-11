@@ -236,3 +236,27 @@ export async function settleCollection(input: SettleInput): Promise<SettleOutcom
 
   return error ? { ok, kind, outcome, error } : { ok, kind, outcome };
 }
+
+const ZERO_DECIMAL = new Set(["BIF","CLP","DJF","GNF","JPY","KMF","KRW","MGA","PYG","RWF","UGX","VND","VUV","XAF","XOF","XPF"]);
+
+/** Converts a Stripe minor-unit amount to major units. */
+export function fromStripeMinor(amount: number, currency: string): number {
+  const cur = currency.toUpperCase();
+  return ZERO_DECIMAL.has(cur) ? amount : Math.round(amount) / 100;
+}
+
+/** Reads the gross amount and currency Stripe actually settled into the ASH balance. */
+async function stripeSettledAmount(intentId: string): Promise<{ currency: string; amount: number } | null> {
+  try {
+    const { stripeRead } = await import("./stripe.server");
+    const pi = await stripeRead(`/v1/payment_intents/${encodeURIComponent(intentId)}?expand[]=latest_charge.balance_transaction`);
+    const charge = pi["latest_charge"] as Record<string, unknown> | null;
+    const bt = charge?.["balance_transaction"] as Record<string, unknown> | null;
+    const amount = typeof bt?.["amount"] === "number" ? (bt["amount"] as number) : null;
+    const currency = typeof bt?.["currency"] === "string" ? (bt["currency"] as string).toUpperCase() : null;
+    if (amount === null || !currency || amount <= 0) return null;
+    return { currency, amount: fromStripeMinor(amount, currency) };
+  } catch {
+    return null;
+  }
+}
