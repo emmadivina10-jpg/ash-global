@@ -1,5 +1,11 @@
 # Roadmap
 
+## Policy and store alignment (Oct 11)
+- [ ] Audit payment availability, verification, privacy and native store requirements without changing live settings or funds
+- [ ] Align canonical policies and current documentation; distinguish Stripe, MTN/Orange and unsupported M-PESA
+- [ ] Prepare Apple/Google submission answers, verification checklist and explicit remaining blockers
+- [ ] Verify public documents and preview health; do not publish or submit
+
 ## Wallet dropdown and ASH Investment (Oct 11)
 - [x] Replace wallet currency chips with a dropdown and 30 display currencies without converting balances
 - [x] Add ASH Investment after the Messages PIN action with an inactive, illustrative three-line chart and currency/time controls
