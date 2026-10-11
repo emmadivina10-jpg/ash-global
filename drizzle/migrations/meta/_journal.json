@@ -148,6 +148,13 @@
       "when": 1791686319991,
       "tag": "0020_stripe_booking_release_hardened",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1791687852306,
+      "tag": "0021_payout_onboarding_allowlist",
+      "breakpoints": true
     }
   ]
 }

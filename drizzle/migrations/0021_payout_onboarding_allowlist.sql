@@ -1,0 +1,2 @@
+ALTER TABLE public.stripe_marketplace_controls ADD COLUMN IF NOT EXISTS onboarding_allowed_user_ids uuid[] NOT NULL DEFAULT '{}';
+COMMENT ON COLUMN public.stripe_marketplace_controls.onboarding_allowed_user_ids IS 'Members allowed to connect a Stripe payout account while onboarding is limited to approved providers.';
