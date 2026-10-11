@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { AlertCircle, CheckCircle2, Loader2, ShieldCheck, Smartphone } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader2, ShieldCheck, Smartphone, Wallet } from "lucide-react";
 import { toast } from "sonner";
-import { useProfile } from "@/lib/queries";
+import { useProfile, useWallet } from "@/lib/queries";
 import { useRegion } from "@/lib/region-context";
 import { startActivation } from "@/lib/payments.functions";
-import { syncMyActivation } from "@/lib/activation.functions";
+import { activateWithWallet, syncMyActivation } from "@/lib/activation.functions";
 import { paymentErrorMessage } from "@/lib/payment-errors";
 import { MomoCharge } from "@/components/refer/MomoCharge";
 import { SectionCard } from "@/components/refer/cards";
@@ -29,13 +29,18 @@ type Phase = "idle" | "charging" | "awaiting" | "verifying" | "active" | "error"
 function ActivatePage() {
   const queryClient = useQueryClient();
   const { data: profile } = useProfile();
+  const { data: wallet } = useWallet();
   const { country } = useRegion();
   const charge = useServerFn(startActivation);
+  const payFromWallet = useServerFn(activateWithWallet);
   const sync = useServerFn(syncMyActivation);
   const [phase, setPhase] = useState<Phase>("idle");
   const [reference, setReference] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const celebrated = useRef(false);
+
+  const walletBalance = Number(wallet?.available_balance ?? 0);
+  const walletCanCover = walletBalance >= ACTIVATION_FEE;
 
   const alreadyActive = profile?.account_status === "ACTIVE";
   const awaiting = phase === "awaiting" || phase === "verifying";
