@@ -53,7 +53,7 @@ function ShareholdersConsole() {
   const fn = useServerFn(getShareholderCenter);
   const { data, isLoading, error } = useQuery({ queryKey: ["console", "shareholders"], queryFn: fn });
   if (isLoading) return <LoadingState label="Loading shareholders…" />;
-  if (error || !data) return <p className="text-sm text-muted-foreground">Only the CEO can open the Shareholders & Investor Center.</p>;
+  if (error || !data) return <p className="text-sm text-muted-foreground">Only the CEO and the investor login can open the Shareholders & Investor Center.</p>;
   const refresh = () => qc.invalidateQueries({ queryKey: ["console", "shareholders"] });
   return (
     <div className="space-y-4">
@@ -88,7 +88,7 @@ function ShareholdersConsole() {
         {data.shareholders.filter((s) => !s.is_founder).map((s) => (
           <div key={s.id} className="space-y-2">
             <InvestmentCard s={s} />
-            <PaymentDialog s={s} onDone={refresh} />
+            {data.canEdit ? <PaymentDialog s={s} onDone={refresh} /> : null}
           </div>
         ))}
         <OwnershipPlan cap={data.cap} />

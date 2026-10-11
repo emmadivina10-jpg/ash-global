@@ -97,8 +97,10 @@ export const getMyShareholding = createServerFn({ method: "GET" })
 
 /** CEO console: full cap table, history and shared Finance figures. */
 export const getShareholderCenter = createServerFn({ method: "GET" }).handler(async () => {
-  const { requireSuperAdmin, adminClient } = await import("./console.server");
-  await requireSuperAdmin();
+  const { requireConsole, adminClient } = await import("./console.server");
+  const actor = await requireConsole();
+  // Investor seat: read-only view; every change stays CEO-only.
+  if (!actor.superAdmin && actor.department !== "INVESTOR") throw new Error("FORBIDDEN_DEPARTMENT");
   const db = await adminClient();
   const [{ data: rows }, { data: events }] = await Promise.all([
     db.from("shareholders").select(COLS).order("ownership_pct", { ascending: false }),
@@ -111,6 +113,7 @@ export const getShareholderCenter = createServerFn({ method: "GET" }).handler(as
     history: events ?? [],
     performance: await companyPerformance(),
     valuation: await currentValuation(),
+    canEdit: actor.superAdmin,
   };
 });
 
