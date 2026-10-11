@@ -217,7 +217,9 @@ export const stripeConnect = {
     if (!key()) return EMPTY_CONNECT;
     const result = await stripeV2Request("core/accounts", {
       method: "POST",
-      idempotencyKey: `ash_provider_${input.userId}`,
+      // Versioned key: earlier attempts with a different body were rejected by
+      // Stripe, and reusing their key with a new body would be refused.
+      idempotencyKey: `ash_provider_v2m_${input.userId}`,
       body: {
         contact_email: input.email,
         dashboard: "express",
