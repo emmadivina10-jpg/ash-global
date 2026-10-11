@@ -233,10 +233,27 @@ export const syncBookingPayment = createServerFn({ method: "POST" })
       const matches = s.reference === booking.payment_reference && s.amountTotal === expectedCents &&
         (s.currency ?? "").toUpperCase() === String(full?.payment_currency ?? "").toUpperCase();
       if (s.status === "PAID" && matches) {
+        // Use Stripe's own completed-session event and charge so the protected
+        // provider-share record is created exactly as the webhook would.
+        const { stripeRead } = await import("./stripe.server");
+        const [platform, session, events] = await Promise.all([
+          stripeRead("account"),
+          stripeRead(`checkout/sessions/${encodeURIComponent(sessionId)}?expand[]=payment_intent.latest_charge`),
+          stripeRead("events?type=checkout.session.completed&limit=100"),
+        ]).catch(() => [null, null, null] as const);
+        const intent = session?.["payment_intent"] as Record<string, unknown> | undefined;
+        const charge = intent?.["latest_charge"] as Record<string, unknown> | undefined;
+        const list = (events?.["data"] as Array<Record<string, unknown>> | undefined) ?? [];
+        const evt = list.find((e) => ((e["data"] as Record<string, unknown>)?.["object"] as Record<string, unknown>)?.["id"] === sessionId);
+        if (!platform || !intent || !charge || !evt || intent["status"] !== "succeeded" || charge["paid"] !== true) {
+          return { ok: true as const, status: "PENDING" as const, bookingStatus: booking.status, error: null };
+        }
         const { settleCollection } = await import("./payment-settlement.server");
         const out = await settleCollection({
-          merchantReference: booking.payment_reference, providerReference: s.paymentIntentId ?? sessionId,
-          status: "PAID", source: "STRIPE_API_VERIFIED", detail: { booking_id: booking.id, session_id: sessionId },
+          merchantReference: booking.payment_reference, providerReference: String(intent["id"]),
+          status: "PAID", source: "STRIPE_WEBHOOK", signatureVerified: true,
+          detail: { marketplace_account_id: String(platform["id"] ?? ""), stripe_event_id: String(evt["id"]), session_id: sessionId,
+            charge_id: String(charge["id"]), amount_minor: Number(session?.["amount_total"]), currency: String(session?.["currency"] ?? "") },
         });
         if (!out.ok) return { ok: false as const, error: out.error ?? "SETTLEMENT_FAILED", bookingStatus: booking.status };
         return { ok: true as const, status: "PAID" as const, bookingStatus: "CONFIRMED", error: null };
