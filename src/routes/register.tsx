@@ -52,6 +52,7 @@ export const Route = createFileRoute("/register")({
     typeof search["ref"] === "string" ? { ref: search["ref"] } : {},
   head: () => ({
     meta: [
+      { property: "og:url", content: "https://ashglogroup.company/register" },
       { title: "Create your ASH Glo account" },
       {
         name: "description",
@@ -62,6 +63,7 @@ export const Route = createFileRoute("/register")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://ashglogroup.company/register" }],
   }),
   component: RegisterPage,
 });

@@ -6,7 +6,7 @@ import {
   passwordRotationStatus,
   scoreQuiz,
   trainingOverdue,
-} from "@/lib/cyber-rules";
+} from "../src/lib/cyber-rules";
 
 const NOW = Date.parse("2026-10-11T00:00:00Z");
 
@@ -41,7 +41,7 @@ describe("rotation and training schedules", () => {
     expect(passwordRotationStatus("2026-09-26T00:00:00Z", NOW).overdue).toBe(true);
   });
   it("training is due again 6 months after completion", () => {
-    expect(trainingOverdue("2026-05-01T00:00:00Z", NOW)).toBe(true);
+    expect(trainingOverdue("2026-04-01T00:00:00Z", NOW)).toBe(true);
     expect(trainingOverdue("2026-05-01T00:00:00Z", Date.parse("2026-10-31T00:00:00Z"))).toBe(false);
     expect(trainingOverdue(null, NOW)).toBe(true);
   });

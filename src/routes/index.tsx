@@ -12,9 +12,9 @@ import { MobileOnboarding } from "@/components/refer/MobileOnboarding";
 import { WebsiteAppShowcase } from "@/components/refer/WebsiteAppShowcase";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-const TITLE = "ASH — Where Opportunities Connect.";
+const TITLE = "ASH Glo — Book Services, Chat & Earn Referral Rewards";
 const DESCRIPTION =
-  "ASH Glo is a digital opportunity, commerce, services, freelance, property, community and events platform that connects people, businesses, freelancers, service providers, communities and event organizers in one ecosystem, with a social feed, stories, Spotlight, friends, groups and supported payments.";
+  "ASH Glo is the all-in-one app to book trusted local services, chat with friends and family, share your feed and pay securely by card, MTN or Orange Money.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -31,18 +31,36 @@ export const Route = createFileRoute("/")({
     scripts: [
       {
         type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "WebApplication",
-          name: "ASH",
-          alternateName: "ASH Glo",
-          slogan: "Where Opportunities Connect.",
-          url: "https://ashglogroup.company/",
-          applicationCategory: "FinanceApplication",
-          operatingSystem: "Web, Android, iOS",
-          inLanguage: ["en", "fr"],
-          description: DESCRIPTION,
-        }),
+        children: JSON.stringify([
+          {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "ASH Glo",
+            alternateName: ["ASH", "ASH Global Technologies"],
+            url: "https://ashglogroup.company/",
+            logo: "https://ashglogroup.company/favicon.png",
+            founder: { "@type": "Person", name: "Emmanuel Tanga Divine", jobTitle: "CEO" },
+            areaServed: ["Cameroon", "Nigeria", "Canada", "United States"],
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "ASH Glo",
+            url: "https://ashglogroup.company/",
+            inLanguage: ["en", "fr"],
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            name: "ASH Glo",
+            slogan: "Where Opportunities Connect.",
+            url: "https://ashglogroup.company/",
+            applicationCategory: "LifestyleApplication",
+            operatingSystem: "Web, Android, iOS",
+            inLanguage: ["en", "fr"],
+            description: DESCRIPTION,
+          },
+        ]),
       },
     ],
   }),

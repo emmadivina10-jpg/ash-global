@@ -15,6 +15,7 @@ import { useI18n } from "@/lib/i18n";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
+      { property: "og:url", content: "https://ashglogroup.company/login" },
       { title: "Login — ASH Glo" },
       { name: "description", content: "Sign in to your ASH Glo account to track referrals, earnings and withdrawals." },
       { property: "og:title", content: "Login — ASH Glo" },
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/login")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://ashglogroup.company/login" }],
   }),
   component: LoginPage,
 });
