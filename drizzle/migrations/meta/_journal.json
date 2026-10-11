@@ -155,6 +155,13 @@
       "when": 1791687852306,
       "tag": "0021_payout_onboarding_allowlist",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1791699771478,
+      "tag": "0022_activate_with_wallet",
+      "breakpoints": true
     }
   ]
 }

@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { AlertCircle, CheckCircle2, Loader2, ShieldCheck, Smartphone } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader2, ShieldCheck, Smartphone, Wallet } from "lucide-react";
 import { toast } from "sonner";
-import { useProfile } from "@/lib/queries";
+import { useProfile, useWallet } from "@/lib/queries";
 import { useRegion } from "@/lib/region-context";
 import { startActivation } from "@/lib/payments.functions";
-import { syncMyActivation } from "@/lib/activation.functions";
+import { activateWithWallet, syncMyActivation } from "@/lib/activation.functions";
 import { paymentErrorMessage } from "@/lib/payment-errors";
 import { MomoCharge } from "@/components/refer/MomoCharge";
 import { SectionCard } from "@/components/refer/cards";
@@ -29,13 +29,18 @@ type Phase = "idle" | "charging" | "awaiting" | "verifying" | "active" | "error"
 function ActivatePage() {
   const queryClient = useQueryClient();
   const { data: profile } = useProfile();
+  const { data: wallet } = useWallet();
   const { country } = useRegion();
   const charge = useServerFn(startActivation);
+  const payFromWallet = useServerFn(activateWithWallet);
   const sync = useServerFn(syncMyActivation);
   const [phase, setPhase] = useState<Phase>("idle");
   const [reference, setReference] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const celebrated = useRef(false);
+
+  const walletBalance = Number(wallet?.available_balance ?? 0);
+  const walletCanCover = walletBalance >= ACTIVATION_FEE;
 
   const alreadyActive = profile?.account_status === "ACTIVE";
   const awaiting = phase === "awaiting" || phase === "verifying";
@@ -93,6 +98,26 @@ function ActivatePage() {
     toast.message("Check your phone and approve the payment prompt.");
   }
 
+  async function payWithWallet() {
+    setPhase("charging");
+    setMessage(null);
+    const result = await payFromWallet({ data: undefined });
+    if (!result.ok) {
+      setPhase("error");
+      setMessage(
+        result.error === "INSUFFICIENT_BALANCE"
+          ? `Your wallet balance (${formatXAF(result.balance ?? 0)}) is below the ${formatXAF(ACTIVATION_FEE)} fee. Top up your wallet first, or pay with Mobile Money below.`
+          : result.error === "ALREADY_ACTIVE"
+            ? "Your account is already active."
+            : "We could not complete the wallet payment. Please try again.",
+      );
+      return;
+    }
+    setPhase("active");
+    toast.success("Payment confirmed. Your account is now active.");
+    await queryClient.invalidateQueries();
+  }
+
   async function verify() {
     setPhase("verifying");
     setMessage(null);
@@ -145,7 +170,8 @@ function ActivatePage() {
         <p className="text-sm opacity-85">One-time activation fee</p>
         <p className="tabular mt-1 text-5xl font-bold">{formatXAF(ACTIVATION_FEE)}</p>
         <p className="mt-4 text-sm opacity-85">
-          Paid with Mobile Money through TchokoPay. Your account activates only after the payment clears.
+          Pay from your wallet balance or with Mobile Money. Your account activates only after the payment
+          clears.
         </p>
       </div>
 
@@ -171,6 +197,34 @@ function ActivatePage() {
           <p>{message}</p>
         </div>
       ) : null}
+
+      <SectionCard title="Pay from your wallet">
+        <div className="flex items-center justify-between rounded-xl bg-muted px-4 py-3">
+          <span className="flex items-center gap-2 text-sm font-medium text-foreground">
+            <Wallet className="size-4 text-primary" aria-hidden />
+            Wallet balance
+          </span>
+          <span className="tabular font-bold text-foreground">{formatXAF(walletBalance)}</span>
+        </div>
+        <Button
+          className="mt-3 w-full"
+          onClick={payWithWallet}
+          disabled={phase === "charging" || !walletCanCover}
+        >
+          {phase === "charging" ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+          Pay {formatXAF(ACTIVATION_FEE)} from wallet
+        </Button>
+        {!walletCanCover ? (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Your balance is below the fee. Top up your wallet by card or Mobile Money first, or pay directly
+            with Mobile Money below.
+          </p>
+        ) : (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Instant — the fee leaves your wallet and your account activates right away.
+          </p>
+        )}
+      </SectionCard>
 
       <SectionCard title="Pay with Mobile Money">
         <MomoCharge

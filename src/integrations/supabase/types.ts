@@ -7523,6 +7523,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      activate_with_wallet: { Args: never; Returns: Json }
       activity_event_direction: {
         Args: { _event_type: string }
         Returns: number
