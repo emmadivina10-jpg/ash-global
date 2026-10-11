@@ -88,6 +88,7 @@ import { Route as ConsoleReportsRouteImport } from './routes/console.reports'
 import { Route as ConsoleRevenueRouteImport } from './routes/console.revenue'
 import { Route as ConsoleSalesRouteImport } from './routes/console.sales'
 import { Route as ConsoleSecurityRouteImport } from './routes/console.security'
+import { Route as ConsoleSecurityUpdatesRouteImport } from './routes/console.security-updates'
 import { Route as ConsoleShareholdersRouteImport } from './routes/console.shareholders'
 import { Route as ConsoleStaffRouteImport } from './routes/console.staff'
 import { Route as ConsoleSupportRouteImport } from './routes/console.support'
@@ -119,6 +120,7 @@ import { Route as AuthenticatedPropertyIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedPropertyListingIdRouteImport } from './routes/_authenticated/property.$listingId'
 import { Route as AuthenticatedPropertyManageRouteImport } from './routes/_authenticated/property.manage'
 import { Route as AuthenticatedPropertyNewRouteImport } from './routes/_authenticated/property.new'
+import { Route as AuthenticatedSecurityUpdateBulletinIdRouteImport } from './routes/_authenticated/security-update.$bulletinId'
 import { Route as AuthenticatedServicesIndexRouteImport } from './routes/_authenticated/services.index'
 import { Route as AuthenticatedServicesProviderIdRouteImport } from './routes/_authenticated/services.$providerId'
 import { Route as AuthenticatedServicesExtrasRouteImport } from './routes/_authenticated/services.extras'
@@ -544,6 +546,11 @@ const ConsoleSecurityRoute = ConsoleSecurityRouteImport.update({
   path: '/security',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const ConsoleSecurityUpdatesRoute = ConsoleSecurityUpdatesRouteImport.update({
+  id: '/security-updates',
+  path: '/security-updates',
+  getParentRoute: () => ConsoleRoute,
+} as any)
 const ConsoleShareholdersRoute = ConsoleShareholdersRouteImport.update({
   id: '/shareholders',
   path: '/shareholders',
@@ -711,6 +718,12 @@ const AuthenticatedPropertyNewRoute =
   AuthenticatedPropertyNewRouteImport.update({
     id: '/property/new',
     path: '/property/new',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSecurityUpdateBulletinIdRoute =
+  AuthenticatedSecurityUpdateBulletinIdRouteImport.update({
+    id: '/security-update/$bulletinId',
+    path: '/security-update/$bulletinId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedServicesIndexRoute =
@@ -930,6 +943,7 @@ export interface FileRoutesByFullPath {
   '/console/revenue': typeof ConsoleRevenueRoute
   '/console/sales': typeof ConsoleSalesRoute
   '/console/security': typeof ConsoleSecurityRoute
+  '/console/security-updates': typeof ConsoleSecurityUpdatesRoute
   '/console/shareholders': typeof ConsoleShareholdersRoute
   '/console/staff': typeof ConsoleStaffRoute
   '/console/support': typeof ConsoleSupportRoute
@@ -954,6 +968,7 @@ export interface FileRoutesByFullPath {
   '/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
   '/property/manage': typeof AuthenticatedPropertyManageRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
+  '/security-update/$bulletinId': typeof AuthenticatedSecurityUpdateBulletinIdRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/services/extras': typeof AuthenticatedServicesExtrasRoute
   '/u/$userId': typeof AuthenticatedUUserIdRoute
@@ -1064,6 +1079,7 @@ export interface FileRoutesByTo {
   '/console/revenue': typeof ConsoleRevenueRoute
   '/console/sales': typeof ConsoleSalesRoute
   '/console/security': typeof ConsoleSecurityRoute
+  '/console/security-updates': typeof ConsoleSecurityUpdatesRoute
   '/console/shareholders': typeof ConsoleShareholdersRoute
   '/console/staff': typeof ConsoleStaffRoute
   '/console/support': typeof ConsoleSupportRoute
@@ -1088,6 +1104,7 @@ export interface FileRoutesByTo {
   '/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
   '/property/manage': typeof AuthenticatedPropertyManageRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
+  '/security-update/$bulletinId': typeof AuthenticatedSecurityUpdateBulletinIdRoute
   '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/services/extras': typeof AuthenticatedServicesExtrasRoute
   '/u/$userId': typeof AuthenticatedUUserIdRoute
@@ -1201,6 +1218,7 @@ export interface FileRoutesById {
   '/console/revenue': typeof ConsoleRevenueRoute
   '/console/sales': typeof ConsoleSalesRoute
   '/console/security': typeof ConsoleSecurityRoute
+  '/console/security-updates': typeof ConsoleSecurityUpdatesRoute
   '/console/shareholders': typeof ConsoleShareholdersRoute
   '/console/staff': typeof ConsoleStaffRoute
   '/console/support': typeof ConsoleSupportRoute
@@ -1225,6 +1243,7 @@ export interface FileRoutesById {
   '/_authenticated/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
   '/_authenticated/property/manage': typeof AuthenticatedPropertyManageRoute
   '/_authenticated/property/new': typeof AuthenticatedPropertyNewRoute
+  '/_authenticated/security-update/$bulletinId': typeof AuthenticatedSecurityUpdateBulletinIdRoute
   '/_authenticated/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
   '/_authenticated/services/extras': typeof AuthenticatedServicesExtrasRoute
   '/_authenticated/u/$userId': typeof AuthenticatedUUserIdRoute
@@ -1338,6 +1357,7 @@ export interface FileRouteTypes {
     | '/console/revenue'
     | '/console/sales'
     | '/console/security'
+    | '/console/security-updates'
     | '/console/shareholders'
     | '/console/staff'
     | '/console/support'
@@ -1362,6 +1382,7 @@ export interface FileRouteTypes {
     | '/property/$listingId'
     | '/property/manage'
     | '/property/new'
+    | '/security-update/$bulletinId'
     | '/services/$providerId'
     | '/services/extras'
     | '/u/$userId'
@@ -1472,6 +1493,7 @@ export interface FileRouteTypes {
     | '/console/revenue'
     | '/console/sales'
     | '/console/security'
+    | '/console/security-updates'
     | '/console/shareholders'
     | '/console/staff'
     | '/console/support'
@@ -1496,6 +1518,7 @@ export interface FileRouteTypes {
     | '/property/$listingId'
     | '/property/manage'
     | '/property/new'
+    | '/security-update/$bulletinId'
     | '/services/$providerId'
     | '/services/extras'
     | '/u/$userId'
@@ -1608,6 +1631,7 @@ export interface FileRouteTypes {
     | '/console/revenue'
     | '/console/sales'
     | '/console/security'
+    | '/console/security-updates'
     | '/console/shareholders'
     | '/console/staff'
     | '/console/support'
@@ -1632,6 +1656,7 @@ export interface FileRouteTypes {
     | '/_authenticated/property/$listingId'
     | '/_authenticated/property/manage'
     | '/_authenticated/property/new'
+    | '/_authenticated/security-update/$bulletinId'
     | '/_authenticated/services/$providerId'
     | '/_authenticated/services/extras'
     | '/_authenticated/u/$userId'
@@ -2258,6 +2283,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleSecurityRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/console/security-updates': {
+      id: '/console/security-updates'
+      path: '/security-updates'
+      fullPath: '/console/security-updates'
+      preLoaderRoute: typeof ConsoleSecurityUpdatesRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
     '/console/shareholders': {
       id: '/console/shareholders'
       path: '/shareholders'
@@ -2475,6 +2507,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPropertyNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/security-update/$bulletinId': {
+      id: '/_authenticated/security-update/$bulletinId'
+      path: '/security-update/$bulletinId'
+      fullPath: '/security-update/$bulletinId'
+      preLoaderRoute: typeof AuthenticatedSecurityUpdateBulletinIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/services/': {
       id: '/_authenticated/services/'
       path: '/services'
@@ -2688,6 +2727,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPropertyListingIdRoute: typeof AuthenticatedPropertyListingIdRoute
   AuthenticatedPropertyManageRoute: typeof AuthenticatedPropertyManageRoute
   AuthenticatedPropertyNewRoute: typeof AuthenticatedPropertyNewRoute
+  AuthenticatedSecurityUpdateBulletinIdRoute: typeof AuthenticatedSecurityUpdateBulletinIdRoute
   AuthenticatedServicesProviderIdRoute: typeof AuthenticatedServicesProviderIdRoute
   AuthenticatedServicesExtrasRoute: typeof AuthenticatedServicesExtrasRoute
   AuthenticatedUUserIdRoute: typeof AuthenticatedUUserIdRoute
@@ -2754,6 +2794,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPropertyListingIdRoute: AuthenticatedPropertyListingIdRoute,
   AuthenticatedPropertyManageRoute: AuthenticatedPropertyManageRoute,
   AuthenticatedPropertyNewRoute: AuthenticatedPropertyNewRoute,
+  AuthenticatedSecurityUpdateBulletinIdRoute:
+    AuthenticatedSecurityUpdateBulletinIdRoute,
   AuthenticatedServicesProviderIdRoute: AuthenticatedServicesProviderIdRoute,
   AuthenticatedServicesExtrasRoute: AuthenticatedServicesExtrasRoute,
   AuthenticatedUUserIdRoute: AuthenticatedUUserIdRoute,
@@ -2816,6 +2858,7 @@ interface ConsoleRouteChildren {
   ConsoleRevenueRoute: typeof ConsoleRevenueRoute
   ConsoleSalesRoute: typeof ConsoleSalesRoute
   ConsoleSecurityRoute: typeof ConsoleSecurityRoute
+  ConsoleSecurityUpdatesRoute: typeof ConsoleSecurityUpdatesRoute
   ConsoleShareholdersRoute: typeof ConsoleShareholdersRoute
   ConsoleStaffRoute: typeof ConsoleStaffRoute
   ConsoleSupportRoute: typeof ConsoleSupportRoute
@@ -2857,6 +2900,7 @@ const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsoleRevenueRoute: ConsoleRevenueRoute,
   ConsoleSalesRoute: ConsoleSalesRoute,
   ConsoleSecurityRoute: ConsoleSecurityRoute,
+  ConsoleSecurityUpdatesRoute: ConsoleSecurityUpdatesRoute,
   ConsoleShareholdersRoute: ConsoleShareholdersRoute,
   ConsoleStaffRoute: ConsoleStaffRoute,
   ConsoleSupportRoute: ConsoleSupportRoute,
