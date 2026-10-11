@@ -304,7 +304,7 @@ async function reportMetrics(db: Db, start: string, end: string) {
     openTransactionHolds: holds.count ?? 0,
     newDevicesByCountry: newCountries,
     overduePasswordRotations: (seats.data ?? []).filter((s) => passwordRotationStatus(s.password_changed_at).overdue).map((s) => s.username),
-    postureGaps: POSTURE_BASELINE.filter((p) => !p.inPlace).map((p) => p.label),
+    postureGaps: POSTURE_BASELINE.filter((p) => p.status !== "IN_PLACE").map((p) => p.control),
   };
 }
 
