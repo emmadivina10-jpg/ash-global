@@ -40,3 +40,4 @@
 
 - WalletPayoutSetup reuses guarded Stripe Connect; PayoutSetupReminder saves account-scoped opt-out/cadence locally. Why: visible setup, no card collection or restricted payouts.
 - WebsiteAppShowcase stays separate from MobileOnboarding; use only confirmed store links. Why: preserve native entry and honest downloads.
+- Wallet money is held per currency: XAF (Mobile Money) in wallets, card money in wallet_balances at Stripe's settled currency via complete_wallet_topup_stripe; withdrawals use request_wallet_withdrawal for the matching method; UI helpers live in wallet-currency.ts. Why: never pay out money that never entered that rail, and never show conversions as balances.
