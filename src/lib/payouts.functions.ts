@@ -7,6 +7,17 @@ import { z } from "zod";
  * ever entered on Stripe's hosted onboarding — ASH never stores them.
  */
 
+/** Whether the signed-in member may see bank payout setup at all (option A: hidden for everyone else). */
+export type PayoutSetupVisibility = { canSetUpBank: boolean };
+
+export const getPayoutSetupVisibility = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<PayoutSetupVisibility> => {
+    const { providerOnboardingEnabled } = await import("./stripe-booking-release.server");
+    return { canSetUpBank: await providerOnboardingEnabled(context.userId) };
+  });
+
+
 export type PayoutAccountState = {
   country?: string;
   transfersActive?: boolean;
