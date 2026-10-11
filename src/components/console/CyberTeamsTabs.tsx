@@ -100,7 +100,7 @@ export function ControlTeamsTab() {
               </ul>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {(DEPT_PAGES[t.dept] ?? []).map((p) => (
-                  <Link key={p.to} to={p.to} search={{ audit: 1 } as never} className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold hover:bg-primary hover:text-primary-foreground">
+                  <Link key={p.to} to={p.to} className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold hover:bg-primary hover:text-primary-foreground">
                     <Eye className="size-3" /> {p.label}
                   </Link>
                 ))}
