@@ -3,26 +3,17 @@ import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
 import { buildMoneyFlow, formatMoney, type FlowRange } from "@/lib/wallet-currency";
+import { currencyName } from "@/lib/currency-catalog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function CurrencySwitcher({ options, value, onChange, fr }: { options: string[]; value: string; onChange: (c: string) => void; fr: boolean }) {
   return (
-    <div role="radiogroup" aria-label={fr ? "Devise du portefeuille" : "Wallet currency"} className="inline-flex flex-wrap gap-1 rounded-full border border-border bg-card p-1">
-      {options.map((c) => (
-        <button
-          key={c}
-          type="button"
-          role="radio"
-          aria-checked={value === c}
-          onClick={() => onChange(c)}
-          className={cn(
-            "rounded-full px-3.5 py-1.5 text-xs font-bold tracking-wide transition-colors",
-            value === c ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted",
-          )}
-        >
-          {c}
-        </button>
-      ))}
-    </div>
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger aria-label={fr ? "Devise du portefeuille" : "Wallet currency"} className="h-10 w-64 max-w-full bg-card text-start font-semibold"><SelectValue /></SelectTrigger>
+      <SelectContent className="max-h-80">
+        {[...new Set([...options, value])].map(c => <SelectItem key={c} value={c}>{c} · {currencyName(c, fr)}</SelectItem>)}
+      </SelectContent>
+    </Select>
   );
 }
 

@@ -232,6 +232,16 @@
 }
 
 @layer base {
+  @keyframes investment-scan {
+    from { left: 0%; opacity: 0; }
+    20%, 80% { opacity: 1; }
+    to { left: 100%; opacity: 0; }
+  }
+  .investment-scan { animation: investment-scan 10s linear infinite; }
+  @media (prefers-reduced-motion: reduce) {
+    .investment-scan { animation: none; display: none; }
+  }
+
   html {
     font-size: 17px;
   }

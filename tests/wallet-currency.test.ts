@@ -1,8 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { balanceFor, buildMoneyFlow, minWithdrawalFor, withdrawalMethodsFor } from "../src/lib/wallet-currency";
+import { balanceFor, buildMoneyFlow, currencyOptions, minWithdrawalFor, withdrawalMethodsFor } from "../src/lib/wallet-currency";
 import { fromStripeMinor } from "../src/lib/payment-settlement.server";
 
 describe("one wallet, real money per currency", () => {
+  it("offers dollars, francs and more display currencies while preserving funded currencies", () => {
+    const choices = currencyOptions([{ currency: "PLN", available: 7, pending: 0, totalIn: 7, totalOut: 0 }]);
+    expect(choices).toEqual(expect.arrayContaining(["USD", "CAD", "XAF", "XOF", "EUR", "GBP", "PLN"]));
+    expect(new Set(choices).size).toBe(choices.length);
+  });
+  it("new unfunded currencies stay zero without changing actual funds", () => {
+    const balances = [{ currency: "CAD", available: 12.17, pending: 0, totalIn: 12.17, totalOut: 0 }];
+    expect(balanceFor(balances, "EUR")).toEqual({ currency: "EUR", available: 0, pending: 0, totalIn: 0, totalOut: 0 });
+    expect(balanceFor(balances, "CAD").available).toBe(12.17);
+  });
   it("francs only leave by Mobile Money", () => {
     expect(withdrawalMethodsFor("XAF")).toEqual(["MTN_MOMO", "ORANGE_MONEY"]);
   });
