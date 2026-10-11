@@ -64,7 +64,8 @@ export async function handleMarketplaceEvent(payload: unknown): Promise<Response
     } else if (["charge.refunded", "charge.dispute.created", "charge.dispute.updated", "charge.dispute.closed"].includes(event.type)) {
       if (event.account) throw new Error("CONNECTED_CHARGE_NOT_MARKETPLACE");
       const chargeId = event.type === "charge.refunded" ? obj["id"] : obj["charge"];
-      const { error } = await db.rpc("hold_stripe_booking_charge", { _charge_id: chargeId, _reason: event.type });
+      const partial = event.type === "charge.refunded" && Number(obj["amount_refunded"] ?? 0) < Number(obj["amount"] ?? 0);
+      const { error } = await db.rpc("hold_stripe_booking_charge", { _charge_id: chargeId, _reason: partial ? "charge.refunded.partial" : event.type });
       if (error) throw new Error("HOLD_FAILED");
       if (event.type === "charge.refunded") {
         const { error: refundError } = await db.from("payment_transactions").update({ status: "REFUNDED", reconciliation_status: "NEEDS_REVIEW" }).eq("provider", "STRIPE").eq("provider_reference", obj["payment_intent"]);

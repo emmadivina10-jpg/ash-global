@@ -14,7 +14,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   vi.stubGlobal("fetch", vi.fn(() => { throw new Error("NETWORK_FORBIDDEN_IN_ISOLATED_TEST"); }));
   harness.job = { marketplace_account_id: "acct_isolated", destination_account_id: "acct_provider_isolated", amount_minor: 8500, currency: "cad", source_charge_id: "ch_isolated", transfer_id: "tr_isolated" };
-  harness.rpc.mockResolvedValue({ error: null });
+  harness.rpc.mockImplementation(async (_n: string, a: { _reversed?: boolean }) => ({ data: { status: a?._reversed ? "REVERSED" : "TRANSFERRED" }, error: null }));
   harness.read.mockImplementation(async (path: string) => path === "account" ? { id: "acct_isolated" } : transfer);
 });
 
@@ -44,6 +44,10 @@ describe("isolated transfer reconciliation", () => {
     harness.read.mockImplementation(async (path: string) => path === "account" ? { id: "acct_isolated" } : { data: [transfer, transfer], has_more: false });
     expect((await reconcileRelease("isolated-booking")).status).toBe("REQUIRES_REVIEW");
     expect(harness.rpc).not.toHaveBeenCalled();
+  });
+  it("reports a hold persisted by the database instead of TRANSFERRED", async () => {
+    harness.rpc.mockResolvedValue({ data: { status: "HELD" }, error: null });
+    expect((await reconcileRelease("isolated-booking")).status).toBe("HELD");
   });
   it("does not report a transfer recorded when the database rejects it", async () => {
     harness.rpc.mockResolvedValue({ error: { message: "isolated write failure" } });

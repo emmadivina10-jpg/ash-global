@@ -67,6 +67,8 @@ export async function releaseBookingTransfer(bookingId: string): Promise<{ statu
       accountId: claimed.destination_account_id,
       amountCents: Number(claimed.amount_minor), currency: claimed.currency,
       sourceTransaction: claimed.source_charge_id, idempotencyKey: transferKey(bookingId),
+      // A retry is only allowed after a definitive rejection, so a fresh request key cannot double-pay.
+      requestKey: Number(claimed.attempt ?? 0) > 0 ? `${transferKey(bookingId)}_a${Number(claimed.attempt)}` : undefined,
       description: `ASH verified booking ${bookingId}`,
     });
     if (!result.ok || !result.transferId) {
@@ -75,8 +77,9 @@ export async function releaseBookingTransfer(bookingId: string): Promise<{ statu
       const { error } = await db.from("stripe_booking_releases").update({ status, last_error: status }).eq("booking_id", bookingId).eq("status", "SUBMITTING");
       return { status: error ? "UNKNOWN" : status };
     }
-    const { error } = await db.rpc("finish_stripe_booking_release", { _booking_id: bookingId, _transfer_id: result.transferId, _reversed: false });
-    return error ? { status: "UNKNOWN" } : { status: "TRANSFERRED", transferId: result.transferId };
+    const { data: saved, error } = await db.rpc("finish_stripe_booking_release", { _booking_id: bookingId, _transfer_id: result.transferId, _reversed: false });
+    // Report the persisted state (a hold or reversal recorded meanwhile wins).
+    return error || typeof saved?.status !== "string" ? { status: "UNKNOWN" } : { status: saved.status, transferId: result.transferId };
   } catch {
     await db.from("stripe_booking_releases").update({ status: "UNKNOWN", last_error: "TRANSFER_REQUIRES_RECONCILIATION" }).eq("booking_id", bookingId).eq("status", "SUBMITTING");
     return { status: "UNKNOWN" };
@@ -104,8 +107,8 @@ export async function reconcileRelease(bookingId: string): Promise<{ status: str
   const id = transfer["id"];
   if (typeof id !== "string") return { status: "UNKNOWN" };
   const reversed = transfer["reversed"] === true || Number(transfer["amount_reversed"] ?? 0) > 0;
-  const { error: saveError } = await db.rpc("finish_stripe_booking_release", { _booking_id: bookingId, _transfer_id: id, _reversed: reversed });
-  return saveError ? { status: "UNKNOWN" } : { status: reversed ? "REVERSED" : "TRANSFERRED", transferId: id };
+  const { data: saved, error: saveError } = await db.rpc("finish_stripe_booking_release", { _booking_id: bookingId, _transfer_id: id, _reversed: reversed });
+  return saveError || typeof saved?.status !== "string" ? { status: "UNKNOWN" } : { status: saved.status, transferId: id };
 }
 
 /** Batch dispatcher for the existing authorized Finance session; controls default off. */
