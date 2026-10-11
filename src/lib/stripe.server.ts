@@ -223,7 +223,11 @@ export const stripeConnect = {
         dashboard: "express",
         identity: { country: input.country.toUpperCase() },
         defaults: { responsibilities: { fees_collector: "application", losses_collector: "application" } },
+        // Same-region recipients on this platform must also hold card_payments
+        // before Stripe allows stripe_transfers (Stripe rejects transfers alone).
+        // ASH still never charges cards on the provider's account.
         configuration: {
+          merchant: { capabilities: { card_payments: { requested: true } } },
           recipient: { capabilities: { stripe_balance: { stripe_transfers: { requested: true } } } },
         },
         metadata: { ash_user_id: input.userId },
