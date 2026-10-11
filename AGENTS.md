@@ -15,7 +15,7 @@
 - Shareholders uses shareholders.functions.ts and append-only service-role records; Finance shares computeFinanceLedger. Source reads use allFinanceRows with stable ordering and fail on errors. Why: one complete financial source, no silent truncation or zeros.
 - Feed/Stories/Services rank via rotation.ts after safety filtering. Why: no duplicate feed.
 - AppShell omits tab-owned headers; MobileNav owns hold/slide. Why: one navigation path.
-- Desktop Messages fills the area beside the sidebar; desktop/mobile navigation expose Flights. Why: full viewport and accessible destinations.
+- Desktop Messages fills the sidebar-adjacent viewport; desktop/mobile nav expose Flights. Why: full space and access.
 - Market defaults via versioned services-mode at the existing Services URL; Extras is its child route. MarketBrowser reuses discovery/deals/property reads. Why: preserve commerce and URLs.
 
 - Avatar updates reuse safety-filtered StoriesRail; ChatActionDialog owns panels; MemberNavIcon uses token-based SVG strokes. Why: shared safe viewing and branding.
@@ -30,7 +30,7 @@
 - Staff metrics share member-insights.functions.ts; member-review.server.ts authorizes/audits account review; staff AI threads use service-only storage. Why: consistent numbers, no impersonation or history leaks.
 - Human Support reuses support.functions.ts and ticket/read records; support-state.ts owns notifications; AI chat stays separate. Why: no duplicate messaging or schema.
 - Checkout returns use payment-return.ts's origin allowlist; CompassSurface owns the single Map/Wallet launcher (TrackingDock map, AshOrb access). Why: safe returns, one floating control.
-- Booking payment actions use booking-payment-state.ts; Stripe/bank status checks refresh saved booking evidence, while mobile-money checks are serialized and show inline outcomes. Why: pending confirmation must never invite duplicate payment or impersonate verified settlement.
+- Booking actions use booking-payment-state.ts; Stripe/bank checks refresh saved evidence; Mobile Money checks are serialized with inline outcomes. Why: pending status must not invite duplicate payment or imply settlement.
 - Tracking: parties opt in via share_booking_party_location (active bookings, cleared on end); Leaflet/OSM map client-only. Why: works worldwide, no key or address.
 - Service verification uses the atomic code RPC independently of disabled transfers; constraint tests use isolated PGlite, not live inserts. Why: preserve verification and funds.
 - Phone alert banners belong to OS delivery, not PushBridge toasts; iOS launch storyboard owns native startup. Why: prevent duplicated notifications and opening screens.
