@@ -192,6 +192,7 @@ export function CompassSurface({
       >
         <Button
           ref={launcher}
+          data-pull-refresh-ignore
           variant="ghost"
           onPointerDown={pointerDown}
           onPointerMove={pointerMove}
