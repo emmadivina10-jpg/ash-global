@@ -249,7 +249,7 @@ export function fromStripeMinor(amount: number, currency: string): number {
 async function stripeSettledAmount(intentId: string): Promise<{ currency: string; amount: number } | null> {
   try {
     const { stripeRead } = await import("./stripe.server");
-    const pi = await stripeRead(`/v1/payment_intents/${encodeURIComponent(intentId)}?expand[]=latest_charge.balance_transaction`);
+    const pi = await stripeRead(`payment_intents/${encodeURIComponent(intentId)}?expand[]=latest_charge.balance_transaction`);
     const charge = pi["latest_charge"] as Record<string, unknown> | null;
     const bt = charge?.["balance_transaction"] as Record<string, unknown> | null;
     const amount = typeof bt?.["amount"] === "number" ? (bt["amount"] as number) : null;
