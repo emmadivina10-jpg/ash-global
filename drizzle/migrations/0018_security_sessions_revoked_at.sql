@@ -1,0 +1,1 @@
+ALTER TABLE public.security_restrictions ADD COLUMN IF NOT EXISTS sessions_revoked_at timestamptz;

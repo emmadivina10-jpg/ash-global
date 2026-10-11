@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       access_fingerprints: {
         Row: {
+          city: string | null
           country: string | null
           fingerprint: string
           first_seen: string
@@ -23,10 +24,13 @@ export type Database = {
           id: string
           ip: string
           last_seen: string
+          lat: number | null
+          lng: number | null
           user_agent: string | null
           user_id: string
         }
         Insert: {
+          city?: string | null
           country?: string | null
           fingerprint: string
           first_seen?: string
@@ -34,10 +38,13 @@ export type Database = {
           id?: string
           ip: string
           last_seen?: string
+          lat?: number | null
+          lng?: number | null
           user_agent?: string | null
           user_id: string
         }
         Update: {
+          city?: string | null
           country?: string | null
           fingerprint?: string
           first_seen?: string
@@ -45,6 +52,8 @@ export type Database = {
           id?: string
           ip?: string
           last_seen?: string
+          lat?: number | null
+          lng?: number | null
           user_agent?: string | null
           user_id?: string
         }
@@ -5833,6 +5842,48 @@ export type Database = {
         }
         Relationships: []
       }
+      security_reports: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          findings: Json
+          generated_by: string
+          id: string
+          metrics: Json
+          period: string
+          period_end: string
+          period_start: string
+          sent_to_ceo_at: string | null
+          summary: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          findings?: Json
+          generated_by: string
+          id?: string
+          metrics?: Json
+          period: string
+          period_end: string
+          period_start: string
+          sent_to_ceo_at?: string | null
+          summary: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          findings?: Json
+          generated_by?: string
+          id?: string
+          metrics?: Json
+          period?: string
+          period_end?: string
+          period_start?: string
+          sent_to_ceo_at?: string | null
+          summary?: string
+        }
+        Relationships: []
+      }
       security_restrictions: {
         Row: {
           locked: boolean
@@ -5840,6 +5891,7 @@ export type Database = {
           no_posting: boolean
           no_transactions: boolean
           reason: string | null
+          sessions_revoked_at: string | null
           updated_at: string
           updated_by: string | null
           user_id: string
@@ -5852,6 +5904,7 @@ export type Database = {
           no_posting?: boolean
           no_transactions?: boolean
           reason?: string | null
+          sessions_revoked_at?: string | null
           updated_at?: string
           updated_by?: string | null
           user_id: string
@@ -5864,6 +5917,7 @@ export type Database = {
           no_posting?: boolean
           no_transactions?: boolean
           reason?: string | null
+          sessions_revoked_at?: string | null
           updated_at?: string
           updated_by?: string | null
           user_id?: string
@@ -5937,6 +5991,45 @@ export type Database = {
           pass_mark?: number
           quiz?: Json
           title?: string
+        }
+        Relationships: []
+      }
+      security_transaction_holds: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          kind: string
+          ops_case_id: string | null
+          reason: string
+          ref: string
+          released_at: string | null
+          released_by: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          kind: string
+          ops_case_id?: string | null
+          reason: string
+          ref: string
+          released_at?: string | null
+          released_by?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          kind?: string
+          ops_case_id?: string | null
+          reason?: string
+          ref?: string
+          released_at?: string | null
+          released_by?: string | null
+          user_id?: string
         }
         Relationships: []
       }
