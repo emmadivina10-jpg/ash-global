@@ -58,7 +58,6 @@ function WalletPage() {
   const { data: statementRows } = useTransactions(500);
   const [statementOpen, setStatementOpen] = useState(false);
   const [topupOpen, setTopupOpen] = useState(false);
-  const active = profile?.account_status === "ACTIVE";
   const { t, lang } = useI18n();
 
   const GOLD_KEY = "ash.wallet.gold";
@@ -214,17 +213,15 @@ function WalletPage() {
                 label={t("dash.availableBalance")}
                 amount={formatXAF(wallet?.available_balance ?? 0)}
                 action={
-                  active ? (
-                    <Button asChild variant="secondary">
-                      <Link to="/withdraw">
-                        <ArrowDownToLine
-                          className="size-4"
-                          aria-hidden
-                        />
-                        {t("wallet.withdraw")}
-                      </Link>
-                    </Button>
-                  ) : null
+                  <Button asChild variant="secondary">
+                    <Link to="/withdraw">
+                      <ArrowDownToLine
+                        className="size-4"
+                        aria-hidden
+                      />
+                      {t("wallet.withdraw")}
+                    </Link>
+                  </Button>
                 }
               />
 

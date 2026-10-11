@@ -118,8 +118,6 @@ function WithdrawPage() {
   const [submitting, setSubmitting] =
     useState(false);
 
-  const active =
-    profile?.account_status === "ACTIVE";
 
   const available = Number(
     wallet?.available_balance ?? 0,
@@ -409,23 +407,6 @@ function WithdrawPage() {
     }
   }
 
-  if (!active) {
-    return (
-      <div className="mx-auto w-full max-w-2xl">
-        <EmptyState
-          title="Account not active"
-          description="Withdrawals unlock once your account is activated."
-          action={
-            <Button asChild>
-              <Link to="/activate">
-                Activate for 5,000 XAF
-              </Link>
-            </Button>
-          }
-        />
-      </div>
-    );
-  }
 
   return (
     <div className="mx-auto w-full max-w-3xl space-y-5">
