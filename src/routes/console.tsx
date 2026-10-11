@@ -133,6 +133,7 @@ function ThemeToggle() {
 /** CEO sees everything; every other seat sees only its own department. */
 function allowedNav(superAdmin: boolean, department: string, extra: string[] = []) {
   if (superAdmin) return NAV.slice();
+  if (department === "INVESTOR") return NAV.filter((item) => item.to === "/console/shareholders");
   const own = NAV.filter((item) => item.dept === department || item.dept === "ALL");
   // Advertising's Content & Growth access lives inside its unified command center.
   const folded = department === "ADVERTISING" ? ["CONTENT", "GROWTH"] : [];
