@@ -21,6 +21,12 @@ async function cyber() {
   return { actor, db: await adminClient() };
 }
 
+async function cyberHead() {
+  const { requireCyberHead, adminClient } = await import("./console.server");
+  const actor = await requireCyberHead();
+  return { actor, db: await adminClient() };
+}
+
 async function anyStaff() {
   const { requireConsole, adminClient } = await import("./console.server");
   const actor = await requireConsole();
@@ -129,7 +135,7 @@ export const setAccountRestrictions = createServerFn({ method: "POST" })
     reason: String(d?.reason ?? "").trim().slice(0, 500),
   }))
   .handler(async ({ data }) => {
-    const { actor, db } = await cyber();
+    const { actor, db } = await cyberHead();
     if (!data.reason) throw new Error("REASON_REQUIRED");
     if (await isProtected(db, data.userId)) throw new Error("PROTECTED_ACCOUNT");
     const { data: before } = await db.from("security_restrictions").select("*").eq("user_id", data.userId).maybeSingle();
@@ -282,7 +288,7 @@ export const getStaffRotation = createServerFn({ method: "GET" }).handler(async 
 export const requestPasswordRotation = createServerFn({ method: "POST" })
   .inputValidator((d: { staffId: string }) => ({ staffId: String(d?.staffId ?? "") }))
   .handler(async ({ data }) => {
-    const { actor, db } = await cyber();
+    const { actor, db } = await cyberHead();
     const { data: seat } = await db.from("staff_accounts").select("username, department").eq("id", data.staffId).maybeSingle();
     if (!seat) throw new Error("NOT_FOUND");
     await db.from("staff_notifications").insert({ department: "SUPER_ADMIN", type: "SECURITY_ROTATION", title: `Password rotation due: ${seat.username}`, body: `Requested by ${actor.name} (Cybersecurity). Rotate it from the Security dashboard.`, link: "/console/security" });

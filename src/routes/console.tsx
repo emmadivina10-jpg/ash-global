@@ -48,6 +48,8 @@ import { DepartmentCommandCenter } from "@/components/console/DepartmentCommandC
 import { DailyTickets } from "@/components/console/DailyTickets";
 import { StaffMemberInsights } from "@/components/console/StaffMemberInsights";
 import { canReviewMember } from "@/lib/member-insights";
+import { canAuditDept } from "@/lib/cyber-rules";
+import { logAuditView } from "@/lib/cyber-audit.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -197,6 +199,18 @@ function SidebarNav({
   );
 }
 
+/** Shown when Cyber opens another team's dashboard. Writes are refused server-side by department guards. */
+function AuditViewBanner({ pathname }: { pathname: string }) {
+  const logView = useServerFn(logAuditView);
+  useEffect(() => { void logView({ data: { path: pathname } }).catch(() => undefined); }, [pathname, logView]);
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-gold/40 bg-gold/10 p-3 text-xs">
+      <span><b>View-only audit.</b> You're viewing this team's dashboard for a security audit. Nothing can be changed here, and this visit is logged.</span>
+      <Link to="/console/security" className="font-semibold underline">Back to Cybersecurity</Link>
+    </div>
+  );
+}
+
 function ConsoleLayout() {
   useConsoleTheme();
   const queryClient = useQueryClient();
@@ -224,7 +238,10 @@ function ConsoleLayout() {
   const department = actor?.department ?? "";
   const extra = (actor as { extraDepartments?: string[] } | null)?.extraDepartments ?? [];
   const allowed = allowedNav(superAdmin, department, extra);
-  const hasAccess = allowed.some((item) => item.to === pathname) ||
+  const ownAccess = allowed.some((item) => item.to === pathname);
+  const auditView = !ownAccess && !superAdmin && (department === "CYBERSECURITY" || extra.includes("CYBERSECURITY")) &&
+    NAV.some((item) => item.to === pathname && canAuditDept(department === "CYBERSECURITY" ? "HEAD" : "TRUST_OFFICER", item.dept));
+  const hasAccess = ownAccess || auditView ||
     (pathname.startsWith("/console/members/") && canReviewMember({ superAdmin, department, extraDepartments: extra }));
   const current = NAV.find((item) => item.to === pathname)?.label ?? "Overview";
 
@@ -335,6 +352,7 @@ function ConsoleLayout() {
         <main className="mx-auto w-full max-w-7xl space-y-5 px-4 py-6 sm:px-6">
           {hasAccess ? (
             <>
+              {auditView ? <AuditViewBanner pathname={pathname} /> : null}
               <StaffMemberInsights />
               {!superAdmin && allowed.some((i) => i.to === pathname && i.dept === department && (i.dept as string) !== "ALL") ? <DepartmentCommandCenter /> : null}
               <DailyTickets superAdmin={superAdmin} />

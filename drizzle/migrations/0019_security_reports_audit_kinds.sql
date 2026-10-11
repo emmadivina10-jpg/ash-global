@@ -1,0 +1,2 @@
+ALTER TABLE public.security_reports DROP CONSTRAINT security_reports_period_check;
+ALTER TABLE public.security_reports ADD CONSTRAINT security_reports_period_check CHECK (period IN ('DAILY','WEEKLY','TEAM_AUDIT','SYSTEM_AUDIT'));

@@ -16,13 +16,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { AccountControlTab, AccountIntelligence, ReportsTab, WorldMapTab } from "./CyberDeskTabs";
+import { ControlTeamsTab, EndpointTab, TrustDeskTab } from "./CyberTeamsTabs";
+import { getCyberMe } from "@/lib/cyber-audit.functions";
 
-const TABS = ["World map", "Daily review", "Accounts", "Account control", "Reports", "IP & browsers", "Alerts", "Staff logins", "Training", "Posture", "Actions"] as const;
+const TABS = ["World map", "Control teams", "Endpoint security", "Trust & Verification", "Daily review", "Accounts", "Account control", "Reports", "IP & browsers", "Alerts", "Staff logins", "Training", "Posture", "Actions"] as const;
 type Tab = (typeof TABS)[number];
 
 function errMsg(e: unknown) {
   const m = e instanceof Error ? e.message : String(e);
   if (m.includes("PROTECTED_ACCOUNT")) return "That is a protected owner/admin account and cannot be touched.";
+  if (m.includes("HEAD_ONLY")) return "Only the Head of Cybersecurity can do that.";
   if (m.includes("FORBIDDEN")) return "Your login is not allowed to do that.";
   return m;
 }
@@ -40,14 +43,22 @@ function Card({ title, children, desc }: { title: string; desc?: string; childre
 export function CyberCommandCenter() {
   const [tab, setTab] = useState<Tab>("World map");
   const [focusUser, setFocusUser] = useState<string | null>(null);
+  const meFn = useServerFn(getCyberMe);
+  const me = useQuery({ queryKey: ["cyber", "me"], queryFn: () => meFn() });
   return (
     <div className="space-y-4">
+      {me.data?.role === "TRUST_OFFICER" ? (
+        <p className="rounded-2xl bg-muted p-3 text-xs">Signed in as {me.data.name} — Trust &amp; Verification Officer. You can see everything here; restrictions, locks, force logout, transaction holds and staff password requests are for the Head of Cybersecurity only.</p>
+      ) : null}
       <div className="flex gap-2 overflow-x-auto pb-1">
         {TABS.map((t) => (
           <button key={t} type="button" onClick={() => setTab(t)} className={cn("shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold", tab === t ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>{t}</button>
         ))}
       </div>
       {tab === "World map" && <WorldMapTab onOpenAccount={(id) => { setFocusUser(id); setTab("Accounts"); }} />}
+      {tab === "Control teams" && <ControlTeamsTab />}
+      {tab === "Endpoint security" && <EndpointTab />}
+      {tab === "Trust & Verification" && <TrustDeskTab />}
       {tab === "Daily review" && <DailyReview />}
       {tab === "Accounts" && <Accounts initialUserId={focusUser} />}
       {tab === "Account control" && <AccountControlTab initialUserId={focusUser} />}

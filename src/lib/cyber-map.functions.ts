@@ -12,6 +12,11 @@ async function cyber() {
   const actor = await requireDepartment("CYBERSECURITY");
   return { actor, db: await adminClient() };
 }
+async function cyberHead() {
+  const { requireCyberHead, adminClient } = await import("./console.server");
+  const actor = await requireCyberHead();
+  return { actor, db: await adminClient() };
+}
 type Db = Awaited<ReturnType<typeof cyber>>["db"];
 type Actor = Awaited<ReturnType<typeof cyber>>["actor"];
 
@@ -197,7 +202,7 @@ export const askAccountIntelligence = createServerFn({ method: "POST" })
 export const forceLogoutAccount = createServerFn({ method: "POST" })
   .inputValidator((d: { userId: string; reason: string }) => ({ userId: String(d?.userId ?? ""), reason: String(d?.reason ?? "").trim().slice(0, 500) }))
   .handler(async ({ data }) => {
-    const { actor, db } = await cyber();
+    const { actor, db } = await cyberHead();
     if (!data.reason) throw new Error("REASON_REQUIRED");
     if (await isProtected(db, data.userId)) throw new Error("PROTECTED_ACCOUNT");
     const now = new Date().toISOString();
@@ -244,7 +249,7 @@ export const disputeTransaction = createServerFn({ method: "POST" })
     ref: String(d?.ref ?? "").slice(0, 120), reason: String(d?.reason ?? "").trim().slice(0, 500),
   }))
   .handler(async ({ data }) => {
-    const { actor, db } = await cyber();
+    const { actor, db } = await cyberHead();
     if (!data.reason || !data.ref) throw new Error("REASON_REQUIRED");
     if (await isProtected(db, data.userId)) throw new Error("PROTECTED_ACCOUNT");
     const { data: prof } = await db.from("profiles").select("full_name").eq("user_id", data.userId).maybeSingle();
@@ -263,7 +268,7 @@ export const disputeTransaction = createServerFn({ method: "POST" })
 export const releaseTransactionHold = createServerFn({ method: "POST" })
   .inputValidator((d: { holdId: string }) => ({ holdId: String(d?.holdId ?? "") }))
   .handler(async ({ data }) => {
-    const { actor, db } = await cyber();
+    const { actor, db } = await cyberHead();
     await db.from("security_transaction_holds").update({ released_at: new Date().toISOString(), released_by: actor.name }).eq("id", data.holdId).is("released_at", null);
     await log(db, actor, "TX_HOLD_RELEASE", { ref: data.holdId }, null);
     return { ok: true };
