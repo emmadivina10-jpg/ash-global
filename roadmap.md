@@ -1,5 +1,11 @@
 # Roadmap
 
+## Marketplace continuity and wallet (Oct 12)
+- [ ] Reuse existing seller chats and preserve accessible member photos without weakening privacy
+- [ ] Remove wallet-card glow/decorative placeholders; preserve balances and payout actions
+- [ ] Distinguish goods Buy from services Book and add a frontend cart using supported checkout only
+- [ ] Test conversation/cart rules and inspect preview; no payments or publishing
+
 ## Policy and store alignment (Oct 11)
 - [x] Audit payment availability, verification, privacy and native store requirements without changing live settings or funds
 - [x] Align canonical policies and README/native/submission/inventory/security docs; distinguish Stripe, Cameroon MTN/Orange, conditional banks and unsupported M-PESA
