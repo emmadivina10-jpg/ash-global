@@ -1,5 +1,11 @@
 # Roadmap
 
+## Larger Stories and Compass presentation (Oct 12)
+- [ ] Enlarge Stories/Spotlight cards and separate plus from creation labels; polished blurred fading posting panels
+- [ ] Rename the top heading Feed; keep tight section spacing
+- [ ] Blur behind Compass, dismiss on outside tap, and add full booking tracking access from Map
+- [ ] Verify preview interactions without publishing or financial changes
+
 ## Embedded tracking and compact feed (Oct 12)
 - [x] Embed the live booking workflow in Compass Map with connected green payment/trip/verification progress; preserve payment and location permissions
 - [x] Remove Feed selectors, use Ash Glow text without header divider, and tighten Stories-to-post spacing
