@@ -6,7 +6,7 @@ import { SafetyMenu } from "@/components/refer/SafetyMenu";
 import { BlockUserDialog } from "@/components/refer/BlockUserDialog";
 import { MessageSquare, UserPlus } from "lucide-react";
 import { toast } from "sonner";
-import { Avatar } from "@/components/refer/AvatarUpload";
+import { AvatarPhoto } from "@/components/refer/AvatarUpload";
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { SocialPostOwnerActions } from "@/components/refer/SocialPostOwnerActions";
 import { Button } from "@/components/ui/button";
@@ -90,7 +90,7 @@ function MemberProfilePage() {
   return (
     <div className="mx-auto w-full max-w-2xl space-y-5">
       <header className="tile flex items-center gap-4 p-5">
-        <Avatar path={person.avatar_url} name={person.name} online={person.online} hasUpdate={person.has_update} className="size-20" />
+        <AvatarPhoto path={person.avatar_url} name={person.name} online={person.online} hasUpdate={person.has_update} className="size-20" />
         <div className="min-w-0 flex-1">
           <h1 className="flex items-center gap-1.5 font-display text-xl font-bold text-foreground">
             <span className="truncate">{person.name}</span>

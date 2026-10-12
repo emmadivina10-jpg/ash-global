@@ -171,7 +171,7 @@ export function AvatarUpload({
   return (
     <div className="flex items-center gap-4">
       <div className="relative">
-        <Avatar path={path} name={name} online={online} className="size-20 ring-2 ring-border" />
+        <AvatarPhoto path={path} name={name} online={online} className="size-20 ring-2 ring-border" />
         {busy ? (
           <span className="absolute inset-0 grid place-items-center rounded-full bg-foreground/50">
             <Loader2 className="size-5 animate-spin text-background" aria-hidden />
