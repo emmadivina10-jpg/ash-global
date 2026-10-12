@@ -39,7 +39,6 @@ import { NotificationBell } from "./NotificationBell";
 import { PushBridge } from "./PushBridge";
 import { WelcomeIntro } from "./WelcomeIntro";
 import { SwipeBack } from "./SwipeBack";
-import { ScreenSlide } from "./ScreenSlide";
 import { ScrollToTop } from "./ScrollToTop";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAvatarUrl } from "./AvatarUpload";
