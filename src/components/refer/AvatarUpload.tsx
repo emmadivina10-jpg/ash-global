@@ -3,10 +3,12 @@ import { Camera, Loader2, User } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { verifyMediaFiles } from "@/lib/media-safety";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { reviewIdentityPhoto } from "@/lib/identity.functions";
 import { announceIdentityDenial, IDENTITY_DENIED } from "@/lib/identity-client";
+import { useI18n } from "@/lib/i18n";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const avatarUrlCache = new Map<string, { url: string; expiresAt: number }>();
