@@ -336,17 +336,12 @@
   position: relative;
   overflow: hidden;
   isolation: isolate;
-  border-radius: calc(var(--radius) + 10px);
-  border: 1px solid oklch(1 0 0 / 14%);
-  background-color: oklch(0.1404 0.022 283.2);
-  background-image:
-    radial-gradient(120% 140% at 0% 0%, color-mix(in oklab, var(--color-primary) 58%, transparent) 0%, transparent 55%),
-    radial-gradient(120% 140% at 100% 110%, color-mix(in oklab, var(--color-gold) 62%, transparent) 0%, transparent 58%),
-    linear-gradient(135deg, oklch(0.1891 0.0262 283.61) 0%, oklch(0.1404 0.022 283.2) 60%, oklch(0.1653 0.0242 283.4) 100%);
-  color: oklch(0.9784 0.0045 285);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 12%) inset,
-    var(--shadow-brand);
+  border-radius: var(--radius);
+  border: 1px solid color-mix(in oklab, var(--color-on-dark) 18%, transparent);
+  background-color: var(--color-team-background);
+  background-image: linear-gradient(120deg, var(--color-team-surface), var(--color-team-background));
+  color: var(--color-on-dark);
+  box-shadow: var(--shadow-card);
 
   &::before {
     content: "";
@@ -356,7 +351,7 @@
     background-image: linear-gradient(
       108deg,
       transparent 34%,
-      oklch(1 0 0 / 10%) 46%,
+      color-mix(in oklab, var(--color-on-dark) 4%, transparent) 46%,
       transparent 58%
     );
   }
@@ -373,19 +368,12 @@
   position: relative;
   overflow: hidden;
   isolation: isolate;
-  border-radius: calc(var(--radius) + 10px);
-  border: 1px solid oklch(0.95 0.08 95 / 35%);
-  background-color: oklch(0.52 0.11 80);
-  background-image:
-    radial-gradient(130% 150% at 0% 0%, oklch(0.92 0.12 95 / 55%) 0%, transparent 55%),
-    radial-gradient(130% 150% at 100% 115%, oklch(0.38 0.09 70 / 65%) 0%, transparent 60%),
-    linear-gradient(128deg, oklch(0.78 0.13 92) 0%, oklch(0.62 0.12 82) 38%, oklch(0.50 0.10 72) 70%, oklch(0.66 0.12 85) 100%);
-  color: oklch(0.99 0.01 95);
-  box-shadow:
-    0 1px 0 oklch(1 0 0 / 30%) inset,
-    0 -1px 0 oklch(0.3 0.06 70 / 35%) inset,
-    0 24px 60px -18px oklch(0.6 0.13 88 / 45%),
-    var(--shadow-brand);
+  border-radius: var(--radius);
+  border: 1px solid color-mix(in oklab, var(--verified-gold) 50%, transparent);
+  background-color: var(--color-team-background);
+  background-image: linear-gradient(120deg, color-mix(in oklab, var(--verified-gold) 18%, var(--color-team-background)), var(--color-team-background));
+  color: var(--color-on-dark);
+  box-shadow: var(--shadow-card);
 
   &::before {
     content: "";
@@ -395,7 +383,7 @@
     background-image: linear-gradient(
       108deg,
       transparent 30%,
-      oklch(1 0 0 / 24%) 44%,
+      color-mix(in oklab, var(--verified-gold) 6%, transparent) 44%,
       transparent 58%
     );
   }

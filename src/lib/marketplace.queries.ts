@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { signPortfolioPaths, type ServiceCategory } from "./marketplace";
+import { findSellerConversation } from "@/lib/conversation-match";
 import { directory, type DirectoryProfile } from "@/lib/public-profiles";
 
 export type ProviderProfile = {
@@ -262,6 +263,7 @@ export function useConversations() {
       const clientIds = [
         ...new Set([
           ...rows.map((r) => r.client_id),
+          ...rows.map((r) => r.provider?.user_id).filter(Boolean),
           ...rows.map((r) => (r as { owner_id?: string | null }).owner_id).filter(Boolean),
         ]),
       ] as string[];
@@ -306,7 +308,7 @@ export function useConversations() {
       }
 
       return rows.map((row) => {
-        const ownerId = (row as { owner_id?: string | null }).owner_id ?? null;
+        const ownerId = (row as { owner_id?: string | null }).owner_id ?? row.provider?.user_id ?? null;
         return {
           ...row,
           client: clients[row.client_id] ?? { full_name: "Profile", avatar_url: null },
@@ -386,17 +388,20 @@ export async function openConversation(providerId: string, bookingId?: string): 
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) return null;
 
-  const { data: existing } = await supabase
+  const { data: provider, error: providerError } = await supabase
+    .from("provider_profiles").select("user_id").eq("id", providerId).maybeSingle();
+  if (providerError) throw providerError;
+  if (!provider || provider.user_id === auth.user.id) return null;
+  const { data: existing, error: lookupError } = await supabase
     .from("conversations")
-    .select("id, booking_id")
-    .eq("provider_id", providerId)
-    .eq("client_id", auth.user.id)
-    .order("last_message_at", { ascending: false })
-    .limit(1);
-
-  const found = existing?.[0];
+    .select("id, booking_id, client_id, owner_id, provider_id, group_id")
+    .is("group_id", null)
+    .or(`and(provider_id.eq.${providerId},client_id.eq.${auth.user.id}),and(client_id.eq.${auth.user.id},owner_id.eq.${provider.user_id}),and(client_id.eq.${provider.user_id},owner_id.eq.${auth.user.id})`)
+    .order("last_message_at", { ascending: false, nullsFirst: false });
+  if (lookupError) throw lookupError;
+  const found = findSellerConversation(existing ?? [], auth.user.id, provider.user_id, providerId);
   if (found) {
-    if (bookingId && found.booking_id !== bookingId) {
+    if (bookingId && found.provider_id === providerId) {
       await supabase.from("conversations").update({ booking_id: bookingId }).eq("id", found.id);
     }
     return found.id;

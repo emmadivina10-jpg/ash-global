@@ -7,7 +7,6 @@ import {
   Crown,
   Hourglass,
   Printer,
-  Sparkles,
   WalletMinimal,
 } from "lucide-react";
 import {
@@ -83,42 +82,6 @@ function WalletPage() {
       return !current;
     });
   };
-  const walletTheme = goldMode ? 2 : 0;
-
-  const walletThemes = [
-    {
-      name: "white",
-      glow:
-        "from-white/70 via-slate-100/50 to-slate-200/30 dark:from-white/10 dark:via-slate-300/5 dark:to-transparent",
-      border: "border-slate-200/80 dark:border-white/10",
-      accent: "from-slate-100 via-white to-slate-300 dark:from-slate-700 dark:via-slate-500 dark:to-slate-800",
-      dot: "bg-slate-400 dark:bg-slate-300",
-      badge:
-        "from-slate-100 via-white to-slate-300 text-slate-700 ring-slate-300/70 dark:from-slate-700 dark:via-slate-500 dark:to-slate-800 dark:text-white dark:ring-slate-400/30",
-    },
-    {
-      name: "charcoal",
-      glow:
-        "from-slate-700/25 via-zinc-800/20 to-slate-950/10 dark:from-slate-400/10 dark:via-zinc-400/5 dark:to-transparent",
-      border: "border-slate-500/30 dark:border-slate-300/15",
-      accent: "from-slate-600 via-zinc-800 to-slate-950",
-      dot: "bg-slate-500 dark:bg-slate-300",
-      badge:
-        "from-slate-500 via-zinc-800 to-slate-950 text-white ring-slate-400/40",
-    },
-    {
-      name: "gold",
-      glow:
-        "from-amber-400/20 via-yellow-500/15 to-orange-400/10 dark:from-amber-300/10 dark:via-yellow-400/5 dark:to-transparent",
-      border: "border-amber-400/30 dark:border-amber-300/20",
-      accent: "from-amber-300 via-yellow-500 to-amber-700",
-      dot: "bg-amber-400",
-      badge:
-        "from-amber-200 via-yellow-500 to-amber-700 text-white ring-amber-300/50",
-    },
-  ] as const;
-
-  const theme = walletThemes[walletTheme] ?? walletThemes[0];
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
@@ -166,100 +129,21 @@ function WalletPage() {
         <SkeletonRows rows={2} />
       ) : (
         <>
-          {/* =========================================================
-              PREMIUM ASH GLO WALLET
-              ========================================================= */}
-          <div className="relative">
-            {/* Soft ambient light */}
-            <div
-              aria-hidden
-              className={`pointer-events-none absolute -inset-2 -z-10 rounded-[2rem] bg-gradient-to-br ${theme.glow} opacity-90 blur-2xl transition-all duration-[1800ms] ease-in-out`}
+          <div className="mx-auto w-full max-w-xl">
+            <BalanceCard
+              gold={goldMode}
+              holder={profile?.full_name ?? undefined}
+              label={t("dash.availableBalance")}
+              amount={formatMoney(current.available, currency)}
+              action={
+                <Button asChild variant="secondary" className="w-full">
+                  <Link to="/withdraw">
+                    <ArrowDownToLine className="size-4" aria-hidden />
+                    {t("wallet.withdraw")}
+                  </Link>
+                </Button>
+              }
             />
-
-            {/* Animated premium top accent */}
-            <div
-              aria-hidden
-              className={`pointer-events-none absolute left-8 right-8 top-0 z-20 h-[2px] overflow-hidden rounded-full bg-gradient-to-r ${theme.accent} opacity-80 transition-all duration-[1800ms] ease-in-out`}
-            />
-
-            {/* Small premium badge — deliberately kept away from the balance text */}
-            <div
-              aria-hidden
-              className="pointer-events-none absolute right-3 top-3 z-20 sm:right-5 sm:top-4"
-            >
-              <div
-                className={`relative grid size-9 place-items-center rounded-full bg-gradient-to-br ${theme.badge} p-[1.5px] shadow-md transition-all duration-[1800ms] ease-in-out`}
-              >
-                <div className="grid size-full place-items-center rounded-full bg-background/90 backdrop-blur-sm">
-                  <Sparkles
-                    className={`size-3.5 ${
-                      walletTheme === 2 ? "text-amber-500" : "text-slate-500"
-                    }`}
-                    aria-hidden
-                  />
-                </div>
-
-                {/* Tiny orbit dot */}
-                <span
-                  className={`absolute -right-0.5 -top-0.5 size-1.5 rounded-full ${theme.dot} shadow-sm transition-all duration-[1800ms]`}
-                />
-              </div>
-
-              {/* Very small hanging accent */}
-              <div className="absolute left-1/2 top-[34px] -translate-x-1/2">
-                <div
-                  className={`h-3 w-2 rounded-b-md bg-gradient-to-b ${theme.accent} opacity-80 shadow-sm transition-all duration-[1800ms] ease-in-out`}
-                />
-              </div>
-            </div>
-
-            {/* Existing balance card — functionality untouched */}
-            <div
-              className={`relative overflow-hidden rounded-[inherit] transition-all duration-[1800ms] ease-in-out`}
-            >
-              <BalanceCard
-                gold={goldMode}
-                label={t("dash.availableBalance")}
-                amount={formatMoney(current.available, currency)}
-                action={
-                  <Button asChild variant="secondary">
-                    <Link to="/withdraw">
-                      <ArrowDownToLine
-                        className="size-4"
-                        aria-hidden
-                      />
-                      {t("wallet.withdraw")}
-                    </Link>
-                  </Button>
-                }
-              />
-
-              {/* Decorative light reflection */}
-              <div
-                aria-hidden
-                className={`pointer-events-none absolute -right-16 -top-20 size-40 rounded-full bg-gradient-to-br ${theme.glow} opacity-70 blur-3xl transition-all duration-[1800ms] ease-in-out`}
-              />
-
-              {/* Bottom premium line */}
-              <div
-                aria-hidden
-                className={`pointer-events-none absolute bottom-0 left-1/2 h-[2px] w-24 -translate-x-1/2 rounded-full bg-gradient-to-r ${theme.accent} opacity-60 transition-all duration-[1800ms] ease-in-out`}
-              />
-            </div>
-
-            {/* Tiny ASH GLO label */}
-            <div
-              aria-hidden
-              className="pointer-events-none absolute bottom-3 left-4 z-10 flex items-center gap-1.5 rounded-full border border-white/10 bg-background/40 px-2 py-1 shadow-sm backdrop-blur-md"
-            >
-              <span
-                className={`size-1.5 rounded-full ${theme.dot} shadow-sm transition-all duration-[1800ms]`}
-              />
-
-              <span className="text-[8px] font-bold tracking-[0.16em] text-muted-foreground">
-                ASH GLO
-              </span>
-            </div>
           </div>
 
           {/* =========================================================

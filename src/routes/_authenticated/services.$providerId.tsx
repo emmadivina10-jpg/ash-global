@@ -135,6 +135,7 @@ function ProviderPage() {
   const isOwner = provider?.user_id === user?.id;
 
   async function chat() {
+    try {
     // Opens with a friendly "Hi + why I'm reaching out" so the vendor has
     // context from the first message.
     const id = await contactVendor({
@@ -149,6 +150,9 @@ function ProviderPage() {
       return;
     }
     void navigate({ to: "/messages", search: { c: id } });
+    } catch {
+      toast.error(t("book.err"));
+    }
   }
 
   if (isLoading) return <SkeletonRows rows={4} />;

@@ -12,7 +12,7 @@ export function WalletSummary({ onClose }: { onClose?: () => void }) {
   const current = balances ? balanceFor(balances, currency) : undefined;
   const amount = (value: number | undefined) => isLoading ? "…" : error || value === undefined ? "—" : formatMoney(value, currency);
   return <div className="p-4">
-    <div className="virtual-card grain relative overflow-hidden p-5">
+    <div className="virtual-card relative overflow-hidden p-5">
       <div className="flex items-center justify-between"><span className="text-xs font-extrabold uppercase opacity-70">ASH Card · {currency}</span><CreditCard className="size-5" /></div>
       <p className="mt-7 text-xs opacity-65">{tx("Available balance", "Solde disponible")}</p>
       <p className="mt-1 font-display text-3xl font-extrabold tabular-nums">{amount(current?.available)}</p>

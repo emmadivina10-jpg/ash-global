@@ -92,13 +92,34 @@ export async function openMemberConversation(memberId: string | null | undefined
   const me = auth.user?.id;
   if (!me || me === otherId) return null;
 
-  const { data: existing } = await supabase
+  const { data: existing, error: lookupError } = await supabase
     .from("conversations")
     .select("id")
     .is("group_id", null)
     .or(`and(client_id.eq.${me},owner_id.eq.${otherId}),and(client_id.eq.${otherId},owner_id.eq.${me})`)
-    .maybeSingle();
-  if (existing?.id) return existing.id;
+    .order("last_message_at", { ascending: false, nullsFirst: false })
+    .limit(1);
+  if (lookupError) throw lookupError;
+  if (existing?.[0]?.id) return existing[0].id;
+
+  // Storefront chats created before owner_id was populated remain reusable.
+  const { data: storefronts, error: storeError } = await supabase
+    .from("provider_profiles").select("id, user_id").in("user_id", [me, otherId]);
+  if (storeError) throw storeError;
+  if (storefronts?.length) {
+    const { data: threads, error: threadError } = await supabase
+      .from("conversations").select("id, client_id, provider_id")
+      .is("group_id", null)
+      .in("provider_id", storefronts.map((store) => store.id))
+      .in("client_id", [me, otherId])
+      .order("last_message_at", { ascending: false, nullsFirst: false });
+    if (threadError) throw threadError;
+    const matched = threads?.find((thread) => storefronts.some((store) =>
+      store.id === thread.provider_id &&
+      ((store.user_id === otherId && thread.client_id === me) ||
+       (store.user_id === me && thread.client_id === otherId))));
+    if (matched) return matched.id;
+  }
 
   const { data: created, error } = await supabase
     .from("conversations")
