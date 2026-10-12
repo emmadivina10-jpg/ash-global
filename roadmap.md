@@ -1,10 +1,11 @@
 # Roadmap
 
 ## Marketplace continuity and wallet (Oct 12)
-- [ ] Reuse existing seller chats and preserve accessible member photos without weakening privacy
-- [ ] Remove wallet-card glow/decorative placeholders; preserve balances and payout actions
-- [ ] Distinguish goods Buy from services Book and add a frontend cart using supported checkout only
-- [ ] Test conversation/cart rules and inspect preview; no payments or publishing
+- [x] Reuse seller/member chats in both directions and restore missing peer-photo fallbacks using the safe member directory; no privacy changes
+- [x] Remove wallet-card glow/decorative placeholders and invented card number; preserve balances and payout actions
+- [ ] Goods Buy/cart checkout — blocked: public Market currently exposes service rows; inventory has no customer product checkout or multi-item order flow. Requires separately approved product/order/payment work; do not relabel services or pretend combined payments.
+- [x] Twelve conversation/wallet tests pass; preview build OK; no payments or publishing
+- [ ] Signed-in chat and wallet visual verification — blocked by the owner's terms-consent screen; no agreement accepted on their behalf
 
 ## Policy and store alignment (Oct 11)
 - [x] Audit payment availability, verification, privacy and native store requirements without changing live settings or funds

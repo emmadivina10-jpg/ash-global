@@ -104,7 +104,7 @@ export async function openMemberConversation(memberId: string | null | undefined
 
   // Storefront chats created before owner_id was populated remain reusable.
   const { data: storefronts, error: storeError } = await supabase
-    .from("provider_profiles").select("id").in("user_id", [me, otherId]);
+    .from("provider_profiles").select("id, user_id").in("user_id", [me, otherId]);
   if (storeError) throw storeError;
   if (storefronts?.length) {
     const { data: threads, error: threadError } = await supabase
@@ -114,7 +114,11 @@ export async function openMemberConversation(memberId: string | null | undefined
       .in("client_id", [me, otherId])
       .order("last_message_at", { ascending: false, nullsFirst: false });
     if (threadError) throw threadError;
-    if (threads?.[0]?.id) return threads[0].id;
+    const matched = threads?.find((thread) => storefronts.some((store) =>
+      store.id === thread.provider_id &&
+      ((store.user_id === otherId && thread.client_id === me) ||
+       (store.user_id === me && thread.client_id === otherId))));
+    if (matched) return matched.id;
   }
 
   const { data: created, error } = await supabase
