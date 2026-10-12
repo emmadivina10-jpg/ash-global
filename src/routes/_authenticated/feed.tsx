@@ -183,7 +183,7 @@ function FeedPage() {
           if (!create.isPending) setComposerOpen(next);
         }}
       >
-        <DialogContent className="max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] overflow-y-auto rounded-lg border-border bg-card p-5 sm:max-w-lg sm:p-6">
+        <DialogContent overlayClassName="bg-foreground/20 backdrop-blur-md duration-300 motion-reduce:animate-none" className="max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] overflow-y-auto rounded-3xl border-border bg-card p-5 shadow-raised duration-300 motion-reduce:animate-none sm:max-w-lg sm:rounded-3xl sm:p-6">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-foreground">
               <span className="grid size-8 place-items-center rounded-full bg-primary/10 text-primary">
@@ -300,7 +300,7 @@ function FeedPage() {
         </DialogContent>
       </Dialog>
 
-      <StoriesRail compact />
+      <StoriesRail />
 
       {isLoading ? (
         <div className="space-y-3">

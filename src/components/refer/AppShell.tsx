@@ -276,7 +276,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           {/* Web-only top bar: menu panel, notifications and the member photo. */}
           {!pageOwnsHeader && <header className={cn("sticky top-0 z-30 hidden bg-background/85 backdrop-blur-xl lg:block", !onFeed && "border-b border-border")}>
             <div className="flex items-center justify-end gap-1.5 px-6 py-2.5">
-              {onFeed && <Link to="/feed" className="mr-auto text-xl font-bold text-foreground">Ash Glow</Link>}
+              {onFeed && <Link to="/feed" className="mr-auto text-xl font-bold text-foreground">{lang === "fr" ? "Fil" : "Feed"}</Link>}
               <DesktopMenu groups={WEB_MENU_GROUPS} create={WEB_MENU_CREATE} />
               <NotificationBell />
               <DropdownMenu>
@@ -360,8 +360,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </DropdownMenuContent>
               </DropdownMenu>
               )}
-              <Link to="/services" className="min-w-0">
-                {onFeed ? <span className="text-xl font-bold text-foreground">Ash Glow</span> : <Logo compact />}
+              <Link to={onFeed ? "/feed" : "/services"} className="min-w-0">
+                {onFeed ? <span className="text-xl font-bold text-foreground">{lang === "fr" ? "Fil" : "Feed"}</span> : <Logo compact />}
               </Link>
               <div className="flex items-center gap-1">
                 <NotificationBell />

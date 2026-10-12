@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from "react";
-import { Compass, EyeOff, Map, Wallet, X } from "lucide-react";
+import { Compass, EyeOff, Map, Wallet } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import { useOrbVisible } from "@/lib/orb-visibility";
@@ -15,8 +16,7 @@ export function CompassSurface({
   initiallyOpen?: boolean;
   active?: boolean;
 }) {
-  const { tx, lang } = useI18n();
-  const fr = lang === "fr";
+  const { tx } = useI18n();
   const { visible, setVisible } = useOrbVisible();
   const [open, setOpen] = useState(initiallyOpen);
   const [tab, setTab] = useState<"map" | "wallet">(active ? "map" : "wallet");
@@ -111,27 +111,18 @@ export function CompassSurface({
   if (!visible) return null;
   return (
     <>
-      {open && (
-        <section
-          aria-label="ASH Compass"
-          className="ash-rise fixed bottom-[calc(11rem+env(safe-area-inset-bottom))] right-3 z-40 flex max-h-[calc(100dvh-13rem)] w-[calc(100vw-1.5rem)] flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-[var(--shadow-raised)] sm:right-6 sm:w-[28rem] lg:bottom-32 lg:max-h-[calc(100dvh-10rem)]"
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent
+          aria-describedby={undefined}
+          overlayClassName="bg-foreground/20 backdrop-blur-md duration-300 motion-reduce:animate-none"
+          onCloseAutoFocus={(event) => { event.preventDefault(); launcher.current?.focus(); }}
+          className="flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-1.5rem)] max-w-lg flex-col gap-0 overflow-hidden rounded-3xl border-border bg-card p-0 shadow-raised duration-300 motion-reduce:animate-none sm:rounded-3xl [&>button]:hidden"
         >
-          <header className="compass-header flex shrink-0 items-center justify-between border-b border-border px-4 py-3">
-            <span className="flex items-center gap-2 text-sm font-bold">
+          <header className="compass-header flex shrink-0 items-center border-b border-border px-4 py-4 pr-12">
+            <DialogTitle className="flex items-center gap-2 text-base font-bold">
               <Compass className="size-5 text-success" />
               ASH Compass
-            </span>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label={tx("Minimize ASH Compass", "Réduire ASH Compass")}
-              onClick={() => {
-                setOpen(false);
-                launcher.current?.focus();
-              }}
-            >
-              <X className="size-4" />
-            </Button>
+            </DialogTitle>
           </header>
           <div
             role="tablist"
@@ -184,8 +175,8 @@ export function CompassSurface({
               {tx("Turn off ASH Compass", "Masquer ASH Compass")}
             </Button>
           </footer>
-        </section>
-      )}
+        </DialogContent>
+      </Dialog>
       <div
         style={{ transform: `translate3d(${offset.x}px, ${offset.y}px, 0)` }}
         className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] right-4 z-40 lg:bottom-8 lg:right-8"
