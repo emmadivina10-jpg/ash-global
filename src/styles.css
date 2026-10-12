@@ -673,6 +673,36 @@ body {
   max-width: 100%;
 }
 
+/* Slide captured member screens without moving the live fixed viewport. */
+html[data-member-slide="forward"] .app-shell-column,
+html[data-member-slide="back"] .app-shell-column { view-transition-name: member-screen; }
+html[data-member-slide="forward"]::view-transition-old(root),
+html[data-member-slide="forward"]::view-transition-new(root),
+html[data-member-slide="back"]::view-transition-old(root),
+html[data-member-slide="back"]::view-transition-new(root) { animation: none; }
+html[data-member-slide]::view-transition-group(member-screen) {
+  animation-duration: 320ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+html[data-member-slide]::view-transition-old(member-screen),
+html[data-member-slide]::view-transition-new(member-screen) {
+  mix-blend-mode: normal;
+  animation-duration: 320ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: both;
+}
+html[data-member-slide="forward"]::view-transition-old(member-screen) { animation-name: member-screen-recede; }
+html[data-member-slide="forward"]::view-transition-new(member-screen) { animation-name: member-screen-enter; }
+html[data-member-slide="back"]::view-transition-old(member-screen) { animation-name: member-screen-leave; z-index: 2; }
+html[data-member-slide="back"]::view-transition-new(member-screen) { animation-name: member-screen-return; z-index: 1; }
+@keyframes member-screen-enter { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes member-screen-recede { from { transform: translateX(0); } to { transform: translateX(-24%); } }
+@keyframes member-screen-leave { from { transform: translateX(0); } to { transform: translateX(100%); } }
+@keyframes member-screen-return { from { transform: translateX(-24%); } to { transform: translateX(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .app-shell-column { view-transition-name: none !important; }
+}
+
 /* Member surfaces share a quiet emerald-to-ASH tint without changing staff branding. */
 .app-shell {
   --member-surface: linear-gradient(155deg, color-mix(in oklab, var(--color-chat-emerald) 7%, var(--background)), color-mix(in oklab, var(--color-verified-magenta) 3%, var(--background)) 52%, color-mix(in oklab, var(--color-verified-violet) 4%, var(--background)));

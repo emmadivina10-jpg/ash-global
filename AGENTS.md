@@ -9,13 +9,13 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Full-screen composer stays outside scrolling, against the native viewport. Why: prevent mobile clipping.
+- Full-screen composer stays outside scrolling at the native viewport. Why: no clipping.
 - Inventory uses provider_profiles.id as business_id, inventory_can()/inventory_role_of() RLS and inventory_members; stock changes only through inventory_record_movement's append-only ledger. UI /inventory and inventory.queries.ts. Why: tenant isolation and one stock source.
 
 - Shareholders uses shareholders.functions.ts and append-only service-role records; Finance shares computeFinanceLedger. Source reads use allFinanceRows with stable ordering and fail on errors. Why: one complete financial source, no silent truncation or zeros.
 - Feed/Stories/Services rank via rotation.ts after safety filtering. Why: no duplicate feed.
-- AppShell omits tab-owned headers; MobileNav owns hold/slide. Why: one navigation path.
-- Desktop Messages fills the viewport beside the sidebar; all navs expose Flights. Why: space and access.
+- AppShell omits tab headers; MobileNav owns hold/slide; ScreenSlide uses history-directed snapshots with reduced-motion fallback. Why: fixed-composer safety.
+- Desktop Messages fills space beside sidebar; navs expose Flights. Why: access.
 - Market defaults via versioned services-mode at the existing Services URL; Extras is its child route. MarketBrowser reuses discovery/deals/property reads. Why: preserve commerce and URLs.
 
 - Avatar updates reuse safety-filtered StoriesRail; ChatActionDialog owns panels; MemberNavIcon uses token-based SVG strokes. Why: shared safe viewing and branding.
@@ -26,7 +26,7 @@
 - All payments record on payment_transactions (service-role, deny-all) and settle only via settleCollection; bank rows succeed only by Finance confirmation. Wallet money is per currency: XAF (Mobile Money) in wallets, card money in wallet_balances at Stripe's settled currency; withdrawals use request_wallet_withdrawal; UI helpers in wallet-currency.ts. Why: exactly-once credit, no cross-rail payouts or conversions shown as balances.
 - Booking commission rate lives in marketplace_settings, changed only via commission.functions.ts (REVENUE/CEO, audit-logged); paid bookings keep the rate saved at payment. Trip arrival times come from trip-eta.functions.ts (Routes API via the Maps connector, only for booking parties). Why: historical earnings never change and Maps calls stay bounded.
 
-- Read nested AGENTS.md before editing subdirectories. Why: scoped security rules.
+- Read nested AGENTS.md before edits. Why: security.
 - Staff metrics share member-insights.functions.ts; member-review.server.ts authorizes/audits account review; staff AI threads use service-only storage. Why: consistent numbers, no impersonation or history leaks.
 - Human Support reuses support.functions.ts and ticket/read records; support-state.ts owns notifications; AI chat stays separate. Why: no duplicate messaging or schema.
 - Checkout uses payment-return.ts; CompassSurface owns Map/Wallet in a shared dialog with scoped overlay; BookingTracking is shared inline/Compass. PullToRefresh excludes controls. Why: safe returns, accessible dismissal.
