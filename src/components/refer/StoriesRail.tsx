@@ -39,6 +39,7 @@ import {
   uploadResumableStorageFile,
 } from "@/lib/social.queries";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -879,16 +880,16 @@ export function StoriesRail({ viewerRequest, onViewerClose, compact = false }: {
 
   return (
     <>
-      <section className={compact ? "-mx-1 [&_.rail-tile]:h-40 [&_.rail-tile]:w-[104px]" : "-mx-1"} hidden={Boolean(viewerRequest)} aria-label="ASH Stories and Spotlight">
+      <section className="-mx-1" hidden={Boolean(viewerRequest)} aria-label="ASH Stories and Spotlight">
         <div className="flex gap-3 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {/* The original Facebook-style Create card: user profile behind the lower half + plus at the seam. */}
-          <button
+          <Button variant="ghost"
             type="button"
             onClick={openCreate}
-            className="rail-tile relative h-52 w-[120px] shrink-0 overflow-visible rounded-[22px] border border-border bg-card text-left shadow-sm transition-transform active:scale-[0.98]"
+            className="rail-tile block p-0 whitespace-normal relative h-60 w-36 shrink-0 overflow-hidden rounded-2xl border border-border bg-card text-left shadow-sm transition-transform active:scale-[0.98]"
             aria-label="Create Story or Spotlight"
           >
-            <div className="absolute inset-x-0 top-0 z-0 h-[70%] overflow-hidden rounded-t-[22px] bg-muted">
+            <div className="absolute inset-x-0 top-0 z-0 h-[66%] overflow-hidden rounded-t-2xl bg-muted">
               {profile?.avatar_url ? (
                 <CreateCardPhoto path={profile.avatar_url} name={profile.full_name} />
               ) : (
@@ -896,21 +897,21 @@ export function StoriesRail({ viewerRequest, onViewerClose, compact = false }: {
                   <span className="text-4xl font-black text-primary">{initials(profile?.full_name)}</span>
                 </div>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/5" />
+              <div className="absolute inset-0 bg-gradient-to-t from-foreground/45 via-transparent to-foreground/5" />
             </div>
-            <span className="absolute left-1/2 top-[64%] z-20 grid size-10 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-primary text-primary-foreground shadow-md ring-4 ring-card">
+            <span className="absolute left-1/2 top-[66%] z-20 grid size-10 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-primary text-primary-foreground shadow-md ring-4 ring-card">
               <Plus className="size-6" strokeWidth={2.75} aria-hidden />
             </span>
-            <span className="absolute inset-x-0 bottom-0 z-10 h-[36%] rounded-b-[22px] bg-card" />
-            <span className="absolute inset-x-3 bottom-4 z-10 text-center">
+            <span className="absolute inset-x-0 bottom-0 z-10 h-[34%] rounded-b-2xl bg-card" />
+            <span className="absolute inset-x-2 bottom-3 z-10 text-center">
               <span className="block text-[15px] font-black text-foreground">Create</span>
-              <span className="mt-0.5 block text-[10px] font-semibold text-muted-foreground">Story or Spotlight</span>
+              <span className="mt-0.5 block text-xs font-semibold leading-4 text-muted-foreground">Story or Spotlight</span>
             </span>
-          </button>
+          </Button>
 
           {storiesLoading
             ? [0, 1, 2].map((item) => (
-                <div key={item} className="rail-tile h-52 w-[120px] shrink-0 animate-pulse rounded-[24px] bg-muted" />
+                <div key={item} className="rail-tile h-60 w-36 shrink-0 animate-pulse rounded-[24px] bg-muted" />
               ))
             : null}
 
@@ -920,7 +921,7 @@ export function StoriesRail({ viewerRequest, onViewerClose, compact = false }: {
                 const mine = item.group.author.id === me;
                 const storyIsVideo = item.story.media_type === "video";
                 return (
-                  <button
+                  <Button variant="ghost"
                     key={`story-${item.story.id}`}
                     type="button"
                     onClick={() => {
@@ -929,7 +930,7 @@ export function StoriesRail({ viewerRequest, onViewerClose, compact = false }: {
                       const latestIndex = Math.max(0, (group?.stories.length ?? 1) - 1);
                       openStory(groupIndex, latestIndex);
                     }}
-                    className="group rail-tile relative h-52 w-[120px] shrink-0 overflow-hidden rounded-[24px] border border-border bg-black text-left shadow-sm transition-transform active:scale-[0.98]"
+                    className="group rail-tile block p-0 whitespace-normal relative h-60 w-36 shrink-0 overflow-hidden rounded-[24px] border border-border bg-black text-left shadow-sm transition-transform active:scale-[0.98]"
                   >
                     {storyIsVideo ? (
                       <video
@@ -976,18 +977,18 @@ export function StoriesRail({ viewerRequest, onViewerClose, compact = false }: {
                         {mine ? "Your 24h story" : "Story"}
                       </span>
                     </span>
-                  </button>
+                  </Button>
                 );
               }
 
               const spotlight = item.spotlight;
               const spotlightVideo = isVideoSource(spotlight.url);
               return (
-                <button
+                <Button variant="ghost"
                   key={`spotlight-${spotlight.id}`}
                   type="button"
                   onClick={() => openSpotlight(spotlights.findIndex((post) => post.id === spotlight.id))}
-                  className="group rail-tile relative h-52 w-[120px] shrink-0 overflow-hidden rounded-[24px] border border-[#D4AF37]/30 bg-black text-left shadow-sm transition-transform active:scale-[0.98]"
+                  className="group rail-tile block p-0 whitespace-normal relative h-60 w-36 shrink-0 overflow-hidden rounded-[24px] border border-[#D4AF37]/30 bg-black text-left shadow-sm transition-transform active:scale-[0.98]"
                 >
                   {spotlightVideo ? (
                     <video
@@ -1032,7 +1033,7 @@ export function StoriesRail({ viewerRequest, onViewerClose, compact = false }: {
                       Discover · Contact · Order
                     </span>
                   </span>
-                </button>
+                </Button>
               );
             })}
         </div>
@@ -1046,31 +1047,23 @@ export function StoriesRail({ viewerRequest, onViewerClose, compact = false }: {
         onChange={pickFile}
       />
 
-      {chooserOpen && typeof document !== "undefined"
-        ? createPortal(
-            <div className="fixed inset-0 z-[120000] flex items-end justify-center bg-black/65 p-3 backdrop-blur-md sm:items-center">
-              <div className="w-full max-w-md overflow-hidden rounded-[30px] border border-white/10 bg-background shadow-2xl">
+      <Dialog open={chooserOpen} onOpenChange={setChooserOpen}>
+        <DialogContent aria-describedby={undefined} overlayClassName="bg-foreground/20 backdrop-blur-md duration-300 motion-reduce:animate-none" className="block w-[calc(100%-2rem)] max-w-md overflow-hidden rounded-3xl border-border bg-card p-0 shadow-raised duration-300 motion-reduce:animate-none sm:rounded-3xl">
+              <div>
                 <div className="border-b border-border px-5 pb-4 pt-5">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-lg font-black">Create on ASH</p>
+                      <DialogTitle className="text-lg font-black">Create on ASH</DialogTitle>
                       <p className="mt-1 text-xs text-muted-foreground">Choose what you want to share.</p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setChooserOpen(false)}
-                      className="grid size-9 place-items-center rounded-full bg-muted"
-                      aria-label="Close"
-                    >
-                      <X className="size-5" />
-                    </button>
+
                   </div>
                 </div>
                 <div className="grid gap-3 p-4 sm:grid-cols-2">
-                  <button
+                  <Button variant="ghost"
                     type="button"
                     onClick={() => chooseMode("story")}
-                    className="rounded-[24px] border border-border bg-card p-4 text-left shadow-sm transition-transform active:scale-[0.98]"
+                    className="rounded-lg border border-border bg-card p-4 text-left shadow-sm transition-transform active:scale-[0.98]"
                   >
                     <span className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary">
                       <Camera className="size-5" />
@@ -1079,37 +1072,34 @@ export function StoriesRail({ viewerRequest, onViewerClose, compact = false }: {
                     <span className="mt-1 block text-xs leading-5 text-muted-foreground">
                       Photo or video that disappears after 24 hours.
                     </span>
-                  </button>
-                  <button
+                  </Button>
+                  <Button variant="ghost"
                     type="button"
                     onClick={() => chooseMode("spotlight")}
-                    className="rounded-[24px] border border-[#D4AF37]/25 bg-gradient-to-br from-[#D4AF37]/10 via-card to-[#4B0082]/10 p-4 text-left shadow-sm transition-transform active:scale-[0.98]"
+                    className="rounded-lg border border-gold/25 bg-gold/10 p-4 text-left shadow-sm transition-transform active:scale-[0.98]"
                   >
-                    <span className="grid size-11 place-items-center rounded-2xl bg-gradient-to-br from-[#D4AF37] to-[#4B0082] text-white">
+                    <span className="grid size-11 place-items-center rounded-full bg-gold text-gold-foreground">
                       <Sparkles className="size-5" />
                     </span>
                     <span className="mt-4 block text-sm font-black">Spotlight</span>
                     <span className="mt-1 block text-xs leading-5 text-muted-foreground">
                       Showcase a business, offer or service in the ASH reel.
                     </span>
-                  </button>
+                  </Button>
                 </div>
               </div>
-            </div>,
-            document.body,
-          )
-        : null}
+        </DialogContent>
+      </Dialog>
 
-      {composerMode && typeof document !== "undefined"
-        ? createPortal(
-            <div className="fixed inset-0 z-[130000] flex items-end justify-center bg-black/70 p-3 backdrop-blur-md sm:items-center sm:p-6">
-              <div className="flex max-h-[92dvh] w-full max-w-xl flex-col overflow-hidden rounded-[30px] border border-white/10 bg-background shadow-2xl">
+      <Dialog open={Boolean(composerMode)} onOpenChange={(value) => { if (!value && !publishing) resetComposer(); }}>
+        <DialogContent aria-describedby={undefined} overlayClassName="bg-foreground/20 backdrop-blur-md duration-300 motion-reduce:animate-none" onEscapeKeyDown={(event) => { if (publishing) event.preventDefault(); }} onPointerDownOutside={(event) => { if (publishing) event.preventDefault(); }} className="block w-[calc(100%-2rem)] max-w-xl overflow-hidden rounded-3xl border-border bg-card p-0 shadow-raised duration-300 motion-reduce:animate-none sm:rounded-3xl [&>button]:hidden">
+              <div className="flex max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden">
                 <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
                   <div className="min-w-0">
-                    <p className="truncate text-base font-black">{composerTitle}</p>
+                    <DialogTitle className="truncate text-base font-black">{composerTitle}</DialogTitle>
                     <p className="mt-1 text-[11px] text-muted-foreground">{composerSubtitle}</p>
                   </div>
-                  <button
+                  <Button variant="ghost"
                     type="button"
                     onClick={resetComposer}
                     disabled={publishing}
@@ -1117,7 +1107,7 @@ export function StoriesRail({ viewerRequest, onViewerClose, compact = false }: {
                     aria-label="Close"
                   >
                     <X className="size-5" />
-                  </button>
+                  </Button>
                 </div>
 
                 <div className="min-h-0 flex-1 overflow-y-auto p-4">
@@ -1136,7 +1126,7 @@ export function StoriesRail({ viewerRequest, onViewerClose, compact = false }: {
                       )}
                     </div>
                   ) : (
-                    <button
+                    <Button variant="ghost"
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       className="grid min-h-72 w-full place-items-center rounded-[24px] border border-dashed border-border bg-muted/20 text-center"
@@ -1152,7 +1142,7 @@ export function StoriesRail({ viewerRequest, onViewerClose, compact = false }: {
                           </span>
                         </span>
                       </span>
-                    </button>
+                    </Button>
                   )}
 
                   <textarea
@@ -1211,10 +1201,8 @@ export function StoriesRail({ viewerRequest, onViewerClose, compact = false }: {
                   </Button>
                 </div>
               </div>
-            </div>,
-            document.body,
-          )
-        : null}
+        </DialogContent>
+      </Dialog>
 
       {storyViewerOpen && activeStory && typeof document !== "undefined"
         ? createPortal(
