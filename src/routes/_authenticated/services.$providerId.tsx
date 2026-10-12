@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { ListingGallery, type GalleryItem } from "@/components/refer/ListingGallery";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { BadgeCheck, CalendarCheck, Clock, MapPin, MessageCircle, Play, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
@@ -843,5 +845,107 @@ function Row({ label, value }: { label: string; value: string }) {
       <dt className="text-xs text-muted-foreground">{label}</dt>
       <dd className="truncate text-right font-semibold text-foreground">{value}</dd>
     </div>
+  );
+}
+
+function relativeTime(iso: string, lang: string): string {
+  const days = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 86_400_000));
+  const rtf = new Intl.RelativeTimeFormat(baseLang(lang as never), { numeric: "auto" });
+  if (days < 1) return rtf.format(0, "day");
+  if (days < 30) return rtf.format(-days, "day");
+  if (days < 365) return rtf.format(-Math.round(days / 30), "month");
+  return rtf.format(-Math.round(days / 365), "year");
+}
+
+const FOOD = new Set(["PRIVATE_CHEF", "CATERING"]);
+
+function SellerMessageBox({ providerId, businessName, categories }: { providerId: string; businessName: string; categories: string[] }) {
+  const { tx } = useI18n();
+  const navigate = useNavigate();
+  const food = categories.some((c) => FOOD.has(c));
+  const [text, setText] = useState(food ? tx("Hi, is this dish available today?", "Bonjour, ce plat est-il disponible aujourd’hui ?") : tx("Hi, is this available?", "Bonjour, est-ce disponible ?"));
+  const [busy, setBusy] = useState(false);
+  async function send() {
+    const body = text.trim();
+    if (!body || busy) return;
+    setBusy(true);
+    try {
+      const id = await openConversation(providerId);
+      const { data: auth } = await supabase.auth.getUser();
+      if (!id || !auth.user) throw new Error("no conversation");
+      const { error } = await supabase.from("messages").insert({ conversation_id: id, sender_id: auth.user.id, body, metadata: { source: "ash_listing_quick_message", subject: businessName } });
+      if (error) throw error;
+      toast.success(tx("Message sent", "Message envoyé"));
+      void navigate({ to: "/messages", search: { c: id } });
+    } catch {
+      toast.error(tx("Couldn't send your message.", "Envoi impossible."));
+    } finally { setBusy(false); }
+  }
+  return (
+    <section className="space-y-2 rounded-2xl border border-border bg-card p-3">
+      <p className="flex items-center gap-2 text-sm font-semibold text-foreground"><MessageCircle className="size-4 text-primary" aria-hidden />{tx("Send seller a message", "Envoyer un message au vendeur")}</p>
+      <div className="flex gap-2">
+        <Input aria-label={tx("Message", "Message")} value={text} maxLength={500} onChange={(e) => setText(e.target.value)} className="rounded-full bg-muted" />
+        <Button className="rounded-full" disabled={busy || !text.trim()} onClick={() => void send()}>{busy ? "…" : tx("Send", "Envoyer")}</Button>
+      </div>
+    </section>
+  );
+}
+
+function ClampText({ text }: { text: string }) {
+  const { tx } = useI18n();
+  const [open, setOpen] = useState(false);
+  const long = text.length > 220;
+  return (
+    <div className="text-sm text-foreground/90">
+      <p className={open || !long ? "whitespace-pre-wrap" : "line-clamp-3 whitespace-pre-wrap"}>{text}</p>
+      {long && <button type="button" className="mt-1 font-semibold text-primary" onClick={() => setOpen(!open)}>{open ? tx("See less", "Voir moins") : tx("See more", "Voir plus")}</button>}
+    </div>
+  );
+}
+
+function openNativeMap(place: string) {
+  const q = encodeURIComponent(place);
+  const ios = typeof navigator !== "undefined" && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent) && "ontouchend" in document;
+  const url = ios ? `https://maps.apple.com/?q=${q}` : `https://www.google.com/maps/search/?api=1&query=${q}`;
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
+function LocationMap({ place }: { place: string }) {
+  const { tx } = useI18n();
+  return (
+    <button type="button" onClick={() => openNativeMap(place)} className="block w-full overflow-hidden rounded-xl border border-border text-left" aria-label={tx("Open in maps", "Ouvrir dans Plans")}>
+      <iframe title={place} src={`https://maps.google.com/maps?q=${encodeURIComponent(place)}&z=12&output=embed`} className="pointer-events-none h-48 w-full" loading="lazy" />
+      <span className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-foreground"><MapPin className="size-4 text-primary" aria-hidden />{place}<span className="ml-auto text-xs text-primary">{tx("Open in maps", "Ouvrir dans Plans")}</span></span>
+    </button>
+  );
+}
+
+function RelatedListings({ providerId, categories, country }: { providerId: string; categories: string[]; country: string | null }) {
+  const { tx } = useI18n();
+  const { data } = useQuery({
+    queryKey: ["related-providers", providerId, categories.join(","), country],
+    queryFn: async () => {
+      let q = supabase.from("provider_profiles").select("id, business_name, city, avatar_url, rating_avg, rating_count").eq("is_live", true).neq("id", providerId).limit(6);
+      if (country) q = q.eq("country", country);
+      if (categories.length) q = q.overlaps("categories", categories as never);
+      const { data, error } = await q;
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  if (!data || data.length === 0) return null;
+  return (
+    <SectionCard title={tx("Related listings", "Annonces similaires")}>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {data.map((p) => (
+          <Link key={p.id} to="/services/$providerId" params={{ providerId: p.id }} className="min-w-0">
+            <div className="aspect-square overflow-hidden rounded-lg bg-muted">{p.avatar_url ? <img src={p.avatar_url} alt={p.business_name} loading="lazy" className="size-full object-cover" /> : <div className="grid size-full place-items-center font-display text-2xl font-bold text-primary/70">{p.business_name.slice(0, 2).toUpperCase()}</div>}</div>
+            <p className="mt-1 line-clamp-1 text-sm font-medium text-foreground">{p.business_name}</p>
+            <p className="flex items-center gap-1 text-xs text-muted-foreground"><RatingStars value={Number(p.rating_avg)} size={11} />{Number(p.rating_count) > 0 ? Number(p.rating_avg).toFixed(1) : ""}{p.city ? ` · ${p.city}` : ""}</p>
+          </Link>
+        ))}
+      </div>
+    </SectionCard>
   );
 }
