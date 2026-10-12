@@ -9,18 +9,18 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Full-screen post composer stays outside the scroll pane against the native viewport. Why: prevent mobile clipping.
+- Full-screen composer stays outside scrolling, against the native viewport. Why: prevent mobile clipping.
 - Inventory uses provider_profiles.id as business_id, inventory_can()/inventory_role_of() RLS and inventory_members; stock changes only through inventory_record_movement's append-only ledger. UI /inventory and inventory.queries.ts. Why: tenant isolation and one stock source.
 
 - Shareholders uses shareholders.functions.ts and append-only service-role records; Finance shares computeFinanceLedger. Source reads use allFinanceRows with stable ordering and fail on errors. Why: one complete financial source, no silent truncation or zeros.
 - Feed/Stories/Services rank via rotation.ts after safety filtering. Why: no duplicate feed.
 - AppShell omits tab-owned headers; MobileNav owns hold/slide. Why: one navigation path.
-- Desktop Messages fills the sidebar-adjacent viewport; desktop/mobile nav expose Flights. Why: full space and access.
+- Desktop Messages fills the viewport beside the sidebar; all navs expose Flights. Why: space and access.
 - Market defaults via versioned services-mode at the existing Services URL; Extras is its child route. MarketBrowser reuses discovery/deals/property reads. Why: preserve commerce and URLs.
 
 - Avatar updates reuse safety-filtered StoriesRail; ChatActionDialog owns panels; MemberNavIcon uses token-based SVG strokes. Why: shared safe viewing and branding.
 - Identity enforcement uses identity_restrictions, reviewed photo hashes, non-throwing denial triggers and identityMiddleware. Why: durable strikes and server-enforced bans.
-- Verified-badge console functions use requireDepartment("TRUST") before privileged access. Why: authorize the staff session, not a second member-admin login.
+- Verified-badge functions requireDepartment("TRUST") before privileged access. Why: authorize staff, not a second member-admin login.
 
 - Provider balance and reconciliation live in finance-reconciliation.server.ts (snapshots, runs, discrepancies; service-role + deny-all); reconciliation logs discrepancies and never changes balances. Why: TchokoPay is the source of truth for real funds.
 - All payments record on payment_transactions (service-role, deny-all) and settle only via settleCollection; bank rows succeed only by Finance confirmation. Wallet money is per currency: XAF (Mobile Money) in wallets, card money in wallet_balances at Stripe's settled currency; withdrawals use request_wallet_withdrawal; UI helpers in wallet-currency.ts. Why: exactly-once credit, no cross-rail payouts or conversions shown as balances.
