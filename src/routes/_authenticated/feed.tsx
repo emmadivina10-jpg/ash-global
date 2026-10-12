@@ -8,7 +8,6 @@ import {
   Loader2,
   Plus,
   Sparkles,
-  Users,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -28,10 +27,9 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { useCreateSocialPost, useFriendships, useSocialFeed } from "@/lib/social.queries";
+import { useCreateSocialPost, useSocialFeed } from "@/lib/social.queries";
 import { useProfile } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/feed")({
   head: () => ({
@@ -57,15 +55,13 @@ export const Route = createFileRoute("/_authenticated/feed")({
 function FeedPage() {
   const { tx, lang } = useI18n();
   const fr = lang === "fr";
-// Larger pool so the Mine/Friends tabs don't lose posts to the feed slice.
+  // Preserve the same safety-filtered, stable feed pool.
   const { data: posts, isLoading, refetch } = useSocialFeed(120);
-  const { data: friendships } = useFriendships();
   const { data: profile } = useProfile();
   const { data: discovery } = useFeedDiscovery();
   const create = useCreateSocialPost();
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
-  const [tab, setTab] = useState<"foryou" | "friends" | "mine">("foryou");
   const [caption, setCaption] = useState("");
   const [composerOpen, setComposerOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
@@ -147,25 +143,11 @@ function FeedPage() {
 
   const firstName = (profile?.full_name ?? "").trim().split(" ")[0] ?? "";
 
-  const friendIds = new Set((friendships?.friends ?? []).map((entry) => entry.other.id));
-
-  const all = posts ?? [];
-  const visible =
-    tab === "friends"
-      ? all.filter((post) => friendIds.has(post.author_id))
-      : tab === "mine"
-        ? all.filter((post) => post.author_id === me)
-        : all;
-
-  const TABS = [
-    { id: "foryou" as const, icon: Sparkles, en: "For you", fr: "Pour vous" },
-    { id: "friends" as const, icon: Users, en: "Friends", fr: "Amis" },
-    { id: "mine" as const, icon: ImagePlus, en: "Mine", fr: "Mes posts" },
-  ];
+  const visible = posts ?? [];
 
   return (
     <PullToRefresh onRefresh={refetch} label={tx("Refreshing", "Actualisation")}>
-    <div className="mx-auto w-full max-w-xl space-y-4">
+    <div className="mx-auto w-full max-w-xl space-y-2">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0 self-center">
           <h1 className="sr-only">{tx("ASH Feed", "Fil ASH")}</h1>
@@ -194,30 +176,6 @@ function FeedPage() {
           </Button>
         </div>
       </header>
-
-      <div className="flex gap-2 overflow-x-auto pb-0.5">
-        {TABS.map((item) => {
-          const Icon = item.icon;
-          const active = tab === item.id;
-          return (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setTab(item.id)}
-              className={cn(
-                "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-bold transition-colors",
-                active
-                  ? "border-transparent bg-primary text-primary-foreground shadow-sm"
-                  : "border-border bg-card text-muted-foreground hover:text-foreground",
-              )}
-            >
-              <Icon className="size-3.5" aria-hidden />
-              {tx(item.en, item.fr)}
-            </button>
-          );
-        })}
-      </div>
-
 
       <Dialog
         open={composerOpen}
@@ -342,7 +300,7 @@ function FeedPage() {
         </DialogContent>
       </Dialog>
 
-      <StoriesRail />
+      <StoriesRail compact />
 
       {isLoading ? (
         <div className="space-y-3">
@@ -356,11 +314,7 @@ function FeedPage() {
             <Sparkles className="size-5" aria-hidden />
           </span>
           <p className="mt-3 text-sm font-bold text-foreground">
-            {tab === "friends"
-              ? tx("Your friends haven't posted yet", "Vos amis n'ont rien publié")
-              : tab === "mine"
-                ? tx("You haven't posted yet", "Vous n'avez rien publié")
-                : tx("Nothing here yet", "Rien encore")}
+            {tx("Nothing here yet", "Rien encore")}
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
             {tx("Share a photo — that is how the feed comes alive.", "Partagez une photo — c'est ainsi que le fil prend vie.")}

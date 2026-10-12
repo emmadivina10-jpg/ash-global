@@ -1,5 +1,11 @@
 # Roadmap
 
+## Embedded tracking and compact feed (Oct 12)
+- [x] Embed the live booking workflow in Compass Map with connected green payment/trip/verification progress; preserve payment and location permissions
+- [x] Remove Feed selectors, use Ash Glow text without header divider, and tighten Stories-to-post spacing
+- [x] Isolated desktop/phone checks: map tiles loaded, Map/Wallet switching stays inline, compact stories and no overflow/runtime errors; 28 booking/payment/location tests pass; preview build OK, no publishing or financial changes
+- [ ] Real signed-in booking/feed check — blocked by member terms-consent; no agreement accepted or booking/payment action performed on the user's behalf
+
 ## Marketplace continuity and wallet (Oct 12)
 - [x] Reuse seller/member chats in both directions and restore missing peer-photo fallbacks using the safe member directory; no privacy changes
 - [x] Remove wallet-card glow/decorative placeholders and invented card number; preserve balances and payout actions

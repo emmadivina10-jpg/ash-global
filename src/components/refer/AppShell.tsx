@@ -168,7 +168,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navLabel = (item: NavItem) =>
     item.key ? t(item.key) : ((lang === "fr" ? item.fr : item.en) ?? item.label ?? "");
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const onFeed = true; // profile lives in the Menu tab; mobile header shows logo only
+  const onFeed = pathname === "/feed" || pathname === "/feed/";
+  const logoOnlyHeader = true; // Keep existing non-feed header controls unchanged.
   const pageOwnsHeader = ["/messages", "/services", "/flights", "/menu"].some(
     (path) => pathname === path || pathname.startsWith(`${path}/`),
   );
@@ -273,8 +274,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <div className="app-shell-column flex min-w-0 flex-1 flex-col">
           {/* Web-only top bar: menu panel, notifications and the member photo. */}
-          {!pageOwnsHeader && <header className="sticky top-0 z-30 hidden border-b border-border bg-background/85 backdrop-blur-xl lg:block">
+          {!pageOwnsHeader && <header className={cn("sticky top-0 z-30 hidden bg-background/85 backdrop-blur-xl lg:block", !onFeed && "border-b border-border")}>
             <div className="flex items-center justify-end gap-1.5 px-6 py-2.5">
+              {onFeed && <Link to="/feed" className="mr-auto text-xl font-bold text-foreground">Ash Glow</Link>}
               <DesktopMenu groups={WEB_MENU_GROUPS} create={WEB_MENU_CREATE} />
               <NotificationBell />
               <DropdownMenu>
@@ -319,9 +321,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </header>}
 
-          {!pageOwnsHeader && <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl lg:hidden">
-            <div className={cn("grid items-center gap-3 px-4 py-3", onFeed ? "grid-cols-[minmax(0,1fr)_auto]" : "grid-cols-[auto_minmax(0,1fr)_auto]")}>
-              {onFeed ? null : (
+          {!pageOwnsHeader && <header className={cn("sticky top-0 z-30 bg-background/80 backdrop-blur-xl lg:hidden", !onFeed && "border-b border-border")}>
+            <div className={cn("grid items-center gap-3 px-4 py-2", logoOnlyHeader ? "grid-cols-[minmax(0,1fr)_auto]" : "grid-cols-[auto_minmax(0,1fr)_auto]")}>
+              {logoOnlyHeader ? null : (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button
@@ -359,7 +361,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </DropdownMenu>
               )}
               <Link to="/services" className="min-w-0">
-                <Logo compact />
+                {onFeed ? <span className="text-xl font-bold text-foreground">Ash Glow</span> : <Logo compact />}
               </Link>
               <div className="flex items-center gap-1">
                 <NotificationBell />
@@ -373,7 +375,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           {profile && <PayoutSetupReminder userId={profile.user_id} connected={Boolean(profile.stripe_account_id)} />}
 
           <div className="flex min-h-0 min-w-0 flex-1">
-            <main className={cn("app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:px-8 lg:pb-10", roomyMemberTab && "member-roomy-tab")}>{children}</main>
+            <main className={cn("app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:px-8 lg:pb-10", roomyMemberTab && "member-roomy-tab", onFeed && "pt-1")}>{children}</main>
             {pathname !== "/messages" && <RightRail />}
           </div>
         </div>
