@@ -116,7 +116,7 @@ export function CompassSurface({
           aria-describedby={undefined}
           overlayClassName="bg-foreground/20 backdrop-blur-md duration-300 motion-reduce:animate-none"
           onCloseAutoFocus={(event) => { event.preventDefault(); launcher.current?.focus(); }}
-          className="flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-1.5rem)] max-w-lg flex-col gap-0 overflow-hidden rounded-3xl border-border bg-card p-0 shadow-raised duration-300 motion-reduce:animate-none sm:rounded-3xl"
+          className="flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-1.5rem)] max-w-lg flex-col gap-0 overflow-hidden rounded-3xl border-border bg-card p-0 shadow-raised duration-300 motion-reduce:animate-none sm:rounded-3xl [&>button]:hidden"
         >
           <header className="compass-header flex shrink-0 items-center border-b border-border px-4 py-4 pr-12">
             <DialogTitle className="flex items-center gap-2 text-base font-bold">
