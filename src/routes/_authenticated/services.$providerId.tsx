@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { ListingGallery, type GalleryItem } from "@/components/refer/ListingGallery";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { BadgeCheck, CalendarCheck, Clock, MapPin, MessageCircle, Play, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
@@ -164,113 +166,47 @@ function ProviderPage() {
       : null;
 
 
+  const cats = ((provider.categories ?? []) as ServiceCategory[]);
+  const gallery: GalleryItem[] = (portfolio ?? []).filter((i) => i.url).map((i) => ({ id: i.id, url: i.url!, caption: i.caption, isVideo: isVideoSource(i.image_path) || isVideoSource(i.url!) }));
+  const place = [provider.city, ...areas.slice(0, 1)].filter(Boolean).join(" · ");
+  const minPrice = activeServices.length ? Math.min(...activeServices.map((s) => Number(s.price))) : null;
+
   return (
     <div className="mx-auto w-full max-w-4xl space-y-5">
-      <SectionCard>
-        <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-4">
-          <div className="size-16 overflow-hidden rounded-2xl bg-muted sm:size-20">
-            {provider.avatar_url ? (
-              <img
-                src={provider.avatar_url}
-                alt={provider.business_name}
-                loading="lazy"
-                className="size-full object-cover"
-              />
-            ) : null}
-          </div>
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="truncate font-display text-xl font-extrabold text-foreground sm:text-2xl">
-                {provider.business_name}
-              </h1>
-              {verified ? (
-                <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary">
-                  <BadgeCheck className="size-3.5" aria-hidden />
-                  {tx("Verified", "Vérifié")}
-                </span>
-              ) : null}
-              <span
-                className={
-                  bookable
-                    ? "rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary"
-                    : "rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground"
-                }
-              >
-                {bookable ? (tx("Available", "Disponible")) : tx("Unavailable", "Indisponible")}
-              </span>
-            </div>
+      <ListingGallery items={gallery} alt={provider.business_name} emptyLabel={tx("No photos yet", "Pas encore de photos")} onOpen={(i) => setLightbox({ url: i.url, caption: i.caption ?? null, isVideo: Boolean(i.isVideo) })} />
 
-            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <RatingStars value={Number(provider.rating_avg)} size={14} />
-                <span className="tabular">
-                  {Number(provider.rating_avg).toFixed(1)} ({provider.rating_count})
-                </span>
-              </span>
-              {provider.city ? (
-                <span className="flex items-center gap-1">
-                  <MapPin className="size-3.5" aria-hidden />
-                  {provider.city}
-                </span>
-              ) : null}
-              {completed > 0 ? (
-                <span className="flex items-center gap-1">
-                  <CalendarCheck className="size-3.5" aria-hidden />
-                  {completed} {tx("completed bookings", "prestations terminées")}
-                </span>
-              ) : null}
-            </div>
-
-            {provider.bio ? <p className="mt-3 text-sm text-foreground/90">{provider.bio}</p> : null}
-
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {((provider.categories ?? []) as ServiceCategory[]).map((c) => (
-                <span key={c} className="rounded-full border border-border px-2.5 py-1 text-[11px] font-semibold">
-                  {categoryLabel(c, lang)}
-                </span>
-              ))}
-            </div>
-
-            {areas.length > 0 ? (
-              <p className="mt-3 text-xs text-muted-foreground">
-                {tx("Service areas: ", "Zones desservies : ")}
-                {areas.join(", ")}
-              </p>
-            ) : null}
-
-            {blockedReason ? (
-              <p className="mt-4 rounded-xl border border-border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
-                {blockedReason}
-              </p>
-            ) : null}
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Button
-                className="touch-manipulation"
-                disabled={Boolean(blockedReason)}
-                onClick={() => setBooking(activeServices[0] ?? customService(fr))}
-              >
-                {tx("Book service", "Réserver un service")}
-              </Button>
-
-              <Button variant="outline" onClick={() => void chat()} disabled={isOwner}>
-                <MessageCircle className="size-4" aria-hidden />
-                {t("svc.chat")}
-              </Button>
-
-              {isOwner ? null : (
-                <ReportDialog
-                  targetType="PROVIDER"
-                  targetId={provider.id}
-                  targetUserId={provider.user_id}
-                  targetLabel={provider.business_name}
-                  variant="outline"
-                />
-              )}
-            </div>
-
-          </div>
+      <section className="space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="font-display text-2xl font-extrabold text-foreground">{provider.business_name}</h1>
+          {verified ? <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary"><BadgeCheck className="size-3.5" aria-hidden />{tx("Verified", "Vérifié")}</span> : null}
         </div>
+        {minPrice !== null ? <p className="text-xl font-bold text-foreground">{tx("From", "Dès")} {formatXAF(minPrice)}</p> : null}
+        <p className="text-sm text-muted-foreground">{tx("Listed", "Publié")} {relativeTime(provider.created_at, lang)}{place ? ` ${tx("in", "à")} ${place}` : ""}</p>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+          <span className="flex items-center gap-1"><RatingStars value={Number(provider.rating_avg)} size={14} /><span className="tabular">{Number(provider.rating_avg).toFixed(1)} ({provider.rating_count})</span></span>
+          {completed > 0 ? <span className="flex items-center gap-1"><CalendarCheck className="size-3.5" aria-hidden />{completed} {tx("completed bookings", "prestations terminées")}</span> : null}
+          <span className={bookable ? "font-semibold text-primary" : ""}>{bookable ? tx("Available", "Disponible") : tx("Unavailable", "Indisponible")}</span>
+        </div>
+      </section>
+
+      {!isOwner && <SellerMessageBox providerId={providerId} businessName={provider.business_name} categories={cats} />}
+
+      {blockedReason ? <p className="rounded-xl border border-border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">{blockedReason}</p> : null}
+      <div className="flex flex-wrap gap-2">
+        <Button className="touch-manipulation" disabled={Boolean(blockedReason)} onClick={() => setBooking(activeServices[0] ?? customService(fr))}>{tx("Book service", "Réserver un service")}</Button>
+        <Button variant="outline" onClick={() => void chat()} disabled={isOwner}><MessageCircle className="size-4" aria-hidden />{t("svc.chat")}</Button>
+        {isOwner ? null : <ReportDialog targetType="PROVIDER" targetId={provider.id} targetUserId={provider.user_id} targetLabel={provider.business_name} variant="outline" />}
+      </div>
+
+      {provider.bio ? <SectionCard title={tx("Description", "Description")}><ClampText text={provider.bio} /></SectionCard> : null}
+
+      <SectionCard title={tx("Details", "Détails")}>
+        <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-2 text-sm">
+          {cats.length > 0 && <><dt className="text-muted-foreground">{tx("Category", "Catégorie")}</dt><dd>{cats.map((c) => categoryLabel(c, lang)).join(", ")}</dd></>}
+          <dt className="text-muted-foreground">{tx("Bookings", "Réservations")}</dt><dd>{bookable ? tx("Accepting bookings", "Accepte les réservations") : tx("Paused", "En pause")}</dd>
+          {areas.length > 0 && <><dt className="text-muted-foreground">{tx("Service areas", "Zones")}</dt><dd>{areas.join(", ")}</dd></>}
+          <dt className="text-muted-foreground">{tx("Services", "Services")}</dt><dd>{activeServices.length}</dd>
+        </dl>
       </SectionCard>
 
       <SectionCard title={tx("Services", "Services")}>
@@ -299,63 +235,10 @@ function ProviderPage() {
         )}
       </SectionCard>
 
-      <SectionCard title={t("svc.portfolio")}>
-        {(portfolio ?? []).length === 0 ? (
-          <EmptyState title={tx("No photos or videos yet", "Pas encore de médias")} />
-        ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {(portfolio ?? []).map((item) => {
-              if (!item.url) return null;
-              const video = isVideoSource(item.image_path) || isVideoSource(item.url);
-              return (
-                <figure key={item.id} className="overflow-hidden rounded-xl border border-border bg-muted">
-                  <button
-                    type="button"
-                    className="relative block w-full"
-                    aria-label={
-                      video
-                        ? tx("Play video", "Regarder la vidéo")
-                        : tx("View photo", "Voir la photo")
-                    }
-                    onClick={() =>
-                      setLightbox({ url: item.url!, caption: item.caption, isVideo: video })
-                    }
-                  >
-                    {video ? (
-                      <>
-                        <video
-                          src={item.url}
-                          muted
-                          playsInline
-                          preload="metadata"
-                          className="aspect-square w-full object-cover"
-                        />
-                        <span className="absolute inset-0 grid place-items-center bg-black/30">
-                          <span className="grid size-10 place-items-center rounded-full bg-white/90 text-black">
-                            <Play className="size-4 fill-current" aria-hidden />
-                          </span>
-                        </span>
-                      </>
-                    ) : (
-                      <img
-                        src={item.url}
-                        alt={item.caption ?? provider.business_name}
-                        loading="lazy"
-                        className="aspect-square w-full object-cover transition-transform hover:scale-105"
-                      />
-                    )}
-                  </button>
-                  {item.caption ? (
-                    <figcaption className="truncate px-2 py-1 text-[11px] text-muted-foreground">
-                      {item.caption}
-                    </figcaption>
-                  ) : null}
-                </figure>
-              );
-            })}
-          </div>
-        )}
-      </SectionCard>
+      {provider.city ? <SectionCard title={tx("Location", "Localisation")}><LocationMap place={[provider.city, (provider as { country?: string | null }).country].filter(Boolean).join(", ")} /></SectionCard> : null}
+
+      <RelatedListings providerId={provider.id} categories={cats} country={(provider as { country?: string | null }).country ?? null} />
+
 
       <MediaLightbox media={lightbox} onClose={() => setLightbox(null)} />
 
@@ -962,5 +845,107 @@ function Row({ label, value }: { label: string; value: string }) {
       <dt className="text-xs text-muted-foreground">{label}</dt>
       <dd className="truncate text-right font-semibold text-foreground">{value}</dd>
     </div>
+  );
+}
+
+function relativeTime(iso: string, lang: string): string {
+  const days = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 86_400_000));
+  const rtf = new Intl.RelativeTimeFormat(baseLang(lang as never), { numeric: "auto" });
+  if (days < 1) return rtf.format(0, "day");
+  if (days < 30) return rtf.format(-days, "day");
+  if (days < 365) return rtf.format(-Math.round(days / 30), "month");
+  return rtf.format(-Math.round(days / 365), "year");
+}
+
+const FOOD = new Set(["PRIVATE_CHEF", "CATERING"]);
+
+function SellerMessageBox({ providerId, businessName, categories }: { providerId: string; businessName: string; categories: string[] }) {
+  const { tx } = useI18n();
+  const navigate = useNavigate();
+  const food = categories.some((c) => FOOD.has(c));
+  const [text, setText] = useState(food ? tx("Hi, is this dish available today?", "Bonjour, ce plat est-il disponible aujourd’hui ?") : tx("Hi, is this available?", "Bonjour, est-ce disponible ?"));
+  const [busy, setBusy] = useState(false);
+  async function send() {
+    const body = text.trim();
+    if (!body || busy) return;
+    setBusy(true);
+    try {
+      const id = await openConversation(providerId);
+      const { data: auth } = await supabase.auth.getUser();
+      if (!id || !auth.user) throw new Error("no conversation");
+      const { error } = await supabase.from("messages").insert({ conversation_id: id, sender_id: auth.user.id, body, metadata: { source: "ash_listing_quick_message", subject: businessName } });
+      if (error) throw error;
+      toast.success(tx("Message sent", "Message envoyé"));
+      void navigate({ to: "/messages", search: { c: id } });
+    } catch {
+      toast.error(tx("Couldn't send your message.", "Envoi impossible."));
+    } finally { setBusy(false); }
+  }
+  return (
+    <section className="space-y-2 rounded-2xl border border-border bg-card p-3">
+      <p className="flex items-center gap-2 text-sm font-semibold text-foreground"><MessageCircle className="size-4 text-primary" aria-hidden />{tx("Send seller a message", "Envoyer un message au vendeur")}</p>
+      <div className="flex gap-2">
+        <Input aria-label={tx("Message", "Message")} value={text} maxLength={500} onChange={(e) => setText(e.target.value)} className="rounded-full bg-muted" />
+        <Button className="rounded-full" disabled={busy || !text.trim()} onClick={() => void send()}>{busy ? "…" : tx("Send", "Envoyer")}</Button>
+      </div>
+    </section>
+  );
+}
+
+function ClampText({ text }: { text: string }) {
+  const { tx } = useI18n();
+  const [open, setOpen] = useState(false);
+  const long = text.length > 220;
+  return (
+    <div className="text-sm text-foreground/90">
+      <p className={open || !long ? "whitespace-pre-wrap" : "line-clamp-3 whitespace-pre-wrap"}>{text}</p>
+      {long && <button type="button" className="mt-1 font-semibold text-primary" onClick={() => setOpen(!open)}>{open ? tx("See less", "Voir moins") : tx("See more", "Voir plus")}</button>}
+    </div>
+  );
+}
+
+function openNativeMap(place: string) {
+  const q = encodeURIComponent(place);
+  const ios = typeof navigator !== "undefined" && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent) && "ontouchend" in document;
+  const url = ios ? `https://maps.apple.com/?q=${q}` : `https://www.google.com/maps/search/?api=1&query=${q}`;
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
+function LocationMap({ place }: { place: string }) {
+  const { tx } = useI18n();
+  return (
+    <button type="button" onClick={() => openNativeMap(place)} className="block w-full overflow-hidden rounded-xl border border-border text-left" aria-label={tx("Open in maps", "Ouvrir dans Plans")}>
+      <iframe title={place} src={`https://maps.google.com/maps?q=${encodeURIComponent(place)}&z=12&output=embed`} className="pointer-events-none h-48 w-full" loading="lazy" />
+      <span className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-foreground"><MapPin className="size-4 text-primary" aria-hidden />{place}<span className="ml-auto text-xs text-primary">{tx("Open in maps", "Ouvrir dans Plans")}</span></span>
+    </button>
+  );
+}
+
+function RelatedListings({ providerId, categories, country }: { providerId: string; categories: string[]; country: string | null }) {
+  const { tx } = useI18n();
+  const { data } = useQuery({
+    queryKey: ["related-providers", providerId, categories.join(","), country],
+    queryFn: async () => {
+      let q = supabase.from("provider_profiles").select("id, business_name, city, avatar_url, rating_avg, rating_count").eq("is_live", true).neq("id", providerId).limit(6);
+      if (country) q = q.eq("country", country);
+      if (categories.length) q = q.overlaps("categories", categories as never);
+      const { data, error } = await q;
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  if (!data || data.length === 0) return null;
+  return (
+    <SectionCard title={tx("Related listings", "Annonces similaires")}>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {data.map((p) => (
+          <Link key={p.id} to="/services/$providerId" params={{ providerId: p.id }} className="min-w-0">
+            <div className="aspect-square overflow-hidden rounded-lg bg-muted">{p.avatar_url ? <img src={p.avatar_url} alt={p.business_name} loading="lazy" className="size-full object-cover" /> : <div className="grid size-full place-items-center font-display text-2xl font-bold text-primary/70">{p.business_name.slice(0, 2).toUpperCase()}</div>}</div>
+            <p className="mt-1 line-clamp-1 text-sm font-medium text-foreground">{p.business_name}</p>
+            <p className="flex items-center gap-1 text-xs text-muted-foreground"><RatingStars value={Number(p.rating_avg)} size={11} />{Number(p.rating_count) > 0 ? Number(p.rating_avg).toFixed(1) : ""}{p.city ? ` · ${p.city}` : ""}</p>
+          </Link>
+        ))}
+      </div>
+    </SectionCard>
   );
 }

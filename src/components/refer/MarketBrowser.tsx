@@ -2,7 +2,10 @@ import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
-import { Store, Search, MapPin, Plus, UserRound, MessageCircle, SlidersHorizontal, House, Tag, Sparkles, ImageOff, LayoutGrid } from "lucide-react";
+import { Store, Search, MapPin, Plus, UserRound, MessageCircle, SlidersHorizontal, House, Tag, Sparkles, ImageOff, LayoutGrid, UtensilsCrossed, Smartphone, Shirt, Hammer, PartyPopper, HeartPulse, Briefcase, X, Star, type LucideIcon } from "lucide-react";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { CATEGORY_GROUPS } from "@/lib/taxonomy";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +23,18 @@ import { useRegion } from "@/lib/region-context";
 import { formatXAF } from "@/lib/format";
 import { playTabSound } from "@/lib/sound";
 
-type Listing = { id: string; kind: "property" | "service" | "deal"; title: string; city: string; image: string | null; price: number | null; priceLabel: string; date: string; deal?: Deal };
+type Listing = { id: string; kind: "property" | "service" | "deal"; title: string; city: string; image: string | null; price: number | null; priceLabel: string; date: string; deal?: Deal; cats?: string[]; rating?: number; ratingCount?: number };
+
+const FOOD_CATS = ["PRIVATE_CHEF", "CATERING"];
+const groupCats = (id: string): string[] => CATEGORY_GROUPS.find((g) => g.id === id)?.categories ?? [];
+
+function BlurModal({ open, onOpenChange, title, children }: { open: boolean; onOpenChange: (o: boolean) => void; title: string; children: React.ReactNode }) {
+  return <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}><DialogPrimitive.Portal><DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-background/40 backdrop-blur-md data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" /><DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-50 w-[min(92vw,28rem)] -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-border bg-card p-5 shadow-2xl duration-300 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95"><div className="mb-4 flex items-center justify-between"><DialogPrimitive.Title className="font-display text-lg font-bold text-foreground">{title}</DialogPrimitive.Title><DialogPrimitive.Close className="grid size-8 place-items-center rounded-full bg-muted text-foreground" aria-label="Close"><X className="size-4" /></DialogPrimitive.Close></div><DialogPrimitive.Description className="sr-only">{title}</DialogPrimitive.Description>{children}</DialogPrimitive.Content></DialogPrimitive.Portal></DialogPrimitive.Root>;
+}
+
+function RoundIcon({ icon: Icon, label, active, onClick, delay = 0 }: { icon: LucideIcon; label: string; active?: boolean; onClick?: () => void; delay?: number }) {
+  return <button type="button" onClick={onClick} aria-pressed={active} style={{ animationDelay: `${delay}ms` }} className="flex w-16 shrink-0 flex-col items-center gap-1.5 animate-in fade-in-0 slide-in-from-bottom-2 fill-mode-both duration-500"><span className={cn("grid size-14 place-items-center rounded-full ring-1 transition-colors", active ? "bg-primary text-primary-foreground ring-primary" : "bg-muted text-foreground ring-border")}><Icon className="size-6" aria-hidden /></span><span className={cn("line-clamp-1 text-[11px] font-medium", active ? "text-primary" : "text-muted-foreground")}>{label}</span></button>;
+}
 
 export function MarketBrowser({ providers, loadingProviders, providerError, hasMore, loadMore, loadingMore }: {
   providers: DiscoveryProvider[]; loadingProviders: boolean; providerError: boolean; hasMore: boolean; loadMore: () => void; loadingMore: boolean;
@@ -37,12 +51,14 @@ export function MarketBrowser({ providers, loadingProviders, providerError, hasM
   const [kind, setKind] = useState("all");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [sellOpen, setSellOpen] = useState(false);
+  const [locOpen, setLocOpen] = useState(false);
+  const [cityDraft, setCityDraft] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [sort, setSort] = useState("recent");
   const [selected, setSelected] = useState<Deal | null>(null);
   const [claiming, setClaiming] = useState(false);
   const listings = useMemo(() => {
-    const items: Listing[] = providers.map((p) => ({ id: p.id, kind: "service", title: p.business_name, city: p.city ?? "", image: p.photos[0]?.url ?? null, price: p.fromPrice, priceLabel: p.fromPrice === null ? (tx("View services", "Voir les services")) : `${tx("From", "Dès")} ${formatXAF(p.fromPrice)}`, date: p.created_at }));
+    const items: Listing[] = providers.map((p) => ({ id: p.id, kind: "service", title: p.business_name, city: p.city ?? "", image: p.photos[0]?.url ?? null, price: p.fromPrice, priceLabel: p.fromPrice === null ? (tx("View services", "Voir les services")) : `${tx("From", "Dès")} ${formatXAF(p.fromPrice)}`, date: p.created_at, cats: (p.categories ?? []) as string[], rating: Number(p.rating_avg), ratingCount: Number(p.rating_count) }));
     for (const p of properties.data ?? []) items.push({ id: p.id, kind: "property", title: p.title, city: p.city, image: p.cover, price: p.price, priceLabel: formatPropertyPrice(p.price, p.currency, p.price_period, fr), date: p.created_at });
     for (const d of deals.data ?? []) {
       if (!region.seesEverything && d.country !== region.country) continue;
@@ -50,18 +66,28 @@ export function MarketBrowser({ providers, loadingProviders, providerError, hasM
     }
     return items;
   }, [providers, properties.data, deals.data, fr, region.country, region.seesEverything]);
+  const SVC_GROUPS: Record<string, string[]> = { food: FOOD_CATS, electronics: groupCats("TECH"), fashion: groupCats("BEAUTY"), home: groupCats("HOME"), events: groupCats("EVENTS"), health: groupCats("HEALTH"), pro: groupCats("PROFESSIONAL") };
+  const matchKind = (l: Listing) => kind === "all" || kind === l.kind || (l.kind === "service" && Boolean(SVC_GROUPS[kind]?.some((c) => l.cats?.includes(c))));
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase();
     const area = city.trim().toLowerCase();
-    const rows = listings.filter((l) => (kind === "all" || kind === l.kind) && (!term || `${l.title} ${l.city}`.toLowerCase().includes(term)) && (!area || l.city.toLowerCase().includes(area)) && (!maxPrice || (l.price !== null && l.price <= Number(maxPrice))));
+    const rows = listings.filter((l) => matchKind(l) && (!term || `${l.title} ${l.city}`.toLowerCase().includes(term)) && (!area || l.city.toLowerCase().includes(area)) && (!maxPrice || (l.price !== null && l.price <= Number(maxPrice))));
     return rows.sort((a, b) => sort === "low" ? (a.price ?? Infinity) - (b.price ?? Infinity) : sort === "high" ? (b.price ?? -Infinity) - (a.price ?? -Infinity) : Date.parse(b.date) - Date.parse(a.date));
   }, [listings, query, city, kind, maxPrice, sort]);
   const categories = [
     { value: "all", label: tx("All", "Tout"), icon: Store },
+    { value: "food", label: tx("Food", "Cuisine"), icon: UtensilsCrossed },
+    { value: "electronics", label: tx("Electronics", "Électronique"), icon: Smartphone },
+    { value: "fashion", label: tx("Fashion", "Mode"), icon: Shirt },
+    { value: "home", label: tx("Home", "Maison"), icon: Hammer },
+    { value: "events", label: tx("Events", "Événements"), icon: PartyPopper },
+    { value: "health", label: tx("Health", "Santé"), icon: HeartPulse },
+    { value: "pro", label: tx("Pro", "Pro"), icon: Briefcase },
     { value: "property", label: tx("Property", "Immobilier"), icon: House },
     { value: "deal", label: tx("Deals", "Offres"), icon: Tag },
     { value: "service", label: "Services", icon: Sparkles },
   ];
+  const citySuggestions = useMemo(() => Array.from(new Set(listings.map((l) => l.city.trim()).filter(Boolean))).slice(0, 10), [listings]);
   const isLoading = loadingProviders || properties.isLoading || deals.isLoading;
   const hasError = providerError || properties.isError || deals.isError;
   async function onClaim() {
@@ -79,9 +105,9 @@ export function MarketBrowser({ providers, loadingProviders, providerError, hasM
   const listingContent = (l: Listing) => <>
     <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
       {l.image ? <img src={l.image} alt={l.title} loading="lazy" className="size-full object-cover transition-transform duration-200 group-hover:scale-105" /> : <div className="flex size-full flex-col items-center justify-center gap-2 text-muted-foreground"><ImageOff className="size-8" aria-hidden /><span className="text-xs">{tx("No photo", "Sans photo")}</span></div>}
-      <span className="absolute bottom-2 left-2 rounded-md bg-background/95 px-2 py-1 text-[11px] font-semibold text-foreground">{categories.find((c) => c.value === l.kind)?.label}</span>
+      <span className="absolute bottom-2 left-2 rounded-md bg-background/95 px-2 py-1 text-[11px] font-semibold text-foreground">{categories.find((c) => c.value === l.kind)?.label ?? "Services"}</span>
     </div>
-    <div className="space-y-0.5 px-0.5 py-2 text-left"><p className="break-words text-sm font-bold text-foreground sm:text-base">{l.priceLabel}</p><h3 className="line-clamp-2 text-sm font-medium text-foreground">{l.title}</h3><p className="truncate text-xs text-muted-foreground">{l.city || (tx("Location not provided", "Lieu non précisé"))}</p></div>
+    <div className="space-y-0.5 px-0.5 py-2 text-left"><p className="break-words text-sm font-bold text-foreground sm:text-base">{l.priceLabel}</p><h3 className="line-clamp-2 text-sm font-medium text-foreground">{l.title}</h3>{l.kind === "service" && <p className="flex items-center gap-1 text-xs text-muted-foreground"><span className="flex" aria-label={`${(l.rating ?? 0).toFixed(1)} / 5`}>{[1,2,3,4,5].map((n) => <Star key={n} className={cn("size-3", n <= Math.round(l.rating ?? 0) ? "fill-gold text-gold" : "text-muted-foreground/40")} aria-hidden />)}</span>{(l.ratingCount ?? 0) > 0 ? `${(l.rating ?? 0).toFixed(1)} (${l.ratingCount})` : tx("New", "Nouveau")}</p>}<p className="truncate text-xs text-muted-foreground">{l.city || (tx("Location not provided", "Lieu non précisé"))}</p></div>
   </>;
   return <div className="member-market space-y-4">
     <header className="flex items-center justify-between gap-2">
@@ -92,14 +118,15 @@ export function MarketBrowser({ providers, loadingProviders, providerError, hasM
       </div>
     </header>
     <div className="flex gap-2"><div className="relative min-w-0 flex-1"><Search className="pointer-events-none absolute left-3 top-3 size-5 text-muted-foreground" aria-hidden /><Input aria-label={tx("Search Market", "Rechercher dans Market")} placeholder={tx("Search Market", "Rechercher dans Market")} value={query} onChange={(e) => setQuery(e.target.value)} className="h-11 rounded-full bg-muted pl-10" /></div><Button variant="secondary" size="icon" className="size-11 rounded-full" aria-label={tx("Market filters", "Filtres Market")} aria-expanded={filtersOpen} onClick={() => setFiltersOpen(!filtersOpen)}><SlidersHorizontal /></Button></div>
-    <div className="flex gap-2"><Button variant="secondary" className="min-w-0 flex-1 rounded-full" onClick={() => setSellOpen(true)}><Plus className="size-4" />{tx("Sell", "Vendre")}</Button><Button variant="secondary" className="min-w-0 flex-1 rounded-full" onClick={() => setFiltersOpen(!filtersOpen)}><MapPin className="size-4 shrink-0" /><span className="truncate">{city || (tx("Location", "Localisation"))}</span></Button></div>
-    <nav aria-label={tx("Market categories", "Catégories Market")} className="flex gap-2 overflow-x-auto pb-1">{categories.map((c) => <Button key={c.value} variant={kind === c.value ? "default" : "outline"} className="shrink-0 rounded-full" aria-pressed={kind === c.value} onClick={() => setKind(c.value)}><c.icon className="size-4" />{c.label}</Button>)}<Button asChild variant="outline" className="shrink-0 rounded-full" onClick={playTabSound}><Link to="/services/extras"><LayoutGrid className="size-4" />Extras</Link></Button></nav>
+    <div className="flex gap-2"><Button variant="secondary" className="min-w-0 flex-1 rounded-full" onClick={() => setSellOpen(true)}><Plus className="size-4" />{tx("Sell", "Vendre")}</Button><Button variant="secondary" className="min-w-0 flex-1 rounded-full" onClick={() => { setCityDraft(city); setLocOpen(true); }}><MapPin className="size-4 shrink-0" /><span className="truncate">{city || (tx("Location", "Localisation"))}</span></Button></div>
+    <nav aria-label={tx("Market categories", "Catégories Market")} className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none]">{categories.map((c) => <RoundIcon key={c.value} icon={c.icon} label={c.label} active={kind === c.value} onClick={() => setKind(c.value)} />)}<Link to="/services/extras" onClick={playTabSound} className="contents"><RoundIcon icon={LayoutGrid} label="Extras" /></Link></nav>
     {filtersOpen && <section className="grid gap-3 border-y border-border py-4 sm:grid-cols-3" aria-label={tx("Filters", "Filtres")}><div className="space-y-1.5"><Label htmlFor="market-city">{tx("City", "Ville")}</Label><Input id="market-city" value={city} onChange={(e) => setCity(e.target.value)} placeholder={tx("All cities", "Toutes les villes")} /></div><div className="space-y-1.5"><Label htmlFor="market-price">{tx("Maximum price", "Prix maximum")}</Label><Input id="market-price" type="number" min="0" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="XAF" /></div><div className="space-y-1.5"><Label>{tx("Sort", "Trier")}</Label><Select value={sort} onValueChange={setSort}><SelectTrigger aria-label={tx("Sort listings", "Trier les annonces")}><SelectValue /></SelectTrigger><SelectContent><SelectItem value="recent">{tx("Newest first", "Plus récentes")}</SelectItem><SelectItem value="low">{tx("Price: low to high", "Prix croissant")}</SelectItem><SelectItem value="high">{tx("Price: high to low", "Prix décroissant")}</SelectItem></SelectContent></Select></div><Button variant="ghost" className="justify-self-start" onClick={() => { setCity(""); setMaxPrice(""); setSort("recent"); setQuery(""); setKind("all"); }}>{tx("Reset filters", "Réinitialiser")}</Button></section>}
     <div className="flex items-baseline justify-between gap-2 border-t border-border pt-4"><h2 className="text-lg font-bold text-foreground">{query ? (tx("Search results", "Résultats")) : (tx("Today's picks", "À découvrir"))}</h2><span className="text-xs text-muted-foreground">{filtered.length} {tx("listings", "annonces")}</span></div>
     {hasError && <div role="alert" className="flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground"><span>{tx("Some listings could not be loaded.", "Certaines annonces n’ont pas pu être chargées.")}</span><Button variant="outline" size="sm" onClick={() => void queryClient.resetQueries({ predicate: (q) => ["deals", "property", "discovery"].includes(String(q.queryKey[0])) })}>{tx("Retry", "Réessayer")}</Button></div>}
     {isLoading && filtered.length === 0 ? <div className="grid grid-cols-2 gap-3 sm:grid-cols-3" aria-label={tx("Loading listings", "Chargement des annonces")}>{[0,1,2,3].map((i) => <div key={i} className="aspect-square animate-pulse rounded-lg bg-muted" />)}</div> : filtered.length === 0 ? <div className="flex flex-col items-center gap-3 py-14 text-center"><Store className="size-10 text-muted-foreground" aria-hidden /><h3 className="font-semibold text-foreground">{tx("No listings found", "Aucune annonce trouvée")}</h3><Button variant="outline" onClick={() => { setQuery(""); setCity(""); setMaxPrice(""); setKind("all"); }}>{tx("Show all listings", "Voir toutes les annonces")}</Button></div> : <div className="grid grid-cols-2 gap-x-3 gap-y-4 sm:grid-cols-3 xl:grid-cols-4">{filtered.map((l) => l.kind === "property" ? <Link key={`property-${l.id}`} to="/property/$listingId" params={{ listingId: l.id }} className="group min-w-0">{listingContent(l)}</Link> : l.kind === "service" ? <Link key={`service-${l.id}`} to="/services/$providerId" params={{ providerId: l.id }} className="group min-w-0">{listingContent(l)}</Link> : <Button key={`deal-${l.id}`} variant="ghost" onClick={() => setSelected(l.deal ?? null)} className="group block h-auto min-w-0 whitespace-normal p-0 hover:bg-transparent">{listingContent(l)}</Button>)}</div>}
     {hasMore && (kind === "all" || kind === "service") && <Button variant="outline" className="w-full" disabled={loadingMore} onClick={loadMore}>{loadingMore ? (tx("Loading…", "Chargement…")) : (tx("More services", "Plus de services"))}</Button>}
-    <Dialog open={sellOpen} onOpenChange={setSellOpen}><DialogContent><DialogHeader><DialogTitle>{tx("Create a listing", "Créer une annonce")}</DialogTitle><DialogDescription>{tx("What would you like to offer?", "Que souhaitez-vous proposer ?")}</DialogDescription></DialogHeader><div className="grid gap-3"><Button asChild variant="outline" onClick={() => setSellOpen(false)}><Link to="/property/new"><House />{tx("A property", "Un bien immobilier")}</Link></Button><Button asChild variant="outline" onClick={() => setSellOpen(false)}><Link to="/create"><Tag />{tx("A deal", "Une offre")}</Link></Button><Button asChild variant="outline" onClick={() => setSellOpen(false)}><Link to="/studio"><Sparkles />{tx("My services", "Mes services")}</Link></Button></div></DialogContent></Dialog>
+    <BlurModal open={sellOpen} onOpenChange={setSellOpen} title={tx("What are you selling?", "Que vendez-vous ?")}><div className="grid grid-cols-3 justify-items-center gap-4">{([{ to: "/property/new", icon: House, label: tx("Property", "Immobilier") }, { to: "/create", icon: Tag, label: tx("Deal", "Offre") }, { to: "/studio", icon: Sparkles, label: tx("Service", "Service") }, { to: "/studio", icon: UtensilsCrossed, label: tx("Food", "Cuisine") }, { to: "/studio", icon: Smartphone, label: tx("Electronics", "Électronique") }, { to: "/studio", icon: Shirt, label: tx("Fashion", "Mode") }] as const).map((o, i) => <Link key={o.label} to={o.to} onClick={() => setSellOpen(false)} className="contents"><RoundIcon icon={o.icon} label={o.label} delay={i * 70} /></Link>)}</div></BlurModal>
+    <BlurModal open={locOpen} onOpenChange={setLocOpen} title={tx("Change location", "Changer de lieu")}><div className="space-y-4"><div className="relative"><MapPin className="pointer-events-none absolute left-3 top-3 size-5 text-muted-foreground" aria-hidden /><Input autoFocus aria-label={tx("City", "Ville")} value={cityDraft} onChange={(e) => setCityDraft(e.target.value)} placeholder={tx("Search a city", "Rechercher une ville")} className="h-11 rounded-full bg-muted pl-10" onKeyDown={(e) => { if (e.key === "Enter") { setCity(cityDraft.trim()); setLocOpen(false); } }} /></div>{citySuggestions.length > 0 && <div className="flex flex-wrap gap-2">{citySuggestions.map((c) => <Button key={c} size="sm" variant={cityDraft === c ? "default" : "outline"} className="rounded-full" onClick={() => setCityDraft(c)}>{c}</Button>)}</div>}<div className="flex gap-2"><Button variant="ghost" className="flex-1 rounded-full" onClick={() => { setCity(""); setLocOpen(false); }}>{tx("All locations", "Tous les lieux")}</Button><Button className="flex-1 rounded-full" onClick={() => { setCity(cityDraft.trim()); setLocOpen(false); }}>{tx("Save", "Enregistrer")}</Button></div></div></BlurModal>
     <Dialog open={Boolean(selected)} onOpenChange={(open) => { if (!open) setSelected(null); }}><DialogContent><DialogHeader><DialogTitle>{selected?.title}</DialogTitle><DialogDescription>{selected?.city ?? selected?.country}</DialogDescription></DialogHeader><p className="text-2xl font-bold text-foreground">{selected ? formatXAF(selected.deal_price) : ""}</p><p className="whitespace-pre-wrap text-sm text-muted-foreground">{selected?.description}</p><Button disabled={claiming || !selected || selected.claimed_count >= selected.claim_limit} onClick={() => void onClaim()}>{claiming ? (tx("Claiming…", "Traitement…")) : (tx("Claim deal", "Réclamer l’offre"))}</Button><Button asChild variant="outline"><Link to="/deals">{tx("My deals & codes", "Mes offres et codes")}</Link></Button></DialogContent></Dialog>
   </div>;
 }
