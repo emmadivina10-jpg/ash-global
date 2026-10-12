@@ -212,7 +212,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       <PushBridge />
       <WelcomeIntro />
       <SwipeBack />
-      <ScreenSlide />
       <div className="app-shell-frame flex w-full">
 
         <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col overflow-y-auto overscroll-contain border-r border-border bg-sidebar p-5 lg:flex">
