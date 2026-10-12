@@ -3,10 +3,12 @@ import { Camera, Loader2, User } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { verifyMediaFiles } from "@/lib/media-safety";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { reviewIdentityPhoto } from "@/lib/identity.functions";
 import { announceIdentityDenial, IDENTITY_DENIED } from "@/lib/identity-client";
+import { useI18n } from "@/lib/i18n";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const avatarUrlCache = new Map<string, { url: string; expiresAt: number }>();
@@ -169,7 +171,7 @@ export function AvatarUpload({
   return (
     <div className="flex items-center gap-4">
       <div className="relative">
-        <Avatar path={path} name={name} online={online} className="size-20 ring-2 ring-border" />
+        <AvatarPhoto path={path} name={name} online={online} className="size-20 ring-2 ring-border" />
         {busy ? (
           <span className="absolute inset-0 grid place-items-center rounded-full bg-foreground/50">
             <Loader2 className="size-5 animate-spin text-background" aria-hidden />
@@ -186,5 +188,66 @@ export function AvatarUpload({
         <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={pick} />
       </div>
     </div>
+  );
+}
+
+/**
+ * An avatar the member can tap to open the photo full-screen. Without a
+ * stored photo it renders the plain avatar and is not clickable.
+ */
+export function AvatarPhoto({
+  path,
+  name,
+  online,
+  hasUpdate,
+  className,
+}: {
+  path: string | null | undefined;
+  name?: string | null | undefined;
+  online?: boolean | undefined;
+  hasUpdate?: boolean | undefined;
+  className?: string | undefined;
+}) {
+  const { tx } = useI18n();
+  const [open, setOpen] = useState(false);
+  const url = useAvatarUrl(open ? path : null);
+  const label = tx("View profile photo", "Voir la photo de profil");
+
+  const avatar = <Avatar path={path} name={name} online={online} hasUpdate={hasUpdate} className={className} />;
+
+  return (
+    <>
+      {path ? (
+        <button
+          type="button"
+          aria-label={label}
+          title={label}
+          onClick={() => setOpen(true)}
+          className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {avatar}
+        </button>
+      ) : (
+        avatar
+      )}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent
+          aria-describedby={undefined}
+          overlayClassName="bg-foreground/40 backdrop-blur-md duration-300 motion-reduce:animate-none"
+          className="grid h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-none place-items-center overflow-hidden border-0 bg-transparent p-0 shadow-none duration-300 motion-reduce:animate-none"
+        >
+          <DialogTitle className="sr-only">{name ?? tx("Profile photo", "Photo de profil")}</DialogTitle>
+          {url ? (
+            <img
+              src={url}
+              alt={name ?? tx("Profile photo", "Photo de profil")}
+              className="size-[min(80vw,70dvh)] max-w-none rounded-full object-cover shadow-raised"
+            />
+          ) : (
+            <Loader2 className="size-8 animate-spin text-primary" aria-hidden />
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
