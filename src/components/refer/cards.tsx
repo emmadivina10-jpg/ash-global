@@ -53,7 +53,7 @@ export function BalanceCard({
   amount: string;
   footer?: ReactNode;
   action?: ReactNode;
-  holder?: string;
+  holder?: string | undefined;
   last4?: string;
   gold?: boolean;
 }) {

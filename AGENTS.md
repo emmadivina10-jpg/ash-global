@@ -26,7 +26,7 @@
 - All payments record on payment_transactions (service-role, deny-all) and settle only via settleCollection; bank rows succeed only by Finance confirmation. Wallet money is per currency: XAF (Mobile Money) in wallets, card money in wallet_balances at Stripe's settled currency; withdrawals use request_wallet_withdrawal; UI helpers in wallet-currency.ts. Why: exactly-once credit, no cross-rail payouts or conversions shown as balances.
 - Booking commission rate lives in marketplace_settings, changed only via commission.functions.ts (REVENUE/CEO, audit-logged); paid bookings keep the rate saved at payment. Trip arrival times come from trip-eta.functions.ts (Routes API via the Maps connector, only for booking parties). Why: historical earnings never change and Maps calls stay bounded.
 
-- Staff console rules (staff identity, cases, chat, boards, console theme) live in src/components/console/AGENTS.md.
+- Read nested AGENTS.md before editing subdirectories. Why: scoped security rules.
 - Staff metrics share member-insights.functions.ts; member-review.server.ts authorizes/audits account review; staff AI threads use service-only storage. Why: consistent numbers, no impersonation or history leaks.
 - Human Support reuses support.functions.ts and ticket/read records; support-state.ts owns notifications; AI chat stays separate. Why: no duplicate messaging or schema.
 - Checkout uses payment-return.ts allowlist; CompassSurface owns Map/Wallet (TrackingDock/AshOrb). PullToRefresh handles content-only vertical gestures, excluding controls/cancels. Why: safe returns, no drag conflicts.
@@ -41,4 +41,6 @@
 - WalletPayoutSetup reuses guarded Stripe Connect; PayoutSetupReminder saves account-scoped opt-out/cadence locally. Why: visible setup, no card collection or restricted payouts.
 - WebsiteAppShowcase stays separate from MobileOnboarding; use only confirmed store links. Why: preserve native entry and honest downloads.
 - Member Investment/currencies are display-only, separate from staff equity records. Why: protect funds.
-- LegalDocument shares payment disclosures; store docs distinguish code from release evidence. Why: truthful claims.
+- LegalDocument shares payment disclosures. Why: truthful claims.
+
+- Marketplace resolves seller/member chats before creating threads; lookup failures stop creation. Why: preserve history.

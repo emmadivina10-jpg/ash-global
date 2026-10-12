@@ -92,13 +92,15 @@ export async function openMemberConversation(memberId: string | null | undefined
   const me = auth.user?.id;
   if (!me || me === otherId) return null;
 
-  const { data: existing } = await supabase
+  const { data: existing, error: lookupError } = await supabase
     .from("conversations")
     .select("id")
     .is("group_id", null)
     .or(`and(client_id.eq.${me},owner_id.eq.${otherId}),and(client_id.eq.${otherId},owner_id.eq.${me})`)
-    .maybeSingle();
-  if (existing?.id) return existing.id;
+    .order("last_message_at", { ascending: false, nullsFirst: false })
+    .limit(1);
+  if (lookupError) throw lookupError;
+  if (existing?.[0]?.id) return existing[0].id;
 
   const { data: created, error } = await supabase
     .from("conversations")
