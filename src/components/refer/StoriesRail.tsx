@@ -306,7 +306,7 @@ export async function loadSpotlights(): Promise<SpotlightPost[]> {
   });
 }
 
-export function StoriesRail({ viewerRequest, onViewerClose, compact = false }: { compact?: boolean; viewerRequest?: { authorId: string; kind: "story" | "spotlight" }; onViewerClose?: () => void } = {}) {
+export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolean; viewerRequest?: { authorId: string; kind: "story" | "spotlight" }; onViewerClose?: () => void } = {}) {
   const { user } = useUser();
   const me = user?.id ?? null;
   const queryClient = useQueryClient();
@@ -1063,7 +1063,7 @@ export function StoriesRail({ viewerRequest, onViewerClose, compact = false }: {
                   <Button variant="ghost"
                     type="button"
                     onClick={() => chooseMode("story")}
-                    className="rounded-lg border border-border bg-card p-4 text-left shadow-sm transition-transform active:scale-[0.98]"
+                     className="block h-auto whitespace-normal rounded-lg border border-border bg-card p-4 text-left shadow-sm transition-transform active:scale-[0.98]"
                   >
                     <span className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary">
                       <Camera className="size-5" />
@@ -1076,7 +1076,7 @@ export function StoriesRail({ viewerRequest, onViewerClose, compact = false }: {
                   <Button variant="ghost"
                     type="button"
                     onClick={() => chooseMode("spotlight")}
-                    className="rounded-lg border border-gold/25 bg-gold/10 p-4 text-left shadow-sm transition-transform active:scale-[0.98]"
+                     className="block h-auto whitespace-normal rounded-lg border border-gold/25 bg-gold/10 p-4 text-left shadow-sm transition-transform active:scale-[0.98]"
                   >
                     <span className="grid size-11 place-items-center rounded-full bg-gold text-gold-foreground">
                       <Sparkles className="size-5" />
