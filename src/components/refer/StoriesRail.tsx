@@ -305,7 +305,7 @@ export async function loadSpotlights(): Promise<SpotlightPost[]> {
   });
 }
 
-export function StoriesRail({ viewerRequest, onViewerClose }: { viewerRequest?: { authorId: string; kind: "story" | "spotlight" }; onViewerClose?: () => void } = {}) {
+export function StoriesRail({ viewerRequest, onViewerClose, compact = false }: { compact?: boolean; viewerRequest?: { authorId: string; kind: "story" | "spotlight" }; onViewerClose?: () => void } = {}) {
   const { user } = useUser();
   const me = user?.id ?? null;
   const queryClient = useQueryClient();
@@ -879,13 +879,13 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { viewerRequest?: 
 
   return (
     <>
-      <section className="-mx-1" hidden={Boolean(viewerRequest)} aria-label="ASH Stories and Spotlight">
+      <section className={compact ? "-mx-1 [&_.rail-tile]:h-40 [&_.rail-tile]:w-[104px]" : "-mx-1"} hidden={Boolean(viewerRequest)} aria-label="ASH Stories and Spotlight">
         <div className="flex gap-3 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {/* The original Facebook-style Create card: user profile behind the lower half + plus at the seam. */}
           <button
             type="button"
             onClick={openCreate}
-            className="relative h-52 w-[120px] shrink-0 overflow-visible rounded-[22px] border border-border bg-card text-left shadow-sm transition-transform active:scale-[0.98]"
+            className="rail-tile relative h-52 w-[120px] shrink-0 overflow-visible rounded-[22px] border border-border bg-card text-left shadow-sm transition-transform active:scale-[0.98]"
             aria-label="Create Story or Spotlight"
           >
             <div className="absolute inset-x-0 top-0 z-0 h-[70%] overflow-hidden rounded-t-[22px] bg-muted">
@@ -910,7 +910,7 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { viewerRequest?: 
 
           {storiesLoading
             ? [0, 1, 2].map((item) => (
-                <div key={item} className="h-52 w-[120px] shrink-0 animate-pulse rounded-[24px] bg-muted" />
+                <div key={item} className="rail-tile h-52 w-[120px] shrink-0 animate-pulse rounded-[24px] bg-muted" />
               ))
             : null}
 
@@ -929,7 +929,7 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { viewerRequest?: 
                       const latestIndex = Math.max(0, (group?.stories.length ?? 1) - 1);
                       openStory(groupIndex, latestIndex);
                     }}
-                    className="group relative h-52 w-[120px] shrink-0 overflow-hidden rounded-[24px] border border-border bg-black text-left shadow-sm transition-transform active:scale-[0.98]"
+                    className="group rail-tile relative h-52 w-[120px] shrink-0 overflow-hidden rounded-[24px] border border-border bg-black text-left shadow-sm transition-transform active:scale-[0.98]"
                   >
                     {storyIsVideo ? (
                       <video
@@ -987,7 +987,7 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { viewerRequest?: 
                   key={`spotlight-${spotlight.id}`}
                   type="button"
                   onClick={() => openSpotlight(spotlights.findIndex((post) => post.id === spotlight.id))}
-                  className="group relative h-52 w-[120px] shrink-0 overflow-hidden rounded-[24px] border border-[#D4AF37]/30 bg-black text-left shadow-sm transition-transform active:scale-[0.98]"
+                  className="group rail-tile relative h-52 w-[120px] shrink-0 overflow-hidden rounded-[24px] border border-[#D4AF37]/30 bg-black text-left shadow-sm transition-transform active:scale-[0.98]"
                 >
                   {spotlightVideo ? (
                     <video
