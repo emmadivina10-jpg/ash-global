@@ -24,7 +24,7 @@ export function ScreenSlide() {
     });
     return () => {
       unsubscribe();
-      router.update({ ...router.options, defaultViewTransition: previousDefault });
+      router.update({ ...router.options, defaultViewTransition: previousDefault ?? false });
       delete document.documentElement.dataset['memberSlide'];
     };
   }, [router]);
