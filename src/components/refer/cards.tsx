@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 export function StatCard({
   label,
@@ -45,7 +46,7 @@ export function BalanceCard({
   footer,
   action,
   holder,
-  last4 = "8412",
+  last4,
   gold = false,
 }: {
   label: string;
@@ -56,55 +57,32 @@ export function BalanceCard({
   last4?: string;
   gold?: boolean;
 }) {
+  const { tx } = useI18n();
   return (
-    <div className={cn(gold ? "virtual-card-gold" : "virtual-card", "grain p-5 sm:p-7")}>
-      <div
-        className={cn(
-          "pointer-events-none absolute -right-24 -top-28 size-72 rounded-full blur-3xl",
-          gold ? "bg-white/25" : "bg-gold/20",
-        )}
-        aria-hidden
-      />
-
+    <div className={cn(gold ? "virtual-card-gold" : "virtual-card", "p-5 sm:p-7")}>
       <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
           <p
-            className={cn(
-              "eyebrow",
-              gold
-                ? "text-[color:oklch(0.28_0.05_75_/_0.75)]"
-                : "text-[color:oklch(0.98_0.004_285_/_0.6)]",
-            )}
+            className="text-xs font-medium opacity-70"
           >
             {label}
           </p>
           <p
-            className={cn(
-              "tabular mt-2 font-display text-[2rem] font-extrabold leading-none sm:text-[2.75rem]",
-              gold && "text-[color:oklch(0.22_0.04_70)] drop-shadow-[0_1px_0_oklch(1_0_0_/_35%)]",
-            )}
+            className="tabular mt-2 break-words font-display text-3xl font-semibold leading-tight sm:text-4xl"
           >
             {amount}
           </p>
         </div>
         <div className="text-right">
           <span
-            className={cn(
-              "font-display text-sm font-extrabold tracking-[0.22em]",
-              gold && "text-[color:oklch(0.28_0.05_75)]",
-            )}
+            className="font-display text-lg font-extrabold"
           >
             ASH
           </span>
           <span
-            className={cn(
-              "mt-1 block rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.16em] opacity-90",
-              gold
-                ? "border-[color:oklch(0.3_0.05_70_/_0.35)] bg-[oklch(1_0_0_/_0.30)] text-[color:oklch(0.3_0.05_72)]"
-                : "border-[color:oklch(1_0_0_/_0.22)] bg-[oklch(0_0_0_/_0.28)]",
-            )}
+            className="mt-1 block text-[10px] font-medium opacity-60"
           >
-            {gold ? "Gold" : "Card coming soon"}
+            GLO
           </span>
         </div>
       </div>
@@ -121,28 +99,24 @@ export function BalanceCard({
         </svg>
       </div>
 
-      <p className="tabular relative mt-4 text-lg font-semibold tracking-[0.22em] sm:text-xl">
-        •••• •••• •••• {last4}
+      <p className="tabular relative mt-4 text-lg font-medium sm:text-xl">
+        {last4 ? `•••• •••• •••• ${last4}` : "ASH Card"}
       </p>
 
       <div
-        className={cn(
-          "relative mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3",
-          gold && "text-[color:oklch(0.26_0.05_72)]",
-        )}
+        className="relative mt-5 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3"
       >
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] opacity-55">Card holder</p>
-          <p className="truncate text-sm font-semibold uppercase tracking-wide">{holder ?? "Profile"}</p>
+          <p className="text-[10px] font-medium opacity-60">{tx("Account holder", "Titulaire")}</p>
+          <p className="truncate text-sm font-semibold">{holder ?? tx("Profile", "Profil")}</p>
         </div>
         <div className="text-right">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] opacity-55">Valid thru</p>
-          <p className="tabular text-sm font-semibold">∞</p>
+          <p className="text-sm font-semibold opacity-70">ASH GLO</p>
         </div>
       </div>
 
       {footer ? (
-        <div className="relative mt-6 border-t border-[color:oklch(1_0_0_/_0.12)] pt-4 text-sm opacity-90">
+        <div className="relative mt-6 border-t border-current/15 pt-4 text-sm opacity-90">
           {footer}
         </div>
       ) : null}
