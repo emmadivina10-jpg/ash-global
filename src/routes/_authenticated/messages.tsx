@@ -451,14 +451,14 @@ function MessagesPage() {
     if (conv.listing_id) {
       const viewerIsOwner = Boolean(user?.id) && conv.owner_id === user?.id;
 
-      return viewerIsOwner ? (conv.client?.avatar_url ?? null) : null;
+      return viewerIsOwner ? (conv.client?.avatar_url ?? null) : (conv.owner?.avatar_url ?? null);
     }
 
     const viewerIsProvider = Boolean(user?.id) && conv.provider?.user_id === user?.id;
 
     return viewerIsProvider
       ? (conv.client?.avatar_url ?? null)
-      : (conv.provider?.avatar_url ?? null);
+      : (conv.provider?.avatar_url ?? conv.owner?.avatar_url ?? null);
   }
 
   function peerStateOf(conv: (typeof list)[number]) {

@@ -263,6 +263,7 @@ export function useConversations() {
       const clientIds = [
         ...new Set([
           ...rows.map((r) => r.client_id),
+          ...rows.map((r) => r.provider?.user_id).filter(Boolean),
           ...rows.map((r) => (r as { owner_id?: string | null }).owner_id).filter(Boolean),
         ]),
       ] as string[];
@@ -307,7 +308,7 @@ export function useConversations() {
       }
 
       return rows.map((row) => {
-        const ownerId = (row as { owner_id?: string | null }).owner_id ?? null;
+        const ownerId = (row as { owner_id?: string | null }).owner_id ?? row.provider?.user_id ?? null;
         return {
           ...row,
           client: clients[row.client_id] ?? { full_name: "Profile", avatar_url: null },
