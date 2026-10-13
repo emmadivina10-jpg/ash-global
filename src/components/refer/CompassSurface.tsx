@@ -74,31 +74,47 @@ export function CompassSurface({
     };
   }, [visible]);
 
+  const live = useRef(offset);
+  live.current = drag.current ? live.current : offset;
+  const base = useRef({ x: 0, y: 0 });
+
   function pointerDown(event: PointerEvent<HTMLButtonElement>) {
     moved.current = false;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    base.current = { x: bounds.left - offset.x, y: bounds.top - offset.y };
+    live.current = offset;
     drag.current = { px: event.clientX, py: event.clientY, x: offset.x, y: offset.y, moved: false };
     event.currentTarget.setPointerCapture(event.pointerId);
   }
   function pointerMove(event: PointerEvent<HTMLButtonElement>) {
     const start = drag.current;
     if (!start) return;
+    event.preventDefault();
     const dx = event.clientX - start.px;
     const dy = event.clientY - start.py;
     if (!start.moved && Math.hypot(dx, dy) < 6) return;
     start.moved = true;
     moved.current = true;
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const baseX = bounds.left - offset.x;
-    const baseY = bounds.top - offset.y;
-    setOffset({
-      x: Math.max(12 - baseX, Math.min(window.innerWidth - 84 - baseX, start.x + dx)),
-      y: Math.max(48 - baseY, Math.min(window.innerHeight - 152 - baseY, start.y + dy)),
-    });
+    const next = {
+      x: Math.max(
+        12 - base.current.x,
+        Math.min(window.innerWidth - 84 - base.current.x, start.x + dx),
+      ),
+      y: Math.max(
+        48 - base.current.y,
+        Math.min(window.innerHeight - 152 - base.current.y, start.y + dy),
+      ),
+    };
+    live.current = next;
+    // Move directly each frame; commit to React state only when released.
+    if (wrapper.current)
+      wrapper.current.style.transform = `translate3d(${next.x}px, ${next.y}px, 0)`;
   }
   function pointerUp(event: PointerEvent<HTMLButtonElement>) {
     if (drag.current?.moved) {
+      setOffset(live.current);
       try {
-        window.localStorage.setItem("ash-compass-position", JSON.stringify(offset));
+        window.localStorage.setItem("ash-compass-position", JSON.stringify(live.current));
       } catch {
         /* Storage is optional. */
       }
