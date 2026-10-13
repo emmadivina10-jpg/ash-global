@@ -72,6 +72,9 @@ function Landing() {
   const navigate = useNavigate();
   const [downloadOpen, setDownloadOpen] = useState(false);
   const [isPhone, setIsPhone] = useState(false);
+  // Unknown until the stored session is read: signed-in members must never
+  // see the onboarding screen flash before they are taken to the Feed.
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (typeof window.matchMedia !== "function") return;
@@ -89,7 +92,10 @@ function Landing() {
     void supabase.auth.getSession().then(({ data }) => {
       if (cancelled) return;
       if (data.session?.user) {
+        setSignedIn(true);
         void navigate({ to: "/feed", replace: true });
+      } else {
+        setSignedIn(false);
       }
     });
     return () => {
@@ -101,7 +107,7 @@ function Landing() {
     return (
       <>
         {isNativeApp() && <WelcomeIntro />}
-        <MobileOnboarding />
+        {signedIn === false && <MobileOnboarding />}
       </>
     );
 
