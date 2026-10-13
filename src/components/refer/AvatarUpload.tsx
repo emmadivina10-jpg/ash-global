@@ -68,24 +68,39 @@ export async function resolveAvatarUrl(path: string) {
 }
 
 /** Resolves a stored avatar path to a temporary viewable URL. */
+function cachedAvatarUrl(path: string | null | undefined) {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  const cached = avatarUrlCache.get(path);
+  return cached && cached.expiresAt > Date.now() ? cached.url : null;
+}
+
 export function useAvatarUrl(path: string | null | undefined) {
-  const [url, setUrl] = useState<string | null>(null);
+  // The resolved URL is tied to the path it belongs to, so a reused avatar
+  // never shows the previous person's photo while the new one loads.
+  const [state, setState] = useState<{ path: string | null; url: string | null }>(() => ({
+    path: path ?? null,
+    url: cachedAvatarUrl(path),
+  }));
 
   useEffect(() => {
     let cancelled = false;
-    if (!path) {
-      setUrl(null);
+    if (!path) return;
+    const hit = cachedAvatarUrl(path);
+    if (hit) {
+      setState({ path, url: hit });
       return;
     }
     void resolveAvatarUrl(path).then((next) => {
-      if (!cancelled) setUrl(next);
+      if (!cancelled) setState({ path, url: next });
     });
     return () => {
       cancelled = true;
     };
   }, [path]);
 
-  return url;
+  if (!path) return null;
+  return state.path === path ? state.url : cachedAvatarUrl(path);
 }
 
 export function Avatar({
