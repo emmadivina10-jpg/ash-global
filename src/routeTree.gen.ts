@@ -141,6 +141,7 @@ import { Route as AuthenticatedCleanOrdersOrderIdRouteImport } from './routes/_a
 import { Route as AuthenticatedCleanReceiptOrderIdRouteImport } from './routes/_authenticated/clean.receipt.$orderId'
 import { Route as AuthenticatedMarketsInstructorsInstructorIdRouteImport } from './routes/_authenticated/markets.instructors.$instructorId'
 import { Route as AuthenticatedMarketsUpdateMarketPostIdRouteImport } from './routes/_authenticated/markets.update.$marketPostId'
+import { Route as ApiPublicProfilesUsernameRouteImport } from './routes/api/public/profiles/$username'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 import { Route as ApiPublicWebhooksStripeFlightsRouteImport } from './routes/api/public/webhooks/stripe-flights'
 import { Route as ApiPublicWebhooksTchokopayRouteImport } from './routes/api/public/webhooks/tchokopay'
@@ -843,6 +844,12 @@ const AuthenticatedMarketsUpdateMarketPostIdRoute =
     path: '/markets/update/$marketPostId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicProfilesUsernameRoute =
+  ApiPublicProfilesUsernameRouteImport.update({
+    id: '/api/public/profiles/$username',
+    path: '/api/public/profiles/$username',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWebhooksStripeRoute = ApiPublicWebhooksStripeRouteImport.update({
   id: '/api/public/webhooks/stripe',
   path: '/api/public/webhooks/stripe',
@@ -1008,6 +1015,7 @@ export interface FileRoutesByFullPath {
   '/clean/receipt/$orderId': typeof AuthenticatedCleanReceiptOrderIdRoute
   '/markets/instructors/$instructorId': typeof AuthenticatedMarketsInstructorsInstructorIdRoute
   '/markets/update/$marketPostId': typeof AuthenticatedMarketsUpdateMarketPostIdRoute
+  '/api/public/profiles/$username': typeof ApiPublicProfilesUsernameRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/api/public/webhooks/stripe-flights': typeof ApiPublicWebhooksStripeFlightsRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
@@ -1146,6 +1154,7 @@ export interface FileRoutesByTo {
   '/clean/receipt/$orderId': typeof AuthenticatedCleanReceiptOrderIdRoute
   '/markets/instructors/$instructorId': typeof AuthenticatedMarketsInstructorsInstructorIdRoute
   '/markets/update/$marketPostId': typeof AuthenticatedMarketsUpdateMarketPostIdRoute
+  '/api/public/profiles/$username': typeof ApiPublicProfilesUsernameRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/api/public/webhooks/stripe-flights': typeof ApiPublicWebhooksStripeFlightsRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
@@ -1287,6 +1296,7 @@ export interface FileRoutesById {
   '/_authenticated/clean/receipt/$orderId': typeof AuthenticatedCleanReceiptOrderIdRoute
   '/_authenticated/markets/instructors/$instructorId': typeof AuthenticatedMarketsInstructorsInstructorIdRoute
   '/_authenticated/markets/update/$marketPostId': typeof AuthenticatedMarketsUpdateMarketPostIdRoute
+  '/api/public/profiles/$username': typeof ApiPublicProfilesUsernameRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/api/public/webhooks/stripe-flights': typeof ApiPublicWebhooksStripeFlightsRoute
   '/api/public/webhooks/tchokopay': typeof ApiPublicWebhooksTchokopayRoute
@@ -1428,6 +1438,7 @@ export interface FileRouteTypes {
     | '/clean/receipt/$orderId'
     | '/markets/instructors/$instructorId'
     | '/markets/update/$marketPostId'
+    | '/api/public/profiles/$username'
     | '/api/public/webhooks/stripe'
     | '/api/public/webhooks/stripe-flights'
     | '/api/public/webhooks/tchokopay'
@@ -1566,6 +1577,7 @@ export interface FileRouteTypes {
     | '/clean/receipt/$orderId'
     | '/markets/instructors/$instructorId'
     | '/markets/update/$marketPostId'
+    | '/api/public/profiles/$username'
     | '/api/public/webhooks/stripe'
     | '/api/public/webhooks/stripe-flights'
     | '/api/public/webhooks/tchokopay'
@@ -1706,6 +1718,7 @@ export interface FileRouteTypes {
     | '/_authenticated/clean/receipt/$orderId'
     | '/_authenticated/markets/instructors/$instructorId'
     | '/_authenticated/markets/update/$marketPostId'
+    | '/api/public/profiles/$username'
     | '/api/public/webhooks/stripe'
     | '/api/public/webhooks/stripe-flights'
     | '/api/public/webhooks/tchokopay'
@@ -1745,6 +1758,7 @@ export interface RootRouteChildren {
   ApiPublicCleanupStoriesRoute: typeof ApiPublicCleanupStoriesRoute
   ApiPublicReconcileActivationsRoute: typeof ApiPublicReconcileActivationsRoute
   ApiPublicSecuritySelfcheckRoute: typeof ApiPublicSecuritySelfcheckRoute
+  ApiPublicProfilesUsernameRoute: typeof ApiPublicProfilesUsernameRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
   ApiPublicWebhooksStripeFlightsRoute: typeof ApiPublicWebhooksStripeFlightsRoute
   ApiPublicWebhooksTchokopayRoute: typeof ApiPublicWebhooksTchokopayRoute
@@ -2679,6 +2693,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMarketsUpdateMarketPostIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/profiles/$username': {
+      id: '/api/public/profiles/$username'
+      path: '/api/public/profiles/$username'
+      fullPath: '/api/public/profiles/$username'
+      preLoaderRoute: typeof ApiPublicProfilesUsernameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/stripe': {
       id: '/api/public/webhooks/stripe'
       path: '/api/public/webhooks/stripe'
@@ -2987,6 +3008,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCleanupStoriesRoute: ApiPublicCleanupStoriesRoute,
   ApiPublicReconcileActivationsRoute: ApiPublicReconcileActivationsRoute,
   ApiPublicSecuritySelfcheckRoute: ApiPublicSecuritySelfcheckRoute,
+  ApiPublicProfilesUsernameRoute: ApiPublicProfilesUsernameRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
   ApiPublicWebhooksStripeFlightsRoute: ApiPublicWebhooksStripeFlightsRoute,
   ApiPublicWebhooksTchokopayRoute: ApiPublicWebhooksTchokopayRoute,
