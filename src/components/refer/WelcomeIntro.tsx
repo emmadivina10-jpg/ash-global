@@ -27,7 +27,7 @@ const useIsoLayoutEffect = typeof document === "undefined" ? useEffect : useLayo
  * with the small "from ASH GLO" writing below it. It is the app's opening
  * paint (rendered on the server too, so it never flashes) and holds only for
  * as long as the app needs to be ready — a very short minimum so members
- * never wait. The large glossy mark is never used here.
+ * never wait. The official logo remains compact and centered with its caption.
  */
 export function WelcomeIntro({ onDone }: { onDone?: () => void }) {
   // The opening is part of the server-rendered first paint; sessions that
