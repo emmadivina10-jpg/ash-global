@@ -119,7 +119,7 @@ function Landing() {
   if (isNativeApp() || isPhone)
     return (
       <>
-        {isNativeApp() && <WelcomeIntro />}
+        <WelcomeIntro />
         {signedIn === false && <MobileOnboarding />}
       </>
     );
@@ -129,14 +129,26 @@ function Landing() {
   if (signedIn !== false)
     return (
       <div className="grid min-h-dvh place-items-center bg-background">
-        <span className="self-end pb-[calc(2.5rem+env(safe-area-inset-bottom))] text-sm font-semibold text-muted-foreground">
-          from ASH GLO
+        <span className="flex flex-col items-center gap-1 self-end pb-[calc(2.5rem+env(safe-area-inset-bottom))]">
+          <img
+            src={ashLogo.url}
+            alt="ASH"
+            className="mb-2.5 size-12 rounded-[24%] shadow-[0_6px_28px_rgba(0,0,0,0.45)]"
+          />
+          <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+            from
+          </span>
+          <span className="font-display text-sm font-extrabold tracking-[0.18em] text-foreground">
+            ASH GLO
+          </span>
         </span>
       </div>
     );
 
   return (
-    <div className="ash-entry safe-top relative min-h-dvh overflow-hidden bg-background">
+    <>
+      <WelcomeIntro />
+      <div className="ash-entry safe-top relative min-h-dvh overflow-hidden bg-background">
       <div className="relative mx-auto flex min-h-dvh w-full max-w-6xl flex-col px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1rem+env(safe-area-inset-top))] lg:px-10">
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
