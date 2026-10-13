@@ -1083,14 +1083,12 @@ function SellerMessageBox({
       const id = await openConversation(providerId);
       const { data: auth } = await supabase.auth.getUser();
       if (!id || !auth.user) throw new Error("no conversation");
-      const { error } = await supabase
-        .from("messages")
-        .insert({
-          conversation_id: id,
-          sender_id: auth.user.id,
-          body,
-          metadata: { source: "ash_listing_quick_message", subject: businessName },
-        });
+      const { error } = await supabase.from("messages").insert({
+        conversation_id: id,
+        sender_id: auth.user.id,
+        body,
+        metadata: { source: "ash_listing_quick_message", subject: businessName },
+      });
       if (error) throw error;
       toast.success(tx("Message sent", "Message envoyé"));
       void navigate({ to: "/messages", search: { c: id } });

@@ -538,15 +538,13 @@ export const disputeTransaction = createServerFn({ method: "POST" })
       })
       .select("id")
       .single();
-    await db
-      .from("staff_notifications")
-      .insert({
-        department: "REVENUE",
-        type: "SECURITY_DISPUTE",
-        title: `Security hold on ${data.kind.toLowerCase()} ${data.ref}`,
-        body: `${data.reason} — Cybersecurity (${actor.name}). Do not settle until reviewed.`,
-        link: "/console/cases",
-      });
+    await db.from("staff_notifications").insert({
+      department: "REVENUE",
+      type: "SECURITY_DISPUTE",
+      title: `Security hold on ${data.kind.toLowerCase()} ${data.ref}`,
+      body: `${data.reason} — Cybersecurity (${actor.name}). Do not settle until reviewed.`,
+      link: "/console/cases",
+    });
     await log(db, actor, "TX_HOLD", { userId: data.userId, ref: hold?.id ?? null }, data.reason, {
       kind: data.kind,
       ref: data.ref,
@@ -765,15 +763,13 @@ export const sendReportToCeo = createServerFn({ method: "POST" })
       .eq("id", data.id)
       .maybeSingle();
     if (!r) throw new Error("NOT_FOUND");
-    await db
-      .from("staff_notifications")
-      .insert({
-        department: "SUPER_ADMIN",
-        type: "SECURITY_REPORT",
-        title: `${r.period === "WEEKLY" ? "Weekly" : "Daily"} security report`,
-        body: `${r.summary.slice(0, 260)} (from ${actor.name})`,
-        link: "/console/security",
-      });
+    await db.from("staff_notifications").insert({
+      department: "SUPER_ADMIN",
+      type: "SECURITY_REPORT",
+      title: `${r.period === "WEEKLY" ? "Weekly" : "Daily"} security report`,
+      body: `${r.summary.slice(0, 260)} (from ${actor.name})`,
+      link: "/console/security",
+    });
     await db
       .from("security_reports")
       .update({ sent_to_ceo_at: new Date().toISOString() })

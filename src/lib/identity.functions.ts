@@ -60,14 +60,12 @@ export const reviewIdentityPhoto = createServerFn({ method: "POST" })
           if (stored.error || !stored.data || stored.data.size > 5 * 1024 * 1024)
             throw new Error("PHOTO_CHECK_UNAVAILABLE");
           protectedHashes = photoHashes(new Uint8Array(await stored.data.arrayBuffer()));
-          const cache = await db
-            .from("identity_photo_reviews")
-            .upsert({
-              object_path: path,
-              user_id: row.user_id,
-              ...protectedHashes,
-              approved: true,
-            });
+          const cache = await db.from("identity_photo_reviews").upsert({
+            object_path: path,
+            user_id: row.user_id,
+            ...protectedHashes,
+            approved: true,
+          });
           if (cache.error) throw new Error("PHOTO_CHECK_UNAVAILABLE");
         }
         if (

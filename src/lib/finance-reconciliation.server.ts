@@ -136,19 +136,17 @@ export async function runFinanceReconciliation(trigger: string, triggeredBy: str
   }
 
   if (discrepancies.length) {
-    await supabaseAdmin
-      .from("reconciliation_discrepancies")
-      .insert(
-        discrepancies.map((d) => ({
-          run_id: run.id,
-          kind: d.kind,
-          reference: d.reference ?? null,
-          user_id: d.user_id ?? null,
-          expected: d.expected ?? null,
-          actual: d.actual ?? null,
-          detail: (d.detail ?? {}) as never,
-        })),
-      );
+    await supabaseAdmin.from("reconciliation_discrepancies").insert(
+      discrepancies.map((d) => ({
+        run_id: run.id,
+        kind: d.kind,
+        reference: d.reference ?? null,
+        user_id: d.user_id ?? null,
+        expected: d.expected ?? null,
+        actual: d.actual ?? null,
+        detail: (d.detail ?? {}) as never,
+      })),
+    );
   }
   await supabaseAdmin
     .from("reconciliation_runs")

@@ -73,7 +73,6 @@ export default function CyberWorldMapCanvas(props: Props) {
       state.current?.map.remove();
       state.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function draw() {

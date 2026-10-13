@@ -38,7 +38,6 @@ export default function InvestorWorldMap({ points }: { points: InvestorMapPoint[
       state.current?.map.remove();
       state.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function draw() {

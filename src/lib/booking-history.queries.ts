@@ -25,14 +25,12 @@ export function useBookingHistory() {
   async function change(bookingId: string, state: HistoryState | null) {
     if (!user) throw new Error("Sign in required");
     const result = state
-      ? await supabase
-          .from("booking_history_preferences")
-          .upsert({
-            user_id: user.id,
-            booking_id: bookingId,
-            state,
-            updated_at: new Date().toISOString(),
-          })
+      ? await supabase.from("booking_history_preferences").upsert({
+          user_id: user.id,
+          booking_id: bookingId,
+          state,
+          updated_at: new Date().toISOString(),
+        })
       : await supabase
           .from("booking_history_preferences")
           .delete()

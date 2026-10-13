@@ -456,15 +456,13 @@ export const setStaffTarget = createServerFn({ method: "POST" })
           .from("staff_targets")
           .insert({ staff_id: data.staffId, period: "MONTHLY", ...row });
     if (res.error) throw new Error("Unable to save the target.");
-    await db
-      .from("admin_audit_log")
-      .insert({
-        actor: actor.name,
-        action: "STAFF_TARGET_SET",
-        target_reference: data.staffId,
-        new_state: row,
-        reason: "Monthly target",
-      });
+    await db.from("admin_audit_log").insert({
+      actor: actor.name,
+      action: "STAFF_TARGET_SET",
+      target_reference: data.staffId,
+      new_state: row,
+      reason: "Monthly target",
+    });
     return { ok: true as const };
   });
 

@@ -570,14 +570,12 @@ function LocationForm({ businessId, onDone }: { businessId: string; onDone: () =
       onSubmit={async (e) => {
         e.preventDefault();
         if (!f.name.trim()) return;
-        const { error } = await db
-          .from("inventory_locations")
-          .insert({
-            business_id: businessId,
-            name: f.name.trim(),
-            kind: f.kind,
-            address: f.address || null,
-          });
+        const { error } = await db.from("inventory_locations").insert({
+          business_id: businessId,
+          name: f.name.trim(),
+          kind: f.kind,
+          address: f.address || null,
+        });
         if (error) toast.error(friendlyError(error));
         else {
           setF({ name: "", kind: "MAIN", address: "" });

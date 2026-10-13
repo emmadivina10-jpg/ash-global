@@ -58,15 +58,13 @@ async function applyState(
   reason: string | null,
   by: string,
 ) {
-  await db
-    .from("security_restrictions")
-    .upsert({
-      user_id: userId,
-      ...state,
-      reason,
-      updated_by: by,
-      updated_at: new Date().toISOString(),
-    });
+  await db.from("security_restrictions").upsert({
+    user_id: userId,
+    ...state,
+    reason,
+    updated_by: by,
+    updated_at: new Date().toISOString(),
+  });
   // Sign-out and lock: ban at the auth layer ends refresh tokens; unlock lifts it.
   await db.auth.admin.updateUserById(userId, { ban_duration: state.locked ? "876000h" : "none" });
 }
@@ -297,16 +295,14 @@ export const addIpBlock = createServerFn({ method: "POST" })
       })
       .select("id")
       .single();
-    await db
-      .from("security_actions")
-      .insert({
-        actor_staff_id: actor.staffId,
-        actor_name: actor.name,
-        action: "IP_BLOCK",
-        target_ref: row?.id ?? null,
-        after_state: data,
-        reason: data.reason,
-      });
+    await db.from("security_actions").insert({
+      actor_staff_id: actor.staffId,
+      actor_name: actor.name,
+      action: "IP_BLOCK",
+      target_ref: row?.id ?? null,
+      after_state: data,
+      reason: data.reason,
+    });
     const { invalidateBlockCache } = await import("./cyber-guard.server");
     invalidateBlockCache();
     return { ok: true };
@@ -317,14 +313,12 @@ export const liftIpBlock = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { actor, db } = await cyber();
     await db.from("ip_blocks").update({ lifted_at: new Date().toISOString() }).eq("id", data.id);
-    await db
-      .from("security_actions")
-      .insert({
-        actor_staff_id: actor.staffId,
-        actor_name: actor.name,
-        action: "IP_UNBLOCK",
-        target_ref: data.id,
-      });
+    await db.from("security_actions").insert({
+      actor_staff_id: actor.staffId,
+      actor_name: actor.name,
+      action: "IP_UNBLOCK",
+      target_ref: data.id,
+    });
     const { invalidateBlockCache } = await import("./cyber-guard.server");
     invalidateBlockCache();
     return { ok: true };
@@ -445,14 +439,12 @@ export const revertSecurityActions = createServerFn({ method: "POST" })
     let reverted = 0;
     for (const id of ids) if (await revertOne(db, id, actor.name)) reverted += 1;
     invalidateBlockCache();
-    await db
-      .from("admin_audit_log")
-      .insert({
-        actor: actor.name,
-        action: "CYBER_REVERT",
-        reason: `Reverted ${reverted} cyber action(s)`,
-        metadata: { ids },
-      });
+    await db.from("admin_audit_log").insert({
+      actor: actor.name,
+      action: "CYBER_REVERT",
+      reason: `Reverted ${reverted} cyber action(s)`,
+      metadata: { ids },
+    });
     return { reverted };
   });
 
@@ -481,23 +473,19 @@ export const requestPasswordRotation = createServerFn({ method: "POST" })
       .eq("id", data.staffId)
       .maybeSingle();
     if (!seat) throw new Error("NOT_FOUND");
-    await db
-      .from("staff_notifications")
-      .insert({
-        department: "SUPER_ADMIN",
-        type: "SECURITY_ROTATION",
-        title: `Password rotation due: ${seat.username}`,
-        body: `Requested by ${actor.name} (Cybersecurity). Rotate it from the Security dashboard.`,
-        link: "/console/security",
-      });
-    await db
-      .from("security_actions")
-      .insert({
-        actor_staff_id: actor.staffId,
-        actor_name: actor.name,
-        action: "ROTATION_REQUEST",
-        target_ref: seat.username,
-      });
+    await db.from("staff_notifications").insert({
+      department: "SUPER_ADMIN",
+      type: "SECURITY_ROTATION",
+      title: `Password rotation due: ${seat.username}`,
+      body: `Requested by ${actor.name} (Cybersecurity). Rotate it from the Security dashboard.`,
+      link: "/console/security",
+    });
+    await db.from("security_actions").insert({
+      actor_staff_id: actor.staffId,
+      actor_name: actor.name,
+      action: "ROTATION_REQUEST",
+      target_ref: seat.username,
+    });
     return { ok: true };
   });
 
@@ -522,14 +510,12 @@ export const rotateStaffPassword = createServerFn({ method: "POST" })
       .select("username")
       .single();
     if (error || !seat) throw new Error("ROTATION_FAILED");
-    await db
-      .from("security_actions")
-      .insert({
-        actor_staff_id: actor.staffId,
-        actor_name: actor.name,
-        action: "ROTATE_PASSWORD",
-        target_ref: seat.username,
-      });
+    await db.from("security_actions").insert({
+      actor_staff_id: actor.staffId,
+      actor_name: actor.name,
+      action: "ROTATE_PASSWORD",
+      target_ref: seat.username,
+    });
     return { username: seat.username, password };
   });
 
@@ -579,17 +565,15 @@ export const sendSecurityAlert = createServerFn({ method: "POST" })
     let recipients = 0;
     if (data.audience === "STAFF") {
       const depts = data.departments.length ? data.departments : ["SUPER_ADMIN"];
-      await db
-        .from("staff_notifications")
-        .insert(
-          depts.map((department) => ({
-            department,
-            type: "SECURITY_UPDATE",
-            title: `Security update: ${data.title}`,
-            body: data.body.slice(0, 280),
-            link: "/console/security-updates",
-          })),
-        );
+      await db.from("staff_notifications").insert(
+        depts.map((department) => ({
+          department,
+          type: "SECURITY_UPDATE",
+          title: `Security update: ${data.title}`,
+          body: data.body.slice(0, 280),
+          link: "/console/security-updates",
+        })),
+      );
       recipients = depts.length;
     } else {
       let ids = data.userIds;
@@ -606,31 +590,25 @@ export const sendSecurityAlert = createServerFn({ method: "POST" })
         }
       }
       for (let i = 0; i < ids.length; i += 500) {
-        await db
-          .from("notifications")
-          .insert(
-            ids
-              .slice(i, i + 500)
-              .map((user_id) => ({
-                user_id,
-                category: "SECURITY_UPDATE",
-                title: data.title,
-                body: data.body.slice(0, 280),
-                data: { bulletin_id: b.id, severity: data.severity },
-              })),
-          );
+        await db.from("notifications").insert(
+          ids.slice(i, i + 500).map((user_id) => ({
+            user_id,
+            category: "SECURITY_UPDATE",
+            title: data.title,
+            body: data.body.slice(0, 280),
+            data: { bulletin_id: b.id, severity: data.severity },
+          })),
+        );
       }
       recipients = ids.length;
     }
-    await db
-      .from("security_actions")
-      .insert({
-        actor_staff_id: actor.staffId,
-        actor_name: actor.name,
-        action: "BULLETIN_SEND",
-        target_ref: b.id,
-        after_state: { audience: data.audience, recipients },
-      });
+    await db.from("security_actions").insert({
+      actor_staff_id: actor.staffId,
+      actor_name: actor.name,
+      action: "BULLETIN_SEND",
+      target_ref: b.id,
+      after_state: { audience: data.audience, recipients },
+    });
     return { ok: true, recipients };
   });
 
@@ -661,14 +639,12 @@ export const deleteSecurityBulletin = createServerFn({ method: "POST" })
       .from("security_bulletins")
       .update({ deleted_at: new Date().toISOString() })
       .eq("id", data.id);
-    await db
-      .from("security_actions")
-      .insert({
-        actor_staff_id: actor.staffId,
-        actor_name: actor.name,
-        action: "BULLETIN_DELETE",
-        target_ref: data.id,
-      });
+    await db.from("security_actions").insert({
+      actor_staff_id: actor.staffId,
+      actor_name: actor.name,
+      action: "BULLETIN_DELETE",
+      target_ref: data.id,
+    });
     return { ok: true };
   });
 
@@ -700,15 +676,13 @@ export const reportGapsToCeo = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { actor, db } = await cyber();
     if (!data.gaps.length) throw new Error("NO_GAPS_SELECTED");
-    await db
-      .from("staff_notifications")
-      .insert({
-        department: "SUPER_ADMIN",
-        type: "SECURITY_GAP_REPORT",
-        title: `Security gaps reported (${data.gaps.length})`,
-        body: `${data.gaps.join("; ")}${data.note ? ` — ${data.note}` : ""} (from ${actor.name})`,
-        link: "/console/security",
-      });
+    await db.from("staff_notifications").insert({
+      department: "SUPER_ADMIN",
+      type: "SECURITY_GAP_REPORT",
+      title: `Security gaps reported (${data.gaps.length})`,
+      body: `${data.gaps.join("; ")}${data.note ? ` — ${data.note}` : ""} (from ${actor.name})`,
+      link: "/console/security",
+    });
     return { ok: true };
   });
 
@@ -977,19 +951,15 @@ export const saveTraining = createServerFn({ method: "POST" })
       title: String(d?.title ?? "")
         .trim()
         .slice(0, 140),
-      lessons: (Array.isArray(d?.lessons) ? d.lessons : [])
-        .slice(0, 20)
-        .map((l) => ({
-          heading: String(l.heading ?? "").slice(0, 140),
-          body: String(l.body ?? "").slice(0, 3000),
-        })),
-      quiz: (Array.isArray(d?.quiz) ? d.quiz : [])
-        .slice(0, 20)
-        .map((q) => ({
-          q: String(q.q ?? "").slice(0, 300),
-          options: (q.options ?? []).slice(0, 6).map((o) => String(o).slice(0, 200)),
-          correct: Number(q.correct ?? 0),
-        })),
+      lessons: (Array.isArray(d?.lessons) ? d.lessons : []).slice(0, 20).map((l) => ({
+        heading: String(l.heading ?? "").slice(0, 140),
+        body: String(l.body ?? "").slice(0, 3000),
+      })),
+      quiz: (Array.isArray(d?.quiz) ? d.quiz : []).slice(0, 20).map((q) => ({
+        q: String(q.q ?? "").slice(0, 300),
+        options: (q.options ?? []).slice(0, 6).map((o) => String(o).slice(0, 200)),
+        correct: Number(q.correct ?? 0),
+      })),
       passMark: Math.min(Math.max(Number(d?.passMark ?? 70), 1), 100),
     }),
   )
@@ -998,32 +968,28 @@ export const saveTraining = createServerFn({ method: "POST" })
     if (!data.title || !data.lessons.length || !data.quiz.length)
       throw new Error("INCOMPLETE_TRAINING");
     await db.from("security_trainings").update({ active: false }).eq("active", true);
-    await db
-      .from("security_trainings")
-      .insert({
-        title: data.title,
-        lessons: data.lessons,
-        quiz: data.quiz,
-        pass_mark: data.passMark,
-        created_by: actor.name,
-      });
+    await db.from("security_trainings").insert({
+      title: data.title,
+      lessons: data.lessons,
+      quiz: data.quiz,
+      pass_mark: data.passMark,
+      created_by: actor.name,
+    });
     const { data: seats } = await db
       .from("staff_accounts")
       .select("department")
       .eq("is_active", true);
     const depts = [...new Set((seats ?? []).map((s) => s.department))];
     if (depts.length)
-      await db
-        .from("staff_notifications")
-        .insert(
-          depts.map((department) => ({
-            department,
-            type: "SECURITY_TRAINING",
-            title: `New security awareness training: ${data.title}`,
-            body: "Complete it from Security updates.",
-            link: "/console/security-updates",
-          })),
-        );
+      await db.from("staff_notifications").insert(
+        depts.map((department) => ({
+          department,
+          type: "SECURITY_TRAINING",
+          title: `New security awareness training: ${data.title}`,
+          body: "Complete it from Security updates.",
+          link: "/console/security-updates",
+        })),
+      );
     return { ok: true };
   });
 

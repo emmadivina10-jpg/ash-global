@@ -40,17 +40,15 @@ export async function handleMarketplaceEvent(payload: unknown): Promise<Response
   }
   // The unique insert is a durable inbox, not a completed-event flag. Concurrent
   // retries may process the same payload, but settlement/release SQL locks dedupe.
-  const { error: inboxError } = await db
-    .from("stripe_webhook_inbox")
-    .upsert(
-      {
-        marketplace_account_id: platformId,
-        event_account_id: eventAccount,
-        event_id: event.id,
-        event_type: event.type,
-      },
-      { onConflict: "event_account_id,event_id", ignoreDuplicates: true },
-    );
+  const { error: inboxError } = await db.from("stripe_webhook_inbox").upsert(
+    {
+      marketplace_account_id: platformId,
+      event_account_id: eventAccount,
+      event_id: event.id,
+      event_type: event.type,
+    },
+    { onConflict: "event_account_id,event_id", ignoreDuplicates: true },
+  );
   if (inboxError) return new Response("Event persistence failed", { status: 500 });
   const { data: inbox, error: readError } = await db
     .from("stripe_webhook_inbox")
@@ -212,20 +210,18 @@ export async function handleMarketplaceEvent(payload: unknown): Promise<Response
         event.account,
       );
       if (payout["livemode"] !== true) throw new Error("INVALID_PAYOUT");
-      const { error } = await db
-        .from("stripe_connected_payouts")
-        .upsert(
-          {
-            account_id: event.account,
-            payout_id: payout["id"],
-            status: payout["status"],
-            amount_minor: payout["amount"],
-            currency: payout["currency"],
-            failure_code: payout["failure_code"] ?? null,
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: "account_id,payout_id" },
-        );
+      const { error } = await db.from("stripe_connected_payouts").upsert(
+        {
+          account_id: event.account,
+          payout_id: payout["id"],
+          status: payout["status"],
+          amount_minor: payout["amount"],
+          currency: payout["currency"],
+          failure_code: payout["failure_code"] ?? null,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "account_id,payout_id" },
+      );
       if (error) throw new Error("PAYOUT_SAVE_FAILED");
       outcome = "CONNECTED_PAYOUT_RECORDED";
     } else if (event.type === "account.updated" && event.account) {

@@ -145,15 +145,13 @@ export const saveOpportunity = createServerFn({ method: "POST" })
     if (id) {
       const { error } = await db.from("expansion_opportunities").update(fields).eq("id", id);
       if (error) return { ok: false as const, error: "Could not save." };
-      await db
-        .from("expansion_opportunity_events")
-        .insert({
-          opportunity_id: id,
-          kind: "EDITED",
-          body: "Details updated",
-          actor_name: actor.name,
-          actor_staff_id: actor.staffId,
-        });
+      await db.from("expansion_opportunity_events").insert({
+        opportunity_id: id,
+        kind: "EDITED",
+        body: "Details updated",
+        actor_name: actor.name,
+        actor_staff_id: actor.staffId,
+      });
       return { ok: true as const, id };
     }
     const { data: row, error } = await db
@@ -162,15 +160,13 @@ export const saveOpportunity = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (error || !row) return { ok: false as const, error: "Could not create." };
-    await db
-      .from("expansion_opportunity_events")
-      .insert({
-        opportunity_id: row.id,
-        kind: "CREATED",
-        body: `Opportunity created: ${data.name}`,
-        actor_name: actor.name,
-        actor_staff_id: actor.staffId,
-      });
+    await db.from("expansion_opportunity_events").insert({
+      opportunity_id: row.id,
+      kind: "CREATED",
+      body: `Opportunity created: ${data.name}`,
+      actor_name: actor.name,
+      actor_staff_id: actor.staffId,
+    });
     return { ok: true as const, id: row.id };
   });
 
@@ -192,15 +188,13 @@ export const moveOpportunityStage = createServerFn({ method: "POST" })
       .eq("id", data.id);
     if (error) return { ok: false as const, error: "Could not move." };
     const label = EXPANSION_STAGES.find(([k]) => k === data.stage)?.[1];
-    await db
-      .from("expansion_opportunity_events")
-      .insert({
-        opportunity_id: data.id,
-        kind: "STAGE",
-        body: `Moved to ${label}${data.note ? ` — ${data.note}` : ""}`,
-        actor_name: actor.name,
-        actor_staff_id: actor.staffId,
-      });
+    await db.from("expansion_opportunity_events").insert({
+      opportunity_id: data.id,
+      kind: "STAGE",
+      body: `Moved to ${label}${data.note ? ` — ${data.note}` : ""}`,
+      actor_name: actor.name,
+      actor_staff_id: actor.staffId,
+    });
     return { ok: true as const };
   });
 
@@ -212,15 +206,13 @@ export const addOpportunityNote = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { actor, db } = await ctx();
     if (!data.body) return { ok: false as const };
-    await db
-      .from("expansion_opportunity_events")
-      .insert({
-        opportunity_id: data.id,
-        kind: "NOTE",
-        body: data.body,
-        actor_name: actor.name,
-        actor_staff_id: actor.staffId,
-      });
+    await db.from("expansion_opportunity_events").insert({
+      opportunity_id: data.id,
+      kind: "NOTE",
+      body: data.body,
+      actor_name: actor.name,
+      actor_staff_id: actor.staffId,
+    });
     return { ok: true as const };
   });
 
@@ -274,26 +266,22 @@ export const createExpansionTask = createServerFn({ method: "POST" })
             : "Could not create task.",
       };
     if (data.department !== "EXPANSION") {
-      await db
-        .from("staff_notifications")
-        .insert({
-          department: data.department,
-          type: "SUPPORT_REQUEST",
-          title: `Expansion support request: ${data.title}`,
-          body: `From ${actor.name}`,
-          link: "/console/workspace",
-        });
+      await db.from("staff_notifications").insert({
+        department: data.department,
+        type: "SUPPORT_REQUEST",
+        title: `Expansion support request: ${data.title}`,
+        body: `From ${actor.name}`,
+        link: "/console/workspace",
+      });
     }
     if (data.opportunityId) {
-      await db
-        .from("expansion_opportunity_events")
-        .insert({
-          opportunity_id: data.opportunityId,
-          kind: "TASK",
-          body: `Task for ${data.department}: ${data.title}`,
-          actor_name: actor.name,
-          actor_staff_id: actor.staffId,
-        });
+      await db.from("expansion_opportunity_events").insert({
+        opportunity_id: data.opportunityId,
+        kind: "TASK",
+        body: `Task for ${data.department}: ${data.title}`,
+        actor_name: actor.name,
+        actor_staff_id: actor.staffId,
+      });
     }
     return { ok: true as const };
   });
@@ -322,37 +310,31 @@ export const submitOpportunityToCeo = createServerFn({ method: "POST" })
           : opp.stage,
       })
       .eq("id", opp.id);
-    await db
-      .from("staff_notifications")
-      .insert({
-        department: "SUPER_ADMIN",
-        type: "CEO_SUBMISSION",
-        title: `${data.kind}: ${opp.name} (${opp.market})`,
-        body: data.message ?? `Submitted by ${actor.name}`,
-        link: "/console/expansion",
-      });
-    await db
-      .from("department_tasks")
-      .insert({
-        department: "SUPER_ADMIN",
-        title: `Review ${data.kind.toLowerCase()}: ${opp.name}`.slice(0, 160),
-        detail: data.message,
-        due_date: now.slice(0, 10),
-        priority: "HIGH",
-        status: "OPEN",
-        source: "EXPANSION",
-        created_by: actor.name,
-        expansion_opportunity_id: opp.id,
-      });
-    await db
-      .from("expansion_opportunity_events")
-      .insert({
-        opportunity_id: opp.id,
-        kind: "SUBMITTED",
-        body: `Submitted to CEO as ${data.kind}${data.message ? ` — ${data.message}` : ""}`,
-        actor_name: actor.name,
-        actor_staff_id: actor.staffId,
-      });
+    await db.from("staff_notifications").insert({
+      department: "SUPER_ADMIN",
+      type: "CEO_SUBMISSION",
+      title: `${data.kind}: ${opp.name} (${opp.market})`,
+      body: data.message ?? `Submitted by ${actor.name}`,
+      link: "/console/expansion",
+    });
+    await db.from("department_tasks").insert({
+      department: "SUPER_ADMIN",
+      title: `Review ${data.kind.toLowerCase()}: ${opp.name}`.slice(0, 160),
+      detail: data.message,
+      due_date: now.slice(0, 10),
+      priority: "HIGH",
+      status: "OPEN",
+      source: "EXPANSION",
+      created_by: actor.name,
+      expansion_opportunity_id: opp.id,
+    });
+    await db.from("expansion_opportunity_events").insert({
+      opportunity_id: opp.id,
+      kind: "SUBMITTED",
+      body: `Submitted to CEO as ${data.kind}${data.message ? ` — ${data.message}` : ""}`,
+      actor_name: actor.name,
+      actor_staff_id: actor.staffId,
+    });
     return { ok: true as const };
   });
 
@@ -425,15 +407,13 @@ export const saveResearchReport = createServerFn({ method: "POST" })
     if (id) {
       const { error } = await db.from("expansion_research").update(fields).eq("id", id);
       if (error) return { ok: false as const, error: "Could not save." };
-      await db
-        .from("expansion_opportunity_events")
-        .insert({
-          opportunity_id: data.opportunity_id,
-          kind: "RESEARCH",
-          body: `Research updated: ${data.title}`,
-          actor_name: actor.name,
-          actor_staff_id: actor.staffId,
-        });
+      await db.from("expansion_opportunity_events").insert({
+        opportunity_id: data.opportunity_id,
+        kind: "RESEARCH",
+        body: `Research updated: ${data.title}`,
+        actor_name: actor.name,
+        actor_staff_id: actor.staffId,
+      });
       return { ok: true as const, id };
     }
     const { data: row, error } = await db
@@ -447,15 +427,13 @@ export const saveResearchReport = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (error || !row) return { ok: false as const, error: "Could not create." };
-    await db
-      .from("expansion_opportunity_events")
-      .insert({
-        opportunity_id: data.opportunity_id,
-        kind: "RESEARCH",
-        body: `Research added: ${data.title}`,
-        actor_name: actor.name,
-        actor_staff_id: actor.staffId,
-      });
+    await db.from("expansion_opportunity_events").insert({
+      opportunity_id: data.opportunity_id,
+      kind: "RESEARCH",
+      body: `Research added: ${data.title}`,
+      actor_name: actor.name,
+      actor_staff_id: actor.staffId,
+    });
     return { ok: true as const, id: row.id };
   });
 
@@ -481,36 +459,30 @@ export const submitResearchToCeo = createServerFn({ method: "POST" })
       .maybeSingle();
     const now = new Date().toISOString();
     await db.from("expansion_research").update({ status: "SUBMITTED" }).eq("id", rep.id);
-    await db
-      .from("staff_notifications")
-      .insert({
-        department: "SUPER_ADMIN",
-        type: "CEO_SUBMISSION",
-        title: `Market report: ${rep.title}${opp ? ` (${opp.market})` : ""}`,
-        body: data.message ?? `Submitted by ${actor.name}`,
-        link: "/console/expansion",
-      });
-    await db
-      .from("department_tasks")
-      .insert({
-        department: "SUPER_ADMIN",
-        title: `Review market report: ${rep.title}`.slice(0, 160),
-        detail: data.message,
-        due_date: now.slice(0, 10),
-        priority: "HIGH",
-        status: "OPEN",
-        source: "EXPANSION",
-        created_by: actor.name,
-        expansion_opportunity_id: rep.opportunity_id,
-      });
-    await db
-      .from("expansion_opportunity_events")
-      .insert({
-        opportunity_id: rep.opportunity_id,
-        kind: "SUBMITTED",
-        body: `Market report submitted to CEO: ${rep.title}${data.message ? ` — ${data.message}` : ""}`,
-        actor_name: actor.name,
-        actor_staff_id: actor.staffId,
-      });
+    await db.from("staff_notifications").insert({
+      department: "SUPER_ADMIN",
+      type: "CEO_SUBMISSION",
+      title: `Market report: ${rep.title}${opp ? ` (${opp.market})` : ""}`,
+      body: data.message ?? `Submitted by ${actor.name}`,
+      link: "/console/expansion",
+    });
+    await db.from("department_tasks").insert({
+      department: "SUPER_ADMIN",
+      title: `Review market report: ${rep.title}`.slice(0, 160),
+      detail: data.message,
+      due_date: now.slice(0, 10),
+      priority: "HIGH",
+      status: "OPEN",
+      source: "EXPANSION",
+      created_by: actor.name,
+      expansion_opportunity_id: rep.opportunity_id,
+    });
+    await db.from("expansion_opportunity_events").insert({
+      opportunity_id: rep.opportunity_id,
+      kind: "SUBMITTED",
+      body: `Market report submitted to CEO: ${rep.title}${data.message ? ` — ${data.message}` : ""}`,
+      actor_name: actor.name,
+      actor_staff_id: actor.staffId,
+    });
     return { ok: true as const };
   });

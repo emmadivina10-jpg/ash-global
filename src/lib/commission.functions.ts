@@ -82,14 +82,12 @@ export const setCommissionRate = createServerFn({ method: "POST" })
       .select("commission_rate")
       .eq("id", true)
       .maybeSingle();
-    const { error } = await db
-      .from("marketplace_settings")
-      .upsert({
-        id: true,
-        commission_rate: data.rate,
-        updated_by: actor.name,
-        updated_at: new Date().toISOString(),
-      });
+    const { error } = await db.from("marketplace_settings").upsert({
+      id: true,
+      commission_rate: data.rate,
+      updated_by: actor.name,
+      updated_at: new Date().toISOString(),
+    });
     if (error) throw new Error("COMMISSION_SAVE_FAILED");
     await db.from("admin_audit_log").insert({
       actor: actor.name,

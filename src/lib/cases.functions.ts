@@ -134,15 +134,13 @@ export const createCase = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     await logEvent(db, row.id, "STATUS", `Case opened by ${a.name}`, a);
     for (const dept of departments.filter((x) => x !== a.department)) {
-      await db
-        .from("staff_notifications")
-        .insert({
-          department: dept,
-          type: "CASE",
-          title: `Case #ASH-CASE-${String(row.case_number).padStart(4, "0")} involves your department`,
-          body: data.title,
-          link: "/console/cases",
-        });
+      await db.from("staff_notifications").insert({
+        department: dept,
+        type: "CASE",
+        title: `Case #ASH-CASE-${String(row.case_number).padStart(4, "0")} involves your department`,
+        body: data.title,
+        link: "/console/cases",
+      });
     }
     return row;
   });
@@ -262,15 +260,13 @@ export const updateCase = createServerFn({ method: "POST" })
     if (data.addDepartment && !c.departments.includes(data.addDepartment)) {
       patch.departments = [...c.departments, data.addDepartment];
       log.push(`Department added: ${data.addDepartment}`);
-      await db
-        .from("staff_notifications")
-        .insert({
-          department: data.addDepartment,
-          type: "CASE",
-          title: `Case #ASH-CASE-${String(c.case_number).padStart(4, "0")} involves your department`,
-          body: c.title,
-          link: "/console/cases",
-        });
+      await db.from("staff_notifications").insert({
+        department: data.addDepartment,
+        type: "CASE",
+        title: `Case #ASH-CASE-${String(c.case_number).padStart(4, "0")} involves your department`,
+        body: c.title,
+        link: "/console/cases",
+      });
     }
     if (data.addStaffId && !c.staff_ids.includes(data.addStaffId)) {
       const { data: s } = await db
@@ -281,15 +277,13 @@ export const updateCase = createServerFn({ method: "POST" })
       if (!s) throw new Error("Unknown employee");
       patch.staff_ids = [...c.staff_ids, s.id];
       log.push(`Employee added: ${s.employee_name ?? s.full_name}`);
-      await db
-        .from("staff_notifications")
-        .insert({
-          staff_id: s.id,
-          type: "CASE",
-          title: `You were added to case #ASH-CASE-${String(c.case_number).padStart(4, "0")}`,
-          body: c.title,
-          link: "/console/cases",
-        });
+      await db.from("staff_notifications").insert({
+        staff_id: s.id,
+        type: "CASE",
+        title: `You were added to case #ASH-CASE-${String(c.case_number).padStart(4, "0")}`,
+        body: c.title,
+        link: "/console/cases",
+      });
     }
     if (data.addTicketId && !c.ticket_ids.includes(data.addTicketId)) {
       const { data: t } = await db
@@ -317,15 +311,13 @@ export const updateCase = createServerFn({ method: "POST" })
 
     await db.from("ops_cases").update(patch).eq("id", c.id);
     for (const l of log)
-      await db
-        .from("ops_case_events")
-        .insert({
-          case_id: c.id,
-          kind: "STATUS",
-          body: l,
-          staff_id: a.staffId,
-          staff_name: a.name,
-        });
+      await db.from("ops_case_events").insert({
+        case_id: c.id,
+        kind: "STATUS",
+        body: l,
+        staff_id: a.staffId,
+        staff_name: a.name,
+      });
     return { ok: true };
   });
 
@@ -471,15 +463,13 @@ export const startWorkflow = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (error) throw new Error(error.message);
-    await db
-      .from("staff_notifications")
-      .insert({
-        department: first.department,
-        type: "WORKFLOW",
-        title: `${wf.name}: ${first.action}`,
-        body: `Due in ${first.hours}h · started by ${a.name}`,
-        link: "/console/cases",
-      });
+    await db.from("staff_notifications").insert({
+      department: first.department,
+      type: "WORKFLOW",
+      title: `${wf.name}: ${first.action}`,
+      body: `Due in ${first.hours}h · started by ${a.name}`,
+      link: "/console/cases",
+    });
     if (data.caseId) await logEvent(db, data.caseId, "ACTION", `Workflow started: ${wf.name}`, a);
     return run;
   });
@@ -526,15 +516,13 @@ export const advanceWorkflow = createServerFn({ method: "POST" })
         .from("ops_workflow_runs")
         .update({ history, updated_at: now.toISOString() })
         .eq("id", run.id);
-      await db
-        .from("staff_notifications")
-        .insert({
-          department: "SUPER_ADMIN",
-          type: "ESCALATION",
-          title: `Workflow escalated: ${run.workflow_name}`,
-          body: data.note ?? `Step ${run.step_index + 1} needs attention`,
-          link: "/console/cases",
-        });
+      await db.from("staff_notifications").insert({
+        department: "SUPER_ADMIN",
+        type: "ESCALATION",
+        title: `Workflow escalated: ${run.workflow_name}`,
+        body: data.note ?? `Step ${run.step_index + 1} needs attention`,
+        link: "/console/cases",
+      });
       return { ok: true };
     }
 
@@ -570,15 +558,13 @@ export const advanceWorkflow = createServerFn({ method: "POST" })
           updated_at: now.toISOString(),
         })
         .eq("id", run.id);
-      await db
-        .from("staff_notifications")
-        .insert({
-          department: next.department,
-          type: "WORKFLOW",
-          title: `${run.workflow_name}: ${next.action}`,
-          body: `Handed over by ${a.name}${data.note ? ` — ${data.note}` : ""}`,
-          link: "/console/cases",
-        });
+      await db.from("staff_notifications").insert({
+        department: next.department,
+        type: "WORKFLOW",
+        title: `${run.workflow_name}: ${next.action}`,
+        body: `Handed over by ${a.name}${data.note ? ` — ${data.note}` : ""}`,
+        link: "/console/cases",
+      });
     }
     if (run.case_id)
       await logEvent(

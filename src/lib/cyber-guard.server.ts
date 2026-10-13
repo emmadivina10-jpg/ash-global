@@ -123,15 +123,13 @@ export async function recordFingerprint(request: Request, userId: string) {
         .from("access_fingerprints")
         .insert({ user_id: userId, ip, fingerprint: fp, user_agent: ua, country, city, lat, lng });
       if (ua && AUTOMATION_UA.test(ua)) {
-        await supabaseAdmin
-          .from("security_events")
-          .insert({
-            kind: "AUTOMATION_BROWSER",
-            severity: "WARN",
-            subject: fp,
-            actor_user_id: userId,
-            detail: { ua },
-          });
+        await supabaseAdmin.from("security_events").insert({
+          kind: "AUTOMATION_BROWSER",
+          severity: "WARN",
+          subject: fp,
+          actor_user_id: userId,
+          detail: { ua },
+        });
       }
     }
   } catch {

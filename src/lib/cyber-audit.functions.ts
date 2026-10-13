@@ -22,15 +22,13 @@ async function cyber() {
 type Ctx = Awaited<ReturnType<typeof cyber>>;
 
 async function log(c: Ctx, action: string, ref: string | null, reason: string | null) {
-  await c.db
-    .from("security_actions")
-    .insert({
-      actor_staff_id: c.actor.staffId,
-      actor_name: c.actor.name,
-      action,
-      target_ref: ref,
-      reason,
-    });
+  await c.db.from("security_actions").insert({
+    actor_staff_id: c.actor.staffId,
+    actor_name: c.actor.name,
+    action,
+    target_ref: ref,
+    reason,
+  });
 }
 
 export const getCyberMe = createServerFn({ method: "GET" }).handler(async () => {
