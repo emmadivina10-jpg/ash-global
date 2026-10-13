@@ -66,7 +66,7 @@ export function WelcomeIntro({ onDone }: { onDone?: () => void }) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-end bg-background pb-[calc(2.5rem+env(safe-area-inset-bottom))] pt-[calc(2.5rem+env(safe-area-inset-top))] transition-opacity duration-200"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background transition-opacity duration-200"
       style={{ opacity: leaving ? 0 : 1 }}
       role="status"
       aria-live="polite"
