@@ -198,6 +198,7 @@ export function CompassSurface({
         </DialogContent>
       </Dialog>
       <div
+        ref={wrapper}
         style={{ transform: `translate3d(${offset.x}px, ${offset.y}px, 0)` }}
         className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] right-4 z-40 lg:bottom-8 lg:right-8"
       >
