@@ -18,7 +18,7 @@
 - Desktop Messages fills beside sidebar; navs expose Flights. Why: access.
 - Market defaults via versioned services-mode at the existing Services URL; Extras is its child route. MarketBrowser reuses discovery/deals/property reads. Why: preserve commerce and URLs.
 
-- Avatar updates reuse safety-filtered StoriesRail; ChatActionDialog owns panels; MemberNavIcon uses token-based SVG strokes. Why: shared safe viewing and branding.
+- Avatar updates reuse safe StoriesRail; ChatActionDialog owns panels; MemberNavIcon uses token SVG strokes. Why: safe viewing and branding.
 - Identity enforcement uses identity_restrictions, reviewed photo hashes, non-throwing denial triggers and identityMiddleware. Why: durable strikes and server-enforced bans.
 - Verified-badge functions requireDepartment("TRUST") before privileged access. Why: authorize staff, not a second member-admin login.
 
@@ -43,4 +43,4 @@
 - Member Investment/currencies are display-only, separate from staff equity records. Why: protect funds.
 - LegalDocument shares payment disclosures. Why: accuracy.
 
-- Marketplace reuses chats; lookup errors stop creation. MessageDeleteDialog shares choices; personal hiding is device/member/chat-scoped; shared deletion keeps sender policies. Why: preserve history and permissions.
+- Marketplace reuses chats; lookup errors stop creation. MessageDeleteDialog shares choices; personal hiding is device/member/chat-scoped; shared deletion keeps sender policies. Why: history and permissions.
