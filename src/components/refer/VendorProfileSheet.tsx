@@ -61,7 +61,7 @@ export function VendorProfileSheet({
 }: {
   userId: string;
   fallbackName: string;
-  fallbackAvatar?: string | null;
+  fallbackAvatar?: string | null | undefined;
   onClose: () => void;
 }) {
   const { tx, lang } = useI18n();
