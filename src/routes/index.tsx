@@ -111,6 +111,15 @@ function Landing() {
       </>
     );
 
+  // While the session check runs, show a calm brand screen instead of the
+  // landing page, so signed-in members never see marketing content flash.
+  if (signedIn !== false)
+    return (
+      <div className="grid min-h-dvh place-items-center bg-background">
+        <img src={ashLogo.url} alt="ASH" className="size-16 rounded-2xl shadow-sm" />
+      </div>
+    );
+
   return (
     <div className="ash-entry safe-top relative min-h-dvh overflow-hidden bg-background">
       <div className="relative mx-auto flex min-h-dvh w-full max-w-6xl flex-col px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1rem+env(safe-area-inset-top))] lg:px-10">
