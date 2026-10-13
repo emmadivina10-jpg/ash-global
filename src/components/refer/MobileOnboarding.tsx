@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
-import ashLogo from "@/assets/ash-logo.png.asset.json";
 import { useI18n } from "@/lib/i18n";
 
 const SLIDES = [
