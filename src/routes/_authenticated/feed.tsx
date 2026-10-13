@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { extractTags, recordTagInterest } from "@/lib/interests";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BarChart3, Camera, ImagePlus, Loader2, Plus, Sparkles, X } from "lucide-react";
@@ -7,7 +7,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { PullToRefresh } from "@/components/refer/PullToRefresh";
 import { PostCard } from "@/components/refer/PostCard";
-import { StoriesRail } from "@/components/refer/StoriesRail";
+import { StoriesRail, loadSpotlights, type SpotlightPost } from "@/components/refer/StoriesRail";
+import { useQuery } from "@tanstack/react-query";
+import { FeedSpotlightCard } from "@/components/refer/FeedSpotlightCard";
+import { interleaveSpotlights } from "@/components/refer/feed-spotlights";
 import { SocialSuggestions } from "@/components/refer/SocialSuggestions";
 import { DiscoveryRow, useFeedDiscovery } from "@/components/refer/FeedDiscovery";
 import { Button } from "@/components/ui/button";
@@ -51,6 +54,15 @@ function FeedPage() {
   const { data: posts, isLoading, refetch } = useSocialFeed(120);
   const { data: profile } = useProfile();
   const { data: discovery } = useFeedDiscovery();
+  const { data: spotlights = [], refetch: refreshSpotlights } = useQuery<SpotlightPost[]>({
+    queryKey: ["ash-spotlights"],
+    queryFn: loadSpotlights,
+    staleTime: 15_000,
+  });
+  const [spotlightRequest, setSpotlightRequest] = useState<
+    { authorId: string; kind: "spotlight"; spotlightId: string } | undefined
+  >();
+  const mixed = useMemo(() => interleaveSpotlights(posts ?? [], spotlights), [posts, spotlights]);
   const create = useCreateSocialPost();
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
@@ -138,10 +150,13 @@ function FeedPage() {
 
   const firstName = (profile?.full_name ?? "").trim().split(" ")[0] ?? "";
 
-  const visible = posts ?? [];
-
   return (
-    <PullToRefresh onRefresh={refetch} label={tx("Refreshing", "Actualisation")}>
+    <PullToRefresh
+      onRefresh={async () => {
+        await Promise.all([refetch(), refreshSpotlights()]);
+      }}
+      label={tx("Refreshing", "Actualisation")}
+    >
       <div className="mx-auto w-full max-w-xl space-y-2">
         <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
           <div className="min-w-0 self-center">
@@ -308,6 +323,13 @@ function FeedPage() {
         </Dialog>
 
         <StoriesRail />
+        {spotlightRequest ? (
+          <StoriesRail
+            key={spotlightRequest.spotlightId}
+            viewerRequest={spotlightRequest}
+            onViewerClose={() => setSpotlightRequest(undefined)}
+          />
+        ) : null}
 
         {isLoading ? (
           <div className="space-y-3">
@@ -315,7 +337,7 @@ function FeedPage() {
               <div key={i} className="h-56 animate-pulse rounded-3xl bg-muted" />
             ))}
           </div>
-        ) : visible.length === 0 ? (
+        ) : mixed.length === 0 ? (
           <div className="tile p-8 text-center">
             <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary">
               <Sparkles className="size-5" aria-hidden />
@@ -332,7 +354,23 @@ function FeedPage() {
           </div>
         ) : (
           <div className="space-y-0 sm:space-y-4">
-            {visible.map((post, index) => {
+            {mixed.map((entry) => {
+              if (entry.kind === "spotlight")
+                return (
+                  <FeedSpotlightCard
+                    key={`spotlight:${entry.item.id}`}
+                    spotlight={entry.item}
+                    onOpen={() =>
+                      setSpotlightRequest({
+                        authorId: entry.item.provider.user_id ?? "",
+                        kind: "spotlight",
+                        spotlightId: entry.item.id,
+                      })
+                    }
+                  />
+                );
+              const post = entry.item;
+              const index = entry.postIndex;
               // A single calm listings row every four posts — easy to scroll past.
               const block =
                 index > 0 && index % 4 === 0

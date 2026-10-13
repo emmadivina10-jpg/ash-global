@@ -51,6 +51,7 @@ import { BlockUserDialog } from "@/components/refer/BlockUserDialog";
 import { Avatar as ProfileAvatar, useAvatarUrl } from "@/components/refer/AvatarUpload";
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { directory, type DirectoryProfile } from "@/lib/public-profiles";
+import { rotate, freshness, stableSessionSeed, ROTATION_DEFAULTS } from "@/lib/rotation";
 
 const SOCIAL_BUCKET = "spotlight";
 const IMAGE_MAX_BYTES = 12 * 1024 * 1024;
@@ -147,7 +148,7 @@ async function uploadSpotlightMedia(
   return path;
 }
 
-type SpotlightPost = {
+export type SpotlightPost = {
   id: string;
   url: string;
   caption: string | null;
@@ -161,6 +162,8 @@ type SpotlightPost = {
     verified_tier?: string | null;
     verified_until?: string | null;
     online?: boolean;
+    rating_avg?: number | null;
+    rating_count?: number | null;
   };
 };
 
@@ -227,6 +230,8 @@ export async function loadSpotlights(): Promise<SpotlightPost[]> {
   const { data: rows, error } = await supabase
     .from("spotlight_posts")
     .select("id, author_id, media, caption, created_at")
+    .eq("is_published", true)
+    .eq("moderation_status", "APPROVED")
     .order("created_at", { ascending: false })
     .limit(50);
 
@@ -251,7 +256,7 @@ export async function loadSpotlights(): Promise<SpotlightPost[]> {
   const [providersResult, profilesResult, signedResult, presenceResult] = await Promise.all([
     supabase
       .from("provider_profiles")
-      .select("id, user_id, business_name, city, avatar_url, is_verified")
+      .select("id, user_id, business_name, city, avatar_url, is_verified, rating_avg, rating_count")
       .in("user_id", authorIds),
     directory()
       .select("user_id, full_name, avatar_url, verified_tier, verified_until")
@@ -281,6 +286,8 @@ export async function loadSpotlights(): Promise<SpotlightPost[]> {
         city: string | null;
         avatar_url: string | null;
         is_verified: boolean | null;
+        rating_avg: number | null;
+        rating_count: number | null;
       }>
     ).map((provider) => [provider.user_id, provider]),
   );
@@ -298,7 +305,7 @@ export async function loadSpotlights(): Promise<SpotlightPost[]> {
     ),
   );
 
-  return records.flatMap((row) => {
+  const entries = records.flatMap((row) => {
     const provider = providers.get(row.author_id);
     const profile = profiles.get(row.author_id);
     const path = spotlightMediaPath(row.media);
@@ -320,10 +327,24 @@ export async function loadSpotlights(): Promise<SpotlightPost[]> {
           verified_tier: profile?.verified_tier ?? (provider?.is_verified ? "BUSINESS" : null),
           verified_until: profile?.verified_until ?? null,
           online: onlineIds.has(row.author_id),
+          rating_avg: provider?.rating_avg ?? null,
+          rating_count: provider?.rating_count ?? null,
         },
       },
     ];
   });
+  const { data: auth } = await supabase.auth.getUser();
+  return rotate(
+    "spotlight",
+    entries.map((item) => ({
+      item,
+      id: item.id,
+      creator: item.provider.user_id ?? item.id,
+      relevance: freshness(item.created_at),
+    })),
+    stableSessionSeed(auth.user?.id ?? null),
+    { ...ROTATION_DEFAULTS, skipCooldown: true },
+  );
 }
 
 export function StoriesRail({
@@ -331,7 +352,7 @@ export function StoriesRail({
   onViewerClose,
 }: {
   compact?: boolean;
-  viewerRequest?: { authorId: string; kind: "story" | "spotlight" };
+  viewerRequest?: { authorId: string; kind: "story" | "spotlight"; spotlightId?: string };
   onViewerClose?: () => void;
 } = {}) {
   const { user } = useUser();
@@ -434,6 +455,10 @@ export function StoriesRail({
   const requestedViewerOpened = useRef(false);
   const requestedViewerVisible = useRef(false);
   useEffect(() => {
+    requestedViewerOpened.current = false;
+    requestedViewerVisible.current = false;
+  }, [viewerRequest]);
+  useEffect(() => {
     if (!viewerRequest || requestedViewerOpened.current) return;
     if (viewerRequest.kind === "story") {
       const index = stories.findIndex((group) => group.author.id === viewerRequest.authorId);
@@ -442,8 +467,10 @@ export function StoriesRail({
       setStoryIndex(0);
       setStoryViewerOpen(true);
     } else {
-      const index = spotlights.findIndex(
-        (post) => post.provider.user_id === viewerRequest.authorId,
+      const index = spotlights.findIndex((post) =>
+        viewerRequest.spotlightId
+          ? post.id === viewerRequest.spotlightId
+          : post.provider.user_id === viewerRequest.authorId,
       );
       if (index < 0) return;
       setSpotlightIndex(index);
@@ -493,13 +520,12 @@ export function StoriesRail({
         for (const item of items) {
           const element = item.target as HTMLElement;
           const video = element.querySelector("video");
-          if (!video) continue;
           if (item.isIntersecting) {
-            void video.play().catch(() => undefined);
+            void video?.play().catch(() => undefined);
             const idx = Number(element.dataset["spotlightIndex"]);
             if (Number.isInteger(idx))
               setSpotlightIndex((current) => (current === idx ? current : idx));
-          } else {
+          } else if (video) {
             video.pause();
             video.currentTime = 0;
           }
