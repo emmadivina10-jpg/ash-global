@@ -55,11 +55,19 @@ function FeedPage() {
   const { data: posts, isLoading, refetch } = useSocialFeed(120);
   const { data: profile } = useProfile();
   const { data: discovery } = useFeedDiscovery();
-  const { data: spotlights = [], refetch: refreshSpotlights } = useQuery<SpotlightPost[]>({
+  const {
+    data: spotlights = [],
+    refetch: refreshSpotlights,
+    isFetched: spotlightsFetched,
+    isError: spotlightsFailed,
+  } = useQuery<SpotlightPost[]>({
     queryKey: ["ash-spotlights"],
     queryFn: loadSpotlights,
     staleTime: 15_000,
   });
+  // Wait for Spotlights before showing the Feed, so they never slot in late
+  // and push the people you're looking at up or down.
+  const spotlightsReady = spotlightsFetched || spotlightsFailed;
   const [spotlightRequest, setSpotlightRequest] = useState<
     { authorId: string; kind: "spotlight"; spotlightId: string } | undefined
   >();
@@ -342,7 +350,7 @@ function FeedPage() {
           />
         ) : null}
 
-        {isLoading ? (
+        {isLoading || !spotlightsReady ? (
           <div className="space-y-3">
             {[0, 1, 2].map((i) => (
               <div key={i} className="h-56 animate-pulse rounded-3xl bg-muted" />
