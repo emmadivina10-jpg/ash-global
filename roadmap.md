@@ -1,5 +1,10 @@
 # Roadmap
 
+## Official ASH logo replacement (Oct 13)
+- [ ] Replace shared logo, remaining branding references, favicon and web app icons with the supplied artwork
+- [ ] Update Android/iOS app icons and opening imagery while retaining the centered compact caption
+- [ ] Verify browser imagery, native resource consistency and preview diagnostics; do not publish
+
 ## Feed Spotlights and WhatsApp chat flow
 - [x] Interleave existing eligible Spotlights among Feed posts, show real provider ratings, open exact selected item in shared Spotlight viewer
 - [x] Coordinate exclusive voice playback, automatic next voice note, and stop playback while recording
