@@ -13,6 +13,7 @@ import { AuthLayout } from "@/components/refer/AuthLayout";
 import { CountryPhoneInput } from "@/components/refer/CountryPhoneInput";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { SocialAuth } from "@/components/refer/SocialAuth";
+import { callbackUrl, pendingReturn } from "@/lib/oauth-return-path";
 import { isValidPhone, normalizePhone } from "@/lib/format";
 import { useI18n, type TKey } from "@/lib/i18n";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -48,8 +49,10 @@ function buildSchema(t: (k: TKey) => string) {
 }
 
 export const Route = createFileRoute("/register")({
-  validateSearch: (search: Record<string, unknown>): { ref?: string } =>
-    typeof search["ref"] === "string" ? { ref: search["ref"] } : {},
+  validateSearch: (search: Record<string, unknown>): { ref?: string; next?: string } => ({
+    ...(typeof search["ref"] === "string" ? { ref: search["ref"] } : {}),
+    ...(typeof search["next"] === "string" ? { next: search["next"] } : {}),
+  }),
   head: () => ({
     meta: [
       { property: "og:url", content: "https://ashglogroup.company/register" },
@@ -71,7 +74,8 @@ export const Route = createFileRoute("/register")({
 
 function RegisterPage() {
   const navigate = useNavigate();
-  const { ref } = Route.useSearch();
+  const { ref, next: rawNext } = Route.useSearch();
+  const returnTo = pendingReturn(rawNext);
   const { t, lang } = useI18n();
   const [agreed, setAgreed] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
@@ -173,7 +177,7 @@ function RegisterPage() {
       email: parsed.data.email,
       password: parsed.data.password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: callbackUrl(window.location.origin, returnTo),
         data: {
           full_name: parsed.data.fullName,
           phone: parsed.data.phone,
@@ -198,7 +202,8 @@ function RegisterPage() {
     if (session.session) {
       toast.success(t("auth.register.created"));
       await recordTermsAcceptance(session.session.user.id);
-      navigate({ to: await nextOnboardingRoute(session.session.user.id) });
+      if (returnTo) navigate({ href: returnTo, replace: true });
+      else navigate({ to: await nextOnboardingRoute(session.session.user.id) });
       return;
     }
     setDone(true);
@@ -225,7 +230,8 @@ function RegisterPage() {
       }
       if (cancelled) return;
       if (userId) {
-        navigate({ to: await nextOnboardingRoute(userId), replace: true });
+        if (returnTo) navigate({ href: returnTo, replace: true });
+        else navigate({ to: await nextOnboardingRoute(userId), replace: true });
         return;
       }
       if (tries < 180) timer = window.setTimeout(attempt, 5000);
@@ -457,11 +463,17 @@ function RegisterPage() {
         )}
       </form>
 
-      {step === 1 || agreed ? <SocialAuth label={t("auth.register.orSignUp")} /> : null}
+      {step === 1 || agreed ? (
+        <SocialAuth label={t("auth.register.orSignUp")} next={returnTo} />
+      ) : null}
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         {t("auth.register.haveAccount")}{" "}
-        <Link to="/login" className="font-semibold text-primary hover:underline">
+        <Link
+          to="/login"
+          search={returnTo ? { next: returnTo } : {}}
+          className="font-semibold text-primary hover:underline"
+        >
           {t("auth.register.signIn")}
         </Link>
       </p>

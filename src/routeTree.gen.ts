@@ -100,6 +100,7 @@ import { Route as ConsoleWithdrawalsRouteImport } from './routes/console.withdra
 import { Route as ConsoleWorkspaceRouteImport } from './routes/console.workspace'
 import { Route as PayCodeRouteImport } from './routes/pay.$code'
 import { Route as SSlugRouteImport } from './routes/s.$slug'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedArticlesIndexRouteImport } from './routes/_authenticated/articles.index'
 import { Route as AuthenticatedArticlesArticleIdRouteImport } from './routes/_authenticated/articles.$articleId'
 import { Route as AuthenticatedCampusIndexRouteImport } from './routes/_authenticated/campus.index'
@@ -607,6 +608,11 @@ const SSlugRoute = SSlugRouteImport.update({
   path: '/s/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedArticlesIndexRoute =
   AuthenticatedArticlesIndexRouteImport.update({
     id: '/articles/',
@@ -962,6 +968,7 @@ export interface FileRoutesByFullPath {
   '/pay/$code': typeof PayCodeRoute
   '/s/$slug': typeof SSlugRoute
   '/console/': typeof ConsoleIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
   '/campus/become-instructor': typeof AuthenticatedCampusBecomeInstructorRoute
   '/campus/teaching': typeof AuthenticatedCampusTeachingRoute
@@ -1099,6 +1106,7 @@ export interface FileRoutesByTo {
   '/pay/$code': typeof PayCodeRoute
   '/s/$slug': typeof SSlugRoute
   '/console': typeof ConsoleIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
   '/campus/become-instructor': typeof AuthenticatedCampusBecomeInstructorRoute
   '/campus/teaching': typeof AuthenticatedCampusTeachingRoute
@@ -1239,6 +1247,7 @@ export interface FileRoutesById {
   '/pay/$code': typeof PayCodeRoute
   '/s/$slug': typeof SSlugRoute
   '/console/': typeof ConsoleIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
   '/_authenticated/campus/become-instructor': typeof AuthenticatedCampusBecomeInstructorRoute
   '/_authenticated/campus/teaching': typeof AuthenticatedCampusTeachingRoute
@@ -1379,6 +1388,7 @@ export interface FileRouteTypes {
     | '/pay/$code'
     | '/s/$slug'
     | '/console/'
+    | '/.lovable/oauth/consent'
     | '/articles/$articleId'
     | '/campus/become-instructor'
     | '/campus/teaching'
@@ -1516,6 +1526,7 @@ export interface FileRouteTypes {
     | '/pay/$code'
     | '/s/$slug'
     | '/console'
+    | '/.lovable/oauth/consent'
     | '/articles/$articleId'
     | '/campus/become-instructor'
     | '/campus/teaching'
@@ -1655,6 +1666,7 @@ export interface FileRouteTypes {
     | '/pay/$code'
     | '/s/$slug'
     | '/console/'
+    | '/.lovable/oauth/consent'
     | '/_authenticated/articles/$articleId'
     | '/_authenticated/campus/become-instructor'
     | '/_authenticated/campus/teaching'
@@ -1728,6 +1740,7 @@ export interface RootRouteChildren {
   AuthCallbackRoute: typeof AuthCallbackRoute
   PayCodeRoute: typeof PayCodeRoute
   SSlugRoute: typeof SSlugRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicCleanupSpotlightVideosRoute: typeof ApiPublicCleanupSpotlightVideosRoute
   ApiPublicCleanupStoriesRoute: typeof ApiPublicCleanupStoriesRoute
   ApiPublicReconcileActivationsRoute: typeof ApiPublicReconcileActivationsRoute
@@ -2379,6 +2392,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/articles/': {
       id: '/_authenticated/articles/'
       path: '/articles'
@@ -2962,6 +2982,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthCallbackRoute: AuthCallbackRoute,
   PayCodeRoute: PayCodeRoute,
   SSlugRoute: SSlugRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicCleanupSpotlightVideosRoute: ApiPublicCleanupSpotlightVideosRoute,
   ApiPublicCleanupStoriesRoute: ApiPublicCleanupStoriesRoute,
   ApiPublicReconcileActivationsRoute: ApiPublicReconcileActivationsRoute,

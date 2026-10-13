@@ -11,8 +11,11 @@ import { Label } from "@/components/ui/label";
 import { AuthLayout } from "@/components/refer/AuthLayout";
 import { SocialAuth } from "@/components/refer/SocialAuth";
 import { useI18n } from "@/lib/i18n";
+import { pendingReturn } from "@/lib/oauth-return-path";
 
 export const Route = createFileRoute("/login")({
+  validateSearch: (search: Record<string, unknown>): { next?: string } =>
+    typeof search["next"] === "string" ? { next: search["next"] } : {},
   head: () => ({
     meta: [
       { property: "og:url", content: "https://ashglogroup.company/login" },
@@ -34,6 +37,7 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const navigate = useNavigate();
   const { t } = useI18n();
+  const returnTo = pendingReturn(Route.useSearch().next);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -64,6 +68,10 @@ function LoginPage() {
       return;
     }
     toast.success(t("auth.login.welcome"));
+    if (returnTo) {
+      navigate({ href: returnTo, replace: true });
+      return;
+    }
     const { data: session } = await supabase.auth.getSession();
     const userId = session.session?.user.id;
     const next = userId ? await nextOnboardingRoute(userId) : "/feed";
@@ -156,11 +164,15 @@ function LoginPage() {
         </Button>
       </form>
 
-      <SocialAuth label={t("auth.login.orContinue")} />
+      <SocialAuth label={t("auth.login.orContinue")} next={returnTo} />
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         {t("auth.login.noAccount")}{" "}
-        <Link to="/register" className="font-semibold text-primary hover:underline">
+        <Link
+          to="/register"
+          search={returnTo ? { next: returnTo } : {}}
+          className="font-semibold text-primary hover:underline"
+        >
           {t("auth.login.createAccount")}
         </Link>
       </p>

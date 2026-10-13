@@ -3,14 +3,18 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { nextOnboardingRoute } from "@/lib/consent";
+import { pendingReturn } from "@/lib/oauth-return-path";
 
 export const Route = createFileRoute("/auth/callback")({
   ssr: false,
+  validateSearch: (search: Record<string, unknown>): { next?: string } =>
+    typeof search["next"] === "string" ? { next: search["next"] } : {},
   component: AuthCallback,
 });
 
 function AuthCallback() {
   const navigate = useNavigate();
+  const returnTo = pendingReturn(Route.useSearch().next);
 
   useEffect(() => {
     let cancelled = false;
@@ -21,6 +25,10 @@ function AuthCallback() {
         const { data } = await supabase.auth.getSession();
         if (cancelled) return;
         if (data.session) {
+          if (returnTo) {
+            navigate({ href: returnTo, replace: true });
+            return;
+          }
           const next = await nextOnboardingRoute(data.session.user.id);
           if (cancelled) return;
           navigate({ to: next, replace: true });
@@ -35,7 +43,7 @@ function AuthCallback() {
     return () => {
       cancelled = true;
     };
-  }, [navigate]);
+  }, [navigate, returnTo]);
 
   return (
     <div className="flex min-h-dvh items-center justify-center bg-background">
