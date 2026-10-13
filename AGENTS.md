@@ -9,11 +9,11 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Full-screen composer stays outside scrolling at native viewport. Why: no clipping.
+- Native composer stays outside scrolling. Why: no clipping.
 - Inventory uses provider_profiles.id as business_id, inventory_can()/inventory_role_of() RLS and inventory_members; stock changes only through inventory_record_movement's append-only ledger. UI /inventory and inventory.queries.ts. Why: tenant isolation and one stock source.
 
 - Shareholders uses shareholders.functions.ts and append-only service-role records; Finance shares computeFinanceLedger. Source reads use allFinanceRows with stable ordering and fail on errors. Why: one complete financial source, no silent truncation or zeros.
-- Feed/Stories/Services rank via rotation.ts after safety filtering. Why: no duplicate feed.
+- Feed/Stories/Services rank via rotation.ts after safety filtering; Feed opens exact IDs in StoriesRail. Why: one viewer.
 - AppShell omits tab headers; MobileNav owns hold/slide; member screens switch instantly with no slide animation. Why: fixed-composer safety.
 - Desktop Messages fills beside sidebar; navs show Flights. Why: access.
 - Market defaults via versioned services-mode at the existing Services URL; Extras is its child route. MarketBrowser reuses discovery/deals/property reads. Why: preserve commerce and URLs.
@@ -43,4 +43,4 @@
 - Member Investment/currencies are display-only, separate from staff equity records. Why: protect funds.
 - LegalDocument shares payment disclosures. Why: accuracy.
 
-- Marketplace reuses chats; lookup errors stop creation. MessageDeleteDialog shares choices; personal hiding is device/member/chat-scoped; shared deletion keeps sender policies. Why: history and permissions.
+- Marketplace reuses chats; lookup errors stop creation. Deletion keeps scoped hiding/sender policies; replies store IDs; voice-playback arbitrates audio/recording. Why: private history, exclusive audio.

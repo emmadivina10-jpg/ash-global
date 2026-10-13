@@ -4,6 +4,9 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { voicePlayback } from "./voice-playback";
+import { AvatarPhoto } from "./AvatarUpload";
+import { Button } from "@/components/ui/button";
 
 export const VOICE_BUCKET = "voice-notes";
 export const VOICE_MAX_SECONDS = 180;
@@ -46,6 +49,9 @@ export function VoiceRecorder({
   const cancelled = useRef(false);
   const raf = useRef<number | null>(null);
   const audioCtx = useRef<AudioContext | null>(null);
+  const alive = useRef(true);
+  const starting = useRef(false);
+  const recordingId = `${conversationId}:${userId ?? ""}:recording`;
 
   function cleanup() {
     if (raf.current) cancelAnimationFrame(raf.current);
@@ -56,16 +62,34 @@ export function VoiceRecorder({
     audioCtx.current = null;
   }
 
-  useEffect(() => () => cleanup(), []);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+      cancelled.current = true;
+      if (rec.current?.state === "recording") rec.current.stop();
+      cleanup();
+      voicePlayback.endRecording(recordingId);
+    };
+  }, [recordingId]);
 
   async function start() {
-    if (disabled || !userId) return;
+    if (disabled || !userId || starting.current) return;
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
-      toast.error(tx("Voice notes aren't supported here.", "Notes vocales non prises en charge ici."));
+      toast.error(
+        tx("Voice notes aren't supported here.", "Notes vocales non prises en charge ici."),
+      );
       return;
     }
+    starting.current = true;
+    voicePlayback.beginRecording(recordingId);
     try {
       const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (!alive.current) {
+        s.getTracks().forEach((track) => track.stop());
+        voicePlayback.endRecording(recordingId);
+        return;
+      }
       stream.current = s;
       const mime = pickMime();
       const r = mime ? new MediaRecorder(s, { mimeType: mime }) : new MediaRecorder(s);
@@ -81,7 +105,9 @@ export function VoiceRecorder({
       setLevels([]);
       setState("recording");
 
-      const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const Ctx =
+        window.AudioContext ??
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       const ctx = new Ctx();
       audioCtx.current = ctx;
       const an = ctx.createAnalyser();
@@ -109,8 +135,14 @@ export function VoiceRecorder({
       };
       raf.current = requestAnimationFrame(tick);
     } catch {
+      cancelled.current = true;
+      if (rec.current?.state === "recording") rec.current.stop();
       cleanup();
+      voicePlayback.endRecording(recordingId);
+      setState("idle");
       toast.error(tx("Allow microphone access to record.", "Autorisez le micro pour enregistrer."));
+    } finally {
+      starting.current = false;
     }
   }
 
@@ -123,6 +155,8 @@ export function VoiceRecorder({
   async function finish(mime: string) {
     const duration = (Date.now() - started.current) / 1000;
     cleanup();
+    voicePlayback.endRecording(recordingId);
+    if (!alive.current) return;
     if (cancelled.current || duration < 0.8 || !userId) {
       setState("idle");
       return;
@@ -141,40 +175,51 @@ export function VoiceRecorder({
     }
     const s = samples.current;
     const waveform = Array.from({ length: BARS }, (_, i) => {
-      const slice = s.slice(Math.floor((i * s.length) / BARS), Math.floor(((i + 1) * s.length) / BARS));
+      const slice = s.slice(
+        Math.floor((i * s.length) / BARS),
+        Math.floor(((i + 1) * s.length) / BARS),
+      );
       const v = slice.length ? Math.max(...slice) : 0;
       return Math.round(Math.max(0.12, v) * 100) / 100;
     });
-    const ok = await onSent({ path, duration: Math.round(duration), waveform });
-    if (!ok) void supabase.storage.from(VOICE_BUCKET).remove([path]);
-    setState("idle");
+    try {
+      const ok = await onSent({ path, duration: Math.round(duration), waveform });
+      if (!ok) void supabase.storage.from(VOICE_BUCKET).remove([path]);
+    } catch {
+      void supabase.storage.from(VOICE_BUCKET).remove([path]);
+      toast.error(tx("Voice note not sent.", "Note vocale non envoyée."));
+    } finally {
+      if (alive.current) setState("idle");
+    }
   }
 
   if (state === "idle") {
     return (
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="icon"
         onClick={() => void start()}
         disabled={disabled}
         aria-label={tx("Record voice note", "Enregistrer une note vocale")}
         className="mb-5 grid size-10 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground shadow-sm transition-transform active:scale-90 disabled:opacity-50"
       >
         <Mic className="size-[18px]" aria-hidden />
-      </button>
+      </Button>
     );
   }
 
   return (
     <div className="absolute inset-0 z-10 flex items-center gap-2 bg-background/95 px-3 py-2 backdrop-blur">
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="icon"
         onClick={() => stop(true)}
         disabled={state === "uploading"}
         aria-label={tx("Cancel recording", "Annuler l'enregistrement")}
         className="grid size-10 shrink-0 place-items-center rounded-full text-destructive hover:bg-destructive/10"
       >
         <Trash2 className="size-5" aria-hidden />
-      </button>
+      </Button>
       <span className="flex items-center gap-1.5 text-sm font-semibold tabular-nums">
         <span className="size-2.5 animate-pulse rounded-full bg-destructive" aria-hidden />
         {fmt(elapsed)}
@@ -188,8 +233,9 @@ export function VoiceRecorder({
           />
         ))}
       </div>
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="icon"
         onClick={() => stop()}
         disabled={state === "uploading"}
         aria-label={tx("Send voice note", "Envoyer la note vocale")}
@@ -200,7 +246,7 @@ export function VoiceRecorder({
         ) : (
           <Send className="size-4" aria-hidden />
         )}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -213,11 +259,19 @@ export function VoiceNotePlayer({
   duration,
   waveform,
   mine,
+  playerId = path,
+  nextPlayerId,
+  avatarPath,
+  avatarName,
 }: {
   path: string;
   duration: number;
   waveform?: number[] | undefined;
   mine: boolean;
+  playerId?: string;
+  nextPlayerId?: string | undefined;
+  avatarPath?: string | null | undefined;
+  avatarName?: string;
 }) {
   const { tx } = useI18n();
   const audio = useRef<HTMLAudioElement | null>(null);
@@ -225,47 +279,87 @@ export function VoiceNotePlayer({
   const [loading, setLoading] = useState(false);
   const [pos, setPos] = useState(0);
   const [rate, setRate] = useState(1);
-  const bars = waveform?.length ? waveform : Array.from({ length: BARS }, (_, i) => 0.3 + 0.5 * Math.abs(Math.sin(i * 1.7)));
+  const bars = waveform?.length
+    ? waveform
+    : Array.from({ length: BARS }, (_, i) => 0.3 + 0.5 * Math.abs(Math.sin(i * 1.7)));
   const total = duration || audio.current?.duration || 0;
   const progress = total ? Math.min(1, pos / total) : 0;
 
-  useEffect(() => () => audio.current?.pause(), []);
+  const mounted = useRef(true);
+  const playRef = useRef<() => Promise<void>>(async () => undefined);
+  const nextRef = useRef(nextPlayerId);
+  nextRef.current = nextPlayerId;
 
-  async function toggle() {
-    if (audio.current && playing) {
-      audio.current.pause();
+  useEffect(() => {
+    mounted.current = true;
+    const unregister = voicePlayback.register(playerId, () => void playRef.current());
+    return () => {
+      mounted.current = false;
+      unregister();
+      const a = audio.current;
+      if (a) {
+        a.pause();
+        a.onended = null;
+        a.onplay = null;
+        a.onpause = null;
+        a.ontimeupdate = null;
+        a.src = "";
+      }
+      audio.current = null;
+    };
+  }, [playerId, path]);
+
+  async function play() {
+    const ticket = voicePlayback.claim(playerId, () => {
+      audio.current?.pause();
+      if (mounted.current) setLoading(false);
+    });
+    if (ticket === null) return;
+    setLoading(true);
+    try {
+      if (!audio.current) {
+        let url = urlCache.get(path);
+        if (!url || Date.now() - url.at > 50 * 60 * 1000) {
+          const { data, error } = await supabase.storage
+            .from(VOICE_BUCKET)
+            .createSignedUrl(path, 3600);
+          if (error || !data) throw new Error("Voice note unavailable");
+          url = { url: data.signedUrl, at: Date.now() };
+          urlCache.set(path, url);
+        }
+        if (!mounted.current || !voicePlayback.owns(playerId, ticket)) return;
+        const a = new Audio(url.url);
+        a.playbackRate = rate;
+        a.ontimeupdate = () => setPos(a.currentTime);
+        a.onplay = () => setPlaying(true);
+        a.onpause = () => setPlaying(false);
+        a.onended = () => {
+          setPlaying(false);
+          setPos(0);
+          a.currentTime = 0;
+          voicePlayback.ended(playerId, nextRef.current);
+        };
+        audio.current = a;
+      }
+      if (!voicePlayback.owns(playerId, ticket)) return;
+      await audio.current.play();
+      if (!voicePlayback.owns(playerId, ticket)) audio.current?.pause();
+    } catch {
+      if (mounted.current && voicePlayback.owns(playerId, ticket)) {
+        voicePlayback.release(playerId);
+        toast.error(tx("Couldn't play voice note.", "Lecture impossible."));
+      }
+    } finally {
+      if (mounted.current && voicePlayback.owns(playerId, ticket)) setLoading(false);
+    }
+  }
+  playRef.current = play;
+  function toggle() {
+    if (playing || loading) {
+      voicePlayback.release(playerId);
       return;
     }
-    if (!audio.current) {
-      setLoading(true);
-      let url = urlCache.get(path);
-      if (!url || Date.now() - url.at > 50 * 60 * 1000) {
-        const { data, error } = await supabase.storage.from(VOICE_BUCKET).createSignedUrl(path, 3600);
-        if (error || !data) {
-          setLoading(false);
-          toast.error(tx("Couldn't play voice note.", "Lecture impossible."));
-          return;
-        }
-        url = { url: data.signedUrl, at: Date.now() };
-        urlCache.set(path, url);
-      }
-      const a = new Audio(url.url);
-      a.playbackRate = rate;
-      a.ontimeupdate = () => setPos(a.currentTime);
-      a.onplay = () => setPlaying(true);
-      a.onpause = () => setPlaying(false);
-      a.onended = () => {
-        setPlaying(false);
-        setPos(0);
-      };
-      audio.current = a;
-    }
-    try {
-      await audio.current.play();
-    } catch {
-      toast.error(tx("Couldn't play voice note.", "Lecture impossible."));
-    }
-    setLoading(false);
+    void play();
   }
 
   function seek(e: React.MouseEvent<HTMLDivElement>) {
@@ -281,12 +375,27 @@ export function VoiceNotePlayer({
   }
 
   return (
-    <div className="flex w-60 max-w-full items-center gap-2.5 py-0.5">
-      <button
-        type="button"
-        onClick={() => void toggle()}
+    <div
+      className="flex w-64 max-w-full items-center gap-2.5 py-0.5"
+      onPointerDown={(e) => {
+        if ((e.target as HTMLElement).closest("button")) e.stopPropagation();
+      }}
+    >
+      <span className="relative shrink-0" onPointerDown={(e) => e.stopPropagation()}>
+        <AvatarPhoto path={avatarPath} name={avatarName} className="size-8 text-[10px]" />
+        <Mic
+          className="pointer-events-none absolute -bottom-1 -right-1 size-3.5 rounded-full bg-card text-primary"
+          aria-hidden
+        />
+      </span>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={toggle}
         onPointerDown={(e) => e.stopPropagation()}
-        aria-label={playing ? tx("Pause", "Pause") : tx("Play voice note", "Écouter la note vocale")}
+        aria-label={
+          playing ? tx("Pause", "Pause") : tx("Play voice note", "Écouter la note vocale")
+        }
         className="grid size-9 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground shadow-sm active:scale-90"
       >
         {loading ? (
@@ -296,12 +405,11 @@ export function VoiceNotePlayer({
         ) : (
           <Play className="ml-0.5 size-4 fill-current" aria-hidden />
         )}
-      </button>
+      </Button>
       <div className="min-w-0 flex-1">
         <div
           className="flex h-7 cursor-pointer items-center gap-[2px]"
           onClick={seek}
-          onPointerDown={(e) => e.stopPropagation()}
           role="presentation"
         >
           {bars.map((b, i) => (
@@ -309,7 +417,11 @@ export function VoiceNotePlayer({
               key={i}
               className={cn(
                 "w-[3px] flex-1 rounded-full transition-colors",
-                i / bars.length < progress ? "bg-primary" : mine ? "bg-foreground/25" : "bg-muted-foreground/35",
+                i / bars.length < progress
+                  ? "bg-primary"
+                  : mine
+                    ? "bg-foreground/25"
+                    : "bg-muted-foreground/35",
               )}
               style={{ height: `${Math.max(15, b * 100)}%` }}
             />
@@ -317,11 +429,15 @@ export function VoiceNotePlayer({
         </div>
         <div className="mt-0.5 flex items-center justify-between text-[10px] text-muted-foreground tabular-nums">
           <span>{fmt(playing || pos ? pos : total)}</span>
-          {playing ? (
-            <button type="button" onClick={cycleRate} className="rounded-full bg-foreground/10 px-1.5 font-bold">
-              {rate}×
-            </button>
-          ) : null}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={cycleRate}
+            aria-label={tx("Playback speed", "Vitesse de lecture")}
+            className="h-4 min-w-8 rounded-full bg-foreground/10 px-1.5 text-[10px] font-bold"
+          >
+            {rate}×
+          </Button>
         </div>
       </div>
     </div>

@@ -1,5 +1,11 @@
 # Roadmap
 
+## Feed Spotlights and WhatsApp chat flow
+- [ ] Interleave existing eligible Spotlights among Feed posts, show real provider ratings, open exact selected item in shared Spotlight viewer
+- [ ] Coordinate exclusive voice playback, automatic next voice note, and stop playback while recording
+- [ ] Move voice avatar inside bubble and add swipe-right quoted replies for text and voice
+- [ ] Verify focused rules, browser interactions and preview; no publishing or financial changes
+
 ## WhatsApp-style message deletion choices
 - [x] Replace inline deletion with a focused choices dialog; preserve sender-only deletion for everyone
 - [x] Implement device-local, account-scoped Delete for me without changing shared message records

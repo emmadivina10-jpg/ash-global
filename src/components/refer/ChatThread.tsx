@@ -9,11 +9,15 @@ import {
   ReceiptText,
   Send,
   Trash2,
+  Reply,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { detectOffPlatform, flagOffPlatform } from "@/lib/campus-offplatform";
 import { useMessages } from "@/lib/marketplace.queries";
+import { useProfile } from "@/lib/queries";
+import { isReplySwipe, replyMessageId } from "./chat-reply";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ReportDialog } from "@/components/refer/ReportDialog";
@@ -126,6 +130,14 @@ export function ChatThread({
   );
 
   const [body, setBody] = useState("");
+  const { data: ownProfile } = useProfile();
+  const [replyTo, setReplyTo] = useState<string | null>(null);
+  const composerRef = useRef<HTMLTextAreaElement>(null);
+  const swipeRef = useRef<{ id: string; x: number; y: number } | null>(null);
+  const [swiping, setSwiping] = useState<string | null>(null);
+  useEffect(() => {
+    setReplyTo(null);
+  }, [conversationId]);
   const [sending, setSending] = useState(false);
   const [pending, setPending] = useState<string[]>([]);
   const [failed, setFailed] = useState<string | null>(null);
@@ -164,6 +176,24 @@ export function ChatThread({
     (message) => hiddenMessages.key !== deletionKey || !hiddenMessages.ids.includes(message.id),
   );
   const selectedMessage = allMessages.find((message) => message.id === confirmDelete);
+  const replyTarget = messages.find((message) => message.id === replyTo);
+  const voiceMessages = messages.filter((message) => message.kind === "VOICE");
+  function senderName(message: ChatMessage) {
+    return message.sender_id === currentUserId
+      ? tx("You", "Vous")
+      : ((isGroup ? memberById.get(message.sender_id)?.name : peerName) ?? tx("Member", "Membre"));
+  }
+  function startReply(id: string) {
+    setReplyTo(id);
+    requestAnimationFrame(() => composerRef.current?.focus());
+  }
+  function jumpToMessage(id: string) {
+    const scroller = messagesScrollRef.current;
+    const target = scroller?.querySelector<HTMLElement>(`[data-message-id="${CSS.escape(id)}"]`);
+    if (scroller && target)
+      scroller.scrollTop +=
+        target.getBoundingClientRect().top - scroller.getBoundingClientRect().top - 12;
+  }
 
   useEffect(() => {
     setSecuredMessages(initialMessages);
@@ -296,19 +326,26 @@ export function ChatThread({
   }, [messages]);
 
   async function sendVoice(meta: { path: string; duration: number; waveform: number[] }) {
-    if (!currentUserId) return false;
+    if (!currentUserId || awaitingReply) return false;
     const { error } = await supabase.from("messages").insert({
       conversation_id: conversationId,
       sender_id: currentUserId,
       body: tx("🎤 Voice message", "🎤 Message vocal"),
       kind: "VOICE",
-      metadata: meta,
+      metadata: { ...meta, ...(replyTarget ? { reply_to: replyTarget.id } : {}) },
     });
     if (error) {
       toast.error(error.message || tx("Voice note not sent.", "Note vocale non envoyée."));
       return false;
     }
-    if (refreshMessages) setSecuredMessages(await refreshMessages());
+    setReplyTo(null);
+    if (refreshMessages) {
+      try {
+        setSecuredMessages(await refreshMessages());
+      } catch {
+        /* Keep the periodic authorized refresh. */
+      }
+    }
     void queryClient.invalidateQueries({ queryKey: ["messages", conversationId] });
     void queryClient.invalidateQueries({ queryKey: ["conversations"] });
     return true;
@@ -337,6 +374,7 @@ export function ChatThread({
       conversation_id: conversationId,
       sender_id: currentUserId,
       body: value,
+      metadata: replyTarget ? { reply_to: replyTarget.id } : {},
     });
 
     setSending(false);
@@ -350,6 +388,7 @@ export function ChatThread({
     }
 
     setBody("");
+    setReplyTo(null);
 
     if (refreshMessages) {
       try {
@@ -548,7 +587,7 @@ export function ChatThread({
           grouped.map((group) => (
             <div key={group.day} className="space-y-1.5">
               <p className="sticky top-0 z-10 mx-auto w-fit rounded-full bg-muted/90 px-3 py-0.5 text-[11px] font-semibold text-muted-foreground backdrop-blur">
-                {dayLabel(group.items[0]!.created_at, fr)}
+                {dayLabel(group.items[0]?.created_at ?? "", fr)}
               </p>
 
               {group.items.map((m, index) => {
@@ -588,37 +627,61 @@ export function ChatThread({
                       startsRun && "mt-2.5",
                     )}
                   >
-                    {!mine ? (
-                      <Avatar
-                        path={
-                          (isGroup ? memberById.get(m.sender_id)?.avatar_url : peerAvatar) ?? null
-                        }
-                        name={(isGroup ? memberById.get(m.sender_id)?.name : peerName) ?? "Profile"}
-                        online={isGroup ? memberById.get(m.sender_id)?.online : undefined}
-                        className={cn("size-8 text-xs", !endsRun && "invisible")}
-                      />
-                    ) : null}
-
                     <div
+                      data-message-id={m.id}
                       onContextMenu={(e) => {
                         e.preventDefault();
                         setConfirmDelete(m.id);
                       }}
-                      onPointerDown={() => {
+                      onPointerDown={(e) => {
+                        if (e.button !== 0) return;
+                        swipeRef.current = { id: m.id, x: e.clientX, y: e.clientY };
                         if (pressRef.current) window.clearTimeout(pressRef.current);
-                        pressRef.current = window.setTimeout(() => setConfirmDelete(m.id), 500);
+                        pressRef.current = window.setTimeout(() => {
+                          swipeRef.current = null;
+                          setConfirmDelete(m.id);
+                        }, 500);
                       }}
-                      onPointerUp={() => {
+                      onPointerMove={(e) => {
+                        const start = swipeRef.current;
+                        if (!start || start.id !== m.id) return;
+                        const dx = e.clientX - start.x,
+                          dy = e.clientY - start.y;
+                        if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+                          if (pressRef.current) window.clearTimeout(pressRef.current);
+                        }
+                        if (Math.abs(dy) > 30) {
+                          swipeRef.current = null;
+                          setSwiping(null);
+                          return;
+                        }
+                        if (dx > 15 && dx > Math.abs(dy) * 2) {
+                          e.currentTarget.setPointerCapture(e.pointerId);
+                          setSwiping(m.id);
+                        }
+                      }}
+                      onPointerUp={(e) => {
                         if (pressRef.current) window.clearTimeout(pressRef.current);
+                        const start = swipeRef.current;
+                        if (
+                          start?.id === m.id &&
+                          isReplySwipe(e.clientX - start.x, e.clientY - start.y)
+                        )
+                          startReply(m.id);
+                        swipeRef.current = null;
+                        setSwiping(null);
                       }}
                       onPointerLeave={() => {
                         if (pressRef.current) window.clearTimeout(pressRef.current);
                       }}
                       onPointerCancel={() => {
                         if (pressRef.current) window.clearTimeout(pressRef.current);
+                        swipeRef.current = null;
+                        setSwiping(null);
                       }}
                       className={cn(
-                        "group relative max-w-[82%] px-4 py-2.5 shadow-sm transition-colors",
+                        "group relative max-w-[90%] touch-pan-y px-3 py-2 shadow-sm transition-transform motion-reduce:transition-none",
+                        swiping === m.id && "translate-x-5",
                         mine
                           ? "rounded-lg bg-chat-outgoing text-foreground shadow-sm"
                           : "rounded-lg bg-card text-foreground",
@@ -628,6 +691,40 @@ export function ChatThread({
                         !mine && endsRun && "rounded-bl-sm",
                       )}
                     >
+                      {swiping === m.id ? (
+                        <Reply
+                          className="absolute -left-7 top-1/2 size-5 -translate-y-1/2 text-primary"
+                          aria-hidden
+                        />
+                      ) : null}
+                      {(() => {
+                        const id = replyMessageId(m.metadata);
+                        if (!id) return null;
+                        const original = messages.find((message) => message.id === id);
+                        return (
+                          <Button
+                            variant="ghost"
+                            onClick={() => {
+                              if (original) jumpToMessage(original.id);
+                            }}
+                            disabled={!original}
+                            className="mb-2 flex h-auto w-full flex-col items-start gap-0.5 whitespace-normal rounded-md border-l-2 border-primary bg-primary/10 px-2 py-1.5 text-left"
+                          >
+                            <span className="text-xs font-semibold text-primary">
+                              {original
+                                ? senderName(original)
+                                : tx("Message unavailable", "Message indisponible")}
+                            </span>
+                            <span className="line-clamp-2 text-xs text-muted-foreground">
+                              {original
+                                ? original.kind === "VOICE"
+                                  ? tx("Voice message", "Message vocal")
+                                  : original.body
+                                : tx("Message unavailable", "Message indisponible")}
+                            </span>
+                          </Button>
+                        );
+                      })()}
                       {isGroup && !mine && startsRun ? (
                         <span
                           className="mb-0.5 flex items-center gap-1 text-[11px] font-bold"
@@ -647,6 +744,19 @@ export function ChatThread({
                         <Button
                           variant="ghost"
                           size="icon"
+                          onPointerDown={(e) => e.stopPropagation()}
+                          onClick={() => startReply(m.id)}
+                          aria-label={tx("Reply", "Répondre")}
+                          className="absolute -left-8 top-0 hidden size-7 rounded-full bg-card text-muted-foreground group-hover:flex group-focus-within:flex"
+                        >
+                          <Reply className="size-3.5" aria-hidden />
+                        </Button>
+                      ) : null}
+                      {currentUserId ? (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onPointerDown={(e) => e.stopPropagation()}
                           onClick={() => setConfirmDelete(m.id)}
                           aria-label={tx("Delete message", "Supprimer le message")}
                           className="absolute -left-8 top-1/2 hidden size-7 -translate-y-1/2 place-items-center rounded-full bg-card text-muted-foreground shadow-sm group-hover:grid hover:text-destructive"
@@ -668,6 +778,24 @@ export function ChatThread({
                               duration={Number(meta.duration) || 0}
                               waveform={Array.isArray(meta.waveform) ? meta.waveform : undefined}
                               mine={mine}
+                              playerId={`${conversationId}:${m.id}`}
+                              nextPlayerId={
+                                voiceMessages[
+                                  voiceMessages.findIndex((message) => message.id === m.id) + 1
+                                ]
+                                  ? `${conversationId}:${voiceMessages[voiceMessages.findIndex((message) => message.id === m.id) + 1]?.id}`
+                                  : undefined
+                              }
+                              avatarPath={
+                                mine
+                                  ? ownProfile?.avatar_url
+                                  : isGroup
+                                    ? memberById.get(m.sender_id)?.avatar_url
+                                    : peerAvatar
+                              }
+                              avatarName={
+                                mine ? (ownProfile?.full_name ?? tx("You", "Vous")) : senderName(m)
+                              }
                             />
                           );
                         }
@@ -775,6 +903,28 @@ export function ChatThread({
         </p>
       ) : null}
 
+      {replyTarget ? (
+        <div className="flex shrink-0 items-center gap-2 border-t border-border bg-card px-3 py-2">
+          <div className="min-w-0 flex-1 border-l-2 border-primary pl-3">
+            <p className="text-xs font-semibold text-primary">
+              {tx("Replying to", "Réponse à")} {senderName(replyTarget)}
+            </p>
+            <p className="truncate text-sm text-muted-foreground">
+              {replyTarget.kind === "VOICE"
+                ? tx("Voice message", "Message vocal")
+                : replyTarget.body}
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={tx("Cancel reply", "Annuler la réponse")}
+            onClick={() => setReplyTo(null)}
+          >
+            <X className="size-4" aria-hidden />
+          </Button>
+        </div>
+      ) : null}
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -784,6 +934,7 @@ export function ChatThread({
       >
         <div className="flex min-w-0 flex-1 flex-col">
           <Textarea
+            ref={composerRef}
             rows={1}
             value={body}
             onChange={(e) => {
