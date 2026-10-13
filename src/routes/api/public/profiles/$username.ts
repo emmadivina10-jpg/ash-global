@@ -29,7 +29,8 @@ export const Route = createFileRoute("/api/public/profiles/$username")({
           .limit(1)
           .maybeSingle();
         if (error) return new Response(JSON.stringify({ error: "unavailable" }), { status: 503, headers });
-        const active = !data?.account_status || data.account_status === "active";
+        const status = String(data?.account_status ?? "").toUpperCase();
+        const active = !["BANNED", "SUSPENDED", "DELETED", "RESTRICTED"].includes(status);
         if (!data || !active) {
           return new Response(JSON.stringify({ error: "not_found" }), { status: 404, headers });
         }
