@@ -64,7 +64,7 @@ export function PullToRefresh({ onRefresh, children, label }: { onRefresh: () =>
         reset();
         return;
       }
-      const eased = Math.min(MAX, Math.max(0, dy - DEAD_ZONE) * 0.35);
+      const eased = Math.min(MAX, Math.max(0, dy - DEAD_ZONE) * 0.55);
       pullRef.current = eased;
       setPull(eased);
       if (e.cancelable && eased > 4) e.preventDefault();
