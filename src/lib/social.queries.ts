@@ -15,6 +15,7 @@ import {
   newSessionSeed,
   recordExposure,
   rotate,
+  keepStableOrder,
   ROTATION_DEFAULTS,
   stableSessionSeed,
 } from "./rotation";
@@ -847,7 +848,7 @@ export function useSocialFeed(limit = 40) {
           Math.log1p(t.usage_count) / Math.log1p(maxUse),
         ]),
       );
-      const rows = rotate(
+      const rotated = rotate(
         "post",
         candidates.map((r, i) => {
           const eng = r.like_count + 2 * r.comment_count + 3 * r.repost_count;
@@ -873,6 +874,10 @@ export function useSocialFeed(limit = 40) {
         stableSessionSeed(me),
         { ...ROTATION_DEFAULTS, skipCooldown: true },
       ).slice(0, limit);
+      const rows = [] as typeof rotated;
+      // Keep already-shown posts in place across background refetches.
+      const ordered = keepStableOrder(`feed:${me ?? "anon"}`, rotated, (r) => r.id);
+      rows.splice(0, rows.length, ...ordered);
       const paths = rows.flatMap((r) => parseImages(r.media));
       const [signed, authors, reactionResult, marketResult] = await Promise.all([
         signPaths(paths),

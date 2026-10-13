@@ -9,6 +9,7 @@ import { PullToRefresh } from "@/components/refer/PullToRefresh";
 import { PostCard } from "@/components/refer/PostCard";
 import { StoriesRail, loadSpotlights, type SpotlightPost } from "@/components/refer/StoriesRail";
 import { useQuery } from "@tanstack/react-query";
+import { keepStableOrder, resetStableOrder } from "@/lib/rotation";
 import { FeedSpotlightCard } from "@/components/refer/FeedSpotlightCard";
 import { interleaveSpotlights } from "@/components/refer/feed-spotlights";
 import { SocialSuggestions } from "@/components/refer/SocialSuggestions";
@@ -62,7 +63,15 @@ function FeedPage() {
   const [spotlightRequest, setSpotlightRequest] = useState<
     { authorId: string; kind: "spotlight"; spotlightId: string } | undefined
   >();
-  const mixed = useMemo(() => interleaveSpotlights(posts ?? [], spotlights), [posts, spotlights]);
+  // Spotlights keep their slots too, so the Feed never shuffles under the reader.
+  const mixed = useMemo(
+    () =>
+      interleaveSpotlights(
+        posts ?? [],
+        keepStableOrder("feed-spotlights", spotlights, (s) => s.id),
+      ),
+    [posts, spotlights],
+  );
   const create = useCreateSocialPost();
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
@@ -153,6 +162,8 @@ function FeedPage() {
   return (
     <PullToRefresh
       onRefresh={async () => {
+        resetStableOrder("feed-spotlights");
+        (["feed:" + (me ?? "anon")] as string[]).forEach(resetStableOrder);
         await Promise.all([refetch(), refreshSpotlights()]);
       }}
       label={tx("Refreshing", "Actualisation")}

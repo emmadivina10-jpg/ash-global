@@ -178,3 +178,26 @@ export function freshness(createdAt: string | null | undefined, halfLifeHours = 
 export function engagement(count: number, saturation = 50) {
   return Math.log1p(Math.max(0, count)) / Math.log1p(saturation);
 }
+
+/**
+ * Session-stable list order: once items have been shown, background refetches
+ * (window focus, closing a sheet, likes) keep them in place; new items append.
+ * Call resetStableOrder(key) on an explicit pull-to-refresh to re-rank.
+ */
+const stableOrders = new Map<string, Map<string, number>>();
+export function keepStableOrder<T>(key: string, items: T[], idOf: (item: T) => string): T[] {
+  let ranks = stableOrders.get(key);
+  if (!ranks) {
+    ranks = new Map();
+    stableOrders.set(key, ranks);
+  }
+  const known = ranks;
+  for (const item of items) {
+    const id = idOf(item);
+    if (!known.has(id)) known.set(id, known.size);
+  }
+  return [...items].sort((a, b) => known.get(idOf(a))! - known.get(idOf(b))!);
+}
+export function resetStableOrder(key: string) {
+  stableOrders.delete(key);
+}
