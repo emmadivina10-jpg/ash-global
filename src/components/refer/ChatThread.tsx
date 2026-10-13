@@ -200,11 +200,12 @@ export function ChatThread({
       .from("messages")
       .update({ read_at: new Date().toISOString() })
       .in("id", unread)
-      .then(() =>
-        queryClient.invalidateQueries({
-          queryKey: ["messages", conversationId],
-        }),
-      );
+      .then(({ error }) => {
+        if (error) return;
+        void queryClient.invalidateQueries({ queryKey: ["messages", conversationId] });
+        void queryClient.invalidateQueries({ queryKey: ["conversations"] });
+        void queryClient.invalidateQueries({ queryKey: ["unread-messages"] });
+      });
   }, [messages, currentUserId, conversationId, queryClient]);
 
   // Live "typing…" signal between the people in this thread.

@@ -6,6 +6,7 @@ import { useI18n, type TKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { Avatar } from "./AvatarUpload";
 import { MemberNavIcon } from "./MemberNavIcon";
+import { UnreadMessageBadge } from "./UnreadMessageBadge";
 
 export type MobileNavItem = {
   to: string;
@@ -24,8 +25,10 @@ export type MoreGroup = { en: string; fr: string; items: MobileNavItem[] };
 export function MobileNav({
   items,
   profile,
+  unreadMessages = 0,
 }: {
   items: MobileNavItem[];
+  unreadMessages?: number;
   profile: { full_name?: string | null; avatar_url?: string | null } | null | undefined;
 }) {
   const { tx, t, lang } = useI18n();
@@ -132,8 +135,11 @@ export function MobileNav({
             active ? "text-primary" : "text-muted-foreground active:text-foreground",
           )}
         >
-          <span className="grid size-7 place-items-center">
+          <span className="relative grid size-7 place-items-center">
             <MemberNavIcon icon={item.icon} active={active} />
+            {item.to === "/messages" && (
+              <UnreadMessageBadge count={unreadMessages} className="absolute -right-2 -top-1" />
+            )}
           </span>
           <span className="max-w-full truncate">{label(item)}</span>
           {active ? (

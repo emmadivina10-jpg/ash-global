@@ -15,7 +15,7 @@
 - Shareholders uses shareholders.functions.ts and append-only service-role records; Finance shares computeFinanceLedger. Source reads use allFinanceRows with stable ordering and fail on errors. Why: one complete financial source, no silent truncation or zeros.
 - Feed/Stories/Services rank via rotation.ts after safety filtering. Why: no duplicate feed.
 - AppShell omits tab headers; MobileNav owns hold/slide; member screens switch instantly with no slide animation. Why: fixed-composer safety.
-- Desktop Messages fills space beside sidebar; navs expose Flights. Why: access.
+- Desktop Messages fills beside sidebar; navs expose Flights. Why: access.
 - Market defaults via versioned services-mode at the existing Services URL; Extras is its child route. MarketBrowser reuses discovery/deals/property reads. Why: preserve commerce and URLs.
 
 - Avatar updates reuse safety-filtered StoriesRail; ChatActionDialog owns panels; MemberNavIcon uses token-based SVG strokes. Why: shared safe viewing and branding.
@@ -39,8 +39,8 @@
 - Localize interface copy with static dictionaries and explicit tx calls, never DOM rewriting or user-content translation. Why: privacy and stable React state.
 
 - WalletPayoutSetup reuses guarded Stripe Connect; PayoutSetupReminder saves account-scoped opt-out/cadence locally. Why: visible setup, no card collection or restricted payouts.
-- WebsiteAppShowcase stays separate from MobileOnboarding; use only confirmed store links. Why: preserve native entry and honest downloads.
+- WebsiteAppShowcase stays separate from MobileOnboarding; use confirmed store links. Why: native entry and honest downloads.
 - Member Investment/currencies are display-only, separate from staff equity records. Why: protect funds.
-- LegalDocument shares payment disclosures. Why: truthful claims.
+- LegalDocument shares payment disclosures. Why: accuracy.
 
 - Marketplace resolves seller/member chats before creating threads; lookup failures stop creation. Why: preserve history.
