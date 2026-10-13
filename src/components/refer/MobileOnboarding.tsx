@@ -77,7 +77,9 @@ export function MobileOnboarding() {
       />
 
       <header className="relative flex items-center justify-between">
-        <img src={ashLogo.url} alt="ASH" className="size-9 rounded-xl shadow-sm" />
+        <span className="font-display text-lg font-extrabold tracking-tight text-foreground">
+          ASH
+        </span>
         {!last && (
           <button
             type="button"

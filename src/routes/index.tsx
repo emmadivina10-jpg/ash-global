@@ -152,7 +152,9 @@ function Landing() {
       <div className="relative mx-auto flex min-h-dvh w-full max-w-6xl flex-col px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1rem+env(safe-area-inset-top))] lg:px-10">
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <img src={ashLogo.url} alt="ASH" className="h-9 w-auto rounded-xl shadow-sm" />
+            <span className="font-display text-lg font-extrabold tracking-tight text-foreground">
+              ASH
+            </span>
             <span className="hidden rounded-full border border-border/70 bg-card/50 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-muted-foreground backdrop-blur sm:inline">
               {tx("Global", "Mondial")}
             </span>
