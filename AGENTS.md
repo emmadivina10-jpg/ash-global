@@ -9,16 +9,16 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Full-screen composer stays outside scrolling at the native viewport. Why: no clipping.
+- Full-screen composer stays outside scrolling at native viewport. Why: no clipping.
 - Inventory uses provider_profiles.id as business_id, inventory_can()/inventory_role_of() RLS and inventory_members; stock changes only through inventory_record_movement's append-only ledger. UI /inventory and inventory.queries.ts. Why: tenant isolation and one stock source.
 
 - Shareholders uses shareholders.functions.ts and append-only service-role records; Finance shares computeFinanceLedger. Source reads use allFinanceRows with stable ordering and fail on errors. Why: one complete financial source, no silent truncation or zeros.
 - Feed/Stories/Services rank via rotation.ts after safety filtering. Why: no duplicate feed.
 - AppShell omits tab headers; MobileNav owns hold/slide; member screens switch instantly with no slide animation. Why: fixed-composer safety.
-- Desktop Messages fills beside sidebar; navs expose Flights. Why: access.
+- Desktop Messages fills beside sidebar; navs show Flights. Why: access.
 - Market defaults via versioned services-mode at the existing Services URL; Extras is its child route. MarketBrowser reuses discovery/deals/property reads. Why: preserve commerce and URLs.
 
-- Avatar updates reuse safety-filtered StoriesRail; ChatActionDialog owns panels; MemberNavIcon uses token-based SVG strokes. Why: shared safe viewing and branding.
+- Avatar updates reuse safe StoriesRail; ChatActionDialog owns panels; MemberNavIcon uses token SVG strokes. Why: safe viewing and branding.
 - Identity enforcement uses identity_restrictions, reviewed photo hashes, non-throwing denial triggers and identityMiddleware. Why: durable strikes and server-enforced bans.
 - Verified-badge functions requireDepartment("TRUST") before privileged access. Why: authorize staff, not a second member-admin login.
 
@@ -43,4 +43,4 @@
 - Member Investment/currencies are display-only, separate from staff equity records. Why: protect funds.
 - LegalDocument shares payment disclosures. Why: accuracy.
 
-- Marketplace resolves seller/member chats before creating threads; lookup failures stop creation. Why: preserve history.
+- Marketplace reuses chats; lookup errors stop creation. MessageDeleteDialog shares choices; personal hiding is device/member/chat-scoped; shared deletion keeps sender policies. Why: history and permissions.
