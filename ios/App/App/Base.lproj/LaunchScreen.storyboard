@@ -37,10 +37,13 @@
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="ash-safe"/>
                         <constraints>
+                            <!-- Mark + caption form one group, centered as a whole.
+                                 Group height = 90 (mark) + 18 + 14 + 5 + 18 = 145, so the
+                                 mark's center sits 27.5pt above the true center. -->
                             <constraint firstItem="ash-mark" firstAttribute="centerX" secondItem="snD-IY-ifK" secondAttribute="centerX" id="mark-x"/>
+                            <constraint firstItem="ash-mark" firstAttribute="centerY" secondItem="snD-IY-ifK" secondAttribute="centerY" constant="-27.5" id="mark-y"/>
                             <constraint firstItem="ash-from" firstAttribute="top" secondItem="ash-mark" secondAttribute="bottom" constant="18" id="mark-from"/>
                             <constraint firstItem="ash-name" firstAttribute="centerX" secondItem="snD-IY-ifK" secondAttribute="centerX" id="name-x"/>
-                            <constraint firstItem="ash-safe" firstAttribute="bottom" secondItem="ash-name" secondAttribute="bottom" constant="40" id="name-bottom"/>
                             <constraint firstItem="ash-name" firstAttribute="top" secondItem="ash-from" secondAttribute="bottom" constant="5" id="from-top"/>
                         </constraints>
                     </view>
