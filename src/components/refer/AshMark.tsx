@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import ashLogo from "@/assets/ash-logo.png.asset.json";
 
 /**
- * The official ASH brand mark (red rounded square with white ASH wordmark).
+ * The official ASH logo (luminous red, magenta and blue faceted A on black).
  * Used for the orb, the nav hub and every AI surface so AI always reads as
  * ASH, never as a generic robot.
  */

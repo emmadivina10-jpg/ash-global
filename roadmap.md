@@ -1,5 +1,11 @@
 # Roadmap
 
+## Official ASH logo replacement (Oct 13)
+- [x] Replace shared logo, notification/email favicon references, social preview, favicon, Apple touch icon and seven CDN-backed web app icons with supplied artwork
+- [x] Update Android/iOS app icons and opening source imagery; retain compact centered iOS caption and keep disabled duplicate splash bitmaps blank
+- [x] Browser confirms supplied logo loaded, seven icon URLs return 200, no runtime errors; native XML valid and preview build OK; no publishing
+- [ ] Installed phone icon/opening check — requires a new native build; existing installed apps and published website remain unchanged
+
 ## Feed Spotlights and WhatsApp chat flow
 - [x] Interleave existing eligible Spotlights among Feed posts, show real provider ratings, open exact selected item in shared Spotlight viewer
 - [x] Coordinate exclusive voice playback, automatic next voice note, and stop playback while recording
