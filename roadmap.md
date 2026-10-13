@@ -1,5 +1,11 @@
 # Roadmap
 
+## Message tab, filter switch and opening screen (Oct 13)
+- [ ] Show live unread incoming-message count on Messages navigation without loading the full inbox
+- [ ] Keep comment filter switches capsule-shaped on roomy member screens
+- [ ] Remove the remaining large ASH mark from in-app welcome and native fallback
+- [ ] Verify counts/read updates, switch geometry and opening screen; preview only
+
 ## Larger Stories and Compass presentation (Oct 12)
 - [x] Enlarge Stories/Spotlight cards and separate plus from creation labels; polished blurred fading posting panels
 - [x] Rename the top heading Feed; keep tight section spacing
