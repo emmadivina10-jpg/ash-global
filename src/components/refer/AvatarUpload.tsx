@@ -11,8 +11,35 @@ import { announceIdentityDenial, IDENTITY_DENIED } from "@/lib/identity-client";
 import { useI18n } from "@/lib/i18n";
 
 const MAX_BYTES = 5 * 1024 * 1024;
+const AVATAR_CACHE_KEY = "ash-avatar-url-cache-v1";
 const avatarUrlCache = new Map<string, { url: string; expiresAt: number }>();
 const pendingAvatarUrls = new Map<string, Promise<string | null>>();
+
+// Keep signed photo links across app restarts so photos appear instantly
+// instead of re-requesting every avatar on each open.
+if (typeof window !== "undefined") {
+  try {
+    const raw = window.localStorage.getItem(AVATAR_CACHE_KEY);
+    const saved = raw ? (JSON.parse(raw) as Record<string, { url: string; expiresAt: number }>) : {};
+    const now = Date.now();
+    for (const [k, v] of Object.entries(saved)) if (v.expiresAt > now) avatarUrlCache.set(k, v);
+  } catch {
+    /* ignore */
+  }
+}
+let persistTimer: ReturnType<typeof setTimeout> | null = null;
+function persistAvatarCache() {
+  if (typeof window === "undefined" || persistTimer) return;
+  persistTimer = setTimeout(() => {
+    persistTimer = null;
+    try {
+      const entries = Array.from(avatarUrlCache.entries()).slice(-300);
+      window.localStorage.setItem(AVATAR_CACHE_KEY, JSON.stringify(Object.fromEntries(entries)));
+    } catch {
+      /* ignore */
+    }
+  }, 500);
+}
 
 export async function resolveAvatarUrl(path: string) {
   if (path.startsWith("http")) return path;
@@ -25,9 +52,16 @@ export async function resolveAvatarUrl(path: string) {
     .createSignedUrl(path, 60 * 60 * 24)
     .then(({ data }) => {
       const url = data?.signedUrl ?? null;
-      if (url) avatarUrlCache.set(path, { url, expiresAt: Date.now() + 23 * 60 * 60 * 1000 });
+      if (url) {
+        avatarUrlCache.set(path, { url, expiresAt: Date.now() + 23 * 60 * 60 * 1000 });
+        persistAvatarCache();
+      }
       pendingAvatarUrls.delete(path);
       return url;
+    })
+    .catch(() => {
+      pendingAvatarUrls.delete(path);
+      return null;
     });
   pendingAvatarUrls.set(path, request);
   return request;
