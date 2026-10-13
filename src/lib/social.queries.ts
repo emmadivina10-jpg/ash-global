@@ -241,8 +241,9 @@ async function signPaths(paths: string[]): Promise<Record<string, string>> {
   const unique = Array.from(new Set(paths.filter(Boolean)));
   if (unique.length === 0) return {};
 
+  const { signPathsCached } = await import("./signed-url-cache");
   const result = await withTimeout(
-    supabase.storage.from(SOCIAL_BUCKET).createSignedUrls(unique, 60 * 60 * 12),
+    signPathsCached(SOCIAL_BUCKET, unique, 60 * 60 * 12),
     20_000,
     "Story media access",
   );
@@ -250,12 +251,7 @@ async function signPaths(paths: string[]): Promise<Record<string, string>> {
   if (result.error) {
     throw new Error(`Unable to access story media: ${result.error.message}`);
   }
-
-  const map: Record<string, string> = {};
-  for (const item of result.data ?? []) {
-    if (item.path && item.signedUrl) map[item.path] = item.signedUrl;
-  }
-  return map;
+  return result.map;
 }
 
 export async function loadAuthors(ids: string[]): Promise<Map<string, SocialAuthor>> {
