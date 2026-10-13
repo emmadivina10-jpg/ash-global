@@ -20,7 +20,11 @@ import { ReportDialog } from "@/components/refer/ReportDialog";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { VoiceNotePlayer, VoiceRecorder } from "@/components/refer/VoiceNote";
 import { MessageDeleteDialog } from "@/components/refer/MessageDeleteDialog";
-import { canDeleteForEveryone, messageDeletionKey, readHiddenMessages } from "@/components/refer/message-deletion";
+import {
+  canDeleteForEveryone,
+  messageDeletionKey,
+  readHiddenMessages,
+} from "@/components/refer/message-deletion";
 import { groupColorFor } from "@/components/refer/GroupBadge";
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { CHAT_WALLPAPERS, useChatSettings, useSetWallpaper } from "@/lib/social.queries";
@@ -127,13 +131,21 @@ export function ChatThread({
   const [failed, setFailed] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [hiddenMessages, setHiddenMessages] = useState<{ key: string; ids: string[] }>({ key: "", ids: [] });
+  const [hiddenMessages, setHiddenMessages] = useState<{ key: string; ids: string[] }>({
+    key: "",
+    ids: [],
+  });
   const deletionKey = currentUserId ? messageDeletionKey(currentUserId, conversationId) : "";
   useEffect(() => {
     setConfirmDelete(null);
     try {
-      setHiddenMessages({ key: deletionKey, ids: deletionKey ? readHiddenMessages(localStorage.getItem(deletionKey)) : [] });
-    } catch { setHiddenMessages({ key: deletionKey, ids: [] }); }
+      setHiddenMessages({
+        key: deletionKey,
+        ids: deletionKey ? readHiddenMessages(localStorage.getItem(deletionKey)) : [],
+      });
+    } catch {
+      setHiddenMessages({ key: deletionKey, ids: [] });
+    }
   }, [deletionKey]);
 
   const { data: chatSettings } = useChatSettings();
@@ -148,7 +160,9 @@ export function ChatThread({
   const pressRef = useRef<number | null>(null);
 
   const allMessages = (securedMessages ?? data ?? []) as unknown as ChatMessage[];
-  const messages = allMessages.filter((message) => hiddenMessages.key !== deletionKey || !hiddenMessages.ids.includes(message.id));
+  const messages = allMessages.filter(
+    (message) => hiddenMessages.key !== deletionKey || !hiddenMessages.ids.includes(message.id),
+  );
   const selectedMessage = allMessages.find((message) => message.id === confirmDelete);
 
   useEffect(() => {
@@ -377,7 +391,12 @@ export function ChatThread({
     const selected = allMessages.find((message) => message.id === id);
     if (deleting || !selected || !canDeleteForEveryone(selected.sender_id, currentUserId)) return;
     setDeleting(true);
-    const { error } = await supabase.from("messages").delete().eq("id", id).eq("sender_id", selected.sender_id).eq("conversation_id", conversationId);
+    const { error } = await supabase
+      .from("messages")
+      .delete()
+      .eq("id", id)
+      .eq("sender_id", selected.sender_id)
+      .eq("conversation_id", conversationId);
     setDeleting(false);
 
     if (error) {
@@ -409,19 +428,39 @@ export function ChatThread({
   function deleteForMe() {
     if (!confirmDelete || !deletionKey || deleting) return;
     try {
-      const ids = [...new Set([...readHiddenMessages(localStorage.getItem(deletionKey)), confirmDelete])];
+      const ids = [
+        ...new Set([...readHiddenMessages(localStorage.getItem(deletionKey)), confirmDelete]),
+      ];
       localStorage.setItem(deletionKey, JSON.stringify(ids));
       setHiddenMessages({ key: deletionKey, ids });
       setConfirmDelete(null);
-    } catch { toast.error(tx("Message could not be removed on this device.", "Le message n’a pas pu être retiré sur cet appareil.")); }
+    } catch {
+      toast.error(
+        tx(
+          "Message could not be removed on this device.",
+          "Le message n’a pas pu être retiré sur cet appareil.",
+        ),
+      );
+    }
   }
 
   return (
     <div className={cn("flex h-full min-h-0 min-w-0 flex-col overflow-hidden", className)}>
-      <MessageDeleteDialog open={Boolean(selectedMessage)} onOpenChange={(open) => { if (!open) setConfirmDelete(null); }}
-        canDeleteEveryone={Boolean(selectedMessage && canDeleteForEveryone(selectedMessage.sender_id, currentUserId))}
-        busy={deleting} onDeleteForMe={deleteForMe}
-        onDeleteForEveryone={() => { if (selectedMessage) void remove(selectedMessage.id); }} tx={tx} />
+      <MessageDeleteDialog
+        open={Boolean(selectedMessage)}
+        onOpenChange={(open) => {
+          if (!open) setConfirmDelete(null);
+        }}
+        canDeleteEveryone={Boolean(
+          selectedMessage && canDeleteForEveryone(selectedMessage.sender_id, currentUserId),
+        )}
+        busy={deleting}
+        onDeleteForMe={deleteForMe}
+        onDeleteForEveryone={() => {
+          if (selectedMessage) void remove(selectedMessage.id);
+        }}
+        tx={tx}
+      />
       <div className="flex shrink-0 items-center justify-end gap-1 px-1">
         <Dialog open={wallpaperOpen} onOpenChange={setWallpaperOpen}>
           <DialogTrigger asChild>

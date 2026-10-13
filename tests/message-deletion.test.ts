@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { canDeleteForEveryone, messageDeletionKey, readHiddenMessages } from "../src/components/refer/message-deletion";
+import {
+  canDeleteForEveryone,
+  messageDeletionKey,
+  readHiddenMessages,
+} from "../src/components/refer/message-deletion";
 describe("message deletion choices", () => {
   it("allows delete for everyone only for the sender", () => {
     expect(canDeleteForEveryone("alice", "alice")).toBe(true);
