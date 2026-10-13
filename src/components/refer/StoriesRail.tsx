@@ -20,6 +20,9 @@ import {
   Sparkles,
   Trash2,
   X,
+  Play,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -50,6 +53,7 @@ import { ReportDialog } from "@/components/refer/ReportDialog";
 import { BlockUserDialog } from "@/components/refer/BlockUserDialog";
 import { Avatar as ProfileAvatar, useAvatarUrl } from "@/components/refer/AvatarUpload";
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
+import { ProfilePhotoOverlay, VendorProfileSheet } from "@/components/refer/VendorProfileSheet";
 import { directory, type DirectoryProfile } from "@/lib/public-profiles";
 import { rotate, freshness, stableSessionSeed, ROTATION_DEFAULTS } from "@/lib/rotation";
 
@@ -1707,8 +1711,8 @@ export function StoriesRail({
 
                       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-black/5" />
 
-                      <div className="absolute inset-x-0 bottom-0 z-40 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-32 sm:px-6 sm:pb-8">
-                        <div className="mx-auto max-w-3xl">
+                      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-32 sm:px-6 sm:pb-8">
+                        <div className="pointer-events-auto mx-auto max-w-3xl">
                           <div className="flex items-end justify-between gap-3">
                             <div className="flex min-w-0 items-center gap-2.5">
                               <button
@@ -1768,9 +1772,9 @@ export function StoriesRail({
                                 aria-label={spotlightMuted ? "Unmute Spotlight" : "Mute Spotlight"}
                               >
                                 {spotlightMuted ? (
-                                  <MicOff className="size-4" />
+                                  <VolumeX className="size-4" />
                                 ) : (
-                                  <Mic className="size-4" />
+                                  <Volume2 className="size-4" />
                                 )}
                               </button>
                             ) : null}
@@ -1822,6 +1826,23 @@ export function StoriesRail({
             document.body,
           )
         : null}
+      {spotlightPhoto ? (
+        <ProfilePhotoOverlay
+          path={spotlightPhoto.path}
+          name={spotlightPhoto.name}
+          onClose={() => setSpotlightPhoto(null)}
+        />
+      ) : null}
+      {spotlightProfile ? (
+        <VendorProfileSheet
+          userId={spotlightProfile.userId}
+          fallbackName={spotlightProfile.name}
+          fallbackAvatar={spotlightProfile.avatar}
+          onClose={() => {
+            setSpotlightProfile(null);
+          }}
+        />
+      ) : null}
       <ReportDialog
         hideTrigger
         open={Boolean(storySafety && storySafety.mode === "report")}
