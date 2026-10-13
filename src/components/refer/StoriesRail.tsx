@@ -20,6 +20,8 @@ import {
   Sparkles,
   Trash2,
   X,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -50,6 +52,7 @@ import { ReportDialog } from "@/components/refer/ReportDialog";
 import { BlockUserDialog } from "@/components/refer/BlockUserDialog";
 import { Avatar as ProfileAvatar, useAvatarUrl } from "@/components/refer/AvatarUpload";
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
+import { ProfilePhotoOverlay, VendorProfileSheet } from "@/components/refer/VendorProfileSheet";
 import { directory, type DirectoryProfile } from "@/lib/public-profiles";
 import { rotate, freshness, stableSessionSeed, ROTATION_DEFAULTS } from "@/lib/rotation";
 
@@ -436,6 +439,15 @@ export function StoriesRail({
   const storyTimerRef = useRef<number | null>(null);
   const storyStartedAtRef = useRef<number | null>(null);
   const storyElapsedMsRef = useRef(0);
+  const [pausedSpotlightId, setPausedSpotlightId] = useState<string | null>(null);
+  const [spotlightPhoto, setSpotlightPhoto] = useState<{ path: string | null; name: string } | null>(
+    null,
+  );
+  const [spotlightProfile, setSpotlightProfile] = useState<{
+    userId: string;
+    name: string;
+    avatar: string | null;
+  } | null>(null);
 
   const [spotlightViewerOpen, setSpotlightViewerOpen] = useState(false);
   const [spotlightIndex, setSpotlightIndex] = useState(0);
@@ -1661,14 +1673,33 @@ export function StoriesRail({
                       className="relative h-[100dvh] min-h-[100svh] w-full snap-start overflow-hidden bg-black"
                     >
                       {video ? (
-                        <video
-                          src={spotlight.url}
-                          loop
-                          playsInline
-                          muted={spotlightMuted}
-                          preload="metadata"
-                          className="absolute inset-0 size-full object-cover"
-                        />
+                        <>
+                          <video
+                            src={spotlight.url}
+                            loop
+                            playsInline
+                            muted={spotlightMuted}
+                            preload="metadata"
+                            onClick={(event) => {
+                              const el = event.currentTarget;
+                              if (el.paused) void el.play().catch(() => undefined);
+                              else el.pause();
+                            }}
+                            onPlay={() =>
+                              setPausedSpotlightId((id) => (id === spotlight.id ? null : id))
+                            }
+                            onPause={(event) => {
+                              if (event.currentTarget.currentTime > 0)
+                                setPausedSpotlightId(spotlight.id);
+                            }}
+                            className="absolute inset-0 size-full cursor-pointer object-cover"
+                          />
+                          {pausedSpotlightId === spotlight.id ? (
+                            <span className="pointer-events-none absolute left-1/2 top-1/2 z-30 grid size-20 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-black/45 text-white backdrop-blur-md">
+                              <Play className="ml-1 size-9 fill-current" />
+                            </span>
+                          ) : null}
+                        </>
                       ) : (
                         <img
                           src={spotlight.url}
@@ -1677,23 +1708,47 @@ export function StoriesRail({
                         />
                       )}
 
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-black/5" />
+                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-black/5" />
 
-                      <div className="absolute inset-x-0 bottom-0 z-40 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-32 sm:px-6 sm:pb-8">
-                        <div className="mx-auto max-w-3xl">
+                      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-32 sm:px-6 sm:pb-8">
+                        <div className="pointer-events-auto mx-auto max-w-3xl">
                           <div className="flex items-end justify-between gap-3">
                             <div className="flex min-w-0 items-center gap-2.5">
-                              <Avatar
-                                src={spotlight.provider.avatar_url}
-                                name={spotlight.provider.business_name}
-                                online={spotlight.provider.online}
-                                className="size-11"
-                              />
+                              <button
+                                type="button"
+                                aria-label="View profile photo"
+                                onClick={() =>
+                                  setSpotlightPhoto({
+                                    path: spotlight.provider.avatar_url ?? null,
+                                    name: spotlight.provider.business_name,
+                                  })
+                                }
+                                className="rounded-full"
+                              >
+                                <Avatar
+                                  src={spotlight.provider.avatar_url}
+                                  name={spotlight.provider.business_name}
+                                  online={spotlight.provider.online}
+                                  className="size-11"
+                                />
+                              </button>
                               <div className="min-w-0">
                                 <div className="flex items-center gap-1.5">
-                                  <p className="truncate text-sm font-extrabold text-white">
+                                  <button
+                                    type="button"
+                                    disabled={!spotlight.provider.user_id}
+                                    onClick={() =>
+                                      spotlight.provider.user_id &&
+                                      setSpotlightProfile({
+                                        userId: spotlight.provider.user_id,
+                                        name: spotlight.provider.business_name,
+                                        avatar: spotlight.provider.avatar_url ?? null,
+                                      })
+                                    }
+                                    className="truncate text-left text-sm font-extrabold text-white underline-offset-2 hover:underline"
+                                  >
                                     {spotlight.provider.business_name}
-                                  </p>
+                                  </button>
                                   <VerifiedBadge
                                     tier={spotlight.provider.verified_tier}
                                     until={spotlight.provider.verified_until}
@@ -1716,9 +1771,9 @@ export function StoriesRail({
                                 aria-label={spotlightMuted ? "Unmute Spotlight" : "Mute Spotlight"}
                               >
                                 {spotlightMuted ? (
-                                  <MicOff className="size-4" />
+                                  <VolumeX className="size-4" />
                                 ) : (
-                                  <Mic className="size-4" />
+                                  <Volume2 className="size-4" />
                                 )}
                               </button>
                             ) : null}
@@ -1770,6 +1825,23 @@ export function StoriesRail({
             document.body,
           )
         : null}
+      {spotlightPhoto ? (
+        <ProfilePhotoOverlay
+          path={spotlightPhoto.path}
+          name={spotlightPhoto.name}
+          onClose={() => setSpotlightPhoto(null)}
+        />
+      ) : null}
+      {spotlightProfile ? (
+        <VendorProfileSheet
+          userId={spotlightProfile.userId}
+          fallbackName={spotlightProfile.name}
+          fallbackAvatar={spotlightProfile.avatar}
+          onClose={() => {
+            setSpotlightProfile(null);
+          }}
+        />
+      ) : null}
       <ReportDialog
         hideTrigger
         open={Boolean(storySafety && storySafety.mode === "report")}

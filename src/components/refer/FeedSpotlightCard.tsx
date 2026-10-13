@@ -1,4 +1,5 @@
-import { Play, Star } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Play, Star, VolumeX } from "lucide-react";
 import { Avatar } from "./AvatarUpload";
 import { VerifiedBadge } from "./VerifiedBadge";
 import { ExpandableSocialText } from "./ExpandableSocialText";
@@ -8,6 +9,7 @@ import { isStoryVideoSource } from "@/lib/social.queries";
 import type { SpotlightPost } from "./StoriesRail";
 import { actualRating } from "./feed-spotlights";
 import { SafetyMenu } from "./SafetyMenu";
+import { ProfilePhotoOverlay, VendorProfileSheet } from "./VendorProfileSheet";
 
 export function FeedSpotlightCard({
   spotlight,
@@ -18,21 +20,59 @@ export function FeedSpotlightCard({
 }) {
   const { tx } = useI18n();
   const rating = actualRating(spotlight.provider.rating_avg, spotlight.provider.rating_count);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [photoOpen, setPhotoOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const isVideo = isStoryVideoSource(spotlight.url);
+
+  // Muted preview plays only while the card is mostly on screen, like Facebook.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) void video.play().catch(() => undefined);
+        else video.pause();
+      },
+      { threshold: 0.6 },
+    );
+    observer.observe(video);
+    return () => {
+      observer.disconnect();
+      video.pause();
+    };
+  }, [spotlight.url]);
+
+  const name = spotlight.provider.business_name;
   return (
     <article
       className="overflow-hidden border-y border-border bg-card sm:rounded-lg sm:border"
       data-feed-spotlight={spotlight.id}
     >
       <header className="flex items-center gap-3 px-4 py-3">
-        <Avatar
-          path={spotlight.provider.avatar_url}
-          name={spotlight.provider.business_name}
-          online={spotlight.provider.online}
-          className="size-10"
-        />
+        <button
+          type="button"
+          onClick={() => setPhotoOpen(true)}
+          aria-label={tx("View profile photo", "Voir la photo de profil")}
+          className="rounded-full"
+        >
+          <Avatar
+            path={spotlight.provider.avatar_url}
+            name={name}
+            online={spotlight.provider.online}
+            className="size-10"
+          />
+        </button>
         <div className="min-w-0 flex-1">
           <p className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
-            <span className="truncate">{spotlight.provider.business_name}</span>
+            <button
+              type="button"
+              disabled={!spotlight.provider.user_id}
+              onClick={() => setProfileOpen(true)}
+              className="truncate text-left hover:underline"
+            >
+              {name}
+            </button>
             <VerifiedBadge
               tier={spotlight.provider.verified_tier}
               until={spotlight.provider.verified_until}
@@ -56,7 +96,7 @@ export function FeedSpotlightCard({
           targetType="SPOTLIGHT"
           targetId={spotlight.id}
           targetUserId={spotlight.provider.user_id ?? null}
-          targetName={spotlight.provider.business_name}
+          targetName={name}
         />
       </header>
       <Button
@@ -65,32 +105,54 @@ export function FeedSpotlightCard({
         aria-label={tx("Open Spotlight", "Ouvrir le Spotlight")}
         className="relative block h-auto w-full overflow-hidden rounded-none p-0 hover:bg-transparent"
       >
-        {isStoryVideoSource(spotlight.url) ? (
+        {isVideo ? (
           <video
+            ref={videoRef}
             src={spotlight.url}
             muted
+            loop
             playsInline
             preload="metadata"
-            className="aspect-[4/5] max-h-[560px] w-full bg-media-backdrop object-contain"
+            className="aspect-[4/5] max-h-[420px] w-full bg-media-backdrop object-cover"
           />
         ) : (
           <img
             src={spotlight.url}
-            alt={spotlight.caption ?? spotlight.provider.business_name}
+            alt={spotlight.caption ?? name}
             loading="lazy"
             decoding="async"
-            className="aspect-[4/5] max-h-[560px] w-full bg-muted object-cover"
+            className="aspect-[4/5] max-h-[420px] w-full bg-muted object-cover"
           />
         )}
         <span className="absolute bottom-4 left-4 flex items-center gap-2 rounded-full bg-media-backdrop/75 px-3 py-2 text-xs font-semibold text-on-dark">
           <Play className="size-4 fill-current" aria-hidden />
           Spotlight
         </span>
+        {isVideo ? (
+          <span className="absolute bottom-4 right-4 grid size-8 place-items-center rounded-full bg-media-backdrop/75 text-on-dark">
+            <VolumeX className="size-4" aria-hidden />
+          </span>
+        ) : null}
       </Button>
       {spotlight.caption ? (
         <div className="px-4 py-3">
           <ExpandableSocialText text={spotlight.caption} className="text-sm text-foreground" />
         </div>
+      ) : null}
+      {photoOpen ? (
+        <ProfilePhotoOverlay
+          path={spotlight.provider.avatar_url}
+          name={name}
+          onClose={() => setPhotoOpen(false)}
+        />
+      ) : null}
+      {profileOpen && spotlight.provider.user_id ? (
+        <VendorProfileSheet
+          userId={spotlight.provider.user_id}
+          fallbackName={name}
+          fallbackAvatar={spotlight.provider.avatar_url}
+          onClose={() => setProfileOpen(false)}
+        />
       ) : null}
     </article>
   );
