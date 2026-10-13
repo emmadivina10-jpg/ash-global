@@ -3,6 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { nextOnboardingRoute } from "@/lib/consent";
+import { pendingReturn } from "@/lib/oauth-return-path";
 
 export const Route = createFileRoute("/auth/callback")({
   ssr: false,
@@ -42,7 +43,7 @@ function AuthCallback() {
     return () => {
       cancelled = true;
     };
-  }, [navigate]);
+  }, [navigate, returnTo]);
 
   return (
     <div className="flex min-h-dvh items-center justify-center bg-background">
