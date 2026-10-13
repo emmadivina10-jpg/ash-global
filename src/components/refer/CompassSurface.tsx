@@ -210,6 +210,7 @@ export function CompassSurface({
           onPointerMove={pointerMove}
           onPointerUp={pointerUp}
           onPointerCancel={() => {
+            if (drag.current?.moved) setOffset(live.current);
             drag.current = null;
             moved.current = true;
           }}
