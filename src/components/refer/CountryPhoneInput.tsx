@@ -63,7 +63,9 @@ export function CountryPhoneInput({
   return (
     <div className="flex h-11 overflow-hidden rounded-xl border border-input bg-background transition-shadow focus-within:ring-2 focus-within:ring-ring/40">
       <label className="relative flex shrink-0 items-center gap-1.5 border-r border-border bg-muted/40 pl-3 pr-2 text-sm font-semibold text-foreground">
-        <span className="text-lg leading-none" aria-hidden>{flagOf(country.iso)}</span>
+        <span className="text-lg leading-none" aria-hidden>
+          {flagOf(country.iso)}
+        </span>
         <span>{country.dial}</span>
         <ChevronDown className="size-3.5 text-muted-foreground" aria-hidden />
         <select

@@ -245,7 +245,10 @@ function FlightsPage() {
             <PopoverContent align="end" className="w-64 text-sm">
               <p className="font-semibold">{tx("No trips yet", "Aucun voyage pour l’instant")}</p>
               <p className="text-muted-foreground">
-                {tx("Flights you book with ASH will appear here.", "Vos vols réservés avec ASH apparaîtront ici.")}
+                {tx(
+                  "Flights you book with ASH will appear here.",
+                  "Vos vols réservés avec ASH apparaîtront ici.",
+                )}
               </p>
             </PopoverContent>
           </Popover>
@@ -272,7 +275,10 @@ function FlightsPage() {
             {tx("Coming soon", "Bientôt disponible")}
           </p>
           <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-            {tx("Flight search and booking are coming to ASH.", "La recherche et la réservation de vols arrivent bientôt sur ASH.")}
+            {tx(
+              "Flight search and booking are coming to ASH.",
+              "La recherche et la réservation de vols arrivent bientôt sur ASH.",
+            )}
           </p>
         </div>
       </div>
@@ -500,10 +506,16 @@ function FlightsPage() {
           <Info className="mt-0.5 size-5 shrink-0 text-primary" />
           <div>
             <p className="font-semibold">
-              {tx("Live flight search is currently unavailable.", "La recherche de vols en direct est momentanément indisponible.")}
+              {tx(
+                "Live flight search is currently unavailable.",
+                "La recherche de vols en direct est momentanément indisponible.",
+              )}
             </p>
             <p className="text-muted-foreground">
-              {tx("ASH never shows invented flights or prices. Search turns on as soon as our flight provider is connected.", "ASH n’affiche jamais de vols ou de prix inventés. La recherche s’activera dès que le fournisseur sera connecté.")}
+              {tx(
+                "ASH never shows invented flights or prices. Search turns on as soon as our flight provider is connected.",
+                "ASH n’affiche jamais de vols ou de prix inventés. La recherche s’activera dès que le fournisseur sera connecté.",
+              )}
             </p>
           </div>
         </div>
@@ -516,7 +528,10 @@ function FlightsPage() {
       )}
       {search.data && !search.data.available && (
         <p className="rounded-2xl border border-border p-4 text-sm">
-          {tx("Flight search temporarily unavailable.", "Recherche de vols momentanément indisponible.")}
+          {tx(
+            "Flight search temporarily unavailable.",
+            "Recherche de vols momentanément indisponible.",
+          )}
         </p>
       )}
 

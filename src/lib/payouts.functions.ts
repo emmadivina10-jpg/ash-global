@@ -17,7 +17,6 @@ export const getPayoutSetupVisibility = createServerFn({ method: "POST" })
     return { canSetUpBank: await providerOnboardingEnabled(context.userId) };
   });
 
-
 export type PayoutAccountState = {
   country?: string;
   transfersActive?: boolean;
@@ -55,7 +54,8 @@ export const getPayoutAccount = createServerFn({ method: "POST" })
       .eq("user_id", context.userId)
       .maybeSingle();
 
-    const accountId = (profile as { stripe_account_id?: string | null } | null)?.stripe_account_id ?? null;
+    const accountId =
+      (profile as { stripe_account_id?: string | null } | null)?.stripe_account_id ?? null;
     if (!accountId) {
       return {
         configured: true,
@@ -74,63 +74,80 @@ export const getPayoutAccount = createServerFn({ method: "POST" })
 
 export const startPayoutOnboarding = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ returnUrl: z.string().url(), country: z.literal("CA") }).parse(input))
-  .handler(async ({ data, context }): Promise<{ ok: boolean; url: string | null; error: string | null }> => {
-    const { getRequest } = await import("@tanstack/react-start/server");
-    const returnUrl = new URL(data.returnUrl);
-    if (returnUrl.origin !== new URL(getRequest().url).origin) return { ok: false, url: null, error: "INVALID_RETURN_URL" };
-    const { providerOnboardingEnabled } = await import("./stripe-booking-release.server");
-    // Only owner-approved providers on the server allowlist may connect a bank.
-    if (!(await providerOnboardingEnabled(context.userId))) return { ok: false, url: null, error: "ONBOARDING_AWAITING_APPROVAL" };
-    const { data: provider, error: providerError } = await context.supabase.from("provider_profiles")
-      .select("id").eq("user_id", context.userId).maybeSingle();
-    if (providerError || !provider) return { ok: false, url: null, error: "PROVIDER_REQUIRED" };
-    const { stripeConnect } = await import("@/lib/stripe.server");
-    if (!stripeConnect.configured()) return { ok: false, url: null, error: "STRIPE_NOT_CONFIGURED" };
+  .inputValidator((input: unknown) =>
+    z.object({ returnUrl: z.string().url(), country: z.literal("CA") }).parse(input),
+  )
+  .handler(
+    async ({
+      data,
+      context,
+    }): Promise<{ ok: boolean; url: string | null; error: string | null }> => {
+      const { getRequest } = await import("@tanstack/react-start/server");
+      const returnUrl = new URL(data.returnUrl);
+      if (returnUrl.origin !== new URL(getRequest().url).origin)
+        return { ok: false, url: null, error: "INVALID_RETURN_URL" };
+      const { providerOnboardingEnabled } = await import("./stripe-booking-release.server");
+      // Only owner-approved providers on the server allowlist may connect a bank.
+      if (!(await providerOnboardingEnabled(context.userId)))
+        return { ok: false, url: null, error: "ONBOARDING_AWAITING_APPROVAL" };
+      const { data: provider, error: providerError } = await context.supabase
+        .from("provider_profiles")
+        .select("id")
+        .eq("user_id", context.userId)
+        .maybeSingle();
+      if (providerError || !provider) return { ok: false, url: null, error: "PROVIDER_REQUIRED" };
+      const { stripeConnect } = await import("@/lib/stripe.server");
+      if (!stripeConnect.configured())
+        return { ok: false, url: null, error: "STRIPE_NOT_CONFIGURED" };
 
-    const { data: profile } = await context.supabase
-      .from("profiles")
-      .select("stripe_account_id, email")
-      .eq("user_id", context.userId)
-      .maybeSingle();
-
-    const row = profile as { stripe_account_id?: string | null; email?: string | null } | null;
-    let accountId = row?.stripe_account_id ?? null;
-
-    if (!accountId) {
-      const created = await stripeConnect.createAccount({
-        email: row?.email ?? (context.claims["email"] as string | undefined) ?? "",
-        country: data.country,
-        userId: context.userId,
-      });
-      if (!created.accountId) return { ok: false, url: null, error: created.error ?? "STRIPE_ERROR" };
-      accountId = created.accountId;
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const { error: saveError } = await supabaseAdmin
+      const { data: profile } = await context.supabase
         .from("profiles")
-        .update({ stripe_account_id: accountId })
-        .eq("user_id", context.userId);
-      if (saveError) return { ok: false, url: null, error: "PROVIDER_ACCOUNT_SAVE_FAILED" };
-    }
+        .select("stripe_account_id, email")
+        .eq("user_id", context.userId)
+        .maybeSingle();
 
-    return stripeConnect.onboardingLink({
-      accountId,
-      refreshUrl: data.returnUrl,
-      returnUrl: data.returnUrl,
-    });
-  });
+      const row = profile as { stripe_account_id?: string | null; email?: string | null } | null;
+      let accountId = row?.stripe_account_id ?? null;
+
+      if (!accountId) {
+        const created = await stripeConnect.createAccount({
+          email: row?.email ?? (context.claims["email"] as string | undefined) ?? "",
+          country: data.country,
+          userId: context.userId,
+        });
+        if (!created.accountId)
+          return { ok: false, url: null, error: created.error ?? "STRIPE_ERROR" };
+        accountId = created.accountId;
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { error: saveError } = await supabaseAdmin
+          .from("profiles")
+          .update({ stripe_account_id: accountId })
+          .eq("user_id", context.userId);
+        if (saveError) return { ok: false, url: null, error: "PROVIDER_ACCOUNT_SAVE_FAILED" };
+      }
+
+      return stripeConnect.onboardingLink({
+        accountId,
+        refreshUrl: data.returnUrl,
+        returnUrl: data.returnUrl,
+      });
+    },
+  );
 
 export const getPayoutDashboardLink = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<{ ok: boolean; url: string | null; error: string | null }> => {
-    const { stripeConnect } = await import("@/lib/stripe.server");
-    const { data: profile } = await context.supabase
-      .from("profiles")
-      .select("stripe_account_id")
-      .eq("user_id", context.userId)
-      .maybeSingle();
+  .handler(
+    async ({ context }): Promise<{ ok: boolean; url: string | null; error: string | null }> => {
+      const { stripeConnect } = await import("@/lib/stripe.server");
+      const { data: profile } = await context.supabase
+        .from("profiles")
+        .select("stripe_account_id")
+        .eq("user_id", context.userId)
+        .maybeSingle();
 
-    const accountId = (profile as { stripe_account_id?: string | null } | null)?.stripe_account_id ?? null;
-    if (!accountId) return { ok: false, url: null, error: "NO_ACCOUNT" };
-    return stripeConnect.loginLink(accountId);
-  });
+      const accountId =
+        (profile as { stripe_account_id?: string | null } | null)?.stripe_account_id ?? null;
+      if (!accountId) return { ok: false, url: null, error: "NO_ACCOUNT" };
+      return stripeConnect.loginLink(accountId);
+    },
+  );

@@ -129,7 +129,12 @@ export async function guardPublicRequest(options: {
       severity: verdict.hits > verdict.limit * 5 ? "CRITICAL" : "WARN",
       subject: verdict.subject,
       route: options.route,
-      detail: { ...options.detail, hits: verdict.hits, limit: verdict.limit, bucket: options.bucket },
+      detail: {
+        ...options.detail,
+        hits: verdict.hits,
+        limit: verdict.limit,
+        bucket: options.bucket,
+      },
     });
   }
 

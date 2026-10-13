@@ -49,11 +49,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { type ServiceCategory } from "@/lib/marketplace";
-import {
-  CATEGORY_GROUPS,
-  categoryLabel,
-  type GroupId,
-} from "@/lib/taxonomy";
+import { CATEGORY_GROUPS, categoryLabel, type GroupId } from "@/lib/taxonomy";
 import {
   DEFAULT_FILTERS,
   useDiscovery,
@@ -85,57 +81,47 @@ const QUICK_LINKS = [
     fr: "Freelance",
     icon: BriefcaseBusiness,
     tone: "text-primary",
-    ring:
-      "bg-primary/15 ring-primary/50 shadow-primary/20",
+    ring: "bg-primary/15 ring-primary/50 shadow-primary/20",
   },
   {
     to: "/electricity",
     en: "Pay Eneo Bills",
     fr: "Payer facture Eneo",
-    logo:
-      "https://my.eneo.cm/favicon.ico",
-    logoClassName:
-      "h-8 w-8 object-contain",
-    ring:
-      "bg-white ring-emerald-500/60 shadow-emerald-500/20",
+    logo: "https://my.eneo.cm/favicon.ico",
+    logoClassName: "h-8 w-8 object-contain",
+    ring: "bg-white ring-emerald-500/60 shadow-emerald-500/20",
   },
   {
     href: "https://www.tchokopay.com/",
     en: "TchokoPay",
     fr: "TchokoPay",
-    logo:
-      "https://www.tchokopay.com/tchokopay-logo.png",
-    logoClassName:
-      "h-8 w-8 rounded-[11px] object-contain p-1.5",
-    ring:
-      "bg-white ring-sky-400/60 shadow-sky-500/20",
+    logo: "https://www.tchokopay.com/tchokopay-logo.png",
+    logoClassName: "h-8 w-8 rounded-[11px] object-contain p-1.5",
+    ring: "bg-white ring-sky-400/60 shadow-sky-500/20",
   },
   {
     href: "https://www.netflix.com/",
     en: "Netflix",
     fr: "Netflix",
-    logo:
-      "https://assets.nflxext.com/us/ffe/siteui/common/icons/nficon2023.ico",
-    logoClassName:
-      "h-8 w-8 object-contain",
-    ring:
-      "bg-white ring-red-500/60 shadow-red-500/20",
+    logo: "https://assets.nflxext.com/us/ffe/siteui/common/icons/nficon2023.ico",
+    logoClassName: "h-8 w-8 object-contain",
+    ring: "bg-white ring-red-500/60 shadow-red-500/20",
   },
   {
     to: "/campus/instructors",
-    en: "Learn", fr: "Apprendre", icon: GraduationCap,
-    tone: "text-primary", ring: "bg-primary/15 ring-primary/50 shadow-primary/20",
+    en: "Learn",
+    fr: "Apprendre",
+    icon: GraduationCap,
+    tone: "text-primary",
+    ring: "bg-primary/15 ring-primary/50 shadow-primary/20",
   },
   {
     href: "https://www.tiktok.com/",
     en: "TikTok",
     fr: "TikTok",
-    logo:
-      "https://sf16-sg.tiktokcdn.com/obj/eden-sg/uvkuhyieh7lpqpbj/logo_tiktok1.svg",
-    logoClassName:
-      "h-8 w-8 object-contain brightness-125 contrast-125",
-    ring:
-      "bg-white dark:bg-zinc-950 ring-black/30 dark:ring-white/30 shadow-black/20 dark:shadow-white/10",
+    logo: "https://sf16-sg.tiktokcdn.com/obj/eden-sg/uvkuhyieh7lpqpbj/logo_tiktok1.svg",
+    logoClassName: "h-8 w-8 object-contain brightness-125 contrast-125",
+    ring: "bg-white dark:bg-zinc-950 ring-black/30 dark:ring-white/30 shadow-black/20 dark:shadow-white/10",
   },
   {
     to: "/freelance",
@@ -143,8 +129,7 @@ const QUICK_LINKS = [
     fr: "Missions",
     icon: Briefcase,
     tone: "text-red-500",
-    ring:
-      "bg-red-500/15 ring-red-400/50 shadow-red-500/20",
+    ring: "bg-red-500/15 ring-red-400/50 shadow-red-500/20",
   },
   {
     to: "/deals",
@@ -152,8 +137,7 @@ const QUICK_LINKS = [
     fr: "Offres",
     icon: Tag,
     tone: "text-yellow-500",
-    ring:
-      "bg-yellow-500/15 ring-yellow-400/50 shadow-yellow-500/20",
+    ring: "bg-yellow-500/15 ring-yellow-400/50 shadow-yellow-500/20",
   },
   {
     to: "/events",
@@ -161,8 +145,7 @@ const QUICK_LINKS = [
     fr: "Événements",
     icon: Calendar,
     tone: "text-emerald-500",
-    ring:
-      "bg-emerald-500/15 ring-emerald-400/50 shadow-emerald-500/20",
+    ring: "bg-emerald-500/15 ring-emerald-400/50 shadow-emerald-500/20",
   },
   {
     to: "/property",
@@ -170,8 +153,7 @@ const QUICK_LINKS = [
     fr: "Immobilier",
     icon: Home,
     tone: "text-foreground",
-    ring:
-      "bg-foreground/10 ring-foreground/30 shadow-black/10",
+    ring: "bg-foreground/10 ring-foreground/30 shadow-black/10",
   },
   {
     to: "/network",
@@ -179,8 +161,7 @@ const QUICK_LINKS = [
     fr: "Personnes",
     icon: Users,
     tone: "text-emerald-500",
-    ring:
-      "bg-emerald-500/15 ring-emerald-400/50 shadow-emerald-500/20",
+    ring: "bg-emerald-500/15 ring-emerald-400/50 shadow-emerald-500/20",
   },
   {
     to: "/incubator",
@@ -188,8 +169,7 @@ const QUICK_LINKS = [
     fr: "ASH Incubateur",
     icon: GraduationCap,
     tone: "text-[#D4AF37]",
-    ring:
-      "bg-[#D4AF37]/15 ring-[#D4AF37]/60 shadow-[#D4AF37]/20",
+    ring: "bg-[#D4AF37]/15 ring-[#D4AF37]/60 shadow-[#D4AF37]/20",
   },
 ] as const;
 
@@ -248,8 +228,6 @@ function EneoLogo() {
     />
   );
 }
-
-
 
 function normalizeMarketplaceText(value: unknown): string {
   if (value == null) return "";
@@ -364,9 +342,7 @@ function marketplaceSearchScore(item: unknown, query: string): number {
       : token.endsWith("s") && token.length > 3
         ? token.slice(0, -1)
         : token;
-    const plural = singular.endsWith("y")
-      ? `${singular.slice(0, -1)}ies`
-      : `${singular}s`;
+    const plural = singular.endsWith("y") ? `${singular.slice(0, -1)}ies` : `${singular}s`;
 
     if (wordSet.has(token)) {
       score += 40;
@@ -411,13 +387,11 @@ export const Route = createFileRoute("/_authenticated/services/")({
       },
       {
         property: "og:title",
-        content:
-          "Market — ASH Glo",
+        content: "Market — ASH Glo",
       },
       {
         property: "og:description",
-        content:
-          "Discover services, property, deals and ASH apps in Market.",
+        content: "Discover services, property, deals and ASH apps in Market.",
       },
       {
         property: "og:type",
@@ -432,13 +406,7 @@ export const Route = createFileRoute("/_authenticated/services/")({
   component: DiscoveryPage,
 });
 
-const PRICE_STEPS = [
-  5000,
-  10000,
-  25000,
-  50000,
-  100000,
-];
+const PRICE_STEPS = [5000, 10000, 25000, 50000, 100000];
 
 function DiscoveryPage() {
   const { tx, t, lang } = useI18n();
@@ -446,29 +414,20 @@ function DiscoveryPage() {
   const navigate = useNavigate();
   const mode = useServicesMode();
 
-  const {
-    location,
-    asked,
-    request,
-    dismiss,
-  } = useLocation();
+  const { location, asked, request, dismiss } = useLocation();
 
   const { data: cities } = useProviderCities();
 
   const region = useRegion();
   const queryClient = useQueryClient();
 
-  const [group, setGroup] =
-    useState<GroupId | "ALL">("ALL");
+  const [group, setGroup] = useState<GroupId | "ALL">("ALL");
 
-  const [category, setCategory] =
-    useState<ServiceCategory | "ALL">("ALL");
+  const [category, setCategory] = useState<ServiceCategory | "ALL">("ALL");
 
-  const [searchInput, setSearchInput] =
-    useState("");
+  const [searchInput, setSearchInput] = useState("");
 
-  const [showFilters, setShowFilters] =
-    useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const [spotlightFeedOpen, setSpotlightFeedOpen] = useState(false);
   const [spotlightOpen, setSpotlightOpen] = useState(false);
   const [spotlightIndex, setSpotlightIndex] = useState(0);
@@ -476,20 +435,10 @@ function DiscoveryPage() {
   const [spotlightVendorInfoOpen, setSpotlightVendorInfoOpen] = useState(false);
   const spotlightContainerRef = useRef<HTMLDivElement>(null);
 
-  const [filters, setFilters] =
-    useState<DiscoveryFilters>(
-      DEFAULT_FILTERS,
-    );
+  const [filters, setFilters] = useState<DiscoveryFilters>(DEFAULT_FILTERS);
 
   const groupCategories = useMemo(
-    () =>
-      group === "ALL"
-        ? []
-        : (
-            CATEGORY_GROUPS.find(
-              (g) => g.id === group,
-            )?.categories ?? []
-          ),
+    () => (group === "ALL" ? [] : (CATEGORY_GROUPS.find((g) => g.id === group)?.categories ?? [])),
     [group],
   );
 
@@ -526,26 +475,23 @@ function DiscoveryPage() {
 
   useEffect(() => {
     if (category === "ALL") return;
-    trackEvent({ event_type: "category_view", surface: "services", target_type: "category", category });
+    trackEvent({
+      event_type: "category_view",
+      surface: "services",
+      target_type: "category",
+      category,
+    });
   }, [category]);
 
   useEffect(() => {
     const cats: ServiceCategory[] =
-      category !== "ALL"
-        ? [category]
-        : group !== "ALL"
-          ? [...groupCategories]
-          : [];
+      category !== "ALL" ? [category] : group !== "ALL" ? [...groupCategories] : [];
 
     setFilters((f) => ({
       ...f,
       categories: cats,
     }));
-  }, [
-    category,
-    group,
-    groupCategories,
-  ]);
+  }, [category, group, groupCategories]);
 
   // Location-first: once we know the member's city,
   // it leads the feed.
@@ -564,9 +510,7 @@ function DiscoveryPage() {
 
   // Country-scoped catalogue.
   useEffect(() => {
-    const scope = region.seesEverything
-      ? null
-      : region.country;
+    const scope = region.seesEverything ? null : region.country;
 
     setFilters((f) =>
       f.country === scope
@@ -576,25 +520,19 @@ function DiscoveryPage() {
             country: scope,
           },
     );
-  }, [
-    region.country,
-    region.seesEverything,
-  ]);
+  }, [region.country, region.seesEverything]);
 
-  const {
-    data,
-    isLoading,
-    isError,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-  } = useDiscovery(mode === "market" ? { ...DEFAULT_FILTERS, country: region.seesEverything ? null : region.country, nearCity: location?.label ?? null } : filters);
-
-  const providers = useMemo(
-    () =>
-      (data?.pages ?? []).flat(),
-    [data],
+  const { data, isLoading, isError, isFetchingNextPage, hasNextPage, fetchNextPage } = useDiscovery(
+    mode === "market"
+      ? {
+          ...DEFAULT_FILTERS,
+          country: region.seesEverything ? null : region.country,
+          nearCity: location?.label ?? null,
+        }
+      : filters,
   );
+
+  const providers = useMemo(() => (data?.pages ?? []).flat(), [data]);
 
   const displayedProviders = useMemo(() => {
     const query = searchInput.trim();
@@ -613,29 +551,16 @@ function DiscoveryPage() {
     return (matching.length > 0 ? matching : scored).map((entry) => entry.provider);
   }, [providers, searchInput]);
 
-  const browsing =
-    !searchInput.trim() &&
-    category === "ALL" &&
-    group === "ALL";
+  const browsing = !searchInput.trim() && category === "ALL" && group === "ALL";
 
   const recommended = useMemo(
-    () =>
-      [...providers]
-        .sort(
-          (a, b) =>
-            b.rating_avg -
-            a.rating_avg,
-        )
-        .slice(0, 8),
+    () => [...providers].sort((a, b) => b.rating_avg - a.rating_avg).slice(0, 8),
     [providers],
   );
 
   const { data: community } = useSpotlightFeed();
 
-  const spotlightPosts = useMemo(
-    () => (community ?? []).slice(0, 18),
-    [community],
-  );
+  const spotlightPosts = useMemo(() => (community ?? []).slice(0, 18), [community]);
 
   const filteredSpotlightPosts = useMemo(() => {
     const query = spotlightSearch.trim() || searchInput.trim();
@@ -762,47 +687,30 @@ function DiscoveryPage() {
   }
 
   // Infinite scroll sentinel.
-  const sentinel =
-    useRef<HTMLDivElement>(null);
+  const sentinel = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const node = sentinel.current;
 
     if (!node) return;
 
-    const observer =
-      new IntersectionObserver(
-        (entries) => {
-          if (
-            entries[0]?.isIntersecting &&
-            hasNextPage &&
-            !isFetchingNextPage
-          ) {
-            void fetchNextPage();
-          }
-        },
-      );
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+        void fetchNextPage();
+      }
+    });
 
     observer.observe(node);
 
-    return () =>
-      observer.disconnect();
-  }, [
-    hasNextPage,
-    isFetchingNextPage,
-    fetchNextPage,
-  ]);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  function selectGroup(
-    next: GroupId | "ALL",
-  ) {
+  function selectGroup(next: GroupId | "ALL") {
     setGroup(next);
     setCategory("ALL");
   }
 
-  function patch(
-    next: Partial<DiscoveryFilters>,
-  ) {
+  function patch(next: Partial<DiscoveryFilters>) {
     setFilters((f) => ({
       ...f,
       ...next,
@@ -812,138 +720,199 @@ function DiscoveryPage() {
   const activeFilterCount =
     (filters.city ? 1 : 0) +
     (filters.minRating > 0 ? 1 : 0) +
-    (filters.maxPrice !== null
-      ? 1
-      : 0) +
+    (filters.maxPrice !== null ? 1 : 0) +
     (filters.verifiedOnly ? 1 : 0) +
     (filters.availableOnly ? 1 : 0);
 
-  if (mode === "market") return (
-    <PullToRefresh onRefresh={() => { resetProviderRotation(); return queryClient.resetQueries({ predicate: (q) => ["discovery", "property", "deals"].includes(String(q.queryKey[0])) }); }} label={tx("Refreshing", "Actualisation")}>
-      <div className="mx-auto w-full max-w-5xl"><MarketBrowser providers={providers} loadingProviders={isLoading} providerError={isError} hasMore={Boolean(hasNextPage)} loadMore={() => { void fetchNextPage(); }} loadingMore={isFetchingNextPage} /></div>
-    </PullToRefresh>
-  );
+  if (mode === "market")
+    return (
+      <PullToRefresh
+        onRefresh={() => {
+          resetProviderRotation();
+          return queryClient.resetQueries({
+            predicate: (q) => ["discovery", "property", "deals"].includes(String(q.queryKey[0])),
+          });
+        }}
+        label={tx("Refreshing", "Actualisation")}
+      >
+        <div className="mx-auto w-full max-w-5xl">
+          <MarketBrowser
+            providers={providers}
+            loadingProviders={isLoading}
+            providerError={isError}
+            hasMore={Boolean(hasNextPage)}
+            loadMore={() => {
+              void fetchNextPage();
+            }}
+            loadingMore={isFetchingNextPage}
+          />
+        </div>
+      </PullToRefresh>
+    );
 
   return (
-    <PullToRefresh onRefresh={() => { resetProviderRotation(); return queryClient.resetQueries({ predicate: (q) => q.state.status !== "pending" }); }} label={tx("Refreshing", "Actualisation")}>
-    <div className="mx-auto w-full max-w-5xl space-y-5">
-      <h1 className="flex items-center gap-2 font-display text-2xl font-bold text-foreground"><Sparkles className="size-6 text-primary" aria-hidden />Services</h1>
+    <PullToRefresh
+      onRefresh={() => {
+        resetProviderRotation();
+        return queryClient.resetQueries({ predicate: (q) => q.state.status !== "pending" });
+      }}
+      label={tx("Refreshing", "Actualisation")}
+    >
+      <div className="mx-auto w-full max-w-5xl space-y-5">
+        <h1 className="flex items-center gap-2 font-display text-2xl font-bold text-foreground">
+          <Sparkles className="size-6 text-primary" aria-hidden />
+          Services
+        </h1>
 
+        {!asked && !location ? (
+          <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-2xl border border-border bg-card p-4 sm:flex sm:justify-between">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+              <MapPin className="size-5" aria-hidden />
+            </span>
 
+            <p className="min-w-0 text-sm text-muted-foreground">
+              {tx(
+                "Enable location to see pros near you.",
+                "Activez la localisation pour voir les pros près de vous.",
+              )}
+            </p>
 
-      {!asked && !location ? (
-        <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-2xl border border-border bg-card p-4 sm:flex sm:justify-between">
-          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-            <MapPin
-              className="size-5"
+            <div className="col-span-2 flex gap-2 sm:col-span-1">
+              <Button size="sm" onClick={() => void request()}>
+                {tx("Enable", "Activer")}
+              </Button>
+
+              <Button size="sm" variant="ghost" onClick={dismiss}>
+                {tx("Later", "Plus tard")}
+              </Button>
+            </div>
+          </div>
+        ) : null}
+
+        {/* SEARCH */}
+        <div className="-mx-1 grid grid-cols-[minmax(0,1fr)_auto] gap-2 rounded-2xl bg-background/85 px-1 py-2 backdrop-blur-xl lg:top-0">
+          <div className="relative min-w-0">
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
               aria-hidden
             />
-          </span>
 
-          <p className="min-w-0 text-sm text-muted-foreground">
-            {tx("Enable location to see pros near you.", "Activez la localisation pour voir les pros près de vous.")}
-          </p>
-
-          <div className="col-span-2 flex gap-2 sm:col-span-1">
-            <Button
-              size="sm"
-              onClick={() =>
-                void request()
-              }
-            >
-              {tx("Enable", "Activer")}
-            </Button>
-
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={dismiss}
-            >
-              {tx("Later", "Plus tard")}
-            </Button>
+            <Input
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder={tx("Search a pro, a city…", "Rechercher un pro, une ville…")}
+              className="h-11 rounded-full pl-9 shadow-[var(--shadow-card)]"
+              aria-label={t("svc.search")}
+            />
           </div>
-        </div>
-      ) : null}
 
-      {/* SEARCH */}
-      <div className="-mx-1 grid grid-cols-[minmax(0,1fr)_auto] gap-2 rounded-2xl bg-background/85 px-1 py-2 backdrop-blur-xl lg:top-0">
-        <div className="relative min-w-0">
-          <Search
-            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-            aria-hidden
-          />
+          <Button
+            variant={showFilters || activeFilterCount > 0 ? "default" : "outline"}
+            onClick={() => setShowFilters((v) => !v)}
+            aria-expanded={showFilters}
+            className="h-11 rounded-full"
+          >
+            <SlidersHorizontal className="size-4" aria-hidden />
 
-          <Input
-            value={searchInput}
-            onChange={(e) =>
-              setSearchInput(
-                e.target.value,
-              )
-            }
-            placeholder={
-              tx("Search a pro, a city…", "Rechercher un pro, une ville…")
-            }
-            className="h-11 rounded-full pl-9 shadow-[var(--shadow-card)]"
-            aria-label={t(
-              "svc.search",
-            )}
-          />
+            <span className="hidden sm:inline">{tx("Filters", "Filtres")}</span>
+
+            {activeFilterCount > 0 ? (
+              <span className="tabular text-xs">({activeFilterCount})</span>
+            ) : null}
+          </Button>
         </div>
 
-        <Button
-          variant={
-            showFilters ||
-            activeFilterCount > 0
-              ? "default"
-              : "outline"
-          }
-          onClick={() =>
-            setShowFilters(
-              (v) => !v,
-            )
-          }
-          aria-expanded={
-            showFilters
-          }
-          className="h-11 rounded-full"
-        >
-          <SlidersHorizontal
-            className="size-4"
-            aria-hidden
-          />
-
-          <span className="hidden sm:inline">
-            {tx("Filters", "Filtres")}
-          </span>
-
-          {activeFilterCount >
-          0 ? (
-            <span className="tabular text-xs">
-              ({activeFilterCount})
-            </span>
-          ) : null}
-        </Button>
-      </div>
-
-      {/* =========================================================
+        {/* =========================================================
           ASH MARKETPLACE QUICK NAVIGATION
           ========================================================= */}
-      <nav
-        aria-label={
-          tx("ASH sections", "Sections ASH")
-        }
-        className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 pt-1 scrollbar-none"
-      >
-        <Button variant="ghost" onClick={() => { playTabSound(); setServicesMode("market"); }} className="group flex h-auto w-[72px] shrink-0 flex-col items-center gap-1.5 p-0 hover:bg-transparent" aria-label="Market">
-          <span className="grid size-14 place-items-center rounded-full bg-primary/15 p-[2px] shadow-lg ring-2 ring-primary/50"><span className="grid size-full place-items-center rounded-full bg-card"><Store className="size-6 text-primary" aria-hidden /></span></span>
-          <span className="text-xs font-semibold text-muted-foreground">Market</span>
-        </Button>
-        {QUICK_LINKS.map((item) => {
-          // Eneo is an internal ASH route and is always first.
-          if ("to" in item && "logo" in item) {
+        <nav
+          aria-label={tx("ASH sections", "Sections ASH")}
+          className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 pt-1 scrollbar-none"
+        >
+          <Button
+            variant="ghost"
+            onClick={() => {
+              playTabSound();
+              setServicesMode("market");
+            }}
+            className="group flex h-auto w-[72px] shrink-0 flex-col items-center gap-1.5 p-0 hover:bg-transparent"
+            aria-label="Market"
+          >
+            <span className="grid size-14 place-items-center rounded-full bg-primary/15 p-[2px] shadow-lg ring-2 ring-primary/50">
+              <span className="grid size-full place-items-center rounded-full bg-card">
+                <Store className="size-6 text-primary" aria-hidden />
+              </span>
+            </span>
+            <span className="text-xs font-semibold text-muted-foreground">Market</span>
+          </Button>
+          {QUICK_LINKS.map((item) => {
+            // Eneo is an internal ASH route and is always first.
+            if ("to" in item && "logo" in item) {
+              return (
+                <Link
+                  key={item.en}
+                  to={item.to}
+                  className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
+                >
+                  <span
+                    className={cn(
+                      "grid size-14 place-items-center rounded-full p-[2px] shadow-lg ring-2 transition-all duration-300 group-hover:scale-105 group-active:scale-95",
+                      item.ring,
+                    )}
+                  >
+                    <span className="grid size-full place-items-center rounded-full bg-white dark:bg-zinc-950 shadow-inner">
+                      <EneoLogo />
+                    </span>
+                  </span>
+
+                  <span className="w-full text-center text-xs font-semibold leading-tight text-muted-foreground group-hover:text-foreground">
+                    {tx(item.en, item.fr)}
+                  </span>
+                </Link>
+              );
+            }
+
+            // Third-party services use the native in-app browser on mobile.
+            if ("href" in item) {
+              return (
+                <button
+                  key={item.en}
+                  type="button"
+                  onClick={() => void openExternalService(item.href)}
+                  className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
+                  aria-label={tx(item.en, item.fr)}
+                >
+                  <span
+                    className={cn(
+                      "grid size-14 place-items-center rounded-full p-[2px] shadow-lg ring-2 transition-all duration-300 group-hover:scale-105 group-active:scale-95",
+                      item.ring,
+                    )}
+                  >
+                    <span className="grid size-full place-items-center rounded-full bg-card shadow-inner">
+                      <img
+                        src={item.logo}
+                        alt={item.en}
+                        className={cn(item.logoClassName)}
+                        loading="eager"
+                        onError={(event) => {
+                          event.currentTarget.style.display = "none";
+                        }}
+                      />
+                    </span>
+                  </span>
+
+                  <span className="w-full text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
+                    {tx(item.en, item.fr)}
+                  </span>
+                </button>
+              );
+            }
+
+            const Icon = item.icon;
+
             return (
               <Link
-                key={item.en}
+                key={item.to}
                 to={item.to}
                 className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
               >
@@ -953,305 +922,88 @@ function DiscoveryPage() {
                     item.ring,
                   )}
                 >
-                  <span className="grid size-full place-items-center rounded-full bg-white dark:bg-zinc-950 shadow-inner">
-                    <EneoLogo />
-                  </span>
-                </span>
-
-                <span className="w-full text-center text-xs font-semibold leading-tight text-muted-foreground group-hover:text-foreground">
-                  {tx(item.en, item.fr)}
-                </span>
-              </Link>
-            );
-          }
-
-          // Third-party services use the native in-app browser on mobile.
-          if ("href" in item) {
-            return (
-              <button
-                key={item.en}
-                type="button"
-                onClick={() => void openExternalService(item.href)}
-                className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
-                aria-label={tx(item.en, item.fr)}
-              >
-                <span
-                  className={cn(
-                    "grid size-14 place-items-center rounded-full p-[2px] shadow-lg ring-2 transition-all duration-300 group-hover:scale-105 group-active:scale-95",
-                    item.ring,
-                  )}
-                >
                   <span className="grid size-full place-items-center rounded-full bg-card shadow-inner">
-                    <img
-                      src={item.logo}
-                      alt={item.en}
-                      className={cn(item.logoClassName)}
-                      loading="eager"
-                      onError={(event) => {
-                        event.currentTarget.style.display = "none";
-                      }}
-                    />
+                    <Icon className={cn("size-6", item.tone)} aria-hidden />
                   </span>
                 </span>
 
                 <span className="w-full text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
                   {tx(item.en, item.fr)}
                 </span>
-              </button>
+              </Link>
             );
-          }
+          })}
+        </nav>
 
-          const Icon = item.icon;
+        {/* Stories and Spotlight live on the feed, not here. */}
 
-          return (
-            <Link
-              key={item.to}
-              to={item.to}
-              className="group flex w-[72px] shrink-0 flex-col items-center gap-1.5"
-            >
-              <span
-                className={cn(
-                  "grid size-14 place-items-center rounded-full p-[2px] shadow-lg ring-2 transition-all duration-300 group-hover:scale-105 group-active:scale-95",
-                  item.ring,
-                )}
-              >
-                <span className="grid size-full place-items-center rounded-full bg-card shadow-inner">
-                  <Icon
-                    className={cn("size-6", item.tone)}
-                    aria-hidden
-                  />
-                </span>
-              </span>
-
-              <span className="w-full text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground">
-                {tx(item.en, item.fr)}
-              </span>
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* Stories and Spotlight live on the feed, not here. */}
-
-      {/* ASH SPOTLIGHT — SCROLLABLE FEED */}
-      {spotlightFeedOpen && filteredSpotlightPosts.length > 0 ? (
-        <div
-          className="fixed inset-0 z-[110] bg-background/88 backdrop-blur-xl"
-          role="dialog"
-          aria-modal="true"
-          aria-label={tx("ASH Spotlight feed", "Flux ASH Spotlight")}
-          onClick={(event) => {
-            if (event.target === event.currentTarget) {
-              setSpotlightFeedOpen(false);
-            }
-          }}
-        >
-          <div className="mx-auto flex h-full w-full max-w-5xl flex-col bg-background shadow-2xl sm:h-[92vh] sm:rounded-[28px] sm:border sm:border-border sm:mt-[4vh] overflow-hidden">
-            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border bg-card/95 px-4 py-3 backdrop-blur-xl sm:px-5">
-              <div className="flex min-w-0 items-center gap-3">
-                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#D4AF37] via-[#9f7b18] to-[#4B0082] text-white shadow-lg">
-                  <Play className="size-4 fill-current" aria-hidden />
-                </span>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-extrabold text-foreground">
-                    ASH Spotlight
-                  </p>
-                  <p className="truncate text-[10px] font-semibold text-muted-foreground">
-                    {tx("Scroll to discover vendors. Tap a video to open it fullscreen.", "Faites défiler pour découvrir les vendeurs. Touchez une vidéo pour l’ouvrir en plein écran.")}
-                  </p>
+        {/* ASH SPOTLIGHT — SCROLLABLE FEED */}
+        {spotlightFeedOpen && filteredSpotlightPosts.length > 0 ? (
+          <div
+            className="fixed inset-0 z-[110] bg-background/88 backdrop-blur-xl"
+            role="dialog"
+            aria-modal="true"
+            aria-label={tx("ASH Spotlight feed", "Flux ASH Spotlight")}
+            onClick={(event) => {
+              if (event.target === event.currentTarget) {
+                setSpotlightFeedOpen(false);
+              }
+            }}
+          >
+            <div className="mx-auto flex h-full w-full max-w-5xl flex-col bg-background shadow-2xl sm:h-[92vh] sm:rounded-[28px] sm:border sm:border-border sm:mt-[4vh] overflow-hidden">
+              <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border bg-card/95 px-4 py-3 backdrop-blur-xl sm:px-5">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#D4AF37] via-[#9f7b18] to-[#4B0082] text-white shadow-lg">
+                    <Play className="size-4 fill-current" aria-hidden />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-extrabold text-foreground">ASH Spotlight</p>
+                    <p className="truncate text-[10px] font-semibold text-muted-foreground">
+                      {tx(
+                        "Scroll to discover vendors. Tap a video to open it fullscreen.",
+                        "Faites défiler pour découvrir les vendeurs. Touchez une vidéo pour l’ouvrir en plein écran.",
+                      )}
+                    </p>
+                  </div>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSpotlightFeedOpen(false)}
+                  className="grid size-10 shrink-0 place-items-center rounded-full bg-muted text-foreground transition-colors hover:bg-muted/80 active:scale-95"
+                  aria-label={tx("Close", "Fermer")}
+                >
+                  <X className="size-5" aria-hidden />
+                </button>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setSpotlightFeedOpen(false)}
-                className="grid size-10 shrink-0 place-items-center rounded-full bg-muted text-foreground transition-colors hover:bg-muted/80 active:scale-95"
-                aria-label={tx("Close", "Fermer")}
+              <div
+                ref={spotlightContainerRef}
+                className="min-h-0 flex-1 snap-y snap-mandatory overflow-y-auto overscroll-contain bg-gradient-to-b from-background via-background to-muted/30 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               >
-                <X className="size-5" aria-hidden />
-              </button>
-            </div>
+                {spotlightPosts.map((post, index) => {
+                  const mediaIsVideo = post.media_type === "video" || isVideoSource(post.url);
+                  const businessName = post.provider.business_name;
 
-            <div
-              ref={spotlightContainerRef}
-              className="min-h-0 flex-1 snap-y snap-mandatory overflow-y-auto overscroll-contain bg-gradient-to-b from-background via-background to-muted/30 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-            >
-              {spotlightPosts.map((post, index) => {
-                const mediaIsVideo = post.media_type === "video" || isVideoSource(post.url);
-                const businessName = post.provider.business_name;
-
-                return (
-                  <article
-                    key={post.id}
-                    className="group flex min-h-[72vh] w-full snap-start items-center justify-center border-b border-border p-3 sm:min-h-[86vh] sm:p-6"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSpotlightIndex(index);
-                        setSpotlightVendorInfoOpen(false);
-                        setSpotlightFeedOpen(false);
-                        setSpotlightOpen(true);
-                      }}
-                      className="relative h-[70vh] w-full max-w-md overflow-hidden rounded-[28px] border border-white/10 bg-black text-left shadow-2xl ring-1 ring-black/10 transition-transform duration-300 active:scale-[0.99] sm:h-[78vh]"
-                      aria-label={
-                        fr
-                          ? `Ouvrir le Spotlight de ${businessName}`
-                          : `Open ${businessName} Spotlight fullscreen`
-                      }
+                  return (
+                    <article
+                      key={post.id}
+                      className="group flex min-h-[72vh] w-full snap-start items-center justify-center border-b border-border p-3 sm:min-h-[86vh] sm:p-6"
                     >
-                      {mediaIsVideo ? (
-                        <video
-                          src={post.url}
-                          muted
-                          loop
-                          autoPlay
-                          playsInline
-                          preload="metadata"
-                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.015]"
-                        />
-                      ) : (
-                        <img
-                          src={post.url}
-                          alt={post.caption ?? businessName}
-                          loading="lazy"
-                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.015]"
-                        />
-                      )}
-
-                      <span className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/20" />
-
-                      <span className="absolute left-3 right-3 top-3 flex items-center justify-between gap-2">
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/35 px-2.5 py-1.5 text-[9px] font-bold text-white backdrop-blur-md">
-                          <span className="size-1.5 rounded-full bg-[#D4AF37] shadow-[0_0_10px_rgba(212,175,55,0.9)]" />
-                          ASH Spotlight
-                        </span>
-
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/35 px-2.5 py-1.5 text-[9px] font-bold text-white backdrop-blur-md">
-                          <Play className="size-3 fill-current" aria-hidden />
-                          {tx("Fullscreen", "Plein écran")}
-                        </span>
-                      </span>
-
-                      <span className="absolute inset-x-0 bottom-0 p-4 text-white sm:p-5">
-                        <span className="flex items-center gap-2.5">
-                          <span className="grid size-11 place-items-center overflow-hidden rounded-full border border-white/25 bg-gradient-to-br from-[#D4AF37] to-[#4B0082] shadow-lg">
-                            {post.provider.avatar_url ? (
-                              <img
-                                src={post.provider.avatar_url}
-                                alt=""
-                                className="size-full object-cover"
-                              />
-                            ) : (
-                              <span className="text-xs font-black">
-                                {businessName.trim().slice(0, 2).toUpperCase()}
-                              </span>
-                            )}
-                          </span>
-                          <span className="min-w-0">
-                            <span className="block truncate text-sm font-extrabold">
-                              {businessName}
-                            </span>
-                            {post.provider.city ? (
-                              <span className="block text-[11px] text-white/65">
-                                {post.provider.city}
-                              </span>
-                            ) : null}
-                          </span>
-                        </span>
-
-                        {post.caption ? (
-                          <span className="mt-3 block line-clamp-2 text-sm leading-relaxed text-white/90">
-                            {post.caption}
-                          </span>
-                        ) : null}
-
-                        <span className="mt-4 flex items-center justify-center gap-2 rounded-2xl bg-white/12 px-4 py-3 text-xs font-bold text-white backdrop-blur-md ring-1 ring-white/15">
-                          <Play className="size-3.5 fill-current" aria-hidden />
-                          {tx("Tap to open fullscreen", "Touchez pour ouvrir en plein écran")}
-                        </span>
-                      </span>
-                    </button>
-                  </article>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      {/* ASH SPOTLIGHT — TRUE FULLSCREEN REELS VIEWER */}
-      {spotlightOpen && filteredSpotlightPosts.length > 0 && typeof document !== "undefined"
-        ? createPortal(
-            <div
-              className="fixed inset-0 z-[99999] h-[100dvh] min-h-[100svh] w-screen overflow-hidden bg-black"
-              role="dialog"
-              aria-modal="true"
-              aria-label={
-                tx("ASH Spotlight fullscreen", "ASH Spotlight plein écran")
-              }
-            >
-              {/* Portal-mounted overlay: deliberately rendered under document.body so
-                  it sits above the authenticated shell, top header, bottom nav and orb. */}
-              <div className="relative h-full w-full overflow-hidden bg-black">
-                <div className="pointer-events-none absolute inset-x-0 top-0 z-40 h-40 bg-gradient-to-b from-black/90 via-black/45 to-transparent" />
-
-                <div className="absolute inset-x-0 top-0 z-50 px-3 pb-2 pt-[calc(0.55rem+env(safe-area-inset-top))] sm:px-4">
-                  <div className="mx-auto flex w-full max-w-3xl items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setSpotlightOpen(false)}
-                      className="grid size-11 shrink-0 place-items-center rounded-full border border-white/15 bg-black/45 text-white shadow-lg backdrop-blur-xl transition-all hover:bg-white/10 active:scale-95"
-                      aria-label={tx("Back to videos", "Retour aux vidéos")}
-                    >
-                      <ArrowLeft className="size-5" aria-hidden />
-                    </button>
-
-                    <div className="relative min-w-0 flex-1">
-                      <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-white/60" aria-hidden />
-                      <input
-                        value={spotlightSearch}
-                        onChange={(event) => {
-                          setSpotlightSearch(event.target.value);
-                          setSpotlightIndex(0);
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSpotlightIndex(index);
+                          setSpotlightVendorInfoOpen(false);
+                          setSpotlightFeedOpen(false);
+                          setSpotlightOpen(true);
                         }}
-                        placeholder={tx("Search vendors, offers, businesses…", "Rechercher un vendeur, une offre, une entreprise…")}
-                        aria-label={tx("Search ASH Spotlight", "Rechercher dans ASH Spotlight")}
-                        className="h-11 w-full rounded-full border border-white/15 bg-black/45 pl-9 pr-4 text-sm font-medium text-white outline-none backdrop-blur-xl placeholder:text-white/45 focus:border-[#D4AF37]/55 focus:ring-2 focus:ring-[#D4AF37]/20"
-                      />
-                    </div>
-
-                    <span className="hidden shrink-0 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-2.5 py-1 text-[9px] font-extrabold tracking-wide text-[#D4AF37] backdrop-blur-md sm:inline-flex">
-                      ASH
-                    </span>
-                  </div>
-
-                  {filteredSpotlightPosts.length === 0 && spotlightSearch.trim() ? (
-                    <p className="mx-auto mt-2 max-w-3xl px-14 text-center text-[11px] font-semibold text-white/65">
-                      {tx("No matching Spotlight found.", "Aucun Spotlight correspondant.")}
-                    </p>
-                  ) : null}
-                </div>
-
-                <div
-                  ref={spotlightContainerRef}
-                  className="h-full snap-y snap-mandatory overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-                >
-                  {filteredSpotlightPosts.map((post) => {
-                    const mediaIsVideo = post.media_type === "video" || isVideoSource(post.url);
-                    const businessName = post.provider.business_name;
-                    const city = post.provider.city;
-                    const providerMeta = post.provider as typeof post.provider & {
-                      description?: string | null;
-                      bio?: string | null;
-                    };
-                    const offerDescription =
-                      providerMeta.description ?? providerMeta.bio ?? post.caption ?? null;
-
-                    return (
-                      <article
-                        key={post.id}
-                        className="relative h-[100dvh] min-h-[100svh] w-full snap-start overflow-hidden bg-black"
+                        className="relative h-[70vh] w-full max-w-md overflow-hidden rounded-[28px] border border-white/10 bg-black text-left shadow-2xl ring-1 ring-black/10 transition-transform duration-300 active:scale-[0.99] sm:h-[78vh]"
+                        aria-label={
+                          fr
+                            ? `Ouvrir le Spotlight de ${businessName}`
+                            : `Open ${businessName} Spotlight fullscreen`
+                        }
                       >
                         {mediaIsVideo ? (
                           <video
@@ -1261,716 +1013,647 @@ function DiscoveryPage() {
                             autoPlay
                             playsInline
                             preload="metadata"
-                            className="absolute inset-0 h-full w-full object-cover"
+                            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.015]"
                           />
                         ) : (
                           <img
                             src={post.url}
                             alt={post.caption ?? businessName}
-                            className="absolute inset-0 h-full w-full object-cover"
+                            loading="lazy"
+                            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.015]"
                           />
                         )}
 
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/15 to-black/10" />
+                        <span className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/20" />
 
-                        {/* Compact vendor identity — tap to expand/collapse details. */}
-                        <div className="absolute inset-x-0 top-[calc(4.3rem+env(safe-area-inset-top))] z-30 px-3 sm:px-4">
-                          <div className="mx-auto w-full max-w-3xl">
-                            <button
-                              type="button"
-                              onClick={() => setSpotlightVendorInfoOpen((open) => !open)}
-                              className={cn(
-                                "flex w-fit max-w-full items-center gap-2 rounded-full border border-white/15 bg-black/40 text-left text-white shadow-lg backdrop-blur-xl transition-all duration-300",
-                                spotlightVendorInfoOpen ? "px-3 py-2.5" : "px-2 py-1.5",
+                        <span className="absolute left-3 right-3 top-3 flex items-center justify-between gap-2">
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/35 px-2.5 py-1.5 text-[9px] font-bold text-white backdrop-blur-md">
+                            <span className="size-1.5 rounded-full bg-[#D4AF37] shadow-[0_0_10px_rgba(212,175,55,0.9)]" />
+                            ASH Spotlight
+                          </span>
+
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/35 px-2.5 py-1.5 text-[9px] font-bold text-white backdrop-blur-md">
+                            <Play className="size-3 fill-current" aria-hidden />
+                            {tx("Fullscreen", "Plein écran")}
+                          </span>
+                        </span>
+
+                        <span className="absolute inset-x-0 bottom-0 p-4 text-white sm:p-5">
+                          <span className="flex items-center gap-2.5">
+                            <span className="grid size-11 place-items-center overflow-hidden rounded-full border border-white/25 bg-gradient-to-br from-[#D4AF37] to-[#4B0082] shadow-lg">
+                              {post.provider.avatar_url ? (
+                                <img
+                                  src={post.provider.avatar_url}
+                                  alt=""
+                                  className="size-full object-cover"
+                                />
+                              ) : (
+                                <span className="text-xs font-black">
+                                  {businessName.trim().slice(0, 2).toUpperCase()}
+                                </span>
                               )}
-                              aria-expanded={spotlightVendorInfoOpen}
-                            >
-                              <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-full border border-white/30 bg-gradient-to-br from-[#D4AF37] to-[#4B0082] shadow-lg">
-                                {post.provider.avatar_url ? (
-                                  <img
-                                    src={post.provider.avatar_url}
-                                    alt=""
-                                    className="size-full object-cover"
-                                  />
-                                ) : (
-                                  <span className="text-[9px] font-black">
-                                    {businessName.trim().slice(0, 2).toUpperCase()}
-                                  </span>
-                                )}
+                            </span>
+                            <span className="min-w-0">
+                              <span className="block truncate text-sm font-extrabold">
+                                {businessName}
                               </span>
+                              {post.provider.city ? (
+                                <span className="block text-[11px] text-white/65">
+                                  {post.provider.city}
+                                </span>
+                              ) : null}
+                            </span>
+                          </span>
 
-                              <span className="min-w-0 pr-1">
-                                <span className="flex items-center gap-1.5">
-                                  <span className="max-w-[15rem] truncate text-[12px] font-extrabold">
-                                    {businessName}
+                          {post.caption ? (
+                            <span className="mt-3 block line-clamp-2 text-sm leading-relaxed text-white/90">
+                              {post.caption}
+                            </span>
+                          ) : null}
+
+                          <span className="mt-4 flex items-center justify-center gap-2 rounded-2xl bg-white/12 px-4 py-3 text-xs font-bold text-white backdrop-blur-md ring-1 ring-white/15">
+                            <Play className="size-3.5 fill-current" aria-hidden />
+                            {tx("Tap to open fullscreen", "Touchez pour ouvrir en plein écran")}
+                          </span>
+                        </span>
+                      </button>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {/* ASH SPOTLIGHT — TRUE FULLSCREEN REELS VIEWER */}
+        {spotlightOpen && filteredSpotlightPosts.length > 0 && typeof document !== "undefined"
+          ? createPortal(
+              <div
+                className="fixed inset-0 z-[99999] h-[100dvh] min-h-[100svh] w-screen overflow-hidden bg-black"
+                role="dialog"
+                aria-modal="true"
+                aria-label={tx("ASH Spotlight fullscreen", "ASH Spotlight plein écran")}
+              >
+                {/* Portal-mounted overlay: deliberately rendered under document.body so
+                  it sits above the authenticated shell, top header, bottom nav and orb. */}
+                <div className="relative h-full w-full overflow-hidden bg-black">
+                  <div className="pointer-events-none absolute inset-x-0 top-0 z-40 h-40 bg-gradient-to-b from-black/90 via-black/45 to-transparent" />
+
+                  <div className="absolute inset-x-0 top-0 z-50 px-3 pb-2 pt-[calc(0.55rem+env(safe-area-inset-top))] sm:px-4">
+                    <div className="mx-auto flex w-full max-w-3xl items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSpotlightOpen(false)}
+                        className="grid size-11 shrink-0 place-items-center rounded-full border border-white/15 bg-black/45 text-white shadow-lg backdrop-blur-xl transition-all hover:bg-white/10 active:scale-95"
+                        aria-label={tx("Back to videos", "Retour aux vidéos")}
+                      >
+                        <ArrowLeft className="size-5" aria-hidden />
+                      </button>
+
+                      <div className="relative min-w-0 flex-1">
+                        <Search
+                          className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-white/60"
+                          aria-hidden
+                        />
+                        <input
+                          value={spotlightSearch}
+                          onChange={(event) => {
+                            setSpotlightSearch(event.target.value);
+                            setSpotlightIndex(0);
+                          }}
+                          placeholder={tx(
+                            "Search vendors, offers, businesses…",
+                            "Rechercher un vendeur, une offre, une entreprise…",
+                          )}
+                          aria-label={tx("Search ASH Spotlight", "Rechercher dans ASH Spotlight")}
+                          className="h-11 w-full rounded-full border border-white/15 bg-black/45 pl-9 pr-4 text-sm font-medium text-white outline-none backdrop-blur-xl placeholder:text-white/45 focus:border-[#D4AF37]/55 focus:ring-2 focus:ring-[#D4AF37]/20"
+                        />
+                      </div>
+
+                      <span className="hidden shrink-0 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-2.5 py-1 text-[9px] font-extrabold tracking-wide text-[#D4AF37] backdrop-blur-md sm:inline-flex">
+                        ASH
+                      </span>
+                    </div>
+
+                    {filteredSpotlightPosts.length === 0 && spotlightSearch.trim() ? (
+                      <p className="mx-auto mt-2 max-w-3xl px-14 text-center text-[11px] font-semibold text-white/65">
+                        {tx("No matching Spotlight found.", "Aucun Spotlight correspondant.")}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <div
+                    ref={spotlightContainerRef}
+                    className="h-full snap-y snap-mandatory overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                  >
+                    {filteredSpotlightPosts.map((post) => {
+                      const mediaIsVideo = post.media_type === "video" || isVideoSource(post.url);
+                      const businessName = post.provider.business_name;
+                      const city = post.provider.city;
+                      const providerMeta = post.provider as typeof post.provider & {
+                        description?: string | null;
+                        bio?: string | null;
+                      };
+                      const offerDescription =
+                        providerMeta.description ?? providerMeta.bio ?? post.caption ?? null;
+
+                      return (
+                        <article
+                          key={post.id}
+                          className="relative h-[100dvh] min-h-[100svh] w-full snap-start overflow-hidden bg-black"
+                        >
+                          {mediaIsVideo ? (
+                            <video
+                              src={post.url}
+                              muted
+                              loop
+                              autoPlay
+                              playsInline
+                              preload="metadata"
+                              className="absolute inset-0 h-full w-full object-cover"
+                            />
+                          ) : (
+                            <img
+                              src={post.url}
+                              alt={post.caption ?? businessName}
+                              className="absolute inset-0 h-full w-full object-cover"
+                            />
+                          )}
+
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/15 to-black/10" />
+
+                          {/* Compact vendor identity — tap to expand/collapse details. */}
+                          <div className="absolute inset-x-0 top-[calc(4.3rem+env(safe-area-inset-top))] z-30 px-3 sm:px-4">
+                            <div className="mx-auto w-full max-w-3xl">
+                              <button
+                                type="button"
+                                onClick={() => setSpotlightVendorInfoOpen((open) => !open)}
+                                className={cn(
+                                  "flex w-fit max-w-full items-center gap-2 rounded-full border border-white/15 bg-black/40 text-left text-white shadow-lg backdrop-blur-xl transition-all duration-300",
+                                  spotlightVendorInfoOpen ? "px-3 py-2.5" : "px-2 py-1.5",
+                                )}
+                                aria-expanded={spotlightVendorInfoOpen}
+                              >
+                                <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-full border border-white/30 bg-gradient-to-br from-[#D4AF37] to-[#4B0082] shadow-lg">
+                                  {post.provider.avatar_url ? (
+                                    <img
+                                      src={post.provider.avatar_url}
+                                      alt=""
+                                      className="size-full object-cover"
+                                    />
+                                  ) : (
+                                    <span className="text-[9px] font-black">
+                                      {businessName.trim().slice(0, 2).toUpperCase()}
+                                    </span>
+                                  )}
+                                </span>
+
+                                <span className="min-w-0 pr-1">
+                                  <span className="flex items-center gap-1.5">
+                                    <span className="max-w-[15rem] truncate text-[12px] font-extrabold">
+                                      {businessName}
+                                    </span>
+                                    {post.provider.is_verified ? (
+                                      <span className="shrink-0 text-[8px] font-black uppercase tracking-wide text-[#D4AF37]">
+                                        ✓
+                                      </span>
+                                    ) : null}
                                   </span>
-                                  {post.provider.is_verified ? (
-                                    <span className="shrink-0 text-[8px] font-black uppercase tracking-wide text-[#D4AF37]">
-                                      ✓
+
+                                  {spotlightVendorInfoOpen ? (
+                                    <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-white/65">
+                                      {city ? (
+                                        <span className="inline-flex items-center gap-1">
+                                          <MapPin className="size-2.5" aria-hidden />
+                                          {city}
+                                        </span>
+                                      ) : null}
+                                      <span>{tx("ASH vendor", "Vendeur ASH")}</span>
                                     </span>
                                   ) : null}
                                 </span>
 
-                                {spotlightVendorInfoOpen ? (
-                                  <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-white/65">
-                                    {city ? (
-                                      <span className="inline-flex items-center gap-1">
-                                        <MapPin className="size-2.5" aria-hidden />
-                                        {city}
-                                      </span>
-                                    ) : null}
-                                    <span>{tx("ASH vendor", "Vendeur ASH")}</span>
+                                <span className="ml-0.5 shrink-0 text-white/55">
+                                  <span
+                                    className={cn(
+                                      "text-xs transition-transform duration-300",
+                                      spotlightVendorInfoOpen ? "rotate-180" : "",
+                                    )}
+                                  >
+                                    ⌄
                                   </span>
-                                ) : null}
-                              </span>
-
-                              <span className="ml-0.5 shrink-0 text-white/55">
-                                <span className={cn("text-xs transition-transform duration-300", spotlightVendorInfoOpen ? "rotate-180" : "")}>⌄</span>
-                              </span>
-                            </button>
+                                </span>
+                              </button>
+                            </div>
                           </div>
-                        </div>
 
-                        {/* Bottom vendor message + CTA */}
-                        <div className="absolute inset-x-0 bottom-0 z-30">
-                          <div className="mx-auto w-full max-w-3xl px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-20 sm:px-5">
-                            {offerDescription ? (
-                              <div className="max-w-2xl rounded-2xl border border-white/10 bg-black/25 px-3 py-2.5 backdrop-blur-md">
-                                <p className="text-[9px] font-extrabold uppercase tracking-[0.16em] text-[#D4AF37]">
-                                  {tx("What this vendor offers", "Ce que propose ce vendeur")}
-                                </p>
-                                <p className="mt-1 text-sm leading-relaxed text-white/95 sm:text-[15px]">
-                                  {offerDescription}
-                                </p>
-                              </div>
-                            ) : null}
+                          {/* Bottom vendor message + CTA */}
+                          <div className="absolute inset-x-0 bottom-0 z-30">
+                            <div className="mx-auto w-full max-w-3xl px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-20 sm:px-5">
+                              {offerDescription ? (
+                                <div className="max-w-2xl rounded-2xl border border-white/10 bg-black/25 px-3 py-2.5 backdrop-blur-md">
+                                  <p className="text-[9px] font-extrabold uppercase tracking-[0.16em] text-[#D4AF37]">
+                                    {tx("What this vendor offers", "Ce que propose ce vendeur")}
+                                  </p>
+                                  <p className="mt-1 text-sm leading-relaxed text-white/95 sm:text-[15px]">
+                                    {offerDescription}
+                                  </p>
+                                </div>
+                              ) : null}
 
-                            <button
-                              type="button"
-                              onClick={() =>
-                                void contactSpotlightVendor(
-                                  post.provider.id,
-                                  {
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  void contactSpotlightVendor(post.provider.id, {
                                     businessName,
                                     offerDescription,
                                     searchedFor: spotlightSearch.trim() || searchInput.trim(),
                                     authorId: post.author_id,
-                                  },
-                                )
-                              }
-                              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#D4AF37] via-[#a77f1b] to-[#4B0082] px-4 py-3.5 text-sm font-extrabold text-white shadow-2xl shadow-black/35 transition-transform active:scale-[0.98]"
-                            >
-                              <MessageCircle className="size-4" aria-hidden />
-                              {post.provider.id
-                                ? tx("Contact Vendor", "Contacter le vendeur")
-                                : tx("Send a message", "Envoyer un message")}
-                            </button>
+                                  })
+                                }
+                                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#D4AF37] via-[#a77f1b] to-[#4B0082] px-4 py-3.5 text-sm font-extrabold text-white shadow-2xl shadow-black/35 transition-transform active:scale-[0.98]"
+                              >
+                                <MessageCircle className="size-4" aria-hidden />
+                                {post.provider.id
+                                  ? tx("Contact Vendor", "Contacter le vendeur")
+                                  : tx("Send a message", "Envoyer un message")}
+                              </button>
 
-                            <p className="mt-2 text-center text-[10px] text-white/45">
-                              {tx("Discover · contact · order", "Découvrez · contactez · commandez")}
-                            </p>
+                              <p className="mt-2 text-center text-[10px] text-white/45">
+                                {tx(
+                                  "Discover · contact · order",
+                                  "Découvrez · contactez · commandez",
+                                )}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      </article>
-                    );
-                  })}
+                        </article>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            </div>,
-            document.body,
-          )
-        : null}
+              </div>,
+              document.body,
+            )
+          : null}
 
-      {/* CATEGORY FILTERS */}
-      <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-        {(
-          [
-            "ALL",
-            ...CATEGORY_GROUPS.map(
-              (g) => g.id,
-            ),
-          ] as const
-        ).map((id) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() =>
-              selectGroup(
-                id as
-                  | GroupId
-                  | "ALL",
-              )
-            }
-            className={cn(
-              "shrink-0 rounded-full px-4 py-2 text-sm font-bold transition-all",
-              group === id
-                ? "brand-gradient text-on-dark shadow-[var(--shadow-brand)]"
-                : "border border-border text-muted-foreground hover:bg-muted",
-            )}
-          >
-            {id === "ALL"
-              ? t("svc.all")
-              : CATEGORY_GROUPS.find(
-                  (g) =>
-                    g.id === id,
-                )!.label[baseLang(lang)]}
-          </button>
-        ))}
-      </div>
-
-      {groupCategories.length >
-      0 ? (
+        {/* CATEGORY FILTERS */}
         <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-          {(
-            [
-              "ALL",
-              ...groupCategories,
-            ] as const
-          ).map((c) => (
+          {(["ALL", ...CATEGORY_GROUPS.map((g) => g.id)] as const).map((id) => (
             <button
-              key={c}
+              key={id}
               type="button"
-              onClick={() =>
-                setCategory(
-                  c as
-                    | ServiceCategory
-                    | "ALL",
-                )
-              }
+              onClick={() => selectGroup(id as GroupId | "ALL")}
               className={cn(
-                "shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors",
-                category === c
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border text-muted-foreground hover:bg-muted",
+                "shrink-0 rounded-full px-4 py-2 text-sm font-bold transition-all",
+                group === id
+                  ? "brand-gradient text-on-dark shadow-[var(--shadow-brand)]"
+                  : "border border-border text-muted-foreground hover:bg-muted",
               )}
             >
-              {c === "ALL"
+              {id === "ALL"
                 ? t("svc.all")
-                : categoryLabel(
-                    c,
-                    lang,
-                  )}
+                : CATEGORY_GROUPS.find((g) => g.id === id)!.label[baseLang(lang)]}
             </button>
           ))}
         </div>
-      ) : null}
 
-      {/* FILTER PANEL */}
-      {showFilters ? (
-        <div className="grid gap-4 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="space-y-1.5">
-            <Label>
-              {tx("City", "Ville")}
-            </Label>
-
-            <Select
-              value={
-                filters.city ||
-                "ALL"
-              }
-              onValueChange={(v) =>
-                patch({
-                  city:
-                    v === "ALL"
-                      ? ""
-                      : v,
-                })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue
-                  placeholder={
-                    tx("All", "Toutes")
-                  }
-                />
-              </SelectTrigger>
-
-              <SelectContent>
-                <SelectItem value="ALL">
-                  {tx("All cities", "Toutes les villes")}
-                </SelectItem>
-
-                {(cities ??
-                  []
-                ).map((c) => (
-                  <SelectItem
-                    key={c}
-                    value={c}
-                  >
-                    {c}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label>
-              {tx("Minimum rating", "Note minimum")}
-            </Label>
-
-            <Select
-              value={String(
-                filters.minRating,
-              )}
-              onValueChange={(v) =>
-                patch({
-                  minRating:
-                    Number(v),
-                })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-
-              <SelectContent>
-                {[0, 3, 4, 4.5].map(
-                  (r) => (
-                    <SelectItem
-                      key={r}
-                      value={String(
-                        r,
-                      )}
-                    >
-                      {r === 0
-                        ? tx("Any", "Toutes")
-                        : `${r}+ ★`}
-                    </SelectItem>
-                  ),
+        {groupCategories.length > 0 ? (
+          <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+            {(["ALL", ...groupCategories] as const).map((c) => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => setCategory(c as ServiceCategory | "ALL")}
+                className={cn(
+                  "shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors",
+                  category === c
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border text-muted-foreground hover:bg-muted",
                 )}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label>
-              {tx("Max price", "Prix max")}
-            </Label>
-
-            <Select
-              value={
-                filters.maxPrice ===
-                null
-                  ? "ALL"
-                  : String(
-                      filters.maxPrice,
-                    )
-              }
-              onValueChange={(v) =>
-                patch({
-                  maxPrice:
-                    v === "ALL"
-                      ? null
-                      : Number(v),
-                })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-
-              <SelectContent>
-                <SelectItem value="ALL">
-                  {tx("Any price", "Tous les prix")}
-                </SelectItem>
-
-                {PRICE_STEPS.map(
-                  (p) => (
-                    <SelectItem
-                      key={p}
-                      value={String(
-                        p,
-                      )}
-                    >
-                      ≤{" "}
-                      {formatXAF(
-                        p,
-                      )}
-                    </SelectItem>
-                  ),
-                )}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label>
-              {tx("Sort by", "Trier par")}
-            </Label>
-
-            <Select
-              value={
-                filters.sort
-              }
-              onValueChange={(v) =>
-                patch({
-                  sort: v as DiscoverySort,
-                })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-
-              <SelectContent>
-                <SelectItem value="TOP_RATED">
-                  {tx("Top rated", "Mieux notés")}
-                </SelectItem>
-
-                <SelectItem value="NEARBY">
-                  {tx("Near me", "Près de moi")}
-                </SelectItem>
-
-                <SelectItem value="PRICE_LOW">
-                  {tx("Price: low to high", "Prix croissant")}
-                </SelectItem>
-
-                <SelectItem value="PRICE_HIGH">
-                  {tx("Price: high to low", "Prix décroissant")}
-                </SelectItem>
-
-                <SelectItem value="NEWEST">
-                  {tx("Newest", "Nouveaux")}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center justify-between gap-3 rounded-xl border border-border px-3 py-2">
-            <Label
-              htmlFor="verified-only"
-              className="text-sm"
-            >
-              {tx("Verified pros", "Pros vérifiés")}
-            </Label>
-
-            <Switch
-              id="verified-only"
-              checked={
-                filters.verifiedOnly
-              }
-              onCheckedChange={(v) =>
-                patch({
-                  verifiedOnly: v,
-                })
-              }
-            />
-          </div>
-
-          <div className="flex items-center justify-between gap-3 rounded-xl border border-border px-3 py-2">
-            <Label
-              htmlFor="available-only"
-              className="text-sm"
-            >
-              {tx("Available now", "Disponibles")}
-            </Label>
-
-            <Switch
-              id="available-only"
-              checked={
-                filters.availableOnly
-              }
-              onCheckedChange={(v) =>
-                patch({
-                  availableOnly: v,
-                })
-              }
-            />
-          </div>
-
-          <div className="sm:col-span-2 lg:col-span-2">
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setFilters({
-                  ...DEFAULT_FILTERS,
-                  search:
-                    searchInput,
-                  nearCity:
-                    location?.label ??
-                    null,
-                });
-
-                setCategory(
-                  "ALL",
-                );
-
-                setGroup("ALL");
-              }}
-            >
-              {tx("Reset filters", "Réinitialiser les filtres")}
-            </Button>
-          </div>
-        </div>
-      ) : null}
-
-      {/* LOCATION */}
-      {location ? (
-        <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <MapPin
-            className="size-3.5"
-            aria-hidden
-          />
-
-          {location.label
-            ? fr
-              ? `Pros à ${location.label} affichés en premier.`
-              : `Showing pros in ${location.label} first.`
-            : tx("Location on.", "Localisation activée.")}
-        </p>
-      ) : null}
-
-      {/* RECOMMENDED */}
-      {browsing &&
-      recommended.length >
-        0 ? (
-        <section
-          aria-label={
-            tx("Recommended for you", "Recommandé pour vous")
-          }
-          className="space-y-3"
-        >
-          <div className="flex items-center justify-between">
-            <h2 className="font-display text-lg font-bold text-foreground">
-              {tx("Recommended for you", "Recommandé pour vous")}
-            </h2>
-          </div>
-
-          <div className="-mx-1 flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto px-1 pb-1">
-            {recommended.map(
-              (provider) => (
-                <div
-                  key={
-                    provider.id
-                  }
-                  className="w-64 shrink-0 snap-start sm:w-72"
-                >
-                  <ProviderCard
-                    provider={
-                      provider
-                    }
-                    photos={
-                      provider.photos
-                    }
-                    services={
-                      provider.services
-                    }
-                    fromPrice={
-                      provider.fromPrice
-                    }
-                    isVerified={
-                      provider.is_verified
-                    }
-                    acceptingBookings={
-                      provider.accepting_bookings
-                    }
-                    completedBookings={
-                      provider.completed_bookings
-                    }
-                    nearby={
-                      Boolean(
-                        filters.nearCity,
-                      ) &&
-                      (
-                        provider.city ??
-                        ""
-                      )
-                        .trim()
-                        .toLowerCase() ===
-                      (
-                        filters.nearCity ??
-                        ""
-                      )
-                        .trim()
-                        .toLowerCase()
-                    }
-                  />
-                </div>
-              ),
-            )}
-          </div>
-        </section>
-      ) : null}
-
-      {/* COMMUNITY */}
-      {browsing &&
-      (community ?? [])
-        .length > 0 ? (
-        <section
-          aria-label={
-            tx("Latest from the community", "Dernières nouvelles de la communauté")
-          }
-          className="space-y-3"
-        >
-          <h2 className="font-display text-lg font-bold text-foreground">
-            {tx("Latest from the community", "Dernières nouvelles de la communauté")}
-          </h2>
-
-          <div className="-mx-1 flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto px-1 pb-1">
-            {(community ??
-              []
-            ).map((post) => (
-              <Link
-                key={post.id}
-                to="/services/$providerId"
-                params={{
-                  providerId:
-                    post.provider.id,
-                }}
-                className="group w-56 shrink-0 snap-start overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]"
               >
-                <div className="aspect-[4/3] overflow-hidden bg-muted">
-                  <img
-                    src={post.url}
-                    alt={
-                      post.caption ??
-                      post.provider
-                        .business_name
-                    }
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                  />
-                </div>
-
-                <div className="space-y-0.5 p-3">
-                  <p className="truncate text-sm font-bold text-foreground">
-                    {
-                      post.provider
-                        .business_name
-                    }
-                  </p>
-
-                  {post.caption ? (
-                    <p className="line-clamp-2 text-xs text-muted-foreground">
-                      {
-                        post.caption
-                      }
-                    </p>
-                  ) : null}
-
-                  {post.provider
-                    .city ? (
-                    <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                      <MapPin
-                        className="size-3"
-                        aria-hidden
-                      />
-
-                      {
-                        post
-                          .provider
-                          .city
-                      }
-                    </p>
-                  ) : null}
-                </div>
-              </Link>
+                {c === "ALL" ? t("svc.all") : categoryLabel(c, lang)}
+              </button>
             ))}
           </div>
-        </section>
-      ) : null}
+        ) : null}
 
-      {/* PROVIDERS */}
-      {isLoading ? (
-        <SkeletonRows rows={4} />
-      ) : displayedProviders.length ===
-        0 ? (
-        <EmptyState
-          title={t(
-            "svc.empty",
-          )}
-          description={t(
-            "svc.emptyCopy",
-          )}
-          icon={
-            <Users
-              className="size-5"
-              aria-hidden
-            />
-          }
-          action={
-            <Button asChild>
-              <Link to="/studio">
-                {t(
-                  "svc.becomePro",
-                )}
-              </Link>
-            </Button>
-          }
-        />
-      ) : (
-        <>
-          <div className="grid items-stretch gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {displayedProviders.map(
-              (provider) => (
+        {/* FILTER PANEL */}
+        {showFilters ? (
+          <div className="grid gap-4 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="space-y-1.5">
+              <Label>{tx("City", "Ville")}</Label>
+
+              <Select
+                value={filters.city || "ALL"}
+                onValueChange={(v) =>
+                  patch({
+                    city: v === "ALL" ? "" : v,
+                  })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={tx("All", "Toutes")} />
+                </SelectTrigger>
+
+                <SelectContent>
+                  <SelectItem value="ALL">{tx("All cities", "Toutes les villes")}</SelectItem>
+
+                  {(cities ?? []).map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>{tx("Minimum rating", "Note minimum")}</Label>
+
+              <Select
+                value={String(filters.minRating)}
+                onValueChange={(v) =>
+                  patch({
+                    minRating: Number(v),
+                  })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+
+                <SelectContent>
+                  {[0, 3, 4, 4.5].map((r) => (
+                    <SelectItem key={r} value={String(r)}>
+                      {r === 0 ? tx("Any", "Toutes") : `${r}+ ★`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>{tx("Max price", "Prix max")}</Label>
+
+              <Select
+                value={filters.maxPrice === null ? "ALL" : String(filters.maxPrice)}
+                onValueChange={(v) =>
+                  patch({
+                    maxPrice: v === "ALL" ? null : Number(v),
+                  })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+
+                <SelectContent>
+                  <SelectItem value="ALL">{tx("Any price", "Tous les prix")}</SelectItem>
+
+                  {PRICE_STEPS.map((p) => (
+                    <SelectItem key={p} value={String(p)}>
+                      ≤ {formatXAF(p)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>{tx("Sort by", "Trier par")}</Label>
+
+              <Select
+                value={filters.sort}
+                onValueChange={(v) =>
+                  patch({
+                    sort: v as DiscoverySort,
+                  })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+
+                <SelectContent>
+                  <SelectItem value="TOP_RATED">{tx("Top rated", "Mieux notés")}</SelectItem>
+
+                  <SelectItem value="NEARBY">{tx("Near me", "Près de moi")}</SelectItem>
+
+                  <SelectItem value="PRICE_LOW">
+                    {tx("Price: low to high", "Prix croissant")}
+                  </SelectItem>
+
+                  <SelectItem value="PRICE_HIGH">
+                    {tx("Price: high to low", "Prix décroissant")}
+                  </SelectItem>
+
+                  <SelectItem value="NEWEST">{tx("Newest", "Nouveaux")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-border px-3 py-2">
+              <Label htmlFor="verified-only" className="text-sm">
+                {tx("Verified pros", "Pros vérifiés")}
+              </Label>
+
+              <Switch
+                id="verified-only"
+                checked={filters.verifiedOnly}
+                onCheckedChange={(v) =>
+                  patch({
+                    verifiedOnly: v,
+                  })
+                }
+              />
+            </div>
+
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-border px-3 py-2">
+              <Label htmlFor="available-only" className="text-sm">
+                {tx("Available now", "Disponibles")}
+              </Label>
+
+              <Switch
+                id="available-only"
+                checked={filters.availableOnly}
+                onCheckedChange={(v) =>
+                  patch({
+                    availableOnly: v,
+                  })
+                }
+              />
+            </div>
+
+            <div className="sm:col-span-2 lg:col-span-2">
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setFilters({
+                    ...DEFAULT_FILTERS,
+                    search: searchInput,
+                    nearCity: location?.label ?? null,
+                  });
+
+                  setCategory("ALL");
+
+                  setGroup("ALL");
+                }}
+              >
+                {tx("Reset filters", "Réinitialiser les filtres")}
+              </Button>
+            </div>
+          </div>
+        ) : null}
+
+        {/* LOCATION */}
+        {location ? (
+          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <MapPin className="size-3.5" aria-hidden />
+
+            {location.label
+              ? fr
+                ? `Pros à ${location.label} affichés en premier.`
+                : `Showing pros in ${location.label} first.`
+              : tx("Location on.", "Localisation activée.")}
+          </p>
+        ) : null}
+
+        {/* RECOMMENDED */}
+        {browsing && recommended.length > 0 ? (
+          <section
+            aria-label={tx("Recommended for you", "Recommandé pour vous")}
+            className="space-y-3"
+          >
+            <div className="flex items-center justify-between">
+              <h2 className="font-display text-lg font-bold text-foreground">
+                {tx("Recommended for you", "Recommandé pour vous")}
+              </h2>
+            </div>
+
+            <div className="-mx-1 flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto px-1 pb-1">
+              {recommended.map((provider) => (
+                <div key={provider.id} className="w-64 shrink-0 snap-start sm:w-72">
+                  <ProviderCard
+                    provider={provider}
+                    photos={provider.photos}
+                    services={provider.services}
+                    fromPrice={provider.fromPrice}
+                    isVerified={provider.is_verified}
+                    acceptingBookings={provider.accepting_bookings}
+                    completedBookings={provider.completed_bookings}
+                    nearby={
+                      Boolean(filters.nearCity) &&
+                      (provider.city ?? "").trim().toLowerCase() ===
+                        (filters.nearCity ?? "").trim().toLowerCase()
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {/* COMMUNITY */}
+        {browsing && (community ?? []).length > 0 ? (
+          <section
+            aria-label={tx("Latest from the community", "Dernières nouvelles de la communauté")}
+            className="space-y-3"
+          >
+            <h2 className="font-display text-lg font-bold text-foreground">
+              {tx("Latest from the community", "Dernières nouvelles de la communauté")}
+            </h2>
+
+            <div className="-mx-1 flex snap-x snap-mandatory items-stretch gap-3 overflow-x-auto px-1 pb-1">
+              {(community ?? []).map((post) => (
+                <Link
+                  key={post.id}
+                  to="/services/$providerId"
+                  params={{
+                    providerId: post.provider.id,
+                  }}
+                  className="group w-56 shrink-0 snap-start overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]"
+                >
+                  <div className="aspect-[4/3] overflow-hidden bg-muted">
+                    <img
+                      src={post.url}
+                      alt={post.caption ?? post.provider.business_name}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                    />
+                  </div>
+
+                  <div className="space-y-0.5 p-3">
+                    <p className="truncate text-sm font-bold text-foreground">
+                      {post.provider.business_name}
+                    </p>
+
+                    {post.caption ? (
+                      <p className="line-clamp-2 text-xs text-muted-foreground">{post.caption}</p>
+                    ) : null}
+
+                    {post.provider.city ? (
+                      <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                        <MapPin className="size-3" aria-hidden />
+
+                        {post.provider.city}
+                      </p>
+                    ) : null}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {/* PROVIDERS */}
+        {isLoading ? (
+          <SkeletonRows rows={4} />
+        ) : displayedProviders.length === 0 ? (
+          <EmptyState
+            title={t("svc.empty")}
+            description={t("svc.emptyCopy")}
+            icon={<Users className="size-5" aria-hidden />}
+            action={
+              <Button asChild>
+                <Link to="/studio">{t("svc.becomePro")}</Link>
+              </Button>
+            }
+          />
+        ) : (
+          <>
+            <div className="grid items-stretch gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {displayedProviders.map((provider) => (
                 <ProviderCard
-                  key={
-                    provider.id
-                  }
-                  provider={
-                    provider
-                  }
-                  photos={
-                    provider.photos
-                  }
-                  services={
-                    provider.services
-                  }
-                  fromPrice={
-                    provider.fromPrice
-                  }
-                  isVerified={
-                    provider.is_verified
-                  }
-                  acceptingBookings={
-                    provider.accepting_bookings
-                  }
-                  completedBookings={
-                    provider.completed_bookings
-                  }
+                  key={provider.id}
+                  provider={provider}
+                  photos={provider.photos}
+                  services={provider.services}
+                  fromPrice={provider.fromPrice}
+                  isVerified={provider.is_verified}
+                  acceptingBookings={provider.accepting_bookings}
+                  completedBookings={provider.completed_bookings}
                   nearby={
-                    Boolean(
-                      filters.nearCity,
-                    ) &&
-                    (
-                      provider.city ??
-                      ""
-                    )
-                      .trim()
-                      .toLowerCase() ===
-                    (
-                      filters.nearCity ??
-                      ""
-                    )
-                      .trim()
-                      .toLowerCase()
+                    Boolean(filters.nearCity) &&
+                    (provider.city ?? "").trim().toLowerCase() ===
+                      (filters.nearCity ?? "").trim().toLowerCase()
                   }
                 />
-              ),
-            )}
-          </div>
+              ))}
+            </div>
 
-          <div
-            ref={sentinel}
-            className="h-10"
-            aria-hidden
-          />
+            <div ref={sentinel} className="h-10" aria-hidden />
 
-          {isFetchingNextPage ? (
-            <SkeletonRows rows={1} />
-          ) : null}
+            {isFetchingNextPage ? <SkeletonRows rows={1} /> : null}
 
-          {!hasNextPage &&
-          displayedProviders.length >
-            0 ? (
-            <p className="pb-2 text-center text-xs text-muted-foreground">
-              {tx("You have seen everyone.", "Vous avez tout vu.")}
-            </p>
-          ) : null}
-        </>
-      )}
-    </div>
+            {!hasNextPage && displayedProviders.length > 0 ? (
+              <p className="pb-2 text-center text-xs text-muted-foreground">
+                {tx("You have seen everyone.", "Vous avez tout vu.")}
+              </p>
+            ) : null}
+          </>
+        )}
+      </div>
     </PullToRefresh>
   );
 }

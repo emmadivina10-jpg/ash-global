@@ -38,7 +38,9 @@ export function isPushCategory(category: string): category is PushCategory {
 export function notificationLink(category: string, data: Record<string, unknown> = {}): string {
   switch (category) {
     case "SECURITY_UPDATE":
-      return typeof data["bulletin_id"] === "string" ? `/security-update/${data["bulletin_id"]}` : "/notifications";
+      return typeof data["bulletin_id"] === "string"
+        ? `/security-update/${data["bulletin_id"]}`
+        : "/notifications";
     case "WITHDRAWAL":
       return "/withdraw";
     case "ACTIVATION":
@@ -76,7 +78,9 @@ export function notificationLink(category: string, data: Record<string, unknown>
     case "DEAL":
       return "/deals";
     case "PROPERTY":
-      return typeof data["listing_id"] === "string" ? `/property/${data["listing_id"]}` : "/property";
+      return typeof data["listing_id"] === "string"
+        ? `/property/${data["listing_id"]}`
+        : "/property";
     case "FRIEND_REQUEST":
     case "FRIEND_ACCEPTED":
       return "/friends";
@@ -92,17 +96,15 @@ export function notificationLink(category: string, data: Record<string, unknown>
 async function storeToken(token: string) {
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) return;
-  await supabase
-    .from("push_tokens")
-    .upsert(
-      {
-        user_id: auth.user.id,
-        token,
-        platform: nativePlatform(),
-        last_seen_at: new Date().toISOString(),
-      },
-      { onConflict: "token" },
-    );
+  await supabase.from("push_tokens").upsert(
+    {
+      user_id: auth.user.id,
+      token,
+      platform: nativePlatform(),
+      last_seen_at: new Date().toISOString(),
+    },
+    { onConflict: "token" },
+  );
 }
 
 /** Removes this device's token — call on sign-out so pushes stop. */
@@ -243,7 +245,13 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-function drawCircle(ctx: CanvasRenderingContext2D, img: HTMLImageElement, x: number, y: number, size: number) {
+function drawCircle(
+  ctx: CanvasRenderingContext2D,
+  img: HTMLImageElement,
+  x: number,
+  y: number,
+  size: number,
+) {
   ctx.save();
   ctx.beginPath();
   ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2);
@@ -293,7 +301,11 @@ async function notificationIconFor(row: IncomingNotification, me: string): Promi
 }
 
 /** Shows a notification on the device (native local notification or web). */
-export async function showDeviceNotification(title: string, body: string, icon = "/favicon.png"): Promise<void> {
+export async function showDeviceNotification(
+  title: string,
+  body: string,
+  icon = "/favicon.png",
+): Promise<void> {
   if (typeof window === "undefined") return;
 
   void vibrateDevice();
@@ -330,7 +342,6 @@ export async function showDeviceNotification(title: string, body: string, icon =
     /* blocked */
   }
 }
-
 
 /**
  * Registers the device once per session and mirrors new backend notifications
@@ -390,8 +401,6 @@ export function usePushNotifications(
               void showDeviceNotification(row.title ?? "", row.body ?? "", icon);
             })();
           },
-
-
         )
         .subscribe();
     });

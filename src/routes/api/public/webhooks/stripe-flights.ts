@@ -14,7 +14,11 @@ export const Route = createFileRoute("/api/public/webhooks/stripe-flights")({
 
         const body = await request.text();
         const { verifyStripeSignature } = await import("@/lib/stripe.server");
-        const valid = await verifyStripeSignature(body, request.headers.get("stripe-signature"), secret);
+        const valid = await verifyStripeSignature(
+          body,
+          request.headers.get("stripe-signature"),
+          secret,
+        );
         if (!valid) return new Response("Invalid signature", { status: 400 });
 
         let event: { id?: string; type?: string; data?: { object?: Record<string, unknown> } };
@@ -39,14 +43,16 @@ export const Route = createFileRoute("/api/public/webhooks/stripe-flights")({
 
         const metadata = (obj["metadata"] ?? {}) as Record<string, string>;
         const reference = metadata["reference"] || String(obj["client_reference_id"] ?? "");
-        const intent = typeof obj["payment_intent"] === "string" ? (obj["payment_intent"] as string) : null;
+        const intent =
+          typeof obj["payment_intent"] === "string" ? (obj["payment_intent"] as string) : null;
 
         // Flight payments are not live yet (no flight supplier connected), so
         // verified events are recorded for audit only. Non-flight references
         // are flagged as crossover and never settled.
-        const outcome = reference && !reference.startsWith("FLT-")
-          ? "REJECTED_NOT_FLIGHT"
-          : "RECORDED_FLIGHTS_NOT_LIVE";
+        const outcome =
+          reference && !reference.startsWith("FLT-")
+            ? "REJECTED_NOT_FLIGHT"
+            : "RECORDED_FLIGHTS_NOT_LIVE";
 
         await supabaseAdmin.from("payment_events").insert({
           source: "STRIPE_FLIGHTS_EVENT",

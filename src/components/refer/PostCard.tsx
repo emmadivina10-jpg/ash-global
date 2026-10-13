@@ -101,7 +101,12 @@ export function PostCard({
             <p className="text-[9px] font-extrabold uppercase text-primary">ASH Markets Update</p>
             <p className="truncate text-xs font-bold text-foreground">{post.market.title}</p>
           </div>
-          <Link to="/fx-analytics" className="shrink-0 text-[10px] font-bold text-primary hover:underline">View in ASH Markets</Link>
+          <Link
+            to="/fx-analytics"
+            className="shrink-0 text-[10px] font-bold text-primary hover:underline"
+          >
+            View in ASH Markets
+          </Link>
         </div>
       ) : null}
       <header className="flex items-center gap-3 p-4 pb-3">
@@ -110,7 +115,13 @@ export function PostCard({
           aria-label={post.author.name}
           onClick={() => void navigate({ to: "/u/$userId", params: { userId: post.author_id } })}
         >
-          <Avatar path={post.author.avatar_url} name={post.author.name} online={post.author.online} hasUpdate={post.author.has_update} className="size-10" />
+          <Avatar
+            path={post.author.avatar_url}
+            name={post.author.name}
+            online={post.author.online}
+            hasUpdate={post.author.has_update}
+            className="size-10"
+          />
         </button>
         <div className="min-w-0 flex-1">
           <button
@@ -129,16 +140,27 @@ export function PostCard({
         {mine ? (
           <SocialPostOwnerActions postId={post.id} caption={post.caption} />
         ) : currentUserId ? (
-          <SafetyMenu targetType="POST" targetId={post.id} targetUserId={post.author_id} targetName={post.author.name} />
+          <SafetyMenu
+            targetType="POST"
+            targetId={post.id}
+            targetUserId={post.author_id}
+            targetName={post.author.name}
+          />
         ) : null}
       </header>
 
       {post.caption ? (
         <div className="px-4 pb-3">
           {detail ? (
-            <SocialText text={post.caption} className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground" />
+            <SocialText
+              text={post.caption}
+              className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground"
+            />
           ) : (
-            <ExpandableSocialText text={post.caption} className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground" />
+            <ExpandableSocialText
+              text={post.caption}
+              className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground"
+            />
           )}
         </div>
       ) : null}
@@ -161,7 +183,9 @@ export function PostCard({
               onClick={openPost}
               className={cn(
                 "size-full min-h-0 bg-muted",
-                detail ? "max-h-[75dvh] object-contain" : "cursor-pointer object-cover touch-manipulation",
+                detail
+                  ? "max-h-[75dvh] object-contain"
+                  : "cursor-pointer object-cover touch-manipulation",
                 !detail && post.images.length === 2 && "row-span-2",
                 !detail && post.images.length === 3 && index === 0 && "col-span-2",
               )}
@@ -194,11 +218,18 @@ export function PostCard({
             recordTagInterest(extractTags(post.caption), 1);
             react.mutate(
               { postId: post.id, reaction },
-              { onError: (error) => toast.error(error instanceof Error ? error.message : "Could not react.") },
+              {
+                onError: (error) =>
+                  toast.error(error instanceof Error ? error.message : "Could not react."),
+              },
             );
           }}
         />
-        <Button variant="ghost" size="sm" onClick={() => (detail ? setCommentsOpen((v) => !v) : openPost())}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => (detail ? setCommentsOpen((v) => !v) : openPost())}
+        >
           <MessageCircle className="size-4" aria-hidden />
           {post.comment_count}
         </Button>
@@ -221,9 +252,12 @@ export function PostCard({
               {
                 onSuccess: () =>
                   toast.success(
-                    post.reposted ? (tx("Repost removed", "Republication retirée")) : tx("Reposted", "Republié"),
+                    post.reposted
+                      ? tx("Repost removed", "Republication retirée")
+                      : tx("Reposted", "Republié"),
                   ),
-                onError: (error) => toast.error(error instanceof Error ? error.message : "Could not repost."),
+                onError: (error) =>
+                  toast.error(error instanceof Error ? error.message : "Could not repost."),
               },
             );
           }}
@@ -247,7 +281,9 @@ export function PostCard({
         </div>
       ) : null}
 
-      {commentsOpen ? <Comments post={post} currentUserId={currentUserId} fullScreen={fullScreen} /> : null}
+      {commentsOpen ? (
+        <Comments post={post} currentUserId={currentUserId} fullScreen={fullScreen} />
+      ) : null}
     </article>
   );
 }
@@ -278,7 +314,8 @@ function Comments({
           setBody("");
           setReplyTo(null);
         },
-        onError: (error) => toast.error(error instanceof Error ? error.message : "Could not comment."),
+        onError: (error) =>
+          toast.error(error instanceof Error ? error.message : "Could not comment."),
       },
     );
   }
@@ -320,7 +357,12 @@ function Comments({
         </p>
       ) : (
         (data ?? []).map((comment) => (
-          <CommentRow key={comment.id} comment={comment} onReply={setReplyTo} currentUserId={currentUserId} />
+          <CommentRow
+            key={comment.id}
+            comment={comment}
+            onReply={setReplyTo}
+            currentUserId={currentUserId}
+          />
         ))
       )}
 
@@ -333,7 +375,9 @@ function Comments({
         </p>
       ) : null}
 
-      {fullScreen && typeof document !== "undefined" ? createPortal(composer, document.body) : composer}
+      {fullScreen && typeof document !== "undefined"
+        ? createPortal(composer, document.body)
+        : composer}
     </div>
   );
 }
@@ -353,11 +397,18 @@ function CommentRow({
   const fr = lang === "fr";
   const reactComment = useSetCommentReaction();
   const navigate = useNavigate();
-  const openAuthor = () => void navigate({ to: "/u/$userId", params: { userId: comment.author.id } });
+  const openAuthor = () =>
+    void navigate({ to: "/u/$userId", params: { userId: comment.author.id } });
   return (
     <div className={cn("flex gap-2.5", depth > 0 && "ml-[min(2rem,8vw)]")}>
       <button type="button" aria-label={comment.author.name} onClick={openAuthor}>
-        <Avatar path={comment.author.avatar_url} name={comment.author.name} online={comment.author.online} hasUpdate={comment.author.has_update} className="size-8" />
+        <Avatar
+          path={comment.author.avatar_url}
+          name={comment.author.name}
+          online={comment.author.online}
+          hasUpdate={comment.author.has_update}
+          className="size-8"
+        />
       </button>
       <div className="min-w-0 flex-1">
         <div className="rounded-2xl bg-muted px-3 py-2">
@@ -367,9 +418,16 @@ function CommentRow({
             className="flex max-w-full items-center gap-1 text-xs font-bold text-foreground hover:underline"
           >
             <span className="truncate">{comment.author.name}</span>
-            <VerifiedBadge tier={comment.author.verified_tier} until={comment.author.verified_until} size={12} />
+            <VerifiedBadge
+              tier={comment.author.verified_tier}
+              until={comment.author.verified_until}
+              size={12}
+            />
           </button>
-          <SocialText text={comment.body} className="whitespace-pre-wrap break-words text-sm text-foreground" />
+          <SocialText
+            text={comment.body}
+            className="whitespace-pre-wrap break-words text-sm text-foreground"
+          />
         </div>
         <div className="mt-1 flex items-center gap-3 px-2 text-[11px] font-semibold text-muted-foreground">
           <ReactionButton
@@ -381,14 +439,19 @@ function CommentRow({
             onChange={(reaction) =>
               reactComment.mutate(
                 { commentId: comment.id, postId: comment.post_id, reaction },
-                { onError: (error) => toast.error(error instanceof Error ? error.message : "Could not react.") },
+                {
+                  onError: (error) =>
+                    toast.error(error instanceof Error ? error.message : "Could not react."),
+                },
               )
             }
           />
           <button type="button" onClick={() => onReply(comment)} className="hover:text-primary">
             {tx("Reply", "Répondre")}
           </button>
-          <span className="font-normal">{new Date(comment.created_at).toLocaleDateString(fr ? "fr-FR" : "en-GB")}</span>
+          <span className="font-normal">
+            {new Date(comment.created_at).toLocaleDateString(fr ? "fr-FR" : "en-GB")}
+          </span>
           {currentUserId && currentUserId !== comment.author.id ? (
             <SafetyMenu
               targetType="COMMENT"
@@ -401,7 +464,12 @@ function CommentRow({
         </div>
         {comment.replies.map((reply) => (
           <div key={reply.id} className="mt-2">
-            <CommentRow comment={reply} onReply={onReply} currentUserId={currentUserId} depth={depth + 1} />
+            <CommentRow
+              comment={reply}
+              onReply={onReply}
+              currentUserId={currentUserId}
+              depth={depth + 1}
+            />
           </div>
         ))}
       </div>

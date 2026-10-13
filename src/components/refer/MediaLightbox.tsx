@@ -10,7 +10,13 @@ export function isVideoSource(source: string | null | undefined): boolean {
 export type LightboxMedia = { url: string; caption?: string | null; isVideo: boolean };
 
 /** Full-screen viewer for a portfolio photo or video. */
-export function MediaLightbox({ media, onClose }: { media: LightboxMedia | null; onClose: () => void }) {
+export function MediaLightbox({
+  media,
+  onClose,
+}: {
+  media: LightboxMedia | null;
+  onClose: () => void;
+}) {
   if (!media) return null;
   return (
     <div
@@ -38,9 +44,15 @@ export function MediaLightbox({ media, onClose }: { media: LightboxMedia | null;
             className="max-h-[85vh] w-full rounded-2xl bg-black"
           />
         ) : (
-          <img src={media.url} alt={media.caption ?? ""} className="max-h-[85vh] w-full rounded-2xl object-contain" />
+          <img
+            src={media.url}
+            alt={media.caption ?? ""}
+            className="max-h-[85vh] w-full rounded-2xl object-contain"
+          />
         )}
-        {media.caption ? <p className="mt-3 text-center text-sm text-white/80">{media.caption}</p> : null}
+        {media.caption ? (
+          <p className="mt-3 text-center text-sm text-white/80">{media.caption}</p>
+        ) : null}
       </div>
     </div>
   );

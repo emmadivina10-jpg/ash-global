@@ -20,12 +20,7 @@
  * Without an API key the adapter refuses to charge and NEVER reports success.
  */
 
-export type PaymentStatus =
-  | "PENDING"
-  | "PROCESSING"
-  | "PAID"
-  | "FAILED"
-  | "CANCELLED";
+export type PaymentStatus = "PENDING" | "PROCESSING" | "PAID" | "FAILED" | "CANCELLED";
 
 export type FailureCategory = "ABANDONED" | "DECLINED" | "SYSTEM" | null;
 
@@ -126,10 +121,10 @@ function config() {
   return {
     apiKey: process.env["TCHOKOPAY_API_KEY"] ?? "",
     webhookSecret: process.env["TCHOKOPAY_WEBHOOK_SECRET"] ?? "",
-    baseUrl: (
-      process.env["TCHOKOPAY_CONNECT_URL"] ??
-      "https://connect.tchokopay.com/v1"
-    ).replace(/\/$/, ""),
+    baseUrl: (process.env["TCHOKOPAY_CONNECT_URL"] ?? "https://connect.tchokopay.com/v1").replace(
+      /\/$/,
+      "",
+    ),
     legacyBaseUrl: (process.env["TCHOKOPAY_BASE_URL"] ?? "").replace(/\/$/, ""),
   };
 }
@@ -138,9 +133,7 @@ function config() {
 export function mapStatus(raw: unknown): PaymentStatus {
   const value = String(raw ?? "").toUpperCase();
 
-  if (
-    ["SUCCESS", "SUCCEEDED", "PAID", "COMPLETED", "CONFIRMED"].includes(value)
-  ) {
+  if (["SUCCESS", "SUCCEEDED", "PAID", "COMPLETED", "CONFIRMED"].includes(value)) {
     return "PAID";
   }
 
@@ -162,11 +155,7 @@ export function mapStatus(raw: unknown): PaymentStatus {
 function mapFailureCategory(raw: unknown): FailureCategory {
   const value = String(raw ?? "").toUpperCase();
 
-  return value === "ABANDONED" ||
-    value === "DECLINED" ||
-    value === "SYSTEM"
-    ? value
-    : null;
+  return value === "ABANDONED" || value === "DECLINED" || value === "SYSTEM" ? value : null;
 }
 
 /** Local format is what the API expects: strip spaces, punctuation and the country code. */
@@ -189,10 +178,7 @@ export function normalizePhone(phone: string, country = "CM"): string {
   return digits;
 }
 
-async function hmacHex(
-  secret: string,
-  payload: string,
-): Promise<string> {
+async function hmacHex(secret: string, payload: string): Promise<string> {
   const enc = new TextEncoder();
 
   const key = await crypto.subtle.importKey(
@@ -203,11 +189,7 @@ async function hmacHex(
     ["sign"],
   );
 
-  const sig = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    enc.encode(payload),
-  );
+  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(payload));
 
   return Array.from(new Uint8Array(sig))
     .map((b) => b.toString(16).padStart(2, "0"))
@@ -269,8 +251,7 @@ async function request(
 
   const list = Array.isArray(parsed) ? parsed : null;
 
-  const data =
-    (list ? {} : (parsed as Record<string, unknown>)) ?? {};
+  const data = (list ? {} : (parsed as Record<string, unknown>)) ?? {};
 
   if (!res.ok) {
     return {
@@ -280,17 +261,10 @@ async function request(
       list,
       error: {
         code: String(
-          data["code"] ??
-            (res.status === 401
-              ? "UNAUTHORIZED"
-              : `PROVIDER_HTTP_${res.status}`),
+          data["code"] ?? (res.status === 401 ? "UNAUTHORIZED" : `PROVIDER_HTTP_${res.status}`),
         ),
-        ...(typeof data["message"] === "string"
-          ? { message: data["message"] as string }
-          : {}),
-        ...(typeof data["param"] === "string"
-          ? { param: data["param"] as string }
-          : {}),
+        ...(typeof data["message"] === "string" ? { message: data["message"] as string } : {}),
+        ...(typeof data["param"] === "string" ? { param: data["param"] as string } : {}),
       },
     };
   }
@@ -320,19 +294,50 @@ export const tchokoPay = {
   },
 
   /** Reads the live merchant balance. Returns ok:false (never a guess) if TchokoPay can't provide it. */
-  async getBalance(): Promise<{ ok: boolean; available: number | null; currency: string; error?: string; raw: Record<string, unknown> }> {
-    if (!this.isConfigured()) return { ok: false, available: null, currency: "XAF", error: "NOT_CONFIGURED", raw: {} };
+  async getBalance(): Promise<{
+    ok: boolean;
+    available: number | null;
+    currency: string;
+    error?: string;
+    raw: Record<string, unknown>;
+  }> {
+    if (!this.isConfigured())
+      return { ok: false, available: null, currency: "XAF", error: "NOT_CONFIGURED", raw: {} };
     let lastError = "BALANCE_UNAVAILABLE";
     for (const path of ["/account/balance", "/balance", "/account"]) {
       try {
         const res = await request(path, { method: "GET" });
-        if (!res.ok) { lastError = res.error.code ?? `HTTP_${res.status}`; continue; }
+        if (!res.ok) {
+          lastError = res.error.code ?? `HTTP_${res.status}`;
+          continue;
+        }
         const d = res.data;
-        const nested = (d["balance"] && typeof d["balance"] === "object" ? d["balance"] : d["data"] && typeof d["data"] === "object" ? d["data"] : d) as Record<string, unknown>;
-        const pick = nested["available"] ?? nested["availableBalance"] ?? nested["available_balance"] ?? (typeof d["balance"] !== "object" ? d["balance"] : undefined) ?? nested["amount"];
-        const value = typeof pick === "number" ? pick : typeof pick === "string" && pick.trim() !== "" ? Number(pick) : NaN;
+        const nested = (
+          d["balance"] && typeof d["balance"] === "object"
+            ? d["balance"]
+            : d["data"] && typeof d["data"] === "object"
+              ? d["data"]
+              : d
+        ) as Record<string, unknown>;
+        const pick =
+          nested["available"] ??
+          nested["availableBalance"] ??
+          nested["available_balance"] ??
+          (typeof d["balance"] !== "object" ? d["balance"] : undefined) ??
+          nested["amount"];
+        const value =
+          typeof pick === "number"
+            ? pick
+            : typeof pick === "string" && pick.trim() !== ""
+              ? Number(pick)
+              : NaN;
         if (Number.isFinite(value)) {
-          return { ok: true, available: value, currency: String(nested["currency"] ?? d["currency"] ?? "XAF"), raw: { path } };
+          return {
+            ok: true,
+            available: value,
+            currency: String(nested["currency"] ?? d["currency"] ?? "XAF"),
+            raw: { path },
+          };
         }
         lastError = "BALANCE_FIELD_MISSING";
       } catch {
@@ -347,9 +352,7 @@ export const tchokoPay = {
   },
 
   /** GET /account/providers — the network picker is built from this, never hardcoded. */
-  async listProviders(
-    country?: string,
-  ): Promise<{
+  async listProviders(country?: string): Promise<{
     ok: boolean;
     configured: boolean;
     providers: ProviderOption[];
@@ -363,10 +366,7 @@ export const tchokoPay = {
     }
 
     const fresh =
-      providerCache &&
-      Date.now() - providerCache.at < 5 * 60_000
-        ? providerCache.value
-        : null;
+      providerCache && Date.now() - providerCache.at < 5 * 60_000 ? providerCache.value : null;
 
     let all = fresh;
 
@@ -388,23 +388,15 @@ export const tchokoPay = {
           .map((row) => row as Record<string, unknown>)
           .filter((row) => row["available"] !== false)
           .map((row) => {
-            const code = String(
-              row["providerCode"] ?? row["provider"] ?? "",
-            );
+            const code = String(row["providerCode"] ?? row["provider"] ?? "");
 
             return {
               provider: code,
               name: String(
-                row["name"] ??
-                  PROVIDER_NAMES[code] ??
-                  code.replace(/_/g, " ").toUpperCase(),
+                row["name"] ?? PROVIDER_NAMES[code] ?? code.replace(/_/g, " ").toUpperCase(),
               ),
-              method: String(
-                row["method"] ?? "MOBILE_MONEY",
-              ),
-              country: String(
-                row["country"] ?? "",
-              ).toUpperCase(),
+              method: String(row["method"] ?? "MOBILE_MONEY"),
+              country: String(row["country"] ?? "").toUpperCase(),
             };
           })
           .filter((row) => row.provider.length > 0);
@@ -422,11 +414,7 @@ export const tchokoPay = {
       }
     }
 
-    const filtered = country
-      ? all.filter(
-          (p) => p.country === country.toUpperCase(),
-        )
-      : all;
+    const filtered = country ? all.filter((p) => p.country === country.toUpperCase()) : all;
 
     return {
       ok: true,
@@ -436,9 +424,7 @@ export const tchokoPay = {
   },
 
   /** POST /collect/charge — pushes a prompt to the payer's phone. Nobody has paid yet. */
-  async createCharge(
-    input: ChargeInput,
-  ): Promise<ChargeResult> {
+  async createCharge(input: ChargeInput): Promise<ChargeResult> {
     if (!this.isConfigured()) {
       return {
         ok: false,
@@ -448,10 +434,7 @@ export const tchokoPay = {
       };
     }
 
-    const phone = normalizePhone(
-      input.phone,
-      input.country,
-    );
+    const phone = normalizePhone(input.phone, input.country);
 
     if (phone.length < 8) {
       return {
@@ -487,8 +470,7 @@ export const tchokoPay = {
           ok: false,
           configured: true,
           status: "FAILED",
-          error:
-            res.error.code ?? "PAYMENT_START_FAILED",
+          error: res.error.code ?? "PAYMENT_START_FAILED",
           message: res.error.message ?? undefined,
           param: res.error.param ?? undefined,
         };
@@ -498,9 +480,7 @@ export const tchokoPay = {
         ok: true,
         configured: true,
         status: mapStatus(res.data["status"]),
-        providerReference: String(
-          res.data["reference"] ?? "",
-        ),
+        providerReference: String(res.data["reference"] ?? ""),
       };
     } catch (error) {
       return {
@@ -508,18 +488,13 @@ export const tchokoPay = {
         configured: true,
         status: "PENDING",
         error: "PROVIDER_UNREACHABLE",
-        message:
-          error instanceof Error
-            ? error.message
-            : undefined,
+        message: error instanceof Error ? error.message : undefined,
       };
     }
   },
 
   /** GET /collect/{reference} — the only source of truth for "did it clear?". */
-  async getCollection(
-    providerReference: string,
-  ): Promise<CollectionResult> {
+  async getCollection(providerReference: string): Promise<CollectionResult> {
     if (!this.isConfigured()) {
       return {
         ok: false,
@@ -539,12 +514,9 @@ export const tchokoPay = {
     }
 
     try {
-      const res = await request(
-        `/collect/${encodeURIComponent(providerReference)}`,
-        {
-          method: "GET",
-        },
-      );
+      const res = await request(`/collect/${encodeURIComponent(providerReference)}`, {
+        method: "GET",
+      });
 
       if (!res.ok) {
         return {
@@ -560,19 +532,9 @@ export const tchokoPay = {
         ok: true,
         configured: true,
         status: mapStatus(res.data["status"]),
-        providerReference:
-          String(
-            res.data["reference"] ??
-              providerReference,
-          ),
-        merchantReference:
-          (res.data["merchantReference"] as
-            | string
-            | undefined) ?? undefined,
-        failureCategory:
-          mapFailureCategory(
-            res.data["failureCategory"],
-          ),
+        providerReference: String(res.data["reference"] ?? providerReference),
+        merchantReference: (res.data["merchantReference"] as string | undefined) ?? undefined,
+        failureCategory: mapFailureCategory(res.data["failureCategory"]),
       };
     } catch (error) {
       return {
@@ -580,10 +542,7 @@ export const tchokoPay = {
         configured: true,
         status: "PENDING",
         error: "PROVIDER_UNREACHABLE",
-        message:
-          error instanceof Error
-            ? error.message
-            : undefined,
+        message: error instanceof Error ? error.message : undefined,
       };
     }
   },
@@ -599,9 +558,12 @@ export const tchokoPay = {
       return { ok: false, status: "PENDING", reason: null };
     }
     try {
-      const res = await request(`/disburse/${encodeURIComponent(providerReference)}`, { method: "GET" });
+      const res = await request(`/disburse/${encodeURIComponent(providerReference)}`, {
+        method: "GET",
+      });
       if (!res.ok) return { ok: false, status: "PENDING", reason: null };
-      const reason = typeof res.data["statusReason"] === "string" ? (res.data["statusReason"] as string) : null;
+      const reason =
+        typeof res.data["statusReason"] === "string" ? (res.data["statusReason"] as string) : null;
       return { ok: true, status: mapStatus(res.data["status"]), reason };
     } catch {
       return { ok: false, status: "PENDING", reason: null };
@@ -616,9 +578,7 @@ export const tchokoPay = {
    * webhook, so this method never marks a payout as PAID merely because
    * the HTTP request succeeded.
    */
-  async disburse(
-    input: DisbursementInput,
-  ): Promise<DisbursementResult> {
+  async disburse(input: DisbursementInput): Promise<DisbursementResult> {
     if (!this.isConfigured()) {
       return {
         ok: false,
@@ -628,10 +588,7 @@ export const tchokoPay = {
       };
     }
 
-    const phone = normalizePhone(
-      input.phone,
-      input.country,
-    );
+    const phone = normalizePhone(input.phone, input.country);
 
     if (phone.length < 8) {
       return {
@@ -643,10 +600,7 @@ export const tchokoPay = {
       };
     }
 
-    if (
-      !Number.isFinite(input.amount) ||
-      input.amount <= 0
-    ) {
+    if (!Number.isFinite(input.amount) || input.amount <= 0) {
       return {
         ok: false,
         configured: true,
@@ -684,11 +638,8 @@ export const tchokoPay = {
           ok: false,
           configured: true,
           status: "FAILED",
-          error:
-            res.error.code ??
-            "DISBURSEMENT_START_FAILED",
-          message:
-            res.error.message ?? undefined,
+          error: res.error.code ?? "DISBURSEMENT_START_FAILED",
+          message: res.error.message ?? undefined,
           param: res.error.param ?? undefined,
         };
       }
@@ -696,8 +647,7 @@ export const tchokoPay = {
       const providerReference =
         typeof res.data["reference"] === "string"
           ? res.data["reference"]
-          : typeof res.data["providerReference"] ===
-              "string"
+          : typeof res.data["providerReference"] === "string"
             ? res.data["providerReference"]
             : undefined;
 
@@ -713,10 +663,7 @@ export const tchokoPay = {
         configured: true,
         status: "PENDING",
         error: "PROVIDER_UNREACHABLE",
-        message:
-          error instanceof Error
-            ? error.message
-            : undefined,
+        message: error instanceof Error ? error.message : undefined,
       };
     }
   },
@@ -725,9 +672,7 @@ export const tchokoPay = {
    * Pre-migration payments were created on the old API, where our own reference
    * was the lookup key. Only used to drain leftovers; never for new charges.
    */
-  async verifyLegacyPayment(
-    reference: string,
-  ): Promise<CollectionResult> {
+  async verifyLegacyPayment(reference: string): Promise<CollectionResult> {
     const { apiKey, legacyBaseUrl } = config();
 
     if (!apiKey || !legacyBaseUrl) {
@@ -740,20 +685,13 @@ export const tchokoPay = {
     }
 
     try {
-      const res = await fetch(
-        `${legacyBaseUrl}/v1/payments/${encodeURIComponent(reference)}`,
-        {
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-          },
+      const res = await fetch(`${legacyBaseUrl}/v1/payments/${encodeURIComponent(reference)}`, {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
         },
-      );
+      });
 
-      const data =
-        (await res.json().catch(() => ({}))) as Record<
-          string,
-          unknown
-        >;
+      const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
 
       if (!res.ok) {
         return {
@@ -768,10 +706,7 @@ export const tchokoPay = {
         ok: true,
         configured: true,
         status: mapStatus(data["status"]),
-        providerReference:
-          (data["reference"] as
-            | string
-            | undefined) ?? reference,
+        providerReference: (data["reference"] as string | undefined) ?? reference,
       };
     } catch {
       return {
@@ -790,31 +725,19 @@ export const tchokoPay = {
    * X-TchokoPay-Signature. Deliveries older than five minutes are rejected even
    * with a valid signature, so a captured delivery cannot be replayed later.
    */
-  async handleWebhook(
-    rawBody: string,
-    headers: Headers,
-  ): Promise<WebhookResult> {
+  async handleWebhook(rawBody: string, headers: Headers): Promise<WebhookResult> {
     const { webhookSecret } = config();
 
-    const event =
-      headers.get("x-tchokopay-event") ??
-      undefined;
+    const event = headers.get("x-tchokopay-event") ?? undefined;
 
     let signatureVerified = false;
 
     if (webhookSecret) {
-      const signature = (
-        headers.get(
-          "x-tchokopay-signature",
-        ) ?? ""
-      )
+      const signature = (headers.get("x-tchokopay-signature") ?? "")
         .replace(/^sha256=/i, "")
         .toLowerCase();
 
-      const timestamp =
-        headers.get(
-          "x-tchokopay-timestamp",
-        ) ?? "";
+      const timestamp = headers.get("x-tchokopay-timestamp") ?? "";
 
       if (!signature || !timestamp) {
         return {
@@ -825,15 +748,9 @@ export const tchokoPay = {
         };
       }
 
-      const age = Math.abs(
-        Date.now() / 1000 -
-          Number(timestamp),
-      );
+      const age = Math.abs(Date.now() / 1000 - Number(timestamp));
 
-      if (
-        !Number.isFinite(age) ||
-        age > 300
-      ) {
+      if (!Number.isFinite(age) || age > 300) {
         return {
           valid: false,
           signatureVerified: false,
@@ -842,17 +759,9 @@ export const tchokoPay = {
         };
       }
 
-      const expected = await hmacHex(
-        webhookSecret,
-        `${timestamp}.${rawBody}`,
-      );
+      const expected = await hmacHex(webhookSecret, `${timestamp}.${rawBody}`);
 
-      if (
-        !timingSafeEqual(
-          signature,
-          expected,
-        )
-      ) {
+      if (!timingSafeEqual(signature, expected)) {
         return {
           valid: false,
           signatureVerified: false,
@@ -867,9 +776,7 @@ export const tchokoPay = {
     let payload: Record<string, unknown>;
 
     try {
-      payload = JSON.parse(
-        rawBody,
-      ) as Record<string, unknown>;
+      payload = JSON.parse(rawBody) as Record<string, unknown>;
     } catch {
       return {
         valid: false,
@@ -879,11 +786,7 @@ export const tchokoPay = {
       };
     }
 
-    const name = String(
-      event ??
-        payload["event"] ??
-        "",
-    );
+    const name = String(event ?? payload["event"] ?? "");
 
     // Disbursement deliveries wrap their fields in `data` and use `reference`.
     //
@@ -895,24 +798,14 @@ export const tchokoPay = {
     // This prevents ASH from remaining PROCESSING when the recipient has
     // already been credited but the provider payload's status field is
     // missing or still contains an intermediate value.
-    if (
-      name.toLowerCase().startsWith("disburse.") ||
-      name.toLowerCase().startsWith("payout.")
-    ) {
-      const body =
-        (payload["data"] as
-          | Record<string, unknown>
-          | undefined) ??
-        payload;
+    if (name.toLowerCase().startsWith("disburse.") || name.toLowerCase().startsWith("payout.")) {
+      const body = (payload["data"] as Record<string, unknown> | undefined) ?? payload;
 
       const eventName = name.toLowerCase();
 
       let status: PaymentStatus;
 
-      if (
-        eventName === "disburse.succeeded" ||
-        eventName === "payout.succeeded"
-      ) {
+      if (eventName === "disburse.succeeded" || eventName === "payout.succeeded") {
         status = "PAID";
       } else if (
         eventName === "disburse.failed" ||
@@ -937,30 +830,14 @@ export const tchokoPay = {
         signatureVerified,
         event: name,
         isDisbursement: true,
-        providerReference:
-          (body["reference"] as
-            | string
-            | undefined) ??
-          undefined,
-        merchantReference:
-          (body["merchantReference"] as
-            | string
-            | undefined) ??
-          undefined,
+        providerReference: (body["reference"] as string | undefined) ?? undefined,
+        merchantReference: (body["merchantReference"] as string | undefined) ?? undefined,
         status,
-        failureReason:
-          (body["failureReason"] as
-            | string
-            | undefined) ??
-          undefined,
+        failureReason: (body["failureReason"] as string | undefined) ?? undefined,
       };
     }
 
-    const body =
-      (payload["data"] as
-        | Record<string, unknown>
-        | undefined) ??
-      payload;
+    const body = (payload["data"] as Record<string, unknown> | undefined) ?? payload;
 
     return {
       valid: true,
@@ -968,24 +845,10 @@ export const tchokoPay = {
       event: name || undefined,
       isDisbursement: false,
       // Collection deliveries name TchokoPay's own reference `invoiceReference`.
-      providerReference:
-        (body["invoiceReference"] ??
-          body["reference"]) as
-          | string
-          | undefined,
-      merchantReference:
-        (body["merchantReference"] as
-          | string
-          | undefined) ??
-        undefined,
-      status: mapStatus(
-        body["status"],
-      ),
-      failureReason:
-        (body["failureReason"] as
-          | string
-          | undefined) ??
-        undefined,
+      providerReference: (body["invoiceReference"] ?? body["reference"]) as string | undefined,
+      merchantReference: (body["merchantReference"] as string | undefined) ?? undefined,
+      status: mapStatus(body["status"]),
+      failureReason: (body["failureReason"] as string | undefined) ?? undefined,
     };
   },
 };

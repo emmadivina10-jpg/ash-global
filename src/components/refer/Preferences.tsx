@@ -25,7 +25,11 @@ export function ThemeToggle({ className }: { className?: string }) {
       onClick={toggleTheme}
       className={className}
     >
-      {theme === "dark" ? <Sun className="size-4" aria-hidden /> : <Moon className="size-4" aria-hidden />}
+      {theme === "dark" ? (
+        <Sun className="size-4" aria-hidden />
+      ) : (
+        <Moon className="size-4" aria-hidden />
+      )}
     </Button>
   );
 }
@@ -62,7 +66,9 @@ export function LanguageSwitcher({ className }: { className?: string }) {
             {entry.code === lang ? (
               <Check className="size-3.5 shrink-0 text-primary" aria-hidden />
             ) : (
-              <span className="shrink-0 text-[10px] font-bold text-muted-foreground">{entry.label}</span>
+              <span className="shrink-0 text-[10px] font-bold text-muted-foreground">
+                {entry.label}
+              </span>
             )}
           </DropdownMenuItem>
         ))}

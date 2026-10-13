@@ -13,18 +13,11 @@ import {
   XCircle,
 } from "lucide-react";
 
-import {
-  getConsolePayouts,
-  requestConsolePayout,
-} from "@/lib/console.functions";
+import { getConsolePayouts, requestConsolePayout } from "@/lib/console.functions";
 
 import { SectionCard } from "@/components/refer/cards";
 import { StatusBadge } from "@/components/refer/StatusBadge";
-import {
-  EmptyState,
-  ErrorState,
-  SkeletonRows,
-} from "@/components/refer/states";
+import { EmptyState, ErrorState, SkeletonRows } from "@/components/refer/states";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,9 +44,7 @@ function providerLabel(provider: string | null | undefined) {
 }
 
 function providerShortLabel(provider: Provider) {
-  return provider === "mtn_cm"
-    ? "MTN Mobile Money"
-    : "Orange Money";
+  return provider === "mtn_cm" ? "MTN Mobile Money" : "Orange Money";
 }
 
 function payoutStatusIcon(status: string | null | undefined) {
@@ -103,11 +94,7 @@ function ConsolePayout() {
     }
 
     if (value > Number(data?.available ?? 0)) {
-      toast.error(
-        `Amount exceeds available balance (${formatXAF(
-          Number(data?.available ?? 0),
-        )})`,
-      );
+      toast.error(`Amount exceeds available balance (${formatXAF(Number(data?.available ?? 0))})`);
       return;
     }
 
@@ -145,15 +132,9 @@ function ConsolePayout() {
       }
 
       if (result.status === "COMPLETED") {
-        toast.success(
-          "Platform payout completed successfully",
-        );
+        toast.success("Platform payout completed successfully");
       } else {
-        toast.success(
-          `Payout sent to TchokoPay and is now ${
-            result.status ?? "PROCESSING"
-          }`,
-        );
+        toast.success(`Payout sent to TchokoPay and is now ${result.status ?? "PROCESSING"}`);
       }
 
       setAmount("");
@@ -166,11 +147,7 @@ function ConsolePayout() {
 
       await refetch();
     } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Unable to process payout",
-      );
+      toast.error(error instanceof Error ? error.message : "Unable to process payout");
     } finally {
       setBusy(false);
     }
@@ -181,11 +158,7 @@ function ConsolePayout() {
   }
 
   if (isError || !data) {
-    return (
-      <ErrorState
-        onRetry={() => void refetch()}
-      />
-    );
+    return <ErrorState onRetry={() => void refetch()} />;
   }
 
   const f = data.financials;
@@ -199,33 +172,23 @@ function ConsolePayout() {
       >
         <div className="grid gap-3 sm:grid-cols-4">
           <div className="rounded-xl border border-border p-3">
-            <p className="text-xs text-muted-foreground">
-              Platform revenue
-            </p>
+            <p className="text-xs text-muted-foreground">Platform revenue</p>
 
             <p className="mt-1 font-display text-lg font-bold text-foreground">
-              {formatXAF(
-                Number(f?.platform_revenue ?? 0),
-              )}
+              {formatXAF(Number(f?.platform_revenue ?? 0))}
             </p>
           </div>
 
           <div className="rounded-xl border border-border p-3">
-            <p className="text-xs text-muted-foreground">
-              Booking commission
-            </p>
+            <p className="text-xs text-muted-foreground">Booking commission</p>
 
             <p className="mt-1 font-display text-lg font-bold text-foreground">
-              {formatXAF(
-                Number(f?.commission_revenue ?? 0),
-              )}
+              {formatXAF(Number(f?.commission_revenue ?? 0))}
             </p>
           </div>
 
           <div className="rounded-xl border border-border p-3">
-            <p className="text-xs text-muted-foreground">
-              Already paid out
-            </p>
+            <p className="text-xs text-muted-foreground">Already paid out</p>
 
             <p className="mt-1 font-display text-lg font-bold text-foreground">
               {formatXAF(Number(data.taken ?? 0))}
@@ -233,36 +196,25 @@ function ConsolePayout() {
           </div>
 
           <div className="rounded-xl border border-primary/40 bg-primary/5 p-3">
-            <p className="text-xs text-muted-foreground">
-              Available to withdraw
-            </p>
+            <p className="text-xs text-muted-foreground">Available to withdraw</p>
 
             <p className="mt-1 font-display text-lg font-bold text-primary">
-              {formatXAF(
-                Number(data.available ?? 0),
-              )}
+              {formatXAF(Number(data.available ?? 0))}
             </p>
           </div>
         </div>
 
-        <form
-          onSubmit={submit}
-          className="mt-4 space-y-4"
-        >
+        <form onSubmit={submit} className="mt-4 space-y-4">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {/* Amount */}
             <div className="space-y-1.5">
-              <Label htmlFor="payout-amount">
-                Amount (XAF)
-              </Label>
+              <Label htmlFor="payout-amount">Amount (XAF)</Label>
 
               <Input
                 id="payout-amount"
                 inputMode="numeric"
                 value={amount}
-                onChange={(e) =>
-                  setAmount(e.target.value)
-                }
+                onChange={(e) => setAmount(e.target.value)}
                 placeholder="50000"
                 min={1}
                 required
@@ -272,43 +224,29 @@ function ConsolePayout() {
 
             {/* Provider */}
             <div className="space-y-1.5">
-              <Label htmlFor="payout-provider">
-                Mobile Money provider
-              </Label>
+              <Label htmlFor="payout-provider">Mobile Money provider</Label>
 
               <select
                 id="payout-provider"
                 value={provider}
-                onChange={(e) =>
-                  setProvider(
-                    e.target.value as Provider,
-                  )
-                }
+                onChange={(e) => setProvider(e.target.value as Provider)}
                 disabled={busy}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
               >
-                <option value="mtn_cm">
-                  MTN Mobile Money
-                </option>
+                <option value="mtn_cm">MTN Mobile Money</option>
 
-                <option value="orange_cm">
-                  Orange Money
-                </option>
+                <option value="orange_cm">Orange Money</option>
               </select>
             </div>
 
             {/* Destination */}
             <div className="space-y-1.5">
-              <Label htmlFor="payout-dest">
-                Mobile Money number
-              </Label>
+              <Label htmlFor="payout-dest">Mobile Money number</Label>
 
               <Input
                 id="payout-dest"
                 value={destination}
-                onChange={(e) =>
-                  setDestination(e.target.value)
-                }
+                onChange={(e) => setDestination(e.target.value)}
                 placeholder="6XX XXX XXX"
                 inputMode="tel"
                 autoComplete="tel"
@@ -323,16 +261,12 @@ function ConsolePayout() {
 
             {/* Note */}
             <div className="space-y-1.5">
-              <Label htmlFor="payout-note">
-                Note (optional)
-              </Label>
+              <Label htmlFor="payout-note">Note (optional)</Label>
 
               <Input
                 id="payout-note"
                 value={note}
-                onChange={(e) =>
-                  setNote(e.target.value)
-                }
+                onChange={(e) => setNote(e.target.value)}
                 placeholder="Platform withdrawal"
                 disabled={busy}
               />
@@ -353,21 +287,16 @@ function ConsolePayout() {
                   </p>
 
                   <p className="text-xs text-muted-foreground">
-                    {destination.trim() ||
-                      "Recipient number not entered"}
+                    {destination.trim() || "Recipient number not entered"}
                   </p>
                 </div>
               </div>
 
               <div className="text-left sm:text-right">
-                <p className="text-xs text-muted-foreground">
-                  Payout amount
-                </p>
+                <p className="text-xs text-muted-foreground">Payout amount</p>
 
                 <p className="font-display text-lg font-bold text-foreground">
-                  {formatXAF(
-                    Number(amount) || 0,
-                  )}
+                  {formatXAF(Number(amount) || 0)}
                 </p>
               </div>
             </div>
@@ -375,10 +304,7 @@ function ConsolePayout() {
 
           <Button
             type="submit"
-            disabled={
-              busy ||
-              Number(data.available ?? 0) <= 0
-            }
+            disabled={busy || Number(data.available ?? 0) <= 0}
             className="w-full sm:w-auto"
           >
             {busy ? (
@@ -395,9 +321,8 @@ function ConsolePayout() {
           </Button>
 
           <p className="text-xs text-muted-foreground">
-            The payout is sent through TchokoPay. It will remain
-            processing until TchokoPay confirms that the recipient
-            has been credited.
+            The payout is sent through TchokoPay. It will remain processing until TchokoPay confirms
+            that the recipient has been credited.
           </p>
         </form>
       </SectionCard>
@@ -411,10 +336,7 @@ function ConsolePayout() {
         ) : (
           <ul className="divide-y divide-border">
             {data.payouts.map((p) => (
-              <li
-                key={p.id}
-                className="py-3"
-              >
+              <li key={p.id} className="py-3">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex min-w-0 items-start gap-3">
                     <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
@@ -437,12 +359,8 @@ function ConsolePayout() {
                       </div>
 
                       <p className="mt-0.5 text-xs text-muted-foreground">
-                        {formatDateTime(
-                          p.created_at,
-                        )}
-                        {p.reference
-                          ? ` — ${p.reference}`
-                          : ""}
+                        {formatDateTime(p.created_at)}
+                        {p.reference ? ` — ${p.reference}` : ""}
                       </p>
 
                       {p.provider_reference ? (
@@ -455,36 +373,24 @@ function ConsolePayout() {
                       ) : null}
 
                       {p.failure_reason ? (
-                        <p className="mt-1 text-xs text-destructive">
-                          {p.failure_reason}
-                        </p>
+                        <p className="mt-1 text-xs text-destructive">{p.failure_reason}</p>
                       ) : null}
 
                       {p.note ? (
-                        <p className="mt-0.5 text-xs text-muted-foreground">
-                          {p.note}
-                        </p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">{p.note}</p>
                       ) : null}
                     </div>
                   </div>
 
                   <div className="flex shrink-0 items-center gap-3 sm:flex-col sm:items-end">
                     <div className="flex items-center gap-1.5">
-                      {payoutStatusIcon(
-                        p.status,
-                      )}
+                      {payoutStatusIcon(p.status)}
 
-                      <StatusBadge
-                        status={
-                          p.status ?? "PENDING"
-                        }
-                      />
+                      <StatusBadge status={p.status ?? "PENDING"} />
                     </div>
 
                     <p className="text-sm font-bold text-foreground">
-                      {formatXAF(
-                        Number(p.amount),
-                      )}
+                      {formatXAF(Number(p.amount))}
                     </p>
                   </div>
                 </div>
@@ -505,38 +411,23 @@ function ConsolePayout() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-xs text-muted-foreground">
-                  <th className="py-2 pr-3 font-medium">
-                    Service
-                  </th>
+                  <th className="py-2 pr-3 font-medium">Service</th>
 
-                  <th className="py-2 pr-3 font-medium">
-                    Provider
-                  </th>
+                  <th className="py-2 pr-3 font-medium">Provider</th>
 
-                  <th className="py-2 pr-3 font-medium">
-                    Status
-                  </th>
+                  <th className="py-2 pr-3 font-medium">Status</th>
 
-                  <th className="py-2 pr-3 text-right font-medium">
-                    Price
-                  </th>
+                  <th className="py-2 pr-3 text-right font-medium">Price</th>
 
-                  <th className="py-2 pr-3 text-right font-medium">
-                    Fee
-                  </th>
+                  <th className="py-2 pr-3 text-right font-medium">Fee</th>
 
-                  <th className="py-2 font-medium">
-                    Created
-                  </th>
+                  <th className="py-2 font-medium">Created</th>
                 </tr>
               </thead>
 
               <tbody>
                 {bookingRows.map((b) => (
-                  <tr
-                    key={b.id}
-                    className="border-b border-border/60 last:border-0"
-                  >
+                  <tr key={b.id} className="border-b border-border/60 last:border-0">
                     <td className="max-w-40 truncate py-2 pr-3 font-medium text-foreground">
                       {b.service_title}
                     </td>
@@ -546,15 +437,11 @@ function ConsolePayout() {
                     </td>
 
                     <td className="py-2 pr-3">
-                      <StatusBadge
-                        status={b.status}
-                      />
+                      <StatusBadge status={b.status} />
                     </td>
 
                     <td className="py-2 pr-3 text-right text-foreground">
-                      {formatXAF(
-                        Number(b.price),
-                      )}
+                      {formatXAF(Number(b.price))}
                     </td>
 
                     <td className="py-2 pr-3 text-right font-semibold text-primary">
@@ -562,9 +449,7 @@ function ConsolePayout() {
                     </td>
 
                     <td className="py-2 text-xs text-muted-foreground">
-                      {formatDateTime(
-                        b.created_at,
-                      )}
+                      {formatDateTime(b.created_at)}
                     </td>
                   </tr>
                 ))}

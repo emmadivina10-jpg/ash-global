@@ -12,7 +12,8 @@
 
 @theme inline {
   --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-display: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display:
+    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -96,8 +97,10 @@
   --color-chat-wash: oklch(0.92 0.045 165);
   --color-chat-outgoing: var(--chat-outgoing);
 
-  --shadow-card: 0 1px 1px oklch(0.14 0.022 283 / 0.05), 0 12px 34px -18px oklch(0.14 0.022 283 / 0.3);
-  --shadow-raised: 0 2px 6px oklch(0.14 0.022 283 / 0.08), 0 30px 64px -28px oklch(0.14 0.022 283 / 0.55);
+  --shadow-card:
+    0 1px 1px oklch(0.14 0.022 283 / 0.05), 0 12px 34px -18px oklch(0.14 0.022 283 / 0.3);
+  --shadow-raised:
+    0 2px 6px oklch(0.14 0.022 283 / 0.08), 0 30px 64px -28px oklch(0.14 0.022 283 / 0.55);
   --shadow-gold: 0 18px 48px -20px oklch(0.5744 0.2189 295.84 / 0.55);
   --shadow-brand: 0 20px 50px -22px oklch(0.638 0.2365 18.24 / 0.55);
 }
@@ -119,9 +122,26 @@
 }
 
 :root {
-  --member-dual-wash: linear-gradient(110deg, color-mix(in oklab, var(--color-chat-emerald) 13%, var(--background)) 0%, color-mix(in oklab, var(--color-chat-emerald) 8%, var(--background)) 48%, color-mix(in oklab, var(--verified-magenta) 9%, var(--background)) 52%, color-mix(in oklab, var(--verified-violet) 12%, var(--background)) 100%);
-  --member-dual-ring: conic-gradient(from 0deg, var(--verified-magenta), var(--verified-violet) 50%, var(--color-chat-emerald) 50%, var(--color-chat-emerald));
-  --member-update-ring: linear-gradient(135deg, var(--verified-coral), var(--verified-magenta), var(--verified-violet));
+  --member-dual-wash: linear-gradient(
+    110deg,
+    color-mix(in oklab, var(--color-chat-emerald) 13%, var(--background)) 0%,
+    color-mix(in oklab, var(--color-chat-emerald) 8%, var(--background)) 48%,
+    color-mix(in oklab, var(--verified-magenta) 9%, var(--background)) 52%,
+    color-mix(in oklab, var(--verified-violet) 12%, var(--background)) 100%
+  );
+  --member-dual-ring: conic-gradient(
+    from 0deg,
+    var(--verified-magenta),
+    var(--verified-violet) 50%,
+    var(--color-chat-emerald) 50%,
+    var(--color-chat-emerald)
+  );
+  --member-update-ring: linear-gradient(
+    135deg,
+    var(--verified-coral),
+    var(--verified-magenta),
+    var(--verified-violet)
+  );
   --chat-outgoing: oklch(0.91 0.065 160);
   --radius: 1rem;
 
@@ -233,13 +253,27 @@
 
 @layer base {
   @keyframes investment-scan {
-    from { left: 0%; opacity: 0; }
-    20%, 80% { opacity: 1; }
-    to { left: 100%; opacity: 0; }
+    from {
+      left: 0%;
+      opacity: 0;
+    }
+    20%,
+    80% {
+      opacity: 1;
+    }
+    to {
+      left: 100%;
+      opacity: 0;
+    }
   }
-  .investment-scan { animation: investment-scan 10s linear infinite; }
+  .investment-scan {
+    animation: investment-scan 10s linear infinite;
+  }
   @media (prefers-reduced-motion: reduce) {
-    .investment-scan { animation: none; display: none; }
+    .investment-scan {
+      animation: none;
+      display: none;
+    }
   }
 
   html {
@@ -311,8 +345,16 @@
   border-radius: var(--radius-3xl);
   background-color: var(--color-primary-deep);
   background-image:
-    radial-gradient(110% 130% at 8% 0%, color-mix(in oklab, var(--color-primary) 45%, transparent) 0%, transparent 58%),
-    radial-gradient(100% 120% at 100% 100%, color-mix(in oklab, var(--color-gold) 45%, transparent) 0%, transparent 60%),
+    radial-gradient(
+      110% 130% at 8% 0%,
+      color-mix(in oklab, var(--color-primary) 45%, transparent) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      100% 120% at 100% 100%,
+      color-mix(in oklab, var(--color-gold) 45%, transparent) 0%,
+      transparent 60%
+    ),
     linear-gradient(150deg, oklch(0.1404 0.022 283.2) 0%, oklch(0.1891 0.0262 283.61) 100%);
   color: oklch(0.9784 0.0045 285);
   box-shadow: var(--shadow-raised);
@@ -339,7 +381,11 @@
   border-radius: var(--radius);
   border: 1px solid color-mix(in oklab, var(--color-on-dark) 18%, transparent);
   background-color: var(--color-team-background);
-  background-image: linear-gradient(120deg, var(--color-team-surface), var(--color-team-background));
+  background-image: linear-gradient(
+    120deg,
+    var(--color-team-surface),
+    var(--color-team-background)
+  );
   color: var(--color-on-dark);
   box-shadow: var(--shadow-card);
 
@@ -359,7 +405,12 @@
 
 /* Metallic EMV-style chip. */
 @utility card-chip {
-  background-image: linear-gradient(135deg, oklch(0.88 0.09 92) 0%, oklch(0.72 0.12 88) 45%, oklch(0.94 0.05 95) 100%);
+  background-image: linear-gradient(
+    135deg,
+    oklch(0.88 0.09 92) 0%,
+    oklch(0.72 0.12 88) 45%,
+    oklch(0.94 0.05 95) 100%
+  );
   box-shadow: 0 1px 2px oklch(0 0 0 / 35%);
 }
 
@@ -371,7 +422,11 @@
   border-radius: var(--radius);
   border: 1px solid color-mix(in oklab, var(--verified-gold) 50%, transparent);
   background-color: var(--color-team-background);
-  background-image: linear-gradient(120deg, color-mix(in oklab, var(--verified-gold) 18%, var(--color-team-background)), var(--color-team-background));
+  background-image: linear-gradient(
+    120deg,
+    color-mix(in oklab, var(--verified-gold) 18%, var(--color-team-background)),
+    var(--color-team-background)
+  );
   color: var(--color-on-dark);
   box-shadow: var(--shadow-card);
 
@@ -576,13 +631,21 @@
 }
 
 @keyframes ash-drift-a {
-  0% { transform: translate3d(0, 0, 0) scale(1); }
-  100% { transform: translate3d(8%, 10%, 0) scale(1.15); }
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    transform: translate3d(8%, 10%, 0) scale(1.15);
+  }
 }
 
 @keyframes ash-drift-b {
-  0% { transform: translate3d(0, 0, 0) scale(1.1); }
-  100% { transform: translate3d(-10%, -8%, 0) scale(0.95); }
+  0% {
+    transform: translate3d(0, 0, 0) scale(1.1);
+  }
+  100% {
+    transform: translate3d(-10%, -8%, 0) scale(0.95);
+  }
 }
 
 .ash-splash-mark {
@@ -590,8 +653,16 @@
 }
 
 @keyframes ash-mark-in {
-  0% { opacity: 0; transform: scale(0.82); filter: blur(6px); }
-  100% { opacity: 1; transform: scale(1); filter: blur(0); }
+  0% {
+    opacity: 0;
+    transform: scale(0.82);
+    filter: blur(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
 }
 
 .ash-fade-up {
@@ -619,27 +690,52 @@
 }
 
 @keyframes ash-launch-ring {
-  0% { opacity: 0; transform: scale(0.72); }
-  35% { opacity: 0.8; }
-  100% { opacity: 0; transform: scale(1.35); }
+  0% {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+  35% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
 }
 
 @keyframes ash-fade-up {
-  0% { opacity: 0; transform: translateY(14px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ash-liquid { animation: none; opacity: 0.35; }
+  .ash-liquid {
+    animation: none;
+    opacity: 0.35;
+  }
   .ash-splash-mark,
   .ash-fade-up,
   .ash-tiles-out,
-  .ash-tiles-in { animation: none; }
+  .ash-tiles-in {
+    animation: none;
+  }
   .ash-launch-mark::before,
-  .ash-launch-mark::after { animation: ash-simple-fade 300ms ease-out both; }
+  .ash-launch-mark::after {
+    animation: ash-simple-fade 300ms ease-out both;
+  }
   @keyframes ash-simple-fade {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
   }
 }
 
@@ -673,13 +769,19 @@ body {
   max-width: 100%;
 }
 
-
 /* Member surfaces share a quiet emerald-to-ASH tint without changing staff branding. */
 .app-shell {
-  --member-surface: linear-gradient(155deg, color-mix(in oklab, var(--color-chat-emerald) 7%, var(--background)), color-mix(in oklab, var(--color-verified-magenta) 3%, var(--background)) 52%, color-mix(in oklab, var(--color-verified-violet) 4%, var(--background)));
+  --member-surface: linear-gradient(
+    155deg,
+    color-mix(in oklab, var(--color-chat-emerald) 7%, var(--background)),
+    color-mix(in oklab, var(--color-verified-magenta) 3%, var(--background)) 52%,
+    color-mix(in oklab, var(--color-verified-violet) 4%, var(--background))
+  );
   background: var(--member-surface);
 }
-.app-shell aside { background-image: var(--member-surface); }
+.app-shell aside {
+  background-image: var(--member-surface);
+}
 
 .app-shell,
 .app-shell-frame,
@@ -801,9 +903,19 @@ html.native .post-comment-composer {
 .chat-surface {
   background-color: color-mix(in oklab, var(--color-muted) 45%, var(--color-background));
   background-image:
-    radial-gradient(circle at 20% 25%, color-mix(in oklab, var(--color-primary) 7%, transparent) 0 1px, transparent 1px),
-    radial-gradient(circle at 70% 65%, color-mix(in oklab, var(--color-primary) 5%, transparent) 0 1px, transparent 1px);
-  background-size: 26px 26px, 34px 34px;
+    radial-gradient(
+      circle at 20% 25%,
+      color-mix(in oklab, var(--color-primary) 7%, transparent) 0 1px,
+      transparent 1px
+    ),
+    radial-gradient(
+      circle at 70% 65%,
+      color-mix(in oklab, var(--color-primary) 5%, transparent) 0 1px,
+      transparent 1px
+    );
+  background-size:
+    26px 26px,
+    34px 34px;
 }
 
 /* Phone navigation: flat, edge-to-edge and immediately familiar, with five
@@ -838,7 +950,9 @@ html.native .post-comment-composer {
 
 .premium-nav-item {
   z-index: 1;
-  transition: color 150ms ease, background-color 150ms ease;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
   -webkit-touch-callout: none;
 }
 .member-tab-bubble {
@@ -864,15 +978,51 @@ html.native .post-comment-composer {
   transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
   animation: member-tab-lift 180ms ease-out;
 }
-.member-tab-bubble-icon { display: grid; place-items: center; width: 2.25rem; height: 2.25rem; }
-.member-tab-bubble-icon svg { width: 2rem; height: 2rem; }
-.member-tab-bubble-label { max-width: 95%; font-size: 0.6875rem; line-height: 1.2; font-weight: 700; text-align: center; }
-.premium-nav-grid[data-held-index="1"] .member-tab-bubble { transform: translateX(100%); }
-.premium-nav-grid[data-held-index="2"] .member-tab-bubble { transform: translateX(200%); }
-.premium-nav-grid[data-held-index="3"] .member-tab-bubble { transform: translateX(300%); }
-.premium-nav-grid[data-held-index="4"] .member-tab-bubble { transform: translateX(400%); }
-@keyframes member-tab-lift { from { opacity: 0; scale: 0.75; } to { opacity: 1; scale: 1; } }
-@media (prefers-reduced-motion: reduce) { .member-tab-bubble { animation: none; transition: none; } }
+.member-tab-bubble-icon {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+}
+.member-tab-bubble-icon svg {
+  width: 2rem;
+  height: 2rem;
+}
+.member-tab-bubble-label {
+  max-width: 95%;
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  font-weight: 700;
+  text-align: center;
+}
+.premium-nav-grid[data-held-index="1"] .member-tab-bubble {
+  transform: translateX(100%);
+}
+.premium-nav-grid[data-held-index="2"] .member-tab-bubble {
+  transform: translateX(200%);
+}
+.premium-nav-grid[data-held-index="3"] .member-tab-bubble {
+  transform: translateX(300%);
+}
+.premium-nav-grid[data-held-index="4"] .member-tab-bubble {
+  transform: translateX(400%);
+}
+@keyframes member-tab-lift {
+  from {
+    opacity: 0;
+    scale: 0.75;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .member-tab-bubble {
+    animation: none;
+    transition: none;
+  }
+}
 
 @media (max-height: 500px) and (orientation: landscape) {
   .premium-mobile-nav {
@@ -1010,7 +1160,11 @@ a {
   height: 55vw;
   max-width: 620px;
   max-height: 620px;
-  background: radial-gradient(circle, color-mix(in oklab, var(--primary) 55%, transparent), transparent 70%);
+  background: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--primary) 55%, transparent),
+    transparent 70%
+  );
   animation: ash-liquid-drift 22s ease-in-out infinite alternate;
 }
 .ash-liquid-b {
@@ -1020,27 +1174,49 @@ a {
   height: 60vw;
   max-width: 680px;
   max-height: 680px;
-  background: radial-gradient(circle, color-mix(in oklab, var(--accent) 45%, transparent), transparent 70%);
+  background: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--accent) 45%, transparent),
+    transparent 70%
+  );
   animation: ash-liquid-drift 28s ease-in-out infinite alternate-reverse;
 }
 @keyframes ash-liquid-drift {
-  from { transform: translate3d(0, 0, 0) scale(1); }
-  to { transform: translate3d(4%, 6%, 0) scale(1.12); }
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(4%, 6%, 0) scale(1.12);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .ash-liquid { animation: none; }
+  .ash-liquid {
+    animation: none;
+  }
 }
 
 /* Welcome-screen service tiles: a very slow, top-to-bottom sweep.
    Each tile fades over 2s; the delay steps down the column so the fade
    starts at the top and rolls gently to the bottom. */
 @keyframes ash-tiles-out {
-  from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(18px); }
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(18px);
+  }
 }
 @keyframes ash-tiles-in {
-  from { opacity: 0; transform: translateY(18px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .ash-tiles-out {
   animation: ash-tiles-out 2000ms cubic-bezier(0.4, 0, 0.2, 1) both;
@@ -1058,8 +1234,16 @@ a {
 }
 
 :root {
-  --compass-fill: linear-gradient(135deg, var(--color-chat-emerald) 0%, var(--color-chat-emerald) 38%, var(--verified-magenta) 68%, var(--verified-violet) 100%);
-  --compass-shadow: 0 8px 24px -8px color-mix(in oklab, var(--verified-magenta) 45%, transparent), 0 3px 10px color-mix(in oklab, var(--color-chat-emerald) 25%, transparent);
+  --compass-fill: linear-gradient(
+    135deg,
+    var(--color-chat-emerald) 0%,
+    var(--color-chat-emerald) 38%,
+    var(--verified-magenta) 68%,
+    var(--verified-violet) 100%
+  );
+  --compass-shadow:
+    0 8px 24px -8px color-mix(in oklab, var(--verified-magenta) 45%, transparent),
+    0 3px 10px color-mix(in oklab, var(--color-chat-emerald) 25%, transparent);
 }
 .compass-orb {
   background: var(--compass-fill);
@@ -1067,8 +1251,12 @@ a {
   box-shadow: var(--compass-shadow);
   cursor: grab;
 }
-.compass-orb:active { cursor: grabbing; }
-.compass-header { background: var(--member-dual-wash); }
+.compass-orb:active {
+  cursor: grabbing;
+}
+.compass-header {
+  background: var(--member-dual-wash);
+}
 
 /* ===== ASH Console premium theme =====
    Theme-aware command-center look for employee dashboards: deep navy
@@ -1076,7 +1264,13 @@ a {
    to <html> while the console is mounted so portaled dialogs match. */
 .console-premium {
   --radius: 1.25rem;
-  --console-brand: linear-gradient(110deg, var(--color-chat-emerald) 0%, var(--color-chat-emerald) 40%, var(--verified-magenta) 60%, var(--verified-violet) 100%);
+  --console-brand: linear-gradient(
+    110deg,
+    var(--color-chat-emerald) 0%,
+    var(--color-chat-emerald) 40%,
+    var(--verified-magenta) 60%,
+    var(--verified-violet) 100%
+  );
   --sidebar-accent: color-mix(in oklab, var(--color-chat-emerald) 9%, var(--background));
 }
 
@@ -1138,13 +1332,26 @@ a {
   --success: var(--color-chat-emerald);
   position: relative;
 }
-.dark .member-messages { --primary: oklch(0.73 0.14 165); --success: var(--primary); }
-.messages-inbox, .member-chat-surface {
-  isolation: isolate;
-  background: linear-gradient(155deg, color-mix(in oklab, var(--color-chat-emerald) 11%, var(--background)), color-mix(in oklab, var(--color-verified-magenta) 4%, var(--background)) 52%, color-mix(in oklab, var(--color-verified-violet) 5%, var(--background)));
+.dark .member-messages {
+  --primary: oklch(0.73 0.14 165);
+  --success: var(--primary);
 }
-.messages-inbox, .member-chat-surface:not(.chat-surface) { position: relative; }
-.messages-inbox::before, .member-chat-surface::before {
+.messages-inbox,
+.member-chat-surface {
+  isolation: isolate;
+  background: linear-gradient(
+    155deg,
+    color-mix(in oklab, var(--color-chat-emerald) 11%, var(--background)),
+    color-mix(in oklab, var(--color-verified-magenta) 4%, var(--background)) 52%,
+    color-mix(in oklab, var(--color-verified-violet) 5%, var(--background))
+  );
+}
+.messages-inbox,
+.member-chat-surface:not(.chat-surface) {
+  position: relative;
+}
+.messages-inbox::before,
+.member-chat-surface::before {
   content: "ASH";
   position: absolute;
   inset: 28% 0 auto;
@@ -1158,16 +1365,32 @@ a {
   z-index: -1;
   mask-image: linear-gradient(to bottom, transparent, black 25%, transparent);
 }
-.chat-action-panel { --primary: var(--color-chat-emerald); --ring: var(--primary); }
-.chat-action-overlay { background-color: color-mix(in oklab, var(--foreground) 20%, transparent); }
+.chat-action-panel {
+  --primary: var(--color-chat-emerald);
+  --ring: var(--primary);
+}
+.chat-action-overlay {
+  background-color: color-mix(in oklab, var(--foreground) 20%, transparent);
+}
 @media (min-width: 768px) {
-  .member-messages .messages-inbox { min-height: 76vh; max-height: 76vh; }
-  .member-messages > .grid > .member-chat-surface { height: 76vh; }
+  .member-messages .messages-inbox {
+    min-height: 76vh;
+    max-height: 76vh;
+  }
+  .member-messages > .grid > .member-chat-surface {
+    height: 76vh;
+  }
 }
 @media (min-width: 1024px) {
-  .app-shell-scroll:has(.member-messages) { padding: 0; }
-  .member-messages { max-width: none; }
-  .member-messages > .grid { border-radius: 0; }
+  .app-shell-scroll:has(.member-messages) {
+    padding: 0;
+  }
+  .member-messages {
+    max-width: none;
+  }
+  .member-messages > .grid {
+    border-radius: 0;
+  }
   .member-messages .messages-inbox {
     min-height: calc(100dvh - env(safe-area-inset-top) - 2px);
     max-height: calc(100dvh - env(safe-area-inset-top) - 2px);
@@ -1177,36 +1400,93 @@ a {
   }
 }
 
-.member-icon-green { stop-color: var(--color-chat-emerald); }
-.member-roomy-tab .text-sm { font-size: 1rem; line-height: 1.5; }
-.member-roomy-tab .text-xs { font-size: 0.8125rem; line-height: 1.45; }
-.member-roomy-tab :is(button, input:not([type="checkbox"]):not([type="radio"]), select, [role="combobox"]) {
+.member-icon-green {
+  stop-color: var(--color-chat-emerald);
+}
+.member-roomy-tab .text-sm {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+.member-roomy-tab .text-xs {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+.member-roomy-tab
+  :is(button, input:not([type="checkbox"]):not([type="radio"]), select, [role="combobox"]) {
   min-height: 2.75rem;
 }
-.member-roomy-tab button:has(> svg:only-child) { min-width: 2.75rem; }
-.member-roomy-tab .member-menu a.min-h-16 { min-height: 4.5rem; }
-.member-roomy-tab .member-menu section > .grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); }
-.member-roomy-tab .member-menu a > span.min-w-0 { overflow-wrap: normal; }
-.member-roomy-tab .member-menu :is(a[aria-label], button[aria-label]) { min-width: 2.75rem; min-height: 2.75rem; }
+.member-roomy-tab button:has(> svg:only-child) {
+  min-width: 2.75rem;
+}
+.member-roomy-tab .member-menu a.min-h-16 {
+  min-height: 4.5rem;
+}
+.member-roomy-tab .member-menu section > .grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+}
+.member-roomy-tab .member-menu a > span.min-w-0 {
+  overflow-wrap: normal;
+}
+.member-roomy-tab .member-menu :is(a[aria-label], button[aria-label]) {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+}
 .member-contact-name {
-  background-image: linear-gradient(100deg, var(--verified-magenta), var(--verified-violet) 48%, var(--color-chat-emerald) 52%, var(--color-chat-emerald));
+  background-image: linear-gradient(
+    100deg,
+    var(--verified-magenta),
+    var(--verified-violet) 48%,
+    var(--color-chat-emerald) 52%,
+    var(--color-chat-emerald)
+  );
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
 }
 .dark .member-contact-name {
-  background-image: linear-gradient(100deg, var(--verified-magenta), var(--verified-violet) 48%, var(--success) 52%, var(--success));
+  background-image: linear-gradient(
+    100deg,
+    var(--verified-magenta),
+    var(--verified-violet) 48%,
+    var(--success) 52%,
+    var(--success)
+  );
 }
-.member-icon-ash { stop-color: var(--verified-magenta); }
-.member-icon-violet { stop-color: var(--verified-violet); }
-.member-avatar-ring { background-image: var(--member-dual-ring); }
-.member-avatar-update { background-image: var(--member-update-ring); }
-.member-avatar-ring:hover { background-image: var(--member-dual-ring); }
-.member-avatar-update:hover { background-image: var(--member-update-ring); }
-.member-dual-wash, .member-chat-composer { background-image: var(--member-dual-wash); }
-.member-chat-composer { align-self: stretch; border-radius: 0; overflow-anchor: none; }
-body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) { visibility: hidden; }
-.member-menu, .member-extras { position: relative; isolation: isolate; }
+.member-icon-ash {
+  stop-color: var(--verified-magenta);
+}
+.member-icon-violet {
+  stop-color: var(--verified-violet);
+}
+.member-avatar-ring {
+  background-image: var(--member-dual-ring);
+}
+.member-avatar-update {
+  background-image: var(--member-update-ring);
+}
+.member-avatar-ring:hover {
+  background-image: var(--member-dual-ring);
+}
+.member-avatar-update:hover {
+  background-image: var(--member-update-ring);
+}
+.member-dual-wash,
+.member-chat-composer {
+  background-image: var(--member-dual-wash);
+}
+.member-chat-composer {
+  align-self: stretch;
+  border-radius: 0;
+  overflow-anchor: none;
+}
+body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) {
+  visibility: hidden;
+}
+.member-menu,
+.member-extras {
+  position: relative;
+  isolation: isolate;
+}
 .member-menu::before {
   content: "ASH";
   position: absolute;
@@ -1217,16 +1497,31 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   text-align: center;
   transform: rotate(-14deg);
   background: var(--member-update-ring);
-  background-image: linear-gradient(110deg, var(--color-chat-emerald) 48%, var(--verified-magenta) 52%, var(--verified-violet));
+  background-image: linear-gradient(
+    110deg,
+    var(--color-chat-emerald) 48%,
+    var(--verified-magenta) 52%,
+    var(--verified-violet)
+  );
   background-clip: text;
   color: transparent;
   opacity: 0.075;
   pointer-events: none;
   z-index: -1;
 }
-.member-menu a.bg-card { background-color: color-mix(in oklab, var(--card) 80%, transparent); background-image: var(--member-dual-wash); }
-.member-menu a > span.bg-primary\/10 { background-image: var(--member-dual-wash); color: var(--foreground); }
-.ash-entry { position: relative; isolation: isolate; background-image: var(--member-dual-wash); }
+.member-menu a.bg-card {
+  background-color: color-mix(in oklab, var(--card) 80%, transparent);
+  background-image: var(--member-dual-wash);
+}
+.member-menu a > span.bg-primary\/10 {
+  background-image: var(--member-dual-wash);
+  color: var(--foreground);
+}
+.ash-entry {
+  position: relative;
+  isolation: isolate;
+  background-image: var(--member-dual-wash);
+}
 .ash-entry::before {
   content: "ASH";
   position: absolute;
@@ -1241,36 +1536,157 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   pointer-events: none;
   z-index: -1;
 }
-.ash-entry-brand { background-image: var(--member-dual-wash); }
-.ash-entry-title { background-image: var(--member-update-ring); background-clip: text; color: transparent; }
-.console-premium .console-brand { background-image: var(--console-brand); }
-.console-premium .bg-sidebar { background-image: var(--member-dual-wash); }
+.ash-entry-brand {
+  background-image: var(--member-dual-wash);
+}
+.ash-entry-title {
+  background-image: var(--member-update-ring);
+  background-clip: text;
+  color: transparent;
+}
+.console-premium .console-brand {
+  background-image: var(--console-brand);
+}
+.console-premium .bg-sidebar {
+  background-image: var(--member-dual-wash);
+}
 @media (min-width: 768px) and (max-width: 1023px) {
-  .app-shell-scroll:has(.member-messages) { padding: 0; }
-  .member-messages > .grid { border: 0; border-radius: 0; }
-  .member-messages .messages-inbox { min-height: calc(100dvh - 3.75rem - env(safe-area-inset-bottom)); max-height: calc(100dvh - 3.75rem - env(safe-area-inset-bottom)); }
-  .member-messages > .grid > .chat-surface { height: calc(100dvh - 3.75rem - env(safe-area-inset-bottom)); }
+  .app-shell-scroll:has(.member-messages) {
+    padding: 0;
+  }
+  .member-messages > .grid {
+    border: 0;
+    border-radius: 0;
+  }
+  .member-messages .messages-inbox {
+    min-height: calc(100dvh - 3.75rem - env(safe-area-inset-bottom));
+    max-height: calc(100dvh - 3.75rem - env(safe-area-inset-bottom));
+  }
+  .member-messages > .grid > .chat-surface {
+    height: calc(100dvh - 3.75rem - env(safe-area-inset-bottom));
+  }
 }
 @media (max-width: 767px) {
-  .member-messages .messages-inbox { width: calc(100% + 2rem); }
+  .member-messages .messages-inbox {
+    width: calc(100% + 2rem);
+  }
 }
 
 /* Auth screens */
-@keyframes auth-card-in { from { opacity: 0; transform: translateY(18px) scale(0.98); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
-@keyframes auth-rise-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-@keyframes auth-step-in { from { opacity: 0; transform: translateX(22px); } to { opacity: 1; transform: none; } }
-@keyframes auth-orb-float { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(24px,-30px) scale(1.12); } }
-@keyframes auth-sheen { from { background-position: -200% 0; } to { background-position: 200% 0; } }
-.auth-card { animation: auth-card-in 0.7s cubic-bezier(.2,.8,.2,1) both; }
-.auth-rise { animation: auth-rise-in 0.6s cubic-bezier(.2,.8,.2,1) both; }
-.auth-step > * { animation: auth-step-in 0.45s cubic-bezier(.2,.8,.2,1) both; }
-.auth-step > *:nth-child(2) { animation-delay: 60ms; }
-.auth-step > *:nth-child(3) { animation-delay: 120ms; }
-.auth-step > *:nth-child(4) { animation-delay: 180ms; }
-.auth-orb { position: absolute; width: 22rem; height: 22rem; border-radius: 9999px; filter: blur(70px); opacity: 0.35; pointer-events: none; animation: auth-orb-float 14s ease-in-out infinite; }
-.auth-orb-a { top: -6rem; right: -8rem; background: var(--primary); }
-.auth-orb-b { bottom: -8rem; left: -8rem; background: var(--accent); animation-delay: -7s; }
-.auth-cta { background-image: linear-gradient(110deg, transparent 30%, color-mix(in oklab, var(--primary-foreground) 22%, transparent) 50%, transparent 70%); background-size: 200% 100%; animation: auth-sheen 3.2s linear infinite; transition: transform .2s, box-shadow .2s; }
-.auth-cta:hover { transform: translateY(-1px); box-shadow: 0 12px 28px -12px var(--primary); }
-.auth-cta:active { transform: scale(0.98); }
-@media (prefers-reduced-motion: reduce) { .auth-card, .auth-rise, .auth-step > *, .auth-orb, .auth-cta { animation: none; } }
+@keyframes auth-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+@keyframes auth-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes auth-step-in {
+  from {
+    opacity: 0;
+    transform: translateX(22px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes auth-orb-float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(24px, -30px) scale(1.12);
+  }
+}
+@keyframes auth-sheen {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+.auth-card {
+  animation: auth-card-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.auth-rise {
+  animation: auth-rise-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.auth-step > * {
+  animation: auth-step-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.auth-step > *:nth-child(2) {
+  animation-delay: 60ms;
+}
+.auth-step > *:nth-child(3) {
+  animation-delay: 120ms;
+}
+.auth-step > *:nth-child(4) {
+  animation-delay: 180ms;
+}
+.auth-orb {
+  position: absolute;
+  width: 22rem;
+  height: 22rem;
+  border-radius: 9999px;
+  filter: blur(70px);
+  opacity: 0.35;
+  pointer-events: none;
+  animation: auth-orb-float 14s ease-in-out infinite;
+}
+.auth-orb-a {
+  top: -6rem;
+  right: -8rem;
+  background: var(--primary);
+}
+.auth-orb-b {
+  bottom: -8rem;
+  left: -8rem;
+  background: var(--accent);
+  animation-delay: -7s;
+}
+.auth-cta {
+  background-image: linear-gradient(
+    110deg,
+    transparent 30%,
+    color-mix(in oklab, var(--primary-foreground) 22%, transparent) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: auth-sheen 3.2s linear infinite;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+.auth-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px -12px var(--primary);
+}
+.auth-cta:active {
+  transform: scale(0.98);
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth-card,
+  .auth-rise,
+  .auth-step > *,
+  .auth-orb,
+  .auth-cta {
+    animation: none;
+  }
+}

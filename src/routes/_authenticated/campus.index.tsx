@@ -29,7 +29,10 @@ export const Route = createFileRoute("/_authenticated/campus/")({
           "ASH Campus brings GCE, HND and university learning, study materials, past questions, study groups and instructors together in one place.",
       },
       { property: "og:title", content: "ASH Campus — learn, teach and grow" },
-      { property: "og:description", content: "Find an instructor, study materials, past questions and study groups inside ASH." },
+      {
+        property: "og:description",
+        content: "Find an instructor, study materials, past questions and study groups inside ASH.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -49,7 +52,12 @@ const SECTIONS: { en: string; fr: string; icon: typeof BookOpen; to?: string; so
   { en: "Internships & Jobs", fr: "Stages et emplois", icon: Briefcase, to: "/jobs" },
   { en: "Student Projects", fr: "Projets étudiants", icon: Lightbulb, to: "/freelance" },
   { en: "Student Marketplace", fr: "Marché étudiant", icon: ShoppingBag, to: "/services" },
-  { en: "Instructor Services", fr: "Services des instructeurs", icon: Store, to: "/campus/instructors" },
+  {
+    en: "Instructor Services",
+    fr: "Services des instructeurs",
+    icon: Store,
+    to: "/campus/instructors",
+  },
 ];
 
 function CampusPage() {
@@ -66,12 +74,18 @@ function CampusPage() {
           {tx("Learn. Teach. Grow.", "Apprenez. Enseignez. Progressez.")}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {tx("Everything you study in one place, with real ASH instructors.", "Tout votre apprentissage au même endroit, avec de vrais instructeurs ASH.")}
+          {tx(
+            "Everything you study in one place, with real ASH instructors.",
+            "Tout votre apprentissage au même endroit, avec de vrais instructeurs ASH.",
+          )}
         </p>
       </header>
 
       <section className="relative overflow-hidden rounded-3xl border border-border bg-[linear-gradient(135deg,var(--color-verified-violet),var(--color-verified-magenta)_55%,var(--color-verified-coral))] p-6 text-on-dark shadow-[var(--shadow-card)]">
-        <div className="absolute -right-10 -top-10 size-40 rounded-full bg-white/10 blur-2xl" aria-hidden />
+        <div
+          className="absolute -right-10 -top-10 size-40 rounded-full bg-white/10 blur-2xl"
+          aria-hidden
+        />
         <div className="relative">
           <p className="text-[11px] font-bold uppercase tracking-[0.22em] opacity-90">
             {tx("Find an instructor", "Trouver un instructeur")}
@@ -80,12 +94,16 @@ function CampusPage() {
             {tx("Find Someone Who Can Teach You.", "Trouvez quelqu'un qui peut vous apprendre.")}
           </h2>
           <p className="mt-2 max-w-lg text-sm opacity-95">
-            {tx("Connect with instructors for school, university, languages, professional skills and international exam preparation — in Cameroon and around the world.", "Des instructeurs pour l'école, l'université, les langues, les compétences professionnelles et la préparation aux examens internationaux — au Cameroun et dans le monde.")}
+            {tx(
+              "Connect with instructors for school, university, languages, professional skills and international exam preparation — in Cameroon and around the world.",
+              "Des instructeurs pour l'école, l'université, les langues, les compétences professionnelles et la préparation aux examens internationaux — au Cameroun et dans le monde.",
+            )}
           </p>
           <p className="mt-2 text-xs font-semibold opacity-90">
-            TCF Canada · TEF Canada · IELTS · CELPIP · {tx("French", "Français")} · {tx("English", "Anglais")} ·{" "}
-            {tx("German", "Allemand")} · {tx("Mathematics", "Mathématiques")} · {tx("Physics", "Physique")} ·
-            Programming · Cybersecurity
+            TCF Canada · TEF Canada · IELTS · CELPIP · {tx("French", "Français")} ·{" "}
+            {tx("English", "Anglais")} · {tx("German", "Allemand")} ·{" "}
+            {tx("Mathematics", "Mathématiques")} · {tx("Physics", "Physique")} · Programming ·
+            Cybersecurity
           </p>
           <div className="mt-5 flex flex-wrap gap-2">
             <Button asChild size="lg" variant="secondary" className="rounded-full font-bold">
@@ -144,7 +162,10 @@ function CampusPage() {
                 {content}
               </Link>
             ) : (
-              <div key={section.en} className="rounded-2xl border border-dashed border-border bg-card/60 p-4">
+              <div
+                key={section.en}
+                className="rounded-2xl border border-dashed border-border bg-card/60 p-4"
+              >
                 {content}
               </div>
             );
@@ -156,7 +177,10 @@ function CampusPage() {
         <div className="flex gap-3">
           <Sparkles className="size-5 shrink-0 text-primary" aria-hidden />
           <p className="text-xs leading-relaxed text-muted-foreground">
-            {tx("ASH instructors are manually reviewed by our team before they appear as an ASH Verified Instructor. ASH does not perform criminal background checks or government verification.", "Les instructeurs ASH sont examinés manuellement par notre équipe avant d'être affichés comme « Instructeur vérifié ASH ». ASH ne réalise pas de vérification d'antécédents judiciaires ni de contrôle gouvernemental.")}
+            {tx(
+              "ASH instructors are manually reviewed by our team before they appear as an ASH Verified Instructor. ASH does not perform criminal background checks or government verification.",
+              "Les instructeurs ASH sont examinés manuellement par notre équipe avant d'être affichés comme « Instructeur vérifié ASH ». ASH ne réalise pas de vérification d'antécédents judiciaires ni de contrôle gouvernemental.",
+            )}
           </p>
         </div>
       </section>

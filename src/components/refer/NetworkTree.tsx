@@ -42,7 +42,10 @@ export function NetworkTree({
     () => nodes.reduce((sum, n) => sum + (n.account_status === "ACTIVE" ? n.commission : 0), 0),
     [nodes],
   );
-  const activeCount = useMemo(() => nodes.filter((n) => n.account_status === "ACTIVE").length, [nodes]);
+  const activeCount = useMemo(
+    () => nodes.filter((n) => n.account_status === "ACTIVE").length,
+    [nodes],
+  );
 
   return (
     <section className="surface-card overflow-hidden p-5 sm:p-6">
@@ -80,7 +83,9 @@ export function NetworkTree({
         </div>
         <div className="tile p-3 sm:col-span-1 col-span-2">
           <p className="eyebrow text-muted-foreground">{t("net.tree.earnings")}</p>
-          <p className="tabular mt-1 text-xl font-bold text-success">{formatXAF(totalCommission)}</p>
+          <p className="tabular mt-1 text-xl font-bold text-success">
+            {formatXAF(totalCommission)}
+          </p>
         </div>
       </div>
 
@@ -96,7 +101,6 @@ export function NetworkTree({
           )}
         </div>
       </div>
-
     </section>
   );
 }
@@ -111,7 +115,10 @@ function RootNode({ status }: { status: string }) {
       </div>
       <div>
         <p className="text-sm font-semibold text-foreground">{t("net.tree.rootLabel")}</p>
-        <StatusBadge status={active ? "ACTIVE" : "PENDING"} label={active ? t("shell.active") : t("shell.pending")} />
+        <StatusBadge
+          status={active ? "ACTIVE" : "PENDING"}
+          label={active ? t("shell.active") : t("shell.pending")}
+        />
       </div>
     </div>
   );
@@ -139,7 +146,11 @@ function NodeBranch({ node, depth }: { node: TreeNode; depth: number }) {
           )}
           aria-label={open ? "Collapse" : "Expand"}
         >
-          {open ? <ChevronDown className="size-4" aria-hidden /> : <ChevronRight className="size-4" aria-hidden />}
+          {open ? (
+            <ChevronDown className="size-4" aria-hidden />
+          ) : (
+            <ChevronRight className="size-4" aria-hidden />
+          )}
         </button>
 
         <Avatar path={node.avatar_url} name={node.member_name} className="size-9" />
@@ -148,11 +159,16 @@ function NodeBranch({ node, depth }: { node: TreeNode; depth: number }) {
           <p className="text-sm font-semibold text-foreground">
             {node.member_name} · L{node.level}
           </p>
-          <p className="text-xs text-muted-foreground">{t("net.tree.joined", { date: formatDate(node.joined_at) })}</p>
+          <p className="text-xs text-muted-foreground">
+            {t("net.tree.joined", { date: formatDate(node.joined_at) })}
+          </p>
         </div>
 
         <div className="text-right">
-          <StatusBadge status={active ? "ACTIVE" : "PENDING"} label={active ? t("shell.active") : t("shell.pending")} />
+          <StatusBadge
+            status={active ? "ACTIVE" : "PENDING"}
+            label={active ? t("shell.active") : t("shell.pending")}
+          />
           {active && node.commission > 0 ? (
             <p className="mt-1 text-xs font-semibold text-success">+{formatXAF(node.commission)}</p>
           ) : null}
@@ -190,7 +206,11 @@ function buildTree(nodes: NetworkNode[], rootId: string): { children: TreeNode[]
 
 function formatDate(iso: string) {
   try {
-    return new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+    return new Date(iso).toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   } catch {
     return iso;
   }

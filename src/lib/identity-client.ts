@@ -11,4 +11,5 @@ export function announceIdentityDenial(status: IdentityStatus) {
   window.dispatchEvent(new CustomEvent("ash-identity-denied", { detail: status }));
 }
 
-export const IDENTITY_DENIED = "Denied — this name or profile picture belongs to a verified account.";
+export const IDENTITY_DENIED =
+  "Denied — this name or profile picture belongs to a verified account.";

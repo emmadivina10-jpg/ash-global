@@ -66,7 +66,10 @@ export function AuthLayout({
         </div>
 
         <p className="relative text-xs text-muted-foreground">
-          {tx("ASH Glo — Where Opportunities Connect.", "ASH Glo — Là où les opportunités se connectent.")}
+          {tx(
+            "ASH Glo — Where Opportunities Connect.",
+            "ASH Glo — Là où les opportunités se connectent.",
+          )}
         </p>
       </aside>
 
@@ -94,7 +97,9 @@ export function AuthLayout({
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{subtitle}</p>
               ) : null}
             </div>
-            <div className="auth-rise" style={{ animationDelay: "160ms" }}>{children}</div>
+            <div className="auth-rise" style={{ animationDelay: "160ms" }}>
+              {children}
+            </div>
           </div>
         </main>
       </div>

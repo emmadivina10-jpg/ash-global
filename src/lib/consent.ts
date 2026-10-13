@@ -61,7 +61,9 @@ export async function needsConsent(userId: string): Promise<boolean> {
 
   // Never lock anyone out because a read failed.
   if (error || !data) return false;
-  return lacksCurrentTerms(data as { terms_accepted_at: string | null; terms_version: string | null });
+  return lacksCurrentTerms(
+    data as { terms_accepted_at: string | null; terms_version: string | null },
+  );
 }
 
 /** True when the member has agreed but still has no profile picture. */
@@ -77,7 +79,9 @@ export async function needsProfilePhoto(userId: string): Promise<boolean> {
 }
 
 /** Where a freshly signed-in member should land. */
-export async function nextOnboardingRoute(userId: string): Promise<"/consent" | "/setup-profile" | "/feed"> {
+export async function nextOnboardingRoute(
+  userId: string,
+): Promise<"/consent" | "/setup-profile" | "/feed"> {
   if (await needsConsent(userId)) {
     await applyPendingAgreement(userId);
     if (await needsConsent(userId)) return "/consent";

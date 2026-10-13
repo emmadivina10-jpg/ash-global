@@ -36,7 +36,10 @@ export function useUpcomingBirthdays() {
     queryFn: async (): Promise<BirthdayPerson[]> => {
       const since = new Date(Date.now() - 5 * 60_000).toISOString();
       const [{ data }, { data: presence }] = await Promise.all([
-        directory().select("user_id, full_name, avatar_url, verified_tier, verified_until, birthday").not("birthday", "is", null).limit(500),
+        directory()
+          .select("user_id, full_name, avatar_url, verified_tier, verified_until, birthday")
+          .not("birthday", "is", null)
+          .limit(500),
         supabase.from("member_presence").select("user_id").gte("last_active_at", since),
       ]);
       const onlineIds = new Set((presence ?? []).map((row) => row.user_id));
@@ -51,7 +54,11 @@ export function useUpcomingBirthdays() {
       }[];
 
       return rows
-        .map((row) => ({ ...row, online: onlineIds.has(row.user_id), inDays: daysUntilBirthday(row.birthday) }))
+        .map((row) => ({
+          ...row,
+          online: onlineIds.has(row.user_id),
+          inDays: daysUntilBirthday(row.birthday),
+        }))
         .filter((row): row is BirthdayPerson => row.inDays !== null && row.inDays <= 14)
         .sort((a, b) => a.inDays - b.inDays)
         .slice(0, 8);
@@ -89,7 +96,13 @@ export function useRailEvents() {
 
 /* -------------------------------------------------------------- articles */
 
-export type RailArticle = { id: string; title: string; excerpt: string | null; like_count: number; created_at: string };
+export type RailArticle = {
+  id: string;
+  title: string;
+  excerpt: string | null;
+  like_count: number;
+  created_at: string;
+};
 
 export function useRailArticles() {
   return useQuery({
@@ -109,7 +122,13 @@ export function useRailArticles() {
 
 /* ----------------------------------------------------------------- deals */
 
-export type RailDeal = { id: string; title: string; deal_price: number; original_price: number; city: string | null };
+export type RailDeal = {
+  id: string;
+  title: string;
+  deal_price: number;
+  original_price: number;
+  city: string | null;
+};
 
 export function useRailDeals() {
   return useQuery({
@@ -154,7 +173,13 @@ export function useRailJobs() {
 
 /* ----------------------------------------------------------- trending posts */
 
-export type RailPost = { id: string; caption: string; like_count: number; comment_count: number; author: string };
+export type RailPost = {
+  id: string;
+  caption: string;
+  like_count: number;
+  comment_count: number;
+  author: string;
+};
 
 export function useTrendingPosts() {
   return useQuery({
@@ -183,7 +208,9 @@ export function useTrendingPosts() {
         .from("profiles")
         .select("user_id, full_name")
         .in("user_id", Array.from(new Set(rows.map((row) => row.author_id))));
-      const names = new Map((people ?? []).map((row) => [row.user_id as string, row.full_name as string]));
+      const names = new Map(
+        (people ?? []).map((row) => [row.user_id as string, row.full_name as string]),
+      );
 
       return rows.map((row) => ({
         id: row.id,
@@ -198,7 +225,13 @@ export function useTrendingPosts() {
 
 /* --------------------------------------------------------------- location */
 
-export type RailPlace = { latitude: number; longitude: number; city: string; country: string; countryCode: string };
+export type RailPlace = {
+  latitude: number;
+  longitude: number;
+  city: string;
+  country: string;
+  countryCode: string;
+};
 
 const PLACE_KEY = "ash.rail.place";
 
@@ -246,7 +279,12 @@ export function useRailPlace() {
         const response = await fetch(
           `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${coords.latitude}&longitude=${coords.longitude}&localityLanguage=en`,
         );
-        const json = (await response.json()) as { city?: string; locality?: string; countryName?: string; countryCode?: string };
+        const json = (await response.json()) as {
+          city?: string;
+          locality?: string;
+          countryName?: string;
+          countryCode?: string;
+        };
         const place: RailPlace = {
           latitude: coords.latitude,
           longitude: coords.longitude,

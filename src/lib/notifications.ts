@@ -12,7 +12,14 @@ export type AppNotification = {
   read_at: string | null;
   created_at: string;
   actor_id: string | null;
-  actor: { id: string; name: string; avatar_url: string | null; verified_tier: string | null; verified_until: string | null; online: boolean } | null;
+  actor: {
+    id: string;
+    name: string;
+    avatar_url: string | null;
+    verified_tier: string | null;
+    verified_until: string | null;
+    online: boolean;
+  } | null;
 };
 
 /** Backend-generated notifications for the signed-in user, kept live over realtime. */
@@ -41,7 +48,11 @@ export function useNotifications(limit = 30) {
       const since = new Date(Date.now() - 5 * 60_000).toISOString();
       const [map, { data: presence }] = await Promise.all([
         loadActors(actorIds),
-        supabase.from("member_presence").select("user_id").in("user_id", actorIds).gte("last_active_at", since),
+        supabase
+          .from("member_presence")
+          .select("user_id")
+          .in("user_id", actorIds)
+          .gte("last_active_at", since),
       ]);
       const onlineIds = new Set((presence ?? []).map((row) => row.user_id));
       return rows.map((row, i) => {

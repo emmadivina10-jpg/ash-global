@@ -119,11 +119,14 @@ export function ProviderCard({
             ) : null}
             {provider.slug ? (
               <span className="pointer-events-auto">
-                <ShareStorefront slug={provider.slug} businessName={provider.business_name} compact />
+                <ShareStorefront
+                  slug={provider.slug}
+                  businessName={provider.business_name}
+                  compact
+                />
               </span>
             ) : null}
           </span>
-
         </div>
 
         {!acceptingBookings ? (
@@ -155,7 +158,9 @@ export function ProviderCard({
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-muted-foreground">
           <span className="flex items-center gap-1">
             <RatingStars value={rating} size={12} />
-            {rating > 0 ? <span className="font-semibold text-foreground">{rating.toFixed(1)}</span> : null}
+            {rating > 0 ? (
+              <span className="font-semibold text-foreground">{rating.toFixed(1)}</span>
+            ) : null}
           </span>
           <span>·</span>
           <span className="truncate">{ratingText}</span>
@@ -189,7 +194,9 @@ export function ProviderCard({
             {topServices.map((s) => (
               <li key={s.id} className="flex items-center justify-between gap-3 py-2">
                 <span className="truncate text-[13px] font-medium text-foreground">{s.title}</span>
-                <span className="tabular shrink-0 text-[13px] font-bold text-foreground">{formatXAF(Number(s.price))}</span>
+                <span className="tabular shrink-0 text-[13px] font-bold text-foreground">
+                  {formatXAF(Number(s.price))}
+                </span>
               </li>
             ))}
             {services.length > topServices.length ? (
@@ -219,7 +226,10 @@ export function ProviderCard({
             )}
           >
             {t("svc.viewService")}
-            <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
+            <ArrowRight
+              className="size-3.5 transition-transform group-hover:translate-x-0.5"
+              aria-hidden
+            />
           </span>
         </div>
       </div>

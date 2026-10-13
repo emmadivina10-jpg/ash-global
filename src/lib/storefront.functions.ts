@@ -44,7 +44,8 @@ function publicClient() {
     global: {
       fetch: (input, init) => {
         const h = new Headers(init?.headers);
-        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
+          h.delete("Authorization");
         h.set("apikey", key);
         return fetch(input, { ...init, headers: h });
       },
@@ -53,7 +54,12 @@ function publicClient() {
 }
 
 /** Throttles a public surface. Returns true when the caller must be refused. */
-async function throttled(bucket: string, route: string, limit: number, detail?: Record<string, unknown>) {
+async function throttled(
+  bucket: string,
+  route: string,
+  limit: number,
+  detail?: Record<string, unknown>,
+) {
   const { getRequest } = await import("@tanstack/react-start/server");
   const { guardPublicRequest } = await import("./rate-limit.server");
   const request = getRequest();
@@ -109,9 +115,11 @@ export const getStorefront = createServerFn({ method: "GET" })
     ]);
 
     const paths = (photos ?? []).map((p) => p.image_path).filter(Boolean);
-    let signed: Record<string, string> = {};
+    const signed: Record<string, string> = {};
     if (paths.length > 0) {
-      const { data: urls } = await supabase.storage.from("portfolio").createSignedUrls(paths, 60 * 60 * 24 * 365);
+      const { data: urls } = await supabase.storage
+        .from("portfolio")
+        .createSignedUrls(paths, 60 * 60 * 24 * 365);
       for (const u of urls ?? []) {
         if (u.path && u.signedUrl) signed[u.path] = u.signedUrl;
       }
@@ -164,13 +172,17 @@ export const getPaymentLink = createServerFn({ method: "GET" })
     const supabase = publicClient();
     const { data: link } = await supabase
       .from("payment_links")
-      .select("code, title, description, amount, currency, is_active, provider_profiles(business_name, slug, is_verified)")
+      .select(
+        "code, title, description, amount, currency, is_active, provider_profiles(business_name, slug, is_verified)",
+      )
       .eq("code", data.code)
       .maybeSingle();
     if (!link) return null;
-    const provider = link.provider_profiles as unknown as
-      | { business_name: string; slug: string | null; is_verified: boolean }
-      | null;
+    const provider = link.provider_profiles as unknown as {
+      business_name: string;
+      slug: string | null;
+      is_verified: boolean;
+    } | null;
     return {
       code: link.code,
       title: link.title,
@@ -190,20 +202,49 @@ function makeReference(): string {
 
 /** Sends a mobile money prompt for a payment link. Anyone with the link can pay. */
 export const startLinkPayment = createServerFn({ method: "POST" })
-  .inputValidator((input: { code: string; name: string; phone: string; provider?: string; country?: string }) => ({
-    code: String(input?.code ?? "").slice(0, 40),
-    name: String(input?.name ?? "").trim().slice(0, 80),
-    phone: String(input?.phone ?? "").trim().slice(0, 20),
-    provider: String(input?.provider ?? "").trim().slice(0, 40),
-    country: String(input?.country ?? "CM").toUpperCase().slice(0, 2) || "CM",
-  }))
+  .inputValidator(
+    (input: {
+      code: string;
+      name: string;
+      phone: string;
+      provider?: string;
+      country?: string;
+    }) => ({
+      code: String(input?.code ?? "").slice(0, 40),
+      name: String(input?.name ?? "")
+        .trim()
+        .slice(0, 80),
+      phone: String(input?.phone ?? "")
+        .trim()
+        .slice(0, 20),
+      provider: String(input?.provider ?? "")
+        .trim()
+        .slice(0, 40),
+      country:
+        String(input?.country ?? "CM")
+          .toUpperCase()
+          .slice(0, 2) || "CM",
+    }),
+  )
   .handler(async ({ data }) => {
     if (!data.code || !data.name || !data.phone || !data.provider) {
-      return { ok: false as const, error: "INVALID_INPUT", message: null, reference: null, status: "FAILED" };
+      return {
+        ok: false as const,
+        error: "INVALID_INPUT",
+        message: null,
+        reference: null,
+        status: "FAILED",
+      };
     }
     // Money path: much tighter budget than a read.
     if (await throttled("payment_link_start", "/pay/:code#start", 5, { code: data.code })) {
-      return { ok: false as const, error: "TOO_MANY_REQUESTS", message: null, reference: null, status: "FAILED" };
+      return {
+        ok: false as const,
+        error: "TOO_MANY_REQUESTS",
+        message: null,
+        reference: null,
+        status: "FAILED",
+      };
     }
 
     const supabase = publicClient();
@@ -213,7 +254,13 @@ export const startLinkPayment = createServerFn({ method: "POST" })
       .eq("code", data.code)
       .maybeSingle();
     if (!link || !link.is_active) {
-      return { ok: false as const, error: "LINK_UNAVAILABLE", message: null, reference: null, status: "FAILED" };
+      return {
+        ok: false as const,
+        error: "LINK_UNAVAILABLE",
+        message: null,
+        reference: null,
+        status: "FAILED",
+      };
     }
 
     const reference = makeReference();
@@ -226,7 +273,13 @@ export const startLinkPayment = createServerFn({ method: "POST" })
       payer_phone: data.phone,
     });
     if (chargeError) {
-      return { ok: false as const, error: "CHARGE_CREATE_FAILED", message: null, reference: null, status: "FAILED" };
+      return {
+        ok: false as const,
+        error: "CHARGE_CREATE_FAILED",
+        message: null,
+        reference: null,
+        status: "FAILED",
+      };
     }
 
     const { tchokoPay } = await import("./tchokopay.server");
@@ -241,7 +294,10 @@ export const startLinkPayment = createServerFn({ method: "POST" })
     });
 
     if (!result.ok) {
-      await supabaseAdmin.rpc("fail_link_payment", { _payment_reference: reference, _status: "FAILED" });
+      await supabaseAdmin.rpc("fail_link_payment", {
+        _payment_reference: reference,
+        _status: "FAILED",
+      });
       return {
         ok: false as const,
         error: result.error ?? "PAYMENT_START_FAILED",
@@ -261,9 +317,12 @@ export const startLinkPayment = createServerFn({ method: "POST" })
 
 /** Verifies a link payment against the provider API (source of truth). */
 export const verifyLinkPayment = createServerFn({ method: "POST" })
-  .inputValidator((input: { reference: string }) => ({ reference: String(input?.reference ?? "").slice(0, 64) }))
+  .inputValidator((input: { reference: string }) => ({
+    reference: String(input?.reference ?? "").slice(0, 64),
+  }))
   .handler(async ({ data }) => {
-    if (!data.reference.startsWith("PLK-")) return { ok: false as const, status: "NOT_FOUND" as const };
+    if (!data.reference.startsWith("PLK-"))
+      return { ok: false as const, status: "NOT_FOUND" as const };
     if (await throttled("payment_link_verify", "/pay/:code#verify", 30)) {
       return { ok: false as const, status: "UNVERIFIED" as const };
     }

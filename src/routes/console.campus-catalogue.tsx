@@ -18,10 +18,16 @@ export const Route = createFileRoute("/console/campus-catalogue")({
   head: () => ({
     meta: [
       { title: "Campus Catalogue — ASH Console" },
-      { name: "description", content: "Private ASH Campus subject, language, exam and skill catalogue." },
+      {
+        name: "description",
+        content: "Private ASH Campus subject, language, exam and skill catalogue.",
+      },
       { name: "robots", content: "noindex, nofollow" },
       { property: "og:title", content: "Campus Catalogue — ASH Console" },
-      { property: "og:description", content: "Manage ASH Campus subjects, languages, exams and skills." },
+      {
+        property: "og:description",
+        content: "Manage ASH Campus subjects, languages, exams and skills.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -60,9 +66,9 @@ function CampusCatalogue() {
       <header>
         <h2 className="font-display text-xl font-extrabold text-foreground">Campus Catalogue</h2>
         <p className="text-sm text-muted-foreground">
-          Subjects, languages, examinations, skills and education levels instructors can choose from. Adding an entry
-          here makes it selectable in applications and in learner search — it never implies ASH is affiliated with an
-          examination organisation.
+          Subjects, languages, examinations, skills and education levels instructors can choose
+          from. Adding an entry here makes it selectable in applications and in learner search — it
+          never implies ASH is affiliated with an examination organisation.
         </p>
       </header>
 
@@ -98,8 +104,16 @@ function CampusCatalogue() {
                 ))}
               </select>
             </label>
-            <Input value={nameEn} onChange={(event) => setNameEn(event.target.value)} placeholder="Name (English)" />
-            <Input value={nameFr} onChange={(event) => setNameFr(event.target.value)} placeholder="Name (French)" />
+            <Input
+              value={nameEn}
+              onChange={(event) => setNameEn(event.target.value)}
+              placeholder="Name (English)"
+            />
+            <Input
+              value={nameFr}
+              onChange={(event) => setNameFr(event.target.value)}
+              placeholder="Name (French)"
+            />
           </div>
         </div>
         <Button className="mt-3" onClick={() => void create()} disabled={add.isPending}>
@@ -116,10 +130,16 @@ function CampusCatalogue() {
               <h3 className="mb-3 font-bold text-foreground">{group}</h3>
               <ul className="space-y-2">
                 {items.map((item) => (
-                  <li key={item.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3">
+                  <li
+                    key={item.id}
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3"
+                  >
                     <span className="text-sm text-foreground">
                       {item.name_en}
-                      <span className="text-muted-foreground"> · {item.name_fr} · {item.category}</span>
+                      <span className="text-muted-foreground">
+                        {" "}
+                        · {item.name_fr} · {item.category}
+                      </span>
                     </span>
                     <span className="flex items-center gap-2">
                       <Badge variant="outline">{item.is_active ? "Active" : "Retired"}</Badge>
@@ -130,7 +150,10 @@ function CampusCatalogue() {
                         onClick={() =>
                           setActive.mutate(
                             { id: item.id, isActive: !item.is_active },
-                            { onError: (error) => toast.error(error instanceof Error ? error.message : "Failed.") },
+                            {
+                              onError: (error) =>
+                                toast.error(error instanceof Error ? error.message : "Failed."),
+                            },
                           )
                         }
                       >

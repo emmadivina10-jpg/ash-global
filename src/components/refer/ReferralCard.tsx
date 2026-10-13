@@ -60,7 +60,9 @@ export function ReferralCard({ code, active }: { code: string; active: boolean }
       </p>
 
       <div className="mt-4 rounded-xl bg-muted p-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("profile.referralCode")}</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          {t("profile.referralCode")}
+        </p>
         <p className="tabular mt-1 text-lg font-bold text-primary">{code}</p>
       </div>
 

@@ -37,9 +37,7 @@ export const LOCATION_TYPES = [
 async function loadAuthors(ids: string[]): Promise<Record<string, HubAuthor>> {
   const unique = Array.from(new Set(ids.filter(Boolean)));
   if (unique.length === 0) return {};
-  const { data } = await directory()
-    .select("user_id, full_name, avatar_url")
-    .in("user_id", unique);
+  const { data } = await directory().select("user_id, full_name, avatar_url").in("user_id", unique);
   const map: Record<string, HubAuthor> = {};
   for (const row of data ?? []) {
     map[row.user_id] = {
@@ -97,7 +95,9 @@ export function useArticles(category: string = "ALL", limit = 40) {
     queryFn: async (): Promise<Article[]> => {
       let query = supabase
         .from("articles")
-        .select("id, author_id, title, excerpt, body, category, tags, cover_path, like_count, created_at")
+        .select(
+          "id, author_id, title, excerpt, body, category, tags, cover_path, like_count, created_at",
+        )
         .eq("is_published", true)
         .order("created_at", { ascending: false })
         .limit(limit);
@@ -117,7 +117,10 @@ export function useArticles(category: string = "ALL", limit = 40) {
               .from("article_likes")
               .select("article_id")
               .eq("user_id", me)
-              .in("article_id", rows.map((r) => r.id))
+              .in(
+                "article_id",
+                rows.map((r) => r.id),
+              )
           : Promise.resolve({ data: [] as { article_id: string }[] }),
       ]);
       const likedSet = new Set(
@@ -134,7 +137,11 @@ export function useArticles(category: string = "ALL", limit = 40) {
         cover_url: row.cover_path ? (covers[row.cover_path] ?? null) : null,
         like_count: row.like_count ?? 0,
         created_at: row.created_at,
-        author: authors[row.author_id] ?? { id: row.author_id, name: "Profile unavailable", avatar_url: null },
+        author: authors[row.author_id] ?? {
+          id: row.author_id,
+          name: "Profile unavailable",
+          avatar_url: null,
+        },
         liked: likedSet.has(row.id),
         is_mine: row.author_id === me,
       }));
@@ -150,7 +157,9 @@ export function useArticle(articleId: string | null) {
       if (!articleId) return null;
       const { data, error } = await supabase
         .from("articles")
-        .select("id, author_id, title, excerpt, body, category, tags, cover_path, like_count, created_at")
+        .select(
+          "id, author_id, title, excerpt, body, category, tags, cover_path, like_count, created_at",
+        )
         .eq("id", articleId)
         .maybeSingle();
       if (error) throw error;
@@ -182,7 +191,11 @@ export function useArticle(articleId: string | null) {
         cover_url: data.cover_path ? (covers[data.cover_path] ?? null) : null,
         like_count: data.like_count ?? 0,
         created_at: data.created_at,
-        author: authors[data.author_id] ?? { id: data.author_id, name: "Profile unavailable", avatar_url: null },
+        author: authors[data.author_id] ?? {
+          id: data.author_id,
+          name: "Profile unavailable",
+          avatar_url: null,
+        },
         liked,
         is_mine: data.author_id === me,
       };
@@ -292,7 +305,9 @@ export type Job = {
   is_mine: boolean;
 };
 
-export function useJobs(filters: { employmentType?: string; locationType?: string; search?: string } = {}) {
+export function useJobs(
+  filters: { employmentType?: string; locationType?: string; search?: string } = {},
+) {
   return useQuery({
     queryKey: ["hub-jobs", filters],
     staleTime: 15_000,
@@ -310,7 +325,9 @@ export function useJobs(filters: { employmentType?: string; locationType?: strin
       if (filters.locationType && filters.locationType !== "ALL")
         query = query.eq("location_type", filters.locationType);
       if (filters.search?.trim())
-        query = query.or(`title.ilike.%${filters.search.trim()}%,company.ilike.%${filters.search.trim()}%`);
+        query = query.or(
+          `title.ilike.%${filters.search.trim()}%,company.ilike.%${filters.search.trim()}%`,
+        );
       const { data, error } = await query;
       if (error) throw error;
       const rows = data ?? [];
@@ -318,15 +335,21 @@ export function useJobs(filters: { employmentType?: string; locationType?: strin
       const { data: auth } = await supabase.auth.getUser();
       const me = auth.user?.id ?? null;
       const posters = await loadAuthors(rows.map((r) => r.poster_id));
-      const imagePaths = rows.map((row) => row.image_path).filter((path): path is string => Boolean(path));
+      const imagePaths = rows
+        .map((row) => row.image_path)
+        .filter((path): path is string => Boolean(path));
       const { data: signed } = imagePaths.length
         ? await supabase.storage.from("job-images").createSignedUrls(imagePaths, 60 * 60)
         : { data: [] };
       const imageUrls = new Map((signed ?? []).map((item) => [item.path, item.signedUrl]));
       return rows.map((row) => ({
         ...row,
-        image_url: row.image_path ? imageUrls.get(row.image_path) ?? null : null,
-        poster: posters[row.poster_id] ?? { id: row.poster_id, name: "Profile unavailable", avatar_url: null },
+        image_url: row.image_path ? (imageUrls.get(row.image_path) ?? null) : null,
+        poster: posters[row.poster_id] ?? {
+          id: row.poster_id,
+          name: "Profile unavailable",
+          avatar_url: null,
+        },
         is_mine: row.poster_id === me,
       })) as Job[];
     },
@@ -352,12 +375,17 @@ export function useJob(jobId: string | null) {
       const me = auth.user?.id ?? null;
       const posters = await loadAuthors([data.poster_id]);
       const imageUrl = data.image_path
-        ? (await supabase.storage.from("job-images").createSignedUrl(data.image_path, 60 * 60)).data?.signedUrl ?? null
+        ? ((await supabase.storage.from("job-images").createSignedUrl(data.image_path, 60 * 60))
+            .data?.signedUrl ?? null)
         : null;
       return {
         ...data,
         image_url: imageUrl,
-        poster: posters[data.poster_id] ?? { id: data.poster_id, name: "Profile unavailable", avatar_url: null },
+        poster: posters[data.poster_id] ?? {
+          id: data.poster_id,
+          name: "Profile unavailable",
+          avatar_url: null,
+        },
         is_mine: data.poster_id === me,
       } as Job;
     },
@@ -383,11 +411,15 @@ export function usePostJob() {
       const userId = await currentUserId();
       let imagePath: string | null = null;
       if (input.imageFile) {
-        if (!input.imageFile.type.startsWith("image/")) throw new Error("Please choose an image file.");
-        if (input.imageFile.size > 8 * 1024 * 1024) throw new Error("Image must be 8 MB or smaller.");
+        if (!input.imageFile.type.startsWith("image/"))
+          throw new Error("Please choose an image file.");
+        if (input.imageFile.size > 8 * 1024 * 1024)
+          throw new Error("Image must be 8 MB or smaller.");
         await verifyMediaFiles([input.imageFile], "JOB_IMAGE");
         imagePath = `${userId}/${crypto.randomUUID()}.${input.imageFile.name.split(".").pop()?.toLowerCase() || "jpg"}`;
-        const { error: uploadError } = await supabase.storage.from("job-images").upload(imagePath, input.imageFile, { upsert: false });
+        const { error: uploadError } = await supabase.storage
+          .from("job-images")
+          .upload(imagePath, input.imageFile, { upsert: false });
         if (uploadError) throw uploadError;
       }
       const { data, error } = await supabase
@@ -452,7 +484,11 @@ export function useJobApplications(jobId: string | null) {
       const people = await loadAuthors(rows.map((r) => r.applicant_id));
       return rows.map((row) => ({
         ...row,
-        applicant: people[row.applicant_id] ?? { id: row.applicant_id, name: "Profile unavailable", avatar_url: null },
+        applicant: people[row.applicant_id] ?? {
+          id: row.applicant_id,
+          name: "Profile unavailable",
+          avatar_url: null,
+        },
       }));
     },
   });
@@ -536,7 +572,11 @@ export function useMentors() {
       return rows.map((row) => ({
         ...row,
         skills: row.skills ?? [],
-        person: people[row.user_id] ?? { id: row.user_id, name: "Profile unavailable", avatar_url: null },
+        person: people[row.user_id] ?? {
+          id: row.user_id,
+          name: "Profile unavailable",
+          avatar_url: null,
+        },
         is_mine: row.user_id === me,
       }));
     },
@@ -619,7 +659,11 @@ export function useMentorRequests() {
       const people = await loadAuthors(rows.map((r) => r.requester_id));
       return rows.map((row) => ({
         ...row,
-        person: people[row.requester_id] ?? { id: row.requester_id, name: "Profile unavailable", avatar_url: null },
+        person: people[row.requester_id] ?? {
+          id: row.requester_id,
+          name: "Profile unavailable",
+          avatar_url: null,
+        },
       }));
     },
   });

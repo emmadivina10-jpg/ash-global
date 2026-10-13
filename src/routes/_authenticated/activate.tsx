@@ -18,7 +18,10 @@ export const Route = createFileRoute("/_authenticated/activate")({
   head: () => ({
     meta: [
       { title: "Activate your account — ASH Glo" },
-      { name: "description", content: "Pay the one-time 5,000 XAF activation fee to unlock referral earnings." },
+      {
+        name: "description",
+        content: "Pay the one-time 5,000 XAF activation fee to unlock referral earnings.",
+      },
     ],
   }),
   component: ActivatePage,
@@ -160,7 +163,9 @@ function ActivatePage() {
   return (
     <div className="mx-auto w-full max-w-2xl space-y-5">
       <header>
-        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Activate Your ASH Glo Account</h1>
+        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
+          Activate Your ASH Glo Account
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           A single payment unlocks referral participation on your account.
         </p>
@@ -170,15 +175,18 @@ function ActivatePage() {
         <p className="text-sm opacity-85">One-time activation fee</p>
         <p className="tabular mt-1 text-5xl font-bold">{formatXAF(ACTIVATION_FEE)}</p>
         <p className="mt-4 text-sm opacity-85">
-          Pay from your wallet balance or with Mobile Money. Your account activates only after the payment
-          clears.
+          Pay from your wallet balance or with Mobile Money. Your account activates only after the
+          payment clears.
         </p>
       </div>
 
       <SectionCard title="What you unlock">
         <ul className="space-y-3 text-sm">
           {[1, 2, 3].map((level) => (
-            <li key={level} className="flex items-center justify-between rounded-xl bg-muted px-4 py-3">
+            <li
+              key={level}
+              className="flex items-center justify-between rounded-xl bg-muted px-4 py-3"
+            >
               <span className="font-medium text-foreground">Level {level} referral commission</span>
               <span className="tabular font-bold text-primary">
                 {formatXAF(COMMISSIONS[level as 1 | 2 | 3])}
@@ -216,8 +224,8 @@ function ActivatePage() {
         </Button>
         {!walletCanCover ? (
           <p className="mt-2 text-xs text-muted-foreground">
-            Your balance is below the fee. Top up your wallet by card or Mobile Money first, or pay directly
-            with Mobile Money below.
+            Your balance is below the fee. Top up your wallet by card or Mobile Money first, or pay
+            directly with Mobile Money below.
           </p>
         ) : (
           <p className="mt-2 text-xs text-muted-foreground">
@@ -230,7 +238,9 @@ function ActivatePage() {
         <MomoCharge
           country={country}
           busy={phase === "charging"}
-          submitLabel={phase === "charging" ? "Sending prompt…" : `Pay ${formatXAF(ACTIVATION_FEE)}`}
+          submitLabel={
+            phase === "charging" ? "Sending prompt…" : `Pay ${formatXAF(ACTIVATION_FEE)}`
+          }
           onCharge={pay}
         />
       </SectionCard>
@@ -241,12 +251,19 @@ function ActivatePage() {
             <Smartphone className="size-4 text-primary" aria-hidden />
             Approve the prompt on your phone
           </p>
-          <p className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">Payment reference</p>
+          <p className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">
+            Payment reference
+          </p>
           <p className="tabular mt-1 font-semibold text-foreground">{reference}</p>
           <p className="mt-2 text-xs text-muted-foreground">
             We re-check this payment with TchokoPay automatically every few seconds.
           </p>
-          <Button variant="outline" className="mt-3 w-full" onClick={verify} disabled={phase === "verifying"}>
+          <Button
+            variant="outline"
+            className="mt-3 w-full"
+            onClick={verify}
+            disabled={phase === "verifying"}
+          >
             {phase === "verifying" ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
             {phase === "verifying" ? "Checking payment…" : "I have approved — check now"}
           </Button>
@@ -255,8 +272,8 @@ function ActivatePage() {
 
       <p className="flex items-start gap-2 text-xs text-muted-foreground">
         <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
-        Activation is granted by our servers only after TchokoPay confirms the money cleared. Sending a prompt
-        never activates an account on its own.
+        Activation is granted by our servers only after TchokoPay confirms the money cleared.
+        Sending a prompt never activates an account on its own.
       </p>
     </div>
   );

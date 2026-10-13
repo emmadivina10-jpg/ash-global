@@ -43,7 +43,10 @@ function compact(value: number) {
 }
 
 function shortDay(day: string) {
-  return new Date(`${day}T00:00:00Z`).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  return new Date(`${day}T00:00:00Z`).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
 }
 
 function chartTooltip() {
@@ -107,13 +110,17 @@ function HeroMetric({
     <div
       className={cn(
         "relative overflow-hidden rounded-3xl border p-5 shadow-card",
-        tone === "brand" && "border-transparent bg-gradient-to-br from-primary to-gold text-on-dark",
+        tone === "brand" &&
+          "border-transparent bg-gradient-to-br from-primary to-gold text-on-dark",
         tone === "success" && "border-success/25 bg-success/10",
         tone === "gold" && "border-gold/25 bg-gold/10",
       )}
     >
       <div className="flex items-center gap-2">
-        <Icon className={cn("size-4", tone === "brand" ? "text-on-dark" : "text-foreground")} aria-hidden />
+        <Icon
+          className={cn("size-4", tone === "brand" ? "text-on-dark" : "text-foreground")}
+          aria-hidden
+        />
         <p
           className={cn(
             "text-[11px] font-bold uppercase tracking-[0.12em]",
@@ -131,7 +138,14 @@ function HeroMetric({
       >
         {formatXAF(value)}
       </p>
-      <p className={cn("mt-1 text-xs", tone === "brand" ? "text-on-dark/80" : "text-muted-foreground")}>{hint}</p>
+      <p
+        className={cn(
+          "mt-1 text-xs",
+          tone === "brand" ? "text-on-dark/80" : "text-muted-foreground",
+        )}
+      >
+        {hint}
+      </p>
     </div>
   );
 }
@@ -210,7 +224,9 @@ function ConsoleOverview() {
               onClick={() => setRange(r)}
               className={cn(
                 "rounded-full px-3 py-1.5 text-xs font-semibold transition-colors",
-                range === r ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground",
+                range === r
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:text-foreground",
               )}
             >
               {r} days
@@ -242,29 +258,82 @@ function ConsoleOverview() {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-              <XAxis dataKey="label" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} tickLine={false} axisLine={false} minTickGap={24} />
-              <YAxis tickFormatter={compact} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} tickLine={false} axisLine={false} width={48} />
+              <XAxis
+                dataKey="label"
+                tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                tickLine={false}
+                axisLine={false}
+                minTickGap={24}
+              />
+              <YAxis
+                tickFormatter={compact}
+                tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                tickLine={false}
+                axisLine={false}
+                width={48}
+              />
               <Tooltip formatter={(v: number) => formatXAF(Number(v))} {...chartTooltip()} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Area type="monotone" dataKey="activations" name="Activations" stackId="1" stroke="var(--chart-1)" fill="url(#gActivations)" />
-              <Area type="monotone" dataKey="commission" name="Commission" stackId="1" stroke="var(--chart-2)" fill="url(#gCommission)" />
-              <Area type="monotone" dataKey="subscriptions" name="Subscriptions" stackId="1" stroke="var(--chart-3)" fill="url(#gSubs)" />
+              <Area
+                type="monotone"
+                dataKey="activations"
+                name="Activations"
+                stackId="1"
+                stroke="var(--chart-1)"
+                fill="url(#gActivations)"
+              />
+              <Area
+                type="monotone"
+                dataKey="commission"
+                name="Commission"
+                stackId="1"
+                stroke="var(--chart-2)"
+                fill="url(#gCommission)"
+              />
+              <Area
+                type="monotone"
+                dataKey="subscriptions"
+                name="Subscriptions"
+                stackId="1"
+                stroke="var(--chart-3)"
+                fill="url(#gSubs)"
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </SectionCard>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <SectionCard title="Booking volume vs payouts" description="Money flowing through the platform each day.">
+        <SectionCard
+          title="Booking volume vs payouts"
+          description="Money flowing through the platform each day."
+        >
           <div className="h-56 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={series} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                <XAxis dataKey="label" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} tickLine={false} axisLine={false} minTickGap={24} />
-                <YAxis tickFormatter={compact} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} tickLine={false} axisLine={false} width={48} />
+                <XAxis
+                  dataKey="label"
+                  tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                  tickLine={false}
+                  axisLine={false}
+                  minTickGap={24}
+                />
+                <YAxis
+                  tickFormatter={compact}
+                  tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                  tickLine={false}
+                  axisLine={false}
+                  width={48}
+                />
                 <Tooltip formatter={(v: number) => formatXAF(Number(v))} {...chartTooltip()} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar dataKey="bookingVolume" name="Bookings paid" fill="var(--chart-2)" radius={[4, 4, 0, 0]} />
+                <Bar
+                  dataKey="bookingVolume"
+                  name="Bookings paid"
+                  fill="var(--chart-2)"
+                  radius={[4, 4, 0, 0]}
+                />
                 <Bar dataKey="payouts" name="Payouts" fill="var(--chart-4)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -276,10 +345,29 @@ function ConsoleOverview() {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={series} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                <XAxis dataKey="label" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} tickLine={false} axisLine={false} minTickGap={24} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} tickLine={false} axisLine={false} width={36} />
+                <XAxis
+                  dataKey="label"
+                  tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                  tickLine={false}
+                  axisLine={false}
+                  minTickGap={24}
+                />
+                <YAxis
+                  allowDecimals={false}
+                  tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                  tickLine={false}
+                  axisLine={false}
+                  width={36}
+                />
                 <Tooltip {...chartTooltip()} />
-                <Line type="monotone" dataKey="signups" name="Sign-ups" stroke="var(--chart-1)" strokeWidth={2.5} dot={false} />
+                <Line
+                  type="monotone"
+                  dataKey="signups"
+                  name="Sign-ups"
+                  stroke="var(--chart-1)"
+                  strokeWidth={2.5}
+                  dot={false}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -292,7 +380,14 @@ function ConsoleOverview() {
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={analytics.data.channels} dataKey="value" nameKey="name" innerRadius={44} outerRadius={70} paddingAngle={3}>
+                  <Pie
+                    data={analytics.data.channels}
+                    dataKey="value"
+                    nameKey="name"
+                    innerRadius={44}
+                    outerRadius={70}
+                    paddingAngle={3}
+                  >
                     {analytics.data.channels.map((_, index) => (
                       <Cell key={index} fill={`var(--chart-${(index % 5) + 1})`} />
                     ))}
@@ -303,12 +398,20 @@ function ConsoleOverview() {
             </div>
             <div>
               {analytics.data.channels.map((c, index) => (
-                <div key={c.name} className="flex items-center justify-between gap-3 border-b border-border py-2.5 last:border-0">
+                <div
+                  key={c.name}
+                  className="flex items-center justify-between gap-3 border-b border-border py-2.5 last:border-0"
+                >
                   <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                    <span className="size-2.5 rounded-full" style={{ background: `var(--chart-${(index % 5) + 1})` }} />
+                    <span
+                      className="size-2.5 rounded-full"
+                      style={{ background: `var(--chart-${(index % 5) + 1})` }}
+                    />
                     {c.name}
                   </span>
-                  <span className="tabular text-sm font-bold text-foreground">{formatXAF(c.value)}</span>
+                  <span className="tabular text-sm font-bold text-foreground">
+                    {formatXAF(c.value)}
+                  </span>
                 </div>
               ))}
             </div>
@@ -344,7 +447,10 @@ function ConsoleOverview() {
           />
         </SectionCard>
 
-        <SectionCard title="Not ASH money" description="Funds held on behalf of members and providers.">
+        <SectionCard
+          title="Not ASH money"
+          description="Funds held on behalf of members and providers."
+        >
           <MoneyRow
             label="Provider funds owed"
             value={Number(f?.provider_owed ?? 0)}
@@ -412,7 +518,8 @@ function ConsoleOverview() {
         {Number(f?.safe_to_withdraw ?? 0) <= 0 ? (
           <p className="mt-3 flex items-center gap-1.5 rounded-xl bg-destructive/10 p-3 text-xs text-destructive">
             <ArrowDownRight className="size-3.5 shrink-0" aria-hidden />
-            Nothing is safely withdrawable right now — all cash on hand is owed to members and providers.
+            Nothing is safely withdrawable right now — all cash on hand is owed to members and
+            providers.
           </p>
         ) : null}
       </SectionCard>

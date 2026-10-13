@@ -148,7 +148,7 @@ export function SelectChatRow({
       {pinned ? (
         <span
           title={fr ? "Épinglée" : "Pinned chat"}
-           className="pointer-events-none absolute bottom-3 right-12 z-10 grid size-6 place-items-center rounded-full bg-success text-success-foreground ring-2 ring-background"
+          className="pointer-events-none absolute bottom-3 right-12 z-10 grid size-6 place-items-center rounded-full bg-success text-success-foreground ring-2 ring-background"
         >
           <Pin className="size-3.5 fill-current" aria-hidden />
         </span>

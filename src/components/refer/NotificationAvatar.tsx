@@ -12,7 +12,13 @@ export function NotificationAvatarBadge({ className }: { className?: string | un
         className,
       )}
     >
-      <img src={ashLogo.url} alt="ASH" className="size-full object-cover" loading="lazy" decoding="async" />
+      <img
+        src={ashLogo.url}
+        alt="ASH"
+        className="size-full object-cover"
+        loading="lazy"
+        decoding="async"
+      />
     </span>
   );
 }

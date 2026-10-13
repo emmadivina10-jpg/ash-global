@@ -23,7 +23,10 @@ export const Route = createFileRoute("/_authenticated/events/$eventId")({
       { title: "Event details — Coming soon" },
       { name: "description", content: "ASH Events are coming soon. Ticketing is not enabled yet." },
       { property: "og:title", content: "Event details — Coming soon" },
-      { property: "og:description", content: "ASH Events are coming soon. Ticketing is not enabled yet." },
+      {
+        property: "og:description",
+        content: "ASH Events are coming soon. Ticketing is not enabled yet.",
+      },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -93,12 +96,15 @@ function EventDetail() {
         toast.error(
           result.error === "SOLD_OUT"
             ? tx("No seats left.", "Plus de places disponibles.")
-            : (result.message ?? (tx("The payment could not start.", "Le paiement n'a pas démarré."))),
+            : (result.message ??
+                tx("The payment could not start.", "Le paiement n'a pas démarré.")),
         );
         return;
       }
       setReference(result.reference);
-      toast.success(tx("Approve the prompt on your phone.", "Validez la demande sur votre téléphone."));
+      toast.success(
+        tx("Approve the prompt on your phone.", "Validez la demande sur votre téléphone."),
+      );
     } finally {
       setBusy(false);
     }
@@ -126,7 +132,10 @@ function EventDetail() {
 
   return (
     <div className="mx-auto w-full max-w-3xl space-y-5">
-      <Link to="/events" className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground">
+      <Link
+        to="/events"
+        className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground"
+      >
         <ArrowLeft className="size-4" aria-hidden />
         {tx("Events", "Événements")}
       </Link>
@@ -135,7 +144,20 @@ function EventDetail() {
         <span className="w-fit rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
           {event.category}
         </span>
-        <div className="flex items-start justify-between gap-2"><h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">{event.title}</h1>{me && event.organizer_id !== me.id ? <SafetyMenu targetType="EVENT" targetId={event.id} targetUserId={event.organizer_id} targetName={event.title} allowBlock={false} /> : null}</div>
+        <div className="flex items-start justify-between gap-2">
+          <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
+            {event.title}
+          </h1>
+          {me && event.organizer_id !== me.id ? (
+            <SafetyMenu
+              targetType="EVENT"
+              targetId={event.id}
+              targetUserId={event.organizer_id}
+              targetName={event.title}
+              allowBlock={false}
+            />
+          ) : null}
+        </div>
         <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
             <CalendarDays className="size-4" aria-hidden />
@@ -147,9 +169,17 @@ function EventDetail() {
           </span>
         </p>
         {event.description ? (
-          <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">{event.description}</p>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+            {event.description}
+          </p>
         ) : null}
-        <PromoteDialog targetType="EVENT" targetId={event.id} defaultHeadline={event.title} city={event.city} category={event.category} />
+        <PromoteDialog
+          targetType="EVENT"
+          targetId={event.id}
+          defaultHeadline={event.title}
+          city={event.city}
+          category={event.category}
+        />
       </header>
 
       <section className="tile space-y-4 p-5">
@@ -159,7 +189,7 @@ function EventDetail() {
               {tx("Ticket", "Billet")}
             </p>
             <p className="font-display text-2xl font-extrabold text-foreground">
-              {event.is_free ? (tx("Free", "Gratuit")) : formatXAF(event.ticket_price)}
+              {event.is_free ? tx("Free", "Gratuit") : formatXAF(event.ticket_price)}
             </p>
           </div>
           <p className="text-sm text-muted-foreground">
@@ -169,14 +199,22 @@ function EventDetail() {
 
         {event.is_free ? (
           <p className="rounded-2xl bg-muted p-4 text-sm text-muted-foreground">
-            {tx("Free entry — just show up at the venue.", "Entrée libre — présentez-vous simplement sur place.")}
+            {tx(
+              "Free entry — just show up at the venue.",
+              "Entrée libre — présentez-vous simplement sur place.",
+            )}
           </p>
         ) : left === 0 ? (
-          <p className="rounded-2xl bg-muted p-4 text-sm text-muted-foreground">{tx("Sold out.", "Complet.")}</p>
+          <p className="rounded-2xl bg-muted p-4 text-sm text-muted-foreground">
+            {tx("Sold out.", "Complet.")}
+          </p>
         ) : reference ? (
           <div className="space-y-3">
             <p className="rounded-2xl bg-muted p-4 text-sm text-muted-foreground">
-              {tx("Approve the mobile money prompt, then confirm here.", "Validez la demande Mobile Money puis confirmez ici.")}
+              {tx(
+                "Approve the mobile money prompt, then confirm here.",
+                "Validez la demande Mobile Money puis confirmez ici.",
+              )}
             </p>
             <Button className="w-full" disabled={busy} onClick={() => void confirm()}>
               {tx("I have paid", "J'ai payé")}
@@ -185,10 +223,17 @@ function EventDetail() {
         ) : (
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <Button variant="outline" size="icon" aria-label={tx("Fewer", "Moins")} onClick={() => setQuantity((q) => Math.max(1, q - 1))}>
+              <Button
+                variant="outline"
+                size="icon"
+                aria-label={tx("Fewer", "Moins")}
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              >
                 <Minus className="size-4" aria-hidden />
               </Button>
-              <span className="min-w-10 text-center font-display text-lg font-extrabold text-foreground">{quantity}</span>
+              <span className="min-w-10 text-center font-display text-lg font-extrabold text-foreground">
+                {quantity}
+              </span>
               <Button
                 variant="outline"
                 size="icon"
@@ -198,7 +243,8 @@ function EventDetail() {
                 <Plus className="size-4" aria-hidden />
               </Button>
               <span className="ml-auto text-sm text-muted-foreground">
-                {tx("Total", "Total")} <strong className="text-foreground">{formatXAF(total)}</strong>
+                {tx("Total", "Total")}{" "}
+                <strong className="text-foreground">{formatXAF(total)}</strong>
               </span>
             </div>
 

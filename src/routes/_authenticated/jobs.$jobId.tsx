@@ -25,7 +25,10 @@ export const Route = createFileRoute("/_authenticated/jobs/$jobId")({
       { title: "Job opening — Coming soon" },
       { name: "description", content: "ASH Jobs are coming soon. Applications are not open yet." },
       { property: "og:title", content: "Job opening — Coming soon" },
-      { property: "og:description", content: "ASH Jobs are coming soon. Applications are not open yet." },
+      {
+        property: "og:description",
+        content: "ASH Jobs are coming soon. Applications are not open yet.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -61,7 +64,13 @@ function JobDetail() {
   const applications = useJobApplications(jobId);
 
   useTrackView(
-    { event_type: "view", surface: "jobs", target_type: "job", target_id: jobId, category: job.data?.category ?? null },
+    {
+      event_type: "view",
+      surface: "jobs",
+      target_type: "job",
+      target_id: jobId,
+      category: job.data?.category ?? null,
+    },
     Boolean(job.data),
   );
   const apply = useApplyToJob();
@@ -88,7 +97,9 @@ function JobDetail() {
 
   async function submit() {
     if (coverLetter.trim().length < 20) {
-      toast.error(tx("Write a few lines about yourself.", "Écrivez quelques lignes de motivation."));
+      toast.error(
+        tx("Write a few lines about yourself.", "Écrivez quelques lignes de motivation."),
+      );
       return;
     }
     try {
@@ -97,7 +108,12 @@ function JobDetail() {
       setCoverLetter("");
       setPhone("");
     } catch {
-      toast.error(tx("Could not send — have you already applied?", "Envoi impossible — avez-vous déjà postulé ?"));
+      toast.error(
+        tx(
+          "Could not send — have you already applied?",
+          "Envoi impossible — avez-vous déjà postulé ?",
+        ),
+      );
     }
   }
 
@@ -118,7 +134,13 @@ function JobDetail() {
       </Link>
 
       <header className="tile space-y-2 p-5">
-        {row.image_url ? <img src={row.image_url} alt="" className="mb-4 aspect-[16/9] w-full rounded-lg object-cover" /> : null}
+        {row.image_url ? (
+          <img
+            src={row.image_url}
+            alt=""
+            className="mb-4 aspect-[16/9] w-full rounded-lg object-cover"
+          />
+        ) : null}
         <div className="flex flex-wrap gap-2">
           <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
             {row.employment_type}
@@ -151,7 +173,9 @@ function JobDetail() {
 
       <section className="tile space-y-2 p-5">
         <h2 className="font-semibold text-foreground">{tx("About the role", "Description")}</h2>
-        <p className="whitespace-pre-wrap text-sm leading-6 text-muted-foreground">{row.description}</p>
+        <p className="whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
+          {row.description}
+        </p>
       </section>
 
       {mine ? (
@@ -213,7 +237,10 @@ function JobDetail() {
       ) : alreadyApplied ? (
         <section className="tile p-5">
           <p className="text-sm text-muted-foreground">
-            {tx("Your application is in. The employer will get back to you here.", "Votre candidature a été envoyée. L'employeur vous répondra ici.")}
+            {tx(
+              "Your application is in. The employer will get back to you here.",
+              "Votre candidature a été envoyée. L'employeur vous répondra ici.",
+            )}
           </p>
         </section>
       ) : (
@@ -223,7 +250,10 @@ function JobDetail() {
             value={coverLetter}
             onChange={(event) => setCoverLetter(event.target.value)}
             rows={6}
-            placeholder={tx("Why you? A few lines is enough.", "Pourquoi vous ? Quelques lignes suffisent.")}
+            placeholder={tx(
+              "Why you? A few lines is enough.",
+              "Pourquoi vous ? Quelques lignes suffisent.",
+            )}
           />
           <Input
             value={phone}
@@ -231,7 +261,9 @@ function JobDetail() {
             placeholder={tx("Phone (optional)", "Téléphone (optionnel)")}
           />
           <Button onClick={submit} disabled={apply.isPending} className="w-full touch-manipulation">
-            {apply.isPending ? (tx("Sending…", "Envoi…")) : tx("Send application", "Envoyer ma candidature")}
+            {apply.isPending
+              ? tx("Sending…", "Envoi…")
+              : tx("Send application", "Envoyer ma candidature")}
           </Button>
         </section>
       )}

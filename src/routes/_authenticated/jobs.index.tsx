@@ -23,9 +23,15 @@ export const Route = createFileRoute("/_authenticated/jobs/")({
   head: () => ({
     meta: [
       { title: "ASH Jobs — Coming soon" },
-      { name: "description", content: "Job postings and in-app applications are coming soon to ASH." },
+      {
+        name: "description",
+        content: "Job postings and in-app applications are coming soon to ASH.",
+      },
       { property: "og:title", content: "ASH Jobs — Coming soon" },
-      { property: "og:description", content: "Job postings and in-app applications are coming soon to ASH." },
+      {
+        property: "og:description",
+        content: "Job postings and in-app applications are coming soon to ASH.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -67,7 +73,10 @@ function JobsPage() {
             {tx("ASH Jobs", "ASH Jobs")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {tx("Post a role for free, or apply right inside the app.", "Publiez une offre gratuitement, ou postulez directement dans l'app.")}
+            {tx(
+              "Post a role for free, or apply right inside the app.",
+              "Publiez une offre gratuitement, ou postulez directement dans l'app.",
+            )}
           </p>
         </div>
         <PostJobDialog fr={fr} />
@@ -75,7 +84,10 @@ function JobsPage() {
 
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative min-w-[200px] flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+            aria-hidden
+          />
           <Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
@@ -109,7 +121,10 @@ function JobsPage() {
         <EmptyState
           icon={<Briefcase className="size-5" aria-hidden />}
           title={tx("No open roles", "Aucune offre ouverte")}
-          description={tx("Post the first role — it's free.", "Publiez la première offre, c'est gratuit.")}
+          description={tx(
+            "Post the first role — it's free.",
+            "Publiez la première offre, c'est gratuit.",
+          )}
         />
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2">
@@ -120,33 +135,40 @@ function JobsPage() {
                 params={{ jobId: job.id }}
                 className="tile flex h-full flex-col gap-2 overflow-hidden p-0 transition hover:border-primary/40"
               >
-                {job.image_url ? <img src={job.image_url} alt="" className="aspect-[16/9] w-full object-cover" loading="lazy" /> : null}
+                {job.image_url ? (
+                  <img
+                    src={job.image_url}
+                    alt=""
+                    className="aspect-[16/9] w-full object-cover"
+                    loading="lazy"
+                  />
+                ) : null}
                 <div className="flex flex-1 flex-col gap-2 p-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
-                    {job.employment_type}
-                  </span>
-                  <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
-                    {job.location_type}
-                  </span>
-                </div>
-                <h2 className="font-semibold text-foreground">{job.title}</h2>
-                <p className="text-sm text-muted-foreground">{job.company}</p>
-                <p className="line-clamp-2 text-sm text-muted-foreground">{job.description}</p>
-                <div className="mt-1 flex flex-wrap items-center justify-between gap-2 text-sm">
-                  <span className="inline-flex items-center gap-1 text-muted-foreground">
-                    <MapPin className="size-3.5" aria-hidden />
-                    {job.city ?? job.country}
-                  </span>
-                  <span className="font-display font-extrabold text-foreground">
-                    {job.salary_min || job.salary_max
-                      ? `${formatXAF(job.salary_min ?? job.salary_max ?? 0)}${job.salary_max && job.salary_min ? ` – ${formatXAF(job.salary_max)}` : ""}`
-                      : tx("Negotiable", "À négocier")}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {job.applications_count} {tx("applicants", "candidature(s)")}
-                </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+                      {job.employment_type}
+                    </span>
+                    <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+                      {job.location_type}
+                    </span>
+                  </div>
+                  <h2 className="font-semibold text-foreground">{job.title}</h2>
+                  <p className="text-sm text-muted-foreground">{job.company}</p>
+                  <p className="line-clamp-2 text-sm text-muted-foreground">{job.description}</p>
+                  <div className="mt-1 flex flex-wrap items-center justify-between gap-2 text-sm">
+                    <span className="inline-flex items-center gap-1 text-muted-foreground">
+                      <MapPin className="size-3.5" aria-hidden />
+                      {job.city ?? job.country}
+                    </span>
+                    <span className="font-display font-extrabold text-foreground">
+                      {job.salary_min || job.salary_max
+                        ? `${formatXAF(job.salary_min ?? job.salary_max ?? 0)}${job.salary_max && job.salary_min ? ` – ${formatXAF(job.salary_max)}` : ""}`
+                        : tx("Negotiable", "À négocier")}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {job.applications_count} {tx("applicants", "candidature(s)")}
+                  </p>
                 </div>
               </Link>
             </li>
@@ -174,7 +196,11 @@ function PostJobDialog({ fr }: { fr: boolean }) {
 
   async function submit() {
     if (title.trim().length < 3 || company.trim().length < 2 || description.trim().length < 20) {
-      toast.error(fr ? "Complétez le poste, l'entreprise et la description." : "Fill in role, company and description.");
+      toast.error(
+        fr
+          ? "Complétez le poste, l'entreprise et la description."
+          : "Fill in role, company and description.",
+      );
       return;
     }
     try {
@@ -219,13 +245,23 @@ function PostJobDialog({ fr }: { fr: boolean }) {
           <DialogTitle>{fr ? "Nouvelle offre" : "New job posting"}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={fr ? "Intitulé du poste" : "Job title"} />
-          <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder={fr ? "Entreprise" : "Company"} />
+          <Input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder={fr ? "Intitulé du poste" : "Job title"}
+          />
+          <Input
+            value={company}
+            onChange={(e) => setCompany(e.target.value)}
+            placeholder={fr ? "Entreprise" : "Company"}
+          />
           <Textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={6}
-            placeholder={fr ? "Missions, profil recherché…" : "Responsibilities, who you're looking for…"}
+            placeholder={
+              fr ? "Missions, profil recherché…" : "Responsibilities, who you're looking for…"
+            }
           />
           <div className="flex flex-wrap gap-2">
             <select
@@ -251,7 +287,11 @@ function PostJobDialog({ fr }: { fr: boolean }) {
               ))}
             </select>
           </div>
-          <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder={fr ? "Ville" : "City"} />
+          <Input
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            placeholder={fr ? "Ville" : "City"}
+          />
           <div className="flex gap-2">
             <Input
               value={salaryMin}
@@ -286,14 +326,26 @@ function PostJobDialog({ fr }: { fr: boolean }) {
             {imageFile ? (
               <div className="mt-2 flex items-center justify-between gap-2 text-xs text-muted-foreground">
                 <span className="truncate">{imageFile.name}</span>
-                <Button variant="ghost" size="icon" className="size-7" onClick={() => setImageFile(null)} aria-label={fr ? "Retirer l'image" : "Remove image"}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7"
+                  onClick={() => setImageFile(null)}
+                  aria-label={fr ? "Retirer l'image" : "Remove image"}
+                >
                   <X className="size-4" aria-hidden />
                 </Button>
               </div>
             ) : null}
           </div>
           <Button onClick={submit} disabled={post.isPending} className="w-full touch-manipulation">
-            {post.isPending ? (fr ? "Publication…" : "Posting…") : fr ? "Publier l'offre" : "Post the job"}
+            {post.isPending
+              ? fr
+                ? "Publication…"
+                : "Posting…"
+              : fr
+                ? "Publier l'offre"
+                : "Post the job"}
           </Button>
         </div>
       </DialogContent>

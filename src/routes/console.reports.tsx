@@ -36,7 +36,10 @@ function ReportsPage() {
     queryKey: ["console", "reports", status],
     queryFn: () => load({ data: { status } }),
   });
-  const mediaCases = useQuery({ queryKey: ["console", "media-moderation"], queryFn: loadMediaCases });
+  const mediaCases = useQuery({
+    queryKey: ["console", "media-moderation"],
+    queryFn: loadMediaCases,
+  });
 
   const mutate = useMutation({
     mutationFn: (input: { id: string; status: string }) => resolve({ data: input }),
@@ -48,7 +51,15 @@ function ReportsPage() {
   });
   const reviewCase = useMutation({
     mutationFn: (input: { caseId: string; decision: "UPHELD" | "CLEARED" }) =>
-      reviewMediaCase({ data: { ...input, note: input.decision === "CLEARED" ? "Cleared after administrator review." : "Restriction upheld after review." } }),
+      reviewMediaCase({
+        data: {
+          ...input,
+          note:
+            input.decision === "CLEARED"
+              ? "Cleared after administrator review."
+              : "Restriction upheld after review.",
+        },
+      }),
     onSuccess: async () => {
       toast.success("Safety review updated");
       await queryClient.invalidateQueries({ queryKey: ["console", "media-moderation"] });
@@ -57,7 +68,8 @@ function ReportsPage() {
   });
   const cleanup = useMutation({
     mutationFn: () => releaseCleanup(),
-    onSuccess: (counts) => toast.success(`Cleanup complete: ${counts.expired_stories ?? 0} expired stories removed.`),
+    onSuccess: (counts) =>
+      toast.success(`Cleanup complete: ${counts.expired_stories ?? 0} expired stories removed.`),
     onError: (error: Error) => toast.error(error.message),
   });
 
@@ -96,30 +108,50 @@ function ReportsPage() {
           <Sparkles className="size-4 text-primary" aria-hidden />
           <h3 className="font-bold text-foreground">Automated media reviews</h3>
           <Badge className="ml-auto rounded-full border-0 bg-destructive/10 text-destructive">
-            {(mediaCases.data ?? []).filter((item) => item.status === "PENDING_REVIEW").length} pending
+            {(mediaCases.data ?? []).filter((item) => item.status === "PENDING_REVIEW").length}{" "}
+            pending
           </Badge>
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">Removed files are never displayed here. The CEO can clear a mistaken restriction.</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Removed files are never displayed here. The CEO can clear a mistaken restriction.
+        </p>
         <div className="mt-4 space-y-3">
           {(mediaCases.data ?? []).length === 0 ? (
             <p className="text-sm text-muted-foreground">No automated media cases.</p>
           ) : (
             (mediaCases.data ?? []).map((item) => (
-              <article key={item.id} className="rounded-xl border border-border bg-background/50 p-3">
+              <article
+                key={item.id}
+                className="rounded-xl border border-border bg-background/50 p-3"
+              >
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-bold text-foreground">{item.member_name}</span>
                   <Badge variant="outline">{item.verdict}</Badge>
                   <Badge variant="outline">{item.status.replace(/_/g, " ")}</Badge>
-                  <span className="ml-auto text-xs text-muted-foreground">{new Date(item.created_at).toLocaleString("en-GB")}</span>
+                  <span className="ml-auto text-xs text-muted-foreground">
+                    {new Date(item.created_at).toLocaleString("en-GB")}
+                  </span>
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">{item.reason}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{item.content_type} · confidence {Math.round((item.confidence ?? 0) * 100)}%</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {item.content_type} · confidence {Math.round((item.confidence ?? 0) * 100)}%
+                </p>
                 {item.status === "PENDING_REVIEW" ? (
                   <div className="mt-3 flex flex-wrap gap-2">
-                    <Button size="sm" variant="destructive" disabled={reviewCase.isPending} onClick={() => reviewCase.mutate({ caseId: item.id, decision: "UPHELD" })}>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      disabled={reviewCase.isPending}
+                      onClick={() => reviewCase.mutate({ caseId: item.id, decision: "UPHELD" })}
+                    >
                       Uphold restriction
                     </Button>
-                    <Button size="sm" variant="outline" disabled={reviewCase.isPending} onClick={() => reviewCase.mutate({ caseId: item.id, decision: "CLEARED" })}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={reviewCase.isPending}
+                      onClick={() => reviewCase.mutate({ caseId: item.id, decision: "CLEARED" })}
+                    >
                       Clear and restore
                     </Button>
                   </div>

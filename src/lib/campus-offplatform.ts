@@ -58,11 +58,20 @@ export function detectOffPlatform(text: string): OffPlatformMatch | null {
  * Records the attempt for the review team. Returns the number of flags raised
  * for this member in the last 30 days so the UI can escalate its wording.
  */
-export async function flagOffPlatform(conversationId: string | null, rule: string, excerpt: string) {
-  const { data, error } = await (supabase as unknown as { rpc: (fn: string, args: unknown) => Promise<{ data: number | null; error: unknown }> }).rpc(
-    "flag_offplatform_attempt",
-    { _conversation_id: conversationId, _rule: rule, _excerpt: excerpt.slice(0, 240) },
-  );
+export async function flagOffPlatform(
+  conversationId: string | null,
+  rule: string,
+  excerpt: string,
+) {
+  const { data, error } = await (
+    supabase as unknown as {
+      rpc: (fn: string, args: unknown) => Promise<{ data: number | null; error: unknown }>;
+    }
+  ).rpc("flag_offplatform_attempt", {
+    _conversation_id: conversationId,
+    _rule: rule,
+    _excerpt: excerpt.slice(0, 240),
+  });
   if (error) return 0;
   return Number(data ?? 0);
 }

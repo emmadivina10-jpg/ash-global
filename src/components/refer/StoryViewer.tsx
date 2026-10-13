@@ -132,15 +132,26 @@ export function StoryViewer({
           <span key={s.id} className="h-0.5 flex-1 overflow-hidden rounded-full bg-white/25">
             <span
               className="block h-full bg-white transition-[width] duration-75"
-              style={{ width: index < storyIndex ? "100%" : index === storyIndex ? `${progress * 100}%` : "0%" }}
+              style={{
+                width:
+                  index < storyIndex ? "100%" : index === storyIndex ? `${progress * 100}%` : "0%",
+              }}
             />
           </span>
         ))}
       </div>
 
       <div className="flex items-center gap-3 px-4 py-3">
-        <Avatar path={group.author.avatar_url} name={group.author.name} online={group.author.online} hasUpdate={!mine} className="size-9" />
-        <p className="min-w-0 flex-1 truncate text-sm font-semibold text-white">{group.author.name}</p>
+        <Avatar
+          path={group.author.avatar_url}
+          name={group.author.name}
+          online={group.author.online}
+          hasUpdate={!mine}
+          className="size-9"
+        />
+        <p className="min-w-0 flex-1 truncate text-sm font-semibold text-white">
+          {group.author.name}
+        </p>
         {mine ? (
           <button
             type="button"
@@ -153,7 +164,11 @@ export function StoryViewer({
                   onClose();
                 },
                 onError: (error) =>
-                  toast.error(error instanceof Error ? error.message : tx("Could not delete story.", "Suppression impossible.")),
+                  toast.error(
+                    error instanceof Error
+                      ? error.message
+                      : tx("Could not delete story.", "Suppression impossible."),
+                  ),
               });
             }}
             aria-label={tx("Delete", "Supprimer")}
@@ -194,7 +209,12 @@ export function StoryViewer({
           setPaused(false);
         }}
       >
-        <img src={story.url} alt={story.caption || "Story"} className="size-full object-contain" decoding="async" />
+        <img
+          src={story.url}
+          alt={story.caption || "Story"}
+          className="size-full object-contain"
+          decoding="async"
+        />
         {story.caption ? (
           <p className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-5 pb-6 pt-10 text-center text-sm text-white">
             {story.caption}
@@ -204,17 +224,25 @@ export function StoryViewer({
 
       <div className="px-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
         <div className="flex items-center justify-between gap-3">
-        {!mine ? <ReactionButton value={story.current_reaction} total={story.reaction_count} breakdown={story.reaction_breakdown} disabled={reactStory.isPending} onChange={(reaction) => reactStory.mutate({ storyId: story.id, reaction })} /> : null}
-        {mine ? (
-          <button
-            type="button"
-            onClick={() => setViewersOpen((value) => !value)}
-            className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white"
-          >
-            <Eye className="size-4" aria-hidden />
-            {story.view_count} {tx("views", "vues")}
-          </button>
-        ) : null}
+          {!mine ? (
+            <ReactionButton
+              value={story.current_reaction}
+              total={story.reaction_count}
+              breakdown={story.reaction_breakdown}
+              disabled={reactStory.isPending}
+              onChange={(reaction) => reactStory.mutate({ storyId: story.id, reaction })}
+            />
+          ) : null}
+          {mine ? (
+            <button
+              type="button"
+              onClick={() => setViewersOpen((value) => !value)}
+              className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white"
+            >
+              <Eye className="size-4" aria-hidden />
+              {story.view_count} {tx("views", "vues")}
+            </button>
+          ) : null}
         </div>
       </div>
 
@@ -224,7 +252,11 @@ export function StoryViewer({
             <p className="font-display text-base font-extrabold text-foreground">
               {tx("Viewed by", "Vu par")} ({viewers?.length ?? 0})
             </p>
-            <button type="button" onClick={() => setViewersOpen(false)} aria-label={tx("Close", "Fermer")}>
+            <button
+              type="button"
+              onClick={() => setViewersOpen(false)}
+              aria-label={tx("Close", "Fermer")}
+            >
               <X className="size-5 text-muted-foreground" aria-hidden />
             </button>
           </div>
@@ -236,7 +268,13 @@ export function StoryViewer({
             <ul className="space-y-2">
               {(viewers ?? []).map((entry) => (
                 <li key={entry.viewer.id} className="flex items-center gap-3">
-                  <Avatar path={entry.viewer.avatar_url} name={entry.viewer.name} online={entry.viewer.online} hasUpdate={entry.viewer.has_update} className="size-9" />
+                  <Avatar
+                    path={entry.viewer.avatar_url}
+                    name={entry.viewer.name}
+                    online={entry.viewer.online}
+                    hasUpdate={entry.viewer.has_update}
+                    className="size-9"
+                  />
                   <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
                     {entry.viewer.name}
                   </span>
@@ -271,7 +309,11 @@ export function StoryBubble({
   onClick: () => void;
 }) {
   return (
-    <button type="button" onClick={onClick} className="flex w-20 shrink-0 flex-col items-center gap-1.5">
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex w-20 shrink-0 flex-col items-center gap-1.5"
+    >
       <span
         className={cn(
           "grid size-[68px] place-items-center rounded-full p-[3px]",
@@ -286,7 +328,9 @@ export function StoryBubble({
           )}
         </span>
       </span>
-      <span className="w-full truncate text-center text-[11px] font-semibold text-muted-foreground">{name}</span>
+      <span className="w-full truncate text-center text-[11px] font-semibold text-muted-foreground">
+        {name}
+      </span>
     </button>
   );
 }

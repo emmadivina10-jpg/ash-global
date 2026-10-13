@@ -29,7 +29,10 @@ export const OUTREACH_SCRIPTS: OutreachScript[] = [
     key: "payment-issue",
     label: "Payment issue — being investigated",
     group: "Support",
-    subject: { en: "We are on your payment, {{name}}", fr: "Nous traitons votre paiement, {{name}}" },
+    subject: {
+      en: "We are on your payment, {{name}}",
+      fr: "Nous traitons votre paiement, {{name}}",
+    },
     body: {
       en: "Hi {{name}},\n\nThank you for flagging the payment of {{amount}}. Our payments team is checking it with the operator right now and we will come back to you as soon as it clears.\n\nNothing is lost: every transaction is traced with a reference on our side.\n\nASH Glo Support",
       fr: "Bonjour {{name}},\n\nMerci d'avoir signalé le paiement de {{amount}}. Notre équipe vérifie actuellement avec l'opérateur et nous revenons vers vous dès que c'est réglé.\n\nRien n'est perdu : chaque transaction est tracée avec une référence de notre côté.\n\nSupport ASH Glo",
@@ -49,7 +52,10 @@ export const OUTREACH_SCRIPTS: OutreachScript[] = [
     key: "booking-dispute",
     label: "Booking dispute follow-up",
     group: "Support",
-    subject: { en: "About your booking {{booking}}", fr: "À propos de votre réservation {{booking}}" },
+    subject: {
+      en: "About your booking {{booking}}",
+      fr: "À propos de votre réservation {{booking}}",
+    },
     body: {
       en: "Hi {{name}},\n\nWe are reviewing your booking {{booking}} with {{provider}}. Could you confirm what happened in a few lines so we can settle it fairly for both sides?\n\nYour money stays protected until the case is closed.\n\nASH Glo Support",
       fr: "Bonjour {{name}},\n\nNous examinons votre réservation {{booking}} avec {{provider}}. Pouvez-vous nous décrire en quelques lignes ce qui s'est passé afin de trancher équitablement ?\n\nVotre argent reste protégé jusqu'à la clôture du dossier.\n\nSupport ASH Glo",
@@ -99,7 +105,10 @@ export const OUTREACH_SCRIPTS: OutreachScript[] = [
     key: "business-sales",
     label: "Sell ASH to a business",
     group: "Sales",
-    subject: { en: "Bring {{name}} online with ASH Glo", fr: "Mettez {{name}} en ligne avec ASH Glo" },
+    subject: {
+      en: "Bring {{name}} online with ASH Glo",
+      fr: "Mettez {{name}} en ligne avec ASH Glo",
+    },
     body: {
       en: "Hello,\n\nI am {{agent}} from ASH Glo. We help businesses like {{name}} in {{city}} receive orders, take mobile money payments and be found by customers nearby.\n\nSetup takes 10 minutes and there is no monthly fee — just 1% on completed transactions.\n\nWould you like a quick demo today?\n\n{{agent}} — ASH Glo",
       fr: "Bonjour,\n\nJe suis {{agent}} d'ASH Glo. Nous aidons les entreprises comme {{name}} à {{city}} à recevoir des commandes, encaisser par mobile money et être trouvées par les clients à proximité.\n\nLa configuration prend 10 minutes, sans abonnement — seulement 1% sur les transactions abouties.\n\nSouhaitez-vous une démonstration aujourd'hui ?\n\n{{agent}} — ASH Glo",
@@ -109,7 +118,10 @@ export const OUTREACH_SCRIPTS: OutreachScript[] = [
     key: "advertising",
     label: "Advertising package pitch",
     group: "Sales",
-    subject: { en: "Promote {{name}} to people around you", fr: "Faites la promotion de {{name}} autour de vous" },
+    subject: {
+      en: "Promote {{name}} to people around you",
+      fr: "Faites la promotion de {{name}} autour de vous",
+    },
     body: {
       en: "Hello,\n\n{{agent}} from ASH Glo here. We can put {{name}} in front of thousands of people in {{city}} through promoted listings on ASH.\n\nStarter $5/day · Business $15/day · Premium $30/day (homepage + featured provider).\n\nWhich one should I set up for you?\n\n{{agent}} — ASH Glo Advertising",
       fr: "Bonjour,\n\n{{agent}} d'ASH Glo. Nous pouvons présenter {{name}} à des milliers de personnes à {{city}} via des annonces sponsorisées sur ASH.\n\nStarter 5$/jour · Business 15$/jour · Premium 30$/jour (page d'accueil + prestataire en vedette).\n\nLaquelle je prépare pour vous ?\n\n{{agent}} — Publicité ASH Glo",

@@ -33,14 +33,19 @@ function ConsoleLedger() {
     queryFn: fetchLedger,
   });
 
-  const items = (data?.transactions ?? []).filter((tx) => filter === "ALL" || tx.type.startsWith(filter));
+  const items = (data?.transactions ?? []).filter(
+    (tx) => filter === "ALL" || tx.type.startsWith(filter),
+  );
 
   if (isLoading) return <SkeletonRows rows={8} />;
   if (isError) return <ErrorState onRetry={() => void refetch()} />;
 
   return (
     <div className="space-y-5">
-      <SectionCard title="Ledger" description="Immutable record of every money movement on the platform.">
+      <SectionCard
+        title="Ledger"
+        description="Immutable record of every money movement on the platform."
+      >
         <div className="mb-4 flex flex-wrap gap-2">
           {FILTERS.map((item) => (
             <Button
@@ -57,15 +62,23 @@ function ConsoleLedger() {
         <TransactionList items={items} />
       </SectionCard>
 
-      <SectionCard title="Activation payments" description="5,000 XAF member activations collected via TchokoPay.">
+      <SectionCard
+        title="Activation payments"
+        description="5,000 XAF member activations collected via TchokoPay."
+      >
         {(data?.activations ?? []).length === 0 ? (
           <EmptyState title="No activation payments yet" />
         ) : (
           <ul className="divide-y divide-border">
             {(data?.activations ?? []).map((row) => (
-              <li key={row.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3.5">
+              <li
+                key={row.id}
+                className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3.5"
+              >
                 <div className="min-w-0">
-                  <p className="tabular text-sm font-bold text-foreground">{formatXAF(row.amount)}</p>
+                  <p className="tabular text-sm font-bold text-foreground">
+                    {formatXAF(row.amount)}
+                  </p>
                   <p className="truncate text-xs text-muted-foreground">{row.payment_reference}</p>
                   <p className="truncate text-xs text-muted-foreground">
                     {row.provider_transaction_id ? `Txn ${row.provider_transaction_id} · ` : ""}
@@ -79,18 +92,30 @@ function ConsoleLedger() {
         )}
       </SectionCard>
 
-      <SectionCard title="Provider subscriptions" description="2,000 XAF monthly studio subscriptions.">
+      <SectionCard
+        title="Provider subscriptions"
+        description="2,000 XAF monthly studio subscriptions."
+      >
         {(data?.subscriptions ?? []).length === 0 ? (
           <EmptyState title="No subscription payments yet" />
         ) : (
           <ul className="divide-y divide-border">
             {(data?.subscriptions ?? []).map((row) => (
-              <li key={row.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3.5">
+              <li
+                key={row.id}
+                className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3.5"
+              >
                 <div className="min-w-0">
-                  <p className="tabular text-sm font-bold text-foreground">{formatXAF(row.amount)}</p>
-                  <p className="truncate text-xs text-muted-foreground">{row.payment_reference ?? "—"}</p>
+                  <p className="tabular text-sm font-bold text-foreground">
+                    {formatXAF(row.amount)}
+                  </p>
                   <p className="truncate text-xs text-muted-foreground">
-                    {row.period_end ? `Until ${formatDateTime(row.period_end)}` : formatDateTime(row.created_at)}
+                    {row.payment_reference ?? "—"}
+                  </p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {row.period_end
+                      ? `Until ${formatDateTime(row.period_end)}`
+                      : formatDateTime(row.created_at)}
                   </p>
                 </div>
                 <StatusBadge status={row.status} />
@@ -102,4 +127,3 @@ function ConsoleLedger() {
     </div>
   );
 }
-

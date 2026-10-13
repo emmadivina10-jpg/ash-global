@@ -19,9 +19,15 @@ export const Route = createFileRoute("/_authenticated/deals")({
   head: () => ({
     meta: [
       { title: "ASH Deals — Coming soon" },
-      { name: "description", content: "Deals are coming soon to ASH Glo. Offers are not claimable yet." },
+      {
+        name: "description",
+        content: "Deals are coming soon to ASH Glo. Offers are not claimable yet.",
+      },
       { property: "og:title", content: "ASH Deals — Coming soon" },
-      { property: "og:description", content: "Limited-time offers from businesses near you are on the way." },
+      {
+        property: "og:description",
+        content: "Limited-time offers from businesses near you are on the way.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -94,7 +100,10 @@ function DealsPage() {
             {tx("ASH Deals", "Bons plans ASH")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {tx("Limited-time offers from businesses and providers near you.", "Offres limitées des commerces et prestataires près de vous.")}
+            {tx(
+              "Limited-time offers from businesses and providers near you.",
+              "Offres limitées des commerces et prestataires près de vous.",
+            )}
           </p>
         </div>
         <Button asChild size="sm">
@@ -119,7 +128,10 @@ function DealsPage() {
             <EmptyState
               icon={<Flame className="size-5" aria-hidden />}
               title={tx("No live deals yet", "Aucune offre pour l'instant")}
-              description={tx("Be the first business to publish an offer.", "Soyez le premier commerce à publier une offre.")}
+              description={tx(
+                "Be the first business to publish an offer.",
+                "Soyez le premier commerce à publier une offre.",
+              )}
             />
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -132,7 +144,8 @@ function DealsPage() {
                       <div className="min-w-0">
                         <h2 className="truncate font-semibold text-foreground">{deal.title}</h2>
                         <p className="text-xs text-muted-foreground">
-                          {deal.city ?? deal.country} · {tx("until", "jusqu'au")} {formatDateTime(deal.ends_at)}
+                          {deal.city ?? deal.country} · {tx("until", "jusqu'au")}{" "}
+                          {formatDateTime(deal.ends_at)}
                         </p>
                       </div>
                       {off > 0 ? (
@@ -143,13 +156,19 @@ function DealsPage() {
                     </div>
 
                     {deal.description ? (
-                      <p className="line-clamp-2 text-sm text-muted-foreground">{deal.description}</p>
+                      <p className="line-clamp-2 text-sm text-muted-foreground">
+                        {deal.description}
+                      </p>
                     ) : null}
 
                     <div className="flex items-end gap-2">
-                      <span className="font-display text-xl font-extrabold text-foreground">{formatXAF(deal.deal_price)}</span>
+                      <span className="font-display text-xl font-extrabold text-foreground">
+                        {formatXAF(deal.deal_price)}
+                      </span>
                       {off > 0 ? (
-                        <span className="text-sm text-muted-foreground line-through">{formatXAF(deal.original_price)}</span>
+                        <span className="text-sm text-muted-foreground line-through">
+                          {formatXAF(deal.original_price)}
+                        </span>
                       ) : null}
                     </div>
 
@@ -157,7 +176,11 @@ function DealsPage() {
                       <span className="text-xs text-muted-foreground">
                         {left} {tx("left", "restant(s)")}
                       </span>
-                      <Button size="sm" disabled={pending === deal.id || left === 0} onClick={() => void onClaim(deal.id)}>
+                      <Button
+                        size="sm"
+                        disabled={pending === deal.id || left === 0}
+                        onClick={() => void onClaim(deal.id)}
+                      >
                         {tx("Claim deal", "Réclamer")}
                       </Button>
                     </div>
@@ -173,17 +196,26 @@ function DealsPage() {
             <EmptyState
               icon={<Ticket className="size-5" aria-hidden />}
               title={tx("No claimed codes", "Aucun code réclamé")}
-              description={tx("Claim a deal to get your redemption code.", "Réclamez une offre pour obtenir votre code.")}
+              description={tx(
+                "Claim a deal to get your redemption code.",
+                "Réclamez une offre pour obtenir votre code.",
+              )}
             />
           ) : (
             <ul className="space-y-3">
               {(claims.data ?? []).map((row: any) => (
                 <li key={row.id} className="tile flex items-center justify-between gap-3 p-4">
                   <div className="min-w-0">
-                    <p className="truncate font-semibold text-foreground">{row.deal?.title ?? "—"}</p>
-                    <p className="text-xs text-muted-foreground">{formatDateTime(row.claimed_at)}</p>
+                    <p className="truncate font-semibold text-foreground">
+                      {row.deal?.title ?? "—"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatDateTime(row.claimed_at)}
+                    </p>
                   </div>
-                  <span className="rounded-xl bg-primary/10 px-3 py-1.5 font-mono text-sm font-bold text-primary">{row.code}</span>
+                  <span className="rounded-xl bg-primary/10 px-3 py-1.5 font-mono text-sm font-bold text-primary">
+                    {row.code}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -194,7 +226,10 @@ function DealsPage() {
           {(mine.data ?? []).length === 0 ? (
             <EmptyState
               title={tx("You have not published a deal", "Vous n'avez publié aucune offre")}
-              description={tx("Deals bring customers back every single day.", "Les offres attirent les clients qui reviennent chaque jour.")}
+              description={tx(
+                "Deals bring customers back every single day.",
+                "Les offres attirent les clients qui reviennent chaque jour.",
+              )}
               action={
                 <Button asChild>
                   <Link to="/create">{tx("Create a deal", "Créer une offre")}</Link>
@@ -204,14 +239,24 @@ function DealsPage() {
           ) : (
             <ul className="space-y-3">
               {(mine.data ?? []).map((deal) => (
-                <li key={deal.id} className="tile flex flex-wrap items-center justify-between gap-3 p-4">
+                <li
+                  key={deal.id}
+                  className="tile flex flex-wrap items-center justify-between gap-3 p-4"
+                >
                   <div className="min-w-0">
                     <p className="truncate font-semibold text-foreground">{deal.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {deal.claimed_count}/{deal.claim_limit} {tx("claimed", "réclamés")} · {formatXAF(deal.deal_price)}
+                      {deal.claimed_count}/{deal.claim_limit} {tx("claimed", "réclamés")} ·{" "}
+                      {formatXAF(deal.deal_price)}
                     </p>
                   </div>
-                  <PromoteDialog targetType="DEAL" targetId={deal.id} defaultHeadline={deal.title} city={deal.city} category={deal.category} />
+                  <PromoteDialog
+                    targetType="DEAL"
+                    targetId={deal.id}
+                    defaultHeadline={deal.title}
+                    city={deal.city}
+                    category={deal.category}
+                  />
                 </li>
               ))}
             </ul>

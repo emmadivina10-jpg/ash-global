@@ -103,7 +103,9 @@ function ConsoleBookings() {
             <li key={b.id} className="rounded-2xl border border-border p-4">
               <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-foreground">{b.service_title}</p>
+                  <p className="truncate text-sm font-semibold text-foreground">
+                    {b.service_title}
+                  </p>
                   <p className="truncate text-xs text-muted-foreground">
                     {b.providerName} · {formatDateTime(b.scheduled_at)}
                   </p>
@@ -118,7 +120,11 @@ function ConsoleBookings() {
               </div>
 
               <div className="mt-3 max-w-[240px]">
-                <Select value={b.status} onValueChange={(value) => void change(b.id, value)} disabled={busy === b.id}>
+                <Select
+                  value={b.status}
+                  onValueChange={(value) => void change(b.id, value)}
+                  disabled={busy === b.id}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>

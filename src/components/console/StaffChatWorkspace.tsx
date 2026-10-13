@@ -193,10 +193,17 @@ export function StaffChatWorkspace({
             </div>
           ) : null}
           {messages.map((message, index) => {
-            const mine = message.author_staff_id && meStaffId
-              ? message.author_staff_id === meStaffId
-              : message.author_name === me;
-            const initials = message.author_name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
+            const mine =
+              message.author_staff_id && meStaffId
+                ? message.author_staff_id === meStaffId
+                : message.author_name === me;
+            const initials = message.author_name
+              .trim()
+              .split(/\s+/)
+              .slice(0, 2)
+              .map((part) => part[0])
+              .join("")
+              .toUpperCase();
             const day = new Date(message.created_at).toLocaleDateString([], {
               day: "numeric",
               month: "short",
@@ -216,10 +223,21 @@ export function StaffChatWorkspace({
                     </span>
                   </div>
                 ) : null}
-                <div className={cn("mb-3 flex items-end gap-2", mine ? "justify-end" : "justify-start")}>
+                <div
+                  className={cn(
+                    "mb-3 flex items-end gap-2",
+                    mine ? "justify-end" : "justify-start",
+                  )}
+                >
                   <Avatar className={cn("size-8 border border-team-line", mine && "order-2")}>
-                    <AvatarImage src={message.author_avatar_url ?? undefined} alt={`${message.author_name}'s profile photo`} className="object-cover" />
-                    <AvatarFallback className="bg-team-surface text-[10px] font-semibold text-team-gold">{initials}</AvatarFallback>
+                    <AvatarImage
+                      src={message.author_avatar_url ?? undefined}
+                      alt={`${message.author_name}'s profile photo`}
+                      className="object-cover"
+                    />
+                    <AvatarFallback className="bg-team-surface text-[10px] font-semibold text-team-gold">
+                      {initials}
+                    </AvatarFallback>
                   </Avatar>
                   <div
                     className={cn(

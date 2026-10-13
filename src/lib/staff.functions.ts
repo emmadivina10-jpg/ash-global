@@ -25,7 +25,9 @@ export const listStaff = createServerFn({ method: "GET" }).handler(async () => {
   const [seats, targets] = await Promise.all([
     db
       .from("staff_accounts")
-      .select("id, full_name, username, email, phone, department, is_active, last_login_at, created_at")
+      .select(
+        "id, full_name, username, email, phone, department, is_active, last_login_at, created_at",
+      )
       .order("created_at", { ascending: true }),
     db.from("staff_targets").select("*").eq("period", "DAILY"),
   ]);
@@ -53,21 +55,35 @@ export const createStaffSeat = createServerFn({ method: "POST" })
       email?: string;
       phone?: string;
     }) => ({
-      fullName: String(data?.fullName ?? "").trim().slice(0, 120),
-      username: String(data?.username ?? "").trim().toLowerCase().slice(0, 60),
+      fullName: String(data?.fullName ?? "")
+        .trim()
+        .slice(0, 120),
+      username: String(data?.username ?? "")
+        .trim()
+        .toLowerCase()
+        .slice(0, 60),
       password: String(data?.password ?? ""),
       department: String(data?.department ?? "SUPPORT").toUpperCase(),
-      email: String(data?.email ?? "").trim().toLowerCase().slice(0, 200) || null,
-      phone: String(data?.phone ?? "").trim().slice(0, 40) || null,
+      email:
+        String(data?.email ?? "")
+          .trim()
+          .toLowerCase()
+          .slice(0, 200) || null,
+      phone:
+        String(data?.phone ?? "")
+          .trim()
+          .slice(0, 40) || null,
     }),
   )
   .handler(async ({ data }) => {
-    const { requireSuperAdmin, adminClient, hashStaffPassword, DEPARTMENTS } = await import(
-      "./console.server"
-    );
+    const { requireSuperAdmin, adminClient, hashStaffPassword, DEPARTMENTS } =
+      await import("./console.server");
     await requireSuperAdmin();
     if (!data.fullName || !data.username || data.password.length < 8) {
-      return { ok: false as const, error: "Name, username and an 8+ character password are required." };
+      return {
+        ok: false as const,
+        error: "Name, username and an 8+ character password are required.",
+      };
     }
     if (!(DEPARTMENTS as readonly string[]).includes(data.department)) {
       return { ok: false as const, error: "Unknown department." };
@@ -103,9 +119,8 @@ export const updateStaffSeat = createServerFn({ method: "POST" })
     }) => data,
   )
   .handler(async ({ data }) => {
-    const { requireSuperAdmin, adminClient, hashStaffPassword, DEPARTMENTS } = await import(
-      "./console.server"
-    );
+    const { requireSuperAdmin, adminClient, hashStaffPassword, DEPARTMENTS } =
+      await import("./console.server");
     await requireSuperAdmin();
     const patch: Record<string, unknown> = {};
     if (data.fullName) patch["full_name"] = String(data.fullName).slice(0, 120);
@@ -120,12 +135,16 @@ export const updateStaffSeat = createServerFn({ method: "POST" })
     }
     if (typeof data.isActive === "boolean") patch["is_active"] = data.isActive;
     if (data.password) {
-      if (data.password.length < 8) return { ok: false as const, error: "Password must be 8+ characters." };
+      if (data.password.length < 8)
+        return { ok: false as const, error: "Password must be 8+ characters." };
       patch["password_hash"] = hashStaffPassword(data.password);
     }
     if (!Object.keys(patch).length) return { ok: true as const };
     const db = await adminClient();
-    const { error } = await db.from("staff_accounts").update(patch as never).eq("id", data.id);
+    const { error } = await db
+      .from("staff_accounts")
+      .update(patch as never)
+      .eq("id", data.id);
     return error ? { ok: false as const, error: error.message } : { ok: true as const };
   });
 

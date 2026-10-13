@@ -87,13 +87,19 @@ function FriendsPage() {
           {tx("Friends", "Amis")}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {tx("Add real ASH members and chat with them directly.", "Ajoutez de vrais membres ASH et discutez directement.")}
+          {tx(
+            "Add real ASH members and chat with them directly.",
+            "Ajoutez de vrais membres ASH et discutez directement.",
+          )}
         </p>
       </header>
 
       <div className="tile space-y-3 p-4">
         <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+            aria-hidden
+          />
           <Input
             value={term}
             onChange={(event) => setTerm(event.target.value)}
@@ -104,17 +110,34 @@ function FriendsPage() {
         </div>
         {term.trim().length >= 2 ? (
           (results ?? []).length === 0 ? (
-            <p className="text-sm text-muted-foreground">{tx("No members found.", "Aucun membre trouvé.")}</p>
+            <p className="text-sm text-muted-foreground">
+              {tx("No members found.", "Aucun membre trouvé.")}
+            </p>
           ) : (
             <ul className="space-y-2">
               {(results ?? []).map((person) => (
                 <li key={person.id} className="flex items-center gap-3">
-                  <Avatar path={person.avatar_url} name={person.name} online={person.online} hasUpdate={person.has_update} className="size-10" />
+                  <Avatar
+                    path={person.avatar_url}
+                    name={person.name}
+                    online={person.online}
+                    hasUpdate={person.has_update}
+                    className="size-10"
+                  />
                   <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
-                    <span className="inline-flex items-center gap-1">{person.name}<VerifiedBadge tier={person.verified_tier} until={person.verified_until} size={13}/></span>
+                    <span className="inline-flex items-center gap-1">
+                      {person.name}
+                      <VerifiedBadge
+                        tier={person.verified_tier}
+                        until={person.verified_until}
+                        size={13}
+                      />
+                    </span>
                   </span>
                   {known.has(person.id) ? (
-                    <span className="text-xs text-muted-foreground">{tx("Already linked", "Déjà lié")}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {tx("Already linked", "Déjà lié")}
+                    </span>
                   ) : (
                     <Button
                       size="sm"
@@ -142,37 +165,56 @@ function FriendsPage() {
             {tx("People you may know", "Suggestions d'amis")}
           </h2>
           <ul className="space-y-2">
-            {(suggestions ?? []).filter((p) => !known.has(p.id)).map((person) => (
-              <li key={person.id} className="flex items-center gap-3">
-                <button
-                  type="button"
-                  aria-label={person.name}
-                  onClick={() => void navigate({ to: "/u/$userId", params: { userId: person.id } })}
-                >
-                   <Avatar path={person.avatar_url} name={person.name} online={person.online} hasUpdate={person.has_update} className="size-10" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void navigate({ to: "/u/$userId", params: { userId: person.id } })}
-                  className="min-w-0 flex-1 truncate text-left text-sm font-semibold text-foreground hover:underline"
-                >
-                  <span className="inline-flex items-center gap-1">{person.name}<VerifiedBadge tier={person.verified_tier} until={person.verified_until} size={13}/></span>
-                </button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() =>
-                    send.mutate(person.id, {
-                      onSuccess: () => toast.success(tx("Request sent", "Demande envoyée")),
-                      onError: () => toast.error(tx("Could not send", "Échec de l'envoi")),
-                    })
-                  }
-                >
-                  <UserPlus className="size-4" aria-hidden />
-                  {tx("Add", "Ajouter")}
-                </Button>
-              </li>
-            ))}
+            {(suggestions ?? [])
+              .filter((p) => !known.has(p.id))
+              .map((person) => (
+                <li key={person.id} className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    aria-label={person.name}
+                    onClick={() =>
+                      void navigate({ to: "/u/$userId", params: { userId: person.id } })
+                    }
+                  >
+                    <Avatar
+                      path={person.avatar_url}
+                      name={person.name}
+                      online={person.online}
+                      hasUpdate={person.has_update}
+                      className="size-10"
+                    />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      void navigate({ to: "/u/$userId", params: { userId: person.id } })
+                    }
+                    className="min-w-0 flex-1 truncate text-left text-sm font-semibold text-foreground hover:underline"
+                  >
+                    <span className="inline-flex items-center gap-1">
+                      {person.name}
+                      <VerifiedBadge
+                        tier={person.verified_tier}
+                        until={person.verified_until}
+                        size={13}
+                      />
+                    </span>
+                  </button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      send.mutate(person.id, {
+                        onSuccess: () => toast.success(tx("Request sent", "Demande envoyée")),
+                        onError: () => toast.error(tx("Could not send", "Échec de l'envoi")),
+                      })
+                    }
+                  >
+                    <UserPlus className="size-4" aria-hidden />
+                    {tx("Add", "Ajouter")}
+                  </Button>
+                </li>
+              ))}
           </ul>
         </section>
       ) : null}
@@ -184,9 +226,22 @@ function FriendsPage() {
           </h2>
           {incoming.map((entry) => (
             <div key={entry.id} className="flex items-center gap-3">
-               <Avatar path={entry.other.avatar_url} name={entry.other.name} online={entry.other.online} hasUpdate={entry.other.has_update} className="size-10" />
+              <Avatar
+                path={entry.other.avatar_url}
+                name={entry.other.name}
+                online={entry.other.online}
+                hasUpdate={entry.other.has_update}
+                className="size-10"
+              />
               <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
-                 <span className="inline-flex items-center gap-1">{entry.other.name}<VerifiedBadge tier={entry.other.verified_tier} until={entry.other.verified_until} size={13}/></span>
+                <span className="inline-flex items-center gap-1">
+                  {entry.other.name}
+                  <VerifiedBadge
+                    tier={entry.other.verified_tier}
+                    until={entry.other.verified_until}
+                    size={13}
+                  />
+                </span>
               </span>
               <Button
                 size="sm"
@@ -215,8 +270,21 @@ function FriendsPage() {
           </h2>
           {outgoing.map((entry) => (
             <div key={entry.id} className="flex items-center gap-3">
-               <Avatar path={entry.other.avatar_url} name={entry.other.name} online={entry.other.online} hasUpdate={entry.other.has_update} className="size-9" />
-              <span className="min-w-0 flex flex-1 items-center gap-1 truncate text-sm text-foreground">{entry.other.name}<VerifiedBadge tier={entry.other.verified_tier} until={entry.other.verified_until} size={13}/></span>
+              <Avatar
+                path={entry.other.avatar_url}
+                name={entry.other.name}
+                online={entry.other.online}
+                hasUpdate={entry.other.has_update}
+                className="size-9"
+              />
+              <span className="min-w-0 flex flex-1 items-center gap-1 truncate text-sm text-foreground">
+                {entry.other.name}
+                <VerifiedBadge
+                  tier={entry.other.verified_tier}
+                  until={entry.other.verified_until}
+                  size={13}
+                />
+              </span>
               <span className="text-xs text-muted-foreground">{tx("Pending", "En attente")}</span>
             </div>
           ))}
@@ -229,14 +297,30 @@ function FriendsPage() {
         </h2>
         {friends.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            {tx("No friends yet — search for a member above.", "Pas encore d'amis — cherchez un membre ci-dessus.")}
+            {tx(
+              "No friends yet — search for a member above.",
+              "Pas encore d'amis — cherchez un membre ci-dessus.",
+            )}
           </p>
         ) : (
           friends.map((entry) => (
             <div key={entry.id} className="flex items-center gap-3">
-               <Avatar path={entry.other.avatar_url} name={entry.other.name} online={entry.other.online} hasUpdate={entry.other.has_update} className="size-10" />
+              <Avatar
+                path={entry.other.avatar_url}
+                name={entry.other.name}
+                online={entry.other.online}
+                hasUpdate={entry.other.has_update}
+                className="size-10"
+              />
               <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
-                 <span className="inline-flex items-center gap-1">{entry.other.name}<VerifiedBadge tier={entry.other.verified_tier} until={entry.other.verified_until} size={13}/></span>
+                <span className="inline-flex items-center gap-1">
+                  {entry.other.name}
+                  <VerifiedBadge
+                    tier={entry.other.verified_tier}
+                    until={entry.other.verified_until}
+                    size={13}
+                  />
+                </span>
               </span>
               <Button size="sm" variant="outline" onClick={() => void openChat(entry.other.id)}>
                 <MessageSquare className="size-4" aria-hidden />

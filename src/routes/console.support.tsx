@@ -477,7 +477,13 @@ function SupportInboxPage() {
                   </Button>
                 </div>
                 <div className="flex flex-wrap justify-end gap-2">
-                  {active.user_id ? <SupportAccountAssistant key={active.id} userId={active.user_id} onUseReply={setDraft} /> : null}
+                  {active.user_id ? (
+                    <SupportAccountAssistant
+                      key={active.id}
+                      userId={active.user_id}
+                      onUseReply={setDraft}
+                    />
+                  ) : null}
                   <Button
                     type="button"
                     size="sm"

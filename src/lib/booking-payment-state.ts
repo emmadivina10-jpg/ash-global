@@ -6,7 +6,10 @@ export function bookingPaymentAction(status: string): "pay" | "confirm" | "track
   return "none";
 }
 
-export function paymentCheckOutcome(result: { ok: boolean; status?: string }): "paid" | "pending" | "failed" | "unavailable" {
+export function paymentCheckOutcome(result: {
+  ok: boolean;
+  status?: string;
+}): "paid" | "pending" | "failed" | "unavailable" {
   if (!result.ok) return "unavailable";
   if (result.status === "PAID") return "paid";
   if (["FAILED", "CANCELLED", "EXPIRED"].includes(result.status ?? "")) return "failed";

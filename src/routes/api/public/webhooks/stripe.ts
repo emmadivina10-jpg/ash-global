@@ -14,7 +14,11 @@ export const Route = createFileRoute("/api/public/webhooks/stripe")({
 
         const body = await request.text();
         const { verifyStripeSignature } = await import("@/lib/stripe.server");
-        const valid = await verifyStripeSignature(body, request.headers.get("stripe-signature"), secret);
+        const valid = await verifyStripeSignature(
+          body,
+          request.headers.get("stripe-signature"),
+          secret,
+        );
         if (!valid) return new Response("Invalid signature", { status: 400 });
 
         let event: { id?: string; type?: string; data?: { object?: Record<string, unknown> } };

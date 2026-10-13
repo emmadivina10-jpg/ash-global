@@ -27,19 +27,38 @@ export type BookingReceipt = {
   tripStatus: string;
   tripStartedAt: string | null;
   arrivedAt: string | null;
-  customer: { name: string | null; email: string | null; phone: string | null; avatar: string | null };
-  provider: { profileId: string; userId: string | null; name: string | null; phone: string | null; avatar: string | null; verified: boolean };
+  customer: {
+    name: string | null;
+    email: string | null;
+    phone: string | null;
+    avatar: string | null;
+  };
+  provider: {
+    profileId: string;
+    userId: string | null;
+    name: string | null;
+    phone: string | null;
+    avatar: string | null;
+    verified: boolean;
+  };
   /** Only ever filled for the paying customer. */
   verificationCode: string | null;
   codeExpiresAt: string | null;
   codeUsed: boolean;
 };
 
-
 /** Builds the receipt from saved records only. The code is attached only for the customer. */
-async function buildReceipt(bookingId: string, viewer: BookingReceipt["viewer"], viewerUserId: string | null): Promise<BookingReceipt | null> {
+async function buildReceipt(
+  bookingId: string,
+  viewer: BookingReceipt["viewer"],
+  viewerUserId: string | null,
+): Promise<BookingReceipt | null> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data: b } = await supabaseAdmin.from("bookings").select("*").eq("id", bookingId).maybeSingle();
+  const { data: b } = await supabaseAdmin
+    .from("bookings")
+    .select("*")
+    .eq("id", bookingId)
+    .maybeSingle();
   if (!b) return null;
   const { data: prov } = await supabaseAdmin
     .from("provider_profiles")
@@ -55,26 +74,47 @@ async function buildReceipt(bookingId: string, viewer: BookingReceipt["viewer"],
   }
 
   const [{ data: cust }, svc, code] = await Promise.all([
-    supabaseAdmin.from("profiles").select("full_name, email, phone, avatar_url").eq("user_id", b.client_id).maybeSingle(),
+    supabaseAdmin
+      .from("profiles")
+      .select("full_name, email, phone, avatar_url")
+      .eq("user_id", b.client_id)
+      .maybeSingle(),
     b.service_id
-      ? supabaseAdmin.from("provider_services").select("category").eq("id", b.service_id).maybeSingle()
+      ? supabaseAdmin
+          .from("provider_services")
+          .select("category")
+          .eq("id", b.service_id)
+          .maybeSingle()
       : Promise.resolve({ data: null }),
     role === "CUSTOMER"
-      ? supabaseAdmin.from("booking_verification_codes").select("code, expires_at, used_at").eq("booking_id", b.id).maybeSingle()
+      ? supabaseAdmin
+          .from("booking_verification_codes")
+          .select("code, expires_at, used_at")
+          .eq("booking_id", b.id)
+          .maybeSingle()
       : Promise.resolve({ data: null }),
   ]);
 
   const { data: provOwner } = prov?.user_id
-    ? await supabaseAdmin.from("profiles").select("avatar_url").eq("user_id", prov.user_id).maybeSingle()
+    ? await supabaseAdmin
+        .from("profiles")
+        .select("avatar_url")
+        .eq("user_id", prov.user_id)
+        .maybeSingle()
     : { data: null };
   // Avatars bucket is private: storage paths become short-lived signed links.
   const photo = async (v: unknown): Promise<string | null> => {
     if (typeof v !== "string" || !v) return null;
     if (/^https:\/\//.test(v)) return v;
-    const { data: signed } = await supabaseAdmin.storage.from("avatars").createSignedUrl(v.replace(/^avatars\//, ""), 3600);
+    const { data: signed } = await supabaseAdmin.storage
+      .from("avatars")
+      .createSignedUrl(v.replace(/^avatars\//, ""), 3600);
     return signed?.signedUrl ?? null;
   };
-  const [custAvatar, provAvatar] = await Promise.all([photo(cust?.avatar_url), photo(prov?.avatar_url ?? provOwner?.avatar_url)]);
+  const [custAvatar, provAvatar] = await Promise.all([
+    photo(cust?.avatar_url),
+    photo(prov?.avatar_url ?? provOwner?.avatar_url),
+  ]);
   const paid = !!b.paid_at;
   const showProviderContact = paid; // contact details only after payment
   const codeRow = code.data as { code: string; expires_at: string; used_at: string | null } | null;
@@ -108,20 +148,20 @@ async function buildReceipt(bookingId: string, viewer: BookingReceipt["viewer"],
     customer: {
       name: cust?.full_name ?? null,
       // Provider sees only the customer's name and photo; staff and the customer see all.
-      email: role === "PROVIDER" ? null : cust?.email ?? null,
-      phone: role === "PROVIDER" && !paid ? null : cust?.phone ?? null,
+      email: role === "PROVIDER" ? null : (cust?.email ?? null),
+      phone: role === "PROVIDER" && !paid ? null : (cust?.phone ?? null),
       avatar: custAvatar,
     },
     provider: {
       profileId: b.provider_id,
       userId: prov?.user_id ?? null,
       name: prov?.business_name ?? null,
-      phone: showProviderContact || role !== "CUSTOMER" ? prov?.phone ?? null : null,
+      phone: showProviderContact || role !== "CUSTOMER" ? (prov?.phone ?? null) : null,
       avatar: provAvatar,
       verified: !!prov?.is_verified,
     },
     verificationCode: role === "CUSTOMER" && codeRow && !codeRow.used_at ? codeRow.code : null,
-    codeExpiresAt: role === "CUSTOMER" ? codeRow?.expires_at ?? null : null,
+    codeExpiresAt: role === "CUSTOMER" ? (codeRow?.expires_at ?? null) : null,
     codeUsed: !!codeRow?.used_at,
   };
 }

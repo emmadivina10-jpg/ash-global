@@ -60,7 +60,10 @@ export function SafetyMenu({
             {tx("Report", "Signaler")}
           </DropdownMenuItem>
           {allowBlock && targetUserId ? (
-            <DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={() => setBlockOpen(true)}>
+            <DropdownMenuItem
+              className="text-destructive focus:text-destructive"
+              onSelect={() => setBlockOpen(true)}
+            >
               <ShieldOff className="size-4" aria-hidden />
               {tx("Block User", "Bloquer l'utilisateur")}
             </DropdownMenuItem>

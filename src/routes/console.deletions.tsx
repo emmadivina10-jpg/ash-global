@@ -42,7 +42,9 @@ function DeletionsPage() {
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="font-display text-xl font-extrabold text-foreground">Account deletion requests</h1>
+        <h1 className="font-display text-xl font-extrabold text-foreground">
+          Account deletion requests
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Approving closes the member's account. Settle any pending balance or withdrawal first.
         </p>
@@ -58,11 +60,15 @@ function DeletionsPage() {
             <div key={row.id} className="rounded-2xl border border-border bg-card p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="font-semibold text-foreground">{row.profile?.full_name ?? "Unknown member"}</p>
+                  <p className="font-semibold text-foreground">
+                    {row.profile?.full_name ?? "Unknown member"}
+                  </p>
                   <p className="text-xs text-muted-foreground">
                     {row.profile?.email} · {row.profile?.phone}
                   </p>
-                  <p className="mt-1 text-xs text-muted-foreground">Requested {formatDate(row.created_at)}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Requested {formatDate(row.created_at)}
+                  </p>
                 </div>
                 <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-foreground">
                   {row.status}
@@ -81,10 +87,20 @@ function DeletionsPage() {
                     placeholder="Admin note (optional)"
                     className="max-w-xs"
                   />
-                  <Button size="sm" variant="destructive" disabled={busy === row.id} onClick={() => void act(row.id, "APPROVED")}>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    disabled={busy === row.id}
+                    onClick={() => void act(row.id, "APPROVED")}
+                  >
                     Approve deletion
                   </Button>
-                  <Button size="sm" variant="outline" disabled={busy === row.id} onClick={() => void act(row.id, "REJECTED")}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={busy === row.id}
+                    onClick={() => void act(row.id, "REJECTED")}
+                  >
                     Decline
                   </Button>
                 </div>

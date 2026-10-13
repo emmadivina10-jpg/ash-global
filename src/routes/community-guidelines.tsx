@@ -14,7 +14,10 @@ export const Route = createFileRoute("/community-guidelines")({
   head: () => ({
     meta: [
       { title: "Community Guidelines — ASH Glo" },
-      { name: "description", content: "Rules for safe, authentic participation in the ASH Glo community." },
+      {
+        name: "description",
+        content: "Rules for safe, authentic participation in the ASH Glo community.",
+      },
       { property: "og:title", content: "Community Guidelines — ASH Glo" },
       {
         property: "og:description",
@@ -37,9 +40,9 @@ function CommunityGuidelinesPage() {
       description="The standards for safe, respectful and authentic participation on ASH Glo."
     >
       <LegalIntro>
-        These Guidelines apply to profiles, Feed posts, Stories/Status, Spotlight, comments, replies, reviews, messages,
-        groups, listings and every other contribution to ASH Glo. They form part of the Terms of Service between you and{" "}
-        {LEGAL_ENTITY}.
+        These Guidelines apply to profiles, Feed posts, Stories/Status, Spotlight, comments,
+        replies, reviews, messages, groups, listings and every other contribution to ASH Glo. They
+        form part of the Terms of Service between you and {LEGAL_ENTITY}.
       </LegalIntro>
 
       <LegalSection id="respect" title="1. Be respectful and safe">
@@ -81,26 +84,30 @@ function CommunityGuidelinesPage() {
 
       <LegalSection id="markets" title="4. Markets and educational content">
         <p>
-          ASH Markets and FX Analytics are for general information and education. Do not present content as guaranteed,
-          risk-free, personalized investment advice, managed trading, or an offer to execute a trade through ASH Glo.
-          Instructors must disclose uncertainty and avoid fabricated performance claims. The member ASH Investment chart is inactive and illustrative; do not present it as live performance, a real valuation or a way to deposit investment funds.
+          ASH Markets and FX Analytics are for general information and education. Do not present
+          content as guaranteed, risk-free, personalized investment advice, managed trading, or an
+          offer to execute a trade through ASH Glo. Instructors must disclose uncertainty and avoid
+          fabricated performance claims. The member ASH Investment chart is inactive and
+          illustrative; do not present it as live performance, a real valuation or a way to deposit
+          investment funds.
         </p>
       </LegalSection>
 
       <LegalSection id="moderation" title="5. Reporting, blocking and moderation">
         <p>
-          Members can use available report and block controls. Reports may include the reported content, account
-          details, reason and supporting information and are reviewed by authorized staff. Automated checks screen
-          previews of newly submitted images for explicit content. A high-confidence explicit result can block
-          publication and create a moderation case; uncertain or reported material may be held for review. Automated
-          checks can make mistakes.
+          Members can use available report and block controls. Reports may include the reported
+          content, account details, reason and supporting information and are reviewed by authorized
+          staff. Automated checks screen previews of newly submitted images for explicit content. A
+          high-confidence explicit result can block publication and create a moderation case;
+          uncertain or reported material may be held for review. Automated checks can make mistakes.
         </p>
         <p>
-          Depending on severity, context, repetition and applicable requirements, {LEGAL_ENTITY} may remove or limit
-          content, restrict features, suspend or close an account, preserve relevant evidence, or make a report where
-          required. Members may ask Support to review an automated restriction. Fraud, abuse and safety records are
-          generally retained for 24 months unless a longer period is needed to resolve a case or comply with law, as
-          described in the Privacy Policy.
+          Depending on severity, context, repetition and applicable requirements, {LEGAL_ENTITY} may
+          remove or limit content, restrict features, suspend or close an account, preserve relevant
+          evidence, or make a report where required. Members may ask Support to review an automated
+          restriction. Fraud, abuse and safety records are generally retained for 24 months unless a
+          longer period is needed to resolve a case or comply with law, as described in the Privacy
+          Policy.
         </p>
       </LegalSection>
 
@@ -114,9 +121,9 @@ function CommunityGuidelinesPage() {
           <a href={`mailto:${SUPPORT_EMAIL}`} className="text-primary hover:underline">
             {SUPPORT_EMAIL}
           </a>
-          . Include the relevant content or account reference, but never send a password, verification code or Mobile
-          Money PIN. Appeals are reviewed in context; submitting an appeal does not guarantee that a restriction will be
-          removed.
+          . Include the relevant content or account reference, but never send a password,
+          verification code or Mobile Money PIN. Appeals are reviewed in context; submitting an
+          appeal does not guarantee that a restriction will be removed.
         </p>
       </LegalSection>
 

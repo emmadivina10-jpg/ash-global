@@ -25,7 +25,14 @@ export const COUNTRIES: { code: string; name: string; flag: string; currency: st
 
 export function countryMeta(code: string | null | undefined) {
   const upper = (code ?? "").toUpperCase();
-  return COUNTRIES.find((c) => c.code === upper) ?? { code: upper || "??", name: upper || "Unknown", flag: "🌍", currency: "USD" };
+  return (
+    COUNTRIES.find((c) => c.code === upper) ?? {
+      code: upper || "??",
+      name: upper || "Unknown",
+      flag: "🌍",
+      currency: "USD",
+    }
+  );
 }
 
 export function showsReferral(country: string | null | undefined) {
@@ -38,5 +45,7 @@ export function showsMobileMoney(country: string | null | undefined) {
 
 /** Platform take rate on a provider's sales, by the provider's country. */
 export function platformRate(country: string | null | undefined) {
-  return (HIGH_FEE_COUNTRIES as readonly string[]).includes((country ?? "").toUpperCase()) ? 0.02 : 0.01;
+  return (HIGH_FEE_COUNTRIES as readonly string[]).includes((country ?? "").toUpperCase())
+    ? 0.02
+    : 0.01;
 }

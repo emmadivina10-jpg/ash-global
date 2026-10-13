@@ -20,7 +20,10 @@ export const Route = createFileRoute("/consent")({
           "Review and accept the ASH Glo Terms of Service and Privacy Policy before you start using your account.",
       },
       { property: "og:title", content: "Agree to the ASH Glo terms" },
-      { property: "og:description", content: "Accept the ASH Glo Terms of Service and Privacy Policy." },
+      {
+        property: "og:description",
+        content: "Accept the ASH Glo Terms of Service and Privacy Policy.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -62,7 +65,10 @@ function ConsentPage() {
     setSaving(false);
     if (updateError) {
       setError(
-        tx("We could not save your agreement. Try again.", "Nous n'avons pas pu enregistrer votre accord. Réessayez."),
+        tx(
+          "We could not save your agreement. Try again.",
+          "Nous n'avons pas pu enregistrer votre accord. Réessayez.",
+        ),
       );
       return;
     }
@@ -72,15 +78,19 @@ function ConsentPage() {
   return (
     <AuthLayout
       title={tx("ASH Glo Terms of Use", "Conditions d'utilisation d'ASH Glo")}
-      subtitle={
-        tx("Read and accept our terms and privacy policy.", "Lisez et acceptez nos conditions et notre politique de confidentialité.")
-      }
+      subtitle={tx(
+        "Read and accept our terms and privacy policy.",
+        "Lisez et acceptez nos conditions et notre politique de confidentialité.",
+      )}
     >
       <div className="space-y-5">
         <div className="flex items-start gap-3 rounded-xl bg-primary/5 p-4">
           <ShieldCheck className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
           <p className="text-sm text-muted-foreground">
-            {tx("You must be at least 13. Review our privacy, safety, payment and personalization rules before continuing.", "Vous devez avoir au moins 13 ans. Consultez nos règles sur la confidentialité, la sécurité, les paiements et la personnalisation avant de continuer.")}
+            {tx(
+              "You must be at least 13. Review our privacy, safety, payment and personalization rules before continuing.",
+              "Vous devez avoir au moins 13 ans. Consultez nos règles sur la confidentialité, la sécurité, les paiements et la personnalisation avant de continuer.",
+            )}
           </p>
         </div>
 

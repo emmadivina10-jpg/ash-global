@@ -37,7 +37,10 @@ function ConsoleProviders() {
   if (isError) return <ErrorState onRetry={() => void refetch()} />;
 
   return (
-    <SectionCard title="Providers" description="Studios and the revenue they generate (ASH keeps a 12% or 15% commission on every paid booking).">
+    <SectionCard
+      title="Providers"
+      description="Studios and the revenue they generate (ASH keeps a 12% or 15% commission on every paid booking)."
+    >
       {(data ?? []).length === 0 ? (
         <EmptyState title="No providers yet" />
       ) : (
@@ -46,9 +49,12 @@ function ConsoleProviders() {
             <li key={p.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 py-3.5">
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-foreground">{p.business_name}</p>
-                <p className="truncate text-xs text-muted-foreground">{p.city || "—"} · booking commission</p>
                 <p className="truncate text-xs text-muted-foreground">
-                  {p.completed}/{p.bookings} completed · ★ {Number(p.rating_avg).toFixed(1)} ({p.rating_count})
+                  {p.city || "—"} · booking commission
+                </p>
+                <p className="truncate text-xs text-muted-foreground">
+                  {p.completed}/{p.bookings} completed · ★ {Number(p.rating_avg).toFixed(1)} (
+                  {p.rating_count})
                 </p>
                 {p.slug ? (
                   <a
@@ -82,9 +88,16 @@ function ConsoleProviders() {
               </div>
 
               <div className="text-right">
-                <StatusBadge status={p.is_live ? "ACTIVE" : "PENDING"} label={p.is_live ? "Live" : "Offline"} />
-                <p className="tabular mt-1.5 text-xs font-semibold text-foreground">{formatXAF(p.revenue)}</p>
-                <p className="tabular text-[11px] text-muted-foreground">ASH fees {formatXAF(p.fees)}</p>
+                <StatusBadge
+                  status={p.is_live ? "ACTIVE" : "PENDING"}
+                  label={p.is_live ? "Live" : "Offline"}
+                />
+                <p className="tabular mt-1.5 text-xs font-semibold text-foreground">
+                  {formatXAF(p.revenue)}
+                </p>
+                <p className="tabular text-[11px] text-muted-foreground">
+                  ASH fees {formatXAF(p.fees)}
+                </p>
               </div>
             </li>
           ))}

@@ -19,7 +19,8 @@ const STATUSES = ["NEW", "OPEN", "IN_PROGRESS", "WAITING", "ESCALATED", "RESOLVE
 
 function statusTone(s: string) {
   if (s === "ESCALATED") return "bg-destructive/10 text-destructive border-destructive/25";
-  if (s === "RESOLVED" || s === "CLOSED") return "bg-emerald-500/10 text-emerald-600 border-emerald-500/25";
+  if (s === "RESOLVED" || s === "CLOSED")
+    return "bg-emerald-500/10 text-emerald-600 border-emerald-500/25";
   if (s === "OPEN" || s === "IN_PROGRESS") return "bg-primary/10 text-primary border-primary/25";
   return "bg-muted text-muted-foreground border-border";
 }
@@ -57,8 +58,11 @@ export function TicketBoard() {
   };
 
   const assignMut = useMutation({
-    mutationFn: async (input: { ticketId: string; staffId?: string | null; department?: string | null }) =>
-      assign({ data: input }),
+    mutationFn: async (input: {
+      ticketId: string;
+      staffId?: string | null;
+      department?: string | null;
+    }) => assign({ data: input }),
     onSuccess: async () => {
       toast.success("Ticket assigned");
       await refresh();
@@ -108,13 +112,19 @@ export function TicketBoard() {
         </div>
         <div>
           <h2 className="text-sm font-bold">Customer Tickets</h2>
-          <p className="text-[11px] text-muted-foreground">{tickets.length} tickets · assign, escalate, resolve</p>
+          <p className="text-[11px] text-muted-foreground">
+            {tickets.length} tickets · assign, escalate, resolve
+          </p>
         </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="max-h-[28rem] space-y-2 overflow-y-auto pr-1">
-          {tickets.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">No tickets in your scope.</p>}
+          {tickets.length === 0 && (
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              No tickets in your scope.
+            </p>
+          )}
           {tickets.map((t) => (
             <button
               key={t.id}
@@ -122,12 +132,19 @@ export function TicketBoard() {
               onClick={() => setSelected(t.id)}
               className={cn(
                 "w-full rounded-2xl border p-3 text-left transition",
-                selected === t.id ? "border-primary/50 bg-primary/5" : "border-border/50 bg-background/60 hover:bg-accent/50",
+                selected === t.id
+                  ? "border-primary/50 bg-primary/5"
+                  : "border-border/50 bg-background/60 hover:bg-accent/50",
               )}
             >
               <div className="flex items-center justify-between gap-2">
                 <p className="truncate text-sm font-medium">{t.subject}</p>
-                <span className={cn("shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold", statusTone(t.status))}>
+                <span
+                  className={cn(
+                    "shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold",
+                    statusTone(t.status),
+                  )}
+                >
                   {t.status}
                 </span>
               </div>
@@ -144,7 +161,9 @@ export function TicketBoard() {
 
         <div className="rounded-2xl border border-border/50 bg-background/60 p-4">
           {!active ? (
-            <p className="py-10 text-center text-sm text-muted-foreground">Select a ticket to manage it.</p>
+            <p className="py-10 text-center text-sm text-muted-foreground">
+              Select a ticket to manage it.
+            </p>
           ) : (
             <div className="space-y-4">
               <div>
@@ -153,7 +172,9 @@ export function TicketBoard() {
                   {active.name} · {active.email}
                 </p>
                 {active.escalation_note && (
-                  <p className="mt-1 rounded-lg bg-destructive/10 px-2 py-1 text-xs text-destructive">{active.escalation_note}</p>
+                  <p className="mt-1 rounded-lg bg-destructive/10 px-2 py-1 text-xs text-destructive">
+                    {active.escalation_note}
+                  </p>
                 )}
               </div>
 
@@ -167,7 +188,9 @@ export function TicketBoard() {
                       onClick={() => statusMut.mutate({ ticketId: active.id, status: s })}
                       className={cn(
                         "rounded-full border px-2.5 py-1 text-[10px] font-semibold transition",
-                        active.status === s ? statusTone(s) : "border-border/60 text-muted-foreground hover:bg-accent",
+                        active.status === s
+                          ? statusTone(s)
+                          : "border-border/60 text-muted-foreground hover:bg-accent",
                       )}
                     >
                       {s}
@@ -177,7 +200,9 @@ export function TicketBoard() {
               </div>
 
               <div>
-                <p className="mb-1 text-xs font-semibold text-muted-foreground">Assign to employee</p>
+                <p className="mb-1 text-xs font-semibold text-muted-foreground">
+                  Assign to employee
+                </p>
                 <select
                   className="w-full rounded-xl border border-border/60 bg-background px-3 py-2 text-sm"
                   value={active.assigned_staff_id ?? ""}
@@ -215,7 +240,11 @@ export function TicketBoard() {
                       </option>
                     ))}
                   </select>
-                  <Button size="sm" disabled={!escalateDept || escalateMut.isPending} onClick={() => escalateMut.mutate()}>
+                  <Button
+                    size="sm"
+                    disabled={!escalateDept || escalateMut.isPending}
+                    onClick={() => escalateMut.mutate()}
+                  >
                     Escalate
                   </Button>
                 </div>
@@ -229,13 +258,16 @@ export function TicketBoard() {
 
               <div>
                 <p className="mb-1 flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-                  <MessageSquarePlus className="h-3 w-3" /> Internal notes (never shown to the customer)
+                  <MessageSquarePlus className="h-3 w-3" /> Internal notes (never shown to the
+                  customer)
                 </p>
                 <div className="mb-2 max-h-32 space-y-1.5 overflow-y-auto">
                   {(notesQuery.data?.notes ?? []).map((n) => (
                     <div key={n.id} className="rounded-lg bg-muted/60 px-2.5 py-1.5 text-xs">
                       <span className="font-semibold">{n.staff_name ?? "Staff"}:</span> {n.body}
-                      <span className="ml-1 text-[10px] text-muted-foreground">{new Date(n.created_at).toLocaleString()}</span>
+                      <span className="ml-1 text-[10px] text-muted-foreground">
+                        {new Date(n.created_at).toLocaleString()}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -246,7 +278,11 @@ export function TicketBoard() {
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
                   />
-                  <Button size="sm" disabled={!note.trim() || noteMut.isPending} onClick={() => noteMut.mutate()}>
+                  <Button
+                    size="sm"
+                    disabled={!note.trim() || noteMut.isPending}
+                    onClick={() => noteMut.mutate()}
+                  >
                     Add
                   </Button>
                 </div>

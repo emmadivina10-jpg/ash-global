@@ -27,9 +27,16 @@ export const Route = createFileRoute("/_authenticated/property/new")({
   head: () => ({
     meta: [
       { title: "List your property free — ASH Property" },
-      { name: "description", content: "Publish a room, apartment, house, commercial space or land on ASH Property. Listing is free." },
+      {
+        name: "description",
+        content:
+          "Publish a room, apartment, house, commercial space or land on ASH Property. Listing is free.",
+      },
       { property: "og:title", content: "List your property free — ASH Property" },
-      { property: "og:description", content: "Publish a property or land listing on ASH in minutes — free." },
+      {
+        property: "og:description",
+        content: "Publish a property or land listing on ASH in minutes — free.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -83,7 +90,9 @@ function NewProperty() {
 
   async function submit() {
     if (title.trim().length < 6) {
-      toast.error(tx("Give a clear title (6 characters min).", "Donnez un titre clair (6 caractères min)."));
+      toast.error(
+        tx("Give a clear title (6 characters min).", "Donnez un titre clair (6 caractères min)."),
+      );
       return;
     }
     if (!city.trim()) {
@@ -139,7 +148,9 @@ function NewProperty() {
       for (const [index, file] of files.entries()) {
         const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
         const path = `${auth.user.id}/${created.id}/${crypto.randomUUID()}.${ext}`;
-        const upload = await supabase.storage.from(PROPERTY_BUCKET).upload(path, file, { upsert: false });
+        const upload = await supabase.storage
+          .from(PROPERTY_BUCKET)
+          .upload(path, file, { upsert: false });
         if (upload.error) {
           toast.error(`${tx("Photo not uploaded", "Photo non envoyée")}: ${upload.error.message}`);
           continue;
@@ -170,7 +181,10 @@ function NewProperty() {
           {tx("List a property", "Publier un bien")}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {tx("Free. Only list real property you are allowed to rent or sell.", "Gratuit. Ne publiez que des biens réels que vous êtes autorisé à louer ou vendre.")}
+          {tx(
+            "Free. Only list real property you are allowed to rent or sell.",
+            "Gratuit. Ne publiez que des biens réels que vous êtes autorisé à louer ou vendre.",
+          )}
         </p>
       </header>
 
@@ -185,7 +199,9 @@ function NewProperty() {
                 onClick={() => setCategory(item.code)}
                 className={cn(
                   "rounded-full border border-border px-3 py-1.5 text-xs font-semibold transition-colors",
-                  category === item.code ? "border-primary/60 bg-primary/10 text-primary" : "text-muted-foreground",
+                  category === item.code
+                    ? "border-primary/60 bg-primary/10 text-primary"
+                    : "text-muted-foreground",
                 )}
               >
                 {tx(item.en, item.fr)}
@@ -193,7 +209,9 @@ function NewProperty() {
             ))}
           </div>
           <p className="text-xs text-muted-foreground">
-            {kind === "SALE" ? (tx("Listing: for sale", "Annonce : à vendre")) : tx("Listing: for rent", "Annonce : à louer")}
+            {kind === "SALE"
+              ? tx("Listing: for sale", "Annonce : à vendre")
+              : tx("Listing: for rent", "Annonce : à louer")}
           </p>
         </div>
 
@@ -214,7 +232,10 @@ function NewProperty() {
             rows={4}
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            placeholder={tx("Describe the property, the area and the conditions.", "Décrivez le bien, l’environnement et les conditions.")}
+            placeholder={tx(
+              "Describe the property, the area and the conditions.",
+              "Décrivez le bien, l’environnement et les conditions.",
+            )}
           />
         </div>
 
@@ -235,7 +256,11 @@ function NewProperty() {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="p-region">{tx("Region / state", "Région / État")}</Label>
-            <Input id="p-region" value={region} onChange={(event) => setRegion(event.target.value)} />
+            <Input
+              id="p-region"
+              value={region}
+              onChange={(event) => setRegion(event.target.value)}
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="p-city">{tx("City", "Ville")}</Label>
@@ -252,12 +277,24 @@ function NewProperty() {
             </datalist>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="p-hood">{tx("Neighborhood (approximate)", "Quartier (approximatif)")}</Label>
-            <Input id="p-hood" value={neighborhood} onChange={(event) => setNeighborhood(event.target.value)} />
+            <Label htmlFor="p-hood">
+              {tx("Neighborhood (approximate)", "Quartier (approximatif)")}
+            </Label>
+            <Input
+              id="p-hood"
+              value={neighborhood}
+              onChange={(event) => setNeighborhood(event.target.value)}
+            />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="p-uni">{tx("Nearby university (optional)", "Université proche (optionnel)")}</Label>
-            <Input id="p-uni" value={university} onChange={(event) => setUniversity(event.target.value)} />
+            <Label htmlFor="p-uni">
+              {tx("Nearby university (optional)", "Université proche (optionnel)")}
+            </Label>
+            <Input
+              id="p-uni"
+              value={university}
+              onChange={(event) => setUniversity(event.target.value)}
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="p-dist">{tx("Distance (km)", "Distance (km)")}</Label>
@@ -271,7 +308,10 @@ function NewProperty() {
         </div>
 
         <p className="text-xs text-muted-foreground">
-          {tx("Do not publish your exact address — a neighborhood is enough until someone contacts you.", "N’indiquez pas votre adresse exacte publiquement — le quartier suffit jusqu’au premier contact.")}
+          {tx(
+            "Do not publish your exact address — a neighborhood is enough until someone contacts you.",
+            "N’indiquez pas votre adresse exacte publiquement — le quartier suffit jusqu’au premier contact.",
+          )}
         </p>
 
         <div className="grid gap-3 sm:grid-cols-3">
@@ -398,11 +438,15 @@ function NewProperty() {
                   key={item.code}
                   type="button"
                   onClick={() =>
-                    setAmenities((list) => (active ? list.filter((code) => code !== item.code) : [...list, item.code]))
+                    setAmenities((list) =>
+                      active ? list.filter((code) => code !== item.code) : [...list, item.code],
+                    )
                   }
                   className={cn(
                     "rounded-full border border-border px-3 py-1.5 text-xs font-semibold transition-colors",
-                    active ? "border-primary/60 bg-primary/10 text-primary" : "text-muted-foreground",
+                    active
+                      ? "border-primary/60 bg-primary/10 text-primary"
+                      : "text-muted-foreground",
                   )}
                 >
                   {tx(item.en, item.fr)}
@@ -414,7 +458,10 @@ function NewProperty() {
 
         {!isLand ? (
           <label className="flex items-center gap-2 text-sm text-foreground">
-            <Checkbox checked={furnished} onCheckedChange={(value) => setFurnished(value === true)} />
+            <Checkbox
+              checked={furnished}
+              onCheckedChange={(value) => setFurnished(value === true)}
+            />
             {tx("Furnished", "Meublé")}
           </label>
         ) : null}
@@ -438,7 +485,11 @@ function NewProperty() {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="p-wa">WhatsApp</Label>
-            <Input id="p-wa" value={whatsapp} onChange={(event) => setWhatsapp(event.target.value)} />
+            <Input
+              id="p-wa"
+              value={whatsapp}
+              onChange={(event) => setWhatsapp(event.target.value)}
+            />
           </div>
         </div>
 
@@ -448,7 +499,10 @@ function NewProperty() {
           </Label>
           <div className="flex flex-wrap gap-2">
             {files.map((file, index) => (
-              <div key={`${file.name}-${index}`} className="relative size-20 overflow-hidden rounded-xl border border-border">
+              <div
+                key={`${file.name}-${index}`}
+                className="relative size-20 overflow-hidden rounded-xl border border-border"
+              >
                 <img src={URL.createObjectURL(file)} alt="" className="size-full object-cover" />
                 <button
                   type="button"
@@ -477,7 +531,9 @@ function NewProperty() {
 
         <Button className="w-full" disabled={busy} onClick={submit}>
           {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-          {busy ? (tx("Publishing…", "Publication…")) : tx("Publish for free", "Publier gratuitement")}
+          {busy
+            ? tx("Publishing…", "Publication…")
+            : tx("Publish for free", "Publier gratuitement")}
         </Button>
       </section>
     </div>

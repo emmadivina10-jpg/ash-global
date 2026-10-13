@@ -19,7 +19,6 @@ import { NativeBridge } from "@/components/refer/NativeBridge";
 import { Toaster } from "@/components/ui/sonner";
 import { IdentityAccessGuard } from "@/components/refer/IdentityAccessGuard";
 
-
 function NotFoundComponent() {
   return (
     <div className="flex min-h-dvh items-center justify-center bg-background px-4">
@@ -140,7 +139,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@type": "WebSite",
           name: "ASH Glo",
           url: "https://ashglogroup.company",
-sameAs: [],
+          sameAs: [],
         }),
       },
     ],
@@ -182,6 +181,5 @@ function RootComponent() {
         </I18nProvider>
       </ThemeProvider>
     </QueryClientProvider>
-
   );
 }

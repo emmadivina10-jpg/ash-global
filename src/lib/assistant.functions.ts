@@ -47,10 +47,24 @@ async function buildContext(supabase: unknown, userId: string): Promise<string> 
   };
 
   const [profile, wallet, referrals, provider] = await Promise.all([
-    db.from("profiles").select("full_name, account_status, referral_code, created_at").eq("user_id", userId).maybeSingle(),
-    db.from("wallets").select("available_balance, total_earned, total_withdrawn").eq("user_id", userId).maybeSingle(),
+    db
+      .from("profiles")
+      .select("full_name, account_status, referral_code, created_at")
+      .eq("user_id", userId)
+      .maybeSingle(),
+    db
+      .from("wallets")
+      .select("available_balance, total_earned, total_withdrawn")
+      .eq("user_id", userId)
+      .maybeSingle(),
     db.from("referrals").select("level, referred_user_id").eq("referrer_id", userId),
-    db.from("provider_profiles").select("id, business_name, is_live, subscription_expires_at, rating_avg, rating_count, categories").eq("user_id", userId).maybeSingle(),
+    db
+      .from("provider_profiles")
+      .select(
+        "id, business_name, is_live, subscription_expires_at, rating_avg, rating_count, categories",
+      )
+      .eq("user_id", userId)
+      .maybeSingle(),
   ]);
 
   const lines: string[] = [];
@@ -75,7 +89,11 @@ async function buildContext(supabase: unknown, userId: string): Promise<string> 
       db.from("bookings").select("status, price, scheduled_at").eq("provider_id", providerId),
       db.from("reviews").select("rating").eq("provider_id", providerId),
     ]);
-    const bs = (bookings?.data ?? []) as Array<{ status: string; price: number; scheduled_at: string }>;
+    const bs = (bookings?.data ?? []) as Array<{
+      status: string;
+      price: number;
+      scheduled_at: string;
+    }>;
     const now = Date.now();
     const completed = bs.filter((b) => b.status === "COMPLETED");
     lines.push(
@@ -84,7 +102,9 @@ async function buildContext(supabase: unknown, userId: string): Promise<string> 
     lines.push(
       `Bookings: total ${bs.length}, pending ${bs.filter((b) => b.status === "PENDING").length}, confirmed ${bs.filter((b) => b.status === "CONFIRMED").length}, completed ${completed.length}, upcoming ${bs.filter((b) => new Date(b.scheduled_at).getTime() > now && ["PENDING", "CONFIRMED"].includes(b.status)).length}`,
     );
-    lines.push(`Completed revenue: ${completed.reduce((sum, b) => sum + Number(b.price ?? 0), 0)} XAF`);
+    lines.push(
+      `Completed revenue: ${completed.reduce((sum, b) => sum + Number(b.price ?? 0), 0)} XAF`,
+    );
     lines.push(
       `Rating: ${Number(pv["rating_avg"] ?? 0)} from ${Number(pv["rating_count"] ?? 0)} reviews (${(reviews?.data ?? []).length} recorded)`,
     );
@@ -119,16 +139,25 @@ async function buildContext(supabase: unknown, userId: string): Promise<string> 
           .join("; "),
     );
     const awaiting = cb.filter((b) => b.status === "ACCEPTED").length;
-    if (awaiting > 0) lines.push(`Action needed: ${awaiting} accepted booking(s) waiting for payment.`);
+    if (awaiting > 0)
+      lines.push(`Action needed: ${awaiting} accepted booking(s) waiting for payment.`);
   } else {
     lines.push("As a client: no bookings yet.");
   }
 
   const [myProps, liveProps] = await Promise.all([
-    db.from("property_listings").select("title, category, city, price, currency, price_period, status, view_count, inquiry_count").eq("owner_id", userId).limit(10),
     db
       .from("property_listings")
-      .select("title, category, city, neighborhood, price, currency, price_period, bedrooms, is_furnished, university, verification_status")
+      .select(
+        "title, category, city, price, currency, price_period, status, view_count, inquiry_count",
+      )
+      .eq("owner_id", userId)
+      .limit(10),
+    db
+      .from("property_listings")
+      .select(
+        "title, category, city, neighborhood, price, currency, price_period, bedrooms, is_furnished, university, verification_status",
+      )
       .eq("status", "ACTIVE")
       .order("created_at", { ascending: false })
       .limit(12),
@@ -180,7 +209,10 @@ export const askAssistant = createServerFn({ method: "POST" })
         model: MODEL,
         messages: [
           { role: "system", content: SYSTEM },
-          { role: "system", content: `USER CONTEXT (today ${new Date().toISOString()}):\n${userContext}\nReply language: ${data.lang}` },
+          {
+            role: "system",
+            content: `USER CONTEXT (today ${new Date().toISOString()}):\n${userContext}\nReply language: ${data.lang}`,
+          },
           ...data.messages.map((m) =>
             m.images.length > 0
               ? {

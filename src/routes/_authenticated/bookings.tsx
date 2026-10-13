@@ -2,11 +2,26 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { CustomerVerificationCode } from "@/components/refer/CustomerVerificationCode";
 import { BookingHistoryActions } from "@/components/refer/BookingHistoryActions";
 import { useBookingHistory } from "@/lib/booking-history.queries";
-import { bookingSearch, canRemoveBookingHistory, historyMatches, type HistoryView } from "@/lib/booking-history";
+import {
+  bookingSearch,
+  canRemoveBookingHistory,
+  historyMatches,
+  type HistoryView,
+} from "@/lib/booking-history";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CalendarDays, Clock, CreditCard, Landmark, MapPin, MessageCircle, RefreshCw, Smartphone, User } from "lucide-react";
+import {
+  CalendarDays,
+  Clock,
+  CreditCard,
+  Landmark,
+  MapPin,
+  MessageCircle,
+  RefreshCw,
+  Smartphone,
+  User,
+} from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -25,14 +40,23 @@ import { paymentErrorMessage } from "@/lib/payment-errors";
 import { MomoCharge } from "@/components/refer/MomoCharge";
 import { bookingStatusLabel, bookingStatusTone, formatCountdown, timeLeft } from "@/lib/booking";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookingPaymentNotice, type PaymentCheckFeedback } from "@/components/refer/BookingPaymentNotice";
+import {
+  BookingPaymentNotice,
+  type PaymentCheckFeedback,
+} from "@/components/refer/BookingPaymentNotice";
 import { bookingPaymentAction, paymentCheckOutcome } from "@/lib/booking-payment-state";
 import { SectionCard } from "@/components/refer/cards";
 import { RatingStars } from "@/components/refer/RatingStars";
 import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 import { useRegion } from "@/lib/region-context";
@@ -43,9 +67,15 @@ export const Route = createFileRoute("/_authenticated/bookings")({
   head: () => ({
     meta: [
       { title: "Bookings — ASH Glo" },
-      { name: "description", content: "Track the appointments you booked and the clients booking your studio." },
+      {
+        name: "description",
+        content: "Track the appointments you booked and the clients booking your studio.",
+      },
       { property: "og:title", content: "Bookings — ASH Glo" },
-      { property: "og:description", content: "Manage appointments, payments and invoices in one place." },
+      {
+        property: "og:description",
+        content: "Manage appointments, payments and invoices in one place.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -66,7 +96,11 @@ function StatusPill({ status }: { status: string }) {
         tone === "neutral" && "bg-muted text-muted-foreground",
       )}
     >
-      {status === "PAYMENT_PROCESSING" ? (lang === "fr" ? "Confirmation en attente" : "Awaiting confirmation") : bookingStatusLabel(status, lang)}
+      {status === "PAYMENT_PROCESSING"
+        ? lang === "fr"
+          ? "Confirmation en attente"
+          : "Awaiting confirmation"
+        : bookingStatusLabel(status, lang)}
     </span>
   );
 }
@@ -85,7 +119,11 @@ function Countdown({ deadline, label }: { deadline: string | null; label: string
     <span
       className={cn(
         "flex items-center gap-1 text-[11px] font-semibold",
-        ms <= 0 ? "text-destructive" : ms < 3_600_000 ? "text-destructive" : "text-muted-foreground",
+        ms <= 0
+          ? "text-destructive"
+          : ms < 3_600_000
+            ? "text-destructive"
+            : "text-muted-foreground",
       )}
     >
       <Clock className="size-3.5" aria-hidden />
@@ -116,12 +154,26 @@ function BookingsPage() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [momoBooking, setMomoBooking] = useState<{ id: string; price: number } | null>(null);
   const startBank = useServerFn(startBookingBankPayment);
-  const [bankInfo, setBankInfo] = useState<{ bank: BankDetails | null; reference: string | null; price: number; error: string | null } | null>(null);
+  const [bankInfo, setBankInfo] = useState<{
+    bank: BankDetails | null;
+    reference: string | null;
+    price: number;
+    error: string | null;
+  } | null>(null);
   async function payBank(id: string, price: number) {
     setBusyId(id);
     const r = await startBank({ data: { bookingId: id } });
     setBusyId(null);
-    setBankInfo({ bank: r.bank, reference: r.reference, price, error: r.ok ? null : r.error === "BANK_UNAVAILABLE" ? BANK_UNAVAILABLE_TEXT : (r.error ?? "PAYMENT_START_FAILED") });
+    setBankInfo({
+      bank: r.bank,
+      reference: r.reference,
+      price,
+      error: r.ok
+        ? null
+        : r.error === "BANK_UNAVAILABLE"
+          ? BANK_UNAVAILABLE_TEXT
+          : (r.error ?? "PAYMENT_START_FAILED"),
+    });
   }
   const tab = search.tab ?? "client";
   useEffect(() => {
@@ -134,10 +186,17 @@ function BookingsPage() {
     return () => clearTimeout(timer);
   }, [search.booking, tab, received]);
 
-  const clientBookings = useMemo(() => (mine ?? []) as Array<Record<string, unknown> & { id: string }>, [mine]);
+  const clientBookings = useMemo(
+    () => (mine ?? []) as Array<Record<string, unknown> & { id: string }>,
+    [mine],
+  );
   const providerBookings = useMemo(() => received ?? [], [received]);
-  const visibleClients = clientBookings.filter(b => historyMatches(history.data?.[b.id], historyView));
-  const visibleProviders = providerBookings.filter(b => historyMatches(history.data?.[b.id], historyView));
+  const visibleClients = clientBookings.filter((b) =>
+    historyMatches(history.data?.[b.id], historyView),
+  );
+  const visibleProviders = providerBookings.filter((b) =>
+    historyMatches(history.data?.[b.id], historyView),
+  );
 
   const pendingForProvider = useMemo(
     () => providerBookings.filter((b) => b.status === "PENDING").length,
@@ -153,7 +212,11 @@ function BookingsPage() {
   const awaitingIds = useMemo(
     () =>
       clientBookings
-        .filter((b) => String(b["status"] ?? "") === "PAYMENT_PROCESSING" && !["STRIPE", "BANK"].includes(String(b["payment_provider"] ?? "")))
+        .filter(
+          (b) =>
+            String(b["status"] ?? "") === "PAYMENT_PROCESSING" &&
+            !["STRIPE", "BANK"].includes(String(b["payment_provider"] ?? "")),
+        )
         .map((b) => b.id)
         .join(","),
     [clientBookings],
@@ -174,7 +237,8 @@ function BookingsPage() {
             const result = await syncPayment({ data: { bookingId: id } });
             const outcome = paymentCheckOutcome(result);
             if (outcome === "paid" || outcome === "failed") changed = true;
-            if (outcome === "unavailable") setPaymentFeedback((prev) => ({ ...prev, [id]: "unavailable" }));
+            if (outcome === "unavailable")
+              setPaymentFeedback((prev) => ({ ...prev, [id]: "unavailable" }));
           } catch {
             if (!cancelled) setPaymentFeedback((prev) => ({ ...prev, [id]: "unavailable" }));
           }
@@ -193,22 +257,38 @@ function BookingsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [awaitingIds]);
 
-
-  async function pay(bookingId: string, method: "MOMO" | "CARD", momo?: { provider: string; phone: string }) {
+  async function pay(
+    bookingId: string,
+    method: "MOMO" | "CARD",
+    momo?: { provider: string; phone: string },
+  ) {
     setBusyId(bookingId);
     try {
       const result = await startPayment({
-        data: { bookingId, method, provider: momo?.provider ?? "", phone: momo?.phone ?? "", country, origin: window.location.origin },
+        data: {
+          bookingId,
+          method,
+          provider: momo?.provider ?? "",
+          phone: momo?.phone ?? "",
+          country,
+          origin: window.location.origin,
+        },
       });
       if (!result.ok) {
         const code = result.error ?? "";
         const message =
           code === "PAYMENT_WINDOW_EXPIRED"
-            ? tx("The 24-hour payment window has expired.", "Le délai de paiement de 24 h est dépassé.")
+            ? tx(
+                "The 24-hour payment window has expired.",
+                "Le délai de paiement de 24 h est dépassé.",
+              )
             : code === "ALREADY_PAID"
               ? tx("This booking is already paid.", "Cette réservation est déjà payée.")
               : code === "STRIPE_NOT_CONFIGURED" || code === "PROVIDER_NOT_CONFIGURED"
-                ? tx("This payment method isn't available yet. Try the other option.", "Ce moyen de paiement n'est pas encore disponible. Essayez l'autre option.")
+                ? tx(
+                    "This payment method isn't available yet. Try the other option.",
+                    "Ce moyen de paiement n'est pas encore disponible. Essayez l'autre option.",
+                  )
                 : paymentErrorMessage(code, fr, "message" in result ? result.message : null);
         toast.error(message);
         refresh();
@@ -234,20 +314,26 @@ function BookingsPage() {
     }
   }
 
-
   async function sync(bookingId: string) {
     setBusyId(bookingId);
     try {
       const row = clientBookings.find((b) => b.id === bookingId);
-      const authoritativeOnly = ["STRIPE", "BANK"].includes(String(row?.["payment_provider"] ?? ""));
+      const authoritativeOnly = ["STRIPE", "BANK"].includes(
+        String(row?.["payment_provider"] ?? ""),
+      );
       if (authoritativeOnly) {
         await queryClient.invalidateQueries({ queryKey: ["bookings", "mine"] });
-        const latest = queryClient.getQueryData<Array<{ id: string; status: string }>>(["bookings", "mine"])?.find((b) => b.id === bookingId);
+        const latest = queryClient
+          .getQueryData<Array<{ id: string; status: string }>>(["bookings", "mine"])
+          ?.find((b) => b.id === bookingId);
         if (latest && bookingPaymentAction(latest.status) === "track") {
           void navigate({ to: "/booking/$bookingId/track", params: { bookingId } });
           return;
         }
-        setPaymentFeedback((prev) => ({ ...prev, [bookingId]: latest?.status === "PAYMENT_FAILED" ? "failed" : "pending" }));
+        setPaymentFeedback((prev) => ({
+          ...prev,
+          [bookingId]: latest?.status === "PAYMENT_FAILED" ? "failed" : "pending",
+        }));
         return;
       }
       const result = await syncPayment({ data: { bookingId } });
@@ -312,7 +398,10 @@ function BookingsPage() {
   }
 
   async function cancel(bookingId: string) {
-    const { error } = await supabase.from("bookings").update({ status: "CANCELLED" }).eq("id", bookingId);
+    const { error } = await supabase
+      .from("bookings")
+      .update({ status: "CANCELLED" })
+      .eq("id", bookingId);
     if (error) {
       toast.error(t("book.err"));
       return;
@@ -322,14 +411,58 @@ function BookingsPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
-      <Dialog open={!!paymentBooking} onOpenChange={(open) => { if (!open) setPaymentBooking(null); }}>
+      <Dialog
+        open={!!paymentBooking}
+        onOpenChange={(open) => {
+          if (!open) setPaymentBooking(null);
+        }}
+      >
         <DialogContent className="max-w-sm">
-          <DialogHeader><DialogTitle>{tx("Pay for booking", "Payer la réservation")}</DialogTitle></DialogHeader>
-          <p className="text-xl font-bold tabular-nums">{paymentBooking ? formatXAF(paymentBooking.price) : ""}</p>
+          <DialogHeader>
+            <DialogTitle>{tx("Pay for booking", "Payer la réservation")}</DialogTitle>
+          </DialogHeader>
+          <p className="text-xl font-bold tabular-nums">
+            {paymentBooking ? formatXAF(paymentBooking.price) : ""}
+          </p>
           <div className="grid gap-2">
-            <Button disabled={busyId === paymentBooking?.id} onClick={() => { if (paymentBooking) { const id = paymentBooking.id; setPaymentBooking(null); void pay(id, "CARD"); } }}><CreditCard className="size-4" />{tx("Card", "Carte")}</Button>
-            {mobileMoneyEnabled ? <Button variant="outline" onClick={() => { setMomoBooking(paymentBooking); setPaymentBooking(null); }}><Smartphone className="size-4" />Mobile Money</Button> : null}
-            <Button variant="outline" onClick={() => { if (paymentBooking) { const { id, price } = paymentBooking; setPaymentBooking(null); void payBank(id, price); } }}><Landmark className="size-4" />{tx("Bank transfer", "Virement bancaire")}</Button>
+            <Button
+              disabled={busyId === paymentBooking?.id}
+              onClick={() => {
+                if (paymentBooking) {
+                  const id = paymentBooking.id;
+                  setPaymentBooking(null);
+                  void pay(id, "CARD");
+                }
+              }}
+            >
+              <CreditCard className="size-4" />
+              {tx("Card", "Carte")}
+            </Button>
+            {mobileMoneyEnabled ? (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setMomoBooking(paymentBooking);
+                  setPaymentBooking(null);
+                }}
+              >
+                <Smartphone className="size-4" />
+                Mobile Money
+              </Button>
+            ) : null}
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (paymentBooking) {
+                  const { id, price } = paymentBooking;
+                  setPaymentBooking(null);
+                  void payBank(id, price);
+                }
+              }}
+            >
+              <Landmark className="size-4" />
+              {tx("Bank transfer", "Virement bancaire")}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -344,18 +477,43 @@ function BookingsPage() {
       </header>
 
       {studio ? (
-        <Tabs value={tab} onValueChange={(value) => void navigate({ to: "/bookings", search: { tab: value === "provider" ? "provider" : "client" } })}>
+        <Tabs
+          value={tab}
+          onValueChange={(value) =>
+            void navigate({
+              to: "/bookings",
+              search: { tab: value === "provider" ? "provider" : "client" },
+            })
+          }
+        >
           <TabsList className="grid h-11 w-full grid-cols-2">
             <TabsTrigger value="client">{tx("My bookings", "Mes réservations")}</TabsTrigger>
-            <TabsTrigger value="provider">{tx("Received", "Reçues")}{pendingForProvider > 0 ? <span className="ml-2 rounded-full bg-primary px-1.5 text-[10px] text-primary-foreground">{pendingForProvider}</span> : null}</TabsTrigger>
+            <TabsTrigger value="provider">
+              {tx("Received", "Reçues")}
+              {pendingForProvider > 0 ? (
+                <span className="ml-2 rounded-full bg-primary px-1.5 text-[10px] text-primary-foreground">
+                  {pendingForProvider}
+                </span>
+              ) : null}
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       ) : null}
 
-      <Tabs value={historyView} onValueChange={value => setHistoryView(value === "ARCHIVED" ? "ARCHIVED" : "CURRENT")}>
-        <TabsList className="grid w-full grid-cols-2"><TabsTrigger value="CURRENT">{tx("History", "Historique")}</TabsTrigger><TabsTrigger value="ARCHIVED">{tx("Archived", "Archives")}</TabsTrigger></TabsList>
+      <Tabs
+        value={historyView}
+        onValueChange={(value) => setHistoryView(value === "ARCHIVED" ? "ARCHIVED" : "CURRENT")}
+      >
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="CURRENT">{tx("History", "Historique")}</TabsTrigger>
+          <TabsTrigger value="ARCHIVED">{tx("Archived", "Archives")}</TabsTrigger>
+        </TabsList>
       </Tabs>
-      {history.isError ? <p className="text-sm text-destructive">{tx("Could not load archived history.", "Impossible de charger les archives.")}</p> : null}
+      {history.isError ? (
+        <p className="text-sm text-destructive">
+          {tx("Could not load archived history.", "Impossible de charger les archives.")}
+        </p>
+      ) : null}
 
       {(!studio || tab === "client") && (
         <section aria-label={tx("My bookings", "Mes réservations")}>
@@ -402,8 +560,10 @@ function BookingsPage() {
                             {b.address}
                           </p>
                         ) : null}
-                    {b.invoice_number ? (
-                          <p className="mt-0.5 text-[11px] font-semibold text-primary">{b.invoice_number}</p>
+                        {b.invoice_number ? (
+                          <p className="mt-0.5 text-[11px] font-semibold text-primary">
+                            {b.invoice_number}
+                          </p>
                         ) : null}
                         {b.decline_reason ? (
                           <p className="mt-1 text-xs text-destructive">{b.decline_reason}</p>
@@ -413,7 +573,10 @@ function BookingsPage() {
                         <span className="tabular text-sm font-bold">{formatXAF(b.price)}</span>
                         <StatusPill status={b.status} />
                         {b.status === "PENDING" ? (
-                          <Countdown deadline={b.respond_by} label={tx("reply in", "réponse dans")} />
+                          <Countdown
+                            deadline={b.respond_by}
+                            label={tx("reply in", "réponse dans")}
+                          />
                         ) : null}
                         {payable && !expired ? (
                           <Countdown deadline={b.pay_by} label={tx("pay within", "payer sous")} />
@@ -422,10 +585,35 @@ function BookingsPage() {
                     </div>
 
                     <div className="mt-3 flex flex-wrap gap-2">
-                      {canRemoveBookingHistory(b.status) ? <BookingHistoryActions archived={historyView === "ARCHIVED"} change={state => history.change(b.id, state)} /> : null}
-                      {payable ? <Button size="sm" disabled={busyId === b.id || expired} onClick={() => setPaymentBooking({ id: b.id, price: Number(b.price) })}><CreditCard className="size-4" aria-hidden />{tx("Pay now", "Payer")}</Button> : null}
-                      {action === "track" ? <Button asChild size="sm"><Link to="/booking/$bookingId/track" params={{ bookingId: b.id }}><MapPin className="size-4" aria-hidden />{tx("Track provider", "Suivre le prestataire")}</Link></Button> : null}
-                      <Button size="sm" variant="outline" onClick={() => void chat(b.provider_id, b.id)}>
+                      {canRemoveBookingHistory(b.status) ? (
+                        <BookingHistoryActions
+                          archived={historyView === "ARCHIVED"}
+                          change={(state) => history.change(b.id, state)}
+                        />
+                      ) : null}
+                      {payable ? (
+                        <Button
+                          size="sm"
+                          disabled={busyId === b.id || expired}
+                          onClick={() => setPaymentBooking({ id: b.id, price: Number(b.price) })}
+                        >
+                          <CreditCard className="size-4" aria-hidden />
+                          {tx("Pay now", "Payer")}
+                        </Button>
+                      ) : null}
+                      {action === "track" ? (
+                        <Button asChild size="sm">
+                          <Link to="/booking/$bookingId/track" params={{ bookingId: b.id }}>
+                            <MapPin className="size-4" aria-hidden />
+                            {tx("Track provider", "Suivre le prestataire")}
+                          </Link>
+                        </Button>
+                      ) : null}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => void chat(b.provider_id, b.id)}
+                      >
                         <MessageCircle className="size-4" aria-hidden />
                         {t("svc.chat")}
                       </Button>
@@ -444,10 +632,23 @@ function BookingsPage() {
                         </span>
                       ) : null}
                     </div>
-                    {action === "confirm" ? <BookingPaymentNotice provider={b.payment_provider} checking={busyId === b.id} feedback={paymentFeedback[b.id]} onCheck={() => void sync(b.id)} /> : null}
-                    {["CONFIRMED", "IN_PROGRESS"].includes(b.status) ? <CustomerVerificationCode bookingId={b.id} /> : null}
+                    {action === "confirm" ? (
+                      <BookingPaymentNotice
+                        provider={b.payment_provider}
+                        checking={busyId === b.id}
+                        feedback={paymentFeedback[b.id]}
+                        onCheck={() => void sync(b.id)}
+                      />
+                    ) : null}
+                    {["CONFIRMED", "IN_PROGRESS"].includes(b.status) ? (
+                      <CustomerVerificationCode bookingId={b.id} />
+                    ) : null}
                     {b.invoice_number ? (
-                      <Link to="/booking/$bookingId/receipt" params={{ bookingId: b.id }} className="text-xs font-semibold text-primary underline">
+                      <Link
+                        to="/booking/$bookingId/receipt"
+                        params={{ bookingId: b.id }}
+                        className="text-xs font-semibold text-primary underline"
+                      >
                         {tx("View receipt", "Voir le reçu")}
                       </Link>
                     ) : null}
@@ -462,7 +663,10 @@ function BookingsPage() {
       {studio && tab === "provider" ? (
         <SectionCard title={tx("Requests received", "Demandes reçues")}>
           {visibleProviders.length === 0 ? (
-            <EmptyState title={t("book.none")} icon={<CalendarDays className="size-5" aria-hidden />} />
+            <EmptyState
+              title={t("book.none")}
+              icon={<CalendarDays className="size-5" aria-hidden />}
+            />
           ) : (
             <ul className="space-y-3">
               {visibleProviders.map((b) => (
@@ -473,7 +677,14 @@ function BookingsPage() {
                   onDecide={decide}
                   onProgress={progress}
                   onChat={() => void chat(b.provider_id, b.id)}
-                  historyActions={canRemoveBookingHistory(b.status) ? <BookingHistoryActions archived={historyView === "ARCHIVED"} change={state => history.change(b.id, state)} /> : null}
+                  historyActions={
+                    canRemoveBookingHistory(b.status) ? (
+                      <BookingHistoryActions
+                        archived={historyView === "ARCHIVED"}
+                        change={(state) => history.change(b.id, state)}
+                      />
+                    ) : null
+                  }
                 />
               ))}
             </ul>
@@ -487,7 +698,12 @@ function BookingsPage() {
             <DialogTitle>{tx("Bank transfer", "Virement bancaire")}</DialogTitle>
           </DialogHeader>
           {bankInfo?.bank && bankInfo.reference ? (
-            <BankInstructions bank={bankInfo.bank} reference={bankInfo.reference} amountLabel={formatXAF(bankInfo.price)} fr={fr} />
+            <BankInstructions
+              bank={bankInfo.bank}
+              reference={bankInfo.reference}
+              amountLabel={formatXAF(bankInfo.price)}
+              fr={fr}
+            />
           ) : (
             <p className="text-sm">{bankInfo?.error}</p>
           )}
@@ -587,7 +803,10 @@ function ProviderBookingItem({
             rows={2}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder={tx("Reason for declining (visible to the client)", "Raison du refus (visible par le client)")}
+            placeholder={tx(
+              "Reason for declining (visible to the client)",
+              "Raison du refus (visible par le client)",
+            )}
           />
           <div className="flex gap-2">
             <Button
@@ -622,7 +841,12 @@ function ProviderBookingItem({
             </Button>
           ) : null}
           {["CONFIRMED", "IN_PROGRESS"].includes(b.status) ? (
-            <Button size="sm" variant="ghost" disabled={busy} onClick={() => void onProgress(b.id, "NO_SHOW")}>
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={busy}
+              onClick={() => void onProgress(b.id, "NO_SHOW")}
+            >
               {tx("No show", "Absence client")}
             </Button>
           ) : null}
@@ -632,21 +856,30 @@ function ProviderBookingItem({
           </Button>
         </div>
       )}
-      {["CONFIRMED", "IN_PROGRESS"].includes(b.status) ? <VerifyServiceForm bookingId={b.id} /> : null}
+      {["CONFIRMED", "IN_PROGRESS"].includes(b.status) ? (
+        <VerifyServiceForm bookingId={b.id} />
+      ) : null}
       {["CONFIRMED", "IN_PROGRESS"].includes(b.status) && b.paid_at ? (
-        <Link to="/booking/$bookingId/track" params={{ bookingId: b.id }} className="mr-3 inline-flex rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">
+        <Link
+          to="/booking/$bookingId/track"
+          params={{ bookingId: b.id }}
+          className="mr-3 inline-flex rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground"
+        >
           {tx("Trip: start / arrived", "Trajet : démarrer / arrivé")}
         </Link>
       ) : null}
       {b.paid_at ? (
-        <Link to="/booking/$bookingId/receipt" params={{ bookingId: b.id }} className="text-xs font-semibold text-primary underline">
+        <Link
+          to="/booking/$bookingId/receipt"
+          params={{ bookingId: b.id }}
+          className="text-xs font-semibold text-primary underline"
+        >
           {tx("View receipt", "Voir le reçu")}
         </Link>
       ) : null}
     </li>
   );
 }
-
 
 /** Provider-only: never shows the code, only lets them enter it. */
 function VerifyServiceForm({ bookingId }: { bookingId: string }) {
@@ -672,33 +905,61 @@ function VerifyServiceForm({ bookingId }: { bookingId: string }) {
       const e = r?.error ?? "";
       toast.error(
         e === "WRONG_CODE"
-          ? fr ? `Code incorrect (${r?.attempts_left ?? 0} essais restants)` : `Wrong code (${r?.attempts_left ?? 0} tries left)`
+          ? fr
+            ? `Code incorrect (${r?.attempts_left ?? 0} essais restants)`
+            : `Wrong code (${r?.attempts_left ?? 0} tries left)`
           : e === "LOCKED"
             ? tx("Too many tries. Contact ASH support.", "Trop d'essais. Contactez le support ASH.")
             : e === "EXPIRED"
               ? tx("Code expired. Contact ASH support.", "Code expiré. Contactez le support ASH.")
               : e === "NOT_PAYABLE_STATE"
-                ? tx("Payment must be confirmed before service verification.", "Le paiement doit être confirmé avant de vérifier le service.")
+                ? tx(
+                    "Payment must be confirmed before service verification.",
+                    "Le paiement doit être confirmé avant de vérifier le service.",
+                  )
                 : e === "NO_CODE"
-                  ? tx("No customer code is available. Refresh the booking or contact ASH support.", "Aucun code client disponible. Actualisez la réservation ou contactez le support ASH.")
+                  ? tx(
+                      "No customer code is available. Refresh the booking or contact ASH support.",
+                      "Aucun code client disponible. Actualisez la réservation ou contactez le support ASH.",
+                    )
                   : e === "STRIPE_RELEASE_AWAITING_APPROVAL"
-                    ? tx("The Stripe transfer needs ASH support review.", "Le transfert Stripe nécessite une vérification du support ASH.")
+                    ? tx(
+                        "The Stripe transfer needs ASH support review.",
+                        "Le transfert Stripe nécessite une vérification du support ASH.",
+                      )
                     : e === "VERIFICATION_UNAVAILABLE"
-                      ? tx("Verification is temporarily unavailable. Retry or contact ASH support.", "Vérification temporairement indisponible. Réessayez ou contactez le support ASH.")
-              : tx("Could not verify.", "Vérification impossible."),
+                      ? tx(
+                          "Verification is temporarily unavailable. Retry or contact ASH support.",
+                          "Vérification temporairement indisponible. Réessayez ou contactez le support ASH.",
+                        )
+                      : tx("Could not verify.", "Vérification impossible."),
       );
       return;
     }
-    toast.success(r.releaseStatus === "TRANSFERRED"
-      ? tx("Service verified — transfer to your Stripe account recorded.", "Service vérifié — transfert vers votre compte Stripe enregistré.")
-      : r.releaseStatus === "AVAILABLE_IN_WALLET"
-        ? tx("Service verified — your share is available in your ASH wallet.", "Service vérifié — votre part est disponible dans le portefeuille ASH.")
-        : tx("Service verified — provider payment pending.", "Service vérifié — paiement du prestataire en attente."));
+    toast.success(
+      r.releaseStatus === "TRANSFERRED"
+        ? tx(
+            "Service verified — transfer to your Stripe account recorded.",
+            "Service vérifié — transfert vers votre compte Stripe enregistré.",
+          )
+        : r.releaseStatus === "AVAILABLE_IN_WALLET"
+          ? tx(
+              "Service verified — your share is available in your ASH wallet.",
+              "Service vérifié — votre part est disponible dans le portefeuille ASH.",
+            )
+          : tx(
+              "Service verified — provider payment pending.",
+              "Service vérifié — paiement du prestataire en attente.",
+            ),
+    );
     setValue("");
     void queryClient.invalidateQueries();
   }
   return (
-    <div id={`verify-${bookingId}`} className="mt-3 scroll-mt-6 rounded-xl border border-border bg-muted/40 p-3">
+    <div
+      id={`verify-${bookingId}`}
+      className="mt-3 scroll-mt-6 rounded-xl border border-border bg-muted/40 p-3"
+    >
       <p className="text-xs font-semibold text-muted-foreground">
         {tx("Waiting for customer verification", "En attente de la vérification du client")}
       </p>

@@ -88,8 +88,14 @@ export function SupportChatPanel({ topic }: { topic?: "clean" } = {}) {
       >
         <div className="mr-8 rounded-2xl bg-muted px-3.5 py-2.5 text-sm text-foreground">
           {topic === "clean"
-            ? tx("Hi, this is ASH Clean. Ask us anything about your laundry, pickup or delivery.", "Bonjour, ici ASH Clean. Posez vos questions sur votre linge, collecte ou livraison.")
-            : tx("Hello, you’re connected to ASH Support. Tell us what you need help with.", "Bonjour, vous êtes connecté au support ASH. Expliquez-nous ce dont vous avez besoin.")}
+            ? tx(
+                "Hi, this is ASH Clean. Ask us anything about your laundry, pickup or delivery.",
+                "Bonjour, ici ASH Clean. Posez vos questions sur votre linge, collecte ou livraison.",
+              )
+            : tx(
+                "Hello, you’re connected to ASH Support. Tell us what you need help with.",
+                "Bonjour, vous êtes connecté au support ASH. Expliquez-nous ce dont vous avez besoin.",
+              )}
         </div>
         {messages.map((message) => (
           <div

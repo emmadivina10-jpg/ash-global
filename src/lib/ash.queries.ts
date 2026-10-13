@@ -180,7 +180,11 @@ export function useEvent(eventId: string) {
   return useQuery({
     queryKey: ["event", eventId],
     queryFn: async () => {
-      const { data, error } = await supabase.from("events").select("*").eq("id", eventId).maybeSingle();
+      const { data, error } = await supabase
+        .from("events")
+        .select("*")
+        .eq("id", eventId)
+        .maybeSingle();
       if (error) throw error;
       return (data ?? null) as unknown as AshEvent | null;
     },
@@ -195,7 +199,9 @@ export function useMyTickets() {
       if (!uid) return [];
       const { data, error } = await supabase
         .from("event_tickets")
-        .select("id, code, quantity, amount, status, created_at, event:events(id, title, starts_at, venue, city)")
+        .select(
+          "id, code, quantity, amount, status, created_at, event:events(id, title, starts_at, venue, city)",
+        )
         .eq("user_id", uid)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -368,8 +374,20 @@ export type SearchBuckets = {
   projects: FreelanceProject[];
   deals: Deal[];
   events: AshEvent[];
-  providers: Array<{ id: string; business_name: string; city: string | null; slug: string | null; rating_avg: number }>;
-  services: Array<{ id: string; title: string; price: number; provider_id: string; category: string }>;
+  providers: Array<{
+    id: string;
+    business_name: string;
+    city: string | null;
+    slug: string | null;
+    rating_avg: number;
+  }>;
+  services: Array<{
+    id: string;
+    title: string;
+    price: number;
+    provider_id: string;
+    category: string;
+  }>;
   properties: Array<{
     id: string;
     title: string;
@@ -404,32 +422,68 @@ export function useUniversalSearch(term: string) {
     queryFn: async (): Promise<SearchBuckets> => {
       const like = `%${q}%`;
       const nowIso = new Date().toISOString();
-      const [freelancers, projects, deals, events, providers, services, properties, instructors] = await Promise.all([
-        supabase.from("freelancer_profiles").select("*").eq("is_published", true).or(`headline.ilike.${like},bio.ilike.${like}`).limit(12),
-        supabase.from("freelance_projects").select("*").eq("status", "OPEN").or(`title.ilike.${like},description.ilike.${like}`).limit(12),
-        supabase.from("deals").select("*").eq("is_active", true).gt("ends_at", new Date().toISOString()).ilike("title", like).limit(12),
-        supabase.from("events").select("*").eq("is_published", true).or(`title.ilike.${like},venue.ilike.${like}`).limit(12),
-        supabase.from("provider_profiles").select("id, business_name, city, slug, rating_avg").eq("is_live", true).ilike("business_name", like).limit(12),
-        supabase.from("provider_services").select("id, title, price, provider_id, category").eq("is_active", true).ilike("title", like).limit(12),
-        supabase
-          .from("property_listings")
-          .select("id, title, category, city, neighborhood, price, currency, price_period")
-          .eq("status", "ACTIVE")
-          .gt("expires_at", nowIso)
-          .or(`title.ilike.${like},description.ilike.${like},city.ilike.${like},neighborhood.ilike.${like},university.ilike.${like}`)
-          .order("created_at", { ascending: false })
-          .limit(12),
-        (supabase as unknown as { from: (table: string) => any })
-          .from("campus_instructor_profiles")
-          .select(
-            "id, display_name, headline, subjects, exams, skills, languages, instructor_types, country, city, hourly_from, currency",
-          )
-          .eq("is_active", true)
-          .limit(60),
-      ]);
+      const [freelancers, projects, deals, events, providers, services, properties, instructors] =
+        await Promise.all([
+          supabase
+            .from("freelancer_profiles")
+            .select("*")
+            .eq("is_published", true)
+            .or(`headline.ilike.${like},bio.ilike.${like}`)
+            .limit(12),
+          supabase
+            .from("freelance_projects")
+            .select("*")
+            .eq("status", "OPEN")
+            .or(`title.ilike.${like},description.ilike.${like}`)
+            .limit(12),
+          supabase
+            .from("deals")
+            .select("*")
+            .eq("is_active", true)
+            .gt("ends_at", new Date().toISOString())
+            .ilike("title", like)
+            .limit(12),
+          supabase
+            .from("events")
+            .select("*")
+            .eq("is_published", true)
+            .or(`title.ilike.${like},venue.ilike.${like}`)
+            .limit(12),
+          supabase
+            .from("provider_profiles")
+            .select("id, business_name, city, slug, rating_avg")
+            .eq("is_live", true)
+            .ilike("business_name", like)
+            .limit(12),
+          supabase
+            .from("provider_services")
+            .select("id, title, price, provider_id, category")
+            .eq("is_active", true)
+            .ilike("title", like)
+            .limit(12),
+          supabase
+            .from("property_listings")
+            .select("id, title, category, city, neighborhood, price, currency, price_period")
+            .eq("status", "ACTIVE")
+            .gt("expires_at", nowIso)
+            .or(
+              `title.ilike.${like},description.ilike.${like},city.ilike.${like},neighborhood.ilike.${like},university.ilike.${like}`,
+            )
+            .order("created_at", { ascending: false })
+            .limit(12),
+          (supabase as unknown as { from: (table: string) => any })
+            .from("campus_instructor_profiles")
+            .select(
+              "id, display_name, headline, subjects, exams, skills, languages, instructor_types, country, city, hourly_from, currency",
+            )
+            .eq("is_active", true)
+            .limit(60),
+        ]);
 
       const needle = q.toLowerCase();
-      const instructorRows = ((instructors.data ?? []) as unknown as SearchBuckets["instructors"]).filter((row) =>
+      const instructorRows = (
+        (instructors.data ?? []) as unknown as SearchBuckets["instructors"]
+      ).filter((row) =>
         [
           row.display_name,
           row.headline,

@@ -112,7 +112,12 @@ function BirthdayRow({ person, fr }: { person: BirthdayPerson; fr: boolean }) {
 
   return (
     <li className="flex items-center gap-2.5 py-1.5">
-       <Avatar path={person.avatar_url} name={person.full_name} online={person.online} className="size-9" />
+      <Avatar
+        path={person.avatar_url}
+        name={person.full_name}
+        online={person.online}
+        className="size-9"
+      />
       <div className="min-w-0 flex-1">
         <p className="flex items-center gap-1 truncate text-sm font-medium text-foreground">
           {person.full_name}
@@ -127,7 +132,13 @@ function BirthdayRow({ person, fr }: { person: BirthdayPerson; fr: boolean }) {
           {when}
         </p>
       </div>
-      <Button size="sm" variant={today ? "default" : "outline"} className="h-7 px-2 text-[11px]" disabled={busy} onClick={celebrate}>
+      <Button
+        size="sm"
+        variant={today ? "default" : "outline"}
+        className="h-7 px-2 text-[11px]"
+        disabled={busy}
+        onClick={celebrate}
+      >
         <PartyPopper className="mr-1 size-3" />
         {fr ? "Fêter" : "Celebrate"}
       </Button>
@@ -161,7 +172,8 @@ export function RightRail() {
     queryKey: ["rail", "news", place.data?.countryCode, fr ? "fr" : "en"],
     enabled: Boolean(place.data),
     staleTime: 30 * 60_000,
-    queryFn: () => news({ data: { country: place.data?.countryCode ?? "CM", lang: fr ? "fr" : "en" } }),
+    queryFn: () =>
+      news({ data: { country: place.data?.countryCode ?? "CM", lang: fr ? "fr" : "en" } }),
   });
 
   const birthdays = useUpcomingBirthdays();
@@ -182,10 +194,14 @@ export function RightRail() {
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-foreground">
-                {place.data ? `${place.data.city}, ${place.data.country}` : tx("Your area", "Votre région")}
+                {place.data
+                  ? `${place.data.city}, ${place.data.country}`
+                  : tx("Your area", "Votre région")}
               </p>
               <p className="text-xs text-muted-foreground">
-                {weather.data ? weatherLabel(weather.data.code, fr) : tx("Loading weather…", "Chargement de la météo…")}
+                {weather.data
+                  ? weatherLabel(weather.data.code, fr)
+                  : tx("Loading weather…", "Chargement de la météo…")}
               </p>
               {weather.data ? (
                 <p className="mt-1 text-[11px] text-muted-foreground">
@@ -195,7 +211,9 @@ export function RightRail() {
             </div>
             <div className="flex flex-col items-center">
               <CloudSun className="size-7 text-sky-500" />
-              <span className="text-2xl font-bold text-foreground">{weather.data ? `${weather.data.temperature}°` : "--"}</span>
+              <span className="text-2xl font-bold text-foreground">
+                {weather.data ? `${weather.data.temperature}°` : "--"}
+              </span>
             </div>
           </div>
         </section>
@@ -210,15 +228,21 @@ export function RightRail() {
             </ul>
           ) : (
             <Empty
-              text={
-                tx("No birthdays in the next two weeks. Add yours in your profile.", "Aucun anniversaire cette quinzaine. Ajoutez le vôtre dans votre profil.")
-              }
+              text={tx(
+                "No birthdays in the next two weeks. Add yours in your profile.",
+                "Aucun anniversaire cette quinzaine. Ajoutez le vôtre dans votre profil.",
+              )}
             />
           )}
         </Block>
 
         {/* News */}
-        <Block icon={Newspaper} title={fr ? `Actualités · ${place.data?.country ?? ""}` : `News · ${place.data?.country ?? ""}`}>
+        <Block
+          icon={Newspaper}
+          title={
+            fr ? `Actualités · ${place.data?.country ?? ""}` : `News · ${place.data?.country ?? ""}`
+          }
+        >
           {headlines.data && headlines.data.items.length > 0 ? (
             <ul className="space-y-2.5">
               {headlines.data.items.map((item) => (
@@ -238,24 +262,38 @@ export function RightRail() {
               ))}
             </ul>
           ) : (
-            <Empty text={tx("Headlines are unavailable right now.", "Actualités indisponibles pour le moment.")} />
+            <Empty
+              text={tx(
+                "Headlines are unavailable right now.",
+                "Actualités indisponibles pour le moment.",
+              )}
+            />
           )}
         </Block>
 
         {/* Events */}
-        <Block icon={CalendarDays} title={tx("Upcoming events", "Événements à venir")} action={{ label: tx("See all", "Tout voir"), to: "/events" }}>
+        <Block
+          icon={CalendarDays}
+          title={tx("Upcoming events", "Événements à venir")}
+          action={{ label: tx("See all", "Tout voir"), to: "/events" }}
+        >
           {events.data && events.data.length > 0 ? (
             <ul className="space-y-2">
               {events.data.map((event) => (
                 <li key={event.id}>
-                  <Link to="/events" className="flex items-center gap-2.5 rounded-xl p-1.5 hover:bg-muted/60">
+                  <Link
+                    to="/events"
+                    className="flex items-center gap-2.5 rounded-xl p-1.5 hover:bg-muted/60"
+                  >
                     <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-[11px] font-semibold text-primary">
                       {dateLabel(event.starts_at)}
                     </span>
                     <span className="min-w-0">
-                      <span className="block truncate text-[13px] font-medium text-foreground">{event.title}</span>
+                      <span className="block truncate text-[13px] font-medium text-foreground">
+                        {event.title}
+                      </span>
                       <span className="block truncate text-[11px] text-muted-foreground">
-                        {event.city ?? ""} {event.is_free ? (tx("· Free", "· Gratuit")) : ""}
+                        {event.city ?? ""} {event.is_free ? tx("· Free", "· Gratuit") : ""}
                       </span>
                     </span>
                   </Link>
@@ -268,13 +306,23 @@ export function RightRail() {
         </Block>
 
         {/* Trending posts */}
-        <Block icon={Flame} title={tx("Trending posts", "Publications populaires")} action={{ label: tx("Feed", "Fil"), to: "/feed" }}>
+        <Block
+          icon={Flame}
+          title={tx("Trending posts", "Publications populaires")}
+          action={{ label: tx("Feed", "Fil"), to: "/feed" }}
+        >
           {posts.data && posts.data.length > 0 ? (
             <ul className="space-y-2">
               {posts.data.map((post) => (
                 <li key={post.id}>
-                  <Link to="/post/$postId" params={{ postId: post.id }} className="block rounded-xl p-1.5 hover:bg-muted/60">
-                    <span className="line-clamp-2 text-[13px] text-foreground">{post.caption || (tx("Shared photo", "Photo partagée"))}</span>
+                  <Link
+                    to="/post/$postId"
+                    params={{ postId: post.id }}
+                    className="block rounded-xl p-1.5 hover:bg-muted/60"
+                  >
+                    <span className="line-clamp-2 text-[13px] text-foreground">
+                      {post.caption || tx("Shared photo", "Photo partagée")}
+                    </span>
                     <span className="mt-0.5 block text-[11px] text-muted-foreground">
                       {post.author} · {post.like_count} ♥ · {post.comment_count} 💬
                     </span>
@@ -283,40 +331,70 @@ export function RightRail() {
               ))}
             </ul>
           ) : (
-            <Empty text={tx("Nothing trending this week yet.", "Encore rien de populaire cette semaine.")} />
+            <Empty
+              text={tx(
+                "Nothing trending this week yet.",
+                "Encore rien de populaire cette semaine.",
+              )}
+            />
           )}
         </Block>
 
         {/* Articles */}
-        <Block icon={Sparkles} title={tx("Fresh articles", "Articles récents")} action={{ label: tx("See all", "Tout voir"), to: "/articles" }}>
+        <Block
+          icon={Sparkles}
+          title={tx("Fresh articles", "Articles récents")}
+          action={{ label: tx("See all", "Tout voir"), to: "/articles" }}
+        >
           {articles.data && articles.data.length > 0 ? (
             <ul className="space-y-2">
               {articles.data.map((article) => (
                 <li key={article.id}>
-                  <Link to="/articles/$articleId" params={{ articleId: article.id }} className="block rounded-xl p-1.5 hover:bg-muted/60">
-                    <span className="block truncate text-[13px] font-medium text-foreground">{article.title}</span>
+                  <Link
+                    to="/articles/$articleId"
+                    params={{ articleId: article.id }}
+                    className="block rounded-xl p-1.5 hover:bg-muted/60"
+                  >
+                    <span className="block truncate text-[13px] font-medium text-foreground">
+                      {article.title}
+                    </span>
                     {article.excerpt ? (
-                      <span className="line-clamp-2 text-[11px] text-muted-foreground">{article.excerpt}</span>
+                      <span className="line-clamp-2 text-[11px] text-muted-foreground">
+                        {article.excerpt}
+                      </span>
                     ) : null}
                   </Link>
                 </li>
               ))}
             </ul>
           ) : (
-            <Empty text={tx("Be the first to publish an article.", "Publiez le premier article.")} />
+            <Empty
+              text={tx("Be the first to publish an article.", "Publiez le premier article.")}
+            />
           )}
         </Block>
 
         {/* Deals */}
-        <Block icon={Tag} title={tx("Deals near you", "Bons plans")} action={{ label: tx("See all", "Tout voir"), to: "/deals" }}>
+        <Block
+          icon={Tag}
+          title={tx("Deals near you", "Bons plans")}
+          action={{ label: tx("See all", "Tout voir"), to: "/deals" }}
+        >
           {deals.data && deals.data.length > 0 ? (
             <ul className="space-y-2">
               {deals.data.map((deal) => (
                 <li key={deal.id}>
-                  <Link to="/deals" className="flex items-center justify-between gap-2 rounded-xl p-1.5 hover:bg-muted/60">
+                  <Link
+                    to="/deals"
+                    className="flex items-center justify-between gap-2 rounded-xl p-1.5 hover:bg-muted/60"
+                  >
                     <span className="min-w-0">
-                      <span className="block truncate text-[13px] font-medium text-foreground">{deal.title}</span>
-                      <span className="block truncate text-[11px] text-muted-foreground">{deal.city ?? ""}</span>
+                      <span className="block truncate text-[13px] font-medium text-foreground">
+                        {deal.title}
+                      </span>
+                      <span className="block truncate text-[11px] text-muted-foreground">
+                        {deal.city ?? ""}
+                      </span>
                     </span>
                     <span className="shrink-0 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-semibold text-emerald-600">
                       {deal.deal_price.toLocaleString()} XAF
@@ -331,13 +409,23 @@ export function RightRail() {
         </Block>
 
         {/* Jobs */}
-        <Block icon={Briefcase} title={tx("Open roles", "Offres d'emploi")} action={{ label: tx("See all", "Tout voir"), to: "/jobs" }}>
+        <Block
+          icon={Briefcase}
+          title={tx("Open roles", "Offres d'emploi")}
+          action={{ label: tx("See all", "Tout voir"), to: "/jobs" }}
+        >
           {jobs.data && jobs.data.length > 0 ? (
             <ul className="space-y-2">
               {jobs.data.map((job) => (
                 <li key={job.id}>
-                  <Link to="/jobs/$jobId" params={{ jobId: job.id }} className="block rounded-xl p-1.5 hover:bg-muted/60">
-                    <span className="block truncate text-[13px] font-medium text-foreground">{job.title}</span>
+                  <Link
+                    to="/jobs/$jobId"
+                    params={{ jobId: job.id }}
+                    className="block rounded-xl p-1.5 hover:bg-muted/60"
+                  >
+                    <span className="block truncate text-[13px] font-medium text-foreground">
+                      {job.title}
+                    </span>
                     <span className="block truncate text-[11px] text-muted-foreground">
                       {[job.company, job.city].filter(Boolean).join(" · ")}
                     </span>

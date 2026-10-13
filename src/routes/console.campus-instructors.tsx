@@ -21,7 +21,10 @@ export const Route = createFileRoute("/console/campus-instructors")({
       { name: "description", content: "Private ASH Campus instructor application review queue." },
       { name: "robots", content: "noindex, nofollow" },
       { property: "og:title", content: "Campus Instructor Reviews — ASH Console" },
-      { property: "og:description", content: "Private ASH Campus instructor application review queue." },
+      {
+        property: "og:description",
+        content: "Private ASH Campus instructor application review queue.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -35,7 +38,10 @@ function CampusInstructorReviews() {
   const load = useServerFn(listCampusInstructorApplications);
   const decide = useServerFn(decideCampusInstructorApplication);
   const queryClient = useQueryClient();
-  const { data, isLoading } = useQuery({ queryKey: ["console", "campus-instructor-applications"], queryFn: load });
+  const { data, isLoading } = useQuery({
+    queryKey: ["console", "campus-instructor-applications"],
+    queryFn: load,
+  });
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<string | null>(null);
 
@@ -45,9 +51,13 @@ function CampusInstructorReviews() {
     setBusy(id);
     try {
       const note = notes[id];
-      await decide({ data: note ? { applicationId: id, status, note } : { applicationId: id, status } });
+      await decide({
+        data: note ? { applicationId: id, status, note } : { applicationId: id, status },
+      });
       toast.success(`Application marked ${status.toLowerCase().replaceAll("_", " ")}.`);
-      await queryClient.invalidateQueries({ queryKey: ["console", "campus-instructor-applications"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["console", "campus-instructor-applications"],
+      });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not update the application.");
     } finally {
@@ -60,18 +70,21 @@ function CampusInstructorReviews() {
   return (
     <div className="space-y-6">
       <header>
-        <h2 className="font-display text-xl font-extrabold text-foreground">Campus Instructor Reviews</h2>
+        <h2 className="font-display text-xl font-extrabold text-foreground">
+          Campus Instructor Reviews
+        </h2>
         <p className="text-sm text-muted-foreground">
-          Manual ASH review. Approving creates the public instructor profile and the ASH Verified Instructor label.
+          Manual ASH review. Approving creates the public instructor profile and the ASH Verified
+          Instructor label.
         </p>
       </header>
       <div className="rounded-xl border border-border bg-card p-4">
         <div className="flex gap-3">
           <ShieldCheck className="size-5 shrink-0 text-primary" />
           <p className="text-xs leading-relaxed text-muted-foreground">
-            Check the identity and qualification documents, record a clear reason, and approve only genuine educational
-            professionals. ASH does not perform criminal background checks or licensing checks — never describe an
-            instructor that way.
+            Check the identity and qualification documents, record a clear reason, and approve only
+            genuine educational professionals. ASH does not perform criminal background checks or
+            licensing checks — never describe an instructor that way.
           </p>
         </div>
       </div>
@@ -144,10 +157,17 @@ function CampusInstructorReviews() {
                 className="mt-4"
                 placeholder="Review note or information request"
                 value={notes[item["id"]] ?? item["admin_note"] ?? ""}
-                onChange={(event) => setNotes((current) => ({ ...current, [item["id"]]: event.target.value }))}
+                onChange={(event) =>
+                  setNotes((current) => ({ ...current, [item["id"]]: event.target.value }))
+                }
               />
               <div className="mt-3 flex flex-wrap gap-2">
-                <Button size="sm" variant="outline" disabled={busy === item["id"]} onClick={() => void act(item["id"], "UNDER_REVIEW")}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={busy === item["id"]}
+                  onClick={() => void act(item["id"], "UNDER_REVIEW")}
+                >
                   Under review
                 </Button>
                 <Button
@@ -158,11 +178,20 @@ function CampusInstructorReviews() {
                 >
                   Request information
                 </Button>
-                <Button size="sm" disabled={busy === item["id"]} onClick={() => void act(item["id"], "APPROVED")}>
+                <Button
+                  size="sm"
+                  disabled={busy === item["id"]}
+                  onClick={() => void act(item["id"], "APPROVED")}
+                >
                   <BadgeCheck className="size-4" />
                   Approve
                 </Button>
-                <Button size="sm" variant="destructive" disabled={busy === item["id"]} onClick={() => void act(item["id"], "REJECTED")}>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  disabled={busy === item["id"]}
+                  onClick={() => void act(item["id"], "REJECTED")}
+                >
                   Reject
                 </Button>
               </div>

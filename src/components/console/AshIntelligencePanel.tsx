@@ -6,7 +6,11 @@ import { askAshIntelligence } from "@/lib/staff-ops.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-const SUGGESTIONS = ["How am I performing?", "What should I prioritize?", "What tickets need attention?"];
+const SUGGESTIONS = [
+  "How am I performing?",
+  "What should I prioritize?",
+  "What tickets need attention?",
+];
 
 /** ASH Intelligence — evidence-based assistant scoped to the employee's department. */
 export function AshIntelligencePanel({ superAdmin }: { superAdmin: boolean }) {
@@ -34,7 +38,9 @@ export function AshIntelligencePanel({ superAdmin }: { superAdmin: boolean }) {
         </div>
         <div>
           <h2 className="text-sm font-bold">ASH Intelligence</h2>
-          <p className="text-[11px] text-muted-foreground">Answers from real ASH data, scoped to your access.</p>
+          <p className="text-[11px] text-muted-foreground">
+            Answers from real ASH data, scoped to your access.
+          </p>
         </div>
       </div>
       <div className="mb-3 flex flex-wrap gap-2">
@@ -57,9 +63,17 @@ export function AshIntelligencePanel({ superAdmin }: { superAdmin: boolean }) {
           if (question.trim()) submit.mutate(question.trim());
         }}
       >
-        <Input value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Ask ASH Intelligence…" />
+        <Input
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          placeholder="Ask ASH Intelligence…"
+        />
         <Button type="submit" size="icon" disabled={submit.isPending || !question.trim()}>
-          {submit.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          {submit.isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Send className="h-4 w-4" />
+          )}
         </Button>
       </form>
       <div className="mt-4 space-y-3">

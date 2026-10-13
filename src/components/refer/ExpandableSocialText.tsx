@@ -37,10 +37,19 @@ export function ExpandableSocialText({
         <button
           type="button"
           onClick={() => setExpanded((value) => !value)}
-          className={cn("mt-1 inline-flex touch-manipulation text-sm font-semibold text-muted-foreground hover:text-foreground", buttonClassName)}
+          className={cn(
+            "mt-1 inline-flex touch-manipulation text-sm font-semibold text-muted-foreground hover:text-foreground",
+            buttonClassName,
+          )}
           aria-expanded={expanded}
         >
-          {expanded ? (lang === "fr" ? "Voir moins" : "See less") : lang === "fr" ? "Voir plus" : "See more"}
+          {expanded
+            ? lang === "fr"
+              ? "Voir moins"
+              : "See less"
+            : lang === "fr"
+              ? "Voir plus"
+              : "See more"}
         </button>
       ) : null}
     </div>

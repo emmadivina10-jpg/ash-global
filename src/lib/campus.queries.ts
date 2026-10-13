@@ -155,13 +155,19 @@ export function instructorTypeLabel(type: string, fr: boolean) {
   const map: Record<string, [string, string]> = {
     ACADEMIC: ["ASH Academic Tutor", "Tuteur académique ASH"],
     LANGUAGE: ["ASH Language Instructor", "Instructeur de langues ASH"],
-    EXAM_PREPARATION: ["ASH Exam Preparation Instructor", "Instructeur de préparation aux examens ASH"],
+    EXAM_PREPARATION: [
+      "ASH Exam Preparation Instructor",
+      "Instructeur de préparation aux examens ASH",
+    ],
     PROFESSIONAL: ["ASH Professional Instructor", "Instructeur professionnel ASH"],
     TECHNICAL: ["ASH Technical Instructor", "Instructeur technique ASH"],
     CREATIVE: ["ASH Creative Skills Instructor", "Instructeur de compétences créatives ASH"],
     OTHER: ["ASH Verified Instructor", "Instructeur vérifié ASH"],
   };
-  const entry = map[type] ?? [fr ? "Instructeur vérifié ASH" : "ASH Verified Instructor", "Instructeur vérifié ASH"];
+  const entry = map[type] ?? [
+    fr ? "Instructeur vérifié ASH" : "ASH Verified Instructor",
+    "Instructeur vérifié ASH",
+  ];
   return fr ? entry[1] : entry[0];
 }
 
@@ -276,12 +282,14 @@ async function decorate(rows: CampusInstructor[]): Promise<CampusInstructor[]> {
       ? db.from("provider_profiles").select("id,rating_avg,rating_count").in("id", providerIds)
       : Promise.resolve({ data: [] }),
   ]);
-  const byUser = new Map<string, DirectoryProfile>((people ?? []).map((p: DirectoryProfile) => [p.user_id, p]));
+  const byUser = new Map<string, DirectoryProfile>(
+    (people ?? []).map((p: DirectoryProfile) => [p.user_id, p]),
+  );
   const byProvider = new Map<string, { rating_avg: number; rating_count: number }>(
-    ((providers as { data?: { id: string; rating_avg: number; rating_count: number }[] }).data ?? []).map((p) => [
-      p.id,
-      { rating_avg: p.rating_avg, rating_count: p.rating_count },
-    ]),
+    (
+      (providers as { data?: { id: string; rating_avg: number; rating_count: number }[] }).data ??
+      []
+    ).map((p) => [p.id, { rating_avg: p.rating_avg, rating_count: p.rating_count }]),
   );
   return rows.map((row) => {
     const rating = row.provider_id ? byProvider.get(row.provider_id) : undefined;
@@ -305,11 +313,13 @@ export function useInstructors(filters: InstructorFilters) {
       if (filters.exam) query = query.contains("exams", [filters.exam]);
       if (filters.skill) query = query.contains("skills", [filters.skill]);
       if (filters.subject) query = query.contains("subjects", [filters.subject]);
-      if (filters.instructorType) query = query.contains("instructor_types", [filters.instructorType]);
+      if (filters.instructorType)
+        query = query.contains("instructor_types", [filters.instructorType]);
       if (filters.city) query = query.ilike("city", `%${filters.city}%`);
       if (filters.country) query = query.ilike("country", `%${filters.country}%`);
       if (filters.maxPrice) query = query.lte("hourly_from", filters.maxPrice);
-      if (filters.sort === "price") query = query.order("hourly_from", { ascending: true, nullsFirst: false });
+      if (filters.sort === "price")
+        query = query.order("hourly_from", { ascending: true, nullsFirst: false });
       else query = query.order("years_experience", { ascending: false });
       const { data, error } = await query.limit(80);
       if (error) throw error;
@@ -343,12 +353,17 @@ export function useInstructors(filters: InstructorFilters) {
           .select("name_en")
           .eq("is_active", true)
           .eq("category", category);
-        const names = new Set(((catalogue ?? []) as { name_en: string }[]).map((item) => item.name_en));
+        const names = new Set(
+          ((catalogue ?? []) as { name_en: string }[]).map((item) => item.name_en),
+        );
         if (names.size) {
           rows = rows.filter((row) =>
-            [...(row.subjects ?? []), ...(row.exams ?? []), ...(row.skills ?? []), ...(row.languages ?? [])].some(
-              (value) => names.has(value),
-            ),
+            [
+              ...(row.subjects ?? []),
+              ...(row.exams ?? []),
+              ...(row.skills ?? []),
+              ...(row.languages ?? []),
+            ].some((value) => names.has(value)),
           );
         }
       }
@@ -406,7 +421,11 @@ export function useMyInstructorProfile() {
     queryFn: async (): Promise<CampusInstructor | null> => {
       const userId = await currentUserId();
       if (!userId) return null;
-      const { data } = await db.from("campus_instructor_profiles").select("*").eq("user_id", userId).maybeSingle();
+      const { data } = await db
+        .from("campus_instructor_profiles")
+        .select("*")
+        .eq("user_id", userId)
+        .maybeSingle();
       return (data as CampusInstructor) ?? null;
     },
   });
@@ -475,10 +494,18 @@ export function useSubmitCampusApplication() {
     mutationFn: async (input: CampusApplicationInput) => {
       const userId = await currentUserId();
       if (!userId) throw new Error("You need to be signed in.");
-      if (!input.declarationsAccepted) throw new Error("Please accept the declaration before submitting.");
+      if (!input.declarationsAccepted)
+        throw new Error("Please accept the declaration before submitting.");
       if (!input.identityDocument) throw new Error("Please attach an identity document.");
-      if (input.instructorTypes.length === 0) throw new Error("Please choose your instructor type.");
-      if (input.subjects.length + input.exams.length + input.skills.length + input.languages.length === 0)
+      if (input.instructorTypes.length === 0)
+        throw new Error("Please choose your instructor type.");
+      if (
+        input.subjects.length +
+          input.exams.length +
+          input.skills.length +
+          input.languages.length ===
+        0
+      )
         throw new Error("Please choose at least one subject, language, exam or skill.");
       if (input.levels.length === 0) throw new Error("Please choose at least one education level.");
 
@@ -488,7 +515,11 @@ export function useSubmitCampusApplication() {
         uploaded.push(identityPath);
         let qualificationPath: string | null = null;
         if (input.qualificationDocument) {
-          qualificationPath = await uploadCampusDocument(userId, input.qualificationDocument, "qualification");
+          qualificationPath = await uploadCampusDocument(
+            userId,
+            input.qualificationDocument,
+            "qualification",
+          );
           uploaded.push(qualificationPath);
         }
 
@@ -553,10 +584,20 @@ export function useSubmitCampusApplication() {
 export function useUpdateMyInstructorProfile() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (input: Partial<Pick<CampusInstructor, "headline" | "bio" | "methodology" | "is_active" | "hourly_from" | "city" | "areas_served">>) => {
+    mutationFn: async (
+      input: Partial<
+        Pick<
+          CampusInstructor,
+          "headline" | "bio" | "methodology" | "is_active" | "hourly_from" | "city" | "areas_served"
+        >
+      >,
+    ) => {
       const userId = await currentUserId();
       if (!userId) throw new Error("You need to be signed in.");
-      const { error } = await db.from("campus_instructor_profiles").update(input).eq("user_id", userId);
+      const { error } = await db
+        .from("campus_instructor_profiles")
+        .update(input)
+        .eq("user_id", userId);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -606,7 +647,11 @@ export function useInstructorEarnings(providerId: string | null | undefined, cur
         if (row.status === "COMPLETED" || row.status === "SETTLED") {
           gross += price;
           commission += fee;
-        } else if (["PENDING", "CONFIRMED", "ACCEPTED", "IN_PROGRESS", "PAYMENT_PROCESSING"].includes(row.status)) {
+        } else if (
+          ["PENDING", "CONFIRMED", "ACCEPTED", "IN_PROGRESS", "PAYMENT_PROCESSING"].includes(
+            row.status,
+          )
+        ) {
           pending += price - fee;
         }
       }
@@ -623,7 +668,12 @@ export function useCampusCatalogueAdmin() {
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["campus"] });
 
   const add = useMutation({
-    mutationFn: async (input: { category: string; kind: CampusCatalogueKind; nameEn: string; nameFr: string }) => {
+    mutationFn: async (input: {
+      category: string;
+      kind: CampusCatalogueKind;
+      nameEn: string;
+      nameFr: string;
+    }) => {
       const { error } = await db.from("campus_subjects").insert({
         category: input.category,
         kind: input.kind,
@@ -639,7 +689,10 @@ export function useCampusCatalogueAdmin() {
 
   const setActive = useMutation({
     mutationFn: async (input: { id: string; isActive: boolean }) => {
-      const { error } = await db.from("campus_subjects").update({ is_active: input.isActive }).eq("id", input.id);
+      const { error } = await db
+        .from("campus_subjects")
+        .update({ is_active: input.isActive })
+        .eq("id", input.id);
       if (error) throw error;
     },
     onSuccess: invalidate,

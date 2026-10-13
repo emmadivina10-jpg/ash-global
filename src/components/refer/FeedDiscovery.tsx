@@ -103,7 +103,7 @@ export function useFeedDiscovery() {
                 month: "short",
               }),
               event.city ?? "",
-              event.is_free ? (tx("Free", "Gratuit")) : formatXAF(Number(event.ticket_price ?? 0)),
+              event.is_free ? tx("Free", "Gratuit") : formatXAF(Number(event.ticket_price ?? 0)),
             ]
               .filter(Boolean)
               .join(" · "),
@@ -154,7 +154,9 @@ export function useFeedDiscovery() {
           cards: freelance.data.map((project) => ({
             id: project.id,
             title: project.title,
-            meta: [project.category, formatXAF(Number(project.budget ?? 0))].filter(Boolean).join(" · "),
+            meta: [project.category, formatXAF(Number(project.budget ?? 0))]
+              .filter(Boolean)
+              .join(" · "),
             to: "/freelance",
           })),
         });

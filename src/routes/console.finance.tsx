@@ -27,11 +27,22 @@ const CATEGORY_LABEL: Record<string, string> = {
   MEMBER_PAYOUT: "Member payout",
   OWNER_WITHDRAWAL: "Owner withdrawal",
 };
-const FILTERS = ["ALL", "REVENUE", "CUSTOMER_FUNDS", "WALLET_CREDIT", "REWARD", "MEMBER_PAYOUT", "OWNER_WITHDRAWAL"] as const;
+const FILTERS = [
+  "ALL",
+  "REVENUE",
+  "CUSTOMER_FUNDS",
+  "WALLET_CREDIT",
+  "REWARD",
+  "MEMBER_PAYOUT",
+  "OWNER_WITHDRAWAL",
+] as const;
 
 function ConsoleFinance() {
   const load = useServerFn(getFinanceLedger);
-  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ["console", "finance-ledger"], queryFn: load });
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ["console", "finance-ledger"],
+    queryFn: load,
+  });
   const [tab, setTab] = useState<(typeof TABS)[number]>("Master ledger");
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("ALL");
   const [open, setOpen] = useState<LedgerEntry | null>(null);
@@ -46,14 +57,26 @@ function ConsoleFinance() {
   const s = data.summary;
 
   const cards = [
-    { label: "Real revenue (ASH income)", value: s.revenue, hint: "Fees, subscriptions, commissions" },
+    {
+      label: "Real revenue (ASH income)",
+      value: s.revenue,
+      hint: "Fees, subscriptions, commissions",
+    },
     { label: "Customer funds held", value: s.customerFunds, hint: "Seller share — not income" },
     { label: "Member payouts", value: s.memberPayouts, hint: "Wallet withdrawals paid" },
     { label: "Owner withdrawals", value: s.ownerTaken, hint: "Completed + in progress" },
-    { label: "Wallet credits (net)", value: s.walletCreditsNet, hint: "Admin adjustments — not income" },
+    {
+      label: "Wallet credits (net)",
+      value: s.walletCreditsNet,
+      hint: "Admin adjustments — not income",
+    },
     { label: "Owed to member wallets", value: s.walletLiability, hint: "Liability" },
     { label: "Cash on hand", value: s.cashOnHand, hint: "In − payouts − owner withdrawals" },
-    { label: "Available platform funds", value: s.availablePlatformFunds, hint: "Current owner-withdrawal limit" },
+    {
+      label: "Available platform funds",
+      value: s.availablePlatformFunds,
+      hint: "Current owner-withdrawal limit",
+    },
   ];
 
   return (
@@ -61,7 +84,8 @@ function ConsoleFinance() {
       <div>
         <h2 className="font-display text-xl font-extrabold text-foreground">Finance</h2>
         <p className="text-sm text-muted-foreground">
-          Every figure comes from an existing payment, wallet or payout record. Nothing here is estimated.
+          Every figure comes from an existing payment, wallet or payout record. Nothing here is
+          estimated.
         </p>
       </div>
 
@@ -72,8 +96,12 @@ function ConsoleFinance() {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
           <div key={c.label} className="rounded-2xl border border-border bg-card p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{c.label}</p>
-            <p className="tabular mt-1 font-display text-xl font-extrabold text-foreground">{formatXAF(c.value)}</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              {c.label}
+            </p>
+            <p className="tabular mt-1 font-display text-xl font-extrabold text-foreground">
+              {formatXAF(c.value)}
+            </p>
             <p className="mt-0.5 text-xs text-muted-foreground">{c.hint}</p>
           </div>
         ))}
@@ -82,7 +110,9 @@ function ConsoleFinance() {
       <div
         className={cn(
           "rounded-2xl border p-3 text-sm",
-          s.mismatchedWallets === 0 ? "border-primary/40 bg-primary/10 text-foreground" : "border-destructive/40 bg-destructive/10 text-foreground",
+          s.mismatchedWallets === 0
+            ? "border-primary/40 bg-primary/10 text-foreground"
+            : "border-destructive/40 bg-destructive/10 text-foreground",
         )}
       >
         {s.mismatchedWallets === 0
@@ -92,17 +122,32 @@ function ConsoleFinance() {
 
       <div className="flex flex-wrap gap-2">
         {TABS.map((t) => (
-          <Button key={t} size="sm" variant={tab === t ? "default" : "outline"} className="rounded-full" onClick={() => setTab(t)}>
+          <Button
+            key={t}
+            size="sm"
+            variant={tab === t ? "default" : "outline"}
+            className="rounded-full"
+            onClick={() => setTab(t)}
+          >
             {t}
           </Button>
         ))}
       </div>
 
       {tab === "Master ledger" ? (
-        <SectionCard title="Master ledger" description="All money in, out and between wallets. Tap a row for full details.">
+        <SectionCard
+          title="Master ledger"
+          description="All money in, out and between wallets. Tap a row for full details."
+        >
           <div className="mb-4 flex flex-wrap gap-2">
             {FILTERS.map((f) => (
-              <Button key={f} size="sm" variant={filter === f ? "secondary" : "ghost"} className="rounded-full" onClick={() => setFilter(f)}>
+              <Button
+                key={f}
+                size="sm"
+                variant={filter === f ? "secondary" : "ghost"}
+                className="rounded-full"
+                onClick={() => setFilter(f)}
+              >
                 {f === "ALL" ? "All" : CATEGORY_LABEL[f]}
               </Button>
             ))}
@@ -119,7 +164,9 @@ function ConsoleFinance() {
                     className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3 text-left hover:bg-muted/40"
                   >
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-foreground">{e.description}</p>
+                      <p className="truncate text-sm font-semibold text-foreground">
+                        {e.description}
+                      </p>
                       <p className="truncate text-xs text-muted-foreground">
                         {CATEGORY_LABEL[e.category]} · {e.source} → {e.destination}
                       </p>
@@ -128,7 +175,12 @@ function ConsoleFinance() {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className={cn("tabular text-sm font-bold", e.amount < 0 ? "text-destructive" : "text-foreground")}>
+                      <p
+                        className={cn(
+                          "tabular text-sm font-bold",
+                          e.amount < 0 ? "text-destructive" : "text-foreground",
+                        )}
+                      >
                         {e.amount > 0 ? "+" : ""}
                         {formatXAF(e.amount)}
                       </p>
@@ -143,7 +195,10 @@ function ConsoleFinance() {
       ) : null}
 
       {tab === "Owner withdrawals" ? (
-        <SectionCard title="Owner / platform withdrawals" description="Money taken out of the ASH platform account. Not an expense and not revenue.">
+        <SectionCard
+          title="Owner / platform withdrawals"
+          description="Money taken out of the ASH platform account. Not an expense and not revenue."
+        >
           <div className="mb-4 grid gap-3 sm:grid-cols-3">
             <Mini label="Cash on hand" value={s.cashOnHand} />
             <Mini label="Owner withdrawals (completed + in progress)" value={s.ownerTaken} />
@@ -156,17 +211,27 @@ function ConsoleFinance() {
             <p>− Owner withdrawals (completed + in progress), deducted once</p>
             <p>− Money owed to member and provider wallets</p>
             <p>− Disputed bookings held for refunds</p>
-            <p className="mt-2">Admin wallet credits are never counted as income. New owner withdrawals are made from Console → Payout, which blocks any amount above this figure.</p>
+            <p className="mt-2">
+              Admin wallet credits are never counted as income. New owner withdrawals are made from
+              Console → Payout, which blocks any amount above this figure.
+            </p>
           </div>
           {data.ownerWithdrawals.length === 0 ? (
             <EmptyState title="No owner withdrawals yet" />
           ) : (
             <ul className="divide-y divide-border">
               {data.ownerWithdrawals.map((p) => (
-                <li key={p.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3">
+                <li
+                  key={p.id}
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3"
+                >
                   <div className="min-w-0">
-                    <p className="tabular text-sm font-bold text-foreground">{formatXAF(p.amount)}</p>
-                    <p className="truncate text-xs text-muted-foreground">To {p.destination} · {p.reference}</p>
+                    <p className="tabular text-sm font-bold text-foreground">
+                      {formatXAF(p.amount)}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      To {p.destination} · {p.reference}
+                    </p>
                     <p className="truncate text-xs text-muted-foreground">
                       {formatDateTime(p.processed_at ?? p.created_at)}
                       {p.note ? ` · ${p.note}` : ""}
@@ -191,17 +256,26 @@ function ConsoleFinance() {
           ) : (
             <ul className="divide-y divide-border">
               {data.walletCredits.map((c) => (
-                <li key={c.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3">
+                <li
+                  key={c.id}
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3"
+                >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-foreground">
-                      {c.recipient} · <span className="text-muted-foreground">{c.adjustmentType}</span>
+                      {c.recipient} ·{" "}
+                      <span className="text-muted-foreground">{c.adjustmentType}</span>
                     </p>
                     <p className="truncate text-xs text-muted-foreground">Reason: {c.reason}</p>
                     <p className="truncate text-xs text-muted-foreground">
                       By {c.admin} · {c.reference} · {formatDateTime(c.createdAt)}
                     </p>
                   </div>
-                  <p className={cn("tabular text-sm font-bold", c.amount < 0 ? "text-destructive" : "text-foreground")}>
+                  <p
+                    className={cn(
+                      "tabular text-sm font-bold",
+                      c.amount < 0 ? "text-destructive" : "text-foreground",
+                    )}
+                  >
                     {c.amount > 0 ? "+" : ""}
                     {formatXAF(c.amount)}
                   </p>
@@ -213,17 +287,29 @@ function ConsoleFinance() {
       ) : null}
 
       {tab === "Reconciliation" ? (
-        <SectionCard title="Wallet reconciliation" description="Stored wallet balance compared with the sum of that wallet's own history.">
+        <SectionCard
+          title="Wallet reconciliation"
+          description="Stored wallet balance compared with the sum of that wallet's own history."
+        >
           <ul className="divide-y divide-border">
             {data.reconciliation.map((r) => (
-              <li key={r.userId} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3">
+              <li
+                key={r.userId}
+                className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3"
+              >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-foreground">{r.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    Stored {formatXAF(r.stored)} · From history {formatXAF(r.computed)} · {r.lines} entries
+                    Stored {formatXAF(r.stored)} · From history {formatXAF(r.computed)} · {r.lines}{" "}
+                    entries
                   </p>
                 </div>
-                <StatusBadge status={Math.abs(r.difference) < 0.01 ? "COMPLETED" : "FAILED"} label={Math.abs(r.difference) < 0.01 ? "Matches" : `Off by ${formatXAF(r.difference)}`} />
+                <StatusBadge
+                  status={Math.abs(r.difference) < 0.01 ? "COMPLETED" : "FAILED"}
+                  label={
+                    Math.abs(r.difference) < 0.01 ? "Matches" : `Off by ${formatXAF(r.difference)}`
+                  }
+                />
               </li>
             ))}
           </ul>
@@ -269,7 +355,9 @@ function Mini({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-xl border border-border p-3">
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="tabular font-display text-lg font-extrabold text-foreground">{formatXAF(value)}</p>
+      <p className="tabular font-display text-lg font-extrabold text-foreground">
+        {formatXAF(value)}
+      </p>
     </div>
   );
 }

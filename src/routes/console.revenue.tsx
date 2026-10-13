@@ -31,13 +31,19 @@ function RevenueIntel() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-display text-xl font-extrabold text-foreground">Revenue Intelligence</h2>
-        <p className="text-sm text-muted-foreground">Where ASH money comes from and how fast it grows.</p>
+        <h2 className="font-display text-xl font-extrabold text-foreground">
+          Revenue Intelligence
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Where ASH money comes from and how fast it grows.
+        </p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((card) => (
           <div key={card.label} className="rounded-2xl border border-border bg-card p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{card.label}</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              {card.label}
+            </p>
             <p className="mt-1 font-display text-xl font-extrabold text-foreground">{card.value}</p>
           </div>
         ))}

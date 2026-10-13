@@ -70,17 +70,27 @@ function mapOffer(o: any): Offer {
     const p = seg?.passengers?.[0];
     const bags = (p?.baggages ?? []) as Array<{ type: string; quantity: number }>;
     if (!bags.length) return null;
-    return bags.map((b) => `${b.quantity} × ${b.type === "checked" ? "checked" : "carry-on"}`).join(", ");
+    return bags
+      .map((b) => `${b.quantity} × ${b.type === "checked" ? "checked" : "carry-on"}`)
+      .join(", ");
   };
   const cond = o.conditions ?? {};
   const text: string[] = [];
   if (cond.refund_before_departure) {
     const r = cond.refund_before_departure;
-    text.push(r.allowed ? `Refundable${r.penalty_amount ? ` (fee ${r.penalty_currency} ${r.penalty_amount})` : ""}` : "Non-refundable");
+    text.push(
+      r.allowed
+        ? `Refundable${r.penalty_amount ? ` (fee ${r.penalty_currency} ${r.penalty_amount})` : ""}`
+        : "Non-refundable",
+    );
   }
   if (cond.change_before_departure) {
     const c = cond.change_before_departure;
-    text.push(c.allowed ? `Changes allowed${c.penalty_amount ? ` (fee ${c.penalty_currency} ${c.penalty_amount})` : ""}` : "Changes not allowed");
+    text.push(
+      c.allowed
+        ? `Changes allowed${c.penalty_amount ? ` (fee ${c.penalty_currency} ${c.penalty_amount})` : ""}`
+        : "Changes not allowed",
+    );
   }
   return {
     id: o.id,
@@ -172,7 +182,11 @@ export const searchFlights = createServerFn({ method: "POST" })
       method: "POST",
       body: JSON.stringify({
         data: {
-          slices: data.slices.map((s) => ({ origin: s.origin, destination: s.destination, departure_date: s.date })),
+          slices: data.slices.map((s) => ({
+            origin: s.origin,
+            destination: s.destination,
+            departure_date: s.date,
+          })),
           passengers,
           cabin_class: data.cabin,
         },

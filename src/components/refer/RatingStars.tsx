@@ -24,7 +24,12 @@ export function RatingStars({
           />
         );
         return onChange ? (
-          <button key={star} type="button" onClick={() => onChange(star)} aria-label={`${star} stars`}>
+          <button
+            key={star}
+            type="button"
+            onClick={() => onChange(star)}
+            aria-label={`${star} stars`}
+          >
             {content}
           </button>
         ) : (

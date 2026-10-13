@@ -26,31 +26,93 @@ export function IdentityAccessGuard() {
       await qc.cancelQueries();
       qc.clear();
       await supabase.auth.signOut();
-      void navigate({ to: "/safety-review", search: { identity: true, banned: true }, replace: true });
+      void navigate({
+        to: "/safety-review",
+        search: { identity: true, banned: true },
+        replace: true,
+      });
     };
-    const check = () => { void supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) { setStatus(null); loggingOut.current = false; return; }
-      void identityStatus().then(apply).catch(() => undefined);
-    }); };
-    const denied = (event: Event) => { void apply((event as CustomEvent<IdentityStatus>).detail); };
+    const check = () => {
+      void supabase.auth.getSession().then(({ data }) => {
+        if (!data.session) {
+          setStatus(null);
+          loggingOut.current = false;
+          return;
+        }
+        void identityStatus()
+          .then(apply)
+          .catch(() => undefined);
+      });
+    };
+    const denied = (event: Event) => {
+      void apply((event as CustomEvent<IdentityStatus>).detail);
+    };
     check();
     const timer = window.setInterval(check, 5000);
     window.addEventListener("ash-identity-denied", denied);
     window.addEventListener("focus", check);
-    return () => { stopped = true; clearInterval(timer); window.removeEventListener("ash-identity-denied", denied); window.removeEventListener("focus", check); };
+    return () => {
+      stopped = true;
+      clearInterval(timer);
+      window.removeEventListener("ash-identity-denied", denied);
+      window.removeEventListener("focus", check);
+    };
   }, [navigate, qc]);
-  if (!status?.restricted || pathname === "/safety-review" || pathname.startsWith("/console") || pathname === "/login" || pathname === "/support") return null;
+  if (
+    !status?.restricted ||
+    pathname === "/safety-review" ||
+    pathname.startsWith("/console") ||
+    pathname === "/login" ||
+    pathname === "/support"
+  )
+    return null;
   return (
-    <div role="alertdialog" aria-modal="true" aria-labelledby="identity-denied-title" className="fixed inset-0 z-[100] grid place-items-center bg-background p-6">
+    <div
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="identity-denied-title"
+      className="fixed inset-0 z-[100] grid place-items-center bg-background p-6"
+    >
       <section className="w-full max-w-md text-center">
         <ShieldAlert className="mx-auto size-12 text-destructive" aria-hidden />
-        <h1 id="identity-denied-title" className="mt-4 text-2xl font-bold text-destructive">{tx("Denied", "Refusé")}</h1>
-        <p className="mt-3 text-sm text-foreground">{tx("This name or profile picture belongs to a verified account.", "Ce nom ou cette photo appartient à un compte vérifié.")}</p>
-        <p className="mt-2 text-sm text-muted-foreground">{status.banned ? (tx("Account banned. Signing you out.", "Compte banni. Déconnexion en cours.")) : (fr ? `Accès restreint · ${status.attempts}/3 tentatives. La quatrième entraîne un bannissement.` : `Access restricted · ${status.attempts}/3 attempts. A fourth attempt results in a ban.`)}</p>
-        {!status.banned && <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <Button onClick={() => void navigate({ to: "/safety-review", search: { identity: true, banned: false } })}>{tx("Account review", "Vérification du compte")}</Button>
-          <Button variant="outline" onClick={async () => { await qc.cancelQueries(); qc.clear(); await supabase.auth.signOut(); void navigate({ to: "/login", replace: true }); }}>{tx("Sign out", "Déconnexion")}</Button>
-        </div>}
+        <h1 id="identity-denied-title" className="mt-4 text-2xl font-bold text-destructive">
+          {tx("Denied", "Refusé")}
+        </h1>
+        <p className="mt-3 text-sm text-foreground">
+          {tx(
+            "This name or profile picture belongs to a verified account.",
+            "Ce nom ou cette photo appartient à un compte vérifié.",
+          )}
+        </p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {status.banned
+            ? tx("Account banned. Signing you out.", "Compte banni. Déconnexion en cours.")
+            : fr
+              ? `Accès restreint · ${status.attempts}/3 tentatives. La quatrième entraîne un bannissement.`
+              : `Access restricted · ${status.attempts}/3 attempts. A fourth attempt results in a ban.`}
+        </p>
+        {!status.banned && (
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
+            <Button
+              onClick={() =>
+                void navigate({ to: "/safety-review", search: { identity: true, banned: false } })
+              }
+            >
+              {tx("Account review", "Vérification du compte")}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={async () => {
+                await qc.cancelQueries();
+                qc.clear();
+                await supabase.auth.signOut();
+                void navigate({ to: "/login", replace: true });
+              }}
+            >
+              {tx("Sign out", "Déconnexion")}
+            </Button>
+          </div>
+        )}
       </section>
     </div>
   );

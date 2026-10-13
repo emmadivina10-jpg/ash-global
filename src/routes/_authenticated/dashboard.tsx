@@ -1,5 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowDownToLine, CalendarDays, Coins, Compass, Share2, TrendingUp, Users, Wallet as WalletIcon } from "lucide-react";
+import {
+  ArrowDownToLine,
+  CalendarDays,
+  Coins,
+  Compass,
+  Share2,
+  TrendingUp,
+  Users,
+  Wallet as WalletIcon,
+} from "lucide-react";
 import { useNetwork, useProfile, useWallet } from "@/lib/queries";
 import { BalanceCard, SectionCard, StatCard } from "@/components/refer/cards";
 import { ReferralCard } from "@/components/refer/ReferralCard";
@@ -55,12 +64,20 @@ function DashboardPage() {
             footer={
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs uppercase tracking-wide opacity-80">{t("dash.totalEarned")}</p>
-                  <p className="tabular text-base font-semibold">{formatXAF(wallet?.total_earned ?? 0)}</p>
+                  <p className="text-xs uppercase tracking-wide opacity-80">
+                    {t("dash.totalEarned")}
+                  </p>
+                  <p className="tabular text-base font-semibold">
+                    {formatXAF(wallet?.total_earned ?? 0)}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-wide opacity-80">{t("dash.totalWithdrawn")}</p>
-                  <p className="tabular text-base font-semibold">{formatXAF(wallet?.total_withdrawn ?? 0)}</p>
+                  <p className="text-xs uppercase tracking-wide opacity-80">
+                    {t("dash.totalWithdrawn")}
+                  </p>
+                  <p className="tabular text-base font-semibold">
+                    {formatXAF(wallet?.total_withdrawn ?? 0)}
+                  </p>
                 </div>
               </div>
             }

@@ -44,8 +44,19 @@ export function bookingStatusLabel(status: string, lang: Lang): string {
 
 export function bookingStatusTone(status: string): "positive" | "warning" | "danger" | "neutral" {
   if (status === "COMPLETED" || status === "SETTLED" || status === "CONFIRMED") return "positive";
-  if (status === "ACCEPTED" || status === "PAYMENT_PROCESSING" || status === "IN_PROGRESS") return "warning";
-  if (["DECLINED", "CANCELLED", "PAYMENT_FAILED", "PAYMENT_EXPIRED", "NO_SHOW", "REFUNDED", "DISPUTED"].includes(status))
+  if (status === "ACCEPTED" || status === "PAYMENT_PROCESSING" || status === "IN_PROGRESS")
+    return "warning";
+  if (
+    [
+      "DECLINED",
+      "CANCELLED",
+      "PAYMENT_FAILED",
+      "PAYMENT_EXPIRED",
+      "NO_SHOW",
+      "REFUNDED",
+      "DISPUTED",
+    ].includes(status)
+  )
     return "danger";
   return "neutral";
 }

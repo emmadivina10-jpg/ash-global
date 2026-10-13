@@ -8,7 +8,15 @@ import {
 } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import { ArrowLeft, Camera, LifeBuoy, Search, Settings2, UserMinus, ChartNoAxesCombined } from "lucide-react";
+import {
+  ArrowLeft,
+  Camera,
+  LifeBuoy,
+  Search,
+  Settings2,
+  UserMinus,
+  ChartNoAxesCombined,
+} from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 
@@ -426,19 +434,19 @@ function MessagesPage() {
     const group = groupOf(conv);
     if (group) return group.name;
     const direct = directPeerOf(conv);
-    if (direct) return direct.name ?? (tx("Profile", "Profil"));
+    if (direct) return direct.name ?? tx("Profile", "Profil");
     if (conv.listing_id) {
       const viewerIsOwner = Boolean(user?.id) && conv.owner_id === user?.id;
 
       return viewerIsOwner
-        ? (conv.client?.full_name ?? (tx("Profile", "Profil")))
+        ? (conv.client?.full_name ?? tx("Profile", "Profil"))
         : (conv.listing?.title ?? "ASH Property");
     }
 
     const viewerIsProvider = Boolean(user?.id) && conv.provider?.user_id === user?.id;
 
     return viewerIsProvider
-      ? (conv.client?.full_name ?? (tx("Profile", "Profil")))
+      ? (conv.client?.full_name ?? tx("Profile", "Profil"))
       : (conv.provider?.business_name ?? t("chat.title"));
   }
 
@@ -543,9 +551,9 @@ function MessagesPage() {
 
     const mine = last.sender_id === user?.id;
 
-    const text = last.kind === "INVOICE" ? (tx("Invoice", "Facture")) : last.body;
+    const text = last.kind === "INVOICE" ? tx("Invoice", "Facture") : last.body;
 
-    return `${mine ? (tx("You: ", "Vous : ")) : ""}${text}`.replace(/\s+/g, " ").trim();
+    return `${mine ? tx("You: ", "Vous : ") : ""}${text}`.replace(/\s+/g, " ").trim();
   }
 
   const searchTerm = term.trim();
@@ -694,7 +702,10 @@ function MessagesPage() {
     }
     if (removed < ids.length) {
       toast.info(
-        tx("Some chats belong to a booking — they were archived instead.", "Certaines discussions sont liées à une réservation — elles ont été archivées."),
+        tx(
+          "Some chats belong to a booking — they were archived instead.",
+          "Certaines discussions sont liées à une réservation — elles ont été archivées.",
+        ),
       );
     }
   }
@@ -806,9 +817,10 @@ function MessagesPage() {
                 <input
                   value={term}
                   onChange={(event) => setTerm(event.target.value)}
-                  placeholder={
-                    tx("Search chats or people", "Rechercher une discussion ou un membre")
-                  }
+                  placeholder={tx(
+                    "Search chats or people",
+                    "Rechercher une discussion ou un membre",
+                  )}
                   aria-label={tx("Search chats", "Rechercher une discussion")}
                   className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                 />
@@ -860,8 +872,16 @@ function MessagesPage() {
                     : tx("Set a PIN", "Créer un code")}
                 </button>
 
-                <Button asChild variant="outline" size="sm" className="h-10 rounded-full border-success/30 bg-success/10 px-3 text-sm text-foreground hover:bg-success/20">
-                  <Link to="/investment"><ChartNoAxesCombined className="size-4 text-success" aria-hidden />ASH Investment</Link>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="h-10 rounded-full border-success/30 bg-success/10 px-3 text-sm text-foreground hover:bg-success/20"
+                >
+                  <Link to="/investment">
+                    <ChartNoAxesCombined className="size-4 text-success" aria-hidden />
+                    ASH Investment
+                  </Link>
                 </Button>
 
                 {lockedUnlocked ? (
@@ -896,7 +916,10 @@ function MessagesPage() {
                     ),
                   ].length === 0 ? (
                     <p className="py-4 text-center text-sm text-muted-foreground">
-                      {tx("Add friends before creating a group.", "Ajoutez d’abord des amis au groupe.")}
+                      {tx(
+                        "Add friends before creating a group.",
+                        "Ajoutez d’abord des amis au groupe.",
+                      )}
                     </p>
                   ) : (
                     [
@@ -982,7 +1005,10 @@ function MessagesPage() {
                   <DialogTitle>{tx("Unlock chats", "Déverrouiller les discussions")}</DialogTitle>
                 </DialogHeader>
                 <p className="text-xs text-muted-foreground">
-                  {tx("Enter your PIN. Chat content remains unavailable until it is verified.", "Entrez votre code. Le contenu reste inaccessible jusqu’à sa validation.")}
+                  {tx(
+                    "Enter your PIN. Chat content remains unavailable until it is verified.",
+                    "Entrez votre code. Le contenu reste inaccessible jusqu’à sa validation.",
+                  )}
                 </p>
                 <Input
                   type="password"
@@ -1013,7 +1039,10 @@ function MessagesPage() {
                   </DialogTitle>
                 </DialogHeader>
                 <p className="text-sm text-muted-foreground">
-                  {tx("The messages are permanently lost. You can still find the person again through search.", "Les messages seront définitivement perdus. Vous pourrez toujours retrouver la personne par la recherche.")}
+                  {tx(
+                    "The messages are permanently lost. You can still find the person again through search.",
+                    "Les messages seront définitivement perdus. Vous pourrez toujours retrouver la personne par la recherche.",
+                  )}
                 </p>
                 <div className="flex gap-2">
                   <Button
@@ -1039,7 +1068,10 @@ function MessagesPage() {
                   <DialogTitle>{tx("Chat lock PIN", "Code des discussions")}</DialogTitle>
                 </DialogHeader>
                 <p className="text-xs text-muted-foreground">
-                  {tx("Pick a PIN of at least 4 digits. Locked chats disappear from the list and come back when you type this PIN into the search box.", "Choisissez un code d'au moins 4 chiffres. Les discussions verrouillées disparaissent de la liste et réapparaissent quand vous tapez ce code dans la recherche.")}
+                  {tx(
+                    "Pick a PIN of at least 4 digits. Locked chats disappear from the list and come back when you type this PIN into the search box.",
+                    "Choisissez un code d'au moins 4 chiffres. Les discussions verrouillées disparaissent de la liste et réapparaissent quand vous tapez ce code dans la recherche.",
+                  )}
                 </p>
                 <Input
                   type="password"
@@ -1456,7 +1488,10 @@ function MessagesPage() {
                     ) : null}
                   </p>
 
-                  {activeId !== ASH_AI_ID && activeId !== ASH_SUPPORT_ID && active && peerStateOf(active)?.online ? (
+                  {activeId !== ASH_AI_ID &&
+                  activeId !== ASH_SUPPORT_ID &&
+                  active &&
+                  peerStateOf(active)?.online ? (
                     <p className="flex items-center gap-1 text-[11px] font-semibold text-primary">
                       <span className="size-1.5 rounded-full bg-primary" aria-hidden />
                       {tx("Online", "En ligne")}
@@ -1552,7 +1587,10 @@ function MessagesPage() {
                                     toast.error(
                                       error instanceof Error
                                         ? error.message
-                                        : tx("Could not save the group photo", "Impossible d’enregistrer la photo"),
+                                        : tx(
+                                            "Could not save the group photo",
+                                            "Impossible d’enregistrer la photo",
+                                          ),
                                     ),
                                 },
                               );
@@ -1701,7 +1739,10 @@ function MessagesPage() {
                     {tx("Locked chat", "Discussion verrouillée")}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {tx("Content has not been loaded. Enter your PIN to open it.", "Le contenu n’a pas été chargé. Entrez votre code pour l’ouvrir.")}
+                    {tx(
+                      "Content has not been loaded. Enter your PIN to open it.",
+                      "Le contenu n’a pas été chargé. Entrez votre code pour l’ouvrir.",
+                    )}
                   </p>
                   <Button onClick={() => void openLockedChat(activeId)}>
                     {tx("Unlock", "Déverrouiller")}

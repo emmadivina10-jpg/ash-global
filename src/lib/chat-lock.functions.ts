@@ -28,7 +28,9 @@ export const unlockChat = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { conversationId: string; pin: string }) => ({
     conversationId: String(input?.conversationId ?? ""),
-    pin: String(input?.pin ?? "").replace(/\D/g, "").slice(0, 8),
+    pin: String(input?.pin ?? "")
+      .replace(/\D/g, "")
+      .slice(0, 8),
   }))
   .handler(async ({ data, context }) => {
     if (!data.conversationId || data.pin.length < 4) throw new Error("INVALID_CHAT_PIN");
@@ -59,7 +61,8 @@ export const unlockChat = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!securedConversation) throw new Error("CHAT_NOT_FOUND");
 
-    let participant = securedConversation.client_id === userId || securedConversation.owner_id === userId;
+    let participant =
+      securedConversation.client_id === userId || securedConversation.owner_id === userId;
     if (!participant && securedConversation.provider_id) {
       const { data: provider } = await supabaseAdmin
         .from("provider_profiles")

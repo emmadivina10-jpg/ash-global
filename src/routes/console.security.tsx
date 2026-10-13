@@ -14,7 +14,11 @@ import {
   Waves,
 } from "lucide-react";
 import { toast } from "sonner";
-import { getSecurityAudit, runSecuritySelfCheck, type SecurityEvent } from "@/lib/console.functions";
+import {
+  getSecurityAudit,
+  runSecuritySelfCheck,
+  type SecurityEvent,
+} from "@/lib/console.functions";
 import { getCyberOps } from "@/lib/cyber.functions";
 import { CyberCommandCenter } from "@/components/console/CyberCommandCenter";
 import { MessageMemberDialog } from "@/components/console/MessageMemberDialog";
@@ -79,10 +83,14 @@ function EventRow({ event }: { event: SecurityEvent }) {
           {bits ? ` — ${bits}` : ""}
         </p>
         {event.subject ? (
-          <p className="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">visitor {event.subject}</p>
+          <p className="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">
+            visitor {event.subject}
+          </p>
         ) : null}
       </div>
-      <span className="shrink-0 text-xs text-muted-foreground">{formatDateTime(event.created_at)}</span>
+      <span className="shrink-0 text-xs text-muted-foreground">
+        {formatDateTime(event.created_at)}
+      </span>
     </li>
   );
 }
@@ -128,7 +136,14 @@ function ConsoleSecurity() {
     const header = "created_at,severity,kind,route,subject,detail\n";
     const body = rows
       .map((e) =>
-        [e.created_at, e.severity, e.kind, e.route ?? "", e.subject ?? "", JSON.stringify(e.detail ?? {})]
+        [
+          e.created_at,
+          e.severity,
+          e.kind,
+          e.route ?? "",
+          e.subject ?? "",
+          JSON.stringify(e.detail ?? {}),
+        ]
           .map((v) => `"${String(v).replace(/"/g, '""')}"`)
           .join(","),
       )
@@ -165,7 +180,9 @@ function ConsoleSecurity() {
             onClick={() => setHours(r)}
             className={cn(
               "rounded-full px-3 py-1.5 text-xs font-semibold transition-colors",
-              hours === r ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground",
+              hours === r
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:text-foreground",
             )}
           >
             {RANGE_LABEL[r]}
@@ -180,13 +197,19 @@ function ConsoleSecurity() {
           Export log
         </Button>
         <Button size="sm" onClick={scanNow} disabled={running}>
-          {running ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <PlayCircle className="size-4" aria-hidden />}
+          {running ? (
+            <Loader2 className="size-4 animate-spin" aria-hidden />
+          ) : (
+            <PlayCircle className="size-4" aria-hidden />
+          )}
           Run scan now
         </Button>
       </div>
 
       {data?.overviewError ? (
-        <p className="rounded-xl bg-destructive/10 p-3 text-xs text-destructive">{data.overviewError}</p>
+        <p className="rounded-xl bg-destructive/10 p-3 text-xs text-destructive">
+          {data.overviewError}
+        </p>
       ) : null}
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
@@ -207,7 +230,11 @@ function ConsoleSecurity() {
                 <Gauge
                   className={cn(
                     "size-8",
-                    ops.posture.score >= 85 ? "text-success" : ops.posture.score >= 60 ? "text-gold" : "text-destructive",
+                    ops.posture.score >= 85
+                      ? "text-success"
+                      : ops.posture.score >= 60
+                        ? "text-gold"
+                        : "text-destructive",
                   )}
                   aria-hidden
                 />
@@ -217,12 +244,25 @@ function ConsoleSecurity() {
                 </div>
               </div>
               <ul className="grid flex-1 grid-cols-2 gap-2 text-xs text-muted-foreground sm:grid-cols-4">
-                <li>Critical events: <span className="font-bold text-foreground">{ops.posture.critical}</span></li>
-                <li>Warnings: <span className="font-bold text-foreground">{ops.posture.warn}</span></li>
-                <li>Open safety reports: <span className="font-bold text-foreground">{ops.posture.open_reports}</span></li>
+                <li>
+                  Critical events:{" "}
+                  <span className="font-bold text-foreground">{ops.posture.critical}</span>
+                </li>
+                <li>
+                  Warnings: <span className="font-bold text-foreground">{ops.posture.warn}</span>
+                </li>
+                <li>
+                  Open safety reports:{" "}
+                  <span className="font-bold text-foreground">{ops.posture.open_reports}</span>
+                </li>
                 <li>
                   Scan freshness:{" "}
-                  <span className={cn("font-bold", ops.posture.stale_scan ? "text-destructive" : "text-success")}>
+                  <span
+                    className={cn(
+                      "font-bold",
+                      ops.posture.stale_scan ? "text-destructive" : "text-success",
+                    )}
+                  >
                     {ops.posture.stale_scan ? "Overdue" : "Current"}
                   </span>
                 </li>
@@ -236,17 +276,23 @@ function ConsoleSecurity() {
               description="Requests slowed down on public surfaces in this window. Spikes usually mean scraping or credential stuffing."
             >
               {ops.throttling.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No throttled traffic in this window.</p>
+                <p className="text-sm text-muted-foreground">
+                  No throttled traffic in this window.
+                </p>
               ) : (
                 <ul>
                   {ops.throttling.map((b) => (
-                    <li key={b.bucket} className="flex items-center justify-between gap-3 border-b border-border py-2.5 last:border-0">
+                    <li
+                      key={b.bucket}
+                      className="flex items-center justify-between gap-3 border-b border-border py-2.5 last:border-0"
+                    >
                       <span className="flex min-w-0 items-center gap-2 text-sm font-medium text-foreground">
                         <Waves className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
                         <span className="truncate font-mono text-xs">{b.bucket}</span>
                       </span>
                       <span className="tabular shrink-0 text-xs text-muted-foreground">
-                        {b.subjects} visitor(s) · <span className="font-bold text-foreground">{b.hits}</span> hits
+                        {b.subjects} visitor(s) ·{" "}
+                        <span className="font-bold text-foreground">{b.hits}</span> hits
                       </span>
                     </li>
                   ))}
@@ -266,16 +312,22 @@ function ConsoleSecurity() {
               {ops.webhooks.recent.length > 0 ? (
                 <ul className="mt-3">
                   {ops.webhooks.recent.map((w) => (
-                    <li key={w.id} className="flex items-start justify-between gap-3 border-b border-border py-2.5 last:border-0">
+                    <li
+                      key={w.id}
+                      className="flex items-start justify-between gap-3 border-b border-border py-2.5 last:border-0"
+                    >
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-foreground">
                           {w.source} — {w.outcome}
                         </p>
                         <p className="truncate font-mono text-[11px] text-muted-foreground">
-                          {w.reference ?? "no reference"} · signature {w.signature_verified ? "valid" : "INVALID"}
+                          {w.reference ?? "no reference"} · signature{" "}
+                          {w.signature_verified ? "valid" : "INVALID"}
                         </p>
                       </div>
-                      <span className="shrink-0 text-xs text-muted-foreground">{formatDateTime(w.created_at)}</span>
+                      <span className="shrink-0 text-xs text-muted-foreground">
+                        {formatDateTime(w.created_at)}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -284,20 +336,42 @@ function ConsoleSecurity() {
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
-            <SectionCard title="Staff access" description="Every console seat and when it was last used. Dormant or disabled seats should be removed.">
+            <SectionCard
+              title="Staff access"
+              description="Every console seat and when it was last used. Dormant or disabled seats should be removed."
+            >
               <ul>
                 {ops.staff.map((s) => (
-                  <li key={s.username} className="flex items-center justify-between gap-3 border-b border-border py-2.5 last:border-0">
+                  <li
+                    key={s.username}
+                    className="flex items-center justify-between gap-3 border-b border-border py-2.5 last:border-0"
+                  >
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-foreground">
-                        <KeyRound className="mr-1.5 inline size-3.5 text-muted-foreground" aria-hidden />
+                        <KeyRound
+                          className="mr-1.5 inline size-3.5 text-muted-foreground"
+                          aria-hidden
+                        />
                         {s.full_name}
-                        <span className="ml-2 font-mono text-[11px] text-muted-foreground">@{s.username}</span>
+                        <span className="ml-2 font-mono text-[11px] text-muted-foreground">
+                          @{s.username}
+                        </span>
                       </p>
-                      <p className="text-xs text-muted-foreground">{s.department.replace(/_/g, " ").toLowerCase()}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {s.department.replace(/_/g, " ").toLowerCase()}
+                      </p>
                     </div>
-                    <span className={cn("shrink-0 text-xs", s.is_active ? "text-muted-foreground" : "text-destructive")}>
-                      {s.is_active ? (s.last_login_at ? formatDateTime(s.last_login_at) : "never signed in") : "disabled"}
+                    <span
+                      className={cn(
+                        "shrink-0 text-xs",
+                        s.is_active ? "text-muted-foreground" : "text-destructive",
+                      )}
+                    >
+                      {s.is_active
+                        ? s.last_login_at
+                          ? formatDateTime(s.last_login_at)
+                          : "never signed in"
+                        : "disabled"}
                     </span>
                   </li>
                 ))}
@@ -314,21 +388,31 @@ function ConsoleSecurity() {
             </SectionCard>
           </div>
 
-          <SectionCard title="Privileged actions" description="Everything staff changed with elevated rights, newest first.">
+          <SectionCard
+            title="Privileged actions"
+            description="Everything staff changed with elevated rights, newest first."
+          >
             {ops.adminActions.length === 0 ? (
               <p className="text-sm text-muted-foreground">No privileged actions recorded.</p>
             ) : (
               <ul>
                 {ops.adminActions.map((a) => (
-                  <li key={a.id} className="flex items-start justify-between gap-3 border-b border-border py-2.5 last:border-0">
+                  <li
+                    key={a.id}
+                    className="flex items-start justify-between gap-3 border-b border-border py-2.5 last:border-0"
+                  >
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-foreground">{a.action.replace(/_/g, " ")}</p>
+                      <p className="truncate text-sm font-semibold text-foreground">
+                        {a.action.replace(/_/g, " ")}
+                      </p>
                       <p className="truncate text-xs text-muted-foreground">
                         by {a.actor}
                         {a.reason ? ` — ${a.reason}` : ""}
                       </p>
                     </div>
-                    <span className="shrink-0 text-xs text-muted-foreground">{formatDateTime(a.created_at)}</span>
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      {formatDateTime(a.created_at)}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -353,7 +437,9 @@ function ConsoleSecurity() {
               <p className="text-sm font-semibold text-foreground">
                 {clean ? "No issues found" : `${lastFindings.length} issue(s) found`}
               </p>
-              <span className="ml-auto text-xs text-muted-foreground">{formatDateTime(lastScan.created_at)}</span>
+              <span className="ml-auto text-xs text-muted-foreground">
+                {formatDateTime(lastScan.created_at)}
+              </span>
             </div>
             {lastFindings.length > 0 ? (
               <ul className="mt-3 space-y-2">
@@ -382,10 +468,17 @@ function ConsoleSecurity() {
         >
           <ul>
             {overview.top_subjects.map((s) => (
-              <li key={s.subject} className="flex items-center justify-between gap-3 border-b border-border py-3 last:border-0">
+              <li
+                key={s.subject}
+                className="flex items-center justify-between gap-3 border-b border-border py-3 last:border-0"
+              >
                 <div className="min-w-0">
-                  <p className="truncate font-mono text-xs font-semibold text-foreground">{s.subject}</p>
-                  <p className="mt-0.5 truncate text-xs text-muted-foreground">{s.kinds.join(", ")}</p>
+                  <p className="truncate font-mono text-xs font-semibold text-foreground">
+                    {s.subject}
+                  </p>
+                  <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                    {s.kinds.join(", ")}
+                  </p>
                 </div>
                 <span className="tabular flex shrink-0 items-center gap-1.5 text-sm font-bold text-destructive">
                   <AlertTriangle className="size-3.5" aria-hidden />
@@ -402,8 +495,13 @@ function ConsoleSecurity() {
         <SectionCard title="Events by type">
           <ul>
             {overview.by_kind.map((k) => (
-              <li key={k.kind} className="flex items-center justify-between gap-3 border-b border-border py-2.5 last:border-0">
-                <span className="text-sm font-medium text-foreground">{KIND_LABEL[k.kind] ?? k.kind}</span>
+              <li
+                key={k.kind}
+                className="flex items-center justify-between gap-3 border-b border-border py-2.5 last:border-0"
+              >
+                <span className="text-sm font-medium text-foreground">
+                  {KIND_LABEL[k.kind] ?? k.kind}
+                </span>
                 <span className="tabular text-sm font-bold text-foreground">{k.count}</span>
               </li>
             ))}
@@ -413,7 +511,9 @@ function ConsoleSecurity() {
 
       <SectionCard title="Audit log" description="Most recent 200 recorded security events.">
         {(data?.events ?? []).length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nothing recorded yet — that is the healthy state.</p>
+          <p className="text-sm text-muted-foreground">
+            Nothing recorded yet — that is the healthy state.
+          </p>
         ) : (
           <ul>
             {(data?.events ?? []).map((event) => (

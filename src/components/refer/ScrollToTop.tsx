@@ -23,7 +23,8 @@ export function ScrollToTop() {
         activeScroller.current = target;
       }
 
-      const pane = activeScroller.current ?? document.querySelector<HTMLElement>(".app-shell-scroll");
+      const pane =
+        activeScroller.current ?? document.querySelector<HTMLElement>(".app-shell-scroll");
       const top = Math.max(window.scrollY, pane?.scrollTop ?? 0);
       setVisible(top > SHOW_AFTER);
     };
@@ -39,7 +40,9 @@ export function ScrollToTop() {
 
   function returnToTop() {
     activeScroller.current?.scrollTo({ top: 0, behavior: "smooth" });
-    document.querySelector<HTMLElement>(".app-shell-scroll")?.scrollTo({ top: 0, behavior: "smooth" });
+    document
+      .querySelector<HTMLElement>(".app-shell-scroll")
+      ?.scrollTo({ top: 0, behavior: "smooth" });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 

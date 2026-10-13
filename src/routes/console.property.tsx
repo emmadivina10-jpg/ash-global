@@ -7,7 +7,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { LoadingState } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { PROPERTY_STATUSES, VERIFICATION_STATES, categoryLabel, formatPropertyPrice } from "@/lib/property";
+import {
+  PROPERTY_STATUSES,
+  VERIFICATION_STATES,
+  categoryLabel,
+  formatPropertyPrice,
+} from "@/lib/property";
 import { formatDateTime } from "@/lib/format";
 
 export const Route = createFileRoute("/console/property")({
@@ -88,8 +93,8 @@ function ConsoleProperty() {
           ASH Property
         </h2>
         <p className="text-sm text-muted-foreground">
-          Review adverts, set the verification level shown to renters and act on fraud reports. Never mark a listing
-          verified without real evidence.
+          Review adverts, set the verification level shown to renters and act on fraud reports.
+          Never mark a listing verified without real evidence.
         </p>
       </div>
 
@@ -100,7 +105,9 @@ function ConsoleProperty() {
             type="button"
             onClick={() => setFilter(key)}
             className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
-              filter === key ? "border-primary/60 bg-primary/10 text-primary" : "border-border text-muted-foreground"
+              filter === key
+                ? "border-primary/60 bg-primary/10 text-primary"
+                : "border-border text-muted-foreground"
             }`}
           >
             {key}
@@ -126,11 +133,13 @@ function ConsoleProperty() {
                     {formatPropertyPrice(row.price, row.currency, row.price_period, false)}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {row.owner_name ?? "—"} · {row.contact_phone ?? "no phone"} · {row.view_count} views ·{" "}
-                    {row.inquiry_count} inquiries · created {formatDateTime(row.created_at)}
+                    {row.owner_name ?? "—"} · {row.contact_phone ?? "no phone"} · {row.view_count}{" "}
+                    views · {row.inquiry_count} inquiries · created {formatDateTime(row.created_at)}
                   </p>
                 </div>
-                <Badge className="rounded-full border-0 bg-muted text-[10px] text-muted-foreground">{row.status}</Badge>
+                <Badge className="rounded-full border-0 bg-muted text-[10px] text-muted-foreground">
+                  {row.status}
+                </Badge>
               </div>
 
               <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -148,7 +157,9 @@ function ConsoleProperty() {
                 </select>
                 <select
                   value={row.verification_status}
-                  onChange={(event) => void patch(row.id, { verification_status: event.target.value })}
+                  onChange={(event) =>
+                    void patch(row.id, { verification_status: event.target.value })
+                  }
                   className="h-9 rounded-xl border border-border bg-background px-2 text-xs"
                   aria-label="Verification level"
                 >
@@ -161,7 +172,11 @@ function ConsoleProperty() {
                 <Button size="sm" onClick={() => void patch(row.id, { status: "ACTIVE" })}>
                   Approve
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => void patch(row.id, { status: "REJECTED" })}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => void patch(row.id, { status: "REJECTED" })}
+                >
                   Reject
                 </Button>
               </div>
@@ -179,9 +194,12 @@ function ConsoleProperty() {
             reports?.map((report) => (
               <li key={report.id} className="rounded-xl border border-border p-3 text-sm">
                 <p className="text-foreground">
-                  {report.reason} — <span className="text-xs text-muted-foreground">{report.status}</span>
+                  {report.reason} —{" "}
+                  <span className="text-xs text-muted-foreground">{report.status}</span>
                 </p>
-                {report.details ? <p className="text-xs text-muted-foreground">{report.details}</p> : null}
+                {report.details ? (
+                  <p className="text-xs text-muted-foreground">{report.details}</p>
+                ) : null}
                 <p className="text-[11px] text-muted-foreground">
                   Listing {report.target_id} · {formatDateTime(report.created_at)}
                 </p>

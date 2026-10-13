@@ -3,7 +3,11 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Building2, ExternalLink, Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
-import { getPayoutAccount, getPayoutDashboardLink, startPayoutOnboarding } from "@/lib/payouts.functions";
+import {
+  getPayoutAccount,
+  getPayoutDashboardLink,
+  startPayoutOnboarding,
+} from "@/lib/payouts.functions";
 import { SectionCard } from "@/components/refer/cards";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
@@ -25,9 +29,35 @@ export function PayoutAccountCard({ country }: { country: string }) {
     queryFn: () => fetchAccount({ data: undefined as never }),
   });
 
-  if (isLoading) return <p className="text-sm text-muted-foreground">{tx("Checking payout availability…", "Vérification de la disponibilité…")}</p>;
-  if (error || !data) return <div className="space-y-3"><p className="text-sm text-muted-foreground">{tx("Payout account status is unavailable. No changes have been made.", "Le statut du compte de versement est indisponible. Aucune modification effectuée.")}</p><Button variant="outline" onClick={() => void refetch()}>{tx("Retry", "Réessayer")}</Button></div>;
-  if (!data.configured) return <p className="text-sm text-muted-foreground">{tx("Bank payout setup is not available yet.", "La configuration des versements bancaires n’est pas encore disponible.")}</p>;
+  if (isLoading)
+    return (
+      <p className="text-sm text-muted-foreground">
+        {tx("Checking payout availability…", "Vérification de la disponibilité…")}
+      </p>
+    );
+  if (error || !data)
+    return (
+      <div className="space-y-3">
+        <p className="text-sm text-muted-foreground">
+          {tx(
+            "Payout account status is unavailable. No changes have been made.",
+            "Le statut du compte de versement est indisponible. Aucune modification effectuée.",
+          )}
+        </p>
+        <Button variant="outline" onClick={() => void refetch()}>
+          {tx("Retry", "Réessayer")}
+        </Button>
+      </div>
+    );
+  if (!data.configured)
+    return (
+      <p className="text-sm text-muted-foreground">
+        {tx(
+          "Bank payout setup is not available yet.",
+          "La configuration des versements bancaires n’est pas encore disponible.",
+        )}
+      </p>
+    );
 
   async function connect() {
     // The bank's country (Canada) is what matters, not where the phone is
@@ -57,7 +87,6 @@ export function PayoutAccountCard({ country }: { country: string }) {
     window.location.href = result.url;
   }
 
-
   async function openDashboard() {
     setBusy(true);
     const result = await dashboardLink({ data: undefined as never }).catch(() => null);
@@ -69,7 +98,13 @@ export function PayoutAccountCard({ country }: { country: string }) {
     window.open(result.url, "_blank", "noopener,noreferrer");
   }
 
-  const ready = payoutRoute({country: data.country ?? "CA", detailsSubmitted: data.detailsSubmitted, transfersActive: data.transfersActive === true, payoutsEnabled: data.payoutsEnabled}) === "ELIGIBLE_CANADIAN_BANK";
+  const ready =
+    payoutRoute({
+      country: data.country ?? "CA",
+      detailsSubmitted: data.detailsSubmitted,
+      transfersActive: data.transfersActive === true,
+      payoutsEnabled: data.payoutsEnabled,
+    }) === "ELIGIBLE_CANADIAN_BANK";
   void country;
 
   return (
@@ -86,31 +121,62 @@ export function PayoutAccountCard({ country }: { country: string }) {
             </p>
           ) : (
             <p className="text-sm font-semibold text-foreground">
-              {data.accountId ? tx("Finish verifying your bank account", "Terminer la vérification bancaire") : tx("Add a bank account for payouts", "Ajouter un compte bancaire pour les versements")}
+              {data.accountId
+                ? tx("Finish verifying your bank account", "Terminer la vérification bancaire")
+                : tx(
+                    "Add a bank account for payouts",
+                    "Ajouter un compte bancaire pour les versements",
+                  )}
             </p>
           )}
           <p className="mt-1 text-xs text-muted-foreground">
             {ready
-              ? tx("Your bank is connected. Earnings from verified card bookings are released here once payouts are switched on.", "Votre banque est connectée. Les gains des réservations par carte vérifiées seront versés ici dès l’activation des versements.")
-              : data.onboardingAvailable ? tx("Canadian bank accounts only for now. Your bank details are entered securely on Stripe, never in ASH.", "Comptes bancaires canadiens uniquement pour l’instant. Vos coordonnées bancaires sont saisies en toute sécurité sur Stripe, jamais dans ASH.")
-              : tx("Provider onboarding is awaiting approval.", "L’inscription des prestataires est en attente d’approbation.")}
+              ? tx(
+                  "Your bank is connected. Earnings from verified card bookings are released here once payouts are switched on.",
+                  "Votre banque est connectée. Les gains des réservations par carte vérifiées seront versés ici dès l’activation des versements.",
+                )
+              : data.onboardingAvailable
+                ? tx(
+                    "Canadian bank accounts only for now. Your bank details are entered securely on Stripe, never in ASH.",
+                    "Comptes bancaires canadiens uniquement pour l’instant. Vos coordonnées bancaires sont saisies en toute sécurité sur Stripe, jamais dans ASH.",
+                  )
+                : tx(
+                    "Provider onboarding is awaiting approval.",
+                    "L’inscription des prestataires est en attente d’approbation.",
+                  )}
           </p>
           {!ready && data.requirementsDue.length > 0 ? (
             <p className="mt-1 text-xs text-muted-foreground">
-              {tx("Still needed:", "Éléments nécessaires :")} {data.requirementsDue.slice(0, 3).join(", ")}
+              {tx("Still needed:", "Éléments nécessaires :")}{" "}
+              {data.requirementsDue.slice(0, 3).join(", ")}
             </p>
           ) : null}
 
           <div className="mt-3 flex flex-wrap gap-2">
             {ready ? (
-              <Button size="sm" variant="outline" disabled={busy} onClick={() => void openDashboard()}>
-                {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <ExternalLink className="size-4" aria-hidden />}
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={busy}
+                onClick={() => void openDashboard()}
+              >
+                {busy ? (
+                  <Loader2 className="size-4 animate-spin" aria-hidden />
+                ) : (
+                  <ExternalLink className="size-4" aria-hidden />
+                )}
                 {tx("Payout dashboard", "Espace de versement")}
               </Button>
             ) : (
-              <Button size="sm" disabled={busy || !LIVE_PROVIDER_ONBOARDING_ENABLED || !data.onboardingAvailable} onClick={() => void connect()}>
+              <Button
+                size="sm"
+                disabled={busy || !LIVE_PROVIDER_ONBOARDING_ENABLED || !data.onboardingAvailable}
+                onClick={() => void connect()}
+              >
                 {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-                {data.accountId ? tx("Continue verification", "Continuer la vérification") : tx("Connect bank account", "Connecter un compte bancaire")}
+                {data.accountId
+                  ? tx("Continue verification", "Continuer la vérification")
+                  : tx("Connect bank account", "Connecter un compte bancaire")}
               </Button>
             )}
           </div>

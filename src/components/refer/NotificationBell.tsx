@@ -43,7 +43,12 @@ export function NotificationBell() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative rounded-full" aria-label="Notifications">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative rounded-full"
+          aria-label="Notifications"
+        >
           <Bell className="size-5" aria-hidden />
           {unread.length > 0 ? (
             <span className="absolute right-0.5 top-0.5 grid min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
@@ -72,10 +77,10 @@ export function NotificationBell() {
             ) : null}
           </div>
           <div className="flex items-center gap-2">
-            {([
+            {[
               { id: "ALL" as const, en: "All", fr: "Toutes" },
               { id: "UNREAD" as const, en: "Unread", fr: "Non lues" },
-            ]).map((option) => (
+            ].map((option) => (
               <button
                 key={option.id}
                 type="button"
@@ -121,24 +126,40 @@ export function NotificationBell() {
                 }}
                 className="flex w-full items-start gap-3 rounded-2xl px-2.5 py-2.5 text-left transition-colors hover:bg-secondary"
               >
-                  <span className="relative z-0 shrink-0">
+                <span className="relative z-0 shrink-0">
                   <Avatar
                     path={n.actor?.avatar_url ?? null}
-                    name={n.actor?.name ?? (tx("Profile", "Profil"))}
+                    name={n.actor?.name ?? tx("Profile", "Profil")}
                     className="size-11"
-                     online={false}
+                    online={false}
                   />
-                   <span className="brand-gradient absolute -bottom-0.5 -right-0.5 z-10 grid size-5 place-items-center rounded-full border-2 border-card text-primary-foreground">
+                  <span className="brand-gradient absolute -bottom-0.5 -right-0.5 z-10 grid size-5 place-items-center rounded-full border-2 border-card text-primary-foreground">
                     <Bell className="size-2.5" aria-hidden />
                   </span>
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm leading-snug text-foreground">
-                    {n.actor?.name ? <span className="inline-flex items-center gap-1 font-bold">{n.actor.name}<VerifiedBadge tier={n.actor.verified_tier} until={n.actor.verified_until} size={13} /></span> : null}{" "}
+                    {n.actor?.name ? (
+                      <span className="inline-flex items-center gap-1 font-bold">
+                        {n.actor.name}
+                        <VerifiedBadge
+                          tier={n.actor.verified_tier}
+                          until={n.actor.verified_until}
+                          size={13}
+                        />
+                      </span>
+                    ) : null}{" "}
                     <span className={cn(!n.read_at && "font-semibold")}>{n.title}</span>
                   </span>
-                  <span className="mt-0.5 block line-clamp-2 text-xs text-muted-foreground">{n.body}</span>
-                  <span className={cn("mt-1 block text-[11px] font-semibold", !n.read_at ? "text-primary" : "text-muted-foreground")}>
+                  <span className="mt-0.5 block line-clamp-2 text-xs text-muted-foreground">
+                    {n.body}
+                  </span>
+                  <span
+                    className={cn(
+                      "mt-1 block text-[11px] font-semibold",
+                      !n.read_at ? "text-primary" : "text-muted-foreground",
+                    )}
+                  >
                     {timeAgo(n.created_at)}
                   </span>
                 </span>

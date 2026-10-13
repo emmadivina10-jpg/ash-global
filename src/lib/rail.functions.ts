@@ -19,13 +19,23 @@ function decode(value: string): string {
  */
 export const getLocalNews = createServerFn({ method: "GET" })
   .inputValidator((input: { country?: string | undefined; lang?: string | undefined }) => ({
-    country: String(input?.country ?? "CM").toUpperCase().replace(/[^A-Z]/g, "").slice(0, 2) || "CM",
-    lang: String(input?.lang ?? "en").toLowerCase().replace(/[^a-z]/g, "").slice(0, 2) || "en",
+    country:
+      String(input?.country ?? "CM")
+        .toUpperCase()
+        .replace(/[^A-Z]/g, "")
+        .slice(0, 2) || "CM",
+    lang:
+      String(input?.lang ?? "en")
+        .toLowerCase()
+        .replace(/[^a-z]/g, "")
+        .slice(0, 2) || "en",
   }))
   .handler(async ({ data }): Promise<{ items: NewsItem[] }> => {
     const url = `https://news.google.com/rss?hl=${data.lang}&gl=${data.country}&ceid=${data.country}:${data.lang}`;
     try {
-      const response = await fetch(url, { headers: { "user-agent": "ASHGlo/1.0 (+https://ash-global.lovable.app)" } });
+      const response = await fetch(url, {
+        headers: { "user-agent": "ASHGlo/1.0 (+https://ash-global.lovable.app)" },
+      });
       if (!response.ok) return { items: [] };
       const xml = await response.text();
 

@@ -6,7 +6,13 @@ import { Avatar } from "@/components/refer/AvatarUpload";
 import { GroupVerifiedBadge } from "@/components/refer/GroupBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   useAddGroupMembers,
   useCreateGroup,
@@ -107,7 +113,10 @@ function GroupsPage() {
             <div className="max-h-56 space-y-1 overflow-y-auto">
               {candidates.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  {tx("Search someone by name to add them.", "Cherchez un membre par son nom pour l'ajouter.")}
+                  {tx(
+                    "Search someone by name to add them.",
+                    "Cherchez un membre par son nom pour l'ajouter.",
+                  )}
                 </p>
               ) : (
                 candidates.map((person) => (
@@ -120,12 +129,20 @@ function GroupsPage() {
                       selected.includes(person.id) ? "bg-primary/10" : "hover:bg-muted",
                     )}
                   >
-                     <Avatar path={person.avatar_url} name={person.name} online={person.online} hasUpdate={person.has_update} className="size-9" />
+                    <Avatar
+                      path={person.avatar_url}
+                      name={person.name}
+                      online={person.online}
+                      hasUpdate={person.has_update}
+                      className="size-9"
+                    />
                     <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
                       {person.name}
                     </span>
                     {selected.includes(person.id) ? (
-                      <span className="text-xs font-bold text-primary">{tx("Added", "Ajouté")}</span>
+                      <span className="text-xs font-bold text-primary">
+                        {tx("Added", "Ajouté")}
+                      </span>
                     ) : null}
                   </button>
                 ))
@@ -146,7 +163,9 @@ function GroupsPage() {
                       setPeopleTerm("");
                     },
                     onError: (error) =>
-                      toast.error(error instanceof Error ? error.message : "Could not create the group."),
+                      toast.error(
+                        error instanceof Error ? error.message : "Could not create the group.",
+                      ),
                   },
                 )
               }
@@ -225,13 +244,19 @@ function GroupsPage() {
         </div>
       )}
 
-      <Dialog open={Boolean(confirmDelete)} onOpenChange={(value) => !value && setConfirmDelete(null)}>
+      <Dialog
+        open={Boolean(confirmDelete)}
+        onOpenChange={(value) => !value && setConfirmDelete(null)}
+      >
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>{tx("Delete this group?", "Supprimer ce groupe ?")}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            {tx("The group and its whole conversation are permanently removed for every member.", "Le groupe et toute la conversation seront définitivement supprimés pour tous les membres.")}
+            {tx(
+              "The group and its whole conversation are permanently removed for every member.",
+              "Le groupe et toute la conversation seront définitivement supprimés pour tous les membres.",
+            )}
           </p>
           <div className="flex gap-2">
             <Button variant="outline" className="flex-1" onClick={() => setConfirmDelete(null)}>
@@ -248,11 +273,14 @@ function GroupsPage() {
                     toast.success(tx("Group deleted", "Groupe supprimé"));
                     setConfirmDelete(null);
                   },
-                  onError: () => toast.error(tx("Could not delete the group", "Échec de la suppression")),
+                  onError: () =>
+                    toast.error(tx("Could not delete the group", "Échec de la suppression")),
                 });
               }}
             >
-              {removeGroup.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+              {removeGroup.isPending ? (
+                <Loader2 className="size-4 animate-spin" aria-hidden />
+              ) : null}
               {tx("Delete", "Supprimer")}
             </Button>
           </div>
@@ -281,7 +309,13 @@ function GroupsPage() {
                   addSelected.includes(person.id) ? "bg-primary/10" : "hover:bg-muted",
                 )}
               >
-                 <Avatar path={person.avatar_url} name={person.name} online={person.online} hasUpdate={person.has_update} className="size-9" />
+                <Avatar
+                  path={person.avatar_url}
+                  name={person.name}
+                  online={person.online}
+                  hasUpdate={person.has_update}
+                  className="size-9"
+                />
                 <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
                   {person.name}
                 </span>

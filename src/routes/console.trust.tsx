@@ -15,7 +15,10 @@ export const Route = createFileRoute("/console/trust")({
 
 function TrustPage() {
   const load = useServerFn(getMarketplaceHealth);
-  const { data, isLoading } = useQuery({ queryKey: ["console", "marketplace-health"], queryFn: load });
+  const { data, isLoading } = useQuery({
+    queryKey: ["console", "marketplace-health"],
+    queryFn: load,
+  });
 
   if (isLoading) return <LoadingState label="Loading verification queue…" />;
 
@@ -23,7 +26,9 @@ function TrustPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="font-display text-xl font-extrabold text-foreground">Trust & Verification</h2>
+          <h2 className="font-display text-xl font-extrabold text-foreground">
+            Trust & Verification
+          </h2>
           <p className="text-sm text-muted-foreground">
             Review storefronts and award the ASH verified badge so clients transact safely.
           </p>

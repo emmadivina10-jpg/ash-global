@@ -106,7 +106,11 @@ function Composer({ space }: { space: ForumSpace }) {
 
           {image ? (
             <div className="relative mt-2 overflow-hidden rounded-2xl border border-border">
-              <img src={URL.createObjectURL(image)} alt="" className="max-h-64 w-full object-cover" />
+              <img
+                src={URL.createObjectURL(image)}
+                alt=""
+                className="max-h-64 w-full object-cover"
+              />
               <button
                 type="button"
                 onClick={() => setImage(null)}
@@ -171,13 +175,21 @@ function Replies({ postId }: { postId: string }) {
 
       {(comments ?? []).map((comment) => (
         <div key={comment.id} className="flex gap-2.5">
-          <Avatar path={comment.author.avatar_url} name={comment.author.name} className="size-8 shrink-0" />
+          <Avatar
+            path={comment.author.avatar_url}
+            name={comment.author.name}
+            className="size-8 shrink-0"
+          />
           <div className="min-w-0 flex-1 rounded-2xl bg-muted/50 px-3 py-2">
             <p className="text-xs font-bold text-foreground">
               {comment.author.name}{" "}
-              <span className="font-normal text-muted-foreground">· {timeAgo(comment.created_at, fr)}</span>
+              <span className="font-normal text-muted-foreground">
+                · {timeAgo(comment.created_at, fr)}
+              </span>
             </p>
-            <p className="mt-0.5 whitespace-pre-wrap text-sm leading-6 text-foreground">{comment.body}</p>
+            <p className="mt-0.5 whitespace-pre-wrap text-sm leading-6 text-foreground">
+              {comment.body}
+            </p>
           </div>
         </div>
       ))}
@@ -219,7 +231,11 @@ function PostCard({ post }: { post: ForumPost }) {
   return (
     <article className="rounded-3xl border border-border bg-card p-4 shadow-[var(--shadow-card)]">
       <div className="flex gap-3">
-        <Avatar path={post.author.avatar_url} name={post.author.name} className="size-10 shrink-0" />
+        <Avatar
+          path={post.author.avatar_url}
+          name={post.author.name}
+          className="size-10 shrink-0"
+        />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <p className="text-sm font-extrabold text-foreground">{post.author.name}</p>
@@ -229,7 +245,9 @@ function PostCard({ post }: { post: ForumPost }) {
             </span>
           </div>
 
-          <p className="mt-1.5 whitespace-pre-wrap text-sm leading-6 text-foreground">{post.body}</p>
+          <p className="mt-1.5 whitespace-pre-wrap text-sm leading-6 text-foreground">
+            {post.body}
+          </p>
 
           {post.image_url ? (
             <img
@@ -279,7 +297,10 @@ function IncubatorForumPage() {
   return (
     <div className="mx-auto w-full max-w-2xl space-y-4 pb-16">
       <section className="relative overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
-        <div className="absolute right-[-10%] top-[-40%] size-48 rounded-full bg-primary/10 blur-3xl" aria-hidden />
+        <div
+          className="absolute right-[-10%] top-[-40%] size-48 rounded-full bg-primary/10 blur-3xl"
+          aria-hidden
+        />
         <div className="relative">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/40 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.16em] text-muted-foreground">
             <Rocket className="size-3 text-primary" aria-hidden />
@@ -289,7 +310,10 @@ function IncubatorForumPage() {
             {tx("The ASH builders forum", "Le forum des builders ASH")}
           </h1>
           <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
-            {tx("Share what you are building, ask your questions and move forward with students, founders and tech builders.", "Partagez ce que vous construisez, posez vos questions et avancez avec des étudiants, fondateurs et builders tech.")}
+            {tx(
+              "Share what you are building, ask your questions and move forward with students, founders and tech builders.",
+              "Partagez ce que vous construisez, posez vos questions et avancez avec des étudiants, fondateurs et builders tech.",
+            )}
           </p>
         </div>
       </section>
@@ -330,7 +354,9 @@ function IncubatorForumPage() {
       <Composer space={space} />
 
       {isLoading ? (
-        <p className="px-1 text-sm text-muted-foreground">{tx("Loading the forum…", "Chargement du forum…")}</p>
+        <p className="px-1 text-sm text-muted-foreground">
+          {tx("Loading the forum…", "Chargement du forum…")}
+        </p>
       ) : (posts ?? []).length === 0 ? (
         <div className="rounded-3xl border border-dashed border-border bg-card/60 p-8 text-center">
           <Sparkles className="mx-auto size-5 text-primary" aria-hidden />
@@ -338,7 +364,10 @@ function IncubatorForumPage() {
             {tx("Be the first to post.", "Soyez le premier à publier.")}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            {tx("Introduce yourself or share the project you are working on.", "Présentez-vous ou partagez le projet sur lequel vous travaillez.")}
+            {tx(
+              "Introduce yourself or share the project you are working on.",
+              "Présentez-vous ou partagez le projet sur lequel vous travaillez.",
+            )}
           </p>
         </div>
       ) : (

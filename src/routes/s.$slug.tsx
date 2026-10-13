@@ -1,6 +1,15 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { BadgeCheck, CalendarCheck, Clock, MapPin, MessageCircle, Play, Share2, Star } from "lucide-react";
+import {
+  BadgeCheck,
+  CalendarCheck,
+  Clock,
+  MapPin,
+  MessageCircle,
+  Play,
+  Share2,
+  Star,
+} from "lucide-react";
 import { toast } from "sonner";
 import { getStorefront, type Storefront } from "@/lib/storefront.functions";
 import { Button } from "@/components/ui/button";
@@ -12,7 +21,11 @@ const SITE = "https://ashglogroup.company";
 const FALLBACK_IMAGE = `${SITE}/ash-social.png`;
 
 function previewImage(store: Storefront | null): string {
-  const candidates = [store?.cover_url, store?.avatar_url, store?.photos?.find((p) => !isVideoSource(p.url))?.url];
+  const candidates = [
+    store?.cover_url,
+    store?.avatar_url,
+    store?.photos?.find((p) => !isVideoSource(p.url))?.url,
+  ];
   const found = candidates.find((u) => typeof u === "string" && u.startsWith("https://"));
   return found ?? FALLBACK_IMAGE;
 }
@@ -34,7 +47,8 @@ export const Route = createFileRoute("/s/$slug")({
       };
     }
     const title = `${store.business_name}${store.city ? ` · ${store.city}` : ""} — Book on ASH Glo`;
-    const cheapest = store.services.length > 0 ? Math.min(...store.services.map((s) => s.price)) : null;
+    const cheapest =
+      store.services.length > 0 ? Math.min(...store.services.map((s) => s.price)) : null;
     const description = `${store.tagline ?? store.bio ?? `Book ${store.business_name} on ASH Glo`}${
       cheapest ? ` · From ${cheapest.toLocaleString("fr-FR")} XAF` : ""
     } · ${store.rating_avg.toFixed(1)}★ (${store.rating_count} reviews)`.slice(0, 158);
@@ -65,7 +79,9 @@ function StoreMissing() {
     <main className="mx-auto grid min-h-dvh max-w-md place-items-center p-6 text-center">
       <div>
         <h1 className="font-display text-2xl font-bold text-foreground">Storefront not found</h1>
-        <p className="mt-2 text-sm text-muted-foreground">This ASH storefront is offline or the link is wrong.</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          This ASH storefront is offline or the link is wrong.
+        </p>
         <Button asChild className="mt-5">
           <Link to="/">Explore ASH Glo</Link>
         </Button>
@@ -89,10 +105,16 @@ function StorefrontPage() {
         image: previewImage(store),
         url: shareUrl,
         telephone: store.phone ?? undefined,
-        address: store.city ? { "@type": "PostalAddress", addressLocality: store.city, addressCountry: "CM" } : undefined,
+        address: store.city
+          ? { "@type": "PostalAddress", addressLocality: store.city, addressCountry: "CM" }
+          : undefined,
         aggregateRating:
           store.rating_count > 0
-            ? { "@type": "AggregateRating", ratingValue: store.rating_avg, reviewCount: store.rating_count }
+            ? {
+                "@type": "AggregateRating",
+                ratingValue: store.rating_avg,
+                reviewCount: store.rating_count,
+              }
             : undefined,
         makesOffer: store.services.map((s) => ({
           "@type": "Offer",
@@ -140,15 +162,29 @@ function StorefrontPage() {
         <div className="overflow-hidden rounded-3xl border border-border bg-card">
           <div className="relative h-36 bg-gradient-to-br from-primary/30 via-primary/10 to-transparent sm:h-44">
             {store.cover_url ? (
-              <img src={store.cover_url} alt="" className="size-full object-cover" loading="eager" />
+              <img
+                src={store.cover_url}
+                alt=""
+                className="size-full object-cover"
+                loading="eager"
+              />
             ) : store.photos.find((p) => !isVideoSource(p.url)) ? (
-              <img src={store.photos.find((p) => !isVideoSource(p.url))!.url} alt="" className="size-full object-cover" loading="eager" />
+              <img
+                src={store.photos.find((p) => !isVideoSource(p.url))!.url}
+                alt=""
+                className="size-full object-cover"
+                loading="eager"
+              />
             ) : null}
           </div>
           <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-4 p-4 sm:p-5">
             <div className="-mt-12 size-20 overflow-hidden rounded-2xl border-4 border-card bg-muted">
               {store.avatar_url ? (
-                <img src={store.avatar_url} alt={store.business_name} className="size-full object-cover" />
+                <img
+                  src={store.avatar_url}
+                  alt={store.business_name}
+                  className="size-full object-cover"
+                />
               ) : (
                 <div className="grid size-full place-items-center font-display text-2xl font-black text-primary">
                   {store.business_name.charAt(0)}
@@ -157,14 +193,20 @@ function StorefrontPage() {
             </div>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="truncate font-display text-2xl font-extrabold text-foreground">{store.business_name}</h1>
+                <h1 className="truncate font-display text-2xl font-extrabold text-foreground">
+                  {store.business_name}
+                </h1>
                 {store.is_verified ? <VerifiedBadge /> : null}
               </div>
-              {store.tagline ? <p className="mt-1 text-sm text-muted-foreground">{store.tagline}</p> : null}
+              {store.tagline ? (
+                <p className="mt-1 text-sm text-muted-foreground">{store.tagline}</p>
+              ) : null}
               <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Star className="size-3.5 fill-gold text-gold" aria-hidden />
-                  <span className="tabular font-semibold text-foreground">{store.rating_avg.toFixed(1)}</span>
+                  <span className="tabular font-semibold text-foreground">
+                    {store.rating_avg.toFixed(1)}
+                  </span>
                   <span>({store.rating_count})</span>
                 </span>
                 {store.city ? (
@@ -252,7 +294,13 @@ function StorefrontPage() {
                 >
                   {video ? (
                     <>
-                      <video src={p.url} muted playsInline preload="metadata" className="aspect-square w-full object-cover" />
+                      <video
+                        src={p.url}
+                        muted
+                        playsInline
+                        preload="metadata"
+                        className="aspect-square w-full object-cover"
+                      />
                       <span className="absolute inset-0 grid place-items-center bg-black/30">
                         <span className="grid size-9 place-items-center rounded-full bg-white/90 text-black">
                           <Play className="size-4 fill-current" aria-hidden />
@@ -284,7 +332,11 @@ function StorefrontPage() {
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
                       key={i}
-                      className={i < r.rating ? "size-3.5 fill-gold text-gold" : "size-3.5 text-muted-foreground/40"}
+                      className={
+                        i < r.rating
+                          ? "size-3.5 fill-gold text-gold"
+                          : "size-3.5 text-muted-foreground/40"
+                      }
                       aria-hidden
                     />
                   ))}

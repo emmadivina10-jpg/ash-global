@@ -26,7 +26,6 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/account-deletion", changefreq: "yearly", priority: "0.3" },
           { path: "/support", changefreq: "monthly", priority: "0.4" },
           { path: "/contact", changefreq: "monthly", priority: "0.4" },
-
         ];
 
         // Live storefronts are public, shareable landing pages worth indexing.
@@ -40,7 +39,8 @@ export const Route = createFileRoute("/sitemap.xml")({
               global: {
                 fetch: (input, init) => {
                   const h = new Headers(init?.headers);
-                  if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+                  if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
+                    h.delete("Authorization");
                   h.set("apikey", key);
                   return fetch(input, { ...init, headers: h });
                 },
@@ -53,7 +53,11 @@ export const Route = createFileRoute("/sitemap.xml")({
               .not("slug", "is", null)
               .limit(500);
             for (const row of data ?? []) {
-              entries.push({ path: `/s/${row.slug as string}`, changefreq: "weekly", priority: "0.8" });
+              entries.push({
+                path: `/s/${row.slug as string}`,
+                changefreq: "weekly",
+                priority: "0.8",
+              });
             }
           }
         } catch {

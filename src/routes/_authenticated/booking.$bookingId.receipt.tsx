@@ -11,7 +11,10 @@ export const Route = createFileRoute("/_authenticated/booking/$bookingId/receipt
       { title: "Booking receipt — ASH Glo" },
       { name: "description", content: "Official ASH Glo receipt for your service booking." },
       { property: "og:title", content: "Booking receipt — ASH Glo" },
-      { property: "og:description", content: "Payment, booking and verification details for an ASH booking." },
+      {
+        property: "og:description",
+        content: "Payment, booking and verification details for an ASH booking.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -27,7 +30,12 @@ function ReceiptPage() {
     queryKey: ["bookings", "receipt", bookingId],
     queryFn: () => fetchReceipt({ data: { bookingId } }),
   });
-  if (error) return <p className="p-6 text-sm text-muted-foreground">{lang === "fr" ? "Reçu introuvable." : "Receipt not found."}</p>;
+  if (error)
+    return (
+      <p className="p-6 text-sm text-muted-foreground">
+        {lang === "fr" ? "Reçu introuvable." : "Receipt not found."}
+      </p>
+    );
   if (!data) return <p className="p-6 text-sm text-muted-foreground">…</p>;
   return <BookingReceiptView r={data} fr={lang === "fr"} />;
 }

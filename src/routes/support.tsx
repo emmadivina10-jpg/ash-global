@@ -23,7 +23,10 @@ export const Route = createFileRoute("/support")({
           "Reach ASH Global Technologies about ASH Glo payments, withdrawals, bookings, privacy, safety or your account.",
       },
       { property: "og:title", content: "Contact ASH Glo Support" },
-      { property: "og:description", content: "Questions about payments, withdrawals or bookings? Message our team." },
+      {
+        property: "og:description",
+        content: "Questions about payments, withdrawals or bookings? Message our team.",
+      },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://ashglogroup.company/support" },
       { name: "twitter:card", content: "summary" },
@@ -70,7 +73,9 @@ function SupportPage() {
         const map: Record<string, string> = {
           MISSING_FIELDS: fr ? "Remplissez tous les champs." : "Please fill in every field.",
           INVALID_EMAIL: fr ? "Adresse e-mail invalide." : "That email address looks invalid.",
-          RATE_LIMITED: fr ? "Trop de messages. Réessayez plus tard." : "Too many messages. Try again later.",
+          RATE_LIMITED: fr
+            ? "Trop de messages. Réessayez plus tard."
+            : "Too many messages. Try again later.",
         };
         toast.error(map[result.error] ?? result.error);
         return;
@@ -89,7 +94,11 @@ function SupportPage() {
     <PublicInfoShell
       eyebrow={fr ? "Aide aux membres" : "Member care"}
       title={fr ? "Support ASH" : "ASH Support"}
-      description={fr ? "Aide pour votre compte, réservations, paiements carte/Stripe, MTN/Orange Money et retraits disponibles." : "Get help with your account, bookings, card/Stripe payments, MTN/Orange Money and supported withdrawals."}
+      description={
+        fr
+          ? "Aide pour votre compte, réservations, paiements carte/Stripe, MTN/Orange Money et retraits disponibles."
+          : "Get help with your account, bookings, card/Stripe payments, MTN/Orange Money and supported withdrawals."
+      }
     >
       <div className="mb-6 flex items-center gap-3 rounded-2xl border border-border bg-card p-4">
         <span className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary">
@@ -114,7 +123,8 @@ function SupportPage() {
             {fr ? "Message reçu" : "Message received"}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {fr ? "Référence" : "Reference"} <span className="font-semibold text-foreground">{reference}</span>.{" "}
+            {fr ? "Référence" : "Reference"}{" "}
+            <span className="font-semibold text-foreground">{reference}</span>.{" "}
             {fr
               ? "Notre réponse arrivera à votre adresse e-mail."
               : "Our reply will arrive at your email address."}
@@ -129,11 +139,19 @@ function SupportPage() {
           </div>
         </div>
       ) : (
-        <form onSubmit={submit} className="space-y-4 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)] sm:p-6">
+        <form
+          onSubmit={submit}
+          className="space-y-4 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)] sm:p-6"
+        >
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="support-name">{fr ? "Nom" : "Name"}</Label>
-              <Input id="support-name" value={name} onChange={(e) => setName(e.target.value)} required />
+              <Input
+                id="support-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="support-email">{fr ? "E-mail" : "Email"}</Label>
@@ -165,7 +183,12 @@ function SupportPage() {
 
           <div className="space-y-1.5">
             <Label htmlFor="support-subject">{fr ? "Objet" : "Subject"}</Label>
-            <Input id="support-subject" value={subject} onChange={(e) => setSubject(e.target.value)} required />
+            <Input
+              id="support-subject"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              required
+            />
           </div>
 
           <div className="space-y-1.5">

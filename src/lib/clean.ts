@@ -6,7 +6,11 @@ export const CLEAN_TIMELINE = [
   { key: "COLLECTED", en: "Laundry collected", fr: "Linge collecté" },
   { key: "RECEIVED", en: "Received at ASH Clean", fr: "Reçu chez ASH Clean" },
   { key: "WEIGHED", en: "Weighed", fr: "Pesé" },
-  { key: "AWAITING_APPROVAL", en: "Awaiting your price approval", fr: "En attente de votre accord" },
+  {
+    key: "AWAITING_APPROVAL",
+    en: "Awaiting your price approval",
+    fr: "En attente de votre accord",
+  },
   { key: "APPROVED", en: "Price approved & paid", fr: "Prix accepté et payé" },
   { key: "WASHING", en: "Washing", fr: "Lavage" },
   { key: "DRYING", en: "Drying", fr: "Séchage" },

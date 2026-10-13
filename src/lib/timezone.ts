@@ -38,7 +38,9 @@ export const DEFAULT_PROVIDER_ZONE = "Africa/Douala";
 
 /** IANA timezone a provider's published hours are expressed in. */
 export function providerTimeZone(country: string | null | undefined): string {
-  const code = String(country ?? "").trim().toUpperCase();
+  const code = String(country ?? "")
+    .trim()
+    .toUpperCase();
   return ZONE_BY_COUNTRY[code] ?? DEFAULT_PROVIDER_ZONE;
 }
 

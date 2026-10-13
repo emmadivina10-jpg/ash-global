@@ -28,7 +28,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ACTIVATION_FEE, formatXAF } from "@/lib/format";
 import { Switch } from "@/components/ui/switch";
-import { playNotificationSound, playTabSound, setSoundMuted, setUiSoundMuted, soundMuted, uiSoundMuted } from "@/lib/sound";
+import {
+  playNotificationSound,
+  playTabSound,
+  setSoundMuted,
+  setUiSoundMuted,
+  soundMuted,
+  uiSoundMuted,
+} from "@/lib/sound";
 import { useLocation } from "@/lib/location";
 import { useOrbVisible } from "@/lib/orb-visibility";
 import {
@@ -50,7 +57,8 @@ export const Route = createFileRoute("/_authenticated/settings")({
       { property: "og:title", content: "Settings — ASH" },
       {
         property: "og:description",
-        content: "ASH — Where Opportunities Connect. About the platform, privacy and account controls.",
+        content:
+          "ASH — Where Opportunities Connect. About the platform, privacy and account controls.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -154,7 +162,13 @@ function SettingsPage() {
         action={<Info className="size-4 text-muted-foreground" aria-hidden />}
       >
         <Paragraphs
-          keys={["settings.about.1", "settings.about.2", "settings.about.3", "settings.about.4", "settings.about.5"]}
+          keys={[
+            "settings.about.1",
+            "settings.about.2",
+            "settings.about.3",
+            "settings.about.4",
+            "settings.about.5",
+          ]}
           vars={{ fee: formatXAF(ACTIVATION_FEE) }}
         />
         <div className="mt-4 flex flex-wrap gap-2">
@@ -184,7 +198,10 @@ function SettingsPage() {
       >
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm leading-relaxed text-muted-foreground">
-            {tx("Play a sound when a new message or notification arrives while the app is open.", "Jouer un son quand un nouveau message ou une notification arrive pendant que l'application est ouverte.")}
+            {tx(
+              "Play a sound when a new message or notification arrives while the app is open.",
+              "Jouer un son quand un nouveau message ou une notification arrive pendant que l'application est ouverte.",
+            )}
           </p>
           <Switch
             checked={!soundOff}
@@ -201,7 +218,10 @@ function SettingsPage() {
       <SectionCard title={tx("Tap & refresh sounds", "Sons de navigation")}>
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm leading-relaxed text-muted-foreground">
-            {tx("Play a short sound when switching tabs and refreshing.", "Jouer un petit son en changeant d’onglet et en actualisant.")}
+            {tx(
+              "Play a short sound when switching tabs and refreshing.",
+              "Jouer un petit son en changeant d’onglet et en actualisant.",
+            )}
           </p>
           <Switch
             checked={!uiOff}
@@ -236,7 +256,10 @@ function SettingsPage() {
                 {tx("Personalized recommendations", "Recommandations personnalisées")}
               </p>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                {tx("Let ASH choose what you see based on what interests you. Turned off, you simply see recent and popular content like everyone else.", "Laisser ASH choisir ce qui vous est montré en fonction de ce qui vous intéresse. Désactivé, vous voyez le contenu récent et populaire comme tout le monde.")}
+                {tx(
+                  "Let ASH choose what you see based on what interests you. Turned off, you simply see recent and popular content like everyone else.",
+                  "Laisser ASH choisir ce qui vous est montré en fonction de ce qui vous intéresse. Désactivé, vous voyez le contenu récent et populaire comme tout le monde.",
+                )}
               </p>
             </div>
             <Switch
@@ -250,7 +273,10 @@ function SettingsPage() {
             <div>
               <p className="text-sm font-semibold">{tx("Use my city", "Utiliser ma ville")}</p>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                {tx("Show people, services and offers closer to you. Only the city name is used — never your exact position.", "Mettre en avant les personnes, services et offres proches de vous. Seul le nom de la ville est utilisé, jamais votre position exacte.")}
+                {tx(
+                  "Show people, services and offers closer to you. Only the city name is used — never your exact position.",
+                  "Mettre en avant les personnes, services et offres proches de vous. Seul le nom de la ville est utilisé, jamais votre position exacte.",
+                )}
               </p>
             </div>
             <Switch
@@ -266,7 +292,10 @@ function SettingsPage() {
                 {tx("Use my activity", "Utiliser mon activité")}
               </p>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                {tx("Take into account what you open, like or save. Turned off, ASH stops recording this activity.", "Tenir compte de ce que vous ouvrez, aimez ou enregistrez. Désactivé, ASH arrête d'enregistrer cette activité.")}
+                {tx(
+                  "Take into account what you open, like or save. Turned off, ASH stops recording this activity.",
+                  "Tenir compte de ce que vous ouvrez, aimez ou enregistrez. Désactivé, ASH arrête d'enregistrer cette activité.",
+                )}
               </p>
             </div>
             <Switch
@@ -281,7 +310,10 @@ function SettingsPage() {
               {tx("Clear my personalization history", "Effacer mon historique de personnalisation")}
             </p>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              {tx("Deletes only what ASH learned from your activity. Your posts, comments, messages, bookings, wallet, referrals and friends are not touched.", "Supprime uniquement ce qu'ASH a retenu de votre activité. Vos publications, commentaires, messages, réservations, portefeuille, parrainages et amis ne sont pas touchés.")}
+              {tx(
+                "Deletes only what ASH learned from your activity. Your posts, comments, messages, bookings, wallet, referrals and friends are not touched.",
+                "Supprime uniquement ce qu'ASH a retenu de votre activité. Vos publications, commentaires, messages, réservations, portefeuille, parrainages et amis ne sont pas touchés.",
+              )}
             </p>
             <Button
               variant="outline"
@@ -310,7 +342,10 @@ function SettingsPage() {
         action={<MapPin className="size-4 text-muted-foreground" aria-hidden />}
       >
         <p className="text-sm leading-relaxed text-muted-foreground">
-          {tx("Add your location for nearby results. Precise coordinates stay on this device; your city can support recommendations only when you enable that setting.", "Ajoutez votre position pour voir en priorité les prestataires, services et opportunités près de vous. Elle reste sur cet appareil.")}
+          {tx(
+            "Add your location for nearby results. Precise coordinates stay on this device; your city can support recommendations only when you enable that setting.",
+            "Ajoutez votre position pour voir en priorité les prestataires, services et opportunités près de vous. Elle reste sur cet appareil.",
+          )}
         </p>
         {location ? (
           <p className="mt-3 text-sm font-semibold text-foreground">
@@ -320,7 +355,9 @@ function SettingsPage() {
         <div className="mt-3">
           <Button onClick={() => void requestLocation()} disabled={locationBusy}>
             <MapPin className="size-4" aria-hidden />
-            {location ? (tx("Update location", "Mettre à jour")) : tx("Enable location", "Activer la localisation")}
+            {location
+              ? tx("Update location", "Mettre à jour")
+              : tx("Enable location", "Activer la localisation")}
           </Button>
         </div>
       </SectionCard>
@@ -351,7 +388,9 @@ function SettingsPage() {
         title={t("settings.support")}
         action={<LifeBuoy className="size-4 text-muted-foreground" aria-hidden />}
       >
-        <p className="text-sm leading-relaxed text-muted-foreground">{t("settings.support.copy")}</p>
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          {t("settings.support.copy")}
+        </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <Button asChild variant="outline">
             <Link to="/support">{t("settings.support.cta")}</Link>
@@ -381,7 +420,6 @@ function SettingsPage() {
         <p className="mt-3 text-xs text-muted-foreground">
           Need help? Use the official ASH support form above.
         </p>
-
       </SectionCard>
 
       <SectionCard title={t("settings.danger")} className="border-destructive/40">
@@ -406,7 +444,11 @@ function SettingsPage() {
               />
             </div>
             <Button variant="destructive" onClick={() => setConfirming(true)} disabled={busy}>
-              {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Trash2 className="size-4" aria-hidden />}
+              {busy ? (
+                <Loader2 className="size-4 animate-spin" aria-hidden />
+              ) : (
+                <Trash2 className="size-4" aria-hidden />
+              )}
               {t("settings.delete.submit")}
             </Button>
           </div>

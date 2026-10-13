@@ -29,12 +29,14 @@ const errorMiddleware = createMiddleware().server(async ({ next, request }) => {
 const csrfMiddleware = createCsrfMiddleware({
   filter: (ctx) => ctx.handlerType === "serverFn",
 });
-const identityMiddleware = createMiddleware({ type: "function" }).server(async ({ next, serverFnMeta }) => {
-  const { getRequest } = await import("@tanstack/react-start/server");
-  const { enforceIdentityAccess } = await import("./lib/identity-access.server");
-  await enforceIdentityAccess(getRequest(), serverFnMeta.name);
-  return next();
-});
+const identityMiddleware = createMiddleware({ type: "function" }).server(
+  async ({ next, serverFnMeta }) => {
+    const { getRequest } = await import("@tanstack/react-start/server");
+    const { enforceIdentityAccess } = await import("./lib/identity-access.server");
+    await enforceIdentityAccess(getRequest(), serverFnMeta.name);
+    return next();
+  },
+);
 
 const ipBlockMiddleware = createMiddleware().server(async ({ next, request }) => {
   const { blockedResponse } = await import("./lib/cyber-guard.server");

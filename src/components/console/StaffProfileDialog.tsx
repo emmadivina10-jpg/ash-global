@@ -2,11 +2,21 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Camera, Loader2, UserRound } from "lucide-react";
-import { getMyStaffProfile, updateMyStaffProfile, uploadMyStaffAvatar } from "@/lib/staff-ops.functions";
+import {
+  getMyStaffProfile,
+  updateMyStaffProfile,
+  uploadMyStaffAvatar,
+} from "@/lib/staff-ops.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 
 /** Self-service employee profile editor: photo, display name and phone. */
@@ -127,7 +137,9 @@ export function StaffProfileDialog({ trigger }: { trigger: React.ReactNode }) {
                 />
               </div>
               <div className="min-w-0 text-sm">
-                <p className="truncate font-bold text-foreground">{profile.employee_name ?? profile.username}</p>
+                <p className="truncate font-bold text-foreground">
+                  {profile.employee_name ?? profile.username}
+                </p>
                 <p className="text-xs text-muted-foreground">{profile.position ?? "Staff"}</p>
                 <p className="text-xs text-muted-foreground">
                   {profile.department.replace(/_/g, " ")}
@@ -163,7 +175,9 @@ export function StaffProfileDialog({ trigger }: { trigger: React.ReactNode }) {
               disabled={saveMutation.isPending || uploadMutation.isPending || !name.trim()}
               onClick={() => saveMutation.mutate()}
             >
-              {saveMutation.isPending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+              {saveMutation.isPending ? (
+                <Loader2 className="size-4 animate-spin" aria-hidden />
+              ) : null}
               Save changes
             </Button>
           </div>

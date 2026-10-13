@@ -31,9 +31,7 @@ function parseVerdict(raw: string): ParsedVerdict {
 
     const candidate = String(value.verdict ?? "UNCERTAIN").toUpperCase();
     const verdict: SafetyVerdict =
-      candidate === "SAFE" || candidate === "EXPLICIT"
-        ? candidate
-        : "UNCERTAIN";
+      candidate === "SAFE" || candidate === "EXPLICIT" ? candidate : "UNCERTAIN";
 
     const numericConfidence = Number(value.confidence);
     const confidence = Number.isFinite(numericConfidence)
@@ -43,9 +41,7 @@ function parseVerdict(raw: string): ParsedVerdict {
     return {
       verdict,
       confidence,
-      reason: String(
-        value.reason ?? "Automated media safety review",
-      ).slice(0, 500),
+      reason: String(value.reason ?? "Automated media safety review").slice(0, 500),
     };
   } catch {
     return {
@@ -66,19 +62,14 @@ export const moderateMedia = createServerFn({ method: "POST" })
   .inputValidator((input: MediaSafetyInput) => {
     const previewDataUrl = String(input?.previewDataUrl ?? "");
 
-    if (
-      !previewDataUrl.startsWith("data:image/") ||
-      previewDataUrl.length > 2_000_000
-    ) {
+    if (!previewDataUrl.startsWith("data:image/") || previewDataUrl.length > 2_000_000) {
       throw new Error("INVALID_MEDIA_PREVIEW");
     }
 
     return {
       contentType: String(input?.contentType ?? "UPLOAD").slice(0, 80),
       originalName: String(input?.originalName ?? "media").slice(0, 240),
-      mediaType: String(
-        input?.mediaType ?? "application/octet-stream",
-      ).slice(0, 120),
+      mediaType: String(input?.mediaType ?? "application/octet-stream").slice(0, 120),
       previewDataUrl,
     };
   })
@@ -98,43 +89,40 @@ export const moderateMedia = createServerFn({ method: "POST" })
     const timeout = setTimeout(() => controller.abort(), 15_000);
 
     try {
-      const response = await fetch(
-        "https://ai.gateway.lovable.dev/v1/chat/completions",
-        {
-          method: "POST",
-          signal: controller.signal,
-          headers: {
-            "Content-Type": "application/json",
-            "Lovable-API-Key": key,
-          },
-          body: JSON.stringify({
-            model: "google/gemini-3.6-flash",
-            temperature: 0,
-            messages: [
-              {
-                role: "system",
-                content:
-                  "You are the media safety classifier for a commerce and social platform for users aged 13 and older. Classify only visible nudity or sexually explicit imagery. EXPLICIT means exposed genitals, exposed female nipples, explicit sexual acts, or pornographic imagery. SAFE includes ordinary people, swimwear, breastfeeding, art without explicit detail, products, property, documents, and screenshots. UNCERTAIN means the image is unclear or confidence is below 0.92. Return only compact JSON: {\"verdict\":\"SAFE|EXPLICIT|UNCERTAIN\",\"confidence\":0.0,\"reason\":\"short factual reason\"}.",
-              },
-              {
-                role: "user",
-                content: [
-                  {
-                    type: "text",
-                    text: `Review this ${data.contentType} media before publication.`,
-                  },
-                  {
-                    type: "image_url",
-                    image_url: {
-                      url: data.previewDataUrl,
-                    },
-                  },
-                ],
-              },
-            ],
-          }),
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        signal: controller.signal,
+        headers: {
+          "Content-Type": "application/json",
+          "Lovable-API-Key": key,
         },
-      );
+        body: JSON.stringify({
+          model: "google/gemini-3.6-flash",
+          temperature: 0,
+          messages: [
+            {
+              role: "system",
+              content:
+                'You are the media safety classifier for a commerce and social platform for users aged 13 and older. Classify only visible nudity or sexually explicit imagery. EXPLICIT means exposed genitals, exposed female nipples, explicit sexual acts, or pornographic imagery. SAFE includes ordinary people, swimwear, breastfeeding, art without explicit detail, products, property, documents, and screenshots. UNCERTAIN means the image is unclear or confidence is below 0.92. Return only compact JSON: {"verdict":"SAFE|EXPLICIT|UNCERTAIN","confidence":0.0,"reason":"short factual reason"}.',
+            },
+            {
+              role: "user",
+              content: [
+                {
+                  type: "text",
+                  text: `Review this ${data.contentType} media before publication.`,
+                },
+                {
+                  type: "image_url",
+                  image_url: {
+                    url: data.previewDataUrl,
+                  },
+                },
+              ],
+            },
+          ],
+        }),
+      });
 
       if (!response.ok) {
         return {
@@ -151,39 +139,30 @@ export const moderateMedia = createServerFn({ method: "POST" })
         }>;
       };
 
-      const parsed = parseVerdict(
-        payload.choices?.[0]?.message?.content ?? "",
-      );
+      const parsed = parseVerdict(payload.choices?.[0]?.message?.content ?? "");
 
       const verdict: SafetyVerdict =
-        parsed.verdict === "EXPLICIT" && parsed.confidence < 0.92
-          ? "UNCERTAIN"
-          : parsed.verdict;
+        parsed.verdict === "EXPLICIT" && parsed.confidence < 0.92 ? "UNCERTAIN" : parsed.verdict;
 
       if (verdict !== "SAFE") {
         const bytes = new TextEncoder().encode(data.previewDataUrl);
         const digest = await crypto.subtle.digest("SHA-256", bytes);
-        const mediaHash = Array.from(
-          new Uint8Array(digest),
-          (byte) => byte.toString(16).padStart(2, "0"),
+        const mediaHash = Array.from(new Uint8Array(digest), (byte) =>
+          byte.toString(16).padStart(2, "0"),
         ).join("");
 
-        const { supabaseAdmin } =
-          await import("@/integrations/supabase/client.server");
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-        const { error } = await supabaseAdmin.rpc(
-          "record_media_moderation",
-          {
-            _user_id: context.userId,
-            _content_type: data.contentType,
-            _original_name: data.originalName,
-            _media_type: data.mediaType,
-            _media_hash: mediaHash,
-            _verdict: verdict,
-            _confidence: parsed.confidence,
-            _reason: parsed.reason,
-          },
-        );
+        const { error } = await supabaseAdmin.rpc("record_media_moderation", {
+          _user_id: context.userId,
+          _content_type: data.contentType,
+          _original_name: data.originalName,
+          _media_type: data.mediaType,
+          _media_hash: mediaHash,
+          _verdict: verdict,
+          _confidence: parsed.confidence,
+          _reason: parsed.reason,
+        });
 
         if (error) {
           throw new Error("MODERATION_RECORD_FAILED");
@@ -226,10 +205,7 @@ async function createModerationPreview(file: File): Promise<string> {
 
   try {
     const maxDimension = 1280;
-    const scale = Math.min(
-      1,
-      maxDimension / Math.max(bitmap.width, bitmap.height),
-    );
+    const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
 
     const width = Math.max(1, Math.round(bitmap.width * scale));
     const height = Math.max(1, Math.round(bitmap.height * scale));
@@ -292,17 +268,11 @@ export async function verifyMediaFiles(
       previewDataUrl = await Promise.race([
         createModerationPreview(file),
         new Promise<string>((_, reject) => {
-          setTimeout(
-            () => reject(new Error("MEDIA_PREVIEW_TIMEOUT")),
-            10_000,
-          );
+          setTimeout(() => reject(new Error("MEDIA_PREVIEW_TIMEOUT")), 10_000);
         }),
       ]);
     } catch (error) {
-      if (
-        error instanceof Error &&
-        error.message === "MEDIA_PREVIEW_TIMEOUT"
-      ) {
+      if (error instanceof Error && error.message === "MEDIA_PREVIEW_TIMEOUT") {
         // Do not trap a user in an endless loading state just because
         // client-side preview generation failed.
         continue;
@@ -325,36 +295,22 @@ export async function verifyMediaFiles(
           ok: false;
           verdict: "UNAVAILABLE";
         }>((resolve) => {
-          setTimeout(
-            () => resolve({ ok: false, verdict: "UNAVAILABLE" }),
-            20_000,
-          );
+          setTimeout(() => resolve({ ok: false, verdict: "UNAVAILABLE" }), 20_000);
         }),
       ]);
 
       // Explicit content is blocked. An unavailable moderation service
       // does not permanently trap the publishing UI.
-      if (
-        result.ok &&
-        result.verdict === "EXPLICIT"
-      ) {
-        throw new Error(
-          "This photo cannot be published because it contains explicit content.",
-        );
+      if (result.ok && result.verdict === "EXPLICIT") {
+        throw new Error("This photo cannot be published because it contains explicit content.");
       }
     } catch (error) {
-      if (
-        error instanceof Error &&
-        error.message === "MEDIA_PREVIEW_TIMEOUT"
-      ) {
+      if (error instanceof Error && error.message === "MEDIA_PREVIEW_TIMEOUT") {
         continue;
       }
 
       // Only actual moderation decisions should block the user.
-      if (
-        error instanceof Error &&
-        /explicit content/i.test(error.message)
-      ) {
+      if (error instanceof Error && /explicit content/i.test(error.message)) {
         throw error;
       }
 

@@ -17,12 +17,14 @@ export const Route = createFileRoute("/privacy")({
       { title: "Privacy Policy — ASH Glo" },
       {
         name: "description",
-        content: "How ASH Global Technologies collects, uses, shares, protects, retains and deletes data in ASH Glo.",
+        content:
+          "How ASH Global Technologies collects, uses, shares, protects, retains and deletes data in ASH Glo.",
       },
       { property: "og:title", content: "Privacy Policy — ASH Glo" },
       {
         property: "og:description",
-        content: "ASH Glo privacy, AI, personalization, payments, location, verification and deletion practices.",
+        content:
+          "ASH Glo privacy, AI, personalization, payments, location, verification and deletion practices.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://ashglogroup.company/privacy" },
@@ -41,17 +43,19 @@ function PrivacyPage() {
       description="How ASH Glo collects, uses, shares, protects, retains and deletes personal information."
     >
       <LegalIntro>
-        {LEGAL_ENTITY} is responsible for the personal information described in this Policy and operates the ASH Glo
-        product and platform. This Policy applies to the website, mobile apps, social and messaging features, services
-        marketplace, payments, wallet, referrals, ASH AI, Markets, verification and support tools.
+        {LEGAL_ENTITY} is responsible for the personal information described in this Policy and
+        operates the ASH Glo product and platform. This Policy applies to the website, mobile apps,
+        social and messaging features, services marketplace, payments, wallet, referrals, ASH AI,
+        Markets, verification and support tools.
       </LegalIntro>
 
       <LegalSection id="age" title="1. Age">
         <p>
-          ASH Glo is for users aged 13 and older. Where local law requires parental or guardian consent for a younger
-          user, the user may access ASH Glo only with that consent. Some transactions, earning features, identity checks
-          and contracts may require an older age or legal capacity. Contact us if you believe a child below the
-          applicable minimum has provided personal information.
+          ASH Glo is for users aged 13 and older. Where local law requires parental or guardian
+          consent for a younger user, the user may access ASH Glo only with that consent. Some
+          transactions, earning features, identity checks and contracts may require an older age or
+          legal capacity. Contact us if you believe a child below the applicable minimum has
+          provided personal information.
         </p>
       </LegalSection>
 
@@ -72,30 +76,34 @@ function PrivacyPage() {
 
       <LegalSection id="personalization" title="3. Activity and personalized recommendations">
         <p>
-          ASH Glo records meaningful activity in <strong className="text-foreground">activity_events</strong>, including
-          impressions, views, viewing time where appropriate, reactions, comments, replies, reposts, saves, shares,
-          searches, profile and provider views, service/category/listing interactions, bookings, follows, friend
-          requests, group interactions and reports or hides as negative feedback. Search tracking records
-          privacy-minimized information such as query length rather than the full search text where implemented.
+          ASH Glo records meaningful activity in{" "}
+          <strong className="text-foreground">activity_events</strong>, including impressions,
+          views, viewing time where appropriate, reactions, comments, replies, reposts, saves,
+          shares, searches, profile and provider views, service/category/listing interactions,
+          bookings, follows, friend requests, group interactions and reports or hides as negative
+          feedback. Search tracking records privacy-minimized information such as query length
+          rather than the full search text where implemented.
         </p>
         <p>
-          From this activity, <strong className="text-foreground">user_interest_signals</strong> can summarize weighted,
-          time-decayed interests such as categories, hashtags, creators, content types, surfaces and permitted city or
-          country signals.
-          <strong className="text-foreground"> content_popularity</strong> stores aggregated discovery signals.{" "}
-          <strong className="text-foreground">recommendation_prefs</strong>
-          stores your choices about personalization, activity history and city use. Activity weights and directions are
-          calculated by the backend, not supplied by users.
+          From this activity, <strong className="text-foreground">user_interest_signals</strong> can
+          summarize weighted, time-decayed interests such as categories, hashtags, creators, content
+          types, surfaces and permitted city or country signals.
+          <strong className="text-foreground"> content_popularity</strong> stores aggregated
+          discovery signals. <strong className="text-foreground">recommendation_prefs</strong>
+          stores your choices about personalization, activity history and city use. Activity weights
+          and directions are calculated by the backend, not supplied by users.
         </p>
         <p>
-          In Settings you can turn personalized recommendations off, turn activity-history use off, turn city use off,
-          or clear personalization history. Clearing removes activity events and derived interest signals covered by
-          that control; it does not delete posts, comments, messages, bookings, wallet records, referrals, friendships
-          or other account data. Raw activity events are scheduled for deletion after 180 days, while older signals lose
-          influence through time decay and derived data is refreshed. Raw events are private from other members;
-          authorized administrators can access them for platform administration, security and support. Current Feed,
-          Stories/Status, Spotlight and Services ordering may continue using their existing non-personalized or
-          relationship-based ordering until a personalized ranker is connected.
+          In Settings you can turn personalized recommendations off, turn activity-history use off,
+          turn city use off, or clear personalization history. Clearing removes activity events and
+          derived interest signals covered by that control; it does not delete posts, comments,
+          messages, bookings, wallet records, referrals, friendships or other account data. Raw
+          activity events are scheduled for deletion after 180 days, while older signals lose
+          influence through time decay and derived data is refreshed. Raw events are private from
+          other members; authorized administrators can access them for platform administration,
+          security and support. Current Feed, Stories/Status, Spotlight and Services ordering may
+          continue using their existing non-personalized or relationship-based ordering until a
+          personalized ranker is connected.
         </p>
       </LegalSection>
 
@@ -115,22 +123,29 @@ function PrivacyPage() {
 
       <LegalSection id="ai" title="5. ASH AI and automated content screening">
         <p>
-          When you use ASH AI, the service sends your selected messages and up to two submitted images, together with a
-          limited recent conversation and relevant ASH Glo account context, to a Google AI model through the Lovable AI
-          Gateway. Context can include profile, wallet, referral, provider, booking, listing and property information.
-          The inspected assistant function does not itself save a separate server-side conversation history, although
-          your request is transmitted for processing and the provider may process operational request data.
+          When you use ASH AI, the service sends your selected messages and up to two submitted
+          images, together with a limited recent conversation and relevant ASH Glo account context,
+          to a Google AI model through the Lovable AI Gateway. Context can include profile, wallet,
+          referral, provider, booking, listing and property information. The inspected assistant
+          function does not itself save a separate server-side conversation history, although your
+          request is transmitted for processing and the provider may process operational request
+          data.
         </p>
         <p>
-          For media safety, a resized preview—not the original file—of a submitted image is sent to the same AI service
-          for classification. High-confidence explicit content is blocked and recorded as a moderation case; uncertain
-          or reported content may be reviewed by authorized staff. Automated results can be wrong. Contact Support to
-          request review of a restriction.
+          For media safety, a resized preview—not the original file—of a submitted image is sent to
+          the same AI service for classification. High-confidence explicit content is blocked and
+          recorded as a moderation case; uncertain or reported content may be reviewed by authorized
+          staff. Automated results can be wrong. Contact Support to request review of a restriction.
         </p>
       </LegalSection>
 
       <LegalSection id="staff-ai" title="Staff account and security review">
-        <p>Authorized staff AI can process limited account, booking, access and audit information needed for their role. Staff conversations and generated reports may be saved in restricted records, separately from the member assistant. AI suggestions do not establish a security certification or replace authorized human review.</p>
+        <p>
+          Authorized staff AI can process limited account, booking, access and audit information
+          needed for their role. Staff conversations and generated reports may be saved in
+          restricted records, separately from the member assistant. AI suggestions do not establish
+          a security certification or replace authorized human review.
+        </p>
       </LegalSection>
 
       <LegalSection id="sharing" title="6. When information is shared">
@@ -147,39 +162,44 @@ function PrivacyPage() {
           ]}
         />
         <p>
-          We do not sell personal information. We do not claim that any service provider stores or uses data beyond the
-          functions verified and described here.
+          We do not sell personal information. We do not claim that any service provider stores or
+          uses data beyond the functions verified and described here.
         </p>
       </LegalSection>
 
       <LegalSection id="device-storage" title="7. Device storage, diagnostics and tracking">
         <p>
-          ASH Glo uses local storage on your device for items such as authentication state, language, theme, onboarding
-          choices, sound and interface preferences, selected currency, payout-reminder choices, Compass visibility/position and cached location choices. Authentication and service delivery may also use session cookies. No advertising SDK was identified in reviewed app code. Technical request, error, reliability and security information may
-          still be processed to operate and protect the service. ASH Glo does not use this information for cross-app
-          advertising tracking.
+          ASH Glo uses local storage on your device for items such as authentication state,
+          language, theme, onboarding choices, sound and interface preferences, selected currency,
+          payout-reminder choices, Compass visibility/position and cached location choices.
+          Authentication and service delivery may also use session cookies. No advertising SDK was
+          identified in reviewed app code. Technical request, error, reliability and security
+          information may still be processed to operate and protect the service. ASH Glo does not
+          use this information for cross-app advertising tracking.
         </p>
       </LegalSection>
 
       <LegalSection id="visibility" title="8. Visibility and member choices">
         <p>
-          Content visibility depends on the feature. Other members may see profile details, verification badge,
-          approximate presence, posts, Stories/Status, Spotlight, comments, reviews, listings and group activity where
-          the product displays them. Direct messages are limited to conversation participants and authorized safety
-          access. Verification files are stored privately and are available only to the applicant and authorized
-          reviewers through controlled access.
+          Content visibility depends on the feature. Other members may see profile details,
+          verification badge, approximate presence, posts, Stories/Status, Spotlight, comments,
+          reviews, listings and group activity where the product displays them. Direct messages are
+          limited to conversation participants and authorized safety access. Verification files are
+          stored privately and are available only to the applicant and authorized reviewers through
+          controlled access.
         </p>
         <p>
-          You can edit available profile fields, manage personalization and city settings, block members, report
-          content, delete eligible content, and manage notification or location permissions through ASH Glo or device
-          settings. A block does not erase information that must remain for safety, disputes or legal obligations.
+          You can edit available profile fields, manage personalization and city settings, block
+          members, report content, delete eligible content, and manage notification or location
+          permissions through ASH Glo or device settings. A block does not erase information that
+          must remain for safety, disputes or legal obligations.
         </p>
       </LegalSection>
 
       <LegalSection id="retention" title="9. Retention">
         <p>
-          We keep information only as long as needed for the purpose collected and the safeguards or obligations
-          described here.
+          We keep information only as long as needed for the purpose collected and the safeguards or
+          obligations described here.
         </p>
         <LegalList
           items={[
@@ -194,9 +214,12 @@ function PrivacyPage() {
 
       <LegalSection id="deletion" title="10. Account and data deletion">
         <p>
-          An account-deletion submission is a request, not immediate deletion. Authorized staff review it and may
-          require pending balances, withdrawals, bookings, disputes, investigations or other obligations to be resolved.
-          Approval currently closes the profile account; this is not an automated erasure of the login account or all associated data. Further deletion, anonymization or lawful retention requires administrative handling. Contact the privacy address to request follow-up and confirmation of the data handled. See{" "}
+          An account-deletion submission is a request, not immediate deletion. Authorized staff
+          review it and may require pending balances, withdrawals, bookings, disputes,
+          investigations or other obligations to be resolved. Approval currently closes the profile
+          account; this is not an automated erasure of the login account or all associated data.
+          Further deletion, anonymization or lawful retention requires administrative handling.
+          Contact the privacy address to request follow-up and confirmation of the data handled. See{" "}
           <Link to="/account-deletion" className="text-primary hover:underline">
             Account &amp; Data Deletion
           </Link>{" "}
@@ -206,18 +229,20 @@ function PrivacyPage() {
 
       <LegalSection id="security" title="11. Security">
         <p>
-          ASH Glo uses access controls, private storage for sensitive verification media, row-level database rules,
-          signed access links, provider callback verification and administrative role restrictions. No system is
-          perfectly secure. Use a unique password, protect your device and never send a password, one-time code, Mobile
-          Money PIN or card security code to another member or Support.
+          ASH Glo uses access controls, private storage for sensitive verification media, row-level
+          database rules, signed access links, provider callback verification and administrative
+          role restrictions. No system is perfectly secure. Use a unique password, protect your
+          device and never send a password, one-time code, Mobile Money PIN or card security code to
+          another member or Support.
         </p>
       </LegalSection>
 
       <LegalSection id="rights" title="12. Access, correction and questions">
         <p>
-          Depending on applicable law, you may request access, correction, export, restriction, objection or deletion of
-          personal information. Some requests may require identity verification and some records cannot be removed
-          immediately for the reasons described above. Use the{" "}
+          Depending on applicable law, you may request access, correction, export, restriction,
+          objection or deletion of personal information. Some requests may require identity
+          verification and some records cannot be removed immediately for the reasons described
+          above. Use the{" "}
           <Link to="/support" className="text-primary hover:underline">
             official support form
           </Link>{" "}
@@ -225,15 +250,16 @@ function PrivacyPage() {
           <a href={`mailto:${PRIVACY_EMAIL}`} className="text-primary hover:underline">
             {PRIVACY_EMAIL}
           </a>
-          . This address is the privacy contact and is not described as a formally appointed data protection officer.
+          . This address is the privacy contact and is not described as a formally appointed data
+          protection officer.
         </p>
       </LegalSection>
 
       <LegalSection id="changes" title="13. Changes and contact">
         <p>
-          We may update this Policy when ASH Glo, the law or our practices change. The effective date will be updated
-          and material changes may be communicated through the app or available account contact details. General support
-          is available at{" "}
+          We may update this Policy when ASH Glo, the law or our practices change. The effective
+          date will be updated and material changes may be communicated through the app or available
+          account contact details. General support is available at{" "}
           <a href={`mailto:${SUPPORT_EMAIL}`} className="text-primary hover:underline">
             {SUPPORT_EMAIL}
           </a>

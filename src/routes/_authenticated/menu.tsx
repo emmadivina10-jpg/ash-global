@@ -40,9 +40,15 @@ export const Route = createFileRoute("/_authenticated/menu")({
   head: () => ({
     meta: [
       { title: "Menu — ASH Glo" },
-      { name: "description", content: "Open your ASH Glo profile, community, marketplace, earnings and account tools." },
+      {
+        name: "description",
+        content: "Open your ASH Glo profile, community, marketplace, earnings and account tools.",
+      },
       { property: "og:title", content: "Menu — ASH Glo" },
-      { property: "og:description", content: "Your ASH Glo destinations and account tools in one place." },
+      {
+        property: "og:description",
+        content: "Your ASH Glo destinations and account tools in one place.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -50,7 +56,14 @@ export const Route = createFileRoute("/_authenticated/menu")({
   component: MenuPage,
 });
 
-type MenuItem = { en: string; fr: string; to: string; icon: typeof Shield; referral?: boolean; soon?: boolean };
+type MenuItem = {
+  en: string;
+  fr: string;
+  to: string;
+  icon: typeof Shield;
+  referral?: boolean;
+  soon?: boolean;
+};
 
 const sections: { en: string; fr: string; items: MenuItem[] }[] = [
   {
@@ -87,7 +100,13 @@ const sections: { en: string; fr: string; items: MenuItem[] }[] = [
     fr: "Gagner et gérer",
     items: [
       { en: "Wallet", fr: "Portefeuille", to: "/wallet", icon: Wallet },
-      { en: "Referral dashboard", fr: "Tableau de parrainage", to: "/dashboard", icon: TrendingUp, referral: true },
+      {
+        en: "Referral dashboard",
+        fr: "Tableau de parrainage",
+        to: "/dashboard",
+        icon: TrendingUp,
+        referral: true,
+      },
       { en: "My network", fr: "Mon réseau", to: "/network", icon: Users, referral: true },
       { en: "Transactions", fr: "Transactions", to: "/transactions", icon: Receipt },
       { en: "Withdraw", fr: "Retirer", to: "/withdraw", icon: ArrowDownToLine, referral: true },
@@ -117,19 +136,34 @@ function MenuPage() {
     <div className="member-menu mx-auto w-full max-w-3xl space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-3xl font-bold text-foreground">Menu</h1>
-        <Link to="/settings" aria-label={tx("Settings", "Paramètres")} className="grid size-10 place-items-center rounded-full bg-muted text-foreground">
+        <Link
+          to="/settings"
+          aria-label={tx("Settings", "Paramètres")}
+          className="grid size-10 place-items-center rounded-full bg-muted text-foreground"
+        >
           <Settings className="size-5" aria-hidden />
         </Link>
       </div>
 
-      <Link to="/profile" className="flex items-center gap-3 border-b border-border bg-card py-3 sm:rounded-lg sm:border sm:px-4">
+      <Link
+        to="/profile"
+        className="flex items-center gap-3 border-b border-border bg-card py-3 sm:rounded-lg sm:border sm:px-4"
+      >
         <Avatar path={profile?.avatar_url} name={profile?.full_name} online className="size-14" />
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-1 text-base font-bold text-foreground">
-            <span className="truncate">{profile?.full_name || (tx("Your profile", "Votre profil"))}</span>
-            <VerifiedBadge tier={profile?.verified_tier} until={profile?.verified_until} size={16} />
+            <span className="truncate">
+              {profile?.full_name || tx("Your profile", "Votre profil")}
+            </span>
+            <VerifiedBadge
+              tier={profile?.verified_tier}
+              until={profile?.verified_until}
+              size={16}
+            />
           </span>
-          <span className="mt-0.5 block text-sm text-muted-foreground">{tx("See your profile", "Voir votre profil")}</span>
+          <span className="mt-0.5 block text-sm text-muted-foreground">
+            {tx("See your profile", "Voir votre profil")}
+          </span>
         </span>
         <ChevronRight className="size-5 text-muted-foreground" aria-hidden />
       </Link>
@@ -151,7 +185,11 @@ function MenuPage() {
                   </span>
                   <span className="min-w-0 flex-1 break-words">{tx(item.en, item.fr)}</span>
                   {item.soon ? (
-                    <span className="grid size-5 shrink-0 place-items-center text-gold-foreground" title={tx("Coming soon", "Bientôt disponible")} aria-label={tx("Coming soon", "Bientôt disponible")}>
+                    <span
+                      className="grid size-5 shrink-0 place-items-center text-gold-foreground"
+                      title={tx("Coming soon", "Bientôt disponible")}
+                      aria-label={tx("Coming soon", "Bientôt disponible")}
+                    >
                       <Hourglass className="size-3.5" aria-hidden />
                     </span>
                   ) : null}
@@ -162,29 +200,73 @@ function MenuPage() {
       ))}
 
       {isAdmin ? (
-        <a href="/console" className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 text-sm font-bold text-foreground">
-          <span className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary"><Shield className="size-5" aria-hidden /></span>
+        <a
+          href="/console"
+          className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 text-sm font-bold text-foreground"
+        >
+          <span className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary">
+            <Shield className="size-5" aria-hidden />
+          </span>
           {tx("Admin console", "Console d’administration")}
         </a>
       ) : null}
 
       <section className="border-b border-border pb-4">
-        <h2 className="mb-2 text-base font-bold text-foreground">{tx("Legal & privacy", "Informations légales")}</h2>
+        <h2 className="mb-2 text-base font-bold text-foreground">
+          {tx("Legal & privacy", "Informations légales")}
+        </h2>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          <Link to="/privacy" className="rounded-lg border border-border bg-card px-3 py-3 text-sm font-semibold text-foreground">{tx("Privacy Policy", "Confidentialité")}</Link>
-          <Link to="/terms" className="rounded-lg border border-border bg-card px-3 py-3 text-sm font-semibold text-foreground">{tx("Terms of Service", "Conditions")}</Link>
-          <Link to="/community-guidelines" className="rounded-lg border border-border bg-card px-3 py-3 text-sm font-semibold text-foreground">{tx("Community Guidelines", "Règles de la communauté")}</Link>
-          <Link to="/marketplace-policy" className="rounded-lg border border-border bg-card px-3 py-3 text-sm font-semibold text-foreground">{tx("Bookings & refunds", "Réservations et remboursements")}</Link>
-          <Link to="/referral-wallet-terms" className="rounded-lg border border-border bg-card px-3 py-3 text-sm font-semibold text-foreground">{tx("Referral & wallet", "Parrainage et portefeuille")}</Link>
-          <Link to="/account-deletion" className="rounded-lg border border-border bg-card px-3 py-3 text-sm font-semibold text-foreground">{tx("Account deletion", "Suppression du compte")}</Link>
+          <Link
+            to="/privacy"
+            className="rounded-lg border border-border bg-card px-3 py-3 text-sm font-semibold text-foreground"
+          >
+            {tx("Privacy Policy", "Confidentialité")}
+          </Link>
+          <Link
+            to="/terms"
+            className="rounded-lg border border-border bg-card px-3 py-3 text-sm font-semibold text-foreground"
+          >
+            {tx("Terms of Service", "Conditions")}
+          </Link>
+          <Link
+            to="/community-guidelines"
+            className="rounded-lg border border-border bg-card px-3 py-3 text-sm font-semibold text-foreground"
+          >
+            {tx("Community Guidelines", "Règles de la communauté")}
+          </Link>
+          <Link
+            to="/marketplace-policy"
+            className="rounded-lg border border-border bg-card px-3 py-3 text-sm font-semibold text-foreground"
+          >
+            {tx("Bookings & refunds", "Réservations et remboursements")}
+          </Link>
+          <Link
+            to="/referral-wallet-terms"
+            className="rounded-lg border border-border bg-card px-3 py-3 text-sm font-semibold text-foreground"
+          >
+            {tx("Referral & wallet", "Parrainage et portefeuille")}
+          </Link>
+          <Link
+            to="/account-deletion"
+            className="rounded-lg border border-border bg-card px-3 py-3 text-sm font-semibold text-foreground"
+          >
+            {tx("Account deletion", "Suppression du compte")}
+          </Link>
         </div>
       </section>
 
       <div className="grid grid-cols-2 gap-2 pb-2">
-        <Link to="/settings" className="flex items-center justify-center gap-2 rounded-lg bg-muted px-4 py-3 text-sm font-bold text-foreground">
+        <Link
+          to="/settings"
+          className="flex items-center justify-center gap-2 rounded-lg bg-muted px-4 py-3 text-sm font-bold text-foreground"
+        >
           <Settings className="size-4" aria-hidden /> {tx("Settings", "Paramètres")}
         </Link>
-        <Button variant="secondary" className="h-auto rounded-lg py-3" onClick={() => void signOut()}>
+        <Button
+          variant="secondary"
+          className="h-auto rounded-lg py-3"
+          onClick={() => void signOut()}
+        >
           <LogOut className="size-4" aria-hidden /> {tx("Log out", "Déconnexion")}
         </Button>
       </div>

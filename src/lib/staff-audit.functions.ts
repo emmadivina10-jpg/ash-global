@@ -36,7 +36,8 @@ export const getStaffAuthenticationAudit = createServerFn({ method: "GET" }).han
   const { requireSuperAdmin, adminClient } = await import("./console.server");
   await requireSuperAdmin();
   const db = await adminClient();
-  const { data, error } = await db.from("staff_accounts")
+  const { data, error } = await db
+    .from("staff_accounts")
     .select("id, username, email, department, is_active, updated_at")
     .order("created_at", { ascending: true });
   if (error) throw new Error("Unable to load the private staff audit.");
@@ -44,19 +45,31 @@ export const getStaffAuthenticationAudit = createServerFn({ method: "GET" }).han
     const dashboard = DASHBOARDS[seat.department];
     const tested = TESTED_ACCOUNTS[seat.username] === seat.id;
     return {
-      id: seat.id, username: seat.username, email: seat.email, role: seat.department,
-      dashboard: dashboard?.name ?? "Unmapped department", route: dashboard?.route ?? null,
+      id: seat.id,
+      username: seat.username,
+      email: seat.email,
+      role: seat.department,
+      dashboard: dashboard?.name ?? "Unmapped department",
+      route: dashboard?.route ?? null,
       accountStatus: seat.is_active ? "Active" : "Disabled",
-      authentication: !tested ? "NOT TESTABLE — no supplied credential" : seat.username === "trust"
-        ? "PASS — preview and production" : "FAIL — previously supplied password",
-      permissionStatus: !dashboard ? "Unmapped — requires owner review" : seat.username === "trust"
-        ? "PASS — assigned dashboard opened" : "Mapping valid; signed-in access NOT TESTABLE",
-      reason: seat.department === "SUPER_ADMIN" ? "Owner credential was not exercised."
+      authentication: !tested
+        ? "NOT TESTABLE — no supplied credential"
         : seat.username === "trust"
-          ? "Login succeeds at /console but Overview is restricted. Opening /console/trust works. Reviewer account unchanged."
-          : tested
-            ? "Supplied password does not match the stored secure hash. No reset performed. /console Overview is also restricted for employee roles."
-            : "No known credential tested. /console Overview is restricted for employee roles.",
+          ? "PASS — preview and production"
+          : "FAIL — previously supplied password",
+      permissionStatus: !dashboard
+        ? "Unmapped — requires owner review"
+        : seat.username === "trust"
+          ? "PASS — assigned dashboard opened"
+          : "Mapping valid; signed-in access NOT TESTABLE",
+      reason:
+        seat.department === "SUPER_ADMIN"
+          ? "Owner credential was not exercised."
+          : seat.username === "trust"
+            ? "Login succeeds at /console but Overview is restricted. Opening /console/trust works. Reviewer account unchanged."
+            : tested
+              ? "Supplied password does not match the stored secure hash. No reset performed. /console Overview is also restricted for employee roles."
+              : "No known credential tested. /console Overview is restricted for employee roles.",
       updatedAt: seat.updated_at,
     };
   });

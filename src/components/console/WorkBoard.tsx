@@ -17,7 +17,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { LoadingState } from "@/components/refer/states";
 import { cn } from "@/lib/utils";
 
@@ -49,7 +55,8 @@ export function WorkBoard({
     queryFn: () => board({ data: { department } }),
   });
 
-  const refresh = () => queryClient.invalidateQueries({ queryKey: ["console", "workboard", department] });
+  const refresh = () =>
+    queryClient.invalidateQueries({ queryKey: ["console", "workboard", department] });
 
   if (isLoading) return <LoadingState label="Loading your work board…" />;
   if (!data) return null;
@@ -69,13 +76,23 @@ export function WorkBoard({
             <RefreshCw className="size-4" aria-hidden />
             Refresh
           </Button>
-          {canWrite ? <LeadDialog department={department} leadType={leadType} onDone={refresh} /> : null}
+          {canWrite ? (
+            <LeadDialog department={department} leadType={leadType} onDone={refresh} />
+          ) : null}
         </div>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Metric label="Contacted today" value={data.today.contacts} target={targets?.contacts_target} />
-        <Metric label="Recruited today" value={data.today.recruits} target={targets?.recruits_target} />
+        <Metric
+          label="Contacted today"
+          value={data.today.contacts}
+          target={targets?.contacts_target}
+        />
+        <Metric
+          label="Recruited today"
+          value={data.today.recruits}
+          target={targets?.recruits_target}
+        />
         <Metric label="Deals closed" value={data.today.deals} target={targets?.deals_target} />
         <Metric label="Activities logged" value={data.today.activities} />
       </div>
@@ -83,7 +100,9 @@ export function WorkBoard({
       <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-7">
         {LEAD_STAGES.map((stage) => (
           <div key={stage} className="rounded-2xl border border-border bg-card p-3">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{stage}</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              {stage}
+            </p>
             <p className="mt-1 font-display text-xl font-extrabold text-foreground">
               {data.pipeline[stage] ?? 0}
             </p>
@@ -129,7 +148,15 @@ export function WorkBoard({
   );
 }
 
-function Metric({ label, value, target }: { label: string; value: number; target?: number | undefined }) {
+function Metric({
+  label,
+  value,
+  target,
+}: {
+  label: string;
+  value: number;
+  target?: number | undefined;
+}) {
   const pct = target ? Math.min(100, Math.round((value / Math.max(1, target)) * 100)) : null;
   return (
     <div className="rounded-2xl border border-border bg-card p-4">
@@ -140,7 +167,10 @@ function Metric({ label, value, target }: { label: string; value: number; target
       </p>
       {pct !== null ? (
         <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-          <div className="h-full rounded-full bg-gradient-to-r from-primary to-gold" style={{ width: `${pct}%` }} />
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-primary to-gold"
+            style={{ width: `${pct}%` }}
+          />
         </div>
       ) : (
         <p className="mt-2 flex items-center gap-1 text-[11px] text-muted-foreground">
@@ -151,7 +181,15 @@ function Metric({ label, value, target }: { label: string; value: number; target
   );
 }
 
-function LeadRow({ lead, canWrite, onDone }: { lead: Lead; canWrite: boolean; onDone: () => void }) {
+function LeadRow({
+  lead,
+  canWrite,
+  onDone,
+}: {
+  lead: Lead;
+  canWrite: boolean;
+  onDone: () => void;
+}) {
   const move = useServerFn(moveLeadStage);
   const logActivity = useServerFn(logLeadActivity);
   const logReach = useServerFn(logOutreach);
@@ -181,7 +219,9 @@ function LeadRow({ lead, canWrite, onDone }: { lead: Lead; canWrite: boolean; on
             {[lead.category, lead.city, lead.source].filter(Boolean).join(" · ") || "No details"}
           </p>
         </div>
-        <Badge className={cn("rounded-full border-0", STAGE_TONE[lead.stage] ?? "")}>{lead.stage}</Badge>
+        <Badge className={cn("rounded-full border-0", STAGE_TONE[lead.stage] ?? "")}>
+          {lead.stage}
+        </Badge>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -190,11 +230,22 @@ function LeadRow({ lead, canWrite, onDone }: { lead: Lead; canWrite: boolean; on
             size="sm"
             variant="outline"
             onClick={async () => {
-              window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, "_blank");
+              window.open(
+                `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`,
+                "_blank",
+              );
               await logReach({
-                data: { channel: "WHATSAPP", recipient: waNumber, body: message, leadId: lead.id, templateKey: script.key },
+                data: {
+                  channel: "WHATSAPP",
+                  recipient: waNumber,
+                  body: message,
+                  leadId: lead.id,
+                  templateKey: script.key,
+                },
               });
-              await logActivity({ data: { id: lead.id, kind: "CONTACT", body: `WhatsApp: ${script.label}` } });
+              await logActivity({
+                data: { id: lead.id, kind: "CONTACT", body: `WhatsApp: ${script.label}` },
+              });
               onDone();
             }}
           >
@@ -234,7 +285,11 @@ function LeadRow({ lead, canWrite, onDone }: { lead: Lead; canWrite: boolean; on
                     </option>
                   ))}
                 </select>
-                <Button variant="outline" size="sm" onClick={() => setLang(lang === "en" ? "fr" : "en")}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setLang(lang === "en" ? "fr" : "en")}
+                >
                   {lang.toUpperCase()}
                 </Button>
               </div>
@@ -292,8 +347,10 @@ function LeadDialog({
     notes: "",
   });
 
-  const set = (key: keyof typeof form) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    setForm((prev) => ({ ...prev, [key]: event.target.value }));
+  const set =
+    (key: keyof typeof form) =>
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      setForm((prev) => ({ ...prev, [key]: event.target.value }));
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -330,7 +387,15 @@ function LeadDialog({
               setError(result.error);
               return;
             }
-            setForm({ name: "", category: "", city: "", phone: "", email: "", source: "", notes: "" });
+            setForm({
+              name: "",
+              category: "",
+              city: "",
+              phone: "",
+              email: "",
+              source: "",
+              notes: "",
+            });
             setOpen(false);
             onDone();
           }}
@@ -359,7 +424,12 @@ function LeadDialog({
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="lead-source">Source</Label>
-            <Input id="lead-source" value={form.source} onChange={set("source")} placeholder="Facebook, walk-in…" />
+            <Input
+              id="lead-source"
+              value={form.source}
+              onChange={set("source")}
+              placeholder="Facebook, walk-in…"
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="lead-notes">Notes</Label>

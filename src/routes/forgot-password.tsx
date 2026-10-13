@@ -15,7 +15,10 @@ export const Route = createFileRoute("/forgot-password")({
       { name: "twitter:card", content: "summary" },
       { property: "og:url", content: "https://ashglogroup.company/forgot-password" },
       { title: "Reset your password — ASH Glo" },
-      { name: "description", content: "Request a secure password reset link for your ASH Glo account." },
+      {
+        name: "description",
+        content: "Request a secure password reset link for your ASH Glo account.",
+      },
       { property: "og:title", content: "Reset your password — ASH Glo" },
       { property: "og:description", content: "Request a secure password reset link." },
     ],
@@ -51,9 +54,7 @@ function ForgotPasswordPage() {
       <AuthLayout title={t("auth.forgot.sentTitle")} subtitle={t("auth.forgot.sentSub")}>
         <div className="flex flex-col items-center text-center">
           <MailCheck className="size-10 text-success" aria-hidden />
-          <p className="mt-4 text-sm text-muted-foreground">
-            {t("auth.forgot.sentCopy")}
-          </p>
+          <p className="mt-4 text-sm text-muted-foreground">{t("auth.forgot.sentCopy")}</p>
           <Button asChild variant="outline" className="mt-6 w-full">
             <Link to="/login">{t("auth.forgot.back")}</Link>
           </Button>

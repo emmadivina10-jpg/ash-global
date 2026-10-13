@@ -31,7 +31,8 @@ export const Route = createFileRoute("/api/public/security-selfcheck")({
           mismatch |= (a[i] ?? 0) ^ (b[i] ?? 0);
         }
         if (mismatch !== 0) {
-          const { clientIp, fingerprint, logSecurityEvent } = await import("@/lib/rate-limit.server");
+          const { clientIp, fingerprint, logSecurityEvent } =
+            await import("@/lib/rate-limit.server");
           await logSecurityEvent({
             kind: "SELFCHECK_AUTH_FAILED",
             severity: "CRITICAL",

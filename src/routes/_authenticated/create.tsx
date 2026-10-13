@@ -20,7 +20,10 @@ export const Route = createFileRoute("/_authenticated/create")({
           "Publish a deal, list an event with tickets, post a freelance project or build your freelancer profile on ASH in a few taps.",
       },
       { property: "og:title", content: "Create on ASH — deals, events, projects and profiles" },
-      { property: "og:description", content: "Publish deals, ticketed events, projects and freelance profiles." },
+      {
+        property: "og:description",
+        content: "Publish deals, ticketed events, projects and freelance profiles.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -52,9 +55,14 @@ function CreatePage() {
   return (
     <div className="relative mx-auto w-full max-w-2xl space-y-5">
       <header>
-        <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">{tx("Create", "Créer")}</h1>
+        <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
+          {tx("Create", "Créer")}
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {tx("Publish a deal, an event, a project or your freelance profile.", "Publiez une offre, un événement, un projet ou votre profil freelance.")}
+          {tx(
+            "Publish a deal, an event, a project or your freelance profile.",
+            "Publiez une offre, un événement, un projet ou votre profil freelance.",
+          )}
         </p>
       </header>
 
@@ -97,11 +105,17 @@ function CreatePage() {
         aria-labelledby="create-coming-soon-title"
       >
         <div className="w-full max-w-lg px-4 py-8 text-center sm:py-10">
-          <h2 id="create-coming-soon-title" className="font-display text-3xl font-bold text-foreground sm:text-4xl">
+          <h2
+            id="create-coming-soon-title"
+            className="font-display text-3xl font-bold text-foreground sm:text-4xl"
+          >
             {tx("Coming Soon!", "Bientôt disponible !")}
           </h2>
           <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground sm:text-base">
-            {tx("Deal, event, project and freelance profile creation will be available soon.", "La création d'offres, d'événements, de projets et de profils freelance sera disponible prochainement.")}
+            {tx(
+              "Deal, event, project and freelance profile creation will be available soon.",
+              "La création d'offres, d'événements, de projets et de profils freelance sera disponible prochainement.",
+            )}
           </p>
 
           <Button
@@ -164,7 +178,9 @@ function DealForm({ fr }: { fr: boolean }) {
         is_active: true,
       });
       if (error) {
-        toast.error(databaseMessage(fr ? "Publication impossible" : "Could not publish the deal", error));
+        toast.error(
+          databaseMessage(fr ? "Publication impossible" : "Could not publish the deal", error),
+        );
         return;
       }
       toast.success(fr ? "Offre publiée !" : "Deal published!");
@@ -178,7 +194,11 @@ function DealForm({ fr }: { fr: boolean }) {
   return (
     <div className="tile space-y-4 p-5">
       <Field id="deal-title" label={fr ? "Titre de l'offre" : "Deal title"}>
-        <Input id="deal-title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+        <Input
+          id="deal-title"
+          value={form.title}
+          onChange={(e) => setForm({ ...form, title: e.target.value })}
+        />
       </Field>
       <Field id="deal-desc" label={fr ? "Description" : "Description"}>
         <Textarea
@@ -206,7 +226,11 @@ function DealForm({ fr }: { fr: boolean }) {
           />
         </Field>
         <Field id="deal-city" label={fr ? "Ville" : "City"}>
-          <Input id="deal-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
+          <Input
+            id="deal-city"
+            value={form.city}
+            onChange={(e) => setForm({ ...form, city: e.target.value })}
+          />
         </Field>
         <Field id="deal-limit" label={fr ? "Nombre max" : "Claim limit"}>
           <Input
@@ -270,7 +294,9 @@ function EventForm({ fr }: { fr: boolean }) {
         is_published: true,
       });
       if (error) {
-        toast.error(databaseMessage(fr ? "Publication impossible" : "Could not publish the event", error));
+        toast.error(
+          databaseMessage(fr ? "Publication impossible" : "Could not publish the event", error),
+        );
         return;
       }
       toast.success(fr ? "Événement publié !" : "Event published!");
@@ -284,7 +310,11 @@ function EventForm({ fr }: { fr: boolean }) {
   return (
     <div className="tile space-y-4 p-5">
       <Field id="ev-title" label={fr ? "Titre" : "Title"}>
-        <Input id="ev-title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+        <Input
+          id="ev-title"
+          value={form.title}
+          onChange={(e) => setForm({ ...form, title: e.target.value })}
+        />
       </Field>
       <Field id="ev-desc" label={fr ? "Description" : "Description"}>
         <Textarea
@@ -304,12 +334,23 @@ function EventForm({ fr }: { fr: boolean }) {
           />
         </Field>
         <Field id="ev-venue" label={fr ? "Lieu" : "Venue"}>
-          <Input id="ev-venue" value={form.venue} onChange={(e) => setForm({ ...form, venue: e.target.value })} />
+          <Input
+            id="ev-venue"
+            value={form.venue}
+            onChange={(e) => setForm({ ...form, venue: e.target.value })}
+          />
         </Field>
         <Field id="ev-city" label={fr ? "Ville" : "City"}>
-          <Input id="ev-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
+          <Input
+            id="ev-city"
+            value={form.city}
+            onChange={(e) => setForm({ ...form, city: e.target.value })}
+          />
         </Field>
-        <Field id="ev-price" label={fr ? "Prix du billet (0 = gratuit)" : "Ticket price (0 = free)"}>
+        <Field
+          id="ev-price"
+          label={fr ? "Prix du billet (0 = gratuit)" : "Ticket price (0 = free)"}
+        >
           <Input
             id="ev-price"
             inputMode="numeric"
@@ -350,7 +391,9 @@ function ProjectForm({ fr }: { fr: boolean }) {
   async function submit() {
     const budget = Number(form.budget);
     if (form.title.trim().length < 3 || form.description.trim().length < 20 || !(budget > 0)) {
-      toast.error(fr ? "Titre, description et budget requis." : "Title, description and budget are required.");
+      toast.error(
+        fr ? "Titre, description et budget requis." : "Title, description and budget are required.",
+      );
       return;
     }
     setBusy(true);
@@ -371,7 +414,9 @@ function ProjectForm({ fr }: { fr: boolean }) {
         status: "OPEN",
       });
       if (error) {
-        toast.error(databaseMessage(fr ? "Publication impossible" : "Could not publish the project", error));
+        toast.error(
+          databaseMessage(fr ? "Publication impossible" : "Could not publish the project", error),
+        );
         return;
       }
       toast.success(fr ? "Projet publié !" : "Project published!");
@@ -385,7 +430,11 @@ function ProjectForm({ fr }: { fr: boolean }) {
   return (
     <div className="tile space-y-4 p-5">
       <Field id="pr-title" label={fr ? "Titre du projet" : "Project title"}>
-        <Input id="pr-title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+        <Input
+          id="pr-title"
+          value={form.title}
+          onChange={(e) => setForm({ ...form, title: e.target.value })}
+        />
       </Field>
       <Field id="pr-desc" label={fr ? "Ce dont vous avez besoin" : "What you need"}>
         <Textarea
@@ -412,11 +461,22 @@ function ProjectForm({ fr }: { fr: boolean }) {
             onChange={(e) => setForm({ ...form, days: e.target.value })}
           />
         </Field>
-        <Field id="pr-skills" label={fr ? "Compétences (séparées par ,)" : "Skills (comma separated)"}>
-          <Input id="pr-skills" value={form.skills} onChange={(e) => setForm({ ...form, skills: e.target.value })} />
+        <Field
+          id="pr-skills"
+          label={fr ? "Compétences (séparées par ,)" : "Skills (comma separated)"}
+        >
+          <Input
+            id="pr-skills"
+            value={form.skills}
+            onChange={(e) => setForm({ ...form, skills: e.target.value })}
+          />
         </Field>
         <Field id="pr-city" label={fr ? "Ville" : "City"}>
-          <Input id="pr-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
+          <Input
+            id="pr-city"
+            value={form.city}
+            onChange={(e) => setForm({ ...form, city: e.target.value })}
+          />
         </Field>
       </div>
       <Button className="w-full" disabled={busy} onClick={() => void submit()}>
@@ -429,7 +489,14 @@ function ProjectForm({ fr }: { fr: boolean }) {
 function FreelancerForm({ fr }: { fr: boolean }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [form, setForm] = useState({ headline: "", bio: "", skills: "", city: "", starting: "", years: "1" });
+  const [form, setForm] = useState({
+    headline: "",
+    bio: "",
+    skills: "",
+    city: "",
+    starting: "",
+    years: "1",
+  });
   const [busy, setBusy] = useState(false);
 
   async function submit() {
@@ -457,7 +524,9 @@ function FreelancerForm({ fr }: { fr: boolean }) {
         { onConflict: "user_id" },
       );
       if (error) {
-        toast.error(databaseMessage(fr ? "Enregistrement impossible" : "Could not save your profile", error));
+        toast.error(
+          databaseMessage(fr ? "Enregistrement impossible" : "Could not save your profile", error),
+        );
         return;
       }
       toast.success(fr ? "Profil freelance publié !" : "Freelance profile published!");
@@ -476,18 +545,38 @@ function FreelancerForm({ fr }: { fr: boolean }) {
           id="fl-headline"
           value={form.headline}
           onChange={(e) => setForm({ ...form, headline: e.target.value })}
-          placeholder={fr ? "Développeur frontend React / TypeScript" : "Frontend developer — React / TypeScript"}
+          placeholder={
+            fr
+              ? "Développeur frontend React / TypeScript"
+              : "Frontend developer — React / TypeScript"
+          }
         />
       </Field>
       <Field id="fl-bio" label={fr ? "À propos" : "About you"}>
-        <Textarea id="fl-bio" rows={4} value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} />
+        <Textarea
+          id="fl-bio"
+          rows={4}
+          value={form.bio}
+          onChange={(e) => setForm({ ...form, bio: e.target.value })}
+        />
       </Field>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field id="fl-skills" label={fr ? "Compétences (séparées par ,)" : "Skills (comma separated)"}>
-          <Input id="fl-skills" value={form.skills} onChange={(e) => setForm({ ...form, skills: e.target.value })} />
+        <Field
+          id="fl-skills"
+          label={fr ? "Compétences (séparées par ,)" : "Skills (comma separated)"}
+        >
+          <Input
+            id="fl-skills"
+            value={form.skills}
+            onChange={(e) => setForm({ ...form, skills: e.target.value })}
+          />
         </Field>
         <Field id="fl-city" label={fr ? "Ville" : "City"}>
-          <Input id="fl-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
+          <Input
+            id="fl-city"
+            value={form.city}
+            onChange={(e) => setForm({ ...form, city: e.target.value })}
+          />
         </Field>
         <Field id="fl-start" label={fr ? "À partir de (XAF)" : "Starting from (XAF)"}>
           <Input

@@ -96,8 +96,8 @@ export function StorefrontCard({ studio }: { studio: Studio }) {
   return (
     <SectionCard title="My storefront link">
       <p className="text-sm text-muted-foreground">
-        Share this one link on WhatsApp, status or Facebook. Customers see your catalog, prices, ratings and can book
-        instantly.
+        Share this one link on WhatsApp, status or Facebook. Customers see your catalog, prices,
+        ratings and can book instantly.
       </p>
 
       <div className="mt-3 grid gap-2 rounded-2xl border border-border bg-muted/40 p-3 sm:grid-cols-[minmax(0,1fr)_auto]">
@@ -152,7 +152,9 @@ export function StorefrontCard({ studio }: { studio: Studio }) {
               Verified
             </span>
           ) : studio.verification_status === "PENDING" ? (
-            <span className="rounded-full bg-gold/15 px-3 py-1 text-xs font-bold text-foreground">Under review</span>
+            <span className="rounded-full bg-gold/15 px-3 py-1 text-xs font-bold text-foreground">
+              Under review
+            </span>
           ) : (
             <Button size="sm" variant="outline" onClick={() => void requestVerification()}>
               {studio.verification_status === "REJECTED" ? "Request again" : "Request verification"}
@@ -199,7 +201,11 @@ export function AvailabilityCard({ studio }: { studio: Studio }) {
       WEEKDAYS.map((_, weekday) => {
         const row = rows.find((r) => r.weekday === weekday);
         return row
-          ? { enabled: true, start: minutesToTime(row.start_minute), end: minutesToTime(row.end_minute) }
+          ? {
+              enabled: true,
+              start: minutesToTime(row.start_minute),
+              end: minutesToTime(row.end_minute),
+            }
           : { enabled: false, start: "09:00", end: "17:00" };
       }),
     );
@@ -217,7 +223,10 @@ export function AvailabilityCard({ studio }: { studio: Studio }) {
         end_minute: timeToMinutes(d.end),
       }));
 
-    const { error: delError } = await supabase.from("provider_availability").delete().eq("provider_id", studio.id);
+    const { error: delError } = await supabase
+      .from("provider_availability")
+      .delete()
+      .eq("provider_id", studio.id);
     if (delError) {
       setSaving(false);
       toast.error(delError.message);
@@ -267,7 +276,9 @@ export function AvailabilityCard({ studio }: { studio: Studio }) {
                 type="checkbox"
                 checked={day.enabled}
                 onChange={(e) =>
-                  setDays((prev) => prev.map((d, i) => (i === index ? { ...d, enabled: e.target.checked } : d)))
+                  setDays((prev) =>
+                    prev.map((d, i) => (i === index ? { ...d, enabled: e.target.checked } : d)),
+                  )
                 }
               />
               {WEEKDAYS[index]}
@@ -278,7 +289,11 @@ export function AvailabilityCard({ studio }: { studio: Studio }) {
                 className="h-9 w-[7.5rem]"
                 value={day.start}
                 disabled={!day.enabled}
-                onChange={(e) => setDays((prev) => prev.map((d, i) => (i === index ? { ...d, start: e.target.value } : d)))}
+                onChange={(e) =>
+                  setDays((prev) =>
+                    prev.map((d, i) => (i === index ? { ...d, start: e.target.value } : d)),
+                  )
+                }
               />
               <span className="text-muted-foreground">—</span>
               <Input
@@ -286,7 +301,11 @@ export function AvailabilityCard({ studio }: { studio: Studio }) {
                 className="h-9 w-[7.5rem]"
                 value={day.end}
                 disabled={!day.enabled}
-                onChange={(e) => setDays((prev) => prev.map((d, i) => (i === index ? { ...d, end: e.target.value } : d)))}
+                onChange={(e) =>
+                  setDays((prev) =>
+                    prev.map((d, i) => (i === index ? { ...d, end: e.target.value } : d)),
+                  )
+                }
               />
             </div>
           </div>
@@ -311,10 +330,21 @@ export function AvailabilityCard({ studio }: { studio: Studio }) {
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="lead">Notice needed (hours)</Label>
-          <Input id="lead" type="number" min={0} max={168} value={lead} onChange={(e) => setLead(e.target.value)} />
+          <Input
+            id="lead"
+            type="number"
+            min={0}
+            max={168}
+            value={lead}
+            onChange={(e) => setLead(e.target.value)}
+          />
         </div>
         <label className="flex items-end gap-2 pb-2 text-sm font-semibold text-foreground">
-          <input type="checkbox" checked={accepting} onChange={(e) => setAccepting(e.target.checked)} />
+          <input
+            type="checkbox"
+            checked={accepting}
+            onChange={(e) => setAccepting(e.target.checked)}
+          />
           Accepting bookings
         </label>
       </div>
@@ -407,7 +437,8 @@ export function PaymentLinksCard({
   return (
     <SectionCard title="Payment links">
       <p className="text-sm text-muted-foreground">
-        Generate a link for any amount and send it on WhatsApp. The customer pays with Mobile Money; ASH keeps 1%.
+        Generate a link for any amount and send it on WhatsApp. The customer pays with Mobile Money;
+        ASH keeps 1%.
       </p>
 
       <form onSubmit={create} className="mt-4 grid gap-3 sm:grid-cols-4">
@@ -463,7 +494,8 @@ export function PaymentLinksCard({
 
       {totalCollected > 0 ? (
         <p className="mt-4 text-sm text-muted-foreground">
-          Collected through links: <span className="font-bold text-foreground">{formatXAF(totalCollected)}</span>
+          Collected through links:{" "}
+          <span className="font-bold text-foreground">{formatXAF(totalCollected)}</span>
         </p>
       ) : null}
 
@@ -476,12 +508,17 @@ export function PaymentLinksCard({
                 <div className="min-w-0">
                   <p className="truncate font-semibold text-foreground">{link.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {formatXAF(link.amount)} · {link.paid_count} paid · {link.is_active ? "Active" : "Disabled"}
+                    {formatXAF(link.amount)} · {link.paid_count} paid ·{" "}
+                    {link.is_active ? "Active" : "Disabled"}
                   </p>
                   <p className="mt-1 truncate font-mono text-[11px] text-muted-foreground">{url}</p>
                 </div>
                 <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
-                  <Button size="sm" variant="outline" onClick={() => void copy(url, "Payment link copied")}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => void copy(url, "Payment link copied")}
+                  >
                     <Link2 className="size-4" aria-hidden />
                   </Button>
                   <Button size="sm" asChild>
@@ -493,10 +530,19 @@ export function PaymentLinksCard({
                       Send
                     </a>
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => void toggle(link.id, link.is_active)}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => void toggle(link.id, link.is_active)}
+                  >
                     {link.is_active ? "Disable" : "Enable"}
                   </Button>
-                  <Button size="sm" variant="ghost" aria-label="Delete link" onClick={() => void remove(link.id)}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    aria-label="Delete link"
+                    onClick={() => void remove(link.id)}
+                  >
                     <Trash2 className="size-4" aria-hidden />
                   </Button>
                 </div>

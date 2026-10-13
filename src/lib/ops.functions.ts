@@ -38,7 +38,15 @@ export type BriefingSuggestion = {
   priority: string;
 };
 
-const CHANNELS = ["GENERAL", "LEADERSHIP", "SUPPORT", "REVENUE", "GROWTH", "TRUST", "CYBERSECURITY"] as const;
+const CHANNELS = [
+  "GENERAL",
+  "LEADERSHIP",
+  "SUPPORT",
+  "REVENUE",
+  "GROWTH",
+  "TRUST",
+  "CYBERSECURITY",
+] as const;
 
 function cleanChannel(value: unknown) {
   const channel = String(value ?? "GENERAL").toUpperCase();
@@ -67,44 +75,62 @@ export const getStaffChat = createServerFn({ method: "POST" })
 
     if (error) throw new Error("Team messages could not be loaded.");
     const messages = (rows ?? []) as StaffMessage[];
-    const staffIds = [...new Set(messages.flatMap((message) => message.author_staff_id ? [message.author_staff_id] : []))];
-    const profiles = new Map<string, { name: string | null; position: string | null; avatar: string | null }>();
+    const staffIds = [
+      ...new Set(
+        messages.flatMap((message) => (message.author_staff_id ? [message.author_staff_id] : [])),
+      ),
+    ];
+    const profiles = new Map<
+      string,
+      { name: string | null; position: string | null; avatar: string | null }
+    >();
     if (staffIds.length) {
-      const { data: staff, error: staffError } = await db.from("staff_accounts")
+      const { data: staff, error: staffError } = await db
+        .from("staff_accounts")
         .select("id, employee_name, full_name, position, avatar_url")
         .in("id", staffIds);
       if (staffError) throw new Error("Employee profiles could not be loaded.");
-      await Promise.all((staff ?? []).map(async (profile) => {
-        const avatar = profile.avatar_url
-          ? (await db.storage.from("staff-avatars").createSignedUrl(profile.avatar_url, 60 * 60)).data?.signedUrl ?? null
-          : null;
-        profiles.set(profile.id, {
-          name: profile.employee_name || profile.full_name,
-          position: profile.position,
-          avatar,
-        });
-      }));
+      await Promise.all(
+        (staff ?? []).map(async (profile) => {
+          const avatar = profile.avatar_url
+            ? ((await db.storage.from("staff-avatars").createSignedUrl(profile.avatar_url, 60 * 60))
+                .data?.signedUrl ?? null)
+            : null;
+          profiles.set(profile.id, {
+            name: profile.employee_name || profile.full_name,
+            position: profile.position,
+            avatar,
+          });
+        }),
+      );
     }
     return {
       channel: data.channel,
       me: actor.name,
       meStaffId: actor.staffId,
-      messages: messages.slice().reverse().map((message) => {
-        const profile = message.author_staff_id ? profiles.get(message.author_staff_id) : undefined;
-        return {
-          ...message,
-          author_name: profile?.name || message.author_name,
-          author_position: profile?.position ?? null,
-          author_avatar_url: profile?.avatar ?? null,
-        };
-      }),
+      messages: messages
+        .slice()
+        .reverse()
+        .map((message) => {
+          const profile = message.author_staff_id
+            ? profiles.get(message.author_staff_id)
+            : undefined;
+          return {
+            ...message,
+            author_name: profile?.name || message.author_name,
+            author_position: profile?.position ?? null,
+            author_avatar_url: profile?.avatar ?? null,
+          };
+        }),
     };
   });
 
 export const postStaffMessage = createServerFn({ method: "POST" })
   .inputValidator((data: { channel?: string; body: string }) => ({
     channel: cleanChannel(data?.channel),
-    body: String(data?.body ?? "").trim().slice(0, 4000),
+    body: String(data?.body ?? "")
+      .trim()
+      .slice(0, 4000),
   }))
   .handler(async ({ data }) => {
     const { requireConsole, adminClient } = await import("./console.server");
@@ -140,7 +166,9 @@ export const getDepartmentTasks = createServerFn({ method: "POST" })
 
     let query = db
       .from("department_tasks")
-      .select("id, department, title, detail, due_date, status, priority, source, created_by, completed_at")
+      .select(
+        "id, department, title, detail, due_date, status, priority, source, created_by, completed_at",
+      )
       .order("due_date", { ascending: false })
       .order("created_at", { ascending: true })
       .limit(200);
@@ -194,14 +222,24 @@ export const setTaskStatus = createServerFn({ method: "POST" })
 /** Super admin issues tickets — either a hand-written one or a whole AI-suggested set. */
 export const issueTickets = createServerFn({ method: "POST" })
   .inputValidator(
-    (data: { tasks: { department: string; title: string; detail?: string; priority?: string }[]; source?: string }) => ({
+    (data: {
+      tasks: { department: string; title: string; detail?: string; priority?: string }[];
+      source?: string;
+    }) => ({
       source: String(data?.source ?? "ADMIN").toUpperCase() === "AI" ? "AI" : "ADMIN",
       tasks: (Array.isArray(data?.tasks) ? data.tasks : [])
         .slice(0, 60)
         .map((task) => ({
-          department: String(task?.department ?? "").toUpperCase().slice(0, 40),
-          title: String(task?.title ?? "").trim().slice(0, 160),
-          detail: String(task?.detail ?? "").trim().slice(0, 1200) || null,
+          department: String(task?.department ?? "")
+            .toUpperCase()
+            .slice(0, 40),
+          title: String(task?.title ?? "")
+            .trim()
+            .slice(0, 160),
+          detail:
+            String(task?.detail ?? "")
+              .trim()
+              .slice(0, 1200) || null,
           priority: ["LOW", "NORMAL", "HIGH"].includes(String(task?.priority ?? "").toUpperCase())
             ? String(task.priority).toUpperCase()
             : "NORMAL",
@@ -212,24 +250,24 @@ export const issueTickets = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { requireSuperAdmin, adminClient, DEPARTMENTS } = await import("./console.server");
     const actor = await requireSuperAdmin();
-    const valid = data.tasks.filter((task) => (DEPARTMENTS as readonly string[]).includes(task.department));
+    const valid = data.tasks.filter((task) =>
+      (DEPARTMENTS as readonly string[]).includes(task.department),
+    );
     if (valid.length === 0) return { ok: false as const, error: "NO_TASKS", issued: 0 };
 
     const db = await adminClient();
     const due = today();
 
-    const { error, count } = await db
-      .from("department_tasks")
-      .upsert(
-        valid.map((task) => ({
-          ...task,
-          due_date: due,
-          status: "OPEN",
-          source: data.source,
-          created_by: actor.name,
-        })),
-        { onConflict: "department,due_date,title", ignoreDuplicates: true, count: "exact" },
-      );
+    const { error, count } = await db.from("department_tasks").upsert(
+      valid.map((task) => ({
+        ...task,
+        due_date: due,
+        status: "OPEN",
+        source: data.source,
+        created_by: actor.name,
+      })),
+      { onConflict: "department,due_date,title", ignoreDuplicates: true, count: "exact" },
+    );
 
     if (error) return { ok: false as const, error: error.message, issued: 0 };
     return { ok: true as const, issued: count ?? valid.length };
@@ -267,7 +305,10 @@ export const getDailyBriefing = createServerFn({ method: "GET" }).handler(async 
     unverifiedProviders: providers.data?.length ?? 0,
     openTickets: tickets.data?.length ?? 0,
     pendingWithdrawals: withdrawals.data?.length ?? 0,
-    pendingWithdrawalValue: (withdrawals.data ?? []).reduce((sum, w) => sum + Number(w.amount ?? 0), 0),
+    pendingWithdrawalValue: (withdrawals.data ?? []).reduce(
+      (sum, w) => sum + Number(w.amount ?? 0),
+      0,
+    ),
     platformRevenue: Number(f["platform_revenue"] ?? 0),
     safeToWithdraw: Number(f["safe_to_withdraw"] ?? 0),
   };
@@ -298,7 +339,12 @@ Reply with JSON only: {"tasks":[{"department":"...","title":"short action","deta
 
     if (!response.ok) {
       const message = await response.text();
-      return { metrics, suggestions: [] as BriefingSuggestion[], error: `AI_${response.status}`, detail: message.slice(0, 300) };
+      return {
+        metrics,
+        suggestions: [] as BriefingSuggestion[],
+        error: `AI_${response.status}`,
+        detail: message.slice(0, 300),
+      };
     }
 
     const payload = (await response.json()) as { choices?: { message?: { content?: string } }[] };
@@ -330,7 +376,11 @@ Reply with JSON only: {"tasks":[{"department":"...","title":"short action","deta
 /* ---------------------- direct member messaging -------------------- */
 
 export const searchMembers = createServerFn({ method: "POST" })
-  .inputValidator((data: { term: string }) => ({ term: String(data?.term ?? "").trim().slice(0, 80) }))
+  .inputValidator((data: { term: string }) => ({
+    term: String(data?.term ?? "")
+      .trim()
+      .slice(0, 80),
+  }))
   .handler(async ({ data }) => {
     const { requireConsole, adminClient } = await import("./console.server");
     await requireConsole();
@@ -355,15 +405,20 @@ export const searchMembers = createServerFn({ method: "POST" })
 export const messageMember = createServerFn({ method: "POST" })
   .inputValidator((data: { userId: string; subject: string; body: string; kind?: string }) => ({
     userId: String(data?.userId ?? ""),
-    subject: String(data?.subject ?? "").trim().slice(0, 140),
-    body: String(data?.body ?? "").trim().slice(0, 4000),
+    subject: String(data?.subject ?? "")
+      .trim()
+      .slice(0, 140),
+    body: String(data?.body ?? "")
+      .trim()
+      .slice(0, 4000),
     kind: String(data?.kind ?? "MESSAGE").toUpperCase() === "SECURITY" ? "SECURITY" : "MESSAGE",
   }))
   .handler(async ({ data }) => {
     const { requireDepartment, adminClient } = await import("./console.server");
     const actor = await requireDepartment("SUPPORT", "CYBERSECURITY", "TRUST");
 
-    if (!data.userId || !data.subject || !data.body) return { ok: false as const, error: "MISSING_FIELDS" };
+    if (!data.userId || !data.subject || !data.body)
+      return { ok: false as const, error: "MISSING_FIELDS" };
 
     const db = await adminClient();
 
@@ -391,7 +446,8 @@ export const messageMember = createServerFn({ method: "POST" })
       .select("id")
       .single();
 
-    if (ticketError || !ticket) return { ok: false as const, error: ticketError?.message ?? "TICKET_FAILED" };
+    if (ticketError || !ticket)
+      return { ok: false as const, error: ticketError?.message ?? "TICKET_FAILED" };
 
     await db.from("support_ticket_messages").insert({
       ticket_id: ticket.id,
@@ -428,8 +484,16 @@ export const getMemberStatement = createServerFn({ method: "POST" })
     const db = await adminClient();
 
     const [profile, wallet, transactions] = await Promise.all([
-      db.from("profiles").select("user_id, full_name, email, phone, referral_code, account_status, created_at").eq("user_id", data.userId).maybeSingle(),
-      db.from("wallets").select("available_balance, pending_balance, total_earned, total_withdrawn").eq("user_id", data.userId).maybeSingle(),
+      db
+        .from("profiles")
+        .select("user_id, full_name, email, phone, referral_code, account_status, created_at")
+        .eq("user_id", data.userId)
+        .maybeSingle(),
+      db
+        .from("wallets")
+        .select("available_balance, pending_balance, total_earned, total_withdrawn")
+        .eq("user_id", data.userId)
+        .maybeSingle(),
       db
         .from("transactions")
         .select("id, type, amount, reference, description, status, created_at")

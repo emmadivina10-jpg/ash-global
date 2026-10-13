@@ -32,14 +32,20 @@ export function formatMoney(value: number | string | null | undefined, currency:
     return `${sign}${Math.abs(n).toLocaleString("fr-FR", { maximumFractionDigits: 0 })} XAF`;
   }
   try {
-    return new Intl.NumberFormat("en-CA", { style: "currency", currency: cur, currencyDisplay: "symbol" }).format(n);
+    return new Intl.NumberFormat("en-CA", {
+      style: "currency",
+      currency: cur,
+      currencyDisplay: "symbol",
+    }).format(n);
   } catch {
     return `${n.toFixed(2)} ${cur}`;
   }
 }
 
 /** Withdrawals leave the same way the money came in. */
-export function withdrawalMethodsFor(currency: string): Array<"MTN_MOMO" | "ORANGE_MONEY" | "STRIPE_BANK"> {
+export function withdrawalMethodsFor(
+  currency: string,
+): Array<"MTN_MOMO" | "ORANGE_MONEY" | "STRIPE_BANK"> {
   return currency.toUpperCase() === "XAF" ? ["MTN_MOMO", "ORANGE_MONEY"] : ["STRIPE_BANK"];
 }
 
@@ -49,7 +55,15 @@ export function minWithdrawalFor(currency: string): number {
 
 export function balanceFor(balances: CurrencyBalance[], currency: string): CurrencyBalance {
   const cur = currency.toUpperCase();
-  return balances.find((b) => b.currency === cur) ?? { currency: cur, available: 0, pending: 0, totalIn: 0, totalOut: 0 };
+  return (
+    balances.find((b) => b.currency === cur) ?? {
+      currency: cur,
+      available: 0,
+      pending: 0,
+      totalIn: 0,
+      totalOut: 0,
+    }
+  );
 }
 
 export function useWalletBalances() {
@@ -59,8 +73,15 @@ export function useWalletBalances() {
       const { data: auth } = await supabase.auth.getUser();
       if (!auth.user) return [];
       const [{ data: w, error: we }, { data: rows, error: re }] = await Promise.all([
-        supabase.from("wallets").select("available_balance, pending_balance, card_balance, total_earned, total_withdrawn").eq("user_id", auth.user.id).maybeSingle(),
-        supabase.from("wallet_balances").select("currency, available, pending, total_in, total_out").eq("user_id", auth.user.id),
+        supabase
+          .from("wallets")
+          .select("available_balance, pending_balance, card_balance, total_earned, total_withdrawn")
+          .eq("user_id", auth.user.id)
+          .maybeSingle(),
+        supabase
+          .from("wallet_balances")
+          .select("currency, available, pending, total_in, total_out")
+          .eq("user_id", auth.user.id),
       ]);
       if (we) throw we;
       if (re) throw re;
@@ -71,13 +92,16 @@ export function useWalletBalances() {
         totalIn: Number(w?.total_earned ?? 0),
         totalOut: Number(w?.total_withdrawn ?? 0),
       };
-      return [xaf, ...(rows ?? []).map((r) => ({
-        currency: String(r.currency).toUpperCase(),
-        available: Number(r.available ?? 0),
-        pending: Number(r.pending ?? 0),
-        totalIn: Number(r.total_in ?? 0),
-        totalOut: Number(r.total_out ?? 0),
-      }))];
+      return [
+        xaf,
+        ...(rows ?? []).map((r) => ({
+          currency: String(r.currency).toUpperCase(),
+          available: Number(r.available ?? 0),
+          pending: Number(r.pending ?? 0),
+          totalIn: Number(r.total_in ?? 0),
+          totalOut: Number(r.total_out ?? 0),
+        })),
+      ];
     },
   });
 }
@@ -97,11 +121,17 @@ export function useWalletCurrency(): [string, (c: string) => void] {
     try {
       const saved = window.localStorage.getItem(KEY);
       if (saved && /^[A-Z]{3}$/.test(saved)) setCurrency(saved);
-    } catch { /* private mode */ }
+    } catch {
+      /* private mode */
+    }
   }, []);
   const update = (c: string) => {
     setCurrency(c);
-    try { window.localStorage.setItem(KEY, c); } catch { /* private mode */ }
+    try {
+      window.localStorage.setItem(KEY, c);
+    } catch {
+      /* private mode */
+    }
   };
   return [currency, update];
 }
@@ -109,10 +139,21 @@ export function useWalletCurrency(): [string, (c: string) => void] {
 export type FlowRange = "7d" | "30d" | "12m";
 export type FlowPoint = { label: string; in: number; out: number };
 
-type TxLike = { amount: number | string | null; currency?: string | null; status?: string | null; created_at: string; type?: string | null };
+type TxLike = {
+  amount: number | string | null;
+  currency?: string | null;
+  status?: string | null;
+  created_at: string;
+  type?: string | null;
+};
 
 /** Money in/out per day (7d, 30d) or month (12m) for one currency, from completed movements only. */
-export function buildMoneyFlow(rows: TxLike[], currency: string, range: FlowRange, now = new Date()): { points: FlowPoint[]; totalIn: number; totalOut: number } {
+export function buildMoneyFlow(
+  rows: TxLike[],
+  currency: string,
+  range: FlowRange,
+  now = new Date(),
+): { points: FlowPoint[]; totalIn: number; totalOut: number } {
   const cur = currency.toUpperCase();
   const monthly = range === "12m";
   const count = range === "7d" ? 7 : range === "30d" ? 30 : 12;
@@ -120,9 +161,16 @@ export function buildMoneyFlow(rows: TxLike[], currency: string, range: FlowRang
   const labels: string[] = [];
   for (let i = count - 1; i >= 0; i--) {
     const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-    if (monthly) { d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() - i); } else d.setUTCDate(d.getUTCDate() - i);
+    if (monthly) {
+      d.setUTCDate(1);
+      d.setUTCMonth(d.getUTCMonth() - i);
+    } else d.setUTCDate(d.getUTCDate() - i);
     keys.push(monthly ? d.toISOString().slice(0, 7) : d.toISOString().slice(0, 10));
-    labels.push(monthly ? d.toLocaleDateString("en-GB", { month: "short", timeZone: "UTC" }) : d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", timeZone: "UTC" }));
+    labels.push(
+      monthly
+        ? d.toLocaleDateString("en-GB", { month: "short", timeZone: "UTC" })
+        : d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", timeZone: "UTC" }),
+    );
   }
   const map = new Map(keys.map((k, i) => [k, { label: labels[i] ?? "", in: 0, out: 0 }]));
   let totalIn = 0;
@@ -134,7 +182,13 @@ export function buildMoneyFlow(rows: TxLike[], currency: string, range: FlowRang
     const bucket = map.get(key);
     if (!bucket) continue;
     const v = Number(r.amount ?? 0);
-    if (v >= 0) { bucket.in += v; totalIn += v; } else { bucket.out += -v; totalOut += -v; }
+    if (v >= 0) {
+      bucket.in += v;
+      totalIn += v;
+    } else {
+      bucket.out += -v;
+      totalOut += -v;
+    }
   }
   return { points: [...map.values()], totalIn, totalOut };
 }

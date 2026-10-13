@@ -39,12 +39,17 @@ async function cleanupExpiredStories(request: Request) {
 
   const removableIds: string[] = [];
   for (const story of expired) {
-    const { error: storageError } = await supabaseAdmin.storage.from(STORY_BUCKET).remove([story.media_path]);
+    const { error: storageError } = await supabaseAdmin.storage
+      .from(STORY_BUCKET)
+      .remove([story.media_path]);
     if (!storageError) removableIds.push(story.id);
   }
 
   if (removableIds.length > 0) {
-    const { error: deleteError } = await supabaseAdmin.from("stories").delete().in("id", removableIds);
+    const { error: deleteError } = await supabaseAdmin
+      .from("stories")
+      .delete()
+      .in("id", removableIds);
     if (deleteError) {
       return Response.json({ ok: false, error: "STORY_RECORD_DELETE_FAILED" }, { status: 500 });
     }

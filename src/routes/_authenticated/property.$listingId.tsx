@@ -32,8 +32,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useProperty, useSavedIds, useSimilarProperties, openPropertyConversation } from "@/lib/property.queries";
-import { AMENITIES, VERIFICATION_STATES, categoryLabel, formatPropertyPrice, labelOf } from "@/lib/property";
+import {
+  useProperty,
+  useSavedIds,
+  useSimilarProperties,
+  openPropertyConversation,
+} from "@/lib/property.queries";
+import {
+  AMENITIES,
+  VERIFICATION_STATES,
+  categoryLabel,
+  formatPropertyPrice,
+  labelOf,
+} from "@/lib/property";
 import { formatDateTime } from "@/lib/format";
 import { useUser } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
@@ -44,9 +55,16 @@ export const Route = createFileRoute("/_authenticated/property/$listingId")({
   head: () => ({
     meta: [
       { title: "Property details — ASH Property" },
-      { name: "description", content: "Photos, price, amenities, verification status and viewing requests for this ASH Property listing." },
+      {
+        name: "description",
+        content:
+          "Photos, price, amenities, verification status and viewing requests for this ASH Property listing.",
+      },
       { property: "og:title", content: "Property details — ASH Property" },
-      { property: "og:description", content: "Photos, price, amenities and viewing requests on ASH Property." },
+      {
+        property: "og:description",
+        content: "Photos, price, amenities and viewing requests on ASH Property.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -61,8 +79,6 @@ function PropertyDetail() {
   const queryClient = useQueryClient();
   const navigate = Route.useNavigate();
   const { user } = useUser();
-
-
 
   const { data, isLoading } = useProperty(listingId);
   const { data: similar } = useSimilarProperties(data?.listing ?? null);
@@ -91,7 +107,10 @@ function PropertyDetail() {
       <EmptyState
         icon={<MapPin className="size-5" aria-hidden />}
         title={tx("Listing not found", "Annonce introuvable")}
-        description={tx("This listing is no longer available.", "Cette annonce n’est plus disponible.")}
+        description={tx(
+          "This listing is no longer available.",
+          "Cette annonce n’est plus disponible.",
+        )}
         action={
           <Button asChild>
             <Link to="/property">{tx("Back to Property", "Retour")}</Link>
@@ -107,9 +126,15 @@ function PropertyDetail() {
     const { data: auth } = await supabase.auth.getUser();
     if (!auth.user) return;
     if (saved) {
-      await supabase.from("property_saves").delete().eq("listing_id", listingId).eq("user_id", auth.user.id);
+      await supabase
+        .from("property_saves")
+        .delete()
+        .eq("listing_id", listingId)
+        .eq("user_id", auth.user.id);
     } else {
-      await supabase.from("property_saves").insert({ listing_id: listingId, user_id: auth.user.id });
+      await supabase
+        .from("property_saves")
+        .insert({ listing_id: listingId, user_id: auth.user.id });
     }
     trackEvent({
       event_type: saved ? "unsave" : "save",
@@ -118,7 +143,7 @@ function PropertyDetail() {
       target_id: listingId,
     });
     await queryClient.invalidateQueries({ queryKey: ["property"] });
-    toast.success(saved ? (tx("Removed", "Retiré")) : tx("Saved", "Enregistré"));
+    toast.success(saved ? tx("Removed", "Retiré") : tx("Saved", "Enregistré"));
   }
 
   async function requestViewing() {
@@ -135,7 +160,9 @@ function PropertyDetail() {
     setBusy(false);
     const payload = result as { ok?: boolean; error?: string } | null;
     if (error || !payload?.ok) {
-      toast.error(payload?.error ?? error?.message ?? (tx("Request failed.", "Échec de la demande.")));
+      toast.error(
+        payload?.error ?? error?.message ?? tx("Request failed.", "Échec de la demande."),
+      );
       return;
     }
     setViewingOpen(false);
@@ -167,8 +194,6 @@ function PropertyDetail() {
     }
   }
 
-
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
@@ -182,13 +207,23 @@ function PropertyDetail() {
             aria-label={tx("Share", "Partager")}
             onClick={() => {
               void navigator.clipboard.writeText(window.location.href);
-              trackEvent({ event_type: "share", surface: "property", target_type: "property", target_id: listingId });
+              trackEvent({
+                event_type: "share",
+                surface: "property",
+                target_type: "property",
+                target_id: listingId,
+              });
               toast.success(tx("Link copied", "Lien copié"));
             }}
           >
             <Share2 className="size-4" aria-hidden />
           </Button>
-          <Button variant="ghost" size="icon" aria-label={tx("Save", "Enregistrer")} onClick={toggleSave}>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={tx("Save", "Enregistrer")}
+            onClick={toggleSave}
+          >
             <Heart className={cn("size-4", saved && "fill-primary text-primary")} aria-hidden />
           </Button>
           <ReportDialog
@@ -207,7 +242,11 @@ function PropertyDetail() {
             onClick={() => setLightbox(0)}
             className="overflow-hidden rounded-2xl border border-border"
           >
-            <img src={gallery[0]!.url!} alt={listing.title} className="aspect-[4/3] w-full object-cover" />
+            <img
+              src={gallery[0]!.url!}
+              alt={listing.title}
+              className="aspect-[4/3] w-full object-cover"
+            />
           </button>
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-1">
             {gallery.slice(1, 4).map((image, index) => (
@@ -217,7 +256,11 @@ function PropertyDetail() {
                 onClick={() => setLightbox(index + 1)}
                 className="overflow-hidden rounded-2xl border border-border"
               >
-                <img src={image.url!} alt={image.caption ?? listing.title} className="aspect-[4/3] w-full object-cover" />
+                <img
+                  src={image.url!}
+                  alt={image.caption ?? listing.title}
+                  className="aspect-[4/3] w-full object-cover"
+                />
               </button>
             ))}
           </div>
@@ -229,12 +272,18 @@ function PropertyDetail() {
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
               {categoryLabel(listing.category, fr)} ·{" "}
-              {listing.listing_kind === "SALE" ? (tx("For sale", "À vendre")) : tx("For rent", "À louer")}
+              {listing.listing_kind === "SALE"
+                ? tx("For sale", "À vendre")
+                : tx("For rent", "À louer")}
             </p>
-            <h1 className="mt-1 font-display text-2xl font-extrabold text-foreground sm:text-3xl">{listing.title}</h1>
+            <h1 className="mt-1 font-display text-2xl font-extrabold text-foreground sm:text-3xl">
+              {listing.title}
+            </h1>
             <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
               <MapPin className="size-4" aria-hidden />
-              {[listing.neighborhood, listing.city, listing.region, listing.country].filter(Boolean).join(", ")}
+              {[listing.neighborhood, listing.city, listing.region, listing.country]
+                .filter(Boolean)
+                .join(", ")}
             </p>
             <p className="mt-3 font-display text-2xl font-extrabold text-foreground">
               {formatPropertyPrice(listing.price, listing.currency, listing.price_period, fr)}
@@ -244,12 +293,14 @@ function PropertyDetail() {
           <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
             {listing.bedrooms > 0 ? (
               <span className="inline-flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5">
-                <BedDouble className="size-4" aria-hidden /> {listing.bedrooms} {tx("bedrooms", "chambres")}
+                <BedDouble className="size-4" aria-hidden /> {listing.bedrooms}{" "}
+                {tx("bedrooms", "chambres")}
               </span>
             ) : null}
             {listing.bathrooms > 0 ? (
               <span className="inline-flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5">
-                <Bath className="size-4" aria-hidden /> {listing.bathrooms} {tx("bathrooms", "salles de bain")}
+                <Bath className="size-4" aria-hidden /> {listing.bathrooms}{" "}
+                {tx("bathrooms", "salles de bain")}
               </span>
             ) : null}
             {listing.size_value ? (
@@ -267,17 +318,26 @@ function PropertyDetail() {
 
           {listing.description ? (
             <section>
-              <h2 className="mb-2 text-sm font-bold text-foreground">{tx("Description", "Description")}</h2>
-              <p className="whitespace-pre-wrap text-sm text-muted-foreground">{listing.description}</p>
+              <h2 className="mb-2 text-sm font-bold text-foreground">
+                {tx("Description", "Description")}
+              </h2>
+              <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+                {listing.description}
+              </p>
             </section>
           ) : null}
 
           {listing.amenities.length > 0 ? (
             <section>
-              <h2 className="mb-2 text-sm font-bold text-foreground">{tx("Amenities", "Commodités")}</h2>
+              <h2 className="mb-2 text-sm font-bold text-foreground">
+                {tx("Amenities", "Commodités")}
+              </h2>
               <div className="flex flex-wrap gap-2">
                 {listing.amenities.map((code) => (
-                  <span key={code} className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground">
+                  <span
+                    key={code}
+                    className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground"
+                  >
                     ✓ {labelOf(AMENITIES, code, fr)}
                   </span>
                 ))}
@@ -286,13 +346,18 @@ function PropertyDetail() {
           ) : null}
 
           <section className="rounded-2xl border border-border bg-card p-4">
-            <h2 className="text-sm font-bold text-foreground">{tx("Verification", "Vérification")}</h2>
+            <h2 className="text-sm font-bold text-foreground">
+              {tx("Verification", "Vérification")}
+            </h2>
             <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-muted-foreground">
               <BadgeCheck className="size-4 text-primary" aria-hidden />
               {labelOf(VERIFICATION_STATES, listing.verification_status, fr)}
             </p>
             <p className="mt-2 text-xs text-muted-foreground">
-              {tx("ASH only shows checks it has actually performed. A basic listing has not been verified — always visit a property before paying anything.", "ASH n’affiche que les vérifications réellement effectuées. Une annonce « simple » n’a pas été vérifiée — visitez toujours le bien avant de payer.")}
+              {tx(
+                "ASH only shows checks it has actually performed. A basic listing has not been verified — always visit a property before paying anything.",
+                "ASH n’affiche que les vérifications réellement effectuées. Une annonce « simple » n’a pas été vérifiée — visitez toujours le bien avant de payer.",
+              )}
             </p>
           </section>
         </div>
@@ -302,7 +367,9 @@ function PropertyDetail() {
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               {tx("Listed by", "Publié par")}
             </p>
-            <p className="mt-1 font-semibold text-foreground">{owner?.full_name ?? (tx("Profile unavailable", "Profil indisponible"))}</p>
+            <p className="mt-1 font-semibold text-foreground">
+              {owner?.full_name ?? tx("Profile unavailable", "Profil indisponible")}
+            </p>
             <p className="text-xs text-muted-foreground">
               {tx("Listed", "Annonce publiée le")} {formatDateTime(listing.created_at)}
             </p>
@@ -319,7 +386,10 @@ function PropertyDetail() {
                   <DialogHeader>
                     <DialogTitle>{tx("Request a viewing", "Demander une visite")}</DialogTitle>
                     <DialogDescription>
-                      {tx("The owner can accept, decline or propose another time.", "Le propriétaire peut accepter, refuser ou proposer un autre créneau.")}
+                      {tx(
+                        "The owner can accept, decline or propose another time.",
+                        "Le propriétaire peut accepter, refuser ou proposer un autre créneau.",
+                      )}
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-3">
@@ -339,11 +409,14 @@ function PropertyDetail() {
                         rows={3}
                         value={message}
                         onChange={(event) => setMessage(event.target.value)}
-                        placeholder={tx("Introduce yourself in one line.", "Présentez-vous en une ligne.")}
+                        placeholder={tx(
+                          "Introduce yourself in one line.",
+                          "Présentez-vous en une ligne.",
+                        )}
                       />
                     </div>
                     <Button className="w-full" disabled={busy} onClick={requestViewing}>
-                      {busy ? (tx("Sending…", "Envoi…")) : tx("Send request", "Envoyer la demande")}
+                      {busy ? tx("Sending…", "Envoi…") : tx("Send request", "Envoyer la demande")}
                     </Button>
                   </div>
                 </DialogContent>
@@ -355,8 +428,6 @@ function PropertyDetail() {
                   {tx("Message owner", "Discuter avec le propriétaire")}
                 </Button>
               ) : null}
-
-
 
               {listing.contact_whatsapp ? (
                 <Button variant="outline" asChild className="w-full">
@@ -382,7 +453,10 @@ function PropertyDetail() {
           </div>
 
           <div className="rounded-2xl border border-border bg-card p-4 text-xs text-muted-foreground">
-            {tx("Never pay a deposit before visiting the property and confirming the owner's identity. Report anything suspicious.", "Ne payez jamais un dépôt avant d’avoir visité le bien et vérifié l’identité du propriétaire. Signalez toute annonce suspecte.")}
+            {tx(
+              "Never pay a deposit before visiting the property and confirming the owner's identity. Report anything suspicious.",
+              "Ne payez jamais un dépôt avant d’avoir visité le bien et vérifié l’identité du propriétaire. Signalez toute annonce suspecte.",
+            )}
           </div>
         </aside>
       </div>
@@ -393,7 +467,9 @@ function PropertyDetail() {
             {tx("Similar properties", "Biens similaires")}
           </h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {similar?.map((item) => <PropertyCard key={item.id} listing={item} />)}
+            {similar?.map((item) => (
+              <PropertyCard key={item.id} listing={item} />
+            ))}
           </div>
         </section>
       ) : null}

@@ -68,7 +68,8 @@ const es: Partials = {
   "common.viewAll": "Ver todo",
   "common.there": "hola",
   "ai.title": "ASH AI",
-  "ai.subtitle": "Pregunta lo que quieras: un fontanero, una oferta, un evento o cómo van tus ganancias.",
+  "ai.subtitle":
+    "Pregunta lo que quieras: un fontanero, una oferta, un evento o cómo van tus ganancias.",
   "ai.placeholder": "Pregunta sobre tus ganancias, reservas o cómo crecer…",
   "ai.hint1": "¿Cómo funcionan las comisiones por referidos?",
   "ai.hint2": "¿Cómo va mi estudio este mes?",
@@ -114,7 +115,8 @@ const pt: Partials = {
   "common.viewAll": "Ver tudo",
   "common.there": "olá",
   "ai.title": "ASH AI",
-  "ai.subtitle": "Pergunte qualquer coisa — um canalizador, uma promoção, um evento ou como estão os seus ganhos.",
+  "ai.subtitle":
+    "Pergunte qualquer coisa — um canalizador, uma promoção, um evento ou como estão os seus ganhos.",
   "ai.placeholder": "Pergunte sobre ganhos, reservas ou como crescer…",
   "ai.hint1": "Como funcionam as comissões de indicação?",
   "ai.hint2": "Como está o meu estúdio este mês?",
@@ -344,7 +346,8 @@ const de: Partials = {
   "common.viewAll": "Alle ansehen",
   "common.there": "hallo",
   "ai.title": "ASH AI",
-  "ai.subtitle": "Frag alles — einen Handwerker, ein Angebot, ein Event oder wie deine Einnahmen laufen.",
+  "ai.subtitle":
+    "Frag alles — einen Handwerker, ein Angebot, ein Event oder wie deine Einnahmen laufen.",
   "ai.placeholder": "Frag nach Einnahmen, Buchungen oder Wachstum…",
   "ai.hint1": "Wie funktionieren Empfehlungsprovisionen?",
   "ai.hint2": "Wie läuft mein Studio diesen Monat?",

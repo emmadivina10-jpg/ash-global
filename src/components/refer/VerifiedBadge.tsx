@@ -54,7 +54,10 @@ export function VerifiedBadge({
   );
 }
 
-export type VerifiedFields = { verified_tier?: string | null | undefined; verified_until?: string | null };
+export type VerifiedFields = {
+  verified_tier?: string | null | undefined;
+  verified_until?: string | null;
+};
 
 /** Convenience: name text followed by the badge when the person is verified. */
 export function NameWithBadge({
@@ -71,7 +74,11 @@ export function NameWithBadge({
   return (
     <span className={cn("inline-flex min-w-0 items-center gap-1", className)}>
       <span className="truncate">{name}</span>
-      <VerifiedBadge tier={person?.verified_tier ?? null} until={person?.verified_until ?? null} size={size} />
+      <VerifiedBadge
+        tier={person?.verified_tier ?? null}
+        until={person?.verified_until ?? null}
+        size={size}
+      />
     </span>
   );
 }

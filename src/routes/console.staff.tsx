@@ -3,12 +3,23 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { KeyRound, Plus, ShieldCheck } from "lucide-react";
-import { createStaffSeat, listStaff, setStaffTargets, updateStaffSeat } from "@/lib/staff.functions";
+import {
+  createStaffSeat,
+  listStaff,
+  setStaffTargets,
+  updateStaffSeat,
+} from "@/lib/staff.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { LoadingState } from "@/components/refer/states";
 import { StaffAuthenticationAudit } from "@/components/console/StaffAuthenticationAudit";
 
@@ -29,15 +40,20 @@ const DEPARTMENT_OPTIONS = [
 
 export const Route = createFileRoute("/console/staff")({
   ssr: false,
-  head: () => ({ meta: [
-    { title: "ASH Glo — Private Staff Administration & Authentication Audit" },
-    { name: "description", content: "Private ASH Glo staff account, department and authentication audit." },
-    { property: "og:title", content: "ASH Glo — Private Staff Administration" },
-    { property: "og:description", content: "Private staff department and authentication audit." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary" },
-    { name: "robots", content: "noindex, nofollow" },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "ASH Glo — Private Staff Administration & Authentication Audit" },
+      {
+        name: "description",
+        content: "Private ASH Glo staff account, department and authentication audit.",
+      },
+      { property: "og:title", content: "ASH Glo — Private Staff Administration" },
+      { property: "og:description", content: "Private staff department and authentication audit." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: StaffPage,
 });
 
@@ -62,7 +78,9 @@ function StaffPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="font-display text-xl font-extrabold text-foreground">Staff & departments</h2>
+          <h2 className="font-display text-xl font-extrabold text-foreground">
+            Staff & departments
+          </h2>
           <p className="text-sm text-muted-foreground">
             Each seat signs in with its own username. Everyone can read the console; only their own
             department can make changes.
@@ -79,11 +97,15 @@ function StaffPage() {
                 <p className="truncate font-semibold text-foreground">{seat.full_name}</p>
                 <p className="text-xs text-muted-foreground">
                   @{seat.username} · {seat.email ?? "no email"} ·{" "}
-                  {seat.last_login_at ? `last login ${new Date(seat.last_login_at).toLocaleString()}` : "never signed in"}
+                  {seat.last_login_at
+                    ? `last login ${new Date(seat.last_login_at).toLocaleString()}`
+                    : "never signed in"}
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <Badge className="rounded-full border-0 bg-primary/10 text-primary">{seat.department}</Badge>
+                <Badge className="rounded-full border-0 bg-primary/10 text-primary">
+                  {seat.department}
+                </Badge>
                 {seat.is_active ? null : <Badge variant="destructive">Disabled</Badge>}
               </div>
             </div>
@@ -172,7 +194,14 @@ function NewSeat({ onDone }: { onDone: () => void }) {
               setError(result.error);
               return;
             }
-            setForm({ fullName: "", username: "", password: "", department: "SUPPORT", email: "", phone: "" });
+            setForm({
+              fullName: "",
+              username: "",
+              password: "",
+              department: "SUPPORT",
+              email: "",
+              phone: "",
+            });
             setOpen(false);
             onDone();
           }}
@@ -268,7 +297,11 @@ function ResetPassword({ id, onDone }: { id: string; onDone: () => void }) {
           <DialogTitle>Set a new password</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
-          <Input value={password} onChange={(e) => setPassword(e.target.value)} placeholder="New password" />
+          <Input
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="New password"
+          />
           {error ? <p className="text-xs font-medium text-destructive">{error}</p> : null}
           <Button
             className="w-full"
@@ -295,8 +328,22 @@ function TargetsDialog({
   seat,
   onSave,
 }: {
-  seat: { id: string; full_name: string; targets: { contacts_target: number; recruits_target: number; deals_target: number; revenue_target: number } | null };
-  onSave: (values: { contacts: number; recruits: number; deals: number; revenue: number }) => Promise<void>;
+  seat: {
+    id: string;
+    full_name: string;
+    targets: {
+      contacts_target: number;
+      recruits_target: number;
+      deals_target: number;
+      revenue_target: number;
+    } | null;
+  };
+  onSave: (values: {
+    contacts: number;
+    recruits: number;
+    deals: number;
+    revenue: number;
+  }) => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [values, setValues] = useState({
@@ -318,12 +365,14 @@ function TargetsDialog({
           <DialogTitle>Daily targets — {seat.full_name}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
-          {([
-            ["contacts", "Businesses contacted"],
-            ["recruits", "Providers recruited"],
-            ["deals", "Deals closed"],
-            ["revenue", "Revenue target (XAF)"],
-          ] as const).map(([key, label]) => (
+          {(
+            [
+              ["contacts", "Businesses contacted"],
+              ["recruits", "Providers recruited"],
+              ["deals", "Deals closed"],
+              ["revenue", "Revenue target (XAF)"],
+            ] as const
+          ).map(([key, label]) => (
             <div key={key} className="space-y-1.5">
               <Label htmlFor={`t-${key}`}>{label}</Label>
               <Input

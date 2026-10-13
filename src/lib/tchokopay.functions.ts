@@ -85,8 +85,7 @@ export const disburseWithdrawal = createServerFn({ method: "POST" })
       };
     }
 
-    const { supabaseAdmin } =
-      await import("@/integrations/supabase/client.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     /*
      * Read the real withdrawal from the database.
@@ -130,8 +129,7 @@ export const disburseWithdrawal = createServerFn({ method: "POST" })
       return {
         ok: false,
         configured: true,
-        status:
-          withdrawal.status === "COMPLETED" ? "PAID" : "FAILED",
+        status: withdrawal.status === "COMPLETED" ? "PAID" : "FAILED",
         error: "WITHDRAWAL_ALREADY_SETTLED",
       };
     }
@@ -149,10 +147,7 @@ export const disburseWithdrawal = createServerFn({ method: "POST" })
       };
     }
 
-    if (
-      withdrawal.payment_method !== "MTN_MOMO" &&
-      withdrawal.payment_method !== "ORANGE_MONEY"
-    ) {
+    if (withdrawal.payment_method !== "MTN_MOMO" && withdrawal.payment_method !== "ORANGE_MONEY") {
       return {
         ok: false,
         configured: true,
@@ -161,10 +156,7 @@ export const disburseWithdrawal = createServerFn({ method: "POST" })
       };
     }
 
-    const provider =
-      withdrawal.payment_method === "MTN_MOMO"
-        ? "mtn_cm"
-        : "orange_cm";
+    const provider = withdrawal.payment_method === "MTN_MOMO" ? "mtn_cm" : "orange_cm";
 
     const { tchokoPay } = await import("./tchokopay.server");
 
@@ -220,9 +212,7 @@ export const disburseWithdrawal = createServerFn({ method: "POST" })
       ok: result.ok,
       configured: result.configured,
       status: result.status,
-      ...(result.providerReference
-        ? { providerReference: result.providerReference }
-        : {}),
+      ...(result.providerReference ? { providerReference: result.providerReference } : {}),
       ...(result.error ? { error: result.error } : {}),
       ...(result.message ? { message: result.message } : {}),
       ...(result.param ? { param: result.param } : {}),

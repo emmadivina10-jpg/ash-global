@@ -37,7 +37,12 @@ import {
   Shirt,
   Briefcase,
 } from "lucide-react";
-import { consoleStatus, lockConsole, setElevatedMode, unlockConsole } from "@/lib/console.functions";
+import {
+  consoleStatus,
+  lockConsole,
+  setElevatedMode,
+  unlockConsole,
+} from "@/lib/console.functions";
 import { getSupportAwaitingCount } from "@/lib/support.functions";
 import { StaffChat } from "@/components/console/StaffChat";
 import { StaffNotificationCenter } from "@/components/console/StaffNotificationCenter";
@@ -58,56 +63,212 @@ import { useTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
 const NAV = [
-  { to: "/console/workspace", label: "My Workspace", icon: CalendarCheck, group: "Insights", dept: "ALL" },
-  { to: "/console/cases", label: "Cases & Workflows", icon: Briefcase, group: "Insights", dept: "ALL" },
+  {
+    to: "/console/workspace",
+    label: "My Workspace",
+    icon: CalendarCheck,
+    group: "Insights",
+    dept: "ALL",
+  },
+  {
+    to: "/console/cases",
+    label: "Cases & Workflows",
+    icon: Briefcase,
+    group: "Insights",
+    dept: "ALL",
+  },
   { to: "/console", label: "Overview", icon: BarChart3, group: "Insights", dept: "SUPER_ADMIN" },
-  { to: "/console/departments", label: "Departments", icon: Building2, group: "Insights", dept: "SUPER_ADMIN" },
+  {
+    to: "/console/departments",
+    label: "Departments",
+    icon: Building2,
+    group: "Insights",
+    dept: "SUPER_ADMIN",
+  },
   { to: "/console/revenue", label: "Revenue", icon: Target, group: "Insights", dept: "REVENUE" },
-  { to: "/console/security", label: "Cybersecurity", icon: ShieldAlert, group: "Insights", dept: "CYBERSECURITY" },
+  {
+    to: "/console/security",
+    label: "Cybersecurity",
+    icon: ShieldAlert,
+    group: "Insights",
+    dept: "CYBERSECURITY",
+  },
   { to: "/console/payments", label: "Payments", icon: CreditCard, group: "Money", dept: "REVENUE" },
-  { to: "/console/withdrawals", label: "Withdrawals", icon: Wallet, group: "Money", dept: "REVENUE" },
+  {
+    to: "/console/withdrawals",
+    label: "Withdrawals",
+    icon: Wallet,
+    group: "Money",
+    dept: "REVENUE",
+  },
   { to: "/console/payout", label: "Payout", icon: Banknote, group: "Money", dept: "REVENUE" },
   { to: "/console/ledger", label: "Ledger", icon: ReceiptText, group: "Money", dept: "REVENUE" },
   { to: "/console/commission", label: "Commission", icon: Target, group: "Money", dept: "REVENUE" },
   { to: "/console/finance", label: "Finance", icon: Banknote, group: "Money", dept: "REVENUE" },
-  { to: "/console/shareholders", label: "Shareholders", icon: Handshake, group: "Money", dept: "SUPER_ADMIN" },
+  {
+    to: "/console/shareholders",
+    label: "Shareholders",
+    icon: Handshake,
+    group: "Money",
+    dept: "SUPER_ADMIN",
+  },
   { to: "/console/users", label: "Users", icon: Users, group: "People", dept: "SUPER_ADMIN" },
   { to: "/console/providers", label: "Providers", icon: Store, group: "People", dept: "TRUST" },
-  { to: "/console/clean", label: "ASH Clean", icon: Shirt, group: "People", dept: "MARKETPLACE_OPS" },
-  { to: "/console/bookings", label: "Bookings", icon: CalendarCheck, group: "People", dept: "MARKETPLACE_OPS" },
-  { to: "/console/deletions", label: "Deletions", icon: Trash2, group: "People", dept: "SUPER_ADMIN" },
+  {
+    to: "/console/clean",
+    label: "ASH Clean",
+    icon: Shirt,
+    group: "People",
+    dept: "MARKETPLACE_OPS",
+  },
+  {
+    to: "/console/bookings",
+    label: "Bookings",
+    icon: CalendarCheck,
+    group: "People",
+    dept: "MARKETPLACE_OPS",
+  },
+  {
+    to: "/console/deletions",
+    label: "Deletions",
+    icon: Trash2,
+    group: "People",
+    dept: "SUPER_ADMIN",
+  },
   { to: "/console/support", label: "Support", icon: LifeBuoy, group: "People", dept: "SUPPORT" },
   { to: "/console/outreach", label: "Outreach", icon: Send, group: "People", dept: "SUPPORT" },
-  { to: "/console/operations", label: "Operations", icon: CalendarCheck, group: "Workforce", dept: "OPERATIONS" },
-  { to: "/console/merchant", label: "Merchants", icon: Store, group: "Workforce", dept: "OPERATIONS" },
+  {
+    to: "/console/operations",
+    label: "Operations",
+    icon: CalendarCheck,
+    group: "Workforce",
+    dept: "OPERATIONS",
+  },
+  {
+    to: "/console/merchant",
+    label: "Merchants",
+    icon: Store,
+    group: "Workforce",
+    dept: "OPERATIONS",
+  },
   { to: "/console/growth", label: "Growth", icon: Rocket, group: "Workforce", dept: "GROWTH" },
   { to: "/console/sales", label: "Sales", icon: Target, group: "Workforce", dept: "SALES" },
-  { to: "/console/marketplace", label: "Marketplace Ops", icon: Store, group: "Workforce", dept: "MARKETPLACE_OPS" },
-  { to: "/console/advertising", label: "Advertising & Marketing", icon: Megaphone, group: "Workforce", dept: "ADVERTISING" },
-  { to: "/console/partnerships", label: "Partnerships", icon: Handshake, group: "Workforce", dept: "PARTNERSHIPS" },
-  { to: "/console/content", label: "Content & Creators", icon: Video, group: "Workforce", dept: "CONTENT" },
-  { to: "/console/expansion", label: "Expansion", icon: Map, group: "Workforce", dept: "EXPANSION" },
-  { to: "/console/property", label: "Property", icon: Building2, group: "Workforce", dept: "TRUST" },
-  { to: "/console/campus-catalogue", label: "Campus catalogue", icon: GraduationCap, group: "Workforce", dept: "TRUST" },
-  { to: "/console/trust", label: "Overview & user verification", icon: ShieldCheck, group: "Trust & Verification", dept: "TRUST" },
-  { to: "/console/reports", label: "Safety & reports", icon: ShieldAlert, group: "Trust & Verification", dept: "TRUST" },
-  { to: "/console/verification", label: "Verified badges", icon: BadgeCheck, group: "Trust & Verification", dept: "TRUST" },
-  { to: "/console/campus-instructors", label: "Instructors · Campus", icon: GraduationCap, group: "Trust & Verification", dept: "TRUST" },
-  { to: "/console/instructors", label: "Instructors · FX", icon: GraduationCap, group: "Trust & Verification", dept: "TRUST" },
-  { to: "/console/staff", label: "Staff & departments", icon: UserCog, group: "Admin", dept: "SUPER_ADMIN" },
+  {
+    to: "/console/marketplace",
+    label: "Marketplace Ops",
+    icon: Store,
+    group: "Workforce",
+    dept: "MARKETPLACE_OPS",
+  },
+  {
+    to: "/console/advertising",
+    label: "Advertising & Marketing",
+    icon: Megaphone,
+    group: "Workforce",
+    dept: "ADVERTISING",
+  },
+  {
+    to: "/console/partnerships",
+    label: "Partnerships",
+    icon: Handshake,
+    group: "Workforce",
+    dept: "PARTNERSHIPS",
+  },
+  {
+    to: "/console/content",
+    label: "Content & Creators",
+    icon: Video,
+    group: "Workforce",
+    dept: "CONTENT",
+  },
+  {
+    to: "/console/expansion",
+    label: "Expansion",
+    icon: Map,
+    group: "Workforce",
+    dept: "EXPANSION",
+  },
+  {
+    to: "/console/property",
+    label: "Property",
+    icon: Building2,
+    group: "Workforce",
+    dept: "TRUST",
+  },
+  {
+    to: "/console/campus-catalogue",
+    label: "Campus catalogue",
+    icon: GraduationCap,
+    group: "Workforce",
+    dept: "TRUST",
+  },
+  {
+    to: "/console/trust",
+    label: "Overview & user verification",
+    icon: ShieldCheck,
+    group: "Trust & Verification",
+    dept: "TRUST",
+  },
+  {
+    to: "/console/reports",
+    label: "Safety & reports",
+    icon: ShieldAlert,
+    group: "Trust & Verification",
+    dept: "TRUST",
+  },
+  {
+    to: "/console/verification",
+    label: "Verified badges",
+    icon: BadgeCheck,
+    group: "Trust & Verification",
+    dept: "TRUST",
+  },
+  {
+    to: "/console/campus-instructors",
+    label: "Instructors · Campus",
+    icon: GraduationCap,
+    group: "Trust & Verification",
+    dept: "TRUST",
+  },
+  {
+    to: "/console/instructors",
+    label: "Instructors · FX",
+    icon: GraduationCap,
+    group: "Trust & Verification",
+    dept: "TRUST",
+  },
+  {
+    to: "/console/staff",
+    label: "Staff & departments",
+    icon: UserCog,
+    group: "Admin",
+    dept: "SUPER_ADMIN",
+  },
 ];
-const GROUPS = ["Insights", "Money", "Trust & Verification", "People", "Workforce", "Admin"] as const;
-
+const GROUPS = [
+  "Insights",
+  "Money",
+  "Trust & Verification",
+  "People",
+  "Workforce",
+  "Admin",
+] as const;
 
 export const Route = createFileRoute("/console")({
   ssr: false,
   head: () => ({
     meta: [
       { title: "ASH Console — Platform Operations" },
-      { name: "description", content: "Private operations console for ASH Glo platform finance and payouts." },
+      {
+        name: "description",
+        content: "Private operations console for ASH Glo platform finance and payouts.",
+      },
       { name: "robots", content: "noindex, nofollow" },
       { property: "og:title", content: "ASH Console — Platform Operations" },
-      { property: "og:description", content: "Private ASH Glo staff operations and member insights." },
+      {
+        property: "og:description",
+        content: "Private ASH Glo staff operations and member insights.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -127,7 +288,11 @@ function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
   return (
     <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
-      {theme === "dark" ? <Sun className="size-4" aria-hidden /> : <Moon className="size-4" aria-hidden />}
+      {theme === "dark" ? (
+        <Sun className="size-4" aria-hidden />
+      ) : (
+        <Moon className="size-4" aria-hidden />
+      )}
     </Button>
   );
 }
@@ -141,7 +306,10 @@ function allowedNav(superAdmin: boolean, department: string, extra: string[] = [
   const folded = department === "ADVERTISING" ? ["CONTENT", "GROWTH"] : [];
   return [
     ...own,
-    ...NAV.filter((item) => extra.includes(item.dept) && item.dept !== department && !folded.includes(item.dept)),
+    ...NAV.filter(
+      (item) =>
+        extra.includes(item.dept) && item.dept !== department && !folded.includes(item.dept),
+    ),
   ];
 }
 
@@ -165,33 +333,37 @@ function SidebarNav({
     <nav className="space-y-6">
       {GROUPS.filter((group) => items.some((item) => item.group === group)).map((group) => (
         <div key={group}>
-          <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{group}</p>
+          <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+            {group}
+          </p>
           <div className="space-y-0.5">
-            {items.filter((item) => item.group === group).map((item) => {
-              const active = pathname === item.to;
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  onClick={onNavigate}
-                  className={cn(
-                    "flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-semibold transition-colors",
-                    active
-                      ? "console-brand text-primary-foreground shadow-md"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                  )}
-                >
-                  <Icon className="size-4 shrink-0" aria-hidden />
-                  <span className="min-w-0 flex-1">{item.label}</span>
-                  {item.to === "/console/support" && supportCount > 0 ? (
-                    <span className="grid min-w-5 shrink-0 place-items-center rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-bold text-destructive-foreground">
-                      {supportCount > 99 ? "99+" : supportCount}
-                    </span>
-                  ) : null}
-                </Link>
-              );
-            })}
+            {items
+              .filter((item) => item.group === group)
+              .map((item) => {
+                const active = pathname === item.to;
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    onClick={onNavigate}
+                    className={cn(
+                      "flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-semibold transition-colors",
+                      active
+                        ? "console-brand text-primary-foreground shadow-md"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                    )}
+                  >
+                    <Icon className="size-4 shrink-0" aria-hidden />
+                    <span className="min-w-0 flex-1">{item.label}</span>
+                    {item.to === "/console/support" && supportCount > 0 ? (
+                      <span className="grid min-w-5 shrink-0 place-items-center rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-bold text-destructive-foreground">
+                        {supportCount > 99 ? "99+" : supportCount}
+                      </span>
+                    ) : null}
+                  </Link>
+                );
+              })}
           </div>
         </div>
       ))}
@@ -202,11 +374,18 @@ function SidebarNav({
 /** Shown when Cyber opens another team's dashboard. Writes are refused server-side by department guards. */
 function AuditViewBanner({ pathname }: { pathname: string }) {
   const logView = useServerFn(logAuditView);
-  useEffect(() => { void logView({ data: { path: pathname } }).catch(() => undefined); }, [pathname, logView]);
+  useEffect(() => {
+    void logView({ data: { path: pathname } }).catch(() => undefined);
+  }, [pathname, logView]);
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-gold/40 bg-gold/10 p-3 text-xs">
-      <span><b>View-only audit.</b> You're viewing this team's dashboard for a security audit. Nothing can be changed here, and this visit is logged.</span>
-      <Link to="/console/security" className="font-semibold underline">Back to Cybersecurity</Link>
+      <span>
+        <b>View-only audit.</b> You're viewing this team's dashboard for a security audit. Nothing
+        can be changed here, and this visit is logged.
+      </span>
+      <Link to="/console/security" className="font-semibold underline">
+        Back to Cybersecurity
+      </Link>
     </div>
   );
 }
@@ -222,7 +401,9 @@ function ConsoleLayout() {
   const supportCountFn = useServerFn(getSupportAwaitingCount);
 
   const { data, isLoading } = useQuery({ queryKey: ["console", "status"], queryFn: status });
-  const canSeeSupport = Boolean(data?.unlocked && (data.actor?.superAdmin || data.actor?.department === "SUPPORT"));
+  const canSeeSupport = Boolean(
+    data?.unlocked && (data.actor?.superAdmin || data.actor?.department === "SUPPORT"),
+  );
   const { data: supportBadge } = useQuery({
     queryKey: ["console", "support", "badge"],
     queryFn: supportCountFn,
@@ -239,173 +420,211 @@ function ConsoleLayout() {
   const extra = (actor as { extraDepartments?: string[] } | null)?.extraDepartments ?? [];
   const allowed = allowedNav(superAdmin, department, extra);
   const ownAccess = allowed.some((item) => item.to === pathname);
-  const auditView = !ownAccess && !superAdmin && (department === "CYBERSECURITY" || extra.includes("CYBERSECURITY")) &&
-    NAV.some((item) => item.to === pathname && canAuditDept(department === "CYBERSECURITY" ? "HEAD" : "TRUST_OFFICER", item.dept));
-  const hasAccess = ownAccess || auditView ||
-    (pathname.startsWith("/console/members/") && canReviewMember({ superAdmin, department, extraDepartments: extra }));
+  const auditView =
+    !ownAccess &&
+    !superAdmin &&
+    (department === "CYBERSECURITY" || extra.includes("CYBERSECURITY")) &&
+    NAV.some(
+      (item) =>
+        item.to === pathname &&
+        canAuditDept(department === "CYBERSECURITY" ? "HEAD" : "TRUST_OFFICER", item.dept),
+    );
+  const hasAccess =
+    ownAccess ||
+    auditView ||
+    (pathname.startsWith("/console/members/") &&
+      canReviewMember({ superAdmin, department, extraDepartments: extra }));
   const current = NAV.find((item) => item.to === pathname)?.label ?? "Overview";
 
   return (
     <EmployeeTermsGate>
-    <IdentityConfirmation>
-    <div className="safe-top console-ambient min-h-dvh bg-background lg:grid lg:grid-cols-[260px_minmax(0,1fr)]">
-      {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-dvh flex-col border-r border-sidebar-border bg-sidebar p-4 lg:flex">
-        <div className="flex items-center gap-2.5 px-2 pb-6">
-          <span className="console-brand grid size-9 place-items-center rounded-xl text-primary-foreground shadow-lg">
-            <ShieldCheck className="size-4.5" aria-hidden />
-          </span>
-          <div className="min-w-0">
-            <p className="font-display text-base font-extrabold leading-none text-sidebar-foreground">ASH Console</p>
-            <p className="mt-1 text-[11px] text-muted-foreground">Platform operations</p>
-          </div>
-        </div>
-
-        <div className="flex-1 overflow-y-auto">
-          <SidebarNav pathname={pathname} superAdmin={superAdmin} department={department} extra={extra} supportCount={supportBadge?.count ?? 0} />
-        </div>
-
-        <div className="mt-4 rounded-xl border border-sidebar-border bg-card p-3">
-          <p className="truncate text-sm font-bold text-foreground">{actor?.name}</p>
-          <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
-            {actor?.department.replace(/_/g, " ")}
-            {actor?.elevated ? " · elevated" : ""}
-          </p>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="mt-3 w-full"
-          onClick={async () => {
-            await lock();
-            await queryClient.invalidateQueries({ queryKey: ["console"] });
-          }}
-        >
-          <LogOut className="size-4" aria-hidden />
-          Lock console
-        </Button>
-      </aside>
-
-      <div className="min-w-0">
-        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-border bg-background/85 px-4 py-3 backdrop-blur sm:px-6">
-          <div className="flex min-w-0 items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="lg:hidden"
-              onClick={() => setMenuOpen(true)}
-              aria-label="Open menu"
-            >
-              <Menu className="size-5" aria-hidden />
-            </Button>
-            <div className="min-w-0">
-              <h1 className="truncate font-display text-lg font-extrabold text-foreground">{current}</h1>
-              <p className="hidden text-xs text-muted-foreground sm:block">Welcome back, {actor?.name}</p>
+      <IdentityConfirmation>
+        <div className="safe-top console-ambient min-h-dvh bg-background lg:grid lg:grid-cols-[260px_minmax(0,1fr)]">
+          {/* Desktop sidebar */}
+          <aside className="sticky top-0 hidden h-dvh flex-col border-r border-sidebar-border bg-sidebar p-4 lg:flex">
+            <div className="flex items-center gap-2.5 px-2 pb-6">
+              <span className="console-brand grid size-9 place-items-center rounded-xl text-primary-foreground shadow-lg">
+                <ShieldCheck className="size-4.5" aria-hidden />
+              </span>
+              <div className="min-w-0">
+                <p className="font-display text-base font-extrabold leading-none text-sidebar-foreground">
+                  ASH Console
+                </p>
+                <p className="mt-1 text-[11px] text-muted-foreground">Platform operations</p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="hidden text-right sm:block">
-              <p className="text-xs font-bold text-foreground">{actor?.name}</p>
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                {actor?.department.replace(/_/g, " ")}
-              </p>
-            </div>
-            {actor?.superAdmin ? (
-              <Button
-                variant={actor.elevated ? "default" : "outline"}
-                size="sm"
-                onClick={async () => {
-                  await elevate({ data: { elevated: !actor.elevated } });
-                  await queryClient.invalidateQueries({ queryKey: ["console"] });
-                }}
-              >
-                <Unlock className="size-4" aria-hidden />
-                <span className="hidden sm:inline">
-                  {actor.elevated ? "Privileges on" : "Elevate privilege"}
-                </span>
-              </Button>
-            ) : null}
-            <StaffProfileDialog
-              trigger={
-                <Button variant="ghost" size="icon" aria-label="Edit my employee profile">
-                  <UserRound className="size-5" aria-hidden />
-                </Button>
-              }
-            />
-            <StaffChat />
-            <StaffNotificationCenter />
-            <ThemeToggle />
-            <Button
-              variant="outline"
-              size="sm"
-              className="lg:hidden"
-              onClick={async () => {
-                await lock();
-                await queryClient.invalidateQueries({ queryKey: ["console"] });
-              }}
-            >
-              <LogOut className="size-4" aria-hidden />
-            </Button>
-          </div>
-        </header>
 
-        <main className="mx-auto w-full max-w-7xl space-y-5 px-4 py-6 sm:px-6">
-          {hasAccess ? (
-            <>
-              {auditView ? <AuditViewBanner pathname={pathname} /> : null}
-              <StaffMemberInsights />
-              {!superAdmin && allowed.some((i) => i.to === pathname && i.dept === department && (i.dept as string) !== "ALL") ? <DepartmentCommandCenter /> : null}
-              <DailyTickets superAdmin={superAdmin} />
-              <Outlet />
-            </>
-          ) : (
-            <div className="mx-auto max-w-md rounded-2xl border border-border bg-card p-8 text-center">
-              <Lock className="mx-auto size-6 text-muted-foreground" aria-hidden />
-              <h2 className="mt-3 font-display text-lg font-extrabold text-foreground">Section restricted</h2>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Your seat covers {department.replace(/_/g, " ").toLowerCase()} only. Ask the CEO for access.
-              </p>
-              {allowed[0] ? (
-                <Button asChild size="sm" className="mt-4">
-                  <Link to={allowed[0].to}>Go to {allowed[0].label}</Link>
-                </Button>
-              ) : null}
-            </div>
-          )}
-        </main>
-      </div>
-
-      {/* Mobile drawer */}
-      {menuOpen ? (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <button
-            type="button"
-            aria-label="Close menu"
-            className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
-            onClick={() => setMenuOpen(false)}
-          />
-          <div className="absolute inset-y-0 left-0 flex w-72 flex-col bg-sidebar p-4 shadow-raised">
-            <div className="flex items-center justify-between pb-6">
-              <span className="font-display text-base font-extrabold text-sidebar-foreground">ASH Console</span>
-              <Button variant="ghost" size="icon" onClick={() => setMenuOpen(false)} aria-label="Close">
-                <X className="size-5" aria-hidden />
-              </Button>
-            </div>
             <div className="flex-1 overflow-y-auto">
               <SidebarNav
                 pathname={pathname}
-                onNavigate={() => setMenuOpen(false)}
                 superAdmin={superAdmin}
                 department={department}
                 extra={extra}
                 supportCount={supportBadge?.count ?? 0}
               />
             </div>
+
+            <div className="mt-4 rounded-xl border border-sidebar-border bg-card p-3">
+              <p className="truncate text-sm font-bold text-foreground">{actor?.name}</p>
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                {actor?.department.replace(/_/g, " ")}
+                {actor?.elevated ? " · elevated" : ""}
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-3 w-full"
+              onClick={async () => {
+                await lock();
+                await queryClient.invalidateQueries({ queryKey: ["console"] });
+              }}
+            >
+              <LogOut className="size-4" aria-hidden />
+              Lock console
+            </Button>
+          </aside>
+
+          <div className="min-w-0">
+            <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-border bg-background/85 px-4 py-3 backdrop-blur sm:px-6">
+              <div className="flex min-w-0 items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden"
+                  onClick={() => setMenuOpen(true)}
+                  aria-label="Open menu"
+                >
+                  <Menu className="size-5" aria-hidden />
+                </Button>
+                <div className="min-w-0">
+                  <h1 className="truncate font-display text-lg font-extrabold text-foreground">
+                    {current}
+                  </h1>
+                  <p className="hidden text-xs text-muted-foreground sm:block">
+                    Welcome back, {actor?.name}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="hidden text-right sm:block">
+                  <p className="text-xs font-bold text-foreground">{actor?.name}</p>
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                    {actor?.department.replace(/_/g, " ")}
+                  </p>
+                </div>
+                {actor?.superAdmin ? (
+                  <Button
+                    variant={actor.elevated ? "default" : "outline"}
+                    size="sm"
+                    onClick={async () => {
+                      await elevate({ data: { elevated: !actor.elevated } });
+                      await queryClient.invalidateQueries({ queryKey: ["console"] });
+                    }}
+                  >
+                    <Unlock className="size-4" aria-hidden />
+                    <span className="hidden sm:inline">
+                      {actor.elevated ? "Privileges on" : "Elevate privilege"}
+                    </span>
+                  </Button>
+                ) : null}
+                <StaffProfileDialog
+                  trigger={
+                    <Button variant="ghost" size="icon" aria-label="Edit my employee profile">
+                      <UserRound className="size-5" aria-hidden />
+                    </Button>
+                  }
+                />
+                <StaffChat />
+                <StaffNotificationCenter />
+                <ThemeToggle />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="lg:hidden"
+                  onClick={async () => {
+                    await lock();
+                    await queryClient.invalidateQueries({ queryKey: ["console"] });
+                  }}
+                >
+                  <LogOut className="size-4" aria-hidden />
+                </Button>
+              </div>
+            </header>
+
+            <main className="mx-auto w-full max-w-7xl space-y-5 px-4 py-6 sm:px-6">
+              {hasAccess ? (
+                <>
+                  {auditView ? <AuditViewBanner pathname={pathname} /> : null}
+                  <StaffMemberInsights />
+                  {!superAdmin &&
+                  allowed.some(
+                    (i) =>
+                      i.to === pathname && i.dept === department && (i.dept as string) !== "ALL",
+                  ) ? (
+                    <DepartmentCommandCenter />
+                  ) : null}
+                  <DailyTickets superAdmin={superAdmin} />
+                  <Outlet />
+                </>
+              ) : (
+                <div className="mx-auto max-w-md rounded-2xl border border-border bg-card p-8 text-center">
+                  <Lock className="mx-auto size-6 text-muted-foreground" aria-hidden />
+                  <h2 className="mt-3 font-display text-lg font-extrabold text-foreground">
+                    Section restricted
+                  </h2>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Your seat covers {department.replace(/_/g, " ").toLowerCase()} only. Ask the CEO
+                    for access.
+                  </p>
+                  {allowed[0] ? (
+                    <Button asChild size="sm" className="mt-4">
+                      <Link to={allowed[0].to}>Go to {allowed[0].label}</Link>
+                    </Button>
+                  ) : null}
+                </div>
+              )}
+            </main>
           </div>
+
+          {/* Mobile drawer */}
+          {menuOpen ? (
+            <div className="fixed inset-0 z-50 lg:hidden">
+              <button
+                type="button"
+                aria-label="Close menu"
+                className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
+                onClick={() => setMenuOpen(false)}
+              />
+              <div className="absolute inset-y-0 left-0 flex w-72 flex-col bg-sidebar p-4 shadow-raised">
+                <div className="flex items-center justify-between pb-6">
+                  <span className="font-display text-base font-extrabold text-sidebar-foreground">
+                    ASH Console
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setMenuOpen(false)}
+                    aria-label="Close"
+                  >
+                    <X className="size-5" aria-hidden />
+                  </Button>
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  <SidebarNav
+                    pathname={pathname}
+                    onNavigate={() => setMenuOpen(false)}
+                    superAdmin={superAdmin}
+                    department={department}
+                    extra={extra}
+                    supportCount={supportBadge?.count ?? 0}
+                  />
+                </div>
+              </div>
+            </div>
+          ) : null}
         </div>
-      ) : null}
-    </div>
-    </IdentityConfirmation>
+      </IdentityConfirmation>
     </EmployeeTermsGate>
   );
 }

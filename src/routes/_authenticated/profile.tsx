@@ -15,7 +15,14 @@ import { SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ACTIVATION_FEE, formatDate, formatXAF, isValidPhone, normalizePhone, referralLink } from "@/lib/format";
+import {
+  ACTIVATION_FEE,
+  formatDate,
+  formatXAF,
+  isValidPhone,
+  normalizePhone,
+  referralLink,
+} from "@/lib/format";
 import { isNativeApp } from "@/lib/native";
 import { useI18n } from "@/lib/i18n";
 import { announceIdentityDenial, identityStatus, IDENTITY_DENIED } from "@/lib/identity-client";
@@ -24,9 +31,15 @@ export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
     meta: [
       { title: "Profile — ASH Glo" },
-      { name: "description", content: "Manage your ASH Glo profile, referral link and account status." },
+      {
+        name: "description",
+        content: "Manage your ASH Glo profile, referral link and account status.",
+      },
       { property: "og:title", content: "Profile — ASH Glo" },
-      { property: "og:description", content: "Manage your ASH Glo profile and protected account identity." },
+      {
+        property: "og:description",
+        content: "Manage your ASH Glo profile and protected account identity.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -147,7 +160,6 @@ function ProfilePage() {
     );
   }
 
-
   const active = profile.account_status === "ACTIVE";
 
   return (
@@ -164,14 +176,24 @@ function ProfilePage() {
           </h1>
           <p className="truncate text-sm text-muted-foreground">{profile.email}</p>
           {isNativeApp() ? (
-            <span className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground" aria-disabled="true">
+            <span
+              className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground"
+              aria-disabled="true"
+            >
               <BadgeCheck className="size-3.5" aria-hidden />
-              {(profile as { verified_tier?: string | null }).verified_tier ? "Manage verification" : "Get verified"}
+              {(profile as { verified_tier?: string | null }).verified_tier
+                ? "Manage verification"
+                : "Get verified"}
             </span>
           ) : (
-            <Link to="/verified" className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-[#1877F2]">
+            <Link
+              to="/verified"
+              className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-[#1877F2]"
+            >
               <BadgeCheck className="size-3.5" aria-hidden />
-              {(profile as { verified_tier?: string | null }).verified_tier ? "Manage verification" : "Get verified"}
+              {(profile as { verified_tier?: string | null }).verified_tier
+                ? "Manage verification"
+                : "Get verified"}
             </Link>
           )}
         </div>
@@ -184,9 +206,7 @@ function ProfilePage() {
       {!active ? (
         <SectionCard className="border-gold/40 bg-gold/10">
           <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-            <p className="text-sm text-foreground">
-              {t("profile.pendingCopy", { fee })}
-            </p>
+            <p className="text-sm text-foreground">{t("profile.pendingCopy", { fee })}</p>
             <Button asChild>
               <Link to="/activate">{t("profile.activateNow")}</Link>
             </Button>
@@ -208,7 +228,10 @@ function ProfilePage() {
                 .eq("user_id", profile.user_id);
               if (avatarError) throw new Error(avatarError.message);
               const identity = await identityStatus();
-              if (identity.restricted) { announceIdentityDenial(identity); throw new Error(IDENTITY_DENIED); }
+              if (identity.restricted) {
+                announceIdentityDenial(identity);
+                throw new Error(IDENTITY_DENIED);
+              }
               await queryClient.invalidateQueries({ queryKey: ["profile"] });
             }}
           />
@@ -259,7 +282,9 @@ function ProfilePage() {
                 onClick={() => setEditing(true)}
                 onChange={(event) => setBirthday(event.target.value)}
               />
-              <p className="text-xs text-muted-foreground">Friends can send you a celebration on the day.</p>
+              <p className="text-xs text-muted-foreground">
+                Friends can send you a celebration on the day.
+              </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="city">City</Label>

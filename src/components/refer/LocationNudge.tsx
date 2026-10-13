@@ -43,7 +43,10 @@ export function LocationNudge() {
             {tx("Add your location", "Ajoutez votre position")}
           </p>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            {tx("See what's happening near you first.", "Voyez d'abord ce qui se passe près de vous.")}
+            {tx(
+              "See what's happening near you first.",
+              "Voyez d'abord ce qui se passe près de vous.",
+            )}
           </p>
           <Link
             to="/settings"

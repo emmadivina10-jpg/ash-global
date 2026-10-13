@@ -50,7 +50,6 @@ export function isValidPhone(input: string): boolean {
   return /^\+?\d{8,15}$/.test(value);
 }
 
-
 export function transactionLabel(type: string): string {
   switch (type) {
     case "ACTIVATION_PAYMENT":

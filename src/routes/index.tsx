@@ -1,6 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowDownToLine, ArrowUpRight, CreditCard, Lock, ShieldCheck, Smartphone } from "lucide-react";
+import {
+  ArrowDownToLine,
+  ArrowUpRight,
+  CreditCard,
+  Lock,
+  ShieldCheck,
+  Smartphone,
+} from "lucide-react";
 import { isNativeApp } from "@/lib/native";
 import ashLogo from "@/assets/ash-logo.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,7 +17,13 @@ import { useI18n } from "@/lib/i18n";
 import { WelcomeIntro } from "@/components/refer/WelcomeIntro";
 import { MobileOnboarding } from "@/components/refer/MobileOnboarding";
 import { WebsiteAppShowcase } from "@/components/refer/WebsiteAppShowcase";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const TITLE = "ASH Glo — Book Services, Chat & Earn Referral Rewards";
 const DESCRIPTION =
@@ -138,22 +151,65 @@ function Landing() {
 
         <main className="flex-1 py-10 lg:py-12">
           <section className="ash-fade-up mx-auto max-w-3xl text-center">
-            <p className="text-xs font-semibold text-muted-foreground">{tx("YOUR WORLD, CONNECTED", "VOTRE MONDE, CONNECTÉ")}</p>
-            <h1 className="ash-entry-title mt-4 font-display text-4xl font-extrabold leading-tight lg:text-5xl">{tx("Welcome to ASH", "Bienvenue sur ASH")}</h1>
-            <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">{tx("Book through the marketplace, chat with friends and family, and share your moments. Take ASH with you.", "Réservez sur le marché, discutez avec vos amis et votre famille, et partagez vos moments. Emportez ASH partout.")}</p>
+            <p className="text-xs font-semibold text-muted-foreground">
+              {tx("YOUR WORLD, CONNECTED", "VOTRE MONDE, CONNECTÉ")}
+            </p>
+            <h1 className="ash-entry-title mt-4 font-display text-4xl font-extrabold leading-tight lg:text-5xl">
+              {tx("Welcome to ASH", "Bienvenue sur ASH")}
+            </h1>
+            <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
+              {tx(
+                "Book through the marketplace, chat with friends and family, and share your moments. Take ASH with you.",
+                "Réservez sur le marché, discutez avec vos amis et votre famille, et partagez vos moments. Emportez ASH partout.",
+              )}
+            </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <Button size="lg" className="gap-2 rounded-lg font-semibold" onClick={() => setDownloadOpen(true)}><ArrowDownToLine className="size-4" />{tx("Get the ASH app", "Obtenir l’application ASH")}</Button>
-              <Button asChild size="lg" variant="outline" className="gap-2 rounded-lg"><Link to="/register">{tx("Continue on the web", "Continuer sur le site")}<ArrowUpRight className="size-4" /></Link></Button>
+              <Button
+                size="lg"
+                className="gap-2 rounded-lg font-semibold"
+                onClick={() => setDownloadOpen(true)}
+              >
+                <ArrowDownToLine className="size-4" />
+                {tx("Get the ASH app", "Obtenir l’application ASH")}
+              </Button>
+              <Button asChild size="lg" variant="outline" className="gap-2 rounded-lg">
+                <Link to="/register">
+                  {tx("Continue on the web", "Continuer sur le site")}
+                  <ArrowUpRight className="size-4" />
+                </Link>
+              </Button>
             </div>
-            <p className="mt-3 text-xs text-muted-foreground">{tx("Already a member?", "Déjà membre ?")} <Link to="/login" className="font-semibold text-primary hover:underline">{tx("Log in", "Se connecter")}</Link></p>
+            <p className="mt-3 text-xs text-muted-foreground">
+              {tx("Already a member?", "Déjà membre ?")}{" "}
+              <Link to="/login" className="font-semibold text-primary hover:underline">
+                {tx("Log in", "Se connecter")}
+              </Link>
+            </p>
           </section>
-          <div className="mt-10"><WebsiteAppShowcase /></div>
+          <div className="mt-10">
+            <WebsiteAppShowcase />
+          </div>
           <section className="mx-auto mt-8 max-w-3xl">
             <div className="mt-5 space-y-2 border-t border-border pt-4">
-              <p className="text-xs font-bold text-foreground">{tx("Active payment methods", "Moyens de paiement actifs")}</p>
-              <p className="flex items-center gap-2 text-xs text-foreground"><CreditCard className="size-4 text-primary" />{tx("Card payments · Stripe", "Paiements par carte · Stripe")}<ShieldCheck className="ms-auto size-3.5 text-primary" /></p>
-              <p className="flex items-center gap-2 text-xs text-foreground"><Smartphone className="size-4 text-gold" />MTN MoMo · Orange Money<ShieldCheck className="ms-auto size-3.5 text-primary" /></p>
-              <p className="text-[10px] text-muted-foreground">{tx("Available methods depend on your country and checkout.", "Les moyens disponibles dépendent de votre pays et du paiement.")}</p>
+              <p className="text-xs font-bold text-foreground">
+                {tx("Active payment methods", "Moyens de paiement actifs")}
+              </p>
+              <p className="flex items-center gap-2 text-xs text-foreground">
+                <CreditCard className="size-4 text-primary" />
+                {tx("Card payments · Stripe", "Paiements par carte · Stripe")}
+                <ShieldCheck className="ms-auto size-3.5 text-primary" />
+              </p>
+              <p className="flex items-center gap-2 text-xs text-foreground">
+                <Smartphone className="size-4 text-gold" />
+                MTN MoMo · Orange Money
+                <ShieldCheck className="ms-auto size-3.5 text-primary" />
+              </p>
+              <p className="text-[10px] text-muted-foreground">
+                {tx(
+                  "Available methods depend on your country and checkout.",
+                  "Les moyens disponibles dépendent de votre pays et du paiement.",
+                )}
+              </p>
             </div>
 
             <div className="mt-5 flex items-start gap-2.5 px-1 py-3">
@@ -164,7 +220,10 @@ function Landing() {
                 <span className="font-bold text-foreground">
                   {tx("Secure payments.", "Paiements sécurisés.")}
                 </span>{" "}
-                {tx("Supported payments and withdrawals use the method and provider shown in the relevant flow. ASH Glo never asks for your Mobile Money PIN.", "Les paiements et retraits disponibles utilisent le moyen et le prestataire indiqués dans chaque parcours. ASH Glo ne demande jamais votre code PIN Mobile Money.")}
+                {tx(
+                  "Supported payments and withdrawals use the method and provider shown in the relevant flow. ASH Glo never asks for your Mobile Money PIN.",
+                  "Les paiements et retraits disponibles utilisent le moyen et le prestataire indiqués dans chaque parcours. ASH Glo ne demande jamais votre code PIN Mobile Money.",
+                )}
               </p>
             </div>
 
@@ -192,9 +251,16 @@ function Landing() {
           <DialogContent className="rounded-lg">
             <DialogHeader>
               <DialogTitle>{tx("ASH on your phone", "ASH sur votre téléphone")}</DialogTitle>
-              <DialogDescription>{tx("Public App Store and Google Play download links are not available yet. You can use ASH in your phone’s browser now.", "Les liens publics de téléchargement App Store et Google Play ne sont pas encore disponibles. Utilisez ASH dans le navigateur de votre téléphone dès maintenant.")}</DialogDescription>
+              <DialogDescription>
+                {tx(
+                  "Public App Store and Google Play download links are not available yet. You can use ASH in your phone’s browser now.",
+                  "Les liens publics de téléchargement App Store et Google Play ne sont pas encore disponibles. Utilisez ASH dans le navigateur de votre téléphone dès maintenant.",
+                )}
+              </DialogDescription>
             </DialogHeader>
-            <Button asChild><Link to="/register">{tx("Continue with ASH", "Continuer avec ASH")}</Link></Button>
+            <Button asChild>
+              <Link to="/register">{tx("Continue with ASH", "Continuer avec ASH")}</Link>
+            </Button>
           </DialogContent>
         </Dialog>
       </div>

@@ -13,7 +13,10 @@ export const Route = createFileRoute("/_authenticated/articles/$articleId")({
       { title: "Article — ASH Stories" },
       { name: "description", content: "Read this article published by an ASH community member." },
       { property: "og:title", content: "Article — ASH Stories" },
-      { property: "og:description", content: "Read this article published by an ASH community member." },
+      {
+        property: "og:description",
+        content: "Read this article published by an ASH community member.",
+      },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -46,7 +49,10 @@ function ArticleDetail() {
 
   return (
     <article className="mx-auto w-full max-w-3xl space-y-5">
-      <Link to="/articles" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+      <Link
+        to="/articles"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground"
+      >
         <ArrowLeft className="size-4" aria-hidden />
         {tx("Articles", "Articles")}
       </Link>
@@ -68,7 +74,8 @@ function ArticleDetail() {
             <AvatarFallback>{post.author.name.slice(0, 1)}</AvatarFallback>
           </Avatar>
           <span className="text-sm text-muted-foreground">
-            {post.author.name} · {new Date(post.created_at).toLocaleDateString(fr ? "fr-FR" : "en-GB")}
+            {post.author.name} ·{" "}
+            {new Date(post.created_at).toLocaleDateString(fr ? "fr-FR" : "en-GB")}
           </span>
         </div>
       </header>
@@ -78,7 +85,10 @@ function ArticleDetail() {
       {post.tags.length > 0 ? (
         <div className="flex flex-wrap gap-1.5">
           {post.tags.map((tag) => (
-            <span key={tag} className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+            <span
+              key={tag}
+              className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground"
+            >
               #{tag}
             </span>
           ))}

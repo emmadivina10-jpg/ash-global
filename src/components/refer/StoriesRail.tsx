@@ -164,7 +164,9 @@ type SpotlightPost = {
   };
 };
 
-type RailItem = { kind: "story"; group: StoryGroup; story: Story } | { kind: "spotlight"; spotlight: SpotlightPost };
+type RailItem =
+  | { kind: "story"; group: StoryGroup; story: Story }
+  | { kind: "spotlight"; spotlight: SpotlightPost };
 
 function Avatar({
   src,
@@ -180,10 +182,22 @@ function Avatar({
   return <ProfileAvatar path={src} name={name} online={online} className={className} />;
 }
 
-function CreateCardPhoto({ path, name }: { path: string | null | undefined; name?: string | null | undefined }) {
+function CreateCardPhoto({
+  path,
+  name,
+}: {
+  path: string | null | undefined;
+  name?: string | null | undefined;
+}) {
   const url = useAvatarUrl(path);
   return url ? (
-    <img src={url} alt={name ?? "Profile picture"} className="size-full object-cover" loading="lazy" decoding="async" />
+    <img
+      src={url}
+      alt={name ?? "Profile picture"}
+      className="size-full object-cover"
+      loading="lazy"
+      decoding="async"
+    />
   ) : (
     <div className="grid size-full place-items-center bg-primary/10">
       <span className="text-4xl font-black text-primary">{initials(name)}</span>
@@ -246,7 +260,11 @@ export async function loadSpotlights(): Promise<SpotlightPost[]> {
       ? supabase.storage.from(SOCIAL_BUCKET).createSignedUrls(mediaPaths, 60 * 60 * 12)
       : Promise.resolve({ data: [], error: null }),
     authorIds.length > 0
-      ? supabase.from("member_presence").select("user_id").in("user_id", authorIds).gte("last_active_at", since)
+      ? supabase
+          .from("member_presence")
+          .select("user_id")
+          .in("user_id", authorIds)
+          .gte("last_active_at", since)
       : Promise.resolve({ data: [] }),
   ]);
 
@@ -267,15 +285,17 @@ export async function loadSpotlights(): Promise<SpotlightPost[]> {
     ).map((provider) => [provider.user_id, provider]),
   );
   const profiles = new Map(
-    ((profilesResult.data ?? []) as DirectoryProfile[]).map((profile) => [profile.user_id, profile]),
+    ((profilesResult.data ?? []) as DirectoryProfile[]).map((profile) => [
+      profile.user_id,
+      profile,
+    ]),
   );
   const onlineIds = new Set((presenceResult.data ?? []).map((row) => row.user_id));
 
   const signed = new Map(
-    ((signedResult.data ?? []) as Array<{ path: string | null; signedUrl: string | null }>).map((item) => [
-      item.path ?? "",
-      item.signedUrl ?? "",
-    ]),
+    ((signedResult.data ?? []) as Array<{ path: string | null; signedUrl: string | null }>).map(
+      (item) => [item.path ?? "", item.signedUrl ?? ""],
+    ),
   );
 
   return records.flatMap((row) => {
@@ -306,7 +326,14 @@ export async function loadSpotlights(): Promise<SpotlightPost[]> {
   });
 }
 
-export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolean; viewerRequest?: { authorId: string; kind: "story" | "spotlight" }; onViewerClose?: () => void } = {}) {
+export function StoriesRail({
+  viewerRequest,
+  onViewerClose,
+}: {
+  compact?: boolean;
+  viewerRequest?: { authorId: string; kind: "story" | "spotlight" };
+  onViewerClose?: () => void;
+} = {}) {
   const { user } = useUser();
   const me = user?.id ?? null;
   const queryClient = useQueryClient();
@@ -415,7 +442,9 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
       setStoryIndex(0);
       setStoryViewerOpen(true);
     } else {
-      const index = spotlights.findIndex((post) => post.provider.user_id === viewerRequest.authorId);
+      const index = spotlights.findIndex(
+        (post) => post.provider.user_id === viewerRequest.authorId,
+      );
       if (index < 0) return;
       setSpotlightIndex(index);
       setSpotlightViewerOpen(true);
@@ -426,7 +455,8 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
     if (storyViewerOpen || spotlightViewerOpen) requestedViewerVisible.current = true;
     else if (requestedViewerVisible.current) onViewerClose?.();
   }, [storyViewerOpen, spotlightViewerOpen, onViewerClose]);
-  const { data: storyViewers = [], isLoading: storyViewersLoading } = useStoryViewers(viewersStoryId);
+  const { data: storyViewers = [], isLoading: storyViewersLoading } =
+    useStoryViewers(viewersStoryId);
   const viewersStory = activeStory?.id === viewersStoryId ? activeStory : null;
 
   useEffect(() => {
@@ -467,7 +497,8 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
           if (item.isIntersecting) {
             void video.play().catch(() => undefined);
             const idx = Number(element.dataset["spotlightIndex"]);
-            if (Number.isInteger(idx)) setSpotlightIndex((current) => (current === idx ? current : idx));
+            if (Number.isInteger(idx))
+              setSpotlightIndex((current) => (current === idx ? current : idx));
           } else {
             video.pause();
             video.currentTime = 0;
@@ -527,7 +558,8 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
     if (!file) return;
 
     const video = isVideoSource(file);
-    const image = file.type.startsWith("image/") || /\.(png|jpe?g|gif|webp|heic|heif)$/i.test(file.name);
+    const image =
+      file.type.startsWith("image/") || /\.(png|jpe?g|gif|webp|heic|heif)$/i.test(file.name);
 
     if (!video && !image) {
       toast.error("Please choose a photo or video.");
@@ -598,7 +630,11 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
 
       const video = isVideoSource(selectedFile);
       if (!video) {
-        await withTimeout(verifyMediaFiles([selectedFile], "SPOTLIGHT"), 30_000, "Spotlight safety check");
+        await withTimeout(
+          verifyMediaFiles([selectedFile], "SPOTLIGHT"),
+          30_000,
+          "Spotlight safety check",
+        );
       }
 
       setUploadProgress(0);
@@ -627,7 +663,9 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
 
       spotlightCreated = true;
 
-      const { data: signed } = await supabase.storage.from(SOCIAL_BUCKET).createSignedUrl(mediaPath, 60 * 60 * 12);
+      const { data: signed } = await supabase.storage
+        .from(SOCIAL_BUCKET)
+        .createSignedUrl(mediaPath, 60 * 60 * 12);
 
       if (signed?.signedUrl) {
         const optimistic: SpotlightPost = {
@@ -716,7 +754,8 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
     // a ref so opening "Story views" pauses the Story without resetting it.
     const durationMs = 5_000;
     storyStartedAtRef.current = performance.now() - storyElapsedMsRef.current;
-    let lastProgress = storyElapsedMsRef.current > 0 ? (storyElapsedMsRef.current / durationMs) * 100 : -1;
+    let lastProgress =
+      storyElapsedMsRef.current > 0 ? (storyElapsedMsRef.current / durationMs) * 100 : -1;
 
     const tick = () => {
       if (storyStartedAtRef.current === null) return;
@@ -744,7 +783,10 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
 
     return () => {
       if (storyStartedAtRef.current !== null) {
-        storyElapsedMsRef.current = Math.min(durationMs, Math.max(0, performance.now() - storyStartedAtRef.current));
+        storyElapsedMsRef.current = Math.min(
+          durationMs,
+          Math.max(0, performance.now() - storyStartedAtRef.current),
+        );
       }
       storyStartedAtRef.current = null;
       if (storyTimerRef.current !== null) {
@@ -853,7 +895,9 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
 
       const mediaPath = rpcResult.data;
       if (mediaPath) {
-        const { error: storageError } = await supabase.storage.from(SOCIAL_BUCKET).remove([mediaPath]);
+        const { error: storageError } = await supabase.storage
+          .from(SOCIAL_BUCKET)
+          .remove([mediaPath]);
         if (storageError) {
           console.warn("Spotlight media cleanup failed:", storageError.message);
         }
@@ -880,10 +924,15 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
 
   return (
     <>
-      <section className="-mx-1" hidden={Boolean(viewerRequest)} aria-label="ASH Stories and Spotlight">
+      <section
+        className="-mx-1"
+        hidden={Boolean(viewerRequest)}
+        aria-label="ASH Stories and Spotlight"
+      >
         <div className="flex gap-3 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {/* The original Facebook-style Create card: user profile behind the lower half + plus at the seam. */}
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="button"
             onClick={openCreate}
             className="rail-tile block p-0 whitespace-normal relative h-60 w-36 shrink-0 overflow-hidden rounded-2xl border border-border bg-card text-left shadow-sm transition-transform active:scale-[0.98]"
@@ -894,7 +943,9 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
                 <CreateCardPhoto path={profile.avatar_url} name={profile.full_name} />
               ) : (
                 <div className="grid size-full place-items-center bg-primary/10">
-                  <span className="text-4xl font-black text-primary">{initials(profile?.full_name)}</span>
+                  <span className="text-4xl font-black text-primary">
+                    {initials(profile?.full_name)}
+                  </span>
                 </div>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-foreground/45 via-transparent to-foreground/5" />
@@ -905,13 +956,18 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
             <span className="absolute inset-x-0 bottom-0 z-10 h-[34%] rounded-b-2xl bg-card" />
             <span className="absolute inset-x-2 bottom-3 z-10 text-center">
               <span className="block text-[15px] font-black text-foreground">Create</span>
-              <span className="mt-0.5 block text-xs font-semibold leading-4 text-muted-foreground">Story or Spotlight</span>
+              <span className="mt-0.5 block text-xs font-semibold leading-4 text-muted-foreground">
+                Story or Spotlight
+              </span>
             </span>
           </Button>
 
           {storiesLoading
             ? [0, 1, 2].map((item) => (
-                <div key={item} className="rail-tile h-60 w-36 shrink-0 animate-pulse rounded-[24px] bg-muted" />
+                <div
+                  key={item}
+                  className="rail-tile h-60 w-36 shrink-0 animate-pulse rounded-[24px] bg-muted"
+                />
               ))
             : null}
 
@@ -921,11 +977,14 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
                 const mine = item.group.author.id === me;
                 const storyIsVideo = item.story.media_type === "video";
                 return (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     key={`story-${item.story.id}`}
                     type="button"
                     onClick={() => {
-                      const groupIndex = stories.findIndex((group) => group.author.id === item.group.author.id);
+                      const groupIndex = stories.findIndex(
+                        (group) => group.author.id === item.group.author.id,
+                      );
                       const group = stories[groupIndex];
                       const latestIndex = Math.max(0, (group?.stories.length ?? 1) - 1);
                       openStory(groupIndex, latestIndex);
@@ -984,10 +1043,13 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
               const spotlight = item.spotlight;
               const spotlightVideo = isVideoSource(spotlight.url);
               return (
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   key={`spotlight-${spotlight.id}`}
                   type="button"
-                  onClick={() => openSpotlight(spotlights.findIndex((post) => post.id === spotlight.id))}
+                  onClick={() =>
+                    openSpotlight(spotlights.findIndex((post) => post.id === spotlight.id))
+                  }
                   className="group rail-tile block p-0 whitespace-normal relative h-60 w-36 shrink-0 overflow-hidden rounded-[24px] border border-[#D4AF37]/30 bg-black text-left shadow-sm transition-transform active:scale-[0.98]"
                 >
                   {spotlightVideo ? (
@@ -1048,159 +1110,194 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
       />
 
       <Dialog open={chooserOpen} onOpenChange={setChooserOpen}>
-        <DialogContent aria-describedby={undefined} overlayClassName="bg-foreground/20 backdrop-blur-md duration-300 motion-reduce:animate-none" className="block w-[calc(100%-2rem)] max-w-md overflow-hidden rounded-3xl border-border bg-card p-0 shadow-raised duration-300 motion-reduce:animate-none sm:rounded-3xl">
-              <div>
-                <div className="border-b border-border px-5 pb-4 pt-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <DialogTitle className="text-lg font-black">Create on ASH</DialogTitle>
-                      <p className="mt-1 text-xs text-muted-foreground">Choose what you want to share.</p>
-                    </div>
-
-                  </div>
-                </div>
-                <div className="grid gap-3 p-4 sm:grid-cols-2">
-                  <Button variant="ghost"
-                    type="button"
-                    onClick={() => chooseMode("story")}
-                     className="block h-auto whitespace-normal rounded-lg border border-border bg-card p-4 text-left shadow-sm transition-transform active:scale-[0.98]"
-                  >
-                    <span className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary">
-                      <Camera className="size-5" />
-                    </span>
-                    <span className="mt-4 block text-sm font-black">Story</span>
-                    <span className="mt-1 block text-xs leading-5 text-muted-foreground">
-                      Photo or video that disappears after 24 hours.
-                    </span>
-                  </Button>
-                  <Button variant="ghost"
-                    type="button"
-                    onClick={() => chooseMode("spotlight")}
-                     className="block h-auto whitespace-normal rounded-lg border border-gold/25 bg-gold/10 p-4 text-left shadow-sm transition-transform active:scale-[0.98]"
-                  >
-                    <span className="grid size-11 place-items-center rounded-full bg-gold text-gold-foreground">
-                      <Sparkles className="size-5" />
-                    </span>
-                    <span className="mt-4 block text-sm font-black">Spotlight</span>
-                    <span className="mt-1 block text-xs leading-5 text-muted-foreground">
-                      Showcase a business, offer or service in the ASH reel.
-                    </span>
-                  </Button>
+        <DialogContent
+          aria-describedby={undefined}
+          overlayClassName="bg-foreground/20 backdrop-blur-md duration-300 motion-reduce:animate-none"
+          className="block w-[calc(100%-2rem)] max-w-md overflow-hidden rounded-3xl border-border bg-card p-0 shadow-raised duration-300 motion-reduce:animate-none sm:rounded-3xl"
+        >
+          <div>
+            <div className="border-b border-border px-5 pb-4 pt-5">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <DialogTitle className="text-lg font-black">Create on ASH</DialogTitle>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Choose what you want to share.
+                  </p>
                 </div>
               </div>
+            </div>
+            <div className="grid gap-3 p-4 sm:grid-cols-2">
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={() => chooseMode("story")}
+                className="block h-auto whitespace-normal rounded-lg border border-border bg-card p-4 text-left shadow-sm transition-transform active:scale-[0.98]"
+              >
+                <span className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary">
+                  <Camera className="size-5" />
+                </span>
+                <span className="mt-4 block text-sm font-black">Story</span>
+                <span className="mt-1 block text-xs leading-5 text-muted-foreground">
+                  Photo or video that disappears after 24 hours.
+                </span>
+              </Button>
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={() => chooseMode("spotlight")}
+                className="block h-auto whitespace-normal rounded-lg border border-gold/25 bg-gold/10 p-4 text-left shadow-sm transition-transform active:scale-[0.98]"
+              >
+                <span className="grid size-11 place-items-center rounded-full bg-gold text-gold-foreground">
+                  <Sparkles className="size-5" />
+                </span>
+                <span className="mt-4 block text-sm font-black">Spotlight</span>
+                <span className="mt-1 block text-xs leading-5 text-muted-foreground">
+                  Showcase a business, offer or service in the ASH reel.
+                </span>
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
-      <Dialog open={Boolean(composerMode)} onOpenChange={(value) => { if (!value && !publishing) resetComposer(); }}>
-        <DialogContent aria-describedby={undefined} overlayClassName="bg-foreground/20 backdrop-blur-md duration-300 motion-reduce:animate-none" onEscapeKeyDown={(event) => { if (publishing) event.preventDefault(); }} onPointerDownOutside={(event) => { if (publishing) event.preventDefault(); }} className="block w-[calc(100%-2rem)] max-w-xl overflow-hidden rounded-3xl border-border bg-card p-0 shadow-raised duration-300 motion-reduce:animate-none sm:rounded-3xl [&>button]:hidden">
-              <div className="flex max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden">
-                <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
-                  <div className="min-w-0">
-                    <DialogTitle className="truncate text-base font-black">{composerTitle}</DialogTitle>
-                    <p className="mt-1 text-[11px] text-muted-foreground">{composerSubtitle}</p>
-                  </div>
-                  <Button variant="ghost"
-                    type="button"
-                    onClick={resetComposer}
-                    disabled={publishing}
-                    className="grid size-9 shrink-0 place-items-center rounded-full bg-muted disabled:opacity-50"
-                    aria-label="Close"
-                  >
-                    <X className="size-5" />
-                  </Button>
-                </div>
+      <Dialog
+        open={Boolean(composerMode)}
+        onOpenChange={(value) => {
+          if (!value && !publishing) resetComposer();
+        }}
+      >
+        <DialogContent
+          aria-describedby={undefined}
+          overlayClassName="bg-foreground/20 backdrop-blur-md duration-300 motion-reduce:animate-none"
+          onEscapeKeyDown={(event) => {
+            if (publishing) event.preventDefault();
+          }}
+          onPointerDownOutside={(event) => {
+            if (publishing) event.preventDefault();
+          }}
+          className="block w-[calc(100%-2rem)] max-w-xl overflow-hidden rounded-3xl border-border bg-card p-0 shadow-raised duration-300 motion-reduce:animate-none sm:rounded-3xl [&>button]:hidden"
+        >
+          <div className="flex max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden">
+            <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
+              <div className="min-w-0">
+                <DialogTitle className="truncate text-base font-black">{composerTitle}</DialogTitle>
+                <p className="mt-1 text-[11px] text-muted-foreground">{composerSubtitle}</p>
+              </div>
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={resetComposer}
+                disabled={publishing}
+                className="grid size-9 shrink-0 place-items-center rounded-full bg-muted disabled:opacity-50"
+                aria-label="Close"
+              >
+                <X className="size-5" />
+              </Button>
+            </div>
 
-                <div className="min-h-0 flex-1 overflow-y-auto p-4">
-                  {previewUrl ? (
-                    <div className="overflow-hidden rounded-[24px] border border-border bg-black">
-                      {selectedFile && isVideoSource(selectedFile) ? (
-                        <video
-                          src={previewUrl}
-                          controls
-                          playsInline
-                          muted
-                          className="max-h-[52vh] w-full object-contain"
-                        />
-                      ) : (
-                        <img src={previewUrl} alt="Preview" className="max-h-[52vh] w-full object-contain" />
-                      )}
-                    </div>
+            <div className="min-h-0 flex-1 overflow-y-auto p-4">
+              {previewUrl ? (
+                <div className="overflow-hidden rounded-[24px] border border-border bg-black">
+                  {selectedFile && isVideoSource(selectedFile) ? (
+                    <video
+                      src={previewUrl}
+                      controls
+                      playsInline
+                      muted
+                      className="max-h-[52vh] w-full object-contain"
+                    />
                   ) : (
-                    <Button variant="ghost"
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="grid min-h-72 w-full place-items-center rounded-[24px] border border-dashed border-border bg-muted/20 text-center"
-                    >
-                      <span className="grid place-items-center gap-3 p-6">
-                        <span className="grid size-14 place-items-center rounded-full bg-primary/10 text-primary">
-                          <ImagePlus className="size-6" />
-                        </span>
-                        <span>
-                          <span className="block text-sm font-black">Choose photo or video</span>
-                          <span className="mt-1 block text-xs text-muted-foreground">
-                            Photos up to 12 MB · videos up to 50 MB
-                          </span>
-                        </span>
-                      </span>
-                    </Button>
+                    <img
+                      src={previewUrl}
+                      alt="Preview"
+                      className="max-h-[52vh] w-full object-contain"
+                    />
                   )}
-
-                  <textarea
-                    value={caption}
-                    onChange={(event) => setCaption(event.target.value.slice(0, 500))}
-                    placeholder={
-                      composerMode === "spotlight" ? "Describe what customers should discover…" : "Add a caption…"
-                    }
-                    className="mt-4 min-h-28 w-full resize-none rounded-2xl border border-border bg-muted/20 p-3 text-sm outline-none ring-primary/20 focus:ring-4"
-                    disabled={publishing}
-                  />
-
-                  {composerMode === "spotlight" ? (
-                    <div className="mt-3 rounded-2xl border border-[#D4AF37]/20 bg-[#D4AF37]/5 px-3 py-3 text-xs leading-5 text-muted-foreground">
-                      <span className="font-black text-[#D4AF37]">SPOTLIGHT</span> appears in the same Stories row, but
-                      viewers can continue scrolling through Spotlights like reels and contact the vendor directly.
-                    </div>
-                  ) : null}
                 </div>
+              ) : (
+                <Button
+                  variant="ghost"
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="grid min-h-72 w-full place-items-center rounded-[24px] border border-dashed border-border bg-muted/20 text-center"
+                >
+                  <span className="grid place-items-center gap-3 p-6">
+                    <span className="grid size-14 place-items-center rounded-full bg-primary/10 text-primary">
+                      <ImagePlus className="size-6" />
+                    </span>
+                    <span>
+                      <span className="block text-sm font-black">Choose photo or video</span>
+                      <span className="mt-1 block text-xs text-muted-foreground">
+                        Photos up to 12 MB · videos up to 50 MB
+                      </span>
+                    </span>
+                  </span>
+                </Button>
+              )}
 
-                {publishing ? (
-                  <div className="border-t border-border px-4 pt-3">
-                    <div className="rounded-2xl border border-border bg-muted/50 px-3 py-2.5">
-                      <div className="flex items-center justify-between text-[10px] font-bold">
-                        <span>{uploadProgress < 100 ? "Uploading media…" : "Publishing…"}</span>
-                        <span>{Math.max(0, Math.min(100, uploadProgress))}%</span>
-                      </div>
-                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-background/80">
-                        <div
-                          className="h-full rounded-full bg-gradient-to-r from-[#ff2d55] via-[#D4AF37] to-[#4B0082] transition-[width] duration-300"
-                          style={{ width: `${Math.max(4, Math.min(100, uploadProgress))}%` }}
-                        />
-                      </div>
-                    </div>
+              <textarea
+                value={caption}
+                onChange={(event) => setCaption(event.target.value.slice(0, 500))}
+                placeholder={
+                  composerMode === "spotlight"
+                    ? "Describe what customers should discover…"
+                    : "Add a caption…"
+                }
+                className="mt-4 min-h-28 w-full resize-none rounded-2xl border border-border bg-muted/20 p-3 text-sm outline-none ring-primary/20 focus:ring-4"
+                disabled={publishing}
+              />
+
+              {composerMode === "spotlight" ? (
+                <div className="mt-3 rounded-2xl border border-[#D4AF37]/20 bg-[#D4AF37]/5 px-3 py-3 text-xs leading-5 text-muted-foreground">
+                  <span className="font-black text-[#D4AF37]">SPOTLIGHT</span> appears in the same
+                  Stories row, but viewers can continue scrolling through Spotlights like reels and
+                  contact the vendor directly.
+                </div>
+              ) : null}
+            </div>
+
+            {publishing ? (
+              <div className="border-t border-border px-4 pt-3">
+                <div className="rounded-2xl border border-border bg-muted/50 px-3 py-2.5">
+                  <div className="flex items-center justify-between text-[10px] font-bold">
+                    <span>{uploadProgress < 100 ? "Uploading media…" : "Publishing…"}</span>
+                    <span>{Math.max(0, Math.min(100, uploadProgress))}%</span>
                   </div>
-                ) : null}
-
-                <div className="flex items-center justify-between gap-3 border-t border-border p-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={publishing}
-                  >
-                    <ImagePlus className="mr-2 size-4" />
-                    Change media
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={composerMode === "spotlight" ? publishSpotlight : publishStory}
-                    disabled={!selectedFile || publishing}
-                    className="min-w-32"
-                  >
-                    {publishing ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-                    {publishing ? (uploadProgress < 100 ? `${uploadProgress}%` : "Publishing…") : "Publish"}
-                  </Button>
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-background/80">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-[#ff2d55] via-[#D4AF37] to-[#4B0082] transition-[width] duration-300"
+                      style={{ width: `${Math.max(4, Math.min(100, uploadProgress))}%` }}
+                    />
+                  </div>
                 </div>
               </div>
+            ) : null}
+
+            <div className="flex items-center justify-between gap-3 border-t border-border p-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={publishing}
+              >
+                <ImagePlus className="mr-2 size-4" />
+                Change media
+              </Button>
+              <Button
+                type="button"
+                onClick={composerMode === "spotlight" ? publishSpotlight : publishStory}
+                disabled={!selectedFile || publishing}
+                className="min-w-32"
+              >
+                {publishing ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+                {publishing
+                  ? uploadProgress < 100
+                    ? `${uploadProgress}%`
+                    : "Publishing…"
+                  : "Publish"}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -1216,7 +1313,10 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
                 <div className="absolute inset-x-0 top-0 z-30 p-3 sm:p-5">
                   <div className="mb-3 flex gap-1">
                     {activeStoryGroup?.stories.map((story) => (
-                      <span key={story.id} className="h-1 flex-1 overflow-hidden rounded-full bg-white/20">
+                      <span
+                        key={story.id}
+                        className="h-1 flex-1 overflow-hidden rounded-full bg-white/20"
+                      >
                         <span
                           className="block h-full rounded-full bg-white transition-[width] duration-75 ease-linear"
                           style={{
@@ -1224,7 +1324,9 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
                               story.id === activeStory.id
                                 ? `${storyProgress}%`
                                 : activeStoryGroup &&
-                                    activeStoryGroup.stories.findIndex((item) => item.id === story.id) < storyIndex
+                                    activeStoryGroup.stories.findIndex(
+                                      (item) => item.id === story.id,
+                                    ) < storyIndex
                                   ? "100%"
                                   : "0%",
                           }}
@@ -1242,8 +1344,14 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
                       />
                       <div className="min-w-0">
                         <p className="flex items-center gap-1 text-sm font-extrabold">
-                          <span className="truncate">{activeStoryGroup?.author.name ?? "Profile"}</span>
-                          <VerifiedBadge tier={activeStoryGroup?.author.verified_tier} until={activeStoryGroup?.author.verified_until} size={13} />
+                          <span className="truncate">
+                            {activeStoryGroup?.author.name ?? "Profile"}
+                          </span>
+                          <VerifiedBadge
+                            tier={activeStoryGroup?.author.verified_tier}
+                            until={activeStoryGroup?.author.verified_until}
+                            size={13}
+                          />
                         </p>
                         <p className="text-[10px] text-white/60">24h story</p>
                       </div>
@@ -1274,7 +1382,11 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
                             {(["report", "block"] as const).map((mode) => (
                               <DropdownMenuItem
                                 key={mode}
-                                className={mode === "block" ? "text-destructive focus:text-destructive" : undefined}
+                                className={
+                                  mode === "block"
+                                    ? "text-destructive focus:text-destructive"
+                                    : undefined
+                                }
                                 onSelect={() => {
                                   setStorySafety({
                                     mode,
@@ -1285,7 +1397,11 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
                                   setStoryViewerOpen(false);
                                 }}
                               >
-                                {mode === "report" ? <Flag className="size-4" /> : <ShieldOff className="size-4" />}
+                                {mode === "report" ? (
+                                  <Flag className="size-4" />
+                                ) : (
+                                  <ShieldOff className="size-4" />
+                                )}
                                 {mode === "report" ? "Report" : "Block User"}
                               </DropdownMenuItem>
                             ))}
@@ -1293,7 +1409,6 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
                         </DropdownMenu>
                       ) : null}
                       {me === activeStory.author_id ? (
-
                         <button
                           type="button"
                           onClick={() => void deleteCurrentStory()}
@@ -1370,7 +1485,9 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
 
                 <div className="absolute inset-x-0 bottom-0 z-30 bg-gradient-to-t from-black via-black/55 to-transparent px-5 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-24 text-white">
                   {activeStory.caption ? (
-                    <p className="mx-auto max-w-2xl whitespace-pre-wrap text-sm leading-6">{activeStory.caption}</p>
+                    <p className="mx-auto max-w-2xl whitespace-pre-wrap text-sm leading-6">
+                      {activeStory.caption}
+                    </p>
                   ) : null}
                   <div className="mx-auto mt-3 flex max-w-2xl items-center">
                     {me === activeStory.author_id ? (
@@ -1439,7 +1556,9 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
                     <div className="px-4 py-10 text-center">
                       <Eye className="mx-auto mb-3 size-8 text-white/30" />
                       <p className="text-sm font-semibold text-white/75">No viewer names yet.</p>
-                      <p className="mt-1 text-xs text-white/45">People who watch this story will appear here.</p>
+                      <p className="mt-1 text-xs text-white/45">
+                        People who watch this story will appear here.
+                      </p>
                     </div>
                   ) : (
                     <div className="space-y-1">
@@ -1448,9 +1567,16 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
                           key={`${item.viewer.id}-${item.at}`}
                           className="flex items-center gap-3 rounded-2xl px-3 py-3 hover:bg-white/5"
                         >
-                          <Avatar src={item.viewer.avatar_url} name={item.viewer.name} online={item.viewer.online} className="size-11" />
+                          <Avatar
+                            src={item.viewer.avatar_url}
+                            name={item.viewer.name}
+                            online={item.viewer.online}
+                            className="size-11"
+                          />
                           <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-bold">{item.viewer.name ?? "Profile"}</p>
+                            <p className="truncate text-sm font-bold">
+                              {item.viewer.name ?? "Profile"}
+                            </p>
                             <p className="text-[11px] text-white/45">
                               {new Date(item.at).toLocaleString([], {
                                 month: "short",
@@ -1542,10 +1668,16 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
                                   <p className="truncate text-sm font-extrabold text-white">
                                     {spotlight.provider.business_name}
                                   </p>
-                                  <VerifiedBadge tier={spotlight.provider.verified_tier} until={spotlight.provider.verified_until} size={14} />
+                                  <VerifiedBadge
+                                    tier={spotlight.provider.verified_tier}
+                                    until={spotlight.provider.verified_until}
+                                    size={14}
+                                  />
                                 </div>
                                 {spotlight.provider.city ? (
-                                  <p className="truncate text-[10px] text-white/60">{spotlight.provider.city}</p>
+                                  <p className="truncate text-[10px] text-white/60">
+                                    {spotlight.provider.city}
+                                  </p>
                                 ) : null}
                               </div>
                             </div>
@@ -1557,7 +1689,11 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
                                 className="grid size-10 shrink-0 place-items-center rounded-full bg-white/10 text-white backdrop-blur-xl"
                                 aria-label={spotlightMuted ? "Unmute Spotlight" : "Mute Spotlight"}
                               >
-                                {spotlightMuted ? <MicOff className="size-4" /> : <Mic className="size-4" />}
+                                {spotlightMuted ? (
+                                  <MicOff className="size-4" />
+                                ) : (
+                                  <Mic className="size-4" />
+                                )}
                               </button>
                             ) : null}
                           </div>
@@ -1589,7 +1725,9 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
                               ) : (
                                 <Trash2 className="size-4" />
                               )}
-                              {deletingSpotlightId === spotlight.id ? "Deleting…" : "Delete Spotlight"}
+                              {deletingSpotlightId === spotlight.id
+                                ? "Deleting…"
+                                : "Delete Spotlight"}
                             </button>
                           )}
 
@@ -1626,6 +1764,5 @@ export function StoriesRail({ viewerRequest, onViewerClose }: { compact?: boolea
         />
       ) : null}
     </>
-
   );
 }

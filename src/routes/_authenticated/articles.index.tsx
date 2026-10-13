@@ -56,7 +56,10 @@ function ArticlesPage() {
             {tx("ASH Stories", "ASH Stories")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {tx("Write, publish and read articles from the ASH community.", "Écrivez, publiez et lisez les articles de la communauté ASH.")}
+            {tx(
+              "Write, publish and read articles from the ASH community.",
+              "Écrivez, publiez et lisez les articles de la communauté ASH.",
+            )}
           </p>
         </div>
         <WriteArticleDialog fr={fr} />
@@ -123,14 +126,19 @@ function ArticlesPage() {
                     <AvatarImage src={article.author.avatar_url ?? undefined} alt="" />
                     <AvatarFallback>{article.author.name.slice(0, 1)}</AvatarFallback>
                   </Avatar>
-                  <span className="truncate text-xs text-muted-foreground">{article.author.name}</span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    {article.author.name}
+                  </span>
                 </span>
                 <button
                   type="button"
                   onClick={() => like.mutate({ articleId: article.id, liked: article.liked })}
                   className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
                 >
-                  <Heart className={cn("size-4", article.liked && "fill-primary text-primary")} aria-hidden />
+                  <Heart
+                    className={cn("size-4", article.liked && "fill-primary text-primary")}
+                    aria-hidden
+                  />
                   {article.like_count}
                 </button>
               </div>
@@ -164,7 +172,9 @@ function WriteArticleDialog({ fr }: { fr: boolean }) {
 
   async function submit() {
     if (title.trim().length < 4 || body.trim().length < 40) {
-      toast.error(fr ? "Ajoutez un titre et un contenu plus long." : "Add a title and a longer body.");
+      toast.error(
+        fr ? "Ajoutez un titre et un contenu plus long." : "Add a title and a longer body.",
+      );
       return;
     }
     try {

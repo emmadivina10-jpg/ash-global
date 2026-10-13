@@ -77,7 +77,10 @@ async function reconcile(limit: number) {
       : await tchokoPay.verifyLegacyPayment(row.merchantReference);
 
     if (!collection.ok) {
-      results.push({ reference: row.merchantReference, status: `UNVERIFIED:${collection.error ?? ""}` });
+      results.push({
+        reference: row.merchantReference,
+        status: `UNVERIFIED:${collection.error ?? ""}`,
+      });
       continue;
     }
 
@@ -108,7 +111,12 @@ async function reconcile(limit: number) {
       results.push({ reference: w.reference, status: "PAYOUT_UNVERIFIED" });
       continue;
     }
-    const target = d.status === "PAID" ? "COMPLETED" : d.status === "FAILED" || d.status === "CANCELLED" ? "FAILED" : null;
+    const target =
+      d.status === "PAID"
+        ? "COMPLETED"
+        : d.status === "FAILED" || d.status === "CANCELLED"
+          ? "FAILED"
+          : null;
     if (!target) {
       results.push({ reference: w.reference, status: `PAYOUT_${d.status}` });
       continue;
@@ -133,12 +141,20 @@ async function reconcile(limit: number) {
   await supabaseAdmin.from("payment_events").insert({
     source: "RECONCILE",
     outcome: "RECONCILED",
-    detail: { checked: pending.length, settled, payoutsChecked: (payouts ?? []).length, payoutsSettled },
+    detail: {
+      checked: pending.length,
+      settled,
+      payoutsChecked: (payouts ?? []).length,
+      payoutsSettled,
+    },
   });
 
   // Finance reconciliation (logs discrepancies only; never changes balances). At most once per 30 min.
   const { data: recent } = await supabaseAdmin
-    .from("reconciliation_runs").select("id").gte("started_at", new Date(Date.now() - 30 * 60_000).toISOString()).limit(1);
+    .from("reconciliation_runs")
+    .select("id")
+    .gte("started_at", new Date(Date.now() - 30 * 60_000).toISOString())
+    .limit(1);
   if (!recent?.length) {
     const { runFinanceReconciliation } = await import("@/lib/finance-reconciliation.server");
     await runFinanceReconciliation("SCHEDULED", null).catch(() => null);
@@ -151,11 +167,15 @@ export const Route = createFileRoute("/api/public/reconcile-activations")({
   server: {
     handlers: {
       GET: async ({ request }) => {
-        const limit = Math.min(Number(new URL(request.url).searchParams.get("limit") ?? 50) || 50, 100);
+        const limit = Math.min(
+          Number(new URL(request.url).searchParams.get("limit") ?? 50) || 50,
+          100,
+        );
         const result = await reconcile(limit);
         return Response.json(result, { headers: { "cache-control": "no-store" } });
       },
-      POST: async () => Response.json(await reconcile(50), { headers: { "cache-control": "no-store" } }),
+      POST: async () =>
+        Response.json(await reconcile(50), { headers: { "cache-control": "no-store" } }),
     },
   },
 });

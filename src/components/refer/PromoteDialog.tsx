@@ -4,7 +4,14 @@ import { Megaphone } from "lucide-react";
 import { toast } from "sonner";
 import { PROMOTION_PLANS, startPromotion, verifyCommerceCharge } from "@/lib/commerce.functions";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MomoCharge } from "./MomoCharge";
@@ -50,14 +57,27 @@ export function PromoteDialog({
     setBusy(true);
     try {
       const result = await start({
-        data: { targetType, targetId, headline, plan, city: city ?? undefined, category: category ?? undefined, provider, phone },
+        data: {
+          targetType,
+          targetId,
+          headline,
+          plan,
+          city: city ?? undefined,
+          category: category ?? undefined,
+          provider,
+          phone,
+        },
       });
       if (!result.ok) {
-        toast.error(result.message ?? (tx("The payment could not start.", "Le paiement n'a pas démarré.")));
+        toast.error(
+          result.message ?? tx("The payment could not start.", "Le paiement n'a pas démarré."),
+        );
         return;
       }
       setReference(result.reference);
-      toast.success(tx("Approve the prompt on your phone.", "Validez la demande sur votre téléphone."));
+      toast.success(
+        tx("Approve the prompt on your phone.", "Validez la demande sur votre téléphone."),
+      );
     } finally {
       setBusy(false);
     }
@@ -94,14 +114,20 @@ export function PromoteDialog({
         <DialogHeader>
           <DialogTitle>{tx("ASH Promote", "ASH Promote")}</DialogTitle>
           <DialogDescription>
-            {tx("Put this at the top of search and the home feed for the period you choose.", "Placez ceci en tête des résultats et de l'accueil pendant la durée choisie.")}
+            {tx(
+              "Put this at the top of search and the home feed for the period you choose.",
+              "Placez ceci en tête des résultats et de l'accueil pendant la durée choisie.",
+            )}
           </DialogDescription>
         </DialogHeader>
 
         {reference ? (
           <div className="space-y-4">
             <p className="rounded-2xl bg-muted p-4 text-sm text-muted-foreground">
-              {tx("Approve the mobile money prompt on your phone, then confirm here.", "Validez la demande Mobile Money sur votre téléphone, puis confirmez ici.")}
+              {tx(
+                "Approve the mobile money prompt on your phone, then confirm here.",
+                "Validez la demande Mobile Money sur votre téléphone, puis confirmez ici.",
+              )}
             </p>
             <Button className="w-full" disabled={busy} onClick={() => void confirm()}>
               {tx("I have paid", "J'ai payé")}
@@ -116,7 +142,10 @@ export function PromoteDialog({
                 value={headline}
                 maxLength={120}
                 onChange={(event) => setHeadline(event.target.value)}
-                placeholder={tx("20% off today at Mama's Kitchen", "20% aujourd'hui chez Mama's Kitchen")}
+                placeholder={tx(
+                  "20% off today at Mama's Kitchen",
+                  "20% aujourd'hui chez Mama's Kitchen",
+                )}
               />
             </div>
 
@@ -129,7 +158,9 @@ export function PromoteDialog({
                   onClick={() => setPlan(key)}
                   className={cn(
                     "rounded-2xl border p-3 text-left transition",
-                    plan === key ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/40",
+                    plan === key
+                      ? "border-primary bg-primary/10"
+                      : "border-border bg-card hover:border-primary/40",
                   )}
                 >
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">

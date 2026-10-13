@@ -72,6 +72,9 @@ export function photoHashes(bytes: Uint8Array) {
   }
   return {
     file_hash: fileHash,
-    pixel_hash: createHash("sha256").update(`${image.width}x${image.height}:`).update(image.data).digest("hex"),
+    pixel_hash: createHash("sha256")
+      .update(`${image.width}x${image.height}:`)
+      .update(image.data)
+      .digest("hex"),
   };
 }

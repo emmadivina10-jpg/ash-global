@@ -4,12 +4,18 @@ import type { ShareholderRow } from "@/lib/shareholders.functions";
 const NA = "Data not available";
 const money = (v: number | null | undefined, cur: string) =>
   v === null || v === undefined ? NA : `${cur} ${Number(v).toLocaleString()}`;
-const label = (s: string) => s.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase());
+const label = (s: string) =>
+  s
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .replace(/^\w/, (c) => c.toUpperCase());
 
 export function GlassCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="rounded-2xl border border-gold/30 bg-card/70 p-5 shadow-lg backdrop-blur">
-      <p className="mb-3 font-display text-xs font-extrabold uppercase tracking-[0.25em] text-gold">{title}</p>
+      <p className="mb-3 font-display text-xs font-extrabold uppercase tracking-[0.25em] text-gold">
+        {title}
+      </p>
       {children}
     </section>
   );
@@ -26,7 +32,8 @@ function Row({ k, v }: { k: string; v: React.ReactNode }) {
 
 export function InvestmentCard({ s }: { s: ShareholderRow }) {
   const committed = s.investment_committed;
-  const outstanding = committed === null ? null : Math.max(Number(committed) - Number(s.investment_received), 0);
+  const outstanding =
+    committed === null ? null : Math.max(Number(committed) - Number(s.investment_received), 0);
   return (
     <GlassCard title={`Investment · ${s.display_name}`}>
       <Row k="Ownership" v={`${Number(s.ownership_pct)}%`} />
@@ -42,19 +49,40 @@ export function InvestmentCard({ s }: { s: ShareholderRow }) {
   );
 }
 
-export function OwnershipPlan({ cap }: { cap: { issued: number; founderTarget: number; existingOthers: number; futureAvailable: number } }) {
+export function OwnershipPlan({
+  cap,
+}: {
+  cap: { issued: number; founderTarget: number; existingOthers: number; futureAvailable: number };
+}) {
   return (
     <GlassCard title="Ownership plan">
       <Row k="Total issued ownership" v={`${cap.issued}%`} />
       <Row k="Founder long-term target" v={`${cap.founderTarget}%`} />
       <Row k="Existing shareholders" v={`${cap.existingOthers}%`} />
-      <Row k="Available future share allocation" v={`${cap.futureAvailable}% (not owned by anyone)`} />
-      <p className="mt-2 text-xs text-muted-foreground">Future shares are only issued by authorised CEO action. The founder's current stake is not changed automatically.</p>
+      <Row
+        k="Available future share allocation"
+        v={`${cap.futureAvailable}% (not owned by anyone)`}
+      />
+      <p className="mt-2 text-xs text-muted-foreground">
+        Future shares are only issued by authorised CEO action. The founder's current stake is not
+        changed automatically.
+      </p>
     </GlassCard>
   );
 }
 
-export function PerformanceCard({ p }: { p: { currency: string; revenue: number; cashOnHand: number; memberObligations: number; ownerWithdrawals: number; revenueByMonth: { month: string; amount: number }[] } }) {
+export function PerformanceCard({
+  p,
+}: {
+  p: {
+    currency: string;
+    revenue: number;
+    cashOnHand: number;
+    memberObligations: number;
+    ownerWithdrawals: number;
+    revenueByMonth: { month: string; amount: number }[];
+  };
+}) {
   return (
     <GlassCard title="Company financial performance">
       <Row k="Legitimate revenue (all time)" v={money(p.revenue, p.currency)} />
@@ -75,7 +103,10 @@ export function PerformanceCard({ p }: { p: { currency: string; revenue: number;
       ) : (
         <p className="mt-3 text-xs text-muted-foreground">Insufficient data for a revenue chart.</p>
       )}
-      <p className="mt-2 text-xs text-muted-foreground">Figures come directly from the ASH Finance ledger. Profit, valuation and share value are not shown because they have not been formally determined.</p>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Figures come directly from the ASH Finance ledger. Profit, valuation and share value are not
+        shown because they have not been formally determined.
+      </p>
     </GlassCard>
   );
 }
@@ -88,16 +119,25 @@ export function NotYetCard({ title }: { title: string }) {
   );
 }
 
-export function HistoryCard({ items }: { items: { kind: string; detail: string | null; created_at: string; actor?: string }[] }) {
+export function HistoryCard({
+  items,
+}: {
+  items: { kind: string; detail: string | null; created_at: string; actor?: string }[];
+}) {
   return (
     <GlassCard title="Ownership history">
-      {items.length === 0 ? <p className="text-sm text-muted-foreground">No history.</p> : (
+      {items.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No history.</p>
+      ) : (
         <ul className="space-y-2 text-sm">
           {items.map((e, i) => (
             <li key={i} className="border-b border-border/50 pb-2 last:border-0">
               <p className="font-semibold text-foreground">{label(e.kind)}</p>
               <p className="text-muted-foreground">{e.detail}</p>
-              <p className="text-xs text-muted-foreground">{new Date(e.created_at).toLocaleString()}{e.actor ? ` · ${e.actor}` : ""}</p>
+              <p className="text-xs text-muted-foreground">
+                {new Date(e.created_at).toLocaleString()}
+                {e.actor ? ` · ${e.actor}` : ""}
+              </p>
             </li>
           ))}
         </ul>

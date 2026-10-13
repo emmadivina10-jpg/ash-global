@@ -17,7 +17,10 @@ export const Route = createFileRoute("/login")({
     meta: [
       { property: "og:url", content: "https://ashglogroup.company/login" },
       { title: "Login — ASH Glo" },
-      { name: "description", content: "Sign in to your ASH Glo account to track referrals, earnings and withdrawals." },
+      {
+        name: "description",
+        content: "Sign in to your ASH Glo account to track referrals, earnings and withdrawals.",
+      },
       { property: "og:title", content: "Login — ASH Glo" },
       { property: "og:description", content: "Sign in to your ASH Glo account." },
       { property: "og:type", content: "website" },
@@ -45,7 +48,10 @@ function LoginPage() {
     setUnconfirmed(false);
     setResent(false);
     setLoading(true);
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
     setLoading(false);
     if (signInError) {
       const message = signInError.message.toLowerCase();
@@ -53,11 +59,7 @@ function LoginPage() {
         setUnconfirmed(true);
         setError(t("auth.login.unconfirmed"));
       } else {
-        setError(
-          message.includes("invalid")
-            ? t("auth.login.invalid")
-            : signInError.message,
-        );
+        setError(message.includes("invalid") ? t("auth.login.invalid") : signInError.message);
       }
       return;
     }
@@ -103,7 +105,10 @@ function LoginPage() {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="password">{t("auth.password")}</Label>
-            <Link to="/forgot-password" className="text-xs font-semibold text-primary hover:underline">
+            <Link
+              to="/forgot-password"
+              className="text-xs font-semibold text-primary hover:underline"
+            >
               {t("auth.login.forgot")}
             </Link>
           </div>
@@ -117,7 +122,10 @@ function LoginPage() {
         </div>
 
         {error ? (
-          <div role="alert" className="space-y-2 rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
+          <div
+            role="alert"
+            className="space-y-2 rounded-xl bg-destructive/10 p-3 text-sm text-destructive"
+          >
             <p>{error}</p>
             {unconfirmed ? (
               <Button
@@ -132,11 +140,17 @@ function LoginPage() {
                 {resending ? t("auth.login.resending") : t("auth.login.resend")}
               </Button>
             ) : null}
-            {resent ? <p className="text-xs text-muted-foreground">{t("auth.login.resent")}</p> : null}
+            {resent ? (
+              <p className="text-xs text-muted-foreground">{t("auth.login.resent")}</p>
+            ) : null}
           </div>
         ) : null}
 
-        <Button type="submit" className="auth-cta h-12 w-full rounded-xl text-base" disabled={loading}>
+        <Button
+          type="submit"
+          className="auth-cta h-12 w-full rounded-xl text-base"
+          disabled={loading}
+        >
           {loading ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
           {loading ? t("auth.login.submitting") : t("auth.login.submit")}
         </Button>

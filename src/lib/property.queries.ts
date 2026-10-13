@@ -107,7 +107,9 @@ async function assertFreshSession(): Promise<void> {
 export async function signPropertyPaths(paths: string[]): Promise<Record<string, string>> {
   const unique = Array.from(new Set(paths.filter(Boolean)));
   if (unique.length === 0) return {};
-  const { data, error } = await supabase.storage.from(PROPERTY_BUCKET).createSignedUrls(unique, 60 * 60);
+  const { data, error } = await supabase.storage
+    .from(PROPERTY_BUCKET)
+    .createSignedUrls(unique, 60 * 60);
   if (error || !data) return {};
   const map: Record<string, string> = {};
   for (const item of data) if (item.path && item.signedUrl) map[item.path] = item.signedUrl;
@@ -121,7 +123,10 @@ async function attachCovers(rows: PropertyListing[]): Promise<ListingWithCover[]
   const { data: images } = await supabase
     .from("property_images")
     .select("listing_id, image_path, sort_order")
-    .in("listing_id", rows.map((row) => row.id))
+    .in(
+      "listing_id",
+      rows.map((row) => row.id),
+    )
     .order("sort_order", { ascending: true });
 
   const byListing = new Map<string, string[]>();
@@ -164,7 +169,8 @@ export function usePropertyListings(filters: PropertyFilters) {
         query = query.gte("bedrooms", filters.bedrooms);
       if (filters.furnished) query = query.eq("is_furnished", true);
       if (filters.verifiedOnly) query = query.neq("verification_status", "BASIC");
-      if (filters.amenities && filters.amenities.length > 0) query = query.contains("amenities", filters.amenities);
+      if (filters.amenities && filters.amenities.length > 0)
+        query = query.contains("amenities", filters.amenities);
       if (filters.term && filters.term.trim().length > 1) {
         const like = `%${filters.term.trim()}%`;
         query = query.or(
@@ -277,7 +283,10 @@ export function useSavedIds() {
     queryFn: async (): Promise<string[]> => {
       const { data: auth } = await supabase.auth.getUser();
       if (!auth.user) return [];
-      const { data } = await supabase.from("property_saves").select("listing_id").eq("user_id", auth.user.id);
+      const { data } = await supabase
+        .from("property_saves")
+        .select("listing_id")
+        .eq("user_id", auth.user.id);
       return (data ?? []).map((row) => row.listing_id);
     },
   });
@@ -313,7 +322,10 @@ export function useViewingRequests(role: "owner" | "requester") {
       const { data: listings } = await supabase
         .from("property_listings")
         .select("id, title, city, category")
-        .in("id", rows.map((row) => row.listing_id));
+        .in(
+          "id",
+          rows.map((row) => row.listing_id),
+        );
       const byId = new Map((listings ?? []).map((row) => [row.id, row]));
       return rows.map((row) => ({ ...row, listing: byId.get(row.listing_id) ?? null }));
     },
@@ -326,8 +338,11 @@ export function useViewingRequests(role: "owner" | "requester") {
  * property chats land in the same inbox and notification stream.
  */
 export async function openPropertyConversation(listingId: string): Promise<string> {
-  const { data, error } = await supabase.rpc("open_property_conversation", { _listing_id: listingId });
+  const { data, error } = await supabase.rpc("open_property_conversation", {
+    _listing_id: listingId,
+  });
   const payload = data as { ok?: boolean; id?: string; error?: string } | null;
-  if (error || !payload?.ok || !payload.id) throw new Error(payload?.error ?? error?.message ?? "CHAT_FAILED");
+  if (error || !payload?.ok || !payload.id)
+    throw new Error(payload?.error ?? error?.message ?? "CHAT_FAILED");
   return payload.id;
 }

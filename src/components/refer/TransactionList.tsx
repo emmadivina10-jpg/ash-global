@@ -31,7 +31,10 @@ export function TransactionList({ items }: { items: TransactionRow[] }) {
         const amount = Number(tx.amount);
         const positive = amount > 0;
         return (
-          <li key={tx.id} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 py-3.5">
+          <li
+            key={tx.id}
+            className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 py-3.5"
+          >
             <span
               className={cn(
                 "grid size-9 shrink-0 place-items-center rounded-full",
@@ -45,7 +48,9 @@ export function TransactionList({ items }: { items: TransactionRow[] }) {
               )}
             </span>
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-foreground">{transactionLabel(tx.type)}</p>
+              <p className="truncate text-sm font-semibold text-foreground">
+                {transactionLabel(tx.type)}
+              </p>
               <p className="truncate text-xs text-muted-foreground">
                 {formatDateTime(tx.created_at)} · {tx.reference}
               </p>

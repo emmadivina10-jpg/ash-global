@@ -72,7 +72,11 @@ export function SocialAuth({ label }: { label: string }) {
           disabled={pending !== null}
           onClick={() => void signIn("google")}
         >
-          {pending === "google" ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <GoogleIcon />}
+          {pending === "google" ? (
+            <Loader2 className="size-4 animate-spin" aria-hidden />
+          ) : (
+            <GoogleIcon />
+          )}
           Google
         </Button>
         <Button
@@ -82,7 +86,11 @@ export function SocialAuth({ label }: { label: string }) {
           disabled={pending !== null}
           onClick={() => void signIn("apple")}
         >
-          {pending === "apple" ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <AppleIcon />}
+          {pending === "apple" ? (
+            <Loader2 className="size-4 animate-spin" aria-hidden />
+          ) : (
+            <AppleIcon />
+          )}
           Apple
         </Button>
       </div>

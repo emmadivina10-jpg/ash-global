@@ -86,7 +86,17 @@ export const PROPERTY_CURRENCIES = ["XAF", "NGN", "GHS", "USD", "CAD", "EUR"] as
 export const PROPERTY_LOCATIONS: Record<string, { label: string; cities: string[] }> = {
   CM: {
     label: "Cameroon",
-    cities: ["Buea", "Douala", "Yaoundé", "Bamenda", "Bafoussam", "Limbe", "Dschang", "Kribi", "Garoua"],
+    cities: [
+      "Buea",
+      "Douala",
+      "Yaoundé",
+      "Bamenda",
+      "Bafoussam",
+      "Limbe",
+      "Dschang",
+      "Kribi",
+      "Garoua",
+    ],
   },
   NG: { label: "Nigeria", cities: ["Lagos", "Abuja", "Port Harcourt", "Ibadan", "Enugu"] },
   GH: { label: "Ghana", cities: ["Accra", "Kumasi", "Takoradi"] },
@@ -128,7 +138,9 @@ export function formatPropertyPrice(
   period: string | null,
   fr: boolean,
 ): string {
-  const amount = new Intl.NumberFormat(fr ? "fr-FR" : "en-US", { maximumFractionDigits: 0 }).format(price);
+  const amount = new Intl.NumberFormat(fr ? "fr-FR" : "en-US", { maximumFractionDigits: 0 }).format(
+    price,
+  );
   const suffix = period && period !== "TOTAL" ? ` ${labelOf(PRICE_PERIODS, period, fr)}` : "";
   return `${amount} ${currency}${suffix}`;
 }

@@ -9,11 +9,29 @@ export const SUPPORT_EMAIL = "support@ashglogroup.company";
 export const PRIVACY_EMAIL = "privacy@ashglogroup.company";
 
 export function LegalPaymentDisclosure() {
-  return <>
-    <p>Card collections, where offered, use Stripe-hosted Checkout. Supported Mobile Money means MTN MoMo and Orange Money through TchokoPay in Cameroon (XAF). M-PESA is not integrated or available. A country or currency selector does not establish payment or withdrawal support.</p>
-    <p>A checkout return, phone prompt, screenshot or pending entry is not proof of payment. Card collections are confirmed using verified Stripe webhook evidence or a server-side check against Stripe. Mobile Money collections are checked against TchokoPay’s transaction status or verified callback. Bank transfers are available only when verified bank instructions are supplied and remain pending until Finance confirms receipt; this is separate from Stripe bank payout setup.</p>
-    <p>Collection, wallet credit, service completion, provider transfer and bank receipt are separate statuses. A payment receipt does not prove service delivery or bank payout. Pending or failed payments are not received funds. ASH Glo does not collect full card numbers, card security codes or Mobile Money PINs through these hosted flows.</p>
-  </>;
+  return (
+    <>
+      <p>
+        Card collections, where offered, use Stripe-hosted Checkout. Supported Mobile Money means
+        MTN MoMo and Orange Money through TchokoPay in Cameroon (XAF). M-PESA is not integrated or
+        available. A country or currency selector does not establish payment or withdrawal support.
+      </p>
+      <p>
+        A checkout return, phone prompt, screenshot or pending entry is not proof of payment. Card
+        collections are confirmed using verified Stripe webhook evidence or a server-side check
+        against Stripe. Mobile Money collections are checked against TchokoPay’s transaction status
+        or verified callback. Bank transfers are available only when verified bank instructions are
+        supplied and remain pending until Finance confirms receipt; this is separate from Stripe
+        bank payout setup.
+      </p>
+      <p>
+        Collection, wallet credit, service completion, provider transfer and bank receipt are
+        separate statuses. A payment receipt does not prove service delivery or bank payout. Pending
+        or failed payments are not received funds. ASH Glo does not collect full card numbers, card
+        security codes or Mobile Money PINs through these hosted flows.
+      </p>
+    </>
+  );
 }
 
 export function LegalPage({
@@ -42,7 +60,15 @@ export function LegalIntro({ children }: { children: ReactNode }) {
   );
 }
 
-export function LegalSection({ id, title, children }: { id: string; title: string; children: ReactNode }) {
+export function LegalSection({
+  id,
+  title,
+  children,
+}: {
+  id: string;
+  title: string;
+  children: ReactNode;
+}) {
   return (
     <section id={id} className="scroll-mt-24 space-y-3">
       <h2 className="text-lg font-semibold text-foreground sm:text-xl">{title}</h2>
@@ -64,12 +90,31 @@ export function LegalList({ items }: { items: ReactNode[] }) {
 export function LegalLinks() {
   return (
     <p className="border-t border-border pt-6 text-sm leading-7 text-muted-foreground">
-      Related documents: <Link to="/terms" className="text-primary hover:underline">Terms of Service</Link>,{" "}
-      <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>,{" "}
-      <Link to="/community-guidelines" className="text-primary hover:underline">Community Guidelines</Link>,{" "}
-      <Link to="/marketplace-policy" className="text-primary hover:underline">Marketplace &amp; Booking Policy</Link>,{" "}
-      <Link to="/referral-wallet-terms" className="text-primary hover:underline">Referral &amp; Wallet Terms</Link>, and{" "}
-      <Link to="/account-deletion" className="text-primary hover:underline">Account &amp; Data Deletion</Link>.
+      Related documents:{" "}
+      <Link to="/terms" className="text-primary hover:underline">
+        Terms of Service
+      </Link>
+      ,{" "}
+      <Link to="/privacy" className="text-primary hover:underline">
+        Privacy Policy
+      </Link>
+      ,{" "}
+      <Link to="/community-guidelines" className="text-primary hover:underline">
+        Community Guidelines
+      </Link>
+      ,{" "}
+      <Link to="/marketplace-policy" className="text-primary hover:underline">
+        Marketplace &amp; Booking Policy
+      </Link>
+      ,{" "}
+      <Link to="/referral-wallet-terms" className="text-primary hover:underline">
+        Referral &amp; Wallet Terms
+      </Link>
+      , and{" "}
+      <Link to="/account-deletion" className="text-primary hover:underline">
+        Account &amp; Data Deletion
+      </Link>
+      .
     </p>
   );
 }

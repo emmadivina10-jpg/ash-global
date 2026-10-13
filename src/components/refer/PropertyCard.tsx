@@ -34,7 +34,9 @@ export function PropertyCard({
             </div>
           )}
           <span className="absolute left-2 top-2 rounded-full bg-background/90 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-foreground">
-            {listing.listing_kind === "SALE" ? (tx("For sale", "À vendre")) : tx("For rent", "À louer")}
+            {listing.listing_kind === "SALE"
+              ? tx("For sale", "À vendre")
+              : tx("For rent", "À louer")}
           </span>
           {listing.verification_status !== "BASIC" ? (
             <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-primary px-2 py-1 text-[11px] font-bold text-primary-foreground">
@@ -84,7 +86,7 @@ export function PropertyCard({
       {onToggleSave ? (
         <button
           type="button"
-          aria-label={saved ? (tx("Unsave", "Retirer")) : tx("Save", "Enregistrer")}
+          aria-label={saved ? tx("Unsave", "Retirer") : tx("Save", "Enregistrer")}
           onClick={() => onToggleSave(listing.id)}
           className="absolute bottom-3 right-3 rounded-full border border-border bg-background/90 p-2 text-muted-foreground transition-colors hover:text-primary"
         >

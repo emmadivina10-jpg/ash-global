@@ -10,10 +10,18 @@ export function SocialText({ text, className }: { text: string; className?: stri
       {text.split(TOKEN).map((part, index) => {
         if (part.startsWith("#")) {
           return (
-            <button key={`${part}-${index}`} type="button" className="font-semibold text-primary hover:underline" onClick={(event) => {
-              event.stopPropagation();
-              void navigate({ to: "/hashtag/$tag", params: { tag: part.slice(1).toLowerCase() } });
-            }}>
+            <button
+              key={`${part}-${index}`}
+              type="button"
+              className="font-semibold text-primary hover:underline"
+              onClick={(event) => {
+                event.stopPropagation();
+                void navigate({
+                  to: "/hashtag/$tag",
+                  params: { tag: part.slice(1).toLowerCase() },
+                });
+              }}
+            >
               {part}
             </button>
           );
@@ -30,13 +38,20 @@ export function SocialText({ text, className }: { text: string; className?: stri
 function MentionToken({ value }: { value: string }) {
   const navigate = useNavigate();
   return (
-    <button type="button" className="font-semibold text-primary hover:underline" onClick={async (event) => {
-      event.stopPropagation();
-      const { supabase } = await import("@/integrations/supabase/client");
-      const { directory } = await import("@/lib/public-profiles");
-      const { data } = await directory().select("user_id").ilike("username", value.slice(1)).maybeSingle();
-      if (data?.user_id) void navigate({ to: "/u/$userId", params: { userId: data.user_id } });
-    }}>
+    <button
+      type="button"
+      className="font-semibold text-primary hover:underline"
+      onClick={async (event) => {
+        event.stopPropagation();
+        const { supabase } = await import("@/integrations/supabase/client");
+        const { directory } = await import("@/lib/public-profiles");
+        const { data } = await directory()
+          .select("user_id")
+          .ilike("username", value.slice(1))
+          .maybeSingle();
+        if (data?.user_id) void navigate({ to: "/u/$userId", params: { userId: data.user_id } });
+      }}
+    >
       {value}
     </button>
   );

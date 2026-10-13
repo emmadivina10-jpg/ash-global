@@ -21,7 +21,13 @@ import { Avatar } from "@/components/refer/AvatarUpload";
 import { groupColorFor } from "@/components/refer/GroupBadge";
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { CHAT_WALLPAPERS, useChatSettings, useSetWallpaper } from "@/lib/social.queries";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useI18n } from "@/lib/i18n";
 import { formatXAF } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -46,11 +52,9 @@ function dayLabel(iso: string, fr: boolean) {
   const today = new Date();
   const yesterday = new Date(today.getTime() - 86400000);
 
-  if (date.toDateString() === today.toDateString())
-    return fr ? "Aujourd'hui" : "Today";
+  if (date.toDateString() === today.toDateString()) return fr ? "Aujourd'hui" : "Today";
 
-  if (date.toDateString() === yesterday.toDateString())
-    return fr ? "Hier" : "Yesterday";
+  if (date.toDateString() === yesterday.toDateString()) return fr ? "Hier" : "Yesterday";
 
   return date.toLocaleDateString(fr ? "fr-FR" : "en-GB", {
     day: "numeric",
@@ -110,7 +114,9 @@ export function ChatThread({
   const fr = lang === "fr";
   const queryClient = useQueryClient();
   const { data, isLoading } = useMessages(conversationId, initialMessages === undefined);
-  const [securedMessages, setSecuredMessages] = useState<ChatMessage[] | undefined>(initialMessages);
+  const [securedMessages, setSecuredMessages] = useState<ChatMessage[] | undefined>(
+    initialMessages,
+  );
 
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
@@ -236,7 +242,11 @@ export function ChatThread({
 
   const wallpaperStyle = (() => {
     if (chatSettings?.wallpaperUrl) {
-      return { backgroundImage: `url(${chatSettings.wallpaperUrl})`, backgroundSize: "cover", backgroundPosition: "center" };
+      return {
+        backgroundImage: `url(${chatSettings.wallpaperUrl})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      };
     }
     const preset = CHAT_WALLPAPERS.find((w) => w.id === chatSettings?.wallpaper);
     return preset?.css ? { backgroundImage: preset.css } : undefined;
@@ -263,7 +273,10 @@ export function ChatThread({
 
     if (awaitingReply) {
       toast.info(
-        tx("Wait for a reply before sending another message.", "Attendez la réponse avant d'envoyer un autre message."),
+        tx(
+          "Wait for a reply before sending another message.",
+          "Attendez la réponse avant d'envoyer un autre message.",
+        ),
       );
       return;
     }
@@ -272,13 +285,11 @@ export function ChatThread({
     setFailed(null);
     setPending((p) => [...p, value]);
 
-    const { error } = await supabase
-      .from("messages")
-      .insert({
-        conversation_id: conversationId,
-        sender_id: currentUserId,
-        body: value,
-      });
+    const { error } = await supabase.from("messages").insert({
+      conversation_id: conversationId,
+      sender_id: currentUserId,
+      body: value,
+    });
 
     setSending(false);
     setPending((p) => p.filter((v) => v !== value));
@@ -308,7 +319,10 @@ export function ChatThread({
       if (count > 2) {
         toast.warning(
           warning +
-            (tx(" Repeated messages like this are sent to the ASH review team.", " Ces messages répétés sont transmis à l'équipe ASH.")),
+            tx(
+              " Repeated messages like this are sent to the ASH review team.",
+              " Ces messages répétés sont transmis à l'équipe ASH.",
+            ),
         );
       } else {
         toast.info(warning);
@@ -328,17 +342,11 @@ export function ChatThread({
   async function remove(id: string) {
     setConfirmDelete(null);
 
-    const { error } = await supabase
-      .from("messages")
-      .delete()
-      .eq("id", id);
+    const { error } = await supabase.from("messages").delete().eq("id", id);
 
     if (error) {
       console.error("chat delete failed", error);
-      toast.error(
-        error.message ||
-          (tx("Message not deleted", "Message non supprimé")),
-      );
+      toast.error(error.message || tx("Message not deleted", "Message non supprimé"));
       return;
     }
 
@@ -443,12 +451,8 @@ export function ChatThread({
           </div>
         ) : messages.length === 0 ? (
           <div className="py-8 text-center">
-            <p className="text-sm font-semibold text-foreground">
-              {t("chat.none")}
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t("chat.noneCopy")}
-            </p>
+            <p className="text-sm font-semibold text-foreground">{t("chat.none")}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{t("chat.noneCopy")}</p>
           </div>
         ) : (
           grouped.map((group) => (
@@ -466,7 +470,11 @@ export function ChatThread({
                       key={m.id}
                       kind={kind}
                       body={m.body}
-                      metadata={m.metadata && typeof m.metadata === "object" && !Array.isArray(m.metadata) ? m.metadata : {}}
+                      metadata={
+                        m.metadata && typeof m.metadata === "object" && !Array.isArray(m.metadata)
+                          ? m.metadata
+                          : {}
+                      }
                     />
                   );
                 }
@@ -476,14 +484,10 @@ export function ChatThread({
                 const next = group.items[index + 1];
 
                 const startsRun =
-                  !prev ||
-                  prev.sender_id !== m.sender_id ||
-                  (prev.kind ?? "TEXT") !== "TEXT";
+                  !prev || prev.sender_id !== m.sender_id || (prev.kind ?? "TEXT") !== "TEXT";
 
                 const endsRun =
-                  !next ||
-                  next.sender_id !== m.sender_id ||
-                  (next.kind ?? "TEXT") !== "TEXT";
+                  !next || next.sender_id !== m.sender_id || (next.kind ?? "TEXT") !== "TEXT";
 
                 return (
                   <div
@@ -496,10 +500,12 @@ export function ChatThread({
                   >
                     {!mine ? (
                       <Avatar
-                        path={(isGroup ? memberById.get(m.sender_id)?.avatar_url : peerAvatar) ?? null}
+                        path={
+                          (isGroup ? memberById.get(m.sender_id)?.avatar_url : peerAvatar) ?? null
+                        }
                         name={(isGroup ? memberById.get(m.sender_id)?.name : peerName) ?? "Profile"}
                         online={isGroup ? memberById.get(m.sender_id)?.online : undefined}
-                          className={cn("size-8 text-xs", !endsRun && "invisible")}
+                        className={cn("size-8 text-xs", !endsRun && "invisible")}
                       />
                     ) : null}
 
@@ -512,18 +518,13 @@ export function ChatThread({
                       onPointerDown={() => {
                         if (!mine) return;
 
-                        pressRef.current = window.setTimeout(
-                          () => setConfirmDelete(m.id),
-                          500,
-                        );
+                        pressRef.current = window.setTimeout(() => setConfirmDelete(m.id), 500);
                       }}
                       onPointerUp={() => {
-                        if (pressRef.current)
-                          window.clearTimeout(pressRef.current);
+                        if (pressRef.current) window.clearTimeout(pressRef.current);
                       }}
                       onPointerLeave={() => {
-                        if (pressRef.current)
-                          window.clearTimeout(pressRef.current);
+                        if (pressRef.current) window.clearTimeout(pressRef.current);
                       }}
                       className={cn(
                         "group relative max-w-[82%] px-4 py-2.5 shadow-sm transition-colors",
@@ -541,7 +542,9 @@ export function ChatThread({
                           className="mb-0.5 flex items-center gap-1 text-[11px] font-bold"
                           style={{ color: groupColorFor(m.sender_id) }}
                         >
-                          <span className="truncate">{memberById.get(m.sender_id)?.name ?? (tx("Member", "Membre"))}</span>
+                          <span className="truncate">
+                            {memberById.get(m.sender_id)?.name ?? tx("Member", "Membre")}
+                          </span>
                           <VerifiedBadge
                             tier={memberById.get(m.sender_id)?.verified_tier}
                             until={memberById.get(m.sender_id)?.verified_until}
@@ -553,15 +556,10 @@ export function ChatThread({
                         <button
                           type="button"
                           onClick={() => setConfirmDelete(m.id)}
-                          aria-label={
-                            tx("Delete message", "Supprimer le message")
-                          }
+                          aria-label={tx("Delete message", "Supprimer le message")}
                           className="absolute -left-8 top-1/2 hidden size-7 -translate-y-1/2 place-items-center rounded-full bg-card text-muted-foreground shadow-sm group-hover:grid hover:text-destructive"
                         >
-                          <Trash2
-                            className="size-3.5"
-                            aria-hidden
-                          />
+                          <Trash2 className="size-3.5" aria-hidden />
                         </button>
                       ) : null}
 
@@ -576,9 +574,7 @@ export function ChatThread({
                             onClick={() => setConfirmDelete(null)}
                             className={cn(
                               "rounded-full px-2 py-0.5",
-                              mine
-                                ? "bg-primary-foreground/20"
-                                : "bg-background",
+                              mine ? "bg-primary-foreground/20" : "bg-background",
                             )}
                           >
                             {tx("Cancel", "Annuler")}
@@ -598,24 +594,16 @@ export function ChatThread({
                         <span
                           className={cn(
                             "mt-1 flex items-center justify-end gap-1 text-[10px]",
-                            mine
-                              ? "text-foreground/70"
-                              : "text-muted-foreground",
+                            mine ? "text-foreground/70" : "text-muted-foreground",
                           )}
                         >
                           {timeLabel(m.created_at, fr)}
 
                           {mine ? (
                             m.read_at ? (
-                              <CheckCheck
-                                className="size-3"
-                                aria-hidden
-                              />
+                              <CheckCheck className="size-3" aria-hidden />
                             ) : (
-                              <Check
-                                className="size-3"
-                                aria-hidden
-                              />
+                              <Check className="size-3" aria-hidden />
                             )
                           ) : null}
                         </span>
@@ -629,20 +617,12 @@ export function ChatThread({
         )}
 
         {pending.map((text, i) => (
-          <div
-            key={`pending-${i}`}
-            className="flex justify-end"
-          >
+          <div key={`pending-${i}`} className="flex justify-end">
             <div className="max-w-[78%] rounded-2xl rounded-br-sm bg-primary/70 px-3.5 py-2 text-primary-foreground">
-              <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
-                {text}
-              </p>
+              <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">{text}</p>
 
               <span className="mt-1 flex items-center justify-end gap-1 text-[10px] text-primary-foreground/80">
-                <Loader2
-                  className="size-3 animate-spin"
-                  aria-hidden
-                />
+                <Loader2 className="size-3 animate-spin" aria-hidden />
                 {tx("Sending…", "Envoi…")}
               </span>
             </div>
@@ -656,10 +636,7 @@ export function ChatThread({
               onClick={() => void submit(failed)}
               className="flex items-center gap-1.5 rounded-full border border-destructive/40 px-3 py-1 text-[11px] font-semibold text-destructive"
             >
-              <AlertCircle
-                className="size-3"
-                aria-hidden
-              />
+              <AlertCircle className="size-3" aria-hidden />
               {tx("Failed — tap to retry", "Échec — réessayer")}
             </button>
           </div>
@@ -667,7 +644,11 @@ export function ChatThread({
 
         {peerTyping ? (
           <div className="flex items-end gap-2">
-            <Avatar path={peerAvatar ?? null} name={peerName ?? "Profile"} className="size-7 text-[10px]" />
+            <Avatar
+              path={peerAvatar ?? null}
+              name={peerName ?? "Profile"}
+              className="size-7 text-[10px]"
+            />
             <span className="flex items-center gap-1 rounded-2xl rounded-bl-sm bg-muted px-3 py-2">
               {[0, 1, 2].map((dot) => (
                 <span
@@ -682,7 +663,6 @@ export function ChatThread({
           </div>
         ) : null}
       </div>
-
 
       {quickReplies.length > 0 ? (
         <div className="flex min-w-0 shrink-0 gap-2 overflow-x-auto overscroll-x-contain px-1 pb-2 touch-pan-x">
@@ -736,7 +716,10 @@ export function ChatThread({
           <span className="mt-1 px-1 text-[10px] text-muted-foreground">
             {body.length > 800
               ? `${body.length}/1000`
-              : tx("Enter to send · Shift+Enter = new line", "Entrée pour envoyer · Maj+Entrée = nouvelle ligne")}
+              : tx(
+                  "Enter to send · Shift+Enter = new line",
+                  "Entrée pour envoyer · Maj+Entrée = nouvelle ligne",
+                )}
           </span>
         </div>
 
@@ -744,21 +727,13 @@ export function ChatThread({
           type="submit"
           size="icon"
           className="mb-5 size-10 shrink-0 rounded-full"
-          disabled={
-            sending || awaitingReply || body.trim().length === 0
-          }
+          disabled={sending || awaitingReply || body.trim().length === 0}
           aria-label={t("chat.send")}
         >
           {sending ? (
-            <Loader2
-              className="size-4 animate-spin"
-              aria-hidden
-            />
+            <Loader2 className="size-4 animate-spin" aria-hidden />
           ) : (
-            <Send
-              className="size-4"
-              aria-hidden
-            />
+            <Send className="size-4" aria-hidden />
           )}
         </Button>
       </form>
@@ -785,7 +760,9 @@ function InvoiceMessage({
     if (metadata["source"] === "job_contact" && jobTitle) {
       return (
         <article className="mx-auto w-full max-w-[92%] rounded-lg border border-primary/30 bg-primary/5 p-3">
-          <span className="text-xs font-bold text-primary">{tx("Job reference", "Référence de l'offre")}</span>
+          <span className="text-xs font-bold text-primary">
+            {tx("Job reference", "Référence de l'offre")}
+          </span>
           <p className="mt-1 text-sm font-semibold text-foreground">{jobTitle}</p>
           {company ? <p className="text-xs text-muted-foreground">{company}</p> : null}
           <p className="mt-2 text-xs leading-5 text-muted-foreground">{body}</p>
@@ -799,88 +776,55 @@ function InvoiceMessage({
     );
   }
 
-  const invoice = String(
-    metadata["invoice_number"] ?? "",
-  );
+  const invoice = String(metadata["invoice_number"] ?? "");
 
-  const total = Number(
-    metadata["total"] ?? metadata["price"] ?? 0,
-  );
+  const total = Number(metadata["total"] ?? metadata["price"] ?? 0);
 
-  const fee = Number(
-    metadata["platform_fee"] ?? 0,
-  );
+  const fee = Number(metadata["platform_fee"] ?? 0);
 
-  const net = Number(
-    metadata["provider_amount"] ?? 0,
-  );
+  const net = Number(metadata["provider_amount"] ?? 0);
 
-  const service = String(
-    metadata["service_title"] ?? "",
-  );
+  const service = String(metadata["service_title"] ?? "");
 
   return (
     <article className="mx-auto w-full max-w-[92%] rounded-2xl border border-primary/30 bg-primary/5 p-3">
       <header className="flex items-center justify-between gap-2">
         <span className="flex items-center gap-1.5 text-xs font-bold text-primary">
-          <ReceiptText
-            className="size-4"
-            aria-hidden
-          />
+          <ReceiptText className="size-4" aria-hidden />
           {tx("ASH invoice", "Facture ASH")}
         </span>
 
         {invoice ? (
-          <span className="tabular text-[11px] font-semibold text-muted-foreground">
-            {invoice}
-          </span>
+          <span className="tabular text-[11px] font-semibold text-muted-foreground">{invoice}</span>
         ) : null}
       </header>
 
       {service ? (
-        <p className="mt-1 truncate text-sm font-semibold text-foreground">
-          {service}
-        </p>
+        <p className="mt-1 truncate text-sm font-semibold text-foreground">{service}</p>
       ) : null}
 
       <dl className="mt-2 space-y-1 text-xs">
         <div className="flex justify-between gap-3">
-          <dt className="text-muted-foreground">
-            {tx("Total paid", "Total payé")}
-          </dt>
-          <dd className="tabular font-bold text-foreground">
-            {formatXAF(total)}
-          </dd>
+          <dt className="text-muted-foreground">{tx("Total paid", "Total payé")}</dt>
+          <dd className="tabular font-bold text-foreground">{formatXAF(total)}</dd>
         </div>
 
         {fee > 0 ? (
           <div className="flex justify-between gap-3">
-            <dt className="text-muted-foreground">
-              {tx("ASH fee", "Frais ASH")}
-            </dt>
-            <dd className="tabular text-foreground">
-              {formatXAF(fee)}
-            </dd>
+            <dt className="text-muted-foreground">{tx("ASH fee", "Frais ASH")}</dt>
+            <dd className="tabular text-foreground">{formatXAF(fee)}</dd>
           </div>
         ) : null}
 
         {net > 0 ? (
           <div className="flex justify-between gap-3">
-            <dt className="text-muted-foreground">
-              {tx("Provider receives", "Reçu par le pro")}
-            </dt>
-            <dd className="tabular text-foreground">
-              {formatXAF(net)}
-            </dd>
+            <dt className="text-muted-foreground">{tx("Provider receives", "Reçu par le pro")}</dt>
+            <dd className="tabular text-foreground">{formatXAF(net)}</dd>
           </div>
         ) : null}
       </dl>
 
-      {body ? (
-        <p className="mt-2 text-[11px] text-muted-foreground">
-          {body}
-        </p>
-      ) : null}
+      {body ? <p className="mt-2 text-[11px] text-muted-foreground">{body}</p> : null}
     </article>
   );
 }
