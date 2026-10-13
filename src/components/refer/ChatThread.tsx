@@ -19,6 +19,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { ReportDialog } from "@/components/refer/ReportDialog";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { VoiceNotePlayer, VoiceRecorder } from "@/components/refer/VoiceNote";
+import { MessageDeleteDialog } from "@/components/refer/MessageDeleteDialog";
+import { canDeleteForEveryone, messageDeletionKey, readHiddenMessages } from "@/components/refer/message-deletion";
 import { groupColorFor } from "@/components/refer/GroupBadge";
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { CHAT_WALLPAPERS, useChatSettings, useSetWallpaper } from "@/lib/social.queries";
@@ -124,6 +126,15 @@ export function ChatThread({
   const [pending, setPending] = useState<string[]>([]);
   const [failed, setFailed] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [hiddenMessages, setHiddenMessages] = useState<{ key: string; ids: string[] }>({ key: "", ids: [] });
+  const deletionKey = currentUserId ? messageDeletionKey(currentUserId, conversationId) : "";
+  useEffect(() => {
+    setConfirmDelete(null);
+    try {
+      setHiddenMessages({ key: deletionKey, ids: deletionKey ? readHiddenMessages(localStorage.getItem(deletionKey)) : [] });
+    } catch { setHiddenMessages({ key: deletionKey, ids: [] }); }
+  }, [deletionKey]);
 
   const { data: chatSettings } = useChatSettings();
   const setWallpaper = useSetWallpaper();
@@ -136,7 +147,9 @@ export function ChatThread({
   const messagesScrollRef = useRef<HTMLDivElement>(null);
   const pressRef = useRef<number | null>(null);
 
-  const messages = (securedMessages ?? data ?? []) as unknown as ChatMessage[];
+  const allMessages = (securedMessages ?? data ?? []) as unknown as ChatMessage[];
+  const messages = allMessages.filter((message) => hiddenMessages.key !== deletionKey || !hiddenMessages.ids.includes(message.id));
+  const selectedMessage = allMessages.find((message) => message.id === confirmDelete);
 
   useEffect(() => {
     setSecuredMessages(initialMessages);
@@ -169,10 +182,10 @@ export function ChatThread({
 
   // Facebook-style first contact: you may open a conversation with anyone, but
   // only one message goes through until the other person answers.
-  const peerReplied = messages.some(
+  const peerReplied = allMessages.some(
     (m) => m.sender_id !== currentUserId && (m.kind ?? "TEXT") === "TEXT",
   );
-  const mySent = messages.filter(
+  const mySent = allMessages.filter(
     (m) => m.sender_id === currentUserId && (m.kind ?? "TEXT") === "TEXT",
   ).length;
   const awaitingReply = enforceFirstContactLimit && !isGroup && !peerReplied && mySent >= 1;
@@ -361,9 +374,11 @@ export function ChatThread({
 
   /** Remove one of my own messages for everybody in the thread. */
   async function remove(id: string) {
-    setConfirmDelete(null);
-
-    const { error } = await supabase.from("messages").delete().eq("id", id);
+    const selected = allMessages.find((message) => message.id === id);
+    if (deleting || !selected || !canDeleteForEveryone(selected.sender_id, currentUserId)) return;
+    setDeleting(true);
+    const { error } = await supabase.from("messages").delete().eq("id", id).eq("sender_id", selected.sender_id).eq("conversation_id", conversationId);
+    setDeleting(false);
 
     if (error) {
       console.error("chat delete failed", error);
@@ -372,6 +387,7 @@ export function ChatThread({
     }
 
     toast.success(tx("Message deleted", "Message supprimé"));
+    setConfirmDelete(null);
 
     if (refreshMessages) {
       try {
@@ -390,8 +406,22 @@ export function ChatThread({
     });
   }
 
+  function deleteForMe() {
+    if (!confirmDelete || !deletionKey || deleting) return;
+    try {
+      const ids = [...new Set([...readHiddenMessages(localStorage.getItem(deletionKey)), confirmDelete])];
+      localStorage.setItem(deletionKey, JSON.stringify(ids));
+      setHiddenMessages({ key: deletionKey, ids });
+      setConfirmDelete(null);
+    } catch { toast.error(tx("Message could not be removed on this device.", "Le message n’a pas pu être retiré sur cet appareil.")); }
+  }
+
   return (
     <div className={cn("flex h-full min-h-0 min-w-0 flex-col overflow-hidden", className)}>
+      <MessageDeleteDialog open={Boolean(selectedMessage)} onOpenChange={(open) => { if (!open) setConfirmDelete(null); }}
+        canDeleteEveryone={Boolean(selectedMessage && canDeleteForEveryone(selectedMessage.sender_id, currentUserId))}
+        busy={deleting} onDeleteForMe={deleteForMe}
+        onDeleteForEveryone={() => { if (selectedMessage) void remove(selectedMessage.id); }} tx={tx} />
       <div className="flex shrink-0 items-center justify-end gap-1 px-1">
         <Dialog open={wallpaperOpen} onOpenChange={setWallpaperOpen}>
           <DialogTrigger asChild>
@@ -532,19 +562,20 @@ export function ChatThread({
 
                     <div
                       onContextMenu={(e) => {
-                        if (!mine) return;
                         e.preventDefault();
                         setConfirmDelete(m.id);
                       }}
                       onPointerDown={() => {
-                        if (!mine) return;
-
+                        if (pressRef.current) window.clearTimeout(pressRef.current);
                         pressRef.current = window.setTimeout(() => setConfirmDelete(m.id), 500);
                       }}
                       onPointerUp={() => {
                         if (pressRef.current) window.clearTimeout(pressRef.current);
                       }}
                       onPointerLeave={() => {
+                        if (pressRef.current) window.clearTimeout(pressRef.current);
+                      }}
+                      onPointerCancel={() => {
                         if (pressRef.current) window.clearTimeout(pressRef.current);
                       }}
                       className={cn(
@@ -573,15 +604,16 @@ export function ChatThread({
                           />
                         </span>
                       ) : null}
-                      {mine ? (
-                        <button
-                          type="button"
+                      {currentUserId ? (
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => setConfirmDelete(m.id)}
                           aria-label={tx("Delete message", "Supprimer le message")}
                           className="absolute -left-8 top-1/2 hidden size-7 -translate-y-1/2 place-items-center rounded-full bg-card text-muted-foreground shadow-sm group-hover:grid hover:text-destructive"
                         >
                           <Trash2 className="size-3.5" aria-hidden />
-                        </button>
+                        </Button>
                       ) : null}
 
                       {(() => {
@@ -606,29 +638,6 @@ export function ChatThread({
                           </p>
                         );
                       })()}
-
-                      {confirmDelete === m.id ? (
-                        <span className="mt-2 flex items-center justify-end gap-2 text-[11px] font-semibold">
-                          <button
-                            type="button"
-                            onClick={() => setConfirmDelete(null)}
-                            className={cn(
-                              "rounded-full px-2 py-0.5",
-                              mine ? "bg-primary-foreground/20" : "bg-background",
-                            )}
-                          >
-                            {tx("Cancel", "Annuler")}
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => void remove(m.id)}
-                            className="rounded-full bg-destructive px-2 py-0.5 text-destructive-foreground"
-                          >
-                            {tx("Delete", "Supprimer")}
-                          </button>
-                        </span>
-                      ) : null}
 
                       {endsRun ? (
                         <span

@@ -43,4 +43,4 @@
 - Member Investment/currencies are display-only, separate from staff equity records. Why: protect funds.
 - LegalDocument shares payment disclosures. Why: accuracy.
 
-- Marketplace resolves seller/member chats before creating threads; lookup failures stop creation. Why: preserve history.
+- Marketplace reuses chats; lookup errors stop creation. MessageDeleteDialog shares choices; personal hiding is device/member/chat-scoped; shared deletion keeps sender policies. Why: preserve history and permissions.
