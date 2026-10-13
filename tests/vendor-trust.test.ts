@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { trustLevel } from "@/lib/vendor-trust.functions";
+import { trustLevel } from "../src/lib/vendor-trust";
 
 const base = { verified: false, rating: null, reviews: 0, completedBookings: 0, accountAgeDays: 10, recentComments: [] };
 
