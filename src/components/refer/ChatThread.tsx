@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ReportDialog } from "@/components/refer/ReportDialog";
 import { Avatar } from "@/components/refer/AvatarUpload";
+import { VoiceNotePlayer, VoiceRecorder } from "@/components/refer/VoiceNote";
 import { groupColorFor } from "@/components/refer/GroupBadge";
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { CHAT_WALLPAPERS, useChatSettings, useSetWallpaper } from "@/lib/social.queries";
@@ -266,6 +267,25 @@ export function ChatThread({
 
     return out;
   }, [messages]);
+
+  async function sendVoice(meta: { path: string; duration: number; waveform: number[] }) {
+    if (!currentUserId) return false;
+    const { error } = await supabase.from("messages").insert({
+      conversation_id: conversationId,
+      sender_id: currentUserId,
+      body: tx("🎤 Voice message", "🎤 Message vocal"),
+      kind: "VOICE",
+      metadata: meta,
+    });
+    if (error) {
+      toast.error(error.message || tx("Voice note not sent.", "Note vocale non envoyée."));
+      return false;
+    }
+    if (refreshMessages) setSecuredMessages(await refreshMessages());
+    void queryClient.invalidateQueries({ queryKey: ["messages", conversationId] });
+    void queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    return true;
+  }
 
   async function submit(text: string) {
     const value = text.trim();
@@ -564,9 +584,28 @@ export function ChatThread({
                         </button>
                       ) : null}
 
-                      <p className="whitespace-pre-wrap break-words text-[15px] leading-relaxed">
-                        {m.body}
-                      </p>
+                      {(() => {
+                        const meta = (m.metadata ?? {}) as {
+                          path?: string;
+                          duration?: number;
+                          waveform?: number[];
+                        };
+                        if (m.kind === "VOICE" && typeof meta.path === "string") {
+                          return (
+                            <VoiceNotePlayer
+                              path={meta.path}
+                              duration={Number(meta.duration) || 0}
+                              waveform={Array.isArray(meta.waveform) ? meta.waveform : undefined}
+                              mine={mine}
+                            />
+                          );
+                        }
+                        return (
+                          <p className="whitespace-pre-wrap break-words text-[15px] leading-relaxed">
+                            {m.body}
+                          </p>
+                        );
+                      })()}
 
                       {confirmDelete === m.id ? (
                         <span className="mt-2 flex items-center justify-end gap-2 text-[11px] font-semibold">
@@ -693,7 +732,7 @@ export function ChatThread({
           e.preventDefault();
           void submit(body);
         }}
-        className="member-chat-composer flex w-full min-w-0 shrink-0 items-end gap-2 px-3 py-2 backdrop-blur"
+        className="member-chat-composer relative flex w-full min-w-0 shrink-0 items-end gap-2 px-3 py-2 backdrop-blur"
       >
         <div className="flex min-w-0 flex-1 flex-col">
           <Textarea
@@ -724,19 +763,28 @@ export function ChatThread({
           </span>
         </div>
 
-        <Button
-          type="submit"
-          size="icon"
-          className="mb-5 size-10 shrink-0 rounded-full"
-          disabled={sending || awaitingReply || body.trim().length === 0}
-          aria-label={t("chat.send")}
-        >
-          {sending ? (
-            <Loader2 className="size-4 animate-spin" aria-hidden />
-          ) : (
-            <Send className="size-4" aria-hidden />
-          )}
-        </Button>
+        {body.trim().length === 0 && !sending ? (
+          <VoiceRecorder
+            conversationId={conversationId}
+            userId={currentUserId}
+            disabled={awaitingReply}
+            onSent={sendVoice}
+          />
+        ) : (
+          <Button
+            type="submit"
+            size="icon"
+            className="mb-5 size-10 shrink-0 rounded-full"
+            disabled={sending || awaitingReply || body.trim().length === 0}
+            aria-label={t("chat.send")}
+          >
+            {sending ? (
+              <Loader2 className="size-4 animate-spin" aria-hidden />
+            ) : (
+              <Send className="size-4" aria-hidden />
+            )}
+          </Button>
+        )}
       </form>
     </div>
   );
