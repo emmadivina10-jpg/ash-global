@@ -40,7 +40,6 @@ import { StatusBadge } from "./StatusBadge";
 import { NotificationBell } from "./NotificationBell";
 import { PushBridge } from "./PushBridge";
 import { WelcomeIntro } from "./WelcomeIntro";
-import { SwipeBack } from "./SwipeBack";
 import { ScrollToTop } from "./ScrollToTop";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAvatarUrl } from "./AvatarUpload";
@@ -222,7 +221,6 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="app-shell safe-top min-h-dvh bg-background">
       <PushBridge />
       <WelcomeIntro />
-      <SwipeBack />
       <div className="app-shell-frame flex w-full">
         <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col overflow-y-auto overscroll-contain border-r border-border bg-sidebar p-5 lg:flex">
           <Link to="/services" className="mb-8 inline-flex">
