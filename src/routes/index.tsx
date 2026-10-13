@@ -129,7 +129,9 @@ function Landing() {
   if (signedIn !== false)
     return (
       <div className="grid min-h-dvh place-items-center bg-background">
-        <img src={ashLogo.url} alt="ASH" className="size-16 rounded-2xl shadow-sm" />
+        <span className="self-end pb-[calc(2.5rem+env(safe-area-inset-bottom))] text-sm font-semibold text-muted-foreground">
+          from ASH GLO
+        </span>
       </div>
     );
 

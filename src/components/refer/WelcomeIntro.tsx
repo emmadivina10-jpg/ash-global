@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import ashLogo from "@/assets/ash-logo.png.asset.json";
 
 const KEY = "ash-welcome-v1";
 
@@ -21,7 +20,7 @@ export function welcomeSeen(): boolean {
 }
 
 /**
- * WhatsApp-style launch screen: the ASH mark centred on the brand background
+ * Logo-free launch screen on the brand background
  * with a small wordmark at the bottom. It holds only for as long as the app
  * needs to be ready — a very short minimum so members never wait.
  */
@@ -65,12 +64,6 @@ export function WelcomeIntro({ onDone }: { onDone?: () => void }) {
       aria-live="polite"
     >
       <span />
-
-      <img
-        src={ashLogo.url}
-        alt="ASH"
-        className="size-24 rounded-[28px] bg-primary-deep object-cover p-1.5 shadow-[var(--shadow-brand)] ring-1 ring-border/50"
-      />
 
       <span className="flex flex-col items-center gap-1">
         <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">

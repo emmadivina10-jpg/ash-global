@@ -1,5 +1,13 @@
 # Roadmap
 
+## Message tab, filter switch and opening screen (Oct 13)
+- [x] Show live unread incoming-message count on Messages navigation without loading the full inbox
+- [x] Keep comment filter switches capsule-shaped on roomy member screens
+- [x] Remove the remaining large ASH mark from in-app welcome, entry loading and native fallback
+- [x] Eleven message/support regression tests pass; isolated phone visuals verify capsule switch in both states and logo-free opening; runtime and build clean; preview only
+- [ ] Real incoming-message/read badge check — blocked by member terms-consent; no agreement accepted on the user's behalf
+- [ ] Installed phone opening verification — requires a new native/TestFlight build; no binary distributed
+
 ## Larger Stories and Compass presentation (Oct 12)
 - [x] Enlarge Stories/Spotlight cards and separate plus from creation labels; polished blurred fading posting panels
 - [x] Rename the top heading Feed; keep tight section spacing

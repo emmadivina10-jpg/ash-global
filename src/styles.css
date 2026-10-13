@@ -1412,7 +1412,12 @@ a {
   line-height: 1.45;
 }
 .member-roomy-tab
-  :is(button, input:not([type="checkbox"]):not([type="radio"]), select, [role="combobox"]) {
+  :is(
+    button:not([role="switch"]),
+    input:not([type="checkbox"]):not([type="radio"]),
+    select,
+    [role="combobox"]
+  ) {
   min-height: 2.75rem;
 }
 .member-roomy-tab button:has(> svg:only-child) {

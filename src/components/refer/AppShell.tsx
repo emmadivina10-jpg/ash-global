@@ -33,6 +33,8 @@ import { useIsAdmin, useProfile } from "@/lib/queries";
 import { Button } from "@/components/ui/button";
 import { AshOrb } from "./AshOrb";
 import { MobileNav } from "./MobileNav";
+import { UnreadMessageBadge } from "./UnreadMessageBadge";
+import { useUnreadMessageCount } from "@/lib/message-unread";
 import { LocationNudge } from "./LocationNudge";
 import { StatusBadge } from "./StatusBadge";
 import { NotificationBell } from "./NotificationBell";
@@ -159,6 +161,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: profile } = useProfile();
+  const { data: unreadMessages = 0 } = useUnreadMessageCount(profile?.user_id);
   const { data: isAdmin } = useIsAdmin();
   const { t, lang } = useI18n();
   const region = useRegion();
@@ -238,6 +241,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               >
                 <item.icon className="size-4 shrink-0" aria-hidden />
                 {navLabel(item)}
+                {item.to === "/messages" && (
+                  <UnreadMessageBadge count={unreadMessages} className="ml-auto" />
+                )}
               </Link>
             ))}
             {isAdmin ? (
@@ -463,7 +469,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </div>
 
       {!pathname.startsWith("/post/") ? (
-        <MobileNav items={visible(MOBILE_NAV)} profile={profile} />
+        <MobileNav items={visible(MOBILE_NAV)} profile={profile} unreadMessages={unreadMessages} />
       ) : null}
       <ScrollToTop />
 
