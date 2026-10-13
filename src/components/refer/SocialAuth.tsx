@@ -3,6 +3,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
+import { callbackUrl } from "@/lib/oauth-return-path";
 
 function GoogleIcon() {
   return (
@@ -35,15 +36,19 @@ function AppleIcon() {
   );
 }
 
-export function SocialAuth({ label }: { label: string }) {
+export function SocialAuth({ label, next = null }: { label: string; next?: string | null }) {
   const [pending, setPending] = useState<"google" | "apple" | null>(null);
 
   async function signIn(provider: "google" | "apple") {
     setPending(provider);
     try {
       const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: `${window.location.origin}/auth/callback`,
+        redirect_uri: callbackUrl(window.location.origin, next),
       });
+      if (!("error" in result && result.error) && !("redirected" in result && result.redirected)) {
+        window.location.assign(callbackUrl(window.location.origin, next));
+        return;
+      }
       if ("error" in result && result.error) {
         toast.error(result.error.message || "Could not start sign in. Please try again.");
         setPending(null);
