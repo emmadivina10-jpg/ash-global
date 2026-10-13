@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
+import ashLogo from "@/assets/ash-logo.png.asset.json";
 
 const KEY = "ash-welcome-v1";
 
@@ -19,24 +20,31 @@ export function welcomeSeen(): boolean {
   }
 }
 
+const useIsoLayoutEffect = typeof document === "undefined" ? useEffect : useLayoutEffect;
+
 /**
- * Logo-free launch screen on the brand background
- * with a small wordmark at the bottom. It holds only for as long as the app
- * needs to be ready — a very short minimum so members never wait.
+ * WhatsApp-style launch screen on the brand background: the little ASH logo
+ * with the small "from ASH GLO" writing below it. It is the app's opening
+ * paint (rendered on the server too, so it never flashes) and holds only for
+ * as long as the app needs to be ready — a very short minimum so members
+ * never wait. The large glossy mark is never used here.
  */
 export function WelcomeIntro({ onDone }: { onDone?: () => void }) {
-  const [show, setShow] = useState(() => !welcomeSeen());
+  // The opening is part of the server-rendered first paint; sessions that
+  // have already seen it are hidden before the browser paints.
+  const [show, setShow] = useState(true);
   const [leaving, setLeaving] = useState(false);
 
-  useEffect(() => {
-    if (!show) {
+  useIsoLayoutEffect(() => {
+    if (welcomeSeen()) {
+      setShow(false);
       onDone?.();
       return;
     }
+    played = true;
     // Leave as soon as the first frame is painted, with a tiny minimum hold so
     // the mark does not flicker.
     const hold = 800;
-    played = true;
     const leaveAt = window.setTimeout(() => setLeaving(true), hold);
     const endAt = window.setTimeout(() => {
       try {
@@ -58,14 +66,18 @@ export function WelcomeIntro({ onDone }: { onDone?: () => void }) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-between bg-background pb-[calc(2.5rem+env(safe-area-inset-bottom))] pt-[calc(2.5rem+env(safe-area-inset-top))] transition-opacity duration-200"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-end bg-background pb-[calc(2.5rem+env(safe-area-inset-bottom))] pt-[calc(2.5rem+env(safe-area-inset-top))] transition-opacity duration-200"
       style={{ opacity: leaving ? 0 : 1 }}
       role="status"
       aria-live="polite"
     >
-      <span />
-
       <span className="flex flex-col items-center gap-1">
+        <img
+          src={ashLogo.url}
+          alt="ASH"
+          className="mb-2.5 size-12 rounded-[24%] shadow-[0_6px_28px_rgba(0,0,0,0.45)]"
+          draggable={false}
+        />
         <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
           from
         </span>
