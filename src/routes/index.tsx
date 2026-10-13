@@ -128,8 +128,8 @@ function Landing() {
   // landing page, so signed-in members never see marketing content flash.
   if (signedIn !== false)
     return (
-      <div className="grid min-h-dvh place-items-center bg-background">
-        <span className="flex flex-col items-center gap-1 self-end pb-[calc(2.5rem+env(safe-area-inset-bottom))]">
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-background">
+        <span className="flex flex-col items-center gap-1">
           <img
             src={ashLogo.url}
             alt="ASH"
