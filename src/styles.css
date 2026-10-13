@@ -1206,15 +1206,6 @@ a {
 .member-dual-wash, .member-chat-composer { background-image: var(--member-dual-wash); }
 .member-chat-composer { align-self: stretch; border-radius: 0; overflow-anchor: none; }
 body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) { visibility: hidden; }
-.member-market nav[aria-label] a, .member-market nav[aria-label] button {
-  background-image: var(--member-dual-wash);
-  color: var(--foreground);
-  border-color: color-mix(in oklab, var(--color-chat-emerald) 15%, var(--border));
-}
-.member-market nav button[aria-pressed="true"] {
-  border-color: color-mix(in oklab, var(--color-chat-emerald) 50%, var(--verified-magenta));
-  box-shadow: inset 0 -2px color-mix(in oklab, var(--verified-magenta) 40%, transparent);
-}
 .member-menu, .member-extras { position: relative; isolation: isolate; }
 .member-menu::before {
   content: "ASH";
