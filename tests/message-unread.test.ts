@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 const db = vi.hoisted(() => ({ from: vi.fn(), select: vi.fn(), neq: vi.fn(), is: vi.fn() }));
-vi.mock("@/integrations/supabase/client", () => ({ supabase: db }));
+vi.mock("../src/integrations/supabase/client", () => ({ supabase: db }));
 import { fetchUnreadMessageCount } from "../src/lib/message-unread";
 describe("Messages tab unread count", () => {
   beforeEach(() => {
