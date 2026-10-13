@@ -1,10 +1,11 @@
 # Roadmap
 
 ## Feed Spotlights and WhatsApp chat flow
-- [ ] Interleave existing eligible Spotlights among Feed posts, show real provider ratings, open exact selected item in shared Spotlight viewer
-- [ ] Coordinate exclusive voice playback, automatic next voice note, and stop playback while recording
-- [ ] Move voice avatar inside bubble and add swipe-right quoted replies for text and voice
-- [ ] Verify focused rules, browser interactions and preview; no publishing or financial changes
+- [x] Interleave existing eligible Spotlights among Feed posts, show real provider ratings, open exact selected item in shared Spotlight viewer
+- [x] Coordinate exclusive voice playback, automatic next voice note, and stop playback while recording
+- [x] Move voice avatar inside bubble and add swipe-right quoted replies for text and voice
+- [x] Twelve focused tests pass; isolated browser confirms text/voice swipe replies, audio auto-next/exclusivity/recording stop, exact Spotlight opening, scrolling/dismissal and no overflow; preview build clean, lint has no errors; no publishing or financial changes
+- [ ] Real member Feed and two-party saved reply check — blocked by owner's terms-consent screen and lack of approved test conversations; no agreement accepted or real messages sent
 
 ## WhatsApp-style message deletion choices
 - [x] Replace inline deletion with a focused choices dialog; preserve sender-only deletion for everyone
