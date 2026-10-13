@@ -6,11 +6,36 @@ export const ALERT_BANNER_MS = 20_000;
 
 export const RESTRICTION_LEVELS = [
   { key: "watch", level: 1, label: "Watch", effect: "Flag only, extra logging" },
-  { key: "no_posting", level: 2, label: "Limit posting", effect: "No posts, comments, stories or messages" },
-  { key: "no_commerce", level: 3, label: "Limit commerce", effect: "No new bookings, listings or payment links" },
-  { key: "wallet_frozen", level: 4, label: "Freeze wallet", effect: "No withdrawals; balance untouched" },
-  { key: "no_transactions", level: 5, label: "Stop all transactions", effect: "Every new payment path refused" },
-  { key: "locked", level: 6, label: "Sign out and lock", effect: "All sessions ended, sign-in refused" },
+  {
+    key: "no_posting",
+    level: 2,
+    label: "Limit posting",
+    effect: "No posts, comments, stories or messages",
+  },
+  {
+    key: "no_commerce",
+    level: 3,
+    label: "Limit commerce",
+    effect: "No new bookings, listings or payment links",
+  },
+  {
+    key: "wallet_frozen",
+    level: 4,
+    label: "Freeze wallet",
+    effect: "No withdrawals; balance untouched",
+  },
+  {
+    key: "no_transactions",
+    level: 5,
+    label: "Stop all transactions",
+    effect: "Every new payment path refused",
+  },
+  {
+    key: "locked",
+    level: 6,
+    label: "Sign out and lock",
+    effect: "All sessions ended, sign-in refused",
+  },
 ] as const;
 
 export type RestrictionKey = (typeof RESTRICTION_LEVELS)[number]["key"];
@@ -28,7 +53,11 @@ export const EMPTY_RESTRICTIONS: RestrictionState = {
 export type ActionKind = "POSTING" | "COMMERCE" | "MONEY" | "SIGN_IN";
 
 /** Mirrors the database trigger enforce_security_restriction. */
-export function isActionBlocked(state: RestrictionState, kind: ActionKind, protectedAccount = false): boolean {
+export function isActionBlocked(
+  state: RestrictionState,
+  kind: ActionKind,
+  protectedAccount = false,
+): boolean {
   if (protectedAccount) return false;
   if (state.locked) return true;
   if (kind === "POSTING") return state.no_posting;
@@ -69,7 +98,8 @@ export function ipInCidr(ip: string, cidr: string): boolean {
   const bits = Number(bitsRaw ?? 32);
   const toInt = (v: string) => {
     const parts = v.split(".").map(Number);
-    if (parts.length !== 4 || parts.some((p) => !Number.isInteger(p) || p < 0 || p > 255)) return null;
+    if (parts.length !== 4 || parts.some((p) => !Number.isInteger(p) || p < 0 || p > 255))
+      return null;
     return ((parts[0]! << 24) >>> 0) + (parts[1]! << 16) + (parts[2]! << 8) + parts[3]!;
   };
   const a = toInt(ip);
@@ -80,37 +110,130 @@ export function ipInCidr(ip: string, cidr: string): boolean {
   return (a & mask) === (b & mask);
 }
 
-export const AUTOMATION_UA = /(headless|phantomjs|selenium|puppeteer|playwright|curl\/|python-requests|wget|scrapy)/i;
+export const AUTOMATION_UA =
+  /(headless|phantomjs|selenium|puppeteer|playwright|curl\/|python-requests|wget|scrapy)/i;
 
-export type PostureItem = { area: string; control: string; framework: string; status: "IN_PLACE" | "MISSING" };
+export type PostureItem = {
+  area: string;
+  control: string;
+  framework: string;
+  status: "IN_PLACE" | "MISSING";
+};
 
 export const POSTURE_BASELINE: PostureItem[] = [
-  { area: "Access control", control: "Row-level access rules on member data", framework: "OWASP ASVS V4 / NIST PR.AC", status: "IN_PLACE" },
-  { area: "Access control", control: "Department-restricted staff console", framework: "NIST PR.AC-4", status: "IN_PLACE" },
-  { area: "Authentication", control: "Hashed staff passwords (scrypt)", framework: "OWASP ASVS V2", status: "IN_PLACE" },
-  { area: "Authentication", control: "14-day staff password rotation tracking", framework: "NIST PR.AC-1", status: "IN_PLACE" },
-  { area: "Authentication", control: "Two-factor sign-in for staff", framework: "OWASP ASVS V2.8", status: "MISSING" },
-  { area: "Integrity", control: "Signed payment webhooks with replay protection", framework: "OWASP ASVS V13", status: "IN_PLACE" },
-  { area: "Detection", control: "Rate limiting and security event log", framework: "NIST DE.CM", status: "IN_PLACE" },
-  { area: "Detection", control: "Daily automated self-check and AI review", framework: "NIST DE.AE", status: "IN_PLACE" },
-  { area: "Response", control: "Reversible account restrictions with audit trail", framework: "NIST RS.MI", status: "IN_PLACE" },
-  { area: "Protection", control: "In-app IP and browser blocking", framework: "NIST PR.PT", status: "IN_PLACE" },
-  { area: "Protection", control: "Network-edge firewall (WAF)", framework: "NIST PR.PT-4", status: "MISSING" },
-  { area: "Awareness", control: "Six-monthly staff security training", framework: "NIST PR.AT", status: "IN_PLACE" },
-  { area: "Recovery", control: "Tested backup restore drills", framework: "NIST RC.RP", status: "MISSING" },
-  { area: "Governance", control: "Formal certification (SOC 2 / ISO 27001)", framework: "ISO 27001", status: "MISSING" },
+  {
+    area: "Access control",
+    control: "Row-level access rules on member data",
+    framework: "OWASP ASVS V4 / NIST PR.AC",
+    status: "IN_PLACE",
+  },
+  {
+    area: "Access control",
+    control: "Department-restricted staff console",
+    framework: "NIST PR.AC-4",
+    status: "IN_PLACE",
+  },
+  {
+    area: "Authentication",
+    control: "Hashed staff passwords (scrypt)",
+    framework: "OWASP ASVS V2",
+    status: "IN_PLACE",
+  },
+  {
+    area: "Authentication",
+    control: "14-day staff password rotation tracking",
+    framework: "NIST PR.AC-1",
+    status: "IN_PLACE",
+  },
+  {
+    area: "Authentication",
+    control: "Two-factor sign-in for staff",
+    framework: "OWASP ASVS V2.8",
+    status: "MISSING",
+  },
+  {
+    area: "Integrity",
+    control: "Signed payment webhooks with replay protection",
+    framework: "OWASP ASVS V13",
+    status: "IN_PLACE",
+  },
+  {
+    area: "Detection",
+    control: "Rate limiting and security event log",
+    framework: "NIST DE.CM",
+    status: "IN_PLACE",
+  },
+  {
+    area: "Detection",
+    control: "Daily automated self-check and AI review",
+    framework: "NIST DE.AE",
+    status: "IN_PLACE",
+  },
+  {
+    area: "Response",
+    control: "Reversible account restrictions with audit trail",
+    framework: "NIST RS.MI",
+    status: "IN_PLACE",
+  },
+  {
+    area: "Protection",
+    control: "In-app IP and browser blocking",
+    framework: "NIST PR.PT",
+    status: "IN_PLACE",
+  },
+  {
+    area: "Protection",
+    control: "Network-edge firewall (WAF)",
+    framework: "NIST PR.PT-4",
+    status: "MISSING",
+  },
+  {
+    area: "Awareness",
+    control: "Six-monthly staff security training",
+    framework: "NIST PR.AT",
+    status: "IN_PLACE",
+  },
+  {
+    area: "Recovery",
+    control: "Tested backup restore drills",
+    framework: "NIST RC.RP",
+    status: "MISSING",
+  },
+  {
+    area: "Governance",
+    control: "Formal certification (SOC 2 / ISO 27001)",
+    framework: "ISO 27001",
+    status: "MISSING",
+  },
 ];
 
 /** HEAD = Head of Cybersecurity (or CEO / elevated); TRUST_OFFICER = view + non-critical tools only. */
 export type CyberRole = "HEAD" | "TRUST_OFFICER" | "NONE";
-export function cyberRole(a: { superAdmin: boolean; elevated: boolean; department: string; extraDepartments: string[] }): CyberRole {
+export function cyberRole(a: {
+  superAdmin: boolean;
+  elevated: boolean;
+  department: string;
+  extraDepartments: string[];
+}): CyberRole {
   if (a.superAdmin || a.elevated || a.department === "CYBERSECURITY") return "HEAD";
   if (a.extraDepartments.includes("CYBERSECURITY")) return "TRUST_OFFICER";
   return "NONE";
 }
 
 /** Departments whose dashboards Cyber may audit in view-only mode. The CEO's own dashboards are excluded. */
-export const AUDITABLE_DEPARTMENTS = ["OPERATIONS", "SUPPORT", "REVENUE", "MARKETPLACE_OPS", "ADVERTISING", "TRUST", "GROWTH", "SALES", "PARTNERSHIPS", "CONTENT", "EXPANSION"] as const;
+export const AUDITABLE_DEPARTMENTS = [
+  "OPERATIONS",
+  "SUPPORT",
+  "REVENUE",
+  "MARKETPLACE_OPS",
+  "ADVERTISING",
+  "TRUST",
+  "GROWTH",
+  "SALES",
+  "PARTNERSHIPS",
+  "CONTENT",
+  "EXPANSION",
+] as const;
 export function canAuditDept(role: CyberRole, dept: string): boolean {
   return role !== "NONE" && (AUDITABLE_DEPARTMENTS as readonly string[]).includes(dept);
 }
@@ -119,12 +242,39 @@ export function canAuditDept(role: CyberRole, dept: string): boolean {
 export function parseUserAgent(ua: string | null) {
   const s = ua ?? "";
   const bot = /bot|crawl|spider|headless|curl|wget|python|playwright|puppeteer|selenium/i.test(s);
-  const os = /iphone|ipad|ios/i.test(s) ? "iOS" : /android/i.test(s) ? "Android" : /windows/i.test(s) ? "Windows" : /mac os/i.test(s) ? "macOS" : /linux/i.test(s) ? "Linux" : "Unknown";
-  const device = /mobile|iphone|android/i.test(s) ? "Phone" : /ipad|tablet/i.test(s) ? "Tablet" : s ? "Computer" : "Unknown";
-  let browser = "Unknown"; let version = 0;
+  const os = /iphone|ipad|ios/i.test(s)
+    ? "iOS"
+    : /android/i.test(s)
+      ? "Android"
+      : /windows/i.test(s)
+        ? "Windows"
+        : /mac os/i.test(s)
+          ? "macOS"
+          : /linux/i.test(s)
+            ? "Linux"
+            : "Unknown";
+  const device = /mobile|iphone|android/i.test(s)
+    ? "Phone"
+    : /ipad|tablet/i.test(s)
+      ? "Tablet"
+      : s
+        ? "Computer"
+        : "Unknown";
+  let browser = "Unknown";
+  let version = 0;
   const m = s.match(/(Edg|OPR|Chrome|Firefox|Version)\/(\d+)/);
-  if (m) { const k = m[1] ?? ""; browser = k === "Edg" ? "Edge" : k === "OPR" ? "Opera" : k === "Version" ? "Safari" : k; version = Number(m[2] ?? 0); }
-  const minimum: Record<string, number> = { Chrome: 120, Edge: 120, Firefox: 115, Safari: 16, Opera: 100 };
+  if (m) {
+    const k = m[1] ?? "";
+    browser = k === "Edg" ? "Edge" : k === "OPR" ? "Opera" : k === "Version" ? "Safari" : k;
+    version = Number(m[2] ?? 0);
+  }
+  const minimum: Record<string, number> = {
+    Chrome: 120,
+    Edge: 120,
+    Firefox: 115,
+    Safari: 16,
+    Opera: 100,
+  };
   const min = minimum[browser];
   const outdated = Boolean(min && version < min);
   return { os, device, browser, version, bot, outdated };

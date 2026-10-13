@@ -14,9 +14,16 @@ export const Route = createFileRoute("/_authenticated/clean/")({
   head: () => ({
     meta: [
       { title: "ASH Clean — Laundry pickup & delivery in Buea" },
-      { name: "description", content: "Book a laundry pickup. We weigh it, you approve the price, we wash, iron and deliver." },
+      {
+        name: "description",
+        content:
+          "Book a laundry pickup. We weigh it, you approve the price, we wash, iron and deliver.",
+      },
       { property: "og:title", content: "ASH Clean — Laundry pickup & delivery" },
-      { property: "og:description", content: "Pickup, washing, ironing and delivery with transparent weighed pricing." },
+      {
+        property: "og:description",
+        content: "Pickup, washing, ironing and delivery with transparent weighed pricing.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -71,8 +78,14 @@ function CleanHome() {
 
       <section className="overflow-hidden rounded-3xl bg-card shadow-[var(--shadow-card)]">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <p className="font-bold text-foreground">{tx("Chat with ASH Clean", "Discuter avec ASH Clean")}</p>
-          <Link to="/messages" search={{ c: "ash-support" } as never} className="text-xs font-bold text-primary">
+          <p className="font-bold text-foreground">
+            {tx("Chat with ASH Clean", "Discuter avec ASH Clean")}
+          </p>
+          <Link
+            to="/messages"
+            search={{ c: "ash-support" } as never}
+            className="text-xs font-bold text-primary"
+          >
             {tx("Open in Messages", "Plein écran")}
           </Link>
         </div>
@@ -83,9 +96,14 @@ function CleanHome() {
 
       <div className="grid grid-cols-4 gap-2">
         {steps.map((s) => (
-          <div key={s.en} className="flex flex-col items-center gap-1.5 rounded-2xl bg-card p-3 text-center shadow-[var(--shadow-card)]">
+          <div
+            key={s.en}
+            className="flex flex-col items-center gap-1.5 rounded-2xl bg-card p-3 text-center shadow-[var(--shadow-card)]"
+          >
             <s.icon className="size-5 text-primary" aria-hidden />
-            <span className="text-[11px] font-semibold leading-tight text-foreground">{fr ? s.fr : s.en}</span>
+            <span className="text-[11px] font-semibold leading-tight text-foreground">
+              {fr ? s.fr : s.en}
+            </span>
           </div>
         ))}
       </div>
@@ -93,23 +111,38 @@ function CleanHome() {
       <div className="grid grid-cols-2 gap-2 text-sm">
         <div className="flex items-center gap-2 rounded-2xl bg-card p-3 shadow-[var(--shadow-card)]">
           <Footprints className="size-5 text-primary" aria-hidden />
-          <span>{tx("Nearby: free ASH Staff pickup", "Près de chez nous : collecte gratuite par ASH Staff")}</span>
+          <span>
+            {tx(
+              "Nearby: free ASH Staff pickup",
+              "Près de chez nous : collecte gratuite par ASH Staff",
+            )}
+          </span>
         </div>
         <div className="flex items-center gap-2 rounded-2xl bg-card p-3 shadow-[var(--shadow-card)]">
           <Bike className="size-5 text-primary" aria-hidden />
-          <span>{tx("Further: ASH Rider, fee shown upfront", "Plus loin : ASH Rider, frais affichés à l'avance")}</span>
+          <span>
+            {tx(
+              "Further: ASH Rider, fee shown upfront",
+              "Plus loin : ASH Rider, frais affichés à l'avance",
+            )}
+          </span>
         </div>
       </div>
 
       {worker?.worker ? (
-        <Link to="/clean/jobs" className="flex items-center justify-between rounded-2xl border border-primary/30 bg-primary/5 p-4 font-semibold text-foreground">
+        <Link
+          to="/clean/jobs"
+          className="flex items-center justify-between rounded-2xl border border-primary/30 bg-primary/5 p-4 font-semibold text-foreground"
+        >
           {tx("My ASH Clean jobs (staff / rider)", "Mes courses ASH Clean (staff / rider)")}
           <ChevronRight className="size-4" aria-hidden />
         </Link>
       ) : null}
 
       <section>
-        <h2 className="mb-2 font-display text-lg font-extrabold text-foreground">{tx("My orders", "Mes commandes")}</h2>
+        <h2 className="mb-2 font-display text-lg font-extrabold text-foreground">
+          {tx("My orders", "Mes commandes")}
+        </h2>
         {orders && orders.length ? (
           <ul className="space-y-2">
             {orders.map((o) => (
@@ -120,11 +153,17 @@ function CleanHome() {
                   className="flex items-center justify-between gap-3 rounded-2xl bg-card p-4 shadow-[var(--shadow-card)]"
                 >
                   <span className="min-w-0">
-                    <span className="block font-mono text-sm font-bold text-foreground">{o.order_no}</span>
-                    <span className="block text-xs text-muted-foreground">{formatDateTime(o.created_at)}</span>
+                    <span className="block font-mono text-sm font-bold text-foreground">
+                      {o.order_no}
+                    </span>
+                    <span className="block text-xs text-muted-foreground">
+                      {formatDateTime(o.created_at)}
+                    </span>
                   </span>
                   <span className="text-right">
-                    <span className="block text-xs font-bold text-primary">{cleanStatusLabel(o.status, fr)}</span>
+                    <span className="block text-xs font-bold text-primary">
+                      {cleanStatusLabel(o.status, fr)}
+                    </span>
                     <span className="block text-xs text-muted-foreground">
                       {o.total ? fcfa(o.total) : tx("Priced after weighing", "Prix après pesée")}
                     </span>

@@ -13,12 +13,14 @@ type GateProfile = {
 /** Banned/suspended members go to safety review; members without the current Terms go to the Terms screen. */
 function enforceGate(profile: GateProfile) {
   if (!profile) return;
-  const suspended = profile.moderation_suspended_until && new Date(profile.moderation_suspended_until) > new Date();
+  const suspended =
+    profile.moderation_suspended_until && new Date(profile.moderation_suspended_until) > new Date();
   if (profile.moderation_banned_at || suspended) throw redirect({ to: "/safety-review" });
   if (lacksCurrentTerms(profile)) throw redirect({ to: "/consent" });
 }
 
-const GATE_COLUMNS = "moderation_banned_at, moderation_suspended_until, terms_accepted_at, terms_version";
+const GATE_COLUMNS =
+  "moderation_banned_at, moderation_suspended_until, terms_accepted_at, terms_version";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,

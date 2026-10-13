@@ -56,7 +56,11 @@ export function BlockUserDialog({
       return;
     }
     const { error } = unblock
-      ? await supabase.from("user_blocks").delete().eq("blocker_id", uid).eq("blocked_id", targetUserId)
+      ? await supabase
+          .from("user_blocks")
+          .delete()
+          .eq("blocker_id", uid)
+          .eq("blocked_id", targetUserId)
       : await supabase
           .from("user_blocks")
           .insert({ blocker_id: uid, blocked_id: targetUserId, reason: source.slice(0, 60) });
@@ -71,7 +75,10 @@ export function BlockUserDialog({
     toast.success(
       unblock
         ? tx("User unblocked.", "Utilisateur débloqué.")
-        : tx("User blocked. Their content is now hidden from you.", "Utilisateur bloqué. Son contenu est masqué."),
+        : tx(
+            "User blocked. Their content is now hidden from you.",
+            "Utilisateur bloqué. Son contenu est masqué.",
+          ),
     );
   }
 
@@ -80,7 +87,9 @@ export function BlockUserDialog({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {unblock ? (tx("Unblock this user?", "Débloquer cet utilisateur ?")) : tx("Block this user?", "Bloquer cet utilisateur ?")}
+            {unblock
+              ? tx("Unblock this user?", "Débloquer cet utilisateur ?")
+              : tx("Block this user?", "Bloquer cet utilisateur ?")}
           </AlertDialogTitle>
           <AlertDialogDescription>
             {unblock
@@ -100,10 +109,18 @@ export function BlockUserDialog({
               event.preventDefault();
               void confirm();
             }}
-            className={unblock ? undefined : "bg-destructive text-destructive-foreground hover:bg-destructive/90"}
+            className={
+              unblock
+                ? undefined
+                : "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            }
           >
-            {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <ShieldOff className="size-4" aria-hidden />}
-            {unblock ? (tx("Unblock", "Débloquer")) : tx("Block user", "Bloquer")}
+            {busy ? (
+              <Loader2 className="size-4 animate-spin" aria-hidden />
+            ) : (
+              <ShieldOff className="size-4" aria-hidden />
+            )}
+            {unblock ? tx("Unblock", "Débloquer") : tx("Block user", "Bloquer")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

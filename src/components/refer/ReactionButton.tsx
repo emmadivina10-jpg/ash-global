@@ -15,7 +15,14 @@ export const REACTIONS: Array<{ type: ReactionType; emoji: string; label: string
   { type: "angry", emoji: "😡", label: "Angry" },
 ];
 
-export function ReactionButton({ value, total, breakdown, onChange, disabled, compact = false }: {
+export function ReactionButton({
+  value,
+  total,
+  breakdown,
+  onChange,
+  disabled,
+  compact = false,
+}: {
   value: ReactionType | null;
   total: number;
   breakdown?: ReactionBreakdown;
@@ -52,26 +59,58 @@ export function ReactionButton({ value, total, breakdown, onChange, disabled, co
           variant="ghost"
           size="sm"
           disabled={disabled}
-          className={cn("gap-1.5 touch-manipulation", value && "text-primary", compact && "h-7 px-2 text-[11px]")}
+          className={cn(
+            "gap-1.5 touch-manipulation",
+            value && "text-primary",
+            compact && "h-7 px-2 text-[11px]",
+          )}
           onPointerDown={start}
-          onPointerUp={() => { clear(); if (!held.current) onChange(value ? null : "like"); }}
+          onPointerUp={() => {
+            clear();
+            if (!held.current) onChange(value ? null : "like");
+          }}
           onPointerCancel={clear}
           onPointerLeave={clear}
-          aria-label={selected ? `${selected.label}, ${total} reactions` : `React, ${total} reactions`}
+          aria-label={
+            selected ? `${selected.label}, ${total} reactions` : `React, ${total} reactions`
+          }
         >
-          {selected ? <span aria-hidden>{selected.emoji}</span> : <Heart className="size-4" aria-hidden />}
+          {selected ? (
+            <span aria-hidden>{selected.emoji}</span>
+          ) : (
+            <Heart className="size-4" aria-hidden />
+          )}
           {total > 0 ? total : compact ? "" : "React"}
         </Button>
       </PopoverAnchor>
-      <PopoverContent side="top" align="start" sideOffset={8} className="flex w-auto gap-1 rounded-full border-primary/15 bg-popover/95 p-1.5 shadow-[var(--shadow-brand)] backdrop-blur-xl">
+      <PopoverContent
+        side="top"
+        align="start"
+        sideOffset={8}
+        className="flex w-auto gap-1 rounded-full border-primary/15 bg-popover/95 p-1.5 shadow-[var(--shadow-brand)] backdrop-blur-xl"
+      >
         {REACTIONS.map((reaction) => (
-          <button key={reaction.type} type="button" title={reaction.label} aria-label={reaction.label} onClick={() => choose(reaction.type)} className={cn("grid size-10 place-items-center rounded-full text-xl transition-transform hover:scale-125 hover:bg-primary/10 active:scale-95", value === reaction.type && "bg-primary/10 ring-1 ring-primary/30")}>
+          <button
+            key={reaction.type}
+            type="button"
+            title={reaction.label}
+            aria-label={reaction.label}
+            onClick={() => choose(reaction.type)}
+            className={cn(
+              "grid size-10 place-items-center rounded-full text-xl transition-transform hover:scale-125 hover:bg-primary/10 active:scale-95",
+              value === reaction.type && "bg-primary/10 ring-1 ring-primary/30",
+            )}
+          >
             {reaction.emoji}
           </button>
         ))}
       </PopoverContent>
       {!compact && breakdown && total > 0 ? (
-        <span className="sr-only">{REACTIONS.filter((r) => breakdown[r.type] > 0).map((r) => `${r.label} ${breakdown[r.type]}`).join(", ")}</span>
+        <span className="sr-only">
+          {REACTIONS.filter((r) => breakdown[r.type] > 0)
+            .map((r) => `${r.label} ${breakdown[r.type]}`)
+            .join(", ")}
+        </span>
       ) : null}
     </Popover>
   );
@@ -79,6 +118,15 @@ export function ReactionButton({ value, total, breakdown, onChange, disabled, co
 
 export function ReactionSummary({ breakdown }: { breakdown: ReactionBreakdown }) {
   const active = REACTIONS.filter((reaction) => breakdown[reaction.type] > 0);
-  if (active.length === 0) return <span className="text-[11px] text-muted-foreground">Be the first to react</span>;
-  return <span className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">{active.map((reaction) => <span key={reaction.type}>{reaction.emoji} {breakdown[reaction.type]}</span>)}</span>;
+  if (active.length === 0)
+    return <span className="text-[11px] text-muted-foreground">Be the first to react</span>;
+  return (
+    <span className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+      {active.map((reaction) => (
+        <span key={reaction.type}>
+          {reaction.emoji} {breakdown[reaction.type]}
+        </span>
+      ))}
+    </span>
+  );
 }

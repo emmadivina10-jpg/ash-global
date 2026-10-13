@@ -13,7 +13,12 @@ import {
 } from "lucide-react";
 import { NotificationAvatar, NotificationAvatarBadge } from "@/components/refer/NotificationAvatar";
 import { Button } from "@/components/ui/button";
-import { useDeleteNotifications, useMarkNotificationsRead, useNotifications, type AppNotification } from "@/lib/notifications";
+import {
+  useDeleteNotifications,
+  useMarkNotificationsRead,
+  useNotifications,
+  type AppNotification,
+} from "@/lib/notifications";
 import { notificationLink } from "@/lib/push";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -23,9 +28,15 @@ export const Route = createFileRoute("/_authenticated/notifications")({
   head: () => ({
     meta: [
       { title: "Notifications — ASH" },
-      { name: "description", content: "Everything happening across your ASH world, sorted and easy to scan." },
+      {
+        name: "description",
+        content: "Everything happening across your ASH world, sorted and easy to scan.",
+      },
       { property: "og:title", content: "Notifications — ASH" },
-      { property: "og:description", content: "Likes, comments, friends, bookings and payouts in one place." },
+      {
+        property: "og:description",
+        content: "Likes, comments, friends, bookings and payouts in one place.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -36,7 +47,19 @@ export const Route = createFileRoute("/_authenticated/notifications")({
 type Bucket = "all" | "social" | "messages" | "bookings" | "money" | "system";
 
 const GROUPS: Record<Exclude<Bucket, "all">, string[]> = {
-  social: ["SOCIAL_LIKE", "SOCIAL_REACTION", "COMMENT_REACTION", "SOCIAL_REPOST", "SOCIAL_COMMENT", "SOCIAL_REPLY", "STORY", "STORY_REACTION", "SPOTLIGHT_REACTION", "FRIEND_REQUEST", "FRIEND_ACCEPTED"],
+  social: [
+    "SOCIAL_LIKE",
+    "SOCIAL_REACTION",
+    "COMMENT_REACTION",
+    "SOCIAL_REPOST",
+    "SOCIAL_COMMENT",
+    "SOCIAL_REPLY",
+    "STORY",
+    "STORY_REACTION",
+    "SPOTLIGHT_REACTION",
+    "FRIEND_REQUEST",
+    "FRIEND_ACCEPTED",
+  ],
   messages: ["MESSAGE", "GROUP_ADDED"],
   bookings: ["BOOKING", "REVIEW", "PROPERTY"],
   money: ["WITHDRAWAL", "COMMISSION", "ACTIVATION", "WALLET"],
@@ -130,7 +153,9 @@ function NotificationsPage() {
     <div className="mx-auto w-full max-w-2xl space-y-4">
       <header className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">Notifications</h1>
+          <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
+            Notifications
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {unread.length > 0
               ? fr
@@ -141,13 +166,22 @@ function NotificationsPage() {
         </div>
         <div className="flex flex-wrap justify-end gap-2">
           {unread.length > 0 ? (
-            <Button variant="outline" size="sm" onClick={() => markRead.mutate(unread.map((n) => n.id))}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => markRead.mutate(unread.map((n) => n.id))}
+            >
               <CheckCheck className="size-4" aria-hidden />
               {tx("Mark all read", "Tout lire")}
             </Button>
           ) : null}
           {items.length > 0 ? (
-            <Button variant="ghost" size="sm" onClick={() => remove.mutate(items.map((n) => n.id))} disabled={remove.isPending}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => remove.mutate(items.map((n) => n.id))}
+              disabled={remove.isPending}
+            >
               <Trash2 className="size-4" aria-hidden />
               {tx("Clear all", "Tout supprimer")}
             </Button>
@@ -202,7 +236,9 @@ function NotificationsPage() {
       ) : (
         sections.map(([title, list]) => (
           <section key={title} className="space-y-2">
-            <h2 className="px-1 text-xs font-bold uppercase tracking-wide text-muted-foreground">{title}</h2>
+            <h2 className="px-1 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+              {title}
+            </h2>
             <div className="tile divide-y divide-border overflow-hidden p-0">
               {list.map((item) => {
                 const Icon = iconFor(item.category);
@@ -215,30 +251,49 @@ function NotificationsPage() {
                     )}
                   >
                     <button type="button" onClick={() => open(item)} className="contents">
-                    <span className="relative z-0 shrink-0">
-                      {item.actor ? (
-                        <NotificationAvatar path={item.actor.avatar_url} name={item.actor.name} className="size-11" />
-                      ) : (
-                        <span className="relative inline-block size-11">
-                          <span className="grid size-11 place-items-center rounded-full bg-muted text-muted-foreground">
-                            <Icon className="size-5" aria-hidden />
+                      <span className="relative z-0 shrink-0">
+                        {item.actor ? (
+                          <NotificationAvatar
+                            path={item.actor.avatar_url}
+                            name={item.actor.name}
+                            className="size-11"
+                          />
+                        ) : (
+                          <span className="relative inline-block size-11">
+                            <span className="grid size-11 place-items-center rounded-full bg-muted text-muted-foreground">
+                              <Icon className="size-5" aria-hidden />
+                            </span>
+                            <NotificationAvatarBadge />
                           </span>
-                          <NotificationAvatarBadge />
-                        </span>
-                      )}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="flex items-start justify-between gap-3">
-                        <span className="text-sm font-semibold text-foreground"><span className="inline-flex items-center gap-1">{item.title}{item.actor ? <VerifiedBadge tier={item.actor.verified_tier} until={item.actor.verified_until} size={13} /> : null}</span></span>
-                        <span className="shrink-0 text-[11px] text-muted-foreground">
-                          {timeAgo(item.created_at, fr)}
-                        </span>
+                        )}
                       </span>
-                      {item.body ? (
-                        <span className="mt-0.5 block text-xs text-muted-foreground">{item.body}</span>
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-start justify-between gap-3">
+                          <span className="text-sm font-semibold text-foreground">
+                            <span className="inline-flex items-center gap-1">
+                              {item.title}
+                              {item.actor ? (
+                                <VerifiedBadge
+                                  tier={item.actor.verified_tier}
+                                  until={item.actor.verified_until}
+                                  size={13}
+                                />
+                              ) : null}
+                            </span>
+                          </span>
+                          <span className="shrink-0 text-[11px] text-muted-foreground">
+                            {timeAgo(item.created_at, fr)}
+                          </span>
+                        </span>
+                        {item.body ? (
+                          <span className="mt-0.5 block text-xs text-muted-foreground">
+                            {item.body}
+                          </span>
+                        ) : null}
+                      </span>
+                      {!item.read_at ? (
+                        <span className="mt-2 size-2 shrink-0 rounded-full bg-primary" />
                       ) : null}
-                    </span>
-                    {!item.read_at ? <span className="mt-2 size-2 shrink-0 rounded-full bg-primary" /> : null}
                     </button>
                     <Button
                       variant="ghost"

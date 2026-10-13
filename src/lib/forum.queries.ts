@@ -49,9 +49,7 @@ export type ForumComment = {
 async function loadAuthors(ids: string[]): Promise<Record<string, ForumAuthor>> {
   const unique = Array.from(new Set(ids.filter(Boolean)));
   if (unique.length === 0) return {};
-  const { data } = await directory()
-    .select("user_id, full_name, avatar_url")
-    .in("user_id", unique);
+  const { data } = await directory().select("user_id, full_name, avatar_url").in("user_id", unique);
   const map: Record<string, ForumAuthor> = {};
   for (const row of data ?? []) {
     map[row.user_id] = {
@@ -108,7 +106,9 @@ export function useForumFeed(space: ForumSpace | "ALL" = "ALL", limit = 40) {
               )
           : Promise.resolve({ data: [] as { post_id: string }[] }),
       ]);
-      const likedSet = new Set(((likes as { data?: { post_id: string }[] }).data ?? []).map((l) => l.post_id));
+      const likedSet = new Set(
+        ((likes as { data?: { post_id: string }[] }).data ?? []).map((l) => l.post_id),
+      );
 
       return rows.map((row) => ({
         id: row.id,
@@ -118,7 +118,11 @@ export function useForumFeed(space: ForumSpace | "ALL" = "ALL", limit = 40) {
         like_count: row.like_count ?? 0,
         comment_count: row.comment_count ?? 0,
         created_at: row.created_at,
-        author: authors[row.author_id] ?? { id: row.author_id, name: "Profile unavailable", avatar_url: null },
+        author: authors[row.author_id] ?? {
+          id: row.author_id,
+          name: "Profile unavailable",
+          avatar_url: null,
+        },
         liked: likedSet.has(row.id),
       }));
     },
@@ -144,7 +148,11 @@ export function useForumComments(postId: string | null) {
         id: row.id,
         body: row.body,
         created_at: row.created_at,
-        author: authors[row.author_id] ?? { id: row.author_id, name: "Profile unavailable", avatar_url: null },
+        author: authors[row.author_id] ?? {
+          id: row.author_id,
+          name: "Profile unavailable",
+          avatar_url: null,
+        },
       }));
     },
   });

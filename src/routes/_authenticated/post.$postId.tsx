@@ -48,7 +48,9 @@ function PostPage() {
         >
           <ArrowLeft className="size-5" aria-hidden />
         </button>
-        <p className="min-w-0 truncate text-sm font-bold text-foreground">{tx("Post", "Publication")}</p>
+        <p className="min-w-0 truncate text-sm font-bold text-foreground">
+          {tx("Post", "Publication")}
+        </p>
       </header>
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[calc(1rem+env(safe-area-inset-bottom))]">
@@ -65,7 +67,10 @@ function PostPage() {
                 {tx("This post is no longer available.", "Cette publication n'existe plus.")}
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
-                {tx("It may have been removed by its author.", "Elle a peut-être été supprimée par son auteur.")}
+                {tx(
+                  "It may have been removed by its author.",
+                  "Elle a peut-être été supprimée par son auteur.",
+                )}
               </p>
             </div>
           )}

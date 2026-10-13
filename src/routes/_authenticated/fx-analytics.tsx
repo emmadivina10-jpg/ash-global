@@ -26,7 +26,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ChartContainer, type ChartConfig } from "@/components/ui/chart";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import {
   useCreateMarketPost,
   useFxInstructors,
@@ -51,9 +57,15 @@ export const Route = createFileRoute("/_authenticated/fx-analytics")({
   head: () => ({
     meta: [
       { title: "ASH FX Analytics — Coming soon" },
-      { name: "description", content: "FX market analytics, updates and instructor learning are coming soon to ASH Glo." },
+      {
+        name: "description",
+        content: "FX market analytics, updates and instructor learning are coming soon to ASH Glo.",
+      },
       { property: "og:title", content: "ASH FX Analytics — Coming soon" },
-      { property: "og:description", content: "Market analytics, updates and learning are on the way." },
+      {
+        property: "og:description",
+        content: "Market analytics, updates and learning are on the way.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -74,7 +86,11 @@ function FxAnalyticsSoon() {
       bodyFr="Analyses, actualités et apprentissage du marché sur ASH Markets arrivent bientôt."
       features={[
         { icon: BarChart3, en: "Market analysis snapshots", fr: "Instantanés d'analyse de marché" },
-        { icon: GraduationCap, en: "Learn from approved instructors", fr: "Apprenez avec des instructeurs approuvés" },
+        {
+          icon: GraduationCap,
+          en: "Learn from approved instructors",
+          fr: "Apprenez avec des instructeurs approuvés",
+        },
       ]}
       backTo="/feed"
       backLabelEn="Back to Feed"
@@ -83,8 +99,19 @@ function FxAnalyticsSoon() {
   );
 }
 
-type Panel = "analysis" | "updates" | "news" | "calendar" | "instructors" | "learn" | "apply" | "publish" | null;
-const chartConfig = { price: { label: "Demo price", color: "var(--color-primary)" } } satisfies ChartConfig;
+type Panel =
+  | "analysis"
+  | "updates"
+  | "news"
+  | "calendar"
+  | "instructors"
+  | "learn"
+  | "apply"
+  | "publish"
+  | null;
+const chartConfig = {
+  price: { label: "Demo price", color: "var(--color-primary)" },
+} satisfies ChartConfig;
 
 const SHORTCUTS = [
   { id: "analysis" as const, label: "Market Analysis", icon: BarChart3 },
@@ -102,7 +129,9 @@ function MarketsPage() {
   const { data: updates, isLoading: updatesLoading } = useMarketUpdates();
   const { data: instructor } = useMyFxInstructorProfile();
 
-  useEffect(() => { void supabase.auth.getUser().then(({ data }) => setMe(data.user?.id ?? null)); }, []);
+  useEffect(() => {
+    void supabase.auth.getUser().then(({ data }) => setMe(data.user?.id ?? null));
+  }, []);
 
   return (
     <div className="mx-auto w-full max-w-3xl pb-8">
@@ -111,34 +140,66 @@ function MarketsPage() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-[11px] font-extrabold uppercase text-primary">ASH Glo</p>
-              <h1 className="mt-1 font-display text-2xl font-extrabold text-foreground sm:text-3xl">ASH Markets</h1>
+              <h1 className="mt-1 font-display text-2xl font-extrabold text-foreground sm:text-3xl">
+                ASH Markets
+              </h1>
               <p className="mt-1 text-sm font-bold text-gold">Learn. Discover. Connect. Grow.</p>
             </div>
-            {instructor ? <Button size="sm" onClick={() => setPanel("publish")} className="shrink-0"><PenLine className="size-4" /> Publish</Button> : null}
+            {instructor ? (
+              <Button size="sm" onClick={() => setPanel("publish")} className="shrink-0">
+                <PenLine className="size-4" /> Publish
+              </Button>
+            ) : null}
           </div>
         </header>
 
-        <nav aria-label="Market categories" className="scrollbar-none mt-4 flex gap-2 overflow-x-auto pb-1">
+        <nav
+          aria-label="Market categories"
+          className="scrollbar-none mt-4 flex gap-2 overflow-x-auto pb-1"
+        >
           {["Overview", ...MARKET_CATEGORIES].map((item) => {
             const active = item === "Overview" ? category === "FX" : category === item;
-            return <Button key={item} type="button" size="sm" variant={active ? "default" : "outline"} onClick={() => setCategory(item === "Overview" ? "FX" : item as MarketCategory)} className="shrink-0 rounded-full px-4">{item}</Button>;
+            return (
+              <Button
+                key={item}
+                type="button"
+                size="sm"
+                variant={active ? "default" : "outline"}
+                onClick={() => setCategory(item === "Overview" ? "FX" : (item as MarketCategory))}
+                className="shrink-0 rounded-full px-4"
+              >
+                {item}
+              </Button>
+            );
           })}
         </nav>
 
-        {category !== "FX" ? <ComingSoon category={category} onBack={() => setCategory("FX")} /> : (
+        {category !== "FX" ? (
+          <ComingSoon category={category} onBack={() => setCategory("FX")} />
+        ) : (
           <>
             <section className="mt-5">
               <TitleRow title="Market snapshot" note="Illustrative demo data" />
               <div className="scrollbar-none mt-3 flex gap-2 overflow-x-auto pb-1">
-                {FX_MARKETS.map((market) => <Snapshot key={market.symbol} market={market} />)}
+                {FX_MARKETS.map((market) => (
+                  <Snapshot key={market.symbol} market={market} />
+                ))}
               </div>
-              <p className="mt-2 text-[10px] text-muted-foreground">Demo values—not live prices or signals.</p>
+              <p className="mt-2 text-[10px] text-muted-foreground">
+                Demo values—not live prices or signals.
+              </p>
             </section>
 
             <section className="mt-5 grid grid-cols-3 gap-2 sm:grid-cols-6">
               {SHORTCUTS.map(({ id, label, icon: Icon }) => (
-                <Button key={id} variant="outline" onClick={() => setPanel(id)} className="h-16 flex-col gap-1.5 rounded-lg px-2 text-center text-[10px] font-bold">
-                  <Icon className="size-4 text-primary" />{label}
+                <Button
+                  key={id}
+                  variant="outline"
+                  onClick={() => setPanel(id)}
+                  className="h-16 flex-col gap-1.5 rounded-lg px-2 text-center text-[10px] font-bold"
+                >
+                  <Icon className="size-4 text-primary" />
+                  {label}
                 </Button>
               ))}
             </section>
@@ -147,13 +208,35 @@ function MarketsPage() {
               <div>
                 <TitleRow title="Latest Market Updates" note="From approved FX instructors" />
                 <div className="mt-3 space-y-3">
-                  {updatesLoading ? <div className="grid min-h-28 place-items-center rounded-lg border border-border bg-card"><Loader2 className="size-5 animate-spin text-primary" /></div> : null}
-                  {!updatesLoading && !updates?.length ? <EmptyUpdates onInstructors={() => setPanel("instructors")} /> : null}
+                  {updatesLoading ? (
+                    <div className="grid min-h-28 place-items-center rounded-lg border border-border bg-card">
+                      <Loader2 className="size-5 animate-spin text-primary" />
+                    </div>
+                  ) : null}
+                  {!updatesLoading && !updates?.length ? (
+                    <EmptyUpdates onInstructors={() => setPanel("instructors")} />
+                  ) : null}
                   {updates?.slice(0, 2).map((update) => (
-                    <div key={update.id} className="overflow-hidden rounded-lg border border-border bg-card">
+                    <div
+                      key={update.id}
+                      className="overflow-hidden rounded-lg border border-border bg-card"
+                    >
                       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-muted/60 px-4 py-3">
-                        <div><p className="text-[10px] font-extrabold uppercase text-primary">ASH Markets Update</p><h3 className="mt-0.5 text-sm font-bold text-foreground">{update.title}</h3></div>
-                        <Link to="/markets/update/$marketPostId" params={{ marketPostId: update.id }} className="text-[10px] font-bold text-primary hover:underline">Open</Link>
+                        <div>
+                          <p className="text-[10px] font-extrabold uppercase text-primary">
+                            ASH Markets Update
+                          </p>
+                          <h3 className="mt-0.5 text-sm font-bold text-foreground">
+                            {update.title}
+                          </h3>
+                        </div>
+                        <Link
+                          to="/markets/update/$marketPostId"
+                          params={{ marketPostId: update.id }}
+                          className="text-[10px] font-bold text-primary hover:underline"
+                        >
+                          Open
+                        </Link>
                       </div>
                       <PostCard post={update.post} currentUserId={me} />
                     </div>
@@ -168,50 +251,359 @@ function MarketsPage() {
           </>
         )}
 
-        <p className="mx-auto mt-7 max-w-2xl text-center text-[10px] leading-relaxed text-muted-foreground">Educational information only. No trading, signals, guarantees, or personalized financial advice.</p>
+        <p className="mx-auto mt-7 max-w-2xl text-center text-[10px] leading-relaxed text-muted-foreground">
+          Educational information only. No trading, signals, guarantees, or personalized financial
+          advice.
+        </p>
       </div>
 
-      <MarketPanel panel={panel} onClose={() => setPanel(null)} currentUserId={me} updates={updates ?? []} />
+      <MarketPanel
+        panel={panel}
+        onClose={() => setPanel(null)}
+        currentUserId={me}
+        updates={updates ?? []}
+      />
     </div>
   );
 }
 
 function TitleRow({ title, note }: { title: string; note: string }) {
-  return <div className="flex items-end justify-between gap-3"><h2 className="font-display text-lg font-extrabold text-foreground">{title}</h2><span className="text-right text-[9px] font-semibold uppercase text-muted-foreground">{note}</span></div>;
+  return (
+    <div className="flex items-end justify-between gap-3">
+      <h2 className="font-display text-lg font-extrabold text-foreground">{title}</h2>
+      <span className="text-right text-[9px] font-semibold uppercase text-muted-foreground">
+        {note}
+      </span>
+    </div>
+  );
 }
 
 function Snapshot({ market }: { market: (typeof FX_MARKETS)[number] }) {
   const up = market.change >= 0;
-  return <article className="w-36 shrink-0 rounded-lg border border-border bg-card p-3"><div className="flex items-start justify-between gap-2"><div><p className="font-bold text-foreground">{market.symbol}</p><p className="text-[9px] text-muted-foreground">{market.name}</p></div><span className={cn("mt-1 size-2 rounded-full", up ? "bg-success" : "bg-destructive")} /></div><p className="mt-2 font-display text-base font-extrabold tabular-nums text-foreground">{market.price}</p><div className="mt-1 flex items-end justify-between"><span className={cn("text-[10px] font-bold", up ? "text-success" : "text-destructive")}>{up ? "+" : ""}{market.change.toFixed(2)}%</span><ChartContainer config={chartConfig} className="h-6 w-12"><LineChart data={market.trend}><Line type="monotone" dataKey="value" stroke={up ? "var(--color-success)" : "var(--color-destructive)"} strokeWidth={2} dot={false} /></LineChart></ChartContainer></div></article>;
+  return (
+    <article className="w-36 shrink-0 rounded-lg border border-border bg-card p-3">
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <p className="font-bold text-foreground">{market.symbol}</p>
+          <p className="text-[9px] text-muted-foreground">{market.name}</p>
+        </div>
+        <span className={cn("mt-1 size-2 rounded-full", up ? "bg-success" : "bg-destructive")} />
+      </div>
+      <p className="mt-2 font-display text-base font-extrabold tabular-nums text-foreground">
+        {market.price}
+      </p>
+      <div className="mt-1 flex items-end justify-between">
+        <span className={cn("text-[10px] font-bold", up ? "text-success" : "text-destructive")}>
+          {up ? "+" : ""}
+          {market.change.toFixed(2)}%
+        </span>
+        <ChartContainer config={chartConfig} className="h-6 w-12">
+          <LineChart data={market.trend}>
+            <Line
+              type="monotone"
+              dataKey="value"
+              stroke={up ? "var(--color-success)" : "var(--color-destructive)"}
+              strokeWidth={2}
+              dot={false}
+            />
+          </LineChart>
+        </ChartContainer>
+      </div>
+    </article>
+  );
 }
 
 function InstructorInvitation({ onApply }: { onApply: () => void }) {
-  return <section className="flex w-full flex-col gap-3 sm:flex-row sm:items-center"><span className="brand-gradient grid size-10 shrink-0 place-items-center rounded-xl text-on-dark"><GraduationCap className="size-5" /></span><div className="min-w-0 flex-1"><p className="text-[9px] font-extrabold uppercase text-primary">Teach in FX Analytics</p><h2 className="mt-0.5 font-display text-base font-extrabold text-foreground">Become an ASH Verified FX Instructor</h2><p className="mt-1 text-[10px] text-muted-foreground">Private application · Review usually takes 24–48 hours.</p></div><Button onClick={onApply} size="sm" className="shrink-0">Apply Now <ChevronRight className="size-4" /></Button></section>;
+  return (
+    <section className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
+      <span className="brand-gradient grid size-10 shrink-0 place-items-center rounded-xl text-on-dark">
+        <GraduationCap className="size-5" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[9px] font-extrabold uppercase text-primary">Teach in FX Analytics</p>
+        <h2 className="mt-0.5 font-display text-base font-extrabold text-foreground">
+          Become an ASH Verified FX Instructor
+        </h2>
+        <p className="mt-1 text-[10px] text-muted-foreground">
+          Private application · Review usually takes 24–48 hours.
+        </p>
+      </div>
+      <Button onClick={onApply} size="sm" className="shrink-0">
+        Apply Now <ChevronRight className="size-4" />
+      </Button>
+    </section>
+  );
 }
 
 function EmptyUpdates({ onInstructors }: { onInstructors: () => void }) {
-  return <div className="rounded-lg border border-dashed border-border bg-card p-5 text-center"><Sparkles className="mx-auto size-5 text-primary"/><h3 className="mt-2 font-bold text-foreground">Instructor updates will appear here</h3><p className="mx-auto mt-1 max-w-md text-xs text-muted-foreground">Only approved FX instructors can publish here.</p><Button variant="outline" size="sm" onClick={onInstructors} className="mt-3">Explore instructors</Button></div>;
+  return (
+    <div className="rounded-lg border border-dashed border-border bg-card p-5 text-center">
+      <Sparkles className="mx-auto size-5 text-primary" />
+      <h3 className="mt-2 font-bold text-foreground">Instructor updates will appear here</h3>
+      <p className="mx-auto mt-1 max-w-md text-xs text-muted-foreground">
+        Only approved FX instructors can publish here.
+      </p>
+      <Button variant="outline" size="sm" onClick={onInstructors} className="mt-3">
+        Explore instructors
+      </Button>
+    </div>
+  );
 }
 
-function ComingSoon({ category, onBack }: { category: Exclude<MarketCategory, "FX">; onBack: () => void }) {
-  return <section className="mt-6 grid min-h-52 place-items-center rounded-lg border border-border bg-card p-6 text-center"><div><BarChart3 className="mx-auto size-7 text-primary"/><h2 className="mt-3 font-display text-xl font-extrabold text-foreground">{category} — Coming Soon</h2><p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">FX remains the active educational experience.</p><Button onClick={onBack} size="sm" className="mt-4">Return to FX</Button></div></section>;
+function ComingSoon({
+  category,
+  onBack,
+}: {
+  category: Exclude<MarketCategory, "FX">;
+  onBack: () => void;
+}) {
+  return (
+    <section className="mt-6 grid min-h-52 place-items-center rounded-lg border border-border bg-card p-6 text-center">
+      <div>
+        <BarChart3 className="mx-auto size-7 text-primary" />
+        <h2 className="mt-3 font-display text-xl font-extrabold text-foreground">
+          {category} — Coming Soon
+        </h2>
+        <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
+          FX remains the active educational experience.
+        </p>
+        <Button onClick={onBack} size="sm" className="mt-4">
+          Return to FX
+        </Button>
+      </div>
+    </section>
+  );
 }
 
-function MarketPanel({ panel, onClose, currentUserId, updates }: { panel: Panel; onClose: () => void; currentUserId: string | null; updates: ReturnType<typeof useMarketUpdates>["data"] }) {
-  const titles: Record<Exclude<Panel, null>, string> = { analysis: "Market Analysis", updates: "Market Updates", news: "Market News", calendar: "Economic Calendar", instructors: "FX Instructors", learn: "Learn FX", apply: "FX Instructor Application", publish: "Publish to ASH Markets" };
-  return <Sheet open={panel !== null} onOpenChange={(value) => { if (!value) onClose(); }}><SheetContent side="right" className="market-theme w-screen max-w-none overflow-y-auto border-0 bg-background p-0"><SheetHeader className="sticky top-0 z-10 border-b border-border bg-background/90 px-4 py-4 pr-12 text-left backdrop-blur-xl sm:px-8"><div className="flex items-start gap-3"><button type="button" onClick={onClose} aria-label="Back" className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full text-foreground transition-colors hover:bg-muted active:opacity-80"><ArrowLeft className="size-5" aria-hidden /></button><div className="min-w-0"><SheetTitle className="font-display text-xl font-extrabold text-foreground">{panel ? titles[panel] : "FX Analytics"}</SheetTitle><SheetDescription className="text-muted-foreground">Educational and informational content only.</SheetDescription></div></div></SheetHeader><div className="mx-auto w-full max-w-4xl px-4 py-5 sm:px-8">{panel === "analysis" ? <AnalysisPanel /> : null}{panel === "news" ? <NewsPanel /> : null}{panel === "calendar" ? <CalendarPanel /> : null}{panel === "learn" ? <LearnPanel /> : null}{panel === "instructors" ? <InstructorsPanel /> : null}{panel === "apply" ? <InstructorApplication /> : null}{panel === "publish" ? <MarketComposer onDone={onClose} /> : null}{panel === "updates" ? <div className="space-y-4">{updates?.map((item) => <div key={item.id} className="overflow-hidden border-y border-border"><div className="bg-muted px-4 py-3"><p className="text-[10px] font-bold uppercase text-primary">ASH Markets Update</p><p className="font-bold text-foreground">{item.title}</p></div><PostCard post={item.post} currentUserId={currentUserId} /></div>)}</div> : null}</div></SheetContent></Sheet>;
+function MarketPanel({
+  panel,
+  onClose,
+  currentUserId,
+  updates,
+}: {
+  panel: Panel;
+  onClose: () => void;
+  currentUserId: string | null;
+  updates: ReturnType<typeof useMarketUpdates>["data"];
+}) {
+  const titles: Record<Exclude<Panel, null>, string> = {
+    analysis: "Market Analysis",
+    updates: "Market Updates",
+    news: "Market News",
+    calendar: "Economic Calendar",
+    instructors: "FX Instructors",
+    learn: "Learn FX",
+    apply: "FX Instructor Application",
+    publish: "Publish to ASH Markets",
+  };
+  return (
+    <Sheet
+      open={panel !== null}
+      onOpenChange={(value) => {
+        if (!value) onClose();
+      }}
+    >
+      <SheetContent
+        side="right"
+        className="market-theme w-screen max-w-none overflow-y-auto border-0 bg-background p-0"
+      >
+        <SheetHeader className="sticky top-0 z-10 border-b border-border bg-background/90 px-4 py-4 pr-12 text-left backdrop-blur-xl sm:px-8">
+          <div className="flex items-start gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Back"
+              className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full text-foreground transition-colors hover:bg-muted active:opacity-80"
+            >
+              <ArrowLeft className="size-5" aria-hidden />
+            </button>
+            <div className="min-w-0">
+              <SheetTitle className="font-display text-xl font-extrabold text-foreground">
+                {panel ? titles[panel] : "FX Analytics"}
+              </SheetTitle>
+              <SheetDescription className="text-muted-foreground">
+                Educational and informational content only.
+              </SheetDescription>
+            </div>
+          </div>
+        </SheetHeader>
+        <div className="mx-auto w-full max-w-4xl px-4 py-5 sm:px-8">
+          {panel === "analysis" ? <AnalysisPanel /> : null}
+          {panel === "news" ? <NewsPanel /> : null}
+          {panel === "calendar" ? <CalendarPanel /> : null}
+          {panel === "learn" ? <LearnPanel /> : null}
+          {panel === "instructors" ? <InstructorsPanel /> : null}
+          {panel === "apply" ? <InstructorApplication /> : null}
+          {panel === "publish" ? <MarketComposer onDone={onClose} /> : null}
+          {panel === "updates" ? (
+            <div className="space-y-4">
+              {updates?.map((item) => (
+                <div key={item.id} className="overflow-hidden border-y border-border">
+                  <div className="bg-muted px-4 py-3">
+                    <p className="text-[10px] font-bold uppercase text-primary">
+                      ASH Markets Update
+                    </p>
+                    <p className="font-bold text-foreground">{item.title}</p>
+                  </div>
+                  <PostCard post={item.post} currentUserId={currentUserId} />
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
 }
 
-function AnalysisPanel() { return <div className="space-y-3">{ANALYSIS_ITEMS.map((item, index) => <article key={item.title} className="rounded-xl border border-market-line bg-market-surface p-5"><span className="text-[10px] font-extrabold uppercase text-market-accent">Market Observation {index + 1}</span><h3 className="mt-2 font-bold text-market-foreground">{item.title}</h3><p className="mt-2 text-sm leading-relaxed text-market-muted">{item.body}</p></article>)}</div>; }
-function NewsPanel() { return <div className="space-y-3">{MARKET_NEWS.map((item) => <article key={item.headline} className="rounded-xl border border-market-line bg-market-surface p-4"><span className="text-[10px] font-bold uppercase text-market-accent">{item.source} · Demo</span><h3 className="mt-2 font-bold text-market-foreground">{item.headline}</h3><p className="mt-2 text-sm text-market-muted">{item.summary}</p><p className="mt-3 text-[10px] text-market-muted">{item.time}</p></article>)}</div>; }
-function CalendarPanel() { return <div className="overflow-hidden rounded-xl border border-market-line">{ECONOMIC_EVENTS.map((item) => <article key={item.event} className="grid grid-cols-[auto_1fr] gap-3 border-b border-market-line bg-market-surface p-4 last:border-b-0"><span className="h-fit rounded bg-market-accent/15 px-2 py-1 text-[10px] font-bold text-market-accent">{item.country}</span><div><h3 className="font-bold text-market-foreground">{item.event}</h3><p className="mt-1 text-xs text-market-muted">{item.date} · {item.importance} impact</p><p className="mt-2 text-[10px] text-market-muted">Expected {item.expected} · Previous {item.previous} · Demo schedule</p></div></article>)}</div>; }
-function LearnPanel() { return <div className="space-y-3">{LEARNING_ITEMS.map((item, index) => <article key={item.title} className="rounded-xl border border-market-line bg-market-surface p-5"><div className="flex items-center gap-3"><span className="grid size-9 place-items-center rounded-lg bg-market-accent text-market-accent-foreground"><BookOpen className="size-4"/></span><div><p className="text-[10px] font-bold uppercase text-market-muted">Lesson {index + 1}</p><h3 className="font-bold text-market-foreground">{item.title}</h3></div></div><p className="mt-3 text-sm text-market-muted">{item.description}</p></article>)}</div>; }
+function AnalysisPanel() {
+  return (
+    <div className="space-y-3">
+      {ANALYSIS_ITEMS.map((item, index) => (
+        <article
+          key={item.title}
+          className="rounded-xl border border-market-line bg-market-surface p-5"
+        >
+          <span className="text-[10px] font-extrabold uppercase text-market-accent">
+            Market Observation {index + 1}
+          </span>
+          <h3 className="mt-2 font-bold text-market-foreground">{item.title}</h3>
+          <p className="mt-2 text-sm leading-relaxed text-market-muted">{item.body}</p>
+        </article>
+      ))}
+    </div>
+  );
+}
+function NewsPanel() {
+  return (
+    <div className="space-y-3">
+      {MARKET_NEWS.map((item) => (
+        <article
+          key={item.headline}
+          className="rounded-xl border border-market-line bg-market-surface p-4"
+        >
+          <span className="text-[10px] font-bold uppercase text-market-accent">
+            {item.source} · Demo
+          </span>
+          <h3 className="mt-2 font-bold text-market-foreground">{item.headline}</h3>
+          <p className="mt-2 text-sm text-market-muted">{item.summary}</p>
+          <p className="mt-3 text-[10px] text-market-muted">{item.time}</p>
+        </article>
+      ))}
+    </div>
+  );
+}
+function CalendarPanel() {
+  return (
+    <div className="overflow-hidden rounded-xl border border-market-line">
+      {ECONOMIC_EVENTS.map((item) => (
+        <article
+          key={item.event}
+          className="grid grid-cols-[auto_1fr] gap-3 border-b border-market-line bg-market-surface p-4 last:border-b-0"
+        >
+          <span className="h-fit rounded bg-market-accent/15 px-2 py-1 text-[10px] font-bold text-market-accent">
+            {item.country}
+          </span>
+          <div>
+            <h3 className="font-bold text-market-foreground">{item.event}</h3>
+            <p className="mt-1 text-xs text-market-muted">
+              {item.date} · {item.importance} impact
+            </p>
+            <p className="mt-2 text-[10px] text-market-muted">
+              Expected {item.expected} · Previous {item.previous} · Demo schedule
+            </p>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+function LearnPanel() {
+  return (
+    <div className="space-y-3">
+      {LEARNING_ITEMS.map((item, index) => (
+        <article
+          key={item.title}
+          className="rounded-xl border border-market-line bg-market-surface p-5"
+        >
+          <div className="flex items-center gap-3">
+            <span className="grid size-9 place-items-center rounded-lg bg-market-accent text-market-accent-foreground">
+              <BookOpen className="size-4" />
+            </span>
+            <div>
+              <p className="text-[10px] font-bold uppercase text-market-muted">
+                Lesson {index + 1}
+              </p>
+              <h3 className="font-bold text-market-foreground">{item.title}</h3>
+            </div>
+          </div>
+          <p className="mt-3 text-sm text-market-muted">{item.description}</p>
+        </article>
+      ))}
+    </div>
+  );
+}
 
 function InstructorsPanel() {
   const { data: instructors, isLoading } = useFxInstructors();
-  if (isLoading) return <Loader2 className="mx-auto mt-10 size-5 animate-spin text-market-accent" />;
-  if (!instructors?.length) return <div className="py-12 text-center"><Users className="mx-auto size-7 text-market-accent"/><h3 className="mt-3 font-bold text-market-foreground">No approved instructors yet</h3><p className="mt-2 text-sm text-market-muted">Profiles appear here only after a real application review and approval.</p></div>;
-  return <div className="divide-y divide-border border-y border-border">{instructors.map((item) => <article key={item.id} className="py-5"><div className="flex gap-3"><Avatar path={item.avatar_url} name={item.full_name} online={item.online} className="size-12"/><div className="min-w-0"><div className="flex flex-wrap items-center gap-1.5"><h3 className="font-bold text-foreground">{item.full_name}</h3><VerifiedBadge tier={item.verified_tier} until={item.verified_until} size={15}/><span className="text-[9px] font-extrabold uppercase text-primary">ASH Verified FX Instructor</span></div><p className="text-xs text-muted-foreground">@{item.username ?? "profile"} · {item.follower_count} followers</p></div></div><p className="mt-3 text-sm text-muted-foreground">{item.about || item.experience_summary || "Professional instructor profile."}</p><div className="mt-3 flex flex-wrap gap-1.5">{item.specialties.map((specialty) => <span key={specialty} className="rounded-full border border-border px-2 py-1 text-[10px] text-muted-foreground">{specialty}</span>)}</div><Button asChild variant="outline" size="sm" className="mt-4"><Link to="/markets/instructors/$instructorId" params={{ instructorId: item.id }}>View professional profile</Link></Button></article>)}</div>;
+  if (isLoading)
+    return <Loader2 className="mx-auto mt-10 size-5 animate-spin text-market-accent" />;
+  if (!instructors?.length)
+    return (
+      <div className="py-12 text-center">
+        <Users className="mx-auto size-7 text-market-accent" />
+        <h3 className="mt-3 font-bold text-market-foreground">No approved instructors yet</h3>
+        <p className="mt-2 text-sm text-market-muted">
+          Profiles appear here only after a real application review and approval.
+        </p>
+      </div>
+    );
+  return (
+    <div className="divide-y divide-border border-y border-border">
+      {instructors.map((item) => (
+        <article key={item.id} className="py-5">
+          <div className="flex gap-3">
+            <Avatar
+              path={item.avatar_url}
+              name={item.full_name}
+              online={item.online}
+              className="size-12"
+            />
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <h3 className="font-bold text-foreground">{item.full_name}</h3>
+                <VerifiedBadge tier={item.verified_tier} until={item.verified_until} size={15} />
+                <span className="text-[9px] font-extrabold uppercase text-primary">
+                  ASH Verified FX Instructor
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                @{item.username ?? "profile"} · {item.follower_count} followers
+              </p>
+            </div>
+          </div>
+          <p className="mt-3 text-sm text-muted-foreground">
+            {item.about || item.experience_summary || "Professional instructor profile."}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {item.specialties.map((specialty) => (
+              <span
+                key={specialty}
+                className="rounded-full border border-border px-2 py-1 text-[10px] text-muted-foreground"
+              >
+                {specialty}
+              </span>
+            ))}
+          </div>
+          <Button asChild variant="outline" size="sm" className="mt-4">
+            <Link to="/markets/instructors/$instructorId" params={{ instructorId: item.id }}>
+              View professional profile
+            </Link>
+          </Button>
+        </article>
+      ))}
+    </div>
+  );
 }
 
 function MarketComposer({ onDone }: { onDone: () => void }) {
@@ -226,20 +618,128 @@ function MarketComposer({ onDone }: { onDone: () => void }) {
   const [spotlightPostId, setSpotlightPostId] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const { data: spotlightReferences = [] } = useMySpotlightReferences(contentType === "SPOTLIGHT");
-  if (!instructor) return <p className="rounded-xl border border-market-line bg-market-surface p-5 text-sm text-market-muted">Publishing is available only after your FX instructor application is approved.</p>;
+  if (!instructor)
+    return (
+      <p className="rounded-xl border border-market-line bg-market-surface p-5 text-sm text-market-muted">
+        Publishing is available only after your FX instructor application is approved.
+      </p>
+    );
   const approvedInstructor = instructor;
   async function publish() {
-    if (title.trim().length < 3 || (!body.trim() && !files.length)) { toast.error("Add a title and educational content."); return; }
+    if (title.trim().length < 3 || (!body.trim() && !files.length)) {
+      toast.error("Add a title and educational content.");
+      return;
+    }
     try {
       const socialPostId = await createSocial.mutateAsync({ caption: body.trim(), files });
       const marketInput = spotlightPostId
-        ? { socialPostId, instructorId: approvedInstructor.id, contentType, title, instrument, spotlightPostId }
+        ? {
+            socialPostId,
+            instructorId: approvedInstructor.id,
+            contentType,
+            title,
+            instrument,
+            spotlightPostId,
+          }
         : { socialPostId, instructorId: approvedInstructor.id, contentType, title, instrument };
       await createMarket.mutateAsync(marketInput);
       toast.success("Market update published.");
       onDone();
-    } catch (error) { toast.error(error instanceof Error ? error.message : "Could not publish the update."); }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not publish the update.");
+    }
   }
   const busy = createSocial.isPending || createMarket.isPending;
-  return <div className="space-y-4"><select value={contentType} onChange={(e) => setContentType(e.target.value)} className="h-10 w-full rounded-md border border-market-line bg-market-elevated px-3 text-sm text-market-foreground"><option value="MARKET_UPDATE">Market Update</option><option value="FX_ANALYSIS">FX Analysis</option><option value="ARTICLE">Educational Article</option><option value="EDUCATIONAL_POST">Educational Post</option><option value="MARKET_COMMENTARY">Market Commentary</option><option value="CHART">Chart</option><option value="IMAGE">Image</option><option value="SPOTLIGHT">Spotlight reference</option></select>{contentType === "SPOTLIGHT" ? <div><label htmlFor="market-spotlight" className="mb-1.5 block text-xs font-bold text-market-lavender">Link one of your published Spotlights</label><select id="market-spotlight" value={spotlightPostId} onChange={(e) => setSpotlightPostId(e.target.value)} className="h-10 w-full rounded-md border border-market-line bg-market-elevated px-3 text-sm text-market-foreground"><option value="">No Spotlight attached</option>{spotlightReferences.map((spotlight) => <option key={spotlight.id} value={spotlight.id}>{spotlight.caption?.trim() || `Spotlight from ${new Date(spotlight.created_at).toLocaleDateString()}`}</option>)}</select><p className="mt-1.5 text-[10px] text-market-muted">This links the existing Spotlight without publishing a duplicate.</p></div> : null}<Input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={180} placeholder="Update title"/><Input value={instrument} onChange={(e) => setInstrument(e.target.value)} maxLength={40} placeholder="Instrument, e.g. EUR/USD (optional)"/><Textarea value={body} onChange={(e) => setBody(e.target.value.slice(0,1200))} rows={8} placeholder="Share a neutral market observation, technical analysis, or educational discussion…"/><input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => setFiles(Array.from(e.target.files ?? []).slice(0,4))}/><Button variant="outline" onClick={() => fileRef.current?.click()} className="w-full border-market-line bg-market-elevated text-market-foreground"><ImagePlus className="size-4"/> {files.length ? `${files.length} image${files.length > 1 ? "s" : ""} selected` : "Add images"}</Button><div className="rounded-xl border border-market-line bg-market-surface p-3 text-xs leading-relaxed text-market-muted">Keep content educational and neutral. No signals, guarantees, trade execution, or personalized financial advice.</div><Button onClick={() => void publish()} disabled={busy} className="w-full bg-market-accent text-market-accent-foreground">{busy ? <Loader2 className="size-4 animate-spin"/> : <PenLine className="size-4"/>}{busy ? "Publishing…" : "Publish Market Update"}</Button></div>;
+  return (
+    <div className="space-y-4">
+      <select
+        value={contentType}
+        onChange={(e) => setContentType(e.target.value)}
+        className="h-10 w-full rounded-md border border-market-line bg-market-elevated px-3 text-sm text-market-foreground"
+      >
+        <option value="MARKET_UPDATE">Market Update</option>
+        <option value="FX_ANALYSIS">FX Analysis</option>
+        <option value="ARTICLE">Educational Article</option>
+        <option value="EDUCATIONAL_POST">Educational Post</option>
+        <option value="MARKET_COMMENTARY">Market Commentary</option>
+        <option value="CHART">Chart</option>
+        <option value="IMAGE">Image</option>
+        <option value="SPOTLIGHT">Spotlight reference</option>
+      </select>
+      {contentType === "SPOTLIGHT" ? (
+        <div>
+          <label
+            htmlFor="market-spotlight"
+            className="mb-1.5 block text-xs font-bold text-market-lavender"
+          >
+            Link one of your published Spotlights
+          </label>
+          <select
+            id="market-spotlight"
+            value={spotlightPostId}
+            onChange={(e) => setSpotlightPostId(e.target.value)}
+            className="h-10 w-full rounded-md border border-market-line bg-market-elevated px-3 text-sm text-market-foreground"
+          >
+            <option value="">No Spotlight attached</option>
+            {spotlightReferences.map((spotlight) => (
+              <option key={spotlight.id} value={spotlight.id}>
+                {spotlight.caption?.trim() ||
+                  `Spotlight from ${new Date(spotlight.created_at).toLocaleDateString()}`}
+              </option>
+            ))}
+          </select>
+          <p className="mt-1.5 text-[10px] text-market-muted">
+            This links the existing Spotlight without publishing a duplicate.
+          </p>
+        </div>
+      ) : null}
+      <Input
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        maxLength={180}
+        placeholder="Update title"
+      />
+      <Input
+        value={instrument}
+        onChange={(e) => setInstrument(e.target.value)}
+        maxLength={40}
+        placeholder="Instrument, e.g. EUR/USD (optional)"
+      />
+      <Textarea
+        value={body}
+        onChange={(e) => setBody(e.target.value.slice(0, 1200))}
+        rows={8}
+        placeholder="Share a neutral market observation, technical analysis, or educational discussion…"
+      />
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => setFiles(Array.from(e.target.files ?? []).slice(0, 4))}
+      />
+      <Button
+        variant="outline"
+        onClick={() => fileRef.current?.click()}
+        className="w-full border-market-line bg-market-elevated text-market-foreground"
+      >
+        <ImagePlus className="size-4" />{" "}
+        {files.length
+          ? `${files.length} image${files.length > 1 ? "s" : ""} selected`
+          : "Add images"}
+      </Button>
+      <div className="rounded-xl border border-market-line bg-market-surface p-3 text-xs leading-relaxed text-market-muted">
+        Keep content educational and neutral. No signals, guarantees, trade execution, or
+        personalized financial advice.
+      </div>
+      <Button
+        onClick={() => void publish()}
+        disabled={busy}
+        className="w-full bg-market-accent text-market-accent-foreground"
+      >
+        {busy ? <Loader2 className="size-4 animate-spin" /> : <PenLine className="size-4" />}
+        {busy ? "Publishing…" : "Publish Market Update"}
+      </Button>
+    </div>
+  );
 }

@@ -110,7 +110,9 @@ export function useSpotlightFeed(limit = 18) {
       const since = new Date(Date.now() - 5 * 60_000).toISOString();
       const [profilesResult, providersResult, reactionsResult, presenceResult] = await Promise.all([
         authorIds.length
-          ? directory().select("user_id, full_name, avatar_url, verified_tier, verified_until").in("user_id", authorIds)
+          ? directory()
+              .select("user_id, full_name, avatar_url, verified_tier, verified_until")
+              .in("user_id", authorIds)
           : Promise.resolve({ data: [] }),
         providerIds.length
           ? supabase
@@ -118,15 +120,35 @@ export function useSpotlightFeed(limit = 18) {
               .select("id, business_name, slug, city, avatar_url, is_verified")
               .in("id", providerIds)
           : Promise.resolve({ data: [] }),
-        postRows.length ? supabase.from("spotlight_reactions").select("spotlight_id, user_id, reaction_type").in("spotlight_id", postRows.map((row) => row.id)) : Promise.resolve({ data: [] }),
-        authorIds.length ? supabase.from("member_presence").select("user_id").in("user_id", authorIds).gte("last_active_at", since) : Promise.resolve({ data: [] }),
+        postRows.length
+          ? supabase
+              .from("spotlight_reactions")
+              .select("spotlight_id, user_id, reaction_type")
+              .in(
+                "spotlight_id",
+                postRows.map((row) => row.id),
+              )
+          : Promise.resolve({ data: [] }),
+        authorIds.length
+          ? supabase
+              .from("member_presence")
+              .select("user_id")
+              .in("user_id", authorIds)
+              .gte("last_active_at", since)
+          : Promise.resolve({ data: [] }),
       ]);
       const onlineIds = new Set((presenceResult.data ?? []).map((row) => row.user_id));
 
       const profiles = new Map(
-        ((profilesResult.data ?? []) as { user_id: string; full_name: string; avatar_url: string | null; verified_tier: string | null; verified_until: string | null }[]).map(
-          (row) => [row.user_id, row],
-        ),
+        (
+          (profilesResult.data ?? []) as {
+            user_id: string;
+            full_name: string;
+            avatar_url: string | null;
+            verified_tier: string | null;
+            verified_until: string | null;
+          }[]
+        ).map((row) => [row.user_id, row]),
       );
       const providers = new Map(
         (
@@ -143,7 +165,11 @@ export function useSpotlightFeed(limit = 18) {
 
       const mediaPaths = postRows.flatMap((row) => parseMedia(row.media).map((m) => m.path));
       const signed = await signSpotlightPaths(mediaPaths);
-      const reactionRows = (reactionsResult.data ?? []) as Array<{ spotlight_id: string; user_id: string; reaction_type: string }>;
+      const reactionRows = (reactionsResult.data ?? []) as Array<{
+        spotlight_id: string;
+        user_id: string;
+        reaction_type: string;
+      }>;
 
       const postEntries: SpotlightEntry[] = postRows.flatMap((row) => {
         const media = parseMedia(row.media);
@@ -153,10 +179,12 @@ export function useSpotlightFeed(limit = 18) {
         if (!url) return [];
         const storefront = row.provider_id ? providers.get(row.provider_id) : undefined;
         const profile = profiles.get(row.author_id);
-         const reactions = reactionRows.filter((item) => item.spotlight_id === row.id);
-         const breakdown = { ...EMPTY_REACTIONS };
-         for (const reaction of reactions) if (reaction.reaction_type in breakdown) breakdown[reaction.reaction_type as ReactionType] += 1;
-         return [
+        const reactions = reactionRows.filter((item) => item.spotlight_id === row.id);
+        const breakdown = { ...EMPTY_REACTIONS };
+        for (const reaction of reactions)
+          if (reaction.reaction_type in breakdown)
+            breakdown[reaction.reaction_type as ReactionType] += 1;
+        return [
           {
             id: `post:${row.id}`,
             caption: row.caption?.trim() ? row.caption : null,
@@ -165,20 +193,24 @@ export function useSpotlightFeed(limit = 18) {
             media_type: first.type,
             source: "post",
             author_id: row.author_id,
-             reaction_count: reactions.length,
-             reaction_breakdown: breakdown,
-             current_reaction: (reactions.find((item) => item.user_id === auth.user?.id)?.reaction_type as ReactionType | undefined) ?? null,
-            provider: storefront ? { ...storefront, online: onlineIds.has(row.author_id) } : {
-              id: "",
-              business_name: profile?.full_name ?? "Profile",
-              slug: null,
-              city: null,
-              avatar_url: profile?.avatar_url ?? null,
-              is_verified: false,
-              verified_tier: profile?.verified_tier ?? null,
-              verified_until: profile?.verified_until ?? null,
-              online: onlineIds.has(row.author_id),
-            },
+            reaction_count: reactions.length,
+            reaction_breakdown: breakdown,
+            current_reaction:
+              (reactions.find((item) => item.user_id === auth.user?.id)?.reaction_type as
+                ReactionType | undefined) ?? null,
+            provider: storefront
+              ? { ...storefront, online: onlineIds.has(row.author_id) }
+              : {
+                  id: "",
+                  business_name: profile?.full_name ?? "Profile",
+                  slug: null,
+                  city: null,
+                  avatar_url: profile?.avatar_url ?? null,
+                  is_verified: false,
+                  verified_tier: profile?.verified_tier ?? null,
+                  verified_until: profile?.verified_until ?? null,
+                  online: onlineIds.has(row.author_id),
+                },
           },
         ];
       });
@@ -225,8 +257,17 @@ export function useSpotlightFeed(limit = 18) {
 export function useSetSpotlightReaction() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ spotlightId, reaction }: { spotlightId: string; reaction: ReactionType | null }) => {
-      const { error } = await supabase.rpc("set_spotlight_reaction", { _spotlight_id: spotlightId, _reaction_type: reaction ?? "" });
+    mutationFn: async ({
+      spotlightId,
+      reaction,
+    }: {
+      spotlightId: string;
+      reaction: ReactionType | null;
+    }) => {
+      const { error } = await supabase.rpc("set_spotlight_reaction", {
+        _spotlight_id: spotlightId,
+        _reaction_type: reaction ?? "",
+      });
       if (error) throw error;
     },
     onSuccess: (_result, variables) => {
@@ -289,7 +330,8 @@ export function useCreateSpotlight() {
         });
         if (error) throw error;
       } catch (error) {
-        if (media.length > 0) await supabase.storage.from(SPOTLIGHT_BUCKET).remove(media.map((item) => item.path));
+        if (media.length > 0)
+          await supabase.storage.from(SPOTLIGHT_BUCKET).remove(media.map((item) => item.path));
         throw error;
       }
     },
@@ -305,7 +347,8 @@ export function useDeleteSpotlight() {
 
   return useMutation({
     mutationFn: async (entry: SpotlightEntry) => {
-      if (entry.source !== "post") throw new Error("Only your own Spotlight posts can be deleted here.");
+      if (entry.source !== "post")
+        throw new Error("Only your own Spotlight posts can be deleted here.");
       const { data: auth } = await supabase.auth.getUser();
       if (!auth.user || entry.author_id !== auth.user.id) {
         throw new Error("Only the person who posted this Spotlight can delete it.");

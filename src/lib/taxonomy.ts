@@ -26,29 +26,55 @@ export const CATEGORY_GROUPS: CategoryGroup[] = [
   {
     id: "BEAUTY",
     label: { en: "Beauty", fr: "Beauté" },
-    headline: { en: "Find your next beauty experience.", fr: "Trouvez votre prochaine expérience beauté." },
+    headline: {
+      en: "Find your next beauty experience.",
+      fr: "Trouvez votre prochaine expérience beauté.",
+    },
     copy: {
       en: "Braiders, hair stylists, barbers, nail and lash artists, makeup and wellness pros near you.",
       fr: "Tresseuses, coiffeurs, barbiers, prothésistes ongulaires, maquilleurs et bien-être près de chez vous.",
     },
     image: heroBeauty,
-    categories: ["BRAIDER", "HAIR_STYLIST", "BARBER", "NAIL_TECH", "LASH_TECH", "MAKEUP", "MASSAGE"],
+    categories: [
+      "BRAIDER",
+      "HAIR_STYLIST",
+      "BARBER",
+      "NAIL_TECH",
+      "LASH_TECH",
+      "MAKEUP",
+      "MASSAGE",
+    ],
   },
   {
     id: "TECH",
     label: { en: "Technology", fr: "Technologie" },
-    headline: { en: "Build your next digital product.", fr: "Créez votre prochain produit digital." },
+    headline: {
+      en: "Build your next digital product.",
+      fr: "Créez votre prochain produit digital.",
+    },
     copy: {
       en: "Web and mobile developers, UI/UX designers, cloud, DevOps, AI and cybersecurity specialists.",
       fr: "Développeurs web et mobile, designers UI/UX, cloud, DevOps, IA et cybersécurité.",
     },
     image: heroTech,
-    categories: ["WEB_DEV", "MOBILE_DEV", "UIUX", "CLOUD", "DEVOPS", "AI", "CYBERSECURITY", "IT_CONSULTING"],
+    categories: [
+      "WEB_DEV",
+      "MOBILE_DEV",
+      "UIUX",
+      "CLOUD",
+      "DEVOPS",
+      "AI",
+      "CYBERSECURITY",
+      "IT_CONSULTING",
+    ],
   },
   {
     id: "HOME",
     label: { en: "Home", fr: "Maison" },
-    headline: { en: "Find trusted professionals near you.", fr: "Trouvez des professionnels de confiance." },
+    headline: {
+      en: "Find trusted professionals near you.",
+      fr: "Trouvez des professionnels de confiance.",
+    },
     copy: {
       en: "Electricians, plumbers, cleaners, handymen and private chefs, rated by real clients.",
       fr: "Électriciens, plombiers, agents d'entretien, bricoleurs et chefs privés, notés par de vrais clients.",
@@ -81,7 +107,10 @@ export const CATEGORY_GROUPS: CategoryGroup[] = [
   {
     id: "PROFESSIONAL",
     label: { en: "Professional", fr: "Professionnel" },
-    headline: { en: "Grow your business with experts.", fr: "Développez votre activité avec des experts." },
+    headline: {
+      en: "Grow your business with experts.",
+      fr: "Développez votre activité avec des experts.",
+    },
     copy: {
       en: "Consultants and professional services listed by verified ASH Glo members.",
       fr: "Consultants et services professionnels proposés par des membres ASH Glo vérifiés.",

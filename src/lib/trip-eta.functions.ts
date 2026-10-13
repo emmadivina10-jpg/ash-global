@@ -4,7 +4,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
 
-export type TripEta = { durationSeconds: number; distanceMeters: number } | { error: string } | null;
+export type TripEta =
+  { durationSeconds: number; distanceMeters: number } | { error: string } | null;
 
 /**
  * Driving time from the provider's latest real position to the booking address.
@@ -21,7 +22,11 @@ export const getTripEta = createServerFn({ method: "POST" })
       .eq("booking_id", data.bookingId)
       .maybeSingle();
     if (!loc) return null;
-    const { data: b } = await context.supabase.from("bookings").select("address").eq("id", data.bookingId).maybeSingle();
+    const { data: b } = await context.supabase
+      .from("bookings")
+      .select("address")
+      .eq("id", data.bookingId)
+      .maybeSingle();
     const address = (b?.address ?? "").trim();
     if (!address) return null;
 
@@ -47,7 +52,9 @@ export const getTripEta = createServerFn({ method: "POST" })
       console.error(`Routes request failed [${res.status}]: ${await res.text()}`);
       return { error: res.status === 403 ? "MAPS_KEY_DENIED" : "ROUTE_FAILED" };
     }
-    const json = (await res.json()) as { routes?: Array<{ duration?: string; distanceMeters?: number }> };
+    const json = (await res.json()) as {
+      routes?: Array<{ duration?: string; distanceMeters?: number }>;
+    };
     const route = json.routes?.[0];
     const secs = route?.duration ? Number.parseFloat(route.duration) : Number.NaN;
     if (!route || !Number.isFinite(secs)) return { error: "ROUTE_NOT_FOUND" };

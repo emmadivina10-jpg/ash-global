@@ -36,19 +36,45 @@ export function PaymentMethodPicker({
   const options: { id: Choice; label: string; icon: React.ReactNode; tone: string }[] = [
     ...(showMomo
       ? [
-          { id: "MTN" as const, label: "MTN Mobile Money", icon: <Smartphone className="size-5" aria-hidden />, tone: "bg-yellow-400/15 text-yellow-600 dark:text-yellow-300" },
-          { id: "ORANGE" as const, label: "Orange Money", icon: <Smartphone className="size-5" aria-hidden />, tone: "bg-orange-500/15 text-orange-600 dark:text-orange-300" },
+          {
+            id: "MTN" as const,
+            label: "MTN Mobile Money",
+            icon: <Smartphone className="size-5" aria-hidden />,
+            tone: "bg-yellow-400/15 text-yellow-600 dark:text-yellow-300",
+          },
+          {
+            id: "ORANGE" as const,
+            label: "Orange Money",
+            icon: <Smartphone className="size-5" aria-hidden />,
+            tone: "bg-orange-500/15 text-orange-600 dark:text-orange-300",
+          },
         ]
       : []),
-    { id: "BANK", label: fr ? "Virement bancaire" : "Bank", icon: <Building2 className="size-5" aria-hidden />, tone: "bg-primary/10 text-primary" },
-    { id: "CARD", label: fr ? "Carte / Stripe" : "Card / Stripe", icon: <CreditCard className="size-5" aria-hidden />, tone: "bg-accent text-accent-foreground" },
+    {
+      id: "BANK",
+      label: fr ? "Virement bancaire" : "Bank",
+      icon: <Building2 className="size-5" aria-hidden />,
+      tone: "bg-primary/10 text-primary",
+    },
+    {
+      id: "CARD",
+      label: fr ? "Carte / Stripe" : "Card / Stripe",
+      icon: <CreditCard className="size-5" aria-hidden />,
+      tone: "bg-accent text-accent-foreground",
+    },
   ];
 
   if (choice === "MTN" || choice === "ORANGE") {
     return (
       <div className="space-y-3">
         <BackButton fr={fr} onClick={() => setChoice(null)} />
-        <MomoCharge country={country} busy={busy} submitLabel={busy ? (fr ? "Envoi…" : "Sending prompt…") : amountLabel} onCharge={onMomo} fr={fr}>
+        <MomoCharge
+          country={country}
+          busy={busy}
+          submitLabel={busy ? (fr ? "Envoi…" : "Sending prompt…") : amountLabel}
+          onCharge={onMomo}
+          fr={fr}
+        >
           {children}
         </MomoCharge>
       </div>
@@ -60,11 +86,19 @@ export function PaymentMethodPicker({
       <div className="space-y-3">
         <BackButton fr={fr} onClick={() => setChoice(null)} />
         {children}
-        <Button className="w-full" disabled={busy} onClick={() => void (choice === "BANK" ? onBank() : onCard())}>
+        <Button
+          className="w-full"
+          disabled={busy}
+          onClick={() => void (choice === "BANK" ? onBank() : onCard())}
+        >
           {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
           {choice === "BANK"
-            ? fr ? "Obtenir les coordonnées bancaires" : "Get bank transfer details"
-            : fr ? `Payer par carte — ${amountLabel}` : `Pay by card — ${amountLabel}`}
+            ? fr
+              ? "Obtenir les coordonnées bancaires"
+              : "Get bank transfer details"
+            : fr
+              ? `Payer par carte — ${amountLabel}`
+              : `Pay by card — ${amountLabel}`}
         </Button>
       </div>
     );
@@ -72,7 +106,9 @@ export function PaymentMethodPicker({
 
   return (
     <div className="space-y-2">
-      <p className="text-sm font-semibold text-foreground">{fr ? "Choisir un moyen de paiement" : "Choose payment method"}</p>
+      <p className="text-sm font-semibold text-foreground">
+        {fr ? "Choisir un moyen de paiement" : "Choose payment method"}
+      </p>
       <div className="grid gap-2 sm:grid-cols-2">
         {options.map((o) => (
           <button
@@ -81,7 +117,9 @@ export function PaymentMethodPicker({
             onClick={() => setChoice(o.id)}
             className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 text-left text-sm font-semibold text-foreground transition hover:border-primary/50"
           >
-            <span className={cn("grid size-9 place-items-center rounded-xl", o.tone)}>{o.icon}</span>
+            <span className={cn("grid size-9 place-items-center rounded-xl", o.tone)}>
+              {o.icon}
+            </span>
             {o.label}
           </button>
         ))}
@@ -92,16 +130,31 @@ export function PaymentMethodPicker({
 
 function BackButton({ onClick, fr }: { onClick: () => void; fr: boolean }) {
   return (
-    <button type="button" onClick={onClick} className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground">
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
+    >
       <ArrowLeft className="size-4" aria-hidden />
       {fr ? "Choisir un autre moyen" : "Choose another method"}
     </button>
   );
 }
 
-export const BANK_UNAVAILABLE_TEXT = "Bank transfer is currently unavailable. Please choose another payment method.";
+export const BANK_UNAVAILABLE_TEXT =
+  "Bank transfer is currently unavailable. Please choose another payment method.";
 
-export function BankInstructions({ bank, reference, amountLabel, fr = false }: { bank: BankDetails; reference: string; amountLabel: string; fr?: boolean }) {
+export function BankInstructions({
+  bank,
+  reference,
+  amountLabel,
+  fr = false,
+}: {
+  bank: BankDetails;
+  reference: string;
+  amountLabel: string;
+  fr?: boolean;
+}) {
   const rows: [string, string | null][] = [
     [fr ? "Banque" : "Bank", bank.bank_name],
     [fr ? "Titulaire" : "Account name", bank.account_name],
@@ -118,18 +171,24 @@ export function BankInstructions({ bank, reference, amountLabel, fr = false }: {
         {fr ? "Effectuez le virement" : "Make your bank transfer"}
       </p>
       <dl className="mt-3 space-y-1.5">
-        {rows.filter(([, v]) => v).map(([k, v]) => (
-          <div key={k} className="flex justify-between gap-3">
-            <dt className="text-muted-foreground">{k}</dt>
-            <dd className="tabular text-right font-medium text-foreground">{v}</dd>
-          </div>
-        ))}
+        {rows
+          .filter(([, v]) => v)
+          .map(([k, v]) => (
+            <div key={k} className="flex justify-between gap-3">
+              <dt className="text-muted-foreground">{k}</dt>
+              <dd className="tabular text-right font-medium text-foreground">{v}</dd>
+            </div>
+          ))}
       </dl>
       <div className="mt-3 rounded-xl bg-primary/10 p-3">
-        <p className="text-xs uppercase tracking-wide text-muted-foreground">{fr ? "Référence obligatoire" : "Required payment reference"}</p>
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+          {fr ? "Référence obligatoire" : "Required payment reference"}
+        </p>
         <p className="tabular mt-1 font-bold text-foreground">{reference}</p>
       </div>
-      {bank.instructions ? <p className="mt-3 text-xs text-muted-foreground">{bank.instructions}</p> : null}
+      {bank.instructions ? (
+        <p className="mt-3 text-xs text-muted-foreground">{bank.instructions}</p>
+      ) : null}
       <p className="mt-3 text-xs text-muted-foreground">
         {fr
           ? "Statut : en attente. Le paiement est validé uniquement après confirmation par l'équipe Finance ASH."

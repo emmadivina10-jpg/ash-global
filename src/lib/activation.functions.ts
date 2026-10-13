@@ -2,8 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type WalletActivationResult =
-  | { ok: true; reference: string; balance: number }
-  | { ok: false; error: string; balance?: number };
+  { ok: true; reference: string; balance: number } | { ok: false; error: string; balance?: number };
 
 /**
  * Pay the one-time activation fee from the user's wallet balance. The wallet
@@ -17,7 +16,12 @@ export const activateWithWallet = createServerFn({ method: "POST" })
     const { supabase } = context;
     const { data, error } = await supabase.rpc("activate_with_wallet");
     if (error) return { ok: false, error: "ACTIVATION_FAILED" };
-    const result = data as { ok?: boolean; error?: string; reference?: string; balance?: number } | null;
+    const result = data as {
+      ok?: boolean;
+      error?: string;
+      reference?: string;
+      balance?: number;
+    } | null;
     if (!result?.ok) {
       return result?.balance != null
         ? { ok: false, error: result.error ?? "ACTIVATION_FAILED", balance: result.balance }

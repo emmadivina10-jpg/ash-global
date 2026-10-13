@@ -1,5 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, BadgeCheck, CalendarDays, MessageCircle, Star, Store, Wallet } from "lucide-react";
+import {
+  ArrowLeft,
+  BadgeCheck,
+  CalendarDays,
+  MessageCircle,
+  Star,
+  Store,
+  Wallet,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState, LoadingState } from "@/components/refer/states";
@@ -18,9 +26,16 @@ export const Route = createFileRoute("/_authenticated/campus/teaching")({
   head: () => ({
     meta: [
       { title: "Instructor dashboard — ASH Campus" },
-      { name: "description", content: "Your ASH Campus instructor profile, services, sessions, reviews and availability in one place." },
+      {
+        name: "description",
+        content:
+          "Your ASH Campus instructor profile, services, sessions, reviews and availability in one place.",
+      },
       { property: "og:title", content: "Instructor dashboard — ASH Campus" },
-      { property: "og:description", content: "Manage your ASH Campus teaching profile and sessions." },
+      {
+        property: "og:description",
+        content: "Manage your ASH Campus teaching profile and sessions.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -57,11 +72,16 @@ function TeachingDashboard() {
               ? fr
                 ? `Statut de votre candidature : ${application.data.status.replaceAll("_", " ").toLowerCase()}.`
                 : `Your application status: ${application.data.status.replaceAll("_", " ").toLowerCase()}.`
-              : tx("Apply to teach on ASH Campus.", "Envoyez votre candidature pour enseigner sur ASH Campus.")
+              : tx(
+                  "Apply to teach on ASH Campus.",
+                  "Envoyez votre candidature pour enseigner sur ASH Campus.",
+                )
           }
           action={
             <Button asChild>
-              <Link to="/campus/become-instructor">{tx("Become an Instructor", "Devenir instructeur")}</Link>
+              <Link to="/campus/become-instructor">
+                {tx("Become an Instructor", "Devenir instructeur")}
+              </Link>
             </Button>
           }
         />
@@ -69,8 +89,15 @@ function TeachingDashboard() {
     );
   }
 
-  const sessions = (bookings.data ?? []) as { id: string; status: string; service_title?: string; scheduled_at?: string }[];
-  const upcoming = sessions.filter((item) => ["PENDING", "CONFIRMED", "ACCEPTED"].includes(item.status));
+  const sessions = (bookings.data ?? []) as {
+    id: string;
+    status: string;
+    service_title?: string;
+    scheduled_at?: string;
+  }[];
+  const upcoming = sessions.filter((item) =>
+    ["PENDING", "CONFIRMED", "ACCEPTED"].includes(item.status),
+  );
   const completed = sessions.filter((item) => item.status === "COMPLETED");
 
   return (
@@ -87,7 +114,9 @@ function TeachingDashboard() {
           <BadgeCheck className="size-3.5" aria-hidden />
           {instructorTitle(instructor.instructor_types, fr)}
         </p>
-        <h1 className="mt-1 font-display text-2xl font-extrabold text-foreground">{instructor.display_name}</h1>
+        <h1 className="mt-1 font-display text-2xl font-extrabold text-foreground">
+          {instructor.display_name}
+        </h1>
         <p className="text-sm text-muted-foreground">{instructor.headline}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           <Badge variant="outline">
@@ -96,7 +125,9 @@ function TeachingDashboard() {
           <Badge variant="outline">
             {details.data?.availability.length ?? 0} {tx("time slots", "créneaux")}
           </Badge>
-          <Badge variant="outline">{instructor.is_active ? (tx("Visible", "Visible")) : tx("Hidden", "Masqué")}</Badge>
+          <Badge variant="outline">
+            {instructor.is_active ? tx("Visible", "Visible") : tx("Hidden", "Masqué")}
+          </Badge>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
           <Button asChild variant="outline" size="sm">
@@ -126,22 +157,44 @@ function TeachingDashboard() {
       </header>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <Stat label={tx("Upcoming sessions", "Séances à venir")} value={upcoming.length} icon={CalendarDays} />
-        <Stat label={tx("Completed sessions", "Séances terminées")} value={completed.length} icon={CalendarDays} />
+        <Stat
+          label={tx("Upcoming sessions", "Séances à venir")}
+          value={upcoming.length}
+          icon={CalendarDays}
+        />
+        <Stat
+          label={tx("Completed sessions", "Séances terminées")}
+          value={completed.length}
+          icon={CalendarDays}
+        />
         <Stat label={tx("Reviews", "Avis")} value={reviews.data?.length ?? 0} icon={Star} />
       </div>
 
       <section className="rounded-2xl border border-border bg-card p-5">
-        <h2 className="mb-3 font-display text-base font-bold text-foreground">{tx("Earnings", "Gains")}</h2>
+        <h2 className="mb-3 font-display text-base font-bold text-foreground">
+          {tx("Earnings", "Gains")}
+        </h2>
         <div className="grid gap-3 sm:grid-cols-4">
-          <Money label={tx("Gross revenue", "Revenu brut")} value={earnings.data?.gross ?? 0} currency={instructor.currency} />
+          <Money
+            label={tx("Gross revenue", "Revenu brut")}
+            value={earnings.data?.gross ?? 0}
+            currency={instructor.currency}
+          />
           <Money
             label={tx("ASH commission (10%)", "Commission ASH (10 %)")}
             value={earnings.data?.commission ?? 0}
             currency={instructor.currency}
           />
-          <Money label={tx("Your earnings", "Vos gains")} value={earnings.data?.net ?? 0} currency={instructor.currency} />
-          <Money label={tx("Pending", "En attente")} value={earnings.data?.pending ?? 0} currency={instructor.currency} />
+          <Money
+            label={tx("Your earnings", "Vos gains")}
+            value={earnings.data?.net ?? 0}
+            currency={instructor.currency}
+          />
+          <Money
+            label={tx("Pending", "En attente")}
+            value={earnings.data?.pending ?? 0}
+            currency={instructor.currency}
+          />
         </div>
         <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
           {fr
@@ -151,10 +204,15 @@ function TeachingDashboard() {
       </section>
 
       <section className="rounded-2xl border border-border bg-card p-5">
-        <h2 className="mb-3 font-display text-base font-bold text-foreground">{tx("My services", "Mes services")}</h2>
+        <h2 className="mb-3 font-display text-base font-bold text-foreground">
+          {tx("My services", "Mes services")}
+        </h2>
         {!instructor.provider_id ? (
           <p className="text-sm text-muted-foreground">
-            {tx("Create your provider space in Studio first to publish services and accept bookings.", "Créez d'abord votre espace prestataire dans le Studio pour publier des services et accepter des réservations.")}
+            {tx(
+              "Create your provider space in Studio first to publish services and accept bookings.",
+              "Créez d'abord votre espace prestataire dans le Studio pour publier des services et accepter des réservations.",
+            )}
           </p>
         ) : !services.data?.length ? (
           <p className="text-sm text-muted-foreground">
@@ -163,7 +221,10 @@ function TeachingDashboard() {
         ) : (
           <ul className="space-y-2">
             {services.data.map((service: { id: string; title: string; price: number }) => (
-              <li key={service.id} className="flex items-center justify-between rounded-xl border border-border p-3 text-sm">
+              <li
+                key={service.id}
+                className="flex items-center justify-between rounded-xl border border-border p-3 text-sm"
+              >
                 <span className="font-semibold text-foreground">{service.title}</span>
                 <span className="text-muted-foreground">
                   {service.price} {instructor.currency}
@@ -175,13 +236,24 @@ function TeachingDashboard() {
       </section>
 
       <p className="rounded-2xl border border-border bg-card p-4 text-xs leading-relaxed text-muted-foreground">
-        {tx("Payments, bookings and earnings run through the existing ASH infrastructure. All amounts are calculated server-side.", "Les paiements, réservations et gains passent par l'infrastructure ASH existante. Les montants sont calculés côté serveur.")}
+        {tx(
+          "Payments, bookings and earnings run through the existing ASH infrastructure. All amounts are calculated server-side.",
+          "Les paiements, réservations et gains passent par l'infrastructure ASH existante. Les montants sont calculés côté serveur.",
+        )}
       </p>
     </div>
   );
 }
 
-function Stat({ label, value, icon: Icon }: { label: string; value: number; icon: typeof CalendarDays }) {
+function Stat({
+  label,
+  value,
+  icon: Icon,
+}: {
+  label: string;
+  value: number;
+  icon: typeof CalendarDays;
+}) {
   return (
     <div className="rounded-2xl border border-border bg-card p-4">
       <Icon className="size-4 text-primary" aria-hidden />

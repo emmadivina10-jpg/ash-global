@@ -43,20 +43,34 @@ export function EmployeeTermsGate({ children }: { children: React.ReactNode }) {
         <div className="mt-4 max-h-64 space-y-3 overflow-y-auto rounded-2xl border border-border/50 bg-background/60 p-4 text-sm leading-relaxed text-muted-foreground">
           <p>As an ASH employee you agree to:</p>
           <ul className="list-disc space-y-2 pl-5">
-            <li>Keep all customer, financial, Trust &amp; Safety and internal company information strictly confidential.</li>
+            <li>
+              Keep all customer, financial, Trust &amp; Safety and internal company information
+              strictly confidential.
+            </li>
             <li>Access only the data and tools required for your assigned department and role.</li>
             <li>Never share your console login with anyone, inside or outside ASH.</li>
             <li>Handle customer tickets and reports professionally and within response targets.</li>
             <li>Never use ASH systems, data or customer contacts for personal purposes.</li>
             <li>Report security incidents, data breaches or policy violations immediately.</li>
-            <li>Follow all ASH policies; violations may lead to suspension of access and disciplinary action.</li>
+            <li>
+              Follow all ASH policies; violations may lead to suspension of access and disciplinary
+              action.
+            </li>
           </ul>
         </div>
         <label className="mt-5 flex cursor-pointer items-start gap-3 text-sm">
-          <Checkbox checked={checked} onCheckedChange={(v) => setChecked(v === true)} className="mt-0.5" />
+          <Checkbox
+            checked={checked}
+            onCheckedChange={(v) => setChecked(v === true)}
+            className="mt-0.5"
+          />
           <span>I have read and agree to the ASH Employee Terms &amp; Conditions</span>
         </label>
-        <Button className="mt-5 w-full" disabled={!checked || submit.isPending} onClick={() => submit.mutate()}>
+        <Button
+          className="mt-5 w-full"
+          disabled={!checked || submit.isPending}
+          onClick={() => submit.mutate()}
+        >
           {submit.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
           Continue
         </Button>

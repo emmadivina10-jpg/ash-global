@@ -16,25 +16,31 @@ export function AshOrb() {
   return (
     <CompassSurface
       active={Boolean(trip)}
-      map={trip ? <>
-        <div className="px-3 pt-3">
-          <Button asChild variant="outline" className="w-full">
-            <Link to="/booking/$bookingId/track" params={{ bookingId: trip.id }}>
-              <Expand className="size-4" />
-              {tx("Open booking tracking", "Ouvrir le suivi de réservation")}
-            </Link>
-          </Button>
-        </div>
-        <BookingTracking bookingId={trip.id} embedded />
-      </> : (
-        <div className="space-y-4 p-5">
-          <Map className="size-8 text-success" />
-          <p className="text-sm font-medium">{tx("No active booking", "Aucune réservation en cours")}</p>
-          <Button asChild variant="secondary" className="w-full">
-            <Link to="/bookings">{tx("Bookings", "Réservations")}</Link>
-          </Button>
-        </div>
-      )}
+      map={
+        trip ? (
+          <>
+            <div className="px-3 pt-3">
+              <Button asChild variant="outline" className="w-full">
+                <Link to="/booking/$bookingId/track" params={{ bookingId: trip.id }}>
+                  <Expand className="size-4" />
+                  {tx("Open booking tracking", "Ouvrir le suivi de réservation")}
+                </Link>
+              </Button>
+            </div>
+            <BookingTracking bookingId={trip.id} embedded />
+          </>
+        ) : (
+          <div className="space-y-4 p-5">
+            <Map className="size-8 text-success" />
+            <p className="text-sm font-medium">
+              {tx("No active booking", "Aucune réservation en cours")}
+            </p>
+            <Button asChild variant="secondary" className="w-full">
+              <Link to="/bookings">{tx("Bookings", "Réservations")}</Link>
+            </Button>
+          </div>
+        )
+      }
     />
   );
 }

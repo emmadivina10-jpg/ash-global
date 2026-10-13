@@ -21,7 +21,10 @@ export type ContactCard = {
 /** Pulls everything the agent needs about a person from their email or phone. */
 export const lookupContact = createServerFn({ method: "POST" })
   .inputValidator((data: { query: string }) => ({
-    query: String(data?.query ?? "").trim().toLowerCase().slice(0, 200),
+    query: String(data?.query ?? "")
+      .trim()
+      .toLowerCase()
+      .slice(0, 200),
   }))
   .handler(async ({ data }): Promise<{ ok: boolean; contact: ContactCard | null }> => {
     const { requireDepartment, adminClient } = await import("./console.server");
@@ -44,7 +47,10 @@ export const lookupContact = createServerFn({ method: "POST" })
         .select("available_balance, total_earned")
         .eq("user_id", profile.user_id)
         .maybeSingle(),
-      db.from("bookings").select("id", { count: "exact", head: true }).eq("client_id", profile.user_id),
+      db
+        .from("bookings")
+        .select("id", { count: "exact", head: true })
+        .eq("client_id", profile.user_id),
       db
         .from("provider_profiles")
         .select("id, business_name, is_verified, city, whatsapp, phone")
@@ -87,9 +93,16 @@ export const sendOutreachEmail = createServerFn({ method: "POST" })
       leadId?: string | null;
       department?: string;
     }) => ({
-      to: String(data?.to ?? "").trim().toLowerCase().slice(0, 200),
-      subject: String(data?.subject ?? "").trim().slice(0, 180),
-      message: String(data?.message ?? "").trim().slice(0, 8000),
+      to: String(data?.to ?? "")
+        .trim()
+        .toLowerCase()
+        .slice(0, 200),
+      subject: String(data?.subject ?? "")
+        .trim()
+        .slice(0, 180),
+      message: String(data?.message ?? "")
+        .trim()
+        .slice(0, 8000),
       templateKey: String(data?.templateKey ?? "custom").slice(0, 60),
       userId: data?.userId ?? null,
       ticketId: data?.ticketId ?? null,
@@ -169,7 +182,9 @@ export const logOutreach = createServerFn({ method: "POST" })
       leadId?: string | null;
       ticketId?: string | null;
     }) => ({
-      channel: (["WHATSAPP", "CALL", "SMS"] as const).includes(data?.channel) ? data.channel : "WHATSAPP",
+      channel: (["WHATSAPP", "CALL", "SMS"] as const).includes(data?.channel)
+        ? data.channel
+        : "WHATSAPP",
       recipient: String(data?.recipient ?? "").slice(0, 120),
       body: String(data?.body ?? "").slice(0, 8000),
       templateKey: String(data?.templateKey ?? "custom").slice(0, 60),
@@ -203,7 +218,9 @@ export const getOutreachLog = createServerFn({ method: "GET" }).handler(async ()
   const db = await adminClient();
   const { data } = await db
     .from("outreach_log")
-    .select("id, channel, recipient, subject, template_key, staff_name, delivered, error, created_at")
+    .select(
+      "id, channel, recipient, subject, template_key, staff_name, delivered, error, created_at",
+    )
     .order("created_at", { ascending: false })
     .limit(60);
   return data ?? [];

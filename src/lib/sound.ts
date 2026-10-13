@@ -126,7 +126,9 @@ export function playTabSound(): void {
     pop.connect(gain);
     pop.start(now);
     pop.stop(now + 0.06);
-  } catch { /* audio unavailable */ }
+  } catch {
+    /* audio unavailable */
+  }
 }
 
 /** Gentle rising chime when a pull-to-refresh is released. */

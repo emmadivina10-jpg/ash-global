@@ -109,7 +109,12 @@ export function StatementDialog({
               {fr ? "Imprimez ou enregistrez en PDF" : "Print or save as PDF"}
             </p>
           </div>
-          <Button size="icon" variant="ghost" aria-label={fr ? "Fermer" : "Close"} onClick={onClose}>
+          <Button
+            size="icon"
+            variant="ghost"
+            aria-label={fr ? "Fermer" : "Close"}
+            onClick={onClose}
+          >
             <X className="size-4" aria-hidden />
           </Button>
         </div>
@@ -154,7 +159,11 @@ export function StatementDialog({
               <p className="text-sm font-bold text-foreground">{holder.name}</p>
               {holder.email ? <p>{holder.email}</p> : null}
               {holder.phone ? <p>{holder.phone}</p> : null}
-              {holder.reference ? <p>{fr ? "Code" : "Code"}: {holder.reference}</p> : null}
+              {holder.reference ? (
+                <p>
+                  {fr ? "Code" : "Code"}: {holder.reference}
+                </p>
+              ) : null}
             </div>
           </div>
 
@@ -163,19 +172,25 @@ export function StatementDialog({
               <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
                 {fr ? "Entrées" : "Money in"}
               </p>
-              <p className="tabular mt-1 text-sm font-bold text-success">{formatXAF(totals.credits)}</p>
+              <p className="tabular mt-1 text-sm font-bold text-success">
+                {formatXAF(totals.credits)}
+              </p>
             </div>
             <div className="rounded-xl border border-border p-3">
               <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
                 {fr ? "Sorties" : "Money out"}
               </p>
-              <p className="tabular mt-1 text-sm font-bold text-foreground">{formatXAF(totals.debits)}</p>
+              <p className="tabular mt-1 text-sm font-bold text-foreground">
+                {formatXAF(totals.debits)}
+              </p>
             </div>
             <div className="rounded-xl border border-border p-3">
               <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
                 {fr ? "Net" : "Net"}
               </p>
-              <p className="tabular mt-1 text-sm font-bold text-foreground">{formatSignedXAF(totals.net)}</p>
+              <p className="tabular mt-1 text-sm font-bold text-foreground">
+                {formatSignedXAF(totals.net)}
+              </p>
             </div>
           </div>
 
@@ -192,8 +207,12 @@ export function StatementDialog({
             <tbody>
               {rows.map((tx) => (
                 <tr key={tx.id} className="border-b border-border/60 align-top">
-                  <td className="py-2 pr-2 text-muted-foreground">{formatDateTime(tx.created_at)}</td>
-                  <td className="py-2 pr-2 font-semibold text-foreground">{transactionLabel(tx.type)}</td>
+                  <td className="py-2 pr-2 text-muted-foreground">
+                    {formatDateTime(tx.created_at)}
+                  </td>
+                  <td className="py-2 pr-2 font-semibold text-foreground">
+                    {transactionLabel(tx.type)}
+                  </td>
                   <td className="py-2 pr-2 break-all text-muted-foreground">{tx.reference}</td>
                   <td className="py-2 pr-2 text-muted-foreground">{tx.status}</td>
                   <td className="tabular py-2 text-right font-bold text-foreground">

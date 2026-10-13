@@ -73,7 +73,10 @@ export function SpotlightComposer({
     setFiles((current) => [...current, ...picked]);
     setPreviews((current) => [
       ...current,
-      ...picked.map((file) => ({ url: URL.createObjectURL(file), video: file.type.startsWith("video/") })),
+      ...picked.map((file) => ({
+        url: URL.createObjectURL(file),
+        video: file.type.startsWith("video/"),
+      })),
     ]);
   };
 
@@ -107,7 +110,10 @@ export function SpotlightComposer({
     }
   };
 
-  const displayName = provider && asBusiness ? provider.business_name : (identity?.full_name ?? (tx("Profile", "Profil")));
+  const displayName =
+    provider && asBusiness
+      ? provider.business_name
+      : (identity?.full_name ?? tx("Profile", "Profil"));
 
   return (
     <>
@@ -127,7 +133,6 @@ export function SpotlightComposer({
           </span>
         </button>
       )}
-
 
       <Dialog
         open={open}
@@ -172,9 +177,10 @@ export function SpotlightComposer({
               onChange={(event) => setCaption(event.target.value)}
               rows={4}
               maxLength={600}
-              placeholder={
-                tx("What do you want to share? An offer, a new drop, behind the scenes…", "Que voulez-vous partager ? Offre, nouveauté, coulisses…")
-              }
+              placeholder={tx(
+                "What do you want to share? An offer, a new drop, behind the scenes…",
+                "Que voulez-vous partager ? Offre, nouveauté, coulisses…",
+              )}
             />
             <SocialSuggestions value={caption} onChange={setCaption} />
 
@@ -194,7 +200,12 @@ export function SpotlightComposer({
                     }`}
                   >
                     {preview.video ? (
-                      <video src={preview.url} muted playsInline className="size-full object-cover" />
+                      <video
+                        src={preview.url}
+                        muted
+                        playsInline
+                        className="size-full object-cover"
+                      />
                     ) : (
                       <img src={preview.url} alt="" className="size-full object-cover" />
                     )}
@@ -247,7 +258,10 @@ export function SpotlightComposer({
             </div>
 
             <p className="text-[11px] text-muted-foreground">
-              {tx("Up to 4 files, 50 MB maximum per file.", "Jusqu’à 4 fichiers, 50 Mo maximum par fichier.")}
+              {tx(
+                "Up to 4 files, 50 MB maximum per file.",
+                "Jusqu’à 4 fichiers, 50 Mo maximum par fichier.",
+              )}
             </p>
 
             <Button

@@ -11,7 +11,10 @@ export const Route = createFileRoute("/console/marketplace")({
 
 function MarketplaceOps() {
   const load = useServerFn(getMarketplaceHealth);
-  const { data, isLoading } = useQuery({ queryKey: ["console", "marketplace-health"], queryFn: load });
+  const { data, isLoading } = useQuery({
+    queryKey: ["console", "marketplace-health"],
+    queryFn: load,
+  });
 
   if (isLoading) return <LoadingState label="Scanning the marketplace…" />;
   if (!data) return null;
@@ -19,7 +22,9 @@ function MarketplaceOps() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-display text-xl font-extrabold text-foreground">Marketplace Operations</h2>
+        <h2 className="font-display text-xl font-extrabold text-foreground">
+          Marketplace Operations
+        </h2>
         <p className="text-sm text-muted-foreground">
           Keep storefronts complete, verified and converting.
         </p>
@@ -32,9 +37,30 @@ function MarketplaceOps() {
       </div>
 
       <div className="grid gap-5 lg:grid-cols-3">
-        <List title="Unverified providers" rows={data.unverified.map((p) => ({ id: p.id, main: p.business_name, sub: p.city ?? "—" }))} />
-        <List title="Storefronts with no service" rows={data.emptyStorefronts.map((p) => ({ id: p.id, main: p.business_name, sub: p.city ?? "—" }))} />
-        <List title="Zero completed bookings" rows={data.zeroBookings.map((p) => ({ id: p.id, main: p.business_name, sub: p.city ?? "—" }))} />
+        <List
+          title="Unverified providers"
+          rows={data.unverified.map((p) => ({
+            id: p.id,
+            main: p.business_name,
+            sub: p.city ?? "—",
+          }))}
+        />
+        <List
+          title="Storefronts with no service"
+          rows={data.emptyStorefronts.map((p) => ({
+            id: p.id,
+            main: p.business_name,
+            sub: p.city ?? "—",
+          }))}
+        />
+        <List
+          title="Zero completed bookings"
+          rows={data.zeroBookings.map((p) => ({
+            id: p.id,
+            main: p.business_name,
+            sub: p.city ?? "—",
+          }))}
+        />
       </div>
     </div>
   );
@@ -49,7 +75,13 @@ function Stat({ label, value }: { label: string; value: number }) {
   );
 }
 
-function List({ title, rows }: { title: string; rows: { id: string; main: string; sub: string }[] }) {
+function List({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: { id: string; main: string; sub: string }[];
+}) {
   return (
     <div className="rounded-2xl border border-border bg-card p-4">
       <p className="text-sm font-bold text-foreground">{title}</p>

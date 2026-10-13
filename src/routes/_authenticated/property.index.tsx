@@ -1,7 +1,16 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Building2, Home, Landmark, Plus, School, Search, SlidersHorizontal, Store } from "lucide-react";
+import {
+  Building2,
+  Home,
+  Landmark,
+  Plus,
+  School,
+  Search,
+  SlidersHorizontal,
+  Store,
+} from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PropertyCard } from "@/components/refer/PropertyCard";
@@ -92,7 +101,19 @@ function PropertyLanding() {
       ...(amenities.length > 0 ? { amenities } : {}),
       ...(sort ? { sort } : {}),
     };
-  }, [tab, category, city, country, term, maxPrice, bedrooms, furnished, verifiedOnly, amenities, sort]);
+  }, [
+    tab,
+    category,
+    city,
+    country,
+    term,
+    maxPrice,
+    bedrooms,
+    furnished,
+    verifiedOnly,
+    amenities,
+    sort,
+  ]);
 
   const { data: listings, isLoading } = usePropertyListings(filters);
   const { data: savedIds } = useSavedIds();
@@ -102,10 +123,16 @@ function PropertyLanding() {
     const { data: auth } = await supabase.auth.getUser();
     if (!auth.user) return;
     if (saved.has(listingId)) {
-      await supabase.from("property_saves").delete().eq("listing_id", listingId).eq("user_id", auth.user.id);
+      await supabase
+        .from("property_saves")
+        .delete()
+        .eq("listing_id", listingId)
+        .eq("user_id", auth.user.id);
       toast.success(tx("Removed from saved", "Retiré des favoris"));
     } else {
-      const { error } = await supabase.from("property_saves").insert({ listing_id: listingId, user_id: auth.user.id });
+      const { error } = await supabase
+        .from("property_saves")
+        .insert({ listing_id: listingId, user_id: auth.user.id });
       if (error) {
         toast.error(error.message);
         return;
@@ -115,7 +142,9 @@ function PropertyLanding() {
     await queryClient.invalidateQueries({ queryKey: ["property"] });
   }
 
-  const areas = STUDENT_AREAS.filter((area) => !city || area.city.toLowerCase() === city.toLowerCase());
+  const areas = STUDENT_AREAS.filter(
+    (area) => !city || area.city.toLowerCase() === city.toLowerCase(),
+  );
   const cities = PROPERTY_LOCATIONS[country]?.cities ?? [];
 
   return (
@@ -143,12 +172,20 @@ function PropertyLanding() {
         </div>
       </div>
       <header className="tile overflow-hidden p-5 sm:p-7">
-        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary">ASH Property</p>
+        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
+          ASH Property
+        </p>
         <h1 className="mt-1 font-display text-2xl font-extrabold text-foreground sm:text-3xl">
-          {tx("Find a place. Find land. Find opportunities.", "Trouvez un logement. Trouvez un terrain.")}
+          {tx(
+            "Find a place. Find land. Find opportunities.",
+            "Trouvez un logement. Trouvez un terrain.",
+          )}
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          {tx("Searching, browsing and contacting is completely free — and listing your property is free too.", "Recherche, consultation et contact 100% gratuits. Publier une annonce est également gratuit.")}
+          {tx(
+            "Searching, browsing and contacting is completely free — and listing your property is free too.",
+            "Recherche, consultation et contact 100% gratuits. Publier une annonce est également gratuit.",
+          )}
         </p>
 
         <div className="mt-4 flex flex-wrap gap-2">
@@ -183,9 +220,10 @@ function PropertyLanding() {
               value={term}
               onChange={(event) => setTerm(event.target.value)}
               className="pl-9"
-              placeholder={
-                tx("Where are you looking? City, neighborhood or university", "Où cherchez-vous ? Ville, quartier, université")
-              }
+              placeholder={tx(
+                "Where are you looking? City, neighborhood or university",
+                "Où cherchez-vous ? Ville, quartier, université",
+              )}
               aria-label={tx("Search property", "Rechercher un bien")}
             />
           </div>
@@ -297,7 +335,9 @@ function PropertyLanding() {
                       }
                       className={cn(
                         "rounded-full border border-border px-3 py-1.5 text-xs font-semibold transition-colors",
-                        active ? "border-primary/60 bg-primary/10 text-primary" : "text-muted-foreground",
+                        active
+                          ? "border-primary/60 bg-primary/10 text-primary"
+                          : "text-muted-foreground",
                       )}
                     >
                       {tx(item.en, item.fr)}
@@ -308,11 +348,17 @@ function PropertyLanding() {
             </div>
 
             <label className="flex items-center gap-2 text-sm text-foreground">
-              <Checkbox checked={furnished} onCheckedChange={(value) => setFurnished(value === true)} />
+              <Checkbox
+                checked={furnished}
+                onCheckedChange={(value) => setFurnished(value === true)}
+              />
               {tx("Furnished", "Meublé")}
             </label>
             <label className="flex items-center gap-2 text-sm text-foreground">
-              <Checkbox checked={verifiedOnly} onCheckedChange={(value) => setVerifiedOnly(value === true)} />
+              <Checkbox
+                checked={verifiedOnly}
+                onCheckedChange={(value) => setVerifiedOnly(value === true)}
+              />
               {tx("Verified listings only", "Annonces vérifiées uniquement")}
             </label>
           </div>
@@ -344,7 +390,9 @@ function PropertyLanding() {
           <h2 className="font-display text-lg font-extrabold text-foreground">
             {tx("Listings", "Annonces")}
             {listings ? (
-              <span className="ml-2 text-sm font-normal text-muted-foreground">{listings.length}</span>
+              <span className="ml-2 text-sm font-normal text-muted-foreground">
+                {listings.length}
+              </span>
             ) : null}
           </h2>
           <Link to="/property/manage" className="text-xs font-semibold text-primary">
@@ -358,9 +406,10 @@ function PropertyLanding() {
           <EmptyState
             icon={<Home className="size-5" aria-hidden />}
             title={tx("No listings yet", "Aucune annonce pour l’instant")}
-            description={
-              tx("Be the first to list here — it is free.", "Soyez le premier à publier dans cette catégorie — c’est gratuit.")
-            }
+            description={tx(
+              "Be the first to list here — it is free.",
+              "Soyez le premier à publier dans cette catégorie — c’est gratuit.",
+            )}
             action={
               <Button asChild>
                 <Link to="/property/new">{tx("List a property", "Publier une annonce")}</Link>

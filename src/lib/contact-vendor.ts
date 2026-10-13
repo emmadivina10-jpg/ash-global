@@ -38,9 +38,11 @@ export async function contactVendor(options: {
     const fr = options.fr === true;
     const businessName = options.businessName?.trim() || (fr ? "bonjour" : "there");
     const subject = options.subject?.trim() || (fr ? "votre offre" : "your offer");
-    const body = options.message?.trim() || (fr
-      ? `Bonjour ${businessName} ! J’ai vu « ${subject} » sur ASH Glo. Je suis intéressé(e) et j’aimerais connaître le prix, la disponibilité et la façon de procéder.`
-      : `Hi ${businessName}! I saw "${subject}" on ASH Glo. I’m interested and would like to know the price, availability and how to proceed.`);
+    const body =
+      options.message?.trim() ||
+      (fr
+        ? `Bonjour ${businessName} ! J’ai vu « ${subject} » sur ASH Glo. Je suis intéressé(e) et j’aimerais connaître le prix, la disponibilité et la façon de procéder.`
+        : `Hi ${businessName}! I saw "${subject}" on ASH Glo. I’m interested and would like to know the price, availability and how to proceed.`);
 
     await supabase.from("messages").insert({
       conversation_id: conversationId,
@@ -85,7 +87,9 @@ export async function sendOpeningMessage(conversationId: string, body: string): 
  * Opens (or reuses) a direct member-to-member conversation — used when a
  * Spotlight post comes from someone who has no business storefront.
  */
-export async function openMemberConversation(memberId: string | null | undefined): Promise<string | null> {
+export async function openMemberConversation(
+  memberId: string | null | undefined,
+): Promise<string | null> {
   const otherId = memberId?.trim();
   if (!otherId) return null;
   const { data: auth } = await supabase.auth.getUser();
@@ -96,7 +100,9 @@ export async function openMemberConversation(memberId: string | null | undefined
     .from("conversations")
     .select("id")
     .is("group_id", null)
-    .or(`and(client_id.eq.${me},owner_id.eq.${otherId}),and(client_id.eq.${otherId},owner_id.eq.${me})`)
+    .or(
+      `and(client_id.eq.${me},owner_id.eq.${otherId}),and(client_id.eq.${otherId},owner_id.eq.${me})`,
+    )
     .order("last_message_at", { ascending: false, nullsFirst: false })
     .limit(1);
   if (lookupError) throw lookupError;
@@ -104,20 +110,30 @@ export async function openMemberConversation(memberId: string | null | undefined
 
   // Storefront chats created before owner_id was populated remain reusable.
   const { data: storefronts, error: storeError } = await supabase
-    .from("provider_profiles").select("id, user_id").in("user_id", [me, otherId]);
+    .from("provider_profiles")
+    .select("id, user_id")
+    .in("user_id", [me, otherId]);
   if (storeError) throw storeError;
   if (storefronts?.length) {
     const { data: threads, error: threadError } = await supabase
-      .from("conversations").select("id, client_id, provider_id")
+      .from("conversations")
+      .select("id, client_id, provider_id")
       .is("group_id", null)
-      .in("provider_id", storefronts.map((store) => store.id))
+      .in(
+        "provider_id",
+        storefronts.map((store) => store.id),
+      )
       .in("client_id", [me, otherId])
       .order("last_message_at", { ascending: false, nullsFirst: false });
     if (threadError) throw threadError;
-    const matched = threads?.find((thread) => storefronts.some((store) =>
-      store.id === thread.provider_id &&
-      ((store.user_id === otherId && thread.client_id === me) ||
-       (store.user_id === me && thread.client_id === otherId))));
+    const matched = threads?.find((thread) =>
+      storefronts.some(
+        (store) =>
+          store.id === thread.provider_id &&
+          ((store.user_id === otherId && thread.client_id === me) ||
+            (store.user_id === me && thread.client_id === otherId)),
+      ),
+    );
     if (matched) return matched.id;
   }
 

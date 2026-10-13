@@ -8,7 +8,13 @@ import { cn } from "@/lib/utils";
  * Readable only by the customer (database rule); it appears as soon as the
  * payment is confirmed, and refreshes until then.
  */
-export function CustomerVerificationCode({ bookingId, className }: { bookingId: string; className?: string }) {
+export function CustomerVerificationCode({
+  bookingId,
+  className,
+}: {
+  bookingId: string;
+  className?: string;
+}) {
   const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const [code, setCode] = useState<string | null>(null);
@@ -36,9 +42,14 @@ export function CustomerVerificationCode({ bookingId, className }: { bookingId: 
       <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">
         {tx("Service verification code", "Code de vérification du service")}
       </p>
-      <p className="mt-1 font-mono text-2xl font-extrabold tracking-widest text-foreground">{code}</p>
+      <p className="mt-1 font-mono text-2xl font-extrabold tracking-widest text-foreground">
+        {code}
+      </p>
       <p className="mt-1 text-xs text-muted-foreground">
-        {tx("Give this code to the provider only after the service is done. It authorizes processing of their payable share.", "Donnez ce code au prestataire seulement une fois le service rendu. Il autorise le traitement de sa part payable.")}
+        {tx(
+          "Give this code to the provider only after the service is done. It authorizes processing of their payable share.",
+          "Donnez ce code au prestataire seulement une fois le service rendu. Il autorise le traitement de sa part payable.",
+        )}
       </p>
     </div>
   );

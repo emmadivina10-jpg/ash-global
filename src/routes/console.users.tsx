@@ -189,7 +189,8 @@ function ConsoleUsers() {
 
         const baseMessage = messages[errorCode] ?? `Wallet credit failed (${errorCode}).`;
 
-        const diagnostic = detail || details || hint || code ? ` ${detail ?? details ?? hint ?? code ?? ""}` : "";
+        const diagnostic =
+          detail || details || hint || code ? ` ${detail ?? details ?? hint ?? code ?? ""}` : "";
 
         toast.error(`${baseMessage}${diagnostic}`.trim());
 
@@ -239,7 +240,10 @@ function ConsoleUsers() {
         ) : (
           <ul className="divide-y divide-border">
             {rows.map((u) => (
-              <li key={u.user_id} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 py-3.5">
+              <li
+                key={u.user_id}
+                className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 py-3.5"
+              >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-foreground">
                     {u.full_name || "—"}
@@ -264,9 +268,13 @@ function ConsoleUsers() {
                   <StatusBadge status={u.account_status} />
 
                   <div>
-                    <p className="tabular text-xs font-semibold text-foreground">{formatXAF(u.balance)}</p>
+                    <p className="tabular text-xs font-semibold text-foreground">
+                      {formatXAF(u.balance)}
+                    </p>
 
-                    <p className="tabular text-[11px] text-muted-foreground">earned {formatXAF(u.earned)}</p>
+                    <p className="tabular text-[11px] text-muted-foreground">
+                      earned {formatXAF(u.earned)}
+                    </p>
                   </div>
 
                   <div className="flex flex-wrap justify-end gap-1.5">
@@ -336,12 +344,17 @@ function ConsoleUsers() {
 
               <p className="mt-2 text-xs text-muted-foreground">Current available balance</p>
 
-              <p className="tabular mt-0.5 text-lg font-bold text-foreground">{formatXAF(selectedUser.balance)}</p>
+              <p className="tabular mt-0.5 text-lg font-bold text-foreground">
+                {formatXAF(selectedUser.balance)}
+              </p>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label htmlFor="credit-amount" className="mb-1.5 block text-sm font-medium text-foreground">
+                <label
+                  htmlFor="credit-amount"
+                  className="mb-1.5 block text-sm font-medium text-foreground"
+                >
                   Amount (XAF)
                 </label>
 
@@ -358,7 +371,10 @@ function ConsoleUsers() {
               </div>
 
               <div>
-                <label htmlFor="credit-reason" className="mb-1.5 block text-sm font-medium text-foreground">
+                <label
+                  htmlFor="credit-reason"
+                  className="mb-1.5 block text-sm font-medium text-foreground"
+                >
                   Reason
                 </label>
 
@@ -373,12 +389,20 @@ function ConsoleUsers() {
                   className="w-full resize-none rounded-xl border border-input bg-background px-3 py-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
                 />
 
-                <p className="mt-1 text-right text-[11px] text-muted-foreground">{reason.length}/500</p>
+                <p className="mt-1 text-right text-[11px] text-muted-foreground">
+                  {reason.length}/500
+                </p>
               </div>
             </div>
 
             <div className="mt-6 flex gap-2">
-              <Button type="button" variant="outline" className="flex-1" onClick={closeCredit} disabled={crediting}>
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={closeCredit}
+                disabled={crediting}
+              >
                 Cancel
               </Button>
 
@@ -401,7 +425,8 @@ function ConsoleUsers() {
             </div>
 
             <p className="mt-3 text-center text-[11px] text-muted-foreground">
-              This action creates a permanent financial ledger entry and makes the credited amount withdrawable.
+              This action creates a permanent financial ledger entry and makes the credited amount
+              withdrawable.
             </p>
           </div>
         </div>

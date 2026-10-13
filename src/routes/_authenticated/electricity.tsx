@@ -30,7 +30,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useI18n } from "@/lib/i18n";
 import { formatXAF } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -101,13 +107,7 @@ function ElectricityPage() {
   const total = payableAmount + serviceFee;
 
   const stepNumber =
-    flowStep === "ACCOUNT"
-      ? 1
-      : flowStep === "REVIEW"
-        ? 2
-        : flowStep === "PAYMENT"
-          ? 3
-          : 4;
+    flowStep === "ACCOUNT" ? 1 : flowStep === "REVIEW" ? 2 : flowStep === "PAYMENT" ? 3 : 4;
 
   const verifyAccount = async () => {
     setIsVerifying(true);
@@ -125,7 +125,8 @@ function ElectricityPage() {
       dueDate: "15 Sep 2026",
       invoiceNumber: "INV-2026-0915",
       currentBalance: paymentType === "PREPAID" ? 12.4 : undefined,
-      estimatedKwh: paymentType === "PREPAID" ? Math.max(1, Math.floor(numericAmount / 100)) : undefined,
+      estimatedKwh:
+        paymentType === "PREPAID" ? Math.max(1, Math.floor(numericAmount / 100)) : undefined,
     });
 
     setIsVerifying(false);
@@ -188,15 +189,16 @@ function ElectricityPage() {
               {tx("Electricity", "Électricité")}
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-[15px]">
-              {tx("Verify your account, review your bill, choose how to pay, and receive your ASH receipt.", "Vérifiez votre compte, consultez votre facture, choisissez votre paiement et recevez votre reçu ASH.")}
+              {tx(
+                "Verify your account, review your bill, choose how to pay, and receive your ASH receipt.",
+                "Vérifiez votre compte, consultez votre facture, choisissez votre paiement et recevez votre reçu ASH.",
+              )}
             </p>
           </div>
 
           <div className="flex items-center gap-2 rounded-full border border-border/70 bg-card px-3.5 py-2.5 text-xs shadow-sm">
             <ShieldCheck className="size-4 text-emerald-500" aria-hidden />
-            <span className="font-semibold">
-              {tx("Secure payment", "Paiement sécurisé")}
-            </span>
+            <span className="font-semibold">{tx("Secure payment", "Paiement sécurisé")}</span>
           </div>
         </div>
 
@@ -210,7 +212,10 @@ function ElectricityPage() {
                 {tx("Coming soon", "Bientôt disponible")}
               </p>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                {tx("Electricity payments are not yet available on ASH. We are finalizing the provider integration to deliver a secure and reliable service.", "Les paiements d'électricité ne sont pas encore disponibles sur ASH. Nous finalisons l'intégration avec le fournisseur pour vous offrir un service sécurisé et fiable.")}
+                {tx(
+                  "Electricity payments are not yet available on ASH. We are finalizing the provider integration to deliver a secure and reliable service.",
+                  "Les paiements d'électricité ne sont pas encore disponibles sur ASH. Nous finalisons l'intégration avec le fournisseur pour vous offrir un service sécurisé et fiable.",
+                )}
               </p>
               <div className="mt-3 inline-flex items-center rounded-full border border-amber-500/20 bg-background/60 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-amber-600 dark:text-amber-400">
                 {tx("Service not yet available", "Service non disponible")}
@@ -266,25 +271,40 @@ function ElectricityPage() {
 
       <main className="overflow-hidden rounded-[32px] border border-border/70 bg-card shadow-[var(--shadow-card)]">
         <div className="relative overflow-hidden bg-gradient-to-br from-amber-400/[0.08] via-card to-card p-6 sm:p-10">
-          <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-amber-400/10 blur-3xl" />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-amber-400/10 blur-3xl"
+          />
           <div className="relative mx-auto max-w-2xl text-center">
             <div className="mx-auto grid size-20 place-items-center rounded-[26px] bg-amber-400/10 ring-1 ring-amber-400/20 shadow-sm">
               <Zap className="size-10 text-amber-500" aria-hidden />
             </div>
-            <p className="mt-6 text-[10px] font-black uppercase tracking-[0.18em] text-amber-600 dark:text-amber-400">ASH Pay</p>
+            <p className="mt-6 text-[10px] font-black uppercase tracking-[0.18em] text-amber-600 dark:text-amber-400">
+              ASH Pay
+            </p>
             <h2 className="mt-2 font-display text-2xl font-black tracking-tight text-foreground sm:text-3xl">
-              {tx("Electricity payments are coming soon", "Paiement d'électricité bientôt disponible")}
+              {tx(
+                "Electricity payments are coming soon",
+                "Paiement d'électricité bientôt disponible",
+              )}
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-muted-foreground">
-              {tx("Soon you will be able to pay Eneo bills and purchase prepaid electricity directly through ASH. The service will be activated once the official integration is ready.", "Vous pourrez bientôt payer vos factures Eneo et acheter du crédit prépayé directement avec ASH. Le service sera activé dès que l'intégration officielle sera prête.")}
+              {tx(
+                "Soon you will be able to pay Eneo bills and purchase prepaid electricity directly through ASH. The service will be activated once the official integration is ready.",
+                "Vous pourrez bientôt payer vos factures Eneo et acheter du crédit prépayé directement avec ASH. Le service sera activé dès que l'intégration officielle sera prête.",
+              )}
             </p>
             <div className="mt-6 grid gap-3 text-left sm:grid-cols-2">
               <div className="rounded-2xl border border-border/70 bg-muted/20 p-4">
                 <div className="flex items-center gap-3">
                   <FileText className="size-5 shrink-0 text-primary" aria-hidden />
                   <div>
-                    <p className="text-sm font-bold text-foreground">{tx("Eneo bills", "Factures Eneo")}</p>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground">{tx("Coming soon", "Bientôt disponible")}</p>
+                    <p className="text-sm font-bold text-foreground">
+                      {tx("Eneo bills", "Factures Eneo")}
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-muted-foreground">
+                      {tx("Coming soon", "Bientôt disponible")}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -292,8 +312,12 @@ function ElectricityPage() {
                 <div className="flex items-center gap-3">
                   <Zap className="size-5 shrink-0 text-amber-500" aria-hidden />
                   <div>
-                    <p className="text-sm font-bold text-foreground">{tx("Prepaid electricity", "Électricité prépayée")}</p>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground">{tx("Coming soon", "Bientôt disponible")}</p>
+                    <p className="text-sm font-bold text-foreground">
+                      {tx("Prepaid electricity", "Électricité prépayée")}
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-muted-foreground">
+                      {tx("Coming soon", "Bientôt disponible")}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -301,7 +325,10 @@ function ElectricityPage() {
             <div className="mt-6 flex items-start gap-3 rounded-2xl border border-border/70 bg-muted/30 p-4 text-left">
               <ShieldCheck className="mt-0.5 size-5 shrink-0 text-emerald-500" aria-hidden />
               <p className="text-xs leading-relaxed text-muted-foreground">
-                {tx("No real payment can be made from this page yet. We will never ask you for your Mobile Money PIN.", "Aucun paiement réel ne peut être effectué depuis cette page pour le moment. Nous ne vous demanderons jamais votre code PIN Mobile Money.")}
+                {tx(
+                  "No real payment can be made from this page yet. We will never ask you for your Mobile Money PIN.",
+                  "Aucun paiement réel ne peut être effectué depuis cette page pour le moment. Nous ne vous demanderons jamais votre code PIN Mobile Money.",
+                )}
               </p>
             </div>
           </div>
@@ -311,7 +338,10 @@ function ElectricityPage() {
       {false && flowStep === "ACCOUNT" ? (
         <main className="overflow-hidden rounded-[32px] border border-border/70 bg-card shadow-[var(--shadow-card)]">
           <div className="relative overflow-hidden border-b border-border/70 bg-gradient-to-br from-amber-400/[0.08] via-card to-card p-5 sm:p-8">
-            <div aria-hidden className="pointer-events-none absolute -right-20 -top-24 size-64 rounded-full bg-amber-400/10 blur-3xl" />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -right-20 -top-24 size-64 rounded-full bg-amber-400/10 blur-3xl"
+            />
             <div className="relative flex items-start gap-4">
               <div className="grid size-14 shrink-0 place-items-center rounded-[20px] bg-amber-400/12 shadow-sm ring-1 ring-amber-400/30 sm:size-16">
                 <Gauge className="size-7 text-amber-500 sm:size-8" aria-hidden />
@@ -321,7 +351,10 @@ function ElectricityPage() {
                   {tx("Identify your account", "Identifiez votre compte")}
                 </h2>
                 <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  {tx("Start by selecting your provider and service type.", "Commencez par sélectionner le fournisseur et le type de service.")}
+                  {tx(
+                    "Start by selecting your provider and service type.",
+                    "Commencez par sélectionner le fournisseur et le type de service.",
+                  )}
                 </p>
               </div>
             </div>
@@ -355,7 +388,10 @@ function ElectricityPage() {
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-muted-foreground">
-                  {tx("More providers can be added when their services are integrated with ASH.", "D'autres fournisseurs peuvent être ajoutés lorsque leurs services sont intégrés à ASH.")}
+                  {tx(
+                    "More providers can be added when their services are integrated with ASH.",
+                    "D'autres fournisseurs peuvent être ajoutés lorsque leurs services sont intégrés à ASH.",
+                  )}
                 </p>
               </div>
 
@@ -413,9 +449,7 @@ function ElectricityPage() {
                   inputMode="numeric"
                   autoComplete="off"
                   value={accountNumber}
-                  onChange={(event) =>
-                    setAccountNumber(event.target.value.replace(/\s/g, ""))
-                  }
+                  onChange={(event) => setAccountNumber(event.target.value.replace(/\s/g, ""))}
                   placeholder={
                     paymentType === "POSTPAID"
                       ? tx("Enter your contract number", "Entrez votre numéro de contrat")
@@ -431,8 +465,14 @@ function ElectricityPage() {
 
               <p className="text-[11px] leading-relaxed text-muted-foreground">
                 {paymentType === "POSTPAID"
-                  ? tx("ASH will use this identifier to retrieve the available bill information.", "ASH utilisera cet identifiant pour récupérer les informations disponibles de votre facture.")
-                  : tx("ASH will use this number to identify your prepaid meter.", "ASH utilisera ce numéro pour identifier votre compteur prépayé.")}
+                  ? tx(
+                      "ASH will use this identifier to retrieve the available bill information.",
+                      "ASH utilisera cet identifiant pour récupérer les informations disponibles de votre facture.",
+                    )
+                  : tx(
+                      "ASH will use this number to identify your prepaid meter.",
+                      "ASH utilisera ce numéro pour identifier votre compteur prépayé.",
+                    )}
               </p>
             </div>
 
@@ -449,9 +489,7 @@ function ElectricityPage() {
                   <Input
                     inputMode="decimal"
                     value={amount}
-                    onChange={(event) =>
-                      setAmount(event.target.value.replace(/\D/g, ""))
-                    }
+                    onChange={(event) => setAmount(event.target.value.replace(/\D/g, ""))}
                     placeholder="1000"
                     className="h-14 rounded-2xl bg-background pr-16 text-lg font-bold"
                     aria-label={tx("Recharge amount", "Montant de recharge")}
@@ -482,7 +520,10 @@ function ElectricityPage() {
                 <div className="flex items-start gap-2 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-3 text-[11px] leading-relaxed text-muted-foreground">
                   <Info className="mt-0.5 size-4 shrink-0 text-amber-500" aria-hidden />
                   <span>
-                    {tx("The minimum amount and recharge rules must be validated by the provider before production.", "Le montant minimum et les règles de recharge doivent être validés par le fournisseur avant la mise en production.")}
+                    {tx(
+                      "The minimum amount and recharge rules must be validated by the provider before production.",
+                      "Le montant minimum et les règles de recharge doivent être validés par le fournisseur avant la mise en production.",
+                    )}
                   </span>
                 </div>
               </div>
@@ -500,7 +541,10 @@ function ElectricityPage() {
                   {tx("Save this account", "Enregistrer ce compte")}
                 </span>
                 <span className="mt-0.5 block text-[11px] leading-relaxed text-muted-foreground">
-                  {tx("Pay faster next time. You can remove it from your saved accounts.", "Pour payer plus rapidement la prochaine fois. Vous pourrez le supprimer depuis vos comptes enregistrés.")}
+                  {tx(
+                    "Pay faster next time. You can remove it from your saved accounts.",
+                    "Pour payer plus rapidement la prochaine fois. Vous pourrez le supprimer depuis vos comptes enregistrés.",
+                  )}
                 </span>
               </span>
             </label>
@@ -513,7 +557,10 @@ function ElectricityPage() {
                     {tx("Your data stays protected", "Vos données restent protégées")}
                   </p>
                   <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                    {tx("Never share your Mobile Money PIN with ASH. Your PIN should only be entered in the secure payment interface.", "Ne partagez jamais votre code PIN Mobile Money avec ASH. Le PIN est saisi uniquement dans l'interface sécurisée du moyen de paiement.")}
+                    {tx(
+                      "Never share your Mobile Money PIN with ASH. Your PIN should only be entered in the secure payment interface.",
+                      "Ne partagez jamais votre code PIN Mobile Money avec ASH. Le PIN est saisi uniquement dans l'interface sécurisée du moyen de paiement.",
+                    )}
                   </p>
                 </div>
               </div>
@@ -576,10 +623,14 @@ function ElectricityPage() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-[0.16em] opacity-60">
-                      {paymentType === "POSTPAID" ? (tx("Amount due", "Montant dû")) : (tx("Recharge", "Recharge"))}
+                      {paymentType === "POSTPAID"
+                        ? tx("Amount due", "Montant dû")
+                        : tx("Recharge", "Recharge")}
                     </p>
                     <p className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
-                      {paymentType === "POSTPAID" ? formatXAF(verifiedAccount.outstanding) : formatXAF(numericAmount)}
+                      {paymentType === "POSTPAID"
+                        ? formatXAF(verifiedAccount.outstanding)
+                        : formatXAF(numericAmount)}
                     </p>
                   </div>
                   <div className="grid size-11 place-items-center rounded-2xl bg-background/10 ring-1 ring-background/10">
@@ -588,8 +639,13 @@ function ElectricityPage() {
                 </div>
                 <p className="mt-3 text-xs leading-relaxed opacity-70">
                   {paymentType === "POSTPAID"
-                    ? (fr ? `Échéance : ${verifiedAccount.dueDate}` : `Due date: ${verifiedAccount.dueDate}`)
-                    : (tx("The amount will be applied to the verified meter.", "Le montant sera appliqué au compteur vérifié."))}
+                    ? fr
+                      ? `Échéance : ${verifiedAccount.dueDate}`
+                      : `Due date: ${verifiedAccount.dueDate}`
+                    : tx(
+                        "The amount will be applied to the verified meter.",
+                        "Le montant sera appliqué au compteur vérifié.",
+                      )}
                 </p>
               </div>
             </div>
@@ -655,7 +711,10 @@ function ElectricityPage() {
                         {tx("Bill summary", "Détail de la facture")}
                       </p>
                       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                        {tx("The displayed amount comes from the provider response. ASH should never invent or estimate the amount due for a real transaction.", "Le montant affiché vient de la réponse du fournisseur. ASH ne doit jamais inventer ou estimer le montant dû pour une vraie transaction.")}
+                        {tx(
+                          "The displayed amount comes from the provider response. ASH should never invent or estimate the amount due for a real transaction.",
+                          "Le montant affiché vient de la réponse du fournisseur. ASH ne doit jamais inventer ou estimer le montant dû pour une vraie transaction.",
+                        )}
                       </p>
                     </div>
                   </div>
@@ -671,9 +730,7 @@ function ElectricityPage() {
                     <Input
                       inputMode="decimal"
                       value={amount}
-                      onChange={(event) =>
-                        setAmount(event.target.value.replace(/\D/g, ""))
-                      }
+                      onChange={(event) => setAmount(event.target.value.replace(/\D/g, ""))}
                       className="h-14 rounded-2xl bg-background pr-16 text-lg font-bold"
                     />
                     <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">
@@ -717,7 +774,10 @@ function ElectricityPage() {
                 {tx("Choose your payment method", "Choisissez votre moyen de paiement")}
               </h2>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                {tx("The final amount and any applicable fees must be confirmed before authorization.", "Le montant final et les éventuels frais doivent être confirmés avant l'autorisation.")}
+                {tx(
+                  "The final amount and any applicable fees must be confirmed before authorization.",
+                  "Le montant final et les éventuels frais doivent être confirmés avant l'autorisation.",
+                )}
               </p>
             </div>
 
@@ -780,7 +840,10 @@ function ElectricityPage() {
                   />
                 </div>
                 <p className="text-[11px] leading-relaxed text-muted-foreground">
-                  {tx("The number should match the selected payment method.", "Le numéro doit correspondre au moyen de paiement sélectionné.")}
+                  {tx(
+                    "The number should match the selected payment method.",
+                    "Le numéro doit correspondre au moyen de paiement sélectionné.",
+                  )}
                 </p>
               </div>
 
@@ -791,19 +854,21 @@ function ElectricityPage() {
 
                 <div className="mt-4 space-y-3">
                   <SummaryRow
-                    label={paymentType === "POSTPAID" ? tx("Bill", "Facture") : tx("Recharge", "Recharge")}
+                    label={
+                      paymentType === "POSTPAID"
+                        ? tx("Bill", "Facture")
+                        : tx("Recharge", "Recharge")
+                    }
                     value={formatXAF(payableAmount)}
                   />
                   <SummaryRow
                     label={tx("Service fee", "Frais de service")}
-                    value={serviceFee ? formatXAF(serviceFee) : tx("To be confirmed", "À confirmer")}
+                    value={
+                      serviceFee ? formatXAF(serviceFee) : tx("To be confirmed", "À confirmer")
+                    }
                   />
                   <div className="my-2 h-px bg-border/70" />
-                  <SummaryRow
-                    label={tx("Total", "Total")}
-                    value={formatXAF(total)}
-                    strong
-                  />
+                  <SummaryRow label={tx("Total", "Total")} value={formatXAF(total)} strong />
                 </div>
               </div>
 
@@ -815,14 +880,20 @@ function ElectricityPage() {
                   className="mt-0.5 size-4 accent-primary"
                 />
                 <span className="text-xs leading-relaxed text-muted-foreground">
-                  {tx("I confirm the information above and authorize ASH to initiate this transaction with the selected payment method.", "Je confirme les informations ci-dessus et j'autorise ASH à initier cette transaction auprès du moyen de paiement sélectionné.")}
+                  {tx(
+                    "I confirm the information above and authorize ASH to initiate this transaction with the selected payment method.",
+                    "Je confirme les informations ci-dessus et j'autorise ASH à initier cette transaction auprès du moyen de paiement sélectionné.",
+                  )}
                 </span>
               </label>
 
               <div className="flex items-start gap-3 rounded-2xl border border-emerald-500/15 bg-emerald-500/5 p-4">
                 <ShieldCheck className="mt-0.5 size-5 shrink-0 text-emerald-500" />
                 <p className="text-[11px] leading-relaxed text-muted-foreground">
-                  {tx("ASH should never ask for your Mobile Money PIN. A payment is only final after server-side confirmation.", "ASH ne doit jamais demander votre code PIN Mobile Money. Le succès affiché dans l'application ne sera définitif qu'après confirmation côté serveur.")}
+                  {tx(
+                    "ASH should never ask for your Mobile Money PIN. A payment is only final after server-side confirmation.",
+                    "ASH ne doit jamais demander votre code PIN Mobile Money. Le succès affiché dans l'application ne sera définitif qu'après confirmation côté serveur.",
+                  )}
                 </p>
               </div>
 
@@ -862,7 +933,10 @@ function ElectricityPage() {
         <main className="space-y-4">
           <section className="overflow-hidden rounded-[30px] border border-emerald-500/20 bg-card shadow-[var(--shadow-card)]">
             <div className="relative p-6 text-center sm:p-10">
-              <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 mx-auto size-72 rounded-full bg-emerald-500/10 blur-3xl" />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 top-0 mx-auto size-72 rounded-full bg-emerald-500/10 blur-3xl"
+              />
               <div className="relative mx-auto grid size-20 place-items-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20">
                 <CheckCircle2 className="size-10 text-emerald-500" />
               </div>
@@ -875,8 +949,14 @@ function ElectricityPage() {
               </h2>
               <p className="relative mx-auto mt-2 max-w-lg text-sm leading-relaxed text-muted-foreground">
                 {paymentType === "POSTPAID"
-                  ? tx("Your payment has been recorded. Your ASH receipt is available below.", "Votre paiement a été enregistré. Votre reçu ASH est disponible ci-dessous.")
-                  : tx("Your recharge has been processed. The token/credit will be provided according to the provider response.", "Votre recharge a été traitée. Le token/crédit sera fourni selon la réponse du fournisseur.")}
+                  ? tx(
+                      "Your payment has been recorded. Your ASH receipt is available below.",
+                      "Votre paiement a été enregistré. Votre reçu ASH est disponible ci-dessous.",
+                    )
+                  : tx(
+                      "Your recharge has been processed. The token/credit will be provided according to the provider response.",
+                      "Votre recharge a été traitée. Le token/crédit sera fourni selon la réponse du fournisseur.",
+                    )}
               </p>
             </div>
 
@@ -910,11 +990,12 @@ function ElectricityPage() {
                   <div className="flex items-start gap-3">
                     <Zap className="mt-0.5 size-5 shrink-0 text-primary" />
                     <div className="min-w-0">
-                      <p className="text-sm font-bold">
-                        {tx("Token / credit", "Token / crédit")}
-                      </p>
+                      <p className="text-sm font-bold">{tx("Token / credit", "Token / crédit")}</p>
                       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                        {tx("The real token must come from the provider's confirmed response. Never generate a token in the frontend.", "Le vrai token doit provenir de la réponse confirmée du fournisseur. Ne générez jamais un token côté frontend.")}
+                        {tx(
+                          "The real token must come from the provider's confirmed response. Never generate a token in the frontend.",
+                          "Le vrai token doit provenir de la réponse confirmée du fournisseur. Ne générez jamais un token côté frontend.",
+                        )}
                       </p>
                     </div>
                   </div>
@@ -960,7 +1041,10 @@ function ElectricityPage() {
           <MiniInfo
             icon={<BadgeCheck className="size-5 text-primary" />}
             title={tx("Verified account", "Compte vérifié")}
-            description={tx("Details come from the provider.", "Les informations viennent du fournisseur.")}
+            description={tx(
+              "Details come from the provider.",
+              "Les informations viennent du fournisseur.",
+            )}
           />
           <MiniInfo
             icon={<ShieldCheck className="size-5 text-emerald-500" />}
@@ -976,7 +1060,10 @@ function ElectricityPage() {
       ) : null}
 
       <p className="mt-5 text-center text-[10px] leading-relaxed text-muted-foreground">
-        {tx("Electricity payment will be enabled after the official provider integration is finalized.", "Le service de paiement d'électricité sera activé après finalisation de l'intégration officielle avec le fournisseur.")}
+        {tx(
+          "Electricity payment will be enabled after the official provider integration is finalized.",
+          "Le service de paiement d'électricité sera activé après finalisation de l'intégration officielle avec le fournisseur.",
+        )}
       </p>
     </div>
   );
@@ -1040,7 +1127,9 @@ function MiniInfo({
     <div className="rounded-2xl border border-border/70 bg-card p-4">
       {icon}
       <p className="mt-2 text-xs font-bold text-foreground">{title}</p>
-      {description ? <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{description}</p> : null}
+      {description ? (
+        <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{description}</p>
+      ) : null}
     </div>
   );
 }

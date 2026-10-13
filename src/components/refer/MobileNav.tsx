@@ -35,9 +35,14 @@ export function MobileNav({
   const [heldIndex, setHeldIndex] = useState<number | null>(null);
   const gridRef = useRef<HTMLUListElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const gesture = useRef<{ id: number; x: number; y: number; held: boolean; index: number } | null>(null);
+  const gesture = useRef<{ id: number; x: number; y: number; held: boolean; index: number } | null>(
+    null,
+  );
   const suppressClick = useRef(false);
-  const clearTimer = () => { if (timer.current) clearTimeout(timer.current); timer.current = null; };
+  const clearTimer = () => {
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = null;
+  };
   useEffect(() => () => clearTimer(), []);
   const conversationOpen = useRouterState({
     select: (s) => s.location.pathname === "/messages" && Boolean(s.location.search.c),
@@ -49,14 +54,23 @@ export function MobileNav({
   const indexAt = (x: number) => {
     const rect = gridRef.current?.getBoundingClientRect();
     if (!rect) return 0;
-    return Math.max(0, Math.min(tabs.length - 1, Math.floor((x - rect.left) / (rect.width / tabs.length))));
+    return Math.max(
+      0,
+      Math.min(tabs.length - 1, Math.floor((x - rect.left) / (rect.width / tabs.length))),
+    );
   };
   const startHold = (event: PointerEvent<HTMLUListElement>) => {
     if (event.button !== 0) return;
     clearTimer();
     suppressClick.current = false;
     const index = indexAt(event.clientX);
-    gesture.current = { id: event.pointerId, x: event.clientX, y: event.clientY, held: false, index };
+    gesture.current = {
+      id: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      held: false,
+      index,
+    };
     timer.current = setTimeout(() => {
       const current = gesture.current;
       if (!current) return;
@@ -70,7 +84,10 @@ export function MobileNav({
     const current = gesture.current;
     if (!current || current.id !== event.pointerId) return;
     if (!current.held) {
-      if (Math.hypot(event.clientX - current.x, event.clientY - current.y) > 12) { clearTimer(); gesture.current = null; }
+      if (Math.hypot(event.clientX - current.x, event.clientY - current.y) > 12) {
+        clearTimer();
+        gesture.current = null;
+      }
       return;
     }
     current.index = indexAt(event.clientX);
@@ -83,11 +100,16 @@ export function MobileNav({
     gesture.current = null;
     setHeldIndex(null);
     if (!current.held) return;
-    if (gridRef.current?.hasPointerCapture(event.pointerId)) gridRef.current.releasePointerCapture(event.pointerId);
+    if (gridRef.current?.hasPointerCapture(event.pointerId))
+      gridRef.current.releasePointerCapture(event.pointerId);
     const rect = gridRef.current?.getBoundingClientRect();
-    if (cancelled || !rect || event.clientY < rect.top - 100 || event.clientY > rect.bottom + 60) return;
+    if (cancelled || !rect || event.clientY < rect.top - 100 || event.clientY > rect.bottom + 60)
+      return;
     const selected = tabs[indexAt(event.clientX)];
-    if (selected && selected.to !== pathname) { playTabSound(); void navigate({ to: selected.to }); }
+    if (selected && selected.to !== pathname) {
+      playTabSound();
+      void navigate({ to: selected.to });
+    }
   };
   const heldTab = heldIndex === null ? null : tabs[heldIndex];
 
@@ -100,7 +122,9 @@ export function MobileNav({
         <Link
           to={item.to}
           preload="render"
-          onClick={() => { if (!active) playTabSound(); }}
+          onClick={() => {
+            if (!active) playTabSound();
+          }}
           data-tour={item.tour}
           aria-current={active ? "page" : undefined}
           className={cn(
@@ -112,7 +136,12 @@ export function MobileNav({
             <MemberNavIcon icon={item.icon} active={active} />
           </span>
           <span className="max-w-full truncate">{label(item)}</span>
-          {active ? <span className="absolute inset-x-2 top-0 h-0.5 rounded-b-full bg-primary" aria-hidden /> : null}
+          {active ? (
+            <span
+              className="absolute inset-x-2 top-0 h-0.5 rounded-b-full bg-primary"
+              aria-hidden
+            />
+          ) : null}
         </Link>
       </li>
     );
@@ -132,35 +161,62 @@ export function MobileNav({
           onPointerMove={moveHold}
           onPointerUp={(event) => endHold(event)}
           onPointerCancel={(event) => endHold(event, true)}
-          onLostPointerCapture={() => { clearTimer(); gesture.current = null; setHeldIndex(null); }}
+          onLostPointerCapture={() => {
+            clearTimer();
+            gesture.current = null;
+            setHeldIndex(null);
+          }}
           onContextMenu={(event) => event.preventDefault()}
           onDragStart={(event) => event.preventDefault()}
-          onClickCapture={(event) => { if (suppressClick.current) { event.preventDefault(); event.stopPropagation(); suppressClick.current = false; } }}
+          onClickCapture={(event) => {
+            if (suppressClick.current) {
+              event.preventDefault();
+              event.stopPropagation();
+              suppressClick.current = false;
+            }
+          }}
         >
-          {heldTab && <li className="member-tab-bubble" aria-hidden="true">
-            <span className="member-tab-bubble-icon"><MemberNavIcon icon={heldTab.icon} active /></span>
-            <span className="member-tab-bubble-label">{label(heldTab)}</span>
-          </li>}
+          {heldTab && (
+            <li className="member-tab-bubble" aria-hidden="true">
+              <span className="member-tab-bubble-icon">
+                <MemberNavIcon icon={heldTab.icon} active />
+              </span>
+              <span className="member-tab-bubble-label">{label(heldTab)}</span>
+            </li>
+          )}
           {items.map((item) => renderTab(item))}
           <li className="min-w-0">
             <Link
               to="/menu"
               preload="render"
-              onClick={() => { if (pathname !== "/menu") playTabSound(); }}
+              onClick={() => {
+                if (pathname !== "/menu") playTabSound();
+              }}
               aria-current={pathname === "/menu" ? "page" : undefined}
               className={cn(
                 "premium-nav-item relative flex h-[3.75rem] min-w-0 flex-col items-center justify-center gap-0.5 px-0.5 pt-1 text-[10px] font-semibold",
-                pathname === "/menu" ? "text-primary" : "text-muted-foreground active:text-foreground",
+                pathname === "/menu"
+                  ? "text-primary"
+                  : "text-muted-foreground active:text-foreground",
               )}
             >
               <span className="relative grid size-7 place-items-center">
-                <Avatar path={profile?.avatar_url} name={profile?.full_name} className="member-avatar-ring size-7 p-[2px]" />
+                <Avatar
+                  path={profile?.avatar_url}
+                  name={profile?.full_name}
+                  className="member-avatar-ring size-7 p-[2px]"
+                />
                 <span className="absolute -bottom-1 -right-1.5 z-10 grid size-[18px] place-items-center rounded-full border border-border bg-background text-foreground shadow-sm">
                   <Menu className="size-3.5" strokeWidth={3} aria-hidden />
                 </span>
               </span>
               <span className="max-w-full truncate">{t("nav.more")}</span>
-              {pathname === "/menu" ? <span className="absolute inset-x-2 top-0 h-0.5 rounded-b-full bg-primary" aria-hidden /> : null}
+              {pathname === "/menu" ? (
+                <span
+                  className="absolute inset-x-2 top-0 h-0.5 rounded-b-full bg-primary"
+                  aria-hidden
+                />
+              ) : null}
             </Link>
           </li>
         </ul>

@@ -42,7 +42,14 @@ export const getInvestorProviderMap = createServerFn({ method: "GET" }).handler(
     const key = `${place.lat.toFixed(2)},${place.lng.toFixed(2)}`;
     const hit = buckets.get(key);
     if (hit) hit.count += 1;
-    else buckets.set(key, { city: p.city ?? null, country: p.country, lat: place.lat, lng: place.lng, count: 1 });
+    else
+      buckets.set(key, {
+        city: p.city ?? null,
+        country: p.country,
+        lat: place.lat,
+        lng: place.lng,
+        count: 1,
+      });
   }
 
   const points = [...buckets.values()].sort((a, b) => b.count - a.count);

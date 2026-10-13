@@ -10,13 +10,14 @@ import { COMMISSIONS, formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-
-
 export const Route = createFileRoute("/_authenticated/network")({
   head: () => ({
     meta: [
       { title: "Referral network — ASH Glo" },
-      { name: "description", content: "See your level 1, 2 and 3 referral network and commissions earned." },
+      {
+        name: "description",
+        content: "See your level 1, 2 and 3 referral network and commissions earned.",
+      },
     ],
   }),
   component: NetworkPage,
@@ -59,7 +60,6 @@ function NetworkPage() {
             ))}
           </section>
 
-
           {treeLoading ? (
             <SkeletonRows rows={4} />
           ) : (
@@ -71,15 +71,16 @@ function NetworkPage() {
           )}
 
           {profile?.referral_code ? (
-            <ReferralCard code={profile.referral_code} active={profile.account_status === "ACTIVE"} />
+            <ReferralCard
+              code={profile.referral_code}
+              active={profile.account_status === "ACTIVE"}
+            />
           ) : null}
         </>
       )}
     </div>
   );
 }
-
-
 
 function Row({
   label,
@@ -129,13 +130,18 @@ function LevelRow({ level }: { level: NetworkLevel }) {
 
         <span className="min-w-0 flex-1">
           <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className="whitespace-nowrap text-sm font-semibold text-foreground">L{level.level}</span>
+            <span className="whitespace-nowrap text-sm font-semibold text-foreground">
+              L{level.level}
+            </span>
             <span className="tabular whitespace-nowrap rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
               {t("net.each", { amount: formatXAF(COMMISSIONS[level.level as 1 | 2 | 3]) })}
             </span>
           </span>
           <span className="mt-1 flex min-w-0 items-center gap-2">
-            <span className="h-1.5 min-w-10 flex-1 overflow-hidden rounded-full bg-muted sm:max-w-40" aria-hidden>
+            <span
+              className="h-1.5 min-w-10 flex-1 overflow-hidden rounded-full bg-muted sm:max-w-40"
+              aria-hidden
+            >
               <span
                 className="brand-gradient block h-full rounded-full transition-all duration-700"
                 style={{ width: `${pct}%` }}
@@ -159,7 +165,10 @@ function LevelRow({ level }: { level: NetworkLevel }) {
         </span>
 
         <ChevronDown
-          className={cn("size-4 shrink-0 text-muted-foreground transition-transform", open && "rotate-180")}
+          className={cn(
+            "size-4 shrink-0 text-muted-foreground transition-transform",
+            open && "rotate-180",
+          )}
           aria-hidden
         />
       </button>
@@ -169,7 +178,11 @@ function LevelRow({ level }: { level: NetworkLevel }) {
           <Row label={t("net.members")} value={String(level.members)} />
           <Row label={t("net.activeMembers")} value={String(level.active)} />
           <Row label={t("net.pendingActivation")} value={String(level.pending)} warn />
-          <Row label={t("net.pendingCommission")} value={formatXAF(level.pendingCommissions)} warn />
+          <Row
+            label={t("net.pendingCommission")}
+            value={formatXAF(level.pendingCommissions)}
+            warn
+          />
           <Row label={t("net.commissions")} value={formatXAF(level.commissions)} highlight />
         </dl>
       ) : null}

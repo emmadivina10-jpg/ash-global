@@ -25,7 +25,9 @@ export function StatCard({
           <span
             className={cn(
               "grid size-9 shrink-0 place-items-center rounded-xl",
-              accent ? "hairline-gold bg-gold-soft text-gold-foreground" : "bg-primary/10 text-primary",
+              accent
+                ? "hairline-gold bg-gold-soft text-gold-foreground"
+                : "bg-primary/10 text-primary",
             )}
           >
             {icon}
@@ -62,28 +64,14 @@ export function BalanceCard({
     <div className={cn(gold ? "virtual-card-gold" : "virtual-card", "p-5 sm:p-7")}>
       <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
-          <p
-            className="text-xs font-medium opacity-70"
-          >
-            {label}
-          </p>
-          <p
-            className="tabular mt-2 break-words font-display text-3xl font-semibold leading-tight sm:text-4xl"
-          >
+          <p className="text-xs font-medium opacity-70">{label}</p>
+          <p className="tabular mt-2 break-words font-display text-3xl font-semibold leading-tight sm:text-4xl">
             {amount}
           </p>
         </div>
         <div className="text-right">
-          <span
-            className="font-display text-lg font-extrabold"
-          >
-            ASH
-          </span>
-          <span
-            className="mt-1 block text-[10px] font-medium opacity-60"
-          >
-            GLO
-          </span>
+          <span className="font-display text-lg font-extrabold">ASH</span>
+          <span className="mt-1 block text-[10px] font-medium opacity-60">GLO</span>
         </div>
       </div>
 
@@ -103,9 +91,7 @@ export function BalanceCard({
         {last4 ? `•••• •••• •••• ${last4}` : "ASH Card"}
       </p>
 
-      <div
-        className="relative mt-5 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3"
-      >
+      <div className="relative mt-5 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
         <div className="min-w-0">
           <p className="text-[10px] font-medium opacity-60">{tx("Account holder", "Titulaire")}</p>
           <p className="truncate text-sm font-semibold">{holder ?? tx("Profile", "Profil")}</p>
@@ -144,7 +130,9 @@ export function SectionCard({
         <header className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
           <div className="min-w-0">
             <h2 className="truncate text-lg font-bold text-foreground">{title}</h2>
-            {description ? <p className="mt-0.5 text-sm text-muted-foreground">{description}</p> : null}
+            {description ? (
+              <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
+            ) : null}
           </div>
           {action}
         </header>

@@ -23,9 +23,16 @@ export const Route = createFileRoute("/_authenticated/property/manage")({
   head: () => ({
     meta: [
       { title: "My Property — listings, viewings and performance | ASH" },
-      { name: "description", content: "Manage your ASH Property listings, respond to viewing requests and track views, saves and inquiries." },
+      {
+        name: "description",
+        content:
+          "Manage your ASH Property listings, respond to viewing requests and track views, saves and inquiries.",
+      },
       { property: "og:title", content: "My Property — ASH" },
-      { property: "og:description", content: "Manage listings, viewing requests and property performance on ASH." },
+      {
+        property: "og:description",
+        content: "Manage listings, viewing requests and property performance on ASH.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -50,7 +57,6 @@ function ManageProperty() {
       toast.error(tx("Could not open the chat.", "Impossible d’ouvrir la discussion."));
     }
   }
-
 
   const { data: mine, isLoading } = useMyProperties();
   const { data: incoming } = useViewingRequests("owner");
@@ -106,7 +112,10 @@ function ManageProperty() {
             {tx("My Property", "Mes biens")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {tx("Listings, viewings and real performance.", "Annonces, visites et performances réelles.")}
+            {tx(
+              "Listings, viewings and real performance.",
+              "Annonces, visites et performances réelles.",
+            )}
           </p>
         </div>
         <Button asChild>
@@ -125,7 +134,9 @@ function ManageProperty() {
           { label: tx("Viewing requests", "Visites"), value: totals.viewings },
         ].map((card) => (
           <div key={card.label} className="rounded-2xl border border-border bg-card p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{card.label}</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              {card.label}
+            </p>
             <p className="mt-1 font-display text-xl font-extrabold text-foreground">{card.value}</p>
           </div>
         ))}
@@ -139,7 +150,9 @@ function ManageProperty() {
             onClick={() => setTab(item.key)}
             className={cn(
               "rounded-full border border-border px-3.5 py-2 text-xs font-semibold transition-colors",
-              tab === item.key ? "border-primary/60 bg-primary/10 text-primary" : "text-muted-foreground",
+              tab === item.key
+                ? "border-primary/60 bg-primary/10 text-primary"
+                : "text-muted-foreground",
             )}
           >
             {tx(item.en, item.fr)}
@@ -176,7 +189,12 @@ function ManageProperty() {
                     </Link>
                     <p className="text-xs text-muted-foreground">
                       {categoryLabel(listing.category, fr)} · {listing.city} ·{" "}
-                      {formatPropertyPrice(listing.price, listing.currency, listing.price_period, fr)}
+                      {formatPropertyPrice(
+                        listing.price,
+                        listing.currency,
+                        listing.price_period,
+                        fr,
+                      )}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {listing.view_count} {tx("views", "vues")} · {listing.inquiry_count}{" "}
@@ -224,11 +242,12 @@ function ManageProperty() {
       {tab === "VIEWINGS" ? (
         <div className="space-y-4">
           <section>
-            <h2 className="mb-2 text-sm font-bold text-foreground">
-              {tx("Received", "Reçues")}
-            </h2>
+            <h2 className="mb-2 text-sm font-bold text-foreground">{tx("Received", "Reçues")}</h2>
             {(incoming?.length ?? 0) === 0 ? (
-              <EmptyState icon={<CalendarClock className="size-5" aria-hidden />} title={tx("No viewing requests", "Aucune demande")} />
+              <EmptyState
+                icon={<CalendarClock className="size-5" aria-hidden />}
+                title={tx("No viewing requests", "Aucune demande")}
+              />
             ) : (
               <div className="space-y-2">
                 {incoming?.map((row) => (
@@ -237,27 +256,45 @@ function ManageProperty() {
                     <p className="text-xs text-muted-foreground">
                       {formatDateTime(row.requested_at)} · {row.status}
                     </p>
-                    {row.message ? <p className="mt-2 text-sm text-muted-foreground">{row.message}</p> : null}
+                    {row.message ? (
+                      <p className="mt-2 text-sm text-muted-foreground">{row.message}</p>
+                    ) : null}
                     {row.status === "PENDING" ? (
                       <div className="mt-3 flex gap-2">
-                        <Button size="sm" onClick={() => void respond(row.id, "ACCEPTED", row.requested_at)}>
+                        <Button
+                          size="sm"
+                          onClick={() => void respond(row.id, "ACCEPTED", row.requested_at)}
+                        >
                           {tx("Accept", "Accepter")}
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => void respond(row.id, "DECLINED", row.requested_at)}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => void respond(row.id, "DECLINED", row.requested_at)}
+                        >
                           {tx("Decline", "Refuser")}
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => void (async () => {
-                            const input = window.prompt(
-                              tx("New date/time (YYYY-MM-DD HH:MM)", "Nouvelle date/heure (AAAA-MM-JJ HH:MM)"),
-                            );
-                            if (!input) return;
-                            const when = new Date(input);
-                            if (Number.isNaN(when.getTime())) {
-                              toast.error(tx("Invalid date.", "Date invalide."));
-                              return;
-                            }
-                            await respond(row.id, "RESCHEDULED", when.toISOString());
-                          })()}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() =>
+                            void (async () => {
+                              const input = window.prompt(
+                                tx(
+                                  "New date/time (YYYY-MM-DD HH:MM)",
+                                  "Nouvelle date/heure (AAAA-MM-JJ HH:MM)",
+                                ),
+                              );
+                              if (!input) return;
+                              const when = new Date(input);
+                              if (Number.isNaN(when.getTime())) {
+                                toast.error(tx("Invalid date.", "Date invalide."));
+                                return;
+                              }
+                              await respond(row.id, "RESCHEDULED", when.toISOString());
+                            })()
+                          }
+                        >
                           {tx("Propose another time", "Proposer un autre créneau")}
                         </Button>
                       </div>
@@ -271,7 +308,10 @@ function ManageProperty() {
           <section>
             <h2 className="mb-2 text-sm font-bold text-foreground">{tx("Sent", "Envoyées")}</h2>
             {(outgoing?.length ?? 0) === 0 ? (
-              <EmptyState icon={<CalendarClock className="size-5" aria-hidden />} title={tx("No viewings requested", "Aucune visite demandée")} />
+              <EmptyState
+                icon={<CalendarClock className="size-5" aria-hidden />}
+                title={tx("No viewings requested", "Aucune visite demandée")}
+              />
             ) : (
               <div className="space-y-2">
                 {outgoing?.map((row) => (
@@ -293,7 +333,6 @@ function ManageProperty() {
                       {tx("Message owner", "Discuter avec le propriétaire")}
                     </Button>
                   </div>
-
                 ))}
               </div>
             )}
@@ -303,10 +342,15 @@ function ManageProperty() {
 
       {tab === "SAVED" ? (
         (saved?.length ?? 0) === 0 ? (
-          <EmptyState icon={<Heart className="size-5" aria-hidden />} title={tx("Nothing saved yet", "Aucun favori")} />
+          <EmptyState
+            icon={<Heart className="size-5" aria-hidden />}
+            title={tx("Nothing saved yet", "Aucun favori")}
+          />
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {saved?.map((listing) => <PropertyCard key={listing.id} listing={listing} />)}
+            {saved?.map((listing) => (
+              <PropertyCard key={listing.id} listing={listing} />
+            ))}
           </div>
         )
       ) : null}
@@ -330,7 +374,10 @@ function ManageProperty() {
                 [tx("Viewing requests", "Visites demandées"), totals.viewings],
                 [tx("Saved by users", "Enregistrements"), saved?.length ?? 0],
               ].map(([label, value]) => (
-                <div key={String(label)} className="flex items-center justify-between rounded-xl border border-border px-3 py-2 text-sm">
+                <div
+                  key={String(label)}
+                  className="flex items-center justify-between rounded-xl border border-border px-3 py-2 text-sm"
+                >
                   <dt className="text-muted-foreground">{label}</dt>
                   <dd className="font-semibold text-foreground">{value}</dd>
                 </div>
@@ -342,7 +389,16 @@ function ManageProperty() {
               className="mt-3"
               onClick={() => {
                 const rows = [
-                  ["title", "status", "city", "price", "currency", "views", "inquiries", "expires_at"],
+                  [
+                    "title",
+                    "status",
+                    "city",
+                    "price",
+                    "currency",
+                    "views",
+                    "inquiries",
+                    "expires_at",
+                  ],
                   ...(mine ?? []).map((item) => [
                     item.title,
                     item.status,
@@ -354,7 +410,11 @@ function ManageProperty() {
                     item.expires_at,
                   ]),
                 ];
-                const csv = rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
+                const csv = rows
+                  .map((row) =>
+                    row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
+                  )
+                  .join("\n");
                 const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
                 const link = document.createElement("a");
                 link.href = url;

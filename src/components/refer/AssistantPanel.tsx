@@ -57,7 +57,7 @@ export function AssistantPanel() {
     if ((!message && images.length === 0) || busy) return;
     const turn: ChatTurn = {
       role: "user",
-      content: message || (tx("Look at this photo.", "Regarde cette photo.")),
+      content: message || tx("Look at this photo.", "Regarde cette photo."),
       ...(images.length > 0 ? { images } : {}),
     };
     const next: ChatTurn[] = [...turns, turn];
@@ -99,7 +99,10 @@ export function AssistantPanel() {
               ))}
             </div>
             <p className="text-xs text-muted-foreground">
-              {tx("Add a photo or take a snapshot — ASH can look at it and advise you.", "Ajoutez une photo ou prenez un instantané : ASH peut regarder et vous conseiller.")}
+              {tx(
+                "Add a photo or take a snapshot — ASH can look at it and advise you.",
+                "Ajoutez une photo ou prenez un instantané : ASH peut regarder et vous conseiller.",
+              )}
             </p>
           </div>
         ) : null}

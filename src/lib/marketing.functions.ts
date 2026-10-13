@@ -16,9 +16,17 @@ export const getMarketingOverview = createServerFn({ method: "GET" }).handler(as
   const db = await adminClient();
   const nowIso = new Date().toISOString();
   const [leads, promos, tasks] = await Promise.all([
-    db.from("leads").select("department, stage, lead_type, next_follow_up").in("department", [...MARKETING]).limit(5000),
+    db
+      .from("leads")
+      .select("department, stage, lead_type, next_follow_up")
+      .in("department", [...MARKETING])
+      .limit(5000),
     db.from("promotions").select("status, starts_at, ends_at, impressions, clicks").limit(5000),
-    db.from("department_tasks").select("department, status").in("department", [...MARKETING]).limit(5000),
+    db
+      .from("department_tasks")
+      .select("department, status")
+      .in("department", [...MARKETING])
+      .limit(5000),
   ]);
 
   const leadRows = leads.data ?? [];
@@ -31,7 +39,9 @@ export const getMarketingOverview = createServerFn({ method: "GET" }).handler(as
   );
   const impressions = promoRows.reduce((a, p) => a + (Number(p.impressions) || 0), 0);
   const clicks = promoRows.reduce((a, p) => a + (Number(p.clicks) || 0), 0);
-  const openTasks = taskRows.filter((t) => !["DONE", "COMPLETED", "CANCELLED"].includes(String(t.status).toUpperCase()));
+  const openTasks = taskRows.filter(
+    (t) => !["DONE", "COMPLETED", "CANCELLED"].includes(String(t.status).toUpperCase()),
+  );
 
   return {
     hasData: leadRows.length + promoRows.length + taskRows.length > 0,
@@ -40,11 +50,19 @@ export const getMarketingOverview = createServerFn({ method: "GET" }).handler(as
     impressions,
     clicks,
     ctr: impressions > 0 ? Math.round((clicks / impressions) * 1000) / 10 : null,
-    leads: { total: leadRows.length, advertising: by("ADVERTISING"), content: by("CONTENT"), growth: by("GROWTH") },
+    leads: {
+      total: leadRows.length,
+      advertising: by("ADVERTISING"),
+      content: by("CONTENT"),
+      growth: by("GROWTH"),
+    },
     acquiredBusinesses: registered.filter((l) => l.lead_type === "BUSINESS").length,
     acquiredOther: registered.filter((l) => l.lead_type !== "BUSINESS").length,
-    conversionRate: leadRows.length > 0 ? Math.round((registered.length / leadRows.length) * 1000) / 10 : null,
-    followUpsDue: leadRows.filter((l) => l.next_follow_up && l.next_follow_up <= nowIso && l.stage !== "LOST").length,
+    conversionRate:
+      leadRows.length > 0 ? Math.round((registered.length / leadRows.length) * 1000) / 10 : null,
+    followUpsDue: leadRows.filter(
+      (l) => l.next_follow_up && l.next_follow_up <= nowIso && l.stage !== "LOST",
+    ).length,
     openTasks: openTasks.length,
   };
 });

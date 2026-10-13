@@ -12,11 +12,11 @@ export function Logo({ className }: { compact?: boolean; className?: string }) {
 
       <span className="min-w-0">
         <span className="flex items-center gap-1.5 leading-none">
-          <span className="font-display text-lg font-extrabold tracking-tight text-foreground">ASH</span>
+          <span className="font-display text-lg font-extrabold tracking-tight text-foreground">
+            ASH
+          </span>
         </span>
       </span>
-
     </span>
   );
 }
-

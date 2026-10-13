@@ -33,14 +33,17 @@ export const getMyWorkspace = createServerFn({ method: "GET" }).handler(async ()
     ? (
         await db
           .from("staff_accounts")
-          .select("id, employee_name, full_name, position, department, employee_id, avatar_url, availability, identity_confirmed_at")
+          .select(
+            "id, employee_name, full_name, position, department, employee_id, avatar_url, availability, identity_confirmed_at",
+          )
           .eq("id", a.staffId)
           .maybeSingle()
       ).data
     : null;
 
   const avatarSignedUrl = me?.avatar_url
-    ? (await db.storage.from("staff-avatars").createSignedUrl(me.avatar_url, 60 * 60)).data?.signedUrl ?? null
+    ? ((await db.storage.from("staff-avatars").createSignedUrl(me.avatar_url, 60 * 60)).data
+        ?.signedUrl ?? null)
     : null;
 
   let taskQ = db
@@ -48,13 +51,18 @@ export const getMyWorkspace = createServerFn({ method: "GET" }).handler(async ()
     .select("id, title, due_date, status, priority, progress, assigned_staff_id, department")
     .neq("status", "DONE")
     .limit(300);
-  if (!a.superAdmin) taskQ = taskQ.or(`assigned_staff_id.eq.${a.staffId ?? "00000000-0000-0000-0000-000000000000"},department.eq.${a.department}`);
+  if (!a.superAdmin)
+    taskQ = taskQ.or(
+      `assigned_staff_id.eq.${a.staffId ?? "00000000-0000-0000-0000-000000000000"},department.eq.${a.department}`,
+    );
   const { data: tasks } = await taskQ;
   const open = tasks ?? [];
 
   let ticketQ = db
     .from("support_tickets")
-    .select("id, subject, name, status, priority, created_at, last_message_at, assigned_staff_id, assigned_department")
+    .select(
+      "id, subject, name, status, priority, created_at, last_message_at, assigned_staff_id, assigned_department",
+    )
     .not("status", "in", "(RESOLVED,CLOSED)")
     .order("created_at", { ascending: true })
     .limit(200);
@@ -72,7 +80,12 @@ export const getMyWorkspace = createServerFn({ method: "GET" }).handler(async ()
     const created = new Date(t.created_at).getTime();
     const resolutionDue = created + sla.resolution * 3600_000;
     const remaining = resolutionDue - now;
-    const state = remaining < 0 ? "BREACHED" : remaining < sla.resolution * 3600_000 * 0.25 ? "AT_RISK" : "ON_TIME";
+    const state =
+      remaining < 0
+        ? "BREACHED"
+        : remaining < sla.resolution * 3600_000 * 0.25
+          ? "AT_RISK"
+          : "ON_TIME";
     return { ...t, resolution_due: new Date(resolutionDue).toISOString(), sla_state: state };
   });
 
@@ -86,13 +99,23 @@ export const getMyWorkspace = createServerFn({ method: "GET" }).handler(async ()
     unread = count ?? 0;
   }
 
-  let notifQ = db.from("staff_notifications").select("id", { count: "exact", head: true }).is("read_at", null);
-  if (!a.superAdmin) notifQ = notifQ.or(`staff_id.eq.${a.staffId ?? "00000000-0000-0000-0000-000000000000"},department.eq.${a.department}`);
+  let notifQ = db
+    .from("staff_notifications")
+    .select("id", { count: "exact", head: true })
+    .is("read_at", null);
+  if (!a.superAdmin)
+    notifQ = notifQ.or(
+      `staff_id.eq.${a.staffId ?? "00000000-0000-0000-0000-000000000000"},department.eq.${a.department}`,
+    );
   const { count: notifCount } = await notifQ;
 
   // Completed today / this week (real records).
   const weekStart = new Date(now - 6 * 86400_000).toISOString();
-  let doneQ = db.from("department_tasks").select("completed_at").eq("status", "DONE").gte("completed_at", weekStart);
+  let doneQ = db
+    .from("department_tasks")
+    .select("completed_at")
+    .eq("status", "DONE")
+    .gte("completed_at", weekStart);
   if (!a.superAdmin) doneQ = doneQ.eq("department", a.department);
   const { data: done } = await doneQ;
   const doneToday = (done ?? []).filter((r) => (r.completed_at ?? "").startsWith(d)).length;
@@ -106,7 +129,12 @@ export const getMyWorkspace = createServerFn({ method: "GET" }).handler(async ()
   const { data: team } = await teamQ;
 
   const { data: myReport } = a.staffId
-    ? await db.from("staff_daily_reports").select("*").eq("staff_id", a.staffId).eq("report_date", d).maybeSingle()
+    ? await db
+        .from("staff_daily_reports")
+        .select("*")
+        .eq("staff_id", a.staffId)
+        .eq("report_date", d)
+        .maybeSingle()
     : { data: null };
 
   return {
@@ -127,7 +155,9 @@ export const getMyWorkspace = createServerFn({ method: "GET" }).handler(async ()
     },
     priorities: open
       .filter((t) => t.due_date <= d)
-      .sort((x, y) => PRIORITIES.indexOf(y.priority as never) - PRIORITIES.indexOf(x.priority as never))
+      .sort(
+        (x, y) => PRIORITIES.indexOf(y.priority as never) - PRIORITIES.indexOf(x.priority as never),
+      )
       .slice(0, 5),
     tickets: ticketRows.slice(0, 8),
     team: (team ?? []).map((t) => ({ ...t, name: t.employee_name ?? t.full_name })),
@@ -164,11 +194,15 @@ export const getMyTasks = createServerFn({ method: "GET" }).handler(async () => 
   const { a, db } = await ctx();
   let q = db
     .from("department_tasks")
-    .select("id, title, detail, department, due_date, status, priority, progress, recurrence, related_customer, related_ticket_id, assigned_staff_id, completed_at, created_by")
+    .select(
+      "id, title, detail, department, due_date, status, priority, progress, recurrence, related_customer, related_ticket_id, assigned_staff_id, completed_at, created_by",
+    )
     .order("due_date", { ascending: true })
     .limit(300);
   if (!a.superAdmin) {
-    q = q.or(`assigned_staff_id.eq.${a.staffId ?? "00000000-0000-0000-0000-000000000000"},department.eq.${a.department}`);
+    q = q.or(
+      `assigned_staff_id.eq.${a.staffId ?? "00000000-0000-0000-0000-000000000000"},department.eq.${a.department}`,
+    );
   }
   const { data } = await q;
   const { data: staff } = await db
@@ -177,7 +211,11 @@ export const getMyTasks = createServerFn({ method: "GET" }).handler(async () => 
     .eq("is_active", true);
   return {
     tasks: data ?? [],
-    staff: (staff ?? []).map((s) => ({ id: s.id, name: s.employee_name ?? s.full_name, department: s.department })),
+    staff: (staff ?? []).map((s) => ({
+      id: s.id,
+      name: s.employee_name ?? s.full_name,
+      department: s.department,
+    })),
     canAssign: a.superAdmin,
     me: a.staffId,
     today: today(),
@@ -195,11 +233,17 @@ export const createTask = createServerFn({ method: "POST" })
       related_customer?: string;
       recurrence?: string;
     }) => {
-      const title = String(d?.title ?? "").trim().slice(0, 200);
+      const title = String(d?.title ?? "")
+        .trim()
+        .slice(0, 200);
       if (!title) throw new Error("Title required");
       const due = /^\d{4}-\d{2}-\d{2}$/.test(d?.due_date ?? "") ? d.due_date : today();
-      const priority = (PRIORITIES as readonly string[]).includes(String(d?.priority)) ? String(d.priority) : "NORMAL";
-      const recurrence = (RECURRENCE as readonly string[]).includes(String(d?.recurrence)) ? String(d.recurrence) : "NONE";
+      const priority = (PRIORITIES as readonly string[]).includes(String(d?.priority))
+        ? String(d.priority)
+        : "NORMAL";
+      const recurrence = (RECURRENCE as readonly string[]).includes(String(d?.recurrence))
+        ? String(d.recurrence)
+        : "NONE";
       return {
         title,
         detail: d?.detail ? String(d.detail).slice(0, 2000) : null,
@@ -217,7 +261,11 @@ export const createTask = createServerFn({ method: "POST" })
     const assignee = a.superAdmin ? data.assigned_staff_id : a.staffId;
     let department = a.department as string;
     if (assignee) {
-      const { data: s } = await db.from("staff_accounts").select("department").eq("id", assignee).maybeSingle();
+      const { data: s } = await db
+        .from("staff_accounts")
+        .select("department")
+        .eq("id", assignee)
+        .maybeSingle();
       if (!s) throw new Error("Unknown employee");
       department = s.department;
     }
@@ -254,20 +302,31 @@ export const createTask = createServerFn({ method: "POST" })
 export const updateTask = createServerFn({ method: "POST" })
   .inputValidator((d: { id: string; progress?: number; status?: string }) => ({
     id: String(d.id),
-    progress: d.progress === undefined ? undefined : Math.max(0, Math.min(100, Math.round(Number(d.progress)))),
+    progress:
+      d.progress === undefined
+        ? undefined
+        : Math.max(0, Math.min(100, Math.round(Number(d.progress)))),
     status: d.status ? String(d.status).toUpperCase() : undefined,
   }))
   .handler(async ({ data }) => {
     const { a, db } = await ctx();
     const { data: t } = await db
       .from("department_tasks")
-      .select("id, department, assigned_staff_id, recurrence, title, detail, priority, due_date, related_customer")
+      .select(
+        "id, department, assigned_staff_id, recurrence, title, detail, priority, due_date, related_customer",
+      )
       .eq("id", data.id)
       .maybeSingle();
     if (!t) throw new Error("Not found");
-    if (!a.superAdmin && t.assigned_staff_id !== a.staffId && t.department !== a.department) throw new Error("FORBIDDEN");
+    if (!a.superAdmin && t.assigned_staff_id !== a.staffId && t.department !== a.department)
+      throw new Error("FORBIDDEN");
 
-    const patch: { progress?: number; status?: string; completed_at?: string | null; completed_by?: string } = {};
+    const patch: {
+      progress?: number;
+      status?: string;
+      completed_at?: string | null;
+      completed_by?: string;
+    } = {};
     if (data.progress !== undefined) patch.progress = data.progress;
     const done = data.status === "DONE" || data.progress === 100;
     if (done) {
@@ -318,13 +377,17 @@ export const getTaskComments = createServerFn({ method: "POST" })
 
 export const addTaskComment = createServerFn({ method: "POST" })
   .inputValidator((d: { taskId: string; body: string }) => {
-    const body = String(d?.body ?? "").trim().slice(0, 2000);
+    const body = String(d?.body ?? "")
+      .trim()
+      .slice(0, 2000);
     if (!body) throw new Error("Empty comment");
     return { taskId: String(d.taskId), body };
   })
   .handler(async ({ data }) => {
     const { a, db } = await ctx();
-    await db.from("staff_task_comments").insert({ task_id: data.taskId, staff_id: a.staffId, staff_name: a.name, body: data.body });
+    await db
+      .from("staff_task_comments")
+      .insert({ task_id: data.taskId, staff_id: a.staffId, staff_name: a.name, body: data.body });
     return { ok: true };
   });
 
@@ -361,7 +424,9 @@ export const submitDailyReport = createServerFn({ method: "POST" })
 
 /** CEO executive summary built only from submitted reports. */
 export const getExecutiveDailySummary = createServerFn({ method: "POST" })
-  .inputValidator((d: { date?: string }) => ({ date: /^\d{4}-\d{2}-\d{2}$/.test(d?.date ?? "") ? d.date! : today() }))
+  .inputValidator((d: { date?: string }) => ({
+    date: /^\d{4}-\d{2}-\d{2}$/.test(d?.date ?? "") ? d.date! : today(),
+  }))
   .handler(async ({ data }) => {
     const { requireSuperAdmin, adminClient } = await import("./console.server");
     await requireSuperAdmin();
@@ -381,9 +446,15 @@ export const getExecutiveDailySummary = createServerFn({ method: "POST" })
       date: data.date,
       submitted: rows.length,
       expected: active ?? 0,
-      helpRequests: rows.filter((r) => r.help_needed).map((r) => ({ name: r.staff_name, department: r.department, text: r.help_needed })),
-      problems: rows.filter((r) => r.problems).map((r) => ({ name: r.staff_name, department: r.department, text: r.problems })),
-      management: rows.filter((r) => r.management_info).map((r) => ({ name: r.staff_name, department: r.department, text: r.management_info })),
+      helpRequests: rows
+        .filter((r) => r.help_needed)
+        .map((r) => ({ name: r.staff_name, department: r.department, text: r.help_needed })),
+      problems: rows
+        .filter((r) => r.problems)
+        .map((r) => ({ name: r.staff_name, department: r.department, text: r.problems })),
+      management: rows
+        .filter((r) => r.management_info)
+        .map((r) => ({ name: r.staff_name, department: r.department, text: r.management_info })),
       reports: rows,
     };
   });

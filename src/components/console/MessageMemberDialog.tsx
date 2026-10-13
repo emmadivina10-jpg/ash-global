@@ -30,7 +30,9 @@ export function MessageMemberDialog({
   const find = useServerFn(searchMembers);
   const [term, setTerm] = useState("");
   const [picked, setPicked] = useState<MessageTarget>(target ?? null);
-  const [subject, setSubject] = useState(kind === "SECURITY" ? "Security check on your account" : "");
+  const [subject, setSubject] = useState(
+    kind === "SECURITY" ? "Security check on your account" : "",
+  );
   const [body, setBody] = useState("");
 
   const results = useQuery({
@@ -86,7 +88,9 @@ export function MessageMemberDialog({
         </div>
 
         {target ? (
-          <p className="rounded-xl bg-muted p-3 text-sm font-semibold text-foreground">To: {target.name}</p>
+          <p className="rounded-xl bg-muted p-3 text-sm font-semibold text-foreground">
+            To: {target.name}
+          </p>
         ) : (
           <div className="space-y-2">
             <Label htmlFor="member-search">Find a member</Label>
@@ -105,14 +109,21 @@ export function MessageMemberDialog({
                   <button
                     key={member.user_id}
                     type="button"
-                    onClick={() => setPicked({ userId: member.user_id, name: member.full_name ?? member.email ?? "Member" })}
+                    onClick={() =>
+                      setPicked({
+                        userId: member.user_id,
+                        name: member.full_name ?? member.email ?? "Member",
+                      })
+                    }
                     className="flex w-full items-center justify-between gap-3 border-b border-border px-3 py-2 text-left last:border-0 hover:bg-muted"
                   >
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-semibold text-foreground">
                         {member.full_name ?? "Member"}
                       </span>
-                      <span className="block truncate text-[11px] text-muted-foreground">{member.email}</span>
+                      <span className="block truncate text-[11px] text-muted-foreground">
+                        {member.email}
+                      </span>
                     </span>
                     <span className="shrink-0 text-[10px] font-bold uppercase text-muted-foreground">
                       {member.account_status}
@@ -151,7 +162,9 @@ export function MessageMemberDialog({
           </Button>
           <Button
             onClick={() => submit.mutate()}
-            disabled={submit.isPending || !active || subject.trim().length === 0 || body.trim().length === 0}
+            disabled={
+              submit.isPending || !active || subject.trim().length === 0 || body.trim().length === 0
+            }
           >
             {submit.isPending ? (
               <Loader2 className="size-4 animate-spin" aria-hidden />

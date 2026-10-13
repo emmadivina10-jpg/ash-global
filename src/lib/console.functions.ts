@@ -52,7 +52,8 @@ export const unlockConsole = createServerFn({ method: "POST" })
     password: String(data?.password ?? ""),
   }))
   .handler(async ({ data }) => {
-    const { passwordMatches, verifyStaffPassword, consoleSession, adminClient } = await import("./console.server");
+    const { passwordMatches, verifyStaffPassword, consoleSession, adminClient } =
+      await import("./console.server");
 
     const master = process.env["CONSOLE_PASSWORD"];
 
@@ -313,7 +314,11 @@ export const creditUserWallet = createServerFn({
       };
     }
 
-    if (!Number.isFinite(data.amount) || data.amount <= 0 || data.amount !== Math.round(data.amount)) {
+    if (
+      !Number.isFinite(data.amount) ||
+      data.amount <= 0 ||
+      data.amount !== Math.round(data.amount)
+    ) {
       console.error("[creditUserWallet] invalid amount:", data.amount);
 
       return {
@@ -450,7 +455,10 @@ export const creditUserWallet = createServerFn({
         target_reference: payload.reference ?? null,
         new_state: { amount: creditedAmount, new_balance: newBalance },
         reason: data.reason.trim().slice(0, 500),
-        metadata: { department: creditActor?.department ?? null, staff_id: creditActor?.staffId ?? null },
+        metadata: {
+          department: creditActor?.department ?? null,
+          staff_id: creditActor?.staffId ?? null,
+        },
       });
     } catch (auditErr) {
       console.error("[creditUserWallet] audit log failed:", auditErr);
@@ -688,7 +696,8 @@ export const settleWithdrawal = createServerFn({
       };
     }
 
-    const isMobileMoney = withdrawal.payment_method === "MTN_MOMO" || withdrawal.payment_method === "ORANGE_MONEY";
+    const isMobileMoney =
+      withdrawal.payment_method === "MTN_MOMO" || withdrawal.payment_method === "ORANGE_MONEY";
 
     /*
      * Once TchokoPay has accepted a mobile-money payout and ASH has
@@ -789,7 +798,8 @@ export const reconcilePaidWithdrawal = createServerFn({
       };
     }
 
-    const isMobileMoney = withdrawal.payment_method === "MTN_MOMO" || withdrawal.payment_method === "ORANGE_MONEY";
+    const isMobileMoney =
+      withdrawal.payment_method === "MTN_MOMO" || withdrawal.payment_method === "ORANGE_MONEY";
 
     if (!isMobileMoney) {
       return {
@@ -926,7 +936,10 @@ export const getConsoleDeletionRequests = createServerFn({
   const ids = [...new Set(list.map((r) => r.user_id))];
 
   const { data: profiles } = ids.length
-    ? await db.from("profiles").select("user_id, full_name, email, phone, account_status").in("user_id", ids)
+    ? await db
+        .from("profiles")
+        .select("user_id, full_name, email, phone, account_status")
+        .in("user_id", ids)
     : {
         data: [] as Array<{
           user_id: string;
@@ -1086,7 +1099,9 @@ export const getConsolePayments = createServerFn({
 
     failed: payments.filter((p) => p.status === "FAILED" || p.status === "CANCELLED").length,
 
-    collected: payments.filter((p) => p.status === "PAID").reduce((sum, p) => sum + Number(p.amount), 0),
+    collected: payments
+      .filter((p) => p.status === "PAID")
+      .reduce((sum, p) => sum + Number(p.amount), 0),
   };
 
   return {
@@ -1116,7 +1131,9 @@ export const verifyPaymentReference = createServerFn({
     // The console accepts either reference: ours (ACT-/BKG-/PLK-) or TchokoPay's REQ-.
     const isProviderRef = data.reference.startsWith("REQ-");
 
-    const merchantReference = isProviderRef ? await findMerchantReference(data.reference) : data.reference;
+    const merchantReference = isProviderRef
+      ? await findMerchantReference(data.reference)
+      : data.reference;
 
     let providerReference: string | null = isProviderRef ? data.reference : null;
 
@@ -1316,7 +1333,9 @@ export const getConsoleAuditLog = createServerFn({
 
   const { data } = await db
     .from("admin_audit_log")
-    .select("id, actor, action, target_user_id, target_reference, previous_state, new_state, reason, created_at")
+    .select(
+      "id, actor, action, target_user_id, target_reference, previous_state, new_state, reason, created_at",
+    )
     .order("created_at", {
       ascending: false,
     })
@@ -1407,13 +1426,29 @@ export const getConsoleAnalytics = createServerFn({
     const sinceIso = since.toISOString();
 
     const [activations, subs, bookings, payouts, signups] = await Promise.all([
-      db.from("activations").select("amount, paid_at").eq("status", "PAID").gte("paid_at", sinceIso),
+      db
+        .from("activations")
+        .select("amount, paid_at")
+        .eq("status", "PAID")
+        .gte("paid_at", sinceIso),
 
-      db.from("provider_subscriptions").select("amount, created_at").eq("status", "ACTIVE").gte("created_at", sinceIso),
+      db
+        .from("provider_subscriptions")
+        .select("amount, created_at")
+        .eq("status", "ACTIVE")
+        .gte("created_at", sinceIso),
 
-      db.from("bookings").select("price, platform_fee, paid_at").not("paid_at", "is", null).gte("paid_at", sinceIso),
+      db
+        .from("bookings")
+        .select("price, platform_fee, paid_at")
+        .not("paid_at", "is", null)
+        .gte("paid_at", sinceIso),
 
-      db.from("withdrawals").select("amount, processed_at").eq("status", "PAID").gte("processed_at", sinceIso),
+      db
+        .from("withdrawals")
+        .select("amount, processed_at")
+        .eq("status", "PAID")
+        .gte("processed_at", sinceIso),
 
       db.from("profiles").select("created_at").gte("created_at", sinceIso),
     ]);
@@ -1474,7 +1509,8 @@ export const getConsoleAnalytics = createServerFn({
 
     const series = [...buckets.values()];
 
-    const sum = (field: keyof Omit<DayPoint, "day">) => series.reduce((acc, p) => acc + p[field], 0);
+    const sum = (field: keyof Omit<DayPoint, "day">) =>
+      series.reduce((acc, p) => acc + p[field], 0);
 
     const totals = {
       activations: sum("activations"),
@@ -1661,7 +1697,9 @@ export const getConsolePayouts = createServerFn({
 
     db
       .from("bookings")
-      .select("id, provider_id, service_title, price, status, platform_fee, provider_amount, paid_at, created_at")
+      .select(
+        "id, provider_id, service_title, price, status, platform_fee, provider_amount, paid_at, created_at",
+      )
       .order("created_at", {
         ascending: false,
       })
@@ -1699,12 +1737,19 @@ export const getConsolePayouts = createServerFn({
 export const requestConsolePayout = createServerFn({
   method: "POST",
 })
-  .inputValidator((data: { amount: number; destination: string; provider: "mtn_cm" | "orange_cm"; note?: string }) => ({
-    amount: Number(data?.amount),
-    destination: String(data?.destination ?? ""),
-    provider: data?.provider === "orange_cm" ? "orange_cm" : "mtn_cm",
-    note: data?.note ? String(data.note) : "",
-  }))
+  .inputValidator(
+    (data: {
+      amount: number;
+      destination: string;
+      provider: "mtn_cm" | "orange_cm";
+      note?: string;
+    }) => ({
+      amount: Number(data?.amount),
+      destination: String(data?.destination ?? ""),
+      provider: data?.provider === "orange_cm" ? "orange_cm" : "mtn_cm",
+      note: data?.note ? String(data.note) : "",
+    }),
+  )
   .handler(async ({ data }) => {
     const { requireDepartment, adminClient } = await import("./console.server");
 

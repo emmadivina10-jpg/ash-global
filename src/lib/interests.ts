@@ -35,7 +35,9 @@ export function recordTagInterest(tags: string[], weight = 1) {
     const prev = s[tag];
     s[tag] = { w: Math.min(20, (prev ? decayed(prev, now) : 0) + weight), t: now };
   }
-  const top = Object.entries(s).sort((a, b) => b[1].w - a[1].w).slice(0, 200);
+  const top = Object.entries(s)
+    .sort((a, b) => b[1].w - a[1].w)
+    .slice(0, 200);
   localStorage.setItem(KEY, JSON.stringify(Object.fromEntries(top)));
 }
 

@@ -1,7 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { balanceFor, formatMoney, useWalletBalances, useWalletCurrency } from "@/lib/wallet-currency";
+import {
+  balanceFor,
+  formatMoney,
+  useWalletBalances,
+  useWalletCurrency,
+} from "@/lib/wallet-currency";
 import { useI18n } from "@/lib/i18n";
 
 export function WalletSummary({ onClose }: { onClose?: () => void }) {
@@ -10,14 +15,29 @@ export function WalletSummary({ onClose }: { onClose?: () => void }) {
   const { data: balances, isLoading, error } = useWalletBalances();
   const [currency] = useWalletCurrency();
   const current = balances ? balanceFor(balances, currency) : undefined;
-  const amount = (value: number | undefined) => isLoading ? "…" : error || value === undefined ? "—" : formatMoney(value, currency);
-  return <div className="p-4">
-    <div className="virtual-card relative overflow-hidden p-5">
-      <div className="flex items-center justify-between"><span className="text-xs font-extrabold uppercase opacity-70">ASH Card · {currency}</span><CreditCard className="size-5" /></div>
-      <p className="mt-7 text-xs opacity-65">{tx("Available balance", "Solde disponible")}</p>
-      <p className="mt-1 font-display text-3xl font-extrabold tabular-nums">{amount(current?.available)}</p>
-      <div className="mt-6 flex items-center justify-between border-t border-primary-foreground/15 pt-3 text-xs"><span className="opacity-65">{tx("Pending", "En attente")}</span><strong>{amount(current?.pending)}</strong></div>
+  const amount = (value: number | undefined) =>
+    isLoading ? "…" : error || value === undefined ? "—" : formatMoney(value, currency);
+  return (
+    <div className="p-4">
+      <div className="virtual-card relative overflow-hidden p-5">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-extrabold uppercase opacity-70">ASH Card · {currency}</span>
+          <CreditCard className="size-5" />
+        </div>
+        <p className="mt-7 text-xs opacity-65">{tx("Available balance", "Solde disponible")}</p>
+        <p className="mt-1 font-display text-3xl font-extrabold tabular-nums">
+          {amount(current?.available)}
+        </p>
+        <div className="mt-6 flex items-center justify-between border-t border-primary-foreground/15 pt-3 text-xs">
+          <span className="opacity-65">{tx("Pending", "En attente")}</span>
+          <strong>{amount(current?.pending)}</strong>
+        </div>
+      </div>
+      <Button asChild className="mt-4 w-full">
+        <Link to="/wallet" onClick={onClose}>
+          {tx("Wallet", "Portefeuille")}
+        </Link>
+      </Button>
     </div>
-    <Button asChild className="mt-4 w-full"><Link to="/wallet" onClick={onClose}>{tx("Wallet", "Portefeuille")}</Link></Button>
-  </div>;
+  );
 }

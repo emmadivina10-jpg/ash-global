@@ -52,7 +52,13 @@ export type DiscoveryProvider = ProviderProfile & {
   accepting_bookings: boolean;
   service_areas: string[] | null;
   completed_bookings: number;
-  services: { id: string; title: string; price: number; category: ServiceCategory; is_active: boolean }[];
+  services: {
+    id: string;
+    title: string;
+    price: number;
+    category: ServiceCategory;
+    is_active: boolean;
+  }[];
   photos: { id: string; url: string; caption: string | null }[];
   fromPrice: number | null;
 };
@@ -182,7 +188,10 @@ export function useDiscovery(filters: DiscoveryFilters) {
           // Stable within one scroll session so pagination doesn't reshuffle; new on refresh.
           `${who.user?.id ?? "anon"}:${providerSessionSeed()}`,
         );
-        recordExposure("provider", ranked.slice(0, 6).map((p) => p.id));
+        recordExposure(
+          "provider",
+          ranked.slice(0, 6).map((p) => p.id),
+        );
       }
       prepared.splice(0, prepared.length, ...ranked);
 
@@ -200,7 +209,6 @@ export function useDiscovery(filters: DiscoveryFilters) {
       }
 
       return prepared;
-
     },
   });
 }

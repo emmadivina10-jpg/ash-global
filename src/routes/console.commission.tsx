@@ -23,7 +23,10 @@ function CommissionPage() {
   const load = useServerFn(getCommissionOverview);
   const save = useServerFn(setCommissionRate);
   const [busy, setBusy] = useState(false);
-  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ["console", "commission"], queryFn: () => load() });
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ["console", "commission"],
+    queryFn: () => load(),
+  });
 
   async function choose(rate: number) {
     setBusy(true);
@@ -66,14 +69,19 @@ function CommissionPage() {
             </div>
             <p className="text-xs text-muted-foreground">
               Current rate {pct(data.current)}
-              {data.updatedAt ? ` · changed ${formatDateTime(data.updatedAt)}${data.updatedBy ? ` by ${data.updatedBy}` : ""}` : ""}
+              {data.updatedAt
+                ? ` · changed ${formatDateTime(data.updatedAt)}${data.updatedBy ? ` by ${data.updatedBy}` : ""}`
+                : ""}
               {!data.canEdit ? " · only the CEO or Finance can change it" : ""}
             </p>
           </div>
         )}
       </SectionCard>
 
-      <SectionCard title="Existing bookings" description="Latest 100 bookings and the commission each one uses.">
+      <SectionCard
+        title="Existing bookings"
+        description="Latest 100 bookings and the commission each one uses."
+      >
         {isLoading ? (
           <SkeletonRows rows={5} />
         ) : !data || data.bookings.length === 0 ? (
@@ -81,12 +89,18 @@ function CommissionPage() {
         ) : (
           <ul className="space-y-2">
             {data.bookings.map((b) => (
-              <li key={b.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 rounded-2xl border border-border p-3">
+              <li
+                key={b.id}
+                className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 rounded-2xl border border-border p-3"
+              >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-foreground">{b.service}</p>
                   <p className="tabular truncate text-xs text-muted-foreground">
-                    {formatXAF(b.price)} · {pct(b.rate)} {b.paid ? "(saved at payment)" : "(current rate, applies when paid)"}
-                    {b.split ? ` · ASH ${formatXAF(b.split.commission)} · provider ${formatXAF(b.split.provider)}` : ""}
+                    {formatXAF(b.price)} · {pct(b.rate)}{" "}
+                    {b.paid ? "(saved at payment)" : "(current rate, applies when paid)"}
+                    {b.split
+                      ? ` · ASH ${formatXAF(b.split.commission)} · provider ${formatXAF(b.split.provider)}`
+                      : ""}
                   </p>
                 </div>
                 <StatusBadge status={b.status} />

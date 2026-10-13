@@ -28,9 +28,16 @@ export type StartChargeResult = {
 export const startActivation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { provider: string; phone: string; country?: string }) => ({
-    provider: String(input?.provider ?? "").trim().slice(0, 40),
-    phone: String(input?.phone ?? "").trim().slice(0, 20),
-    country: String(input?.country ?? "CM").toUpperCase().slice(0, 2) || "CM",
+    provider: String(input?.provider ?? "")
+      .trim()
+      .slice(0, 40),
+    phone: String(input?.phone ?? "")
+      .trim()
+      .slice(0, 20),
+    country:
+      String(input?.country ?? "CM")
+        .toUpperCase()
+        .slice(0, 2) || "CM",
   }))
   .handler(async ({ data, context }): Promise<StartChargeResult> => {
     const { supabase, userId } = context;
@@ -92,7 +99,8 @@ export const startActivation = createServerFn({ method: "POST" })
       payment_reference: merchantReference,
       status: "PENDING",
     });
-    if (insertError) return { ...base, reference: merchantReference, error: "ACTIVATION_CREATE_FAILED" };
+    if (insertError)
+      return { ...base, reference: merchantReference, error: "ACTIVATION_CREATE_FAILED" };
 
     const charge = await tchokoPay.createCharge({
       merchantReference,

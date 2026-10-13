@@ -46,12 +46,23 @@ export type AdminAction = {
 };
 
 export type CyberOps = {
-  posture: { score: number; critical: number; warn: number; open_reports: number; stale_scan: boolean };
+  posture: {
+    score: number;
+    critical: number;
+    warn: number;
+    open_reports: number;
+    stale_scan: boolean;
+  };
   throttling: ThrottleBucket[];
   webhooks: WebhookHealth;
   staff: StaffSession[];
   adminActions: AdminAction[];
-  accounts: { blocked_pairs: number; open_reports: number; deletion_requests: number; suspended: number };
+  accounts: {
+    blocked_pairs: number;
+    open_reports: number;
+    deletion_requests: number;
+    suspended: number;
+  };
 };
 
 export const getCyberOps = createServerFn({ method: "GET" })
@@ -82,9 +93,18 @@ export const getCyberOps = createServerFn({ method: "GET" })
           .order("created_at", { ascending: false })
           .limit(40),
         db.from("user_blocks").select("id", { count: "exact", head: true }),
-        db.from("content_reports").select("id", { count: "exact", head: true }).eq("status", "OPEN"),
-        db.from("account_deletion_requests").select("id", { count: "exact", head: true }).eq("status", "PENDING"),
-        db.from("profiles").select("id", { count: "exact", head: true }).neq("account_status", "ACTIVE"),
+        db
+          .from("content_reports")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "OPEN"),
+        db
+          .from("account_deletion_requests")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "PENDING"),
+        db
+          .from("profiles")
+          .select("id", { count: "exact", head: true })
+          .neq("account_status", "ACTIVE"),
         db
           .from("security_events")
           .select("created_at, severity")
@@ -108,12 +128,18 @@ export const getCyberOps = createServerFn({ method: "GET" })
     const critical = severities.filter((e) => e.severity === "CRITICAL").length;
     const warn = severities.filter((e) => e.severity === "WARN").length;
     const lastScan = selfcheck.data?.[0] ?? null;
-    const staleScan = !lastScan || Date.now() - new Date(lastScan.created_at).getTime() > 7 * 86_400_000;
+    const staleScan =
+      !lastScan || Date.now() - new Date(lastScan.created_at).getTime() > 7 * 86_400_000;
     const openReports = reports.count ?? 0;
 
     const score = Math.max(
       0,
-      100 - critical * 15 - warn * 4 - rejected * 6 - (staleScan ? 12 : 0) - Math.min(openReports, 10) * 2,
+      100 -
+        critical * 15 -
+        warn * 4 -
+        rejected * 6 -
+        (staleScan ? 12 : 0) -
+        Math.min(openReports, 10) * 2,
     );
 
     return {

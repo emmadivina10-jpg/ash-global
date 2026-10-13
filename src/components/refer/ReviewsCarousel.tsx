@@ -73,7 +73,9 @@ export function ReviewsCarousel({ fr = false, className }: { fr?: boolean; class
               <Star key={star} className="size-3 fill-amber-400 text-amber-400" />
             ))}
           </div>
-          <p className="mt-1 text-[12.5px] leading-relaxed text-foreground">“{fr ? review.fr : review.en}”</p>
+          <p className="mt-1 text-[12.5px] leading-relaxed text-foreground">
+            “{fr ? review.fr : review.en}”
+          </p>
           <p className="mt-1 text-[11px] font-semibold text-muted-foreground">
             {review.name} · {fr ? review.roleFr : review.role}
           </p>

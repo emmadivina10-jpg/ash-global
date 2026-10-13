@@ -2,12 +2,18 @@ const ZERO_TOLERANCE: Array<[string, string]> = [
   ["Harassment and bullying", "Harcèlement et intimidation"],
   ["Threats", "Menaces"],
   ["Hate or discriminatory content", "Contenu haineux ou discriminatoire"],
-  ["Sexual exploitation or inappropriate sexual content", "Exploitation sexuelle ou contenu sexuel inapproprié"],
+  [
+    "Sexual exploitation or inappropriate sexual content",
+    "Exploitation sexuelle ou contenu sexuel inapproprié",
+  ],
   ["Violence or encouragement of violence", "Violence ou incitation à la violence"],
   ["Scams and fraud", "Arnaques et fraude"],
   ["Illegal activity", "Activités illégales"],
   ["Spam", "Spam"],
-  ["Abusive behavior and other objectionable content", "Comportement abusif et autres contenus répréhensibles"],
+  [
+    "Abusive behavior and other objectionable content",
+    "Comportement abusif et autres contenus répréhensibles",
+  ],
 ];
 
 /** Zero-tolerance rules shown before registration and before first use. */

@@ -5,7 +5,8 @@ import { trackEvent } from "@/lib/activity";
 import { cn } from "@/lib/utils";
 
 export function storefrontUrl(slug: string) {
-  const origin = typeof window === "undefined" ? "https://ashglogroup.company" : window.location.origin;
+  const origin =
+    typeof window === "undefined" ? "https://ashglogroup.company" : window.location.origin;
   return `${origin}/s/${slug}`;
 }
 
@@ -30,7 +31,12 @@ export function ShareStorefront({
   async function share(event: React.MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
-    trackEvent({ event_type: "share", surface: "services", target_type: "storefront", target_id: slug });
+    trackEvent({
+      event_type: "share",
+      surface: "services",
+      target_type: "storefront",
+      target_id: slug,
+    });
     const payload = {
       title: businessName,
       text: `${businessName} on ASH Glo — see prices, photos and book instantly.`,
@@ -61,7 +67,11 @@ export function ShareStorefront({
           className,
         )}
       >
-        {copied ? <Check className="size-3.5" aria-hidden /> : <Share2 className="size-3.5" aria-hidden />}
+        {copied ? (
+          <Check className="size-3.5" aria-hidden />
+        ) : (
+          <Share2 className="size-3.5" aria-hidden />
+        )}
       </button>
     );
   }
@@ -75,7 +85,11 @@ export function ShareStorefront({
         className,
       )}
     >
-      {copied ? <Check className="size-3.5" aria-hidden /> : <Link2 className="size-3.5" aria-hidden />}
+      {copied ? (
+        <Check className="size-3.5" aria-hidden />
+      ) : (
+        <Link2 className="size-3.5" aria-hidden />
+      )}
       Share link
     </button>
   );

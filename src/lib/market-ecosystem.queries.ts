@@ -8,11 +8,7 @@ const db = supabase as unknown as { from: (table: string) => any };
 const VERIFICATION_BUCKET = "market-verification";
 
 export type FxApplicationStatus =
-  | "SUBMITTED"
-  | "UNDER_REVIEW"
-  | "APPROVED"
-  | "ADDITIONAL_INFORMATION_REQUIRED"
-  | "REJECTED";
+  "SUBMITTED" | "UNDER_REVIEW" | "APPROVED" | "ADDITIONAL_INFORMATION_REQUIRED" | "REJECTED";
 
 export type FxInstructorApplication = {
   id: string;
@@ -85,8 +81,14 @@ export function useMyFxInstructorApplication() {
 }
 
 async function uploadPrivateDocument(userId: string, file: File, label: string) {
-  if (file.size > 15 * 1024 * 1024) throw new Error("Each verification file must be smaller than 15 MB.");
-  const ext = file.name.split(".").pop()?.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8) || "jpg";
+  if (file.size > 15 * 1024 * 1024)
+    throw new Error("Each verification file must be smaller than 15 MB.");
+  const ext =
+    file.name
+      .split(".")
+      .pop()
+      ?.replace(/[^a-zA-Z0-9]/g, "")
+      .slice(0, 8) || "jpg";
   const path = `${userId}/${label}-${crypto.randomUUID()}.${ext}`;
   const { error } = await supabase.storage.from(VERIFICATION_BUCKET).upload(path, file, {
     upsert: false,
@@ -116,10 +118,15 @@ export function useSubmitFxInstructorApplication() {
     }) => {
       const userId = await currentUserId();
       if (!userId) throw new Error("You need to be signed in.");
-      if (!input.declarationsAccepted) throw new Error("Please accept the declaration before submitting.");
+      if (!input.declarationsAccepted)
+        throw new Error("Please accept the declaration before submitting.");
       const uploaded: string[] = [];
       try {
-        const governmentIdPath = await uploadPrivateDocument(userId, input.governmentId, "government-id");
+        const governmentIdPath = await uploadPrivateDocument(
+          userId,
+          input.governmentId,
+          "government-id",
+        );
         uploaded.push(governmentIdPath);
         const selfiePath = await uploadPrivateDocument(userId, input.selfie, "selfie");
         uploaded.push(selfiePath);
@@ -145,7 +152,8 @@ export function useSubmitFxInstructorApplication() {
         throw error;
       }
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["fx-instructor-application"] }),
+    onSuccess: () =>
+      void queryClient.invalidateQueries({ queryKey: ["fx-instructor-application"] }),
   });
 }
 
@@ -162,27 +170,35 @@ export function useFxInstructors() {
       if (error) throw error;
       const ids = (rows ?? []).map((row: { user_id: string }) => row.user_id);
       if (!ids.length) return [];
-       const since = new Date(Date.now() - 5 * 60_000).toISOString();
-       const [{ data: profiles }, { data: presence }] = await Promise.all([
-         directory().select("user_id,full_name,username,avatar_url,verified_tier,verified_until").in("user_id", ids),
-         supabase.from("member_presence").select("user_id").in("user_id", ids).gte("last_active_at", since),
-       ]);
-       const onlineIds = new Set((presence ?? []).map((row) => row.user_id));
+      const since = new Date(Date.now() - 5 * 60_000).toISOString();
+      const [{ data: profiles }, { data: presence }] = await Promise.all([
+        directory()
+          .select("user_id,full_name,username,avatar_url,verified_tier,verified_until")
+          .in("user_id", ids),
+        supabase
+          .from("member_presence")
+          .select("user_id")
+          .in("user_id", ids)
+          .gte("last_active_at", since),
+      ]);
+      const onlineIds = new Set((presence ?? []).map((row) => row.user_id));
       const byUser = new Map(
         ((profiles ?? []) as DirectoryProfile[]).map((profile) => [profile.user_id, profile]),
       );
-      return (rows ?? []).map((row: Omit<FxInstructorProfile, "full_name" | "username" | "avatar_url">) => {
-        const profile = byUser.get(row.user_id);
-        return {
-          ...row,
-          full_name: profile?.full_name?.trim() || "Profile",
-          username: profile?.username ?? null,
-          avatar_url: profile?.avatar_url ?? null,
-           verified_tier: profile?.verified_tier ?? null,
-           verified_until: profile?.verified_until ?? null,
-           online: onlineIds.has(row.user_id),
-        };
-      });
+      return (rows ?? []).map(
+        (row: Omit<FxInstructorProfile, "full_name" | "username" | "avatar_url">) => {
+          const profile = byUser.get(row.user_id);
+          return {
+            ...row,
+            full_name: profile?.full_name?.trim() || "Profile",
+            username: profile?.username ?? null,
+            avatar_url: profile?.avatar_url ?? null,
+            verified_tier: profile?.verified_tier ?? null,
+            verified_until: profile?.verified_until ?? null,
+            online: onlineIds.has(row.user_id),
+          };
+        },
+      );
     },
   });
 }
@@ -210,9 +226,9 @@ export function useMyFxInstructorProfile() {
         full_name: profile?.full_name?.trim() || "Profile",
         username: profile?.username ?? null,
         avatar_url: profile?.avatar_url ?? null,
-         verified_tier: profile?.verified_tier ?? null,
-         verified_until: profile?.verified_until ?? null,
-         online: true,
+        verified_tier: profile?.verified_tier ?? null,
+        verified_until: profile?.verified_until ?? null,
+        online: true,
       } as FxInstructorProfile;
     },
   });
@@ -246,7 +262,9 @@ export function useMarketUpdates() {
     queryFn: async (): Promise<MarketPostMeta[]> => {
       const { data, error } = await db
         .from("market_posts")
-        .select("id,social_post_id,instructor_id,content_type,market_category,instrument,title,educational_label,published_at")
+        .select(
+          "id,social_post_id,instructor_id,content_type,market_category,instrument,title,educational_label,published_at",
+        )
         .eq("is_published", true)
         .order("published_at", { ascending: false })
         .limit(40);
@@ -271,7 +289,9 @@ export function useMarketUpdate(marketPostId: string) {
     queryFn: async (): Promise<MarketPostMeta | null> => {
       const { data, error } = await db
         .from("market_posts")
-        .select("id,author_id,social_post_id,instructor_id,content_type,market_category,instrument,title,educational_label,published_at")
+        .select(
+          "id,author_id,social_post_id,instructor_id,content_type,market_category,instrument,title,educational_label,published_at",
+        )
         .eq("id", marketPostId)
         .maybeSingle();
       if (error) throw error;
@@ -296,12 +316,28 @@ export function useFxInstructorProfile(instructorId: string) {
         .maybeSingle();
       if (error) throw error;
       if (!data) return null;
-       const since = new Date(Date.now() - 5 * 60_000).toISOString();
-       const [{ data: profile }, { data: presence }] = await Promise.all([
-         directory().select("full_name,username,avatar_url,verified_tier,verified_until").eq("user_id", data.user_id).maybeSingle(),
-         supabase.from("member_presence").select("user_id").eq("user_id", data.user_id).gte("last_active_at", since).maybeSingle(),
-       ]);
-       return { ...data, full_name: profile?.full_name?.trim() || "Profile", username: profile?.username ?? null, avatar_url: profile?.avatar_url ?? null, verified_tier: profile?.verified_tier ?? null, verified_until: profile?.verified_until ?? null, online: Boolean(presence) } as FxInstructorProfile;
+      const since = new Date(Date.now() - 5 * 60_000).toISOString();
+      const [{ data: profile }, { data: presence }] = await Promise.all([
+        directory()
+          .select("full_name,username,avatar_url,verified_tier,verified_until")
+          .eq("user_id", data.user_id)
+          .maybeSingle(),
+        supabase
+          .from("member_presence")
+          .select("user_id")
+          .eq("user_id", data.user_id)
+          .gte("last_active_at", since)
+          .maybeSingle(),
+      ]);
+      return {
+        ...data,
+        full_name: profile?.full_name?.trim() || "Profile",
+        username: profile?.username ?? null,
+        avatar_url: profile?.avatar_url ?? null,
+        verified_tier: profile?.verified_tier ?? null,
+        verified_until: profile?.verified_until ?? null,
+        online: Boolean(presence),
+      } as FxInstructorProfile;
     },
   });
 }
@@ -317,7 +353,12 @@ export function useInstructorFollowState(instructorId: string) {
     queryFn: async () => {
       const userId = await currentUserId();
       if (!userId) return false;
-      const { data } = await db.from("fx_instructor_follows").select("instructor_id").eq("instructor_id", instructorId).eq("follower_id", userId).maybeSingle();
+      const { data } = await db
+        .from("fx_instructor_follows")
+        .select("instructor_id")
+        .eq("instructor_id", instructorId)
+        .eq("follower_id", userId)
+        .maybeSingle();
       return Boolean(data);
     },
   });
@@ -329,7 +370,12 @@ export function useMarketSaveState(marketPostId: string) {
     queryFn: async () => {
       const userId = await currentUserId();
       if (!userId) return false;
-      const { data } = await db.from("market_post_saves").select("market_post_id").eq("market_post_id", marketPostId).eq("user_id", userId).maybeSingle();
+      const { data } = await db
+        .from("market_post_saves")
+        .select("market_post_id")
+        .eq("market_post_id", marketPostId)
+        .eq("user_id", userId)
+        .maybeSingle();
       return Boolean(data);
     },
   });
@@ -342,7 +388,11 @@ export function useToggleMarketSave() {
       const userId = await currentUserId();
       if (!userId) throw new Error("You need to be signed in.");
       const request = saved
-        ? db.from("market_post_saves").delete().eq("market_post_id", marketPostId).eq("user_id", userId)
+        ? db
+            .from("market_post_saves")
+            .delete()
+            .eq("market_post_id", marketPostId)
+            .eq("user_id", userId)
         : db.from("market_post_saves").insert({ market_post_id: marketPostId, user_id: userId });
       const { error } = await request;
       if (error) throw error;
@@ -381,7 +431,10 @@ export function useCreateMarketPost() {
         instrument: input.instrument?.trim() || null,
         spotlight_post_id: input.spotlightPostId || null,
         title: input.title.trim(),
-        educational_label: input.contentType === "EDUCATIONAL_POST" ? "Educational Discussion" : "Market Observation",
+        educational_label:
+          input.contentType === "EDUCATIONAL_POST"
+            ? "Educational Discussion"
+            : "Market Observation",
       });
       if (error) {
         await supabase.from("social_posts").delete().eq("id", input.socialPostId);
@@ -398,22 +451,43 @@ export function useCreateMarketPost() {
 export function useToggleInstructorFollow() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ instructorId, following }: { instructorId: string; following: boolean }) => {
+    mutationFn: async ({
+      instructorId,
+      following,
+    }: {
+      instructorId: string;
+      following: boolean;
+    }) => {
       const userId = await currentUserId();
       if (!userId) throw new Error("You need to be signed in.");
       const request = following
-        ? db.from("fx_instructor_follows").delete().eq("instructor_id", instructorId).eq("follower_id", userId)
-        : db.from("fx_instructor_follows").insert({ instructor_id: instructorId, follower_id: userId });
+        ? db
+            .from("fx_instructor_follows")
+            .delete()
+            .eq("instructor_id", instructorId)
+            .eq("follower_id", userId)
+        : db
+            .from("fx_instructor_follows")
+            .insert({ instructor_id: instructorId, follower_id: userId });
       const { error } = await request;
       if (error) throw error;
     },
     onSuccess: (_data, input) => {
       if (!input.following) {
-        trackEvent({ event_type: "follow", surface: "markets", target_type: "instructor", target_id: input.instructorId });
+        trackEvent({
+          event_type: "follow",
+          surface: "markets",
+          target_type: "instructor",
+          target_id: input.instructorId,
+        });
       }
       void queryClient.invalidateQueries({ queryKey: ["fx-instructors"] });
-      void queryClient.invalidateQueries({ queryKey: ["fx-instructor-follow", input.instructorId] });
-      void queryClient.invalidateQueries({ queryKey: ["fx-instructor-profile", input.instructorId] });
+      void queryClient.invalidateQueries({
+        queryKey: ["fx-instructor-follow", input.instructorId],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["fx-instructor-profile", input.instructorId],
+      });
     },
   });
 }

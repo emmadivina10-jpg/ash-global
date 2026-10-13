@@ -19,7 +19,10 @@ export function CategoryHero({ onSelect }: { onSelect: (group: GroupId) => void 
     if (paused) return;
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     if (reduce) return;
-    const timer = window.setInterval(() => setIndex((i) => (i + 1) % CATEGORY_GROUPS.length), INTERVAL);
+    const timer = window.setInterval(
+      () => setIndex((i) => (i + 1) % CATEGORY_GROUPS.length),
+      INTERVAL,
+    );
     return () => window.clearInterval(timer);
   }, [paused]);
 
@@ -54,14 +57,19 @@ export function CategoryHero({ onSelect }: { onSelect: (group: GroupId) => void 
         aria-hidden
       />
 
-      <div key={group.id} className="ash-fade-slide relative flex min-h-[260px] flex-col justify-end gap-3 p-5 sm:min-h-[320px] sm:p-8">
+      <div
+        key={group.id}
+        className="ash-fade-slide relative flex min-h-[260px] flex-col justify-end gap-3 p-5 sm:min-h-[320px] sm:p-8"
+      >
         <span className="eyebrow w-fit rounded-full border border-[color:oklch(1_0_0_/_0.28)] bg-[oklch(0_0_0_/_0.35)] px-2.5 py-1 text-on-dark">
           {group.label[baseLang(lang)]}
         </span>
         <h2 className="max-w-md font-display text-2xl font-extrabold leading-tight text-on-dark sm:text-4xl">
           {group.headline[baseLang(lang)]}
         </h2>
-        <p className="max-w-md text-sm text-[color:oklch(0.98_0.004_285_/_0.78)]">{group.copy[baseLang(lang)]}</p>
+        <p className="max-w-md text-sm text-[color:oklch(0.98_0.004_285_/_0.78)]">
+          {group.copy[baseLang(lang)]}
+        </p>
 
         <div className="mt-1 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
           <button

@@ -21,7 +21,10 @@ export const Route = createFileRoute("/_authenticated/freelance/$projectId")({
       { title: "Project brief — Coming soon" },
       { name: "description", content: "ASH Freelance is coming soon. Proposals are not open yet." },
       { property: "og:title", content: "Project brief — Coming soon" },
-      { property: "og:description", content: "ASH Freelance is coming soon. Proposals are not open yet." },
+      {
+        property: "og:description",
+        content: "ASH Freelance is coming soon. Proposals are not open yet.",
+      },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -40,7 +43,13 @@ function ProjectSoon() {
       titleFr="Freelance"
       bodyEn="Freelance project briefs are not open yet. Budget, deadline and skills will appear here once Freelance launches."
       bodyFr="Les briefs de projets freelance ne sont pas encore ouverts. Budget, échéance et compétences apparaîtront au lancement."
-      features={[{ icon: Briefcase, en: "Full project brief and budget", fr: "Brief et budget complets du projet" }]}
+      features={[
+        {
+          icon: Briefcase,
+          en: "Full project brief and budget",
+          fr: "Brief et budget complets du projet",
+        },
+      ]}
     />
   );
 }
@@ -80,7 +89,9 @@ function ProjectDetail() {
   async function submitProposal() {
     const value = Number(amount);
     if (cover.trim().length < 20 || !Number.isFinite(value) || value <= 0) {
-      toast.error(tx("Add a message and a valid amount.", "Ajoutez un message et un montant valide."));
+      toast.error(
+        tx("Add a message and a valid amount.", "Ajoutez un message et un montant valide."),
+      );
       return;
     }
     setBusy(true);
@@ -117,7 +128,10 @@ function ProjectDetail() {
 
   return (
     <div className="mx-auto w-full max-w-3xl space-y-5">
-      <Link to="/freelance" className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground">
+      <Link
+        to="/freelance"
+        className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground"
+      >
         <ArrowLeft className="size-4" aria-hidden />
         {tx("Projects", "Projets")}
       </Link>
@@ -126,25 +140,39 @@ function ProjectDetail() {
         <span className="w-fit rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
           {project.category}
         </span>
-        <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">{project.title}</h1>
-        <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">{project.description}</p>
+        <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
+          {project.title}
+        </h1>
+        <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+          {project.description}
+        </p>
         <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[
             { label: tx("Budget", "Budget"), value: formatXAF(project.budget) },
-            { label: tx("Deadline", "Délai"), value: `${project.deadline_days} ${tx("days", "jours")}` },
+            {
+              label: tx("Deadline", "Délai"),
+              value: `${project.deadline_days} ${tx("days", "jours")}`,
+            },
             { label: tx("Location", "Lieu"), value: project.city ?? project.location_type },
             { label: tx("Proposals", "Propositions"), value: String(project.proposals_count) },
           ].map((item) => (
             <div key={item.label} className="rounded-2xl border border-border bg-card p-3">
-              <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{item.label}</dt>
-              <dd className="mt-1 font-display text-sm font-extrabold text-foreground">{item.value}</dd>
+              <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                {item.label}
+              </dt>
+              <dd className="mt-1 font-display text-sm font-extrabold text-foreground">
+                {item.value}
+              </dd>
             </div>
           ))}
         </dl>
         {project.skills.length > 0 ? (
           <div className="flex flex-wrap gap-1.5">
             {project.skills.map((skill) => (
-              <span key={skill} className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+              <span
+                key={skill}
+                className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground"
+              >
                 {skill}
               </span>
             ))}
@@ -154,7 +182,9 @@ function ProjectDetail() {
 
       {project.status === "OPEN" ? (
         <section className="tile space-y-4 p-5">
-          <h2 className="font-display text-lg font-bold text-foreground">{tx("Send a proposal", "Envoyer une proposition")}</h2>
+          <h2 className="font-display text-lg font-bold text-foreground">
+            {tx("Send a proposal", "Envoyer une proposition")}
+          </h2>
           <div className="space-y-2">
             <Label htmlFor="cover">{tx("Your message", "Votre message")}</Label>
             <Textarea
@@ -163,17 +193,30 @@ function ProjectDetail() {
               value={cover}
               maxLength={2000}
               onChange={(event) => setCover(event.target.value)}
-              placeholder={tx("Explain how you will deliver this project.", "Expliquez comment vous allez livrer ce projet.")}
+              placeholder={tx(
+                "Explain how you will deliver this project.",
+                "Expliquez comment vous allez livrer ce projet.",
+              )}
             />
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="amount">{tx("Your price (XAF)", "Votre prix (XAF)")}</Label>
-              <Input id="amount" inputMode="numeric" value={amount} onChange={(event) => setAmount(event.target.value)} />
+              <Input
+                id="amount"
+                inputMode="numeric"
+                value={amount}
+                onChange={(event) => setAmount(event.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="days">{tx("Delivery (days)", "Livraison (jours)")}</Label>
-              <Input id="days" inputMode="numeric" value={days} onChange={(event) => setDays(event.target.value)} />
+              <Input
+                id="days"
+                inputMode="numeric"
+                value={days}
+                onChange={(event) => setDays(event.target.value)}
+              />
             </div>
           </div>
           <Button className="w-full" disabled={busy} onClick={() => void submitProposal()}>
@@ -193,12 +236,16 @@ function ProjectDetail() {
             {(proposals.data ?? []).map((row) => (
               <li key={row.id} className="tile space-y-2 p-4">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="font-display font-extrabold text-foreground">{formatXAF(row.amount)}</span>
+                  <span className="font-display font-extrabold text-foreground">
+                    {formatXAF(row.amount)}
+                  </span>
                   <span className="text-xs text-muted-foreground">
                     {row.delivery_days} {tx("days", "jours")} · {row.status}
                   </span>
                 </div>
-                <p className="whitespace-pre-wrap text-sm text-muted-foreground">{row.cover_letter}</p>
+                <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+                  {row.cover_letter}
+                </p>
               </li>
             ))}
           </ul>

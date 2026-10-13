@@ -51,7 +51,11 @@ function ConsolePayments() {
   const [filter, setFilter] = useState<string>("ALL");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<PaymentRow | null>(null);
-  const [manualUser, setManualUser] = useState<{ user_id: string; full_name: string; email: string } | null>(null);
+  const [manualUser, setManualUser] = useState<{
+    user_id: string;
+    full_name: string;
+    email: string;
+  } | null>(null);
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -109,7 +113,9 @@ function ConsolePayments() {
     const result = await verify({ data: { reference } });
     setBusy(false);
     if (!result.ok) {
-      toast.error("Provider could not confirm this payment", { description: result.error ?? result.outcome });
+      toast.error("Provider could not confirm this payment", {
+        description: result.error ?? result.outcome,
+      });
       return;
     }
     toast.success(`Provider reports ${result.status}`);
@@ -163,7 +169,10 @@ function ConsolePayments() {
             </Button>
           ))}
           <div className="relative ml-auto min-w-[200px] flex-1 sm:max-w-xs">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden
+            />
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
@@ -205,7 +214,9 @@ function ConsolePayments() {
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-1.5">
-                    <span className="tabular text-sm font-bold text-foreground">{formatXAF(row.amount)}</span>
+                    <span className="tabular text-sm font-bold text-foreground">
+                      {formatXAF(row.amount)}
+                    </span>
                     <StatusBadge status={row.status} />
                   </div>
                 </button>
@@ -224,9 +235,14 @@ function ConsolePayments() {
         ) : (
           <ul className="divide-y divide-border">
             {(data?.unactivated ?? []).map((row) => (
-              <li key={row.user_id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3.5">
+              <li
+                key={row.user_id}
+                className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3.5"
+              >
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-foreground">{row.full_name || "Member"}</p>
+                  <p className="truncate text-sm font-semibold text-foreground">
+                    {row.full_name || "Member"}
+                  </p>
                   <p className="truncate text-xs text-muted-foreground">
                     {row.email} · joined {formatDateTime(row.created_at)}
                   </p>
@@ -235,7 +251,11 @@ function ConsolePayments() {
                   size="sm"
                   variant="outline"
                   onClick={() =>
-                    setManualUser({ user_id: row.user_id, full_name: row.full_name, email: row.email })
+                    setManualUser({
+                      user_id: row.user_id,
+                      full_name: row.full_name,
+                      email: row.email,
+                    })
                   }
                 >
                   <ShieldCheck className="size-4" aria-hidden />
@@ -247,13 +267,19 @@ function ConsolePayments() {
         )}
       </SectionCard>
 
-      <SectionCard title="Provider events" description="Webhook and reconciliation deliveries received from TchokoPay.">
+      <SectionCard
+        title="Provider events"
+        description="Webhook and reconciliation deliveries received from TchokoPay."
+      >
         {(data?.events ?? []).length === 0 ? (
           <EmptyState title="No provider events logged yet" />
         ) : (
           <ul className="divide-y divide-border">
             {(data?.events ?? []).map((event) => (
-              <li key={event.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3">
+              <li
+                key={event.id}
+                className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3"
+              >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-foreground">
                     {event.source} · {event.outcome}
@@ -278,12 +304,15 @@ function ConsolePayments() {
             {(audit ?? []).map((entry) => (
               <li key={entry.id} className="py-3">
                 <p className="text-sm font-semibold text-foreground">
-                  {entry.action.replace(/_/g, " ")} · {entry.profile?.full_name || entry.target_user_id || "—"}
+                  {entry.action.replace(/_/g, " ")} ·{" "}
+                  {entry.profile?.full_name || entry.target_user_id || "—"}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {entry.actor} · {formatDateTime(entry.created_at)}
                 </p>
-                {entry.reason ? <p className="mt-1 text-xs text-muted-foreground">Reason: {entry.reason}</p> : null}
+                {entry.reason ? (
+                  <p className="mt-1 text-xs text-muted-foreground">Reason: {entry.reason}</p>
+                ) : null}
               </li>
             ))}
           </ul>
@@ -294,7 +323,9 @@ function ConsolePayments() {
         <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
           <SheetHeader>
             <SheetTitle>Payment details</SheetTitle>
-            <SheetDescription>Verified against the payment provider before anything is credited.</SheetDescription>
+            <SheetDescription>
+              Verified against the payment provider before anything is credited.
+            </SheetDescription>
           </SheetHeader>
           {selected ? (
             <div className="space-y-4 px-4 pb-8">
@@ -352,8 +383,8 @@ function ConsolePayments() {
           <SheetHeader>
             <SheetTitle>Manual activation</SheetTitle>
             <SheetDescription>
-              {manualUser?.full_name || "This member"} will be marked ACTIVE. No payment record is created and referral
-              commissions are not paid for manual activations.
+              {manualUser?.full_name || "This member"} will be marked ACTIVE. No payment record is
+              created and referral commissions are not paid for manual activations.
             </SheetDescription>
           </SheetHeader>
           <div className="space-y-4 px-4 pb-8">
@@ -367,7 +398,11 @@ function ConsolePayments() {
                 rows={3}
               />
             </div>
-            <Button className="w-full" disabled={busy || reason.trim().length < 5} onClick={runManualActivate}>
+            <Button
+              className="w-full"
+              disabled={busy || reason.trim().length < 5}
+              onClick={runManualActivate}
+            >
               Activate account
             </Button>
           </div>

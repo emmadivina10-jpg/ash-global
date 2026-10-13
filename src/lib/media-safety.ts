@@ -65,17 +65,24 @@ function videoPreview(file: File): Promise<string> {
 
 export async function verifyMediaFiles(files: File[], contentType: string): Promise<void> {
   for (const file of files) {
-    const previewDataUrl = file.type.startsWith("video/") ? await videoPreview(file) : await imagePreview(file);
+    const previewDataUrl = file.type.startsWith("video/")
+      ? await videoPreview(file)
+      : await imagePreview(file);
     const result = await moderateMedia({
       data: { contentType, originalName: file.name, mediaType: file.type, previewDataUrl },
     });
-    if (!result.ok) throw new Error("Safety check unavailable. Please try again before publishing.");
+    if (!result.ok)
+      throw new Error("Safety check unavailable. Please try again before publishing.");
     if (result.verdict === "EXPLICIT") {
       window.location.assign("/safety-review");
-      throw new Error("This media violates ASH safety rules. It was not uploaded and your account is under review.");
+      throw new Error(
+        "This media violates ASH safety rules. It was not uploaded and your account is under review.",
+      );
     }
     if (result.verdict === "UNCERTAIN") {
-      throw new Error("This media needs a safety review and was not published. Please choose another file.");
+      throw new Error(
+        "This media needs a safety review and was not published. Please choose another file.",
+      );
     }
   }
 }

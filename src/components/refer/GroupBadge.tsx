@@ -10,9 +10,7 @@ export function GroupVerifiedBadge({
   className?: string;
   label?: string;
 }) {
-  return (
-    <VerifiedBadge tier="VERIFIED" label={label} size={16} className={className} />
-  );
+  return <VerifiedBadge tier="VERIFIED" label={label} size={16} className={className} />;
 }
 
 /** Stable, readable bubble colours so each speaker in a group reads differently. */

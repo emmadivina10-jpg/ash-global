@@ -2,7 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { getConsoleWithdrawals, reconcilePaidWithdrawal, settleWithdrawal } from "@/lib/console.functions";
+import {
+  getConsoleWithdrawals,
+  reconcilePaidWithdrawal,
+  settleWithdrawal,
+} from "@/lib/console.functions";
 import { SectionCard } from "@/components/refer/cards";
 import { StatusBadge } from "@/components/refer/StatusBadge";
 import { ConfirmationModal } from "@/components/refer/ConfirmationModal";
@@ -162,7 +166,9 @@ function ConsoleWithdrawals() {
 
           <div className="min-w-0">
             <p className="text-sm font-semibold text-foreground">Automatic payout system</p>
-            <p className="text-xs text-muted-foreground">TchokoPay determines the final payment result.</p>
+            <p className="text-xs text-muted-foreground">
+              TchokoPay determines the final payment result.
+            </p>
           </div>
         </div>
 
@@ -196,7 +202,8 @@ function ConsoleWithdrawals() {
 
             const linked = hasProviderReference(row);
 
-            const isFinal = row.status === "COMPLETED" || row.status === "FAILED" || row.status === "REVERSED";
+            const isFinal =
+              row.status === "COMPLETED" || row.status === "FAILED" || row.status === "REVERSED";
 
             /*
              * A mobile-money payout with a provider reference is
@@ -216,7 +223,9 @@ function ConsoleWithdrawals() {
                 <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="tabular text-base font-bold text-foreground">{formatXAF(row.amount)}</p>
+                      <p className="tabular text-base font-bold text-foreground">
+                        {formatXAF(row.amount)}
+                      </p>
 
                       {mobileMoney ? (
                         <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">
@@ -227,7 +236,8 @@ function ConsoleWithdrawals() {
                     </div>
 
                     <p className="truncate text-xs text-muted-foreground">
-                      {PAYMENT_METHOD_LABEL[row.payment_method] ?? row.payment_method} · {row.phone_number}
+                      {PAYMENT_METHOD_LABEL[row.payment_method] ?? row.payment_method} ·{" "}
+                      {row.phone_number}
                     </p>
 
                     <p className="truncate text-xs text-muted-foreground">
@@ -250,7 +260,9 @@ function ConsoleWithdrawals() {
 
                     {automatic ? (
                       <div className="flex flex-col items-end gap-1.5">
-                        <span className="text-[10px] font-semibold text-muted-foreground">Awaiting TchokoPay</span>
+                        <span className="text-[10px] font-semibold text-muted-foreground">
+                          Awaiting TchokoPay
+                        </span>
                         {row.status === "PROCESSING" && row.provider_reference ? (
                           <Button
                             type="button"
@@ -298,8 +310,8 @@ function ConsoleWithdrawals() {
                 {automatic ? (
                   <div className="mt-3 rounded-xl border border-border bg-muted/30 px-3 py-2">
                     <p className="text-xs text-muted-foreground">
-                      This payout cannot be manually completed from the console. TchokoPay will send the final signed
-                      result automatically.
+                      This payout cannot be manually completed from the console. TchokoPay will send
+                      the final signed result automatically.
                     </p>
                   </div>
                 ) : null}
@@ -334,7 +346,9 @@ function ConsoleWithdrawals() {
 
                 {row.status === "PROCESSING" && !linked && !mobileMoney ? (
                   <div className="mt-3">
-                    <p className="text-xs text-muted-foreground">Processing is being handled manually.</p>
+                    <p className="text-xs text-muted-foreground">
+                      Processing is being handled manually.
+                    </p>
                   </div>
                 ) : null}
               </li>
@@ -363,8 +377,8 @@ function ConsoleWithdrawals() {
                 {pendingReconcile.providerReference}
               </p>
               <p className="text-[11px] text-muted-foreground">
-                This exceptional recovery only updates the existing ASH withdrawal and wallet ledger. It does not call
-                TchokoPay to create another disbursement.
+                This exceptional recovery only updates the existing ASH withdrawal and wallet
+                ledger. It does not call TchokoPay to create another disbursement.
               </p>
             </div>
           ) : null

@@ -2,7 +2,18 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { AlertTriangle, ArrowRight, CalendarClock, Coins, PartyPopper, Pencil, Star, Trash2, Wallet , Play } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowRight,
+  CalendarClock,
+  Coins,
+  PartyPopper,
+  Pencil,
+  Star,
+  Trash2,
+  Wallet,
+  Play,
+} from "lucide-react";
 import { MediaLightbox, isVideoSource, type LightboxMedia } from "@/components/refer/MediaLightbox";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,16 +55,26 @@ import { formatDateTime, formatXAF } from "@/lib/format";
 import { categoryLabel } from "@/lib/taxonomy";
 import { useI18n } from "@/lib/i18n";
 import { useRegion } from "@/lib/region-context";
-import { AvailabilityCard, PaymentLinksCard, StorefrontCard } from "@/components/refer/StorefrontTools";
+import {
+  AvailabilityCard,
+  PaymentLinksCard,
+  StorefrontCard,
+} from "@/components/refer/StorefrontTools";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/studio")({
   head: () => ({
     meta: [
       { title: "My studio — ASH Glo" },
-      { name: "description", content: "Create your provider studio, list services, upload your work and go live." },
+      {
+        name: "description",
+        content: "Create your provider studio, list services, upload your work and go live.",
+      },
       { property: "og:title", content: "My studio — ASH Glo" },
-      { property: "og:description", content: "Manage services, portfolio, bookings and your monthly subscription." },
+      {
+        property: "og:description",
+        content: "Manage services, portfolio, bookings and your monthly subscription.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -76,8 +97,10 @@ function StudioPage() {
   );
   const earnedNet = (bookings ?? [])
     .filter((b) => ["COMPLETED", "SETTLED"].includes(String(b.status)))
-    .reduce((sum, b) => sum + Number(b.provider_amount ?? b.price - Math.round(Number(b.price) * 0.01)), 0);
-
+    .reduce(
+      (sum, b) => sum + Number(b.provider_amount ?? b.price - Math.round(Number(b.price) * 0.01)),
+      0,
+    );
 
   const [form, setForm] = useState({
     business_name: "",
@@ -137,7 +160,6 @@ function StudioPage() {
 
   // The marketplace is free: a studio goes live as soon as its profile is saved.
   const live = Boolean(studio?.is_live);
-
 
   const stats = useMemo(() => {
     const list = bookings ?? [];
@@ -226,8 +248,6 @@ function StudioPage() {
     setCelebrate("created");
   }
 
-
-
   async function addService(event: React.FormEvent) {
     event.preventDefault();
     if (!studio) return;
@@ -265,13 +285,17 @@ function StudioPage() {
     setCelebrate("service");
   }
 
-
-
   async function updateService() {
     if (!studio || !editingService) return;
     const price = Number(editingService.price);
     const duration = Number(editingService.duration_minutes);
-    if (!editingService.title.trim() || !Number.isFinite(price) || price <= 0 || !Number.isFinite(duration) || duration <= 0) {
+    if (
+      !editingService.title.trim() ||
+      !Number.isFinite(price) ||
+      price <= 0 ||
+      !Number.isFinite(duration) ||
+      duration <= 0
+    ) {
       toast.error(t("pro.saveErr"));
       return;
     }
@@ -372,13 +396,11 @@ function StudioPage() {
     }
   }
 
-
   async function removePhoto(id: string, path: string) {
     await supabase.storage.from(PORTFOLIO_BUCKET).remove([path]);
     await supabase.from("portfolio_items").delete().eq("id", id);
     void queryClient.invalidateQueries({ queryKey: ["portfolio", studio?.id] });
   }
-
 
   if (isLoading) return <SkeletonRows rows={4} />;
 
@@ -386,7 +408,9 @@ function StudioPage() {
     <div className="mx-auto w-full max-w-5xl space-y-5">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <div className="min-w-0">
-          <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">{t("pro.title")}</h1>
+          <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
+            {t("pro.title")}
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">{t("pro.subtitle")}</p>
         </div>
         <span
@@ -401,9 +425,21 @@ function StudioPage() {
 
       {studio ? (
         <div className="grid gap-4 sm:grid-cols-3">
-          <StatCard label={t("pro.stat.bookings")} value={String(stats.total)} icon={<CalendarClock className="size-4" />} />
-          <StatCard label={t("pro.stat.upcoming")} value={String(stats.upcoming)} icon={<CalendarClock className="size-4" />} />
-          <StatCard label={t("pro.stat.revenue")} value={formatXAF(stats.revenue)} icon={<Coins className="size-4" />} />
+          <StatCard
+            label={t("pro.stat.bookings")}
+            value={String(stats.total)}
+            icon={<CalendarClock className="size-4" />}
+          />
+          <StatCard
+            label={t("pro.stat.upcoming")}
+            value={String(stats.upcoming)}
+            icon={<CalendarClock className="size-4" />}
+          />
+          <StatCard
+            label={t("pro.stat.revenue")}
+            value={formatXAF(stats.revenue)}
+            icon={<Coins className="size-4" />}
+          />
         </div>
       ) : null}
 
@@ -411,20 +447,30 @@ function StudioPage() {
         <SectionCard title={lang === "fr" ? "Revenus et paiement" : "Earnings & payout"}>
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="rounded-xl border border-primary/40 bg-primary/5 p-3">
-              <p className="text-xs text-muted-foreground">{lang === "fr" ? "Disponible au retrait" : "Available to withdraw"}</p>
+              <p className="text-xs text-muted-foreground">
+                {lang === "fr" ? "Disponible au retrait" : "Available to withdraw"}
+              </p>
               <p className="mt-1 font-display text-lg font-bold text-primary">
                 {formatXAF(Number(wallet?.available_balance ?? 0))}
               </p>
             </div>
             <div className="rounded-xl border border-border p-3">
-              <p className="text-xs text-muted-foreground">{lang === "fr" ? "Paiements en attente" : "Pending payments"}</p>
+              <p className="text-xs text-muted-foreground">
+                {lang === "fr" ? "Paiements en attente" : "Pending payments"}
+              </p>
               <p className="mt-1 font-display text-lg font-bold text-foreground">
                 {pendingPayments.length} {lang === "fr" ? "réservation(s)" : "booking(s)"}
               </p>
             </div>
             <div className="rounded-xl border border-border p-3">
-              <p className="text-xs text-muted-foreground">{lang === "fr" ? "Gains nets (après commission ASH)" : "Net earnings (after ASH commission)"}</p>
-              <p className="mt-1 font-display text-lg font-bold text-foreground">{formatXAF(earnedNet)}</p>
+              <p className="text-xs text-muted-foreground">
+                {lang === "fr"
+                  ? "Gains nets (après commission ASH)"
+                  : "Net earnings (after ASH commission)"}
+              </p>
+              <p className="mt-1 font-display text-lg font-bold text-foreground">
+                {formatXAF(earnedNet)}
+              </p>
             </div>
           </div>
           <p className="mt-3 text-xs text-muted-foreground">
@@ -432,7 +478,11 @@ function StudioPage() {
               ? "ASH Glo retient 1% de commission par réservation. Vos gains arrivent dans votre portefeuille une fois la prestation terminée."
               : "ASH Glo keeps a 1% commission per booking. Your earnings land in your wallet once the job is completed."}
           </p>
-          <Button variant="outline" className="mt-3" onClick={() => void navigate({ to: "/wallet" })}>
+          <Button
+            variant="outline"
+            className="mt-3"
+            onClick={() => void navigate({ to: "/wallet" })}
+          >
             <Wallet className="size-4" />
             {lang === "fr" ? "Ouvrir mon portefeuille" : "Open my wallet"}
             <ArrowRight className="size-4" />
@@ -441,7 +491,9 @@ function StudioPage() {
       ) : null}
 
       <SectionCard title={studio ? t("pro.title") : t("pro.create")}>
-        {!studio ? <p className="mb-4 text-sm text-muted-foreground">{t("pro.createCopyFree")}</p> : null}
+        {!studio ? (
+          <p className="mb-4 text-sm text-muted-foreground">{t("pro.createCopyFree")}</p>
+        ) : null}
         {saveError ? (
           <div
             role="alert"
@@ -451,7 +503,8 @@ function StudioPage() {
             <div className="min-w-0 text-sm">
               <p className="font-semibold">Studio could not be saved</p>
               <p className="mt-0.5 break-words">
-                {saveError.code ? `${saveError.code}: ` : ""}{saveError.message}
+                {saveError.code ? `${saveError.code}: ` : ""}
+                {saveError.message}
               </p>
             </div>
           </div>
@@ -468,19 +521,36 @@ function StudioPage() {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="city">{t("pro.city")}</Label>
-            <Input id="city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
+            <Input
+              id="city"
+              value={form.city}
+              onChange={(e) => setForm({ ...form, city: e.target.value })}
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="phone">{t("pro.phone")}</Label>
-            <Input id="phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+            <Input
+              id="phone"
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="whatsapp">{t("pro.whatsapp")}</Label>
-            <Input id="whatsapp" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} />
+            <Input
+              id="whatsapp"
+              value={form.whatsapp}
+              onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
+            />
           </div>
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="bio">{t("pro.bio")}</Label>
-            <Textarea id="bio" rows={3} value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} />
+            <Textarea
+              id="bio"
+              rows={3}
+              value={form.bio}
+              onChange={(e) => setForm({ ...form, bio: e.target.value })}
+            />
           </div>
           <div className="space-y-2 sm:col-span-2">
             <Label>{t("pro.categories")}</Label>
@@ -494,12 +564,16 @@ function StudioPage() {
                     onClick={() =>
                       setForm({
                         ...form,
-                        categories: selected ? form.categories.filter((x) => x !== c) : [...form.categories, c],
+                        categories: selected
+                          ? form.categories.filter((x) => x !== c)
+                          : [...form.categories, c],
                       })
                     }
                     className={cn(
                       "rounded-full border border-border px-3 py-1.5 text-xs font-semibold transition-colors",
-                      selected ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted",
+                      selected
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "text-muted-foreground hover:bg-muted",
                     )}
                   >
                     {categoryLabel(c, lang)}
@@ -530,7 +604,9 @@ function StudioPage() {
               </p>
             ) : null}
             <div className="rounded-2xl border border-primary/40 bg-primary/5 p-4">
-              <p className="font-display text-lg font-bold text-foreground">{t("pro.billing.freeTitle")}</p>
+              <p className="font-display text-lg font-bold text-foreground">
+                {t("pro.billing.freeTitle")}
+              </p>
               <p className="mt-1 text-sm text-muted-foreground">{t("pro.billing.freeCopy")}</p>
               <ul className="mt-3 space-y-1.5 text-sm text-foreground">
                 <li>• {t("pro.billing.freePoint1")}</li>
@@ -539,7 +615,6 @@ function StudioPage() {
               </ul>
             </div>
           </SectionCard>
-
 
           <SectionCard title={t("svc.services")}>
             <form onSubmit={addService} className="grid gap-3 sm:grid-cols-4">
@@ -570,7 +645,9 @@ function StudioPage() {
                 aria-label={t("pro.categories")}
                 className="h-10 rounded-xl border border-border bg-background px-3 text-sm text-foreground"
                 value={service.category}
-                onChange={(e) => setService({ ...service, category: e.target.value as ServiceCategory })}
+                onChange={(e) =>
+                  setService({ ...service, category: e.target.value as ServiceCategory })
+                }
               >
                 <option value="">{t("pro.categories")}</option>
                 {SERVICE_CATEGORIES.map((c) => (
@@ -610,18 +687,25 @@ function StudioPage() {
                       size="icon"
                       variant="ghost"
                       aria-label={lang === "fr" ? "Modifier le service" : "Edit service"}
-                      onClick={() => setEditingService({
-                        id: s.id,
-                        title: s.title,
-                        price: String(s.price),
-                        duration_minutes: String(s.duration_minutes),
-                        description: s.description ?? "",
-                        category: (s.category ?? "") as ServiceCategory | "",
-                      })}
+                      onClick={() =>
+                        setEditingService({
+                          id: s.id,
+                          title: s.title,
+                          price: String(s.price),
+                          duration_minutes: String(s.duration_minutes),
+                          description: s.description ?? "",
+                          category: (s.category ?? "") as ServiceCategory | "",
+                        })
+                      }
                     >
                       <Pencil className="size-4" aria-hidden />
                     </Button>
-                    <Button size="icon" variant="ghost" aria-label={t("pro.delete")} onClick={() => setDeletingServiceId(s.id)}>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      aria-label={t("pro.delete")}
+                      onClick={() => setDeletingServiceId(s.id)}
+                    >
                       <Trash2 className="size-4" aria-hidden />
                     </Button>
                   </div>
@@ -629,59 +713,120 @@ function StudioPage() {
               ))}
             </ul>
 
-            <Dialog open={Boolean(editingService)} onOpenChange={(open) => { if (!open) setEditingService(null); }}>
+            <Dialog
+              open={Boolean(editingService)}
+              onOpenChange={(open) => {
+                if (!open) setEditingService(null);
+              }}
+            >
               <DialogContent className="max-w-md">
                 <DialogHeader>
-                  <DialogTitle>{lang === "fr" ? "Modifier le service" : "Edit service"}</DialogTitle>
+                  <DialogTitle>
+                    {lang === "fr" ? "Modifier le service" : "Edit service"}
+                  </DialogTitle>
                   <DialogDescription>
-                    {lang === "fr" ? "Modifiez les détails affichés aux clients." : "Update the details customers see."}
+                    {lang === "fr"
+                      ? "Modifiez les détails affichés aux clients."
+                      : "Update the details customers see."}
                   </DialogDescription>
                 </DialogHeader>
                 {editingService ? (
                   <div className="grid gap-3">
-                    <Input value={editingService.title} onChange={(e) => setEditingService({ ...editingService, title: e.target.value })} placeholder={lang === "fr" ? "Nom du service" : "Service name"} />
+                    <Input
+                      value={editingService.title}
+                      onChange={(e) =>
+                        setEditingService({ ...editingService, title: e.target.value })
+                      }
+                      placeholder={lang === "fr" ? "Nom du service" : "Service name"}
+                    />
                     <div className="grid grid-cols-2 gap-3">
-                      <Input type="number" min="1" value={editingService.price} onChange={(e) => setEditingService({ ...editingService, price: e.target.value })} placeholder={lang === "fr" ? "Prix" : "Price"} />
-                      <Input type="number" min="1" value={editingService.duration_minutes} onChange={(e) => setEditingService({ ...editingService, duration_minutes: e.target.value })} placeholder={lang === "fr" ? "Durée" : "Duration"} />
+                      <Input
+                        type="number"
+                        min="1"
+                        value={editingService.price}
+                        onChange={(e) =>
+                          setEditingService({ ...editingService, price: e.target.value })
+                        }
+                        placeholder={lang === "fr" ? "Prix" : "Price"}
+                      />
+                      <Input
+                        type="number"
+                        min="1"
+                        value={editingService.duration_minutes}
+                        onChange={(e) =>
+                          setEditingService({ ...editingService, duration_minutes: e.target.value })
+                        }
+                        placeholder={lang === "fr" ? "Durée" : "Duration"}
+                      />
                     </div>
                     <select
                       className="h-10 rounded-xl border border-border bg-background px-3 text-sm text-foreground"
                       value={editingService.category}
-                      onChange={(e) => setEditingService({ ...editingService, category: e.target.value as ServiceCategory })}
+                      onChange={(e) =>
+                        setEditingService({
+                          ...editingService,
+                          category: e.target.value as ServiceCategory,
+                        })
+                      }
                     >
                       <option value="">{t("pro.categories")}</option>
-                      {SERVICE_CATEGORIES.map((category) => <option key={category} value={category}>{categoryLabel(category, lang)}</option>)}
+                      {SERVICE_CATEGORIES.map((category) => (
+                        <option key={category} value={category}>
+                          {categoryLabel(category, lang)}
+                        </option>
+                      ))}
                     </select>
-                    <Textarea value={editingService.description} onChange={(e) => setEditingService({ ...editingService, description: e.target.value })} placeholder={t("pro.description")} rows={4} />
+                    <Textarea
+                      value={editingService.description}
+                      onChange={(e) =>
+                        setEditingService({ ...editingService, description: e.target.value })
+                      }
+                      placeholder={t("pro.description")}
+                      rows={4}
+                    />
                   </div>
                 ) : null}
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setEditingService(null)}>{lang === "fr" ? "Annuler" : "Cancel"}</Button>
-                  <Button onClick={() => void updateService()} disabled={savingService}>{lang === "fr" ? "Enregistrer" : "Save"}</Button>
+                  <Button variant="outline" onClick={() => setEditingService(null)}>
+                    {lang === "fr" ? "Annuler" : "Cancel"}
+                  </Button>
+                  <Button onClick={() => void updateService()} disabled={savingService}>
+                    {lang === "fr" ? "Enregistrer" : "Save"}
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
 
-            <AlertDialog open={Boolean(deletingServiceId)} onOpenChange={(open) => { if (!open) setDeletingServiceId(null); }}>
+            <AlertDialog
+              open={Boolean(deletingServiceId)}
+              onOpenChange={(open) => {
+                if (!open) setDeletingServiceId(null);
+              }}
+            >
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>{lang === "fr" ? "Supprimer ce service ?" : "Delete this service?"}</AlertDialogTitle>
+                  <AlertDialogTitle>
+                    {lang === "fr" ? "Supprimer ce service ?" : "Delete this service?"}
+                  </AlertDialogTitle>
                   <AlertDialogDescription>
-                    {lang === "fr" ? "Ce service sera supprimé définitivement de votre vitrine." : "This service will be permanently removed from your storefront."}
+                    {lang === "fr"
+                      ? "Ce service sera supprimé définitivement de votre vitrine."
+                      : "This service will be permanently removed from your storefront."}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>{lang === "fr" ? "Annuler" : "Cancel"}</AlertDialogCancel>
                   <AlertDialogAction
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    onClick={() => { if (deletingServiceId) void removeService(deletingServiceId); }}
+                    onClick={() => {
+                      if (deletingServiceId) void removeService(deletingServiceId);
+                    }}
                   >
                     {lang === "fr" ? "Supprimer" : "Delete"}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-
           </SectionCard>
 
           <SectionCard title={t("svc.portfolio")}>
@@ -699,15 +844,26 @@ function StudioPage() {
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
               {(portfolio ?? []).map((item) =>
                 item.url ? (
-                  <figure key={item.id} className="relative overflow-hidden rounded-2xl border border-border">
+                  <figure
+                    key={item.id}
+                    className="relative overflow-hidden rounded-2xl border border-border"
+                  >
                     {isVideoSource(item.image_path) ? (
                       <button
                         type="button"
                         className="relative block w-full"
                         aria-label="Play video"
-                        onClick={() => setLightbox({ url: item.url!, caption: item.caption, isVideo: true })}
+                        onClick={() =>
+                          setLightbox({ url: item.url!, caption: item.caption, isVideo: true })
+                        }
                       >
-                        <video src={item.url} muted playsInline preload="metadata" className="aspect-square w-full object-cover" />
+                        <video
+                          src={item.url}
+                          muted
+                          playsInline
+                          preload="metadata"
+                          className="aspect-square w-full object-cover"
+                        />
                         <span className="absolute inset-0 grid place-items-center bg-black/30">
                           <span className="grid size-9 place-items-center rounded-full bg-white/90 text-black">
                             <Play className="size-4 fill-current" aria-hidden />
@@ -719,9 +875,16 @@ function StudioPage() {
                         type="button"
                         className="block w-full"
                         aria-label="View photo"
-                        onClick={() => setLightbox({ url: item.url!, caption: item.caption, isVideo: false })}
+                        onClick={() =>
+                          setLightbox({ url: item.url!, caption: item.caption, isVideo: false })
+                        }
                       >
-                        <img src={item.url} alt={item.caption ?? ""} loading="lazy" className="aspect-square w-full object-cover" />
+                        <img
+                          src={item.url}
+                          alt={item.caption ?? ""}
+                          loading="lazy"
+                          className="aspect-square w-full object-cover"
+                        />
                       </button>
                     )}
                     <Button
@@ -749,8 +912,8 @@ function StudioPage() {
             </p>
             <ul className="mt-3 space-y-1.5 text-sm text-foreground">
               <li>
-                {(services ?? []).length > 0 ? "✓" : "•"}{" "}
-                {lang === "fr" ? "Services" : "Services"}: {(services ?? []).length}
+                {(services ?? []).length > 0 ? "✓" : "•"} {lang === "fr" ? "Services" : "Services"}:{" "}
+                {(services ?? []).length}
               </li>
               <li>
                 {(portfolio ?? []).length > 0 ? "✓" : "•"}{" "}
@@ -762,12 +925,16 @@ function StudioPage() {
               disabled={(services ?? []).length === 0 || saving}
               onClick={() => void publishStorefront()}
             >
-              {lang === "fr" ? "J'ai terminé — publier ma vitrine" : "I'm done — publish my storefront"}
+              {lang === "fr"
+                ? "J'ai terminé — publier ma vitrine"
+                : "I'm done — publish my storefront"}
               <ArrowRight className="size-4" aria-hidden />
             </Button>
             {(services ?? []).length === 0 ? (
               <p className="mt-2 text-xs text-muted-foreground">
-                {lang === "fr" ? "Ajoutez au moins un service d'abord." : "Add at least one service first."}
+                {lang === "fr"
+                  ? "Ajoutez au moins un service d'abord."
+                  : "Add at least one service first."}
               </p>
             ) : null}
           </SectionCard>
@@ -778,7 +945,9 @@ function StudioPage() {
                 <li key={b.id} className="flex items-center justify-between gap-3 py-3">
                   <div className="min-w-0">
                     <p className="truncate font-semibold text-foreground">{b.service_title}</p>
-                    <p className="text-xs text-muted-foreground">{formatDateTime(b.scheduled_at)}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatDateTime(b.scheduled_at)}
+                    </p>
                   </div>
                   <span className="tabular text-sm font-semibold">{formatXAF(b.price)}</span>
                 </li>
@@ -827,7 +996,6 @@ function StudioPage() {
             </div>
           </div>
         </div>
-
       ) : null}
     </div>
   );

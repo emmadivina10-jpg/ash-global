@@ -9,7 +9,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { verifyMediaFiles } from "./media-safety";
 import { directory } from "@/lib/public-profiles";
 import { trackEvent } from "./activity";
-import { engagement, freshness, newSessionSeed, recordExposure, rotate, ROTATION_DEFAULTS, stableSessionSeed } from "./rotation";
+import {
+  engagement,
+  freshness,
+  newSessionSeed,
+  recordExposure,
+  rotate,
+  ROTATION_DEFAULTS,
+  stableSessionSeed,
+} from "./rotation";
 import { getCachedCity } from "./location";
 
 export const SOCIAL_BUCKET = "spotlight";
@@ -17,9 +25,19 @@ export const SOCIAL_BUCKET = "spotlight";
 export const SOCIAL_MAX_BYTES = 12 * 1024 * 1024;
 export type ReactionType = "love" | "like" | "haha" | "wow" | "sad" | "angry";
 export type ReactionBreakdown = Record<ReactionType, number>;
-export const EMPTY_REACTIONS: ReactionBreakdown = { love: 0, like: 0, haha: 0, wow: 0, sad: 0, angry: 0 };
+export const EMPTY_REACTIONS: ReactionBreakdown = {
+  love: 0,
+  like: 0,
+  haha: 0,
+  wow: 0,
+  sad: 0,
+  angry: 0,
+};
 
-function summarizeReactions(rows: Array<{ reaction_type: string; user_id: string }>, me: string | null) {
+function summarizeReactions(
+  rows: Array<{ reaction_type: string; user_id: string }>,
+  me: string | null,
+) {
   const breakdown = { ...EMPTY_REACTIONS };
   let current: ReactionType | null = null;
   for (const row of rows) {
@@ -40,7 +58,11 @@ export type SocialAuthor = {
 };
 
 async function currentUserId(): Promise<string | null> {
-  const { data, error } = await withTimeout(supabase.auth.getUser(), 15_000, "Authentication check");
+  const { data, error } = await withTimeout(
+    supabase.auth.getUser(),
+    15_000,
+    "Authentication check",
+  );
   if (error) throw new Error(`Authentication check failed: ${error.message}`);
   return data.user?.id ?? null;
 }
@@ -146,7 +168,9 @@ export async function uploadResumableStorageFile(
 
   if (!createResponse.ok) {
     const body = await createResponse.text().catch(() => "");
-    throw new Error(`Could not start video upload (${createResponse.status}).${body ? ` ${body}` : ""}`);
+    throw new Error(
+      `Could not start video upload (${createResponse.status}).${body ? ` ${body}` : ""}`,
+    );
   }
 
   const uploadUrl = createResponse.headers.get("Location");
@@ -184,7 +208,9 @@ export async function uploadResumableStorageFile(
 
         if (!response.ok) {
           const body = await response.text().catch(() => "");
-          throw new Error(`Video chunk upload failed (${response.status}).${body ? ` ${body}` : ""}`);
+          throw new Error(
+            `Video chunk upload failed (${response.status}).${body ? ` ${body}` : ""}`,
+          );
         }
 
         const serverOffset = Number(response.headers.get("Upload-Offset") ?? end);
@@ -238,14 +264,30 @@ export async function loadAuthors(ids: string[]): Promise<Map<string, SocialAuth
   if (unique.length === 0) return map;
   const since = new Date(Date.now() - 5 * 60_000).toISOString();
   const now = new Date().toISOString();
-  const [{ data }, { data: presence }, { data: stories }, { data: spotlights }] = await Promise.all([
-    directory().select("user_id, full_name, avatar_url, verified_tier, verified_until").in("user_id", unique),
-    supabase.from("member_presence").select("user_id").in("user_id", unique).gte("last_active_at", since),
-    supabase.from("stories").select("author_id").in("author_id", unique).gt("expires_at", now),
-    supabase.from("spotlight_posts").select("author_id").in("author_id", unique).eq("is_published", true).gte("created_at", new Date(Date.now() - 24 * 60 * 60_000).toISOString()),
-  ]);
+  const [{ data }, { data: presence }, { data: stories }, { data: spotlights }] = await Promise.all(
+    [
+      directory()
+        .select("user_id, full_name, avatar_url, verified_tier, verified_until")
+        .in("user_id", unique),
+      supabase
+        .from("member_presence")
+        .select("user_id")
+        .in("user_id", unique)
+        .gte("last_active_at", since),
+      supabase.from("stories").select("author_id").in("author_id", unique).gt("expires_at", now),
+      supabase
+        .from("spotlight_posts")
+        .select("author_id")
+        .in("author_id", unique)
+        .eq("is_published", true)
+        .gte("created_at", new Date(Date.now() - 24 * 60 * 60_000).toISOString()),
+    ],
+  );
   const onlineIds = new Set((presence ?? []).map((row) => row.user_id));
-  const updateIds = new Set([...(stories ?? []).map((row) => row.author_id), ...(spotlights ?? []).map((row) => row.author_id)]);
+  const updateIds = new Set([
+    ...(stories ?? []).map((row) => row.author_id),
+    ...(spotlights ?? []).map((row) => row.author_id),
+  ]);
   for (const row of (data ?? []) as {
     user_id: string;
     full_name: string;
@@ -336,7 +378,11 @@ function getStoryVideoContentType(file: File): string {
   }
 }
 
-async function uploadStoryMedia(userId: string, file: File, onProgress?: (progress: number) => void): Promise<string> {
+async function uploadStoryMedia(
+  userId: string,
+  file: File,
+  onProgress?: (progress: number) => void,
+): Promise<string> {
   const isVideo = isStoryVideoSource(file);
 
   if (isVideo) {
@@ -355,7 +401,9 @@ async function uploadStoryMedia(userId: string, file: File, onProgress?: (progre
 
   const fallbackExtension = isVideo ? "mp4" : "jpg";
   const originalExtension = file.name.split(".").pop()?.toLowerCase() ?? fallbackExtension;
-  const safeExtension = /^[a-z0-9]+$/.test(originalExtension) ? originalExtension : fallbackExtension;
+  const safeExtension = /^[a-z0-9]+$/.test(originalExtension)
+    ? originalExtension
+    : fallbackExtension;
   const path = `${userId}/story/${crypto.randomUUID()}.${safeExtension}`;
 
   const contentType = isVideo ? getStoryVideoContentType(file) : file.type || "image/jpeg";
@@ -420,7 +468,11 @@ export function useStories() {
         supabase
           .from("stories")
           .select("id, author_id, caption, media_path, view_count, created_at, expires_at")
-          .or(me ? `moderation_status.eq.APPROVED,author_id.eq.${me}` : "moderation_status.eq.APPROVED")
+          .or(
+            me
+              ? `moderation_status.eq.APPROVED,author_id.eq.${me}`
+              : "moderation_status.eq.APPROVED",
+          )
           .gt("expires_at", new Date().toISOString())
           .order("created_at", { ascending: true }),
         20_000,
@@ -475,7 +527,9 @@ export function useStories() {
         reactionRowsPromise,
       ]);
 
-      const seen = new Set(((seenRows.data ?? []) as { story_id: string }[]).map((r) => r.story_id));
+      const seen = new Set(
+        ((seenRows.data ?? []) as { story_id: string }[]).map((r) => r.story_id),
+      );
 
       const reactions = (reactionResult.data ?? []) as Array<{
         story_id: string;
@@ -532,7 +586,13 @@ export function useStories() {
           item: g,
           id: g.author.id,
           creator: g.author.id,
-          relevance: 0.6 * freshness(g.stories.at(-1)?.created_at, 8) + 0.4 * engagement(g.stories.reduce((n, s) => n + s.view_count, 0), 200),
+          relevance:
+            0.6 * freshness(g.stories.at(-1)?.created_at, 8) +
+            0.4 *
+              engagement(
+                g.stories.reduce((n, s) => n + s.view_count, 0),
+                200,
+              ),
           explorable: g.stories.reduce((n, s) => n + s.view_count, 0) < 10,
         }));
       const mine = groups.filter((g) => me && g.author.id === me);
@@ -542,7 +602,10 @@ export function useStories() {
         ...rotate("story", toItems(others.filter((g) => !g.seen)), seed),
         ...rotate("story", toItems(others.filter((g) => g.seen)), seed),
       ];
-      recordExposure("story", ordered.slice(0, 8).map((g) => g.author.id));
+      recordExposure(
+        "story",
+        ordered.slice(0, 8).map((g) => g.author.id),
+      );
 
       return { me, groups: ordered };
     },
@@ -595,7 +658,11 @@ export function useCreateStory() {
 
         if (safetyResult.status === "rejected") {
           try {
-            await withTimeout(supabase.storage.from(SOCIAL_BUCKET).remove([path]), 15_000, "Story cleanup");
+            await withTimeout(
+              supabase.storage.from(SOCIAL_BUCKET).remove([path]),
+              15_000,
+              "Story cleanup",
+            );
           } catch (cleanupError) {
             console.warn("Story media cleanup failed:", cleanupError);
           }
@@ -637,7 +704,11 @@ export function useCreateStory() {
         return insertResult.data.id;
       } catch (error) {
         try {
-          await withTimeout(supabase.storage.from(SOCIAL_BUCKET).remove([path]), 15_000, "Story cleanup");
+          await withTimeout(
+            supabase.storage.from(SOCIAL_BUCKET).remove([path]),
+            15_000,
+            "Story cleanup",
+          );
         } catch (cleanupError) {
           console.warn("Story media cleanup failed:", cleanupError);
         }
@@ -689,13 +760,19 @@ export function useDeleteStory() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data, error: readError } = await supabase.from("stories").select("media_path").eq("id", id).maybeSingle();
+      const { data, error: readError } = await supabase
+        .from("stories")
+        .select("media_path")
+        .eq("id", id)
+        .maybeSingle();
       if (readError) throw readError;
       if (!data) throw new Error("This story is no longer available.");
 
       const { error: deleteError } = await supabase.from("stories").delete().eq("id", id);
       if (deleteError) throw deleteError;
-      const { error: storageError } = await supabase.storage.from(SOCIAL_BUCKET).remove([data.media_path]);
+      const { error: storageError } = await supabase.storage
+        .from(SOCIAL_BUCKET)
+        .remove([data.media_path]);
       if (storageError) console.warn("Story media cleanup failed", storageError.message);
     },
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["stories"] }),
@@ -735,7 +812,10 @@ export function useSocialFeed(limit = 40) {
     staleTime: 15_000,
     queryFn: async (): Promise<FeedPost[]> => {
       // Pull a wider safety-filtered pool, then rotate it per user + session.
-      const { data: pool, error } = await supabase.rpc("social_feed", { _limit: limit * 2, _offset: 0 });
+      const { data: pool, error } = await supabase.rpc("social_feed", {
+        _limit: limit * 2,
+        _offset: 0,
+      });
       if (error) throw error;
       type FeedRow = {
         id: string;
@@ -765,7 +845,12 @@ export function useSocialFeed(limit = 40) {
         .order("usage_count", { ascending: false })
         .limit(50);
       const maxUse = Math.max(1, ...(trendRows ?? []).map((t) => t.usage_count));
-      const trend = new Map((trendRows ?? []).map((t) => [t.name.toLowerCase(), Math.log1p(t.usage_count) / Math.log1p(maxUse)]));
+      const trend = new Map(
+        (trendRows ?? []).map((t) => [
+          t.name.toLowerCase(),
+          Math.log1p(t.usage_count) / Math.log1p(maxUse),
+        ]),
+      );
       const rows = rotate(
         "post",
         candidates.map((r, i) => {
@@ -806,16 +891,30 @@ export function useSocialFeed(limit = 40) {
         (supabase as unknown as { from: (table: string) => any })
           .from("market_posts")
           .select("id,social_post_id,title,educational_label")
-          .in("social_post_id", rows.map((r) => r.id)),
+          .in(
+            "social_post_id",
+            rows.map((r) => r.id),
+          ),
       ]);
       const marketByPost = new Map(
-        ((marketResult.data ?? []) as Array<{ id: string; social_post_id: string; title: string; educational_label: string }>).map((item) => [item.social_post_id, item]),
+        (
+          (marketResult.data ?? []) as Array<{
+            id: string;
+            social_post_id: string;
+            title: string;
+            educational_label: string;
+          }>
+        ).map((item) => [item.social_post_id, item]),
       );
       return rows.map((r) => {
         const reaction = summarizeReactions(
-          ((reactionResult.data ?? []) as Array<{ post_id: string; user_id: string; reaction_type: string }>).filter(
-            (item) => item.post_id === r.id,
-          ),
+          (
+            (reactionResult.data ?? []) as Array<{
+              post_id: string;
+              user_id: string;
+              reaction_type: string;
+            }>
+          ).filter((item) => item.post_id === r.id),
           me,
         );
         return {
@@ -835,7 +934,11 @@ export function useSocialFeed(limit = 40) {
           reaction_breakdown: reaction.breakdown,
           reposted: r.reposted,
           created_at: r.created_at,
-          author: authors.get(r.author_id) ?? { id: r.author_id, name: "Profile", avatar_url: null },
+          author: authors.get(r.author_id) ?? {
+            id: r.author_id,
+            name: "Profile",
+            avatar_url: null,
+          },
           market: marketByPost.get(r.id) ?? null,
         };
       });
@@ -877,7 +980,12 @@ export function usePost(postId: string | null | undefined) {
         loadAuthors([row.author_id]),
         supabase.from("post_likes").select("user_id, reaction_type").eq("post_id", row.id),
         me
-          ? supabase.from("post_reposts").select("post_id").eq("post_id", row.id).eq("user_id", me).maybeSingle()
+          ? supabase
+              .from("post_reposts")
+              .select("post_id")
+              .eq("post_id", row.id)
+              .eq("user_id", me)
+              .maybeSingle()
           : Promise.resolve({ data: null }),
       ]);
 
@@ -902,7 +1010,11 @@ export function usePost(postId: string | null | undefined) {
         reaction_breakdown: reaction.breakdown,
         reposted: Boolean(reposted.data),
         created_at: row.created_at,
-        author: authors.get(row.author_id) ?? { id: row.author_id, name: "Profile", avatar_url: null },
+        author: authors.get(row.author_id) ?? {
+          id: row.author_id,
+          name: "Profile",
+          avatar_url: null,
+        },
       };
     },
   });
@@ -920,7 +1032,12 @@ export function useMemberPosts(userId: string | null | undefined) {
         .eq("author_id", userId!)
         .order("created_at", { ascending: false })
         .limit(30);
-      const rows = (data ?? []) as { id: string; caption: string; media: unknown; created_at: string }[];
+      const rows = (data ?? []) as {
+        id: string;
+        caption: string;
+        media: unknown;
+        created_at: string;
+      }[];
       const signed = await signPaths(rows.flatMap((r) => parseImages(r.media)));
       return rows.map((r) => ({
         id: r.id,
@@ -963,7 +1080,11 @@ export function useCreateSocialPost() {
       }
 
       if (selectedFiles.length > 0) {
-        await withTimeout(verifyMediaFiles(selectedFiles, "SOCIAL_POST"), 30_000, "Photo safety check");
+        await withTimeout(
+          verifyMediaFiles(selectedFiles, "SOCIAL_POST"),
+          30_000,
+          "Photo safety check",
+        );
       }
 
       const media: string[] = [];
@@ -1043,7 +1164,10 @@ export function useSetPostReaction() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ postId, reaction }: { postId: string; reaction: ReactionType | null }) => {
-      const { error } = await supabase.rpc("set_post_reaction", { _post_id: postId, _reaction_type: reaction ?? "" });
+      const { error } = await supabase.rpc("set_post_reaction", {
+        _post_id: postId,
+        _reaction_type: reaction ?? "",
+      });
       if (error) throw error;
     },
     onSuccess: (_data, variables) => {
@@ -1060,10 +1184,16 @@ export function useToggleRepost() {
       const userId = await currentUserId();
       if (!userId) throw new Error("You need to be signed in.");
       if (reposted) {
-        const { error } = await supabase.from("post_reposts").delete().eq("post_id", postId).eq("user_id", userId);
+        const { error } = await supabase
+          .from("post_reposts")
+          .delete()
+          .eq("post_id", postId)
+          .eq("user_id", userId);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("post_reposts").insert({ post_id: postId, user_id: userId });
+        const { error } = await supabase
+          .from("post_reposts")
+          .insert({ post_id: postId, user_id: userId });
         // A verified author can lock their work; the database guard says so plainly.
         if (error) {
           throw new Error(
@@ -1086,7 +1216,10 @@ export function useSetCommentFilter() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ postId, on }: { postId: string; on: boolean }) => {
-      const { error } = await supabase.from("social_posts").update({ filter_comments: on }).eq("id", postId);
+      const { error } = await supabase
+        .from("social_posts")
+        .update({ filter_comments: on })
+        .eq("id", postId);
       if (error) throw error;
     },
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["social-feed"] }),
@@ -1215,9 +1348,13 @@ export function useComments(postId: string | null) {
       const roots: PostComment[] = [];
       for (const row of rows) {
         const reaction = summarizeReactions(
-          ((likedResult.data ?? []) as Array<{ comment_id: string; user_id: string; reaction_type: string }>).filter(
-            (item) => item.comment_id === row.id,
-          ),
+          (
+            (likedResult.data ?? []) as Array<{
+              comment_id: string;
+              user_id: string;
+              reaction_type: string;
+            }>
+          ).filter((item) => item.comment_id === row.id),
           me,
         );
         byId.set(row.id, {
@@ -1226,7 +1363,11 @@ export function useComments(postId: string | null) {
           parent_id: row.parent_id,
           body: row.body,
           created_at: row.created_at,
-          author: authors.get(row.author_id) ?? { id: row.author_id, name: "Profile", avatar_url: null },
+          author: authors.get(row.author_id) ?? {
+            id: row.author_id,
+            name: "Profile",
+            avatar_url: null,
+          },
           like_count: reaction.total,
           liked: reaction.current !== null,
           current_reaction: reaction.current,
@@ -1249,7 +1390,14 @@ export function useToggleCommentLike() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ commentId, liked }: { commentId: string; liked: boolean; postId: string }) => {
+    mutationFn: async ({
+      commentId,
+      liked,
+    }: {
+      commentId: string;
+      liked: boolean;
+      postId: string;
+    }) => {
       const userId = await currentUserId();
 
       if (!userId) {
@@ -1325,7 +1473,13 @@ export function useSetCommentReaction() {
 export function useSetStoryReaction() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ storyId, reaction }: { storyId: string; reaction: ReactionType | null }) => {
+    mutationFn: async ({
+      storyId,
+      reaction,
+    }: {
+      storyId: string;
+      reaction: ReactionType | null;
+    }) => {
       const { error } = await supabase.rpc("set_story_reaction", {
         _story_id: storyId,
         _reaction_type: reaction,
@@ -1351,7 +1505,12 @@ export function useEngagementRealtime(postId?: string | null) {
       .channel(`engagement:${postId ?? "feed"}:${crypto.randomUUID()}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "post_likes", ...(postId ? { filter: `post_id=eq.${postId}` } : {}) },
+        {
+          event: "*",
+          schema: "public",
+          table: "post_likes",
+          ...(postId ? { filter: `post_id=eq.${postId}` } : {}),
+        },
         () => {
           void queryClient.invalidateQueries({ queryKey: ["social-feed"] });
           if (postId) void queryClient.invalidateQueries({ queryKey: ["social-post", postId] });
@@ -1372,7 +1531,10 @@ export function useTagPeopleSearch(term: string) {
     queryKey: ["tag-people", term],
     enabled: term.trim().length >= 2,
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("search_tag_people", { _query: term.trim(), _limit: 10 });
+      const { data, error } = await supabase.rpc("search_tag_people", {
+        _query: term.trim(),
+        _limit: 10,
+      });
       if (error) throw error;
       return data ?? [];
     },
@@ -1435,7 +1597,8 @@ export function useAddComment() {
       if (screen) {
         const { screenComment } = await import("./social.functions");
         const verdict = await screenComment({ data: { text } });
-        if (verdict?.blocked) throw new Error("This comment was blocked by the post's comment filter.");
+        if (verdict?.blocked)
+          throw new Error("This comment was blocked by the post's comment filter.");
       }
       const { error } = await supabase
         .from("post_comments")
@@ -1529,11 +1692,19 @@ export function useSendFriendRequest() {
       const me = await currentUserId();
       if (!me) throw new Error("You need to be signed in.");
       if (me === userId) throw new Error("That is you.");
-      const { error } = await supabase.from("friendships").insert({ requester_id: me, addressee_id: userId });
+      const { error } = await supabase
+        .from("friendships")
+        .insert({ requester_id: me, addressee_id: userId });
       if (error) throw error;
     },
     onSuccess: (_result, userId) => {
-      trackEvent({ event_type: "friend_request", surface: "profile", target_type: "profile", target_id: userId, author_id: userId });
+      trackEvent({
+        event_type: "friend_request",
+        surface: "profile",
+        target_type: "profile",
+        target_id: userId,
+        author_id: userId,
+      });
       void queryClient.invalidateQueries({ queryKey: ["friendships"] });
       void queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
     },
@@ -1551,7 +1722,13 @@ export function useRespondFriendRequest() {
       if (error) throw error;
     },
     onSuccess: (_result, variables) => {
-      if (variables.accept) trackEvent({ event_type: "follow", surface: "profile", target_type: "friendship", target_id: variables.id });
+      if (variables.accept)
+        trackEvent({
+          event_type: "follow",
+          surface: "profile",
+          target_type: "friendship",
+          target_id: variables.id,
+        });
       void queryClient.invalidateQueries({ queryKey: ["friendships"] });
       void queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
     },
@@ -1565,7 +1742,10 @@ export function useRemoveFriend() {
       const { error } = await supabase.from("friendships").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => { void queryClient.invalidateQueries({ queryKey: ["friendships"] }); void queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] }); },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["friendships"] });
+      void queryClient.invalidateQueries({ queryKey: ["friend-suggestions"] });
+    },
   });
 }
 
@@ -1587,10 +1767,19 @@ export function useMemberSearch(term: string) {
         .select("user_id, full_name, avatar_url")
         .ilike("full_name", `%${term.trim()}%`)
         .limit(20);
-      const authors = await loadAuthors(((data ?? []) as { user_id: string }[]).map((row) => row.user_id));
+      const authors = await loadAuthors(
+        ((data ?? []) as { user_id: string }[]).map((row) => row.user_id),
+      );
       return ((data ?? []) as { user_id: string; full_name: string; avatar_url: string | null }[])
         .filter((row) => row.user_id !== me)
-        .map((row) => authors.get(row.user_id) ?? ({ id: row.user_id, name: row.full_name || "Profile", avatar_url: row.avatar_url }));
+        .map(
+          (row) =>
+            authors.get(row.user_id) ?? {
+              id: row.user_id,
+              name: row.full_name || "Profile",
+              avatar_url: row.avatar_url,
+            },
+        );
     },
   });
 }
@@ -1618,7 +1807,13 @@ export function useGroups() {
         .from("chat_groups")
         .select("id, name, owner_id, created_at, avatar_path")
         .order("created_at", { ascending: false });
-      const groups = (data ?? []) as { id: string; name: string; owner_id: string; created_at: string; avatar_path: string | null }[];
+      const groups = (data ?? []) as {
+        id: string;
+        name: string;
+        owner_id: string;
+        created_at: string;
+        avatar_path: string | null;
+      }[];
       if (groups.length === 0) return [];
       const { data: memberRows } = await supabase
         .from("group_members")
@@ -1628,7 +1823,10 @@ export function useGroups() {
           groups.map((g) => g.id),
         );
       const rows = (memberRows ?? []) as { group_id: string; user_id: string }[];
-      const authors = await loadAuthors([...rows.map((r) => r.user_id), ...groups.map((g) => g.owner_id)]);
+      const authors = await loadAuthors([
+        ...rows.map((r) => r.user_id),
+        ...groups.map((g) => g.owner_id),
+      ]);
       const { data: conversationRows } = await supabase
         .from("conversations")
         .select("id, group_id")
@@ -1644,7 +1842,9 @@ export function useGroups() {
       return groups.map((g) => {
         const members = rows
           .filter((r) => r.group_id === g.id)
-          .map((r) => authors.get(r.user_id) ?? { id: r.user_id, name: "Profile", avatar_url: null });
+          .map(
+            (r) => authors.get(r.user_id) ?? { id: r.user_id, name: "Profile", avatar_url: null },
+          );
         const owner = authors.get(g.owner_id);
         const until = owner?.verified_until ? new Date(owner.verified_until).getTime() : null;
         return {
@@ -1691,7 +1891,12 @@ export function useCreateGroup() {
       return groupId;
     },
     onSuccess: (groupId) => {
-      trackEvent({ event_type: "click", surface: "other", target_type: "group", target_id: groupId });
+      trackEvent({
+        event_type: "click",
+        surface: "other",
+        target_type: "group",
+        target_id: groupId,
+      });
       void queryClient.invalidateQueries({ queryKey: ["chat-groups"] });
       void queryClient.invalidateQueries({ queryKey: ["conversations"] });
     },
@@ -1705,7 +1910,11 @@ export function useDeleteGroup() {
     mutationFn: async (groupId: string) => {
       const me = await currentUserId();
       if (!me) throw new Error("You need to be signed in.");
-      const { error } = await supabase.from("chat_groups").delete().eq("id", groupId).eq("owner_id", me);
+      const { error } = await supabase
+        .from("chat_groups")
+        .delete()
+        .eq("id", groupId)
+        .eq("owner_id", me);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -1735,7 +1944,11 @@ export function useRemoveGroupMember() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ groupId, userId }: { groupId: string; userId: string }) => {
-      const { error } = await supabase.from("group_members").delete().eq("group_id", groupId).eq("user_id", userId);
+      const { error } = await supabase
+        .from("group_members")
+        .delete()
+        .eq("group_id", groupId)
+        .eq("user_id", userId);
       if (error) throw error;
     },
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["chat-groups"] }),
@@ -1745,7 +1958,15 @@ export function useRemoveGroupMember() {
 export function useUpdateGroup() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ groupId, name, avatarPath }: { groupId: string; name?: string; avatarPath?: string | null }) => {
+    mutationFn: async ({
+      groupId,
+      name,
+      avatarPath,
+    }: {
+      groupId: string;
+      name?: string;
+      avatarPath?: string | null;
+    }) => {
       const me = await currentUserId();
       if (!me) throw new Error("You need to be signed in.");
       const patch: { name?: string; avatar_path?: string | null } = {};
@@ -1771,7 +1992,15 @@ const GROUP_AVATAR_MAX_BYTES = 5 * 1024 * 1024;
 export function useUpdateGroupAvatar() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ groupId, file, currentPath }: { groupId: string; file: File; currentPath?: string | null }) => {
+    mutationFn: async ({
+      groupId,
+      file,
+      currentPath,
+    }: {
+      groupId: string;
+      file: File;
+      currentPath?: string | null;
+    }) => {
       const me = await currentUserId();
       if (!me) throw new Error("You need to be signed in.");
       if (!file.type.startsWith("image/")) throw new Error("Please choose an image file.");
@@ -1802,7 +2031,8 @@ export function useUpdateGroupAvatar() {
 
       if (currentPath && !currentPath.startsWith("http") && currentPath !== objectPath) {
         const cleanup = await supabase.storage.from("avatars").remove([currentPath]);
-        if (cleanup.error) console.warn("Previous group photo cleanup failed", cleanup.error.message);
+        if (cleanup.error)
+          console.warn("Previous group photo cleanup failed", cleanup.error.message);
       }
       return objectPath;
     },
@@ -1819,7 +2049,11 @@ export function useGroupConversation(groupId: string | null) {
     queryKey: ["group-conversation", groupId],
     enabled: Boolean(groupId),
     queryFn: async () => {
-      const { data } = await supabase.from("conversations").select("id").eq("group_id", groupId!).maybeSingle();
+      const { data } = await supabase
+        .from("conversations")
+        .select("id")
+        .eq("group_id", groupId!)
+        .maybeSingle();
       return (data as { id: string } | null)?.id ?? null;
     },
   });
@@ -1855,7 +2089,11 @@ export const CHAT_WALLPAPERS = [
   },
 ] as const;
 
-export type ChatSettings = { wallpaper: string; wallpaper_path: string | null; wallpaperUrl: string | null };
+export type ChatSettings = {
+  wallpaper: string;
+  wallpaper_path: string | null;
+  wallpaperUrl: string | null;
+};
 
 export function useChatSettings() {
   return useQuery({
@@ -1911,7 +2149,9 @@ export function useFriendSuggestions(limit = 12) {
     queryFn: async (): Promise<SocialAuthor[]> => {
       const me = await currentUserId();
       if (!me) return [];
-      const { data: links } = await supabase.from("friendships").select("requester_id, addressee_id, status");
+      const { data: links } = await supabase
+        .from("friendships")
+        .select("requester_id, addressee_id, status");
       const linked = new Set<string>([me]);
       for (const row of (links ?? []) as { requester_id: string; addressee_id: string }[]) {
         linked.add(row.requester_id);
@@ -1933,7 +2173,16 @@ export function useFriendSuggestions(limit = 12) {
         .filter((row) => !linked.has(row.user_id) && Boolean(row.full_name))
         .slice(0, limit);
       const authors = await loadAuthors(candidates.map((row) => row.user_id));
-      return candidates.map((row) => authors.get(row.user_id) ?? ({ id: row.user_id, name: row.full_name ?? "Profile", avatar_url: row.avatar_url, verified_tier: row.verified_tier, verified_until: row.verified_until }));
+      return candidates.map(
+        (row) =>
+          authors.get(row.user_id) ?? {
+            id: row.user_id,
+            name: row.full_name ?? "Profile",
+            avatar_url: row.avatar_url,
+            verified_tier: row.verified_tier,
+            verified_until: row.verified_until,
+          },
+      );
     },
   });
 }

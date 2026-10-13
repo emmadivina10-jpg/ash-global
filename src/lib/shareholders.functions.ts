@@ -60,7 +60,12 @@ async function currentValuation() {
     .limit(1)
     .maybeSingle();
   return data
-    ? { valuation: Number(data.valuation), currency: data.currency, approvedAt: data.approved_at, approvedBy: data.approved_by }
+    ? {
+        valuation: Number(data.valuation),
+        currency: data.currency,
+        approvedAt: data.approved_at,
+        approvedBy: data.approved_by,
+      }
     : null;
 }
 
@@ -80,11 +85,19 @@ export const getMyShareholding = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: me } = await supabaseAdmin.from("shareholders").select(COLS).eq("user_id", context.userId).maybeSingle();
+    const { data: me } = await supabaseAdmin
+      .from("shareholders")
+      .select(COLS)
+      .eq("user_id", context.userId)
+      .maybeSingle();
     if (!me) return { shareholder: null };
     const [{ data: all }, { data: events }] = await Promise.all([
       supabaseAdmin.from("shareholders").select("ownership_pct, is_founder"),
-      supabaseAdmin.from("shareholder_events").select("kind, detail, created_at").eq("shareholder_id", me.id).order("created_at", { ascending: false }),
+      supabaseAdmin
+        .from("shareholder_events")
+        .select("kind, detail, created_at")
+        .eq("shareholder_id", me.id)
+        .order("created_at", { ascending: false }),
     ]);
     return {
       shareholder: me as ShareholderRow,
@@ -104,7 +117,11 @@ export const getShareholderCenter = createServerFn({ method: "GET" }).handler(as
   const db = await adminClient();
   const [{ data: rows }, { data: events }] = await Promise.all([
     db.from("shareholders").select(COLS).order("ownership_pct", { ascending: false }),
-    db.from("shareholder_events").select("shareholder_id, kind, detail, actor, created_at").order("created_at", { ascending: false }).limit(200),
+    db
+      .from("shareholder_events")
+      .select("shareholder_id, kind, detail, actor, created_at")
+      .order("created_at", { ascending: false })
+      .limit(200),
   ]);
   const list = (rows ?? []) as ShareholderRow[];
   return {
@@ -143,19 +160,23 @@ export const recordShareholderPayment = createServerFn({ method: "POST" })
   .inputValidator((d: { id: string; amount: number; reference: string }) => ({
     id: String(d.id),
     amount: Number(d.amount),
-    reference: String(d.reference ?? "").trim().slice(0, 120),
+    reference: String(d.reference ?? "")
+      .trim()
+      .slice(0, 120),
   }))
   .handler(async ({ data }) => {
     const { requireSuperAdmin, adminClient } = await import("./console.server");
     const actor = await requireSuperAdmin();
     if (!(data.amount > 0)) return { ok: false as const, error: "Enter a positive amount." };
-    if (!data.reference) return { ok: false as const, error: "A transaction/reference ID is required." };
+    if (!data.reference)
+      return { ok: false as const, error: "A transaction/reference ID is required." };
     const db = await adminClient();
     const { data: sh } = await db.from("shareholders").select(COLS).eq("id", data.id).maybeSingle();
     if (!sh) return { ok: false as const, error: "Shareholder not found." };
     const received = Number(sh.investment_received) + data.amount;
     const committed = Number(sh.investment_committed ?? 0);
-    if (committed > 0 && received > committed) return { ok: false as const, error: "That exceeds the committed amount." };
+    if (committed > 0 && received > committed)
+      return { ok: false as const, error: "That exceeds the committed amount." };
     const status = committed > 0 && received >= committed ? "RECEIVED" : "PARTIALLY_RECEIVED";
     const { error } = await db
       .from("shareholders")
@@ -164,7 +185,8 @@ export const recordShareholderPayment = createServerFn({ method: "POST" })
         payment_status: status,
         transaction_reference: data.reference,
         allocation_status: status === "RECEIVED" ? "ALLOCATED" : sh.allocation_status,
-        allocation_date: status === "RECEIVED" ? new Date().toISOString().slice(0, 10) : sh.allocation_date,
+        allocation_date:
+          status === "RECEIVED" ? new Date().toISOString().slice(0, 10) : sh.allocation_date,
       })
       .eq("id", data.id);
     if (error) return { ok: false as const, error: error.message };

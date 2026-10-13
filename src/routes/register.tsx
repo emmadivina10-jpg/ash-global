@@ -56,7 +56,8 @@ export const Route = createFileRoute("/register")({
       { title: "Create your ASH Glo account" },
       {
         name: "description",
-        content: "Create your ASH Glo account for commerce, services, community, messaging and eligible regional referral rewards.",
+        content:
+          "Create your ASH Glo account for commerce, services, community, messaging and eligible regional referral rewards.",
       },
       { property: "og:title", content: "Create your ASH Glo account" },
       { property: "og:description", content: "Join ASH Glo and start earning referral rewards." },
@@ -110,11 +111,16 @@ function RegisterPage() {
     const schema = buildSchema(t);
     const fieldErrors: Record<string, string> = {};
     if (step === 1) {
-      const parsed = schema.safeParse({ ...form, password: "xxxxxxxx", confirmPassword: "xxxxxxxx" });
+      const parsed = schema.safeParse({
+        ...form,
+        password: "xxxxxxxx",
+        confirmPassword: "xxxxxxxx",
+      });
       if (!parsed.success) {
         for (const issue of parsed.error.issues) {
           const key = String(issue.path[0]);
-          if (["fullName", "email", "phone"].includes(key) && !fieldErrors[key]) fieldErrors[key] = issue.message;
+          if (["fullName", "email", "phone"].includes(key) && !fieldErrors[key])
+            fieldErrors[key] = issue.message;
         }
       }
     } else if (step === 2) {
@@ -122,7 +128,8 @@ function RegisterPage() {
       if (!parsed.success) {
         for (const issue of parsed.error.issues) {
           const key = String(issue.path[0]);
-          if (["password", "confirmPassword"].includes(key) && !fieldErrors[key]) fieldErrors[key] = issue.message;
+          if (["password", "confirmPassword"].includes(key) && !fieldErrors[key])
+            fieldErrors[key] = issue.message;
         }
       }
     }
@@ -257,123 +264,136 @@ function RegisterPage() {
       <form onSubmit={onSubmit} className="space-y-5" noValidate>
         <StepBar step={step} />
         <div key={step} className="auth-step grid gap-4">
-        {step === 1 ? (
-        <>
-          <div className="sm:col-span-2">
-            <Field label={t("auth.register.fullName")} id="fullName" error={errors["fullName"]}>
-              <Input
-                id="fullName"
-                autoComplete="name"
-                value={form.fullName}
-                onChange={(event) => update("fullName", event.target.value)}
-                placeholder="Jean Nkeng"
-              />
-            </Field>
-          </div>
+          {step === 1 ? (
+            <>
+              <div className="sm:col-span-2">
+                <Field label={t("auth.register.fullName")} id="fullName" error={errors["fullName"]}>
+                  <Input
+                    id="fullName"
+                    autoComplete="name"
+                    value={form.fullName}
+                    onChange={(event) => update("fullName", event.target.value)}
+                    placeholder="Jean Nkeng"
+                  />
+                </Field>
+              </div>
 
-          <div className="sm:col-span-2">
-            <Field label={t("auth.email")} id="email" error={errors["email"]}>
-              <Input
-                id="email"
-                type="email"
-                autoComplete="email"
-                value={form.email}
-                onChange={(event) => update("email", event.target.value)}
-                placeholder="you@example.com"
-              />
-            </Field>
-          </div>
+              <div className="sm:col-span-2">
+                <Field label={t("auth.email")} id="email" error={errors["email"]}>
+                  <Input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    value={form.email}
+                    onChange={(event) => update("email", event.target.value)}
+                    placeholder="you@example.com"
+                  />
+                </Field>
+              </div>
 
-          <div className="sm:col-span-2">
-            <Field label={t("auth.register.phone")} id="phone" error={errors["phone"]}>
-              <CountryPhoneInput id="phone" onChange={(v) => update("phone", v)} />
-            </Field>
-          </div>
+              <div className="sm:col-span-2">
+                <Field label={t("auth.register.phone")} id="phone" error={errors["phone"]}>
+                  <CountryPhoneInput id="phone" onChange={(v) => update("phone", v)} />
+                </Field>
+              </div>
+            </>
+          ) : step === 2 ? (
+            <>
+              <Field label={t("auth.password")} id="password" error={errors["password"]}>
+                <PasswordInput
+                  id="password"
+                  autoComplete="new-password"
+                  value={form.password}
+                  onChange={(event) => update("password", event.target.value)}
+                />
+              </Field>
 
-        </>
-        ) : step === 2 ? (
-        <>
-          <Field label={t("auth.password")} id="password" error={errors["password"]}>
-            <PasswordInput
-              id="password"
-              autoComplete="new-password"
-              value={form.password}
-              onChange={(event) => update("password", event.target.value)}
-            />
-          </Field>
+              <Field
+                label={t("auth.register.confirmPassword")}
+                id="confirmPassword"
+                error={errors["confirmPassword"]}
+              >
+                <PasswordInput
+                  id="confirmPassword"
+                  autoComplete="new-password"
+                  value={form.confirmPassword}
+                  onChange={(event) => update("confirmPassword", event.target.value)}
+                />
+              </Field>
 
-          <Field label={t("auth.register.confirmPassword")} id="confirmPassword" error={errors["confirmPassword"]}>
-            <PasswordInput
-              id="confirmPassword"
-              autoComplete="new-password"
-              value={form.confirmPassword}
-              onChange={(event) => update("confirmPassword", event.target.value)}
-            />
-          </Field>
-
-          <div className="sm:col-span-2">
-            <Field
-              label={t("auth.register.referral")}
-              id="referralCode"
-              error={errors["referralCode"]}
-              hint={
-                refState === "checking"
-                  ? t("auth.register.refChecking")
-                  : refState === "valid"
-                    ? t("auth.register.refValid")
-                    : refState === "invalid"
-                      ? t("auth.register.refInvalid")
-                      : undefined
-              }
+              <div className="sm:col-span-2">
+                <Field
+                  label={t("auth.register.referral")}
+                  id="referralCode"
+                  error={errors["referralCode"]}
+                  hint={
+                    refState === "checking"
+                      ? t("auth.register.refChecking")
+                      : refState === "valid"
+                        ? t("auth.register.refValid")
+                        : refState === "invalid"
+                          ? t("auth.register.refInvalid")
+                          : undefined
+                  }
+                >
+                  <Input
+                    id="referralCode"
+                    value={form.referralCode}
+                    onChange={(event) => update("referralCode", event.target.value.toUpperCase())}
+                    placeholder="REFER-ABC123"
+                  />
+                </Field>
+              </div>
+            </>
+          ) : (
+            /* terms step */
+            <section
+              aria-labelledby="terms-heading"
+              className="space-y-3 rounded-2xl border border-primary/30 bg-primary/5 p-4 sm:col-span-2"
             >
-              <Input
-                id="referralCode"
-                value={form.referralCode}
-                onChange={(event) => update("referralCode", event.target.value.toUpperCase())}
-                placeholder="REFER-ABC123"
-              />
-            </Field>
-          </div>
-        </>
-        ) : (
-        /* terms step */
-        <section aria-labelledby="terms-heading" className="space-y-3 rounded-2xl border border-primary/30 bg-primary/5 p-4 sm:col-span-2">
-          <h2 id="terms-heading" className="text-sm font-bold text-foreground">
-            {lang === "fr" ? "Conditions d'utilisation et règles de la communauté" : "Terms of Use & Community Standards"}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {lang === "fr"
-              ? "Avant de rejoindre ASH Glo, veuillez lire et accepter nos Conditions d'utilisation et nos Règles de la communauté."
-              : "Before joining ASH Glo, please review and agree to our Terms of Use and Community Standards."}
-          </p>
-          <Button type="button" variant="outline" className="w-full" onClick={() => setTermsOpen(true)}>
-            <FileText className="size-4" aria-hidden />
-            {lang === "fr" ? "Voir les conditions" : "View Terms"}
-          </Button>
-          <ZeroTolerance fr={lang === "fr"} />
-          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-background p-4">
-            <Checkbox
-              checked={agreed}
-              onCheckedChange={(value) => {
-                const next = value === true;
-                setAgreed(next);
-                markPendingTermsAgreement(next);
-              }}
-              className="mt-0.5"
-              aria-label="I agree to the ASH Glo Terms of Use and Community Standards"
-            />
-            <span className="text-sm text-foreground">
-              {lang === "fr"
-                ? "J'accepte les Conditions d'utilisation et les Règles de la communauté d'ASH Glo, j'ai lu la "
-                : "I agree to the ASH Glo Terms of Use and Community Standards, and I have read the "}
-              <Link to="/privacy" className="font-semibold text-primary hover:underline">
-                {lang === "fr" ? "Politique de confidentialité" : "Privacy Policy"}
-              </Link>
-              {lang === "fr" ? ". J'ai au moins 13 ans." : ". I am at least 13."}
-            </span>
-          </label>
-        </section>
-        )}
+              <h2 id="terms-heading" className="text-sm font-bold text-foreground">
+                {lang === "fr"
+                  ? "Conditions d'utilisation et règles de la communauté"
+                  : "Terms of Use & Community Standards"}
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {lang === "fr"
+                  ? "Avant de rejoindre ASH Glo, veuillez lire et accepter nos Conditions d'utilisation et nos Règles de la communauté."
+                  : "Before joining ASH Glo, please review and agree to our Terms of Use and Community Standards."}
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => setTermsOpen(true)}
+              >
+                <FileText className="size-4" aria-hidden />
+                {lang === "fr" ? "Voir les conditions" : "View Terms"}
+              </Button>
+              <ZeroTolerance fr={lang === "fr"} />
+              <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-background p-4">
+                <Checkbox
+                  checked={agreed}
+                  onCheckedChange={(value) => {
+                    const next = value === true;
+                    setAgreed(next);
+                    markPendingTermsAgreement(next);
+                  }}
+                  className="mt-0.5"
+                  aria-label="I agree to the ASH Glo Terms of Use and Community Standards"
+                />
+                <span className="text-sm text-foreground">
+                  {lang === "fr"
+                    ? "J'accepte les Conditions d'utilisation et les Règles de la communauté d'ASH Glo, j'ai lu la "
+                    : "I agree to the ASH Glo Terms of Use and Community Standards, and I have read the "}
+                  <Link to="/privacy" className="font-semibold text-primary hover:underline">
+                    {lang === "fr" ? "Politique de confidentialité" : "Privacy Policy"}
+                  </Link>
+                  {lang === "fr" ? ". J'ai au moins 13 ans." : ". I am at least 13."}
+                </span>
+              </label>
+            </section>
+          )}
         </div>
 
         {errors["form"] ? (
@@ -382,12 +402,12 @@ function RegisterPage() {
           </p>
         ) : null}
 
-
-
         <Dialog open={termsOpen} onOpenChange={setTermsOpen}>
           <DialogContent className="flex h-[85dvh] max-w-2xl flex-col gap-3 p-4">
             <DialogHeader>
-              <DialogTitle>{lang === "fr" ? "Conditions d'utilisation d'ASH Glo" : "ASH Glo Terms of Use"}</DialogTitle>
+              <DialogTitle>
+                {lang === "fr" ? "Conditions d'utilisation d'ASH Glo" : "ASH Glo Terms of Use"}
+              </DialogTitle>
             </DialogHeader>
             <iframe
               src="/terms"
@@ -402,21 +422,39 @@ function RegisterPage() {
 
         {step === 3 ? (
           <div className="flex gap-3">
-            <Button type="button" variant="outline" className="h-12 rounded-xl px-4" onClick={() => setStep(2)} aria-label="Back">
+            <Button
+              type="button"
+              variant="outline"
+              className="h-12 rounded-xl px-4"
+              onClick={() => setStep(2)}
+              aria-label="Back"
+            >
               <ArrowLeft className="size-4" aria-hidden />
             </Button>
-            <Button type="submit" className="auth-cta h-12 flex-1 rounded-xl text-base" disabled={loading || !agreed}>
+            <Button
+              type="submit"
+              className="auth-cta h-12 flex-1 rounded-xl text-base"
+              disabled={loading || !agreed}
+            >
               {loading ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
               {loading ? t("auth.register.submitting") : t("auth.register.submit")}
             </Button>
           </div>
         ) : (
           <Button type="submit" className="auth-cta group h-12 w-full rounded-xl text-base">
-            {lang === "fr" ? (step === 1 ? "Continuer" : "Suivant") : step === 1 ? "Continue" : "Next"}
-            <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
+            {lang === "fr"
+              ? step === 1
+                ? "Continuer"
+                : "Suivant"
+              : step === 1
+                ? "Continue"
+                : "Next"}
+            <ArrowRight
+              className="size-4 transition-transform group-hover:translate-x-1"
+              aria-hidden
+            />
           </Button>
         )}
-
       </form>
 
       {step === 1 || agreed ? <SocialAuth label={t("auth.register.orSignUp")} /> : null}
@@ -436,7 +474,9 @@ function StepBar({ step }: { step: 1 | 2 | 3 }) {
     <div className="flex items-center gap-2" aria-label={`Step ${step} of 3`}>
       {[1, 2, 3].map((n) => (
         <span key={n} className="h-1 flex-1 overflow-hidden rounded-full bg-muted">
-          <span className={`block h-full rounded-full bg-primary transition-all duration-500 ${step >= n ? "w-full" : "w-0"}`} />
+          <span
+            className={`block h-full rounded-full bg-primary transition-all duration-500 ${step >= n ? "w-full" : "w-0"}`}
+          />
         </span>
       ))}
       <span className="ml-1 text-xs font-semibold text-muted-foreground">{step}/3</span>

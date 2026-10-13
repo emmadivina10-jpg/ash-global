@@ -24,7 +24,10 @@ export const Route = createFileRoute("/_authenticated/u/$userId")({
   head: () => ({
     meta: [
       { title: "Member profile — ASH" },
-      { name: "description", content: "See an ASH member's photos, badge and posts, and message them." },
+      {
+        name: "description",
+        content: "See an ASH member's photos, badge and posts, and message them.",
+      },
       { property: "og:title", content: "Member profile — ASH" },
       { property: "og:description", content: "See an ASH member's photos, badge and posts." },
       { property: "og:type", content: "profile" },
@@ -45,7 +48,13 @@ function MemberProfilePage() {
   const send = useSendFriendRequest();
 
   useTrackView(
-    { event_type: "profile_view", surface: "profile", target_type: "profile", target_id: userId, author_id: userId },
+    {
+      event_type: "profile_view",
+      surface: "profile",
+      target_type: "profile",
+      target_id: userId,
+      author_id: userId,
+    },
     Boolean(person),
   );
 
@@ -56,7 +65,11 @@ function MemberProfilePage() {
     queryKey: ["my-block", userId],
     enabled: Boolean(me) && !isMe,
     queryFn: async () => {
-      const { data } = await supabase.from("user_blocks").select("id").eq("blocked_id", userId).maybeSingle();
+      const { data } = await supabase
+        .from("user_blocks")
+        .select("id")
+        .eq("blocked_id", userId)
+        .maybeSingle();
       return Boolean(data);
     },
   });
@@ -90,7 +103,13 @@ function MemberProfilePage() {
   return (
     <div className="mx-auto w-full max-w-2xl space-y-5">
       <header className="tile flex items-center gap-4 p-5">
-        <AvatarPhoto path={person.avatar_url} name={person.name} online={person.online} hasUpdate={person.has_update} className="size-20" />
+        <AvatarPhoto
+          path={person.avatar_url}
+          name={person.name}
+          online={person.online}
+          hasUpdate={person.has_update}
+          className="size-20"
+        />
         <div className="min-w-0 flex-1">
           <h1 className="flex items-center gap-1.5 font-display text-xl font-bold text-foreground">
             <span className="truncate">{person.name}</span>
@@ -107,14 +126,22 @@ function MemberProfilePage() {
           </p>
         </div>
         {isMe ? null : (
-          <SafetyMenu targetType="USER" targetId={userId} targetUserId={iBlocked ? null : userId} targetName={person.name} />
+          <SafetyMenu
+            targetType="USER"
+            targetId={userId}
+            targetUserId={iBlocked ? null : userId}
+            targetName={person.name}
+          />
         )}
       </header>
 
       {!isMe && iBlocked ? (
         <div className="tile flex items-center justify-between gap-3 p-4">
           <p className="text-sm text-muted-foreground">
-            {tx("You blocked this member. Their content is hidden.", "Vous avez bloqué ce membre. Son contenu est masqué.")}
+            {tx(
+              "You blocked this member. Their content is hidden.",
+              "Vous avez bloqué ce membre. Son contenu est masqué.",
+            )}
           </p>
           <Button variant="outline" size="sm" onClick={() => setUnblockOpen(true)}>
             {tx("Unblock User", "Débloquer")}
@@ -148,7 +175,7 @@ function MemberProfilePage() {
             }
           >
             <UserPlus className="size-4" aria-hidden />
-            {linked ? (tx("Already linked", "Déjà lié")) : tx("Add friend", "Ajouter")}
+            {linked ? tx("Already linked", "Déjà lié") : tx("Add friend", "Ajouter")}
           </Button>
         </div>
       )}
@@ -163,14 +190,20 @@ function MemberProfilePage() {
             <article key={post.id} className="tile overflow-hidden">
               <div className="flex items-start gap-2 px-4 py-3">
                 {post.caption ? (
-                  <p className="min-w-0 flex-1 whitespace-pre-wrap break-words text-sm text-foreground">{post.caption}</p>
-                ) : <span className="flex-1" />}
+                  <p className="min-w-0 flex-1 whitespace-pre-wrap break-words text-sm text-foreground">
+                    {post.caption}
+                  </p>
+                ) : (
+                  <span className="flex-1" />
+                )}
                 {isMe ? <SocialPostOwnerActions postId={post.id} caption={post.caption} /> : null}
               </div>
               {post.images.length > 0 ? (
                 <button
                   type="button"
-                  onClick={() => void navigate({ to: "/post/$postId", params: { postId: post.id } })}
+                  onClick={() =>
+                    void navigate({ to: "/post/$postId", params: { postId: post.id } })
+                  }
                   className={`grid w-full gap-0.5 ${post.images.length > 1 ? "aspect-square grid-cols-2 grid-rows-2" : "grid-cols-1"}`}
                 >
                   {post.images.map((src, index) => (
@@ -180,7 +213,11 @@ function MemberProfilePage() {
                       alt=""
                       loading="lazy"
                       className={`size-full min-h-0 bg-muted object-cover ${
-                        post.images.length === 2 ? "row-span-2" : post.images.length === 3 && index === 0 ? "col-span-2" : ""
+                        post.images.length === 2
+                          ? "row-span-2"
+                          : post.images.length === 3 && index === 0
+                            ? "col-span-2"
+                            : ""
                       }`}
                     />
                   ))}

@@ -181,7 +181,11 @@ export function useImpression(event: ActivityEvent, enabled = true) {
       if (enteredAt.current) total.current += Date.now() - enteredAt.current;
       // Only report viewing time that actually means something.
       if (total.current >= 1500) {
-        trackEvent({ ...payload.current, event_type: "view", dwell_ms: Math.min(total.current, 600000) });
+        trackEvent({
+          ...payload.current,
+          event_type: "view",
+          dwell_ms: Math.min(total.current, 600000),
+        });
       }
       total.current = 0;
       enteredAt.current = null;

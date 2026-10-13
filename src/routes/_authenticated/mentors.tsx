@@ -53,9 +53,14 @@ function MentorsPage() {
     <div className="mx-auto w-full max-w-4xl space-y-5">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">ASH Mentors</h1>
+          <h1 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
+            ASH Mentors
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {tx("Learn from members a step ahead of you — or share what you know.", "Apprenez de membres qui ont une longueur d'avance — ou partagez votre expérience.")}
+            {tx(
+              "Learn from members a step ahead of you — or share what you know.",
+              "Apprenez de membres qui ont une longueur d'avance — ou partagez votre expérience.",
+            )}
           </p>
         </div>
         <BecomeMentorDialog fr={fr} />
@@ -67,7 +72,10 @@ function MentorsPage() {
         <EmptyState
           icon={<GraduationCap className="size-5" aria-hidden />}
           title={tx("No mentors yet", "Aucun mentor pour l'instant")}
-          description={tx("Be the first to offer your help.", "Soyez le premier à proposer votre aide.")}
+          description={tx(
+            "Be the first to offer your help.",
+            "Soyez le premier à proposer votre aide.",
+          )}
         />
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2">
@@ -84,7 +92,10 @@ function MentorsPage() {
           </h2>
           <ul className="space-y-2">
             {(requests.data ?? []).map((request) => (
-              <li key={request.id} className="tile flex flex-wrap items-center justify-between gap-2 p-4">
+              <li
+                key={request.id}
+                className="tile flex flex-wrap items-center justify-between gap-2 p-4"
+              >
                 <div className="min-w-0">
                   <p className="truncate font-semibold text-foreground">{request.topic}</p>
                   <p className="text-xs text-muted-foreground">{request.person.name}</p>
@@ -136,10 +147,15 @@ function MentorCard({ mentor, fr }: { mentor: Mentor; fr: boolean }) {
         </div>
       </div>
       <p className="text-sm font-medium text-foreground">{mentor.headline}</p>
-      {mentor.bio ? <p className="line-clamp-3 text-sm text-muted-foreground">{mentor.bio}</p> : null}
+      {mentor.bio ? (
+        <p className="line-clamp-3 text-sm text-muted-foreground">{mentor.bio}</p>
+      ) : null}
       <div className="flex flex-wrap gap-1.5">
         {mentor.skills.slice(0, 4).map((skill) => (
-          <span key={skill} className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+          <span
+            key={skill}
+            className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground"
+          >
             {skill}
           </span>
         ))}
@@ -149,7 +165,9 @@ function MentorCard({ mentor, fr }: { mentor: Mentor; fr: boolean }) {
           {mentor.is_free ? (fr ? "Gratuit" : "Free") : formatXAF(mentor.session_price)}
         </span>
         {mentor.is_mine ? (
-          <span className="text-xs text-muted-foreground">{fr ? "Votre profil" : "Your profile"}</span>
+          <span className="text-xs text-muted-foreground">
+            {fr ? "Votre profil" : "Your profile"}
+          </span>
         ) : (
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -165,16 +183,32 @@ function MentorCard({ mentor, fr }: { mentor: Mentor; fr: boolean }) {
                 <Input
                   value={topic}
                   onChange={(event) => setTopic(event.target.value)}
-                  placeholder={fr ? "Sujet (ex. lancer ma boutique)" : "Topic (e.g. launching my shop)"}
+                  placeholder={
+                    fr ? "Sujet (ex. lancer ma boutique)" : "Topic (e.g. launching my shop)"
+                  }
                 />
                 <Textarea
                   value={message}
                   onChange={(event) => setMessage(event.target.value)}
                   rows={5}
-                  placeholder={fr ? "Où en êtes-vous ? Que cherchez-vous ?" : "Where are you now, and what do you need?"}
+                  placeholder={
+                    fr
+                      ? "Où en êtes-vous ? Que cherchez-vous ?"
+                      : "Where are you now, and what do you need?"
+                  }
                 />
-                <Button onClick={submit} disabled={request.isPending} className="w-full touch-manipulation">
-                  {request.isPending ? (fr ? "Envoi…" : "Sending…") : fr ? "Envoyer" : "Send request"}
+                <Button
+                  onClick={submit}
+                  disabled={request.isPending}
+                  className="w-full touch-manipulation"
+                >
+                  {request.isPending
+                    ? fr
+                      ? "Envoi…"
+                      : "Sending…"
+                    : fr
+                      ? "Envoyer"
+                      : "Send request"}
                 </Button>
               </div>
             </DialogContent>
@@ -238,13 +272,19 @@ function BecomeMentorDialog({ fr }: { fr: boolean }) {
           <Input
             value={headline}
             onChange={(event) => setHeadline(event.target.value)}
-            placeholder={fr ? "Accroche (ex. J'aide les coiffeuses à grandir)" : "Headline (e.g. I help stylists grow)"}
+            placeholder={
+              fr
+                ? "Accroche (ex. J'aide les coiffeuses à grandir)"
+                : "Headline (e.g. I help stylists grow)"
+            }
           />
           <Textarea
             value={bio}
             onChange={(event) => setBio(event.target.value)}
             rows={5}
-            placeholder={fr ? "Votre parcours en quelques lignes" : "A few lines about your experience"}
+            placeholder={
+              fr ? "Votre parcours en quelques lignes" : "A few lines about your experience"
+            }
           />
           <Input
             value={skills}
@@ -256,9 +296,15 @@ function BecomeMentorDialog({ fr }: { fr: boolean }) {
             onChange={(event) => setAvailability(event.target.value)}
             placeholder={fr ? "Disponibilités (ex. week-ends)" : "Availability (e.g. weekends)"}
           />
-          <Input value={city} onChange={(event) => setCity(event.target.value)} placeholder={fr ? "Ville" : "City"} />
+          <Input
+            value={city}
+            onChange={(event) => setCity(event.target.value)}
+            placeholder={fr ? "Ville" : "City"}
+          />
           <div className="flex items-center justify-between rounded-xl border border-border px-3 py-2">
-            <span className="text-sm text-foreground">{fr ? "Sessions gratuites" : "Free sessions"}</span>
+            <span className="text-sm text-foreground">
+              {fr ? "Sessions gratuites" : "Free sessions"}
+            </span>
             <Switch checked={isFree} onCheckedChange={setIsFree} />
           </div>
           {!isFree ? (
@@ -269,7 +315,11 @@ function BecomeMentorDialog({ fr }: { fr: boolean }) {
               placeholder={fr ? "Prix par session" : "Price per session"}
             />
           ) : null}
-          <Button onClick={submit} disabled={become.isPending} className="w-full touch-manipulation">
+          <Button
+            onClick={submit}
+            disabled={become.isPending}
+            className="w-full touch-manipulation"
+          >
             {become.isPending ? (fr ? "Enregistrement…" : "Saving…") : fr ? "Publier" : "Publish"}
           </Button>
         </div>

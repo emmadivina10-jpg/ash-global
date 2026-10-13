@@ -18,19 +18,28 @@ export function ProviderTruthPanel() {
   const run = useServerFn(reconcileFinanceNow);
   const qc = useQueryClient();
   const { data } = useQuery({ queryKey: ["console", "finance-truth"], queryFn: load });
-  const m = useMutation({ mutationFn: () => run(), onSuccess: () => qc.invalidateQueries({ queryKey: ["console"] }) });
+  const m = useMutation({
+    mutationFn: () => run(),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["console"] }),
+  });
   const latestFailed = data?.lastAttempt && !data.lastAttempt.ok;
 
   return (
     <div className="rounded-2xl border border-primary/30 bg-card p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">TchokoPay available balance</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            TchokoPay available balance
+          </p>
           <p className="tabular mt-1 font-display text-2xl font-extrabold text-foreground">
-            {data?.providerBalance ? formatXAF(data.providerBalance.amount) : "Balance not available from TchokoPay"}
+            {data?.providerBalance
+              ? formatXAF(data.providerBalance.amount)
+              : "Balance not available from TchokoPay"}
           </p>
           <p className="text-xs text-muted-foreground">
-            {data?.providerBalance ? `Last verified ${formatDateTime(data.providerBalance.verifiedAt)}` : "No verified reading yet"}
+            {data?.providerBalance
+              ? `Last verified ${formatDateTime(data.providerBalance.verifiedAt)}`
+              : "No verified reading yet"}
             {latestFailed ? " · latest check failed — showing last verified figure" : ""}
           </p>
         </div>
@@ -41,8 +50,8 @@ export function ProviderTruthPanel() {
       {data?.lastRun ? (
         <div className="mt-3 border-t border-border pt-3 text-sm">
           <p className="text-foreground">
-            Reconciliation: <b>{data.lastRun.status}</b> · {formatDateTime(data.lastRun.started_at)} · Member wallet liabilities{" "}
-            {formatXAF(Number(data.lastRun.wallet_liabilities ?? 0))}
+            Reconciliation: <b>{data.lastRun.status}</b> · {formatDateTime(data.lastRun.started_at)}{" "}
+            · Member wallet liabilities {formatXAF(Number(data.lastRun.wallet_liabilities ?? 0))}
           </p>
           <ul className="mt-2 space-y-1">
             {data.discrepancies.map((d, i) => (

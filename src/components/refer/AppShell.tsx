@@ -105,7 +105,13 @@ const MORE_GROUPS: { en: string; fr: string; items: NavItem[] }[] = [
       { to: "/groups", en: "Groups", fr: "Groupes", icon: MessageCircle },
       { to: "/articles", key: "nav.articles" as TKey, label: "Articles", icon: BookOpen },
       { to: "/mentors", key: "nav.mentors" as TKey, label: "Mentors", icon: GraduationCap },
-      { to: "/campus", en: "ASH Campus", fr: "ASH Campus", label: "ASH Campus", icon: GraduationCap },
+      {
+        to: "/campus",
+        en: "ASH Campus",
+        fr: "ASH Campus",
+        label: "ASH Campus",
+        icon: GraduationCap,
+      },
       { to: "/incubator", en: "Incubator", fr: "Incubateur", icon: Sparkles },
     ],
   },
@@ -149,7 +155,6 @@ const SIDE_EXTRA: NavItem[] = MORE_GROUPS.flatMap((group) => group.items).filter
   (item, index, list) => list.findIndex((other) => other.to === item.to) === index,
 );
 
-
 export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -159,12 +164,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   const region = useRegion();
   const servicesMode = useServicesMode();
   const visible = (items: NavItem[]): NavItem[] =>
-    items.filter((item) => !item.referralOnly || region.referralEnabled).map((item) => {
-      if (item.to !== "/services" || servicesMode !== "market") return item;
-      const marketItem: NavItem = { ...item, en: "Market", fr: "Market", icon: Store };
-      delete marketItem.key;
-      return marketItem;
-    });
+    items
+      .filter((item) => !item.referralOnly || region.referralEnabled)
+      .map((item) => {
+        if (item.to !== "/services" || servicesMode !== "market") return item;
+        const marketItem: NavItem = { ...item, en: "Market", fr: "Market", icon: Store };
+        delete marketItem.key;
+        return marketItem;
+      });
   const navLabel = (item: NavItem) =>
     item.key ? t(item.key) : ((lang === "fr" ? item.fr : item.en) ?? item.label ?? "");
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -180,7 +187,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     let stopped = false;
     const touch = () => {
-      if (!stopped && document.visibilityState === "visible" && navigator.onLine) void supabase.rpc("touch_member_presence");
+      if (!stopped && document.visibilityState === "visible" && navigator.onLine)
+        void supabase.rpc("touch_member_presence");
     };
     touch();
     const timer = window.setInterval(touch, 2 * 60_000);
@@ -213,7 +221,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       <WelcomeIntro />
       <SwipeBack />
       <div className="app-shell-frame flex w-full">
-
         <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col overflow-y-auto overscroll-contain border-r border-border bg-sidebar p-5 lg:flex">
           <Link to="/services" className="mb-8 inline-flex">
             <Logo />
@@ -242,7 +249,6 @@ export function AppShell({ children }: { children: ReactNode }) {
                 {t("nav.admin")}
               </a>
             ) : null}
-
           </nav>
           <RegionSwitcher className="mt-4 w-full justify-start" />
           <div className="mt-3 flex items-center justify-between gap-2">
@@ -257,7 +263,11 @@ export function AppShell({ children }: { children: ReactNode }) {
               <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
               <p className="flex min-w-0 items-center gap-1 text-sm font-semibold text-foreground">
                 <span className="truncate">{profile?.full_name || t("shell.member")}</span>
-                <VerifiedBadge tier={profile?.verified_tier} until={profile?.verified_until} size={13} />
+                <VerifiedBadge
+                  tier={profile?.verified_tier}
+                  until={profile?.verified_until}
+                  size={13}
+                />
               </p>
             </div>
             <StatusBadge
@@ -265,7 +275,12 @@ export function AppShell({ children }: { children: ReactNode }) {
               label={profile?.account_status === "ACTIVE" ? t("shell.active") : t("shell.pending")}
               className="mt-2"
             />
-            <Button variant="ghost" size="sm" className="mt-3 w-full justify-start" onClick={signOut}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mt-3 w-full justify-start"
+              onClick={signOut}
+            >
               <LogOut className="size-4" aria-hidden />
               {t("shell.signOut")}
             </Button>
@@ -274,118 +289,181 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <div className="app-shell-column flex min-w-0 flex-1 flex-col">
           {/* Web-only top bar: menu panel, notifications and the member photo. */}
-          {!pageOwnsHeader && <header className={cn("sticky top-0 z-30 hidden bg-background/85 backdrop-blur-xl lg:block", !onFeed && "border-b border-border")}>
-            <div className="flex items-center justify-end gap-1.5 px-6 py-2.5">
-              {onFeed && <Link to="/feed" className="mr-auto text-xl font-bold text-foreground">{lang === "fr" ? "Fil" : "Feed"}</Link>}
-              <DesktopMenu groups={WEB_MENU_GROUPS} create={WEB_MENU_CREATE} />
-              <NotificationBell />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    aria-label={t("nav.profile")}
-                    className="ml-1 rounded-full ring-offset-background transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring hover:opacity-90"
-                  >
-                    <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-64 rounded-2xl">
-                  <DropdownMenuItem onSelect={() => navigate({ to: "/profile" })} className="gap-3 py-2.5">
-                    <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
-                    <span className="min-w-0">
-                      <span className="flex items-center gap-1 text-sm font-bold">
-                        <span className="truncate">{profile?.full_name || t("shell.member")}</span>
-                        <VerifiedBadge tier={profile?.verified_tier} until={profile?.verified_until} size={13} />
-                      </span>
-                      <span className="block text-xs text-muted-foreground">
-                        {lang === "fr" ? "Voir votre profil" : "See your profile"}
-                      </span>
-                    </span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onSelect={() => navigate({ to: "/settings" })}>
-                    <SettingsIcon className="size-4" aria-hidden />
-                    {t("nav.settings")}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => navigate({ to: "/notifications" })}>
-                    <Bell className="size-4" aria-hidden />
-                    {lang === "fr" ? "Notifications" : "Notifications"}
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onSelect={() => void signOut()}>
-                    <LogOut className="size-4" aria-hidden />
-                    {t("shell.signOut")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </header>}
-
-          {!pageOwnsHeader && <header className={cn("sticky top-0 z-30 bg-background/80 backdrop-blur-xl lg:hidden", !onFeed && "border-b border-border")}>
-            <div className={cn("grid items-center gap-3 px-4 py-2", logoOnlyHeader ? "grid-cols-[minmax(0,1fr)_auto]" : "grid-cols-[auto_minmax(0,1fr)_auto]")}>
-              {logoOnlyHeader ? null : (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    data-tour="profile"
-                    aria-label={t("nav.profile")}
-                    className="rounded-full ring-offset-background transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:opacity-80"
-                  >
-                    <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-60">
-                  <DropdownMenuLabel className="space-y-1">
-                    <p className="flex items-center gap-1 text-sm font-semibold"><span className="truncate">{profile?.full_name || t("shell.member")}</span><VerifiedBadge tier={profile?.verified_tier} until={profile?.verified_until} size={13} /></p>
-                    <StatusBadge
-                      status={profile?.account_status ?? "PENDING"}
-                      label={profile?.account_status === "ACTIVE" ? t("shell.active") : t("shell.pending")}
-                    />
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onSelect={() => navigate({ to: "/profile" })}>
-                    <UserIcon className="size-4" aria-hidden />
-                    {t("nav.profile")}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => navigate({ to: "/settings" })}>
-                    <SettingsIcon className="size-4" aria-hidden />
-                    {t("nav.settings")}
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onSelect={() => void signOut()}>
-                    <LogOut className="size-4" aria-hidden />
-                    {t("shell.signOut")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+          {!pageOwnsHeader && (
+            <header
+              className={cn(
+                "sticky top-0 z-30 hidden bg-background/85 backdrop-blur-xl lg:block",
+                !onFeed && "border-b border-border",
               )}
-              <Link to={onFeed ? "/feed" : "/services"} className="min-w-0">
-                {onFeed ? <span className="text-xl font-bold text-foreground">{lang === "fr" ? "Fil" : "Feed"}</span> : <Logo compact />}
-              </Link>
-              <div className="flex items-center gap-1">
+            >
+              <div className="flex items-center justify-end gap-1.5 px-6 py-2.5">
+                {onFeed && (
+                  <Link to="/feed" className="mr-auto text-xl font-bold text-foreground">
+                    {lang === "fr" ? "Fil" : "Feed"}
+                  </Link>
+                )}
+                <DesktopMenu groups={WEB_MENU_GROUPS} create={WEB_MENU_CREATE} />
                 <NotificationBell />
-                <LanguageSwitcher />
-                <ThemeToggle />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label={t("nav.profile")}
+                      className="ml-1 rounded-full ring-offset-background transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring hover:opacity-90"
+                    >
+                      <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-64 rounded-2xl">
+                    <DropdownMenuItem
+                      onSelect={() => navigate({ to: "/profile" })}
+                      className="gap-3 py-2.5"
+                    >
+                      <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
+                      <span className="min-w-0">
+                        <span className="flex items-center gap-1 text-sm font-bold">
+                          <span className="truncate">
+                            {profile?.full_name || t("shell.member")}
+                          </span>
+                          <VerifiedBadge
+                            tier={profile?.verified_tier}
+                            until={profile?.verified_until}
+                            size={13}
+                          />
+                        </span>
+                        <span className="block text-xs text-muted-foreground">
+                          {lang === "fr" ? "Voir votre profil" : "See your profile"}
+                        </span>
+                      </span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={() => navigate({ to: "/settings" })}>
+                      <SettingsIcon className="size-4" aria-hidden />
+                      {t("nav.settings")}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => navigate({ to: "/notifications" })}>
+                      <Bell className="size-4" aria-hidden />
+                      {lang === "fr" ? "Notifications" : "Notifications"}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={() => void signOut()}>
+                      <LogOut className="size-4" aria-hidden />
+                      {t("shell.signOut")}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
-            </div>
-          </header>}
+            </header>
+          )}
+
+          {!pageOwnsHeader && (
+            <header
+              className={cn(
+                "sticky top-0 z-30 bg-background/80 backdrop-blur-xl lg:hidden",
+                !onFeed && "border-b border-border",
+              )}
+            >
+              <div
+                className={cn(
+                  "grid items-center gap-3 px-4 py-2",
+                  logoOnlyHeader
+                    ? "grid-cols-[minmax(0,1fr)_auto]"
+                    : "grid-cols-[auto_minmax(0,1fr)_auto]",
+                )}
+              >
+                {logoOnlyHeader ? null : (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        type="button"
+                        data-tour="profile"
+                        aria-label={t("nav.profile")}
+                        className="rounded-full ring-offset-background transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:opacity-80"
+                      >
+                        <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-60">
+                      <DropdownMenuLabel className="space-y-1">
+                        <p className="flex items-center gap-1 text-sm font-semibold">
+                          <span className="truncate">
+                            {profile?.full_name || t("shell.member")}
+                          </span>
+                          <VerifiedBadge
+                            tier={profile?.verified_tier}
+                            until={profile?.verified_until}
+                            size={13}
+                          />
+                        </p>
+                        <StatusBadge
+                          status={profile?.account_status ?? "PENDING"}
+                          label={
+                            profile?.account_status === "ACTIVE"
+                              ? t("shell.active")
+                              : t("shell.pending")
+                          }
+                        />
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onSelect={() => navigate({ to: "/profile" })}>
+                        <UserIcon className="size-4" aria-hidden />
+                        {t("nav.profile")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => navigate({ to: "/settings" })}>
+                        <SettingsIcon className="size-4" aria-hidden />
+                        {t("nav.settings")}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onSelect={() => void signOut()}>
+                        <LogOut className="size-4" aria-hidden />
+                        {t("shell.signOut")}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+                <Link to={onFeed ? "/feed" : "/services"} className="min-w-0">
+                  {onFeed ? (
+                    <span className="text-xl font-bold text-foreground">
+                      {lang === "fr" ? "Fil" : "Feed"}
+                    </span>
+                  ) : (
+                    <Logo compact />
+                  )}
+                </Link>
+                <div className="flex items-center gap-1">
+                  <NotificationBell />
+                  <LanguageSwitcher />
+                  <ThemeToggle />
+                </div>
+              </div>
+            </header>
+          )}
 
           {profile && <SecurityAlertBanner />}
-          {profile && <PayoutSetupReminder userId={profile.user_id} connected={Boolean(profile.stripe_account_id)} />}
+          {profile && (
+            <PayoutSetupReminder
+              userId={profile.user_id}
+              connected={Boolean(profile.stripe_account_id)}
+            />
+          )}
 
           <div className="flex min-h-0 min-w-0 flex-1">
-            <main className={cn("app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:px-8 lg:pb-10", roomyMemberTab && "member-roomy-tab", onFeed && "pt-1")}>{children}</main>
+            <main
+              className={cn(
+                "app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:px-8 lg:pb-10",
+                roomyMemberTab && "member-roomy-tab",
+                onFeed && "pt-1",
+              )}
+            >
+              {children}
+            </main>
             {pathname !== "/messages" && <RightRail />}
           </div>
         </div>
       </div>
 
       {!pathname.startsWith("/post/") ? (
-        <MobileNav
-          items={visible(MOBILE_NAV)}
-          profile={profile}
-        />
+        <MobileNav items={visible(MOBILE_NAV)} profile={profile} />
       ) : null}
       <ScrollToTop />
 
@@ -396,7 +474,13 @@ export function AppShell({ children }: { children: ReactNode }) {
 }
 
 /** Small round avatar with the member's initials as the fallback. */
-function ProfileAvatar({ name, url }: { name: string | null | undefined; url: string | null | undefined }) {
+function ProfileAvatar({
+  name,
+  url,
+}: {
+  name: string | null | undefined;
+  url: string | null | undefined;
+}) {
   const initials = (name ?? "")
     .split(" ")
     .filter(Boolean)
@@ -406,7 +490,13 @@ function ProfileAvatar({ name, url }: { name: string | null | undefined; url: st
   const resolved = useAvatarUrl(url);
   return (
     <Avatar className="aspect-square size-9 shrink-0 overflow-hidden rounded-full border border-border">
-      {resolved ? <AvatarImage src={resolved} alt="" className="size-full rounded-full object-cover object-center" /> : null}
+      {resolved ? (
+        <AvatarImage
+          src={resolved}
+          alt=""
+          className="size-full rounded-full object-cover object-center"
+        />
+      ) : null}
       <AvatarFallback className="bg-primary/10 text-xs font-bold text-primary">
         {initials || "A"}
       </AvatarFallback>

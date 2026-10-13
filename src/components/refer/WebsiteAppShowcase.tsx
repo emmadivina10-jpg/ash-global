@@ -36,7 +36,8 @@ const SCREENS = [
     en: "Chat with friends and family",
     fr: "Discutez avec vos amis et votre famille",
     bodyEn: "Send messages and quick replies and keep every chat in one place.",
-    bodyFr: "Envoyez des messages et des réponses rapides, et gardez chaque discussion au même endroit.",
+    bodyFr:
+      "Envoyez des messages et des réponses rapides, et gardez chaque discussion au même endroit.",
   },
   {
     images: [{ src: flightsPhone, alt: "ASH Flights app screenshot — coming soon" }],
@@ -78,7 +79,9 @@ export function WebsiteAppShowcase() {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onFocusCapture={() => setHovered(true)}
-      onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setHovered(false); }}
+      onBlurCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setHovered(false);
+      }}
     >
       <div className="website-app-stage">
         {SCREENS.map((screen, slideIndex) => (
@@ -88,7 +91,13 @@ export function WebsiteAppShowcase() {
             aria-hidden={slideIndex !== index}
           >
             {screen.images.map((image) => (
-              <img key={image.alt} src={image.src} alt={image.alt} className="website-app-image" loading="eager" />
+              <img
+                key={image.alt}
+                src={image.src}
+                alt={image.alt}
+                className="website-app-image"
+                loading="eager"
+              />
             ))}
           </div>
         ))}
@@ -97,12 +106,20 @@ export function WebsiteAppShowcase() {
         <p className="text-xs font-semibold text-muted-foreground">
           {tx(active.kickerEn, active.kickerFr)} · {String(index + 1).padStart(2, "0")} / 04
         </p>
-        <h2 className="website-app-headline font-display text-3xl font-extrabold leading-tight lg:text-4xl" aria-live={paused ? "polite" : "off"}>
+        <h2
+          className="website-app-headline font-display text-3xl font-extrabold leading-tight lg:text-4xl"
+          aria-live={paused ? "polite" : "off"}
+        >
           {tx(active.en, active.fr)}
         </h2>
         <div className="my-6 h-px w-16 gold-gradient" aria-hidden />
-        <p className="max-w-md text-sm leading-relaxed text-muted-foreground">{tx(active.bodyEn, active.bodyFr)}</p>
-        <div className="mt-8 flex items-center gap-2" aria-label={`${index + 1} / ${SCREENS.length}`}>
+        <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
+          {tx(active.bodyEn, active.bodyFr)}
+        </p>
+        <div
+          className="mt-8 flex items-center gap-2"
+          aria-label={`${index + 1} / ${SCREENS.length}`}
+        >
           {SCREENS.map((_, i) => (
             <button
               key={i}
@@ -114,9 +131,42 @@ export function WebsiteAppShowcase() {
           ))}
         </div>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" title={tx("Previous screen", "Écran précédent")} aria-label={tx("Previous screen", "Écran précédent")} onClick={() => setIndex((value) => (value + SCREENS.length - 1) % SCREENS.length)}><ChevronLeft className="size-4" /></Button>
-          <Button variant="ghost" size="icon" title={tx(paused || reduced ? "Play slideshow" : "Pause slideshow", paused || reduced ? "Lancer le diaporama" : "Mettre en pause")} aria-label={tx(paused || reduced ? "Play slideshow" : "Pause slideshow", paused || reduced ? "Lancer le diaporama" : "Mettre en pause")} onClick={() => { setPaused(!(paused || reduced)); setReduced(false); }}>{paused || reduced ? <Play className="size-4" /> : <Pause className="size-4" />}</Button>
-          <Button variant="ghost" size="icon" title={tx("Next screen", "Écran suivant")} aria-label={tx("Next screen", "Écran suivant")} onClick={() => setIndex((value) => (value + 1) % SCREENS.length)}><ChevronRight className="size-4" /></Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            title={tx("Previous screen", "Écran précédent")}
+            aria-label={tx("Previous screen", "Écran précédent")}
+            onClick={() => setIndex((value) => (value + SCREENS.length - 1) % SCREENS.length)}
+          >
+            <ChevronLeft className="size-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            title={tx(
+              paused || reduced ? "Play slideshow" : "Pause slideshow",
+              paused || reduced ? "Lancer le diaporama" : "Mettre en pause",
+            )}
+            aria-label={tx(
+              paused || reduced ? "Play slideshow" : "Pause slideshow",
+              paused || reduced ? "Lancer le diaporama" : "Mettre en pause",
+            )}
+            onClick={() => {
+              setPaused(!(paused || reduced));
+              setReduced(false);
+            }}
+          >
+            {paused || reduced ? <Play className="size-4" /> : <Pause className="size-4" />}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            title={tx("Next screen", "Écran suivant")}
+            aria-label={tx("Next screen", "Écran suivant")}
+            onClick={() => setIndex((value) => (value + 1) % SCREENS.length)}
+          >
+            <ChevronRight className="size-4" />
+          </Button>
         </div>
       </div>
     </section>

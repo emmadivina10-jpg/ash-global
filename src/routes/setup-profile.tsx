@@ -15,7 +15,8 @@ export const Route = createFileRoute("/setup-profile")({
       { title: "Add your profile picture — ASH Glo" },
       {
         name: "description",
-        content: "Add a profile picture so people recognise you across ASH Glo chats, posts and Spotlight.",
+        content:
+          "Add a profile picture so people recognise you across ASH Glo chats, posts and Spotlight.",
       },
       { property: "og:title", content: "Add your profile picture — ASH Glo" },
       { property: "og:description", content: "The last step before you enter ASH Glo." },
@@ -63,10 +64,16 @@ function SetupProfilePage() {
 
   async function save(newPath: string) {
     if (!userId) return;
-    const { error } = await supabase.from("profiles").update({ avatar_url: newPath }).eq("user_id", userId);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ avatar_url: newPath })
+      .eq("user_id", userId);
     if (error) throw error;
     const identity = await identityStatus();
-    if (identity.restricted) { announceIdentityDenial(identity); throw new Error(IDENTITY_DENIED); }
+    if (identity.restricted) {
+      announceIdentityDenial(identity);
+      throw new Error(IDENTITY_DENIED);
+    }
     setPath(newPath);
   }
 

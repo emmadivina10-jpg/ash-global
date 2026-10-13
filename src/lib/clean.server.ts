@@ -44,7 +44,9 @@ export async function roadDistance(
       console.error(`Routes failed [${res.status}]: ${await res.text()}`);
       throw new Error("ROUTES_FAILED");
     }
-    const json = (await res.json()) as { routes?: { distanceMeters?: number; duration?: string }[] };
+    const json = (await res.json()) as {
+      routes?: { distanceMeters?: number; duration?: string }[];
+    };
     const route = json.routes?.[0];
     if (!route?.distanceMeters) throw new Error("NO_ROUTE");
     return {
@@ -62,13 +64,16 @@ export async function autocomplete(input: string, sessionToken: string, bias: Po
   const res = await fetch(`${GATEWAY_URL}/places/v1/places:autocomplete`, {
     method: "POST",
     headers: gatewayHeaders({
-      "X-Goog-FieldMask": "suggestions.placePrediction.placeId,suggestions.placePrediction.text.text",
+      "X-Goog-FieldMask":
+        "suggestions.placePrediction.placeId,suggestions.placePrediction.text.text",
     }),
     body: JSON.stringify({
       input,
       sessionToken,
       includedRegionCodes: ["cm"],
-      locationBias: { circle: { center: { latitude: bias.lat, longitude: bias.lng }, radius: 30000 } },
+      locationBias: {
+        circle: { center: { latitude: bias.lat, longitude: bias.lng }, radius: 30000 },
+      },
     }),
   });
   if (!res.ok) {
@@ -156,7 +161,9 @@ export function transportQuote(
   else {
     const last = sorted[sorted.length - 1];
     const lastMax = Number(last?.max_km ?? 0);
-    fee = Number(last?.fee ?? s.min_rider_fee) + Math.ceil(Math.max(0, km - lastMax)) * Number(s.far_fee_per_km);
+    fee =
+      Number(last?.fee ?? s.min_rider_fee) +
+      Math.ceil(Math.max(0, km - lastMax)) * Number(s.far_fee_per_km);
   }
   return { method: "RIDER", fee: Math.max(fee, Number(s.min_rider_fee)) + base };
 }
@@ -168,7 +175,10 @@ export async function loadPricing() {
     supabaseAdmin.from("clean_distance_bands").select("min_km, max_km, fee"),
   ]);
   if (!s) throw new Error("CLEAN_SETTINGS_MISSING");
-  return { settings: s as unknown as CleanSettings & Record<string, unknown>, bands: (bands ?? []) as Band[] };
+  return {
+    settings: s as unknown as CleanSettings & Record<string, unknown>,
+    bands: (bands ?? []) as Band[],
+  };
 }
 
 export async function quoteLocation(p: Point, direction: "PICKUP" | "DELIVERY") {

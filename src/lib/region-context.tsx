@@ -1,4 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { detectCountry } from "@/lib/region.functions";
@@ -48,7 +56,10 @@ export function RegionProvider({ children }: { children: ReactNode }) {
     queryFn: async () => {
       const { data: auth } = await supabase.auth.getUser();
       if (!auth.user) return false;
-      const { data: role } = await supabase.rpc("has_role", { _user_id: auth.user.id, _role: "admin" });
+      const { data: role } = await supabase.rpc("has_role", {
+        _user_id: auth.user.id,
+        _role: "admin",
+      });
       return Boolean(role);
     },
     staleTime: 5 * 60 * 1000,

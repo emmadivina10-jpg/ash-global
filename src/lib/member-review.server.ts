@@ -63,14 +63,12 @@ export async function loadStaffMemberReview(data: {
     .order("id")
     .range(start, start + 24);
   if (result.error) throw new Error("Member records could not be loaded.");
-  const audit = await db
-    .from("admin_audit_log")
-    .insert({
-      actor: actor.name,
-      action: "STAFF_MEMBER_REVIEW",
-      target_user_id: data.userId,
-      metadata: { staffId: actor.staffId, department: actor.department, section, page: data.page },
-    });
+  const audit = await db.from("admin_audit_log").insert({
+    actor: actor.name,
+    action: "STAFF_MEMBER_REVIEW",
+    target_user_id: data.userId,
+    metadata: { staffId: actor.staffId, department: actor.department, section, page: data.page },
+  });
   if (audit.error) throw new Error("Account review could not be recorded.");
   return {
     profile,

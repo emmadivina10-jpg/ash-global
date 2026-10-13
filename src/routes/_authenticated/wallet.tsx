@@ -9,17 +9,8 @@ import {
   Printer,
   WalletMinimal,
 } from "lucide-react";
-import {
-  useNetwork,
-  useProfile,
-  useTransactions,
-  useWallet,
-} from "@/lib/queries";
-import {
-  BalanceCard,
-  SectionCard,
-  StatCard,
-} from "@/components/refer/cards";
+import { useNetwork, useProfile, useTransactions, useWallet } from "@/lib/queries";
+import { BalanceCard, SectionCard, StatCard } from "@/components/refer/cards";
 import { TransactionList } from "@/components/refer/TransactionList";
 import { SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
@@ -30,20 +21,28 @@ import { useI18n } from "@/lib/i18n";
 import { useRegion } from "@/lib/region-context";
 import { WalletPayoutSetup } from "@/components/refer/WalletPayoutSetup";
 import { CurrencySwitcher, MoneyFlowChart } from "@/components/refer/WalletCurrency";
-import { balanceFor, currencyOptions, formatMoney, useWalletBalances, useWalletCurrency } from "@/lib/wallet-currency";
+import {
+  balanceFor,
+  currencyOptions,
+  formatMoney,
+  useWalletBalances,
+  useWalletCurrency,
+} from "@/lib/wallet-currency";
 
 export const Route = createFileRoute("/_authenticated/wallet")({
   head: () => ({
     meta: [
       { title: "Wallet — ASH Glo" },
       { property: "og:title", content: "Wallet — ASH Glo" },
-      { property: "og:description", content: "ASH wallet balances, transaction history and payout account setup." },
+      {
+        property: "og:description",
+        content: "ASH wallet balances, transaction history and payout account setup.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       {
         name: "description",
-        content:
-          "Your ASH Glo wallet: balances, earnings and full transaction history.",
+        content: "Your ASH Glo wallet: balances, earnings and full transaction history.",
       },
     ],
   }),
@@ -106,7 +105,12 @@ function WalletPage() {
       </header>
 
       <div className="flex justify-center">
-        <CurrencySwitcher options={currencyOptions(balances ?? [])} value={currency} onChange={setCurrency} fr={lang === "fr"} />
+        <CurrencySwitcher
+          options={currencyOptions(balances ?? [])}
+          value={currency}
+          onChange={setCurrency}
+          fr={lang === "fr"}
+        />
       </div>
 
       <WalletPayoutSetup country={country} />
@@ -159,7 +163,10 @@ function WalletPage() {
 
             <StatCard
               label={t("dash.stat.earned")}
-              value={formatMoney(currency === "XAF" ? Number(wallet?.total_earned ?? 0) : current.totalIn, currency)}
+              value={formatMoney(
+                currency === "XAF" ? Number(wallet?.total_earned ?? 0) : current.totalIn,
+                currency,
+              )}
               accent
               icon={<Coins className="size-4" aria-hidden />}
             />
@@ -179,10 +186,7 @@ function WalletPage() {
               ========================================================= */}
           {(network?.pendingTotal ?? 0) > 0 ? (
             <div className="flex items-start gap-3 rounded-2xl border border-destructive/25 bg-destructive/5 p-4">
-              <Hourglass
-                className="mt-0.5 size-5 shrink-0 text-destructive"
-                aria-hidden
-              />
+              <Hourglass className="mt-0.5 size-5 shrink-0 text-destructive" aria-hidden />
 
               <div>
                 <p className="text-sm font-semibold text-foreground">
@@ -191,9 +195,7 @@ function WalletPage() {
                   })}
                 </p>
 
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {t("wallet.pendingBody")}
-                </p>
+                <p className="mt-1 text-xs text-muted-foreground">{t("wallet.pendingBody")}</p>
               </div>
             </div>
           ) : null}
@@ -205,17 +207,11 @@ function WalletPage() {
             title={t("wallet.history")}
             action={
               <Button asChild variant="ghost" size="sm">
-                <Link to="/transactions">
-                  {t("common.viewAll")}
-                </Link>
+                <Link to="/transactions">{t("common.viewAll")}</Link>
               </Button>
             }
           >
-            {txLoading ? (
-              <SkeletonRows />
-            ) : (
-              <TransactionList items={transactions ?? []} />
-            )}
+            {txLoading ? <SkeletonRows /> : <TransactionList items={transactions ?? []} />}
           </SectionCard>
         </>
       )}

@@ -46,7 +46,9 @@ function readExposure(): ExposureMap {
 
 function writeExposure(map: ExposureMap) {
   if (typeof window === "undefined") return;
-  const entries = Object.entries(map).sort((a, b) => b[1].l - a[1].l).slice(0, MAX_EXPOSURE_ROWS);
+  const entries = Object.entries(map)
+    .sort((a, b) => b[1].l - a[1].l)
+    .slice(0, MAX_EXPOSURE_ROWS);
   try {
     window.localStorage.setItem(EXPOSURE_KEY, JSON.stringify(Object.fromEntries(entries)));
   } catch {
@@ -94,9 +96,10 @@ export function stableSessionSeed(userId: string | null) {
 
 /** New random seed per fetch → refresh produces a new ordering. */
 export function newSessionSeed(userId: string | null) {
-  const rand = typeof crypto !== "undefined" && crypto.getRandomValues
-    ? crypto.getRandomValues(new Uint32Array(1))[0]!
-    : Math.floor(Math.random() * 2 ** 32);
+  const rand =
+    typeof crypto !== "undefined" && crypto.getRandomValues
+      ? crypto.getRandomValues(new Uint32Array(1))[0]!
+      : Math.floor(Math.random() * 2 ** 32);
   return `${userId ?? "anon"}:${rand}`;
 }
 
@@ -109,7 +112,11 @@ function seededUnit(seed: string, id: string) {
     h = Math.imul(h, 16777619);
   }
   // Avalanche finaliser so similar ids spread across the whole range.
-  h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b); h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35); h ^= h >>> 16;
+  h ^= h >>> 16;
+  h = Math.imul(h, 0x85ebca6b);
+  h ^= h >>> 13;
+  h = Math.imul(h, 0xc2b2ae35);
+  h ^= h >>> 16;
   return (h >>> 0) / 4294967295;
 }
 
@@ -137,8 +144,12 @@ export function rotate<T>(
     const jitter = seededUnit(seed, i.id);
     const explore = i.explorable ? settings.exploration * seededUnit(seed + "x", i.id) : 0;
     const score =
-      (1 - s) * i.relevance + s * jitter + explore -
-      (settings.skipCooldown ? 0 : 0.6 * cooldownPenalty(exposure, type, i.id, settings.cooldownHours));
+      (1 - s) * i.relevance +
+      s * jitter +
+      explore -
+      (settings.skipCooldown
+        ? 0
+        : 0.6 * cooldownPenalty(exposure, type, i.id, settings.cooldownHours));
     return { ...i, score };
   });
   scored.sort((a, b) => b.score - a.score);
@@ -148,7 +159,8 @@ export function rotate<T>(
   const pool = [...scored];
   while (pool.length) {
     const tail = out.slice(-settings.maxRun).map((x) => x.creator);
-    const blocked = tail.length === settings.maxRun && tail.every((c) => c === tail[0]) ? tail[0] : null;
+    const blocked =
+      tail.length === settings.maxRun && tail.every((c) => c === tail[0]) ? tail[0] : null;
     const idx = blocked ? pool.findIndex((p) => p.creator !== blocked) : 0;
     out.push(pool.splice(idx === -1 ? 0 : idx, 1)[0]!);
   }

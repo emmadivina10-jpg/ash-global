@@ -29,7 +29,8 @@ export const Route = createFileRoute("/onboarding")({
       },
       {
         name: "description",
-        content: "Discover services, jobs, products, property, payments and opportunities with ASH Glo.",
+        content:
+          "Discover services, jobs, products, property, payments and opportunities with ASH Glo.",
       },
     ],
   }),
@@ -66,7 +67,9 @@ function Mark() {
           ASH <span className="text-pink-400">Glo</span>
         </div>
 
-        <div className="mt-0.5 text-[10px] font-medium tracking-wide text-white/40">Where Opportunities Connect</div>
+        <div className="mt-0.5 text-[10px] font-medium tracking-wide text-white/40">
+          Where Opportunities Connect
+        </div>
       </div>
     </div>
   );
@@ -184,7 +187,9 @@ function EverydayVisual() {
 
           <p className="mt-5 text-[13px] font-semibold text-white">Utility bills</p>
 
-          <p className="mt-1.5 text-[10px] leading-4 text-white/38">Electricity, water, internet and more.</p>
+          <p className="mt-1.5 text-[10px] leading-4 text-white/38">
+            Electricity, water, internet and more.
+          </p>
 
           <div className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 px-3 py-1.5 text-[9px] font-semibold text-blue-200">
             <CheckCircle2 className="size-3" />
@@ -199,7 +204,9 @@ function EverydayVisual() {
 
           <p className="mt-5 text-[13px] font-semibold text-white">Book services</p>
 
-          <p className="mt-1.5 text-[10px] leading-4 text-white/38">Find a provider and schedule what you need.</p>
+          <p className="mt-1.5 text-[10px] leading-4 text-white/38">
+            Find a provider and schedule what you need.
+          </p>
 
           <div className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-pink-500/10 px-3 py-1.5 text-[9px] font-semibold text-pink-200">
             Book now
@@ -239,7 +246,9 @@ function EarnVisual() {
       <div className="relative overflow-hidden rounded-[30px] border border-pink-400/15 bg-gradient-to-br from-pink-500/[0.12] via-violet-500/[0.08] to-transparent p-5">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-[9px] font-bold uppercase tracking-[0.24em] text-pink-300">Get monetized</p>
+            <p className="text-[9px] font-bold uppercase tracking-[0.24em] text-pink-300">
+              Get monetized
+            </p>
 
             <p className="mt-2 font-display text-[27px] font-black leading-[1.02] text-white">
               Your skills
@@ -283,7 +292,9 @@ function EarnVisual() {
               <HandCoins className="size-4 text-emerald-300" />
             </div>
 
-            <span className="flex-1 text-[11px] font-medium text-white">Earn from eligible referrals</span>
+            <span className="flex-1 text-[11px] font-medium text-white">
+              Earn from eligible referrals
+            </span>
 
             <ArrowRight className="size-3.5 text-white/25" />
           </div>
@@ -308,7 +319,9 @@ function OpportunityVisual() {
 
           <p className="mt-5 text-[13px] font-semibold text-white">Real estate</p>
 
-          <p className="mt-1.5 text-[10px] leading-4 text-white/38">Homes, rentals, land and student housing.</p>
+          <p className="mt-1.5 text-[10px] leading-4 text-white/38">
+            Homes, rentals, land and student housing.
+          </p>
         </div>
 
         <div className="rounded-[27px] border border-white/10 bg-white/[0.035] p-5">
@@ -318,7 +331,9 @@ function OpportunityVisual() {
 
           <p className="mt-5 text-[13px] font-semibold text-white">Find jobs</p>
 
-          <p className="mt-1.5 text-[10px] leading-4 text-white/38">Work, freelance and new career opportunities.</p>
+          <p className="mt-1.5 text-[10px] leading-4 text-white/38">
+            Work, freelance and new career opportunities.
+          </p>
         </div>
       </div>
 
@@ -355,7 +370,8 @@ const SLIDES: Slide[] = [
         </span>
       </>
     ),
-    description: "Find services, products, jobs, property and people without moving between different platforms.",
+    description:
+      "Find services, products, jobs, property and people without moving between different platforms.",
     items: [
       {
         title: "Marketplace",
@@ -394,7 +410,8 @@ const SLIDES: Slide[] = [
         <span className="text-white/50">In one connected place.</span>
       </>
     ),
-    description: "Take care of everyday needs, discover useful services and connect to the people who can help.",
+    description:
+      "Take care of everyday needs, discover useful services and connect to the people who can help.",
     items: [
       {
         title: "Pay Utility Bills",
@@ -437,7 +454,8 @@ const SLIDES: Slide[] = [
         </span>
       </>
     ),
-    description: "Turn your skills, products, services and eligible referral activity into opportunities to earn.",
+    description:
+      "Turn your skills, products, services and eligible referral activity into opportunities to earn.",
     items: [
       {
         title: "Get Monetized",
@@ -478,7 +496,8 @@ const SLIDES: Slide[] = [
         </span>
       </>
     ),
-    description: "Explore jobs, property, events, people and businesses — then connect with the right opportunity.",
+    description:
+      "Explore jobs, property, events, people and businesses — then connect with the right opportunity.",
     items: [
       {
         title: "Real Estate",
@@ -600,7 +619,9 @@ function OnboardingPage() {
                   }}
                   className={cn(
                     "h-1.5 rounded-full transition-all duration-300",
-                    index === step ? "w-8 bg-gradient-to-r from-pink-500 to-violet-500" : "w-1.5 bg-white/10",
+                    index === step
+                      ? "w-8 bg-gradient-to-r from-pink-500 to-violet-500"
+                      : "w-1.5 bg-white/10",
                   )}
                 />
               ))}
@@ -622,13 +643,17 @@ function OnboardingPage() {
                   : "animate-[ashOnboardingBack_.42s_ease-out]",
               )}
             >
-              <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-pink-400">{slide.eyebrow}</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-pink-400">
+                {slide.eyebrow}
+              </p>
 
               <h1 className="mt-3 max-w-[420px] font-display text-[35px] font-black leading-[1.04] tracking-[-0.045em] text-white">
                 {slide.title}
               </h1>
 
-              <p className="mt-4 max-w-[420px] text-[14px] leading-6 text-white/45">{slide.description}</p>
+              <p className="mt-4 max-w-[420px] text-[14px] leading-6 text-white/45">
+                {slide.description}
+              </p>
 
               {/* Curved options */}
               <div className="mt-7 space-y-2.5">
@@ -666,7 +691,9 @@ function OnboardingPage() {
               <div className="h-6" />
             )}
 
-            <p className="mt-1 text-center text-[10px] text-white/20">ASH Glo · Where Opportunities Connect</p>
+            <p className="mt-1 text-center text-[10px] text-white/20">
+              ASH Glo · Where Opportunities Connect
+            </p>
           </div>
         </div>
       </div>

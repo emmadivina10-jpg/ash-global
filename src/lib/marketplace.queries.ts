@@ -180,7 +180,8 @@ export function useMyReviews() {
         .not("booking_id", "is", null);
       if (error) throw error;
       const map: Record<string, { rating: number }> = {};
-      for (const row of data ?? []) if (row.booking_id) map[row.booking_id] = { rating: row.rating };
+      for (const row of data ?? [])
+        if (row.booking_id) map[row.booking_id] = { rating: row.rating };
       return map;
     },
   });
@@ -308,7 +309,8 @@ export function useConversations() {
       }
 
       return rows.map((row) => {
-        const ownerId = (row as { owner_id?: string | null }).owner_id ?? row.provider?.user_id ?? null;
+        const ownerId =
+          (row as { owner_id?: string | null }).owner_id ?? row.provider?.user_id ?? null;
         return {
           ...row,
           client: clients[row.client_id] ?? { full_name: "Profile", avatar_url: null },
@@ -320,16 +322,19 @@ export function useConversations() {
     },
   });
 
-
   // Keep the inbox live even when no thread is open.
   useEffect(() => {
     const channel = supabase
       .channel("inbox:messages")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, (payload) => {
-        void queryClient.invalidateQueries({ queryKey: ["conversations"] });
-        const convId = (payload.new as { conversation_id?: string } | null)?.conversation_id;
-        if (convId) void queryClient.invalidateQueries({ queryKey: ["messages", convId] });
-      })
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages" },
+        (payload) => {
+          void queryClient.invalidateQueries({ queryKey: ["conversations"] });
+          const convId = (payload.new as { conversation_id?: string } | null)?.conversation_id;
+          if (convId) void queryClient.invalidateQueries({ queryKey: ["messages", convId] });
+        },
+      )
       .subscribe();
     return () => {
       void supabase.removeChannel(channel);
@@ -364,7 +369,12 @@ export function useMessages(conversationId: string | undefined, enabled = true) 
       .channel(`messages:${conversationId}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
         () => {
           void queryClient.invalidateQueries({ queryKey: ["messages", conversationId] });
           void queryClient.invalidateQueries({ queryKey: ["conversations"] });
@@ -384,19 +394,27 @@ export function useMessages(conversationId: string | undefined, enabled = true) 
  * provider. There is one thread per pair; a booking id simply tags the thread
  * with the most recent order so the header can show it.
  */
-export async function openConversation(providerId: string, bookingId?: string): Promise<string | null> {
+export async function openConversation(
+  providerId: string,
+  bookingId?: string,
+): Promise<string | null> {
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) return null;
 
   const { data: provider, error: providerError } = await supabase
-    .from("provider_profiles").select("user_id").eq("id", providerId).maybeSingle();
+    .from("provider_profiles")
+    .select("user_id")
+    .eq("id", providerId)
+    .maybeSingle();
   if (providerError) throw providerError;
   if (!provider || provider.user_id === auth.user.id) return null;
   const { data: existing, error: lookupError } = await supabase
     .from("conversations")
     .select("id, booking_id, client_id, owner_id, provider_id, group_id")
     .is("group_id", null)
-    .or(`and(provider_id.eq.${providerId},client_id.eq.${auth.user.id}),and(client_id.eq.${auth.user.id},owner_id.eq.${provider.user_id}),and(client_id.eq.${provider.user_id},owner_id.eq.${auth.user.id})`)
+    .or(
+      `and(provider_id.eq.${providerId},client_id.eq.${auth.user.id}),and(client_id.eq.${auth.user.id},owner_id.eq.${provider.user_id}),and(client_id.eq.${provider.user_id},owner_id.eq.${auth.user.id})`,
+    )
     .order("last_message_at", { ascending: false, nullsFirst: false });
   if (lookupError) throw lookupError;
   const found = findSellerConversation(existing ?? [], auth.user.id, provider.user_id, providerId);
@@ -468,7 +486,9 @@ export function useCommunityFeed(limit = 12) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("portfolio_items")
-        .select("id, provider_id, image_path, caption, created_at, provider:provider_profiles!inner(id, business_name, slug, city, avatar_url, is_live, is_verified)")
+        .select(
+          "id, provider_id, image_path, caption, created_at, provider:provider_profiles!inner(id, business_name, slug, city, avatar_url, is_live, is_verified)",
+        )
         .eq("provider.is_live", true)
         .order("created_at", { ascending: false })
         .limit(limit);
@@ -479,12 +499,17 @@ export function useCommunityFeed(limit = 12) {
         image_path: string;
         caption: string | null;
         created_at: string;
-        provider: { id: string; business_name: string; slug: string | null; city: string | null; avatar_url: string | null; is_verified: boolean };
+        provider: {
+          id: string;
+          business_name: string;
+          slug: string | null;
+          city: string | null;
+          avatar_url: string | null;
+          is_verified: boolean;
+        };
       }[];
       const urls = await signPortfolioPaths(rows.map((r) => r.image_path));
-      return rows
-        .map((r) => ({ ...r, url: urls[r.image_path] ?? "" }))
-        .filter((r) => r.url);
+      return rows.map((r) => ({ ...r, url: urls[r.image_path] ?? "" })).filter((r) => r.url);
     },
   });
 }

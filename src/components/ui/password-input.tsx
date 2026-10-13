@@ -8,7 +8,13 @@ export type PasswordInputProps = Omit<React.ComponentProps<"input">, "type"> & {
   wrapperClassName?: string;
 };
 
-export function PasswordInput({ className, wrapperClassName, id, autoComplete, ...props }: PasswordInputProps) {
+export function PasswordInput({
+  className,
+  wrapperClassName,
+  id,
+  autoComplete,
+  ...props
+}: PasswordInputProps) {
   const [visible, setVisible] = useState(false);
 
   return (
@@ -31,7 +37,11 @@ export function PasswordInput({ className, wrapperClassName, id, autoComplete, .
         onClick={() => setVisible((prev) => !prev)}
         tabIndex={-1}
       >
-        {visible ? <EyeOff className="size-4" aria-hidden /> : <Eye className="size-4" aria-hidden />}
+        {visible ? (
+          <EyeOff className="size-4" aria-hidden />
+        ) : (
+          <Eye className="size-4" aria-hidden />
+        )}
       </Button>
     </div>
   );

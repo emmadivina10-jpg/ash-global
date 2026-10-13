@@ -30,7 +30,8 @@ function distanceKm(aLat: number, aLng: number, bLat: number, bLng: number) {
   const dLat = toRad(bLat - aLat);
   const dLng = toRad(bLng - aLng);
   const h =
-    Math.sin(dLat / 2) ** 2 + Math.cos(toRad(aLat)) * Math.cos(toRad(bLat)) * Math.sin(dLng / 2) ** 2;
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(aLat)) * Math.cos(toRad(bLat)) * Math.sin(dLng / 2) ** 2;
   return 2 * 6371 * Math.asin(Math.sqrt(h));
 }
 

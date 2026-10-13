@@ -30,13 +30,19 @@ export type MediaModerationCase = {
 
 /** Trust & Safety queue: every user report filed from the apps. */
 export const listReports = createServerFn({ method: "POST" })
-  .inputValidator((data: { status?: string }) => ({ status: String(data?.status ?? "OPEN").toUpperCase() }))
+  .inputValidator((data: { status?: string }) => ({
+    status: String(data?.status ?? "OPEN").toUpperCase(),
+  }))
   .handler(async ({ data }) => {
     const { requireDepartment, adminClient } = await import("./console.server");
     await requireDepartment("TRUST", "SUPPORT");
     const db = await adminClient();
 
-    let query = db.from("content_reports").select("*").order("created_at", { ascending: false }).limit(200);
+    let query = db
+      .from("content_reports")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(200);
     if (data.status !== "ALL") query = query.eq("status", data.status);
     const { data: rows, error } = await query;
     if (error) throw new Error(error.message);
@@ -45,7 +51,9 @@ export const listReports = createServerFn({ method: "POST" })
       .from("content_reports")
       .select("id", { count: "exact", head: true })
       .eq("status", "OPEN");
-    const { count: blocks } = await db.from("user_blocks").select("id", { count: "exact", head: true });
+    const { count: blocks } = await db
+      .from("user_blocks")
+      .select("id", { count: "exact", head: true });
 
     return {
       reports: (rows ?? []) as ModerationReport[],
@@ -65,7 +73,8 @@ export const resolveReport = createServerFn({ method: "POST" })
     const { requireDepartment, adminClient } = await import("./console.server");
     await requireDepartment("TRUST", "SUPPORT");
     if (!data.id) throw new Error("MISSING_ID");
-    if (!["OPEN", "REVIEWING", "ACTIONED", "DISMISSED"].includes(data.status)) throw new Error("BAD_STATUS");
+    if (!["OPEN", "REVIEWING", "ACTIONED", "DISMISSED"].includes(data.status))
+      throw new Error("BAD_STATUS");
 
     const db = await adminClient();
     const { error } = await db
@@ -87,7 +96,9 @@ export const listMediaModerationCases = createServerFn({ method: "GET" }).handle
   const db = await adminClient();
   const { data: cases, error } = await db
     .from("moderation_cases")
-    .select("id, user_id, content_type, original_name, media_type, verdict, confidence, reason, status, review_note, created_at")
+    .select(
+      "id, user_id, content_type, original_name, media_type, verdict, confidence, reason, status, review_note, created_at",
+    )
     .order("created_at", { ascending: false })
     .limit(200);
   if (error) throw new Error(error.message);
@@ -96,7 +107,9 @@ export const listMediaModerationCases = createServerFn({ method: "GET" }).handle
   const { data: profiles } = userIds.length
     ? await db.from("profiles").select("user_id, full_name").in("user_id", userIds)
     : { data: [] };
-  const names = new Map((profiles ?? []).map((profile) => [profile.user_id, profile.full_name || "ASH member"]));
+  const names = new Map(
+    (profiles ?? []).map((profile) => [profile.user_id, profile.full_name || "ASH member"]),
+  );
 
   return (cases ?? []).map((item) => ({
     ...item,
@@ -110,12 +123,16 @@ export const reviewMediaModerationCase = createServerFn({ method: "POST" })
   .inputValidator((data: { caseId: string; decision: "UPHELD" | "CLEARED"; note: string }) => ({
     caseId: String(data?.caseId ?? ""),
     decision: data?.decision,
-    note: String(data?.note ?? "").trim().slice(0, 1000),
+    note: String(data?.note ?? "")
+      .trim()
+      .slice(0, 1000),
   }))
   .handler(async ({ data }) => {
     const { requireDepartment, requireSuperAdmin, adminClient } = await import("./console.server");
-    const actor = data.decision === "CLEARED" ? await requireSuperAdmin() : await requireDepartment("TRUST");
-    if (!data.caseId || !["UPHELD", "CLEARED"].includes(data.decision)) throw new Error("INVALID_DECISION");
+    const actor =
+      data.decision === "CLEARED" ? await requireSuperAdmin() : await requireDepartment("TRUST");
+    if (!data.caseId || !["UPHELD", "CLEARED"].includes(data.decision))
+      throw new Error("INVALID_DECISION");
     const db = await adminClient();
     const { error } = await db.rpc("review_media_moderation", {
       _case_id: data.caseId,

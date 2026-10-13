@@ -18,7 +18,14 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useI18n } from "@/lib/i18n";
 
-type MenuEntry = { to: string; en: string; fr: string; enHint: string; frHint: string; icon: typeof Store };
+type MenuEntry = {
+  to: string;
+  en: string;
+  fr: string;
+  enHint: string;
+  frHint: string;
+  icon: typeof Store;
+};
 type MenuGroup = { en: string; fr: string; items: MenuEntry[] };
 
 /**
@@ -54,7 +61,12 @@ export function DesktopMenu({ groups, create }: { groups: MenuGroup[]; create: M
       }}
     >
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full" aria-label={tx("Menu", "Menu")}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full"
+          aria-label={tx("Menu", "Menu")}
+        >
           <Menu className="size-5" aria-hidden />
         </Button>
       </PopoverTrigger>
@@ -66,7 +78,10 @@ export function DesktopMenu({ groups, create }: { groups: MenuGroup[]; create: M
           <div className="min-h-0 overflow-y-auto overscroll-contain border-r border-border p-4">
             <h2 className="font-display text-xl font-extrabold text-foreground">Menu</h2>
             <div className="relative mt-3">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+              <Search
+                className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                aria-hidden
+              />
               <Input
                 value={term}
                 onChange={(event) => setTerm(event.target.value)}
@@ -79,7 +94,9 @@ export function DesktopMenu({ groups, create }: { groups: MenuGroup[]; create: M
             <div className="mt-4 space-y-5">
               {filtered.map((group) => (
                 <div key={group.en}>
-                  <p className="px-1 text-sm font-extrabold text-foreground">{fr ? group.fr : group.en}</p>
+                  <p className="px-1 text-sm font-extrabold text-foreground">
+                    {fr ? group.fr : group.en}
+                  </p>
                   <div className="mt-2 space-y-0.5">
                     {group.items.map((item) => (
                       <Link
@@ -113,7 +130,9 @@ export function DesktopMenu({ groups, create }: { groups: MenuGroup[]; create: M
           </div>
 
           <div className="min-h-0 overflow-y-auto overscroll-contain p-4">
-            <h3 className="font-display text-lg font-extrabold text-foreground">{tx("Create", "Créer")}</h3>
+            <h3 className="font-display text-lg font-extrabold text-foreground">
+              {tx("Create", "Créer")}
+            </h3>
             <div className="mt-3 space-y-0.5">
               {create.map((item) => (
                 <Link
@@ -144,24 +163,108 @@ export const WEB_MENU_GROUPS: MenuGroup[] = [
     en: "Community",
     fr: "Communauté",
     items: [
-      { to: "/feed", en: "Feed", fr: "Fil", enHint: "Posts, stories and Spotlight from members.", frHint: "Publications, stories et Spotlight des membres.", icon: Flame },
-      { to: "/friends", en: "Friends", fr: "Amis", enHint: "Find people and answer friend requests.", frHint: "Trouvez des personnes et répondez aux demandes.", icon: Users },
-      { to: "/groups", en: "Groups", fr: "Groupes", enHint: "Group chats for your teams and circles.", frHint: "Discussions de groupe pour vos équipes.", icon: Users },
-      { to: "/articles", en: "Articles", fr: "Articles", enHint: "Read and publish stories anyone can share.", frHint: "Lisez et publiez des articles.", icon: BookOpen },
-      { to: "/mentors", en: "Mentors", fr: "Mentors", enHint: "Ask for guidance from experienced members.", frHint: "Demandez conseil à des membres expérimentés.", icon: Sparkles },
-      { to: "/incubator", en: "Incubator", fr: "Incubateur", enHint: "Builder forum spaces and help desk.", frHint: "Espaces forum et assistance.", icon: Sparkles },
+      {
+        to: "/feed",
+        en: "Feed",
+        fr: "Fil",
+        enHint: "Posts, stories and Spotlight from members.",
+        frHint: "Publications, stories et Spotlight des membres.",
+        icon: Flame,
+      },
+      {
+        to: "/friends",
+        en: "Friends",
+        fr: "Amis",
+        enHint: "Find people and answer friend requests.",
+        frHint: "Trouvez des personnes et répondez aux demandes.",
+        icon: Users,
+      },
+      {
+        to: "/groups",
+        en: "Groups",
+        fr: "Groupes",
+        enHint: "Group chats for your teams and circles.",
+        frHint: "Discussions de groupe pour vos équipes.",
+        icon: Users,
+      },
+      {
+        to: "/articles",
+        en: "Articles",
+        fr: "Articles",
+        enHint: "Read and publish stories anyone can share.",
+        frHint: "Lisez et publiez des articles.",
+        icon: BookOpen,
+      },
+      {
+        to: "/mentors",
+        en: "Mentors",
+        fr: "Mentors",
+        enHint: "Ask for guidance from experienced members.",
+        frHint: "Demandez conseil à des membres expérimentés.",
+        icon: Sparkles,
+      },
+      {
+        to: "/incubator",
+        en: "Incubator",
+        fr: "Incubateur",
+        enHint: "Builder forum spaces and help desk.",
+        frHint: "Espaces forum et assistance.",
+        icon: Sparkles,
+      },
     ],
   },
   {
     en: "Marketplace",
     fr: "Marché",
     items: [
-      { to: "/services", en: "Services", fr: "Services", enHint: "Book trusted pros near you.", frHint: "Réservez des pros de confiance.", icon: Store },
-      { to: "/property", en: "Property", fr: "Immobilier", enHint: "Homes, shops and land to rent or buy.", frHint: "Maisons, boutiques et terrains.", icon: Building2 },
-      { to: "/deals", en: "Deals", fr: "Offres", enHint: "Limited offers from vendors.", frHint: "Offres limitées des vendeurs.", icon: Flame },
-      { to: "/events", en: "Events", fr: "Événements", enHint: "Find events and buy tickets.", frHint: "Trouvez des événements et des billets.", icon: CalendarDays },
-      { to: "/freelance", en: "Freelance", fr: "Freelance", enHint: "Post projects and hire talent.", frHint: "Publiez des projets et recrutez.", icon: Briefcase },
-      { to: "/jobs", en: "Jobs", fr: "Emplois", enHint: "Job postings with in-app applications.", frHint: "Offres d’emploi et candidatures.", icon: Briefcase },
+      {
+        to: "/services",
+        en: "Services",
+        fr: "Services",
+        enHint: "Book trusted pros near you.",
+        frHint: "Réservez des pros de confiance.",
+        icon: Store,
+      },
+      {
+        to: "/property",
+        en: "Property",
+        fr: "Immobilier",
+        enHint: "Homes, shops and land to rent or buy.",
+        frHint: "Maisons, boutiques et terrains.",
+        icon: Building2,
+      },
+      {
+        to: "/deals",
+        en: "Deals",
+        fr: "Offres",
+        enHint: "Limited offers from vendors.",
+        frHint: "Offres limitées des vendeurs.",
+        icon: Flame,
+      },
+      {
+        to: "/events",
+        en: "Events",
+        fr: "Événements",
+        enHint: "Find events and buy tickets.",
+        frHint: "Trouvez des événements et des billets.",
+        icon: CalendarDays,
+      },
+      {
+        to: "/freelance",
+        en: "Freelance",
+        fr: "Freelance",
+        enHint: "Post projects and hire talent.",
+        frHint: "Publiez des projets et recrutez.",
+        icon: Briefcase,
+      },
+      {
+        to: "/jobs",
+        en: "Jobs",
+        fr: "Emplois",
+        enHint: "Job postings with in-app applications.",
+        frHint: "Offres d’emploi et candidatures.",
+        icon: Briefcase,
+      },
     ],
   },
 ];
@@ -175,5 +278,12 @@ export const WEB_MENU_CREATE: MenuEntry[] = [
   { to: "/jobs", en: "Job", fr: "Emploi", enHint: "", frHint: "", icon: Briefcase },
   { to: "/articles", en: "Article", fr: "Article", enHint: "", frHint: "", icon: BookOpen },
   { to: "/groups", en: "Group", fr: "Groupe", enHint: "", frHint: "", icon: Users },
-  { to: "/property", en: "Property listing", fr: "Bien immobilier", enHint: "", frHint: "", icon: Building2 },
+  {
+    to: "/property",
+    en: "Property listing",
+    fr: "Bien immobilier",
+    enHint: "",
+    frHint: "",
+    icon: Building2,
+  },
 ];

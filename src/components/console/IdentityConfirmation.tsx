@@ -32,18 +32,37 @@ export function IdentityConfirmation({ children }: { children: React.ReactNode }
   return (
     <div className="flex min-h-[80vh] items-center justify-center px-4 py-10">
       <div className="w-full max-w-sm rounded-3xl border border-border/60 bg-card/70 p-8 text-center shadow-2xl backdrop-blur-xl">
-        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Confirm your identity</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+          Confirm your identity
+        </p>
         <div className="mx-auto mt-6 grid size-24 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-primary to-gold text-3xl font-bold text-primary-foreground ring-4 ring-gold/30">
-          {me.avatarSignedUrl ? <img src={me.avatarSignedUrl} alt={`${name} profile photo`} className="size-full object-cover" /> : name.slice(0, 1)}
+          {me.avatarSignedUrl ? (
+            <img
+              src={me.avatarSignedUrl}
+              alt={`${name} profile photo`}
+              className="size-full object-cover"
+            />
+          ) : (
+            name.slice(0, 1)
+          )}
         </div>
         <h1 className="mt-4 text-xl font-bold">{name}</h1>
         <p className="text-sm text-muted-foreground">{me.position ?? "Position not set"}</p>
         <div className="mt-4 space-y-1 rounded-2xl bg-background/60 p-3 text-sm">
-          <p><span className="text-muted-foreground">Department:</span> {me.department}</p>
-          <p><span className="text-muted-foreground">Employee ID:</span> {me.employee_id ?? "Not assigned"}</p>
+          <p>
+            <span className="text-muted-foreground">Department:</span> {me.department}
+          </p>
+          <p>
+            <span className="text-muted-foreground">Employee ID:</span>{" "}
+            {me.employee_id ?? "Not assigned"}
+          </p>
         </div>
         <Button className="mt-6 w-full" onClick={() => done.mutate()} disabled={done.isPending}>
-          {done.isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : <BadgeCheck className="mr-2 size-4" />}
+          {done.isPending ? (
+            <Loader2 className="mr-2 size-4 animate-spin" />
+          ) : (
+            <BadgeCheck className="mr-2 size-4" />
+          )}
           This is me
         </Button>
         <Button

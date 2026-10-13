@@ -52,7 +52,9 @@ async function cleanupExpiredSpotlightVideos(request: Request) {
 
     const removed: string[] = [];
     for (const path of paths) {
-      const { error: storageError } = await supabaseAdmin.storage.from(SPOTLIGHT_BUCKET).remove([path]);
+      const { error: storageError } = await supabaseAdmin.storage
+        .from(SPOTLIGHT_BUCKET)
+        .remove([path]);
       if (storageError) {
         retryable += 1;
         continue;

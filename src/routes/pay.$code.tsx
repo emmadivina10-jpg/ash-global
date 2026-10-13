@@ -5,8 +5,16 @@ import { BadgeCheck, Smartphone, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { getPaymentLink, startLinkPayment, verifyLinkPayment } from "@/lib/storefront.functions";
 import { paymentErrorMessage } from "@/lib/payment-errors";
-import { PaymentMethodPicker, BankInstructions, BANK_UNAVAILABLE_TEXT } from "@/components/refer/PaymentMethodPicker";
-import { startLinkAltPayment, syncLedgerPayment, type BankDetails } from "@/lib/payments-ledger.functions";
+import {
+  PaymentMethodPicker,
+  BankInstructions,
+  BANK_UNAVAILABLE_TEXT,
+} from "@/components/refer/PaymentMethodPicker";
+import {
+  startLinkAltPayment,
+  syncLedgerPayment,
+  type BankDetails,
+} from "@/lib/payments-ledger.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,10 +32,19 @@ export const Route = createFileRoute("/pay/$code")({
   head: ({ loaderData }) => {
     const link = loaderData?.link ?? null;
     if (!link) {
-      return { meta: [{ title: "Payment link unavailable — ASH Glo" }, { name: "robots", content: "noindex" }] };
+      return {
+        meta: [
+          { title: "Payment link unavailable — ASH Glo" },
+          { name: "robots", content: "noindex" },
+        ],
+      };
     }
     const title = `Pay ${link.amount.toLocaleString("fr-FR")} XAF — ${link.title} | ${link.business_name}`;
-    const description = `Secure ASH Glo payment link from ${link.business_name}. ${link.description ?? "Pay with Mobile Money in seconds."}`.slice(0, 158);
+    const description =
+      `Secure ASH Glo payment link from ${link.business_name}. ${link.description ?? "Pay with Mobile Money in seconds."}`.slice(
+        0,
+        158,
+      );
     return {
       meta: [
         { title },
@@ -73,7 +90,8 @@ function PayPage() {
   useEffect(() => {
     const fromUrl = new URLSearchParams(window.location.search).get("ref");
     if (fromUrl) setReference(fromUrl);
-    if (new URLSearchParams(window.location.search).get("card") === "cancel") setStatus("CANCELLED");
+    if (new URLSearchParams(window.location.search).get("card") === "cancel")
+      setStatus("CANCELLED");
   }, []);
 
   useEffect(() => {
@@ -82,7 +100,10 @@ function PayPage() {
     async function check() {
       const result = await verify({ data: { reference: reference! } });
       if (cancelled) return;
-      if (result.ok && result.status === "PAID") { setStatus("PAID"); return; }
+      if (result.ok && result.status === "PAID") {
+        setStatus("PAID");
+        return;
+      }
       // Card and bank payments are tracked on the central ledger.
       const ledger = await syncLedger({ data: { reference: reference! } });
       if (cancelled) return;
@@ -99,20 +120,30 @@ function PayPage() {
   }, [reference, status, verify]);
 
   async function payAlt(method: "CARD" | "BANK") {
-    if (!name.trim()) { setError("Please enter your name."); return; }
+    if (!name.trim()) {
+      setError("Please enter your name.");
+      return;
+    }
     setBusy(true);
     setError(null);
-    const result = await startAlt({ data: { code: link.code, name, method, origin: window.location.origin } });
+    const result = await startAlt({
+      data: { code: link.code, name, method, origin: window.location.origin },
+    });
     setBusy(false);
     if (!result.ok) {
       setError(
-        result.error === "BANK_UNAVAILABLE" ? BANK_UNAVAILABLE_TEXT
-        : result.error === "CARD_UNAVAILABLE" ? "Card payment is currently unavailable. Please choose another payment method."
-        : paymentErrorMessage(result.error, false, result.message),
+        result.error === "BANK_UNAVAILABLE"
+          ? BANK_UNAVAILABLE_TEXT
+          : result.error === "CARD_UNAVAILABLE"
+            ? "Card payment is currently unavailable. Please choose another payment method."
+            : paymentErrorMessage(result.error, false, result.message),
       );
       return;
     }
-    if (result.checkoutUrl) { window.location.href = result.checkoutUrl; return; }
+    if (result.checkoutUrl) {
+      window.location.href = result.checkoutUrl;
+      return;
+    }
     setBank(result.bank);
     setReference(result.reference);
     setStatus(result.status);
@@ -153,8 +184,12 @@ function PayPage() {
           </div>
 
           <h1 className="mt-3 font-display text-xl font-extrabold text-foreground">{link.title}</h1>
-          {link.description ? <p className="mt-1 text-sm text-muted-foreground">{link.description}</p> : null}
-          <p className="tabular mt-4 font-display text-3xl font-black text-foreground">{formatXAF(link.amount)}</p>
+          {link.description ? (
+            <p className="mt-1 text-sm text-muted-foreground">{link.description}</p>
+          ) : null}
+          <p className="tabular mt-4 font-display text-3xl font-black text-foreground">
+            {formatXAF(link.amount)}
+          </p>
 
           {status === "PAID" ? (
             <div className="mt-5 rounded-2xl border border-primary/40 bg-primary/10 p-4 text-center">
@@ -169,7 +204,11 @@ function PayPage() {
             </p>
           ) : reference && bank ? (
             <div className="mt-5">
-              <BankInstructions bank={bank} reference={reference} amountLabel={formatXAF(link.amount)} />
+              <BankInstructions
+                bank={bank}
+                reference={reference}
+                amountLabel={formatXAF(link.amount)}
+              />
             </div>
           ) : reference ? (
             <div className="mt-5 rounded-2xl border border-border bg-muted/50 p-4">
@@ -184,7 +223,14 @@ function PayPage() {
                   : "We're checking with TchokoPay every few seconds."}
               </p>
               {status === "FAILED" || status === "CANCELLED" || status === "EXPIRED" ? (
-                <Button variant="outline" className="mt-3 w-full" onClick={() => { setReference(null); setStatus(null); }}>
+                <Button
+                  variant="outline"
+                  className="mt-3 w-full"
+                  onClick={() => {
+                    setReference(null);
+                    setStatus(null);
+                  }}
+                >
                   Choose another method
                 </Button>
               ) : null}
@@ -192,7 +238,10 @@ function PayPage() {
           ) : (
             <div className="mt-5">
               {error ? (
-                <p role="alert" className="mb-3 rounded-xl border border-destructive/25 bg-destructive/5 p-3 text-sm">
+                <p
+                  role="alert"
+                  className="mb-3 rounded-xl border border-destructive/25 bg-destructive/5 p-3 text-sm"
+                >
                   {error}
                 </p>
               ) : null}
@@ -205,7 +254,13 @@ function PayPage() {
               >
                 <div className="space-y-1.5">
                   <Label htmlFor="name">Your name</Label>
-                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required maxLength={80} />
+                  <Input
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    maxLength={80}
+                  />
                 </div>
               </PaymentMethodPicker>
             </div>

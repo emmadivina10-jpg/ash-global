@@ -2,7 +2,11 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Send, UserRound } from "lucide-react";
-import { getStaffInbox, markDirectMessagesRead, sendDirectMessage } from "@/lib/staff-ops.functions";
+import {
+  getStaffInbox,
+  markDirectMessagesRead,
+  sendDirectMessage,
+} from "@/lib/staff-ops.functions";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -43,7 +47,11 @@ export function StaffDirectMessages() {
   const messages = data?.messages ?? [];
 
   if (!me) {
-    return <p className="py-6 text-center text-sm text-muted-foreground">Direct messages are available on employee seats.</p>;
+    return (
+      <p className="py-6 text-center text-sm text-muted-foreground">
+        Direct messages are available on employee seats.
+      </p>
+    );
   }
 
   const unreadFrom = new Map<string, number>();
@@ -54,7 +62,11 @@ export function StaffDirectMessages() {
   }
 
   const thread = messages
-    .filter((m) => (m.from_staff_id === peer && m.to_staff_id === me) || (m.from_staff_id === me && m.to_staff_id === peer))
+    .filter(
+      (m) =>
+        (m.from_staff_id === peer && m.to_staff_id === me) ||
+        (m.from_staff_id === me && m.to_staff_id === peer),
+    )
     .slice()
     .reverse();
 
@@ -80,7 +92,9 @@ export function StaffDirectMessages() {
               onClick={() => openPeer(c.id)}
               className={cn(
                 "flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition",
-                peer === c.id ? "border-primary/50 bg-primary/5" : "border-transparent hover:bg-accent/60",
+                peer === c.id
+                  ? "border-primary/50 bg-primary/5"
+                  : "border-transparent hover:bg-accent/60",
               )}
             >
               <UserRound className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -95,24 +109,37 @@ export function StaffDirectMessages() {
         </div>
         <div className="flex min-h-64 flex-col rounded-2xl border border-border/50 bg-background/60 p-3">
           {!peer ? (
-            <p className="flex flex-1 items-center justify-center text-sm text-muted-foreground">Choose a colleague to message.</p>
+            <p className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
+              Choose a colleague to message.
+            </p>
           ) : (
             <>
               <p className="mb-2 border-b border-border/40 pb-2 text-xs font-semibold text-muted-foreground">
                 {peerInfo?.employee_name ?? peerInfo?.username} · {peerInfo?.department}
               </p>
               <div className="flex-1 space-y-2 overflow-y-auto pb-2">
-                {thread.length === 0 && <p className="py-6 text-center text-xs text-muted-foreground">No messages yet.</p>}
+                {thread.length === 0 && (
+                  <p className="py-6 text-center text-xs text-muted-foreground">No messages yet.</p>
+                )}
                 {thread.map((m) => (
                   <div
                     key={m.id}
                     className={cn(
                       "max-w-[80%] rounded-2xl px-3 py-2 text-sm",
-                      m.from_staff_id === me ? "ml-auto bg-primary text-primary-foreground" : "bg-muted",
+                      m.from_staff_id === me
+                        ? "ml-auto bg-primary text-primary-foreground"
+                        : "bg-muted",
                     )}
                   >
                     <p>{m.body}</p>
-                    <p className={cn("mt-0.5 text-[10px]", m.from_staff_id === me ? "text-primary-foreground/70" : "text-muted-foreground")}>
+                    <p
+                      className={cn(
+                        "mt-0.5 text-[10px]",
+                        m.from_staff_id === me
+                          ? "text-primary-foreground/70"
+                          : "text-muted-foreground",
+                      )}
+                    >
                       {new Date(m.created_at).toLocaleString()}
                     </p>
                   </div>
@@ -125,8 +152,16 @@ export function StaffDirectMessages() {
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
                 />
-                <Button size="icon" disabled={!body.trim() || sendMut.isPending} onClick={() => sendMut.mutate()}>
-                  {sendMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                <Button
+                  size="icon"
+                  disabled={!body.trim() || sendMut.isPending}
+                  onClick={() => sendMut.mutate()}
+                >
+                  {sendMut.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
             </>

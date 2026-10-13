@@ -8,7 +8,15 @@ const MAX = 84;
 const DEAD_ZONE = 12;
 
 /** Facebook-style pull-down-to-refresh for the app's scroll pane (or the window). */
-export function PullToRefresh({ onRefresh, children, label }: { onRefresh: () => Promise<unknown>; children: ReactNode; label: string }) {
+export function PullToRefresh({
+  onRefresh,
+  children,
+  label,
+}: {
+  onRefresh: () => Promise<unknown>;
+  children: ReactNode;
+  label: string;
+}) {
   const [pull, setPull] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const start = useRef<number | null>(null);
@@ -33,9 +41,18 @@ export function PullToRefresh({ onRefresh, children, label }: { onRefresh: () =>
       const target = e.target;
       const touch = e.touches[0];
       if (busy.current || e.touches.length !== 1 || !touch || !(target instanceof Element)) return;
-      if (target.closest("[data-pull-refresh-ignore], .touch-none, button, input, textarea, select, [role='slider'], [role='dialog']")) return;
+      if (
+        target.closest(
+          "[data-pull-refresh-ignore], .touch-none, button, input, textarea, select, [role='slider'], [role='dialog']",
+        )
+      )
+        return;
       scrollParents = [];
-      for (let el: HTMLElement | null = target instanceof HTMLElement ? target : target.parentElement; el; el = el.parentElement) {
+      for (
+        let el: HTMLElement | null = target instanceof HTMLElement ? target : target.parentElement;
+        el;
+        el = el.parentElement
+      ) {
         if (el.scrollHeight > el.clientHeight) scrollParents.push(el);
       }
       if (!atTop()) return;
@@ -112,17 +129,31 @@ export function PullToRefresh({ onRefresh, children, label }: { onRefresh: () =>
       <div
         aria-live="polite"
         className="pointer-events-none absolute inset-x-0 top-0 z-10 flex justify-center"
-        style={{ transform: `translateY(${pull - 44}px)`, opacity: Math.min(1, pull / 40), transition: start.current == null ? "transform 220ms ease, opacity 220ms ease" : "none" }}
+        style={{
+          transform: `translateY(${pull - 44}px)`,
+          opacity: Math.min(1, pull / 40),
+          transition: start.current == null ? "transform 220ms ease, opacity 220ms ease" : "none",
+        }}
       >
         <span className="grid size-10 place-items-center rounded-full border border-border bg-card text-primary shadow-lg">
           {refreshing ? (
             <Loader2 className="size-5 animate-spin" aria-label={label} />
           ) : (
-            <ArrowDown className={cn("size-5 transition-transform", ready && "rotate-180")} aria-hidden />
+            <ArrowDown
+              className={cn("size-5 transition-transform", ready && "rotate-180")}
+              aria-hidden
+            />
           )}
         </span>
       </div>
-      <div style={{ transform: pull > 0 ? `translateY(${pull}px)` : "none", transition: start.current == null ? "transform 220ms ease" : "none" }}>{children}</div>
+      <div
+        style={{
+          transform: pull > 0 ? `translateY(${pull}px)` : "none",
+          transition: start.current == null ? "transform 220ms ease" : "none",
+        }}
+      >
+        {children}
+      </div>
     </div>
   );
 }

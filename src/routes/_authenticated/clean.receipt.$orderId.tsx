@@ -31,13 +31,29 @@ function CleanReceipt() {
     queryFn: async () => {
       const [o, q, s, me] = await Promise.all([
         supabase.from("clean_orders").select("*").eq("id", orderId).maybeSingle(),
-        supabase.from("clean_price_quotes").select("*").eq("order_id", orderId).order("created_at", { ascending: false }).limit(1),
+        supabase
+          .from("clean_price_quotes")
+          .select("*")
+          .eq("order_id", orderId)
+          .order("created_at", { ascending: false })
+          .limit(1),
         supabase.rpc("get_clean_public_settings").single(),
         supabase.auth.getUser(),
       ]);
       const uid = me.data.user?.id;
-      const p = uid ? await supabase.from("profiles").select("full_name, phone").eq("user_id", uid).maybeSingle() : null;
-      return { order: o.data, quote: q.data?.[0] ?? null, settings: s.data, profile: p?.data ?? null };
+      const p = uid
+        ? await supabase
+            .from("profiles")
+            .select("full_name, phone")
+            .eq("user_id", uid)
+            .maybeSingle()
+        : null;
+      return {
+        order: o.data,
+        quote: q.data?.[0] ?? null,
+        settings: s.data,
+        profile: p?.data ?? null,
+      };
     },
   });
   const o = data?.order;
@@ -60,14 +76,35 @@ function CleanReceipt() {
             <p className="text-xs text-muted-foreground">{data.settings?.facility_address}</p>
             <p className="text-xs text-muted-foreground">{data.settings?.facility_hours}</p>
           </div>
-          <QRCodeSVG value={`ASHCLEAN:${o.order_no}:${o.id}`} size={96} level="M" includeMargin={false} />
+          <QRCodeSVG
+            value={`ASHCLEAN:${o.order_no}:${o.id}`}
+            size={96}
+            level="M"
+            includeMargin={false}
+          />
         </header>
         <div className="rounded-2xl bg-muted p-3 text-center">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">{tx("Order", "Commande")}</p>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">
+            {tx("Order", "Commande")}
+          </p>
           <p className="font-mono text-2xl font-extrabold">{o.order_no}</p>
-          {o.receipt_no ? <p className="font-mono text-xs">{tx("Receipt", "Reçu")} {o.receipt_no}</p> : null}
-          <p className={paid ? "mt-1 text-sm font-bold text-primary" : "mt-1 text-sm font-bold text-muted-foreground"}>
-            {paid ? (tx("PAID", "PAYÉ")) : q ? (tx("AWAITING PAYMENT", "EN ATTENTE DE PAIEMENT")) : tx("PRICED AFTER WEIGHING", "PRIX APRÈS PESÉE")}
+          {o.receipt_no ? (
+            <p className="font-mono text-xs">
+              {tx("Receipt", "Reçu")} {o.receipt_no}
+            </p>
+          ) : null}
+          <p
+            className={
+              paid
+                ? "mt-1 text-sm font-bold text-primary"
+                : "mt-1 text-sm font-bold text-muted-foreground"
+            }
+          >
+            {paid
+              ? tx("PAID", "PAYÉ")
+              : q
+                ? tx("AWAITING PAYMENT", "EN ATTENTE DE PAIEMENT")
+                : tx("PRICED AFTER WEIGHING", "PRIX APRÈS PESÉE")}
           </p>
         </div>
         <dl className="space-y-1 text-sm">
@@ -75,32 +112,55 @@ function CleanReceipt() {
           <L k={tx("Phone", "Téléphone")} v={o.contact_phone ?? data.profile?.phone ?? "—"} />
           <L k={tx("Booked", "Réservé le")} v={formatDateTime(o.created_at)} />
           <L k={tx("Status", "Statut")} v={cleanStatusLabel(o.status, fr)} />
-          <L k={tx("Pickup", "Collecte")} v={`${methodLabel(o.pickup_method)} · ${o.pickup_distance_km} km`} />
-          <L k={tx("Delivery", "Livraison")} v={`${methodLabel(o.delivery_method)} · ${o.delivery_distance_km} km`} />
+          <L
+            k={tx("Pickup", "Collecte")}
+            v={`${methodLabel(o.pickup_method)} · ${o.pickup_distance_km} km`}
+          />
+          <L
+            k={tx("Delivery", "Livraison")}
+            v={`${methodLabel(o.delivery_method)} · ${o.delivery_distance_km} km`}
+          />
         </dl>
         <dl className="space-y-1 border-t border-border pt-3 text-sm">
           {q ? (
             <>
               <L k={`${q.weight_kg} kg × ${fcfa(q.rate_per_kg)}`} v={fcfa(q.laundry_amount)} />
-              {((q.special_items as { name: string; qty: number; amount: number }[]) ?? []).map((s) => (
-                <L key={s.name} k={`${s.name} × ${s.qty}`} v={fcfa(s.amount)} />
-              ))}
+              {((q.special_items as { name: string; qty: number; amount: number }[]) ?? []).map(
+                (s) => (
+                  <L key={s.name} k={`${s.name} × ${s.qty}`} v={fcfa(s.amount)} />
+                ),
+              )}
               <L k={tx("Pickup fee", "Frais de collecte")} v={fcfa(q.pickup_fee)} />
               <L k={tx("Delivery fee", "Frais de livraison")} v={fcfa(q.delivery_fee)} />
-              <div className="flex justify-between border-t border-border pt-2 text-base font-extrabold"><span>Total</span><span>{fcfa(q.total)}</span></div>
+              <div className="flex justify-between border-t border-border pt-2 text-base font-extrabold">
+                <span>Total</span>
+                <span>{fcfa(q.total)}</span>
+              </div>
             </>
           ) : (
             <>
               <L k={tx("Pickup fee", "Frais de collecte")} v={fcfa(o.pickup_fee)} />
               <L k={tx("Delivery fee", "Frais de livraison")} v={fcfa(o.delivery_fee)} />
-              <p className="text-xs text-muted-foreground">{tx("Laundry is charged on the verified weight at reception.", "Le linge est facturé au poids vérifié à la réception.")}</p>
+              <p className="text-xs text-muted-foreground">
+                {tx(
+                  "Laundry is charged on the verified weight at reception.",
+                  "Le linge est facturé au poids vérifié à la réception.",
+                )}
+              </p>
             </>
           )}
-          {paid ? <L k={tx("Paid on", "Payé le")} v={`${formatDateTime(o.paid_at)} · Mobile Money`} /> : null}
-          {o.payment_reference ? <L k={tx("Reference", "Référence")} v={o.payment_reference} /> : null}
+          {paid ? (
+            <L k={tx("Paid on", "Payé le")} v={`${formatDateTime(o.paid_at)} · Mobile Money`} />
+          ) : null}
+          {o.payment_reference ? (
+            <L k={tx("Reference", "Référence")} v={o.payment_reference} />
+          ) : null}
         </dl>
         <p className="text-center text-xs text-muted-foreground">
-          {tx("Show this receipt (or its QR code) at the ASH Clean office to drop off or collect your laundry.", "Présentez ce reçu (ou son QR code) au bureau ASH Clean pour déposer ou retirer votre linge.")}
+          {tx(
+            "Show this receipt (or its QR code) at the ASH Clean office to drop off or collect your laundry.",
+            "Présentez ce reçu (ou son QR code) au bureau ASH Clean pour déposer ou retirer votre linge.",
+          )}
         </p>
       </article>
     </div>

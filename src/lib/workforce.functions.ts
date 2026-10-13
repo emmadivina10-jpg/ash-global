@@ -148,12 +148,16 @@ export const saveLead = createServerFn({ method: "POST" })
     if (!canUseDept(actor, targetDept)) {
       return { ok: false as const, error: "You can only manage leads for your department." };
     }
-    const name = String(data.name ?? "").trim().slice(0, 160);
+    const name = String(data.name ?? "")
+      .trim()
+      .slice(0, 160);
     if (!name) return { ok: false as const, error: "Lead name is required." };
 
     const row = {
       name,
-      lead_type: String(data.leadType ?? "BUSINESS").toUpperCase().slice(0, 30),
+      lead_type: String(data.leadType ?? "BUSINESS")
+        .toUpperCase()
+        .slice(0, 30),
       department: String(data.department ?? actor.department).toUpperCase(),
       category: data.category?.slice(0, 80) || null,
       city: data.city?.slice(0, 80) || null,
@@ -186,7 +190,11 @@ export const moveLeadStage = createServerFn({ method: "POST" })
       return { ok: false as const, error: "Unknown stage." };
     }
     const db = await adminClient();
-    const { data: lead } = await db.from("leads").select("stage, department").eq("id", data.id).maybeSingle();
+    const { data: lead } = await db
+      .from("leads")
+      .select("stage, department")
+      .eq("id", data.id)
+      .maybeSingle();
     if (!lead) return { ok: false as const, error: "Lead not found." };
     if (!canUseDept(actor, lead.department)) {
       return { ok: false as const, error: "You can only manage leads for your department." };
@@ -223,7 +231,9 @@ export const logLeadActivity = createServerFn({ method: "POST" })
       lead_id: data.id,
       staff_id: actor.staffId,
       staff_name: actor.name,
-      kind: String(data.kind ?? "NOTE").toUpperCase().slice(0, 20),
+      kind: String(data.kind ?? "NOTE")
+        .toUpperCase()
+        .slice(0, 20),
       body: data.body?.slice(0, 2000) || null,
     });
     await db
@@ -255,27 +265,31 @@ export const getMarketplaceHealth = createServerFn({ method: "GET" }).handler(as
   const db = await adminClient();
   const since = new Date(Date.now() - 7 * 864e5).toISOString();
 
-  const [newProviders, unverified, noServices, recentBookings, failed, providers] = await Promise.all([
-    db.from("provider_profiles").select("id", { count: "exact", head: true }).gte("created_at", since),
-    db
-      .from("provider_profiles")
-      .select("id, business_name, city, created_at, verification_status")
-      .eq("is_verified", false)
-      .order("created_at", { ascending: false })
-      .limit(25),
-    db.from("provider_services").select("provider_id").limit(4000),
-    db.from("bookings").select("id", { count: "exact", head: true }).gte("created_at", since),
-    db
-      .from("bookings")
-      .select("id", { count: "exact", head: true })
-      .in("status", ["CANCELLED", "DECLINED", "PAYMENT_FAILED", "PAYMENT_EXPIRED", "DISPUTED"])
-      .gte("created_at", since),
-    db
-      .from("provider_profiles")
-      .select("id, business_name, city, is_live, completed_bookings, rating_avg, created_at")
-      .order("created_at", { ascending: false })
-      .limit(200),
-  ]);
+  const [newProviders, unverified, noServices, recentBookings, failed, providers] =
+    await Promise.all([
+      db
+        .from("provider_profiles")
+        .select("id", { count: "exact", head: true })
+        .gte("created_at", since),
+      db
+        .from("provider_profiles")
+        .select("id, business_name, city, created_at, verification_status")
+        .eq("is_verified", false)
+        .order("created_at", { ascending: false })
+        .limit(25),
+      db.from("provider_services").select("provider_id").limit(4000),
+      db.from("bookings").select("id", { count: "exact", head: true }).gte("created_at", since),
+      db
+        .from("bookings")
+        .select("id", { count: "exact", head: true })
+        .in("status", ["CANCELLED", "DECLINED", "PAYMENT_FAILED", "PAYMENT_EXPIRED", "DISPUTED"])
+        .gte("created_at", since),
+      db
+        .from("provider_profiles")
+        .select("id, business_name, city, is_live, completed_bookings, rating_avg, created_at")
+        .order("created_at", { ascending: false })
+        .limit(200),
+    ]);
 
   const withServices = new Set((noServices.data ?? []).map((s) => s.provider_id));
   return {
@@ -296,14 +310,24 @@ export const getRevenueIntel = createServerFn({ method: "GET" }).handler(async (
   const since = new Date(Date.now() - 30 * 864e5).toISOString();
 
   const [bookings, links, activations, payouts] = await Promise.all([
-    db.from("bookings").select("price, platform_fee, paid_at, status").not("paid_at", "is", null).limit(5000),
-    db.from("payment_link_charges").select("amount, platform_fee, paid_at, status").eq("status", "PAID").limit(5000),
+    db
+      .from("bookings")
+      .select("price, platform_fee, paid_at, status")
+      .not("paid_at", "is", null)
+      .limit(5000),
+    db
+      .from("payment_link_charges")
+      .select("amount, platform_fee, paid_at, status")
+      .eq("status", "PAID")
+      .limit(5000),
     db.from("activations").select("amount, paid_at, status").eq("status", "PAID").limit(5000),
     db.from("platform_payouts").select("amount").limit(1000),
   ]);
 
-  const recent = (rows: { paid_at: string | null }[]) => rows.filter((r) => r.paid_at && r.paid_at >= since);
-  const sum = (rows: any[], key: string) => rows.reduce((total, r) => total + Number(r[key] ?? 0), 0);
+  const recent = (rows: { paid_at: string | null }[]) =>
+    rows.filter((r) => r.paid_at && r.paid_at >= since);
+  const sum = (rows: any[], key: string) =>
+    rows.reduce((total, r) => total + Number(r[key] ?? 0), 0);
 
   const bookingRows = bookings.data ?? [];
   const linkRows = links.data ?? [];

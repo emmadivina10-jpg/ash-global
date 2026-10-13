@@ -24,9 +24,15 @@ export const Route = createFileRoute("/_authenticated/clean/book")({
   head: () => ({
     meta: [
       { title: "Book a laundry pickup — ASH Clean" },
-      { name: "description", content: "Set your location and we choose ASH Staff or ASH Rider pickup automatically." },
+      {
+        name: "description",
+        content: "Set your location and we choose ASH Staff or ASH Rider pickup automatically.",
+      },
       { property: "og:title", content: "Book a laundry pickup — ASH Clean" },
-      { property: "og:description", content: "Automatic pickup method and fee based on your road distance." },
+      {
+        property: "og:description",
+        content: "Automatic pickup method and fee based on your road distance.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -74,7 +80,9 @@ function AddressPicker({
     }
     const id = ++seq.current;
     const t = setTimeout(async () => {
-      const r = await search({ data: { input: term, sessionToken: token.current } }).catch(() => []);
+      const r = await search({ data: { input: term, sessionToken: token.current } }).catch(
+        () => [],
+      );
       if (id === seq.current) setResults(r);
     }, 300);
     return () => clearTimeout(t);
@@ -82,14 +90,19 @@ function AddressPicker({
 
   const pick = async (lat: number, lng: number) => {
     onChange({ address: fr ? "Position choisie…" : "Pinned location…", lat, lng });
-    const { address } = await reverse({ data: { lat, lng } }).catch(() => ({ address: `${lat.toFixed(5)}, ${lng.toFixed(5)}` }));
+    const { address } = await reverse({ data: { lat, lng } }).catch(() => ({
+      address: `${lat.toFixed(5)}, ${lng.toFixed(5)}`,
+    }));
     onChange({ address, lat, lng });
   };
 
   return (
     <div className="space-y-2">
       <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+        <Search
+          className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+          aria-hidden
+        />
         <Input
           value={term}
           onChange={(e) => setTerm(e.target.value)}
@@ -106,7 +119,9 @@ function AddressPicker({
                   onClick={async () => {
                     setResults([]);
                     setTerm(r.text);
-                    const d = await details({ data: { placeId: r.placeId, sessionToken: token.current } });
+                    const d = await details({
+                      data: { placeId: r.placeId, sessionToken: token.current },
+                    });
                     token.current = crypto.randomUUID();
                     if (d) onChange(d);
                     else toast.error(fr ? "Adresse introuvable" : "Couldn't find that address");
@@ -138,13 +153,21 @@ function AddressPicker({
             },
             () => {
               setLocating(false);
-              toast.error(fr ? "Autorisez la localisation ou recherchez votre adresse" : "Allow location, or search your address");
+              toast.error(
+                fr
+                  ? "Autorisez la localisation ou recherchez votre adresse"
+                  : "Allow location, or search your address",
+              );
             },
             { enableHighAccuracy: true, timeout: 12000 },
           );
         }}
       >
-        {locating ? <Loader2 className="size-4 animate-spin" /> : <LocateFixed className="size-4" />}
+        {locating ? (
+          <Loader2 className="size-4 animate-spin" />
+        ) : (
+          <LocateFixed className="size-4" />
+        )}
         {fr ? "Utiliser ma position" : "Use my current location"}
       </Button>
       {value ? (
@@ -156,26 +179,66 @@ function AddressPicker({
   );
 }
 
-function QuoteCard({ q, loading, direction, fr }: { q: Quote | undefined; loading: boolean; direction: "PICKUP" | "DELIVERY"; fr: boolean }) {
-  if (loading) return <div className="flex items-center gap-2 rounded-2xl bg-muted p-4 text-sm"><Loader2 className="size-4 animate-spin" /> {fr ? "Calcul de la distance…" : "Working out road distance…"}</div>;
+function QuoteCard({
+  q,
+  loading,
+  direction,
+  fr,
+}: {
+  q: Quote | undefined;
+  loading: boolean;
+  direction: "PICKUP" | "DELIVERY";
+  fr: boolean;
+}) {
+  if (loading)
+    return (
+      <div className="flex items-center gap-2 rounded-2xl bg-muted p-4 text-sm">
+        <Loader2 className="size-4 animate-spin" />{" "}
+        {fr ? "Calcul de la distance…" : "Working out road distance…"}
+      </div>
+    );
   if (!q) return null;
   const staff = q.method === "STAFF";
   const Icon = staff ? Footprints : Bike;
-  const word = direction === "PICKUP" ? (fr ? "COLLECTE" : "PICKUP") : fr ? "LIVRAISON" : "DELIVERY";
+  const word =
+    direction === "PICKUP" ? (fr ? "COLLECTE" : "PICKUP") : fr ? "LIVRAISON" : "DELIVERY";
   return (
-    <div className={cn("rounded-2xl border p-4", staff ? "border-primary/40 bg-primary/5" : "border-border bg-card")}>
+    <div
+      className={cn(
+        "rounded-2xl border p-4",
+        staff ? "border-primary/40 bg-primary/5" : "border-border bg-card",
+      )}
+    >
       <p className="flex items-center gap-2 font-extrabold text-foreground">
-        <Icon className="size-5 text-primary" aria-hidden /> {staff ? `ASH STAFF ${word}` : `ASH RIDER ${word}`}
+        <Icon className="size-5 text-primary" aria-hidden />{" "}
+        {staff ? `ASH STAFF ${word}` : `ASH RIDER ${word}`}
       </p>
       <p className="mt-1 text-sm text-muted-foreground">
         {staff
-          ? fr ? "Votre adresse est dans notre zone staff." : "Your location is within our staff area."
-          : fr ? "Un ASH Rider s'en charge." : "An ASH Rider will handle this."}
+          ? fr
+            ? "Votre adresse est dans notre zone staff."
+            : "Your location is within our staff area."
+          : fr
+            ? "Un ASH Rider s'en charge."
+            : "An ASH Rider will handle this."}
       </p>
       <div className="mt-2 grid grid-cols-3 gap-2 text-sm">
-        <span><b className="block text-foreground">{q.km} km</b><span className="text-xs text-muted-foreground">{q.source === "ROAD" ? (fr ? "par la route" : "by road") : fr ? "estimé" : "estimated"}</span></span>
-        <span><b className="block text-foreground">~{q.etaMin} min</b><span className="text-xs text-muted-foreground">{fr ? "trajet" : "travel"}</span></span>
-        <span><b className="block text-foreground">{q.fee > 0 ? fcfa(q.fee) : fr ? "GRATUIT" : "FREE"}</b><span className="text-xs text-muted-foreground">{fr ? "frais" : "fee"}</span></span>
+        <span>
+          <b className="block text-foreground">{q.km} km</b>
+          <span className="text-xs text-muted-foreground">
+            {q.source === "ROAD" ? (fr ? "par la route" : "by road") : fr ? "estimé" : "estimated"}
+          </span>
+        </span>
+        <span>
+          <b className="block text-foreground">~{q.etaMin} min</b>
+          <span className="text-xs text-muted-foreground">{fr ? "trajet" : "travel"}</span>
+        </span>
+        <span>
+          <b className="block text-foreground">
+            {q.fee > 0 ? fcfa(q.fee) : fr ? "GRATUIT" : "FREE"}
+          </b>
+          <span className="text-xs text-muted-foreground">{fr ? "frais" : "fee"}</span>
+        </span>
       </div>
     </div>
   );
@@ -191,13 +254,20 @@ function BookClean() {
     queryFn: async () => {
       const [s, sv] = await Promise.all([
         supabase.rpc("get_clean_public_settings").single(),
-        supabase.from("clean_services").select("code, kind, name_en, name_fr, price").eq("active", true).order("sort"),
+        supabase
+          .from("clean_services")
+          .select("code, kind, name_en, name_fr, price")
+          .eq("active", true)
+          .order("sort"),
       ]);
       return { settings: s.data, services: sv.data ?? [] };
     },
   });
   const center = useMemo(
-    () => ({ lat: base?.settings?.facility_lat ?? 4.1537, lng: base?.settings?.facility_lng ?? 9.292 }),
+    () => ({
+      lat: base?.settings?.facility_lat ?? 4.1537,
+      lng: base?.settings?.facility_lng ?? 9.292,
+    }),
     [base],
   );
   const [services, setServices] = useState<string[]>(["WASH", "DRY", "FOLD", "IRON"]);
@@ -241,21 +311,40 @@ function BookClean() {
 
   return (
     <div className="mx-auto w-full max-w-2xl space-y-5 pb-12">
-      <h1 className="font-display text-2xl font-extrabold text-foreground">{tx("Book a pickup", "Réserver une collecte")}</h1>
+      <h1 className="font-display text-2xl font-extrabold text-foreground">
+        {tx("Book a pickup", "Réserver une collecte")}
+      </h1>
 
       <section className="space-y-2 rounded-3xl bg-card p-4 shadow-[var(--shadow-card)]">
         <Label className="font-bold">{tx("Services", "Services")}</Label>
         <div className="flex flex-wrap gap-2">
-          {(base?.services ?? []).filter((s) => s.kind === "SERVICE").map((s) => (
-            <button key={s.code} type="button" onClick={() => toggle(s.code)}
-              className={cn("rounded-full border px-3.5 py-1.5 text-sm font-semibold", services.includes(s.code) ? "border-primary bg-primary text-primary-foreground" : "border-border text-foreground")}>
-              {fr ? s.name_fr : s.name_en}
-            </button>
-          ))}
+          {(base?.services ?? [])
+            .filter((s) => s.kind === "SERVICE")
+            .map((s) => (
+              <button
+                key={s.code}
+                type="button"
+                onClick={() => toggle(s.code)}
+                className={cn(
+                  "rounded-full border px-3.5 py-1.5 text-sm font-semibold",
+                  services.includes(s.code)
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border text-foreground",
+                )}
+              >
+                {fr ? s.name_fr : s.name_en}
+              </button>
+            ))}
         </div>
         <p className="text-xs text-muted-foreground">
-          {tx("Special items (suits, duvets…) are counted on arrival: ", "Articles spéciaux (costume, couette…) comptés à la réception : ")}
-          {(base?.services ?? []).filter((s) => s.kind === "SPECIAL").map((s) => `${fr ? s.name_fr : s.name_en} ${fcfa(s.price)}`).join(" · ")}
+          {tx(
+            "Special items (suits, duvets…) are counted on arrival: ",
+            "Articles spéciaux (costume, couette…) comptés à la réception : ",
+          )}
+          {(base?.services ?? [])
+            .filter((s) => s.kind === "SPECIAL")
+            .map((s) => `${fr ? s.name_fr : s.name_en} ${fcfa(s.price)}`)
+            .join(" · ")}
         </p>
       </section>
 
@@ -267,29 +356,58 @@ function BookClean() {
 
       <section className="space-y-3 rounded-3xl bg-card p-4 shadow-[var(--shadow-card)]">
         <label className="flex items-center gap-2 text-sm font-semibold">
-          <input type="checkbox" checked={sameDelivery} onChange={(e) => setSameDelivery(e.target.checked)} />
+          <input
+            type="checkbox"
+            checked={sameDelivery}
+            onChange={(e) => setSameDelivery(e.target.checked)}
+          />
           {tx("Deliver to the same address", "Livrer à la même adresse")}
         </label>
-        {!sameDelivery ? <AddressPicker value={delivery} onChange={setDelivery} center={center} fr={fr} /> : null}
+        {!sameDelivery ? (
+          <AddressPicker value={delivery} onChange={setDelivery} center={center} fr={fr} />
+        ) : null}
         <QuoteCard q={dq.data} loading={dq.isFetching} direction="DELIVERY" fr={fr} />
       </section>
 
       <section className="space-y-3 rounded-3xl bg-card p-4 shadow-[var(--shadow-card)]">
         <div>
           <Label htmlFor="cl-phone">{tx("Contact phone", "Téléphone de contact")}</Label>
-          <Input id="cl-phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="6XX XXX XXX" inputMode="tel" />
+          <Input
+            id="cl-phone"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="6XX XXX XXX"
+            inputMode="tel"
+          />
         </div>
         <div>
-          <Label htmlFor="cl-notes">{tx("Instructions (optional)", "Instructions (optionnel)")}</Label>
-          <Textarea id="cl-notes" value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} />
+          <Label htmlFor="cl-notes">
+            {tx("Instructions (optional)", "Instructions (optionnel)")}
+          </Label>
+          <Textarea
+            id="cl-notes"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            maxLength={500}
+          />
         </div>
         <p className="rounded-2xl bg-muted p-3 text-sm text-foreground">
-          {tx("Your laundry will be weighed at ASH Clean. Your final charge is calculated from the verified weight. You approve the final price before washing begins.", "Votre linge sera pesé chez ASH Clean. Le prix final est calculé à partir du poids vérifié. Vous validez le prix avant le lavage.")}
+          {tx(
+            "Your laundry will be weighed at ASH Clean. Your final charge is calculated from the verified weight. You approve the final price before washing begins.",
+            "Votre linge sera pesé chez ASH Clean. Le prix final est calculé à partir du poids vérifié. Vous validez le prix avant le lavage.",
+          )}
         </p>
-        <Button className="w-full rounded-full" size="lg" disabled={busy || !pickup || pq.isFetching || dq.isFetching} onClick={() => void submit()}>
+        <Button
+          className="w-full rounded-full"
+          size="lg"
+          disabled={busy || !pickup || pq.isFetching || dq.isFetching}
+          onClick={() => void submit()}
+        >
           {busy ? <Loader2 className="size-4 animate-spin" /> : null}
           {tx("Confirm pickup", "Confirmer la collecte")}
-          {pq.data && dq.data ? ` · ${tx("transport", "transport")} ${fcfa(pq.data.fee + dq.data.fee)}` : ""}
+          {pq.data && dq.data
+            ? ` · ${tx("transport", "transport")} ${fcfa(pq.data.fee + dq.data.fee)}`
+            : ""}
         </Button>
       </section>
     </div>

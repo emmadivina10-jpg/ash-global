@@ -5,7 +5,6 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { getNetworkTree, type NetworkNode } from "./network.functions";
 
-
 export function useUser() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -98,7 +97,13 @@ export function useNetwork() {
     queryFn: async () => {
       const { data: auth } = await supabase.auth.getUser();
       if (!auth.user) {
-        return { levels: [] as NetworkLevel[], total: 0, direct: 0, pendingTotal: 0, earnedTotal: 0 };
+        return {
+          levels: [] as NetworkLevel[],
+          total: 0,
+          direct: 0,
+          pendingTotal: 0,
+          earnedTotal: 0,
+        };
       }
 
       const { data: refs, error } = await supabase
@@ -170,4 +175,3 @@ export function useNetworkTree() {
     queryFn: fetch,
   });
 }
-

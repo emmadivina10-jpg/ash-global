@@ -12,19 +12,35 @@ function makeReference(): string {
  */
 export const startBookingPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { bookingId: string; method?: "MOMO" | "CARD"; provider?: string; phone?: string; country?: string; origin?: string }) => {
-    if (!input?.bookingId) throw new Error("bookingId required");
-    // Only same-app origins are allowed for Stripe success/cancel URLs.
-    const origin = paymentReturnOrigin(input.origin);
-    return {
-      bookingId: input.bookingId,
-      method: input.method === "CARD" ? ("CARD" as const) : ("MOMO" as const),
-      provider: String(input.provider ?? "").trim().slice(0, 40),
-      phone: String(input.phone ?? "").trim().slice(0, 20),
-      country: (String(input.country ?? "CM").toUpperCase().slice(0, 2) || "CM"),
-      origin,
-    };
-  })
+  .inputValidator(
+    (input: {
+      bookingId: string;
+      method?: "MOMO" | "CARD";
+      provider?: string;
+      phone?: string;
+      country?: string;
+      origin?: string;
+    }) => {
+      if (!input?.bookingId) throw new Error("bookingId required");
+      // Only same-app origins are allowed for Stripe success/cancel URLs.
+      const origin = paymentReturnOrigin(input.origin);
+      return {
+        bookingId: input.bookingId,
+        method: input.method === "CARD" ? ("CARD" as const) : ("MOMO" as const),
+        provider: String(input.provider ?? "")
+          .trim()
+          .slice(0, 40),
+        phone: String(input.phone ?? "")
+          .trim()
+          .slice(0, 20),
+        country:
+          String(input.country ?? "CM")
+            .toUpperCase()
+            .slice(0, 2) || "CM",
+        origin,
+      };
+    },
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { tchokoPay } = await import("./tchokopay.server");
@@ -35,7 +51,9 @@ export const startBookingPayment = createServerFn({ method: "POST" })
 
     const { data: booking } = await supabase
       .from("bookings")
-      .select("id, client_id, status, price, service_title, payment_reference, pay_by, payment_provider, provider_transaction_id")
+      .select(
+        "id, client_id, status, price, service_title, payment_reference, pay_by, payment_provider, provider_transaction_id",
+      )
       .eq("id", data.bookingId)
       .maybeSingle();
 
@@ -49,7 +67,11 @@ export const startBookingPayment = createServerFn({ method: "POST" })
 
     // Resume an in-flight payment when the rail still has a live attempt.
     if (booking.status === "PAYMENT_PROCESSING" && booking.payment_reference) {
-      if (booking.payment_provider === "STRIPE" && data.method === "CARD" && booking.provider_transaction_id) {
+      if (
+        booking.payment_provider === "STRIPE" &&
+        data.method === "CARD" &&
+        booking.provider_transaction_id
+      ) {
         const { stripePay } = await import("./stripe.server");
         const current = await stripePay.verifySession(booking.provider_transaction_id);
         if (current.ok && current.status === "PENDING") {
@@ -64,8 +86,16 @@ export const startBookingPayment = createServerFn({ method: "POST" })
           });
           if (resumed.ok && resumed.checkoutUrl) {
             const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-            await supabaseAdmin.from("bookings").update({ provider_transaction_id: resumed.id }).eq("id", booking.id);
-            return { ok: true as const, reference: booking.payment_reference, checkoutUrl: resumed.checkoutUrl, error: null };
+            await supabaseAdmin
+              .from("bookings")
+              .update({ provider_transaction_id: resumed.id })
+              .eq("id", booking.id);
+            return {
+              ok: true as const,
+              reference: booking.payment_reference,
+              checkoutUrl: resumed.checkoutUrl,
+              error: null,
+            };
           }
         }
       } else if (
@@ -88,7 +118,6 @@ export const startBookingPayment = createServerFn({ method: "POST" })
       }
     }
 
-
     const reference = makeReference();
     const { data: begun, error: beginError } = await supabase.rpc("begin_booking_payment", {
       _booking_id: booking.id,
@@ -96,7 +125,10 @@ export const startBookingPayment = createServerFn({ method: "POST" })
     });
     const begin = begun as { ok?: boolean; error?: string } | null;
     if (beginError || !begin?.ok) {
-      return { ok: false as const, error: begin?.error ?? beginError?.message ?? "PAYMENT_NOT_AVAILABLE" };
+      return {
+        ok: false as const,
+        error: begin?.error ?? beginError?.message ?? "PAYMENT_NOT_AVAILABLE",
+      };
     }
 
     const { data: profile } = await supabase
@@ -122,7 +154,10 @@ export const startBookingPayment = createServerFn({ method: "POST" })
 
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       if (!session.ok || !session.checkoutUrl) {
-        await supabaseAdmin.rpc("fail_booking_payment", { _payment_reference: reference, _status: "FAILED" });
+        await supabaseAdmin.rpc("fail_booking_payment", {
+          _payment_reference: reference,
+          _status: "FAILED",
+        });
         return { ok: false as const, error: session.error ?? "PAYMENT_START_FAILED" };
       }
 
@@ -143,7 +178,10 @@ export const startBookingPayment = createServerFn({ method: "POST" })
     // simply approves the prompt on their phone.
     if (!data.provider || !data.phone) {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await supabaseAdmin.rpc("fail_booking_payment", { _payment_reference: reference, _status: "FAILED" });
+      await supabaseAdmin.rpc("fail_booking_payment", {
+        _payment_reference: reference,
+        _status: "FAILED",
+      });
       return { ok: false as const, error: "MOMO_DETAILS_REQUIRED" };
     }
 
@@ -206,16 +244,28 @@ export const syncBookingPayment = createServerFn({ method: "POST" })
 
     const { data: booking } = await supabase
       .from("bookings")
-      .select("id, client_id, status, payment_reference, invoice_number, payment_provider, provider_transaction_id")
+      .select(
+        "id, client_id, status, payment_reference, invoice_number, payment_provider, provider_transaction_id",
+      )
       .eq("id", data.bookingId)
       .maybeSingle();
 
     if (!booking || booking.client_id !== userId) return { ok: false as const, error: "NOT_FOUND" };
     if (["CONFIRMED", "IN_PROGRESS", "COMPLETED", "SETTLED"].includes(booking.status)) {
-      return { ok: true as const, status: "PAID" as const, bookingStatus: booking.status, error: null };
+      return {
+        ok: true as const,
+        status: "PAID" as const,
+        bookingStatus: booking.status,
+        error: null,
+      };
     }
     if (!booking.payment_reference) {
-      return { ok: true as const, status: "PENDING" as const, bookingStatus: booking.status, error: null };
+      return {
+        ok: true as const,
+        status: "PENDING" as const,
+        bookingStatus: booking.status,
+        error: null,
+      };
     }
 
     // Only the verified Marketplace webhook can confirm a card booking.
@@ -223,14 +273,31 @@ export const syncBookingPayment = createServerFn({ method: "POST" })
     // Card: confirm only from Stripe's own server-side record of this exact Checkout session.
     if (booking.payment_provider === "STRIPE") {
       const sessionId = booking.provider_transaction_id ?? "";
-      if (!sessionId.startsWith("cs_")) return { ok: true as const, status: "PENDING" as const, bookingStatus: booking.status, error: null };
+      if (!sessionId.startsWith("cs_"))
+        return {
+          ok: true as const,
+          status: "PENDING" as const,
+          bookingStatus: booking.status,
+          error: null,
+        };
       const { stripePay } = await import("./stripe.server");
       const s = await stripePay.verifySession(sessionId);
-      if (!s.ok) return { ok: false as const, error: s.error ?? "UNVERIFIED", bookingStatus: booking.status };
+      if (!s.ok)
+        return {
+          ok: false as const,
+          error: s.error ?? "UNVERIFIED",
+          bookingStatus: booking.status,
+        };
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const { data: full } = await supabaseAdmin.from("bookings").select("payment_amount, payment_currency").eq("id", booking.id).maybeSingle();
+      const { data: full } = await supabaseAdmin
+        .from("bookings")
+        .select("payment_amount, payment_currency")
+        .eq("id", booking.id)
+        .maybeSingle();
       const expectedCents = Math.round(Number(full?.payment_amount ?? 0) * 100);
-      const matches = s.reference === booking.payment_reference && s.amountTotal === expectedCents &&
+      const matches =
+        s.reference === booking.payment_reference &&
+        s.amountTotal === expectedCents &&
         (s.currency ?? "").toUpperCase() === String(full?.payment_currency ?? "").toUpperCase();
       if (s.status === "PAID" && matches) {
         // Use Stripe's own completed-session event and charge so the protected
@@ -238,32 +305,84 @@ export const syncBookingPayment = createServerFn({ method: "POST" })
         const { stripeRead } = await import("./stripe.server");
         const [platform, session, events] = await Promise.all([
           stripeRead("account"),
-          stripeRead(`checkout/sessions/${encodeURIComponent(sessionId)}?expand[]=payment_intent.latest_charge`),
+          stripeRead(
+            `checkout/sessions/${encodeURIComponent(sessionId)}?expand[]=payment_intent.latest_charge`,
+          ),
           stripeRead("events?type=checkout.session.completed&limit=100"),
         ]).catch(() => [null, null, null] as const);
         const intent = session?.["payment_intent"] as Record<string, unknown> | undefined;
         const charge = intent?.["latest_charge"] as Record<string, unknown> | undefined;
         const list = (events?.["data"] as Array<Record<string, unknown>> | undefined) ?? [];
-        const evt = list.find((e) => ((e["data"] as Record<string, unknown>)?.["object"] as Record<string, unknown>)?.["id"] === sessionId);
-        if (!platform || !intent || !charge || !evt || intent["status"] !== "succeeded" || charge["paid"] !== true) {
-          return { ok: true as const, status: "PENDING" as const, bookingStatus: booking.status, error: null };
+        const evt = list.find(
+          (e) =>
+            ((e["data"] as Record<string, unknown>)?.["object"] as Record<string, unknown>)?.[
+              "id"
+            ] === sessionId,
+        );
+        if (
+          !platform ||
+          !intent ||
+          !charge ||
+          !evt ||
+          intent["status"] !== "succeeded" ||
+          charge["paid"] !== true
+        ) {
+          return {
+            ok: true as const,
+            status: "PENDING" as const,
+            bookingStatus: booking.status,
+            error: null,
+          };
         }
         const { settleCollection } = await import("./payment-settlement.server");
         const out = await settleCollection({
-          merchantReference: booking.payment_reference, providerReference: String(intent["id"]),
-          status: "PAID", source: "STRIPE_WEBHOOK", signatureVerified: true,
-          detail: { marketplace_account_id: String(platform["id"] ?? ""), stripe_event_id: String(evt["id"]), session_id: sessionId,
-            charge_id: String(charge["id"]), amount_minor: Number(session?.["amount_total"]), currency: String(session?.["currency"] ?? "") },
+          merchantReference: booking.payment_reference,
+          providerReference: String(intent["id"]),
+          status: "PAID",
+          source: "STRIPE_WEBHOOK",
+          signatureVerified: true,
+          detail: {
+            marketplace_account_id: String(platform["id"] ?? ""),
+            stripe_event_id: String(evt["id"]),
+            session_id: sessionId,
+            charge_id: String(charge["id"]),
+            amount_minor: Number(session?.["amount_total"]),
+            currency: String(session?.["currency"] ?? ""),
+          },
         });
-        if (!out.ok) return { ok: false as const, error: out.error ?? "SETTLEMENT_FAILED", bookingStatus: booking.status };
-        return { ok: true as const, status: "PAID" as const, bookingStatus: "CONFIRMED", error: null };
+        if (!out.ok)
+          return {
+            ok: false as const,
+            error: out.error ?? "SETTLEMENT_FAILED",
+            bookingStatus: booking.status,
+          };
+        return {
+          ok: true as const,
+          status: "PAID" as const,
+          bookingStatus: "CONFIRMED",
+          error: null,
+        };
       }
-      if (s.status === "PAID" && !matches) return { ok: false as const, error: "PAYMENT_MISMATCH", bookingStatus: booking.status };
+      if (s.status === "PAID" && !matches)
+        return { ok: false as const, error: "PAYMENT_MISMATCH", bookingStatus: booking.status };
       if (s.status === "CANCELLED") {
-        await supabaseAdmin.rpc("fail_booking_payment", { _payment_reference: booking.payment_reference, _status: "EXPIRED" });
-        return { ok: true as const, status: "EXPIRED" as const, bookingStatus: "PAYMENT_EXPIRED", error: null };
+        await supabaseAdmin.rpc("fail_booking_payment", {
+          _payment_reference: booking.payment_reference,
+          _status: "EXPIRED",
+        });
+        return {
+          ok: true as const,
+          status: "EXPIRED" as const,
+          bookingStatus: "PAYMENT_EXPIRED",
+          error: null,
+        };
       }
-      return { ok: true as const, status: "PENDING" as const, bookingStatus: booking.status, error: null };
+      return {
+        ok: true as const,
+        status: "PENDING" as const,
+        bookingStatus: booking.status,
+        error: null,
+      };
     }
 
     let verification: {
@@ -288,9 +407,12 @@ export const syncBookingPayment = createServerFn({ method: "POST" })
     }
 
     if (!verification.ok) {
-      return { ok: false as const, error: verification.error ?? "UNVERIFIED", bookingStatus: booking.status };
+      return {
+        ok: false as const,
+        error: verification.error ?? "UNVERIFIED",
+        bookingStatus: booking.status,
+      };
     }
-
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -307,7 +429,12 @@ export const syncBookingPayment = createServerFn({ method: "POST" })
         outcome: "BOOKING_CONFIRMED",
         detail: { booking_id: booking.id },
       });
-      return { ok: true as const, status: "PAID" as const, bookingStatus: "CONFIRMED", error: null };
+      return {
+        ok: true as const,
+        status: "PAID" as const,
+        bookingStatus: "CONFIRMED",
+        error: null,
+      };
     }
 
     if (verification.status === "FAILED" || verification.status === "CANCELLED") {
@@ -315,8 +442,18 @@ export const syncBookingPayment = createServerFn({ method: "POST" })
         _payment_reference: booking.payment_reference,
         _status: verification.status,
       });
-      return { ok: true as const, status: verification.status, bookingStatus: "PAYMENT_FAILED", error: null };
+      return {
+        ok: true as const,
+        status: verification.status,
+        bookingStatus: "PAYMENT_FAILED",
+        error: null,
+      };
     }
 
-    return { ok: true as const, status: verification.status, bookingStatus: booking.status, error: null };
+    return {
+      ok: true as const,
+      status: verification.status,
+      bookingStatus: booking.status,
+      error: null,
+    };
   });

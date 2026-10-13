@@ -20,12 +20,15 @@ export async function resolveAvatarUrl(path: string) {
   if (cached && cached.expiresAt > Date.now()) return cached.url;
   const pending = pendingAvatarUrls.get(path);
   if (pending) return pending;
-  const request = supabase.storage.from("avatars").createSignedUrl(path, 60 * 60 * 24).then(({ data }) => {
-    const url = data?.signedUrl ?? null;
-    if (url) avatarUrlCache.set(path, { url, expiresAt: Date.now() + 23 * 60 * 60 * 1000 });
-    pendingAvatarUrls.delete(path);
-    return url;
-  });
+  const request = supabase.storage
+    .from("avatars")
+    .createSignedUrl(path, 60 * 60 * 24)
+    .then(({ data }) => {
+      const url = data?.signedUrl ?? null;
+      if (url) avatarUrlCache.set(path, { url, expiresAt: Date.now() + 23 * 60 * 60 * 1000 });
+      pendingAvatarUrls.delete(path);
+      return url;
+    });
   pendingAvatarUrls.set(path, request);
   return request;
 }
@@ -80,9 +83,20 @@ export function Avatar({
         className,
       )}
     >
-      <span className={cn("relative z-[1] grid size-full place-items-center overflow-hidden rounded-full bg-muted", hasUpdate && "ring-2 ring-background")}>
+      <span
+        className={cn(
+          "relative z-[1] grid size-full place-items-center overflow-hidden rounded-full bg-muted",
+          hasUpdate && "ring-2 ring-background",
+        )}
+      >
         {url ? (
-          <img src={url} alt={name ?? "Profile picture"} className="size-full object-cover" loading="lazy" decoding="async" />
+          <img
+            src={url}
+            alt={name ?? "Profile picture"}
+            className="size-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
         ) : initials ? (
           initials
         ) : (
@@ -171,7 +185,12 @@ export function AvatarUpload({
   return (
     <div className="flex items-center gap-4">
       <div className="relative">
-        <AvatarPhoto path={path} name={name} online={online} className="size-20 ring-2 ring-border" />
+        <AvatarPhoto
+          path={path}
+          name={name}
+          online={online}
+          className="size-20 ring-2 ring-border"
+        />
         {busy ? (
           <span className="absolute inset-0 grid place-items-center rounded-full bg-foreground/50">
             <Loader2 className="size-5 animate-spin text-background" aria-hidden />
@@ -179,12 +198,22 @@ export function AvatarUpload({
         ) : null}
       </div>
       <div>
-        <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => inputRef.current?.click()}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={busy}
+          onClick={() => inputRef.current?.click()}
+        >
           <Camera className="size-4" aria-hidden />
           {path ? "Change photo" : "Add photo"}
         </Button>
         <p className="mt-1.5 text-xs text-muted-foreground">JPG or PNG, up to 5MB.</p>
-        {denied && <p role="alert" className="mt-2 text-sm font-semibold text-destructive">Denied</p>}
+        {denied && (
+          <p role="alert" className="mt-2 text-sm font-semibold text-destructive">
+            Denied
+          </p>
+        )}
         <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={pick} />
       </div>
     </div>
@@ -213,7 +242,9 @@ export function AvatarPhoto({
   const url = useAvatarUrl(open ? path : null);
   const label = tx("View profile photo", "Voir la photo de profil");
 
-  const avatar = <Avatar path={path} name={name} online={online} hasUpdate={hasUpdate} className={className} />;
+  const avatar = (
+    <Avatar path={path} name={name} online={online} hasUpdate={hasUpdate} className={className} />
+  );
 
   return (
     <>
@@ -236,7 +267,9 @@ export function AvatarPhoto({
           overlayClassName="bg-foreground/40 backdrop-blur-md duration-300 motion-reduce:animate-none"
           className="grid h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-none place-items-center overflow-hidden border-0 bg-transparent p-0 shadow-none duration-300 motion-reduce:animate-none"
         >
-          <DialogTitle className="sr-only">{name ?? tx("Profile photo", "Photo de profil")}</DialogTitle>
+          <DialogTitle className="sr-only">
+            {name ?? tx("Profile photo", "Photo de profil")}
+          </DialogTitle>
           {url ? (
             <img
               src={url}

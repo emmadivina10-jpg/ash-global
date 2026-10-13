@@ -6,9 +6,11 @@ import { routeTree } from "./routeTree.gen";
 function signOutWhenRevoked(error: unknown) {
   const m = error instanceof Error ? error.message : String(error);
   if (typeof window === "undefined" || !/SESSION_REVOKED|SECURITY_LOCKED/.test(m)) return;
-  void import("@/integrations/supabase/client").then(({ supabase }) => supabase.auth.signOut()).finally(() => {
-    window.location.assign("/login");
-  });
+  void import("@/integrations/supabase/client")
+    .then(({ supabase }) => supabase.auth.signOut())
+    .finally(() => {
+      window.location.assign("/login");
+    });
 }
 
 export const getRouter = () => {

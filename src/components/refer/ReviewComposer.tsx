@@ -9,10 +9,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
 const ERRORS: Record<string, { en: string; fr: string }> = {
-  UNAUTHENTICATED: { en: "Please sign in to leave a review.", fr: "Connectez-vous pour laisser un avis." },
+  UNAUTHENTICATED: {
+    en: "Please sign in to leave a review.",
+    fr: "Connectez-vous pour laisser un avis.",
+  },
   INVALID_RATING: { en: "Choose between 1 and 5 stars.", fr: "Choisissez entre 1 et 5 étoiles." },
-  PROVIDER_NOT_FOUND: { en: "This storefront is not available.", fr: "Cette vitrine n'est pas disponible." },
-  CANNOT_REVIEW_SELF: { en: "You can't review your own storefront.", fr: "Vous ne pouvez pas vous auto-évaluer." },
+  PROVIDER_NOT_FOUND: {
+    en: "This storefront is not available.",
+    fr: "Cette vitrine n'est pas disponible.",
+  },
+  CANNOT_REVIEW_SELF: {
+    en: "You can't review your own storefront.",
+    fr: "Vous ne pouvez pas vous auto-évaluer.",
+  },
   ALREADY_REVIEWED: {
     en: "You already left a community review for this pro.",
     fr: "Vous avez déjà laissé un avis communautaire pour ce pro.",
@@ -69,7 +78,13 @@ export function ReviewComposer({
     if (error || !result?.ok) {
       const code = result?.error ?? "";
       const message = ERRORS[code];
-      toast.error(message ? (fr ? message.fr : message.en) : (error?.message ?? "Could not save your review."));
+      toast.error(
+        message
+          ? fr
+            ? message.fr
+            : message.en
+          : (error?.message ?? "Could not save your review."),
+      );
       return;
     }
 

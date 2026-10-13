@@ -7,7 +7,12 @@ export const Route = createFileRoute("/console/expansion")({
   component: () => (
     <div className="space-y-10">
       <ExpansionWorkspace />
-      <WorkBoard department="EXPANSION" title="Expansion" blurb="City by city acquisition of users and providers." leadType="BUSINESS" />
+      <WorkBoard
+        department="EXPANSION"
+        title="Expansion"
+        blurb="City by city acquisition of users and providers."
+        leadType="BUSINESS"
+      />
     </div>
   ),
 });

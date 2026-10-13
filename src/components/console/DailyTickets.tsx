@@ -75,21 +75,40 @@ export function DailyTickets({ superAdmin }: { superAdmin: boolean }) {
               <button
                 type="button"
                 aria-label={task.status === "DONE" ? "Reopen" : "Mark done"}
-                onClick={() => toggle.mutate({ taskId: task.id, status: task.status === "DONE" ? "OPEN" : "DONE" })}
+                onClick={() =>
+                  toggle.mutate({
+                    taskId: task.id,
+                    status: task.status === "DONE" ? "OPEN" : "DONE",
+                  })
+                }
                 className={cn(
                   "mt-0.5 grid size-5 shrink-0 place-items-center rounded-md border",
-                  task.status === "DONE" ? "border-success bg-success text-on-dark" : "border-border",
+                  task.status === "DONE"
+                    ? "border-success bg-success text-on-dark"
+                    : "border-border",
                 )}
               >
                 {task.status === "DONE" ? <Check className="size-3.5" aria-hidden /> : null}
               </button>
               <div className="min-w-0 flex-1">
-                <p className={cn("text-sm font-semibold text-foreground", task.status === "DONE" && "line-through")}>
+                <p
+                  className={cn(
+                    "text-sm font-semibold text-foreground",
+                    task.status === "DONE" && "line-through",
+                  )}
+                >
                   {task.title}
                 </p>
-                {task.detail ? <p className="mt-0.5 text-xs text-muted-foreground">{task.detail}</p> : null}
+                {task.detail ? (
+                  <p className="mt-0.5 text-xs text-muted-foreground">{task.detail}</p>
+                ) : null}
                 <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                  <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-bold", priorityTone(task.priority))}>
+                  <span
+                    className={cn(
+                      "rounded-full border px-2 py-0.5 text-[10px] font-bold",
+                      priorityTone(task.priority),
+                    )}
+                  >
                     {task.priority}
                   </span>
                   {superAdmin ? (
@@ -129,10 +148,14 @@ export function DailyBriefing() {
     mutationFn: async (tasks: BriefingSuggestion[]) => issue({ data: { tasks, source: "AI" } }),
     onSuccess: async (result) => {
       if (!result.ok) {
-        toast.error(result.error === "NO_TASKS" ? "Pick at least one task." : "Could not issue tickets.");
+        toast.error(
+          result.error === "NO_TASKS" ? "Pick at least one task." : "Could not issue tickets.",
+        );
         return;
       }
-      toast.success(`${result.issued} ticket${result.issued === 1 ? "" : "s"} sent to the dashboards.`);
+      toast.success(
+        `${result.issued} ticket${result.issued === 1 ? "" : "s"} sent to the dashboards.`,
+      );
       setSelected({});
       await queryClient.invalidateQueries({ queryKey: ["console", "tasks"] });
     },
@@ -170,7 +193,8 @@ export function DailyBriefing() {
 
       {data?.error ? (
         <p className="mt-3 rounded-xl bg-destructive/10 p-3 text-xs text-destructive">
-          The briefing could not be generated right now ({data.error}). The numbers below are still live.
+          The briefing could not be generated right now ({data.error}). The numbers below are still
+          live.
         </p>
       ) : null}
 
@@ -183,8 +207,12 @@ export function DailyBriefing() {
             { label: "Pending payouts", value: data.metrics.pendingWithdrawals },
           ].map((metric) => (
             <div key={metric.label} className="rounded-xl border border-border bg-card p-2.5">
-              <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{metric.label}</p>
-              <p className="tabular mt-0.5 text-lg font-extrabold text-foreground">{metric.value}</p>
+              <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+                {metric.label}
+              </p>
+              <p className="tabular mt-0.5 text-lg font-extrabold text-foreground">
+                {metric.value}
+              </p>
             </div>
           ))}
         </div>
@@ -204,7 +232,9 @@ export function DailyBriefing() {
               onClick={() => setSelected((current) => ({ ...current, [key]: !active }))}
               className={cn(
                 "flex w-full items-start gap-3 rounded-xl border p-3 text-left transition-colors",
-                active ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/40",
+                active
+                  ? "border-primary bg-primary/10"
+                  : "border-border bg-card hover:border-primary/40",
               )}
             >
               <span
@@ -222,7 +252,12 @@ export function DailyBriefing() {
                   <span className="rounded-full border border-border px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
                     {task.department.replace(/_/g, " ")}
                   </span>
-                  <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-bold", priorityTone(task.priority))}>
+                  <span
+                    className={cn(
+                      "rounded-full border px-2 py-0.5 text-[10px] font-bold",
+                      priorityTone(task.priority),
+                    )}
+                  >
                     {task.priority}
                   </span>
                 </span>

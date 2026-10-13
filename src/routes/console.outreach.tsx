@@ -3,7 +3,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { CheckCircle2, Mail, MessageCircle, Search, XCircle } from "lucide-react";
-import { getOutreachLog, logOutreach, lookupContact, sendOutreachEmail, type ContactCard } from "@/lib/outreach.functions";
+import {
+  getOutreachLog,
+  logOutreach,
+  lookupContact,
+  sendOutreachEmail,
+  type ContactCard,
+} from "@/lib/outreach.functions";
 import { OUTREACH_SCRIPTS, fillScript, type OutreachLang } from "@/lib/outreach-scripts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -102,7 +108,11 @@ function OutreachPage() {
           <Field label="Bookings" value={String(contact.bookingsCount)} />
           <Field
             label="Storefront"
-            value={contact.providerName ? `${contact.providerName}${contact.providerVerified ? " ✓" : ""}` : "—"}
+            value={
+              contact.providerName
+                ? `${contact.providerName}${contact.providerVerified ? " ✓" : ""}`
+                : "—"
+            }
           />
         </div>
       ) : null}
@@ -121,7 +131,11 @@ function OutreachPage() {
                 </option>
               ))}
             </select>
-            <Button variant="outline" size="sm" onClick={() => applyScript(scriptKey, lang === "en" ? "fr" : "en", contact)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => applyScript(scriptKey, lang === "en" ? "fr" : "en", contact)}
+            >
               {lang === "en" ? "Français" : "English"}
             </Button>
           </div>
@@ -136,7 +150,11 @@ function OutreachPage() {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="outreach-subject">Subject</Label>
-            <Input id="outreach-subject" value={subject} onChange={(event) => setSubject(event.target.value)} />
+            <Input
+              id="outreach-subject"
+              value={subject}
+              onChange={(event) => setSubject(event.target.value)}
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="outreach-message">Message</Label>
@@ -168,7 +186,9 @@ function OutreachPage() {
                   },
                 });
                 setBusy(false);
-                setStatus(result.ok ? `Branded email sent to ${to}.` : `Could not send: ${result.error}`);
+                setStatus(
+                  result.ok ? `Branded email sent to ${to}.` : `Could not send: ${result.error}`,
+                );
                 queryClient.invalidateQueries({ queryKey: ["console", "outreach-log"] });
               }}
             >
@@ -180,7 +200,10 @@ function OutreachPage() {
               variant="outline"
               disabled={!waNumber || !message}
               onClick={async () => {
-                window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, "_blank");
+                window.open(
+                  `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`,
+                  "_blank",
+                );
                 await logWhatsapp({
                   data: {
                     channel: "WHATSAPP",
@@ -235,7 +258,9 @@ function OutreachPage() {
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{label}</p>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+        {label}
+      </p>
       <p className="truncate text-sm font-semibold text-foreground">{value}</p>
     </div>
   );

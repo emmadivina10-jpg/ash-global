@@ -10,16 +10,20 @@ const SLIDES = [
     kickerFr: "Bienvenue sur ASH",
     titleEn: ["Where", "opportunities", "connect."],
     titleFr: ["Là où les", "opportunités", "se rencontrent."],
-    bodyEn: "Book trusted professionals, chat with friends and family, and share your moments — all in one place.",
-    bodyFr: "Réservez des professionnels de confiance, discutez avec vos amis et votre famille, et partagez vos moments — au même endroit.",
+    bodyEn:
+      "Book trusted professionals, chat with friends and family, and share your moments — all in one place.",
+    bodyFr:
+      "Réservez des professionnels de confiance, discutez avec vos amis et votre famille, et partagez vos moments — au même endroit.",
   },
   {
     kickerEn: "Pay your way",
     kickerFr: "Payez à votre façon",
     titleEn: ["Simple.", "Secure.", "Yours."],
     titleFr: ["Simple.", "Sécurisé.", "À vous."],
-    bodyEn: "Card with Stripe, MTN MoMo and Orange Money. Every payment protected until the service is done.",
-    bodyFr: "Carte via Stripe, MTN MoMo et Orange Money. Chaque paiement protégé jusqu'au service rendu.",
+    bodyEn:
+      "Card with Stripe, MTN MoMo and Orange Money. Every payment protected until the service is done.",
+    bodyFr:
+      "Carte via Stripe, MTN MoMo et Orange Money. Chaque paiement protégé jusqu'au service rendu.",
   },
 ] as const;
 
@@ -63,8 +67,14 @@ export function MobileOnboarding() {
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
-      <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full gold-gradient opacity-20 blur-3xl" />
-      <div aria-hidden className="pointer-events-none absolute -bottom-32 -left-24 size-80 rounded-full brand-gradient opacity-15 blur-3xl" />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full gold-gradient opacity-20 blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-32 -left-24 size-80 rounded-full brand-gradient opacity-15 blur-3xl"
+      />
 
       <header className="relative flex items-center justify-between">
         <img src={ashLogo.url} alt="ASH" className="size-9 rounded-xl shadow-sm" />
@@ -89,16 +99,29 @@ export function MobileOnboarding() {
           }}
         >
           {SLIDES.map((s, i) => (
-            <section key={i} className="flex w-full flex-col justify-center pr-7" aria-hidden={i !== step}>
+            <section
+              key={i}
+              className="flex w-full flex-col justify-center pr-7"
+              aria-hidden={i !== step}
+            >
               <p className="mb-6 text-[11px] font-bold uppercase tracking-[0.32em] text-primary">
                 {tx(s.kickerEn, s.kickerFr)}
               </p>
               <h1 className="font-serif text-[3.1rem] font-normal leading-[1.02] tracking-tight text-foreground">
-                {tx(s.titleEn.join("|"), s.titleFr.join("|")).split("|").map((line, j) => (
-                  <span key={j} className={j === 1 ? "block italic gold-gradient bg-clip-text text-transparent" : "block"}>
-                    {line}
-                  </span>
-                ))}
+                {tx(s.titleEn.join("|"), s.titleFr.join("|"))
+                  .split("|")
+                  .map((line, j) => (
+                    <span
+                      key={j}
+                      className={
+                        j === 1
+                          ? "block italic gold-gradient bg-clip-text text-transparent"
+                          : "block"
+                      }
+                    >
+                      {line}
+                    </span>
+                  ))}
               </h1>
               <div className="my-7 h-px w-16 gold-gradient" />
               <p className="max-w-xs text-[15px] leading-relaxed text-muted-foreground">

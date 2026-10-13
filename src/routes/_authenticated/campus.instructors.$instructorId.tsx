@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, BadgeCheck, CalendarDays, Flag, MapPin, MessageCircle, Star, Store, UserPlus } from "lucide-react";
+import {
+  ArrowLeft,
+  BadgeCheck,
+  CalendarDays,
+  Flag,
+  MapPin,
+  MessageCircle,
+  Star,
+  Store,
+  UserPlus,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
@@ -28,9 +38,16 @@ export const Route = createFileRoute("/_authenticated/campus/instructors/$instru
   head: () => ({
     meta: [
       { title: "Instructor profile — ASH Campus" },
-      { name: "description", content: "Qualifications, subjects, availability, services and reviews for an ASH Campus instructor." },
+      {
+        name: "description",
+        content:
+          "Qualifications, subjects, availability, services and reviews for an ASH Campus instructor.",
+      },
       { property: "og:title", content: "Instructor profile — ASH Campus" },
-      { property: "og:description", content: "See an ASH instructor's subjects, experience, availability and services." },
+      {
+        property: "og:description",
+        content: "See an ASH instructor's subjects, experience, availability and services.",
+      },
       { property: "og:type", content: "profile" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -113,7 +130,9 @@ function InstructorProfilePage() {
                 size={16}
               />
             </h1>
-            {instructor.headline ? <p className="text-sm text-muted-foreground">{instructor.headline}</p> : null}
+            {instructor.headline ? (
+              <p className="text-sm text-muted-foreground">{instructor.headline}</p>
+            ) : null}
             <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               {instructor.city ? (
                 <span className="inline-flex items-center gap-1">
@@ -124,13 +143,17 @@ function InstructorProfilePage() {
               ) : null}
               {instructor.languages.length ? <span>{instructor.languages.join(" • ")}</span> : null}
               {instructor.teaching_modes.length ? (
-                <span>{instructor.teaching_modes.map((mode) => modeLabel(mode, fr)).join(" • ")}</span>
+                <span>
+                  {instructor.teaching_modes.map((mode) => modeLabel(mode, fr)).join(" • ")}
+                </span>
               ) : null}
             </div>
           </div>
         </div>
 
-        {instructor.bio ? <p className="mt-4 whitespace-pre-wrap text-sm text-foreground">{instructor.bio}</p> : null}
+        {instructor.bio ? (
+          <p className="mt-4 whitespace-pre-wrap text-sm text-foreground">{instructor.bio}</p>
+        ) : null}
 
         <div className="mt-4 flex flex-wrap gap-2">
           <Button onClick={() => void message()} disabled={busy}>
@@ -159,7 +182,10 @@ function InstructorProfilePage() {
             onClick={() =>
               follow.mutate(instructor.user_id, {
                 onSuccess: () => toast.success(tx("Request sent.", "Demande envoyée.")),
-                onError: (error) => toast.error(error instanceof Error ? error.message : "Could not send the request."),
+                onError: (error) =>
+                  toast.error(
+                    error instanceof Error ? error.message : "Could not send the request.",
+                  ),
               })
             }
           >
@@ -207,7 +233,8 @@ function InstructorProfilePage() {
               if (!levels.length) return null;
               return (
                 <p key={language} className="text-xs text-muted-foreground">
-                  <span className="font-semibold text-foreground">{language}</span> — {levels.join(", ")}
+                  <span className="font-semibold text-foreground">{language}</span> —{" "}
+                  {levels.join(", ")}
                 </p>
               );
             })}
@@ -215,7 +242,10 @@ function InstructorProfilePage() {
         ) : null}
         {instructor.exams.length ? (
           <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
-            {tx("This instructor offers independent preparation. They are not affiliated with, endorsed by or certified by the organisation that administers these examinations.", "Cet instructeur propose une préparation indépendante. Il n'est ni affilié, ni approuvé, ni certifié par l'organisme qui administre ces examens.")}
+            {tx(
+              "This instructor offers independent preparation. They are not affiliated with, endorsed by or certified by the organisation that administers these examinations.",
+              "Cet instructeur propose une préparation indépendante. Il n'est ni affilié, ni approuvé, ni certifié par l'organisme qui administre ces examens.",
+            )}
           </p>
         ) : null}
       </Section>
@@ -241,7 +271,7 @@ function InstructorProfilePage() {
 
       <Section title={tx("Teaching", "Enseignement")}>
         <p className="whitespace-pre-wrap text-sm text-foreground">
-          {instructor.methodology || (tx("No teaching method provided.", "Méthode non renseignée."))}
+          {instructor.methodology || tx("No teaching method provided.", "Méthode non renseignée.")}
         </p>
         {instructor.areas_served ? (
           <p className="mt-2 text-xs text-muted-foreground">
@@ -285,19 +315,33 @@ function InstructorProfilePage() {
           </p>
         ) : (
           <ul className="space-y-2">
-            {services.data.map((service: { id: string; title: string; price: number; duration_minutes?: number }) => (
-              <li key={service.id} className="flex items-center justify-between gap-3 rounded-xl border border-border p-3">
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold text-foreground">{service.title}</span>
-                  {service.duration_minutes ? (
-                    <span className="block text-xs text-muted-foreground">{service.duration_minutes} min</span>
-                  ) : null}
-                </span>
-                <span className="text-sm font-bold text-foreground">
-                  {service.price} {instructor.currency}
-                </span>
-              </li>
-            ))}
+            {services.data.map(
+              (service: {
+                id: string;
+                title: string;
+                price: number;
+                duration_minutes?: number;
+              }) => (
+                <li
+                  key={service.id}
+                  className="flex items-center justify-between gap-3 rounded-xl border border-border p-3"
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold text-foreground">
+                      {service.title}
+                    </span>
+                    {service.duration_minutes ? (
+                      <span className="block text-xs text-muted-foreground">
+                        {service.duration_minutes} min
+                      </span>
+                    ) : null}
+                  </span>
+                  <span className="text-sm font-bold text-foreground">
+                    {service.price} {instructor.currency}
+                  </span>
+                </li>
+              ),
+            )}
           </ul>
         )}
       </Section>
@@ -305,26 +349,36 @@ function InstructorProfilePage() {
       <Section title={tx("Reviews", "Avis")}>
         {!reviews.data?.length ? (
           <p className="text-sm text-muted-foreground">
-            {tx("No reviews yet. Reviews come only from completed sessions.", "Aucun avis pour l'instant. Les avis proviennent uniquement de séances terminées.")}
+            {tx(
+              "No reviews yet. Reviews come only from completed sessions.",
+              "Aucun avis pour l'instant. Les avis proviennent uniquement de séances terminées.",
+            )}
           </p>
         ) : (
           <ul className="space-y-3">
-            {reviews.data.map((review: { id: string; rating: number; comment: string | null; author: string }) => (
-              <li key={review.id} className="rounded-xl border border-border p-3">
-                <div className="flex items-center gap-2">
-                  <RatingStars value={review.rating} />
-                  <span className="text-xs font-semibold text-foreground">{review.author}</span>
-                </div>
-                {review.comment ? <p className="mt-1 text-sm text-muted-foreground">{review.comment}</p> : null}
-              </li>
-            ))}
+            {reviews.data.map(
+              (review: { id: string; rating: number; comment: string | null; author: string }) => (
+                <li key={review.id} className="rounded-xl border border-border p-3">
+                  <div className="flex items-center gap-2">
+                    <RatingStars value={review.rating} />
+                    <span className="text-xs font-semibold text-foreground">{review.author}</span>
+                  </div>
+                  {review.comment ? (
+                    <p className="mt-1 text-sm text-muted-foreground">{review.comment}</p>
+                  ) : null}
+                </li>
+              ),
+            )}
           </ul>
         )}
       </Section>
 
       <p className="flex items-start gap-2 rounded-2xl border border-border bg-card p-4 text-xs leading-relaxed text-muted-foreground">
         <Star className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
-        {tx("“ASH Verified Instructor” means the ASH team reviewed the application and submitted documents. ASH does not perform criminal background checks, government verification or professional licensing checks.", "« Instructeur vérifié ASH » signifie que l'équipe ASH a examiné la candidature et les documents fournis. ASH ne réalise pas de vérification d'antécédents judiciaires, de contrôle gouvernemental ni de licence professionnelle.")}
+        {tx(
+          "“ASH Verified Instructor” means the ASH team reviewed the application and submitted documents. ASH does not perform criminal background checks, government verification or professional licensing checks.",
+          "« Instructeur vérifié ASH » signifie que l'équipe ASH a examiné la candidature et les documents fournis. ASH ne réalise pas de vérification d'antécédents judiciaires, de contrôle gouvernemental ni de licence professionnelle.",
+        )}
       </p>
     </div>
   );

@@ -5,7 +5,10 @@
  */
 
 /** XAF per 1 USD. Used to present a card price for a XAF-denominated booking. */
-import { LIVE_PROVIDER_TRANSFERS_ENABLED, LIVE_PROVIDER_ONBOARDING_ENABLED } from "./stripe-release-policy";
+import {
+  LIVE_PROVIDER_TRANSFERS_ENABLED,
+  LIVE_PROVIDER_ONBOARDING_ENABLED,
+} from "./stripe-release-policy";
 export const XAF_PER_USD = 620;
 
 export function xafToUsdCents(xaf: number): number {
@@ -20,10 +23,16 @@ function key(): string | null {
 
 async function stripeRequest(
   path: string,
-  init?: { method?: string; body?: URLSearchParams; idempotencyKey?: string; connectedAccount?: string },
+  init?: {
+    method?: string;
+    body?: URLSearchParams;
+    idempotencyKey?: string;
+    connectedAccount?: string;
+  },
 ): Promise<{ ok: boolean; status: number; data: Record<string, unknown> }> {
   const secret = key();
-  if (!secret) return { ok: false, status: 0, data: { error: { message: "STRIPE_NOT_CONFIGURED" } } };
+  if (!secret)
+    return { ok: false, status: 0, data: { error: { message: "STRIPE_NOT_CONFIGURED" } } };
 
   const response = await fetch(`https://api.stripe.com/v1/${path}`, {
     method: init?.method ?? "GET",
@@ -63,7 +72,13 @@ export const stripePay = {
     metadata?: Record<string, string>;
   }): Promise<StripeSession> {
     if (!key()) {
-      return { ok: false, configured: false, id: null, checkoutUrl: null, error: "STRIPE_NOT_CONFIGURED" };
+      return {
+        ok: false,
+        configured: false,
+        id: null,
+        checkoutUrl: null,
+        error: "STRIPE_NOT_CONFIGURED",
+      };
     }
 
     const body = new URLSearchParams();
@@ -79,10 +94,20 @@ export const stripePay = {
     body.set("metadata[reference]", input.reference);
     for (const [k, v] of Object.entries(input.metadata ?? {})) body.set(`metadata[${k}]`, v);
 
-    const result = await stripeRequest("checkout/sessions", { method: "POST", body, idempotencyKey: `ash_checkout_${input.reference}` });
+    const result = await stripeRequest("checkout/sessions", {
+      method: "POST",
+      body,
+      idempotencyKey: `ash_checkout_${input.reference}`,
+    });
     if (!result.ok) {
       const err = result.data["error"] as { message?: string } | undefined;
-      return { ok: false, configured: true, id: null, checkoutUrl: null, error: err?.message ?? "STRIPE_ERROR" };
+      return {
+        ok: false,
+        configured: true,
+        id: null,
+        checkoutUrl: null,
+        error: err?.message ?? "STRIPE_ERROR",
+      };
     }
     return {
       ok: true,
@@ -105,12 +130,24 @@ export const stripePay = {
     reference?: string | null;
   }> {
     if (!key()) {
-      return { ok: false, configured: false, status: "PENDING", paymentIntentId: null, error: "STRIPE_NOT_CONFIGURED" };
+      return {
+        ok: false,
+        configured: false,
+        status: "PENDING",
+        paymentIntentId: null,
+        error: "STRIPE_NOT_CONFIGURED",
+      };
     }
     const result = await stripeRequest(`checkout/sessions/${encodeURIComponent(sessionId)}`);
     if (!result.ok) {
       const err = result.data["error"] as { message?: string } | undefined;
-      return { ok: false, configured: true, status: "PENDING", paymentIntentId: null, error: err?.message ?? "STRIPE_ERROR" };
+      return {
+        ok: false,
+        configured: true,
+        status: "PENDING",
+        paymentIntentId: null,
+        error: err?.message ?? "STRIPE_ERROR",
+      };
     }
     const paymentStatus = result.data["payment_status"] as string | undefined;
     const sessionStatus = result.data["status"] as string | undefined;
@@ -118,17 +155,24 @@ export const stripePay = {
     const paymentIntentId = typeof intent === "string" ? intent : null;
 
     const status: "PAID" | "PENDING" | "FAILED" | "CANCELLED" =
-      paymentStatus === "paid"
-        ? "PAID"
-        : sessionStatus === "expired"
-          ? "CANCELLED"
-          : "PENDING";
+      paymentStatus === "paid" ? "PAID" : sessionStatus === "expired" ? "CANCELLED" : "PENDING";
 
     return {
-      ok: true, configured: true, status, paymentIntentId, error: null,
-      amountTotal: typeof result.data["amount_total"] === "number" ? (result.data["amount_total"] as number) : null,
-      currency: typeof result.data["currency"] === "string" ? (result.data["currency"] as string) : null,
-      reference: typeof result.data["client_reference_id"] === "string" ? (result.data["client_reference_id"] as string) : null,
+      ok: true,
+      configured: true,
+      status,
+      paymentIntentId,
+      error: null,
+      amountTotal:
+        typeof result.data["amount_total"] === "number"
+          ? (result.data["amount_total"] as number)
+          : null,
+      currency:
+        typeof result.data["currency"] === "string" ? (result.data["currency"] as string) : null,
+      reference:
+        typeof result.data["client_reference_id"] === "string"
+          ? (result.data["client_reference_id"] as string)
+          : null,
     };
   },
 };
@@ -163,7 +207,8 @@ async function stripeV2Request(
   init?: { method?: string; body?: Record<string, unknown>; idempotencyKey?: string },
 ): Promise<{ ok: boolean; status: number; data: Record<string, unknown> }> {
   const secret = key();
-  if (!secret) return { ok: false, status: 0, data: { error: { message: "STRIPE_NOT_CONFIGURED" } } };
+  if (!secret)
+    return { ok: false, status: 0, data: { error: { message: "STRIPE_NOT_CONFIGURED" } } };
 
   const response = await fetch(`https://api.stripe.com/v2/${path}`, {
     method: init?.method ?? "GET",
@@ -186,9 +231,11 @@ function readAccount(data: Record<string, unknown>): ConnectStatus {
   const configuration = (data["configuration"] as Record<string, unknown> | undefined) ?? {};
   const recipient = (configuration["recipient"] as Record<string, unknown> | undefined) ?? {};
   const capabilities = (recipient["capabilities"] as Record<string, unknown> | undefined) ?? {};
-  const stripeBalance = (capabilities["stripe_balance"] as Record<string, unknown> | undefined) ?? {};
+  const stripeBalance =
+    (capabilities["stripe_balance"] as Record<string, unknown> | undefined) ?? {};
   const transfers = (stripeBalance["stripe_transfers"] as { status?: string } | undefined) ?? {};
-  const requirements = (data["requirements"] as { entries?: Array<{ code?: string }> } | undefined) ?? {};
+  const requirements =
+    (data["requirements"] as { entries?: Array<{ code?: string }> } | undefined) ?? {};
   const entries = requirements.entries ?? [];
   return {
     configured: true,
@@ -212,8 +259,13 @@ export const stripeConnect = {
    * ASH never sees the bank details. The platform collects fees/losses, which
    * requires the platform's loss-liability acknowledgement in the Dashboard.
    */
-  async createAccount(input: { email: string; country: string; userId: string }): Promise<ConnectStatus> {
-    if (!LIVE_PROVIDER_ONBOARDING_ENABLED) return { ...EMPTY_CONNECT, error: "ONBOARDING_AWAITING_APPROVAL" };
+  async createAccount(input: {
+    email: string;
+    country: string;
+    userId: string;
+  }): Promise<ConnectStatus> {
+    if (!LIVE_PROVIDER_ONBOARDING_ENABLED)
+      return { ...EMPTY_CONNECT, error: "ONBOARDING_AWAITING_APPROVAL" };
     if (!key()) return EMPTY_CONNECT;
     const result = await stripeV2Request("core/accounts", {
       method: "POST",
@@ -224,13 +276,17 @@ export const stripeConnect = {
         contact_email: input.email,
         dashboard: "express",
         identity: { country: input.country.toUpperCase() },
-        defaults: { responsibilities: { fees_collector: "application", losses_collector: "application" } },
+        defaults: {
+          responsibilities: { fees_collector: "application", losses_collector: "application" },
+        },
         // Same-region recipients on this platform must also hold card_payments
         // before Stripe allows stripe_transfers (Stripe rejects transfers alone).
         // ASH still never charges cards on the provider's account.
         configuration: {
           merchant: { capabilities: { card_payments: { requested: true } } },
-          recipient: { capabilities: { stripe_balance: { stripe_transfers: { requested: true } } } },
+          recipient: {
+            capabilities: { stripe_balance: { stripe_transfers: { requested: true } } },
+          },
         },
         metadata: { ash_user_id: input.userId },
       },
@@ -244,7 +300,9 @@ export const stripeConnect = {
 
   async getAccount(accountId: string): Promise<ConnectStatus> {
     if (!key()) return EMPTY_CONNECT;
-    const result = await stripeV2Request(`core/accounts/${encodeURIComponent(accountId)}?include[]=configuration.recipient&include[]=requirements&include[]=identity`);
+    const result = await stripeV2Request(
+      `core/accounts/${encodeURIComponent(accountId)}?include[]=configuration.recipient&include[]=requirements&include[]=identity`,
+    );
     if (!result.ok) {
       const err = result.data["error"] as { message?: string } | undefined;
       return { ...EMPTY_CONNECT, configured: true, error: err?.message ?? "STRIPE_ERROR" };
@@ -284,7 +342,9 @@ export const stripeConnect = {
   },
 
   /** Express dashboard link for a provider who already finished onboarding. */
-  async loginLink(accountId: string): Promise<{ ok: boolean; url: string | null; error: string | null }> {
+  async loginLink(
+    accountId: string,
+  ): Promise<{ ok: boolean; url: string | null; error: string | null }> {
     if (!key()) return { ok: false, url: null, error: "STRIPE_NOT_CONFIGURED" };
     const result = await stripeRequest(`accounts/${encodeURIComponent(accountId)}/login_links`, {
       method: "POST",
@@ -310,8 +370,15 @@ export const stripeConnect = {
     sourceTransaction?: string;
     /** Per-attempt request key; transfer_group stays the stable idempotencyKey. */
     requestKey?: string | undefined;
-  }): Promise<{ ok: boolean; transferId: string | null; error: string | null; httpStatus?: number; errorCode?: string }> {
-    if (!LIVE_PROVIDER_TRANSFERS_ENABLED) return { ok: false, transferId: null, error: "TRANSFERS_AWAITING_APPROVAL" };
+  }): Promise<{
+    ok: boolean;
+    transferId: string | null;
+    error: string | null;
+    httpStatus?: number;
+    errorCode?: string;
+  }> {
+    if (!LIVE_PROVIDER_TRANSFERS_ENABLED)
+      return { ok: false, transferId: null, error: "TRANSFERS_AWAITING_APPROVAL" };
     const secret = key();
     if (!secret) return { ok: false, transferId: null, error: "STRIPE_NOT_CONFIGURED" };
 
@@ -335,15 +402,27 @@ export const stripeConnect = {
     const data = (await response.json().catch(() => ({}))) as Record<string, unknown>;
     if (!response.ok) {
       const err = data["error"] as { code?: string } | undefined;
-      return { ok: false, transferId: null, error: "STRIPE_TRANSFER_REJECTED", httpStatus: response.status, errorCode: err?.code ?? "" };
+      return {
+        ok: false,
+        transferId: null,
+        error: "STRIPE_TRANSFER_REJECTED",
+        httpStatus: response.status,
+        errorCode: err?.code ?? "",
+      };
     }
-    const transferId = typeof data["id"] === "string" && data["id"].startsWith("tr_") ? data["id"] : null;
-    return transferId ? { ok: true, transferId, error: null } : { ok: false, transferId: null, error: "TRANSFER_RESPONSE_INVALID" };
+    const transferId =
+      typeof data["id"] === "string" && data["id"].startsWith("tr_") ? data["id"] : null;
+    return transferId
+      ? { ok: true, transferId, error: null }
+      : { ok: false, transferId: null, error: "TRANSFER_RESPONSE_INVALID" };
   },
 };
 
 /** Server-only read helper for reconciliation; never returns credentials. */
-export async function stripeRead(path: string, connectedAccount?: string): Promise<Record<string, unknown>> {
+export async function stripeRead(
+  path: string,
+  connectedAccount?: string,
+): Promise<Record<string, unknown>> {
   const result = await stripeRequest(path, connectedAccount ? { connectedAccount } : undefined);
   if (!result.ok) throw new Error("STRIPE_READ_FAILED");
   return result.data;
@@ -368,9 +447,17 @@ export async function verifyStripeSignature(
   if (!Number.isFinite(age) || age > toleranceSeconds) return false;
 
   const enc = new TextEncoder();
-  const cryptoKey = await crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
   const mac = await crypto.subtle.sign("HMAC", cryptoKey, enc.encode(`${timestamp}.${payload}`));
-  const expected = Array.from(new Uint8Array(mac)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  const expected = Array.from(new Uint8Array(mac))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
   return signatures.some((sig) => {
     if (sig.length !== expected.length) return false;
     let diff = 0;

@@ -105,7 +105,7 @@ export function useChatLockPin() {
         .select("lock_pin")
         .eq("user_id", userId)
         .maybeSingle();
-      return ((data as { lock_pin?: string | null } | null)?.lock_pin) ?? null;
+      return (data as { lock_pin?: string | null } | null)?.lock_pin ?? null;
     },
   });
 }
