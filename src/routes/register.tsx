@@ -48,8 +48,10 @@ function buildSchema(t: (k: TKey) => string) {
 }
 
 export const Route = createFileRoute("/register")({
-  validateSearch: (search: Record<string, unknown>): { ref?: string } =>
-    typeof search["ref"] === "string" ? { ref: search["ref"] } : {},
+  validateSearch: (search: Record<string, unknown>): { ref?: string; next?: string } => ({
+    ...(typeof search["ref"] === "string" ? { ref: search["ref"] } : {}),
+    ...(typeof search["next"] === "string" ? { next: search["next"] } : {}),
+  }),
   head: () => ({
     meta: [
       { property: "og:url", content: "https://ashglogroup.company/register" },
