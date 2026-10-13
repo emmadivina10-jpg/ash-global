@@ -40,7 +40,7 @@ export const Route = createFileRoute("/api/public/profiles/$username")({
           JSON.stringify({
             username: data.username,
             display_name: data.full_name,
-            avatar_url: data.avatar_url,
+            avatar_url: data.avatar_url?.startsWith("https://") ? data.avatar_url : null,
             verified,
             verified_tier: verified ? data.verified_tier : null,
             profile_url: `${CANONICAL}/u/${data.user_id}`,
