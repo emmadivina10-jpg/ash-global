@@ -1,9 +1,10 @@
 # Roadmap
 
 ## WhatsApp-style message deletion choices
-- [ ] Replace inline deletion with a focused choices dialog; preserve sender-only deletion for everyone
-- [ ] Implement device-local, account-scoped Delete for me without changing shared message records
-- [ ] Verify deletion behavior and menu presentation; no publishing or real messages deleted
+- [x] Replace inline deletion with a focused choices dialog; preserve sender-only deletion for everyone
+- [x] Implement device-local, account-scoped Delete for me without changing shared message records
+- [x] Ten regression tests pass; isolated phone menu and personal-choice dismissal verified; lint and preview build clean; no publishing or real messages deleted
+- [ ] Real two-member deletion verification — requires approved test conversations; no actual member messages deleted
 
 ## Message tab, filter switch and opening screen (Oct 13)
 - [x] Show live unread incoming-message count on Messages navigation without loading the full inbox
