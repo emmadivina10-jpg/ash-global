@@ -128,7 +128,7 @@ export function VoiceRecorder({
       return;
     }
     setState("uploading");
-    const blob = new Blob(chunks.current, { type: mime.split(";")[0] });
+    const blob = new Blob(chunks.current, { type: mime.split(";")[0] ?? "audio/webm" });
     const ext = blob.type.includes("mp4") ? "m4a" : blob.type.includes("ogg") ? "ogg" : "webm";
     const path = `${conversationId}/${userId}/${crypto.randomUUID()}.${ext}`;
     const { error } = await supabase.storage
