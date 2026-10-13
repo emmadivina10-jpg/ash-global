@@ -22,6 +22,7 @@ export function CompassSurface({
   const [tab, setTab] = useState<"map" | "wallet">(active ? "map" : "wallet");
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const launcher = useRef<HTMLButtonElement>(null);
+  const wrapper = useRef<HTMLDivElement>(null);
   const drag = useRef<{ px: number; py: number; x: number; y: number; moved: boolean } | null>(
     null,
   );
