@@ -17,13 +17,6 @@
                         <autoresizingMask key="autoresizingMask"/>
                         <color key="backgroundColor" red="0.03137254902" green="0.03137254902" blue="0.07058823529" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <subviews>
-                            <imageView contentMode="scaleAspectFit" image="LaunchMark" translatesAutoresizingMaskIntoConstraints="NO" id="ash-mark">
-                                <rect key="frame" x="139.5" y="285.5" width="96" height="96"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="96" id="mark-width"/>
-                                    <constraint firstAttribute="height" constant="96" id="mark-height"/>
-                                </constraints>
-                            </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="from" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="ash-from">
                                 <rect key="frame" x="170" y="596" width="35" height="14"/>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="10"/>
@@ -37,8 +30,6 @@
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="ash-safe"/>
                         <constraints>
-                            <constraint firstItem="ash-mark" firstAttribute="centerX" secondItem="snD-IY-ifK" secondAttribute="centerX" id="mark-x"/>
-                            <constraint firstItem="ash-mark" firstAttribute="centerY" secondItem="snD-IY-ifK" secondAttribute="centerY" id="mark-y"/>
                             <constraint firstItem="ash-name" firstAttribute="centerX" secondItem="snD-IY-ifK" secondAttribute="centerX" id="name-x"/>
                             <constraint firstItem="ash-safe" firstAttribute="bottom" secondItem="ash-name" secondAttribute="bottom" constant="40" id="name-bottom"/>
                             <constraint firstItem="ash-from" firstAttribute="centerX" secondItem="snD-IY-ifK" secondAttribute="centerX" id="from-x"/>
