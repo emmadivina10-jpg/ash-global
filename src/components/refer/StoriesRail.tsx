@@ -20,7 +20,6 @@ import {
   Sparkles,
   Trash2,
   X,
-  Play,
   Volume2,
   VolumeX,
 } from "lucide-react";
