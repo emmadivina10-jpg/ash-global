@@ -1,4 +1,5 @@
 import { CreditCard, Smartphone } from "lucide-react";
+import { CARD_BANK_ENABLED } from "@/components/refer/PaymentMethodPicker";
 import { useRegion } from "@/lib/region-context";
 import { countryMeta } from "@/lib/region";
 import { cn } from "@/lib/utils";
