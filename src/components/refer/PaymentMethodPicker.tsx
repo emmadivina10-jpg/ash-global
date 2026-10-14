@@ -56,18 +56,22 @@ export function PaymentMethodPicker({
           },
         ]
       : []),
-    {
-      id: "BANK",
-      label: fr ? "Virement bancaire" : "Bank",
-      icon: <Building2 className="size-5" aria-hidden />,
-      tone: "bg-primary/10 text-primary",
-    },
-    {
-      id: "CARD",
-      label: fr ? "Carte / Stripe" : "Card / Stripe",
-      icon: <CreditCard className="size-5" aria-hidden />,
-      tone: "bg-accent text-accent-foreground",
-    },
+    ...(CARD_BANK_ENABLED
+      ? [
+          {
+            id: "BANK" as const,
+            label: fr ? "Virement bancaire" : "Bank",
+            icon: <Building2 className="size-5" aria-hidden />,
+            tone: "bg-primary/10 text-primary",
+          },
+          {
+            id: "CARD" as const,
+            label: fr ? "Carte / Stripe" : "Card / Stripe",
+            icon: <CreditCard className="size-5" aria-hidden />,
+            tone: "bg-accent text-accent-foreground",
+          },
+        ]
+      : []),
   ];
 
   if (choice === "MTN" || choice === "ORANGE") {
