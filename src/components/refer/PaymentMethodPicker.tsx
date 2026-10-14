@@ -8,6 +8,12 @@ import { cn } from "@/lib/utils";
 type Choice = "MTN" | "ORANGE" | "BANK" | "CARD";
 
 /**
+ * Card (Stripe) and bank transfer are temporarily disabled in the member app;
+ * only MTN and Orange Mobile Money are offered. Flip to true to re-enable.
+ */
+export const CARD_BANK_ENABLED = false;
+
+/**
  * "Choose payment method": MTN and Orange open the existing mobile money form
  * unchanged; Bank and Card hand off to the caller's handlers.
  */
