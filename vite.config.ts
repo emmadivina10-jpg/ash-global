@@ -29,6 +29,12 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
+    server: {
+      host: "0.0.0.0",
+      port: 5000,
+      strictPort: true,
+      allowedHosts: true,
+    },
     resolve: {
       alias: {
         // Force every entities import to the hoisted v4.5.0 copy — nested v7
