@@ -34,6 +34,9 @@ export default defineConfig({
       port: 5000,
       strictPort: true,
       allowedHosts: true,
+      watch: {
+        ignored: ["**/node_modules/**", "**/.git/**", "**/.local/**", "**/.agents/**"],
+      },
     },
     resolve: {
       alias: {
