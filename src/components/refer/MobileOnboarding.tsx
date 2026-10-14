@@ -93,8 +93,8 @@ export function MobileOnboarding() {
 
       <p role="status" aria-atomic="true" className="sr-only">
         {tx(
-          `Slide ${step + 1} of ${SLIDES.length}: ${activeSlide.kickerEn}`,
-          `Diapositive ${step + 1} sur ${SLIDES.length} : ${activeSlide.kickerFr}`,
+          `Slide ${step + 1} of ${SLIDES.length}: ${activeSlide?.kickerEn ?? ""}`,
+          `Diapositive ${step + 1} sur ${SLIDES.length} : ${activeSlide?.kickerFr ?? ""}`,
         )}
       </p>
 
@@ -153,8 +153,8 @@ export function MobileOnboarding() {
               type="button"
               onClick={() => setStep(i)}
               aria-label={tx(
-                `Slide ${i + 1}: ${SLIDES[i].kickerEn}`,
-                `Diapositive ${i + 1} : ${SLIDES[i].kickerFr}`,
+                `Slide ${i + 1}: ${SLIDES[i]?.kickerEn ?? ""}`,
+                `Diapositive ${i + 1} : ${SLIDES[i]?.kickerFr ?? ""}`,
               )}
               aria-pressed={i === step}
               className={`h-1.5 rounded-full transition-all duration-500 ${i === step ? "w-10 gold-gradient" : "w-3 bg-border"}`}
