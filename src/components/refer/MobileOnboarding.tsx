@@ -108,7 +108,7 @@ export function MobileOnboarding() {
               <p className="mb-6 text-[11px] font-bold uppercase tracking-[0.32em] text-primary">
                 {tx(s.kickerEn, s.kickerFr)}
               </p>
-              <h1 className="font-serif text-[3.1rem] font-normal leading-[1.02] tracking-tight text-foreground">
+              <h1 className="mobile-onboarding-title font-serif font-normal leading-[1.02] tracking-tight text-foreground">
                 {tx(s.titleEn.join("|"), s.titleFr.join("|"))
                   .split("|")
                   .map((line, j) => (
@@ -116,7 +116,7 @@ export function MobileOnboarding() {
                       key={j}
                       className={
                         j === 1
-                          ? "block italic gold-gradient bg-clip-text text-transparent"
+                          ? "block whitespace-nowrap italic gold-gradient bg-clip-text text-transparent"
                           : "block"
                       }
                     >

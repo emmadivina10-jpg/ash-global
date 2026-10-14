@@ -1528,6 +1528,9 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   isolation: isolate;
   background-image: var(--member-dual-wash);
 }
+.mobile-onboarding-title {
+  font-size: clamp(2.25rem, 12vw, 3.1rem);
+}
 .ash-entry::before {
   content: "ASH";
   position: absolute;
