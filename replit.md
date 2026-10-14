@@ -42,3 +42,10 @@ apply shared database migrations, or initiate real transactions as setup checks.
   require separate verification; a working landing page does not prove them.
 
 Read `AGENTS.md` and applicable nested instructions before changing app code.
+
+## After task merges
+
+The configured `scripts/post-merge.sh` installs dependencies with the frozen
+Bun lockfile and runs the existing postinstall shims. Replit then reconciles
+and restarts running workflows. The hook does not apply database migrations
+or change external services.
