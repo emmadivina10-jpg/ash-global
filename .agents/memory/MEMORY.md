@@ -1,0 +1,1 @@
+- [Runtime compatibility](runtime-compatibility.md) — use the Node toolchain's bundled Bun; a separate Bun module can shadow Node and break Vite native bindings.
