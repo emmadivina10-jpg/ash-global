@@ -8,6 +8,12 @@ import { cn } from "@/lib/utils";
 type Choice = "MTN" | "ORANGE" | "BANK" | "CARD";
 
 /**
+ * Card (Stripe) and bank transfer are temporarily disabled in the member app;
+ * only MTN and Orange Mobile Money are offered. Flip to true to re-enable.
+ */
+export const CARD_BANK_ENABLED = false;
+
+/**
  * "Choose payment method": MTN and Orange open the existing mobile money form
  * unchanged; Bank and Card hand off to the caller's handlers.
  */
@@ -50,18 +56,22 @@ export function PaymentMethodPicker({
           },
         ]
       : []),
-    {
-      id: "BANK",
-      label: fr ? "Virement bancaire" : "Bank",
-      icon: <Building2 className="size-5" aria-hidden />,
-      tone: "bg-primary/10 text-primary",
-    },
-    {
-      id: "CARD",
-      label: fr ? "Carte / Stripe" : "Card / Stripe",
-      icon: <CreditCard className="size-5" aria-hidden />,
-      tone: "bg-accent text-accent-foreground",
-    },
+    ...(CARD_BANK_ENABLED
+      ? [
+          {
+            id: "BANK" as const,
+            label: fr ? "Virement bancaire" : "Bank",
+            icon: <Building2 className="size-5" aria-hidden />,
+            tone: "bg-primary/10 text-primary",
+          },
+          {
+            id: "CARD" as const,
+            label: fr ? "Carte / Stripe" : "Card / Stripe",
+            icon: <CreditCard className="size-5" aria-hidden />,
+            tone: "bg-accent text-accent-foreground",
+          },
+        ]
+      : []),
   ];
 
   if (choice === "MTN" || choice === "ORANGE") {

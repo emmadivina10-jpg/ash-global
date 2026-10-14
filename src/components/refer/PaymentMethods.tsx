@@ -1,4 +1,5 @@
 import { CreditCard, Smartphone } from "lucide-react";
+import { CARD_BANK_ENABLED } from "@/components/refer/PaymentMethodPicker";
 import { useRegion } from "@/lib/region-context";
 import { countryMeta } from "@/lib/region";
 import { cn } from "@/lib/utils";
@@ -23,10 +24,12 @@ export function PaymentMethods({ className }: { className?: string }) {
           MTN MoMo &amp; Orange Money
         </span>
       ) : null}
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground">
-        <CreditCard className="size-3.5 text-gold" aria-hidden />
-        Card &amp; wallets via Stripe
-      </span>
+      {CARD_BANK_ENABLED ? (
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground">
+          <CreditCard className="size-3.5 text-gold" aria-hidden />
+          Card &amp; wallets via Stripe
+        </span>
+      ) : null}
     </div>
   );
 }
