@@ -37,6 +37,7 @@ export function MobileOnboarding() {
   const dragXRef = useRef(0);
   const dragging = useRef(false);
   const last = step === SLIDES.length - 1;
+  const activeSlide = SLIDES[step];
 
   const onTouchStart = (e: React.TouchEvent) => {
     startX.current = e.touches[0]?.clientX ?? 0;
@@ -90,6 +91,13 @@ export function MobileOnboarding() {
         )}
       </header>
 
+      <p role="status" aria-atomic="true" className="sr-only">
+        {tx(
+          `Slide ${step + 1} of ${SLIDES.length}: ${activeSlide.kickerEn}`,
+          `Diapositive ${step + 1} sur ${SLIDES.length} : ${activeSlide.kickerFr}`,
+        )}
+      </p>
+
       <main className="relative flex min-h-0 flex-1 flex-col overflow-hidden pt-[min(16vh,110px)]">
         <div
           className="flex min-h-0 flex-1"
@@ -134,13 +142,21 @@ export function MobileOnboarding() {
       </main>
 
       <footer className="relative space-y-5">
-        <div className="flex items-center gap-2" aria-label={`${step + 1} / ${SLIDES.length}`}>
+        <div
+          className="flex items-center gap-2"
+          role="group"
+          aria-label={tx("Choose an introduction slide", "Choisir une diapositive d’introduction")}
+        >
           {SLIDES.map((_, i) => (
             <button
               key={i}
               type="button"
               onClick={() => setStep(i)}
-              aria-label={`${i + 1}`}
+              aria-label={tx(
+                `Slide ${i + 1}: ${SLIDES[i].kickerEn}`,
+                `Diapositive ${i + 1} : ${SLIDES[i].kickerFr}`,
+              )}
+              aria-pressed={i === step}
               className={`h-1.5 rounded-full transition-all duration-500 ${i === step ? "w-10 gold-gradient" : "w-3 bg-border"}`}
             />
           ))}
