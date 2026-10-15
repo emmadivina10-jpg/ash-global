@@ -45,3 +45,4 @@
 - LegalDocument shares payment disclosures. Why: accuracy.
 
 - Marketplace reuses chats; lookup errors stop creation. Deletion keeps scoped hiding/sender policies; replies store IDs; voice-playback arbitrates audio/recording. Why: private history, exclusive audio.
+- Card/bank options gate via useCardBankAvailable (CARD_BANK_ENABLED or non-native web); full-screen viewers register useOverlayBack so phone Back closes them. Why: app-only payment restriction; Back never leaves the page.
