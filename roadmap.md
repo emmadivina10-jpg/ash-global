@@ -1,5 +1,9 @@
 # Roadmap
 
+## Feed opening rotation (Oct 15)
+- [ ] Correct member/load-specific ordering for Feed posts and all visible Spotlight surfaces; preserve safety and scroll stability
+- [ ] Add ranking regression tests and verify real signed-in preview loads without publishing
+
 ## Official ASH logo replacement (Oct 13)
 - [x] Replace shared logo, notification/email favicon references, social preview, favicon, Apple touch icon and seven CDN-backed web app icons with supplied artwork
 - [x] Update Android/iOS app icons and opening source imagery; retain compact centered iOS caption and keep disabled duplicate splash bitmaps blank
