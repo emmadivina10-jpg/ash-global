@@ -13,7 +13,7 @@
 - Inventory: business_id=provider_profiles.id; inventory_can()/inventory_role_of() RLS + inventory_members; stock only via inventory_record_movement ledger. /inventory, inventory.queries.ts. Why: tenant isolation, one stock source.
 
 - Shareholders: shareholders.functions.ts, append-only service-role records; Finance: computeFinanceLedger. Read allFinanceRows in stable order; fail on errors. Why: complete source, no silent truncation/zeros.
-- Feed/Stories/Services rank via rotation.ts after safety filtering; Feed opens exact IDs in StoriesRail. Why: one viewer.
+- Feed/Spotlights use member-keyed caches and rotateSessionContent; reset only on explicit refresh. Why: varied openings, stable scroll.
 - AppShell omits tab headers; MobileNav owns hold/slide; member screens switch instantly with no slide animation. Why: fixed-composer safety.
 - Desktop Messages by sidebar; Flights in navs.
 - Shared logo pointer, native icons/launch and web icons derive from one artwork; disabled splashes stay blank. Why: consistent branding, one opening.

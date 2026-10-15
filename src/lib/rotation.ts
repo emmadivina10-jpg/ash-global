@@ -6,7 +6,7 @@
  *
  * score = relevance (from real signals) + seeded jitter (per user+session)
  *         - recent-exposure cooldown penalty, then a creator-diversity pass.
- * A fresh seed is drawn on every fetch, so refreshing yields a new valid order.
+ * Opening orders change on fresh loads or explicit refresh, not background fetches.
  */
 
 export type RotationSettings = {
@@ -98,7 +98,7 @@ export function stableSessionSeed(userId: string | null) {
 export function newSessionSeed(userId: string | null) {
   const rand =
     typeof crypto !== "undefined" && crypto.getRandomValues
-      ? crypto.getRandomValues(new Uint32Array(1))[0]!
+      ? (crypto.getRandomValues(new Uint32Array(1))[0] ?? 0)
       : Math.floor(Math.random() * 2 ** 32);
   return `${userId ?? "anon"}:${rand}`;
 }
@@ -162,7 +162,8 @@ export function rotate<T>(
     const blocked =
       tail.length === settings.maxRun && tail.every((c) => c === tail[0]) ? tail[0] : null;
     const idx = blocked ? pool.findIndex((p) => p.creator !== blocked) : 0;
-    out.push(pool.splice(idx === -1 ? 0 : idx, 1)[0]!);
+    const next = pool.splice(idx === -1 ? 0 : idx, 1)[0];
+    if (next) out.push(next);
   }
   return out.map((x) => x.item);
 }
@@ -196,8 +197,40 @@ export function keepStableOrder<T>(key: string, items: T[], idOf: (item: T) => s
     const id = idOf(item);
     if (!known.has(id)) known.set(id, known.size);
   }
-  return [...items].sort((a, b) => known.get(idOf(a))! - known.get(idOf(b))!);
+  return [...items].sort((a, b) => (known.get(idOf(a)) ?? 0) - (known.get(idOf(b)) ?? 0));
 }
 export function resetStableOrder(key: string) {
   stableOrders.delete(key);
+}
+
+/** Freeze member-specific ranking until explicit refresh or a fresh app load. */
+export function rotateSessionContent<T>(type: string, input: RotationItem<T>[], userId: string | null): T[] {
+  const key = `${type}:${userId ?? "anon"}`;
+  const ranked = rotate(type, input, stableSessionSeed(userId), {
+    ...ROTATION_DEFAULTS, rotationStrength: 0.8,
+  });
+  if (!stableOrders.has(key) && ranked.length > 1 && typeof window !== "undefined") {
+    const storageKey = `ash.opening.v1:${key}`;
+    try {
+      const previous = window.localStorage.getItem(storageKey);
+      const creatorOf = (item: T | undefined) => input.find((entry) => entry.item === item)?.creator;
+      if (creatorOf(ranked[0]) === previous) {
+        const next = ranked.findIndex((item) => creatorOf(item) !== previous);
+        if (next > 0) {
+          const item = ranked.splice(next, 1)[0];
+          if (item !== undefined) ranked.unshift(item);
+        }
+      }
+      const creator = creatorOf(ranked[0]);
+      if (creator) window.localStorage.setItem(storageKey, creator);
+    } catch { /* Storage is optional. */ }
+  }
+  return keepStableOrder(key, ranked, (item) => input.find((entry) => entry.item === item)?.id ?? "");
+}
+
+export function resetFeedRotation(userId: string | null) {
+  sessionSeeds.delete(userId ?? "anon");
+  for (const type of ["feed", "spotlight", "spotlight-feed"]) {
+    resetStableOrder(`${type}:${userId ?? "anon"}`);
+  }
 }

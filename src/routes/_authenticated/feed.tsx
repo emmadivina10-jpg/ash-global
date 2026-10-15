@@ -3,13 +3,12 @@ import { extractTags, recordTagInterest } from "@/lib/interests";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BarChart3, Camera, ImagePlus, Loader2, Plus, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { PullToRefresh } from "@/components/refer/PullToRefresh";
 import { PostCard } from "@/components/refer/PostCard";
 import { StoriesRail, loadSpotlights, type SpotlightPost } from "@/components/refer/StoriesRail";
 import { useQuery } from "@tanstack/react-query";
-import { keepStableOrder, resetStableOrder } from "@/lib/rotation";
+import { resetFeedRotation } from "@/lib/rotation";
 import { FeedSpotlightCard } from "@/components/refer/FeedSpotlightCard";
 import { interleaveSpotlights } from "@/components/refer/feed-spotlights";
 import { SocialSuggestions } from "@/components/refer/SocialSuggestions";
@@ -24,7 +23,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useCreateSocialPost, useSocialFeed } from "@/lib/social.queries";
-import { useProfile } from "@/lib/queries";
+import { useProfile, useUser } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/feed")({
@@ -51,6 +50,8 @@ export const Route = createFileRoute("/_authenticated/feed")({
 function FeedPage() {
   const { tx, lang } = useI18n();
   const fr = lang === "fr";
+  const { user } = useUser();
+  const me = user?.id ?? null;
   // Preserve the same safety-filtered, stable feed pool.
   const { data: posts, isLoading, refetch } = useSocialFeed(120);
   const { data: profile } = useProfile();
@@ -61,7 +62,8 @@ function FeedPage() {
     isFetched: spotlightsFetched,
     isError: spotlightsFailed,
   } = useQuery<SpotlightPost[]>({
-    queryKey: ["ash-spotlights"],
+    queryKey: ["ash-spotlights", me],
+    enabled: Boolean(me),
     queryFn: loadSpotlights,
     staleTime: 15_000,
   });
@@ -76,7 +78,7 @@ function FeedPage() {
     () =>
       interleaveSpotlights(
         posts ?? [],
-        keepStableOrder("feed-spotlights", spotlights, (s) => s.id),
+        spotlights,
       ),
     [posts, spotlights],
   );
@@ -86,12 +88,8 @@ function FeedPage() {
   const [caption, setCaption] = useState("");
   const [composerOpen, setComposerOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
-  const [me, setMe] = useState<string | null>(null);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
 
-  useEffect(() => {
-    void supabase.auth.getUser().then(({ data }) => setMe(data.user?.id ?? null));
-  }, []);
 
   function pick(event: React.ChangeEvent<HTMLInputElement>) {
     const picked = Array.from(event.target.files ?? []).filter((file) =>
@@ -170,8 +168,7 @@ function FeedPage() {
   return (
     <PullToRefresh
       onRefresh={async () => {
-        resetStableOrder("feed-spotlights");
-        (["feed:" + (me ?? "anon")] as string[]).forEach(resetStableOrder);
+        resetFeedRotation(me);
         await Promise.all([refetch(), refreshSpotlights()]);
       }}
       label={tx("Refreshing", "Actualisation")}
