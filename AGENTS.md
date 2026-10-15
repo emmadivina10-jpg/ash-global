@@ -36,7 +36,7 @@
 - Service verification uses the atomic code RPC independently of disabled transfers; constraint tests use isolated PGlite, not live inserts. Why: preserve verification and funds.
 - OS delivers phone alerts (no PushBridge toasts); iOS storyboard owns startup. Why: no duplicates.
 - Personal booking_history_preferences archives/restores/removes terminal history only, never bookings or payments. Why: independent histories and financial retention.
-- Verification links carry provider tab and booking ID. Why: reach the correct Received code form.
+- Verification links carry provider tab + booking ID. Why: correct code form.
 - Localize interface copy with static dictionaries and explicit tx calls, never DOM rewriting or user-content translation. Why: privacy and stable React state.
 
 - WalletPayoutSetup reuses guarded Stripe Connect; PayoutSetupReminder saves account-scoped opt-out/cadence locally. Why: visible setup, no card collection or restricted payouts.
