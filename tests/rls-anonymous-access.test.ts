@@ -133,3 +133,14 @@ describe("security tooling is not exposed to visitors", () => {
     }
   });
 });
+
+describe("privileged roles cannot be enumerated anonymously", () => {
+  it("refuses has_role for signed-out callers", async () => {
+    const { data, error } = await anon.rpc("has_role" as never, {
+      _user_id: "00000000-0000-0000-0000-000000000000",
+      _role: "admin",
+    } as never);
+    expect(error, "has_role must not be callable anonymously").not.toBeNull();
+    expect(data).toBeNull();
+  });
+});
