@@ -296,209 +296,37 @@ export const getConsoleUsers = createServerFn({
 });
 
 /**
- * Credits a user's withdrawable wallet balance from the admin console.
- *
- * The actual financial mutation is performed by the database RPC
- * `admin_credit_wallet`, which atomically updates the wallet, creates the
- * ADMIN_CREDIT ledger entry, and notifies the user.
+ * Credits a member's withdrawable wallet from the staff console.
+ * Goes only through admin_credit_wallet_audited: balance, transaction, required audit entry and
+ * request record commit together. The acting seat comes from the server-signed console session
+ * (re-read on every call); seatless master-password sessions are rejected.
  */
-export const creditUserWallet = createServerFn({
-  method: "POST",
-})
-  .inputValidator((data: { userId: string; amount: number; reason: string }) => ({
-    userId: String(data.userId ?? "").trim(),
-    amount: Number(data.amount),
-    reason: String(data.reason ?? ""),
+export const creditUserWallet = createServerFn({ method: "POST" })
+  .inputValidator((d: { requestId: string; userId: string; amount: number; reason: string }) => ({
+    requestId: String(d?.requestId ?? "").trim(),
+    userId: String(d?.userId ?? "").trim(),
+    amount: Number(d?.amount),
+    reason: String(d?.reason ?? ""),
   }))
   .handler(async ({ data }) => {
-    const { requireDepartment, adminClient } = await import("./console.server");
-
-    // ---------------------------------------------------------------
-    // 1. AUTHORIZATION
-    // ---------------------------------------------------------------
-    let creditActor: { name: string; department: string; staffId: string | null } | null = null;
+    const { requireConsole, adminClient } = await import("./console.server");
+    const { runWalletCredit, OUTCOME_UNKNOWN } = await import("./wallet-credit");
+    let actor;
     try {
-      creditActor = await requireDepartment("REVENUE");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "FORBIDDEN";
-
-      console.error("[creditUserWallet] authorization failed:", message);
-
-      return {
-        ok: false as const,
-        error: message === "CONSOLE_LOCKED" ? "UNAUTHENTICATED" : "FORBIDDEN",
-      };
+      actor = await requireConsole();
+    } catch {
+      return { ok: false as const, error: "UNAUTHENTICATED" };
     }
-
-    // ---------------------------------------------------------------
-    // 2. INPUT VALIDATION
-    // ---------------------------------------------------------------
-    if (!data.userId) {
-      console.error("[creditUserWallet] invalid user id");
-
-      return {
-        ok: false as const,
-        error: "INVALID_USER",
-      };
-    }
-
-    if (
-      !Number.isFinite(data.amount) ||
-      data.amount <= 0 ||
-      data.amount !== Math.round(data.amount)
-    ) {
-      console.error("[creditUserWallet] invalid amount:", data.amount);
-
-      return {
-        ok: false as const,
-        error: "INVALID_AMOUNT",
-      };
-    }
-
-    const reason = data.reason.trim();
-
-    if (reason.length < 5) {
-      console.error("[creditUserWallet] reason too short");
-
-      return {
-        ok: false as const,
-        error: "REASON_REQUIRED",
-      };
-    }
-
-    // Keep the reason bounded before sending it to the database.
-    const safeReason = reason.slice(0, 500);
-
-    // ---------------------------------------------------------------
-    // 3. SERVER-SIDE SUPABASE ADMIN CLIENT
-    // ---------------------------------------------------------------
     let db;
-
     try {
       db = await adminClient();
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "SUPABASE_ADMIN_CLIENT_FAILED";
-
-      console.error("[creditUserWallet] failed to create admin Supabase client:", message);
-
-      return {
-        ok: false as const,
-        error: "SUPABASE_ADMIN_CLIENT_FAILED",
-        detail: message,
-      };
+    } catch {
+      return { ok: false as const, error: OUTCOME_UNKNOWN };
     }
-
-    // ---------------------------------------------------------------
-    // 4. DATABASE RPC
-    // ---------------------------------------------------------------
-    let rpcResult;
-    let rpcError;
-
-    try {
-      const response = await db.rpc("admin_credit_wallet", {
-        _user_id: data.userId,
-        _amount: Math.round(data.amount),
-        _reason: safeReason,
-      });
-
-      rpcResult = response.data;
-      rpcError = response.error;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "WALLET_CREDIT_RPC_EXCEPTION";
-
-      console.error("[creditUserWallet] RPC threw an exception:", message);
-
-      return {
-        ok: false as const,
-        error: "WALLET_CREDIT_RPC_EXCEPTION",
-        detail: message,
-      };
-    }
-
-    // ---------------------------------------------------------------
-    // 5. RPC ERROR
-    // ---------------------------------------------------------------
-    if (rpcError) {
-      console.error("[creditUserWallet] admin_credit_wallet RPC failed:", {
-        message: rpcError.message,
-        details: rpcError.details,
-        hint: rpcError.hint,
-        code: rpcError.code,
-      });
-
-      return {
-        ok: false as const,
-        error: "WALLET_CREDIT_RPC_FAILED",
-        detail: rpcError.message,
-        code: rpcError.code ?? null,
-        details: rpcError.details ?? null,
-        hint: rpcError.hint ?? null,
-      };
-    }
-
-    // ---------------------------------------------------------------
-    // 6. VALIDATE RPC PAYLOAD
-    // ---------------------------------------------------------------
-    const payload = rpcResult as {
-      ok?: boolean;
-      error?: string;
-      reference?: string;
-      amount?: number;
-      currency?: string;
-      new_balance?: number;
-    } | null;
-
-    console.log("[creditUserWallet] admin_credit_wallet RPC response:", payload);
-
-    if (!payload?.ok) {
-      console.error("[creditUserWallet] RPC returned an unsuccessful payload:", payload);
-
-      return {
-        ok: false as const,
-        error: payload?.error ?? "WALLET_CREDIT_FAILED",
-      };
-    }
-
-    // ---------------------------------------------------------------
-    // 7. SUCCESS
-    // ---------------------------------------------------------------
-    const creditedAmount = Number(payload.amount ?? data.amount);
-
-    const newBalance = Number(payload.new_balance ?? 0);
-
-    console.log("[creditUserWallet] wallet successfully credited:", {
-      userId: data.userId,
-      amount: creditedAmount,
-      currency: payload.currency ?? "XAF",
-      reference: payload.reference ?? null,
-      newBalance,
+    return runWalletCredit(actor, data, async (args) => {
+      const r = await db.rpc("admin_credit_wallet_audited", args);
+      return { data: r.data, error: r.error };
     });
-
-    // Audit trail: who issued the credit (non-blocking; the credit already succeeded).
-    try {
-      await db!.from("admin_audit_log").insert({
-        actor: creditActor?.name ?? "CONSOLE",
-        action: "WALLET_CREDIT",
-        target_user_id: data.userId,
-        target_reference: payload.reference ?? null,
-        new_state: { amount: creditedAmount, new_balance: newBalance },
-        reason: data.reason.trim().slice(0, 500),
-        metadata: {
-          department: creditActor?.department ?? null,
-          staff_id: creditActor?.staffId ?? null,
-        },
-      });
-    } catch (auditErr) {
-      console.error("[creditUserWallet] audit log failed:", auditErr);
-    }
-
-    return {
-      ok: true as const,
-      reference: payload.reference ?? null,
-      amount: creditedAmount,
-      currency: payload.currency ?? "XAF",
-      newBalance,
-    };
   });
 
 export const getConsoleProviders = createServerFn({
