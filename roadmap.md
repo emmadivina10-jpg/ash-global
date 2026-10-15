@@ -1,5 +1,9 @@
 # Roadmap
 
+## Staff online status (Oct 15)
+- [ ] Repair member presence reporting and show green Online / Offline throughout shared staff directory
+- [ ] Test presence rules and verify a signed-in member's evidence reaches the staff screen; no publishing
+
 ## Feed opening rotation (Oct 15)
 - [x] Correct member/load-specific ordering for Feed posts and Spotlight surfaces; remove newest-first rail override and reset seed on explicit refresh
 - [x] Eight regression tests pass, including multiple member keys; signed-in preview shows different first posts/Spotlights across three fresh loads, stable scrolling and viewer dismissal back to Feed; preview build OK, no runtime errors, not published
