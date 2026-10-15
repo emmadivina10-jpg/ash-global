@@ -11,6 +11,7 @@ import {
 } from "@/lib/social.queries";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { useOverlayBack } from "@/lib/overlay-back";
 import { ReactionButton } from "./ReactionButton";
 
 const SEGMENT_MS = 5000;
@@ -43,6 +44,7 @@ export function StoryViewer({
   const pressAt = useRef<{ time: number; x: number } | null>(null);
   const elapsed = useRef(0);
 
+  useOverlayBack(true, onClose);
   const group = groups[groupIndex];
   const story = group?.stories[storyIndex];
   const mine = Boolean(story && currentUserId && story.author_id === currentUserId);

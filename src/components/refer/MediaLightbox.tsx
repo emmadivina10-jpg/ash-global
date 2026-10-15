@@ -1,4 +1,5 @@
-import { X } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
+import { useOverlayBack } from "@/lib/overlay-back";
 
 /** Portfolio items are stored as plain objects; the extension tells us how to render them. */
 export function isVideoSource(source: string | null | undefined): boolean {
@@ -17,6 +18,7 @@ export function MediaLightbox({
   media: LightboxMedia | null;
   onClose: () => void;
 }) {
+  useOverlayBack(Boolean(media), onClose);
   if (!media) return null;
   return (
     <div
@@ -26,6 +28,17 @@ export function MediaLightbox({
       className="fixed inset-0 z-[60] grid place-items-center bg-black/85 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
+      <button
+        type="button"
+        aria-label="Back"
+        onClick={(e) => {
+          e.stopPropagation();
+          onClose();
+        }}
+        className="absolute left-3 top-[calc(0.75rem+env(safe-area-inset-top))] z-10 grid size-11 place-items-center rounded-full bg-black/55 text-white backdrop-blur"
+      >
+        <ArrowLeft className="size-5" aria-hidden />
+      </button>
       <button
         type="button"
         aria-label="Close"

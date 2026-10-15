@@ -290,6 +290,7 @@ export function AvatarPhoto({
   const [open, setOpen] = useState(false);
   const url = useAvatarUrl(open ? path : null);
   const label = tx("View profile photo", "Voir la photo de profil");
+  useOverlayBack(open, () => setOpen(false));
 
   const avatar = (
     <Avatar path={path} name={name} online={online} hasUpdate={hasUpdate} className={className} />
@@ -319,6 +320,14 @@ export function AvatarPhoto({
           <DialogTitle className="sr-only">
             {name ?? tx("Profile photo", "Photo de profil")}
           </DialogTitle>
+          <button
+            type="button"
+            aria-label={tx("Back", "Retour")}
+            onClick={() => setOpen(false)}
+            className="absolute left-0 top-[env(safe-area-inset-top)] z-10 grid size-11 place-items-center rounded-full bg-background/80 text-foreground shadow-raised backdrop-blur"
+          >
+            <ArrowLeft className="size-5" aria-hidden />
+          </button>
           {url ? (
             <img
               src={url}

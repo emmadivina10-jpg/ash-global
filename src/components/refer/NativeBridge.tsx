@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { initNativeShell } from "@/lib/native";
+import { closeTopOverlay } from "@/lib/overlay-back";
 
 /**
  * Mounts native-only behaviour (status bar, splash, Android back button).
@@ -8,7 +9,7 @@ import { initNativeShell } from "@/lib/native";
 export function NativeBridge() {
   useEffect(() => {
     let dispose: (() => void) | undefined;
-    void initNativeShell().then((fn) => {
+    void initNativeShell(closeTopOverlay).then((fn) => {
       dispose = fn;
     });
     return () => dispose?.();
