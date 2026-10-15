@@ -1,5 +1,6 @@
 export const MEMBER_TARGET = { count: 10_000, start: "2026-11-18", end: "2027-05-18" } as const;
 export const ONLINE_FRESHNESS_MS = 3 * 60_000;
+export const PRESENCE_HEARTBEAT_MS = 60_000;
 export function hasFreshPresence(timestamp: string | null | undefined, now = Date.now()) {
   if (!timestamp) return false;
   const time = Date.parse(timestamp);

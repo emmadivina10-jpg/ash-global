@@ -64,6 +64,7 @@ import { cn } from "@/lib/utils";
 import { PayoutSetupReminder } from "./PayoutSetupReminder";
 import { SecurityAlertBanner } from "./SecurityAlertBanner";
 import { useServicesMode } from "@/lib/services-mode";
+import { PRESENCE_HEARTBEAT_MS } from "@/lib/member-insights";
 
 type NavItem = {
   to: string;
@@ -187,23 +188,39 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
+    if (!profile?.user_id) return;
     let stopped = false;
-    const touch = () => {
-      if (!stopped && document.visibilityState === "visible" && navigator.onLine)
-        void supabase.rpc("touch_member_presence");
+    let inFlight = false;
+    const touch = async () => {
+      if (stopped || inFlight || document.visibilityState !== "visible" || !navigator.onLine)
+        return;
+      inFlight = true;
+      try {
+        // PostgREST builders are lazy: awaiting executes the heartbeat request.
+        const { error } = await supabase.rpc("touch_member_presence");
+        if (error) console.warn("Member presence update failed", error.code);
+      } catch {
+        console.warn("Member presence update unavailable");
+      } finally {
+        inFlight = false;
+      }
     };
-    touch();
-    const timer = window.setInterval(touch, 2 * 60_000);
+    void touch();
+    const timer = window.setInterval(() => void touch(), PRESENCE_HEARTBEAT_MS);
     const onVisibility = () => {
-      if (document.visibilityState === "visible") touch();
+      if (document.visibilityState === "visible") void touch();
     };
     document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("online", onVisibility);
+    window.addEventListener("focus", onVisibility);
     return () => {
       stopped = true;
       window.clearInterval(timer);
       document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("online", onVisibility);
+      window.removeEventListener("focus", onVisibility);
     };
-  }, []);
+  }, [profile?.user_id]);
 
   async function signOut() {
     await queryClient.cancelQueries();

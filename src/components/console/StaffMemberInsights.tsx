@@ -8,7 +8,7 @@ import {
   getStaffMemberMetrics,
   getStaffRegisteredCounts,
 } from "@/lib/member-insights.functions";
-import { hasFreshPresence, MEMBER_TARGET } from "@/lib/member-insights";
+import { MEMBER_TARGET } from "@/lib/member-insights";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -179,11 +179,12 @@ export function StaffMemberInsights() {
                     <p className="truncate text-sm font-medium">
                       {member.name || (fr ? "Nom indisponible" : "Name unavailable")}
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      {hasFreshPresence(member.lastActiveAt)
+                    <p className={`flex items-center gap-1.5 text-xs ${member.online ? "text-success" : "text-muted-foreground"}`}>
+                      <span aria-hidden className={`size-1.5 shrink-0 rounded-full ${member.online ? "bg-success" : "bg-muted-foreground"}`} />
+                      {member.online
                         ? fr
-                          ? "Récemment actif"
-                          : "Recently active"
+                          ? "En ligne"
+                          : "Online"
                         : fr
                           ? "Hors ligne"
                           : "Offline"}
