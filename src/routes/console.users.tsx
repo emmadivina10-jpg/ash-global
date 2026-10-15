@@ -3,6 +3,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { creditUserWallet, getConsoleUsers } from "@/lib/console.functions";
+import {
+  initialCreditForm,
+  isCreditFormLocked,
+  nextCreditRequest,
+  resolveCreditRequest,
+} from "@/lib/wallet-credit-form";
+import type { WalletCreditResult } from "@/lib/wallet-credit";
 import { SectionCard } from "@/components/refer/cards";
 import { StatusBadge } from "@/components/refer/StatusBadge";
 import { EmptyState, ErrorState, SkeletonRows } from "@/components/refer/states";
@@ -34,7 +41,9 @@ function ConsoleUsers() {
 
   const [amount, setAmount] = useState("");
   const [reason, setReason] = useState("");
-  const [crediting, setCrediting] = useState(false);
+  const [form, setForm] = useState(initialCreditForm);
+  const crediting = form.status === "submitting";
+  const locked = isCreditFormLocked(form);
 
   const [messageTarget, setMessageTarget] = useState<MessageTarget>(null);
 
@@ -76,148 +85,87 @@ function ConsoleUsers() {
   );
 
   function openCredit(user: (typeof rows)[number]) {
+    if (locked) {
+      toast.error("Resolve the pending credit first.");
+      return;
+    }
     setSelectedUser({
       user_id: user.user_id,
       full_name: user.full_name || "Member",
       balance: Number(user.balance ?? 0),
     });
-
     setAmount("");
     setReason("");
   }
 
   function closeCredit() {
-    if (crediting) {
-      return;
-    }
-
+    if (locked) return;
     setSelectedUser(null);
     setAmount("");
     setReason("");
   }
 
+  const messages: Record<string, string> = {
+    INVALID_USER: "The selected user is invalid.",
+    USER_NOT_FOUND: "User not found.",
+    WALLET_NOT_FOUND: "This user does not have a wallet.",
+    INVALID_AMOUNT: "Enter a whole amount between 1 and 10,000,000 XAF.",
+    REASON_REQUIRED: "A reason of at least 5 characters is required.",
+    REASON_TOO_LONG: "The reason must be 500 characters or fewer.",
+    UNAUTHENTICATED: "Your console session has expired. Please sign in again.",
+    INDIVIDUAL_ACCOUNT_REQUIRED: "Sign in with your personal staff seat to credit wallets.",
+    UNAUTHORIZED_ACTOR: "Only active Revenue or Super-admin seats can credit wallets.",
+    MISSING_ACTOR: "Sign in with your personal staff seat to credit wallets.",
+    REQUEST_ID_REQUIRED: "The credit request was invalid. Please try again.",
+    REQUEST_ID_REUSED: "This request was already used with different details. No credit was made.",
+  };
+
   async function submitCredit() {
-    if (!selectedUser) {
-      return;
-    }
-
+    if (!selectedUser) return;
     const numericAmount = Number(amount);
-    const trimmedReason = reason.trim();
-
-    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
-      toast.error("Enter a valid credit amount.");
-      return;
-    }
-
-    if (numericAmount !== Math.round(numericAmount)) {
-      toast.error("Enter a whole XAF amount.");
-      return;
-    }
-
-    if (trimmedReason.length < 5) {
-      toast.error("Please provide a reason for this credit.");
-      return;
-    }
-
-    setCrediting(true);
-
-    try {
-      console.log("[ConsoleUsers] Starting wallet credit:", {
-        userId: selectedUser.user_id,
-        amount: numericAmount,
-        reason: trimmedReason,
-      });
-
-      const result = await creditWallet({
-        data: {
-          userId: selectedUser.user_id,
-          amount: numericAmount,
-          reason: trimmedReason,
-        },
-      });
-
-      console.log("[ConsoleUsers] Wallet credit response:", result);
-
-      if (!result.ok) {
-        const diagnosticResult = result as {
-          ok: false;
-          error?: string;
-          detail?: string | null;
-          code?: string | null;
-          details?: string | null;
-          hint?: string | null;
-        };
-
-        const errorCode = diagnosticResult.error ?? "UNKNOWN_ERROR";
-
-        const detail = diagnosticResult.detail;
-        const code = diagnosticResult.code;
-        const details = diagnosticResult.details;
-        const hint = diagnosticResult.hint;
-
-        console.error("[ConsoleUsers] Wallet credit failed:", {
-          error: errorCode,
-          detail,
-          code,
-          details,
-          hint,
-        });
-
-        const messages: Record<string, string> = {
-          INVALID_USER: "The selected user is invalid.",
-
-          USER_NOT_FOUND: "User not found.",
-
-          WALLET_NOT_FOUND: "This user does not have a wallet.",
-
-          INVALID_AMOUNT: "Enter a valid credit amount.",
-
-          REASON_REQUIRED: "A reason is required for every wallet credit.",
-
-          FORBIDDEN: "You are not authorized to credit wallets.",
-
-          UNAUTHENTICATED: "Your admin session has expired. Please sign in again.",
-
-          SUPABASE_ADMIN_CLIENT_FAILED: "The server could not create the Supabase admin client.",
-
-          WALLET_CREDIT_RPC_EXCEPTION: "The wallet credit RPC threw a server error.",
-
-          WALLET_CREDIT_RPC_FAILED: "The wallet credit database RPC failed.",
-
-          WALLET_CREDIT_FAILED: "The wallet credit operation failed.",
-        };
-
-        const baseMessage = messages[errorCode] ?? `Wallet credit failed (${errorCode}).`;
-
-        const diagnostic =
-          detail || details || hint || code ? ` ${detail ?? details ?? hint ?? code ?? ""}` : "";
-
-        toast.error(`${baseMessage}${diagnostic}`.trim());
-
+    if (!locked) {
+      if (!Number.isInteger(numericAmount) || numericAmount <= 0 || numericAmount > 10_000_000) {
+        toast.error(messages["INVALID_AMOUNT"]);
         return;
       }
-
-      console.log("[ConsoleUsers] Wallet credited successfully:", {
-        userId: selectedUser.user_id,
-        amount: result.amount,
-        reference: result.reference,
-        newBalance: result.newBalance,
-      });
-
-      toast.success(`${formatXAF(result.amount)} credited successfully.`);
-
-      closeCredit();
-
-      await refetch();
-    } catch (error) {
-      console.error("[ConsoleUsers] Wallet credit request threw an exception:", error);
-
-      const message = error instanceof Error ? error.message : String(error);
-
-      toast.error(`Wallet credit request failed: ${message}`);
-    } finally {
-      setCrediting(false);
+      const len = reason.trim().length;
+      if (len < 5) return void toast.error(messages["REASON_REQUIRED"]);
+      if (len > 500) return void toast.error(messages["REASON_TOO_LONG"]);
     }
+    const { state, request } = nextCreditRequest(
+      form,
+      { userId: selectedUser.user_id, amount: numericAmount, reason },
+      () => crypto.randomUUID(),
+    );
+    setForm(state);
+    let result: WalletCreditResult | "NETWORK_ERROR";
+    try {
+      result = (await creditWallet({ data: request })) as WalletCreditResult;
+    } catch {
+      result = "NETWORK_ERROR";
+    }
+    const next = resolveCreditRequest(state, result);
+    setForm(next);
+    if (next.status === "unknown") {
+      toast.error("Result unknown. Press Retry — it resends the same request and cannot credit twice.");
+      return;
+    }
+    if (result === "NETWORK_ERROR") return;
+    if (!result.ok) {
+      toast.error(messages[result.error] ?? `Wallet credit failed (${result.error}).`);
+      return;
+    }
+    if (result.replayed) {
+      toast.success(`Already credited — no second credit made (ref ${result.reference ?? "—"}).`);
+    } else if (result.reviewRequired) {
+      toast.success(`${formatXAF(result.amount)} credited. Flagged for review (large credit).`);
+    } else {
+      toast.success(`${formatXAF(result.amount)} credited successfully.`);
+    }
+    setSelectedUser(null);
+    setAmount("");
+    setReason("");
+    await refetch();
   }
 
   return (
@@ -366,7 +314,7 @@ function ConsoleUsers() {
                   value={amount}
                   onChange={(event) => setAmount(event.target.value)}
                   placeholder="10,000"
-                  disabled={crediting}
+                  disabled={locked}
                 />
               </div>
 
@@ -383,7 +331,7 @@ function ConsoleUsers() {
                   value={reason}
                   onChange={(event) => setReason(event.target.value)}
                   placeholder="Compensation, correction, promotional credit..."
-                  disabled={crediting}
+                  disabled={locked}
                   rows={4}
                   maxLength={500}
                   className="w-full resize-none rounded-xl border border-input bg-background px-3 py-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
@@ -401,7 +349,7 @@ function ConsoleUsers() {
                 variant="outline"
                 className="flex-1"
                 onClick={closeCredit}
-                disabled={crediting}
+                disabled={locked}
               >
                 Cancel
               </Button>
@@ -420,7 +368,7 @@ function ConsoleUsers() {
                 }}
                 disabled={crediting}
               >
-                {crediting ? "Crediting..." : "Credit Wallet"}
+                {crediting ? "Crediting..." : form.status === "unknown" ? "Retry" : "Credit Wallet"}
               </button>
             </div>
 

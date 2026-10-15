@@ -24,8 +24,8 @@
 - Verified badges requireDepartment("TRUST") before privileged access. Why: staff authorization.
 
 - Provider balance and reconciliation live in finance-reconciliation.server.ts (snapshots, runs, discrepancies; service-role + deny-all); reconciliation logs discrepancies and never changes balances. Why: TchokoPay is the source of truth for real funds.
-- All payments record on payment_transactions (service-role, deny-all) and settle only via settleCollection; bank rows succeed only by Finance confirmation. Wallet money is per currency: XAF (Mobile Money) in wallets, card money in wallet_balances at Stripe's settled currency; withdrawals use request_wallet_withdrawal; UI helpers in wallet-currency.ts. Why: exactly-once credit, no cross-rail payouts or conversions shown as balances.
-- Booking commission rate lives in marketplace_settings, changed only via commission.functions.ts (REVENUE/CEO, audit-logged); paid bookings keep the rate saved at payment. Trip arrival times come from trip-eta.functions.ts (Routes API via the Maps connector, only for booking parties). Why: historical earnings never change and Maps calls stay bounded.
+- Payments record on payment_transactions (service-role, deny-all), settle only via settleCollection; bank rows need Finance confirmation. Wallets per currency: XAF in wallets, card in wallet_balances (Stripe settled currency); withdrawals via request_wallet_withdrawal; UI in wallet-currency.ts. Why: exactly-once, no cross-rail payouts.
+- Commission rate in marketplace_settings, changed only via commission.functions.ts (audited); paid bookings keep their saved rate. Trip ETAs via trip-eta.functions.ts (Maps connector, parties only). Why: stable earnings, bounded Maps calls.
 
 - Read nested AGENTS.md first. Why: security.
 - Staff metrics/presence share member-insights.functions.ts; AppShell awaits authenticated heartbeats; member-review.server.ts guards review; staff AI storage is service-only. Why: accurate status, private history.
@@ -46,3 +46,4 @@
 
 - Marketplace reuses chats; lookup errors stop creation. Deletion keeps scoped hiding/sender policies; replies store IDs; voice-playback arbitrates audio/recording. Why: private history, exclusive audio.
 - Card/bank show via useCardBankAvailable (flag or web); viewers use useOverlayBack. Why: app-only restriction; Back closes viewers.
+- Staff wallet credits go only through admin_credit_wallet_audited with an individual seat and a client request ID held until resolved. Why: atomic audit, exactly-once credit.
