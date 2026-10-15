@@ -1,10 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 
-async function ctx(write = false) {
-  const { requireConsole, requireDepartment, adminClient } = await import("./console.server");
-  const actor = write
-    ? await requireDepartment("MARKETPLACE_OPS", "SUPPORT")
-    : await requireConsole();
+// Laundry orders carry customer contacts, addresses and coordinates, so reads and
+// writes are both limited to the departments that run the service.
+async function ctx(_write = false) {
+  const { requireDepartment, adminClient } = await import("./console.server");
+  const actor = await requireDepartment("MARKETPLACE_OPS", "SUPPORT");
   return { actor, db: await adminClient() };
 }
 

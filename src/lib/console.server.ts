@@ -83,14 +83,34 @@ export async function isUnlocked(): Promise<boolean> {
 export async function requireConsole(): Promise<ConsoleActor> {
   const session = await consoleSession();
   if (!session.data.unlocked) throw new Error("CONSOLE_LOCKED");
-  const department = (session.data.department ?? "SUPER_ADMIN") as Department;
+  let department = (session.data.department ?? "SUPER_ADMIN") as Department;
+  let extraDepartments = session.data.extraDepartments ?? [];
+  // Staff seats are re-checked on every call so deactivation or a department
+  // change takes effect immediately instead of living on in an old cookie.
+  if (session.data.staffId) {
+    const db = await adminClient();
+    const { data: seat, error } = await db
+      .from("staff_accounts")
+      .select("is_active, department, extra_departments")
+      .eq("id", session.data.staffId)
+      .maybeSingle();
+    if (error) throw new Error("CONSOLE_UNAVAILABLE");
+    if (!seat || !seat.is_active) {
+      await session.clear();
+      throw new Error("CONSOLE_LOCKED");
+    }
+    department = seat.department as Department;
+    extraDepartments = (seat.extra_departments ?? []) as typeof extraDepartments;
+  } else if (department !== "SUPER_ADMIN") {
+    throw new Error("CONSOLE_LOCKED");
+  }
   return {
     staffId: session.data.staffId ?? null,
     name: session.data.staffName ?? "Super admin",
     department,
     elevated: Boolean(session.data.elevated),
     superAdmin: department === "SUPER_ADMIN",
-    extraDepartments: session.data.extraDepartments ?? [],
+    extraDepartments,
   };
 }
 

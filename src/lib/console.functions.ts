@@ -61,6 +61,34 @@ export const unlockConsole = createServerFn({ method: "POST" })
       throw new Error("CONSOLE_PASSWORD is not set");
     }
 
+    // Brute-force protection: shared database counters (work across all edge
+    // instances), per IP and per account name. Applied before any password check
+    // and identical for known/unknown names, so it reveals nothing about seats.
+    const { getRequest } = await import("@tanstack/react-start/server");
+    const { clientIp, rateLimit, logSecurityEvent } = await import("./rate-limit.server");
+    const ip = clientIp(getRequest()) || "unknown";
+    const byIp = await rateLimit({ bucket: "console-login-ip", ip, limit: 20, windowSeconds: 900 });
+    const byAccount = data.username
+      ? await rateLimit({
+          bucket: "console-login-account",
+          ip: `account:${data.username}`,
+          limit: 8,
+          windowSeconds: 900,
+        })
+      : null;
+    if (!byIp.allowed || (byAccount && !byAccount.allowed)) {
+      await logSecurityEvent({
+        kind: "STAFF_LOGIN_THROTTLED",
+        severity: "WARN",
+        subject: byIp.subject,
+        route: "/console",
+      });
+      return {
+        ok: false as const,
+        retryAfter: Math.max(byIp.retryAfter, byAccount?.retryAfter ?? 0),
+      };
+    }
+
     const session = await consoleSession();
 
     if (data.password && passwordMatches(data.password, master)) {
@@ -97,7 +125,7 @@ export const unlockConsole = createServerFn({ method: "POST" })
         severity: "WARN",
         subject: data.username.slice(0, 64),
         route: "/console",
-        detail: { known_seat: Boolean(staff) },
+        detail: {},
       });
       return { ok: false as const };
     }
