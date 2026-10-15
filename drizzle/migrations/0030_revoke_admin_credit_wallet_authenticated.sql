@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.admin_credit_wallet(uuid, numeric, text) FROM authenticated;
