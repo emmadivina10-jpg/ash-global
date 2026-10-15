@@ -225,6 +225,13 @@
       "when": 1792092906312,
       "tag": "0031_0031_audited_wallet_credit",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1792095244231,
+      "tag": "0032_0032_retire_legacy_wallet_credit",
+      "breakpoints": true
     }
   ]
 }
