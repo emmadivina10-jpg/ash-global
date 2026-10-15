@@ -1,3 +1,4 @@
+import { useOverlayBack } from "@/lib/overlay-back";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -552,6 +553,8 @@ export function StoriesRail({
     };
   }, [spotlightViewerOpen, spotlights.length]);
 
+  useOverlayBack(storyViewerOpen, () => setStoryViewerOpen(false));
+  useOverlayBack(spotlightViewerOpen, () => setSpotlightViewerOpen(false));
   useEffect(() => {
     if (!storyViewerOpen && !spotlightViewerOpen) return;
     const previousOverflow = document.body.style.overflow;

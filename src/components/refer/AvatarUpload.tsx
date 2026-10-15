@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Camera, Loader2, User } from "lucide-react";
+import { ArrowLeft, Camera, Loader2, User } from "lucide-react";
+import { useOverlayBack } from "@/lib/overlay-back";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { verifyMediaFiles } from "@/lib/media-safety";
