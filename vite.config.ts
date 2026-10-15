@@ -21,8 +21,39 @@ function serverEnvPlugin(): Plugin {
   };
 }
 
+// Public backend address + publishable key (safe for browsers). The repo's
+// .gitignore excludes .env, so production builds can miss them; this fallback
+// is used only when the build environment does not supply them. Never put a
+// service-role or other secret key here.
+const PUBLIC_BACKEND = {
+  VITE_SUPABASE_URL: "https://scynsxeezthoekxwqhsw.supabase.co",
+  VITE_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_ek2GiQzi2SHtNQyxRsE8SA_gXpqYSPr",
+  VITE_SUPABASE_PROJECT_ID: "scynsxeezthoekxwqhsw",
+};
+
+function publicBackendFallbackPlugin(): Plugin {
+  return {
+    name: "ash-public-backend-fallback",
+    enforce: "pre",
+    config(_config, { mode }) {
+      const env = { ...loadEnv(mode, process.cwd(), "VITE_"), ...process.env };
+      const define: Record<string, string> = {};
+      for (const [key, value] of Object.entries(PUBLIC_BACKEND)) {
+        if (!env[key]) {
+          process.env[key] = value;
+          define[`import.meta.env.${key}`] = JSON.stringify(value);
+        }
+      }
+      for (const key of ["SUPABASE_URL", "SUPABASE_PUBLISHABLE_KEY"] as const) {
+        if (!process.env[key]) process.env[key] = PUBLIC_BACKEND[`VITE_${key}`];
+      }
+      return Object.keys(define).length ? { define } : {};
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [serverEnvPlugin()],
+  plugins: [publicBackendFallbackPlugin(), serverEnvPlugin()],
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
