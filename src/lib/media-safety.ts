@@ -72,7 +72,7 @@ export async function verifyMediaFiles(files: File[], contentType: string): Prom
       data: { contentType, originalName: file.name, mediaType: file.type, previewDataUrl },
     });
     if (!result.ok)
-      throw new Error("Safety check unavailable. Please try again before publishing.");
+      throw new Error("We couldn't check this photo right now. Please try again in a moment.");
     if (result.verdict === "EXPLICIT") {
       window.location.assign("/safety-review");
       throw new Error(
