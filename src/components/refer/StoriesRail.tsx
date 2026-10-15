@@ -411,10 +411,7 @@ export function StoriesRail({
       if (story) items.push({ kind: "story", group, story });
     }
 
-    const sortedSpotlights = [...spotlights].sort(
-      (a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime(),
-    );
-    for (const spotlight of sortedSpotlights) {
+    for (const spotlight of spotlights) {
       items.push({ kind: "spotlight", spotlight });
     }
 
