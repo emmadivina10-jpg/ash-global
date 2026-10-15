@@ -163,10 +163,32 @@ async function reconcile(limit: number) {
   return { ok: true as const, checked: pending.length, settled, payoutsSettled, results };
 }
 
+/** Bounds unauthenticated callers: global budget (the scheduler runs every 5 min) plus per visitor. */
+async function throttled(request: Request): Promise<Response | null> {
+  const { guardPublicRequest, rateLimit } = await import("@/lib/rate-limit.server");
+  const perIp = await guardPublicRequest({
+    request,
+    bucket: "reconcile-ip",
+    route: "/api/public/reconcile-activations",
+    limit: 4,
+    windowSeconds: 60,
+  });
+  const global = await rateLimit({ bucket: "reconcile-global", ip: "global", limit: 6, windowSeconds: 60 });
+  if (perIp || !global.allowed) {
+    return Response.json(
+      { ok: false, error: "RATE_LIMITED" },
+      { status: 429, headers: { "retry-after": String(Math.max(perIp?.retryAfter ?? 0, global.retryAfter, 1)) } },
+    );
+  }
+  return null;
+}
+
 export const Route = createFileRoute("/api/public/reconcile-activations")({
   server: {
     handlers: {
       GET: async ({ request }) => {
+        const blocked = await throttled(request);
+        if (blocked) return blocked;
         const limit = Math.min(
           Number(new URL(request.url).searchParams.get("limit") ?? 50) || 50,
           100,
@@ -174,8 +196,11 @@ export const Route = createFileRoute("/api/public/reconcile-activations")({
         const result = await reconcile(limit);
         return Response.json(result, { headers: { "cache-control": "no-store" } });
       },
-      POST: async () =>
-        Response.json(await reconcile(50), { headers: { "cache-control": "no-store" } }),
+      POST: async ({ request }) => {
+        const blocked = await throttled(request);
+        if (blocked) return blocked;
+        return Response.json(await reconcile(50), { headers: { "cache-control": "no-store" } });
+      },
     },
   },
 });

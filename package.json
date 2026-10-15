@@ -148,5 +148,9 @@
     "overrides": {
       "entities": "4.5.0"
     }
+  },
+  "overrides": {
+    "js-yaml": "^4.3.2",
+    "source-map-js": "^1.2.2"
   }
 }
