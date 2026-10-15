@@ -9,14 +9,14 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Native composer stays outside scrolling. Why: no clipping.
+- Native composer outside scrolling. Why: no clipping.
 - Inventory: business_id=provider_profiles.id; inventory_can()/inventory_role_of() RLS + inventory_members; stock only via inventory_record_movement ledger. /inventory, inventory.queries.ts. Why: tenant isolation, one stock source.
 
 - Shareholders: shareholders.functions.ts, append-only service-role records; Finance: computeFinanceLedger. Read allFinanceRows in stable order; fail on errors. Why: complete source, no silent truncation/zeros.
-- Feed/Stories/Services rank via rotation.ts after safety filtering; Feed opens exact IDs in StoriesRail. Why: one viewer.
-- AppShell omits tab headers; MobileNav owns hold/slide; member screens switch instantly with no slide animation. Why: fixed-composer safety.
+- Feed/Spotlights: member-keyed caches, rotateSessionContent; explicit-refresh reset; exact IDs in StoriesRail. Why: varied openings, stable scroll/viewer.
+- AppShell omits tab headers; MobileNav owns hold/slide; member screens switch instantly, no animation. Why: composer safety.
 - Desktop Messages by sidebar; Flights in navs.
-- Shared logo pointer, native icons/launch and web icons derive from one artwork; disabled splashes stay blank. Why: consistent branding, one opening.
+- Shared logo, native icons/launch and web icons use one artwork; disabled splashes stay blank. Why: consistent branding, one opening.
 - Market defaults via versioned services-mode at the existing Services URL; Extras is its child route. MarketBrowser reuses discovery/deals/property reads. Why: preserve commerce and URLs.
 
 - Avatar updates use StoriesRail; ChatActionDialog owns panels; MemberNavIcon uses token SVG. Why: safe viewing, branding.

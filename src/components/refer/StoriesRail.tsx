@@ -55,7 +55,7 @@ import { Avatar as ProfileAvatar, useAvatarUrl } from "@/components/refer/Avatar
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { ProfilePhotoOverlay, VendorProfileSheet } from "@/components/refer/VendorProfileSheet";
 import { directory, type DirectoryProfile } from "@/lib/public-profiles";
-import { rotate, freshness, stableSessionSeed, ROTATION_DEFAULTS } from "@/lib/rotation";
+import { rotateSessionContent, freshness } from "@/lib/rotation";
 
 const SOCIAL_BUCKET = "spotlight";
 const IMAGE_MAX_BYTES = 12 * 1024 * 1024;
@@ -338,7 +338,7 @@ export async function loadSpotlights(): Promise<SpotlightPost[]> {
     ];
   });
   const { data: auth } = await supabase.auth.getUser();
-  return rotate(
+  return rotateSessionContent(
     "spotlight",
     entries.map((item) => ({
       item,
@@ -346,8 +346,7 @@ export async function loadSpotlights(): Promise<SpotlightPost[]> {
       creator: item.provider.user_id ?? item.id,
       relevance: freshness(item.created_at),
     })),
-    stableSessionSeed(auth.user?.id ?? null),
-    { ...ROTATION_DEFAULTS, skipCooldown: true },
+    auth.user?.id ?? null,
   );
 }
 
@@ -369,7 +368,8 @@ export function StoriesRail({
   const deleteStory = useDeleteStory();
 
   const { data: spotlights = [], isError: spotlightsError } = useQuery<SpotlightPost[]>({
-    queryKey: ["ash-spotlights"],
+    queryKey: ["ash-spotlights", me],
+    enabled: Boolean(me),
     staleTime: 15_000,
     queryFn: loadSpotlights,
   });
@@ -411,10 +411,7 @@ export function StoriesRail({
       if (story) items.push({ kind: "story", group, story });
     }
 
-    const sortedSpotlights = [...spotlights].sort(
-      (a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime(),
-    );
-    for (const spotlight of sortedSpotlights) {
+    for (const spotlight of spotlights) {
       items.push({ kind: "spotlight", spotlight });
     }
 
@@ -441,9 +438,10 @@ export function StoriesRail({
   const storyStartedAtRef = useRef<number | null>(null);
   const storyElapsedMsRef = useRef(0);
   const [pausedSpotlightId, setPausedSpotlightId] = useState<string | null>(null);
-  const [spotlightPhoto, setSpotlightPhoto] = useState<{ path: string | null; name: string } | null>(
-    null,
-  );
+  const [spotlightPhoto, setSpotlightPhoto] = useState<{
+    path: string | null;
+    name: string;
+  } | null>(null);
   const [spotlightProfile, setSpotlightProfile] = useState<{
     userId: string;
     name: string;
@@ -725,7 +723,7 @@ export function StoriesRail({
           },
         };
 
-        queryClient.setQueryData<SpotlightPost[]>(["ash-spotlights"], (current) =>
+        queryClient.setQueryData<SpotlightPost[]>(["ash-spotlights", me], (current) =>
           [optimistic, ...(current ?? []).filter((item) => item.id !== optimistic.id)].slice(0, 50),
         );
       }
@@ -944,7 +942,7 @@ export function StoriesRail({
         }
       }
 
-      queryClient.setQueryData<SpotlightPost[]>(["ash-spotlights"], (current) =>
+      queryClient.setQueryData<SpotlightPost[]>(["ash-spotlights", me], (current) =>
         (current ?? []).filter((item) => item.id !== spotlight.id),
       );
       void queryClient.invalidateQueries({ queryKey: ["ash-spotlights"] });

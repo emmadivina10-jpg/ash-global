@@ -9,6 +9,8 @@ import { signPortfolioPaths } from "./marketplace";
 import { EMPTY_REACTIONS, type ReactionBreakdown, type ReactionType } from "./social.queries";
 import { directory } from "@/lib/public-profiles";
 import { trackEvent } from "./activity";
+import { rotateSessionContent, freshness, engagement } from "./rotation";
+import { useUser } from "./queries";
 
 export const SPOTLIGHT_BUCKET = "spotlight";
 
@@ -69,8 +71,10 @@ function parseMedia(value: unknown): SpotlightMedia[] {
 
 /** The merged Spotlight feed: member posts first, then vendor highlights. */
 export function useSpotlightFeed(limit = 18) {
+  const { user, loading } = useUser();
   return useQuery({
-    queryKey: ["spotlight-feed", limit],
+    queryKey: ["spotlight-feed", limit, user?.id],
+    enabled: !loading && Boolean(user),
     staleTime: 30_000,
     queryFn: async (): Promise<SpotlightEntry[]> => {
       const [postsResult, portfolioResult] = await Promise.all([
@@ -244,12 +248,17 @@ export function useSpotlightFeed(limit = 18) {
         ];
       });
 
-      return [...postEntries, ...portfolioEntries]
-        .sort((a, b) => {
-          if (a.source !== b.source) return a.source === "post" ? -1 : 1;
-          return b.created_at.localeCompare(a.created_at);
-        })
-        .slice(0, limit * 2);
+      return rotateSessionContent(
+        "spotlight-feed",
+        [...postEntries, ...portfolioEntries].map((item) => ({
+          item,
+          id: item.id,
+          creator: item.author_id ?? item.provider.id,
+          relevance:
+            0.8 * freshness(item.created_at) + 0.2 * Math.min(1, engagement(item.reaction_count)),
+        })),
+        auth.user?.id ?? null,
+      ).slice(0, limit * 2);
     },
   });
 }
