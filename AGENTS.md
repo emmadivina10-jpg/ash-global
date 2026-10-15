@@ -15,7 +15,7 @@
 - Shareholders: shareholders.functions.ts, append-only service-role records; Finance: computeFinanceLedger. Read allFinanceRows in stable order; fail on errors. Why: complete source, no silent truncation/zeros.
 - Feed/Stories/Services rank via rotation.ts after safety filtering; Feed opens exact IDs in StoriesRail. Why: one viewer.
 - AppShell omits tab headers; MobileNav owns hold/slide; member screens switch instantly with no slide animation. Why: fixed-composer safety.
-- Desktop Messages fills beside sidebar; Flights in navs. Why: access.
+- Desktop Messages beside sidebar; Flights in navs. Why: access.
 - Shared logo pointer, native icons/launch and web icons derive from one artwork; disabled splashes stay blank. Why: consistent branding, one opening.
 - Market defaults via versioned services-mode at the existing Services URL; Extras is its child route. MarketBrowser reuses discovery/deals/property reads. Why: preserve commerce and URLs.
 
@@ -45,4 +45,4 @@
 - LegalDocument shares payment disclosures. Why: accuracy.
 
 - Marketplace reuses chats; lookup errors stop creation. Deletion keeps scoped hiding/sender policies; replies store IDs; voice-playback arbitrates audio/recording. Why: private history, exclusive audio.
-- Card/bank options gate via useCardBankAvailable (CARD_BANK_ENABLED or non-native web); full-screen viewers register useOverlayBack so phone Back closes them. Why: app-only payment restriction; Back never leaves the page.
+- Card/bank show via useCardBankAvailable (flag or web); viewers use useOverlayBack. Why: app-only restriction; Back closes viewers.
