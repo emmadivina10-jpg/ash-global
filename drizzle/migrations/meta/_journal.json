@@ -211,6 +211,13 @@
       "when": 1791916057817,
       "tag": "0029_voice_notes_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1792070619243,
+      "tag": "0030_revoke_admin_credit_wallet_authenticated",
+      "breakpoints": true
     }
   ]
 }
