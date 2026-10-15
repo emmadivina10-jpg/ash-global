@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { isNativeApp } from "@/lib/native";
 import { ArrowLeft, Building2, CreditCard, Loader2, Smartphone } from "lucide-react";
 import { MomoCharge } from "@/components/refer/MomoCharge";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,16 @@ type Choice = "MTN" | "ORANGE" | "BANK" | "CARD";
  * only MTN and Orange Mobile Money are offered. Flip to true to re-enable.
  */
 export const CARD_BANK_ENABLED = false;
+
+/**
+ * Card and bank stay on the website and mobile browsers; inside the installed
+ * app they show only when CARD_BANK_ENABLED is true. Decided after hydration.
+ */
+export function useCardBankAvailable(): boolean {
+  const [web, setWeb] = useState(false);
+  useEffect(() => setWeb(!isNativeApp()), []);
+  return CARD_BANK_ENABLED || web;
+}
 
 /**
  * "Choose payment method": MTN and Orange open the existing mobile money form
@@ -39,6 +50,7 @@ export function PaymentMethodPicker({
   showMomo?: boolean;
 }) {
   const [choice, setChoice] = useState<Choice | null>(null);
+  const cardBank = useCardBankAvailable();
   const options: { id: Choice; label: string; icon: React.ReactNode; tone: string }[] = [
     ...(showMomo
       ? [
@@ -56,7 +68,7 @@ export function PaymentMethodPicker({
           },
         ]
       : []),
-    ...(CARD_BANK_ENABLED
+    ...(cardBank
       ? [
           {
             id: "BANK" as const,

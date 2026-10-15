@@ -1,3 +1,4 @@
+import { useOverlayBack } from "@/lib/overlay-back";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { BadgeCheck, Loader2, MessageCircle, Sparkles, Trash2, X } from "lucide-react";
@@ -35,6 +36,7 @@ export function SpotlightReels({
 }) {
   const { tx, lang } = useI18n();
   const fr = lang === "fr";
+  useOverlayBack(true, onClose);
   const navigate = useNavigate();
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState<string | null>(null);

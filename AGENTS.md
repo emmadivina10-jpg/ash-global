@@ -15,7 +15,7 @@
 - Shareholders: shareholders.functions.ts, append-only service-role records; Finance: computeFinanceLedger. Read allFinanceRows in stable order; fail on errors. Why: complete source, no silent truncation/zeros.
 - Feed/Stories/Services rank via rotation.ts after safety filtering; Feed opens exact IDs in StoriesRail. Why: one viewer.
 - AppShell omits tab headers; MobileNav owns hold/slide; member screens switch instantly with no slide animation. Why: fixed-composer safety.
-- Desktop Messages fills beside sidebar; Flights in navs. Why: access.
+- Desktop Messages by sidebar; Flights in navs.
 - Shared logo pointer, native icons/launch and web icons derive from one artwork; disabled splashes stay blank. Why: consistent branding, one opening.
 - Market defaults via versioned services-mode at the existing Services URL; Extras is its child route. MarketBrowser reuses discovery/deals/property reads. Why: preserve commerce and URLs.
 
@@ -27,21 +27,22 @@
 - All payments record on payment_transactions (service-role, deny-all) and settle only via settleCollection; bank rows succeed only by Finance confirmation. Wallet money is per currency: XAF (Mobile Money) in wallets, card money in wallet_balances at Stripe's settled currency; withdrawals use request_wallet_withdrawal; UI helpers in wallet-currency.ts. Why: exactly-once credit, no cross-rail payouts or conversions shown as balances.
 - Booking commission rate lives in marketplace_settings, changed only via commission.functions.ts (REVENUE/CEO, audit-logged); paid bookings keep the rate saved at payment. Trip arrival times come from trip-eta.functions.ts (Routes API via the Maps connector, only for booking parties). Why: historical earnings never change and Maps calls stay bounded.
 
-- Read nested AGENTS.md before edits. Why: security.
+- Read nested AGENTS.md first. Why: security.
 - Staff metrics share member-insights.functions.ts; member-review.server.ts authorizes/audits account review; staff AI threads use service-only storage. Why: consistent numbers, no impersonation or history leaks.
 - Human Support reuses support.functions.ts and ticket/read records; support-state.ts owns notifications; AI chat stays separate. Why: no duplicate messaging or schema.
 - Checkout uses payment-return.ts; CompassSurface owns Map/Wallet in a shared dialog with scoped overlay; BookingTracking is shared inline/Compass. PullToRefresh excludes controls. Why: safe returns, accessible dismissal.
 - Booking actions use booking-payment-state.ts; Stripe/bank checks refresh saved evidence; Mobile Money checks are serialized with inline outcomes. Why: pending status must not invite duplicate payment or imply settlement.
 - Tracking: parties opt in via share_booking_party_location (active bookings, cleared on end); Leaflet/OSM map client-only. Why: works worldwide, no key or address.
 - Service verification uses the atomic code RPC independently of disabled transfers; constraint tests use isolated PGlite, not live inserts. Why: preserve verification and funds.
-- Phone alert banners belong to OS delivery, not PushBridge toasts; iOS launch storyboard owns native startup. Why: prevent duplicated notifications and opening screens.
+- OS delivers phone alerts (no PushBridge toasts); iOS storyboard owns startup. Why: no duplicates.
 - Personal booking_history_preferences archives/restores/removes terminal history only, never bookings or payments. Why: independent histories and financial retention.
-- Verification links carry provider tab and booking ID. Why: reach the correct Received code form.
+- Verification links carry provider tab + booking ID. Why: correct code form.
 - Localize interface copy with static dictionaries and explicit tx calls, never DOM rewriting or user-content translation. Why: privacy and stable React state.
 
 - WalletPayoutSetup reuses guarded Stripe Connect; PayoutSetupReminder saves account-scoped opt-out/cadence locally. Why: visible setup, no card collection or restricted payouts.
 - WebsiteAppShowcase stays separate from MobileOnboarding; confirmed store links only. Why: honest native entry/downloads.
 - Member Investment/currencies are display-only, separate from staff equity records. Why: protect funds.
-- LegalDocument shares payment disclosures. Why: accuracy.
+- LegalDocument shares payment text. Why: accuracy.
 
 - Marketplace reuses chats; lookup errors stop creation. Deletion keeps scoped hiding/sender policies; replies store IDs; voice-playback arbitrates audio/recording. Why: private history, exclusive audio.
+- Card/bank show via useCardBankAvailable (flag or web); viewers use useOverlayBack. Why: app-only restriction; Back closes viewers.

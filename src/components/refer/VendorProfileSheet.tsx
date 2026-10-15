@@ -3,13 +3,14 @@ import { createPortal } from "react-dom";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { BadgeCheck, Briefcase, Loader2, MapPin, ShieldAlert, Sparkles, Star, X } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Briefcase, Loader2, MapPin, ShieldAlert, Sparkles, Star, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { directory } from "@/lib/public-profiles";
 import { useI18n } from "@/lib/i18n";
 import { analyzeVendorTrust } from "@/lib/vendor-trust.functions";
 import { Avatar, useAvatarUrl } from "./AvatarUpload";
 import { VerifiedBadge } from "./VerifiedBadge";
+import { useOverlayBack } from "@/lib/overlay-back";
 
 /** Full-screen round profile photo above any viewer. */
 export function ProfilePhotoOverlay({
@@ -22,6 +23,7 @@ export function ProfilePhotoOverlay({
   onClose: () => void;
 }) {
   const url = useAvatarUrl(path);
+  useOverlayBack(true, onClose);
   if (typeof document === "undefined") return null;
   return createPortal(
     <div
@@ -31,6 +33,17 @@ export function ProfilePhotoOverlay({
       onClick={onClose}
       className="fixed inset-0 z-[160000] grid place-items-center bg-black/60 backdrop-blur-xl animate-in fade-in"
     >
+      <button
+        type="button"
+        aria-label="Back"
+        onClick={(e) => {
+          e.stopPropagation();
+          onClose();
+        }}
+        className="absolute left-3 top-[calc(0.75rem+env(safe-area-inset-top))] z-10 grid size-11 place-items-center rounded-full bg-black/55 text-white backdrop-blur"
+      >
+        <ArrowLeft className="size-5" aria-hidden />
+      </button>
       {url ? (
         <img
           src={url}
