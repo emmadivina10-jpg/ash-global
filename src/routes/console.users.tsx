@@ -125,12 +125,12 @@ function ConsoleUsers() {
     const numericAmount = Number(amount);
     if (!locked) {
       if (!Number.isInteger(numericAmount) || numericAmount <= 0 || numericAmount > 10_000_000) {
-        toast.error(messages.INVALID_AMOUNT);
+        toast.error(messages["INVALID_AMOUNT"]);
         return;
       }
       const len = reason.trim().length;
-      if (len < 5) return void toast.error(messages.REASON_REQUIRED);
-      if (len > 500) return void toast.error(messages.REASON_TOO_LONG);
+      if (len < 5) return void toast.error(messages["REASON_REQUIRED"]);
+      if (len > 500) return void toast.error(messages["REASON_TOO_LONG"]);
     }
     const { state, request } = nextCreditRequest(
       form,
