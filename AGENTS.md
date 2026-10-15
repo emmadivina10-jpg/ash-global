@@ -46,3 +46,4 @@
 
 - Marketplace reuses chats; lookup errors stop creation. Deletion keeps scoped hiding/sender policies; replies store IDs; voice-playback arbitrates audio/recording. Why: private history, exclusive audio.
 - Card/bank show via useCardBankAvailable (flag or web); viewers use useOverlayBack. Why: app-only restriction; Back closes viewers.
+- Staff wallet credits go only through admin_credit_wallet_audited with an individual seat and a client request ID held until resolved. Why: atomic audit, exactly-once credit.
