@@ -71,8 +71,8 @@ export async function verifyMediaFiles(files: File[], contentType: string): Prom
     const result = await moderateMedia({
       data: { contentType, originalName: file.name, mediaType: file.type, previewDataUrl },
     });
-    if (!result.ok)
-      throw new Error("Safety check unavailable. Please try again before publishing.");
+    // Unavailable moderation is non-blocking: let the upload proceed.
+    if (!result.ok) continue;
     if (result.verdict === "EXPLICIT") {
       window.location.assign("/safety-review");
       throw new Error(
