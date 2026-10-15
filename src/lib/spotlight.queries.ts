@@ -251,8 +251,11 @@ export function useSpotlightFeed(limit = 18) {
       return rotateSessionContent(
         "spotlight-feed",
         [...postEntries, ...portfolioEntries].map((item) => ({
-          item, id: item.id, creator: item.author_id ?? item.provider.id,
-          relevance: 0.8 * freshness(item.created_at) + 0.2 * Math.min(1, engagement(item.reaction_count)),
+          item,
+          id: item.id,
+          creator: item.author_id ?? item.provider.id,
+          relevance:
+            0.8 * freshness(item.created_at) + 0.2 * Math.min(1, engagement(item.reaction_count)),
         })),
         auth.user?.id ?? null,
       ).slice(0, limit * 2);

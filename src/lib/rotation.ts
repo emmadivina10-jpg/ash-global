@@ -204,16 +204,22 @@ export function resetStableOrder(key: string) {
 }
 
 /** Freeze member-specific ranking until explicit refresh or a fresh app load. */
-export function rotateSessionContent<T>(type: string, input: RotationItem<T>[], userId: string | null): T[] {
+export function rotateSessionContent<T>(
+  type: string,
+  input: RotationItem<T>[],
+  userId: string | null,
+): T[] {
   const key = `${type}:${userId ?? "anon"}`;
   const ranked = rotate(type, input, stableSessionSeed(userId), {
-    ...ROTATION_DEFAULTS, rotationStrength: 0.8,
+    ...ROTATION_DEFAULTS,
+    rotationStrength: 0.8,
   });
   if (!stableOrders.has(key) && ranked.length > 1 && typeof window !== "undefined") {
     const storageKey = `ash.opening.v1:${key}`;
     try {
       const previous = window.localStorage.getItem(storageKey);
-      const creatorOf = (item: T | undefined) => input.find((entry) => entry.item === item)?.creator;
+      const creatorOf = (item: T | undefined) =>
+        input.find((entry) => entry.item === item)?.creator;
       if (creatorOf(ranked[0]) === previous) {
         const next = ranked.findIndex((item) => creatorOf(item) !== previous);
         if (next > 0) {
@@ -223,9 +229,15 @@ export function rotateSessionContent<T>(type: string, input: RotationItem<T>[], 
       }
       const creator = creatorOf(ranked[0]);
       if (creator) window.localStorage.setItem(storageKey, creator);
-    } catch { /* Storage is optional. */ }
+    } catch {
+      /* Storage is optional. */
+    }
   }
-  return keepStableOrder(key, ranked, (item) => input.find((entry) => entry.item === item)?.id ?? "");
+  return keepStableOrder(
+    key,
+    ranked,
+    (item) => input.find((entry) => entry.item === item)?.id ?? "",
+  );
 }
 
 export function resetFeedRotation(userId: string | null) {

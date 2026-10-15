@@ -74,14 +74,7 @@ function FeedPage() {
     { authorId: string; kind: "spotlight"; spotlightId: string } | undefined
   >();
   // Spotlights keep their slots too, so the Feed never shuffles under the reader.
-  const mixed = useMemo(
-    () =>
-      interleaveSpotlights(
-        posts ?? [],
-        spotlights,
-      ),
-    [posts, spotlights],
-  );
+  const mixed = useMemo(() => interleaveSpotlights(posts ?? [], spotlights), [posts, spotlights]);
   const create = useCreateSocialPost();
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
@@ -89,7 +82,6 @@ function FeedPage() {
   const [composerOpen, setComposerOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
-
 
   function pick(event: React.ChangeEvent<HTMLInputElement>) {
     const picked = Array.from(event.target.files ?? []).filter((file) =>

@@ -438,9 +438,10 @@ export function StoriesRail({
   const storyStartedAtRef = useRef<number | null>(null);
   const storyElapsedMsRef = useRef(0);
   const [pausedSpotlightId, setPausedSpotlightId] = useState<string | null>(null);
-  const [spotlightPhoto, setSpotlightPhoto] = useState<{ path: string | null; name: string } | null>(
-    null,
-  );
+  const [spotlightPhoto, setSpotlightPhoto] = useState<{
+    path: string | null;
+    name: string;
+  } | null>(null);
   const [spotlightProfile, setSpotlightProfile] = useState<{
     userId: string;
     name: string;
