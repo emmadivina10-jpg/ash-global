@@ -1,8 +1,9 @@
 # Roadmap
 
 ## Feed opening rotation (Oct 15)
-- [ ] Correct member/load-specific ordering for Feed posts and all visible Spotlight surfaces; preserve safety and scroll stability
-- [ ] Add ranking regression tests and verify real signed-in preview loads without publishing
+- [x] Correct member/load-specific ordering for Feed posts and Spotlight surfaces; remove newest-first rail override and reset seed on explicit refresh
+- [x] Eight regression tests pass, including multiple member keys; signed-in preview shows different first posts/Spotlights across three fresh loads, stable scrolling and viewer dismissal back to Feed; preview build OK, no runtime errors, not published
+- [ ] Two real members on separate devices — requires a second authorized member session/device; multi-member ranking tested with isolated inputs only
 
 ## Official ASH logo replacement (Oct 13)
 - [x] Replace shared logo, notification/email favicon references, social preview, favicon, Apple touch icon and seven CDN-backed web app icons with supplied artwork
