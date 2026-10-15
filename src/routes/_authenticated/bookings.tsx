@@ -35,7 +35,11 @@ import {
 import { startBookingPayment, syncBookingPayment } from "@/lib/booking.functions";
 import { verifyBookingService } from "@/lib/stripe-release.functions";
 import { startBookingBankPayment, type BankDetails } from "@/lib/payments-ledger.functions";
-import { BankInstructions, BANK_UNAVAILABLE_TEXT } from "@/components/refer/PaymentMethodPicker";
+import {
+  BankInstructions,
+  BANK_UNAVAILABLE_TEXT,
+  useCardBankAvailable,
+} from "@/components/refer/PaymentMethodPicker";
 import { paymentErrorMessage } from "@/lib/payment-errors";
 import { MomoCharge } from "@/components/refer/MomoCharge";
 import { bookingStatusLabel, bookingStatusTone, formatCountdown, timeLeft } from "@/lib/booking";
@@ -154,6 +158,7 @@ function BookingsPage() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [momoBooking, setMomoBooking] = useState<{ id: string; price: number } | null>(null);
   const startBank = useServerFn(startBookingBankPayment);
+  const cardBank = useCardBankAvailable();
   const [bankInfo, setBankInfo] = useState<{
     bank: BankDetails | null;
     reference: string | null;
@@ -425,6 +430,7 @@ function BookingsPage() {
             {paymentBooking ? formatXAF(paymentBooking.price) : ""}
           </p>
           <div className="grid gap-2">
+            {cardBank ? (
             <Button
               disabled={busyId === paymentBooking?.id}
               onClick={() => {
@@ -438,6 +444,7 @@ function BookingsPage() {
               <CreditCard className="size-4" />
               {tx("Card", "Carte")}
             </Button>
+            ) : null}
             {mobileMoneyEnabled ? (
               <Button
                 variant="outline"
@@ -450,6 +457,7 @@ function BookingsPage() {
                 Mobile Money
               </Button>
             ) : null}
+            {cardBank ? (
             <Button
               variant="outline"
               onClick={() => {
@@ -463,6 +471,7 @@ function BookingsPage() {
               <Landmark className="size-4" />
               {tx("Bank transfer", "Virement bancaire")}
             </Button>
+            ) : null}
           </div>
         </DialogContent>
       </Dialog>
