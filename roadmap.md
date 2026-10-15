@@ -1,8 +1,9 @@
 # Roadmap
 
 ## Staff online status (Oct 15)
-- [ ] Repair member presence reporting and show green Online / Offline throughout shared staff directory
-- [ ] Test presence rules and verify a signed-in member's evidence reaches the staff screen; no publishing
+- [x] Await lazy heartbeat requests after member identity loads; retry every minute and on visibility/network/focus return; shared admin/employee directory shows green Online and muted Offline
+- [x] Fifteen presence/insights tests pass; signed-in Feed sends successful heartbeat (204), database confirms fresh presence; preview build OK; no publishing or access-policy changes
+- [ ] Staff directory end-to-end and installed-phone check — available member session cannot unlock staff console; requires staff sign-in and a new native build
 
 ## Feed opening rotation (Oct 15)
 - [x] Correct member/load-specific ordering for Feed posts and Spotlight surfaces; remove newest-first rail override and reset seed on explicit refresh
