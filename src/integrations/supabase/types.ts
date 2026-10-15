@@ -7467,6 +7467,45 @@ export type Database = {
         }
         Relationships: []
       }
+      wallet_credit_requests: {
+        Row: {
+          actor_department: string
+          actor_staff_id: string
+          amount: number
+          created_at: string
+          currency: string
+          reason: string
+          reference: string
+          request_id: string
+          result: Json
+          user_id: string
+        }
+        Insert: {
+          actor_department: string
+          actor_staff_id: string
+          amount: number
+          created_at?: string
+          currency?: string
+          reason: string
+          reference: string
+          request_id: string
+          result: Json
+          user_id: string
+        }
+        Update: {
+          actor_department?: string
+          actor_staff_id?: string
+          amount?: number
+          created_at?: string
+          currency?: string
+          reason?: string
+          reference?: string
+          request_id?: string
+          result?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       wallets: {
         Row: {
           available_balance: number
@@ -7567,6 +7606,16 @@ export type Database = {
       }
       admin_credit_wallet: {
         Args: { _amount: number; _reason: string; _user_id: string }
+        Returns: Json
+      }
+      admin_credit_wallet_audited: {
+        Args: {
+          _amount: number
+          _reason: string
+          _request_id: string
+          _staff_id: string
+          _user_id: string
+        }
         Returns: Json
       }
       admin_manual_activate: {
@@ -7829,6 +7878,10 @@ export type Database = {
           member_name: string
           parent_id: string
         }[]
+      }
+      get_wallet_credit_request: {
+        Args: { _request_id: string }
+        Returns: Json
       }
       has_project_proposal: {
         Args: { _project_id: string; _user_id: string }
