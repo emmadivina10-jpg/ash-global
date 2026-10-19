@@ -12,6 +12,12 @@ export function LegalPaymentDisclosure() {
   return (
     <>
       <p>
+        In the mobile app and phone preview, card/Stripe payments, saved cards, bank setup and bank
+        withdrawals are coming soon and unavailable. MTN Mobile Money and Orange Money remain
+        available where supported. Website availability is separate; this does not enable transfers
+        or change existing balances.
+      </p>
+      <p>
         Card collections, where offered, use Stripe-hosted Checkout. Supported Mobile Money means
         MTN MoMo and Orange Money through TchokoPay in Cameroon (XAF). M-PESA is not integrated or
         available. A country or currency selector does not establish payment or withdrawal support.

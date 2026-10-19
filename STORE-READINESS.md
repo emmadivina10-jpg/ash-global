@@ -2,6 +2,12 @@
 
 Reviewed 11 October 2026 against current source and official Apple/Google policy pages. **Documentation prepared; submission is not cleared.** No publication, provider transaction, hosted settings mutation, credentials change or store submission was performed. This is not legal advice or a promise of approval.
 
+### Mobile release update — 19 October 2026
+
+Native apps and phone-sized preview now treat card/Stripe payments, saved cards, bank onboarding and bank withdrawals as **coming soon / unavailable**. MTN Mobile Money and Orange Money remain unchanged under existing region/account rules. Payout setup reminders are suppressed on mobile. Non-XAF balances/history remain visible but cannot be withdrawn through a mobile bank action or converted to Mobile Money. Desktop website availability and all settlement, commission, service-code, webhook and live-transfer safeguards are unchanged.
+
+The matrix below describes underlying website/payment capabilities; it does **not** advertise card/bank availability in this mobile release. This presentation update does not resolve external Mobile Money digital-purchase billing, account/data erasure, reviewer access, privacy/permission checks or signed-build verification. App Store submission remains blocked pending those checks; no publish or submission performed.
+
 ## Payment and availability matrix
 
 | Surface | Implemented collection | Confirmation / limitations |
@@ -45,7 +51,7 @@ Availability above is code evidence, not proof of a successful current provider 
 
 1. Open Support, Privacy, Terms, Community Guidelines, Marketplace Policy, Referral/Wallet Terms, Contact and Account Deletion without signing in.
 2. Sign in using owner-provided reviewer access, then inspect Feed, Stories, Messages, Market/Services, reporting/blocking and Settings.
-3. Review only authorized real-world checkout flows; verify pending/failed/successful statuses without creating unapproved charges. Check currency shown by checkout, receipt, wallet and payment records.
+3. On the signed mobile build, confirm MTN/Orange only where eligible, card/bank coming soon, no Stripe setup or reminders and no bank withdrawal for non-XAF balances. Review only authorized real-world Mobile Money flows; never create unapproved charges. Check checkout/receipt/wallet currencies. Website card flows are separate.
 4. Customer alone sees service code; provider progresses trip, both optionally share location, and authorized server validation completes service without falsely claiming bank payout.
 5. Currency switching preserves actual amounts and shows zero for unfunded currencies; withdrawals enforce matching rail and eligibility. Explain held card funds and disabled bank execution truthfully.
 6. Test genuine deletion and retained-data exceptions after implementing the missing erasure workflow; inspect public request access.
