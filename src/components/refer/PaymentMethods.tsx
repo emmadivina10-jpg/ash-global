@@ -3,6 +3,8 @@ import { useCardBankAvailable } from "@/components/refer/PaymentMethodPicker";
 import { useRegion } from "@/lib/region-context";
 import { countryMeta } from "@/lib/region";
 import { cn } from "@/lib/utils";
+import { CardBankComingSoon } from "./CardBankComingSoon";
+import { useI18n } from "@/lib/i18n";
 
 /**
  * Shows the payment rails available where the visitor is browsing from.
@@ -12,6 +14,7 @@ export function PaymentMethods({ className }: { className?: string }) {
   const { country, mobileMoneyEnabled, seesEverything } = useRegion();
   const meta = countryMeta(country);
   const cardBank = useCardBankAvailable();
+  const { lang } = useI18n();
 
   return (
     <div className={cn("flex flex-wrap items-center gap-2", className)}>
@@ -31,6 +34,7 @@ export function PaymentMethods({ className }: { className?: string }) {
           Card &amp; wallets via Stripe
         </span>
       ) : null}
+      {!cardBank && <CardBankComingSoon fr={lang === "fr"} />}
     </div>
   );
 }

@@ -20,9 +20,9 @@ const SLIDES = [
     titleEn: ["Simple.", "Secure.", "Yours."],
     titleFr: ["Simple.", "Sécurisé.", "À vous."],
     bodyEn:
-      "Card with Stripe, MTN MoMo and Orange Money. Every payment protected until the service is done.",
+      "Pay with MTN Mobile Money or Orange Money where supported. Card and bank features are coming soon.",
     bodyFr:
-      "Carte via Stripe, MTN MoMo et Orange Money. Chaque paiement protégé jusqu'au service rendu.",
+      "Payez avec MTN Mobile Money ou Orange Money dans les régions prises en charge. Carte et banque : bientôt disponibles.",
   },
 ] as const;
 

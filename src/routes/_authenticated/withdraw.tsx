@@ -15,6 +15,10 @@ import { EmptyState, SkeletonRows } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useCardBankAvailable } from "@/components/refer/PaymentMethodPicker";
+import { CardBankComingSoon } from "@/components/refer/CardBankComingSoon";
+import { visibleWithdrawalMethods } from "@/lib/mobile-payment-policy";
+import { useI18n } from "@/lib/i18n";
 import {
   CM_PHONE_REGEX,
   MIN_WITHDRAWAL,
@@ -32,7 +36,6 @@ import {
   minWithdrawalFor,
   useWalletBalances,
   useWalletCurrency,
-  withdrawalMethodsFor,
 } from "@/lib/wallet-currency";
 
 const ERRORS: Record<string, string> = {
@@ -66,6 +69,10 @@ export const Route = createFileRoute("/_authenticated/withdraw")({
   head: () => ({
     meta: [
       { title: "Withdraw — ASH Glo" },
+      { property: "og:title", content: "Withdraw — ASH Glo" },
+      { property: "og:description", content: "ASH Glo withdrawal balances and supported payout destinations." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       {
         name: "description",
         content: "Withdraw your ASH Glo earnings to MTN Mobile Money or Orange Money.",
@@ -76,6 +83,8 @@ export const Route = createFileRoute("/_authenticated/withdraw")({
 });
 
 function WithdrawPage() {
+  const cardBank = useCardBankAvailable();
+  const { lang } = useI18n();
   const queryClient = useQueryClient();
   const disburse = useServerFn(disburseWithdrawal);
 
@@ -141,19 +150,18 @@ function WithdrawPage() {
 
   const momoAvailable = mobileMoneyEnabled;
 
-  // Card/bank payouts run through the member's connected Stripe payout
-  // account. The server rejects the request when that account is not ready,
-  // so the option is always visible and the error explains the next step.
-  const methodOptions: Method[] = withdrawalMethodsFor(currency);
+  const methodOptions: Method[] = visibleWithdrawalMethods(currency, cardBank);
+  const destinationAvailable = methodOptions.includes(method);
 
   useEffect(() => {
     if (!methodOptions.includes(method)) {
       setMethod(methodOptions[0] ?? "MTN_MOMO");
     }
-  }, [method, momoAvailable, currency]);
+  }, [method, momoAvailable, currency, cardBank]);
 
   function review(event: React.FormEvent) {
     event.preventDefault();
+    if (!destinationAvailable) return;
 
     const value = Number(amount);
 
@@ -177,6 +185,10 @@ function WithdrawPage() {
   }
 
   async function submit() {
+    if (!destinationAvailable) {
+      setConfirming(false);
+      return;
+    }
     setSubmitting(true);
     setError(null);
 
@@ -368,6 +380,14 @@ function WithdrawPage() {
         title="Withdraw funds"
         description="Choose your destination and amount. You control the withdrawal yourself; mobile-money payouts are processed automatically by TchokoPay."
       >
+        {!cardBank && <CardBankComingSoon fr={lang === "fr"} />}
+        {methodOptions.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">
+            {lang === "fr"
+              ? "Les retraits dans cette devise ne sont pas disponibles dans l’application. Votre solde reste inchangé."
+              : "Withdrawals in this currency are unavailable in the app. Your balance remains unchanged."}
+          </p>
+        ) : (
         <form onSubmit={review} className="space-y-5" noValidate>
           <div className="space-y-2">
             <Label htmlFor="amount">Amount ({currency})</Label>
@@ -444,10 +464,11 @@ function WithdrawPage() {
             </p>
           ) : null}
 
-          <Button type="submit" className="h-12 w-full">
+          <Button type="submit" disabled={!destinationAvailable} className="h-12 w-full">
             Withdraw
           </Button>
         </form>
+        )}
       </SectionCard>
 
       <SectionCard title="Withdrawal history">

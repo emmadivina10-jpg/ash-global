@@ -1,5 +1,10 @@
 # Roadmap
 
+## Mobile card/bank coming soon (Oct 19)
+- [ ] Gate mobile preview/native card collections, setup, reminders and bank withdrawals; preserve MTN/Orange, website and live-transfer guard
+- [ ] Align mobile Stripe wording and reviewer notes; run isolated availability tests and phone checks
+- [ ] App Store clearance — blocked by digital billing/deletion decisions, reviewer access and signed-build/privacy/screenshots checks; no submission authorized
+
 ## Staff online status (Oct 15)
 - [x] Await lazy heartbeat requests after member identity loads; retry every minute and on visibility/network/focus return; shared admin/employee directory shows green Online and muted Offline
 - [x] Fifteen presence/insights tests pass; signed-in Feed sends successful heartbeat (204), database confirms fresh presence; preview build OK; no publishing or access-policy changes

@@ -12,13 +12,16 @@ import { SectionCard } from "@/components/refer/cards";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import { payoutRoute, LIVE_PROVIDER_ONBOARDING_ENABLED } from "@/lib/stripe-release-policy";
+import { useCardBankAvailable } from "./PaymentMethodPicker";
+import { CardBankComingSoon } from "./CardBankComingSoon";
 
 /**
  * Bank payouts via Stripe Connect. Onboarding and the payout dashboard both
  * live on Stripe, so no bank credentials ever touch ASH.
  */
 export function PayoutAccountCard({ country }: { country: string }) {
-  const { tx } = useI18n();
+  const { tx, lang } = useI18n();
+  const cardBank = useCardBankAvailable();
   const fetchAccount = useServerFn(getPayoutAccount);
   const startOnboarding = useServerFn(startPayoutOnboarding);
   const dashboardLink = useServerFn(getPayoutDashboardLink);
@@ -27,8 +30,10 @@ export function PayoutAccountCard({ country }: { country: string }) {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["payout-account"],
     queryFn: () => fetchAccount({ data: undefined as never }),
+    enabled: cardBank,
   });
 
+  if (!cardBank) return <CardBankComingSoon fr={lang === "fr"} />;
   if (isLoading)
     return (
       <p className="text-sm text-muted-foreground">
@@ -60,6 +65,7 @@ export function PayoutAccountCard({ country }: { country: string }) {
     );
 
   async function connect() {
+    if (!cardBank) return;
     // The bank's country (Canada) is what matters, not where the phone is
     // right now, so approved providers can connect from anywhere.
     setBusy(true);
@@ -88,6 +94,7 @@ export function PayoutAccountCard({ country }: { country: string }) {
   }
 
   async function openDashboard() {
+    if (!cardBank) return;
     setBusy(true);
     const result = await dashboardLink({ data: undefined as never }).catch(() => null);
     setBusy(false);

@@ -45,5 +45,5 @@
 - LegalDocument shares payment text. Why: accuracy.
 
 - Marketplace reuses chats; lookup errors stop creation. Deletion keeps scoped hiding/sender policies; replies store IDs; voice-playback arbitrates audio/recording. Why: private history, exclusive audio.
-- Card/bank show via useCardBankAvailable (flag or web); viewers use useOverlayBack. Why: app-only restriction; Back closes viewers.
+- Card/bank use useCardBankAvailable + mobile-payment-policy; viewers use useOverlayBack. Why: native/phone gate, unchanged rails; Back closes viewers.
 - Staff wallet credits go only through admin_credit_wallet_audited with an individual seat and a client request ID held until resolved. Why: atomic audit, exactly-once credit.

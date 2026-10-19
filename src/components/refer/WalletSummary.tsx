@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { CreditCard } from "lucide-react";
+import { WalletMinimal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   balanceFor,
@@ -21,8 +21,8 @@ export function WalletSummary({ onClose }: { onClose?: () => void }) {
     <div className="p-4">
       <div className="virtual-card relative overflow-hidden p-5">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-extrabold uppercase opacity-70">ASH Card · {currency}</span>
-          <CreditCard className="size-5" />
+          <span className="text-xs font-extrabold uppercase opacity-70">{tx("ASH Wallet", "Portefeuille ASH")} · {currency}</span>
+          <WalletMinimal className="size-5" />
         </div>
         <p className="mt-7 text-xs opacity-65">{tx("Available balance", "Solde disponible")}</p>
         <p className="mt-1 font-display text-3xl font-extrabold tabular-nums">

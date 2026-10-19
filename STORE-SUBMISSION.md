@@ -2,6 +2,8 @@
 
 Updated against the current preview on 11 October 2026. ASH Glo is the product; ASH Global Technologies is the legal entity. This is not confirmation of publication, store approval or a completed provider transaction test.
 
+Mobile payment availability revised 19 October 2026: native iOS/Android and phone-sized preview offer MTN Mobile Money and Orange Money only, subject to existing region/account eligibility. Card/Stripe payments, saved cards, bank onboarding and bank withdrawals are unavailable and labelled coming soon. Website payment functionality is unchanged. No new signed binary, publication or store submission is established by this update.
+
 **Status: documentation prepared; NOT ready for unconditional store submission.** Digital external-payment flows, full account/data erasure, signed-device testing and hosted sign-in settings remain release checks/blockers. See [STORE-READINESS.md](./STORE-READINESS.md). No publishing, store submission, keys, payment settings or funds changed in this audit.
 
 ## 1. App identity
@@ -43,7 +45,7 @@ ASH Markets and FX Analytics provide educational and labelled demo information. 
 
 ASH AI helps members understand ASH Glo features and their own account activity. AI output can be inaccurate and does not replace professional advice.
 
-Supported features and payment methods vary by account and region. Card collections use Stripe; MTN MoMo and Orange Money use TchokoPay in Cameroon (XAF). M-PESA is not supported. ASH Glo never asks for your Mobile Money PIN. Bank transfer collection is available only with verified instructions and Finance confirmation. Stripe bank payout setup is approved-provider-only; direct saved-card payouts and automatic provider transfers are not enabled.
+Supported features and payment methods vary by account and region. In the mobile app, MTN Mobile Money and Orange Money use TchokoPay in Cameroon (XAF). Card/Stripe, saved cards and bank features are coming soon and unavailable. On the desktop website, card collections use Stripe and bank collection requires verified instructions and Finance confirmation; provider bank setup remains eligibility-gated. M-PESA is not supported. ASH Glo never asks for your Mobile Money PIN. Automatic provider transfers remain disabled.
 
 Flights and Electricity are coming soon, not operational payment services. Referrals are three-level and region/account gated; withdrawals follow review/provider statuses and are not promised as instant. Mobile navigation is Feed, Market/Services, Flights, Messages and Menu, with a single floating ASH Compass (Map/Wallet). Sign-up/sign-in follows email confirmation when required, current Terms acceptance and profile-photo setup before Feed.
 
@@ -80,8 +82,15 @@ Account deletion:
     and retained-data exceptions have been implemented and tested.
 
 Payments:
-  • Real-world bookings: Stripe card Checkout; MTN/Orange via TchokoPay (CM/XAF).
-    M-PESA is unavailable. Conditional bank collections require Finance confirmation.
+  • In this mobile release: MTN Mobile Money and Orange Money via TchokoPay
+    (CM/XAF), subject to existing eligibility. These flows are unchanged.
+  • Card/Stripe payments, saving cards, bank account setup and bank withdrawals
+    are coming soon and unavailable for all mobile users, not only reviewers.
+    Wallet → payout setup shows coming soon; no card/bank entry or Stripe setup
+    opens. Non-XAF balances/history remain visible, without conversion or mobile
+    bank withdrawal. Existing financial records are not altered.
+  • Desktop website Stripe/conditional bank availability is separate from the app.
+    M-PESA is unavailable. No live provider transfers have been enabled.
   • Collections are verified server-side against provider status or signed callbacks;
     browser redirects and pending prompts are not payment evidence.
   • Stripe provider transfers remain disabled. Collection, held payable and bank
@@ -153,6 +162,7 @@ Leave blank / not applicable unless distribution in mainland China or a store wo
 - [ ] Complete age/content questionnaires from actual app content; do not copy an assumed rating.
 - [ ] Re-check final-binary privacy manifests and connected provider disclosures.
 - [ ] Confirm screenshots and listing copy do not advertise live trading, guaranteed earnings, completed KYC or unsupported payment methods.
+- [ ] Verify the signed iOS build shows only MTN/Orange mobile payment choices, card/bank coming soon, no Stripe onboarding/reminder, and no non-XAF bank withdrawal; replace screenshots advertising active mobile Stripe. Source/preview checks do not certify the binary.
 - [ ] Provide a business address only if required and confirmed by the owner.
 - [ ] Confirm iOS purpose strings (including live booking location), Android permissions/photo-picker compliance, Apple/Google sign-in, deep links, privacy manifests and store-required SDK targets in the signed release.
 - [ ] Replace screenshots/copy that show old wallet conversions, duplicate launchers, live investment/flight claims or guaranteed payouts.

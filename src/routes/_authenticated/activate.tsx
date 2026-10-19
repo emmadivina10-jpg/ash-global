@@ -18,6 +18,10 @@ export const Route = createFileRoute("/_authenticated/activate")({
   head: () => ({
     meta: [
       { title: "Activate your account — ASH Glo" },
+      { property: "og:title", content: "Activate your account — ASH Glo" },
+      { property: "og:description", content: "ASH Glo referral activation eligibility and payment status." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       {
         name: "description",
         content: "Pay the one-time 5,000 XAF activation fee to unlock referral earnings.",
@@ -224,7 +228,7 @@ function ActivatePage() {
         </Button>
         {!walletCanCover ? (
           <p className="mt-2 text-xs text-muted-foreground">
-            Your balance is below the fee. Top up your wallet by card or Mobile Money first, or pay
+            Your balance is below the fee. Top up your XAF wallet with Mobile Money first, or pay
             directly with Mobile Money below.
           </p>
         ) : (
