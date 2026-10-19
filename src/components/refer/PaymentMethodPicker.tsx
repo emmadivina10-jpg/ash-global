@@ -5,6 +5,8 @@ import { MomoCharge } from "@/components/refer/MomoCharge";
 import { Button } from "@/components/ui/button";
 import type { BankDetails } from "@/lib/payments-ledger.functions";
 import { cn } from "@/lib/utils";
+import { cardBankAvailable, MOBILE_PAYMENT_QUERY } from "@/lib/mobile-payment-policy";
+import { CardBankComingSoon } from "./CardBankComingSoon";
 
 type Choice = "MTN" | "ORANGE" | "BANK" | "CARD";
 
@@ -12,16 +14,22 @@ type Choice = "MTN" | "ORANGE" | "BANK" | "CARD";
  * Card (Stripe) and bank transfer are temporarily disabled in the member app;
  * only MTN and Orange Mobile Money are offered. Flip to true to re-enable.
  */
-export const CARD_BANK_ENABLED = false;
+export { CARD_BANK_ENABLED } from "@/lib/mobile-payment-policy";
 
 /**
- * Card and bank stay on the website and mobile browsers; inside the installed
- * app they show only when CARD_BANK_ENABLED is true. Decided after hydration.
+ * Card and bank stay on the desktop website; native and phone previews share
+ * the mobile coming-soon gate. Fail closed until hydration.
  */
 export function useCardBankAvailable(): boolean {
-  const [web, setWeb] = useState(false);
-  useEffect(() => setWeb(!isNativeApp()), []);
-  return CARD_BANK_ENABLED || web;
+  const [available, setAvailable] = useState(false);
+  useEffect(() => {
+    const media = window.matchMedia(MOBILE_PAYMENT_QUERY);
+    const update = () => setAvailable(cardBankAvailable(isNativeApp(), media.matches));
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+  return available;
 }
 
 /**
@@ -103,7 +111,7 @@ export function PaymentMethodPicker({
     );
   }
 
-  if (choice === "BANK" || choice === "CARD") {
+  if (cardBank && (choice === "BANK" || choice === "CARD")) {
     return (
       <div className="space-y-3">
         <BackButton fr={fr} onClick={() => setChoice(null)} />
@@ -133,19 +141,21 @@ export function PaymentMethodPicker({
       </p>
       <div className="grid gap-2 sm:grid-cols-2">
         {options.map((o) => (
-          <button
+          <Button
             key={o.id}
             type="button"
             onClick={() => setChoice(o.id)}
-            className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 text-left text-sm font-semibold text-foreground transition hover:border-primary/50"
+            variant="outline"
+            className="h-auto justify-start gap-3 whitespace-normal p-3 text-left"
           >
             <span className={cn("grid size-9 place-items-center rounded-xl", o.tone)}>
               {o.icon}
             </span>
             {o.label}
-          </button>
+          </Button>
         ))}
       </div>
+      {!cardBank && <CardBankComingSoon fr={fr} />}
     </div>
   );
 }

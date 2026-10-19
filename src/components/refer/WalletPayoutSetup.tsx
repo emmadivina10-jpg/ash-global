@@ -13,9 +13,12 @@ import {
 } from "@/components/ui/dialog";
 import { PayoutAccountCard } from "./PayoutAccountCard";
 import { getPayoutSetupVisibility } from "@/lib/payouts.functions";
+import { useCardBankAvailable } from "./PaymentMethodPicker";
+import { CardBankComingSoon } from "./CardBankComingSoon";
 
 export function WalletPayoutSetup({ country }: { country: string }) {
-  const { tx } = useI18n();
+  const { tx, lang } = useI18n();
+  const cardBank = useCardBankAvailable();
   const [mode, setMode] = useState<"bank" | "card" | null>(null);
   const visibility = useServerFn(getPayoutSetupVisibility);
   // Option A: bank payout setup is entirely hidden for anyone who is not an
@@ -23,8 +26,10 @@ export function WalletPayoutSetup({ country }: { country: string }) {
   const { data: gate } = useQuery({
     queryKey: ["payout-setup-visibility"],
     queryFn: () => visibility({ data: undefined as never }),
+    enabled: cardBank,
     staleTime: 60_000,
   });
+  if (!cardBank) return <section id="payout-setup" className="py-3"><CardBankComingSoon fr={lang === "fr"} /></section>;
   if (!gate) return null;
   if (!gate.canSetUpBank) return null;
   return (

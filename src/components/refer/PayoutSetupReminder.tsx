@@ -6,6 +6,7 @@ import { CreditCard } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { getPayoutSetupVisibility } from "@/lib/payouts.functions";
+import { useCardBankAvailable } from "./PaymentMethodPicker";
 import {
   PAYOUT_REMINDER_DELAY,
   parsePayoutReminder,
@@ -14,14 +15,16 @@ import {
 
 export function PayoutSetupReminder({ userId, connected }: { userId: string; connected: boolean }) {
   const { tx } = useI18n();
+  const cardBank = useCardBankAvailable();
   const visibility = useServerFn(getPayoutSetupVisibility);
   // Option A: the reminder is only for approved providers; customers see nothing.
   const { data: gate } = useQuery({
     queryKey: ["payout-setup-visibility"],
     queryFn: () => visibility({ data: undefined as never }),
+    enabled: cardBank,
     staleTime: 60_000,
   });
-  const canSetUpBank = gate?.canSetUpBank === true;
+  const canSetUpBank = cardBank && gate?.canSetUpBank === true;
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [visible, setVisible] = useState(false);
   const storageKey = `ash.payout-reminder.v1.${userId}`;
@@ -62,6 +65,7 @@ export function PayoutSetupReminder({ userId, connected }: { userId: string; con
     setVisible(false);
   }
   if (
+    !cardBank ||
     !visible ||
     connected ||
     pathname === "/messages" ||
