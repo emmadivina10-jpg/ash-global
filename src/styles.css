@@ -1531,6 +1531,17 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
 .mobile-welcome {
   --welcome-illustration-surface: oklch(0.96 0.021 300);
   --welcome-illustration-ink: oklch(0.24 0.035 283);
+  --welcome-electric-blue: oklch(0.47 0.28 264);
+  --welcome-button-fill: linear-gradient(
+    115deg,
+    var(--verified-coral) 0%,
+    var(--verified-magenta) 35%,
+    var(--verified-violet) 68%,
+    var(--welcome-electric-blue) 100%
+  );
+  --welcome-button-shadow:
+    0 18px 42px -18px color-mix(in oklab, var(--verified-magenta) 62%, transparent),
+    0 10px 26px -14px color-mix(in oklab, var(--welcome-electric-blue) 55%, transparent);
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
@@ -1699,18 +1710,40 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   background: var(--member-update-ring);
 }
 .mobile-welcome-primary {
+  position: relative;
   width: 100%;
-  height: 54px;
+  height: 56px;
   border-radius: var(--radius);
   justify-content: space-between;
-  padding-inline: 22px;
+  padding-inline: 22px 7px;
   font-size: 15px;
   font-weight: 650;
-  box-shadow: var(--shadow-brand);
+  color: #fff;
+  background: var(--welcome-button-fill);
+  box-shadow: var(--welcome-button-shadow);
+  overflow: hidden;
+  transition: filter 180ms ease;
+}
+.mobile-welcome-primary:hover {
+  background: var(--welcome-button-fill);
+  filter: brightness(1.06);
+}
+.mobile-welcome-primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.26), transparent 42%);
+  pointer-events: none;
 }
 .mobile-welcome-primary svg {
-  width: 20px;
-  height: 20px;
+  position: relative;
+  z-index: 1;
+  width: 42px;
+  height: 42px;
+  padding: 10px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--verified-violet);
 }
 .mobile-welcome-login {
   display: flex;
