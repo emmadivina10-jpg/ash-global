@@ -1554,7 +1554,9 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   height: 48dvh;
   min-height: 245px;
   max-height: 510px;
-  overflow: hidden;
+  /* The artwork clip-path already contains the drawing, so the caption
+     is free to sit a little below the panel seam. */
+  overflow: visible;
   color: var(--welcome-illustration-ink);
   flex-shrink: 0;
   touch-action: pan-y;
@@ -1614,7 +1616,7 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
 }
 .mobile-welcome-caption {
   position: absolute;
-  bottom: 6px;
+  bottom: -14px;
   inset-inline: 26px;
   z-index: 1;
   display: flex;
