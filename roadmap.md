@@ -2,6 +2,7 @@
 
 ## Four illustrated app welcome screens (Oct 20)
 - [x] Replace photos with texting, shopping/delivery, travel and wallet drawings; curved slanted image edge and staggered text transitions
+- [x] Lower the screen label (People & moments / Market & services / Flights · Coming soon / Wallet & payments) so it sits closer to the text beneath it
 - [x] Verified all four screens at 393/360px, EN/FR, light/dark, four indicators, skip/next, join/login, reduced motion, loaded illustrations and curved clipping; no overflow/runtime errors, lint clean, 41 payment safeguards pass, preview build OK; nothing published
 
 ## App welcome-screen refresh (Oct 20)
