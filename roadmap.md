@@ -1,5 +1,9 @@
 # Roadmap
 
+## Permanent account deletion (Oct 20)
+- [x] Verify current deletion: approval only closes the profile; live foreign keys would cascade-delete financial records or block login deletion
+- [ ] Implement and validate safe erasure with minimal lawful retention — awaiting approval of the deletion/retention plan before changes to shared financial dependencies
+
 ## Newly published Feed visibility (Oct 20)
 - [x] Read-only live function check: social_feed caps results at 60, below the 120-post client window; the reported slice exclusion does not occur in this deployment. Isolated 240-row reproduction is not the live configuration.
 - [x] Discard tentative changes after live verification contradicted the finding; existing rotation tests rerun. No app changes, production posts or publication.
