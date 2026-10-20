@@ -19,8 +19,10 @@ const SLIDES = [
     kickerFr: "Plus proches. Toujours connectés.",
     titleEn: ["Your world,", "closer."],
     titleFr: ["Votre monde,", "plus proche."],
-    bodyEn: "Chat with friends and family, send voice messages, and share your moments through Feed, Stories and Spotlights.",
-    bodyFr: "Discutez avec vos proches, envoyez des messages vocaux et partagez vos moments dans le Fil, les Stories et les Spotlights.",
+    bodyEn:
+      "Chat with friends and family, send voice messages, and share your moments through Feed, Stories and Spotlights.",
+    bodyFr:
+      "Discutez avec vos proches, envoyez des messages vocaux et partagez vos moments dans le Fil, les Stories et les Spotlights.",
     labelEn: "People & moments",
     labelFr: "Liens et moments",
     Icon: MessageCircle,
@@ -33,8 +35,10 @@ const SLIDES = [
     kickerFr: "Des découvertes qui créent des liens.",
     titleEn: ["More to find.", "More to love."],
     titleFr: ["Découvrez.", "Rencontrez."],
-    bodyEn: "Explore Market, chat with sellers and book services. Keep your booking in view with Compass and optional location sharing.",
-    bodyFr: "Explorez le Marché, échangez avec les vendeurs et réservez des services. Suivez votre réservation avec Compass et le partage de position facultatif.",
+    bodyEn:
+      "Explore Market, chat with sellers and book services. Keep your booking in view with Compass and optional location sharing.",
+    bodyFr:
+      "Explorez le Marché, échangez avec les vendeurs et réservez des services. Suivez votre réservation avec Compass et le partage de position facultatif.",
     labelEn: "Market & services",
     labelFr: "Marché et services",
     Icon: Store,
@@ -47,8 +51,10 @@ const SLIDES = [
     kickerFr: "Un nouvel horizon pour ASH.",
     titleEn: ["Your next", "adventure."],
     titleFr: ["Votre prochaine", "aventure."],
-    bodyEn: "A place for your next journey. Flights is coming soon — flight search and booking are not available yet.",
-    bodyFr: "Un espace pour votre prochain voyage. Vols arrive bientôt : la recherche et la réservation ne sont pas encore disponibles.",
+    bodyEn:
+      "A place for your next journey. Flights is coming soon — flight search and booking are not available yet.",
+    bodyFr:
+      "Un espace pour votre prochain voyage. Vols arrive bientôt : la recherche et la réservation ne sont pas encore disponibles.",
     labelEn: "Flights · Coming soon",
     labelFr: "Vols · Bientôt",
     Icon: Plane,
@@ -61,8 +67,10 @@ const SLIDES = [
     kickerFr: "Votre activité, au même endroit.",
     titleEn: ["Your wallet.", "Your way."],
     titleFr: ["Votre argent.", "Votre espace."],
-    bodyEn: "View balances and eligible withdrawals. Mobile payments use MTN or Orange Money via TchokoPay where supported. Card and bank — coming soon.",
-    bodyFr: "Consultez vos soldes et les retraits admissibles. Paiements mobiles : MTN ou Orange Money via TchokoPay selon disponibilité. Carte et banque — bientôt.",
+    bodyEn:
+      "View balances and eligible withdrawals. Mobile payments use MTN or Orange Money via TchokoPay where supported. Card and bank — coming soon.",
+    bodyFr:
+      "Consultez vos soldes et les retraits admissibles. Paiements mobiles : MTN ou Orange Money via TchokoPay selon disponibilité. Carte et banque — bientôt.",
     labelEn: "Wallet & payments",
     labelFr: "Portefeuille et paiements",
     Icon: Wallet,
@@ -83,7 +91,11 @@ export function MobileOnboarding() {
   return (
     <div className="ash-entry mobile-welcome">
       <svg width="0" height="0" aria-hidden="true" className="absolute">
-        <defs><clipPath id="welcome-bent-edge" clipPathUnits="objectBoundingBox"><path d="M0 0 H1 V.84 C.72 .78 .32 1 .0 .94 Z" /></clipPath></defs>
+        <defs>
+          <clipPath id="welcome-bent-edge" clipPathUnits="objectBoundingBox">
+            <path d="M0 0 H1 V.84 C.72 .78 .32 1 .0 .94 Z" />
+          </clipPath>
+        </defs>
       </svg>
       <section
         className="mobile-welcome-visual"
@@ -102,8 +114,19 @@ export function MobileOnboarding() {
       >
         <div className="mobile-welcome-artwork">
           <AnimatePresence mode="wait" initial={false}>
-            <motion.img key={slide.image} src={slide.image} alt={tx(slide.altEn, slide.altFr)} width={1024} height={1024} className="mobile-welcome-photo" draggable={false}
-              initial={{ opacity: 0, scale: reducedMotion ? 1 : 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: reducedMotion ? 1 : 1.03 }} transition={transition} />
+            <motion.img
+              key={slide.image}
+              src={slide.image}
+              alt={tx(slide.altEn, slide.altFr)}
+              width={1024}
+              height={1024}
+              className="mobile-welcome-photo"
+              draggable={false}
+              initial={{ opacity: 0, scale: reducedMotion ? 1 : 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: reducedMotion ? 1 : 1.03 }}
+              transition={transition}
+            />
           </AnimatePresence>
         </div>
         <header className="mobile-welcome-header">
@@ -127,20 +150,31 @@ export function MobileOnboarding() {
         <div className="mobile-welcome-caption">
           <Icon className="size-4" />
           <span>{tx(slide.labelEn, slide.labelFr)}</span>
-          <span className="mobile-welcome-count">0{step + 1} / 0{SLIDES.length}</span>
+          <span className="mobile-welcome-count">
+            0{step + 1} / 0{SLIDES.length}
+          </span>
         </div>
       </section>
 
       <main className="mobile-welcome-content">
         <AnimatePresence mode="wait" initial={false}>
-        <motion.div key={step} className="mobile-welcome-copy" aria-live="polite" aria-atomic="true" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={transition}>
-          <p className="mobile-welcome-kicker">{tx(slide.kickerEn, slide.kickerFr)}</p>
-          <h2>
-            {tx(slide.titleEn[0], slide.titleFr[0])}
-            <span>{tx(slide.titleEn[1], slide.titleFr[1])}</span>
-          </h2>
-          <p className="mobile-welcome-description">{tx(slide.bodyEn, slide.bodyFr)}</p>
-        </motion.div>
+          <motion.div
+            key={step}
+            className="mobile-welcome-copy"
+            aria-live="polite"
+            aria-atomic="true"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={transition}
+          >
+            <p className="mobile-welcome-kicker">{tx(slide.kickerEn, slide.kickerFr)}</p>
+            <h2>
+              {tx(slide.titleEn[0], slide.titleFr[0])}
+              <span>{tx(slide.titleEn[1], slide.titleFr[1])}</span>
+            </h2>
+            <p className="mobile-welcome-description">{tx(slide.bodyEn, slide.bodyFr)}</p>
+          </motion.div>
         </AnimatePresence>
         <footer className="mobile-welcome-footer">
           <div
@@ -170,7 +204,10 @@ export function MobileOnboarding() {
               </Link>
             </Button>
           ) : (
-            <Button className="mobile-welcome-primary" onClick={() => setStep(Math.min(SLIDES.length - 1, step + 1))}>
+            <Button
+              className="mobile-welcome-primary"
+              onClick={() => setStep(Math.min(SLIDES.length - 1, step + 1))}
+            >
               {step === 0 ? tx("Discover ASH", "Découvrir ASH") : tx("Continue", "Continuer")}
               <ArrowRight />
             </Button>

@@ -1636,9 +1636,14 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
 .mobile-welcome-copy h2 span {
   animation: welcome-copy-in 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-.mobile-welcome-copy h2 { animation-delay: 80ms; }
-.mobile-welcome-copy h2 span { animation-delay: 160ms; }
-.mobile-welcome-copy > .mobile-welcome-description { animation-delay: 240ms;
+.mobile-welcome-copy h2 {
+  animation-delay: 80ms;
+}
+.mobile-welcome-copy h2 span {
+  animation-delay: 160ms;
+}
+.mobile-welcome-copy > .mobile-welcome-description {
+  animation-delay: 240ms;
 }
 .mobile-welcome-kicker {
   font-size: 11px;
