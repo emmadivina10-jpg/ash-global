@@ -1890,6 +1890,11 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
     box-shadow 220ms ease,
     filter 220ms ease;
 }
+.desktop-landing .landing-secondary,
+.desktop-landing .landing-signin,
+.desktop-landing .landing-header-actions > button {
+  color: var(--foreground);
+}
 .desktop-landing .landing-primary,
 .desktop-landing .landing-header-join {
   background: var(--landing-button-fill);
