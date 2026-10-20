@@ -1528,8 +1528,243 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   isolation: isolate;
   background-image: var(--member-dual-wash);
 }
-.mobile-onboarding-title {
-  font-size: clamp(2.25rem, 12vw, 3.1rem);
+.mobile-welcome {
+  --welcome-photo-shade: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-media-backdrop) 58%, transparent),
+    transparent 40%,
+    color-mix(in oklab, var(--color-media-backdrop) 70%, transparent)
+  );
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+.mobile-welcome::before {
+  display: none;
+}
+.mobile-welcome-visual {
+  position: relative;
+  height: 44dvh;
+  min-height: 245px;
+  max-height: 510px;
+  overflow: hidden;
+  background: var(--color-media-backdrop);
+  color: var(--color-on-dark);
+  flex-shrink: 0;
+  touch-action: pan-y;
+}
+.mobile-welcome-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 39%;
+  animation: welcome-photo-in 650ms ease-out both;
+}
+.mobile-welcome-visual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--welcome-photo-shade);
+  pointer-events: none;
+}
+.mobile-welcome-header {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(20px + env(safe-area-inset-top)) 24px 16px;
+}
+.mobile-welcome-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.mobile-welcome-brand img {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+}
+.mobile-welcome-brand h1 {
+  font-size: 22px;
+  font-weight: 750;
+  line-height: 1.2;
+}
+.mobile-welcome-brand p {
+  font-size: 10px;
+  margin-top: 3px;
+  opacity: 0.85;
+}
+.mobile-welcome-skip {
+  color: var(--color-on-dark);
+  background: color-mix(in oklab, var(--color-media-backdrop) 28%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-on-dark) 30%, transparent);
+  border-radius: 999px;
+  padding-inline: 16px;
+}
+.mobile-welcome-skip:hover {
+  background: color-mix(in oklab, var(--color-media-backdrop) 55%, transparent);
+  color: var(--color-on-dark);
+}
+.mobile-welcome-caption {
+  position: absolute;
+  bottom: 22px;
+  inset-inline: 26px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  font-weight: 550;
+}
+.mobile-welcome-count {
+  margin-left: auto;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
+}
+.mobile-welcome-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 28px 26px calc(16px + env(safe-area-inset-bottom));
+  max-width: 560px;
+  width: 100%;
+  margin-inline: auto;
+}
+.mobile-welcome-copy {
+  animation: welcome-copy-in 400ms ease-out both;
+}
+.mobile-welcome-kicker {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  margin-bottom: 12px;
+}
+.mobile-welcome-copy h2 {
+  font-size: 38px;
+  font-weight: 750;
+  line-height: 1.12;
+  letter-spacing: 0;
+}
+.mobile-welcome-copy h2 span {
+  display: block;
+  color: var(--gold);
+}
+.mobile-welcome-description {
+  margin-top: 16px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--muted-foreground);
+  max-width: 380px;
+}
+.mobile-welcome-footer {
+  margin-top: auto;
+  padding-top: 14px;
+}
+.mobile-welcome-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  margin-bottom: 10px;
+  gap: 0;
+}
+.mobile-welcome-dot {
+  width: 40px;
+  height: 32px;
+  padding: 8px 4px;
+  border-radius: 999px;
+}
+.mobile-welcome-dot span {
+  display: block;
+  width: 8px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--border);
+  transition: width 200ms ease;
+}
+.mobile-welcome-dot[aria-pressed="true"] span {
+  width: 28px;
+  background: var(--member-update-ring);
+}
+.mobile-welcome-primary {
+  width: 100%;
+  height: 54px;
+  border-radius: var(--radius);
+  justify-content: space-between;
+  padding-inline: 22px;
+  font-size: 15px;
+  font-weight: 650;
+  box-shadow: var(--shadow-brand);
+}
+.mobile-welcome-primary svg {
+  width: 20px;
+  height: 20px;
+}
+.mobile-welcome-login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.mobile-welcome-login a {
+  height: 32px;
+  padding: 0 7px;
+  font-size: 12px;
+  color: var(--foreground);
+  font-weight: 650;
+}
+@keyframes welcome-photo-in {
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes welcome-copy-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-height: 740px) {
+  .mobile-welcome-visual {
+    height: 39dvh;
+    min-height: 220px;
+  }
+  .mobile-welcome-content {
+    padding-top: 20px;
+  }
+  .mobile-welcome-copy h2 {
+    font-size: 32px;
+  }
+  .mobile-welcome-description {
+    margin-top: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .mobile-welcome-kicker {
+    margin-bottom: 9px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mobile-welcome-photo,
+  .mobile-welcome-copy {
+    animation: none;
+  }
+  .mobile-welcome-dot span {
+    transition: none;
+  }
 }
 .ash-entry::before {
   content: "ASH";
@@ -1704,13 +1939,12 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
 .desktop-landing {
   /* The public page wears the app's own palette — no separate website theme. */
   --landing-gold: var(--gold);
-  --landing-closing:
-    linear-gradient(
-      120deg,
-      var(--color-media-backdrop) 0%,
-      color-mix(in oklab, var(--verified-violet) 55%, var(--color-media-backdrop)) 56%,
-      color-mix(in oklab, var(--verified-magenta) 46%, var(--color-media-backdrop)) 100%
-    );
+  --landing-closing: linear-gradient(
+    120deg,
+    var(--color-media-backdrop) 0%,
+    color-mix(in oklab, var(--verified-violet) 55%, var(--color-media-backdrop)) 56%,
+    color-mix(in oklab, var(--verified-magenta) 46%, var(--color-media-backdrop)) 100%
+  );
   --landing-on-brand: var(--color-on-dark);
   --landing-image-surface: var(--card);
   --landing-button-fill: var(--primary);
