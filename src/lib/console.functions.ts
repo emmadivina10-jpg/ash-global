@@ -835,7 +835,7 @@ export const reviewDeletionRequest = createServerFn({
 
     const db = await adminClient();
 
-    const { error } = await db
+    const { data: reviewed, error } = await db
       .from("account_deletion_requests")
       .update({
         status: data.status,
@@ -850,6 +850,7 @@ export const reviewDeletionRequest = createServerFn({
     if (error) {
       throw new Error(error.message);
     }
+    if (!reviewed) throw new Error("DELETION_REQUEST_NOT_PENDING");
 
     return {
       ok: true as const,
