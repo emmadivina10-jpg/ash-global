@@ -1,5 +1,9 @@
 # Roadmap
 
+## Premium desktop landing brief (Oct 20)
+- [x] Refine the public desktop page with purple/gold accents, social-first product imagery, ecosystem, steps, discovery, eligible referrals/wallet and real navigation; preserve phone entry and payment logic
+- [x] Check 1280/1440/1920px desktop, 834px tablet and 390px phone, eight gallery images, enlarged viewer, registration and sign-in return destinations, light/dark and public links; no horizontal overflow or runtime errors; lint clean, 24 safeguard tests pass, preview build OK; nothing published
+
 ## Classic desktop landing (Oct 20)
 - [x] Use eight supplied screenshots and prominent ASH Global Technologies branding; preserve mobile onboarding, auth and payment availability
 - [x] Verify all eight gallery images, enlarged viewer, download notice, light/dark and 800/1280/1920px layouts; phone onboarding unchanged; 13 payment tests pass, preview build OK; nothing published
