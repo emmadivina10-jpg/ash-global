@@ -1,5 +1,9 @@
 # Roadmap
 
+## Four illustrated app welcome screens (Oct 20)
+- [ ] Replace photos with texting, shopping/delivery, travel and wallet drawings; curved slanted image edge and staggered text transitions
+- [ ] Verify four-screen controls, truthful availability, phone layouts, themes, languages and reduced motion; preview only
+
 ## App welcome-screen refresh (Oct 20)
 - [x] Replace text-only phone welcome screens with editorial imagery, prominent ASH branding, clearer typography and consistent rounded actions; preserve entry, payment and compact launch behavior
 - [x] Verified both screens at 360/393/430px, EN/FR, light/dark, skip/swipe/dots, join/login destinations, reduced motion and unchanged desktop; no overflow/runtime errors; lint clean, 41 payment safeguards pass, preview build OK; nothing published
