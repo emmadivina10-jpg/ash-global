@@ -1,5 +1,9 @@
 # Roadmap
 
+## Classic desktop landing (Oct 20)
+- [x] Use eight supplied screenshots and prominent ASH Global Technologies branding; preserve mobile onboarding, auth and payment availability
+- [ ] Verify desktop gallery, download invitation, themes and unchanged phone opening; preview only
+
 ## Permanent account deletion (Oct 20)
 - [x] Verify current deletion: approval only closes the profile; live foreign keys would cascade-delete financial records or block login deletion
 - [x] Add isolated restartable erasure orchestration and block misleading live approvals; no existing accounts, files, schema or money changed
