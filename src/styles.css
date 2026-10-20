@@ -1707,11 +1707,14 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   --landing-soft: #f7f7fa;
   --landing-muted: #62616b;
   --landing-line: #e5e3eb;
-  --landing-accent: #4b0082;
+  --landing-accent: var(--verified-violet);
   --landing-gold: #d4af37;
   --landing-closing: #320954;
   --landing-on-brand: #ffffff;
   --landing-image-surface: #ffffff;
+  --landing-button-fill: var(--compass-fill);
+  --landing-button-ink: var(--color-on-dark);
+  --landing-wash: var(--member-dual-wash);
   --background: var(--landing-surface);
   --foreground: var(--landing-ink);
   --muted-foreground: var(--landing-muted);
@@ -1723,7 +1726,7 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   --accent-foreground: var(--landing-ink);
   --ring: var(--landing-accent);
   color: var(--foreground);
-  background: var(--background);
+  background: var(--landing-wash);
   letter-spacing: 0;
 }
 .dark .desktop-landing {
@@ -1732,7 +1735,7 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   --landing-soft: #202023;
   --landing-muted: #b7b3c0;
   --landing-line: #38353d;
-  --landing-accent: #c4a5e4;
+  --landing-accent: var(--verified-magenta);
   --primary-foreground: #24132f;
 }
 .landing-width {
@@ -1788,7 +1791,7 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
 }
 .landing-header-join {
   height: 40px;
-  border-radius: 4px;
+  border-radius: var(--radius);
   font-size: 12px;
 }
 .landing-menu-toggle {
@@ -1872,12 +1875,87 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
 .landing-primary,
 .landing-secondary {
   height: 48px;
-  border-radius: 4px;
+  border-radius: var(--radius);
   font-size: 13px;
   padding-inline: 24px;
 }
 .landing-primary {
   min-width: 155px;
+}
+.desktop-landing [data-slot="button"],
+.landing-image-dialog [data-slot="button"] {
+  border-radius: var(--radius);
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    filter 220ms ease;
+}
+.desktop-landing .landing-secondary,
+.desktop-landing .landing-signin,
+.desktop-landing .landing-header-actions > button {
+  color: var(--foreground);
+}
+.desktop-landing .landing-primary,
+.desktop-landing .landing-header-join {
+  background: var(--landing-button-fill);
+  color: var(--landing-button-ink);
+  box-shadow: var(--compass-shadow);
+}
+.desktop-landing .landing-primary:hover,
+.desktop-landing .landing-header-join:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+.desktop-landing .landing-primary:active,
+.desktop-landing .landing-header-join:active {
+  transform: scale(0.98);
+}
+.landing-hero-copy > * {
+  animation: landing-arrive 700ms ease both;
+}
+.landing-hero-copy > :nth-child(2) {
+  animation-delay: 80ms;
+}
+.landing-hero-copy > :nth-child(3) {
+  animation-delay: 160ms;
+}
+.landing-hero-copy > :nth-child(4) {
+  animation-delay: 240ms;
+}
+.landing-hero-copy > :nth-child(5) {
+  animation-delay: 320ms;
+}
+.landing-hero-copy > :nth-child(6) {
+  animation-delay: 400ms;
+}
+.landing-panorama {
+  animation: landing-arrive 900ms 350ms ease both;
+}
+.landing-gallery-image > img {
+  animation: landing-arrive 450ms ease both;
+}
+@keyframes landing-arrive {
+  from {
+    opacity: 0;
+    translate: 0 18px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@supports (animation-timeline: view()) {
+  .landing-section-heading,
+  .landing-feature,
+  .landing-steps > div,
+  .landing-commerce-grid article,
+  .landing-opportunity,
+  .landing-payment-layout > div,
+  .landing-invitation .landing-width {
+    animation: landing-arrive linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 22%;
+  }
 }
 .landing-secondary {
   background: transparent;
@@ -2108,7 +2186,7 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
 }
 .landing-steps-band {
   padding-block: 64px;
-  background: var(--landing-soft);
+  background: var(--landing-wash);
 }
 .landing-steps {
   display: grid;
@@ -2190,7 +2268,7 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   margin-top: 15px;
 }
 .landing-payments {
-  background: var(--landing-soft);
+  background: var(--landing-wash);
   padding-block: 60px;
 }
 .landing-payment-layout {
@@ -2260,8 +2338,8 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   margin-bottom: 28px;
 }
 .landing-invitation .landing-primary {
-  background: var(--landing-gold);
-  color: var(--landing-closing);
+  background: var(--landing-button-fill);
+  color: var(--landing-button-ink);
 }
 .landing-member-link {
   display: block;
@@ -2396,6 +2474,11 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .desktop-landing *,
+  .landing-image-dialog * {
+    animation: none !important;
+    transition: none !important;
+  }
   .landing-preview,
   .landing-feature {
     transition: none;
