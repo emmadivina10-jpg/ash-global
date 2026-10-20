@@ -13,12 +13,12 @@ export function LegalPaymentDisclosure() {
     <>
       <p>
         In the mobile app and phone preview, card/Stripe payments, saved cards, bank setup and bank
-        withdrawals are coming soon and unavailable. MTN Mobile Money and Orange Money remain
-        available where supported. Website availability is separate; this does not enable transfers
+        withdrawals are coming soon and unavailable. Only MTN Mobile Money and Orange Money through
+        TchokoPay are offered where supported (Cameroon/XAF). Desktop website availability is separate; this does not enable transfers
         or change existing balances.
       </p>
       <p>
-        Card collections, where offered, use Stripe-hosted Checkout. Supported Mobile Money means
+        On the desktop website only, card collections where offered use Stripe-hosted Checkout. Supported Mobile Money means
         MTN MoMo and Orange Money through TchokoPay in Cameroon (XAF). M-PESA is not integrated or
         available. A country or currency selector does not establish payment or withdrawal support.
       </p>
@@ -26,7 +26,7 @@ export function LegalPaymentDisclosure() {
         A checkout return, phone prompt, screenshot or pending entry is not proof of payment. Card
         collections are confirmed using verified Stripe webhook evidence or a server-side check
         against Stripe. Mobile Money collections are checked against TchokoPay’s transaction status
-        or verified callback. Bank transfers are available only when verified bank instructions are
+        or verified callback. Desktop website bank transfers are available only when verified bank instructions are
         supplied and remain pending until Finance confirms receipt; this is separate from Stripe
         bank payout setup.
       </p>

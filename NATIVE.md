@@ -1,9 +1,11 @@
 # ASH Glo — native apps (App Store & Play Store)
 
 The native builds are Capacitor shells around the live ASH Glo deployment. The
-app keeps its server-rendered pages, payments, auth callbacks and realtime chat
-working exactly as on the web, while gaining a native container, splash screen,
+app keeps its server-rendered pages, auth callbacks and realtime chat,
+while gaining a native container, splash screen,
 status bar, hardware back button and store distribution.
+
+**Current mobile payment release:** MTN Mobile Money and Orange Money through TchokoPay only where eligible (Cameroon/XAF). **Card and bank — coming soon:** card/Stripe payments, saved cards, bank setup and bank withdrawals are unavailable in native apps and phone-sized preview. Desktop website payment availability is separate. Live-transfer safeguards remain unchanged; this is not store-submission clearance.
 
 ## After cloning from GitHub
 
@@ -140,7 +142,7 @@ Full listing copy, review notes and privacy answers live in
    reviews and chat, user blocking, and the `/console/reports` moderation queue.
 6. **Account deletion** — Menu → Settings → Account. Approval currently only closes a profile; implement and test full account/data erasure and lawful retained-data exceptions before declaring compliance.
 7. **Sign in with Apple/Google** — controls exist; hosted settings and signed-device OAuth remain unverified by this audit.
-8. **Payments** — real-world services can use Stripe cards and MTN/Orange (CM/XAF); M-PESA is absent. External digital Promote, paid Verified badge and referral activation are present: resolve native billing rules or legitimately remove these purchases from the native release, including server access, before submission. No store billing implementation was identified; do not claim universal IAP exemption. Check tutoring/event delivery classification as well.
+8. **Payments** — mobile real-world services offer eligible MTN Mobile Money/Orange Money via TchokoPay (CM/XAF) only. Card/Stripe payments, saved cards, bank setup and bank withdrawals must show coming soon and must not open on the signed mobile build. Desktop website availability is separate; M-PESA is absent. External digital Promote, paid Verified badge and referral activation are present: resolve native billing rules or legitimately remove these purchases from the native release, including server access, before submission. Mobile Money alone does not resolve digital-purchase billing. No store billing implementation was identified; do not claim universal IAP exemption. Check tutoring/event delivery classification as well.
 9. **Demo account** — create a pre-activated reviewer account with a published
    storefront and put the credentials in the App Store Connect review notes and
    the Play Console testing instructions.

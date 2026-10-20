@@ -2,6 +2,8 @@
 
 Inventory of code and historical work, reviewed 11 October 2026; not confirmation of publication, signed artifacts or store approval. See STORE-READINESS.md for blockers. See [DOCS-INDEX.md](./DOCS-INDEX.md) for navigation.
 
+**Mobile release clarification — 20 October 2026:** eligible MTN Mobile Money and Orange Money through TchokoPay (Cameroon/XAF) only. Card/Stripe payments, saved cards, bank setup and bank withdrawals are coming soon and unavailable in native apps/phone-sized preview. Existing card balances/history remain visible; desktop website capabilities are separate and unchanged. Historical Files exports are not current reviewer documents.
+
 ## 1. Member app
 
 | Surface | Route | Notes |
@@ -51,7 +53,7 @@ Dashboard colours share the ASH/green palette while retaining scoped themes and 
 ## 5. Payments
 
 - TchokoPay Mobile Money (MTN MoMo, Orange Money) for Cameroon.
-- Stripe card collections verified against provider evidence; MTN/Orange are Cameroon/XAF only. M-PESA is not integrated. Conditional bank collections require Finance receipt confirmation.
+- Desktop website only: Stripe card collections verified against provider evidence and conditional bank collections requiring Finance receipt confirmation. Mobile card/bank features are unavailable/coming soon. MTN/Orange are Cameroon/XAF only; M-PESA is not integrated.
 - 15% booking commission by default (CEO/Finance can switch between 12% and 15% in Console → Commission); each booking keeps the rate it was paid at. Payment links keep a 1% fee.
 - Rates and eligibility are determined by the existing category/region/payment flow; this line is not a universal fee for ASH Clean, Campus or every region.
 - Automatic Stripe provider transfers are helper-disabled; onboarding is helper-enabled but saved-control/approved-provider/Stripe gated. Safeguards and release tables are represented by current migrations. Collection, held payable, wallet credit, transfer and bank receipt remain distinct; no current account inventory or end-to-end real-money payout was verified in this audit. The existing Marketplace webhook route must be checked for hosted delivery; do not repeat older “missing webhook/no providers” claims as current facts.

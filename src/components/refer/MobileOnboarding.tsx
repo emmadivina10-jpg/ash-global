@@ -20,9 +20,9 @@ const SLIDES = [
     titleEn: ["Simple.", "Secure.", "Yours."],
     titleFr: ["Simple.", "Sécurisé.", "À vous."],
     bodyEn:
-      "Pay with MTN Mobile Money or Orange Money where supported. Card and bank features are coming soon.",
+      "Pay with MTN Mobile Money or Orange Money through TchokoPay where supported. Card and bank — coming soon.",
     bodyFr:
-      "Payez avec MTN Mobile Money ou Orange Money dans les régions prises en charge. Carte et banque : bientôt disponibles.",
+      "Payez avec MTN Mobile Money ou Orange Money via TchokoPay dans les régions prises en charge. Carte et banque — bientôt disponibles.",
   },
 ] as const;
 

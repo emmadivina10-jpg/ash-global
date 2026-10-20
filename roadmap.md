@@ -1,5 +1,9 @@
 # Roadmap
 
+## Mobile payment documentation check (Oct 20)
+- [ ] Check entry screens and current app/reviewer documents: MTN/Orange via TchokoPay only where eligible; card/bank coming soon; preserve website availability and payment safeguards
+- [ ] Verify mobile entry wording, public disclosures and isolated payment-policy tests; no publication or submission
+
 ## Mobile card/bank coming soon (Oct 19)
 - [ ] Gate mobile preview/native card collections, setup, reminders and bank withdrawals; preserve MTN/Orange, website and live-transfer guard
 - [ ] Align mobile Stripe wording and reviewer notes; run isolated availability tests and phone checks
