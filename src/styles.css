@@ -1712,7 +1712,17 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   --landing-closing: #320954;
   --landing-on-brand: #ffffff;
   --landing-image-surface: #ffffff;
-  --landing-button-fill: var(--compass-fill);
+  --landing-electric-blue: oklch(0.47 0.28 264);
+  --landing-button-fill: linear-gradient(
+    115deg,
+    var(--verified-coral) 0%,
+    var(--verified-magenta) 35%,
+    var(--verified-violet) 68%,
+    var(--landing-electric-blue) 100%
+  );
+  --landing-button-shadow:
+    0 8px 24px -8px color-mix(in oklab, var(--verified-magenta) 45%, transparent),
+    0 3px 10px color-mix(in oklab, var(--landing-electric-blue) 25%, transparent);
   --landing-button-ink: var(--color-on-dark);
   --landing-wash: var(--member-dual-wash);
   --background: var(--landing-surface);
@@ -1899,7 +1909,7 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
 .desktop-landing .landing-header-join {
   background: var(--landing-button-fill);
   color: var(--landing-button-ink);
-  box-shadow: var(--compass-shadow);
+  box-shadow: var(--landing-button-shadow);
 }
 .desktop-landing .landing-primary:hover,
 .desktop-landing .landing-header-join:hover {
