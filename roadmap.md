@@ -1,5 +1,9 @@
 # Roadmap
 
+## Newly published Feed visibility (Oct 20)
+- [x] Read-only live function check: social_feed caps results at 60, below the 120-post client window; the reported slice exclusion does not occur in this deployment. Isolated 240-row reproduction is not the live configuration.
+- [x] Discard tentative changes after live verification contradicted the finding; existing rotation tests rerun. No app changes, production posts or publication.
+
 ## Mobile payment documentation check (Oct 20)
 - [x] Check entry screens and current app/reviewer documents: MTN/Orange via TchokoPay only where eligible; card/bank coming soon; preserve website availability and payment safeguards
 - [x] Phone opening/payment slide and four public policies verified; desktop availability separately labelled; 67 isolated payment-policy/safeguard tests passed, preview build OK; no publication or submission
