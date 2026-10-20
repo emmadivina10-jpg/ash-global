@@ -1,196 +1,92 @@
 import { useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, MessageCircle, Store } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
+import logo from "@/assets/ash-logo.png.asset.json";
+import community from "@/assets/welcome-community.jpg";
+import discover from "@/assets/welcome-discover.jpg";
 
 const SLIDES = [
   {
-    kickerEn: "Welcome to ASH",
-    kickerFr: "Bienvenue sur ASH",
-    titleEn: ["Where", "opportunities", "connect."],
-    titleFr: ["Là où les", "opportunités", "se rencontrent."],
-    bodyEn:
-      "Book trusted professionals, chat with friends and family, and share your moments — all in one place.",
-    bodyFr:
-      "Réservez des professionnels de confiance, discutez avec vos amis et votre famille, et partagez vos moments — au même endroit.",
+    image: community,
+    altEn: "Friends sharing a moment at a café",
+    altFr: "Des amis partagent un moment dans un café",
+    kickerEn: "A little closer. A lot more connected.",
+    kickerFr: "Plus proches. Toujours connectés.",
+    titleEn: ["Your world,", "closer."],
+    titleFr: ["Votre monde,", "plus proche."],
+    bodyEn: "Your people. Your moments. Your next discovery. Find them together on ASH.",
+    bodyFr: "Vos proches. Vos moments. Votre prochaine découverte. Retrouvez-les sur ASH.",
+    labelEn: "People & moments",
+    labelFr: "Liens et moments",
+    Icon: MessageCircle,
   },
   {
-    kickerEn: "Pay your way",
-    kickerFr: "Payez à votre façon",
-    titleEn: ["Simple.", "Secure.", "Yours."],
-    titleFr: ["Simple.", "Sécurisé.", "À vous."],
-    bodyEn:
-      "Pay with MTN Mobile Money or Orange Money through TchokoPay where supported. Card and bank — coming soon.",
-    bodyFr:
-      "Payez avec MTN Mobile Money ou Orange Money via TchokoPay dans les régions prises en charge. Carte et banque — bientôt disponibles.",
+    image: discover,
+    altEn: "A florist and customer sharing a bouquet",
+    altFr: "Une fleuriste remet un bouquet à une cliente",
+    kickerEn: "Discover something worth connecting for.",
+    kickerFr: "Des découvertes qui créent des liens.",
+    titleEn: ["More to find.", "More to love."],
+    titleFr: ["Découvrez.", "Rencontrez."],
+    bodyEn: "Find products and book services. Pay with eligible MTN or Orange Money via TchokoPay. Card and bank — coming soon.",
+    bodyFr: "Trouvez des produits et réservez des services. Payez avec MTN ou Orange Money via TchokoPay selon disponibilité. Carte et banque — bientôt.",
+    labelEn: "Market & services",
+    labelFr: "Marché et services",
+    Icon: Store,
   },
 ] as const;
 
-const SWIPE_THRESHOLD = 55;
-
-/** Two quiet, text-only onboarding screens shown in the app and on phones. */
+/** Phone welcome only; entry routing, sign-in and payment rails remain unchanged. */
 export function MobileOnboarding() {
   const { tx } = useI18n();
   const [step, setStep] = useState(0);
-  const [dragX, setDragX] = useState(0);
-  const startX = useRef(0);
-  const dragXRef = useRef(0);
-  const dragging = useRef(false);
+  const touchStart = useRef<number | null>(null);
+  const slide = SLIDES[step] ?? SLIDES[0];
   const last = step === SLIDES.length - 1;
-  const activeSlide = SLIDES[step];
-
-  const onTouchStart = (e: React.TouchEvent) => {
-    startX.current = e.touches[0]?.clientX ?? 0;
-    dragging.current = true;
-  };
-  const onTouchMove = (e: React.TouchEvent) => {
-    if (!dragging.current) return;
-    const x = (e.touches[0]?.clientX ?? 0) - startX.current;
-    dragXRef.current = x;
-    setDragX(x);
-  };
-  const onTouchEnd = () => {
-    const x = dragXRef.current;
-    if (dragging.current) {
-      if (x <= -SWIPE_THRESHOLD && !last) setStep(step + 1);
-      else if (x >= SWIPE_THRESHOLD && step > 0) setStep(step - 1);
-    }
-    dragging.current = false;
-    dragXRef.current = 0;
-    setDragX(0);
-  };
+  const Icon = slide.Icon;
 
   return (
-    <div
-      className="ash-entry safe-top relative flex min-h-dvh flex-col overflow-hidden bg-background px-7 pb-[calc(1.75rem+env(safe-area-inset-bottom))] pt-[calc(1.25rem+env(safe-area-inset-top))]"
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-    >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full gold-gradient opacity-20 blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-32 -left-24 size-80 rounded-full brand-gradient opacity-15 blur-3xl"
-      />
-
-      <header className="relative flex items-center justify-between">
-        <span className="font-display text-lg font-extrabold tracking-tight text-foreground">
-          ASH
-        </span>
-        {!last && (
-          <button
-            type="button"
-            onClick={() => setStep(SLIDES.length - 1)}
-            className="rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground transition hover:text-foreground"
-          >
-            {tx("Skip", "Passer")}
-          </button>
-        )}
-      </header>
-
-      <p role="status" aria-atomic="true" className="sr-only">
-        {tx(
-          `Slide ${step + 1} of ${SLIDES.length}: ${activeSlide?.kickerEn ?? ""}`,
-          `Diapositive ${step + 1} sur ${SLIDES.length} : ${activeSlide?.kickerFr ?? ""}`,
-        )}
-      </p>
-
-      <main className="relative flex min-h-0 flex-1 flex-col overflow-hidden pt-[min(16vh,110px)]">
-        <div
-          className="flex min-h-0 flex-1"
-          style={{
-            width: `${SLIDES.length * 100}%`,
-            transform: `translateX(calc(-${step * (100 / SLIDES.length)}% + ${dragX}px))`,
-            transition: dragging ? "none" : "transform 500ms cubic-bezier(0.22, 1, 0.36, 1)",
-          }}
-        >
-          {SLIDES.map((s, i) => (
-            <section
-              key={i}
-              className="flex w-full flex-col justify-center pr-7"
-              aria-hidden={i !== step}
-            >
-              <p className="mb-6 text-[11px] font-bold uppercase tracking-[0.32em] text-primary">
-                {tx(s.kickerEn, s.kickerFr)}
-              </p>
-              <h1 className="mobile-onboarding-title font-serif font-normal leading-[1.02] tracking-tight text-foreground">
-                {tx(s.titleEn.join("|"), s.titleFr.join("|"))
-                  .split("|")
-                  .map((line, j) => (
-                    <span
-                      key={j}
-                      className={
-                        j === 1
-                          ? "block whitespace-nowrap italic gold-gradient bg-clip-text text-transparent"
-                          : "block"
-                      }
-                    >
-                      {line}
-                    </span>
-                  ))}
-              </h1>
-              <div className="my-7 h-px w-16 gold-gradient" />
-              <p className="max-w-xs text-[15px] leading-relaxed text-muted-foreground">
-                {tx(s.bodyEn, s.bodyFr)}
-              </p>
-            </section>
-          ))}
-        </div>
-      </main>
-
-      <footer className="relative space-y-5">
-        <div
-          className="flex items-center gap-2"
-          role="group"
-          aria-label={tx("Choose an introduction slide", "Choisir une diapositive d’introduction")}
-        >
-          {SLIDES.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => setStep(i)}
-              aria-label={tx(
-                `Slide ${i + 1}: ${SLIDES[i]?.kickerEn ?? ""}`,
-                `Diapositive ${i + 1} : ${SLIDES[i]?.kickerFr ?? ""}`,
-              )}
-              aria-pressed={i === step}
-              className={`h-1.5 rounded-full transition-all duration-500 ${i === step ? "w-10 gold-gradient" : "w-3 bg-border"}`}
-            />
-          ))}
-        </div>
-
-        {last ? (
-          <div className="space-y-3">
-            <Link
-              to="/register"
-              className="group flex h-14 w-full items-center justify-between rounded-full gold-gradient pl-7 pr-2 text-base font-bold text-primary-foreground shadow-[var(--shadow-brand)] transition active:scale-[0.98]"
-            >
-              {tx("Create account", "Créer un compte")}
-              <span className="grid size-10 place-items-center rounded-full bg-background/20 transition group-hover:translate-x-0.5">
-                <ArrowRight className="size-5" />
-              </span>
-            </Link>
-            <Link
-              to="/login"
-              className="flex h-14 w-full items-center justify-center rounded-full border border-border bg-card/40 text-base font-semibold text-foreground backdrop-blur transition active:scale-[0.98]"
-            >
-              {tx("I already have an account", "J'ai déjà un compte")}
-            </Link>
+    <div className="ash-entry mobile-welcome">
+      <section
+        className="mobile-welcome-visual"
+        onTouchStart={(event) => { touchStart.current = event.touches[0]?.clientX ?? null; }}
+        onTouchEnd={(event) => {
+          const end = event.changedTouches[0]?.clientX;
+          if (touchStart.current !== null && end !== undefined) {
+            const delta = end - touchStart.current;
+            if (delta < -55) setStep(Math.min(SLIDES.length - 1, step + 1));
+            if (delta > 55) setStep(Math.max(0, step - 1));
+          }
+          touchStart.current = null;
+        }}
+      >
+        <img key={slide.image} src={slide.image} alt={tx(slide.altEn, slide.altFr)} width={1024} height={1280} className="mobile-welcome-photo" draggable={false} />
+        <header className="mobile-welcome-header">
+          <div className="mobile-welcome-brand">
+            <img src={logo.url} alt="" width={40} height={40} />
+            <div><h1>ASH Glo</h1><p>Global Technologies</p></div>
           </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setStep(Math.min(SLIDES.length - 1, step + 1))}
-            className="group ml-auto flex h-16 w-16 items-center justify-center rounded-full gold-gradient text-primary-foreground shadow-[var(--shadow-brand)] transition active:scale-95"
-            aria-label={tx("Next", "Suivant")}
-          >
-            <ArrowRight className="size-6 transition group-hover:translate-x-0.5" />
-          </button>
-        )}
-      </footer>
+          {!last && <Button variant="ghost" className="mobile-welcome-skip" onClick={() => setStep(SLIDES.length - 1)}>{tx("Skip", "Passer")}</Button>}
+        </header>
+        <div className="mobile-welcome-caption"><Icon className="size-4" /><span>{tx(slide.labelEn, slide.labelFr)}</span><span className="mobile-welcome-count">0{step + 1} / 02</span></div>
+      </section>
+
+      <main className="mobile-welcome-content">
+        <div key={step} className="mobile-welcome-copy" aria-live="polite" aria-atomic="true">
+          <p className="mobile-welcome-kicker">{tx(slide.kickerEn, slide.kickerFr)}</p>
+          <h2>{tx(slide.titleEn[0], slide.titleFr[0])}<span>{tx(slide.titleEn[1], slide.titleFr[1])}</span></h2>
+          <p className="mobile-welcome-description">{tx(slide.bodyEn, slide.bodyFr)}</p>
+        </div>
+        <footer className="mobile-welcome-footer">
+          <div className="mobile-welcome-progress" role="group" aria-label={tx("Welcome screens", "Écrans de bienvenue")}>
+            {SLIDES.map((item, index) => <Button key={item.image} variant="ghost" size="icon" className="mobile-welcome-dot" aria-label={tx(`Welcome screen ${index + 1}`, `Écran de bienvenue ${index + 1}`)} aria-pressed={step === index} onClick={() => setStep(index)}><span /></Button>)}
+          </div>
+          {last ? <Button asChild className="mobile-welcome-primary"><Link to="/register">{tx("Join ASH", "Rejoindre ASH")}<ArrowRight /></Link></Button> : <Button className="mobile-welcome-primary" onClick={() => setStep(1)}>{tx("Discover ASH", "Découvrir ASH")}<ArrowRight /></Button>}
+          <p className="mobile-welcome-login">{tx("Already part of ASH?", "Déjà sur ASH ?")} <Button asChild variant="link"><Link to="/login">{tx("Log in", "Se connecter")}</Link></Button></p>
+        </footer>
+      </main>
     </div>
   );
 }

@@ -1,5 +1,9 @@
 # Roadmap
 
+## App welcome-screen refresh (Oct 20)
+- [ ] Replace text-only phone welcome screens with editorial imagery, prominent ASH branding, clearer typography and consistent rounded actions; preserve entry, payment and compact launch behavior
+- [ ] Verify both screens, sign-in/join links, phone sizes, languages, themes and reduced motion; preview only
+
 ## Landing wears the app's own colours (Oct 20)
 - [x] Drop the separate website palette (deep purple, gold, charcoal, black buttons) and derive every landing colour from the app's own theme tokens, so light and dark follow the app automatically
 - [x] Verified in both themes: buttons carry the app's primary colour, page wash and closing band use the app's emerald/magenta/violet blend, support button matches the app's floating-orb style; legibility 5.28 light / 6.32 dark, no overflow or runtime errors; preview build OK; nothing published
