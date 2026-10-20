@@ -203,18 +203,6 @@ export function resetStableOrder(key: string) {
   stableOrders.delete(key);
 }
 
-/** Promote only a confirmed publication, without changing other items' relative order.
- * The ID is not content: safety-filtered queries must still return it before it can appear.
- */
-export function prioritizePublishedContent(type: string, userId: string, id: string) {
-  const key = `${type}:${userId}`;
-  const known = stableOrders.get(key);
-  const ordered = [...(known?.entries() ?? [])]
-    .sort((a, b) => a[1] - b[1])
-    .filter(([existingId]) => existingId !== id);
-  stableOrders.set(key, new Map([[id, 0], ...ordered.map(([existingId], index): [string, number] => [existingId, index + 1])]));
-}
-
 /** Freeze member-specific ranking until explicit refresh or a fresh app load. */
 export function rotateSessionContent<T>(
   type: string,

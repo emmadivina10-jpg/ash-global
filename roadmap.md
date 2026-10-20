@@ -1,8 +1,8 @@
 # Roadmap
 
 ## Newly published Feed visibility (Oct 20)
-- [ ] Verify and fix session ranking hiding a newly published post outside the 120-post window; keep existing order and eligible content only
-- [ ] Cover publishing and Spotlight refetches with regression tests; verify without production posts or publication
+- [x] Read-only live function check: social_feed caps results at 60, below the 120-post client window; the reported slice exclusion does not occur in this deployment. Isolated 240-row reproduction is not the live configuration.
+- [x] Discard tentative changes after live verification contradicted the finding; existing rotation tests rerun. No app changes, production posts or publication.
 
 ## Mobile payment documentation check (Oct 20)
 - [x] Check entry screens and current app/reviewer documents: MTN/Orange via TchokoPay only where eligible; card/bank coming soon; preserve website availability and payment safeguards
