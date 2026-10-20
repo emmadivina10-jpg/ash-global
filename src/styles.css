@@ -2403,6 +2403,116 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   max-height: 72dvh;
   margin-inline: auto;
 }
+.landing-whatsapp {
+  position: fixed;
+  right: 26px;
+  bottom: 26px;
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  height: 60px;
+  border-radius: 999px;
+  background: var(--landing-button-fill);
+  color: var(--landing-whatsapp);
+  text-decoration: none;
+  box-shadow:
+    0 16px 34px -14px rgb(0 0 0 / 0.6),
+    0 0 0 1px var(--landing-button-edge);
+  transition:
+    transform 240ms ease,
+    box-shadow 240ms ease,
+    background 240ms ease;
+  animation: landing-arrive 700ms 600ms ease both;
+}
+.landing-whatsapp:hover {
+  transform: translateY(-3px);
+  background: var(--landing-button-fill-hover);
+  box-shadow:
+    0 20px 42px -14px rgb(0 0 0 / 0.7),
+    0 0 0 1px color-mix(in oklab, var(--landing-whatsapp) 55%, transparent);
+}
+.landing-whatsapp:active {
+  transform: scale(0.97);
+}
+.landing-whatsapp-badge {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+.landing-whatsapp-badge svg {
+  width: 30px;
+  height: 30px;
+  fill: currentColor;
+}
+.landing-whatsapp-badge::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--landing-whatsapp) 60%, transparent);
+  animation: landing-whatsapp-pulse 2.8s ease-out infinite;
+}
+.landing-whatsapp-label {
+  display: grid;
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  white-space: nowrap;
+  color: var(--landing-on-brand);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.45;
+  transition:
+    max-width 320ms ease,
+    opacity 240ms ease,
+    padding-right 320ms ease;
+}
+.landing-whatsapp-label small {
+  font-size: 11px;
+  font-weight: 400;
+  color: color-mix(in oklab, var(--landing-on-brand) 72%, transparent);
+}
+.landing-whatsapp:hover .landing-whatsapp-label,
+.landing-whatsapp:focus-visible .landing-whatsapp-label {
+  max-width: 220px;
+  opacity: 1;
+  padding-right: 22px;
+}
+@keyframes landing-whatsapp-pulse {
+  0% {
+    opacity: 0.65;
+    scale: 1;
+  }
+  70%,
+  100% {
+    opacity: 0;
+    scale: 1.38;
+  }
+}
+@media (max-width: 767px) {
+  .landing-whatsapp {
+    right: 16px;
+    bottom: 16px;
+    height: 54px;
+  }
+  .landing-whatsapp-badge {
+    width: 54px;
+    height: 54px;
+  }
+  .landing-whatsapp-badge svg {
+    width: 27px;
+    height: 27px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-whatsapp-badge::after {
+    animation: none;
+  }
+}
 @media (max-width: 1200px) {
   .landing-desktop-nav {
     gap: 15px;
