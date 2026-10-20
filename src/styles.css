@@ -1789,7 +1789,7 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
 .landing-invitation .landing-kicker { justify-content: center; }
 .landing-invitation h2 { font-size: 52px; margin-bottom: 28px; }
 .landing-footer { padding-block: 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; border-top: 1px solid var(--border); }
-.landing-image-dialog { width: auto; max-width: min(90vw, 700px); max-height: 94dvh; overflow-y: auto; border-radius: 6px; }
+.landing-image-dialog { width: min(90vw, 700px); max-width: 700px; max-height: 94dvh; overflow-y: auto; border-radius: 6px; }
 .landing-image-dialog > img { object-fit: contain; max-height: 72dvh; margin-inline: auto; }
 @media (min-width: 1600px) { .landing-panorama { height: 460px; } }
 @media (max-width: 1100px) {
