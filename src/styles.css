@@ -2333,7 +2333,7 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   color: var(--landing-button-ink);
   box-shadow:
     var(--landing-button-shadow),
-    0 0 0 1px rgb(255 255 255 / 0.34);
+    0 0 0 1px color-mix(in oklab, var(--landing-on-brand) 34%, transparent);
 }
 .landing-invitation .landing-primary:hover {
   background: var(--landing-button-fill-hover);
@@ -2391,12 +2391,12 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   align-items: center;
   height: 60px;
   border-radius: 999px;
-  background: var(--landing-button-fill);
+  background: var(--landing-wash);
   color: var(--landing-whatsapp);
   text-decoration: none;
   box-shadow:
-    0 16px 34px -14px rgb(0 0 0 / 0.6),
-    0 0 0 1px var(--landing-button-edge);
+    var(--shadow-raised),
+    0 0 0 1px color-mix(in oklab, var(--color-chat-emerald) 35%, var(--verified-magenta));
   transition:
     transform 240ms ease,
     box-shadow 240ms ease,
@@ -2405,10 +2405,9 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
 }
 .landing-whatsapp:hover {
   transform: translateY(-3px);
-  background: var(--landing-button-fill-hover);
   box-shadow:
-    0 20px 42px -14px rgb(0 0 0 / 0.7),
-    0 0 0 1px color-mix(in oklab, var(--landing-whatsapp) 55%, transparent);
+    var(--shadow-raised),
+    0 0 0 1px color-mix(in oklab, var(--landing-whatsapp) 60%, transparent);
 }
 .landing-whatsapp:active {
   transform: scale(0.97);
