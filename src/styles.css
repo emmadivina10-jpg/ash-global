@@ -1634,7 +1634,7 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding: 22px 26px calc(16px + env(safe-area-inset-bottom));
+  padding: 34px 26px calc(16px + env(safe-area-inset-bottom));
   max-width: 560px;
   width: 100%;
   margin-inline: auto;
@@ -1785,7 +1785,7 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
     min-height: 220px;
   }
   .mobile-welcome-content {
-    padding-top: 20px;
+    padding-top: 28px;
   }
   .mobile-welcome-copy h2 {
     font-size: 32px;
