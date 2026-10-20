@@ -101,7 +101,7 @@ function MarketplacePolicyPage() {
           authorize a held provider payable without proving money reached a bank.
         </p>
         <p>
-          The quoted booking currency, Stripe checkout charge currency, card billing currency and
+          For separate desktop website card payments, the quoted booking currency, Stripe checkout charge currency, card billing currency and
           platform settlement currency can differ. Review checkout before authorizing payment. Your
           issuer may apply exchange rates or fees; the wallet does not convert its recorded
           balances.
@@ -109,7 +109,7 @@ function MarketplacePolicyPage() {
         <p>
           Available payment methods are shown at checkout. Supported Mobile Money transactions are
           sent to TchokoPay using the phone number, provider/network, amount, currency and
-          transaction reference needed to request and verify payment. Where card checkout is
+          transaction reference needed to request and verify payment. On the desktop website, where card checkout is
           offered, it is handled through the displayed external checkout provider. ASH Glo does not
           receive or store Mobile Money PINs or full card credentials.
         </p>

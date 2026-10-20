@@ -87,7 +87,7 @@ function ReferralWalletTermsPage() {
       <LegalSection id="wallet" title="4. Wallet records">
         <LegalPaymentDisclosure />
         <p>
-          One wallet has a currency dropdown: Mobile Money funds are recorded in XAF; card top-ups
+          One wallet has a currency dropdown: Mobile Money funds are recorded in XAF; desktop website card top-ups
           use the gross amount and currency actually settled into ASH’s Stripe balance, not
           necessarily your card’s country or billing currency. Selecting a currency does not
           exchange money; unfunded currencies show zero. The Money flow chart summarizes recorded
@@ -108,13 +108,14 @@ function ReferralWalletTermsPage() {
 
       <LegalSection id="withdrawals" title="5. Withdrawals">
         <p>
-          XAF Mobile Money funds use MTN/Orange withdrawals, with a 100 XAF minimum. Card-funded
-          balances use the matching-currency Stripe bank route, with an app minimum of 1 currency
+          XAF Mobile Money funds use MTN/Orange through TchokoPay where supported, with a 100 XAF minimum.
+          Mobile card/bank withdrawals are unavailable and coming soon. On the desktop website, card-funded
+          balances use the matching-currency Stripe bank route, with a minimum of 1 currency
           unit, subject to provider eligibility, funding and execution controls. Stripe collections
           cannot fund TchokoPay withdrawals; balances are not converted between rails.
         </p>
         <p>
-          Stripe bank setup is shown only to approved providers and depends on identity requirements
+          Desktop website Stripe bank setup is shown only to approved providers and depends on identity requirements
           and account capabilities. Hosted onboarding collects requirements currently due; more may
           be requested later. Ineligible customers do not gain a bank withdrawal destination by
           topping up by card. Direct withdrawal to a saved card and automatic provider transfers are
