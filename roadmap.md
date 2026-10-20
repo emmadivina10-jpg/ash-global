@@ -2,7 +2,9 @@
 
 ## Permanent account deletion (Oct 20)
 - [x] Verify current deletion: approval only closes the profile; live foreign keys would cascade-delete financial records or block login deletion
-- [ ] Implement and validate safe erasure with minimal lawful retention — awaiting approval of the deletion/retention plan before changes to shared financial dependencies
+- [x] Add isolated restartable erasure orchestration and block misleading live approvals; no existing accounts, files, schema or money changed
+- [ ] Install cascade-safe persistence and retention cleanup — blocked by missing legally approved record/field retention schedule and expiry/hold rules
+- [ ] Verify genuine erasure end-to-end in a positively isolated backend before activation; fixture tests do not establish live deletion
 
 ## Newly published Feed visibility (Oct 20)
 - [x] Read-only live function check: social_feed caps results at 60, below the 120-post client window; the reported slice exclusion does not occur in this deployment. Isolated 240-row reproduction is not the live configuration.
