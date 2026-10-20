@@ -27,7 +27,7 @@ import {
 
 const TITLE = "ASH Glo — Book Services, Chat & Earn Referral Rewards";
 const DESCRIPTION =
-  "ASH Glo is the all-in-one app to book trusted local services, chat with friends and family, share your feed and pay securely by card, MTN or Orange Money.";
+  "Book services, chat and share moments with ASH Glo. Mobile payments: eligible MTN and Orange Money via TchokoPay; card and bank coming soon.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -208,22 +208,22 @@ function Landing() {
           <section className="mx-auto mt-8 max-w-3xl">
             <div className="mt-5 space-y-2 border-t border-border pt-4">
               <p className="text-xs font-bold text-foreground">
-                {tx("Active payment methods", "Moyens de paiement actifs")}
+                {tx("Website payment methods", "Moyens de paiement du site")}
               </p>
               <p className="flex items-center gap-2 text-xs text-foreground">
                 <CreditCard className="size-4 text-primary" />
-                {tx("Card payments · Stripe", "Paiements par carte · Stripe")}
+                {tx("Website card payments · Stripe", "Carte sur le site · Stripe")}
                 <ShieldCheck className="ms-auto size-3.5 text-primary" />
               </p>
               <p className="flex items-center gap-2 text-xs text-foreground">
                 <Smartphone className="size-4 text-gold" />
-                MTN MoMo · Orange Money
+                MTN MoMo · Orange Money · TchokoPay
                 <ShieldCheck className="ms-auto size-3.5 text-primary" />
               </p>
               <p className="text-[10px] text-muted-foreground">
                 {tx(
-                  "Available methods depend on your country and checkout.",
-                  "Les moyens disponibles dépendent de votre pays et du paiement.",
+                  "Mobile app: eligible MTN/Orange via TchokoPay only. Card and bank — coming soon. Website methods depend on your country and checkout.",
+                  "Application mobile : MTN/Orange via TchokoPay uniquement selon éligibilité. Carte et banque — bientôt disponibles. Sur le site, les moyens dépendent du pays et du paiement.",
                 )}
               </p>
             </div>

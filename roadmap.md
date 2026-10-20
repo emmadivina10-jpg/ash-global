@@ -1,8 +1,12 @@
 # Roadmap
 
+## Mobile payment documentation check (Oct 20)
+- [x] Check entry screens and current app/reviewer documents: MTN/Orange via TchokoPay only where eligible; card/bank coming soon; preserve website availability and payment safeguards
+- [x] Phone opening/payment slide and four public policies verified; desktop availability separately labelled; 67 isolated payment-policy/safeguard tests passed, preview build OK; no publication or submission
+
 ## Mobile card/bank coming soon (Oct 19)
 - [ ] Gate mobile preview/native card collections, setup, reminders and bank withdrawals; preserve MTN/Orange, website and live-transfer guard
-- [ ] Align mobile Stripe wording and reviewer notes; run isolated availability tests and phone checks
+- [x] Align mobile Stripe wording and reviewer notes; isolated availability tests and phone opening/public-policy checks pass (Oct 20)
 - [ ] App Store clearance — blocked by digital billing/deletion decisions, reviewer access and signed-build/privacy/screenshots checks; no submission authorized
 
 ## Staff online status (Oct 15)

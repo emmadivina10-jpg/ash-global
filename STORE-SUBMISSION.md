@@ -134,7 +134,7 @@ release sign-in before describing them as working to reviewers.
 | Device ID / access fingerprint / push token | Yes | Yes | No | Security and notifications |
 | IP / browser / approximate device location | Yes | Yes where authenticated | No | Restricted security review |
 | Crash / diagnostic data | Yes | May vary | No | Reliability and security |
-| Sensitive ID/selfie | Applicable verification applicants | Yes | No | Manual review; Stripe-hosted onboarding separately collects provider identity/bank information |
+| Sensitive ID/selfie | Applicable verification applicants | Yes | No | Manual review; separate desktop website Stripe onboarding may collect provider identity/bank information, but is unavailable in this mobile release |
 
 These are draft classifications, not submitted console answers. No advertising SDK or cross-app advertising tracking was identified in reviewed code. Re-check all SDKs, hosting diagnostics, map/IP processing, AI and payment providers in the final binary; confirm Apple definitions of collection/linking/tracking. Never answer precise location as device-only for live trip sharing.
 
@@ -143,7 +143,7 @@ These are draft classifications, not submitted console answers. No advertising S
 - Data is encrypted in transit.
 - Deletion requests are accessible in app and at https://ashglogroup.company/account-deletion. Current approval closes the profile only; full account/data erasure must be completed and tested before claiming compliant deletion.
 - Declare personal information, UGC/messages, transactions, app activity, push/device identifiers, IP/user-agent/access fingerprints, coarse security location, optional precise trip location and applicable ID/selfie files. Saved staff AI reviews may process limited account/security records.
-- TchokoPay processes MTN/Orange transaction data; Stripe processes hosted card payments and eligible provider onboarding. AI services process submitted text/images and relevant context; maps/directions services receive map requests and necessary route data. Classify each under Google’s sharing/service-provider exceptions rather than assuming all processing is “not shared.”
+- In the mobile app, TchokoPay processes supported MTN/Orange transaction data. Card/Stripe payments, saved cards, bank setup and bank withdrawals are unavailable/coming soon. Stripe processing applies separately to desktop website card payments/onboarding and existing financial records, not active mobile card entry. AI services process submitted text/images and relevant context; maps/directions services receive map requests and necessary route data. Classify each under Google’s sharing/service-provider exceptions rather than assuming all processing is “not shared.”
 - Data is not sold and is not used for advertising tracking in the inspected implementation.
 - ASH Glo policy minimum is 13+. Complete the store’s content-rating and target-audience questionnaires truthfully; do not claim that 13+ guarantees approval or a particular rating.
 - Child-safety contact: privacy@ashglogroup.company. Do not describe this address as a formally appointed DPO.

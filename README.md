@@ -10,6 +10,8 @@ bookings, property, freelance, deals, events, referral earnings, chat, payments,
 an AI assistant, and an admin workforce console. The same codebase ships as
 native iOS and Android apps via Capacitor.
 
+**Current mobile release:** MTN Mobile Money and Orange Money through TchokoPay are the only payment methods offered, subject to existing Cameroon/XAF and account eligibility. **Card and bank — coming soon:** Stripe/card payments, saved cards, bank setup and bank withdrawals are unavailable in native apps and phone-sized previews. Desktop website capabilities are separate and unchanged. This does not establish App Store readiness; see STORE-READINESS.md.
+
 ---
 
 ## What the system includes
@@ -22,7 +24,7 @@ native iOS and Android apps via Capacitor.
 | **Deals & Promotions** | Discount deals with claim codes, ASH Promote for sellers. | `/deals` |
 | **Events & Ticketing** | Event pages, free and paid tickets, mobile-money entry codes. | `/events`, `/events/$eventId` |
 | **Refer & Earn** | 3-level referral commissions with a collapsible network tree and full ledger (live in CM/NG). | `/dashboard`, `/network` |
-| **Wallet & Payouts** | One currency-selectable wallet, actual Stripe-settled card amounts, XAF Mobile Money, Money flow chart; gated matching-rail withdrawals. | `/wallet`, `/transactions`, `/withdraw` |
+| **Wallet & Payouts** | Currency-selectable balances/history and Money flow chart. Mobile: eligible MTN/Orange only; card/bank coming soon. Existing non-XAF records remain visible without conversion or mobile bank withdrawal. | `/wallet`, `/transactions`, `/withdraw` |
 | **Bookings & Messaging** | Full booking lifecycle with a 24h pay-after-acceptance window; order-centric chat with realtime + polling fallback. | `/bookings`, `/messages` |
 | **Universal Search** | One search across services, businesses, freelancers, projects, property, deals and events. | `/search` |
 | **Analytics** | Personal and business analytics dashboards. | `/analytics` |
@@ -52,7 +54,7 @@ Auth: `/login`, `/register`, `/forgot-password`, `/reset-password`, `/auth/callb
 - **Frontend / framework**: TanStack Start v1 (React 19, Vite, TypeScript), TanStack Router + React Query
 - **Styling**: Tailwind CSS v4 with OKLCH design tokens (shadcn-style component system)
 - **Backend / auth / storage**: Lovable Cloud (Supabase) — Postgres, Row-Level Security, Auth, Storage
-- **Payments**: Stripe-hosted card collection; TchokoPay MTN/Orange in Cameroon (XAF), not M-PESA; conditional Finance-confirmed bank collections. Availability is checkout-specific, not determined by a display currency.
+- **Payments**: Mobile apps/phone preview: TchokoPay MTN/Orange in Cameroon (XAF) only where eligible; card and bank coming soon. Desktop website: Stripe-hosted card collection and conditional Finance-confirmed bank collections remain separate. M-PESA is not supported. Availability is checkout-specific, not determined by a display currency.
 - **Emails**: React Email templates for auth, invites, support and outreach
 - **Native shell**: Capacitor 8 (iOS `com.ashglogroup.mobile`, Android `com.ashglogroup.app`)
 
@@ -107,8 +109,8 @@ Current code verifies Stripe card collections and retains payout-release safegua
 
 ## Security
 
-### Preview provider release readiness
-- Automatic provider transfers are helper-disabled. Provider onboarding is helper-enabled and separately gated by saved controls, approved-provider status and Stripe requirements.
+### Desktop website provider release readiness (not mobile availability)
+- Automatic provider transfers are helper-disabled. Website provider onboarding is helper-enabled and separately gated by saved controls, approved-provider status and Stripe requirements; mobile onboarding remains unavailable/coming soon.
 - Rejected transfers distinguish `FAILED`, `INSUFFICIENT_FUNDS`, and ambiguous `UNKNOWN`. Ambiguous attempts only reconcile using the existing transfer group; no fresh payment identity is issued.
 - `getBookingStripeStages` authorizes booking parties and returns payment, saved commission, payable, actual transfer and account-level bank payout records separately. Account-level payouts are not proof that a particular booking reached a bank.
 - Connected payout events retrieve current payout state from the correct connected account, avoiding stale event status regression. Disputes and refunds hold releases for review; no automatic refund, reversal, balance correction or money movement occurs.

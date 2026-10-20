@@ -125,7 +125,7 @@ function TermsPage() {
         </p>
         <p>
           Available payment methods are shown at checkout. Supported Mobile Money transactions are
-          processed through TchokoPay. Where card payments are offered through Stripe-hosted
+          processed through TchokoPay. On the desktop website, where card payments are offered through Stripe-hosted
           Checkout, Stripe processes card information on its hosted payment page. ASH Glo may
           receive transaction references, payment status, amounts, currency and related booking
           information to support payment confirmation, refunds, fraud prevention and dispute

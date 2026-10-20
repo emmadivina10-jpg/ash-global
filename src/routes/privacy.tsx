@@ -49,6 +49,13 @@ function PrivacyPage() {
         Markets, verification and support tools.
       </LegalIntro>
 
+      <p className="text-sm leading-7 text-muted-foreground">
+        In this mobile release and phone preview, only eligible MTN Mobile Money and Orange Money
+        through TchokoPay are offered (Cameroon/XAF). Card/Stripe payments, saved cards, bank setup
+        and bank withdrawals are coming soon and unavailable. Stripe disclosures below concern
+        separate desktop website services and existing transaction records, not active mobile card entry.
+      </p>
+
       <LegalSection id="age" title="1. Age">
         <p>
           ASH Glo is for users aged 13 and older. Where local law requires parental or guardian
@@ -153,9 +160,9 @@ function PrivacyPage() {
           items={[
             "With other members according to the feature used—for example public or selected-audience profiles, posts, listings, reviews, group activity and messages to recipients.",
             "With TchokoPay for MTN MoMo and Orange Money collection/disbursement in Cameroon (XAF). M-PESA is not integrated. Transaction outcomes must be verified; a pending prompt is not confirmed payment.",
-            "With Stripe for eligible provider hosted bank-account onboarding, identity/capability checks and available payout processing. This is separate from card checkout; direct saved-card withdrawals and automatic provider transfers are not enabled.",
+            "On the desktop website, with Stripe for eligible provider hosted bank-account onboarding, identity/capability checks and available payout processing. Mobile bank setup/withdrawals are unavailable and coming soon. Direct saved-card withdrawals and automatic provider transfers are not enabled.",
             "With map/directions services for booking maps and route estimates. Tile requests can reveal your IP and requested map area to the map provider; routes use relevant party locations. Precise sharing is optional and separate from approximate IP-based security location.",
-            "With Stripe when customers choose card payments through Stripe-hosted Checkout, to process payments and support transaction confirmation, refunds, fraud prevention and dispute handling. Stripe processes payment information under its applicable terms and privacy policy. ASH Glo may receive transaction references, payment status, amounts, currency and related booking information, but does not receive or store full card numbers or card security codes through the hosted Checkout flow.",
+            "With Stripe when desktop website customers choose card payments through Stripe-hosted Checkout, or for existing transaction confirmation, refunds, fraud prevention and dispute handling. Card payments are unavailable/coming soon in the mobile app. Stripe processes payment information under its applicable terms and privacy policy. ASH Glo may receive transaction references, payment status, amounts, currency and related booking information, but does not receive or store full card numbers or card security codes through the hosted Checkout flow.",
             "With the AI service supporting ASH AI and media screening for the processing described above.",
             "With hosting, storage, notification, email and technical service providers needed to run and secure ASH Glo.",
             "With authorities or other parties when reasonably necessary to comply with law, protect people and rights, investigate abuse, or defend legal claims.",
