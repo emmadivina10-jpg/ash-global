@@ -1702,51 +1702,30 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
 
 /* Desktop public website: scoped presentation, unchanged member app. */
 .desktop-landing {
-  --landing-surface: #ffffff;
-  --landing-ink: #171717;
-  --landing-soft: #f7f7fa;
-  --landing-muted: #62616b;
-  --landing-line: #e5e3eb;
-  --landing-accent: var(--verified-violet);
-  --landing-gold: #d4af37;
-  --landing-closing: #320954;
-  --landing-on-brand: #ffffff;
-  --landing-image-surface: #ffffff;
-  --landing-button-fill: #000000;
-  --landing-button-fill-hover: #1d1d21;
+  /* The public page wears the app's own palette — no separate website theme. */
+  --landing-gold: var(--gold);
+  --landing-closing:
+    linear-gradient(
+      120deg,
+      var(--color-media-backdrop) 0%,
+      color-mix(in oklab, var(--verified-violet) 55%, var(--color-media-backdrop)) 56%,
+      color-mix(in oklab, var(--verified-magenta) 46%, var(--color-media-backdrop)) 100%
+    );
+  --landing-on-brand: var(--color-on-dark);
+  --landing-image-surface: var(--card);
+  --landing-button-fill: var(--primary);
+  --landing-button-fill-hover: var(--primary-dark);
   --landing-button-shadow:
-    0 12px 28px -14px rgb(0 0 0 / 0.5),
-    0 2px 8px rgb(0 0 0 / 0.16);
-  --landing-button-ink: #ffffff;
+    0 12px 28px -14px color-mix(in oklab, var(--primary) 62%, transparent),
+    0 2px 8px color-mix(in oklab, var(--primary) 24%, transparent);
+  --landing-button-ink: var(--primary-foreground);
   --landing-button-edge: transparent;
+  /* WhatsApp's own mark colour, kept only for the support glyph. */
   --landing-whatsapp: #25d366;
   --landing-wash: var(--member-dual-wash);
-  --background: var(--landing-surface);
-  --foreground: var(--landing-ink);
-  --muted-foreground: var(--landing-muted);
-  --border: var(--landing-line);
-  --input: var(--landing-line);
-  --primary: var(--landing-accent);
-  --primary-foreground: var(--landing-on-brand);
-  --accent: var(--landing-soft);
-  --accent-foreground: var(--landing-ink);
-  --ring: var(--landing-accent);
   color: var(--foreground);
   background: var(--landing-wash);
   letter-spacing: 0;
-}
-.dark .desktop-landing {
-  --landing-surface: #171717;
-  --landing-ink: #f7f7fa;
-  --landing-soft: #202023;
-  --landing-muted: #b7b3c0;
-  --landing-line: #38353d;
-  --landing-accent: var(--verified-magenta);
-  --primary-foreground: #24132f;
-  --landing-button-fill: #0a0a0b;
-  --landing-button-fill-hover: #202024;
-  --landing-button-edge: rgb(255 255 255 / 0.28);
-  --landing-button-shadow: 0 14px 30px -14px rgb(0 0 0 / 0.9);
 }
 .landing-width {
   width: min(100% - 96px, 1280px);
