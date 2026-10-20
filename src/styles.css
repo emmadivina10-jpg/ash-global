@@ -1885,7 +1885,10 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
 .desktop-landing [data-slot="button"],
 .landing-image-dialog [data-slot="button"] {
   border-radius: var(--radius);
-  transition: transform 220ms ease, box-shadow 220ms ease, filter 220ms ease;
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    filter 220ms ease;
 }
 .desktop-landing .landing-primary,
 .desktop-landing .landing-header-join {
@@ -1905,11 +1908,21 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
 .landing-hero-copy > * {
   animation: landing-arrive 700ms ease both;
 }
-.landing-hero-copy > :nth-child(2) { animation-delay: 80ms; }
-.landing-hero-copy > :nth-child(3) { animation-delay: 160ms; }
-.landing-hero-copy > :nth-child(4) { animation-delay: 240ms; }
-.landing-hero-copy > :nth-child(5) { animation-delay: 320ms; }
-.landing-hero-copy > :nth-child(6) { animation-delay: 400ms; }
+.landing-hero-copy > :nth-child(2) {
+  animation-delay: 80ms;
+}
+.landing-hero-copy > :nth-child(3) {
+  animation-delay: 160ms;
+}
+.landing-hero-copy > :nth-child(4) {
+  animation-delay: 240ms;
+}
+.landing-hero-copy > :nth-child(5) {
+  animation-delay: 320ms;
+}
+.landing-hero-copy > :nth-child(6) {
+  animation-delay: 400ms;
+}
 .landing-panorama {
   animation: landing-arrive 900ms 350ms ease both;
 }
@@ -1917,8 +1930,14 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   animation: landing-arrive 450ms ease both;
 }
 @keyframes landing-arrive {
-  from { opacity: 0; translate: 0 18px; }
-  to { opacity: 1; translate: 0 0; }
+  from {
+    opacity: 0;
+    translate: 0 18px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
 }
 @supports (animation-timeline: view()) {
   .landing-section-heading,
