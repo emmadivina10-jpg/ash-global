@@ -55,7 +55,7 @@ import { Avatar as ProfileAvatar, useAvatarUrl } from "@/components/refer/Avatar
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { ProfilePhotoOverlay, VendorProfileSheet } from "@/components/refer/VendorProfileSheet";
 import { directory, type DirectoryProfile } from "@/lib/public-profiles";
-import { rotateSessionContent, freshness } from "@/lib/rotation";
+import { rotateSessionContent, freshness, prioritizePublishedContent } from "@/lib/rotation";
 
 const SOCIAL_BUCKET = "spotlight";
 const IMAGE_MAX_BYTES = 12 * 1024 * 1024;
@@ -701,6 +701,8 @@ export function StoriesRail({
       if (!rpcResult.data) throw new Error("Spotlight was not created.");
 
       spotlightCreated = true;
+      prioritizePublishedContent("spotlight", me, rpcResult.data);
+      prioritizePublishedContent("spotlight-feed", me, rpcResult.data);
 
       const { data: signed } = await supabase.storage
         .from(SOCIAL_BUCKET)
@@ -729,6 +731,7 @@ export function StoriesRail({
       }
 
       void queryClient.invalidateQueries({ queryKey: ["ash-spotlights"] });
+      void queryClient.invalidateQueries({ queryKey: ["spotlight-feed"] });
       toast.success("Spotlight published.");
       resetComposer();
     } catch (error) {

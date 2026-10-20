@@ -9,7 +9,7 @@ import { signPortfolioPaths } from "./marketplace";
 import { EMPTY_REACTIONS, type ReactionBreakdown, type ReactionType } from "./social.queries";
 import { directory } from "@/lib/public-profiles";
 import { trackEvent } from "./activity";
-import { rotateSessionContent, freshness, engagement } from "./rotation";
+import { rotateSessionContent, freshness, engagement, prioritizePublishedContent } from "./rotation";
 import { useUser } from "./queries";
 
 export const SPOTLIGHT_BUCKET = "spotlight";
@@ -294,6 +294,7 @@ export function useSetSpotlightReaction() {
 /** Uploads media and publishes a Spotlight post for the signed-in member. */
 export function useCreateSpotlight() {
   const queryClient = useQueryClient();
+  const { user } = useUser();
 
   return useMutation({
     mutationFn: async ({
@@ -338,14 +339,20 @@ export function useCreateSpotlight() {
           media: media as unknown as never,
         });
         if (error) throw error;
+        return postId;
       } catch (error) {
         if (media.length > 0)
           await supabase.storage.from(SPOTLIGHT_BUCKET).remove(media.map((item) => item.path));
         throw error;
       }
     },
-    onSuccess: () => {
+    onSuccess: (postId) => {
+      if (user) {
+        prioritizePublishedContent("spotlight", user.id, postId);
+        prioritizePublishedContent("spotlight-feed", user.id, postId);
+      }
       void queryClient.invalidateQueries({ queryKey: ["spotlight-feed"] });
+      void queryClient.invalidateQueries({ queryKey: ["ash-spotlights"] });
     },
   });
 }

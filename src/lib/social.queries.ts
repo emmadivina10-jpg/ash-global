@@ -16,6 +16,7 @@ import {
   recordExposure,
   rotate,
   rotateSessionContent,
+  prioritizePublishedContent,
 } from "./rotation";
 import { useUser } from "./queries";
 import { getCachedCity } from "./location";
@@ -1049,6 +1050,7 @@ export function useMemberPosts(userId: string | null | undefined) {
 
 export function useCreateSocialPost() {
   const queryClient = useQueryClient();
+  const { user } = useUser();
 
   return useMutation({
     mutationFn: async ({
@@ -1132,7 +1134,8 @@ export function useCreateSocialPost() {
       }
     },
 
-    onSuccess: () => {
+    onSuccess: (postId) => {
+      if (user) prioritizePublishedContent("feed", user.id, postId);
       // Refresh in the background. Do not await these invalidations because
       // the Feed uses mutateAsync() and should resolve immediately after the
       // post itself has been created successfully.
