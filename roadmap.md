@@ -2,7 +2,7 @@
 
 ## Classic desktop landing (Oct 20)
 - [x] Use eight supplied screenshots and prominent ASH Global Technologies branding; preserve mobile onboarding, auth and payment availability
-- [ ] Verify desktop gallery, download invitation, themes and unchanged phone opening; preview only
+- [x] Verify all eight gallery images, enlarged viewer, download notice, light/dark and 800/1280/1920px layouts; phone onboarding unchanged; 13 payment tests pass, preview build OK; nothing published
 
 ## Permanent account deletion (Oct 20)
 - [x] Verify current deletion: approval only closes the profile; live foreign keys would cascade-delete financial records or block login deletion
@@ -268,7 +268,7 @@
 - [ ] Keep Cool ASH Card as the default wallet-card theme and Real ASH Card as the alternate theme
 - [ ] Add stored TchokoPay fee/net reconciliation before showing provider deductions
 - [ ] Refine the admin dashboard around platform funds, reserved funds, and reconciled fees
-- [ ] Refresh the landing experience with a compact app view and richer web view
+- [x] Refresh the landing experience with a compact app view and richer web view — classic desktop ASH Global Technologies redesign with eight supplied screenshots; phone onboarding preserved (Oct 20)
 - [ ] Complete every supported language dictionary; retain explicit English fallback until translated
 
 ## Spotlight, Feed, and Menu refinements
