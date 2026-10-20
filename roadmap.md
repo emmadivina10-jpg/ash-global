@@ -1,5 +1,9 @@
 # Roadmap
 
+## Landing wears the app's own colours (Oct 20)
+- [x] Drop the separate website palette (deep purple, gold, charcoal, black buttons) and derive every landing colour from the app's own theme tokens, so light and dark follow the app automatically
+- [x] Verified in both themes: buttons carry the app's primary colour, page wash and closing band use the app's emerald/magenta/violet blend, support button matches the app's floating-orb style; legibility 5.28 light / 6.32 dark, no overflow or runtime errors; preview build OK; nothing published
+
 ## Landing button colour and WhatsApp support (Oct 20)
 - [x] Replace the green/blue/violet button blend with solid black (rounded edges, white text, hover lift); dark mode keeps black with a light hairline edge so buttons stay visible
 - [x] Add round floating WhatsApp support button (+1 365-384-5986) with expanding label and footer support link; verified black fills, chat link, hover reveal, dark mode, no overflow or runtime errors; preview build OK; nothing published
