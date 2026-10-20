@@ -40,7 +40,7 @@
 - Localize interface copy with static dictionaries and explicit tx calls, never DOM rewriting or user-content translation. Why: privacy and stable React state.
 
 - WalletPayoutSetup reuses guarded Stripe Connect; PayoutSetupReminder saves account-scoped opt-out/cadence locally. Why: visible setup, no card collection or restricted payouts.
-- WebsiteAppShowcase stays separate from MobileOnboarding; confirmed store links only. Why: honest native entry/downloads.
+- DesktopLanding separates desktop from mobile/session routing; confirmed store links only. Why: preserve native entry and honest downloads.
 - Member Investment/currencies are display-only, separate from staff equity records. Why: protect funds.
 - LegalDocument shares payment text. Why: accuracy.
 
