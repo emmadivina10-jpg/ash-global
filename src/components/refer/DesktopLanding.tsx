@@ -24,7 +24,7 @@ const screens = [
   { asset: wallet, name: "Wallet", fr: "Portefeuille", title: "Your wallet. A clearer view.", titleFr: "Votre portefeuille, en toute clarté.", body: "View your balances and eligible withdrawal options. Mobile card and bank features are coming soon.", bodyFr: "Consultez vos soldes et les retraits disponibles. Carte et banque sur mobile : bientôt disponibles." },
   { asset: referral, name: "Referrals", fr: "Parrainage", title: "Connections that go further.", titleFr: "Des liens qui vont plus loin.", body: "See your referral network across L1, L2 and L3. Referral earnings are available only to eligible members in Cameroon and Nigeria.", bodyFr: "Retrouvez votre réseau de parrainage L1, L2 et L3. Les gains sont réservés aux membres éligibles au Cameroun et au Nigeria." },
   { asset: join, name: "Your moments", fr: "Vos moments", title: "A place for your perspective.", titleFr: "Une place pour votre regard.", body: "Share what matters to you and be part of the everyday conversation.", bodyFr: "Partagez ce qui compte pour vous et prenez part aux échanges du quotidien." },
-];
+] as const;
 
 export function DesktopLanding() {
   const { tx } = useI18n();
