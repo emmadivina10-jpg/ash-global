@@ -121,6 +121,17 @@ const screens = [
   },
 ] as const;
 
+const WHATSAPP_NUMBER = "13653845986";
+const WHATSAPP_DISPLAY = "+1 365-384-5986";
+
+function WhatsAppMark() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+      <path d="M16.01 3.2c-7.06 0-12.8 5.73-12.8 12.79 0 2.26.6 4.47 1.73 6.41L3.2 28.8l6.57-1.72a12.77 12.77 0 0 0 6.23 1.59h.01c7.05 0 12.79-5.74 12.79-12.79 0-3.42-1.33-6.63-3.75-9.04a12.7 12.7 0 0 0-9.04-3.64Zm0 23.31h-.01a10.6 10.6 0 0 1-5.4-1.48l-.39-.23-4.02 1.05 1.07-3.92-.25-.4a10.55 10.55 0 0 1-1.62-5.64c0-5.86 4.77-10.62 10.63-10.62 2.84 0 5.5 1.11 7.5 3.11a10.55 10.55 0 0 1 3.1 7.52c0 5.86-4.77 10.61-10.61 10.61Zm5.83-7.96c-.32-.16-1.89-.93-2.18-1.04-.29-.11-.5-.16-.71.16-.21.32-.82 1.04-1 1.25-.18.21-.37.24-.69.08-.32-.16-1.35-.5-2.57-1.59-.95-.85-1.59-1.89-1.78-2.21-.18-.32-.02-.5.14-.66.14-.14.32-.37.48-.56.16-.19.21-.32.32-.53.11-.21.05-.4-.03-.56-.08-.16-.71-1.72-.98-2.35-.26-.62-.52-.54-.71-.55l-.6-.01c-.21 0-.56.08-.85.4-.29.32-1.11 1.09-1.11 2.65 0 1.56 1.14 3.07 1.3 3.28.16.21 2.24 3.42 5.43 4.8.76.33 1.35.52 1.81.67.76.24 1.45.21 2 .13.61-.09 1.89-.77 2.15-1.52.27-.75.27-1.39.19-1.52-.08-.14-.29-.21-.61-.37Z" />
+    </svg>
+  );
+}
+
 export function DesktopLanding() {
   const { tx } = useI18n();
   const [selected, setSelected] = useState(0);
@@ -129,6 +140,9 @@ export function DesktopLanding() {
   const active = screens[selected] ?? screens[0];
   const move = (direction: number) =>
     setSelected((index) => (index + direction + screens.length) % screens.length);
+  const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+    tx("Hi ASH Glo, I need support.", "Bonjour ASH Glo, j’ai besoin d’assistance."),
+  )}`;
 
   return (
     <div className="desktop-landing">
@@ -693,6 +707,9 @@ export function DesktopLanding() {
           <h3>{tx("Company", "Entreprise")}</h3>
           <Link to="/contact">{tx("Contact ASH", "Contacter ASH")}</Link>
           <Link to="/support">{tx("Support", "Assistance")}</Link>
+          <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
+            {tx("WhatsApp Support", "Assistance WhatsApp")} · {WHATSAPP_DISPLAY}
+          </a>
         </div>
         <div>
           <h3>{tx("Legal", "Informations légales")}</h3>
@@ -733,6 +750,25 @@ export function DesktopLanding() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <a
+        className="landing-whatsapp"
+        href={whatsappHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={tx(
+          `WhatsApp support ${WHATSAPP_DISPLAY}`,
+          `Assistance WhatsApp ${WHATSAPP_DISPLAY}`,
+        )}
+      >
+        <span className="landing-whatsapp-badge" aria-hidden="true">
+          <WhatsAppMark />
+        </span>
+        <span className="landing-whatsapp-label">
+          {tx("WhatsApp Support", "Assistance WhatsApp")}
+          <small>{WHATSAPP_DISPLAY}</small>
+        </span>
+      </a>
     </div>
   );
 }

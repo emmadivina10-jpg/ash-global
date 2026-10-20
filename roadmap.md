@@ -1,5 +1,9 @@
 # Roadmap
 
+## Landing button colour and WhatsApp support (Oct 20)
+- [x] Replace the green/blue/violet button blend with solid black (rounded edges, white text, hover lift); dark mode keeps black with a light hairline edge so buttons stay visible
+- [x] Add round floating WhatsApp support button (+1 365-384-5986) with expanding label and footer support link; verified black fills, chat link, hover reveal, dark mode, no overflow or runtime errors; preview build OK; nothing published
+
 ## Premium desktop landing brief (Oct 20)
 - [x] Refine the public desktop page with purple/gold accents, social-first product imagery, ecosystem, steps, discovery, eligible referrals/wallet and real navigation; preserve phone entry and payment logic
 - [x] Check 1280/1440/1920px desktop, 834px tablet and 390px phone, eight gallery images, enlarged viewer, registration and sign-in return destinations, light/dark and public links; no horizontal overflow or runtime errors; lint clean, 24 safeguard tests pass, preview build OK; nothing published
