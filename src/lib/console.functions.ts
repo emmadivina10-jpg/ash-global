@@ -827,37 +827,30 @@ export const reviewDeletionRequest = createServerFn({
       throw new Error("INVALID_STATUS");
     }
 
+    // Never persist approval or claim closure before genuine erasure is deployed.
+    if (data.status === "APPROVED") {
+      const { requireErasureDeployment } = await import("./account-erasure.server");
+      requireErasureDeployment();
+    }
+
     const db = await adminClient();
 
-    const { error } = await db
+    const { data: reviewed, error } = await db
       .from("account_deletion_requests")
       .update({
         status: data.status,
         admin_note: data.note ? String(data.note) : null,
         reviewed_at: new Date().toISOString(),
       })
-      .eq("id", data.id);
+      .eq("id", data.id)
+      .eq("status", "PENDING")
+      .select("id")
+      .maybeSingle();
 
     if (error) {
       throw new Error(error.message);
     }
-
-    if (data.status === "APPROVED") {
-      const { data: row } = await db
-        .from("account_deletion_requests")
-        .select("user_id")
-        .eq("id", data.id)
-        .maybeSingle();
-
-      if (row?.user_id) {
-        await db
-          .from("profiles")
-          .update({
-            account_status: "CLOSED",
-          })
-          .eq("user_id", row.user_id);
-      }
-    }
+    if (!reviewed) throw new Error("DELETION_REQUEST_NOT_PENDING");
 
     return {
       ok: true as const,

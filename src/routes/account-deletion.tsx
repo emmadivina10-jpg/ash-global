@@ -40,7 +40,7 @@ const steps = [
   ],
   [
     "Closure and data handling",
-    "Approval currently closes the ASH Glo profile; it does not automatically erase the login account or all associated records. Further data deletion, anonymization or lawful retention requires administrative handling. Request follow-up and confirmation from the privacy contact listed in the Privacy Policy.",
+    "Permanent deletion is not available yet. New approvals are blocked while safe erasure and legally required retention are prepared; submitting a request does not erase the login account, files or personal data. Request follow-up from the privacy contact listed in the Privacy Policy.",
   ],
 ] as const;
 
