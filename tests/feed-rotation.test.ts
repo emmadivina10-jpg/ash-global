@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { resetFeedRotation, rotateSessionContent } from "../src/lib/rotation";
+import { prioritizePublishedContent, resetFeedRotation, rotateSessionContent } from "../src/lib/rotation";
 
 const pool = Array.from({ length: 12 }, (_, i) => ({
   id: `post-${i}`,
@@ -10,6 +10,41 @@ const pool = Array.from({ length: 12 }, (_, i) => ({
 afterEach(() => vi.unstubAllGlobals());
 
 describe("member opening rotation", () => {
+  it("keeps a confirmed new post inside the 120-post window from a 240-post pool", () => {
+    const member = "publishing-viewer";
+    resetFeedRotation(member);
+    const candidates = Array.from({ length: 240 }, (_, i) => ({
+      id: `existing-${i}`, creator: `author-${i}`, relevance: 0.5,
+      item: { id: `existing-${i}` },
+    }));
+    const initial = rotateSessionContent("feed", candidates, member).slice(0, 120);
+    const published = { id: "new-post", creator: member, relevance: 1, item: { id: "new-post" } };
+    prioritizePublishedContent("feed", member, published.id);
+    const updated = rotateSessionContent("feed", [published, ...candidates.slice(0, 239)], member).slice(0, 120);
+    expect(updated[0]?.id).toBe("new-post");
+    const retained = new Set(updated.slice(1).map((item) => item.id));
+    expect(updated.slice(1)).toEqual(initial.filter((item) => retained.has(item.id)));
+    expect(rotateSessionContent("feed", [published, ...candidates.slice(0, 239)], member).slice(0, 120)).toEqual(updated);
+  });
+  it("keeps a published Spotlight first after refetch on both Spotlight surfaces", () => {
+    const member = "spotlight-publisher";
+    for (const type of ["spotlight", "spotlight-feed"]) {
+      resetFeedRotation(member);
+      const initial = rotateSessionContent(type, pool, member);
+      const published = { id: "new-spotlight", creator: member, relevance: 1, item: { id: "new-spotlight", creator: member } };
+      prioritizePublishedContent(type, member, published.id);
+      expect(rotateSessionContent(type, [published, ...pool], member)).toEqual([published.item, ...initial]);
+    }
+  });
+  it("never inserts an unavailable published ID or shares publication priority between members", () => {
+    resetFeedRotation("publisher-only");
+    resetFeedRotation("other-viewer");
+    const other = rotateSessionContent("feed", pool, "other-viewer");
+    prioritizePublishedContent("feed", "publisher-only", "missing-post");
+    prioritizePublishedContent("feed", "publisher-only", other.at(-1)?.id ?? "");
+    expect(rotateSessionContent("feed", pool, "other-viewer")).toEqual(other);
+    expect(rotateSessionContent("feed", pool, "publisher-only").map((item) => item.id).sort()).toEqual(pool.map((item) => item.id).sort());
+  });
   it("varies the first post across members even with one highly ranked post", () => {
     const first = new Set(
       Array.from({ length: 30 }, (_, i) => {
