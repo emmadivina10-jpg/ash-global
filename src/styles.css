@@ -1712,18 +1712,14 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   --landing-closing: #320954;
   --landing-on-brand: #ffffff;
   --landing-image-surface: #ffffff;
-  --landing-electric-blue: oklch(0.47 0.28 264);
-  --landing-button-fill: linear-gradient(
-    115deg,
-    var(--verified-coral) 0%,
-    var(--verified-magenta) 35%,
-    var(--verified-violet) 68%,
-    var(--landing-electric-blue) 100%
-  );
+  --landing-button-fill: #000000;
+  --landing-button-fill-hover: #1d1d21;
   --landing-button-shadow:
-    0 8px 24px -8px color-mix(in oklab, var(--verified-magenta) 45%, transparent),
-    0 3px 10px color-mix(in oklab, var(--landing-electric-blue) 25%, transparent);
-  --landing-button-ink: var(--color-on-dark);
+    0 12px 28px -14px rgb(0 0 0 / 0.5),
+    0 2px 8px rgb(0 0 0 / 0.16);
+  --landing-button-ink: #ffffff;
+  --landing-button-edge: transparent;
+  --landing-whatsapp: #25d366;
   --landing-wash: var(--member-dual-wash);
   --background: var(--landing-surface);
   --foreground: var(--landing-ink);
@@ -1747,6 +1743,10 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   --landing-line: #38353d;
   --landing-accent: var(--verified-magenta);
   --primary-foreground: #24132f;
+  --landing-button-fill: #0a0a0b;
+  --landing-button-fill-hover: #202024;
+  --landing-button-edge: rgb(255 255 255 / 0.28);
+  --landing-button-shadow: 0 14px 30px -14px rgb(0 0 0 / 0.9);
 }
 .landing-width {
   width: min(100% - 96px, 1280px);
@@ -1909,12 +1909,14 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
 .desktop-landing .landing-header-join {
   background: var(--landing-button-fill);
   color: var(--landing-button-ink);
-  box-shadow: var(--landing-button-shadow);
+  box-shadow:
+    var(--landing-button-shadow),
+    0 0 0 1px var(--landing-button-edge);
 }
 .desktop-landing .landing-primary:hover,
 .desktop-landing .landing-header-join:hover {
   transform: translateY(-2px);
-  filter: brightness(1.08);
+  background: var(--landing-button-fill-hover);
 }
 .desktop-landing .landing-primary:active,
 .desktop-landing .landing-header-join:active {
@@ -2350,6 +2352,12 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
 .landing-invitation .landing-primary {
   background: var(--landing-button-fill);
   color: var(--landing-button-ink);
+  box-shadow:
+    var(--landing-button-shadow),
+    0 0 0 1px rgb(255 255 255 / 0.34);
+}
+.landing-invitation .landing-primary:hover {
+  background: var(--landing-button-fill-hover);
 }
 .landing-member-link {
   display: block;
