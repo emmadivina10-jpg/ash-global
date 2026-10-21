@@ -387,4 +387,4 @@ Messages/Market checks: signed-in Market default and reload persistence, Extras 
 
 ## Posted feed photo back button (Oct 21)
 - [x] Open posted photos in a full-screen viewer with a visible top-left Back arrow, keeping the feed underneath.
-- [ ] Verify signed-in photo opening and Back restores the exact feed position on phone and desktop.
+- [x] Signed-in real photo checks at 393px and 1280px: visible Back restores exact feed position; no runtime errors; eight feed tests pass; preview build OK.
