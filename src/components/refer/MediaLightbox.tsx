@@ -46,7 +46,10 @@ export function MediaLightbox({
       className="fixed inset-0 z-[150] flex h-[100dvh] flex-col bg-media-backdrop text-on-dark"
       onClick={onClose}
     >
-      <header className="flex shrink-0 items-center justify-between px-3 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))]" onClick={(event) => event.stopPropagation()}>
+      <header
+        className="flex shrink-0 items-center justify-between px-3 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))]"
+        onClick={(event) => event.stopPropagation()}
+      >
         <Button
           variant="ghost"
           aria-label={tx("Back", "Retour")}
@@ -67,7 +70,10 @@ export function MediaLightbox({
           <X className="size-5" aria-hidden />
         </Button>
       </header>
-      <div className="mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col items-center justify-center pb-[calc(1rem+env(safe-area-inset-bottom))]" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col items-center justify-center pb-[calc(1rem+env(safe-area-inset-bottom))]"
+        onClick={(e) => e.stopPropagation()}
+      >
         {media.isVideo ? (
           <video
             src={media.url}
@@ -84,7 +90,9 @@ export function MediaLightbox({
           />
         )}
         {media.caption ? (
-          <p className="mt-3 max-h-24 shrink-0 overflow-y-auto px-4 text-center text-sm text-on-dark/80">{media.caption}</p>
+          <p className="mt-3 max-h-24 shrink-0 overflow-y-auto px-4 text-center text-sm text-on-dark/80">
+            {media.caption}
+          </p>
         ) : null}
       </div>
     </div>,

@@ -192,7 +192,10 @@ export function PostCard({
                 src={src}
                 alt=""
                 loading="lazy"
-                className={cn("size-full min-h-0", detail ? "max-h-[75dvh] object-contain" : "object-cover")}
+                className={cn(
+                  "size-full min-h-0",
+                  detail ? "max-h-[75dvh] object-contain" : "object-cover",
+                )}
               />
             </Button>
           ))}
@@ -289,7 +292,10 @@ export function PostCard({
       {commentsOpen ? (
         <Comments post={post} currentUserId={currentUserId} fullScreen={fullScreen} />
       ) : null}
-      <MediaLightbox media={photo ? { url: photo, isVideo: false } : null} onClose={() => setPhoto(null)} />
+      <MediaLightbox
+        media={photo ? { url: photo, isVideo: false } : null}
+        onClose={() => setPhoto(null)}
+      />
     </article>
   );
 }
