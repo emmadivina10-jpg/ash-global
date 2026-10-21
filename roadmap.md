@@ -384,3 +384,7 @@ Messages/Market checks: signed-in Market default and reload persistence, Extras 
 ## Unified floating Compass
 - [x] Combine Map and Wallet into one draggable, closable ASH-colour control on app and tracking screens
 - [x] Isolated desktop/phone checks: Map/Wallet switching, drag without accidental opening, dismissal, restore, viewport bounds; no runtime errors or publishing
+
+## Posted feed photo back button (Oct 21)
+- [x] Open posted photos in a full-screen viewer with a visible top-left Back arrow, keeping the feed underneath.
+- [x] Signed-in real photo checks at 393px and 1280px: visible Back restores exact feed position; no runtime errors; eight feed tests pass; preview build OK.

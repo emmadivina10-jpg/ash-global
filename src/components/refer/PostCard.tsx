@@ -29,6 +29,7 @@ import { SocialText } from "./SocialText";
 import { SocialSuggestions } from "./SocialSuggestions";
 import { ExpandableSocialText } from "./ExpandableSocialText";
 import { trackEvent, useImpression } from "@/lib/activity";
+import { MediaLightbox } from "./MediaLightbox";
 
 function timeAgo(iso: string, fr: boolean) {
   const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
@@ -56,6 +57,7 @@ export function PostCard({
   const fr = lang === "fr";
   const navigate = useNavigate();
   const [commentsOpen, setCommentsOpen] = useState(detail);
+  const [photo, setPhoto] = useState<string | null>(null);
   // Activity intelligence: impression + viewing time while the card is on screen.
   const impressionRef = useImpression(
     {
@@ -175,21 +177,27 @@ export function PostCard({
           )}
         >
           {post.images.map((src, index) => (
-            <img
+            <Button
               key={index}
-              src={src}
-              alt=""
-              loading="lazy"
-              onClick={openPost}
+              variant="ghost"
+              aria-label={tx("Open photo", "Ouvrir la photo")}
+              onClick={() => setPhoto(src)}
               className={cn(
-                "size-full min-h-0 bg-muted",
-                detail
-                  ? "max-h-[75dvh] object-contain"
-                  : "cursor-pointer object-cover touch-manipulation",
+                "h-auto min-h-0 w-full overflow-hidden rounded-none bg-muted p-0 touch-manipulation hover:bg-muted",
                 !detail && post.images.length === 2 && "row-span-2",
                 !detail && post.images.length === 3 && index === 0 && "col-span-2",
               )}
-            />
+            >
+              <img
+                src={src}
+                alt=""
+                loading="lazy"
+                className={cn(
+                  "size-full min-h-0",
+                  detail ? "max-h-[75dvh] object-contain" : "object-cover",
+                )}
+              />
+            </Button>
           ))}
         </div>
       ) : null}
@@ -284,6 +292,10 @@ export function PostCard({
       {commentsOpen ? (
         <Comments post={post} currentUserId={currentUserId} fullScreen={fullScreen} />
       ) : null}
+      <MediaLightbox
+        media={photo ? { url: photo, isVideo: false } : null}
+        onClose={() => setPhoto(null)}
+      />
     </article>
   );
 }
