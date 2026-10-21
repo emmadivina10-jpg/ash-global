@@ -11,6 +11,7 @@ import {
   Flag,
   ImagePlus,
   Loader2,
+  ArrowLeft,
   MessageCircle,
   Mic,
   MicOff,
@@ -1649,10 +1650,10 @@ export function StoriesRail({
                 <button
                   type="button"
                   onClick={() => setSpotlightViewerOpen(false)}
-                  className="grid size-10 place-items-center rounded-full bg-black/45 text-white backdrop-blur-xl"
-                  aria-label="Close Spotlight"
+                  className="grid size-10 place-items-center rounded-full bg-black/55 text-white ring-1 ring-white/25 backdrop-blur-xl"
+                  aria-label="Back"
                 >
-                  <X className="size-5" />
+                  <ArrowLeft className="size-5" />
                 </button>
                 <div className="rounded-full border border-[#D4AF37]/30 bg-black/40 px-3 py-1.5 text-[9px] font-black tracking-[0.2em] text-[#D4AF37] backdrop-blur-xl">
                   ASH SPOTLIGHT
