@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
+  ArrowLeft,
   Bell,
   Building2,
   ArrowDownToLine,
@@ -179,6 +180,8 @@ export function AppShell({ children }: { children: ReactNode }) {
     item.key ? t(item.key) : ((lang === "fr" ? item.fr : item.en) ?? item.label ?? "");
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const onFeed = pathname === "/feed" || pathname === "/feed/";
+  // Member profiles opened from the feed get a back arrow instead of the logo bar.
+  const onMemberProfile = /^\/u\/.+/.test(pathname);
   const logoOnlyHeader = true; // Keep existing non-feed header controls unchanged.
   const pageOwnsHeader = ["/messages", "/services", "/flights", "/menu"].some(
     (path) => pathname === path || pathname.startsWith(`${path}/`),
