@@ -445,15 +445,30 @@ export function AppShell({ children }: { children: ReactNode }) {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 )}
-                <Link to={onFeed ? "/feed" : "/services"} className="min-w-0">
-                  {onFeed ? (
-                    <span className="text-xl font-bold text-foreground">
-                      {lang === "fr" ? "Fil" : "Feed"}
-                    </span>
-                  ) : (
-                    <Logo compact />
-                  )}
-                </Link>
+                {onMemberProfile ? (
+                  <button
+                    type="button"
+                    aria-label={t("shell.back")}
+                    onClick={() => {
+                      if (typeof window !== "undefined" && window.history.length > 1)
+                        window.history.back();
+                      else void navigate({ to: "/feed" });
+                    }}
+                    className="grid size-10 shrink-0 place-items-center justify-self-start rounded-full text-foreground transition-colors hover:bg-muted active:opacity-80"
+                  >
+                    <ArrowLeft className="size-5" aria-hidden />
+                  </button>
+                ) : (
+                  <Link to={onFeed ? "/feed" : "/services"} className="min-w-0">
+                    {onFeed ? (
+                      <span className="text-xl font-bold text-foreground">
+                        {lang === "fr" ? "Fil" : "Feed"}
+                      </span>
+                    ) : (
+                      <Logo compact />
+                    )}
+                  </Link>
+                )}
                 <div className="flex items-center gap-1">
                   <NotificationBell />
                   <LanguageSwitcher />
