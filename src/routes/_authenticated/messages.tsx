@@ -1256,7 +1256,7 @@ function MessagesPage() {
                           setAvatarChoice(conv);
                         }}
                         className={cn(
-                          "member-avatar-ring grid aspect-square size-14 min-w-14 shrink-0 place-items-center rounded-full p-[2px] shadow-sm",
+                          "member-avatar-ring relative grid aspect-square size-14 min-w-14 shrink-0 place-items-center overflow-visible rounded-full p-[2px] shadow-sm",
                           (availableStories?.groups.some(
                             (group) => group.author.id === peerUserIdOf(conv),
                           ) ||
@@ -1270,11 +1270,17 @@ function MessagesPage() {
                           <Avatar
                             path={peerAvatarOf(conv)}
                             name={label}
-                            online={peerStateOf(conv)?.online}
                             hasUpdate={false}
                             className="size-[52px] aspect-square rounded-full border-0 shadow-none"
                           />
                         </span>
+                        {peerStateOf(conv)?.online ? (
+                          <span
+                            className="pointer-events-none absolute -bottom-0.5 -right-0.5 z-[2] size-3.5 rounded-full bg-success ring-2 ring-background"
+                            aria-label="Online"
+                            role="img"
+                          />
+                        ) : null}
                       </Button>
 
                       <span className="min-w-0 flex-1">
