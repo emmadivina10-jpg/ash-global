@@ -1504,8 +1504,8 @@ function MessagesPage() {
                   activeId !== ASH_SUPPORT_ID &&
                   active &&
                   peerStateOf(active)?.online ? (
-                    <p className="flex items-center gap-1 text-[11px] font-semibold text-primary">
-                      <span className="size-1.5 rounded-full bg-primary" aria-hidden />
+                    <p className="flex items-center gap-1 text-[11px] font-semibold text-success">
+                      <span className="size-2 rounded-full bg-success" aria-hidden />
                       {tx("Online", "En ligne")}
                     </p>
                   ) : null}
