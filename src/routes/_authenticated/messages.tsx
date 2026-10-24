@@ -1276,7 +1276,7 @@ function MessagesPage() {
                         </span>
                         {peerStateOf(conv)?.online ? (
                           <span
-                            className="pointer-events-none absolute -bottom-0.5 -right-0.5 z-[2] size-3.5 rounded-full bg-success ring-2 ring-background"
+                            className="pointer-events-none absolute bottom-px right-px z-[2] size-3.5 rounded-full bg-success ring-2 ring-background"
                             aria-label="Online"
                             role="img"
                           />
@@ -1454,7 +1454,7 @@ function MessagesPage() {
                 ) : active ? (
                   <span
                     className={cn(
-                      "member-avatar-ring grid size-10 shrink-0 place-items-center rounded-full p-[2px] shadow-sm",
+                      "member-avatar-ring relative grid size-10 shrink-0 place-items-center overflow-visible rounded-full p-[2px] shadow-sm",
                       (availableStories?.groups.some((group) => group.author.id === activePeerId) ||
                         availableSpotlights?.some(
                           (post) => post.provider.user_id === activePeerId,
@@ -1466,11 +1466,17 @@ function MessagesPage() {
                       <Avatar
                         path={peerAvatarOf(active)}
                         name={peerOf(active)}
-                        online={peerStateOf(active)?.online}
                         hasUpdate={false}
                         className="size-9 aspect-square rounded-full border-0 shadow-none"
                       />
                     </span>
+                    {peerStateOf(active)?.online ? (
+                      <span
+                        className="pointer-events-none absolute bottom-0 right-0 z-[2] size-3 rounded-full bg-success ring-2 ring-background"
+                        aria-label={tx("Online", "En ligne")}
+                        role="img"
+                      />
+                    ) : null}
                   </span>
                 ) : null}
 
@@ -1498,8 +1504,8 @@ function MessagesPage() {
                   activeId !== ASH_SUPPORT_ID &&
                   active &&
                   peerStateOf(active)?.online ? (
-                    <p className="flex items-center gap-1 text-[11px] font-semibold text-primary">
-                      <span className="size-1.5 rounded-full bg-primary" aria-hidden />
+                    <p className="flex items-center gap-1 text-[11px] font-semibold text-success">
+                      <span className="size-2 rounded-full bg-success" aria-hidden />
                       {tx("Online", "En ligne")}
                     </p>
                   ) : null}
