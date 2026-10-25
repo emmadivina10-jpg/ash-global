@@ -388,3 +388,7 @@ Messages/Market checks: signed-in Market default and reload persistence, Extras 
 ## Posted feed photo back button (Oct 21)
 - [x] Open posted photos in a full-screen viewer with a visible top-left Back arrow, keeping the feed underneath.
 - [x] Signed-in real photo checks at 393px and 1280px: visible Back restores exact feed position; no runtime errors; eight feed tests pass; preview build OK.
+
+## Online dot in member chats (Oct 24)
+- [x] Fix member-to-member chats never fetching peer presence (only provider/storefront chats did), so the green dot and "Online" label now show in the chat list and open-chat header.
+- [x] Two live accounts in the same chat both show each other's green dot and "Online"; presence heartbeat, database reads and build verified. Nothing published.
