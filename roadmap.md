@@ -392,3 +392,8 @@ Messages/Market checks: signed-in Market default and reload persistence, Extras 
 ## Online dot in member chats (Oct 24)
 - [x] Fix member-to-member chats never fetching peer presence (only provider/storefront chats did), so the green dot and "Online" label now show in the chat list and open-chat header.
 - [x] Two live accounts in the same chat both show each other's green dot and "Online"; presence heartbeat, database reads and build verified. Nothing published.
+
+## Online dot for non-friend chat partners (Oct 25)
+- [x] Root cause: the presence read policy only allowed friends (or self) to see a member's online state, so anyone texting you who wasn't a friend never showed the dot.
+- [x] Applied migration 0033_conversation_partners_view_presence: signed-in members can now see the online state of anyone they share a conversation with (direct, listing, or provider chats). Group chats and strangers remain excluded.
+- [ ] Live two-account visual confirmation — not performed; signing in as the other member's account was declined. Owner can verify in their own preview: the texting partner's dot appears within about a minute.
