@@ -357,12 +357,11 @@ function MessagesPage() {
   const unlockChatServer = useServerFn(unlockChat);
 
   const list = conversations ?? [];
+  // Presence is fetched for every non-group conversation peer, including
+  // plain member-to-member threads (owner/client), so the green online dot
+  // shows in both the chat list and the open-chat header.
   const peerIds = list
-    .map((conversation) => {
-      if (conversation.group_id) return null;
-      const providerIsMe = Boolean(user?.id) && conversation.provider?.user_id === user?.id;
-      return (providerIsMe ? conversation.client_id : conversation.provider?.user_id) ?? null;
-    })
+    .map((conversation) => (conversation.group_id ? null : peerUserIdOf(conversation)))
     .filter((id): id is string => Boolean(id));
   const { data: memberStates } = useMemberStates(peerIds);
   const [avatarChoice, setAvatarChoice] = useState<(typeof list)[number] | null>(null);
