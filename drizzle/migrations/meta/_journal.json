@@ -232,6 +232,13 @@
       "when": 1792095244231,
       "tag": "0032_0032_retire_legacy_wallet_credit",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1792895619292,
+      "tag": "0033_conversation_partners_view_presence",
+      "breakpoints": true
     }
   ]
 }
