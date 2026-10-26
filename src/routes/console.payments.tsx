@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { RefreshCw, RotateCw, Search, ShieldCheck } from "lucide-react";
+import { CheckCircle2, RefreshCw, RotateCw, Search, ShieldCheck, XCircle } from "lucide-react";
 import {
   getConsoleAuditLog,
   getConsolePayments,
@@ -12,7 +12,7 @@ import {
   verifyPaymentReference,
   type PaymentRow,
 } from "@/lib/console.functions";
-import { getStripeEnvironment } from "@/lib/stripe-release.functions";
+import { getStripeEnvironment, getTestSettlementReadiness } from "@/lib/stripe-release.functions";
 import { SectionCard } from "@/components/refer/cards";
 import { StatusBadge } from "@/components/refer/StatusBadge";
 import { EmptyState, ErrorState, SkeletonRows } from "@/components/refer/states";
@@ -73,6 +73,11 @@ function ConsolePayments() {
   const { data: stripeEnv } = useQuery({
     queryKey: ["console", "stripe-env"],
     queryFn: () => fetchStripeEnv({ data: undefined as never }),
+  });
+  const fetchTestReadiness = useServerFn(getTestSettlementReadiness);
+  const { data: testReadiness } = useQuery({
+    queryKey: ["console", "stripe-test-readiness"],
+    queryFn: () => fetchTestReadiness({ data: undefined as never }),
   });
 
   const rows = useMemo(() => {
@@ -246,6 +251,43 @@ function ConsolePayments() {
               </li>
             ))}
           </ul>
+        )}
+      </SectionCard>
+
+      <SectionCard
+        title="Test settlement readiness"
+        description="Every check must pass before test settlements are enabled. Test events can never settle live bookings."
+      >
+        {!testReadiness ? (
+          <SkeletonRows rows={3} />
+        ) : (
+          <>
+            <p
+              className={cn(
+                "mb-3 text-sm font-semibold",
+                testReadiness.ready ? "text-success" : "text-muted-foreground",
+              )}
+            >
+              {testReadiness.ready
+                ? "All prerequisites pass — test settlements can be enabled on an isolated backend."
+                : "Not ready — resolve the failing checks below first."}
+            </p>
+            <ul className="divide-y divide-border">
+              {testReadiness.checks.map((check) => (
+                <li key={check.key} className="flex items-start gap-3 py-3">
+                  {check.ok ? (
+                    <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-success" aria-hidden />
+                  ) : (
+                    <XCircle className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden />
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-foreground">{check.label}</p>
+                    <p className="text-xs text-muted-foreground">{check.detail}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </>
         )}
       </SectionCard>
 
