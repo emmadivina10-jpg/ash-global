@@ -2,8 +2,9 @@
 
 ## Separate Connect credential review (Oct 26)
 - [x] Inspect existing Stripe credential boundaries before any code or secret change.
-- [ ] Securely collect STRIPE_CONNECT_SECRET_KEY, verify same-platform identity read-only and assess Connect permission evidence; stop if verification fails.
-- [ ] Report consistent Connect-management migration scope; preserve payment and release/reconciliation credentials until separately authorized. No implementation before the report.
+- [x] Securely collect STRIPE_CONNECT_SECRET_KEY and execute read-only platform/provider API probes; new platform GET succeeds, existing-key GET remains IP-blocked, mapped provider GET fails (account_invalid / forbidden).
+- [x] Report consistent Connect-management migration scope, including financial-path boundaries; no application code changed.
+- [ ] Verify same-platform identity and mapped-account access before implementation — blocked by existing-key IP restriction and new-key provider access denial; onboarding-link permission remains unverified (no write attempted).
 - Preserve managed/live/test/webhook secrets; no key rotation, deletion, financial operations or publishing.
 
 ## Four illustrated app welcome screens (Oct 20)
