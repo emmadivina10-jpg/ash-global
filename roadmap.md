@@ -1,5 +1,10 @@
 # Roadmap
 
+## Exact provider Connect mapping (Oct 26)
+- [x] Read-only API verifies requested account email, active transfers, enabled payouts and no outstanding requirements. New key's platform is acct_1Tmk32K8yU6AxPux; ASH connector and saved controls both identify acct_1U3ozTBQjimtCBr2.
+- [ ] Update only the verified provider mapping — blocked by confirmed platform mismatch; mapping remains acct_1UPEdkBW0j2DfZbS, bookings and other providers untouched.
+- [x] Report identity mismatch and unchanged mapping; no Stripe account creation, money movement or publishing.
+
 ## Separate Connect credential review (Oct 26)
 - [x] Inspect existing Stripe credential boundaries before any code or secret change.
 - [x] Securely collect STRIPE_CONNECT_SECRET_KEY and execute read-only platform/provider API probes; new platform GET succeeds, existing-key GET remains IP-blocked, mapped provider GET fails (account_invalid / forbidden).
