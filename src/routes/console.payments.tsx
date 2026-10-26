@@ -12,6 +12,7 @@ import {
   verifyPaymentReference,
   type PaymentRow,
 } from "@/lib/console.functions";
+import { getStripeEnvironment } from "@/lib/stripe-release.functions";
 import { SectionCard } from "@/components/refer/cards";
 import { StatusBadge } from "@/components/refer/StatusBadge";
 import { EmptyState, ErrorState, SkeletonRows } from "@/components/refer/states";
@@ -68,6 +69,11 @@ function ConsolePayments() {
   });
 
   const { data: audit } = useQuery({ queryKey: ["console", "audit"], queryFn: fetchAudit });
+  const fetchStripeEnv = useServerFn(getStripeEnvironment);
+  const { data: stripeEnv } = useQuery({
+    queryKey: ["console", "stripe-env"],
+    queryFn: () => fetchStripeEnv({ data: undefined as never }),
+  });
 
   const rows = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -157,6 +163,23 @@ function ConsolePayments() {
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
+          {stripeEnv ? (
+            <span
+              className={cn(
+                "rounded-full px-2.5 py-1 text-xs font-semibold",
+                stripeEnv.mode === "LIVE"
+                  ? "bg-success/15 text-success"
+                  : "bg-destructive/10 text-destructive",
+              )}
+              title={
+                stripeEnv.testAvailable
+                  ? "Test credentials are also configured; test events never settle live records."
+                  : "Only live Stripe credentials are configured."
+              }
+            >
+              Stripe {stripeEnv.mode}
+            </span>
+          ) : null}
           {FILTERS.map((item) => (
             <Button
               key={item.key}
