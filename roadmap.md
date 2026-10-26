@@ -1,5 +1,10 @@
 # Roadmap
 
+## Separate Connect credential review (Oct 26)
+- [x] Inspect existing Stripe credential boundaries before any code or secret change.
+- [ ] Add STRIPE_CONNECT_SECRET_KEY and migrate Connect credential usage — paused: retrieval/onboarding-only split leaves account creation, dashboard access and release eligibility on the restricted key; requires agreement on a consistent migration scope.
+- Preserve managed/live/test/webhook secrets; no key rotation, deletion, financial operations or publishing.
+
 ## Four illustrated app welcome screens (Oct 20)
 - [x] Replace photos with texting, shopping/delivery, travel and wallet drawings; curved slanted image edge and staggered text transitions
 - [x] Lower the screen label (People & moments / Market & services / Flights · Coming soon / Wallet & payments) so it sits closer to the text beneath it
