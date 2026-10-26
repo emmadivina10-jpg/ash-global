@@ -1,9 +1,10 @@
 # Roadmap
 
 ## Android lockfile repair (Oct 26)
-- [ ] Reproduce the dependency install failure and repair the appropriate lockfile without unnecessary upgrades or a package-manager bypass.
-- [ ] Validate artifact-only Android installation, sync, signing, versioning and AAB verification while preserving iOS.
-- [ ] Run relevant tests and report exact results; signed AAB remains blocked unless real build infrastructure and signing are available.
+- [x] Reproduced npm 11 EUSAGE/root mismatch (npm 10 edgesOut error); repaired only npm lock with existing iOS manager, clean npm install passed. Clean Android frozen Bun install passed; package.json/bun.lock unchanged.
+- [x] Validated artifact-only Android YAML/scripts and sync; added incremental base+BUILD_NUMBER option and actual manifest/upload-certificate verification; iOS workflow/project hashes unchanged.
+- [x] 41 Vitest + 4 isolated Java signing tests passed; pinned bundletool checksum verified; automatic preview build OK. Exact results and setup in GOOGLE-PLAY-PREP.md.
+- [ ] Signed AAB via Codemagic — blocked by unavailable Codemagic access, Android SDK and real upload-signing credentials; no publishing authorized.
 
 ## Google Play Android preparation (Oct 26)
 - [x] Audit existing native identity, dependencies, permissions and Codemagic without changing iOS or production.
