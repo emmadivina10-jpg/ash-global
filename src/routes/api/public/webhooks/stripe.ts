@@ -9,16 +9,25 @@ export const Route = createFileRoute("/api/public/webhooks/stripe")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const secret = process.env["STRIPE_WEBHOOK_SECRET"] ?? "";
-        if (!secret) return new Response("Webhook not configured", { status: 503 });
+        // Platform events and Connect (connected-account) events arrive at this
+        // one URL but are signed with different endpoint secrets; accept either.
+        const secrets = [
+          process.env["STRIPE_WEBHOOK_SECRET"] ?? "",
+          process.env["STRIPE_WEBHOOK_CONNECT_SECRET"] ?? "",
+        ].filter(Boolean);
+        if (secrets.length === 0)
+          return new Response("Webhook not configured", { status: 503 });
 
         const body = await request.text();
         const { verifyStripeSignature } = await import("@/lib/stripe.server");
-        const valid = await verifyStripeSignature(
-          body,
-          request.headers.get("stripe-signature"),
-          secret,
-        );
+        const header = request.headers.get("stripe-signature");
+        let valid = false;
+        for (const secret of secrets) {
+          if (await verifyStripeSignature(body, header, secret)) {
+            valid = true;
+            break;
+          }
+        }
         if (!valid) return new Response("Invalid signature", { status: 400 });
 
         let event: { id?: string; type?: string; data?: { object?: Record<string, unknown> } };
