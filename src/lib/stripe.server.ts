@@ -452,6 +452,88 @@ export async function stripeRead(
 }
 
 /* ------------------------------------------------------------------ */
+/* Test-mode client — used ONLY by the gated test settlement path.     */
+/* Live account IDs do not exist in test mode, so live resources fail  */
+/* closed here by construction.                                        */
+/* ------------------------------------------------------------------ */
+
+async function stripeTestRequest(
+  path: string,
+  init?: { method?: string; body?: URLSearchParams; idempotencyKey?: string },
+): Promise<{ ok: boolean; status: number; data: Record<string, unknown> }> {
+  const secret = testKey();
+  if (!secret)
+    return { ok: false, status: 0, data: { error: { message: "STRIPE_TEST_NOT_CONFIGURED" } } };
+  const response = await fetch(`https://api.stripe.com/v1/${path}`, {
+    method: init?.method ?? "GET",
+    headers: {
+      Authorization: `Bearer ${secret}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+      ...(init?.idempotencyKey ? { "Idempotency-Key": init.idempotencyKey } : {}),
+    },
+    ...(init?.body ? { body: init.body } : {}),
+  });
+  const data = (await response.json().catch(() => ({}))) as Record<string, unknown>;
+  return { ok: response.ok, status: response.status, data };
+}
+
+/** Test-mode read; only reachable through the gated test settlement path. */
+export async function stripeTestRead(path: string): Promise<Record<string, unknown>> {
+  const result = await stripeTestRequest(path);
+  if (!result.ok) throw new Error("STRIPE_TEST_READ_FAILED");
+  return result.data;
+}
+
+/** Test-mode transfer; gated by STRIPE_TEST_SETTLEMENT_ENABLED, never the live flag. */
+export async function stripeTestTransfer(input: {
+  accountId: string;
+  amountCents: number;
+  currency: string;
+  idempotencyKey: string;
+  description?: string;
+  sourceTransaction?: string;
+  requestKey?: string | undefined;
+}): Promise<{
+  ok: boolean;
+  transferId: string | null;
+  error: string | null;
+  httpStatus?: number;
+  errorCode?: string;
+}> {
+  if (process.env["STRIPE_TEST_SETTLEMENT_ENABLED"] !== "true")
+    return { ok: false, transferId: null, error: "TEST_SETTLEMENT_NOT_ENABLED" };
+  const body = new URLSearchParams();
+  body.set("amount", String(input.amountCents));
+  body.set("currency", input.currency.toLowerCase());
+  body.set("destination", input.accountId);
+  body.set("transfer_group", input.idempotencyKey);
+  if (input.sourceTransaction) body.set("source_transaction", input.sourceTransaction);
+  if (input.description) body.set("description", input.description.slice(0, 200));
+  const result = await stripeTestRequest("transfers", {
+    method: "POST",
+    body,
+    idempotencyKey: `wd_test_${input.requestKey ?? input.idempotencyKey}`,
+  });
+  if (!result.ok) {
+    const err = result.data["error"] as { code?: string } | undefined;
+    return {
+      ok: false,
+      transferId: null,
+      error: "STRIPE_TRANSFER_REJECTED",
+      httpStatus: result.status,
+      errorCode: err?.code ?? "",
+    };
+  }
+  const transferId =
+    typeof result.data["id"] === "string" && result.data["id"].startsWith("tr_")
+      ? result.data["id"]
+      : null;
+  return transferId
+    ? { ok: true, transferId, error: null }
+    : { ok: false, transferId: null, error: "TRANSFER_RESPONSE_INVALID" };
+}
+
+/* ------------------------------------------------------------------ */
 /* Webhook signature verification (Stripe-Signature, v1 HMAC-SHA256)   */
 /* ------------------------------------------------------------------ */
 
