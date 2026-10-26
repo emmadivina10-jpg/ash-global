@@ -1,5 +1,9 @@
 # Roadmap
 
+## Restricted key IP allowlist (Oct 26)
+- [ ] Add verified server egress addresses to existing restricted key — blocked pending documented stable published-server IPs and supported access to edit the exact key policy; never substitute sandbox IPs or broad unverified ranges.
+- [ ] Recheck onboarding/account access after authorized policy correction; no key rotation, money movement or publishing.
+
 ## Platform swap request (Oct 26)
 - [ ] Resolve requested platform identity before any migration: ASH already uses acct_1U3ozTBQjimtCBr2; newly supplied provider account is accessible under acct_1Tmk32K8yU6AxPux. Existing charges cannot be migrated by changing credentials or mapping. Blocked pending corrected scope; no changes or money movement.
 
