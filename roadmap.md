@@ -403,3 +403,10 @@ Messages/Market checks: signed-in Market default and reload persistence, Extras 
 - [x] Created a Connect webhook endpoint for provider account and payout events; webhook route now accepts both endpoint signing secrets (STRIPE_WEBHOOK_SECRET + STRIPE_WEBHOOK_CONNECT_SECRET, saved by owner).
 - [x] Switched on live provider transfers (code flag + marketplace control) after owner approval; 2 ELIGIBLE bookings await authorized dispatch from the Revenue console.
 - [x] 67 Stripe safety tests pass; preview build OK. Nothing published.
+
+## Stripe test mode + payment economics (Oct 26)
+- [x] Separate test-mode credentials (STRIPE_TEST_SECRET_KEY, STRIPE_TEST_WEBHOOK_SECRET) with hard isolation: live paths reject test keys, test paths reject live keys; test webhook events verified and acknowledged but never settle.
+- [x] Minimum viable charge enforced at checkout from measured ASH fees (2.9% + 30¢, +2% FX): 248¢ CAD / 298¢ USD; below-minimum rejected, prices never silently changed.
+- [x] LIVE/TEST badge on the payments console; release view now reports the real transfer flag.
+- [x] 78 Stripe tests pass (11 new). No live settings, credentials or money touched; nothing published.
+- [ ] Owner: create the test-mode webhook endpoint in the Stripe dashboard (test mode → Developers → Webhooks, same URL) — cannot be created with live keys.
