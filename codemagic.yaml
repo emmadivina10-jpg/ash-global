@@ -513,7 +513,11 @@ workflows:
           echo " INSTALLING JAVASCRIPT DEPENDENCIES"
           echo "========================================"
 
-          npm ci --no-audit --no-fund
+          # The existing npm lock is stale; use the verified current Bun lock.
+          npm install --global bun@1.4.4
+          bun install --frozen-lockfile
+          # Run the project's own postinstall explicitly (no blanket trust).
+          node scripts/postinstall-entities-shim.mjs
 
       - name: Check release inputs and Android SDK
         script: |
