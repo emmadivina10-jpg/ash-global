@@ -1,5 +1,11 @@
 # Roadmap
 
+## Google Play Android preparation (Oct 26)
+- [x] Audit existing native identity, dependencies, permissions and Codemagic without changing iOS or production.
+- [x] Harden Android-only sync, signing, release versioning and artifact-only CI; preserve com.ashglogroup.app. Use verified frozen Bun lock rather than stale npm lock.
+- [x] 36 configuration/mobile safeguard tests pass; Android sync registers 10 plugins and correct ID/HTTPS host; YAML/scripts valid, web preview build OK. See GOOGLE-PLAY-PREP.md for signing setup and unresolved release requirements.
+- [ ] Signed AAB and installed-device verification — requires Codemagic Android SDK/JDK and owner-managed signing credentials; no publishing authorized.
+
 ## Restricted key IP allowlist (Oct 26)
 - [ ] Add verified server egress addresses to existing restricted key — blocked pending documented stable published-server IPs and supported access to edit the exact key policy; never substitute sandbox IPs or broad unverified ranges.
 - [ ] Recheck onboarding/account access after authorized policy correction; no key rotation, money movement or publishing.

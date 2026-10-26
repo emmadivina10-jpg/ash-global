@@ -12,7 +12,21 @@ def ksPath = keystoreProperties['storeFile'] ?: System.getenv('CM_KEYSTORE_PATH'
 def ksPassword = keystoreProperties['storePassword'] ?: System.getenv('CM_KEYSTORE_PASSWORD')
 def ksAlias = keystoreProperties['keyAlias'] ?: System.getenv('CM_KEY_ALIAS')
 def ksAliasPassword = keystoreProperties['keyPassword'] ?: System.getenv('CM_KEY_PASSWORD')
-def hasReleaseSigning = ksPath != null && file(ksPath).exists()
+def hasReleaseSigning = ksPath != null && file(ksPath).exists() &&
+        ksPassword != null && !ksPassword.toString().isEmpty() &&
+        ksAlias != null && !ksAlias.toString().isEmpty() &&
+        ksAliasPassword != null && !ksAliasPassword.toString().isEmpty()
+def releaseVersionCode = System.getenv('ANDROID_VERSION_CODE') ?: '1'
+if (!(releaseVersionCode ==~ /[1-9][0-9]*/) ||
+        new BigInteger(releaseVersionCode) > new BigInteger('2100000000')) {
+    throw new GradleException('ANDROID_VERSION_CODE must be an integer from 1 to 2100000000.')
+}
+// Never silently produce an unsigned release artifact. Debug builds stay usable.
+gradle.taskGraph.whenReady { graph ->
+    if (graph.allTasks.any { it.project == project && it.name.toLowerCase().contains('release') } && !hasReleaseSigning) {
+        throw new GradleException('Release signing is incomplete. Configure the existing upload keystore securely.')
+    }
+}
 
 android {
     namespace = "com.ashglogroup.app"
@@ -21,8 +35,8 @@ android {
         applicationId "com.ashglogroup.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode Integer.parseInt(releaseVersionCode)
+        versionName System.getenv('ANDROID_VERSION_NAME') ?: "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

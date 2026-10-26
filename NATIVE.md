@@ -44,9 +44,9 @@ npx cap sync
 | Workflow | Machine | Output |
 | --- | --- | --- |
 | `ios-app-store` | macOS (Xcode latest) | signed `.ipa` → TestFlight / App Store |
-| `android-play` | Linux (JDK 21) | signed `.aab` → Play internal track |
+| `android-play` | Linux (JDK 21, Node 22) | signed `.aab` artifact only; no Play upload |
 
-Both run `npm install` then `npx cap sync` before building, so generated assets
+Android uses pinned Bun with the existing frozen `bun.lock`, verifies the web build without deploying, then runs `npx cap sync android`. iOS installation and signing are unchanged. Generated assets
 (`ios/App/App/public`, `android/app/src/main/assets/public`, `Package.swift`)
 are produced in CI and stay out of git.
 
@@ -59,9 +59,10 @@ Supply them in Codemagic:
 - **Android keystore** uploaded as the signing reference `ash_glo_keystore`
   (alias `ashglo`). Locally, Gradle instead reads git-ignored
   `android/keystore.properties` (`storeFile`, `storePassword`, `keyAlias`,
-  `keyPassword`); with neither present the release build is simply unsigned.
-- **Google Play service account JSON** as `GCLOUD_SERVICE_ACCOUNT_CREDENTIALS`
-  in the `google_play` group.
+  `keyPassword`); incomplete signing now stops Android release tasks instead of producing an unsigned bundle.
+- **Android version:** set `ANDROID_VERSION_CODE` in the `google_play` group to a positive integer greater than every previous Play upload; optionally set `ANDROID_VERSION_NAME` (defaults to `1.0`). No Google Play service-account JSON is needed for artifact-only builds.
+
+See [GOOGLE-PLAY-PREP.md](./GOOGLE-PLAY-PREP.md) for the verified preparation report, exact Codemagic steps and unresolved submission checks.
 
 ## Universal links / App Links
 
@@ -106,8 +107,7 @@ CAP_SERVER_URL=https://project--27f7580a-d6af-45a7-9546-ba56b1916cbe-dev.lovable
 | App name | ASH Glo |
 | Splash / status bar colour | `#080812` |
 
-Change these in `capacitor.config.ts`, then re-run `npx cap sync`. Changing the
-App ID after a store release is not possible, so confirm it before first submit.
+Do not change either registered identity. Android-specific commands (or `ASH_NATIVE_PLATFORM=android`) select `com.ashglogroup.app`; iOS/default configuration retains `com.ashglogroup.mobile`. Use platform-specific sync for releases.
 
 ## Icons and splash screens
 
@@ -136,7 +136,7 @@ Full listing copy, review notes and privacy answers live in
    a portfolio upload field (automatic rejection, Guideline 5.1.1).
 3. **Android manifest** — merge `native/android-manifest-additions.xml` into
    `android/app/src/main/AndroidManifest.xml`. Never add `QUERY_ALL_PACKAGES`.
-4. **Target SDK 35+**, 64-bit AAB, and Play App Signing enabled.
+4. **Target SDK 36+** for the October 2026 submission requirements, 64-bit AAB, Play App Signing, and verified 16 KB native-library compatibility.
 5. **User-generated content controls** (Apple 1.2 / Play UGC policy) exist in code; verify on the release binary:
    zero-tolerance clause in `/terms` §3, in-app report flag on provider profiles,
    reviews and chat, user blocking, and the `/console/reports` moderation queue.

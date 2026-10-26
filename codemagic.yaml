@@ -484,7 +484,7 @@ workflows:
   # ANDROID — GOOGLE PLAY
   # ================================================================
   android-play:
-    name: ASH Glo Android — Play Store
+    name: ASH Glo Android — signed AAB only (no publishing)
     instance_type: linux_x2
     max_build_duration: 45
 
@@ -495,7 +495,10 @@ workflows:
       groups:
         - google_play
 
-      node: 20
+      vars:
+        ASH_NATIVE_PLATFORM: android
+        CAP_SERVER_URL: https://ashglogroup.company
+      node: 22
       java: 21
 
     scripts:
@@ -510,16 +513,27 @@ workflows:
           echo " INSTALLING JAVASCRIPT DEPENDENCIES"
           echo "========================================"
 
-          npm install -g npm@11
-          npm --version
+          # The existing npm lock is stale; use the verified current Bun lock.
+          npm install --global bun@1.4.4
+          bun install --frozen-lockfile
+          # Run the project's own postinstall explicitly (no blanket trust).
+          node scripts/postinstall-entities-shim.mjs
 
-          rm -rf node_modules
+      - name: Check release inputs and Android SDK
+        script: |
+          set -euo pipefail
+          node scripts/android-release-preflight.mjs
+          test -n "${CM_KEYSTORE_PATH:-}" && test -f "$CM_KEYSTORE_PATH"
+          test -n "${CM_KEYSTORE_PASSWORD:-}"
+          test -n "${CM_KEY_ALIAS:-}"
+          test -n "${CM_KEY_PASSWORD:-}"
+          sdkmanager "platforms;android-36" "build-tools;35.0.0"
+          printf 'sdk.dir=%s\n' "$ANDROID_HOME" > android/local.properties
 
-          npm ci --no-audit --no-fund || {
-            echo "npm ci failed — falling back to npm install"
-            rm -rf node_modules
-            npm install --no-audit --no-fund
-          }
+      - name: Verify web application compiles (no deployment)
+        script: |
+          set -e
+          npm run build
 
       # ============================================================
       # CAPACITOR ANDROID SYNC
@@ -533,6 +547,7 @@ workflows:
           echo "========================================"
 
           npx cap sync android
+          node --input-type=module -e 'import fs from "node:fs"; const c = JSON.parse(fs.readFileSync("android/app/src/main/assets/capacitor.config.json", "utf8")); if (c.appId !== "com.ashglogroup.app" || c.server.url !== "https://ashglogroup.company") throw Error("Unexpected Android identity or server URL");'
 
       # ============================================================
       # BUILD SIGNED ANDROID AAB
@@ -549,7 +564,15 @@ workflows:
 
           chmod +x ./gradlew
 
-          ./gradlew bundleRelease
+          ./gradlew --no-daemon bundleRelease
+          AAB=app/build/outputs/bundle/release/app-release.aab
+          test -s "$AAB"
+          jarsigner -verify "$AAB" > /tmp/ash-aab-signature.txt
+          grep -q 'jar verified' /tmp/ash-aab-signature.txt
+          if grep -q 'jar is unsigned' /tmp/ash-aab-signature.txt; then
+            echo "ERROR: unsigned Android bundle"
+            exit 1
+          fi
 
           echo
           echo "========================================"
@@ -557,11 +580,5 @@ workflows:
           echo "========================================"
 
     artifacts:
-      - android/app/build/outputs/**/*.aab
-      - android/app/build/outputs/**/*.apk
-
-    publishing:
-      google_play:
-        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
-        track: internal
-        submit_as_draft: true
+      - android/app/build/outputs/bundle/release/*.aab
+    # Artifact-only. No Google Play publishing or automatic build trigger.

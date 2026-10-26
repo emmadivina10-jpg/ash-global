@@ -12,9 +12,11 @@ import type { CapacitorConfig } from "@capacitor/cli";
  * Set CAP_SERVER_URL when building to override without editing this file.
  */
 const serverUrl = process.env["CAP_SERVER_URL"] ?? "https://ashglogroup.company";
+// Android has its own registered package. Leave iOS/default sync identity intact.
+const isAndroidBuild = process.env["ASH_NATIVE_PLATFORM"] === "android" || process.argv.includes("android");
 
 const config: CapacitorConfig = {
-  appId: "com.ashglogroup.mobile",
+  appId: isAndroidBuild ? "com.ashglogroup.app" : "com.ashglogroup.mobile",
   appName: "ASH Glo",
   // Local bootstrap page shipped inside the binary (used offline / before the
   // remote URL responds). `npx cap sync` copies this folder into each platform.
