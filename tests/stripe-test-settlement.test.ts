@@ -429,31 +429,35 @@ describe("test transfer reconciliation", () => {
     expect(harness.testRead).toHaveBeenCalledWith("transfers/tr_test");
   });
   it("flags a transfer whose amount differs from the locked share", async () => {
+    const wrongAmount = {
+      id: "tr_test",
+      livemode: false,
+      destination: "acct_test_dest",
+      amount: 300,
+      currency: "usd",
+      source_transaction: "ch_test",
+    };
     harness.testRead.mockImplementation(async (path: string) => {
       if (path === "account") return { id: "acct_test_platform" };
-      return {
-        id: "tr_test",
-        livemode: false,
-        destination: "acct_test_dest",
-        amount: 300,
-        currency: "usd",
-        source_transaction: "ch_test",
-      };
+      if (path.startsWith("transfers?")) return { data: [wrongAmount], has_more: false };
+      return wrongAmount;
     });
     const result = await reconcileTestRelease("test-booking");
     expect(result.status).toBe("REQUIRES_REVIEW");
   });
   it("flags a live-mode transfer as reviewable, never settled", async () => {
+    const liveTransfer = {
+      id: "tr_live",
+      livemode: true,
+      destination: "acct_test_dest",
+      amount: 255,
+      currency: "usd",
+      source_transaction: "ch_test",
+    };
     harness.testRead.mockImplementation(async (path: string) => {
       if (path === "account") return { id: "acct_test_platform" };
-      return {
-        id: "tr_live",
-        livemode: true,
-        destination: "acct_test_dest",
-        amount: 255,
-        currency: "usd",
-        source_transaction: "ch_test",
-      };
+      if (path.startsWith("transfers?")) return { data: [liveTransfer], has_more: false };
+      return liveTransfer;
     });
     const result = await reconcileTestRelease("test-booking");
     expect(result.status).toBe("REQUIRES_REVIEW");
