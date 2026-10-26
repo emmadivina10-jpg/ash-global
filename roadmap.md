@@ -1,5 +1,10 @@
 # Roadmap
 
+## Android lockfile repair (Oct 26)
+- [ ] Reproduce the dependency install failure and repair the appropriate lockfile without unnecessary upgrades or a package-manager bypass.
+- [ ] Validate artifact-only Android installation, sync, signing, versioning and AAB verification while preserving iOS.
+- [ ] Run relevant tests and report exact results; signed AAB remains blocked unless real build infrastructure and signing are available.
+
 ## Google Play Android preparation (Oct 26)
 - [x] Audit existing native identity, dependencies, permissions and Codemagic without changing iOS or production.
 - [x] Harden Android-only sync, signing, release versioning and artifact-only CI; preserve com.ashglogroup.app. Use verified frozen Bun lock rather than stale npm lock.
