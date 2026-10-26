@@ -513,7 +513,7 @@ workflows:
           echo " INSTALLING JAVASCRIPT DEPENDENCIES"
           echo "========================================"
 
-          # The existing npm lock is stale; use the verified current Bun lock.
+          # Existing Android/app manager; iOS retains its separate npm workflow.
           npm install --global bun@1.4.4
           bun install --frozen-lockfile
           # Run the project's own postinstall explicitly (no blanket trust).
@@ -523,6 +523,10 @@ workflows:
         script: |
           set -euo pipefail
           node scripts/android-release-preflight.mjs
+          # Explicit code remains supported. Base + build counter increments automatically.
+          ANDROID_VERSION_CODE=$(node scripts/android-release-preflight.mjs --version-code)
+          export ANDROID_VERSION_CODE
+          printf 'ANDROID_VERSION_CODE=%s\n' "$ANDROID_VERSION_CODE" >> "$CM_ENV"
           test -n "${CM_KEYSTORE_PATH:-}" && test -f "$CM_KEYSTORE_PATH"
           test -n "${CM_KEYSTORE_PASSWORD:-}"
           test -n "${CM_KEY_ALIAS:-}"
@@ -554,7 +558,7 @@ workflows:
       # ============================================================
       - name: Build signed AAB
         script: |
-          set -e
+          set -euo pipefail
 
           echo "========================================"
           echo " BUILDING ANDROID RELEASE"
@@ -573,6 +577,18 @@ workflows:
             echo "ERROR: unsigned Android bundle"
             exit 1
           fi
+          java ../scripts/VerifyAndroidBundle.java "$AAB"
+          # Pin and verify the tool before reading the actual generated manifest.
+          curl --fail --location --silent --show-error \
+            https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar \
+            --output /tmp/ash-bundletool.jar
+          echo 'a099cfa1543f55593bc2ed16a70a7c67fe54b1747bb7301f37fdfd6d91028e29  /tmp/ash-bundletool.jar' | sha256sum --check
+          java -jar /tmp/ash-bundletool.jar validate --bundle="$AAB"
+          PACKAGE=$(java -jar /tmp/ash-bundletool.jar dump manifest --bundle="$AAB" --xpath='/manifest/@package')
+          VERSION=$(java -jar /tmp/ash-bundletool.jar dump manifest --bundle="$AAB" --xpath='/manifest/@android:versionCode')
+          test "$PACKAGE" = 'com.ashglogroup.app'
+          test "$VERSION" = "$ANDROID_VERSION_CODE"
+          printf 'Verified AAB package=%s versionCode=%s\n' "$PACKAGE" "$VERSION"
 
           echo
           echo "========================================"

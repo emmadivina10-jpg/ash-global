@@ -2,6 +2,56 @@
 
 Reviewed October 26, 2026. **Configuration prepared, not verified build-ready or store-ready. No AAB was generated, build started in Codemagic, store upload, deployment or financial operation performed.**
 
+## Follow-up: lockfile repair and artifact verification
+
+### Exact failure and fix
+
+The uploaded brief did not include a Codemagic build log. The current Android command was independently verified by a clean temporary **Bun 1.4.4 frozen installation: 868 packages installed with lifecycle scripts disabled**; no stale Bun lockfile error was reproduced. `package.json` has no `packageManager` field. Existing app/security CI and Android use Bun; the existing successful iOS workflow uses npm 11. Neither manager was changed, and neither lockfile was deleted.
+
+The stale **npm** lockfile failure was reproduced against a clean copy:
+
+```text
+npm 10.9.9: Cannot read properties of null (reading 'edgesOut')
+npm 11.21.1: EUSAGE
+`npm ci` can only install packages when your package.json and package-lock.json ... are in sync.
+Missing: @capacitor/app-launcher@8.0.1 from lock file
+Invalid: @tanstack/react-start@1.168.32 does not satisfy @tanstack/react-start@1.168.60
+Invalid: @lovable.dev/vite-tanstack-config@2.21.0 does not satisfy ...@2.26.5
+```
+
+`package-lock.json` was repaired in a temporary copy using the iOS workflow's npm 11, with `npm install --package-lock-only --ignore-scripts --no-audit --no-fund`, then copied back after a clean `npm ci --ignore-scripts --no-audit --no-fund` succeeded (**865 packages**). Root declarations now exactly match `package.json`. No dependency declaration, Bun resolution, Capacitor/plugin version, iOS native file, or iOS workflow text changed.
+
+The npm lock now adds 364 package records and removes 6. It updates 28 existing version records, not a blanket upgrade: the already-declared TanStack/config changes and their dependency trees, root entities 4.5.0 → 6.0.1, nanoid 3.3.18 → 6.0.2, source-map-js 1.2.1 → 1.2.2 to satisfy the existing override, and dependencies introduced by the manifest additions. These are npm lock alignment changes, not changes to the app's current Bun-installed dependencies. New packages resolve within existing manifest ranges. A signed iOS compile was not executed, so install compatibility is verified, not a new successful iOS archive.
+
+### Android workflow changes
+
+- Keeps existing Bun 1.4.4 frozen install, project postinstall shim, compilation-only web build and Android-only Capacitor sync. `native/www` remains the shipped offline bootstrap; this SSR application's generated server output is not embedded or deployed.
+- Supports an explicit `ANDROID_VERSION_CODE` or automatic `ANDROID_VERSION_CODE_BASE + BUILD_NUMBER`; exports it through `CM_ENV` for subsequent Gradle steps. Optional `ANDROID_PREVIOUS_VERSION_CODE` fails closed unless the result exceeds confirmed Play history. No previous Play version was invented; owner must confirm the base/current maximum.
+- Retains Java 21, SDK 36, existing `ash_glo_keystore`, fail-closed release signing and `bundleRelease`.
+- Checks nonempty AAB, JAR signature, every payload's signing certificate against the configured upload alias, bundletool structural validity, actual manifest **com.ashglogroup.app**, and exact generated versionCode. Bundletool 1.18.3 download is pinned by SHA-256 `a099cfa1543f55593bc2ed16a70a7c67fe54b1747bb7301f37fdfd6d91028e29` and verified locally.
+- Android has no publishing or automatic-trigger block. Existing iOS workflow remains byte-identical, including its pre-existing TestFlight configuration; no iOS build was started.
+
+### Checks executed in this follow-up
+
+- **41/41 Vitest tests:** Android release 15, mobile payment policy 7, payment return 4, push 15.
+- **4/4 isolated Java signature checks:** accepts configured signer; rejects wrong signer, unsigned payload and tampered payload. Disposable test keystore only, generated under `/tmp` and removed; no real signing key used.
+- Clean frozen Bun installation and clean repaired npm installation passed with lifecycle scripts disabled; project postinstall shim executed separately and passed. A frozen Bun lock-only recheck also passed.
+- Android Capacitor sync passed with 10 plugins; generated configuration confirms exact Android package and approved HTTPS host.
+- YAML parses, all Android shell snippets pass `bash -n`, Android artifact-only configuration verified, iOS workflow and native file hashes unchanged, package.json and bun.lock hashes unchanged.
+- Latest automatic preview build reports **build OK**. No manual web build/typecheck, iOS archive or native Gradle compilation was run.
+
+### Changed files in this follow-up
+
+`package-lock.json`, `codemagic.yaml`, `scripts/android-release-preflight.mjs`, new `scripts/VerifyAndroidBundle.java`, `tests/android-release.test.ts`, new `tests/verify-android-bundle.mjs`, `NATIVE.md`, `GOOGLE-PLAY-PREP.md`, `AGENTS.md`, `roadmap.md`. Android sync regenerated existing plugin integration files without changing registered identity or plugin versions.
+
+### Actual artifact result and remaining action
+
+**Signed `.aab`: NOT GENERATED or verified.** No Codemagic API credential/application access or real upload keystore was available. Java 21 was obtained temporarily for fixture verification, but the Android SDK is unavailable. There is no remaining reproduced dependency-install error; a native build result cannot be claimed. No production configuration, payment, transfer, refund, payout, key or deployment changed.
+
+In Codemagic, confirm the existing `ash_glo_keystore` injects **CM_KEYSTORE_PATH, CM_KEYSTORE_PASSWORD, CM_KEY_ALIAS, CM_KEY_PASSWORD** into `android-play` and that `google_play` supplies the confirmed version code/base. Do not replace the registered upload key. Manually run the updated artifact-only workflow from the branch containing these changes, then download `android/app/build/outputs/bundle/release/app-release.aab` only after all package/version/signature checks pass. If it fails, provide that build's failed-step log; the original Codemagic error cannot be attributed to the now-verified Bun install without that evidence. No Play service-account key is required.
+
+The earlier preparation record below is historical; its stale-lock and tool-availability findings are superseded by this follow-up. All store/device blockers remain unresolved unless explicitly verified below.
+
 ## Existing configuration
 
 - Android native project already exists; no replacement or platform regeneration was needed.

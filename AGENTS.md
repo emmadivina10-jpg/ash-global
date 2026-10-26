@@ -11,6 +11,7 @@
 
 - Native composer outside scrolling: no clipping.
 - Native Android release uses platform-scoped Capacitor identity, validated environment versioning and fail-closed keystore signing in artifact-only CI; iOS workflow stays separate. Why: protect registered packages, signing and successful iOS builds without publishing.
+- Keep Bun's frozen lock for app/Android installs and a synchronized npm lock for the existing iOS npm workflow; do not switch managers to bypass failures. Why: preserve successful native dependency resolution without forcing an iOS migration.
 - Inventory: business_id=provider_profiles.id; inventory_can()/inventory_role_of() RLS + inventory_members; stock only via inventory_record_movement ledger. /inventory, inventory.queries.ts. Why: tenant isolation, one stock source.
 
 - Shareholders: shareholders.functions.ts, append-only service-role records; Finance: computeFinanceLedger. Read allFinanceRows in stable order; fail on errors. Why: complete source, no silent truncation/zeros.
