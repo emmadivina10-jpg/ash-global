@@ -74,6 +74,138 @@ export const getStripeEnvironment = createServerFn({ method: "POST" })
     };
   });
 
+export type TestReadinessCheck = {
+  key: string;
+  label: string;
+  ok: boolean;
+  detail: string;
+};
+
+/**
+ * Revenue-console checklist that must pass before test settlements are enabled.
+ * Read-only: verifies configuration and Stripe test-mode state, never settles,
+ * never returns secret values.
+ */
+export const getTestSettlementReadiness = createServerFn({ method: "POST" }).handler(
+  async () => {
+    const { requireDepartment } = await import("./console.server");
+    await requireDepartment("REVENUE");
+    const { stripeEnvironment, stripeTestRead } = await import("./stripe.server");
+    const { testSettlementEnabled } = await import("./stripe-test-settlement.server");
+
+    const checks: TestReadinessCheck[] = [];
+    const env = stripeEnvironment();
+    checks.push({
+      key: "test_credentials",
+      label: "Test API credentials",
+      ok: env.test,
+      detail: env.test
+        ? "A test secret key (sk_test_/rk_test_) is configured and isolated from live keys."
+        : "No test secret key is configured.",
+    });
+
+    let endpointOk = false;
+    let endpointDetail = "Skipped until test credentials are configured.";
+    if (env.test) {
+      try {
+        const endpoints = await stripeTestRead("webhook_endpoints?limit=100");
+        const rows =
+          (endpoints["data"] as Array<{ url?: string; status?: string }> | undefined) ?? [];
+        const match = rows.find(
+          (e) =>
+            e.status === "enabled" &&
+            typeof e.url === "string" &&
+            e.url.includes("/api/public/webhooks/stripe"),
+        );
+        endpointOk = Boolean(match);
+        endpointDetail = match
+          ? `Enabled test endpoint points to ${match.url}.`
+          : rows.length > 0
+            ? `${rows.length} test endpoint(s) exist, but none enabled for this app's webhook URL (${rows
+                .map((e) => e.url)
+                .filter(Boolean)
+                .join(", ")}).`
+            : "No test-mode webhook endpoint exists yet.";
+      } catch {
+        endpointDetail = "Test webhook endpoints could not be read from Stripe.";
+      }
+    }
+    checks.push({
+      key: "test_webhook_endpoint",
+      label: "Test webhook endpoint",
+      ok: endpointOk,
+      detail: endpointDetail,
+    });
+
+    const whsec = process.env["STRIPE_TEST_WEBHOOK_SECRET"] ?? "";
+    checks.push({
+      key: "test_signing_secret",
+      label: "Test signing secret",
+      ok: whsec.startsWith("whsec_"),
+      detail: whsec.startsWith("whsec_")
+        ? "Saved. It is proven against the endpoint when the first signed test event arrives."
+        : "No test webhook signing secret is saved.",
+    });
+
+    let mappingOk = false;
+    let mappingDetail = "Skipped until test credentials are configured.";
+    if (env.test) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: mappings, error } = await supabaseAdmin
+        .from("profiles")
+        .select("stripe_account_id")
+        .not("stripe_account_id", "is", null)
+        .limit(10);
+      if (error) {
+        mappingDetail = "Provider account mappings could not be read.";
+      } else {
+        let testMapped = 0;
+        let liveOnly = 0;
+        for (const row of mappings ?? []) {
+          const id = String(row.stripe_account_id ?? "");
+          if (!id) continue;
+          try {
+            const account = await stripeTestRead(`accounts/${encodeURIComponent(id)}`);
+            if (account["livemode"] === false) testMapped += 1;
+            else liveOnly += 1;
+          } catch {
+            // Live account IDs do not exist in test mode.
+            liveOnly += 1;
+          }
+        }
+        mappingOk = testMapped > 0;
+        mappingDetail =
+          testMapped > 0
+            ? `${testMapped} provider mapping(s) point to test-mode connected account(s).`
+            : liveOnly > 0
+              ? `${liveOnly} provider mapping(s) point to live accounts only — no test provider account is mapped yet.`
+              : "No provider has a connected-account mapping yet.";
+      }
+    }
+    checks.push({
+      key: "test_provider_mapping",
+      label: "Test provider account mapping",
+      ok: mappingOk,
+      detail: mappingDetail,
+    });
+
+    const enabled = testSettlementEnabled();
+    checks.push({
+      key: "test_settlement_flag",
+      label: "Test settlement flag",
+      ok: enabled,
+      detail: enabled
+        ? "STRIPE_TEST_SETTLEMENT_ENABLED is on."
+        : "Off. Enable it only after every check above passes, and only on an isolated backend.",
+    });
+
+    const ready = checks
+      .filter((c) => c.key !== "test_settlement_flag")
+      .every((c) => c.ok);
+    return { checks, ready };
+  },
+);
+
 /** Read-only booking-party view; payout records aggregate account funds. */
 export const getBookingStripeStages = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
