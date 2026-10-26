@@ -1,5 +1,8 @@
 # Roadmap
 
+## Platform swap request (Oct 26)
+- [ ] Resolve requested platform identity before any migration: ASH already uses acct_1U3ozTBQjimtCBr2; newly supplied provider account is accessible under acct_1Tmk32K8yU6AxPux. Existing charges cannot be migrated by changing credentials or mapping. Blocked pending corrected scope; no changes or money movement.
+
 ## Exact provider Connect mapping (Oct 26)
 - [x] Read-only API verifies requested account email, active transfers, enabled payouts and no outstanding requirements. New key's platform is acct_1Tmk32K8yU6AxPux; ASH connector and saved controls both identify acct_1U3ozTBQjimtCBr2.
 - [ ] Update only the verified provider mapping — blocked by confirmed platform mismatch; mapping remains acct_1UPEdkBW0j2DfZbS, bookings and other providers untouched.
