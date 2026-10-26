@@ -397,3 +397,9 @@ Messages/Market checks: signed-in Market default and reload persistence, Extras 
 - [x] Root cause: the presence read policy only allowed friends (or self) to see a member's online state, so anyone texting you who wasn't a friend never showed the dot.
 - [x] Applied migration 0033_conversation_partners_view_presence: signed-in members can now see the online state of anyone they share a conversation with (direct, listing, or provider chats). Group chats and strangers remain excluded.
 - [ ] Live two-account visual confirmation — not performed; signing in as the other member's account was declined. Owner can verify in their own preview: the texting partner's dot appears within about a minute.
+
+## Stripe Connect live activation (Oct 26)
+- [x] Enabled the ASH Marketplace webhook endpoint on Stripe (was disabled) with checkout, refund, dispute and transfer events.
+- [x] Created a Connect webhook endpoint for provider account and payout events; webhook route now accepts both endpoint signing secrets (STRIPE_WEBHOOK_SECRET + STRIPE_WEBHOOK_CONNECT_SECRET, saved by owner).
+- [x] Switched on live provider transfers (code flag + marketplace control) after owner approval; 2 ELIGIBLE bookings await authorized dispatch from the Revenue console.
+- [x] 67 Stripe safety tests pass; preview build OK. Nothing published.
