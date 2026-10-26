@@ -268,7 +268,11 @@ export async function verifyTestBookingService(input: {
     .select("payment_provider, payment_reference, provider_id, provider_profiles(user_id)")
     .eq("id", input.bookingId)
     .single();
-  const provider = booking?.provider_profiles;
+  const provider = booking?.provider_profiles as
+    | { user_id?: string }
+    | Array<{ user_id?: string }>
+    | null
+    | undefined;
   if (
     bookingError ||
     !provider ||
