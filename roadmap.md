@@ -410,3 +410,11 @@ Messages/Market checks: signed-in Market default and reload persistence, Extras 
 - [x] LIVE/TEST badge on the payments console; release view now reports the real transfer flag.
 - [x] 78 Stripe tests pass (11 new). No live settings, credentials or money touched; nothing published.
 - [ ] Owner: create the test-mode webhook endpoint in the Stripe dashboard (test mode → Developers → Webhooks, same URL) — cannot be created with live keys.
+
+## Stripe test-only settlement path (Oct 26)
+- [x] Gated test settlement module (stripe-test-settlement.server.ts): flag + livemode=false + test creds + STRIPE_TEST/BKG-TEST- records
+- [x] Test-mode Stripe helpers (stripeTestRead/stripeTestTransfer) in stripe.server.ts; webhook route sends test events to gated handler (flag off = acknowledge-only)
+- [x] 25 fixture tests: full workflow, gates, duplicates, refund/dispute holds, concurrency, insufficient balance, amount caps
+- [ ] User: create test-mode webhook endpoint for ashglogroup.company/api/public/webhooks/stripe (current test endpoint points to an old Replit URL) and save its signing secret
+- [ ] User: create a CA test-mode Express account for the test provider
+- [ ] Blocked: real SQL end-to-end needs an isolated backend (shared DB is production); then set STRIPE_TEST_SETTLEMENT_ENABLED=true there only

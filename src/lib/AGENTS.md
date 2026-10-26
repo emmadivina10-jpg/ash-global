@@ -1,6 +1,7 @@
 # src/lib rules
 - Stripe booking releases use a durable service-only webhook inbox and release ledger, source-charge evidence, helper-level live-execution gates and default-off database controls; transfer and bank payout are distinct states, and payout events read current state under connected-account scope. Why: wallet balances cannot prove money moved, stale events cannot prove payout state and ambiguous requests must reconcile rather than repay.
 - Stripe webhook and reconciliation fixture tests replace the server database and Stripe modules and forbid network access; real SQL validation requires positively confirmed backend isolation. Why: preview and drafts may share production, so fixture success cannot prove database concurrency or real delivery.
+- Test-only Stripe settlement lives in stripe-test-settlement.server.ts: gated by STRIPE_TEST_SETTLEMENT_ENABLED + livemode=false + STRIPE_TEST provider/BKG-TEST- records, uses test keys only (stripeTestRead/stripeTestTransfer), fixture-tested. Why: test events must never settle production bookings or touch live money.
 - Card bookings confirm via the signed webhook or a server Stripe read of their own Checkout session (reference/amount/currency match) through settleCollection. Why: no ASH webhook on TD yet; never trust the browser.
 - Account erasure uses account-erasure.server.ts; approval stays blocked until a reviewed field-level retention schedule and cascade-safe persistence adapter exist. Why: Auth deletion currently destroys financial history, while profile closure is not erasure.
 

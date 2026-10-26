@@ -29,12 +29,24 @@ export const Route = createFileRoute("/api/public/webhooks/stripe")({
           }
         }
         if (!valid) {
-          // Test-mode events are signed with the test endpoint's own secret:
-          // verify and acknowledge them, but never settle live records from
-          // test data (the handler also requires livemode events).
+          // Test-mode events are signed with the test endpoint's own secret.
+          // With test settlement disabled (the default) they are acknowledged
+          // but never settled; when explicitly enabled they go through the
+          // gated test-only path, which can never touch live records.
           const testSecret = process.env["STRIPE_TEST_WEBHOOK_SECRET"] ?? "";
           if (testSecret && (await verifyStripeSignature(body, header, testSecret))) {
-            return new Response("ok (test event acknowledged, not settled)");
+            const { testSettlementEnabled, handleTestMarketplaceEvent } = await import(
+              "@/lib/stripe-test-settlement.server"
+            );
+            if (!testSettlementEnabled())
+              return new Response("ok (test event acknowledged, not settled)");
+            let testEvent: unknown;
+            try {
+              testEvent = JSON.parse(body);
+            } catch {
+              return new Response("Bad payload", { status: 400 });
+            }
+            return handleTestMarketplaceEvent(testEvent);
           }
           return new Response("Invalid signature", { status: 400 });
         }
