@@ -9,6 +9,7 @@ import {
   LIVE_PROVIDER_TRANSFERS_ENABLED,
   LIVE_PROVIDER_ONBOARDING_ENABLED,
 } from "./stripe-release-policy";
+import { minimumChargeMinor } from "./stripe-mode";
 export const XAF_PER_USD = 620;
 
 export function xafToUsdCents(xaf: number): number {
@@ -19,6 +20,17 @@ export function xafToUsdCents(xaf: number): number {
 function key(): string | null {
   const value = process.env["STRIPE_SECRET_KEY"];
   return value && (value.startsWith("sk_live_") || value.startsWith("rk_live_")) ? value : null;
+}
+
+/** Test credentials are accepted ONLY here; live paths above reject them. */
+function testKey(): string | null {
+  const value = process.env["STRIPE_TEST_SECRET_KEY"];
+  return value && (value.startsWith("sk_test_") || value.startsWith("rk_test_")) ? value : null;
+}
+
+/** Which Stripe environments are configured. Live and test never share keys. */
+export function stripeEnvironment(): { live: boolean; test: boolean } {
+  return { live: key() !== null, test: testKey() !== null };
 }
 
 async function stripeRequest(
@@ -71,6 +83,17 @@ export const stripePay = {
     cancelUrl: string;
     metadata?: Record<string, string>;
   }): Promise<StripeSession> {
+    // Below the measured minimum, the Stripe fee exceeds ASH's commission and
+    // the platform would lose money. Reject; never silently raise the price.
+    if (input.amountCents < minimumChargeMinor(input.currency)) {
+      return {
+        ok: false,
+        configured: true,
+        id: null,
+        checkoutUrl: null,
+        error: "BELOW_MINIMUM_CHARGE",
+      };
+    }
     if (!key()) {
       return {
         ok: false,

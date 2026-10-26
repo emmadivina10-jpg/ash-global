@@ -28,7 +28,16 @@ export const Route = createFileRoute("/api/public/webhooks/stripe")({
             break;
           }
         }
-        if (!valid) return new Response("Invalid signature", { status: 400 });
+        if (!valid) {
+          // Test-mode events are signed with the test endpoint's own secret:
+          // verify and acknowledge them, but never settle live records from
+          // test data (the handler also requires livemode events).
+          const testSecret = process.env["STRIPE_TEST_WEBHOOK_SECRET"] ?? "";
+          if (testSecret && (await verifyStripeSignature(body, header, testSecret))) {
+            return new Response("ok (test event acknowledged, not settled)");
+          }
+          return new Response("Invalid signature", { status: 400 });
+        }
 
         let event: { id?: string; type?: string; data?: { object?: Record<string, unknown> } };
         try {

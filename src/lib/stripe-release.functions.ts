@@ -62,6 +62,18 @@ export const dispatchProviderReleases = createServerFn({ method: "POST" }).handl
   return dispatchEligibleReleases();
 });
 
+/** Console indicator: which Stripe environments hold credentials. */
+export const getStripeEnvironment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    const { stripeEnvironment } = await import("./stripe.server");
+    const env = stripeEnvironment();
+    return {
+      mode: env.live ? ("LIVE" as const) : env.test ? ("TEST" as const) : ("UNCONFIGURED" as const),
+      testAvailable: env.test,
+    };
+  });
+
 /** Read-only booking-party view; payout records aggregate account funds. */
 export const getBookingStripeStages = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -134,6 +146,6 @@ export const getBookingStripeStages = createServerFn({ method: "POST" })
           : "NO_VERIFIED_PAYABLE",
       payouts,
       payoutReadStatus,
-      liveTransfersEnabled: false,
+      liveTransfersEnabled: LIVE_PROVIDER_TRANSFERS_ENABLED,
     };
   });
