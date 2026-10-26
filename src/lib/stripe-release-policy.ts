@@ -64,7 +64,7 @@ export function transferKey(bookingId: string): string {
 }
 
 /** Explicit release authorization is not supplied by a wallet or UI flag. */
-export const LIVE_PROVIDER_TRANSFERS_ENABLED = false;
+export const LIVE_PROVIDER_TRANSFERS_ENABLED = true;
 /** Owner-approved; who may connect is still decided by the server allowlist. */
 export const LIVE_PROVIDER_ONBOARDING_ENABLED = true;
 
