@@ -1,5 +1,10 @@
 # Roadmap
 
+## Exact provider Connect mapping (Oct 26)
+- [ ] Verify acct_1UUgT5GkxZxpSFG8 platform ownership, provider identity, transfer capability and payout eligibility read-only.
+- [ ] Update only the verified provider mapping if every identity check passes; preserve bookings, other providers and all financial safeguards. Stop on unverified platform identity.
+- [ ] Read back the mapping and report changes/blockers; no Stripe account creation, money movement or publishing.
+
 ## Separate Connect credential review (Oct 26)
 - [x] Inspect existing Stripe credential boundaries before any code or secret change.
 - [x] Securely collect STRIPE_CONNECT_SECRET_KEY and execute read-only platform/provider API probes; new platform GET succeeds, existing-key GET remains IP-blocked, mapped provider GET fails (account_invalid / forbidden).
