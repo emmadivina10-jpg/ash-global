@@ -1,5 +1,10 @@
 # Roadmap
 
+## Public account deletion request (Oct 27)
+- [ ] Create public /delete-account using existing secure Support intake, email-only identification and manual identity verification; no automatic erasure.
+- [ ] Add website/app links and truthful retention/processing disclosures in English/French.
+- [ ] Test a signed-out submission, confirm the saved Support record and staff notification, remove only test records, and verify public access; no publishing without approval.
+
 ## English and French language switching (Oct 27)
 - [x] Restrict interface language choices to English/French and fix immediate, persistent switching, including blocked storage and cross-tab updates.
 - [x] Translate observed Feed/Story, Messages, Wallet, withdrawal, status, shared confirmation and sign-in gaps; preserve user content and payment behavior.

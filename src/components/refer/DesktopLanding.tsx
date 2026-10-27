@@ -715,6 +715,7 @@ export function DesktopLanding() {
           <h3>{tx("Legal", "Informations légales")}</h3>
           <Link to="/privacy">{tx("Privacy Policy", "Confidentialité")}</Link>
           <Link to="/terms">{tx("Terms of Service", "Conditions d’utilisation")}</Link>
+          <Link to="/delete-account">{tx("Account & data deletion", "Suppression du compte et des données")}</Link>
           <Link to="/referral-wallet-terms">
             {tx("Referral & Wallet Terms", "Parrainage et portefeuille")}
           </Link>

@@ -33,6 +33,7 @@
 - Read nested AGENTS.md first. Why: security.
 - Staff metrics/presence share member-insights.functions.ts; AppShell awaits authenticated heartbeats; member-review.server.ts guards review; staff AI storage is service-only. Why: accurate status, private history.
 - Human Support reuses support.functions.ts and ticket/read records; support-state.ts owns notifications; AI chat stays separate. Why: no duplicate messaging or schema.
+- Public deletion intake uses validated deletion-request.functions.ts and existing Support tickets, never email-to-user binding or automatic erasure; staff verify ownership before action. Why: public access without account enumeration or destructive unauthenticated operations.
 - Checkout uses payment-return.ts; CompassSurface owns Map/Wallet in a shared dialog with scoped overlay; BookingTracking is shared inline/Compass. PullToRefresh excludes controls. Why: safe returns, accessible dismissal.
 - Booking actions use booking-payment-state.ts; Stripe/bank checks refresh saved evidence; Mobile Money checks are serialized with inline outcomes. Why: pending status must not invite duplicate payment or imply settlement.
 - Tracking: parties opt in via share_booking_party_location (active bookings, cleared on end); Leaflet/OSM map client-only. Why: works worldwide, no key or address.

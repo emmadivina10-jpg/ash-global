@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 import { template as supportReplyTemplate } from "./support-reply";
 import { template as supportReceivedTemplate } from "./support-received";
 import { template as ashOutreachTemplate } from "./ash-outreach";
+import { template as deletionRequestNotification } from "./deletion-request-notification";
 
 export interface TemplateEntry {
   component: ComponentType<any>;
@@ -20,4 +21,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   "support-reply": supportReplyTemplate,
   "support-received": supportReceivedTemplate,
   "ash-outreach": ashOutreachTemplate,
+  "deletion-request-notification": deletionRequestNotification,
 };

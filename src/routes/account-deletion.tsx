@@ -109,6 +109,7 @@ export function AccountDeletionContent() {
       </section>
 
       <div className="flex flex-wrap gap-3">
+        <Button asChild><Link to="/delete-account">Request deletion without signing in</Link></Button>
         <Button asChild>
           <Link to="/settings">Open Settings</Link>
         </Button>
