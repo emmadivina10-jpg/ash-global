@@ -65,7 +65,8 @@ function parseMedia(value: unknown): SpotlightMedia[] {
     const record = entry as Record<string, unknown>;
     const path = typeof record["path"] === "string" ? record["path"] : "";
     if (!path) return [];
-    const type = record["type"] === "video" ? "video" : "image";
+    const type =
+      record["type"] === "video" || /\.(mp4|mov|m4v|webm|3gp|mkv)$/i.test(path) ? "video" : "image";
     return [{ path, type } as SpotlightMedia];
   });
 }
