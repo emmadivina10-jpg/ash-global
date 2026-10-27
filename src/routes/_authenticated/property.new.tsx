@@ -43,7 +43,7 @@ export const Route = createFileRoute("/_authenticated/property/new")({
     ],
   }),
   validateSearch: (search: Record<string, unknown>): { edit?: string } =>
-    typeof search.edit === "string" && search.edit ? { edit: search.edit } : {},
+    typeof search["edit"] === "string" && search["edit"] ? { edit: search["edit"] } : {},
   component: NewProperty,
 });
 
