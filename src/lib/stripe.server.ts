@@ -447,8 +447,30 @@ export async function stripeRead(
   connectedAccount?: string,
 ): Promise<Record<string, unknown>> {
   const result = await stripeRequest(path, connectedAccount ? { connectedAccount } : undefined);
-  if (!result.ok) throw new Error("STRIPE_READ_FAILED");
+  if (!result.ok) throw new StripeReadError(result.status, result.data);
   return result.data;
+}
+
+/**
+ * Sanitized Stripe read failure: carries only the HTTP status, Stripe's error
+ * code/type and request id — never the key, request body or customer data.
+ */
+export class StripeReadError extends Error {
+  readonly status: number;
+  readonly code: string | null;
+  readonly type: string | null;
+  readonly requestId: string | null;
+  constructor(status: number, data: Record<string, unknown>) {
+    super("STRIPE_READ_FAILED");
+    this.name = "StripeReadError";
+    const err = (data["error"] ?? {}) as Record<string, unknown>;
+    const safe = (v: unknown) =>
+      typeof v === "string" && /^[A-Za-z0-9_.-]{1,80}$/.test(v) ? v : null;
+    this.status = status;
+    this.code = safe(err["code"]);
+    this.type = safe(err["type"]);
+    this.requestId = safe(err["request_log_url"] ? String(err["request_log_url"]).split("/").pop() : null);
+  }
 }
 
 /* ------------------------------------------------------------------ */
