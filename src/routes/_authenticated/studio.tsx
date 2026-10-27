@@ -257,6 +257,10 @@ function StudioPage() {
       toast.error(t("pro.saveErr"));
       return;
     }
+    if (!meetsMinimumPrice(price)) {
+      toast.error(minPriceMessage());
+      return;
+    }
     setAddingService(true);
     const { data: inserted, error } = await supabase
       .from("provider_services")
@@ -297,6 +301,10 @@ function StudioPage() {
       duration <= 0
     ) {
       toast.error(t("pro.saveErr"));
+      return;
+    }
+    if (!meetsMinimumPrice(price)) {
+      toast.error(minPriceMessage());
       return;
     }
     setSavingService(true);
@@ -627,8 +635,8 @@ function StudioPage() {
               />
               <Input
                 type="number"
-                min={1}
-                placeholder={t("pro.price")}
+                min={MIN_SERVICE_PRICE_XAF}
+                placeholder={`${t("pro.price")} (min ${MIN_SERVICE_PRICE_XAF.toLocaleString()} XAF)`}
                 value={service.price}
                 onChange={(e) => setService({ ...service, price: e.target.value })}
                 required
