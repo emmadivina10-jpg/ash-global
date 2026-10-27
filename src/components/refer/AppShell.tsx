@@ -20,6 +20,7 @@ import {
   Settings as SettingsIcon,
   Shield,
   Plane,
+  Clapperboard,
   Sparkles,
   Menu,
   Users,
@@ -80,13 +81,14 @@ type NavItem = {
 const MOBILE_NAV: NavItem[] = [
   { to: "/feed", en: "Feed", fr: "Fil", icon: Flame, tour: "feed" },
   { to: "/services", en: "Services", fr: "Services", icon: Sparkles, tour: "market" },
-  { to: "/flights", en: "Flights", fr: "Vols", icon: Plane },
+  { to: "/spotlight", en: "Spotlight", fr: "Spotlight", icon: Clapperboard },
   { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle, tour: "messages" },
 ];
 
 const DESKTOP_NAV: NavItem[] = [
   { to: "/services", key: "nav.services" as TKey, icon: Store, tour: "market" },
   { to: "/feed", en: "Feed", fr: "Fil", icon: Flame, tour: "feed" },
+  { to: "/spotlight", en: "Spotlight", fr: "Spotlight", icon: Clapperboard },
   { to: "/flights", en: "Flights", fr: "Vols", icon: Plane },
   { to: "/search", key: "nav.search" as TKey, label: "Search", icon: Search, tour: "search" },
   { to: "/campus", en: "Learn", fr: "Apprendre", label: "Learn", icon: GraduationCap },
@@ -181,11 +183,20 @@ export function AppShell({ children }: { children: ReactNode }) {
   const onFeed = pathname === "/feed" || pathname === "/feed/";
   // Member profiles opened from the feed get a back arrow instead of the logo bar.
   const onMemberProfile = /^\/u\/.+/.test(pathname);
+  // Every screen that isn't a main tab gets a Back button to where the member came from.
+  const topLevel = ["/feed", "/services", "/services/extras", "/spotlight", "/messages", "/menu"].includes(
+    pathname.replace(/\/$/, "") || "/",
+  );
+  const showBack = onMemberProfile || !topLevel;
+  const goBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) window.history.back();
+    else void navigate({ to: "/feed" });
+  };
   const logoOnlyHeader = true; // Keep existing non-feed header controls unchanged.
-  const pageOwnsHeader = ["/messages", "/services", "/flights", "/menu"].some(
+  const pageOwnsHeader = ["/messages", "/services", "/flights", "/spotlight", "/menu"].some(
     (path) => pathname === path || pathname.startsWith(`${path}/`),
   );
-  const roomyMemberTab = ["/feed", "/services", "/flights", "/menu"].some(
+  const roomyMemberTab = ["/feed", "/services", "/spotlight", "/menu"].some(
     (path) => pathname === path || pathname === `${path}/` || pathname === `${path}/extras`,
   );
 
@@ -320,6 +331,17 @@ export function AppShell({ children }: { children: ReactNode }) {
               )}
             >
               <div className="flex items-center justify-end gap-1.5 px-6 py-2.5">
+                {showBack && (
+                  <button
+                    type="button"
+                    aria-label={t("shell.back")}
+                    onClick={goBack}
+                    className="mr-auto inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+                  >
+                    <ArrowLeft className="size-4" aria-hidden />
+                    {lang === "fr" ? "Retour" : "Back"}
+                  </button>
+                )}
                 {onFeed && (
                   <Link to="/feed" className="mr-auto text-xl font-bold text-foreground">
                     {lang === "fr" ? "Fil" : "Feed"}
@@ -444,15 +466,11 @@ export function AppShell({ children }: { children: ReactNode }) {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 )}
-                {onMemberProfile ? (
+                {showBack ? (
                   <button
                     type="button"
                     aria-label={t("shell.back")}
-                    onClick={() => {
-                      if (typeof window !== "undefined" && window.history.length > 1)
-                        window.history.back();
-                      else void navigate({ to: "/feed" });
-                    }}
+                    onClick={goBack}
                     className="grid size-10 shrink-0 place-items-center justify-self-start rounded-full text-foreground transition-colors hover:bg-muted active:opacity-80"
                   >
                     <ArrowLeft className="size-5" aria-hidden />
@@ -475,6 +493,20 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </div>
               </div>
             </header>
+          )}
+
+          {pageOwnsHeader && showBack && (
+            <div className="sticky top-0 z-30 flex items-center bg-background/85 px-2 py-1.5 backdrop-blur-xl">
+              <button
+                type="button"
+                aria-label={t("shell.back")}
+                onClick={goBack}
+                className="inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+              >
+                <ArrowLeft className="size-5" aria-hidden />
+                {lang === "fr" ? "Retour" : "Back"}
+              </button>
+            </div>
           )}
 
           {profile && <SecurityAlertBanner />}
