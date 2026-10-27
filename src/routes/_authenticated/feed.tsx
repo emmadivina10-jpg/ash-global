@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { extractTags, recordTagInterest } from "@/lib/interests";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Camera, Gift, ImagePlus, Loader2, Plus, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "@/components/refer/AvatarUpload";
@@ -74,6 +74,7 @@ function FeedPage() {
     { authorId: string; kind: "spotlight"; spotlightId: string } | undefined
   >();
   // Spotlights keep their slots too, so the Feed never shuffles under the reader.
+  const navigate = useNavigate();
   const mixed = useMemo(() => interleaveSpotlights(posts ?? [], spotlights), [posts, spotlights]);
   const create = useCreateSocialPost();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -369,11 +370,7 @@ function FeedPage() {
                     key={`spotlight:${entry.item.id}`}
                     spotlight={entry.item}
                     onOpen={() =>
-                      setSpotlightRequest({
-                        authorId: entry.item.provider.user_id ?? "",
-                        kind: "spotlight",
-                        spotlightId: entry.item.id,
-                      })
+                      void navigate({ to: "/spotlight", search: { open: entry.item.id } })
                     }
                   />
                 );

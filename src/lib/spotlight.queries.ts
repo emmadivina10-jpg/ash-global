@@ -27,6 +27,7 @@ export type SpotlightEntry = {
   media_type: "image" | "video";
   source: "post" | "portfolio";
   author_id: string | null;
+  comment_count?: number;
   reaction_count: number;
   reaction_breakdown: ReactionBreakdown;
   current_reaction: ReactionType | null;
@@ -64,7 +65,8 @@ function parseMedia(value: unknown): SpotlightMedia[] {
     const record = entry as Record<string, unknown>;
     const path = typeof record["path"] === "string" ? record["path"] : "";
     if (!path) return [];
-    const type = record["type"] === "video" ? "video" : "image";
+    const type =
+      record["type"] === "video" || /\.(mp4|mov|m4v|webm|3gp|mkv)$/i.test(path) ? "video" : "image";
     return [{ path, type } as SpotlightMedia];
   });
 }
@@ -82,6 +84,8 @@ export function useSpotlightFeed(limit = 18) {
           .from("spotlight_posts")
           .select("id, author_id, provider_id, caption, media, created_at")
           .eq("is_published", true)
+          // Spotlights (and their likes and comments) last 30 days.
+          .gt("created_at", new Date(Date.now() - SPOTLIGHT_LIFETIME_MS).toISOString())
           .order("created_at", { ascending: false })
           .limit(limit),
         supabase
@@ -112,7 +116,7 @@ export function useSpotlightFeed(limit = 18) {
 
       const { data: auth } = await supabase.auth.getUser();
       const since = new Date(Date.now() - 5 * 60_000).toISOString();
-      const [profilesResult, providersResult, reactionsResult, presenceResult] = await Promise.all([
+      const [profilesResult, providersResult, reactionsResult, presenceResult, commentsResult] = await Promise.all([
         authorIds.length
           ? directory()
               .select("user_id, full_name, avatar_url, verified_tier, verified_until")
@@ -140,7 +144,19 @@ export function useSpotlightFeed(limit = 18) {
               .in("user_id", authorIds)
               .gte("last_active_at", since)
           : Promise.resolve({ data: [] }),
+        postRows.length
+          ? supabase
+              .from("spotlight_comments")
+              .select("spotlight_id")
+              .in(
+                "spotlight_id",
+                postRows.map((row) => row.id),
+              )
+          : Promise.resolve({ data: [] }),
       ]);
+      const commentCounts = new Map<string, number>();
+      for (const c of (commentsResult.data ?? []) as { spotlight_id: string }[])
+        commentCounts.set(c.spotlight_id, (commentCounts.get(c.spotlight_id) ?? 0) + 1);
       const onlineIds = new Set((presenceResult.data ?? []).map((row) => row.user_id));
 
       const profiles = new Map(
@@ -197,13 +213,18 @@ export function useSpotlightFeed(limit = 18) {
             media_type: first.type,
             source: "post",
             author_id: row.author_id,
+            comment_count: commentCounts.get(row.id) ?? 0,
             reaction_count: reactions.length,
             reaction_breakdown: breakdown,
             current_reaction:
               (reactions.find((item) => item.user_id === auth.user?.id)?.reaction_type as
                 ReactionType | undefined) ?? null,
             provider: storefront
-              ? { ...storefront, online: onlineIds.has(row.author_id) }
+              ? {
+                  ...storefront,
+                  avatar_url: storefront.avatar_url || profile?.avatar_url || null,
+                  online: onlineIds.has(row.author_id),
+                }
               : {
                   id: "",
                   business_name: profile?.full_name ?? "Profile",
@@ -263,6 +284,79 @@ export function useSpotlightFeed(limit = 18) {
   });
 }
 
+export const SPOTLIGHT_LIFETIME_MS = 30 * 24 * 60 * 60 * 1000;
+
+/** Feed entries are keyed "post:<uuid>"; the database wants the bare uuid. */
+export function spotlightDbId(entryId: string): string {
+  return entryId.startsWith("post:") ? entryId.slice(5) : entryId;
+}
+
+export type SpotlightComment = {
+  id: string;
+  author_id: string;
+  body: string;
+  created_at: string;
+  author: { full_name: string; avatar_url: string | null } | null;
+};
+
+export function useSpotlightComments(entryId: string | null) {
+  const id = entryId ? spotlightDbId(entryId) : null;
+  return useQuery({
+    queryKey: ["spotlight-comments", id],
+    enabled: Boolean(id),
+    queryFn: async (): Promise<SpotlightComment[]> => {
+      const { data, error } = await supabase
+        .from("spotlight_comments")
+        .select("id, author_id, body, created_at")
+        .eq("spotlight_id", id!)
+        .order("created_at", { ascending: true })
+        .limit(200);
+      if (error) throw error;
+      const ids = Array.from(new Set((data ?? []).map((c) => c.author_id)));
+      const { data: people } = ids.length
+        ? await directory().select("user_id, full_name, avatar_url").in("user_id", ids)
+        : { data: [] };
+      const map = new Map(
+        ((people ?? []) as { user_id: string; full_name: string; avatar_url: string | null }[]).map(
+          (p) => [p.user_id, p],
+        ),
+      );
+      return (data ?? []).map((c) => ({ ...c, author: map.get(c.author_id) ?? null }));
+    },
+  });
+}
+
+export function useAddSpotlightComment(entryId: string) {
+  const queryClient = useQueryClient();
+  const id = spotlightDbId(entryId);
+  return useMutation({
+    mutationFn: async (body: string) => {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) throw new Error("Sign in required");
+      const { error } = await supabase
+        .from("spotlight_comments")
+        .insert({ spotlight_id: id, author_id: auth.user.id, body: body.trim().slice(0, 1000) });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["spotlight-comments", id] });
+      void queryClient.invalidateQueries({ queryKey: ["spotlight-feed"] });
+    },
+  });
+}
+
+export function useDeleteSpotlightComment(entryId: string) {
+  const queryClient = useQueryClient();
+  const id = spotlightDbId(entryId);
+  return useMutation({
+    mutationFn: async (commentId: string) => {
+      const { error } = await supabase.from("spotlight_comments").delete().eq("id", commentId);
+      if (error) throw error;
+    },
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["spotlight-comments", id] }),
+  });
+}
+
 export function useSetSpotlightReaction() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -274,7 +368,7 @@ export function useSetSpotlightReaction() {
       reaction: ReactionType | null;
     }) => {
       const { error } = await supabase.rpc("set_spotlight_reaction", {
-        _spotlight_id: spotlightId,
+        _spotlight_id: spotlightDbId(spotlightId),
         _reaction_type: reaction ?? "",
       });
       if (error) throw error;
