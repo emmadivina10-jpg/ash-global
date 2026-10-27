@@ -193,7 +193,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const topLevel = ["/feed", "/services", "/services/extras", "/spotlight", "/messages", "/menu"].includes(
     pathname.replace(/\/$/, "") || "/",
   );
-  const showBack = onMemberProfile || !topLevel;
+  // Back arrows only on member profiles; tapping the current tab returns to the top instead.
+  const showBack = onMemberProfile;
+  void topLevel;
   const goBack = () => {
     if (typeof window !== "undefined" && window.history.length > 1) window.history.back();
     else void navigate({ to: "/feed" });
@@ -533,19 +535,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             </header>
           )}
 
-          {pageOwnsHeader && showBack && (
-            <div className="sticky top-0 z-30 flex items-center bg-background/85 px-2 py-1.5 backdrop-blur-xl">
-              <button
-                type="button"
-                aria-label={t("shell.back")}
-                onClick={goBack}
-                className="inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
-              >
-                <ArrowLeft className="size-5" aria-hidden />
-                {lang === "fr" ? "Retour" : "Back"}
-              </button>
-            </div>
-          )}
 
           {profile && <SecurityAlertBanner />}
           {profile && (

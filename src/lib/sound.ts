@@ -64,7 +64,7 @@ export function setUiSoundMuted(muted: boolean) {
  */
 type Note = { f: number; at: number; dur: number; vol?: number };
 
-function playBell(notes: Note[], master: number) {
+export function playBell(notes: Note[], master: number) {
   const ctx = context();
   if (!ctx) return;
   try {
@@ -117,7 +117,7 @@ export function playTabSound(): void {
     const gain = ctx.createGain();
     gain.connect(ctx.destination);
     gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(0.19, now + 0.002);
+    gain.gain.exponentialRampToValueAtTime(0.07, now + 0.002);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.055);
     const pop = ctx.createOscillator();
     pop.type = "sine";
@@ -131,28 +131,43 @@ export function playTabSound(): void {
   }
 }
 
-/** Gentle rising chime when a pull-to-refresh is released. */
-export function playRefreshSound(): void {
-  if (typeof window === "undefined" || uiSoundMuted()) return;
-  playBell(
-    [
-      { f: 523.25, at: 0, dur: 0.14 }, // C5
-      { f: 783.99, at: 0.07, dur: 0.2 }, // G5
-    ],
-    0.12,
-  );
+/**
+ * Facebook-style refresh "pop": a short, soft water-drop bloop whose pitch
+ * slides up quickly. Synthesised, so no audio file is bundled.
+ */
+function playPop(startHz: number, endHz: number, volume: number, length = 0.09) {
+  const ctx = context();
+  if (!ctx) return;
+  try {
+    if (ctx.state === "suspended") void ctx.resume();
+    const now = ctx.currentTime;
+    const gain = ctx.createGain();
+    gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(volume, now + 0.006);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + length);
+    const osc = ctx.createOscillator();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(startHz, now);
+    osc.frequency.exponentialRampToValueAtTime(endHz, now + length * 0.7);
+    osc.connect(gain);
+    osc.start(now);
+    osc.stop(now + length + 0.02);
+  } catch {
+    /* audio unavailable */
+  }
 }
 
-/** Refresh finished — soft two-note confirmation. */
+/** Pull released / refresh started. */
+export function playRefreshSound(): void {
+  if (typeof window === "undefined" || uiSoundMuted()) return;
+  playPop(380, 1150, 0.09, 0.085);
+}
+
+/** Refresh finished — a lighter, higher pop. */
 export function playRefreshDoneSound(): void {
   if (typeof window === "undefined" || uiSoundMuted()) return;
-  playBell(
-    [
-      { f: 880, at: 0, dur: 0.16 }, // A5
-      { f: 1318.5, at: 0.08, dur: 0.28 }, // E6
-    ],
-    0.09,
-  );
+  playPop(620, 1500, 0.06, 0.07);
 }
 
 /** Warm three-note chime for new notifications (respects notification mute). */

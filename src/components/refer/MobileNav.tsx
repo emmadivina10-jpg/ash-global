@@ -1,4 +1,5 @@
-import { playTabSound } from "@/lib/sound";
+import { playRefreshDoneSound, playRefreshSound, playTabSound } from "@/lib/sound";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { Menu, Shield } from "lucide-react";
@@ -34,6 +35,15 @@ export function MobileNav({
   const { tx, t, lang } = useI18n();
   const fr = lang === "fr";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const queryClient = useQueryClient();
+  // Tapping the tab you're already on scrolls back to the top and refreshes it.
+  const refreshCurrent = () => {
+    for (const el of Array.from(document.querySelectorAll<HTMLElement>(".app-shell-scroll, .snap-y")))
+      el.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    playRefreshSound();
+    void queryClient.invalidateQueries().then(() => playRefreshDoneSound());
+  };
   const navigate = useNavigate();
   const [heldIndex, setHeldIndex] = useState<number | null>(null);
   const gridRef = useRef<HTMLUListElement>(null);
@@ -125,8 +135,11 @@ export function MobileNav({
         <Link
           to={item.to}
           preload="render"
-          onClick={() => {
-            if (!active) playTabSound();
+          onClick={(event) => {
+            if (active) {
+              event.preventDefault();
+              refreshCurrent();
+            } else playTabSound();
           }}
           data-tour={item.tour}
           aria-current={active ? "page" : undefined}
@@ -195,8 +208,11 @@ export function MobileNav({
             <Link
               to="/menu"
               preload="render"
-              onClick={() => {
-                if (pathname !== "/menu") playTabSound();
+              onClick={(event) => {
+                if (pathname === "/menu") {
+                  event.preventDefault();
+                  refreshCurrent();
+                } else playTabSound();
               }}
               aria-current={pathname === "/menu" ? "page" : undefined}
               className={cn(
