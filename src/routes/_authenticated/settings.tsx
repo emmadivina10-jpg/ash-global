@@ -414,6 +414,11 @@ function SettingsPage() {
             <Link to="/account-deletion">Account &amp; Data Deletion</Link>
           </Button>
           <Button asChild variant="outline">
+            <Link to="/delete-account">
+              {tx("Public deletion request", "Demande publique de suppression")}
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
             <Link to="/contact">Contact</Link>
           </Button>
         </div>

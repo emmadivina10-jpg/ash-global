@@ -118,11 +118,15 @@ export const submitSupportTicket = createServerFn({ method: "POST" })
 
     if (error || !ticket) return { ok: false as const, error: error?.message ?? "INSERT_FAILED" };
 
-    await supabaseAdmin.from("support_ticket_messages").insert({
+    const { error: messageError } = await supabaseAdmin.from("support_ticket_messages").insert({
       ticket_id: ticket.id,
       sender: "CUSTOMER",
       body: data.message,
     });
+    if (messageError) {
+      await supabaseAdmin.from("support_tickets").delete().eq("id", ticket.id);
+      return { ok: false as const, error: "MESSAGE_INSERT_FAILED" };
+    }
 
     // Acknowledgement email — never blocks the ticket from being recorded.
     try {

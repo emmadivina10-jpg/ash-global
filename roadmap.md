@@ -1,5 +1,12 @@
 # Roadmap
 
+## Public account deletion request (Oct 27)
+- [x] Created public /delete-account using existing secure Support intake, email-only identification, Account/personalization-only scopes and manual identity verification; no automatic erasure or schema changes.
+- [x] Added website/footer/Settings/existing deletion-page links and truthful retention/processing disclosures in English/French.
+- [x] Signed-out request returned HTTP 200 and saved an OPEN Account Support ticket/message; privacy notification send confirmed, exact test ticket cleaned up; 16 tests pass, French phone validation has no overflow, preview build OK.
+- [ ] Public production URL https://ashglogroup.company/delete-account currently returns 404; requires authorized publication and a fresh signed-out HTTPS check. Preview HTTPS is access-protected, not suitable for Play Console.
+- [ ] Permanent account erasure remains blocked by the existing retention/persistence safeguards; intake and staff review work, but Google Play compliance is not certified by this page alone.
+
 ## English and French language switching (Oct 27)
 - [x] Restrict interface language choices to English/French and fix immediate, persistent switching, including blocked storage and cross-tab updates.
 - [x] Translate observed Feed/Story, Messages, Wallet, withdrawal, status, shared confirmation and sign-in gaps; preserve user content and payment behavior.

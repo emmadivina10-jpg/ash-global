@@ -108,7 +108,7 @@ export function PublicInfoShell({
               </Link>
             ))}
             <Link
-              to="/account-deletion"
+              to="/delete-account"
               className="inline-flex items-center gap-1 font-semibold hover:text-foreground"
             >
               {tx("Delete account", "Supprimer le compte")}{" "}

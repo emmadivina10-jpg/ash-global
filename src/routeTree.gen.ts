@@ -16,6 +16,7 @@ import { Route as CommunityGuidelinesRouteImport } from './routes/community-guid
 import { Route as ConsentRouteImport } from './routes/consent'
 import { Route as ConsoleRouteImport } from './routes/console'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as DeleteAccountRouteImport } from './routes/delete-account'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MarketplacePolicyRouteImport } from './routes/marketplace-policy'
@@ -181,6 +182,11 @@ const ConsoleRoute = ConsoleRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeleteAccountRoute = DeleteAccountRouteImport.update({
+  id: '/delete-account',
+  path: '/delete-account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -891,6 +897,7 @@ export interface FileRoutesByFullPath {
   '/consent': typeof ConsentRoute
   '/console': typeof ConsoleRouteWithChildren
   '/contact': typeof ContactRoute
+  '/delete-account': typeof DeleteAccountRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/marketplace-policy': typeof MarketplacePolicyRoute
@@ -1030,6 +1037,7 @@ export interface FileRoutesByTo {
   '/community-guidelines': typeof CommunityGuidelinesRoute
   '/consent': typeof ConsentRoute
   '/contact': typeof ContactRoute
+  '/delete-account': typeof DeleteAccountRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/marketplace-policy': typeof MarketplacePolicyRoute
@@ -1172,6 +1180,7 @@ export interface FileRoutesById {
   '/consent': typeof ConsentRoute
   '/console': typeof ConsoleRouteWithChildren
   '/contact': typeof ContactRoute
+  '/delete-account': typeof DeleteAccountRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/marketplace-policy': typeof MarketplacePolicyRoute
@@ -1314,6 +1323,7 @@ export interface FileRouteTypes {
     | '/consent'
     | '/console'
     | '/contact'
+    | '/delete-account'
     | '/forgot-password'
     | '/login'
     | '/marketplace-policy'
@@ -1453,6 +1463,7 @@ export interface FileRouteTypes {
     | '/community-guidelines'
     | '/consent'
     | '/contact'
+    | '/delete-account'
     | '/forgot-password'
     | '/login'
     | '/marketplace-policy'
@@ -1594,6 +1605,7 @@ export interface FileRouteTypes {
     | '/consent'
     | '/console'
     | '/contact'
+    | '/delete-account'
     | '/forgot-password'
     | '/login'
     | '/marketplace-policy'
@@ -1736,6 +1748,7 @@ export interface RootRouteChildren {
   ConsentRoute: typeof ConsentRoute
   ConsoleRoute: typeof ConsoleRouteWithChildren
   ContactRoute: typeof ContactRoute
+  DeleteAccountRoute: typeof DeleteAccountRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   MarketplacePolicyRoute: typeof MarketplacePolicyRoute
@@ -1816,6 +1829,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/delete-account': {
+      id: '/delete-account'
+      path: '/delete-account'
+      fullPath: '/delete-account'
+      preLoaderRoute: typeof DeleteAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forgot-password': {
@@ -2986,6 +3006,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConsentRoute: ConsentRoute,
   ConsoleRoute: ConsoleRouteWithChildren,
   ContactRoute: ContactRoute,
+  DeleteAccountRoute: DeleteAccountRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   MarketplacePolicyRoute: MarketplacePolicyRoute,
