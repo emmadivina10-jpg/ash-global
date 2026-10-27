@@ -1,0 +1,2 @@
+UPDATE public.stripe_marketplace_controls SET marketplace_account_id = 'acct_1Tmk32K8yU6AxPux' WHERE id = true AND marketplace_account_id = 'acct_1U3ozTBQjimtCBr2';
+UPDATE public.profiles SET stripe_account_id = 'acct_1UUgT5GkxZxpSFG8', stripe_details_submitted = true, stripe_payouts_enabled = true WHERE user_id = '9c8fcc11-a8a1-45d2-a6ea-4c8a5629a4ab' AND stripe_account_id = 'acct_1UPEdkBW0j2DfZbS';

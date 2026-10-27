@@ -8,7 +8,7 @@ import {
   chargeIsViable,
   minimumChargeMinor,
 } from "../src/lib/stripe-mode";
-import { stripeEnvironment, stripePay } from "../src/lib/stripe.server";
+import { stripeEnvironment, stripeIsLive, stripePay } from "../src/lib/stripe.server";
 
 const ENV_KEYS = ["STRIPE_SECRET_KEY", "STRIPE_TEST_SECRET_KEY"] as const;
 const saved: Record<string, string | undefined> = {};
@@ -73,8 +73,17 @@ describe("checkout minimum enforcement", () => {
 describe("live/test credential isolation", () => {
   it("live environment rejects a test key", () => {
     process.env["STRIPE_SECRET_KEY"] = "sk_test_shouldnotcount";
+    process.env["STRIPE_CONNECT_SECRET_KEY"] = "sk_test_shouldnotcount";
     delete process.env["STRIPE_TEST_SECRET_KEY"];
     expect(stripeEnvironment().live).toBe(false);
+    expect(stripeIsLive()).toBe(false);
+  });
+  it("uses the ASH platform key ahead of the legacy managed key", () => {
+    delete process.env["STRIPE_SECRET_KEY"];
+    process.env["STRIPE_CONNECT_SECRET_KEY"] = "sk_live_ash";
+    expect(stripeEnvironment().live).toBe(true);
+    expect(stripeIsLive()).toBe(true);
+    delete process.env["STRIPE_CONNECT_SECRET_KEY"];
   });
   it("test environment rejects a live key", () => {
     process.env["STRIPE_TEST_SECRET_KEY"] = "sk_live_shouldnotcount";
