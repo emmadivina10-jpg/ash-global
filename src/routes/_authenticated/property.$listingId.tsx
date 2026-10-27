@@ -226,6 +226,13 @@ function PropertyDetail() {
           >
             <Heart className={cn("size-4", saved && "fill-primary text-primary")} aria-hidden />
           </Button>
+          {user?.id === listing.owner_id ? (
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/property/new" search={{ edit: listing.id }}>
+                {tx("Edit", "Modifier")}
+              </Link>
+            </Button>
+          ) : null}
           <ReportDialog
             targetType="PROPERTY"
             targetId={listing.id}

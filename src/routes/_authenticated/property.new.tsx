@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { ImagePlus, Loader2, X } from "lucide-react";
@@ -21,6 +21,7 @@ import {
   SIZE_UNITS,
 } from "@/lib/property";
 import { useI18n } from "@/lib/i18n";
+import { useProperty } from "@/lib/property.queries";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/property/new")({
@@ -41,6 +42,8 @@ export const Route = createFileRoute("/_authenticated/property/new")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
+  validateSearch: (search: Record<string, unknown>): { edit?: string } =>
+    typeof search["edit"] === "string" && search["edit"] ? { edit: search["edit"] } : {},
   component: NewProperty,
 });
 
@@ -77,6 +80,43 @@ function NewProperty() {
   const [ownerKind, setOwnerKind] = useState("LANDLORD");
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
+  const { edit: editId } = Route.useSearch();
+  const { data: existing } = useProperty(editId ?? "");
+  const [loadedId, setLoadedId] = useState<string | null>(null);
+  const [keptImages, setKeptImages] = useState<{ id: string; url: string | null }[]>([]);
+  const [removedImageIds, setRemovedImageIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!editId || !existing || loadedId === editId) return;
+    const l = existing.listing;
+    setCategory(l.category);
+    setTitle(l.title);
+    setDescription(l.description ?? "");
+    setCountry(l.country);
+    setRegion(l.region ?? "");
+    setCity(l.city);
+    setNeighborhood(l.neighborhood ?? "");
+    setUniversity(l.university ?? "");
+    setDistance(l.distance_km != null ? String(l.distance_km) : "");
+    setPrice(String(l.price));
+    setCurrency(l.currency);
+    if (l.price_period !== "TOTAL") setPeriod(l.price_period);
+    setBedrooms(l.bedrooms ? String(l.bedrooms) : "");
+    setBathrooms(l.bathrooms ? String(l.bathrooms) : "");
+    setSizeValue(l.size_value != null ? String(l.size_value) : "");
+    if (l.size_unit) setSizeUnit(l.size_unit);
+    if (l.land_use) setLandUse(l.land_use);
+    setAmenities(l.amenities ?? []);
+    setFurnished(l.is_furnished);
+    setAvailableFrom(l.available_from ?? "");
+    setPhone(l.contact_phone ?? "");
+    setWhatsapp(l.contact_whatsapp ?? "");
+    setOwnerKind(l.owner_kind);
+    setKeptImages(existing.images.map((image) => ({ id: image.id, url: image.url })));
+    setLoadedId(editId);
+  }, [editId, existing, loadedId]);
+  const editing = Boolean(editId);
+  const photoSlots = MAX_PHOTOS - keptImages.length;
 
   const meta = PROPERTY_CATEGORIES.find((item) => item.code === category);
   const kind = meta?.kind ?? "RENT";
@@ -84,7 +124,7 @@ function NewProperty() {
 
   function pickFiles(list: FileList | null) {
     if (!list) return;
-    const next = [...files, ...Array.from(list)].slice(0, MAX_PHOTOS);
+    const next = [...files, ...Array.from(list)].slice(0, Math.max(0, MAX_PHOTOS - keptImages.length));
     setFiles(next);
   }
 
@@ -110,10 +150,7 @@ function NewProperty() {
       if (!auth.user) throw new Error(tx("Session expired.", "Session expirée."));
       await verifyMediaFiles(files, "PROPERTY_LISTING");
 
-      const { data: created, error } = await supabase
-        .from("property_listings")
-        .insert({
-          owner_id: auth.user.id,
+      const fields = {
           owner_kind: ownerKind,
           listing_kind: kind,
           category,
@@ -138,10 +175,34 @@ function NewProperty() {
           available_from: availableFrom || null,
           contact_phone: phone.trim() || null,
           contact_whatsapp: whatsapp.trim() || null,
-          status: "ACTIVE",
-        })
-        .select("id")
-        .single();
+      };
+      let created: { id: string } | null = null;
+      let error: { message: string } | null = null;
+      if (editId) {
+        if (existing?.listing.owner_id !== auth.user.id) {
+          throw new Error(tx("Only the owner can edit this listing.", "Seul le propriétaire peut modifier cette annonce."));
+        }
+        const res = await supabase
+          .from("property_listings")
+          .update(fields)
+          .eq("id", editId)
+          .eq("owner_id", auth.user.id)
+          .select("id")
+          .single();
+        created = res.data;
+        error = res.error;
+        if (!error && removedImageIds.length) {
+          await supabase.from("property_images").delete().in("id", removedImageIds);
+        }
+      } else {
+        const res = await supabase
+          .from("property_listings")
+          .insert({ ...fields, owner_id: auth.user.id, status: "ACTIVE" })
+          .select("id")
+          .single();
+        created = res.data;
+        error = res.error;
+      }
 
       if (error || !created) throw new Error(error?.message ?? "INSERT_FAILED");
 
@@ -158,12 +219,16 @@ function NewProperty() {
         await supabase.from("property_images").insert({
           listing_id: created.id,
           image_path: path,
-          sort_order: index,
+          sort_order: keptImages.length + index,
         });
       }
 
       await queryClient.invalidateQueries({ queryKey: ["property"] });
-      toast.success(tx("Your listing is live!", "Annonce publiée !"));
+      toast.success(
+        editing
+          ? tx("Listing updated", "Annonce mise à jour")
+          : tx("Your listing is live!", "Annonce publiée !"),
+      );
       void navigate({ to: "/property/$listingId", params: { listingId: created.id } });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : String(error));
@@ -178,7 +243,7 @@ function NewProperty() {
     <div className="mx-auto w-full max-w-3xl space-y-5">
       <header>
         <h1 className="font-display text-2xl font-extrabold text-foreground sm:text-3xl">
-          {tx("List a property", "Publier un bien")}
+          {editing ? tx("Edit listing", "Modifier l’annonce") : tx("List a property", "Publier un bien")}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {tx(
@@ -498,6 +563,22 @@ function NewProperty() {
             {fr ? `Photos (max ${MAX_PHOTOS})` : `Photos (max ${MAX_PHOTOS})`}
           </Label>
           <div className="flex flex-wrap gap-2">
+            {keptImages.map((image) => (
+              <div key={image.id} className="relative size-20 overflow-hidden rounded-xl border border-border">
+                {image.url ? <img src={image.url} alt="" className="size-full object-cover" /> : null}
+                <button
+                  type="button"
+                  aria-label="Remove"
+                  onClick={() => {
+                    setKeptImages((list) => list.filter((item) => item.id !== image.id));
+                    setRemovedImageIds((list) => [...list, image.id]);
+                  }}
+                  className="absolute right-1 top-1 rounded-full bg-background/90 p-1"
+                >
+                  <X className="size-3" aria-hidden />
+                </button>
+              </div>
+            ))}
             {files.map((file, index) => (
               <div
                 key={`${file.name}-${index}`}
@@ -514,7 +595,7 @@ function NewProperty() {
                 </button>
               </div>
             ))}
-            {files.length < MAX_PHOTOS ? (
+            {files.length < photoSlots ? (
               <label className="grid size-20 cursor-pointer place-items-center rounded-xl border border-dashed border-border text-muted-foreground">
                 <ImagePlus className="size-5" aria-hidden />
                 <input
@@ -532,8 +613,10 @@ function NewProperty() {
         <Button className="w-full" disabled={busy} onClick={submit}>
           {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
           {busy
-            ? tx("Publishing…", "Publication…")
-            : tx("Publish for free", "Publier gratuitement")}
+            ? tx("Saving…", "Enregistrement…")
+            : editing
+              ? tx("Save changes", "Enregistrer les modifications")
+              : tx("Publish for free", "Publier gratuitement")}
         </Button>
       </section>
     </div>

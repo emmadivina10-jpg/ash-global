@@ -186,6 +186,13 @@ function ManageProperty() {
                       className="font-semibold text-foreground hover:text-primary"
                     >
                       {listing.title}
+                    </Link>{" "}
+                    <Link
+                      to="/property/new"
+                      search={{ edit: listing.id }}
+                      className="ml-2 text-xs font-semibold text-primary"
+                    >
+                      {tx("Edit", "Modifier")}
                     </Link>
                     <p className="text-xs text-muted-foreground">
                       {categoryLabel(listing.category, fr)} · {listing.city} ·{" "}
