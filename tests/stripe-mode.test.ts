@@ -8,7 +8,7 @@ import {
   chargeIsViable,
   minimumChargeMinor,
 } from "../src/lib/stripe-mode";
-import { stripeEnvironment, stripePay } from "../src/lib/stripe.server";
+import { stripeEnvironment, stripeIsLive, stripePay } from "../src/lib/stripe.server";
 
 const ENV_KEYS = ["STRIPE_SECRET_KEY", "STRIPE_TEST_SECRET_KEY"] as const;
 const saved: Record<string, string | undefined> = {};
