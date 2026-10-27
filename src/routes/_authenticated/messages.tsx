@@ -737,6 +737,16 @@ function MessagesPage() {
                 ? { height: `calc(var(--ash-vh, 100dvh) - ${chromeReservePx}px)` }
                 : undefined
             }
+            onScroll={(event) => {
+              // WhatsApp-style: the title, search and chips fade as they scroll
+              // away and fade back in as the member scrolls back to the top.
+              const el = event.currentTarget;
+              const head = el.querySelector<HTMLElement>("[data-inbox-head]");
+              if (!head) return;
+              const progress = Math.min(1, el.scrollTop / Math.max(1, head.offsetHeight * 0.8));
+              head.style.opacity = String(1 - progress);
+              head.style.transform = `translateY(${progress * -12}px)`;
+            }}
           >
             {/* Stays pinned while the title and search scroll away, like WhatsApp. */}
             <div className="sticky top-0 z-20 h-0 shrink-0">
@@ -750,7 +760,7 @@ function MessagesPage() {
                 <Plus className="size-6" />
               </Button>
             </div>
-            <div className="shrink-0 border-b border-border bg-card/75 px-4 pb-4 pt-5">
+            <div data-inbox-head className="shrink-0 border-b border-border bg-card/75 px-4 pb-4 pt-5 will-change-[opacity,transform]">
               <h2 className="mb-4 flex min-h-11 items-center pr-14 font-display text-3xl font-bold text-foreground">
                 {t("chat.title")}
               </h2>
