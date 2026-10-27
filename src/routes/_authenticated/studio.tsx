@@ -755,7 +755,6 @@ function StudioPage() {
                     <div className="grid grid-cols-2 gap-3">
                       <Input
                         type="number"
-                        min="1"
                         value={editingService.price}
                         onChange={(e) =>
                           setEditingService({ ...editingService, price: e.target.value })
