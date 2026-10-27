@@ -10,11 +10,11 @@ import { Avatar } from "@/components/refer/AvatarUpload";
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { ShareSheet, shareLink } from "@/components/refer/ShareSheet";
 
-type Search = { open?: string };
+type Search = { open?: string | undefined };
 
 export const Route = createFileRoute("/_authenticated/spotlight")({
   validateSearch: (s: Record<string, unknown>): Search => ({
-    open: typeof s.open === "string" ? s.open : undefined,
+    open: typeof s["open"] === "string" ? s["open"] : undefined,
   }),
   head: () => ({
     meta: [
