@@ -54,6 +54,7 @@ import { PORTFOLIO_BUCKET, SERVICE_CATEGORIES, type ServiceCategory } from "@/li
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { categoryLabel } from "@/lib/taxonomy";
 import { useI18n } from "@/lib/i18n";
+import { MIN_SERVICE_PRICE_XAF, meetsMinimumPrice } from "@/lib/price-minimum";
 import { useRegion } from "@/lib/region-context";
 import {
   AvailabilityCard,
@@ -84,6 +85,10 @@ export const Route = createFileRoute("/_authenticated/studio")({
 
 function StudioPage() {
   const { t, lang } = useI18n();
+  const minPriceMessage = () =>
+    lang === "fr"
+      ? `Le prix minimum est de ${MIN_SERVICE_PRICE_XAF.toLocaleString("fr-FR")} XAF.`
+      : `The minimum price is ${MIN_SERVICE_PRICE_XAF.toLocaleString("en-US")} XAF.`;
   const { user } = useUser();
   const queryClient = useQueryClient();
   const { data: studio, isLoading } = useMyProviderProfile();
@@ -755,6 +760,7 @@ function StudioPage() {
                         onChange={(e) =>
                           setEditingService({ ...editingService, price: e.target.value })
                         }
+                        min={MIN_SERVICE_PRICE_XAF}
                         placeholder={lang === "fr" ? "Prix" : "Price"}
                       />
                       <Input
