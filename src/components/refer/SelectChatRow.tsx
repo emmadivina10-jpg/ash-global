@@ -187,14 +187,16 @@ export function SelectChatRow({
             onTogglePin();
           }}
         />
-        <MenuItem
-          icon={locked ? LockOpen : Lock}
-          label={locked ? (fr ? "Déverrouiller" : "Unlock chat") : fr ? "Verrouiller" : "Lock chat"}
-          onClick={() => {
-            setMenuOpen(false);
-            onToggleLock();
-          }}
-        />
+        {locked ? (
+          <MenuItem
+            icon={LockOpen}
+            label={fr ? "Déverrouiller" : "Unlock chat"}
+            onClick={() => {
+              setMenuOpen(false);
+              onToggleLock();
+            }}
+          />
+        ) : null}
         <MenuItem
           icon={archived ? ArchiveRestore : Archive}
           label={archived ? (fr ? "Désarchiver" : "Unarchive") : fr ? "Archiver" : "Archive"}
