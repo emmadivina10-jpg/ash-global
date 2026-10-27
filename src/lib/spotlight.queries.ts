@@ -41,6 +41,7 @@ export type SpotlightEntry = {
     verified_tier?: string | null;
     verified_until?: string | null;
     online?: boolean;
+    category?: string | null;
   };
 };
 
@@ -91,7 +92,7 @@ export function useSpotlightFeed(limit = 18) {
         supabase
           .from("portfolio_items")
           .select(
-            "id, provider_id, image_path, caption, created_at, provider:provider_profiles!inner(id, business_name, slug, city, avatar_url, is_live, is_verified)",
+            "id, provider_id, image_path, caption, created_at, provider:provider_profiles!inner(id, user_id, business_name, slug, city, avatar_url, is_live, is_verified, category)",
           )
           .eq("provider.is_live", true)
           .order("created_at", { ascending: false })
@@ -122,11 +123,11 @@ export function useSpotlightFeed(limit = 18) {
               .select("user_id, full_name, avatar_url, verified_tier, verified_until")
               .in("user_id", authorIds)
           : Promise.resolve({ data: [] }),
-        providerIds.length
+        authorIds.length
           ? supabase
               .from("provider_profiles")
-              .select("id, business_name, slug, city, avatar_url, is_verified")
-              .in("id", providerIds)
+              .select("id, user_id, business_name, slug, city, avatar_url, is_verified, category")
+              .or(`id.in.(${providerIds.join(",")}),user_id.in.(${authorIds.join(",")})`)
           : Promise.resolve({ data: [] }),
         postRows.length
           ? supabase
@@ -179,8 +180,15 @@ export function useSpotlightFeed(limit = 18) {
             city: string | null;
             avatar_url: string | null;
             is_verified: boolean;
+            user_id: string | null;
+            category: string | null;
           }[]
         ).map((row) => [row.id, row]),
+      );
+      const providerByOwner = new Map(
+        Array.from(providers.values())
+          .filter((row) => row.user_id)
+          .map((row) => [row.user_id as string, row]),
       );
 
       const mediaPaths = postRows.flatMap((row) => parseMedia(row.media).map((m) => m.path));
@@ -197,7 +205,9 @@ export function useSpotlightFeed(limit = 18) {
         if (!first) return [];
         const url = signed[first.path];
         if (!url) return [];
-        const storefront = row.provider_id ? providers.get(row.provider_id) : undefined;
+        const storefront =
+          (row.provider_id ? providers.get(row.provider_id) : undefined) ??
+          providerByOwner.get(row.author_id);
         const profile = profiles.get(row.author_id);
         const reactions = reactionRows.filter((item) => item.spotlight_id === row.id);
         const breakdown = { ...EMPTY_REACTIONS };
@@ -221,7 +231,12 @@ export function useSpotlightFeed(limit = 18) {
                 ReactionType | undefined) ?? null,
             provider: storefront
               ? {
-                  ...storefront,
+                  id: storefront.id,
+                  business_name: storefront.business_name,
+                  slug: storefront.slug,
+                  city: storefront.city,
+                  is_verified: storefront.is_verified,
+                  category: storefront.category,
                   avatar_url: storefront.avatar_url || profile?.avatar_url || null,
                   online: onlineIds.has(row.author_id),
                 }
@@ -248,8 +263,29 @@ export function useSpotlightFeed(limit = 18) {
         created_at: string;
         provider: SpotlightEntry["provider"];
       }[];
-      const portfolioUrls = await signPortfolioPaths(portfolioRows.map((row) => row.image_path));
-      const portfolioEntries: SpotlightEntry[] = portfolioRows.flatMap((row) => {
+      // One shop photo per vendor so a single vendor never floods Spotlight.
+      const seenProviders = new Set<string>();
+      const uniquePortfolio = portfolioRows.filter((row) => {
+        if (seenProviders.has(row.provider_id)) return false;
+        seenProviders.add(row.provider_id);
+        return true;
+      });
+      const ownerIds = uniquePortfolio
+        .filter((row) => !row.provider.avatar_url && (row.provider as { user_id?: string }).user_id)
+        .map((row) => (row.provider as { user_id?: string }).user_id as string);
+      const [portfolioUrls, ownerPhotos] = await Promise.all([
+        signPortfolioPaths(uniquePortfolio.map((row) => row.image_path)),
+        ownerIds.length
+          ? directory().select("user_id, avatar_url").in("user_id", ownerIds)
+          : Promise.resolve({ data: [] }),
+      ]);
+      const ownerAvatar = new Map(
+        ((ownerPhotos.data ?? []) as { user_id: string; avatar_url: string | null }[]).map((p) => [
+          p.user_id,
+          p.avatar_url,
+        ]),
+      );
+      const portfolioEntries: SpotlightEntry[] = uniquePortfolio.flatMap((row) => {
         const url = portfolioUrls[row.image_path];
         if (!url) return [];
         return [
@@ -264,14 +300,27 @@ export function useSpotlightFeed(limit = 18) {
             reaction_count: 0,
             reaction_breakdown: { ...EMPTY_REACTIONS },
             current_reaction: null,
-            provider: row.provider,
+            provider: {
+              ...row.provider,
+              avatar_url:
+                row.provider.avatar_url ||
+                ownerAvatar.get((row.provider as { user_id?: string }).user_id ?? "") ||
+                null,
+            },
           },
         ];
       });
 
+      const perCreator = new Map<string, number>();
+      const balanced = [...postEntries, ...portfolioEntries].filter((item) => {
+        const key = item.author_id ?? item.provider.id;
+        const n = perCreator.get(key) ?? 0;
+        perCreator.set(key, n + 1);
+        return n < 2;
+      });
       return rotateSessionContent(
         "spotlight-feed",
-        [...postEntries, ...portfolioEntries].map((item) => ({
+        balanced.map((item) => ({
           item,
           id: item.id,
           creator: item.author_id ?? item.provider.id,
