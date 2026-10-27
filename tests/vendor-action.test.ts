@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { vendorAction } from "@/lib/vendor-action";
+import { vendorAction } from "../src/lib/vendor-action";
 
 describe("Spotlight vendor action", () => {
   it("food vendors get Order", () => {
