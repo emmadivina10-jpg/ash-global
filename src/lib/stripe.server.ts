@@ -469,7 +469,7 @@ export class StripeReadError extends Error {
     this.status = status;
     this.code = safe(err["code"]);
     this.type = safe(err["type"]);
-    this.requestId = safe(err["request_log_url"] ? String(err["request_log_url"]).split("/").pop() : null);
+    this.requestId = /req_[A-Za-z0-9]+/.exec(String(err["request_log_url"] ?? ""))?.[0] ?? null;
   }
 }
 
