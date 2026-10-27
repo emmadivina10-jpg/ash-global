@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { LANGUAGES } from "../src/lib/i18n.locales";
-import { LANGUAGE_STORAGE_KEY, readLanguage, resolveLanguage, saveLanguage } from "../src/lib/language-preference";
+import {
+  LANGUAGE_STORAGE_KEY,
+  readLanguage,
+  resolveLanguage,
+  saveLanguage,
+} from "../src/lib/language-preference";
 
 describe("English and French interface preferences", () => {
   it("offers only English and French", () => {
@@ -16,14 +21,27 @@ describe("English and French interface preferences", () => {
   });
   it("can read and save both selections for the next app opening", () => {
     let value: string | null = null;
-    const storage = { getItem: () => value, setItem: (key: string, next: string) => {
-      expect(key).toBe(LANGUAGE_STORAGE_KEY); value = next;
-    } };
-    saveLanguage(storage, "fr"); expect(readLanguage(storage, "en")).toBe("fr");
-    saveLanguage(storage, "en"); expect(readLanguage(storage, "fr")).toBe("en");
+    const storage = {
+      getItem: () => value,
+      setItem: (key: string, next: string) => {
+        expect(key).toBe(LANGUAGE_STORAGE_KEY);
+        value = next;
+      },
+    };
+    saveLanguage(storage, "fr");
+    expect(readLanguage(storage, "en")).toBe("fr");
+    saveLanguage(storage, "en");
+    expect(readLanguage(storage, "fr")).toBe("en");
   });
   it("does not prevent switching when storage is blocked", () => {
-    const storage = { getItem: () => { throw new Error("blocked"); }, setItem: () => { throw new Error("blocked"); } };
+    const storage = {
+      getItem: () => {
+        throw new Error("blocked");
+      },
+      setItem: () => {
+        throw new Error("blocked");
+      },
+    };
     expect(readLanguage(storage, "fr-CA")).toBe("fr");
     expect(() => saveLanguage(storage, "fr")).not.toThrow();
   });

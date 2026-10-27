@@ -44,7 +44,15 @@ export function PublicInfoShell({
                 className="rounded-xl px-3 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 activeProps={{ className: "bg-primary/10 text-primary" }}
               >
-                {tx(item.label, { Support: "Assistance", "Privacy Policy": "Confidentialité", Terms: "Conditions", Community: "Communauté" }[item.label])}
+                {tx(
+                  item.label,
+                  {
+                    Support: "Assistance",
+                    "Privacy Policy": "Confidentialité",
+                    Terms: "Conditions",
+                    Community: "Communauté",
+                  }[item.label],
+                )}
               </Link>
             ))}
           </nav>
@@ -88,14 +96,23 @@ export function PublicInfoShell({
           <nav className="flex flex-wrap gap-x-4 gap-y-2" aria-label="Footer information pages">
             {LINKS.map((item) => (
               <Link key={item.to} to={item.to} className="font-semibold hover:text-foreground">
-                {tx(item.label, { Support: "Assistance", "Privacy Policy": "Confidentialité", Terms: "Conditions", Community: "Communauté" }[item.label])}
+                {tx(
+                  item.label,
+                  {
+                    Support: "Assistance",
+                    "Privacy Policy": "Confidentialité",
+                    Terms: "Conditions",
+                    Community: "Communauté",
+                  }[item.label],
+                )}
               </Link>
             ))}
             <Link
               to="/account-deletion"
               className="inline-flex items-center gap-1 font-semibold hover:text-foreground"
             >
-              {tx("Delete account", "Supprimer le compte")} <ExternalLink className="size-3" aria-hidden />
+              {tx("Delete account", "Supprimer le compte")}{" "}
+              <ExternalLink className="size-3" aria-hidden />
             </Link>
             <Link to="/contact" className="font-semibold hover:text-foreground">
               Contact

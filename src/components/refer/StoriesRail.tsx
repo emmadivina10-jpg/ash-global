@@ -608,11 +608,15 @@ export function StoriesRail({
       return;
     }
     if (video && file.size > VIDEO_MAX_BYTES) {
-      toast.error(tx("Videos must be 50 MB or smaller.", "Les vidéos ne doivent pas dépasser 50 Mo."));
+      toast.error(
+        tx("Videos must be 50 MB or smaller.", "Les vidéos ne doivent pas dépasser 50 Mo."),
+      );
       return;
     }
     if (image && file.size > IMAGE_MAX_BYTES) {
-      toast.error(tx("Photos must be 12 MB or smaller.", "Les photos ne doivent pas dépasser 12 Mo."));
+      toast.error(
+        tx("Photos must be 12 MB or smaller.", "Les photos ne doivent pas dépasser 12 Mo."),
+      );
       return;
     }
 
@@ -852,7 +856,12 @@ export function StoriesRail({
 
   async function deleteCurrentStory() {
     if (!activeStory || me !== activeStory.author_id || deleteStory.isPending) return;
-    const confirmed = window.confirm(tx("Delete this Story? This cannot be undone.", "Supprimer cette Story ? Cette action est irréversible."));
+    const confirmed = window.confirm(
+      tx(
+        "Delete this Story? This cannot be undone.",
+        "Supprimer cette Story ? Cette action est irréversible.",
+      ),
+    );
     if (!confirmed) return;
 
     try {
@@ -908,7 +917,12 @@ export function StoriesRail({
   async function deleteSpotlight(spotlight: SpotlightPost) {
     if (!me || spotlight.provider.user_id !== me || deletingSpotlightId) return;
 
-    const confirmed = window.confirm(tx("Delete this Spotlight? This cannot be undone.", "Supprimer ce Spotlight ? Cette action est irréversible."));
+    const confirmed = window.confirm(
+      tx(
+        "Delete this Spotlight? This cannot be undone.",
+        "Supprimer ce Spotlight ? Cette action est irréversible.",
+      ),
+    );
     if (!confirmed) return;
 
     setDeletingSpotlightId(spotlight.id);
@@ -958,11 +972,18 @@ export function StoriesRail({
     }
   }
 
-  const composerTitle = composerMode === "spotlight" ? tx("Create Spotlight", "Créer un Spotlight") : "Create Story";
+  const composerTitle =
+    composerMode === "spotlight" ? tx("Create Spotlight", "Créer un Spotlight") : "Create Story";
   const composerSubtitle =
     composerMode === "spotlight"
-      ? tx("Show what your business offers. Your Spotlight can appear in the discovery reel.", "Présentez les offres de votre entreprise. Votre Spotlight peut apparaître dans le fil de découverte.")
-      : tx("Share a photo or video that disappears after 24 hours.", "Partagez une photo ou une vidéo qui disparaît après 24 heures.");
+      ? tx(
+          "Show what your business offers. Your Spotlight can appear in the discovery reel.",
+          "Présentez les offres de votre entreprise. Votre Spotlight peut apparaître dans le fil de découverte.",
+        )
+      : tx(
+          "Share a photo or video that disappears after 24 hours.",
+          "Partagez une photo ou une vidéo qui disparaît après 24 heures.",
+        );
 
   return (
     <>
@@ -997,7 +1018,9 @@ export function StoriesRail({
             </span>
             <span className="absolute inset-x-0 bottom-0 z-10 h-[34%] rounded-b-2xl bg-card" />
             <span className="absolute inset-x-2 bottom-3 z-10 text-center">
-              <span className="block text-[15px] font-black text-foreground">{tx("Create", "Créer")}</span>
+              <span className="block text-[15px] font-black text-foreground">
+                {tx("Create", "Créer")}
+              </span>
               <span className="mt-0.5 block text-xs font-semibold leading-4 text-muted-foreground">
                 {tx("Story or Spotlight", "Story ou Spotlight")}
               </span>
@@ -1161,9 +1184,14 @@ export function StoriesRail({
             <div className="border-b border-border px-5 pb-4 pt-5">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <DialogTitle className="text-lg font-black">{tx("Create on ASH", "Créer sur ASH")}</DialogTitle>
+                  <DialogTitle className="text-lg font-black">
+                    {tx("Create on ASH", "Créer sur ASH")}
+                  </DialogTitle>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {tx("Choose what you want to share.", "Choisissez ce que vous souhaitez partager.")}
+                    {tx(
+                      "Choose what you want to share.",
+                      "Choisissez ce que vous souhaitez partager.",
+                    )}
                   </p>
                 </div>
               </div>
@@ -1180,7 +1208,10 @@ export function StoriesRail({
                 </span>
                 <span className="mt-4 block text-sm font-black">Story</span>
                 <span className="mt-1 block text-xs leading-5 text-muted-foreground">
-                  {tx("Photo or video that disappears after 24 hours.", "Photo ou vidéo qui disparaît après 24 heures.")}
+                  {tx(
+                    "Photo or video that disappears after 24 hours.",
+                    "Photo ou vidéo qui disparaît après 24 heures.",
+                  )}
                 </span>
               </Button>
               <Button
@@ -1194,7 +1225,10 @@ export function StoriesRail({
                 </span>
                 <span className="mt-4 block text-sm font-black">Spotlight</span>
                 <span className="mt-1 block text-xs leading-5 text-muted-foreground">
-                  {tx("Showcase a business, offer or service in the ASH reel.", "Présentez une entreprise, une offre ou un service sur ASH.")}
+                  {tx(
+                    "Showcase a business, offer or service in the ASH reel.",
+                    "Présentez une entreprise, une offre ou un service sur ASH.",
+                  )}
                 </span>
               </Button>
             </div>
@@ -1268,9 +1302,14 @@ export function StoriesRail({
                       <ImagePlus className="size-6" />
                     </span>
                     <span>
-                      <span className="block text-sm font-black">{tx("Choose photo or video", "Choisir une photo ou une vidéo")}</span>
+                      <span className="block text-sm font-black">
+                        {tx("Choose photo or video", "Choisir une photo ou une vidéo")}
+                      </span>
                       <span className="mt-1 block text-xs text-muted-foreground">
-                        {tx("Photos up to 12 MB · videos up to 50 MB", "Photos jusqu’à 12 Mo · vidéos jusqu’à 50 Mo")}
+                        {tx(
+                          "Photos up to 12 MB · videos up to 50 MB",
+                          "Photos jusqu’à 12 Mo · vidéos jusqu’à 50 Mo",
+                        )}
                       </span>
                     </span>
                   </span>
@@ -1282,7 +1321,10 @@ export function StoriesRail({
                 onChange={(event) => setCaption(event.target.value.slice(0, 500))}
                 placeholder={
                   composerMode === "spotlight"
-                    ? tx("Describe what customers should discover…", "Décrivez ce que les clients doivent découvrir…")
+                    ? tx(
+                        "Describe what customers should discover…",
+                        "Décrivez ce que les clients doivent découvrir…",
+                      )
                     : tx("Add a caption…", "Ajouter une légende…")
                 }
                 className="mt-4 min-h-28 w-full resize-none rounded-2xl border border-border bg-muted/20 p-3 text-sm outline-none ring-primary/20 focus:ring-4"
@@ -1302,7 +1344,11 @@ export function StoriesRail({
               <div className="border-t border-border px-4 pt-3">
                 <div className="rounded-2xl border border-border bg-muted/50 px-3 py-2.5">
                   <div className="flex items-center justify-between text-[10px] font-bold">
-                    <span>{uploadProgress < 100 ? tx("Uploading media…", "Téléversement du média…") : "Publishing…"}</span>
+                    <span>
+                      {uploadProgress < 100
+                        ? tx("Uploading media…", "Téléversement du média…")
+                        : "Publishing…"}
+                    </span>
                     <span>{Math.max(0, Math.min(100, uploadProgress))}%</span>
                   </div>
                   <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-background/80">
@@ -1395,7 +1441,9 @@ export function StoriesRail({
                             size={13}
                           />
                         </p>
-                        <p className="text-[10px] text-white/60">{tx("24h story", "Story de 24 h")}</p>
+                        <p className="text-[10px] text-white/60">
+                          {tx("24h story", "Story de 24 h")}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
@@ -1404,7 +1452,9 @@ export function StoriesRail({
                           type="button"
                           onClick={() => setStoryMuted((value) => !value)}
                           className="grid size-9 place-items-center rounded-full bg-white/10 backdrop-blur-md"
-                          aria-label={storyMuted ? tx("Unmute story", "Activer le son") : "Mute story"}
+                          aria-label={
+                            storyMuted ? tx("Unmute story", "Activer le son") : "Mute story"
+                          }
                         >
                           {storyMuted ? <MicOff className="size-4" /> : <Mic className="size-4" />}
                         </button>
@@ -1597,9 +1647,14 @@ export function StoriesRail({
                   ) : storyViewers.length === 0 ? (
                     <div className="px-4 py-10 text-center">
                       <Eye className="mx-auto mb-3 size-8 text-white/30" />
-                      <p className="text-sm font-semibold text-white/75">{tx("No viewer names yet.", "Aucun spectateur pour le moment.")}</p>
+                      <p className="text-sm font-semibold text-white/75">
+                        {tx("No viewer names yet.", "Aucun spectateur pour le moment.")}
+                      </p>
                       <p className="mt-1 text-xs text-white/45">
-                        {tx("People who watch this story will appear here.", "Les personnes qui regardent cette Story apparaîtront ici.")}
+                        {tx(
+                          "People who watch this story will appear here.",
+                          "Les personnes qui regardent cette Story apparaîtront ici.",
+                        )}
                       </p>
                     </div>
                   ) : (
@@ -1772,7 +1827,11 @@ export function StoriesRail({
                                 type="button"
                                 onClick={() => setSpotlightMuted((value) => !value)}
                                 className="grid size-10 shrink-0 place-items-center rounded-full bg-white/10 text-white backdrop-blur-xl"
-                                aria-label={spotlightMuted ? tx("Unmute Spotlight", "Activer le son du Spotlight") : "Mute Spotlight"}
+                                aria-label={
+                                  spotlightMuted
+                                    ? tx("Unmute Spotlight", "Activer le son du Spotlight")
+                                    : "Mute Spotlight"
+                                }
                               >
                                 {spotlightMuted ? (
                                   <VolumeX className="size-4" />

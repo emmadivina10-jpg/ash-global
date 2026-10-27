@@ -42,7 +42,9 @@ export function ConfirmationModal({
         </AlertDialogHeader>
         {details ? <div className="rounded-xl bg-muted p-4 text-sm">{details}</div> : null}
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={loading}>{cancelLabel === "Cancel" ? tx("Cancel", "Annuler") : cancelLabel}</AlertDialogCancel>
+          <AlertDialogCancel disabled={loading}>
+            {cancelLabel === "Cancel" ? tx("Cancel", "Annuler") : cancelLabel}
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={(event) => {
               event.preventDefault();
@@ -50,7 +52,11 @@ export function ConfirmationModal({
             }}
             disabled={loading}
           >
-            {loading ? tx("Processing…", "Traitement…") : confirmLabel === "Confirm" ? tx("Confirm", "Confirmer") : confirmLabel}
+            {loading
+              ? tx("Processing…", "Traitement…")
+              : confirmLabel === "Confirm"
+                ? tx("Confirm", "Confirmer")
+                : confirmLabel}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

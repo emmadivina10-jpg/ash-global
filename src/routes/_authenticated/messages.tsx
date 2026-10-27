@@ -134,7 +134,10 @@ const ASH_CHAT_BACKGROUND = "/images/ash-chat-background.png";
 
 function MessagesPage() {
   const { tx, t, lang } = useI18n();
-  const aiPreview = tx(ashAiConversation.preview, "Posez vos questions : services, annonces, idées.");
+  const aiPreview = tx(
+    ashAiConversation.preview,
+    "Posez vos questions : services, annonces, idées.",
+  );
   const supportPreview = tx(ashSupportConversation.preview, "Obtenez de l’aide de l’équipe ASH.");
   const fr = lang === "fr";
   const { user } = useUser();

@@ -35,11 +35,22 @@ export function StatusBadge({
 }) {
   const { lang } = useI18n();
   const french: Record<string, string> = {
-    ACTIVE: "Actif", COMPLETED: "Terminé", PAID: "Payé", PENDING: "En attente",
-    "PENDING ACTIVATION": "Activation en attente", PROCESSING: "En cours",
-    FAILED: "Échoué", CANCELLED: "Annulé", SUSPENDED: "Suspendu", REVERSED: "Annulé",
-    CONFIRMED: "Confirmé", DECLINED: "Refusé", SUCCESS: "Réussi", APPROVED: "Approuvé",
-    REJECTED: "Refusé", REFUNDED: "Remboursé",
+    ACTIVE: "Actif",
+    COMPLETED: "Terminé",
+    PAID: "Payé",
+    PENDING: "En attente",
+    "PENDING ACTIVATION": "Activation en attente",
+    PROCESSING: "En cours",
+    FAILED: "Échoué",
+    CANCELLED: "Annulé",
+    SUSPENDED: "Suspendu",
+    REVERSED: "Annulé",
+    CONFIRMED: "Confirmé",
+    DECLINED: "Refusé",
+    SUCCESS: "Réussi",
+    APPROVED: "Approuvé",
+    REJECTED: "Refusé",
+    REFUNDED: "Remboursé",
   };
   const tone = STATUS_TONE[status.toUpperCase()] ?? "neutral";
   return (
@@ -51,7 +62,9 @@ export function StatusBadge({
       )}
     >
       <span className="size-1.5 rounded-full bg-current" aria-hidden />
-      {label ?? (lang === "fr" ? french[status.toUpperCase().replace(/_/g, " ")] : undefined) ?? status.replace(/_/g, " ")}
+      {label ??
+        (lang === "fr" ? french[status.toUpperCase().replace(/_/g, " ")] : undefined) ??
+        status.replace(/_/g, " ")}
     </span>
   );
 }

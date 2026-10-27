@@ -22,7 +22,10 @@ export function TransactionList({ items }: { items: TransactionRow[] }) {
       <EmptyState
         icon={<Receipt className="size-5" aria-hidden />}
         title={translate("No transactions yet", "Aucune transaction pour le moment")}
-        description={translate("Every activation payment, commission and withdrawal will appear here.", "Chaque paiement d’activation, commission et retrait apparaîtra ici.")}
+        description={translate(
+          "Every activation payment, commission and withdrawal will appear here.",
+          "Chaque paiement d’activation, commission et retrait apparaîtra ici.",
+        )}
       />
     );
   }

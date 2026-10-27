@@ -980,7 +980,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setLangState(readLanguage(localStorage, navigator.language));
     const sync = (event: StorageEvent) => {
-      if (event.key === LANGUAGE_STORAGE_KEY) setLangState(readLanguage(localStorage, navigator.language));
+      if (event.key === LANGUAGE_STORAGE_KEY)
+        setLangState(readLanguage(localStorage, navigator.language));
     };
     window.addEventListener("storage", sync);
     return () => window.removeEventListener("storage", sync);
