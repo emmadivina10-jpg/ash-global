@@ -126,3 +126,66 @@ describe("isolated Marketplace event dispatch", () => {
     expect(harness.rpc).not.toHaveBeenCalled();
   });
 });
+describe("account identification fallback and sanitized logging", () => {
+  const refused = () => Object.assign(new Error("STRIPE_READ_FAILED"), { name: "StripeReadError", status: 401, code: "api_error", type: "invalid_request_error", requestId: "req_isolated" });
+  function refuseAccountLookup() {
+    const base = harness.read.getMockImplementation()!;
+    harness.read.mockImplementation(async (path: string, acct?: string) => {
+      if (path === "account") throw refused();
+      return base(path, acct);
+    });
+  }
+  const paidBooking = () => event("checkout.session.completed", { id: "cs_isolated", metadata: { reference: "BKG-isolated" }, payment_status: "paid" });
+
+  it("fails closed when the account lookup fails and no matching signer is known", async () => {
+    refuseAccountLookup();
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    const response = await handleMarketplaceEvent(paidBooking());
+    expect(response.status).toBe(503);
+    expect(harness.settle).not.toHaveBeenCalled();
+    expect(harness.queries).toHaveLength(0);
+    const line = JSON.parse(String(log.mock.calls[0][0]));
+    expect(line).toMatchObject({ stage: "account_lookup", stripe_status: 401, stripe_code: "api_error", stripe_request_id: "req_isolated" });
+    expect(String(log.mock.calls[0][0])).not.toMatch(/sk_live|rk_live|whsec_|BKG-isolated|cs_isolated/);
+  });
+  it("rejects a connected-account event signed only by the platform secret", async () => {
+    refuseAccountLookup();
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const response = await handleMarketplaceEvent({ ...event("account.updated"), account: "acct_provider" }, { signedBy: "platform" });
+    expect(response.status).toBe(503);
+  });
+  it("settles a paid booking via the saved account only with full Stripe evidence", async () => {
+    refuseAccountLookup();
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const response = await handleMarketplaceEvent(paidBooking(), { signedBy: "platform" });
+    expect(response.status).toBe(200);
+    expect(harness.read).toHaveBeenCalledWith(expect.stringContaining("checkout/sessions/cs_isolated"));
+    expect(harness.settle).toHaveBeenCalledOnce();
+    expect(harness.settle).toHaveBeenCalledWith(expect.objectContaining({ status: "PAID", merchantReference: "BKG-isolated" }));
+  });
+  it("still refuses a paid booking whose Stripe amount does not match", async () => {
+    refuseAccountLookup();
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const base = harness.read.getMockImplementation()!;
+    harness.read.mockImplementation(async (p: string, a?: string) => (p.startsWith("checkout/") ? { ...(await base(p, a)), amount_total: 5 } : base(p, a)));
+    expect((await handleMarketplaceEvent(paidBooking(), { signedBy: "platform" })).status).toBe(500);
+    expect(harness.settle).not.toHaveBeenCalled();
+  });
+  it("does not settle a duplicate event under the saved-account fallback", async () => {
+    refuseAccountLookup();
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    harness.inboxStatus = "PROCESSED";
+    const response = await handleMarketplaceEvent(paidBooking(), { signedBy: "platform" });
+    expect(await response.text()).toBe("ok (duplicate)");
+    expect(harness.settle).not.toHaveBeenCalled();
+  });
+  it("closes an expired top-up as CANCELLED without crediting a wallet", async () => {
+    refuseAccountLookup();
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const response = await handleMarketplaceEvent(event("checkout.session.expired", { id: "cs_top", client_reference_id: "TOP-isolated", payment_status: "unpaid" }), { signedBy: "platform" });
+    expect(response.status).toBe(200);
+    expect(harness.settle).toHaveBeenCalledOnce();
+    expect(harness.settle).toHaveBeenCalledWith(expect.objectContaining({ merchantReference: "TOP-isolated", status: "CANCELLED" }));
+    expect(harness.settle).not.toHaveBeenCalledWith(expect.objectContaining({ status: "PAID" }));
+  });
+});
