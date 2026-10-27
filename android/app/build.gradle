@@ -16,15 +16,22 @@ def hasReleaseSigning = ksPath != null && file(ksPath).exists() &&
         ksPassword != null && !ksPassword.toString().isEmpty() &&
         ksAlias != null && !ksAlias.toString().isEmpty() &&
         ksAliasPassword != null && !ksAliasPassword.toString().isEmpty()
-def releaseVersionCode = System.getenv('ANDROID_VERSION_CODE') ?: '1'
+def configuredVersionCode = System.getenv('ANDROID_VERSION_CODE')
+// Version 1 is for local debug only; release tasks must use the CI-resolved value.
+def releaseVersionCode = configuredVersionCode ?: '1'
 if (!(releaseVersionCode ==~ /[1-9][0-9]*/) ||
         new BigInteger(releaseVersionCode) > new BigInteger('2100000000')) {
     throw new GradleException('ANDROID_VERSION_CODE must be an integer from 1 to 2100000000.')
 }
 // Never silently produce an unsigned release artifact. Debug builds stay usable.
 gradle.taskGraph.whenReady { graph ->
-    if (graph.allTasks.any { it.project == project && it.name.toLowerCase().contains('release') } && !hasReleaseSigning) {
-        throw new GradleException('Release signing is incomplete. Configure the existing upload keystore securely.')
+    if (graph.allTasks.any { it.project == project && it.name.toLowerCase().contains('release') }) {
+        if (configuredVersionCode == null || configuredVersionCode.isEmpty()) {
+            throw new GradleException('Release version is missing. Pass the preflight-resolved ANDROID_VERSION_CODE; debug version 1 cannot be used for release.')
+        }
+        if (!hasReleaseSigning) {
+            throw new GradleException('Release signing is incomplete. Configure the existing upload keystore securely.')
+        }
     }
 }
 
