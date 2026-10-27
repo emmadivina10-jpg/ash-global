@@ -14,6 +14,10 @@ The Android-only correction gives missing-input instructions, allows confirmed `
 
 No Codemagic run or signed `.aab` is established by these local changes. Use the latest saved/synced `main` configuration in `emmadivina10-jpg/ash-global`, run **ASH Glo Android — signed AAB only (no publishing)** manually after confirming history, and inspect its artifact. No remote GitHub commit or Codemagic build success is claimed by this report.
 
+**Local validation executed:** `bunx vitest run tests/android-release.test.ts` — **29/29 passed**, including missing, invalid, out-of-range, explicit/automatic, history and numeric CLI propagation cases; `node --check scripts/android-release-preflight.mjs` passed; installed JavaScript YAML parser validated the workflow; all five Android scripts passed `bash -n`; iOS workflow matched the saved pre-edit bytes; package, keystore reference, artifact path and no-publishing checks passed. Python YAML validation was initially unavailable (missing module); the installed JavaScript parser completed the check instead. Automatic preview reports build OK. No Gradle compilation, real signing, GitHub main synchronization or hosted Codemagic run was executed/verified.
+
+**Changed files for this correction:** `scripts/android-release-preflight.mjs`, `android/app/build.gradle`, Android section only of `codemagic.yaml`, `tests/android-release.test.ts`, `NATIVE.md`, `GOOGLE-PLAY-PREP.md`, `AGENTS.md`, `roadmap.md`. No app/payment code, keystore, credentials, iOS configuration, dependency or production setting changed. Existing alias `ashglo-upload` is preserved rather than overridden.
+
 ### Exact failure and fix
 
 The uploaded brief did not include a Codemagic build log. The current Android command was independently verified by a clean temporary **Bun 1.4.4 frozen installation: 868 packages installed with lifecycle scripts disabled**; no stale Bun lockfile error was reproduced. `package.json` has no `packageManager` field. Existing app/security CI and Android use Bun; the existing successful iOS workflow uses npm 11. Neither manager was changed, and neither lockfile was deleted.
