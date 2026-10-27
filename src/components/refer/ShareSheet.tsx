@@ -40,8 +40,8 @@ export function ShareSheet({
 
   function track(channel: string) {
     trackEvent({
-      event_type: "share",
-      surface: channel,
+      event_type: `share_${channel}`,
+      surface: "feed",
       target_type: targetType,
       target_id: targetId,
     });
