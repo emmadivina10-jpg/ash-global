@@ -14,15 +14,25 @@ export const submitDeletionRequest = createServerFn({ method: "POST" })
     // Reuse the existing public Support process, including its persistent abuse controls,
     // staff permissions and replies. Never bind an unverified email to another user's ID.
     const { submitSupportTicket } = await import("./support.functions");
-    const result = await submitSupportTicket({ data: { ...deletionTicket(data.scope), email: data.email } });
-    if (!result.ok) return { ok: false as const, error: result.error === "RATE_LIMITED" ? "RATE_LIMITED" : "SAVE_FAILED" };
+    const result = await submitSupportTicket({
+      data: { ...deletionTicket(data.scope), email: data.email },
+    });
+    if (!result.ok)
+      return {
+        ok: false as const,
+        error: result.error === "RATE_LIMITED" ? "RATE_LIMITED" : "SAVE_FAILED",
+      };
     let staffNotified = false;
     try {
       const { sendTemplateEmail } = await import("./email-templates/send-email");
-      const notification = await sendTemplateEmail("deletion-request-notification", "privacy@ashglogroup.company", {
-        templateData: { reference: result.reference, scope: data.scope },
-        idempotencyKey: `deletion-staff-${result.id}`,
-      });
+      const notification = await sendTemplateEmail(
+        "deletion-request-notification",
+        "privacy@ashglogroup.company",
+        {
+          templateData: { reference: result.reference, scope: data.scope },
+          idempotencyKey: `deletion-staff-${result.id}`,
+        },
+      );
       staffNotified = notification.sent;
     } catch {
       // The saved request remains in the Support inbox when email delivery is unavailable.
