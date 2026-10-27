@@ -158,16 +158,13 @@ function playPop(startHz: number, endHz: number, volume: number, length = 0.09) 
   }
 }
 
-/** Pull released / refresh started. */
+/** Refresh sounds use the same short pop as a tab switch, per member request. */
 export function playRefreshSound(): void {
-  if (typeof window === "undefined" || uiSoundMuted()) return;
-  playPop(380, 1150, 0.09, 0.085);
+  playTabSound();
 }
 
-/** Refresh finished — a lighter, higher pop. */
 export function playRefreshDoneSound(): void {
-  if (typeof window === "undefined" || uiSoundMuted()) return;
-  playPop(620, 1500, 0.06, 0.07);
+  playTabSound();
 }
 
 /** Warm three-note chime for new notifications (respects notification mute). */
