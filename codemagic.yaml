@@ -502,7 +502,7 @@ workflows:
       vars:
         ASH_NATIVE_PLATFORM: android
         CAP_SERVER_URL: https://ashglogroup.company
-        # In google_play, set ANDROID_PREVIOUS_VERSION_CODE from Play's highest
+        # In android_release, set ANDROID_PREVIOUS_VERSION_CODE from Play's highest
         # uploaded code (0 only for a confirmed first upload). No guessed default.
         # With ANDROID_VERSION_CODE unset, preflight adds BUILD_NUMBER to that
         # previous code, or to an explicitly supplied ANDROID_VERSION_CODE_BASE.
