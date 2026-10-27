@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Expand, Map, Minus, Package, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { cart, cartTotals, setCartUser, useCart, type CartItem } from "@/lib/cart";
 import { useUser } from "@/lib/queries";
