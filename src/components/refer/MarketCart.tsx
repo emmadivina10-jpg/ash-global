@@ -207,8 +207,7 @@ function CartPanel({
                 {formatXAF(i.price)} × {i.qty}
               </span>
             </span>
-            {checkout ? null : null}
-            {checkout ? null            ) : (
+            {checkout ? null : (
               <span className="flex items-center gap-1">
                 <Button size="icon" variant="ghost" className="size-8" aria-label={tx("Less", "Moins")} onClick={() => void cart.setQty(i.serviceId, i.qty - 1)}>
                   <Minus className="size-4" />
