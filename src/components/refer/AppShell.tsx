@@ -42,7 +42,6 @@ import { StatusBadge } from "./StatusBadge";
 import { NotificationBell } from "./NotificationBell";
 import { PushBridge } from "./PushBridge";
 import { WelcomeIntro } from "./WelcomeIntro";
-import { ScrollToTop } from "./ScrollToTop";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAvatarUrl } from "./AvatarUpload";
 import { VerifiedBadge } from "./VerifiedBadge";
@@ -562,7 +561,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       {!pathname.startsWith("/post/") ? (
         <MobileNav items={visible(MOBILE_NAV)} profile={profile} unreadMessages={unreadMessages} />
       ) : null}
-      <ScrollToTop />
 
       <LocationNudge />
     </div>
