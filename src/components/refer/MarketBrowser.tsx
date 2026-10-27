@@ -179,6 +179,7 @@ export function MarketBrowser({
   const claim = useServerFn(claimDeal);
   const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
+  const [optionsOpen, setOptionsOpen] = useState(false);
   const [city, setCity] = useState("");
   const [kind, setKind] = useState("all");
     const [sellOpen, setSellOpen] = useState(false);
