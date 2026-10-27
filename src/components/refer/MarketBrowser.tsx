@@ -380,12 +380,13 @@ export function MarketBrowser({
             size="icon"
             className="rounded-full"
             asChild
-            title={tx("Messages", "Messages")}
+            title={tx("Wallet", "Portefeuille")}
           >
-            <Link to="/messages" aria-label={tx("Market messages", "Messages Market")}>
-              <MessageCircle />
+            <Link to="/wallet" aria-label={tx("Wallet", "Portefeuille")}>
+              <Wallet />
             </Link>
           </Button>
+          <MarketCart />
           {optionsOpen && typeof document !== "undefined"
             ? createPortal(
                 <div
