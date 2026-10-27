@@ -1,5 +1,11 @@
 # Roadmap
 
+## iOS unknown payment environment group (Oct 27)
+- [x] Verified GitHub main codemagic.yaml matches local; inspected native sync, dependency installation, signing, export and publishing dependencies. No payment group variables are required for the remote-hosted native shell.
+- [x] Removed only the iOS payment group reference and TestFlight publishing action; retained IPA export, Apple signing and Android unchanged.
+- [ ] Validate configuration safety tests and final diff.
+- [ ] Confirm signed IPA in a new Codemagic ios-app-store run — blocked pending access to start and inspect Codemagic builds; no TestFlight upload authorized.
+
 ## Single-repository iOS build review (Oct 27)
 - [x] Read committed codemagic.yaml on emmadivina10-jpg/ash-global main; existing ios-app-store workflow is present. Old Emmanuel123456789123456789/ASH-Glo main returns GitHub 404 through the accessible connection.
 - [ ] Compare the previously working iOS setup and make only evidence-backed repairs — blocked pending old repository access or its codemagic.yaml, native config/project files, and failed new-repository iOS log. No speculative configuration edits; preserve Android and signing credentials; no automatic store publishing authorized.
