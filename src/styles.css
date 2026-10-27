@@ -2883,11 +2883,11 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   .market-options[data-state="open"] .market-option-tile { animation: none; }
 }
 
-/* TikTok-inspired tab bar: deep black, cyan + pink accents. */
+/* ASH-branded tab bar: ASH green + ASH magenta accents. */
 :root {
   --tt-ink: oklch(0.13 0.01 280);
-  --tt-cyan: oklch(0.87 0.14 192);
-  --tt-pink: oklch(0.65 0.24 15);
+  --tt-cyan: oklch(0.68 0.15 158);
+  --tt-pink: var(--primary);
   --tt-text: oklch(0.97 0 0);
   --tt-muted: oklch(0.72 0.01 280);
 }
