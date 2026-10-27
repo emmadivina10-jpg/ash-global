@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 /**
- * ASH Glo REFER — native shell configuration.
+ * ASH Glo — native shell configuration.
  *
  * The app is a server-rendered application with server functions, payments and
  * auth callbacks, so the native builds load the live deployment instead of a
