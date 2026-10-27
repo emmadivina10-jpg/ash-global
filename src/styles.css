@@ -2882,3 +2882,65 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   .market-options-backdrop,
   .market-options[data-state="open"] .market-option-tile { animation: none; }
 }
+
+/* TikTok-inspired tab bar: deep black, cyan + pink accents. */
+:root {
+  --tt-ink: oklch(0.13 0.01 280);
+  --tt-cyan: oklch(0.87 0.14 192);
+  --tt-pink: oklch(0.65 0.24 15);
+  --tt-text: oklch(0.97 0 0);
+  --tt-muted: oklch(0.72 0.01 280);
+}
+.premium-mobile-nav,
+.premium-mobile-nav .nav-bar-fill {
+  background-color: var(--tt-ink);
+}
+.premium-mobile-nav .premium-nav-pill {
+  border-top-color: color-mix(in oklab, var(--tt-text) 8%, transparent);
+  box-shadow: 0 -10px 30px -12px color-mix(in oklab, var(--tt-pink) 35%, transparent);
+}
+.premium-mobile-nav .premium-nav-item {
+  color: var(--tt-muted);
+  letter-spacing: 0.01em;
+}
+.premium-mobile-nav .premium-nav-item[aria-current="page"] {
+  color: var(--tt-text);
+  font-weight: 800;
+}
+.premium-mobile-nav .premium-nav-item > span:first-child {
+  transition: transform 220ms cubic-bezier(0.2, 0.9, 0.3, 1.4);
+}
+.premium-mobile-nav .premium-nav-item[aria-current="page"] > span:first-child {
+  transform: translateY(-1px) scale(1.12);
+  filter: drop-shadow(-1.5px -1px 0 var(--tt-cyan)) drop-shadow(1.5px 1px 0 var(--tt-pink));
+}
+.premium-mobile-nav .premium-nav-item:active > span:first-child {
+  transform: scale(0.9);
+}
+.premium-mobile-nav .member-icon-green {
+  stop-color: currentColor;
+}
+.premium-mobile-nav .member-icon-ash,
+.premium-mobile-nav .member-icon-violet {
+  stop-color: currentColor;
+}
+.premium-mobile-nav .premium-nav-item[aria-current="page"] > span.absolute {
+  inset-inline: 30%;
+  height: 3px;
+  border-radius: 0 0 999px 999px;
+  background-image: linear-gradient(90deg, var(--tt-cyan), var(--tt-pink));
+}
+.premium-mobile-nav .member-tab-bubble {
+  background-color: color-mix(in oklab, var(--tt-ink) 92%, transparent);
+  background-image: none;
+  color: var(--tt-text);
+  border-color: var(--tt-pink);
+  box-shadow:
+    -3px 0 0 var(--tt-cyan),
+    3px 0 0 var(--tt-pink);
+}
+@media (prefers-reduced-motion: reduce) {
+  .premium-mobile-nav .premium-nav-item > span:first-child {
+    transition: none;
+  }
+}

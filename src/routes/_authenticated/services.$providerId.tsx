@@ -11,8 +11,10 @@ import {
   MessageCircle,
   Play,
   ShieldCheck,
+  ShoppingCart,
 } from "lucide-react";
 import { toast } from "sonner";
+import { cart, setCartUser } from "@/lib/cart";
 import { supabase } from "@/integrations/supabase/client";
 import { contactVendor } from "@/lib/contact-vendor";
 import { ShareSheet, shareLink } from "@/components/refer/ShareSheet";
@@ -70,6 +72,8 @@ function bookingRequestError(code: string, fr: boolean): string {
 }
 
 export const Route = createFileRoute("/_authenticated/services/$providerId")({
+  validateSearch: (s: Record<string, unknown>): { book?: string } =>
+    typeof s["book"] === "string" ? { book: s["book"] } : {},
   head: () => ({
     meta: [
       { title: "Provider profile — ASH Glo" },
@@ -148,6 +152,16 @@ function ProviderPage() {
     () => ((services ?? []) as ServiceRow[]).filter((s) => s.is_active),
     [services],
   );
+  const { book: bookFromCart } = Route.useSearch();
+  const openedFromCart = useRef(false);
+  useEffect(() => {
+    if (!bookFromCart || openedFromCart.current) return;
+    const s = activeServices.find((x) => x.id === bookFromCart);
+    if (s) {
+      openedFromCart.current = true;
+      setBooking(s);
+    }
+  }, [bookFromCart, activeServices]);
   const bookable = Boolean(
     provider?.is_live &&
     (provider as { accepting_bookings?: boolean })?.accepting_bookings !== false,
@@ -355,6 +369,29 @@ function ProviderPage() {
                 </button>
                 <div className="flex shrink-0 items-center gap-2">
                   <span className="tabular text-sm font-bold">{formatXAF(service.price)}</span>
+                  {!isOwner ? (
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="size-9 touch-manipulation rounded-full"
+                      aria-label={tx("Add to cart", "Ajouter au panier")}
+                      disabled={Boolean(blockedReason)}
+                      onClick={() => {
+                        setCartUser(user?.id);
+                        cart.add({
+                          serviceId: service.id,
+                          providerId: provider.id,
+                          providerName: provider.business_name,
+                          title: service.title,
+                          price: Number(service.price),
+                          image: gallery[0]?.url ?? null,
+                        });
+                        toast.success(tx("Added to your cart", "Ajouté à votre panier"));
+                      }}
+                    >
+                      <ShoppingCart className="size-4" />
+                    </Button>
+                  ) : null}
                   <Button
                     size="sm"
                     className="touch-manipulation"

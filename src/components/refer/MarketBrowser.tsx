@@ -288,7 +288,7 @@ export function MarketBrowser({
     { value: "events", label: tx("Events", "Événements"), icon: PartyPopper },
     { value: "health", label: tx("Health", "Santé"), icon: HeartPulse },
     { value: "pro", label: tx("Pro", "Pro"), icon: Briefcase },
-    { value: "property", label: tx("Property", "Immobilier"), icon: House },
+    { value: "property", label: tx("Homes", "Maisons"), icon: House },
     { value: "deal", label: tx("Deals", "Offres"), icon: Tag },
     { value: "service", label: "Services", icon: Sparkles },
   ];
