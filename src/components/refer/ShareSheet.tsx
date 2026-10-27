@@ -59,7 +59,7 @@ export function ShareSheet({
       target_type: targetType,
       target_id: targetId,
       metadata: { channel },
-    } as never);
+    });
   }
 
   const message = `${note.trim() ? `${note.trim()}\n` : ""}${title}\n${url}`;
