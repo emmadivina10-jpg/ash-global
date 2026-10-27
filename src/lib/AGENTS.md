@@ -6,3 +6,4 @@
 - Account erasure uses account-erasure.server.ts; approval stays blocked until a reviewed field-level retention schedule and cascade-safe persistence adapter exist. Why: Auth deletion currently destroys financial history, while profile closure is not erasure.
 
 - Navigation unread badges use exact RLS-scoped head-only message counts, realtime/poll and read-success invalidation. Why: accurate alerts without full inbox downloads.
+- The Stripe webhook identifies the platform via a live account read, falling back to the saved stripe_marketplace_controls account only when the delivery's signing secret matches the event source; failures log one sanitized JSON line (event id/type, stage, Stripe status/code/request id). Why: a restricted key must not silently drop events, and an account ID is identity, never payment evidence.
