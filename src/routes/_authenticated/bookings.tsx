@@ -49,6 +49,7 @@ import {
   type PaymentCheckFeedback,
 } from "@/components/refer/BookingPaymentNotice";
 import { bookingPaymentAction, paymentCheckOutcome } from "@/lib/booking-payment-state";
+import { MIN_SERVICE_PRICE_XAF } from "@/lib/price-minimum";
 import { SectionCard } from "@/components/refer/cards";
 import { RatingStars } from "@/components/refer/RatingStars";
 import { EmptyState, SkeletonRows } from "@/components/refer/states";
