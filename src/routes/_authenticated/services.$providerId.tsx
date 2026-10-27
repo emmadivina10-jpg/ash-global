@@ -73,7 +73,7 @@ function bookingRequestError(code: string, fr: boolean): string {
 
 export const Route = createFileRoute("/_authenticated/services/$providerId")({
   validateSearch: (s: Record<string, unknown>): { book?: string } =>
-    typeof s.book === "string" ? { book: s.book } : {},
+    typeof s["book"] === "string" ? { book: s["book"] } : {},
   head: () => ({
     meta: [
       { title: "Provider profile — ASH Glo" },
