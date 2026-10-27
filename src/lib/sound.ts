@@ -131,43 +131,13 @@ export function playTabSound(): void {
   }
 }
 
-/**
- * Facebook-style refresh "pop": a short, soft water-drop bloop whose pitch
- * slides up quickly. Synthesised, so no audio file is bundled.
- */
-function playPop(startHz: number, endHz: number, volume: number, length = 0.09) {
-  const ctx = context();
-  if (!ctx) return;
-  try {
-    if (ctx.state === "suspended") void ctx.resume();
-    const now = ctx.currentTime;
-    const gain = ctx.createGain();
-    gain.connect(ctx.destination);
-    gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(volume, now + 0.006);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + length);
-    const osc = ctx.createOscillator();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(startHz, now);
-    osc.frequency.exponentialRampToValueAtTime(endHz, now + length * 0.7);
-    osc.connect(gain);
-    osc.start(now);
-    osc.stop(now + length + 0.02);
-  } catch {
-    /* audio unavailable */
-  }
-}
-
-/** Pull released / refresh started. */
+/** Refresh sounds use the same short pop as a tab switch, per member request. */
 export function playRefreshSound(): void {
-  if (typeof window === "undefined" || uiSoundMuted()) return;
-  playPop(380, 1150, 0.09, 0.085);
+  playTabSound();
 }
 
-/** Refresh finished — a lighter, higher pop. */
 export function playRefreshDoneSound(): void {
-  if (typeof window === "undefined" || uiSoundMuted()) return;
-  playPop(620, 1500, 0.06, 0.07);
+  playTabSound();
 }
 
 /** Warm three-note chime for new notifications (respects notification mute). */
