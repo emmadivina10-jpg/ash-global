@@ -12,9 +12,6 @@ workflows:
         distribution_type: app_store
         bundle_identifier: com.ashglogroup.mobile
 
-      groups:
-        - tchokopay_production
-
       vars:
         XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
@@ -475,10 +472,7 @@ workflows:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/**
 
-    publishing:
-      app_store_connect:
-        auth: integration
-        submit_to_testflight: true
+    # Artifact-only: retain Apple signing above, but do not upload to TestFlight.
 
   # ================================================================
   # ANDROID — GOOGLE PLAY
