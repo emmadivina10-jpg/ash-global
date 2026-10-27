@@ -15,7 +15,6 @@ import {
   Search,
   Settings2,
   UserMinus,
-  ChartNoAxesCombined,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -725,7 +724,7 @@ function MessagesPage() {
               ========================================================= */}
           <div
             className={cn(
-              "messages-inbox flex min-h-0 flex-col overflow-hidden border-r border-border p-0 max-md:rounded-none max-md:border-0",
+              "messages-inbox messages-scroll flex min-h-0 flex-col overflow-x-hidden overflow-y-auto overscroll-contain border-r border-border p-0 max-md:rounded-none max-md:border-0",
               mobileView === "thread"
                 ? "hidden md:flex"
                 : chromeReservePx !== null
@@ -739,18 +738,21 @@ function MessagesPage() {
                 : undefined
             }
           >
-            <div className="border-b border-border bg-card/75 px-4 pb-4 pt-5 backdrop-blur">
-              <h2 className="mb-4 flex items-center justify-between font-display text-3xl font-bold text-foreground">
+            {/* Stays pinned while the title and search scroll away, like WhatsApp. */}
+            <div className="sticky top-0 z-20 h-0 shrink-0">
+              <Button
+                size="icon"
+                variant="default"
+                className="absolute right-4 top-5 size-11 rounded-full shadow-lg"
+                aria-label={tx("New chat", "Nouvelle discussion")}
+                onClick={() => setNewChatOpen(true)}
+              >
+                <Plus className="size-6" />
+              </Button>
+            </div>
+            <div className="shrink-0 border-b border-border bg-card/75 px-4 pb-4 pt-5">
+              <h2 className="mb-4 flex min-h-11 items-center pr-14 font-display text-3xl font-bold text-foreground">
                 {t("chat.title")}
-                <Button
-                  size="icon"
-                  variant="default"
-                  className="size-11 rounded-full"
-                  aria-label={tx("New chat", "Nouvelle discussion")}
-                  onClick={() => setNewChatOpen(true)}
-                >
-                  <Plus className="size-6" />
-                </Button>
               </h2>
               <ChatActionDialog
                 open={newChatOpen}
@@ -863,35 +865,6 @@ function MessagesPage() {
                     <Lock className="size-4" aria-hidden />
                     {fr ? `Verrouillées (${lockedCount})` : `Locked (${lockedCount})`}
                   </button>
-                ) : null}
-
-                <button
-                  type="button"
-                  onClick={() => setPinDialog(true)}
-                  className="flex min-h-10 items-center gap-2 rounded-full bg-muted px-3 py-2 text-sm font-bold text-muted-foreground"
-                >
-                  <Lock className="size-4" aria-hidden />
-                  {lockPin
-                    ? tx("Chat lock PIN", "Code des discussions")
-                    : tx("Set a PIN", "Créer un code")}
-                </button>
-
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="h-10 rounded-full border-success/30 bg-success/10 px-3 text-sm text-foreground hover:bg-success/20"
-                >
-                  <Link to="/investment">
-                    <ChartNoAxesCombined className="size-4 text-success" aria-hidden />
-                    ASH Investment
-                  </Link>
-                </Button>
-
-                {lockedUnlocked ? (
-                  <span className="rounded-full bg-primary/15 px-2.5 py-1 text-[11px] font-bold text-primary">
-                    {tx("Locked chats shown", "Discussions verrouillées affichées")}
-                  </span>
                 ) : null}
               </div>
             </div>
@@ -1123,7 +1096,7 @@ function MessagesPage() {
               </DialogContent>
             </Dialog>
 
-            <nav className="messages-scroll min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain touch-pan-y">
+            <nav className="min-h-0 flex-1 shrink-0 overflow-x-hidden touch-pan-y">
               {term.trim() &&
               !`${ashAiConversation.label} ${aiPreview}`
                 .toLowerCase()

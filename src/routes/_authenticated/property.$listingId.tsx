@@ -240,7 +240,7 @@ function PropertyDetail() {
           <button
             type="button"
             onClick={() => setLightbox(0)}
-            className="overflow-hidden rounded-2xl border border-border"
+            className="overflow-hidden border border-border"
           >
             <img
               src={gallery[0]!.url!}
@@ -254,7 +254,7 @@ function PropertyDetail() {
                 key={image.id}
                 type="button"
                 onClick={() => setLightbox(index + 1)}
-                className="overflow-hidden rounded-2xl border border-border"
+                className="overflow-hidden border border-border"
               >
                 <img
                   src={image.url!}

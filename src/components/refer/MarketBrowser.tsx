@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
@@ -178,6 +179,7 @@ export function MarketBrowser({
   const claim = useServerFn(claimDeal);
   const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
+  const [optionsOpen, setOptionsOpen] = useState(false);
   const [city, setCity] = useState("");
   const [kind, setKind] = useState("all");
     const [sellOpen, setSellOpen] = useState(false);
@@ -384,12 +386,22 @@ export function MarketBrowser({
               <MessageCircle />
             </Link>
           </Button>
-          <Popover>
+          {optionsOpen && typeof document !== "undefined"
+            ? createPortal(
+                <div
+                  aria-hidden
+                  className="market-options-backdrop fixed inset-0 z-40 bg-background/40 backdrop-blur-md"
+                  onClick={() => setOptionsOpen(false)}
+                />,
+                document.body,
+              )
+            : null}
+          <Popover open={optionsOpen} onOpenChange={setOptionsOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="secondary"
                 size="icon"
-                className="rounded-full"
+                className="relative z-50 rounded-full"
                 aria-label={tx("Market options", "Options Market")}
                 title={tx("Market options", "Options Market")}
               >
@@ -398,87 +410,92 @@ export function MarketBrowser({
             </PopoverTrigger>
             <PopoverContent
               align="end"
-              sideOffset={10}
-              className="market-options w-[min(92vw,22rem)] origin-top-right space-y-3 rounded-2xl p-4 shadow-2xl"
+              sideOffset={12}
+              className="market-options w-[min(92vw,22rem)] origin-top-right overflow-hidden rounded-3xl border-border/60 bg-card/95 p-0 shadow-2xl backdrop-blur-xl"
             >
-              <div className="grid grid-cols-2 gap-2">
-                <Button variant="secondary" className="rounded-full" onClick={() => setSellOpen(true)}>
-                  <Plus className="size-4" />
-                  {tx("Sell", "Vendre")}
-                </Button>
-                <Button
-                  variant="secondary"
-                  className="min-w-0 rounded-full"
+              <div className="border-b border-border/60 px-5 pb-3 pt-4">
+                <p className="font-display text-lg font-bold text-foreground">
+                  {tx("Your Market", "Votre Market")}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {tx("Sell, filter and manage in one place", "Vendre, filtrer et gérer au même endroit")}
+                </p>
+              </div>
+              <div className="grid grid-cols-3 gap-2 p-4">
+                {[
+                  { icon: Plus, label: tx("Sell", "Vendre"), onClick: () => { setOptionsOpen(false); setSellOpen(true); } },
+                  { icon: MapPin, label: city || tx("Location", "Lieu"), onClick: () => { setOptionsOpen(false); setCityDraft(city); setLocOpen(true); } },
+                  { icon: House, label: tx("Homes", "Biens"), to: "/property/manage" as const },
+                  { icon: Tag, label: tx("Deals", "Offres"), to: "/deals" as const },
+                  { icon: Store, label: tx("My shop", "Ma boutique"), to: "/studio" as const },
+                  { icon: Briefcase, label: tx("Bookings", "Réservations"), to: "/bookings" as const },
+                ].map((item, i) => {
+                  const inner = (
+                    <>
+                      <span className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary">
+                        <item.icon className="size-5" aria-hidden />
+                      </span>
+                      <span className="w-full truncate text-center text-[11px] font-semibold text-foreground">
+                        {item.label}
+                      </span>
+                    </>
+                  );
+                  const cls =
+                    "market-option-tile flex flex-col items-center gap-1.5 rounded-2xl p-2 transition-colors hover:bg-muted";
+                  return item.to ? (
+                    <Link key={item.to} to={item.to} className={cls} style={{ animationDelay: `${60 + i * 35}ms` }} onClick={() => setOptionsOpen(false)}>
+                      {inner}
+                    </Link>
+                  ) : (
+                    <button key={i} type="button" className={cls} style={{ animationDelay: `${60 + i * 35}ms` }} onClick={item.onClick}>
+                      {inner}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="space-y-3 border-t border-border/60 bg-muted/30 px-5 py-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="market-price" className="text-xs text-muted-foreground">
+                      {tx("Max price", "Prix max")}
+                    </Label>
+                    <Input
+                      id="market-price"
+                      type="number"
+                      min="0"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(e.target.value)}
+                      placeholder="XAF"
+                      className="h-10 rounded-xl bg-background"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">{tx("Sort", "Trier")}</Label>
+                    <Select value={sort} onValueChange={setSort}>
+                      <SelectTrigger className="h-10 rounded-xl bg-background" aria-label={tx("Sort listings", "Trier les annonces")}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="z-[60]">
+                        <SelectItem value="recent">{tx("For you", "Pour vous")}</SelectItem>
+                        <SelectItem value="low">{tx("Price: low to high", "Prix croissant")}</SelectItem>
+                        <SelectItem value="high">{tx("Price: high to low", "Prix décroissant")}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="text-xs font-bold text-primary"
                   onClick={() => {
-                    setCityDraft(city);
-                    setLocOpen(true);
+                    setCity("");
+                    setMaxPrice("");
+                    setSort("recent");
+                    setQuery("");
+                    setKind("all");
                   }}
                 >
-                  <MapPin className="size-4 shrink-0" />
-                  <span className="truncate">{city || tx("Location", "Localisation")}</span>
-                </Button>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="market-city">{tx("City", "Ville")}</Label>
-                <Input
-                  id="market-city"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  placeholder={tx("All cities", "Toutes les villes")}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1.5">
-                  <Label htmlFor="market-price">{tx("Max price", "Prix max")}</Label>
-                  <Input
-                    id="market-price"
-                    type="number"
-                    min="0"
-                    value={maxPrice}
-                    onChange={(e) => setMaxPrice(e.target.value)}
-                    placeholder="XAF"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>{tx("Sort", "Trier")}</Label>
-                  <Select value={sort} onValueChange={setSort}>
-                    <SelectTrigger aria-label={tx("Sort listings", "Trier les annonces")}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="recent">{tx("For you", "Pour vous")}</SelectItem>
-                      <SelectItem value="low">{tx("Price: low to high", "Prix croissant")}</SelectItem>
-                      <SelectItem value="high">{tx("Price: high to low", "Prix décroissant")}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setCity("");
-                  setMaxPrice("");
-                  setSort("recent");
-                  setQuery("");
-                  setKind("all");
-                }}
-              >
-                {tx("Reset filters", "Réinitialiser")}
-              </Button>
-              <div className="grid gap-1 border-t border-border pt-3 text-sm">
-                <Link className="rounded-md px-2 py-1.5 hover:bg-muted" to="/property/manage">
-                  {tx("My properties & saved homes", "Mes biens et favoris")}
-                </Link>
-                <Link className="rounded-md px-2 py-1.5 hover:bg-muted" to="/deals">
-                  {tx("My deals & codes", "Mes offres et codes")}
-                </Link>
-                <Link className="rounded-md px-2 py-1.5 hover:bg-muted" to="/studio">
-                  {tx("My storefront", "Mon commerce")}
-                </Link>
-                <Link className="rounded-md px-2 py-1.5 hover:bg-muted" to="/bookings">
-                  {tx("My bookings", "Mes réservations")}
-                </Link>
+                  {tx("Reset filters", "Réinitialiser les filtres")}
+                </button>
               </div>
             </PopoverContent>
           </Popover>
