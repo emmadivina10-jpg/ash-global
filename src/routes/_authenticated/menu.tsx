@@ -1,4 +1,6 @@
-import { useState } from "react";
+import {
+  Plane,
+  Gift, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowDownToLine,
@@ -74,6 +76,8 @@ const sections: { en: string; fr: string; items: MenuItem[] }[] = [
     en: "Social",
     fr: "Social",
     items: [
+      { en: "Flights", fr: "Vols", to: "/flights", icon: Plane },
+      { en: "Referral rewards", fr: "Récompenses de parrainage", to: "/referral-rewards", icon: Gift },
       { en: "Search ASH", fr: "Rechercher sur ASH", to: "/search", icon: Search },
       { en: "Friends", fr: "Amis", to: "/friends", icon: Users },
       { en: "Groups", fr: "Groupes", to: "/groups", icon: MessageCircle },
