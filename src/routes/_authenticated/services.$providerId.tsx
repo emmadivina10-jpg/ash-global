@@ -14,7 +14,7 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import { toast } from "sonner";
-import { cart } from "@/lib/cart";
+import { cart, setCartUser } from "@/lib/cart";
 import { supabase } from "@/integrations/supabase/client";
 import { contactVendor } from "@/lib/contact-vendor";
 import { ShareSheet, shareLink } from "@/components/refer/ShareSheet";
@@ -377,6 +377,7 @@ function ProviderPage() {
                       aria-label={tx("Add to cart", "Ajouter au panier")}
                       disabled={Boolean(blockedReason)}
                       onClick={() => {
+                        setCartUser(user?.id);
                         cart.add({
                           serviceId: service.id,
                           providerId: provider.id,
