@@ -22,7 +22,7 @@ function logWebhookFailure(
 ): void {
   const e = (err ?? {}) as Record<string, unknown>;
   const isStripe = e["name"] === "StripeReadError";
-  const message = err instanceof Error && /^[A-Z_]{3,60}$/.test(err.message) ? err.message : "UNEXPECTED";
+  const message = err === undefined ? null : err instanceof Error && /^[A-Z_]{3,60}$/.test(err.message) ? err.message : "UNEXPECTED";
   console.error(
     JSON.stringify({
       scope: "stripe_webhook",
