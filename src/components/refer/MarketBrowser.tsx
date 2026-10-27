@@ -9,7 +9,6 @@ import {
   Plus,
   UserRound,
   MessageCircle,
-  SlidersHorizontal,
   House,
   Tag,
   Sparkles,
@@ -27,7 +26,9 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { CATEGORY_GROUPS } from "@/lib/taxonomy";
+import { CATEGORY_GROUPS, categoryLabel } from "@/lib/taxonomy";
+import { rotateSessionContent } from "@/lib/rotation";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -47,12 +48,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
 import { useDeals, type Deal } from "@/lib/ash.queries";
 import { usePropertyListings } from "@/lib/property.queries";
 import { formatPropertyPrice } from "@/lib/property";
@@ -185,8 +180,7 @@ export function MarketBrowser({
   const [query, setQuery] = useState("");
   const [city, setCity] = useState("");
   const [kind, setKind] = useState("all");
-  const [filtersOpen, setFiltersOpen] = useState(false);
-  const [sellOpen, setSellOpen] = useState(false);
+    const [sellOpen, setSellOpen] = useState(false);
   const [locOpen, setLocOpen] = useState(false);
   const [cityDraft, setCityDraft] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -235,7 +229,8 @@ export function MarketBrowser({
         deal: d,
       });
     }
-    return items;
+    // Never show a listing without a photo.
+    return items.filter((l) => Boolean(l.image));
   }, [providers, properties.data, deals.data, fr, region.country, region.seesEverything]);
   const SVC_GROUPS: Record<string, string[]> = {
     food: FOOD_CATS,
@@ -249,7 +244,8 @@ export function MarketBrowser({
   const matchKind = (l: Listing) =>
     kind === "all" ||
     kind === l.kind ||
-    (l.kind === "service" && Boolean(SVC_GROUPS[kind]?.some((c) => l.cats?.includes(c))));
+    // A vendor belongs only to the section of its main category.
+    (l.kind === "service" && Boolean(l.cats?.[0] && SVC_GROUPS[kind]?.includes(l.cats[0])));
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase();
     const area = city.trim().toLowerCase();
@@ -260,6 +256,17 @@ export function MarketBrowser({
         (!area || l.city.toLowerCase().includes(area)) &&
         (!maxPrice || (l.price !== null && l.price <= Number(maxPrice))),
     );
+    if (sort === "recent")
+      return rotateSessionContent(
+        "market",
+        rows.map((l) => ({
+          item: l,
+          id: `${l.kind}-${l.id}`,
+          creator: `${l.kind}-${l.id}`,
+          relevance: Math.max(0, 1 - (Date.now() - Date.parse(l.date)) / (90 * 864e5)),
+        })),
+        null,
+      );
     return rows.sort((a, b) =>
       sort === "low"
         ? (a.price ?? Infinity) - (b.price ?? Infinity)
@@ -271,8 +278,8 @@ export function MarketBrowser({
   const categories = [
     { value: "all", label: tx("All", "Tout"), icon: Store },
     { value: "food", label: tx("Food", "Cuisine"), icon: UtensilsCrossed },
-    { value: "electronics", label: tx("Electronics", "Électronique"), icon: Smartphone },
-    { value: "fashion", label: tx("Fashion", "Mode"), icon: Shirt },
+    { value: "electronics", label: tx("Tech", "Tech"), icon: Smartphone },
+    { value: "fashion", label: tx("Beauty", "Beauté"), icon: Shirt },
     { value: "home", label: tx("Home", "Maison"), icon: Hammer },
     { value: "events", label: tx("Events", "Événements"), icon: PartyPopper },
     { value: "health", label: tx("Health", "Santé"), icon: HeartPulse },
@@ -312,7 +319,7 @@ export function MarketBrowser({
   }
   const listingContent = (l: Listing) => (
     <>
-      <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
+      <div className="relative aspect-square overflow-hidden bg-muted">
         {l.image ? (
           <img
             src={l.image}
@@ -326,13 +333,11 @@ export function MarketBrowser({
             <span className="text-xs">{tx("No photo", "Sans photo")}</span>
           </div>
         )}
-        <span className="absolute bottom-2 left-2 rounded-md bg-background/95 px-2 py-1 text-[11px] font-semibold text-foreground">
-          {categories.find((c) => c.value === l.kind)?.label ?? "Services"}
-        </span>
       </div>
-      <div className="space-y-0.5 px-0.5 py-2 text-left">
-        <p className="break-words text-sm font-bold text-foreground sm:text-base">{l.priceLabel}</p>
-        <h3 className="line-clamp-2 text-sm font-medium text-foreground">{l.title}</h3>
+      <div className="space-y-0.5 px-1.5 py-2 text-left">
+        <h3 className="line-clamp-2 text-sm font-semibold text-foreground sm:text-base">
+          {l.kind === "service" && l.cats?.[0] ? categoryLabel(l.cats[0], lang) : l.title}
+        </h3>
         {l.kind === "service" && (
           <p className="flex items-center gap-1 text-xs text-muted-foreground">
             <span className="flex" aria-label={`${(l.rating ?? 0).toFixed(1)} / 5`}>
@@ -342,7 +347,7 @@ export function MarketBrowser({
                   className={cn(
                     "size-3",
                     n <= Math.round(l.rating ?? 0)
-                      ? "fill-gold text-gold"
+                      ? "fill-star text-star"
                       : "text-muted-foreground/40",
                   )}
                   aria-hidden
@@ -379,35 +384,104 @@ export function MarketBrowser({
               <MessageCircle />
             </Link>
           </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+          <Popover>
+            <PopoverTrigger asChild>
               <Button
                 variant="secondary"
                 size="icon"
                 className="rounded-full"
-                aria-label={tx("Your Market activity", "Votre activité Market")}
-                title={tx("Your activity", "Votre activité")}
+                aria-label={tx("Market options", "Options Market")}
+                title={tx("Market options", "Options Market")}
               >
                 <UserRound />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <Link to="/property/manage">
+            </PopoverTrigger>
+            <PopoverContent
+              align="end"
+              sideOffset={10}
+              className="market-options w-[min(92vw,22rem)] origin-top-right space-y-3 rounded-2xl p-4 shadow-2xl"
+            >
+              <div className="grid grid-cols-2 gap-2">
+                <Button variant="secondary" className="rounded-full" onClick={() => setSellOpen(true)}>
+                  <Plus className="size-4" />
+                  {tx("Sell", "Vendre")}
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="min-w-0 rounded-full"
+                  onClick={() => {
+                    setCityDraft(city);
+                    setLocOpen(true);
+                  }}
+                >
+                  <MapPin className="size-4 shrink-0" />
+                  <span className="truncate">{city || tx("Location", "Localisation")}</span>
+                </Button>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="market-city">{tx("City", "Ville")}</Label>
+                <Input
+                  id="market-city"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder={tx("All cities", "Toutes les villes")}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="market-price">{tx("Max price", "Prix max")}</Label>
+                  <Input
+                    id="market-price"
+                    type="number"
+                    min="0"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(e.target.value)}
+                    placeholder="XAF"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>{tx("Sort", "Trier")}</Label>
+                  <Select value={sort} onValueChange={setSort}>
+                    <SelectTrigger aria-label={tx("Sort listings", "Trier les annonces")}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="recent">{tx("For you", "Pour vous")}</SelectItem>
+                      <SelectItem value="low">{tx("Price: low to high", "Prix croissant")}</SelectItem>
+                      <SelectItem value="high">{tx("Price: high to low", "Prix décroissant")}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setCity("");
+                  setMaxPrice("");
+                  setSort("recent");
+                  setQuery("");
+                  setKind("all");
+                }}
+              >
+                {tx("Reset filters", "Réinitialiser")}
+              </Button>
+              <div className="grid gap-1 border-t border-border pt-3 text-sm">
+                <Link className="rounded-md px-2 py-1.5 hover:bg-muted" to="/property/manage">
                   {tx("My properties & saved homes", "Mes biens et favoris")}
                 </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/deals">{tx("My deals & codes", "Mes offres et codes")}</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/studio">{tx("My storefront", "Mon commerce")}</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/bookings">{tx("My bookings", "Mes réservations")}</Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <Link className="rounded-md px-2 py-1.5 hover:bg-muted" to="/deals">
+                  {tx("My deals & codes", "Mes offres et codes")}
+                </Link>
+                <Link className="rounded-md px-2 py-1.5 hover:bg-muted" to="/studio">
+                  {tx("My storefront", "Mon commerce")}
+                </Link>
+                <Link className="rounded-md px-2 py-1.5 hover:bg-muted" to="/bookings">
+                  {tx("My bookings", "Mes réservations")}
+                </Link>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </header>
       <div className="flex gap-2">
@@ -424,37 +498,6 @@ export function MarketBrowser({
             className="h-11 rounded-full bg-muted pl-10"
           />
         </div>
-        <Button
-          variant="secondary"
-          size="icon"
-          className="size-11 rounded-full"
-          aria-label={tx("Market filters", "Filtres Market")}
-          aria-expanded={filtersOpen}
-          onClick={() => setFiltersOpen(!filtersOpen)}
-        >
-          <SlidersHorizontal />
-        </Button>
-      </div>
-      <div className="flex gap-2">
-        <Button
-          variant="secondary"
-          className="min-w-0 flex-1 rounded-full"
-          onClick={() => setSellOpen(true)}
-        >
-          <Plus className="size-4" />
-          {tx("Sell", "Vendre")}
-        </Button>
-        <Button
-          variant="secondary"
-          className="min-w-0 flex-1 rounded-full"
-          onClick={() => {
-            setCityDraft(city);
-            setLocOpen(true);
-          }}
-        >
-          <MapPin className="size-4 shrink-0" />
-          <span className="truncate">{city || tx("Location", "Localisation")}</span>
-        </Button>
       </div>
       <nav
         aria-label={tx("Market categories", "Catégories Market")}
@@ -473,59 +516,6 @@ export function MarketBrowser({
           <RoundIcon icon={LayoutGrid} label="Extras" />
         </Link>
       </nav>
-      {filtersOpen && (
-        <section
-          className="grid gap-3 border-y border-border py-4 sm:grid-cols-3"
-          aria-label={tx("Filters", "Filtres")}
-        >
-          <div className="space-y-1.5">
-            <Label htmlFor="market-city">{tx("City", "Ville")}</Label>
-            <Input
-              id="market-city"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              placeholder={tx("All cities", "Toutes les villes")}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="market-price">{tx("Maximum price", "Prix maximum")}</Label>
-            <Input
-              id="market-price"
-              type="number"
-              min="0"
-              value={maxPrice}
-              onChange={(e) => setMaxPrice(e.target.value)}
-              placeholder="XAF"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label>{tx("Sort", "Trier")}</Label>
-            <Select value={sort} onValueChange={setSort}>
-              <SelectTrigger aria-label={tx("Sort listings", "Trier les annonces")}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="recent">{tx("Newest first", "Plus récentes")}</SelectItem>
-                <SelectItem value="low">{tx("Price: low to high", "Prix croissant")}</SelectItem>
-                <SelectItem value="high">{tx("Price: high to low", "Prix décroissant")}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <Button
-            variant="ghost"
-            className="justify-self-start"
-            onClick={() => {
-              setCity("");
-              setMaxPrice("");
-              setSort("recent");
-              setQuery("");
-              setKind("all");
-            }}
-          >
-            {tx("Reset filters", "Réinitialiser")}
-          </Button>
-        </section>
-      )}
       <div className="flex items-baseline justify-between gap-2 border-t border-border pt-4">
         <h2 className="text-lg font-bold text-foreground">
           {query ? tx("Search results", "Résultats") : tx("Today's picks", "À découvrir")}
@@ -565,7 +555,7 @@ export function MarketBrowser({
           aria-label={tx("Loading listings", "Chargement des annonces")}
         >
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="aspect-square animate-pulse rounded-lg bg-muted" />
+            <div key={i} className="aspect-square animate-pulse bg-muted" />
           ))}
         </div>
       ) : filtered.length === 0 ? (
@@ -587,7 +577,7 @@ export function MarketBrowser({
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-x-3 gap-y-4 sm:grid-cols-3 xl:grid-cols-4">
+        <div className="-mx-4 grid grid-cols-2 gap-x-1 gap-y-3 sm:mx-0 sm:grid-cols-3 xl:grid-cols-4">
           {filtered.map((l) =>
             l.kind === "property" ? (
               <Link
