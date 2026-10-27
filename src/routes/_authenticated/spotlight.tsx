@@ -534,7 +534,7 @@ function SpotlightSlide({
           <img src={entry.url} alt={entry.caption ?? entry.provider.business_name} className="size-full object-cover" />
         )}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-media-backdrop/90 to-transparent" />
-        <div className="absolute bottom-4 left-4 right-20 space-y-2 lg:right-4">
+        <div className={cn("absolute left-4 right-20 space-y-2 lg:right-4", entry.media_type === "video" ? "bottom-10" : "bottom-4")}>
           <p className="flex items-center gap-2 text-sm font-bold">
             <Avatar path={entry.provider.avatar_url} name={entry.provider.business_name} className="size-9 ring-2 ring-on-dark/70" />
             <span className="truncate">{entry.provider.business_name}</span>
