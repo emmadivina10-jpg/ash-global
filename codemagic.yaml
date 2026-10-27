@@ -496,7 +496,7 @@ workflows:
         - ash_glo_keystore
 
       groups:
-        - google_play
+        # Only android_release exists in Codemagic; google_play is publishing-only.
         - android_release
 
       vars:

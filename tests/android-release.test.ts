@@ -12,7 +12,8 @@ describe('Android release safety', () => {
   it('android workflow imports android_release and keeps signing', () => {
     const y = readFileSync(new URL('../codemagic.yaml', import.meta.url), 'utf8');
     const a = y.slice(y.indexOf('android-play:'));
-    expect(a).toMatch(/groups:\n\s+- google_play\n\s+- android_release/);
+    expect(a).toMatch(/groups:\n(\s+#.*\n)?\s+- android_release\n/);
+    expect(a.slice(0, a.indexOf('scripts:'))).not.toMatch(/-\s*google_play/);
     expect(a).toContain('- ash_glo_keystore');
   });
   it('first upload: previous 0 + build 1 gives versionCode 1, and grows with builds', () => {
