@@ -3,7 +3,7 @@
 ## iOS unknown payment environment group (Oct 27)
 - [x] Verified GitHub main codemagic.yaml matches local; inspected native sync, dependency installation, signing, export and publishing dependencies. No payment group variables are required for the remote-hosted native shell.
 - [x] Removed only the iOS payment group reference and TestFlight publishing action; retained IPA export, Apple signing and Android unchanged.
-- [ ] Validate configuration safety tests and final diff.
+- [x] 35 iOS/Android safety tests passed; YAML parsed and all 14 shell scripts passed syntax checks. Semantic diff confirms exactly two iOS removals; Android is byte-identical; automatic preview build OK.
 - [ ] Confirm signed IPA in a new Codemagic ios-app-store run — blocked pending access to start and inspect Codemagic builds; no TestFlight upload authorized.
 
 ## Single-repository iOS build review (Oct 27)
