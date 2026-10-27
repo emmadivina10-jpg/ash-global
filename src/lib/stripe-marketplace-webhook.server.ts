@@ -50,7 +50,7 @@ function logWebhookFailure(
  * is identity only — every payment still needs its own Stripe evidence below.
  */
 async function resolvePlatformAccount(
-  event: { id: string; type: string; account?: string },
+  event: { id: string; type: string; account?: string | undefined },
   savedAccountId: string,
   signedBy: WebhookSignedBy | undefined,
 ): Promise<{ ok: true; id: string; source: "live" | "saved" } | { ok: false; response: Response }> {
@@ -72,7 +72,7 @@ async function resolvePlatformAccount(
 
 export async function handleMarketplaceEvent(
   payload: unknown,
-  context?: { signedBy?: WebhookSignedBy },
+  context?: { signedBy?: WebhookSignedBy | undefined },
 ): Promise<Response> {
   const parsed = eventSchema.safeParse(payload);
   if (!parsed.success) return new Response("Invalid live event", { status: 400 });
