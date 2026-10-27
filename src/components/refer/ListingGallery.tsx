@@ -20,7 +20,7 @@ export function ListingGallery({
   const [index, setIndex] = useState(0);
   if (items.length === 0) {
     return (
-      <div className="grid aspect-square w-full place-items-center rounded-2xl bg-muted text-muted-foreground sm:aspect-[4/3]">
+      <div className="grid aspect-square w-full place-items-center bg-muted text-muted-foreground sm:aspect-[4/3]">
         <div className="flex flex-col items-center gap-2">
           <ImageOff className="size-8" aria-hidden />
           <span className="text-sm">{emptyLabel}</span>
@@ -41,7 +41,7 @@ export function ListingGallery({
           const el = e.currentTarget;
           setIndex(Math.round(el.scrollLeft / Math.max(1, el.clientWidth)));
         }}
-        className="flex aspect-square w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain rounded-2xl bg-muted [scrollbar-width:none] sm:aspect-[4/3] [&::-webkit-scrollbar]:hidden"
+        className="flex aspect-square w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain bg-muted [scrollbar-width:none] sm:aspect-[4/3] [&::-webkit-scrollbar]:hidden"
       >
         {items.map((item) => (
           <button

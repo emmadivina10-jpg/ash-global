@@ -1221,7 +1221,7 @@ function RelatedListings({
             params={{ providerId: p.id }}
             className="min-w-0"
           >
-            <div className="aspect-square overflow-hidden rounded-lg bg-muted">
+            <div className="aspect-square overflow-hidden bg-muted">
               {p.avatar_url ? (
                 <img
                   src={p.avatar_url}
