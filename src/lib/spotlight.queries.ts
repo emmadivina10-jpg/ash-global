@@ -73,10 +73,11 @@ function parseMedia(value: unknown): SpotlightMedia[] {
 }
 
 /** The merged Spotlight feed: member posts first, then vendor highlights. */
-export function useSpotlightFeed(limit = 18) {
+export function useSpotlightFeed(limit = 18, pinnedId?: string | null) {
+  const pinned = pinnedId ? (pinnedId.includes(":") ? pinnedId : `post:${pinnedId}`) : null;
   const { user, loading } = useUser();
   return useQuery({
-    queryKey: ["spotlight-feed", limit, user?.id],
+    queryKey: ["spotlight-feed", limit, user?.id, pinned],
     enabled: !loading && Boolean(user),
     staleTime: 30_000,
     queryFn: async (): Promise<SpotlightEntry[]> => {
@@ -325,9 +326,9 @@ export function useSpotlightFeed(limit = 18) {
         const key = item.author_id ?? item.provider.id;
         const n = perCreator.get(key) ?? 0;
         perCreator.set(key, n + 1);
-        return n < 2;
+        return n < 2 || item.id === pinned;
       });
-      return rotateSessionContent(
+      const rotated = rotateSessionContent(
         "spotlight-feed",
         balanced.map((item) => ({
           item,
@@ -338,6 +339,10 @@ export function useSpotlightFeed(limit = 18) {
         })),
         auth.user?.id ?? null,
       ).slice(0, limit * 2);
+      const pinnedItem = pinned ? balanced.find((item) => item.id === pinned) : undefined;
+      return pinnedItem && !rotated.some((item) => item.id === pinned)
+        ? [pinnedItem, ...rotated]
+        : rotated;
     },
   });
 }

@@ -84,7 +84,7 @@ function SpotlightPage() {
   const { tx } = useI18n();
   const navigate = useNavigate();
   const { open } = Route.useSearch();
-  const { data, isLoading } = useSpotlightFeed(40);
+  const { data, isLoading } = useSpotlightFeed(40, open);
   const desktop = useIsDesktop();
   const scroller = useRef<HTMLDivElement>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
