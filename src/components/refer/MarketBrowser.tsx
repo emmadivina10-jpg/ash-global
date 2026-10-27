@@ -9,7 +9,6 @@ import {
   Plus,
   UserRound,
   MessageCircle,
-  SlidersHorizontal,
   House,
   Tag,
   Sparkles,
@@ -49,12 +48,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
 import { useDeals, type Deal } from "@/lib/ash.queries";
 import { usePropertyListings } from "@/lib/property.queries";
 import { formatPropertyPrice } from "@/lib/property";
