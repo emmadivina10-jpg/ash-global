@@ -10,10 +10,9 @@ import {
 
 import { LANGUAGES, RTL_LANGS, type LangCode } from "@/lib/i18n.locales";
 import { GENERATED_DICTS } from "@/lib/i18n.generated";
+import { readLanguage, saveLanguage, LANGUAGE_STORAGE_KEY } from "@/lib/language-preference";
 
 export type Lang = LangCode;
-
-const KEY = "refer.lang";
 
 const EN = {
   "nav.home": "Earnings",
@@ -979,14 +978,12 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>("en");
 
   useEffect(() => {
-    const stored = localStorage.getItem(KEY) as Lang | null;
-    if (stored && LANGUAGES.some((entry) => entry.code === stored)) {
-      setLangState(stored);
-      return;
-    }
-    const device = navigator.language?.toLowerCase().slice(0, 2);
-    const match = LANGUAGES.find((entry) => entry.code === device);
-    if (match) setLangState(match.code);
+    setLangState(readLanguage(localStorage, navigator.language));
+    const sync = (event: StorageEvent) => {
+      if (event.key === LANGUAGE_STORAGE_KEY) setLangState(readLanguage(localStorage, navigator.language));
+    };
+    window.addEventListener("storage", sync);
+    return () => window.removeEventListener("storage", sync);
   }, []);
 
   useEffect(() => {
@@ -995,8 +992,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, [lang]);
 
   const setLang = useCallback((l: Lang) => {
-    localStorage.setItem(KEY, l);
     setLangState(l);
+    saveLanguage(localStorage, l);
   }, []);
 
   const value = useMemo(
