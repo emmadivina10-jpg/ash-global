@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 
-import { EXTRA_DICTS, LANGUAGES, RTL_LANGS, type LangCode } from "@/lib/i18n.locales";
+import { LANGUAGES, RTL_LANGS, type LangCode } from "@/lib/i18n.locales";
 import { GENERATED_DICTS } from "@/lib/i18n.generated";
 
 export type Lang = LangCode;
@@ -942,12 +942,6 @@ const FR: Record<TKey, string> = {
 const DICT: Record<Lang, Partial<Record<TKey, string>>> = {
   en: EN,
   fr: FR,
-  ...(Object.fromEntries(
-    Object.entries(EXTRA_DICTS).map(([code, dict]) => [
-      code,
-      dict as Partial<Record<TKey, string>>,
-    ]),
-  ) as Record<Exclude<Lang, "en" | "fr">, Partial<Record<TKey, string>>>),
 };
 
 type Vars = Record<string, string | number>;

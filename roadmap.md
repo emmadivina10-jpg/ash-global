@@ -1,5 +1,10 @@
 # Roadmap
 
+## English and French language switching (Oct 27)
+- [ ] Restrict interface language choices to English/French and fix immediate, persistent switching.
+- [ ] Connect untranslated interface labels to static translations; preserve user content and payment behavior.
+- [ ] Verify switching both ways, navigation and reload persistence with regression tests and the running app.
+
 ## iOS unknown payment environment group (Oct 27)
 - [x] Verified GitHub main codemagic.yaml matches local; inspected native sync, dependency installation, signing, export and publishing dependencies. No payment group variables are required for the remote-hosted native shell.
 - [x] Removed only the iOS payment group reference and TestFlight publishing action; retained IPA export, Apple signing and Android unchanged.
