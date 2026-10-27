@@ -41,6 +41,7 @@ export type SpotlightEntry = {
     verified_tier?: string | null;
     verified_until?: string | null;
     online?: boolean;
+    category?: string | null;
   };
 };
 
@@ -91,7 +92,7 @@ export function useSpotlightFeed(limit = 18) {
         supabase
           .from("portfolio_items")
           .select(
-            "id, provider_id, image_path, caption, created_at, provider:provider_profiles!inner(id, business_name, slug, city, avatar_url, is_live, is_verified)",
+            "id, provider_id, image_path, caption, created_at, provider:provider_profiles!inner(id, user_id, business_name, slug, city, avatar_url, is_live, is_verified, categories)",
           )
           .eq("provider.is_live", true)
           .order("created_at", { ascending: false })
@@ -122,11 +123,18 @@ export function useSpotlightFeed(limit = 18) {
               .select("user_id, full_name, avatar_url, verified_tier, verified_until")
               .in("user_id", authorIds)
           : Promise.resolve({ data: [] }),
-        providerIds.length
+        authorIds.length
           ? supabase
               .from("provider_profiles")
-              .select("id, business_name, slug, city, avatar_url, is_verified")
-              .in("id", providerIds)
+              .select("id, user_id, business_name, slug, city, avatar_url, is_verified, categories")
+              .or(
+                [
+                  providerIds.length ? `id.in.(${providerIds.join(",")})` : "",
+                  `user_id.in.(${authorIds.join(",")})`,
+                ]
+                  .filter(Boolean)
+                  .join(","),
+              )
           : Promise.resolve({ data: [] }),
         postRows.length
           ? supabase
@@ -179,8 +187,15 @@ export function useSpotlightFeed(limit = 18) {
             city: string | null;
             avatar_url: string | null;
             is_verified: boolean;
+            user_id: string | null;
+            categories: string[] | null;
           }[]
         ).map((row) => [row.id, row]),
+      );
+      const providerByOwner = new Map(
+        Array.from(providers.values())
+          .filter((row) => row.user_id)
+          .map((row) => [row.user_id as string, row]),
       );
 
       const mediaPaths = postRows.flatMap((row) => parseMedia(row.media).map((m) => m.path));
@@ -197,7 +212,9 @@ export function useSpotlightFeed(limit = 18) {
         if (!first) return [];
         const url = signed[first.path];
         if (!url) return [];
-        const storefront = row.provider_id ? providers.get(row.provider_id) : undefined;
+        const storefront =
+          (row.provider_id ? providers.get(row.provider_id) : undefined) ??
+          providerByOwner.get(row.author_id);
         const profile = profiles.get(row.author_id);
         const reactions = reactionRows.filter((item) => item.spotlight_id === row.id);
         const breakdown = { ...EMPTY_REACTIONS };
@@ -221,7 +238,12 @@ export function useSpotlightFeed(limit = 18) {
                 ReactionType | undefined) ?? null,
             provider: storefront
               ? {
-                  ...storefront,
+                  id: storefront.id,
+                  business_name: storefront.business_name,
+                  slug: storefront.slug,
+                  city: storefront.city,
+                  is_verified: storefront.is_verified,
+                  category: storefront.categories?.[0] ?? null,
                   avatar_url: storefront.avatar_url || profile?.avatar_url || null,
                   online: onlineIds.has(row.author_id),
                 }
@@ -248,8 +270,29 @@ export function useSpotlightFeed(limit = 18) {
         created_at: string;
         provider: SpotlightEntry["provider"];
       }[];
-      const portfolioUrls = await signPortfolioPaths(portfolioRows.map((row) => row.image_path));
-      const portfolioEntries: SpotlightEntry[] = portfolioRows.flatMap((row) => {
+      // One shop photo per vendor so a single vendor never floods Spotlight.
+      const seenProviders = new Set<string>();
+      const uniquePortfolio = portfolioRows.filter((row) => {
+        if (seenProviders.has(row.provider_id)) return false;
+        seenProviders.add(row.provider_id);
+        return true;
+      });
+      const ownerIds = uniquePortfolio
+        .filter((row) => !row.provider.avatar_url && (row.provider as { user_id?: string }).user_id)
+        .map((row) => (row.provider as { user_id?: string }).user_id as string);
+      const [portfolioUrls, ownerPhotos] = await Promise.all([
+        signPortfolioPaths(uniquePortfolio.map((row) => row.image_path)),
+        ownerIds.length
+          ? directory().select("user_id, avatar_url").in("user_id", ownerIds)
+          : Promise.resolve({ data: [] }),
+      ]);
+      const ownerAvatar = new Map(
+        ((ownerPhotos.data ?? []) as { user_id: string; avatar_url: string | null }[]).map((p) => [
+          p.user_id,
+          p.avatar_url,
+        ]),
+      );
+      const portfolioEntries: SpotlightEntry[] = uniquePortfolio.flatMap((row) => {
         const url = portfolioUrls[row.image_path];
         if (!url) return [];
         return [
@@ -264,14 +307,29 @@ export function useSpotlightFeed(limit = 18) {
             reaction_count: 0,
             reaction_breakdown: { ...EMPTY_REACTIONS },
             current_reaction: null,
-            provider: row.provider,
+            provider: {
+              ...row.provider,
+              category:
+                (row.provider as { categories?: string[] | null }).categories?.[0] ?? null,
+              avatar_url:
+                row.provider.avatar_url ||
+                ownerAvatar.get((row.provider as { user_id?: string }).user_id ?? "") ||
+                null,
+            },
           },
         ];
       });
 
+      const perCreator = new Map<string, number>();
+      const balanced = [...postEntries, ...portfolioEntries].filter((item) => {
+        const key = item.author_id ?? item.provider.id;
+        const n = perCreator.get(key) ?? 0;
+        perCreator.set(key, n + 1);
+        return n < 2;
+      });
       return rotateSessionContent(
         "spotlight-feed",
-        [...postEntries, ...portfolioEntries].map((item) => ({
+        balanced.map((item) => ({
           item,
           id: item.id,
           creator: item.author_id ?? item.provider.id,
@@ -296,32 +354,71 @@ export type SpotlightComment = {
   author_id: string;
   body: string;
   created_at: string;
+  parent_id: string | null;
+  like_count: number;
+  liked: boolean;
   author: { full_name: string; avatar_url: string | null } | null;
 };
 
+/** Comments (with replies and likes) on a live Spotlight, hiding blocked people. */
 export function useSpotlightComments(entryId: string | null) {
   const id = entryId ? spotlightDbId(entryId) : null;
   return useQuery({
     queryKey: ["spotlight-comments", id],
     enabled: Boolean(id),
     queryFn: async (): Promise<SpotlightComment[]> => {
+      const { data: auth } = await supabase.auth.getUser();
+      const me = auth.user?.id ?? null;
       const { data, error } = await supabase
         .from("spotlight_comments")
-        .select("id, author_id, body, created_at")
+        .select("id, author_id, body, created_at, parent_id")
         .eq("spotlight_id", id!)
         .order("created_at", { ascending: true })
-        .limit(200);
+        .limit(300);
       if (error) throw error;
-      const ids = Array.from(new Set((data ?? []).map((c) => c.author_id)));
-      const { data: people } = ids.length
-        ? await directory().select("user_id, full_name, avatar_url").in("user_id", ids)
-        : { data: [] };
+      const rows = data ?? [];
+      const ids = Array.from(new Set(rows.map((c) => c.author_id)));
+      const commentIds = rows.map((c) => c.id);
+      const [people, likes, blocks] = await Promise.all([
+        ids.length
+          ? directory().select("user_id, full_name, avatar_url").in("user_id", ids)
+          : Promise.resolve({ data: [] }),
+        commentIds.length
+          ? supabase
+              .from("spotlight_comment_likes")
+              .select("comment_id, user_id")
+              .in("comment_id", commentIds)
+          : Promise.resolve({ data: [] }),
+        me
+          ? supabase
+              .from("user_blocks")
+              .select("blocker_id, blocked_id")
+              .or(`blocker_id.eq.${me},blocked_id.eq.${me}`)
+          : Promise.resolve({ data: [] }),
+      ]);
+      const hidden = new Set(
+        ((blocks.data ?? []) as { blocker_id: string; blocked_id: string }[]).map((b) =>
+          b.blocker_id === me ? b.blocked_id : b.blocker_id,
+        ),
+      );
       const map = new Map(
-        ((people ?? []) as { user_id: string; full_name: string; avatar_url: string | null }[]).map(
+        ((people.data ?? []) as { user_id: string; full_name: string; avatar_url: string | null }[]).map(
           (p) => [p.user_id, p],
         ),
       );
-      return (data ?? []).map((c) => ({ ...c, author: map.get(c.author_id) ?? null }));
+      const likeRows = (likes.data ?? []) as { comment_id: string; user_id: string }[];
+      return rows
+        .filter((c) => !hidden.has(c.author_id))
+        .map((c) => {
+          const mine = likeRows.filter((l) => l.comment_id === c.id);
+          return {
+            ...c,
+            parent_id: c.parent_id ?? null,
+            like_count: mine.length,
+            liked: mine.some((l) => l.user_id === me),
+            author: map.get(c.author_id) ?? null,
+          };
+        });
     },
   });
 }
@@ -330,12 +427,15 @@ export function useAddSpotlightComment(entryId: string) {
   const queryClient = useQueryClient();
   const id = spotlightDbId(entryId);
   return useMutation({
-    mutationFn: async (body: string) => {
+    mutationFn: async ({ body, parentId }: { body: string; parentId?: string | null }) => {
       const { data: auth } = await supabase.auth.getUser();
       if (!auth.user) throw new Error("Sign in required");
-      const { error } = await supabase
-        .from("spotlight_comments")
-        .insert({ spotlight_id: id, author_id: auth.user.id, body: body.trim().slice(0, 1000) });
+      const { error } = await supabase.from("spotlight_comments").insert({
+        spotlight_id: id,
+        author_id: auth.user.id,
+        body: body.trim().slice(0, 1000),
+        parent_id: parentId ?? null,
+      });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -353,7 +453,32 @@ export function useDeleteSpotlightComment(entryId: string) {
       const { error } = await supabase.from("spotlight_comments").delete().eq("id", commentId);
       if (error) throw error;
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["spotlight-comments", id] }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["spotlight-comments", id] });
+      void queryClient.invalidateQueries({ queryKey: ["spotlight-feed"] });
+    },
+  });
+}
+
+export function useToggleSpotlightCommentLike(entryId: string) {
+  const queryClient = useQueryClient();
+  const id = spotlightDbId(entryId);
+  return useMutation({
+    mutationFn: async ({ commentId, like }: { commentId: string; like: boolean }) => {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) throw new Error("Sign in required");
+      const { error } = like
+        ? await supabase
+            .from("spotlight_comment_likes")
+            .insert({ comment_id: commentId, user_id: auth.user.id })
+        : await supabase
+            .from("spotlight_comment_likes")
+            .delete()
+            .eq("comment_id", commentId)
+            .eq("user_id", auth.user.id);
+      if (error) throw error;
+    },
+    onSettled: () => void queryClient.invalidateQueries({ queryKey: ["spotlight-comments", id] }),
   });
 }
 

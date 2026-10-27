@@ -1,3 +1,4 @@
+import { useRecordProfileView } from "@/lib/profile-views";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ListingGallery, type GalleryItem } from "@/components/refer/ListingGallery";
@@ -167,6 +168,7 @@ function ProviderPage() {
     (provider as { accepting_bookings?: boolean })?.accepting_bookings !== false,
   );
   const isOwner = provider?.user_id === user?.id;
+  useRecordProfileView(provider?.user_id ?? null);
 
   async function chat() {
     try {

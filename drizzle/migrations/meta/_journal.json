@@ -274,6 +274,13 @@
       "when": 1793124896006,
       "tag": "0038_spotlight_reaction_30_day_window",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1793125820539,
+      "tag": "0039_spotlight_comment_threads_and_profile_views",
+      "breakpoints": true
     }
   ]
 }

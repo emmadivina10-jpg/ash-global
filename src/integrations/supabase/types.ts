@@ -4704,6 +4704,24 @@ export type Database = {
           },
         ]
       }
+      profile_views: {
+        Row: {
+          last_viewed_at: string
+          viewed_id: string
+          viewer_id: string
+        }
+        Insert: {
+          last_viewed_at?: string
+          viewed_id: string
+          viewer_id: string
+        }
+        Update: {
+          last_viewed_at?: string
+          viewed_id?: string
+          viewer_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           account_status: string
@@ -6229,12 +6247,39 @@ export type Database = {
           },
         ]
       }
+      spotlight_comment_likes: {
+        Row: {
+          comment_id: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spotlight_comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "spotlight_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       spotlight_comments: {
         Row: {
           author_id: string
           body: string
           created_at: string
           id: string
+          parent_id: string | null
           spotlight_id: string
         }
         Insert: {
@@ -6242,6 +6287,7 @@ export type Database = {
           body: string
           created_at?: string
           id?: string
+          parent_id?: string | null
           spotlight_id: string
         }
         Update: {
@@ -6249,9 +6295,17 @@ export type Database = {
           body?: string
           created_at?: string
           id?: string
+          parent_id?: string | null
           spotlight_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "spotlight_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "spotlight_comments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "spotlight_comments_spotlight_id_fkey"
             columns: ["spotlight_id"]
@@ -8139,6 +8193,7 @@ export type Database = {
         }
         Returns: string
       }
+      record_profile_view: { Args: { _viewed_id: string }; Returns: undefined }
       record_property_view: {
         Args: { _listing_id: string }
         Returns: undefined

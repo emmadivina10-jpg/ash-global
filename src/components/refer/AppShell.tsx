@@ -1,8 +1,9 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
+  ChevronDown,
   Bell,
   Building2,
   ArrowDownToLine,
@@ -155,6 +156,11 @@ const MORE_GROUPS: { en: string; fr: string; items: NavItem[] }[] = [
   },
 ];
 
+/** How many side links show before "See more". */
+const SIDE_PREVIEW = 8;
+/** ASH-branded tile colours for the web side menu icons, cycled in order. */
+const SIDE_TILES = ["gold-gradient", "brand-gradient", "bg-gold", "bg-primary"];
+
 const SIDE_EXTRA: NavItem[] = MORE_GROUPS.flatMap((group) => group.items).filter(
   (item, index, list) => list.findIndex((other) => other.to === item.to) === index,
 );
@@ -165,7 +171,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { data: profile } = useProfile();
   const { data: unreadMessages = 0 } = useUnreadMessageCount(profile?.user_id);
   const { data: isAdmin } = useIsAdmin();
-  const { t, lang } = useI18n();
+  const { t, tx, lang } = useI18n();
   const region = useRegion();
   const servicesMode = useServicesMode();
   const visible = (items: NavItem[]): NavItem[] =>
@@ -243,6 +249,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   // Some destinations appear in both lists — show each one once.
+  const [sideExpanded, setSideExpanded] = useState(false);
   const links = visible([...DESKTOP_NAV, ...SIDE_EXTRA]).filter(
     (item, index, all) => all.findIndex((other) => other.to === item.to) === index,
   );
@@ -256,30 +263,61 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Link to="/services" className="mb-8 inline-flex">
             <Logo />
           </Link>
-          <nav className="flex flex-1 flex-col gap-1">
-            {links.map((item) => (
+          <nav className="flex flex-1 flex-col gap-0.5">
+            <Link
+              to="/profile"
+              className="flex items-center gap-3 rounded-xl px-2 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-sidebar-accent"
+            >
+              <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
+              <span className="truncate">{profile?.full_name || t("shell.member")}</span>
+            </Link>
+            {(sideExpanded ? links : links.slice(0, SIDE_PREVIEW)).map((item, index) => (
               <Link
                 key={item.to}
                 to={item.to}
                 className={cn(
-                  "relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                  pathname === item.to &&
-                    "bg-primary/10 font-semibold text-primary before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-gold",
+                  "group relative flex items-center gap-3 rounded-xl px-2 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-sidebar-accent",
+                  pathname === item.to && "bg-primary/10 font-semibold text-primary",
                 )}
               >
-                <item.icon className="size-4 shrink-0" aria-hidden />
-                {navLabel(item)}
+                <span
+                  className={cn(
+                    "grid size-9 shrink-0 place-items-center rounded-[0.8rem] text-primary-foreground shadow-sm ring-1 ring-border/40 transition-transform group-hover:scale-105",
+                    SIDE_TILES[index % SIDE_TILES.length],
+                  )}
+                >
+                  <item.icon className="size-[18px]" aria-hidden />
+                </span>
+                <span className="truncate">{navLabel(item)}</span>
                 {item.to === "/messages" && (
                   <UnreadMessageBadge count={unreadMessages} className="ml-auto" />
                 )}
               </Link>
             ))}
+            {links.length > SIDE_PREVIEW ? (
+              <button
+                type="button"
+                onClick={() => setSideExpanded((v) => !v)}
+                aria-expanded={sideExpanded}
+                className="flex items-center gap-3 rounded-xl px-2 py-1.5 text-sm font-semibold text-foreground transition-colors hover:bg-sidebar-accent"
+              >
+                <span className="grid size-9 place-items-center rounded-full bg-secondary">
+                  <ChevronDown
+                    className={cn("size-5 transition-transform", sideExpanded && "rotate-180")}
+                    aria-hidden
+                  />
+                </span>
+                {sideExpanded ? tx("See less", "Voir moins") : tx("See more", "Voir plus")}
+              </button>
+            ) : null}
             {isAdmin ? (
               <a
                 href="/console"
-                className="relative mt-2 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent"
+                className="relative mt-1 flex items-center gap-3 rounded-xl px-2 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-sidebar-accent"
               >
-                <Shield className="size-4 shrink-0" aria-hidden />
+                <span className="grid size-9 place-items-center rounded-[0.8rem] bg-foreground text-background">
+                  <Shield className="size-[18px]" aria-hidden />
+                </span>
                 {t("nav.admin")}
               </a>
             ) : null}
