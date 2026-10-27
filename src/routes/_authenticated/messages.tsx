@@ -134,6 +134,8 @@ const ASH_CHAT_BACKGROUND = "/images/ash-chat-background.png";
 
 function MessagesPage() {
   const { tx, t, lang } = useI18n();
+  const aiPreview = tx(ashAiConversation.preview, "Posez vos questions : services, annonces, idées.");
+  const supportPreview = tx(ashSupportConversation.preview, "Obtenez de l’aide de l’équipe ASH.");
   const fr = lang === "fr";
   const { user } = useUser();
   const { c } = Route.useSearch();
@@ -1120,7 +1122,7 @@ function MessagesPage() {
 
             <nav className="messages-scroll min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain touch-pan-y">
               {term.trim() &&
-              !`${ashAiConversation.label} ${ashAiConversation.preview}`
+              !`${ashAiConversation.label} ${aiPreview}`
                 .toLowerCase()
                 .includes(term.trim().toLowerCase()) &&
               filtered.length === 0 ? (
@@ -1131,7 +1133,7 @@ function MessagesPage() {
 
               {!showArchived &&
                 (!term.trim() ||
-                  `${ashSupportConversation.label} ${ashSupportConversation.preview}`
+                  `${ashSupportConversation.label} ${supportPreview}`
                     .toLowerCase()
                     .includes(term.trim().toLowerCase())) && (
                   <button
@@ -1170,7 +1172,7 @@ function MessagesPage() {
 
               {!showArchived &&
                 (!term.trim() ||
-                  `${ashAiConversation.label} ${ashAiConversation.preview}`
+                  `${ashAiConversation.label} ${aiPreview}`
                     .toLowerCase()
                     .includes(term.trim().toLowerCase())) && (
                   <button
@@ -1202,7 +1204,7 @@ function MessagesPage() {
                       </span>
 
                       <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">
-                        {ashAiConversation.preview}
+                        {aiPreview}
                       </span>
                     </span>
                   </button>

@@ -22,9 +22,9 @@ export function formatDate(value: string | null | undefined): string {
   });
 }
 
-export function formatDateTime(value: string | null | undefined): string {
+export function formatDateTime(value: string | null | undefined, lang: "en" | "fr" = "en"): string {
   if (!value) return "—";
-  return new Date(value).toLocaleString("en-GB", {
+  return new Date(value).toLocaleString(lang === "fr" ? "fr-FR" : "en-GB", {
     day: "2-digit",
     month: "short",
     year: "numeric",

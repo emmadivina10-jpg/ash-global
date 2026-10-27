@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Logo } from "@/components/refer/Logo";
 import { LanguageSwitcher, ThemeToggle } from "@/components/refer/Preferences";
+import { useI18n } from "@/lib/i18n";
 
 const LINKS = [
   { to: "/support", label: "Support" },
@@ -24,6 +25,7 @@ export function PublicInfoShell({
   children: ReactNode;
   wide?: boolean;
 }) {
+  const { tx } = useI18n();
   return (
     <div className="safe-top min-h-dvh bg-background">
       <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-xl">
@@ -42,7 +44,7 @@ export function PublicInfoShell({
                 className="rounded-xl px-3 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 activeProps={{ className: "bg-primary/10 text-primary" }}
               >
-                {item.label}
+                {tx(item.label, { Support: "Assistance", "Privacy Policy": "Confidentialité", Terms: "Conditions", Community: "Communauté" }[item.label])}
               </Link>
             ))}
           </nav>
@@ -61,7 +63,7 @@ export function PublicInfoShell({
           className="mb-7 inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="size-4" aria-hidden />
-          Back to ASH
+          {tx("Back to ASH", "Retour à ASH")}
         </Link>
         <div className="mb-9 border-b border-border pb-7">
           <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-primary">
@@ -86,14 +88,14 @@ export function PublicInfoShell({
           <nav className="flex flex-wrap gap-x-4 gap-y-2" aria-label="Footer information pages">
             {LINKS.map((item) => (
               <Link key={item.to} to={item.to} className="font-semibold hover:text-foreground">
-                {item.label}
+                {tx(item.label, { Support: "Assistance", "Privacy Policy": "Confidentialité", Terms: "Conditions", Community: "Communauté" }[item.label])}
               </Link>
             ))}
             <Link
               to="/account-deletion"
               className="inline-flex items-center gap-1 font-semibold hover:text-foreground"
             >
-              Delete account <ExternalLink className="size-3" aria-hidden />
+              {tx("Delete account", "Supprimer le compte")} <ExternalLink className="size-3" aria-hidden />
             </Link>
             <Link to="/contact" className="font-semibold hover:text-foreground">
               Contact
