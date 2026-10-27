@@ -170,7 +170,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { data: profile } = useProfile();
   const { data: unreadMessages = 0 } = useUnreadMessageCount(profile?.user_id);
   const { data: isAdmin } = useIsAdmin();
-  const { t, lang } = useI18n();
+  const { t, tx, lang } = useI18n();
   const region = useRegion();
   const servicesMode = useServicesMode();
   const visible = (items: NavItem[]): NavItem[] =>
