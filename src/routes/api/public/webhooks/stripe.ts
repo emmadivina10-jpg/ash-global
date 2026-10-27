@@ -11,23 +11,26 @@ export const Route = createFileRoute("/api/public/webhooks/stripe")({
       POST: async ({ request }) => {
         // Platform events and Connect (connected-account) events arrive at this
         // one URL but are signed with different endpoint secrets; accept either.
-        const secrets = [
-          process.env["STRIPE_WEBHOOK_SECRET"] ?? "",
-          process.env["STRIPE_WEBHOOK_CONNECT_SECRET"] ?? "",
-        ].filter(Boolean);
+        const secrets = (
+          [
+            ["platform", process.env["STRIPE_WEBHOOK_SECRET"] ?? ""],
+            ["connect", process.env["STRIPE_WEBHOOK_CONNECT_SECRET"] ?? ""],
+          ] as const
+        ).filter(([, s]) => Boolean(s));
         if (secrets.length === 0)
           return new Response("Webhook not configured", { status: 503 });
 
         const body = await request.text();
         const { verifyStripeSignature } = await import("@/lib/stripe.server");
         const header = request.headers.get("stripe-signature");
-        let valid = false;
-        for (const secret of secrets) {
+        let signedBy: "platform" | "connect" | null = null;
+        for (const [source, secret] of secrets) {
           if (await verifyStripeSignature(body, header, secret)) {
-            valid = true;
+            signedBy = source;
             break;
           }
         }
+        const valid = signedBy !== null;
         if (!valid) {
           // Test-mode events are signed with the test endpoint's own secret.
           // With test settlement disabled (the default) they are acknowledged
@@ -63,7 +66,7 @@ export const Route = createFileRoute("/api/public/webhooks/stripe")({
         // Durable booking releases need separately approved shared-db safeguards.
         // Until installed, fail closed after authenticating the signature.
         const { handleMarketplaceEvent } = await import("@/lib/stripe-marketplace-webhook.server");
-        return handleMarketplaceEvent(event);
+        return handleMarketplaceEvent(event, { signedBy: signedBy ?? undefined });
       },
     },
   },

@@ -11,23 +11,94 @@ const eventSchema = z.object({
   data: z.object({ object: z.record(z.string(), z.unknown()) }),
 });
 
-export async function handleMarketplaceEvent(payload: unknown): Promise<Response> {
+/** Which endpoint secret authenticated the delivery (set only by the webhook route). */
+export type WebhookSignedBy = "platform" | "connect";
+
+/** Sanitized one-line log: event id/type, stage and Stripe error metadata only. */
+function logWebhookFailure(
+  event: { id: string; type: string },
+  stage: string,
+  err?: unknown,
+): void {
+  const e = (err ?? {}) as Record<string, unknown>;
+  const isStripe = e["name"] === "StripeReadError";
+  const message = err instanceof Error && /^[A-Z_]{3,60}$/.test(err.message) ? err.message : "UNEXPECTED";
+  console.error(
+    JSON.stringify({
+      scope: "stripe_webhook",
+      event_id: event.id,
+      event_type: event.type,
+      stage,
+      error: message,
+      ...(isStripe
+        ? {
+            stripe_status: e["status"] ?? null,
+            stripe_code: e["code"] ?? null,
+            stripe_type: e["type"] ?? null,
+            stripe_request_id: e["requestId"] ?? null,
+          }
+        : {}),
+    }),
+  );
+}
+
+/**
+ * Resolves the platform account the event belongs to. A live account lookup is
+ * preferred; if Stripe refuses it, the saved approved account is used only when
+ * the delivery was signed by the matching endpoint secret (platform secret for
+ * platform events, Connect secret for connected-account events). The account ID
+ * is identity only — every payment still needs its own Stripe evidence below.
+ */
+async function resolvePlatformAccount(
+  event: { id: string; type: string; account?: string },
+  savedAccountId: string,
+  signedBy: WebhookSignedBy | undefined,
+): Promise<{ ok: true; id: string; source: "live" | "saved" } | { ok: false; response: Response }> {
+  try {
+    const platform = await stripeRead("account");
+    return { ok: true, id: String(platform["id"] ?? ""), source: "live" };
+  } catch (err) {
+    logWebhookFailure(event, "account_lookup", err);
+    const signerMatches =
+      (signedBy === "platform" && !event.account) || (signedBy === "connect" && !!event.account);
+    if (signerMatches && /^acct_[A-Za-z0-9]{8,}$/.test(savedAccountId))
+      return { ok: true, id: savedAccountId, source: "saved" };
+    return {
+      ok: false,
+      response: new Response("Stripe account identification failed", { status: 503 }),
+    };
+  }
+}
+
+export async function handleMarketplaceEvent(
+  payload: unknown,
+  context?: { signedBy?: WebhookSignedBy },
+): Promise<Response> {
   const parsed = eventSchema.safeParse(payload);
   if (!parsed.success) return new Response("Invalid live event", { status: 400 });
   const event = parsed.data;
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const db: SupabaseClient = supabaseAdmin;
-  const platform = await stripeRead("account");
-  const platformId = String(platform["id"] ?? "");
   const { data: control, error: controlError } = await db
     .from("stripe_marketplace_controls")
     .select("marketplace_account_id")
     .eq("id", true)
     .maybeSingle();
-  if (controlError || !control?.marketplace_account_id)
+  if (controlError || !control?.marketplace_account_id) {
+    logWebhookFailure(event, "safeguards_missing");
     return new Response("Payment safeguards awaiting approval", { status: 503 });
-  if (control.marketplace_account_id !== platformId)
+  }
+  const resolved = await resolvePlatformAccount(
+    event,
+    String(control.marketplace_account_id),
+    context?.signedBy,
+  );
+  if (!resolved.ok) return resolved.response;
+  const platformId = resolved.id;
+  if (control.marketplace_account_id !== platformId) {
+    logWebhookFailure(event, "account_mismatch");
     return new Response("Marketplace account mismatch", { status: 409 });
+  }
 
   const eventAccount = event.account ?? platformId;
   if (event.account) {
