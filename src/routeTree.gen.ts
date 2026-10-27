@@ -55,6 +55,7 @@ import { Route as AuthenticatedReferralRewardsRouteImport } from './routes/_auth
 import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedShareholderRouteImport } from './routes/_authenticated/shareholder'
+import { Route as AuthenticatedSpotlightRouteImport } from './routes/_authenticated/spotlight'
 import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
 import { Route as AuthenticatedTransactionsRouteImport } from './routes/_authenticated/transactions'
 import { Route as AuthenticatedVerifiedRouteImport } from './routes/_authenticated/verified'
@@ -386,6 +387,11 @@ const AuthenticatedShareholderRoute =
     path: '/shareholder',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedSpotlightRoute = AuthenticatedSpotlightRouteImport.update({
+  id: '/spotlight',
+  path: '/spotlight',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedStudioRoute = AuthenticatedStudioRouteImport.update({
   id: '/studio',
   path: '/studio',
@@ -949,6 +955,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shareholder': typeof AuthenticatedShareholderRoute
+  '/spotlight': typeof AuthenticatedSpotlightRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/verified': typeof AuthenticatedVerifiedRoute
@@ -1091,6 +1098,7 @@ export interface FileRoutesByTo {
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shareholder': typeof AuthenticatedShareholderRoute
+  '/spotlight': typeof AuthenticatedSpotlightRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/verified': typeof AuthenticatedVerifiedRoute
@@ -1236,6 +1244,7 @@ export interface FileRoutesById {
   '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/shareholder': typeof AuthenticatedShareholderRoute
+  '/_authenticated/spotlight': typeof AuthenticatedSpotlightRoute
   '/_authenticated/studio': typeof AuthenticatedStudioRoute
   '/_authenticated/transactions': typeof AuthenticatedTransactionsRoute
   '/_authenticated/verified': typeof AuthenticatedVerifiedRoute
@@ -1381,6 +1390,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/shareholder'
+    | '/spotlight'
     | '/studio'
     | '/transactions'
     | '/verified'
@@ -1523,6 +1533,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/shareholder'
+    | '/spotlight'
     | '/studio'
     | '/transactions'
     | '/verified'
@@ -1667,6 +1678,7 @@ export interface FileRouteTypes {
     | '/_authenticated/search'
     | '/_authenticated/settings'
     | '/_authenticated/shareholder'
+    | '/_authenticated/spotlight'
     | '/_authenticated/studio'
     | '/_authenticated/transactions'
     | '/_authenticated/verified'
@@ -2128,6 +2140,13 @@ declare module '@tanstack/react-router' {
       path: '/shareholder'
       fullPath: '/shareholder'
       preLoaderRoute: typeof AuthenticatedShareholderRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/spotlight': {
+      id: '/_authenticated/spotlight'
+      path: '/spotlight'
+      fullPath: '/spotlight'
+      preLoaderRoute: typeof AuthenticatedSpotlightRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/studio': {
@@ -2831,6 +2850,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedShareholderRoute: typeof AuthenticatedShareholderRoute
+  AuthenticatedSpotlightRoute: typeof AuthenticatedSpotlightRoute
   AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
   AuthenticatedTransactionsRoute: typeof AuthenticatedTransactionsRoute
   AuthenticatedVerifiedRoute: typeof AuthenticatedVerifiedRoute
@@ -2899,6 +2919,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedShareholderRoute: AuthenticatedShareholderRoute,
+  AuthenticatedSpotlightRoute: AuthenticatedSpotlightRoute,
   AuthenticatedStudioRoute: AuthenticatedStudioRoute,
   AuthenticatedTransactionsRoute: AuthenticatedTransactionsRoute,
   AuthenticatedVerifiedRoute: AuthenticatedVerifiedRoute,
