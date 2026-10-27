@@ -1,4 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Link } from "@tanstack/react-router";
 import { Expand, Map, Minus, Package, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { cart, cartTotals, setCartUser, useCart, type CartItem } from "@/lib/cart";
@@ -200,26 +207,16 @@ function CartPanel({
                 {formatXAF(i.price)} × {i.qty}
               </span>
             </span>
-            {checkout ? (
-              <Button asChild size="sm">
-                <Link
-                  to="/services/$providerId"
-                  params={{ providerId: i.providerId }}
-                  search={{ book: i.serviceId }}
-                  onClick={close}
-                >
-                  {tx("Pay", "Payer")}
-                </Link>
-              </Button>
-            ) : (
+            {checkout ? null : null}
+            {checkout ? null            ) : (
               <span className="flex items-center gap-1">
-                <Button size="icon" variant="ghost" className="size-8" aria-label={tx("Less", "Moins")} onClick={() => cart.setQty(i.serviceId, i.qty - 1)}>
+                <Button size="icon" variant="ghost" className="size-8" aria-label={tx("Less", "Moins")} onClick={() => void cart.setQty(i.serviceId, i.qty - 1)}>
                   <Minus className="size-4" />
                 </Button>
-                <Button size="icon" variant="ghost" className="size-8" aria-label={tx("More", "Plus")} onClick={() => cart.setQty(i.serviceId, i.qty + 1)}>
+                <Button size="icon" variant="ghost" className="size-8" aria-label={tx("More", "Plus")} onClick={() => void cart.setQty(i.serviceId, i.qty + 1)}>
                   <Plus className="size-4" />
                 </Button>
-                <Button size="icon" variant="ghost" className="size-8" aria-label={tx("Remove", "Retirer")} onClick={() => cart.remove(i.serviceId)}>
+                <Button size="icon" variant="ghost" className="size-8" aria-label={tx("Remove", "Retirer")} onClick={() => void cart.remove(i.serviceId)}>
                   <Trash2 className="size-4" />
                 </Button>
               </span>
@@ -246,20 +243,10 @@ function CartPanel({
         </div>
       </dl>
       {checkout ? (
-        <>
-          <p className="text-xs text-muted-foreground">
-            {tx(
-              "Tap Pay on each item to book and pay its seller. Items stay in your cart until you remove them.",
-              "Touchez Payer sur chaque article pour réserver et payer son vendeur. Les articles restent dans votre panier jusqu’à leur retrait.",
-            )}
-          </p>
-          <Button variant="outline" className="w-full" onClick={() => setCheckout(false)}>
-            {tx("Back to cart", "Retour au panier")}
-          </Button>
-        </>
+        <CheckoutForm items={items} onBack={() => setCheckout(false)} close={close} />
       ) : (
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => cart.clear()}>
+          <Button variant="outline" onClick={() => void cart.clear()}>
             {tx("Clear cart", "Vider")}
           </Button>
           <Button className="flex-1" onClick={() => setCheckout(true)}>
@@ -267,6 +254,102 @@ function CartPanel({
           </Button>
         </div>
       )}
+    </div>
+  );
+}
+
+function CheckoutForm({
+  items,
+  onBack,
+  close,
+}: {
+  items: CartItem[];
+  onBack: () => void;
+  close: () => void;
+}) {
+  const { tx } = useI18n();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [when, setWhen] = useState("");
+  const [address, setAddress] = useState("");
+  const [notes, setNotes] = useState("");
+  const [busy, setBusy] = useState(false);
+  const sending = useRef(false);
+
+  async function submit() {
+    if (sending.current) return;
+    const at = new Date(when);
+    if (!when || Number.isNaN(at.getTime()) || at.getTime() < Date.now()) {
+      toast.error(tx("Choose a future date and time.", "Choisissez une date et une heure à venir."));
+      return;
+    }
+    sending.current = true;
+    setBusy(true);
+    const done: string[] = [];
+    let failed = 0;
+    for (const i of items) {
+      const { data, error } = await supabase.rpc("request_booking", {
+        _provider_id: i.providerId,
+        _service_id: i.serviceId,
+        _scheduled_at: at.toISOString(),
+        _notes: [i.qty > 1 ? `Qty: ${i.qty}` : "", notes.trim()].filter(Boolean).join(" — "),
+        _address: address.trim(),
+      } as never);
+      const ok = !error && (data as { success?: boolean } | null)?.success !== false && data !== false;
+      if (ok) done.push(i.serviceId);
+      else failed++;
+    }
+    if (done.length) await cart.removeMany(done).catch(() => undefined);
+    void queryClient.invalidateQueries({ queryKey: ["bookings"] });
+    sending.current = false;
+    setBusy(false);
+    if (failed) {
+      toast.error(
+        tx(
+          `${done.length} sent, ${failed} could not be sent and stay in your cart.`,
+          `${done.length} envoyé(s), ${failed} non envoyé(s), restés dans votre panier.`,
+        ),
+      );
+      return;
+    }
+    toast.success(
+      tx(
+        "All requests sent. Pay each one once the seller accepts.",
+        "Toutes les demandes sont envoyées. Payez chacune après l’acceptation du vendeur.",
+      ),
+    );
+    close();
+    void navigate({ to: "/bookings" });
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="space-y-1.5">
+        <Label htmlFor="cart-when">{tx("Date and time", "Date et heure")}</Label>
+        <Input id="cart-when" type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="cart-addr">{tx("Address", "Adresse")}</Label>
+        <Input id="cart-addr" value={address} maxLength={300} onChange={(e) => setAddress(e.target.value)} />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="cart-notes">{tx("Notes for sellers", "Notes pour les vendeurs")}</Label>
+        <Textarea id="cart-notes" value={notes} maxLength={500} onChange={(e) => setNotes(e.target.value)} />
+      </div>
+      <p className="text-xs text-muted-foreground">
+        {tx(
+          "Each seller confirms first. You pay each accepted order in Bookings — nothing is charged now.",
+          "Chaque vendeur confirme d’abord. Vous payez chaque commande acceptée dans Réservations — rien n’est débité maintenant.",
+        )}
+      </p>
+      <div className="flex gap-2">
+        <Button variant="outline" onClick={onBack} disabled={busy}>
+          {tx("Back", "Retour")}
+        </Button>
+        <Button className="flex-1" onClick={() => void submit()} disabled={busy}>
+          {busy ? tx("Sending…", "Envoi…") : tx("Send all orders", "Envoyer toutes les commandes")}
+        </Button>
+      </div>
     </div>
   );
 }
