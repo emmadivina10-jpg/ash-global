@@ -17,7 +17,7 @@ export function validateAndroidRelease(env) {
     code = String(BigInt(base) + BigInt(build));
   }
   if (!code) {
-    throw new Error('Android release version is missing. In Codemagic google_play, set ANDROID_PREVIOUS_VERSION_CODE to the highest uploaded Play version and leave ANDROID_VERSION_CODE unset; CI adds BUILD_NUMBER. Alternatively set an explicit ANDROID_VERSION_CODE above that maximum. Check Play Console > ASH Glo > Test and release > App bundle explorer; use 0 as previous only if no bundles have ever been uploaded. No release version is guessed.');
+    throw new Error('Android release version is missing. In Codemagic android_release, set ANDROID_PREVIOUS_VERSION_CODE to the highest uploaded Play version and leave ANDROID_VERSION_CODE unset; CI adds BUILD_NUMBER. Alternatively set an explicit ANDROID_VERSION_CODE above that maximum. Check Play Console > ASH Glo > Test and release > App bundle explorer; use 0 as previous only if no bundles have ever been uploaded. No release version is guessed.');
   }
   if (!/^[1-9][0-9]*$/.test(code) || BigInt(code) > 2100000000n) {
     throw new Error('Set ANDROID_VERSION_CODE from 1 to 2100000000, higher than every previous Play upload.');

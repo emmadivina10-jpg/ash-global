@@ -9,6 +9,17 @@ describe('Android release safety', () => {
     const gradle = readFileSync(new URL('../android/app/build.gradle', import.meta.url), 'utf8');
     expect(gradle.match(/applicationId "([^"]+)"/)?.[1]).toBe('com.ashglogroup.app');
   });
+  it('android workflow imports android_release and keeps signing', () => {
+    const y = readFileSync(new URL('../codemagic.yaml', import.meta.url), 'utf8');
+    const a = y.slice(y.indexOf('android-play:'));
+    expect(a).toMatch(/groups:\n\s+- google_play\n\s+- android_release/);
+    expect(a).toContain('- ash_glo_keystore');
+  });
+  it('first upload: previous 0 + build 1 gives versionCode 1, and grows with builds', () => {
+    const e = { ...env, ANDROID_VERSION_CODE: '', ANDROID_PREVIOUS_VERSION_CODE: '0' };
+    expect(validateAndroidRelease({ ...e, BUILD_NUMBER: '1' })).toBe(1);
+    expect(validateAndroidRelease({ ...e, BUILD_NUMBER: '5' })).toBe(5);
+  });
   it('accepts an explicit positive release version', () => expect(validateAndroidRelease(env)).toBe(2));
   it('accepts version 1 only as an explicit input, not a missing-input default', () => {
     expect(validateAndroidRelease({ ...env, ANDROID_VERSION_CODE: '1' })).toBe(1);
