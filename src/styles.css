@@ -2891,6 +2891,12 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   --tt-text: oklch(0.97 0 0);
   --tt-muted: oklch(0.72 0.01 280);
 }
+/* Light mode: the tab bar turns light too; dark mode keeps the deep bar. */
+:root:not(.dark) {
+  --tt-ink: oklch(0.995 0 0);
+  --tt-text: oklch(0.18 0.01 280);
+  --tt-muted: oklch(0.5 0.01 280);
+}
 .premium-mobile-nav,
 .premium-mobile-nav .nav-bar-fill {
   background-color: var(--tt-ink);
