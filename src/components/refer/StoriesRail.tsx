@@ -238,6 +238,8 @@ export async function loadSpotlights(): Promise<SpotlightPost[]> {
     .select("id, author_id, media, caption, created_at")
     .eq("is_published", true)
     .eq("moderation_status", "APPROVED")
+    // Same 30-day lifetime as the Spotlight tab, so every card opens there.
+    .gt("created_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
     .order("created_at", { ascending: false })
     .limit(50);
 
@@ -487,8 +489,8 @@ export function StoriesRail({
           : post.provider.user_id === viewerRequest.authorId,
       );
       if (index < 0) return;
-      setSpotlightIndex(index);
-      setSpotlightViewerOpen(true);
+      const target = spotlights[index];
+      if (target) void navigate({ to: "/spotlight", search: { open: target.id } });
     }
     requestedViewerOpened.current = true;
   }, [viewerRequest, stories, spotlights]);
@@ -897,10 +899,10 @@ export function StoriesRail({
   }
 
   function openSpotlight(index: number) {
-    if (!spotlights[index]) return;
-    setSpotlightIndex(index);
-    setSpotlightMuted(true);
-    setSpotlightViewerOpen(true);
+    const target = spotlights[index];
+    if (!target) return;
+    // Spotlights always open in the Spotlight tab, starting on this post.
+    void navigate({ to: "/spotlight", search: { open: target.id } });
   }
 
   async function contactVendor(spotlight: SpotlightPost) {

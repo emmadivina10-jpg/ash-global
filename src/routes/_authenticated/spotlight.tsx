@@ -15,6 +15,13 @@ import {
   ShoppingBag,
   Trash2,
   UtensilsCrossed,
+  Pause,
+  Play,
+  Plus,
+  RotateCcw,
+  RotateCw,
+  Volume2,
+  VolumeX,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -33,6 +40,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useUser } from "@/lib/queries";
 import { vendorAction } from "@/lib/vendor-action";
+import { SpotlightComposer } from "@/components/refer/SpotlightComposer";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/refer/AvatarUpload";
@@ -76,11 +84,12 @@ function SpotlightPage() {
   const { tx } = useI18n();
   const navigate = useNavigate();
   const { open } = Route.useSearch();
-  const { data, isLoading } = useSpotlightFeed(40);
+  const { data, isLoading } = useSpotlightFeed(40, open);
   const desktop = useIsDesktop();
   const scroller = useRef<HTMLDivElement>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [panelOpen, setPanelOpen] = useState(true);
+  const [composerOpen, setComposerOpen] = useState(false);
   const [mobileComments, setMobileComments] = useState<SpotlightEntry | null>(null);
 
   const items = useMemo(() => {
@@ -119,6 +128,15 @@ function SpotlightPage() {
       )}
     >
       <h1 className="sr-only">Spotlight</h1>
+      <button
+        type="button"
+        onClick={() => setComposerOpen(true)}
+        aria-label={tx("Post a Spotlight", "Publier un Spotlight")}
+        className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] z-40 grid size-11 place-items-center rounded-full gold-gradient text-primary-foreground shadow-lg ring-2 ring-on-dark/40 lg:left-20 lg:right-auto"
+      >
+        <Plus className="size-6" />
+      </button>
+      <SpotlightComposer open={composerOpen} onOpenChange={setComposerOpen} hideTrigger />
       <div className="relative min-w-0 flex-1">
         <button
           type="button"
@@ -511,12 +529,12 @@ function SpotlightSlide({
     >
       <div className="relative h-full w-full overflow-hidden lg:aspect-[9/16] lg:w-auto lg:rounded-xl">
         {entry.media_type === "video" ? (
-          <video ref={videoRef} src={entry.url} loop muted playsInline className="size-full object-cover" />
+          <SpotlightVideo videoRef={videoRef} src={entry.url} />
         ) : (
           <img src={entry.url} alt={entry.caption ?? entry.provider.business_name} className="size-full object-cover" />
         )}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-media-backdrop/90 to-transparent" />
-        <div className="absolute bottom-4 left-4 right-20 space-y-2 lg:right-4">
+        <div className={cn("absolute left-4 right-20 space-y-2 lg:right-4", entry.media_type === "video" ? "bottom-10" : "bottom-4")}>
           <p className="flex items-center gap-2 text-sm font-bold">
             <Avatar path={entry.provider.avatar_url} name={entry.provider.business_name} className="size-9 ring-2 ring-on-dark/70" />
             <span className="truncate">{entry.provider.business_name}</span>
@@ -595,5 +613,121 @@ function RailButton({
       {children}
       {typeof count === "number" ? <span className="text-xs font-semibold">{count}</span> : null}
     </button>
+  );
+}
+
+function fmt(t: number) {
+  if (!Number.isFinite(t)) return "0:00";
+  const m = Math.floor(t / 60);
+  const sec = Math.floor(t % 60);
+  return `${m}:${sec.toString().padStart(2, "0")}`;
+}
+
+/** Tap to pause/play, double-tap sides to skip 10s, drag the bar to seek. */
+function SpotlightVideo({
+  videoRef,
+  src,
+}: {
+  videoRef: React.RefObject<HTMLVideoElement | null>;
+  src: string;
+}) {
+  const { tx } = useI18n();
+  const [paused, setPaused] = useState(false);
+  const [time, setTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [muted, setMuted] = useState(true);
+  const [flash, setFlash] = useState<string | null>(null);
+  const lastTap = useRef(0);
+  const tapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const skip = (delta: number) => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.currentTime = Math.min(Math.max(0, v.currentTime + delta), v.duration || v.currentTime + delta);
+    setFlash(delta > 0 ? "+10s" : "-10s");
+    setTimeout(() => setFlash(null), 600);
+  };
+  const toggle = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) void v.play().catch(() => undefined);
+    else v.pause();
+  };
+
+  return (
+    <div className="relative size-full">
+      <video
+        ref={videoRef}
+        src={src}
+        loop
+        muted={muted}
+        playsInline
+        className="size-full object-cover"
+        onPlay={() => setPaused(false)}
+        onPause={() => setPaused(true)}
+        onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
+        onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
+      />
+      <button
+        type="button"
+        aria-label={paused ? tx("Play", "Lecture") : tx("Pause", "Pause")}
+        className="absolute inset-0 z-[1]"
+        onClick={(e) => {
+          const now = Date.now();
+          const rect = e.currentTarget.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          if (now - lastTap.current < 280) {
+            if (tapTimer.current) clearTimeout(tapTimer.current);
+            lastTap.current = 0;
+            if (x < rect.width / 3) skip(-10);
+            else if (x > (rect.width * 2) / 3) skip(10);
+            else toggle();
+            return;
+          }
+          lastTap.current = now;
+          tapTimer.current = setTimeout(toggle, 280);
+        }}
+      />
+      {paused ? (
+        <span className="pointer-events-none absolute left-1/2 top-1/2 z-[2] grid size-16 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-media-backdrop/50">
+          <Play className="size-8 fill-current" />
+        </span>
+      ) : null}
+      {flash ? (
+        <span className="pointer-events-none absolute left-1/2 top-1/3 z-[2] -translate-x-1/2 rounded-full bg-media-backdrop/60 px-3 py-1 text-sm font-bold">
+          {flash}
+        </span>
+      ) : null}
+      <div className="absolute inset-x-0 bottom-0 z-[3] flex items-center gap-2 px-3 pb-1">
+        <button type="button" onClick={() => skip(-10)} aria-label={tx("Back 10 seconds", "Reculer de 10 s")} className="p-1">
+          <RotateCcw className="size-4" />
+        </button>
+        <button type="button" onClick={toggle} aria-label={paused ? tx("Play", "Lecture") : tx("Pause", "Pause")} className="p-1">
+          {paused ? <Play className="size-4 fill-current" /> : <Pause className="size-4 fill-current" />}
+        </button>
+        <button type="button" onClick={() => skip(10)} aria-label={tx("Forward 10 seconds", "Avancer de 10 s")} className="p-1">
+          <RotateCw className="size-4" />
+        </button>
+        <input
+          type="range"
+          min={0}
+          max={duration || 0}
+          step={0.1}
+          value={time}
+          aria-label={tx("Seek", "Position")}
+          onChange={(e) => {
+            const v = videoRef.current;
+            if (v) v.currentTime = Number(e.target.value);
+          }}
+          className="h-1 min-w-0 flex-1 cursor-pointer accent-primary"
+        />
+        <span className="text-[10px] tabular-nums opacity-90">
+          {fmt(time)} / {fmt(duration)}
+        </span>
+        <button type="button" onClick={() => setMuted((m) => !m)} aria-label={muted ? tx("Unmute", "Activer le son") : tx("Mute", "Couper le son")} className="p-1">
+          {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
+        </button>
+      </div>
+    </div>
   );
 }
