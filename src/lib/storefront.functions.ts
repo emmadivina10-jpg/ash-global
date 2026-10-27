@@ -93,6 +93,9 @@ export const getStorefront = createServerFn({ method: "GET" })
       .maybeSingle();
     if (!provider) return null;
 
+    // Portfolio photos of a live storefront are public showcase images; read and
+    // sign them server-side so shared links preview the vendor's real work.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [{ data: services }, { data: photos }, { data: reviews }] = await Promise.all([
       supabase
         .from("provider_services")
@@ -100,7 +103,7 @@ export const getStorefront = createServerFn({ method: "GET" })
         .eq("provider_id", provider.id)
         .eq("is_active", true)
         .order("price", { ascending: true }),
-      supabase
+      supabaseAdmin
         .from("portfolio_items")
         .select("id, image_path, caption")
         .eq("provider_id", provider.id)
@@ -117,7 +120,7 @@ export const getStorefront = createServerFn({ method: "GET" })
     const paths = (photos ?? []).map((p) => p.image_path).filter(Boolean);
     const signed: Record<string, string> = {};
     if (paths.length > 0) {
-      const { data: urls } = await supabase.storage
+      const { data: urls } = await supabaseAdmin.storage
         .from("portfolio")
         .createSignedUrls(paths, 60 * 60 * 24 * 365);
       for (const u of urls ?? []) {
