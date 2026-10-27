@@ -289,12 +289,17 @@ function BookingsPage() {
               )
             : code === "ALREADY_PAID"
               ? tx("This booking is already paid.", "Cette réservation est déjà payée.")
-              : code === "STRIPE_NOT_CONFIGURED" || code === "PROVIDER_NOT_CONFIGURED"
+              : code === "BELOW_MINIMUM_CHARGE"
                 ? tx(
-                    "This payment method isn't available yet. Try the other option.",
-                    "Ce moyen de paiement n'est pas encore disponible. Essayez l'autre option.",
+                    "Card payments need at least 1,850 XAF (about $2.98 USD). Please pay with MTN or Orange Mobile Money.",
+                    "Le paiement par carte exige au moins 1 850 XAF (environ 2,98 $ US). Veuillez payer avec MTN ou Orange Mobile Money.",
                   )
-                : paymentErrorMessage(code, fr, "message" in result ? result.message : null);
+                : code === "STRIPE_NOT_CONFIGURED" || code === "PROVIDER_NOT_CONFIGURED"
+                  ? tx(
+                      "This payment method isn't available yet. Try the other option.",
+                      "Ce moyen de paiement n'est pas encore disponible. Essayez l'autre option.",
+                    )
+                  : paymentErrorMessage(code, fr, "message" in result ? result.message : null);
         toast.error(message);
         refresh();
         return;
