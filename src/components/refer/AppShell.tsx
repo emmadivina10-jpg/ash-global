@@ -32,7 +32,6 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin, useProfile } from "@/lib/queries";
 import { Button } from "@/components/ui/button";
-import { AshOrb } from "./AshOrb";
 import { MobileNav } from "./MobileNav";
 import { UnreadMessageBadge } from "./UnreadMessageBadge";
 import { useUnreadMessageCount } from "@/lib/message-unread";
@@ -507,7 +506,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       <ScrollToTop />
 
       <LocationNudge />
-      <AshOrb />
     </div>
   );
 }
