@@ -32,6 +32,7 @@ import { BlockUserDialog } from "@/components/refer/BlockUserDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useUser } from "@/lib/queries";
+import { vendorAction } from "@/lib/vendor-action";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/refer/AvatarUpload";
@@ -433,13 +434,6 @@ function CommentsPanel({ entry }: { entry: SpotlightEntry }) {
   );
 }
 
-/** Food vendors take orders, service vendors take bookings, others sell. */
-export function vendorAction(category: string | null | undefined): "order" | "book" | "buy" {
-  if (category === "PRIVATE_CHEF" || category === "CATERING") return "order";
-  if (!category || category === "OTHER" || category === "DECORATION") return "buy";
-  return "book";
-}
-
 function SpotlightSlide({
   entry,
   root,
@@ -451,13 +445,12 @@ function SpotlightSlide({
   onActive: () => void;
   onComments: () => void;
 }) {
-  const { tx, lang } = useI18n();
+  const { tx } = useI18n();
   const navigate = useNavigate();
   const react = useSetSpotlightReaction();
   const [liked, setLiked] = useState(Boolean(entry.current_reaction));
   const [count, setCount] = useState(entry.reaction_count);
   const [shareOpen, setShareOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const activeRef = useRef(onActive);
