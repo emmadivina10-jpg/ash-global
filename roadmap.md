@@ -478,3 +478,10 @@ Messages/Market checks: signed-in Market default and reload persistence, Extras 
 - [ ] User: create test-mode webhook endpoint for ashglogroup.company/api/public/webhooks/stripe (current test endpoint points to an old Replit URL) and save its signing secret
 - [ ] User: create a CA test-mode Express account for the test provider
 - [ ] Blocked: real SQL end-to-end needs an isolated backend (shared DB is production); then set STRIPE_TEST_SETTLEMENT_ENABLED=true there only
+
+## Navigation, sharing, Spotlight tab, referral rewards (Oct 27)
+- [x] Back button on every non-main screen (phone and website).
+- [x] Share to Feed / copy / other apps on posts, Spotlights and Market vendors; shared links preview the exact item.
+- [x] Spotlight tab replaces Flights (compact icon rail incl. contact-vendor icon); Flights first in Menu.
+- [x] Feed FX Analytics button replaced by Referral rewards with ASH Intelligence analysis.
+- [ ] Publish to live app — awaiting approval.
