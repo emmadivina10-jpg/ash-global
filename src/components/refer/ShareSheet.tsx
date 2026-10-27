@@ -140,7 +140,7 @@ export function ShareSheet({
         onOpenChange(o);
       }}
     >
-      <DialogContent className="max-h-[90dvh] max-w-lg gap-0 overflow-y-auto rounded-2xl p-0">
+      <DialogContent className="max-h-[90dvh] max-w-lg grid-cols-1 gap-0 overflow-y-auto overflow-x-hidden rounded-2xl p-0 [&>*]:min-w-0">
         <DialogHeader className="border-b border-border px-4 py-3">
           <DialogTitle className="text-center text-lg font-extrabold">{tx("Share", "Partager")}</DialogTitle>
         </DialogHeader>
