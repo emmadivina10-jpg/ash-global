@@ -7,12 +7,14 @@ import { Logo } from "@/components/refer/Logo";
 const SITE = "https://ashglogroup.company";
 
 function appPath(p: SharePreview) {
+  if (p.kind === "property") return `/property/${p.id}`;
   return p.kind === "post" ? `/post/${p.id}` : `/spotlight?open=${p.id}`;
 }
 
 export const Route = createFileRoute("/share/$kind/$id")({
   loader: async ({ params }) => {
-    if (params.kind !== "post" && params.kind !== "spotlight") throw notFound();
+    if (params.kind !== "post" && params.kind !== "spotlight" && params.kind !== "property")
+      throw notFound();
     const preview = await getSharePreview({ data: { kind: params.kind, id: params.id } }).catch(
       () => null,
     );

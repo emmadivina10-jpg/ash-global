@@ -16,7 +16,7 @@ import { Avatar } from "./AvatarUpload";
 export const SHARE_SITE = "https://ashglogroup.company";
 
 /** Public link that previews the exact shared item (not the app landing). */
-export function shareLink(kind: "post" | "spotlight" | "store", id: string) {
+export function shareLink(kind: "post" | "spotlight" | "store" | "property", id: string) {
   return kind === "store" ? `${SHARE_SITE}/s/${id}` : `${SHARE_SITE}/share/${kind}/${id}`;
 }
 
@@ -203,7 +203,7 @@ export function ShareSheet({
                   >
                     <span className="relative">
                       <Avatar path={p.avatar_url} name={p.name} className="size-14" />
-                      <span className="absolute -bottom-0.5 -right-0.5 grid size-5 place-items-center rounded-full bg-primary text-primary-foreground ring-2 ring-background">
+                      <span className="absolute -bottom-0.5 -right-0.5 z-10 grid size-5 place-items-center rounded-full bg-primary text-primary-foreground ring-2 ring-background">
                         {sent[p.id] === "busy" ? (
                           <Loader2 className="size-3 animate-spin" />
                         ) : sent[p.id] === "done" ? (
