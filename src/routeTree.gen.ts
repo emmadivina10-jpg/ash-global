@@ -133,6 +133,7 @@ import { Route as ApiPublicCleanupStoriesRouteImport } from './routes/api/public
 import { Route as ApiPublicReconcileActivationsRouteImport } from './routes/api/public/reconcile-activations'
 import { Route as ApiPublicSecuritySelfcheckRouteImport } from './routes/api/public/security-selfcheck'
 import { Route as ConsoleMembersMemberIdRouteImport } from './routes/console.members.$memberId'
+import { Route as ShareKindIdRouteImport } from './routes/share.$kind.$id'
 import { Route as AuthenticatedBookingBookingIdConfirmedRouteImport } from './routes/_authenticated/booking.$bookingId.confirmed'
 import { Route as AuthenticatedBookingBookingIdReceiptRouteImport } from './routes/_authenticated/booking.$bookingId.receipt'
 import { Route as AuthenticatedBookingBookingIdTrackRouteImport } from './routes/_authenticated/booking.$bookingId.track'
@@ -796,6 +797,11 @@ const ConsoleMembersMemberIdRoute = ConsoleMembersMemberIdRouteImport.update({
   path: '/members/$memberId',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const ShareKindIdRoute = ShareKindIdRouteImport.update({
+  id: '/share/$kind/$id',
+  path: '/share/$kind/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedBookingBookingIdConfirmedRoute =
   AuthenticatedBookingBookingIdConfirmedRouteImport.update({
     id: '/booking/$bookingId/confirmed',
@@ -1005,6 +1011,7 @@ export interface FileRoutesByFullPath {
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
   '/console/members/$memberId': typeof ConsoleMembersMemberIdRoute
+  '/share/$kind/$id': typeof ShareKindIdRoute
   '/articles/': typeof AuthenticatedArticlesIndexRoute
   '/campus/': typeof AuthenticatedCampusIndexRoute
   '/clean/': typeof AuthenticatedCleanIndexRoute
@@ -1145,6 +1152,7 @@ export interface FileRoutesByTo {
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
   '/console/members/$memberId': typeof ConsoleMembersMemberIdRoute
+  '/share/$kind/$id': typeof ShareKindIdRoute
   '/articles': typeof AuthenticatedArticlesIndexRoute
   '/campus': typeof AuthenticatedCampusIndexRoute
   '/clean': typeof AuthenticatedCleanIndexRoute
@@ -1288,6 +1296,7 @@ export interface FileRoutesById {
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
   '/console/members/$memberId': typeof ConsoleMembersMemberIdRoute
+  '/share/$kind/$id': typeof ShareKindIdRoute
   '/_authenticated/articles/': typeof AuthenticatedArticlesIndexRoute
   '/_authenticated/campus/': typeof AuthenticatedCampusIndexRoute
   '/_authenticated/clean/': typeof AuthenticatedCleanIndexRoute
@@ -1431,6 +1440,7 @@ export interface FileRouteTypes {
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
     | '/console/members/$memberId'
+    | '/share/$kind/$id'
     | '/articles/'
     | '/campus/'
     | '/clean/'
@@ -1571,6 +1581,7 @@ export interface FileRouteTypes {
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
     | '/console/members/$memberId'
+    | '/share/$kind/$id'
     | '/articles'
     | '/campus'
     | '/clean'
@@ -1713,6 +1724,7 @@ export interface FileRouteTypes {
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
     | '/console/members/$memberId'
+    | '/share/$kind/$id'
     | '/_authenticated/articles/'
     | '/_authenticated/campus/'
     | '/_authenticated/clean/'
@@ -1771,6 +1783,7 @@ export interface RootRouteChildren {
   ApiPublicCleanupStoriesRoute: typeof ApiPublicCleanupStoriesRoute
   ApiPublicReconcileActivationsRoute: typeof ApiPublicReconcileActivationsRoute
   ApiPublicSecuritySelfcheckRoute: typeof ApiPublicSecuritySelfcheckRoute
+  ShareKindIdRoute: typeof ShareKindIdRoute
   ApiPublicProfilesUsernameRoute: typeof ApiPublicProfilesUsernameRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
   ApiPublicWebhooksStripeFlightsRoute: typeof ApiPublicWebhooksStripeFlightsRoute
@@ -2650,6 +2663,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleMembersMemberIdRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/share/$kind/$id': {
+      id: '/share/$kind/$id'
+      path: '/share/$kind/$id'
+      fullPath: '/share/$kind/$id'
+      preLoaderRoute: typeof ShareKindIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/booking/$bookingId/confirmed': {
       id: '/_authenticated/booking/$bookingId/confirmed'
       path: '/booking/$bookingId/confirmed'
@@ -3029,6 +3049,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCleanupStoriesRoute: ApiPublicCleanupStoriesRoute,
   ApiPublicReconcileActivationsRoute: ApiPublicReconcileActivationsRoute,
   ApiPublicSecuritySelfcheckRoute: ApiPublicSecuritySelfcheckRoute,
+  ShareKindIdRoute: ShareKindIdRoute,
   ApiPublicProfilesUsernameRoute: ApiPublicProfilesUsernameRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
   ApiPublicWebhooksStripeFlightsRoute: ApiPublicWebhooksStripeFlightsRoute,
