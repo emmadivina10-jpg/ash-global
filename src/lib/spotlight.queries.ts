@@ -92,7 +92,7 @@ export function useSpotlightFeed(limit = 18) {
         supabase
           .from("portfolio_items")
           .select(
-            "id, provider_id, image_path, caption, created_at, provider:provider_profiles!inner(id, user_id, business_name, slug, city, avatar_url, is_live, is_verified, category)",
+            "id, provider_id, image_path, caption, created_at, provider:provider_profiles!inner(id, user_id, business_name, slug, city, avatar_url, is_live, is_verified, categories)",
           )
           .eq("provider.is_live", true)
           .order("created_at", { ascending: false })
@@ -126,7 +126,7 @@ export function useSpotlightFeed(limit = 18) {
         authorIds.length
           ? supabase
               .from("provider_profiles")
-              .select("id, user_id, business_name, slug, city, avatar_url, is_verified, category")
+              .select("id, user_id, business_name, slug, city, avatar_url, is_verified, categories")
               .or(
                 [
                   providerIds.length ? `id.in.(${providerIds.join(",")})` : "",
@@ -188,7 +188,7 @@ export function useSpotlightFeed(limit = 18) {
             avatar_url: string | null;
             is_verified: boolean;
             user_id: string | null;
-            category: string | null;
+            categories: string[] | null;
           }[]
         ).map((row) => [row.id, row]),
       );
@@ -243,7 +243,7 @@ export function useSpotlightFeed(limit = 18) {
                   slug: storefront.slug,
                   city: storefront.city,
                   is_verified: storefront.is_verified,
-                  category: storefront.category,
+                  category: storefront.categories?.[0] ?? null,
                   avatar_url: storefront.avatar_url || profile?.avatar_url || null,
                   online: onlineIds.has(row.author_id),
                 }
@@ -309,6 +309,8 @@ export function useSpotlightFeed(limit = 18) {
             current_reaction: null,
             provider: {
               ...row.provider,
+              category:
+                (row.provider as { categories?: string[] | null }).categories?.[0] ?? null,
               avatar_url:
                 row.provider.avatar_url ||
                 ownerAvatar.get((row.provider as { user_id?: string }).user_id ?? "") ||
