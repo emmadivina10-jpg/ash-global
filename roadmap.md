@@ -1,5 +1,9 @@
 # Roadmap
 
+## Single-repository iOS build review (Oct 27)
+- [x] Read committed codemagic.yaml on emmadivina10-jpg/ash-global main; existing ios-app-store workflow is present. Old Emmanuel123456789123456789/ASH-Glo main returns GitHub 404 through the accessible connection.
+- [ ] Compare the previously working iOS setup and make only evidence-backed repairs — blocked pending old repository access or its codemagic.yaml, native config/project files, and failed new-repository iOS log. No speculative configuration edits; preserve Android and signing credentials; no automatic store publishing authorized.
+
 ## Android missing release version (Oct 27)
 - [x] Reproduced missing CI version (not default 1); added confirmed previous+BUILD_NUMBER resolution and actionable failure; Gradle release refuses missing code, CI exports one resolved version; signing/iOS preserved.
 - [x] 29 Android tests, JavaScript syntax, YAML and all five shell syntax checks passed; iOS byte-identical, artifact-only/signing/package checks passed. No native compile or remote main sync verified; exact report in GOOGLE-PLAY-PREP.md.
