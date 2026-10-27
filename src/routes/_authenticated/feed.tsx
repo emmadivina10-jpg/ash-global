@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { extractTags, recordTagInterest } from "@/lib/interests";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BarChart3, Camera, ImagePlus, Loader2, Plus, Sparkles, X } from "lucide-react";
+import { Camera, Gift, ImagePlus, Loader2, Plus, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { PullToRefresh } from "@/components/refer/PullToRefresh";
