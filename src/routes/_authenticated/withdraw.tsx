@@ -57,6 +57,22 @@ const ERRORS: Record<string, string> = {
   INVALID_REQUEST: "The payout information is invalid. Please check your details and try again.",
 };
 
+const FRENCH_ERRORS: Record<string, string> = {
+  ACCOUNT_NOT_ACTIVE: "Activez votre compte avant de demander un retrait.",
+  INVALID_METHOD: "Choisissez un opérateur Mobile Money valide.",
+  INVALID_PHONE: "Saisissez un numéro Mobile Money camerounais valide.",
+  MIN_AMOUNT_1000: `Le retrait minimum est de ${formatXAF(MIN_WITHDRAWAL)}.`,
+  INSUFFICIENT_BALANCE: "Votre solde disponible est insuffisant.",
+  WRONG_FUNDING_SOURCE: "Les fonds doivent être retirés par leur méthode d’origine : carte ou banque pour les fonds de carte, MTN ou Orange pour le Mobile Money.",
+  PENDING_WITHDRAWAL_EXISTS: "Un retrait est déjà en cours de traitement.",
+  UNAUTHENTICATED: "Veuillez vous reconnecter.",
+  BANK_NOT_CONNECTED: "Associez et vérifiez votre compte bancaire avant de demander un versement.",
+  BANK_PAYOUTS_NOT_READY: "Configurez votre compte de versement Stripe depuis votre portefeuille.",
+  PAYMENT_PROVIDER_NOT_CONFIGURED: "Les versements Mobile Money sont temporairement indisponibles.",
+  PROVIDER_UNREACHABLE: "Le prestataire de versement est injoignable. Votre retrait reste en attente et ne sera pas débité deux fois.",
+  INVALID_REQUEST: "Vérifiez les informations de versement et réessayez.",
+};
+
 type Method = "MTN_MOMO" | "ORANGE_MONEY" | "STRIPE_BANK";
 
 const METHOD_LABEL: Record<Method, string> = {
@@ -88,6 +104,7 @@ export const Route = createFileRoute("/_authenticated/withdraw")({
 function WithdrawPage() {
   const cardBank = useCardBankAvailable();
   const { lang, tx } = useI18n();
+  const errorKey = Object.keys(ERRORS).find((key) => ERRORS[key] === error);
   const queryClient = useQueryClient();
   const disburse = useServerFn(disburseWithdrawal);
 
