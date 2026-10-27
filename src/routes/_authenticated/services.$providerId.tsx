@@ -15,6 +15,8 @@ import {
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { contactVendor } from "@/lib/contact-vendor";
+import { ShareSheet, shareLink } from "@/components/refer/ShareSheet";
+import { Share2 as ShareIcon } from "lucide-react";
 import { trackEvent } from "@/lib/activity";
 import {
   openConversation,
@@ -229,6 +231,11 @@ function ProviderPage() {
               {tx("Verified", "Vérifié")}
             </span>
           ) : null}
+          <ProviderShareButton
+            slug={(provider as { slug?: string | null }).slug ?? null}
+            providerId={providerId}
+            name={provider.business_name}
+          />
         </div>
         {minPrice !== null ? (
           <p className="text-xl font-bold text-foreground">
@@ -1247,5 +1254,39 @@ function RelatedListings({
         ))}
       </div>
     </SectionCard>
+  );
+}
+
+function ProviderShareButton({
+  slug,
+  providerId,
+  name,
+}: {
+  slug: string | null;
+  providerId: string;
+  name: string;
+}) {
+  const { tx } = useI18n();
+  const [open, setOpen] = useState(false);
+  if (!slug) return null;
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label={tx("Share", "Partager")}
+        className="ml-auto grid size-9 place-items-center rounded-full border border-border text-foreground transition-colors hover:bg-muted"
+      >
+        <ShareIcon className="size-4" aria-hidden />
+      </button>
+      <ShareSheet
+        open={open}
+        onOpenChange={setOpen}
+        url={shareLink("store", slug)}
+        title={tx(`${name} on ASH Market`, `${name} sur ASH Market`)}
+        targetType="storefront"
+        targetId={providerId}
+      />
+    </>
   );
 }
