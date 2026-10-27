@@ -38,9 +38,9 @@ export function ShareSheet({
   const [note, setNote] = useState("");
   const create = useCreateSocialPost();
 
-  function track(channel: string) {
+  function track(_channel: string) {
     trackEvent({
-      event_type: `share_${channel}`,
+      event_type: "share",
       surface: "feed",
       target_type: targetType,
       target_id: targetId,
