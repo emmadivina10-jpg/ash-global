@@ -1,6 +1,4 @@
-import {
-  Plane,
-  Gift, useState } from "react";
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowDownToLine,
@@ -31,6 +29,8 @@ import {
   Wallet,
   Building2,
   ChartNoAxesCombined,
+  Plane,
+  Gift,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
