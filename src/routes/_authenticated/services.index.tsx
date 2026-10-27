@@ -149,8 +149,8 @@ const QUICK_LINKS = [
   },
   {
     to: "/property",
-    en: "Property",
-    fr: "Immobilier",
+    en: "Homes",
+    fr: "Maisons",
     icon: Home,
     tone: "text-foreground",
     ring: "bg-foreground/10 ring-foreground/30 shadow-black/10",
