@@ -1,9 +1,10 @@
 # Roadmap
 
 ## English and French language switching (Oct 27)
-- [ ] Restrict interface language choices to English/French and fix immediate, persistent switching.
-- [ ] Connect untranslated interface labels to static translations; preserve user content and payment behavior.
-- [ ] Verify switching both ways, navigation and reload persistence with regression tests and the running app.
+- [x] Restrict interface language choices to English/French and fix immediate, persistent switching, including blocked storage and cross-tab updates.
+- [x] Translate observed Feed/Story, Messages, Wallet, withdrawal, status, shared confirmation and sign-in gaps; preserve user content and payment behavior.
+- [x] Signed-in desktop main screens and phone sign-in/Menu verified; English/French switching and reload persistence work, no runtime errors or phone overflow; 28 regression tests pass and preview build OK. Nothing published.
+- [ ] Full interface coverage is not yet complete: long-form public legal documents and some secondary/staff screens still contain English-only copy.
 
 ## iOS unknown payment environment group (Oct 27)
 - [x] Verified GitHub main codemagic.yaml matches local; inspected native sync, dependency installation, signing, export and publishing dependencies. No payment group variables are required for the remote-hosted native shell.
