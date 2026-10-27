@@ -1,5 +1,14 @@
 # Roadmap
 
+## Spotlight comments, notifications and web menu (Oct 27)
+- [x] Web side menu: profile row, ASH-branded icon tiles, See more / See less.
+- [x] Spotlight comments: replies, comment likes, Most relevant/Newest, delete (own or Spotlight owner), block, blocked people hidden.
+- [x] Notifications: Spotlight comments, replies, comment likes; profile/vendor views (once a day per viewer) open the viewer's profile.
+- [x] Contact vendor replaced by Order (food) / Book (services) / Buy (other) opening the vendor page.
+- [x] Spotlight: one shop photo per vendor, max two items per creator; owner photo fallback.
+- [x] Facebook-style share window.
+- [ ] Posting a reply, liking a comment and the profile-view alert not yet tested end-to-end.
+
 ## Public account deletion request (Oct 27)
 - [x] Created public /delete-account using existing secure Support intake, email-only identification, Account/personalization-only scopes and manual identity verification; no automatic erasure or schema changes.
 - [x] Added website/footer/Settings/existing deletion-page links and truthful retention/processing disclosures in English/French.
