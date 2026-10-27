@@ -224,7 +224,7 @@ function WithdrawPage() {
 
         setError(ERRORS[key] ?? "We could not submit your withdrawal. Please try again.");
 
-        toast.error(tx(tx("Withdrawal request failed", "Échec de la demande de retrait"), "Échec de la demande de retrait"));
+        toast.error(tx("Withdrawal request failed", "Échec de la demande de retrait"));
 
         return;
       }
@@ -277,7 +277,7 @@ function WithdrawPage() {
             );
           }
 
-          toast.error(tx(tx("Payout could not be started", "Impossible de démarrer le versement"), "Impossible de démarrer le versement"));
+          toast.error(tx("Payout could not be started", "Impossible de démarrer le versement"));
 
           await queryClient.invalidateQueries();
 
@@ -290,8 +290,8 @@ function WithdrawPage() {
 
       toast.success(
         isBank
-          ? tx(tx("Withdrawal request submitted successfully.", "Demande de retrait envoyée."), "Demande de retrait envoyée.")
-          : tx(tx("Withdrawal submitted. Your mobile-money payout is now being processed automatically.", "Retrait envoyé. Votre versement Mobile Money est traité automatiquement."), "Retrait envoyé. Votre versement Mobile Money est traité automatiquement."),
+          ? tx("Withdrawal request submitted successfully.", "Demande de retrait envoyée.")
+          : tx("Withdrawal submitted. Your mobile-money payout is now being processed automatically.", "Retrait envoyé. Votre versement Mobile Money est traité automatiquement."),
       );
 
       setAmount("");
@@ -307,7 +307,7 @@ function WithdrawPage() {
 
       setError(message);
 
-      toast.error(tx(tx("Withdrawal request failed", "Échec de la demande de retrait"), "Échec de la demande de retrait"));
+      toast.error(tx("Withdrawal request failed", "Échec de la demande de retrait"));
     }
   }
 
@@ -523,7 +523,7 @@ function WithdrawPage() {
             : tx("Confirm the amount and mobile-money number. Your withdrawal will be submitted immediately and TchokoPay will process the payout automatically.", "Confirmez le montant et le numéro Mobile Money. Votre retrait sera envoyé immédiatement et TchokoPay traitera automatiquement le versement.")
         }
         loading={submitting}
-        confirmLabel={submitting ? tx("Withdrawing...", "Retrait en cours…") : "Withdraw"}
+        confirmLabel={submitting ? tx("Withdrawing...", "Retrait en cours…") : tx("Withdraw", "Retirer")}
         onConfirm={submit}
         details={
           <dl className="space-y-2">

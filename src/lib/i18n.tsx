@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 
-import { LANGUAGES, RTL_LANGS, type LangCode } from "@/lib/i18n.locales";
+import { RTL_LANGS, type LangCode } from "@/lib/i18n.locales";
 import { GENERATED_DICTS } from "@/lib/i18n.generated";
 import { readLanguage, saveLanguage, LANGUAGE_STORAGE_KEY } from "@/lib/language-preference";
 

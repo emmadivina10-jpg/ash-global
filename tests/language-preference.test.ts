@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { LANGUAGES } from "@/lib/i18n.locales";
-import { LANGUAGE_STORAGE_KEY, readLanguage, resolveLanguage, saveLanguage } from "@/lib/language-preference";
+import { LANGUAGES } from "../src/lib/i18n.locales";
+import { LANGUAGE_STORAGE_KEY, readLanguage, resolveLanguage, saveLanguage } from "../src/lib/language-preference";
 
 describe("English and French interface preferences", () => {
   it("offers only English and French", () => {
