@@ -281,6 +281,13 @@
       "when": 1793125820539,
       "tag": "0039_spotlight_comment_threads_and_profile_views",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1793127159735,
+      "tag": "0040_refuse_closed_card_topups",
+      "breakpoints": true
     }
   ]
 }
