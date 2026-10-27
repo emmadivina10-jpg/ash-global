@@ -238,6 +238,8 @@ export async function loadSpotlights(): Promise<SpotlightPost[]> {
     .select("id, author_id, media, caption, created_at")
     .eq("is_published", true)
     .eq("moderation_status", "APPROVED")
+    // Same 30-day lifetime as the Spotlight tab, so every card opens there.
+    .gt("created_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
     .order("created_at", { ascending: false })
     .limit(50);
 
