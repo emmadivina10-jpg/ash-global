@@ -436,8 +436,12 @@ function BookingsPage() {
           </p>
           <div className="grid gap-2">
             {cardBank ? (
+            <>
             <Button
-              disabled={busyId === paymentBooking?.id}
+              disabled={
+                busyId === paymentBooking?.id ||
+                Number(paymentBooking?.price ?? 0) < MIN_SERVICE_PRICE_XAF
+              }
               onClick={() => {
                 if (paymentBooking) {
                   const id = paymentBooking.id;
@@ -449,6 +453,15 @@ function BookingsPage() {
               <CreditCard className="size-4" />
               {tx("Card", "Carte")}
             </Button>
+            {Number(paymentBooking?.price ?? 0) < MIN_SERVICE_PRICE_XAF ? (
+              <p className="text-xs text-muted-foreground">
+                {tx(
+                  "Card needs at least 1,850 XAF (about $2.98 USD). Use Mobile Money for this booking.",
+                  "La carte exige au moins 1 850 XAF (environ 2,98 $ US). Utilisez Mobile Money pour cette réservation.",
+                )}
+              </p>
+            ) : null}
+            </>
             ) : null}
             {mobileMoneyEnabled ? (
               <Button
