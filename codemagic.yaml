@@ -501,6 +501,10 @@ workflows:
       vars:
         ASH_NATIVE_PLATFORM: android
         CAP_SERVER_URL: https://ashglogroup.company
+        # In google_play, set ANDROID_PREVIOUS_VERSION_CODE from Play's highest
+        # uploaded code (0 only for a confirmed first upload). No guessed default.
+        # With ANDROID_VERSION_CODE unset, preflight adds BUILD_NUMBER to that
+        # previous code, or to an explicitly supplied ANDROID_VERSION_CODE_BASE.
       node: 22
       java: 21
 
@@ -525,11 +529,11 @@ workflows:
       - name: Check release inputs and Android SDK
         script: |
           set -euo pipefail
-          node scripts/android-release-preflight.mjs
-          # Explicit code remains supported. Base + build counter increments automatically.
+          # Resolve once; CM_ENV shares this exact value with the Gradle/artifact step.
           ANDROID_VERSION_CODE=$(node scripts/android-release-preflight.mjs --version-code)
           export ANDROID_VERSION_CODE
           printf 'ANDROID_VERSION_CODE=%s\n' "$ANDROID_VERSION_CODE" >> "$CM_ENV"
+          printf 'Resolved Android release versionCode=%s\n' "$ANDROID_VERSION_CODE"
           test -n "${CM_KEYSTORE_PATH:-}" && test -f "$CM_KEYSTORE_PATH"
           test -n "${CM_KEYSTORE_PASSWORD:-}"
           test -n "${CM_KEY_ALIAS:-}"

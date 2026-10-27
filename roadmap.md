@@ -1,5 +1,10 @@
 # Roadmap
 
+## Android missing release version (Oct 27)
+- [ ] Diagnose missing CI version, improve safe history-based version resolution and prevent Gradle release fallback; preserve signing and iOS.
+- [ ] Run focused version tests, YAML/shell checks and iOS comparison.
+- [ ] Select release version and produce signed AAB — blocked pending confirmed highest Play version and an authorized Codemagic run.
+
 ## Android lockfile repair (Oct 26)
 - [x] Reproduced npm 11 EUSAGE/root mismatch (npm 10 edgesOut error); repaired only npm lock with existing iOS manager, clean npm install passed. Clean Android frozen Bun install passed; package.json/bun.lock unchanged.
 - [x] Validated artifact-only Android YAML/scripts and sync; added incremental base+BUILD_NUMBER option and actual manifest/upload-certificate verification; iOS workflow/project hashes unchanged.

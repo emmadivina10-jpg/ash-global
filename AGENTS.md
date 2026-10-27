@@ -10,7 +10,7 @@
 <!-- LOVABLE:END -->
 
 - Native composer outside scrolling: no clipping.
-- Native Android release uses platform-scoped Capacitor identity, validated environment versioning and fail-closed keystore signing in artifact-only CI; iOS workflow stays separate. Why: protect registered packages, signing and successful iOS builds without publishing.
+- Native Android release uses platform-scoped Capacitor identity, one preflight-resolved environment version exported through CM_ENV (explicit or confirmed Play maximum/base plus build counter), no release fallback to debug version, and fail-closed keystore signing in artifact-only CI; iOS workflow stays separate. Why: prevent guessed/stale or mismatched artifact versions while protecting signing and successful iOS builds without publishing.
 - Keep Bun's frozen lock for app/Android installs and a synchronized npm lock for the existing iOS npm workflow; do not switch managers to bypass failures. Why: preserve successful native dependency resolution without forcing an iOS migration.
 - Inventory: business_id=provider_profiles.id; inventory_can()/inventory_role_of() RLS + inventory_members; stock only via inventory_record_movement ledger. /inventory, inventory.queries.ts. Why: tenant isolation, one stock source.
 
