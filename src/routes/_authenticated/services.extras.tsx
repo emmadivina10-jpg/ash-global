@@ -44,7 +44,7 @@ const apps = [
   { to: "/freelance", en: "Jobs", fr: "Missions", icon: BriefcaseBusiness },
   { to: "/deals", en: "Deals", fr: "Offres", icon: Tag },
   { to: "/events", en: "Events", fr: "Événements", icon: CalendarDays },
-  { to: "/property", en: "Property", fr: "Immobilier", icon: House },
+  { to: "/property", en: "Homes", fr: "Maisons", icon: House },
   { to: "/network", en: "People", fr: "Personnes", icon: Users },
   { to: "/incubator", en: "ASH Incubator", fr: "ASH Incubateur", icon: FlaskConical },
 ] as const;
