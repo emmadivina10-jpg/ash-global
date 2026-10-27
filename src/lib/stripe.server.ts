@@ -17,8 +17,15 @@ export function xafToUsdCents(xaf: number): number {
   return Math.max(50, Math.ceil((xaf / XAF_PER_USD) * 100));
 }
 
+/** The ASH platform key (Stripe account acct_1Tmk32K8yU6AxPux) wins over the managed legacy key. */
+function liveSecret(): string {
+  const connect = process.env["STRIPE_CONNECT_SECRET_KEY"] ?? "";
+  if (connect.startsWith("sk_live_") || connect.startsWith("rk_live_")) return connect;
+  return process.env["STRIPE_SECRET_KEY"] ?? "";
+}
+
 function key(): string | null {
-  const value = process.env["STRIPE_SECRET_KEY"];
+  const value = liveSecret();
   return value && (value.startsWith("sk_live_") || value.startsWith("rk_live_")) ? value : null;
 }
 
@@ -595,6 +602,6 @@ export async function verifyStripeSignature(
 
 /** True only for a live-mode secret key (sk_live_ / rk_live_). */
 export function stripeIsLive(): boolean {
-  const value = process.env["STRIPE_SECRET_KEY"] ?? "";
+  const value = liveSecret();
   return value.startsWith("sk_live_") || value.startsWith("rk_live_");
 }
