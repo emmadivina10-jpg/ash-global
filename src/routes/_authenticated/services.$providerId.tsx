@@ -11,8 +11,10 @@ import {
   MessageCircle,
   Play,
   ShieldCheck,
+  ShoppingCart,
 } from "lucide-react";
 import { toast } from "sonner";
+import { cart } from "@/lib/cart";
 import { supabase } from "@/integrations/supabase/client";
 import { contactVendor } from "@/lib/contact-vendor";
 import { ShareSheet, shareLink } from "@/components/refer/ShareSheet";
@@ -367,7 +369,7 @@ function ProviderPage() {
                 </button>
                 <div className="flex shrink-0 items-center gap-2">
                   <span className="tabular text-sm font-bold">{formatXAF(service.price)}</span>
-                  {provider.owner_id !== user?.id ? (
+                  {!isOwner ? (
                     <Button
                       size="icon"
                       variant="secondary"
