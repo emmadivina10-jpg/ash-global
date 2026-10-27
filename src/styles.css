@@ -1496,28 +1496,6 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   position: relative;
   isolation: isolate;
 }
-.member-menu::before {
-  content: "ASH";
-  position: absolute;
-  top: 180px;
-  inset-inline: 0;
-  font-size: 140px;
-  font-weight: 900;
-  text-align: center;
-  transform: rotate(-14deg);
-  background: var(--member-update-ring);
-  background-image: linear-gradient(
-    110deg,
-    var(--color-chat-emerald) 48%,
-    var(--verified-magenta) 52%,
-    var(--verified-violet)
-  );
-  background-clip: text;
-  color: transparent;
-  opacity: 0.075;
-  pointer-events: none;
-  z-index: -1;
-}
 .member-menu a.bg-card {
   background-color: color-mix(in oklab, var(--card) 80%, transparent);
   background-image: var(--member-dual-wash);

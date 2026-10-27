@@ -24,12 +24,14 @@ import {
   Briefcase,
   X,
   Star,
+  Wallet,
   type LucideIcon,
 } from "lucide-react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { CATEGORY_GROUPS, categoryLabel } from "@/lib/taxonomy";
 import { rotateSessionContent } from "@/lib/rotation";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { MarketCart } from "./MarketCart";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -380,12 +382,13 @@ export function MarketBrowser({
             size="icon"
             className="rounded-full"
             asChild
-            title={tx("Messages", "Messages")}
+            title={tx("Wallet", "Portefeuille")}
           >
-            <Link to="/messages" aria-label={tx("Market messages", "Messages Market")}>
-              <MessageCircle />
+            <Link to="/wallet" aria-label={tx("Wallet", "Portefeuille")}>
+              <Wallet />
             </Link>
           </Button>
+          <MarketCart />
           {optionsOpen && typeof document !== "undefined"
             ? createPortal(
                 <div
