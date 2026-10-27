@@ -44,7 +44,7 @@ npx cap sync
 | Workflow | Machine | Output |
 | --- | --- | --- |
 | `ios-app-store` | macOS (Xcode latest) | signed `.ipa` → TestFlight / App Store |
-| `android-play` | Linux (JDK 21, Node 22) | signed `.aab` artifact only; no Play upload |
+| `android-play` | Mac mini M2 (JDK 21, Node 22) | signed `.aab` artifact only; no Play upload |
 
 Android uses pinned Bun 1.4.4 with the existing frozen `bun.lock`, verifies the web build without deploying, then runs `npx cap sync android`. iOS installation and signing are unchanged; its existing npm lockfile has been synchronized with the current manifest. The repository has no `packageManager` declaration and intentionally retains both existing install paths rather than switching iOS. Generated assets
 (`ios/App/App/public`, `android/app/src/main/assets/public`, `Package.swift`)
@@ -57,10 +57,10 @@ Supply them in Codemagic:
   named `ASH Glo API Key`; iOS signing uses `distribution_type: app_store` and
   `bundle_identifier: com.ashglogroup.mobile`.
 - **Android keystore** uploaded as the signing reference `ash_glo_keystore`
-  (alias `ashglo`). Locally, Gradle instead reads git-ignored
+  (existing alias `ashglo-upload`). Locally, Gradle instead reads git-ignored
   `android/keystore.properties` (`storeFile`, `storePassword`, `keyAlias`,
   `keyPassword`); incomplete signing now stops Android release tasks instead of producing an unsigned bundle.
-- **Android version:** set `ANDROID_VERSION_CODE` in the `google_play` group to a positive integer greater than every previous Play upload, or leave it unset and set `ANDROID_VERSION_CODE_BASE` to an owner-confirmed previous maximum; CI adds its positive `BUILD_NUMBER` and exports the resulting code. Optionally set `ANDROID_PREVIOUS_VERSION_CODE` to the current Play maximum to reject stale codes, and `ANDROID_VERSION_NAME` (defaults to `1.0`). Across workflow resets or other release workflows, reconfirm the base against Play history. No Google Play service-account JSON is needed for artifact-only builds.
+- **Android version:** in Play Console → ASH Glo → Test and release → App bundle explorer, inspect all uploaded bundles across all tracks and record the highest **version code**, not version name. Set `ANDROID_PREVIOUS_VERSION_CODE` to that confirmed maximum in Codemagic's `google_play` group, and leave `ANDROID_VERSION_CODE` unset to compute maximum + positive `BUILD_NUMBER`; `ANDROID_VERSION_CODE_BASE` remains an optional explicit base. Use previous `0` only after confirming no prior uploads. Alternatively provide an explicit `ANDROID_VERSION_CODE` above the confirmed maximum. Codes must be 1–2100000000; overflow fails rather than wraps. CI resolves once and exports through `CM_ENV`; Gradle release refuses a missing code (local debug alone retains 1), and the final AAB manifest must match the resolved code. `ANDROID_VERSION_NAME` still defaults to `1.0`. Reconfirm history across workflow resets or parallel release workflows. No Google Play service-account JSON is needed for artifact-only builds.
 
 See [GOOGLE-PLAY-PREP.md](./GOOGLE-PLAY-PREP.md) for the verified preparation report, exact Codemagic steps and unresolved submission checks.
 

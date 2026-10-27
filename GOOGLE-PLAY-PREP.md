@@ -4,6 +4,16 @@ Reviewed October 26, 2026. **Configuration prepared, not verified build-ready or
 
 ## Follow-up: lockfile repair and artifact verification
 
+### October 27: missing release-version preflight
+
+The uploaded log confirms Codemagic now starts on Mac mini M2 but fails before Gradle. The old preflight reads an absent/empty `ANDROID_VERSION_CODE` and no configured `ANDROID_VERSION_CODE_BASE`; it does **not** default to 1. Its “from 1 to 2100000000” message describes a range. Gradle separately had a fallback to 1, which did not cause that preflight failure but could hide missing release input when Gradle was run directly.
+
+The Android-only correction gives missing-input instructions, allows confirmed `ANDROID_PREVIOUS_VERSION_CODE + BUILD_NUMBER` without requiring a second base variable, retains explicit/base modes and validates the previous maximum and overflow. CI resolves once, exports the exact result through `CM_ENV`, and verifies it in the AAB. Gradle now reserves fallback 1 for debug and rejects release without the resolved environment code. Signing, package, artifact paths and iOS are preserved.
+
+**Selected production release version: not selected.** Repository/configuration contains no verified Play upload maximum, and no Play history was accessed. To unblock: Play Console → ASH Glo (`com.ashglogroup.app`) → Test and release → App bundle explorer → inspect all uploaded bundles, including testing and inactive releases; record the highest version code. In Codemagic's `google_play` group, set `ANDROID_PREVIOUS_VERSION_CODE` to that value, remove/unset a stale `ANDROID_VERSION_CODE`, and let CI add its positive `BUILD_NUMBER`. For a confirmed first-ever upload only, previous may be 0. The final code is logged and must not exceed 2100000000. Fixture examples such as 100 + 7 = 107 are tests, not chosen release values.
+
+No Codemagic run or signed `.aab` is established by these local changes. Use the latest saved/synced `main` configuration in `emmadivina10-jpg/ash-global`, run **ASH Glo Android — signed AAB only (no publishing)** manually after confirming history, and inspect its artifact. No remote GitHub commit or Codemagic build success is claimed by this report.
+
 ### Exact failure and fix
 
 The uploaded brief did not include a Codemagic build log. The current Android command was independently verified by a clean temporary **Bun 1.4.4 frozen installation: 868 packages installed with lifecycle scripts disabled**; no stale Bun lockfile error was reproduced. `package.json` has no `packageManager` field. Existing app/security CI and Android use Bun; the existing successful iOS workflow uses npm 11. Neither manager was changed, and neither lockfile was deleted.
