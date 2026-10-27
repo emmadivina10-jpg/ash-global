@@ -352,32 +352,71 @@ export type SpotlightComment = {
   author_id: string;
   body: string;
   created_at: string;
+  parent_id: string | null;
+  like_count: number;
+  liked: boolean;
   author: { full_name: string; avatar_url: string | null } | null;
 };
 
+/** Comments (with replies and likes) on a live Spotlight, hiding blocked people. */
 export function useSpotlightComments(entryId: string | null) {
   const id = entryId ? spotlightDbId(entryId) : null;
   return useQuery({
     queryKey: ["spotlight-comments", id],
     enabled: Boolean(id),
     queryFn: async (): Promise<SpotlightComment[]> => {
+      const { data: auth } = await supabase.auth.getUser();
+      const me = auth.user?.id ?? null;
       const { data, error } = await supabase
         .from("spotlight_comments")
-        .select("id, author_id, body, created_at")
+        .select("id, author_id, body, created_at, parent_id")
         .eq("spotlight_id", id!)
         .order("created_at", { ascending: true })
-        .limit(200);
+        .limit(300);
       if (error) throw error;
-      const ids = Array.from(new Set((data ?? []).map((c) => c.author_id)));
-      const { data: people } = ids.length
-        ? await directory().select("user_id, full_name, avatar_url").in("user_id", ids)
-        : { data: [] };
+      const rows = data ?? [];
+      const ids = Array.from(new Set(rows.map((c) => c.author_id)));
+      const commentIds = rows.map((c) => c.id);
+      const [people, likes, blocks] = await Promise.all([
+        ids.length
+          ? directory().select("user_id, full_name, avatar_url").in("user_id", ids)
+          : Promise.resolve({ data: [] }),
+        commentIds.length
+          ? supabase
+              .from("spotlight_comment_likes")
+              .select("comment_id, user_id")
+              .in("comment_id", commentIds)
+          : Promise.resolve({ data: [] }),
+        me
+          ? supabase
+              .from("user_blocks")
+              .select("blocker_id, blocked_id")
+              .or(`blocker_id.eq.${me},blocked_id.eq.${me}`)
+          : Promise.resolve({ data: [] }),
+      ]);
+      const hidden = new Set(
+        ((blocks.data ?? []) as { blocker_id: string; blocked_id: string }[]).map((b) =>
+          b.blocker_id === me ? b.blocked_id : b.blocker_id,
+        ),
+      );
       const map = new Map(
-        ((people ?? []) as { user_id: string; full_name: string; avatar_url: string | null }[]).map(
+        ((people.data ?? []) as { user_id: string; full_name: string; avatar_url: string | null }[]).map(
           (p) => [p.user_id, p],
         ),
       );
-      return (data ?? []).map((c) => ({ ...c, author: map.get(c.author_id) ?? null }));
+      const likeRows = (likes.data ?? []) as { comment_id: string; user_id: string }[];
+      return rows
+        .filter((c) => !hidden.has(c.author_id))
+        .map((c) => {
+          const mine = likeRows.filter((l) => l.comment_id === c.id);
+          return {
+            ...c,
+            parent_id: c.parent_id ?? null,
+            like_count: mine.length,
+            liked: mine.some((l) => l.user_id === me),
+            author: map.get(c.author_id) ?? null,
+          };
+        });
     },
   });
 }
@@ -386,12 +425,15 @@ export function useAddSpotlightComment(entryId: string) {
   const queryClient = useQueryClient();
   const id = spotlightDbId(entryId);
   return useMutation({
-    mutationFn: async (body: string) => {
+    mutationFn: async ({ body, parentId }: { body: string; parentId?: string | null }) => {
       const { data: auth } = await supabase.auth.getUser();
       if (!auth.user) throw new Error("Sign in required");
-      const { error } = await supabase
-        .from("spotlight_comments")
-        .insert({ spotlight_id: id, author_id: auth.user.id, body: body.trim().slice(0, 1000) });
+      const { error } = await supabase.from("spotlight_comments").insert({
+        spotlight_id: id,
+        author_id: auth.user.id,
+        body: body.trim().slice(0, 1000),
+        parent_id: parentId ?? null,
+      });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -409,7 +451,32 @@ export function useDeleteSpotlightComment(entryId: string) {
       const { error } = await supabase.from("spotlight_comments").delete().eq("id", commentId);
       if (error) throw error;
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["spotlight-comments", id] }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["spotlight-comments", id] });
+      void queryClient.invalidateQueries({ queryKey: ["spotlight-feed"] });
+    },
+  });
+}
+
+export function useToggleSpotlightCommentLike(entryId: string) {
+  const queryClient = useQueryClient();
+  const id = spotlightDbId(entryId);
+  return useMutation({
+    mutationFn: async ({ commentId, like }: { commentId: string; like: boolean }) => {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) throw new Error("Sign in required");
+      const { error } = like
+        ? await supabase
+            .from("spotlight_comment_likes")
+            .insert({ comment_id: commentId, user_id: auth.user.id })
+        : await supabase
+            .from("spotlight_comment_likes")
+            .delete()
+            .eq("comment_id", commentId)
+            .eq("user_id", auth.user.id);
+      if (error) throw error;
+    },
+    onSettled: () => void queryClient.invalidateQueries({ queryKey: ["spotlight-comments", id] }),
   });
 }
 
