@@ -260,6 +260,13 @@
       "when": 1793124142079,
       "tag": "0036_create_cart_items",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1793124858785,
+      "tag": "0037_create_spotlight_comments",
+      "breakpoints": true
     }
   ]
 }

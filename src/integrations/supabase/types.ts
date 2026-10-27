@@ -6229,6 +6229,38 @@ export type Database = {
           },
         ]
       }
+      spotlight_comments: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          spotlight_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          spotlight_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          spotlight_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spotlight_comments_spotlight_id_fkey"
+            columns: ["spotlight_id"]
+            isOneToOne: false
+            referencedRelation: "spotlight_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       spotlight_hashtags: {
         Row: {
           created_at: string
