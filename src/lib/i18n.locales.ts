@@ -9,7 +9,7 @@
 
 export type ExtraLang = "es" | "pt" | "ar" | "sw" | "hi" | "zh" | "de" | "ru";
 
-export type LangCode = "en" | "fr" | ExtraLang;
+export type LangCode = "en" | "fr";
 
 export const LANGUAGES: {
   code: LangCode;
@@ -19,17 +19,9 @@ export const LANGUAGES: {
 }[] = [
   { code: "en", label: "EN", native: "English" },
   { code: "fr", label: "FR", native: "Français" },
-  { code: "es", label: "ES", native: "Español" },
-  { code: "pt", label: "PT", native: "Português" },
-  { code: "ar", label: "AR", native: "العربية", rtl: true },
-  { code: "sw", label: "SW", native: "Kiswahili" },
-  { code: "hi", label: "HI", native: "हिन्दी" },
-  { code: "zh", label: "ZH", native: "中文" },
-  { code: "de", label: "DE", native: "Deutsch" },
-  { code: "ru", label: "RU", native: "Русский" },
 ];
 
-export const RTL_LANGS = new Set<LangCode>(["ar"]);
+export const RTL_LANGS = new Set<LangCode>();
 
 type Partials = Record<string, string>;
 

@@ -57,6 +57,24 @@ const ERRORS: Record<string, string> = {
   INVALID_REQUEST: "The payout information is invalid. Please check your details and try again.",
 };
 
+const FRENCH_ERRORS: Record<string, string> = {
+  ACCOUNT_NOT_ACTIVE: "Activez votre compte avant de demander un retrait.",
+  INVALID_METHOD: "Choisissez un opérateur Mobile Money valide.",
+  INVALID_PHONE: "Saisissez un numéro Mobile Money camerounais valide.",
+  MIN_AMOUNT_1000: `Le retrait minimum est de ${formatXAF(MIN_WITHDRAWAL)}.`,
+  INSUFFICIENT_BALANCE: "Votre solde disponible est insuffisant.",
+  WRONG_FUNDING_SOURCE:
+    "Les fonds doivent être retirés par leur méthode d’origine : carte ou banque pour les fonds de carte, MTN ou Orange pour le Mobile Money.",
+  PENDING_WITHDRAWAL_EXISTS: "Un retrait est déjà en cours de traitement.",
+  UNAUTHENTICATED: "Veuillez vous reconnecter.",
+  BANK_NOT_CONNECTED: "Associez et vérifiez votre compte bancaire avant de demander un versement.",
+  BANK_PAYOUTS_NOT_READY: "Configurez votre compte de versement Stripe depuis votre portefeuille.",
+  PAYMENT_PROVIDER_NOT_CONFIGURED: "Les versements Mobile Money sont temporairement indisponibles.",
+  PROVIDER_UNREACHABLE:
+    "Le prestataire de versement est injoignable. Votre retrait reste en attente et ne sera pas débité deux fois.",
+  INVALID_REQUEST: "Vérifiez les informations de versement et réessayez.",
+};
+
 type Method = "MTN_MOMO" | "ORANGE_MONEY" | "STRIPE_BANK";
 
 const METHOD_LABEL: Record<Method, string> = {
@@ -70,7 +88,10 @@ export const Route = createFileRoute("/_authenticated/withdraw")({
     meta: [
       { title: "Withdraw — ASH Glo" },
       { property: "og:title", content: "Withdraw — ASH Glo" },
-      { property: "og:description", content: "ASH Glo withdrawal balances and supported payout destinations." },
+      {
+        property: "og:description",
+        content: "ASH Glo withdrawal balances and supported payout destinations.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       {
@@ -84,7 +105,7 @@ export const Route = createFileRoute("/_authenticated/withdraw")({
 
 function WithdrawPage() {
   const cardBank = useCardBankAvailable();
-  const { lang } = useI18n();
+  const { lang, tx } = useI18n();
   const queryClient = useQueryClient();
   const disburse = useServerFn(disburseWithdrawal);
 
@@ -99,6 +120,7 @@ function WithdrawPage() {
   const [phone, setPhone] = useState(profile?.phone ?? "");
 
   const [error, setError] = useState<string | null>(null);
+  const errorKey = Object.keys(ERRORS).find((key) => ERRORS[key] === error);
 
   const [confirming, setConfirming] = useState(false);
 
@@ -166,7 +188,9 @@ function WithdrawPage() {
     const value = Number(amount);
 
     if (!Number.isFinite(value) || value < minimum) {
-      setError(`The minimum withdrawal is ${money(minimum)}.`);
+      setError(
+        `${tx("The minimum withdrawal is", "Le retrait minimum est de")} ${money(minimum)}.`,
+      );
       return;
     }
 
@@ -224,7 +248,7 @@ function WithdrawPage() {
 
         setError(ERRORS[key] ?? "We could not submit your withdrawal. Please try again.");
 
-        toast.error("Withdrawal request failed");
+        toast.error(tx("Withdrawal request failed", "Échec de la demande de retrait"));
 
         return;
       }
@@ -277,7 +301,7 @@ function WithdrawPage() {
             );
           }
 
-          toast.error("Payout could not be started");
+          toast.error(tx("Payout could not be started", "Impossible de démarrer le versement"));
 
           await queryClient.invalidateQueries();
 
@@ -290,8 +314,11 @@ function WithdrawPage() {
 
       toast.success(
         isBank
-          ? "Withdrawal request submitted successfully."
-          : "Withdrawal submitted. Your mobile-money payout is now being processed automatically.",
+          ? tx("Withdrawal request submitted successfully.", "Demande de retrait envoyée.")
+          : tx(
+              "Withdrawal submitted. Your mobile-money payout is now being processed automatically.",
+              "Retrait envoyé. Votre versement Mobile Money est traité automatiquement.",
+            ),
       );
 
       setAmount("");
@@ -307,17 +334,19 @@ function WithdrawPage() {
 
       setError(message);
 
-      toast.error("Withdrawal request failed");
+      toast.error(tx("Withdrawal request failed", "Échec de la demande de retrait"));
     }
   }
 
   return (
     <div className="mx-auto w-full max-w-3xl space-y-5">
       <header>
-        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Withdraw Funds</h1>
+        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
+          {tx("Withdraw Funds", "Retirer des fonds")}
+        </h1>
 
         <p className="mt-1 text-sm text-muted-foreground">
-          Available balance:{" "}
+          {tx("Available balance:", "Solde disponible :")}{" "}
           <span className="tabular font-semibold text-foreground">{money(available)}</span>
         </p>
         <div className="mt-3">
@@ -329,31 +358,31 @@ function WithdrawPage() {
               setAmount("");
               setError(null);
             }}
-            fr={false}
+            fr={lang === "fr"}
           />
         </div>
       </header>
 
-      <SectionCard title="Where your money came from">
+      <SectionCard title={tx("Where your money came from", "Origine de vos fonds")}>
         <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[
             {
-              label: "Ready to withdraw",
+              label: tx("Ready to withdraw", "Disponible au retrait"),
               value: available,
               tone: "text-primary",
             },
             {
-              label: "Pending clearance",
+              label: tx("Pending clearance", "En attente de validation"),
               value: pending,
               tone: "text-foreground",
             },
             {
-              label: "Service earnings",
+              label: tx("Service earnings", "Revenus des services"),
               value: split.service,
               tone: "text-foreground",
             },
             {
-              label: "Referral commissions",
+              label: tx("Referral commissions", "Commissions de parrainage"),
               value: split.referral,
               tone: "text-foreground",
             },
@@ -371,14 +400,19 @@ function WithdrawPage() {
         </dl>
 
         <p className="mt-3 text-xs text-muted-foreground">
-          Only the “ready to withdraw” balance can be paid out. Pending amounts clear once bookings
-          are completed.
+          {tx(
+            "Only the “ready to withdraw” balance can be paid out. Pending amounts clear once bookings are completed.",
+            "Seul le solde disponible au retrait peut être versé. Les montants en attente sont libérés après la fin des réservations.",
+          )}
         </p>
       </SectionCard>
 
       <SectionCard
-        title="Withdraw funds"
-        description="Choose your destination and amount. You control the withdrawal yourself; mobile-money payouts are processed automatically by TchokoPay."
+        title={tx("Withdraw funds", "Retirer des fonds")}
+        description={tx(
+          "Choose your destination and amount. You control the withdrawal yourself; mobile-money payouts are processed automatically by TchokoPay.",
+          "Choisissez la destination et le montant. Vous contrôlez le retrait ; les versements Mobile Money sont traités automatiquement par TchokoPay.",
+        )}
       >
         {!cardBank && <CardBankComingSoon fr={lang === "fr"} />}
         {methodOptions.length === 0 ? (
@@ -388,96 +422,113 @@ function WithdrawPage() {
               : "Withdrawals in this currency are unavailable in the app. Your balance remains unchanged."}
           </p>
         ) : (
-        <form onSubmit={review} className="space-y-5" noValidate>
-          <div className="space-y-2">
-            <Label htmlFor="amount">Amount ({currency})</Label>
-
-            <Input
-              id="amount"
-              inputMode={currency === "XAF" ? "numeric" : "decimal"}
-              value={amount}
-              onChange={(event) =>
-                setAmount(
-                  currency === "XAF"
-                    ? event.target.value.replace(/[^\d]/g, "")
-                    : event.target.value.replace(/[^\d.]/g, "").replace(/^(\d*\.\d{0,2}).*$/, "$1"),
-                )
-              }
-              placeholder={String(minimum)}
-              className="h-12 text-lg"
-            />
-
-            <p className="text-xs text-muted-foreground">Minimum {money(minimum)}.</p>
-          </div>
-
-          <p className="rounded-xl bg-muted/60 p-3 text-xs text-muted-foreground">
-            {currency === "XAF"
-              ? "Francs come from Mobile Money and go out by MTN or Orange."
-              : `${currency} is card money held by Stripe and goes out by Card / Bank.`}
-          </p>
-
-          <fieldset className="space-y-2">
-            <legend className="mb-2 text-sm font-medium">Payout destination</legend>
-
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {methodOptions.map((option) => (
-                <button
-                  key={option}
-                  type="button"
-                  onClick={() => setMethod(option)}
-                  className={cn(
-                    "min-h-14 rounded-xl border px-4 py-3 text-sm font-semibold transition-colors",
-                    method === option
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border bg-card text-muted-foreground hover:bg-muted",
-                  )}
-                >
-                  {METHOD_LABEL[option]}
-                </button>
-              ))}
-            </div>
-          </fieldset>
-
-          {isBank ? (
-            <p className="rounded-xl bg-muted/60 p-3 text-xs text-muted-foreground">
-              Funds are sent through Stripe to the card or bank account you connected in your Wallet
-              payout setup.
-            </p>
-          ) : (
+          <form onSubmit={review} className="space-y-5" noValidate>
             <div className="space-y-2">
-              <Label htmlFor="phone">Mobile money number</Label>
+              <Label htmlFor="amount">
+                {tx("Amount", "Montant")} ({currency})
+              </Label>
 
               <Input
-                id="phone"
-                inputMode="tel"
-                value={phone}
-                onChange={(event) => setPhone(event.target.value)}
-                placeholder="6XX XXX XXX"
-                className="h-12"
+                id="amount"
+                inputMode={currency === "XAF" ? "numeric" : "decimal"}
+                value={amount}
+                onChange={(event) =>
+                  setAmount(
+                    currency === "XAF"
+                      ? event.target.value.replace(/[^\d]/g, "")
+                      : event.target.value
+                          .replace(/[^\d.]/g, "")
+                          .replace(/^(\d*\.\d{0,2}).*$/, "$1"),
+                  )
+                }
+                placeholder={String(minimum)}
+                className="h-12 text-lg"
               />
+
+              <p className="text-xs text-muted-foreground">Minimum {money(minimum)}.</p>
             </div>
-          )}
 
-          {error ? (
-            <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
-              {error}
+            <p className="rounded-xl bg-muted/60 p-3 text-xs text-muted-foreground">
+              {currency === "XAF"
+                ? tx(
+                    "Francs come from Mobile Money and go out by MTN or Orange.",
+                    "Les francs proviennent du Mobile Money et sont retirés via MTN ou Orange.",
+                  )
+                : `${currency} ${tx("is card money held by Stripe and goes out by Card / Bank.", "correspond aux fonds de carte détenus par Stripe, retirables par carte ou banque.")}`}
             </p>
-          ) : null}
 
-          <Button type="submit" disabled={!destinationAvailable} className="h-12 w-full">
-            Withdraw
-          </Button>
-        </form>
+            <fieldset className="space-y-2">
+              <legend className="mb-2 text-sm font-medium">
+                {tx("Payout destination", "Destination du versement")}
+              </legend>
+
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {methodOptions.map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setMethod(option)}
+                    className={cn(
+                      "min-h-14 rounded-xl border px-4 py-3 text-sm font-semibold transition-colors",
+                      method === option
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border bg-card text-muted-foreground hover:bg-muted",
+                    )}
+                  >
+                    {tx(
+                      METHOD_LABEL[option],
+                      option === "STRIPE_BANK" ? "Carte / Banque (Stripe)" : METHOD_LABEL[option],
+                    )}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+
+            {isBank ? (
+              <p className="rounded-xl bg-muted/60 p-3 text-xs text-muted-foreground">
+                {tx(
+                  "Funds are sent through Stripe to the card or bank account you connected in your Wallet payout setup.",
+                  "Les fonds sont envoyés via Stripe vers la carte ou le compte bancaire associé à votre portefeuille.",
+                )}
+              </p>
+            ) : (
+              <div className="space-y-2">
+                <Label htmlFor="phone">{tx("Mobile money number", "Numéro Mobile Money")}</Label>
+
+                <Input
+                  id="phone"
+                  inputMode="tel"
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
+                  placeholder="6XX XXX XXX"
+                  className="h-12"
+                />
+              </div>
+            )}
+
+            {error ? (
+              <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
+                {lang === "fr" && errorKey ? (FRENCH_ERRORS[errorKey] ?? tx(error)) : tx(error)}
+              </p>
+            ) : null}
+
+            <Button type="submit" disabled={!destinationAvailable} className="h-12 w-full">
+              {tx("Withdraw", "Retirer")}
+            </Button>
+          </form>
         )}
       </SectionCard>
 
-      <SectionCard title="Withdrawal history">
+      <SectionCard title={tx("Withdrawal history", "Historique des retraits")}>
         {isLoading ? (
           <SkeletonRows rows={3} />
         ) : (withdrawals ?? []).length === 0 ? (
           <EmptyState
-            title="No withdrawals yet"
-            description="Your payout requests will appear here."
+            title={tx("No withdrawals yet", "Aucun retrait pour le moment")}
+            description={tx(
+              "Your payout requests will appear here.",
+              "Vos demandes de versement apparaîtront ici.",
+            )}
           />
         ) : (
           <ul className="divide-y divide-border">
@@ -518,32 +569,45 @@ function WithdrawPage() {
             setConfirming(open);
           }
         }}
-        title="Confirm withdrawal"
+        title={tx("Confirm withdrawal", "Confirmer le retrait")}
         description={
           isBank
-            ? "Confirm the amount and bank destination. Your withdrawal request will be submitted immediately."
-            : "Confirm the amount and mobile-money number. Your withdrawal will be submitted immediately and TchokoPay will process the payout automatically."
+            ? tx(
+                "Confirm the amount and bank destination. Your withdrawal request will be submitted immediately.",
+                "Confirmez le montant et la destination bancaire. Votre demande sera envoyée immédiatement.",
+              )
+            : tx(
+                "Confirm the amount and mobile-money number. Your withdrawal will be submitted immediately and TchokoPay will process the payout automatically.",
+                "Confirmez le montant et le numéro Mobile Money. Votre retrait sera envoyé immédiatement et TchokoPay traitera automatiquement le versement.",
+              )
         }
         loading={submitting}
-        confirmLabel={submitting ? "Withdrawing..." : "Withdraw"}
+        confirmLabel={
+          submitting ? tx("Withdrawing...", "Retrait en cours…") : tx("Withdraw", "Retirer")
+        }
         onConfirm={submit}
         details={
           <dl className="space-y-2">
             <div className="flex justify-between gap-4">
-              <dt className="text-muted-foreground">Amount</dt>
+              <dt className="text-muted-foreground">{tx("Amount", "Montant")}</dt>
 
               <dd className="tabular font-bold">{money(Number(amount || 0))}</dd>
             </div>
 
             <div className="flex justify-between gap-4">
-              <dt className="text-muted-foreground">Destination</dt>
+              <dt className="text-muted-foreground">{tx("Destination", "Destination")}</dt>
 
-              <dd className="font-semibold text-right">{METHOD_LABEL[method]}</dd>
+              <dd className="font-semibold text-right">
+                {tx(
+                  METHOD_LABEL[method],
+                  method === "STRIPE_BANK" ? "Carte / Banque (Stripe)" : METHOD_LABEL[method],
+                )}
+              </dd>
             </div>
 
             {isBank ? null : (
               <div className="flex justify-between gap-4">
-                <dt className="text-muted-foreground">Number</dt>
+                <dt className="text-muted-foreground">{tx("Number", "Numéro")}</dt>
 
                 <dd className="font-semibold">{normalizePhone(phone)}</dd>
               </div>
@@ -551,10 +615,14 @@ function WithdrawPage() {
 
             {!isBank ? (
               <div className="mt-3 rounded-xl border border-primary/20 bg-primary/5 p-3">
-                <p className="text-xs font-medium text-primary">Automatic payout</p>
+                <p className="text-xs font-medium text-primary">
+                  {tx("Automatic payout", "Versement automatique")}
+                </p>
                 <p className="mt-0.5 text-[11px] text-muted-foreground">
-                  No administrator approval is required. TchokoPay will process the mobile-money
-                  payout automatically.
+                  {tx(
+                    "No administrator approval is required. TchokoPay will process the mobile-money payout automatically.",
+                    "Aucune approbation administrative n’est nécessaire. TchokoPay traite automatiquement le versement Mobile Money.",
+                  )}
                 </p>
               </div>
             ) : null}

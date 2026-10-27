@@ -36,7 +36,7 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { t } = useI18n();
+  const { t, tx } = useI18n();
   const returnTo = pendingReturn(Route.useSearch().next);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -178,7 +178,7 @@ function LoginPage() {
       </p>
       <p className="mt-3 text-center text-xs text-muted-foreground">
         <Link to="/support" className="hover:text-primary hover:underline">
-          Help & Support
+          {tx("Help & Support", "Aide et assistance")}
         </Link>
       </p>
     </AuthLayout>

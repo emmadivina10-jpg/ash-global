@@ -12,6 +12,7 @@ export function LoadingState({
   label?: string;
   className?: string;
 }) {
+  const { tx } = useI18n();
   return (
     <div
       className={cn(
@@ -20,7 +21,7 @@ export function LoadingState({
       )}
     >
       <Loader2 className="size-4 animate-spin" aria-hidden />
-      {label}
+      {label === "Loading…" ? tx("Loading…", "Chargement…") : label}
     </div>
   );
 }

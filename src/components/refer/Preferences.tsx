@@ -36,13 +36,13 @@ export function ThemeToggle({ className }: { className?: string }) {
 
 export function LanguageSwitcher({ className }: { className?: string }) {
   const { lang, setLang, t } = useI18n();
-  const current = LANGUAGES.find((entry) => entry.code === lang) ?? LANGUAGES[0]!;
+  const current = LANGUAGES.find((entry) => entry.code === lang);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button
-          type="button"
+        <Button
+          variant="ghost"
           aria-label={t("shell.language")}
           title={t("shell.language")}
           className={cn(
@@ -51,8 +51,8 @@ export function LanguageSwitcher({ className }: { className?: string }) {
           )}
         >
           <Globe className="size-3.5 text-muted-foreground" aria-hidden />
-          {current.label}
-        </button>
+          {current?.label ?? "EN"}
+        </Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="max-h-80 w-48 overflow-y-auto">

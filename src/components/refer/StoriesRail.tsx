@@ -1,3 +1,4 @@
+import { useI18n } from "@/lib/i18n";
 import { useOverlayBack } from "@/lib/overlay-back";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -359,6 +360,7 @@ export function StoriesRail({
   viewerRequest?: { authorId: string; kind: "story" | "spotlight"; spotlightId?: string };
   onViewerClose?: () => void;
 } = {}) {
+  const { tx, lang } = useI18n();
   const { user } = useUser();
   const me = user?.id ?? null;
   const queryClient = useQueryClient();
@@ -602,15 +604,19 @@ export function StoriesRail({
       file.type.startsWith("image/") || /\.(png|jpe?g|gif|webp|heic|heif)$/i.test(file.name);
 
     if (!video && !image) {
-      toast.error("Please choose a photo or video.");
+      toast.error(tx("Please choose a photo or video.", "Choisissez une photo ou une vidéo."));
       return;
     }
     if (video && file.size > VIDEO_MAX_BYTES) {
-      toast.error("Videos must be 50 MB or smaller.");
+      toast.error(
+        tx("Videos must be 50 MB or smaller.", "Les vidéos ne doivent pas dépasser 50 Mo."),
+      );
       return;
     }
     if (image && file.size > IMAGE_MAX_BYTES) {
-      toast.error("Photos must be 12 MB or smaller.");
+      toast.error(
+        tx("Photos must be 12 MB or smaller.", "Les photos ne doivent pas dépasser 12 Mo."),
+      );
       return;
     }
 
@@ -637,7 +643,7 @@ export function StoriesRail({
       // Never hold the composer open waiting for a second fetch. The story row
       // already exists at this point; refresh the rail in the background.
       void queryClient.invalidateQueries({ queryKey: ["stories"] });
-      toast.success("Story published.");
+      toast.success(tx("Story published.", "Story publiée."));
       resetComposer();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not publish your story.");
@@ -648,7 +654,7 @@ export function StoriesRail({
   async function publishSpotlight() {
     if (!selectedFile || publishing) return;
     if (!me) {
-      toast.error("You need to be signed in.");
+      toast.error(tx("You need to be signed in.", "Vous devez être connecté."));
       return;
     }
 
@@ -730,7 +736,7 @@ export function StoriesRail({
       }
 
       void queryClient.invalidateQueries({ queryKey: ["ash-spotlights"] });
-      toast.success("Spotlight published.");
+      toast.success(tx("Spotlight published.", "Spotlight publié."));
       resetComposer();
     } catch (error) {
       if (mediaPath && !spotlightCreated) {
@@ -791,7 +797,7 @@ export function StoriesRail({
     }
 
     // Image Stories use a fixed 5 second duration. The elapsed time is kept in
-    // a ref so opening "Story views" pauses the Story without resetting it.
+    // a ref so opening tx("Story views", "Vues de la Story") pauses the Story without resetting it.
     const durationMs = 5_000;
     storyStartedAtRef.current = performance.now() - storyElapsedMsRef.current;
     let lastProgress =
@@ -850,12 +856,17 @@ export function StoriesRail({
 
   async function deleteCurrentStory() {
     if (!activeStory || me !== activeStory.author_id || deleteStory.isPending) return;
-    const confirmed = window.confirm("Delete this Story? This cannot be undone.");
+    const confirmed = window.confirm(
+      tx(
+        "Delete this Story? This cannot be undone.",
+        "Supprimer cette Story ? Cette action est irréversible.",
+      ),
+    );
     if (!confirmed) return;
 
     try {
       await deleteStory.mutateAsync(activeStory.id);
-      toast.success("Story deleted.");
+      toast.success(tx("Story deleted.", "Story supprimée."));
       setStoryViewerOpen(false);
       void queryClient.invalidateQueries({ queryKey: ["stories"] });
     } catch (error) {
@@ -906,7 +917,12 @@ export function StoriesRail({
   async function deleteSpotlight(spotlight: SpotlightPost) {
     if (!me || spotlight.provider.user_id !== me || deletingSpotlightId) return;
 
-    const confirmed = window.confirm("Delete this Spotlight? This cannot be undone.");
+    const confirmed = window.confirm(
+      tx(
+        "Delete this Spotlight? This cannot be undone.",
+        "Supprimer ce Spotlight ? Cette action est irréversible.",
+      ),
+    );
     if (!confirmed) return;
 
     setDeletingSpotlightId(spotlight.id);
@@ -948,7 +964,7 @@ export function StoriesRail({
       );
       void queryClient.invalidateQueries({ queryKey: ["ash-spotlights"] });
       setSpotlightViewerOpen(false);
-      toast.success("Spotlight deleted.");
+      toast.success(tx("Spotlight deleted.", "Spotlight supprimé."));
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not delete this Spotlight.");
     } finally {
@@ -956,11 +972,18 @@ export function StoriesRail({
     }
   }
 
-  const composerTitle = composerMode === "spotlight" ? "Create Spotlight" : "Create Story";
+  const composerTitle =
+    composerMode === "spotlight" ? tx("Create Spotlight", "Créer un Spotlight") : "Create Story";
   const composerSubtitle =
     composerMode === "spotlight"
-      ? "Show what your business offers. Your Spotlight can appear in the discovery reel."
-      : "Share a photo or video that disappears after 24 hours.";
+      ? tx(
+          "Show what your business offers. Your Spotlight can appear in the discovery reel.",
+          "Présentez les offres de votre entreprise. Votre Spotlight peut apparaître dans le fil de découverte.",
+        )
+      : tx(
+          "Share a photo or video that disappears after 24 hours.",
+          "Partagez une photo ou une vidéo qui disparaît après 24 heures.",
+        );
 
   return (
     <>
@@ -976,7 +999,7 @@ export function StoriesRail({
             type="button"
             onClick={openCreate}
             className="rail-tile block p-0 whitespace-normal relative h-60 w-36 shrink-0 overflow-hidden rounded-2xl border border-border bg-card text-left shadow-sm transition-transform active:scale-[0.98]"
-            aria-label="Create Story or Spotlight"
+            aria-label={tx("Create Story or Spotlight", "Créer une Story ou un Spotlight")}
           >
             <div className="absolute inset-x-0 top-0 z-0 h-[66%] overflow-hidden rounded-t-2xl bg-muted">
               {profile?.avatar_url ? (
@@ -995,9 +1018,11 @@ export function StoriesRail({
             </span>
             <span className="absolute inset-x-0 bottom-0 z-10 h-[34%] rounded-b-2xl bg-card" />
             <span className="absolute inset-x-2 bottom-3 z-10 text-center">
-              <span className="block text-[15px] font-black text-foreground">Create</span>
+              <span className="block text-[15px] font-black text-foreground">
+                {tx("Create", "Créer")}
+              </span>
               <span className="mt-0.5 block text-xs font-semibold leading-4 text-muted-foreground">
-                Story or Spotlight
+                {tx("Story or Spotlight", "Story ou Spotlight")}
               </span>
             </span>
           </Button>
@@ -1070,10 +1095,10 @@ export function StoriesRail({
                     <span className="absolute inset-x-3 bottom-3 z-10 text-white">
                       {storyIsVideo ? <Play className="mb-1 size-3.5 fill-current" /> : null}
                       <span className="block truncate text-[12px] font-extrabold">
-                        {mine ? "Your Story" : item.group.author.name}
+                        {mine ? tx("Your Story", "Votre Story") : item.group.author.name}
                       </span>
                       <span className="mt-0.5 block text-[10px] font-semibold text-white/70">
-                        {mine ? "Your 24h story" : "Story"}
+                        {mine ? tx("Your 24h story", "Votre Story de 24 h") : "Story"}
                       </span>
                     </span>
                   </Button>
@@ -1132,7 +1157,7 @@ export function StoriesRail({
                       {spotlight.provider.business_name}
                     </span>
                     <span className="mt-0.5 block truncate text-[10px] font-semibold text-white/70">
-                      Discover · Contact · Order
+                      {tx("Discover · Contact · Order", "Découvrir · Contacter · Commander")}
                     </span>
                   </span>
                 </Button>
@@ -1159,9 +1184,14 @@ export function StoriesRail({
             <div className="border-b border-border px-5 pb-4 pt-5">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <DialogTitle className="text-lg font-black">Create on ASH</DialogTitle>
+                  <DialogTitle className="text-lg font-black">
+                    {tx("Create on ASH", "Créer sur ASH")}
+                  </DialogTitle>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Choose what you want to share.
+                    {tx(
+                      "Choose what you want to share.",
+                      "Choisissez ce que vous souhaitez partager.",
+                    )}
                   </p>
                 </div>
               </div>
@@ -1178,7 +1208,10 @@ export function StoriesRail({
                 </span>
                 <span className="mt-4 block text-sm font-black">Story</span>
                 <span className="mt-1 block text-xs leading-5 text-muted-foreground">
-                  Photo or video that disappears after 24 hours.
+                  {tx(
+                    "Photo or video that disappears after 24 hours.",
+                    "Photo ou vidéo qui disparaît après 24 heures.",
+                  )}
                 </span>
               </Button>
               <Button
@@ -1192,7 +1225,10 @@ export function StoriesRail({
                 </span>
                 <span className="mt-4 block text-sm font-black">Spotlight</span>
                 <span className="mt-1 block text-xs leading-5 text-muted-foreground">
-                  Showcase a business, offer or service in the ASH reel.
+                  {tx(
+                    "Showcase a business, offer or service in the ASH reel.",
+                    "Présentez une entreprise, une offre ou un service sur ASH.",
+                  )}
                 </span>
               </Button>
             </div>
@@ -1229,7 +1265,7 @@ export function StoriesRail({
                 onClick={resetComposer}
                 disabled={publishing}
                 className="grid size-9 shrink-0 place-items-center rounded-full bg-muted disabled:opacity-50"
-                aria-label="Close"
+                aria-label={tx("Close", "Fermer")}
               >
                 <X className="size-5" />
               </Button>
@@ -1266,9 +1302,14 @@ export function StoriesRail({
                       <ImagePlus className="size-6" />
                     </span>
                     <span>
-                      <span className="block text-sm font-black">Choose photo or video</span>
+                      <span className="block text-sm font-black">
+                        {tx("Choose photo or video", "Choisir une photo ou une vidéo")}
+                      </span>
                       <span className="mt-1 block text-xs text-muted-foreground">
-                        Photos up to 12 MB · videos up to 50 MB
+                        {tx(
+                          "Photos up to 12 MB · videos up to 50 MB",
+                          "Photos jusqu’à 12 Mo · vidéos jusqu’à 50 Mo",
+                        )}
                       </span>
                     </span>
                   </span>
@@ -1280,8 +1321,11 @@ export function StoriesRail({
                 onChange={(event) => setCaption(event.target.value.slice(0, 500))}
                 placeholder={
                   composerMode === "spotlight"
-                    ? "Describe what customers should discover…"
-                    : "Add a caption…"
+                    ? tx(
+                        "Describe what customers should discover…",
+                        "Décrivez ce que les clients doivent découvrir…",
+                      )
+                    : tx("Add a caption…", "Ajouter une légende…")
                 }
                 className="mt-4 min-h-28 w-full resize-none rounded-2xl border border-border bg-muted/20 p-3 text-sm outline-none ring-primary/20 focus:ring-4"
                 disabled={publishing}
@@ -1300,7 +1344,11 @@ export function StoriesRail({
               <div className="border-t border-border px-4 pt-3">
                 <div className="rounded-2xl border border-border bg-muted/50 px-3 py-2.5">
                   <div className="flex items-center justify-between text-[10px] font-bold">
-                    <span>{uploadProgress < 100 ? "Uploading media…" : "Publishing…"}</span>
+                    <span>
+                      {uploadProgress < 100
+                        ? tx("Uploading media…", "Téléversement du média…")
+                        : "Publishing…"}
+                    </span>
                     <span>{Math.max(0, Math.min(100, uploadProgress))}%</span>
                   </div>
                   <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-background/80">
@@ -1321,7 +1369,7 @@ export function StoriesRail({
                 disabled={publishing}
               >
                 <ImagePlus className="mr-2 size-4" />
-                Change media
+                {tx("Change media", "Changer le média")}
               </Button>
               <Button
                 type="button"
@@ -1333,8 +1381,8 @@ export function StoriesRail({
                 {publishing
                   ? uploadProgress < 100
                     ? `${uploadProgress}%`
-                    : "Publishing…"
-                  : "Publish"}
+                    : tx("Publishing…", "Publication…")
+                  : tx("Publish", "Publier")}
               </Button>
             </div>
           </div>
@@ -1393,7 +1441,9 @@ export function StoriesRail({
                             size={13}
                           />
                         </p>
-                        <p className="text-[10px] text-white/60">24h story</p>
+                        <p className="text-[10px] text-white/60">
+                          {tx("24h story", "Story de 24 h")}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
@@ -1402,7 +1452,9 @@ export function StoriesRail({
                           type="button"
                           onClick={() => setStoryMuted((value) => !value)}
                           className="grid size-9 place-items-center rounded-full bg-white/10 backdrop-blur-md"
-                          aria-label={storyMuted ? "Unmute story" : "Mute story"}
+                          aria-label={
+                            storyMuted ? tx("Unmute story", "Activer le son") : "Mute story"
+                          }
                         >
                           {storyMuted ? <MicOff className="size-4" /> : <Mic className="size-4" />}
                         </button>
@@ -1413,7 +1465,7 @@ export function StoriesRail({
                             <button
                               type="button"
                               className="grid size-9 place-items-center rounded-full bg-white/10 backdrop-blur-md"
-                              aria-label="More options"
+                              aria-label={tx("More options", "Plus d’options")}
                             >
                               <MoreHorizontal className="size-5" />
                             </button>
@@ -1442,7 +1494,7 @@ export function StoriesRail({
                                 ) : (
                                   <ShieldOff className="size-4" />
                                 )}
-                                {mode === "report" ? "Report" : "Block User"}
+                                {mode === "report" ? tx("Report", "Signaler") : "Block User"}
                               </DropdownMenuItem>
                             ))}
                           </DropdownMenuContent>
@@ -1454,7 +1506,7 @@ export function StoriesRail({
                           onClick={() => void deleteCurrentStory()}
                           disabled={deleteStory.isPending}
                           className="grid size-9 place-items-center rounded-full bg-white/10 text-white backdrop-blur-md disabled:opacity-50"
-                          aria-label="Delete story"
+                          aria-label={tx("Delete story", "Supprimer la Story")}
                         >
                           {deleteStory.isPending ? (
                             <Loader2 className="size-4 animate-spin" />
@@ -1467,7 +1519,7 @@ export function StoriesRail({
                         type="button"
                         onClick={() => setStoryViewerOpen(false)}
                         className="grid size-9 place-items-center rounded-full bg-white/10 backdrop-blur-md"
-                        aria-label="Close story"
+                        aria-label={tx("Close story", "Fermer la Story")}
                       >
                         <X className="size-5" />
                       </button>
@@ -1479,7 +1531,7 @@ export function StoriesRail({
                   type="button"
                   onClick={previousStory}
                   className="absolute inset-y-0 left-0 z-20 w-1/4"
-                  aria-label="Previous story"
+                  aria-label={tx("Previous story", "Story précédente")}
                 >
                   <ChevronLeft className="ml-3 hidden size-7 text-white/70 sm:block" />
                 </button>
@@ -1518,7 +1570,7 @@ export function StoriesRail({
                   type="button"
                   onClick={nextStory}
                   className="absolute inset-y-0 right-0 z-20 w-1/4"
-                  aria-label="Next story"
+                  aria-label={tx("Next story", "Story suivante")}
                 >
                   <ChevronRight className="ml-auto mr-3 hidden size-7 text-white/70 sm:block" />
                 </button>
@@ -1562,7 +1614,7 @@ export function StoriesRail({
               className="fixed inset-0 z-[160000] flex items-end justify-center bg-black/65 p-0 sm:items-center sm:p-6"
               role="dialog"
               aria-modal="true"
-              aria-label="Story viewers"
+              aria-label={tx("Story viewers", "Spectateurs de la Story")}
               onMouseDown={(event) => {
                 if (event.currentTarget === event.target) closeStoryViewers();
               }}
@@ -1570,7 +1622,7 @@ export function StoriesRail({
               <div className="w-full max-w-lg overflow-hidden rounded-t-3xl bg-zinc-950 text-white shadow-2xl sm:rounded-3xl">
                 <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
                   <div className="min-w-0">
-                    <p className="text-base font-black">Story views</p>
+                    <p className="text-base font-black">{tx("Story views", "Vues de la Story")}</p>
                     <p className="truncate text-xs text-white/55">
                       {viewersStory?.view_count ?? storyViewers.length}{" "}
                       {(viewersStory?.view_count ?? storyViewers.length) === 1 ? "view" : "views"}
@@ -1580,7 +1632,7 @@ export function StoriesRail({
                     type="button"
                     onClick={closeStoryViewers}
                     className="grid size-9 place-items-center rounded-full bg-white/10 text-white"
-                    aria-label="Close story viewers"
+                    aria-label={tx("Close story viewers", "Fermer les spectateurs")}
                   >
                     <X className="size-5" />
                   </button>
@@ -1590,14 +1642,19 @@ export function StoriesRail({
                   {storyViewersLoading ? (
                     <div className="flex items-center justify-center gap-2 px-4 py-10 text-sm text-white/65">
                       <Loader2 className="size-4 animate-spin" />
-                      Loading viewers…
+                      {tx("Loading viewers…", "Chargement des spectateurs…")}
                     </div>
                   ) : storyViewers.length === 0 ? (
                     <div className="px-4 py-10 text-center">
                       <Eye className="mx-auto mb-3 size-8 text-white/30" />
-                      <p className="text-sm font-semibold text-white/75">No viewer names yet.</p>
+                      <p className="text-sm font-semibold text-white/75">
+                        {tx("No viewer names yet.", "Aucun spectateur pour le moment.")}
+                      </p>
                       <p className="mt-1 text-xs text-white/45">
-                        People who watch this story will appear here.
+                        {tx(
+                          "People who watch this story will appear here.",
+                          "Les personnes qui regardent cette Story apparaîtront ici.",
+                        )}
                       </p>
                     </div>
                   ) : (
@@ -1618,7 +1675,7 @@ export function StoriesRail({
                               {item.viewer.name ?? "Profile"}
                             </p>
                             <p className="text-[11px] text-white/45">
-                              {new Date(item.at).toLocaleString([], {
+                              {new Date(item.at).toLocaleString(lang === "fr" ? "fr-FR" : "en-GB", {
                                 month: "short",
                                 day: "numeric",
                                 hour: "numeric",
@@ -1651,7 +1708,7 @@ export function StoriesRail({
                   type="button"
                   onClick={() => setSpotlightViewerOpen(false)}
                   className="grid size-10 place-items-center rounded-full bg-black/55 text-white ring-1 ring-white/25 backdrop-blur-xl"
-                  aria-label="Back"
+                  aria-label={tx("Back", "Retour")}
                 >
                   <ArrowLeft className="size-5" />
                 </button>
@@ -1718,7 +1775,7 @@ export function StoriesRail({
                             <div className="flex min-w-0 items-center gap-2.5">
                               <button
                                 type="button"
-                                aria-label="View profile photo"
+                                aria-label={tx("View profile photo", "Voir la photo de profil")}
                                 onClick={() =>
                                   setSpotlightPhoto({
                                     path: spotlight.provider.avatar_url ?? null,
@@ -1770,7 +1827,11 @@ export function StoriesRail({
                                 type="button"
                                 onClick={() => setSpotlightMuted((value) => !value)}
                                 className="grid size-10 shrink-0 place-items-center rounded-full bg-white/10 text-white backdrop-blur-xl"
-                                aria-label={spotlightMuted ? "Unmute Spotlight" : "Mute Spotlight"}
+                                aria-label={
+                                  spotlightMuted
+                                    ? tx("Unmute Spotlight", "Activer le son du Spotlight")
+                                    : "Mute Spotlight"
+                                }
                               >
                                 {spotlightMuted ? (
                                   <VolumeX className="size-4" />
@@ -1794,7 +1855,7 @@ export function StoriesRail({
                               className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#D4AF37] via-[#a77f1b] to-[#4B0082] px-4 py-3.5 text-sm font-extrabold text-white shadow-2xl transition-transform active:scale-[0.98]"
                             >
                               <MessageCircle className="size-4" />
-                              Contact Vendor
+                              {tx("Contact Vendor", "Contacter le vendeur")}
                             </button>
                           ) : (
                             <button
@@ -1809,13 +1870,13 @@ export function StoriesRail({
                                 <Trash2 className="size-4" />
                               )}
                               {deletingSpotlightId === spotlight.id
-                                ? "Deleting…"
-                                : "Delete Spotlight"}
+                                ? tx("Deleting…", "Suppression…")
+                                : tx("Delete Spotlight", "Supprimer le Spotlight")}
                             </button>
                           )}
 
                           <p className="mt-2 text-center text-[9px] font-semibold text-white/45">
-                            Discover · contact · order
+                            {tx("Discover · contact · order", "Découvrir · contacter · commander")}
                           </p>
                         </div>
                       </div>

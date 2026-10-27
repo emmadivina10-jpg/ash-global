@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useI18n } from "@/lib/i18n";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,6 +32,7 @@ export function ConfirmationModal({
   loading?: boolean;
   onConfirm: () => void;
 }) {
+  const { tx } = useI18n();
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -40,7 +42,9 @@ export function ConfirmationModal({
         </AlertDialogHeader>
         {details ? <div className="rounded-xl bg-muted p-4 text-sm">{details}</div> : null}
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={loading}>{cancelLabel}</AlertDialogCancel>
+          <AlertDialogCancel disabled={loading}>
+            {cancelLabel === "Cancel" ? tx("Cancel", "Annuler") : cancelLabel}
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={(event) => {
               event.preventDefault();
@@ -48,7 +52,11 @@ export function ConfirmationModal({
             }}
             disabled={loading}
           >
-            {loading ? "Processing…" : confirmLabel}
+            {loading
+              ? tx("Processing…", "Traitement…")
+              : confirmLabel === "Confirm"
+                ? tx("Confirm", "Confirmer")
+                : confirmLabel}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

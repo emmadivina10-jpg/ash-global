@@ -3,6 +3,7 @@ import { StatusBadge } from "./StatusBadge";
 import { EmptyState } from "./states";
 import { formatDateTime, formatSignedXAF, transactionLabel } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 export type TransactionRow = {
   id: string;
@@ -15,12 +16,16 @@ export type TransactionRow = {
 };
 
 export function TransactionList({ items }: { items: TransactionRow[] }) {
+  const { tx: translate, lang } = useI18n();
   if (items.length === 0) {
     return (
       <EmptyState
         icon={<Receipt className="size-5" aria-hidden />}
-        title="No transactions yet"
-        description="Every activation payment, commission and withdrawal will appear here."
+        title={translate("No transactions yet", "Aucune transaction pour le moment")}
+        description={translate(
+          "Every activation payment, commission and withdrawal will appear here.",
+          "Chaque paiement d’activation, commission et retrait apparaîtra ici.",
+        )}
       />
     );
   }
@@ -49,10 +54,10 @@ export function TransactionList({ items }: { items: TransactionRow[] }) {
             </span>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-foreground">
-                {transactionLabel(tx.type)}
+                {translate(transactionLabel(tx.type))}
               </p>
               <p className="truncate text-xs text-muted-foreground">
-                {formatDateTime(tx.created_at)} · {tx.reference}
+                {formatDateTime(tx.created_at, lang)} · {tx.reference}
               </p>
             </div>
             <div className="text-right">
