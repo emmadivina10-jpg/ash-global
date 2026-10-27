@@ -25,6 +25,7 @@ import {
   Users,
   Wallet,
   Building2,
+  ChartNoAxesCombined,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -111,6 +112,7 @@ const sections: { en: string; fr: string; items: MenuItem[] }[] = [
       { en: "Transactions", fr: "Transactions", to: "/transactions", icon: Receipt },
       { en: "Withdraw", fr: "Retirer", to: "/withdraw", icon: ArrowDownToLine, referral: true },
       { en: "Analytics", fr: "Analyses", to: "/analytics", icon: BarChart3 },
+      { en: "ASH Investment", fr: "ASH Investment", to: "/investment", icon: ChartNoAxesCombined },
       { en: "Professional studio", fr: "Studio professionnel", to: "/studio", icon: Sparkles },
     ],
   },

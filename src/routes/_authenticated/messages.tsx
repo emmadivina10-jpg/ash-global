@@ -15,7 +15,6 @@ import {
   Search,
   Settings2,
   UserMinus,
-  ChartNoAxesCombined,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
