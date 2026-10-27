@@ -54,6 +54,7 @@ import { PORTFOLIO_BUCKET, SERVICE_CATEGORIES, type ServiceCategory } from "@/li
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { categoryLabel } from "@/lib/taxonomy";
 import { useI18n } from "@/lib/i18n";
+import { MIN_SERVICE_PRICE_XAF, meetsMinimumPrice } from "@/lib/price-minimum";
 import { useRegion } from "@/lib/region-context";
 import {
   AvailabilityCard,
@@ -84,6 +85,10 @@ export const Route = createFileRoute("/_authenticated/studio")({
 
 function StudioPage() {
   const { t, lang } = useI18n();
+  const minPriceMessage = () =>
+    lang === "fr"
+      ? `Le prix minimum est de ${MIN_SERVICE_PRICE_XAF.toLocaleString("fr-FR")} XAF.`
+      : `The minimum price is ${MIN_SERVICE_PRICE_XAF.toLocaleString("en-US")} XAF.`;
   const { user } = useUser();
   const queryClient = useQueryClient();
   const { data: studio, isLoading } = useMyProviderProfile();
@@ -257,6 +262,10 @@ function StudioPage() {
       toast.error(t("pro.saveErr"));
       return;
     }
+    if (!meetsMinimumPrice(price)) {
+      toast.error(minPriceMessage());
+      return;
+    }
     setAddingService(true);
     const { data: inserted, error } = await supabase
       .from("provider_services")
@@ -297,6 +306,10 @@ function StudioPage() {
       duration <= 0
     ) {
       toast.error(t("pro.saveErr"));
+      return;
+    }
+    if (!meetsMinimumPrice(price)) {
+      toast.error(minPriceMessage());
       return;
     }
     setSavingService(true);
@@ -627,8 +640,8 @@ function StudioPage() {
               />
               <Input
                 type="number"
-                min={1}
-                placeholder={t("pro.price")}
+                min={MIN_SERVICE_PRICE_XAF}
+                placeholder={`${t("pro.price")} (min ${MIN_SERVICE_PRICE_XAF.toLocaleString()} XAF)`}
                 value={service.price}
                 onChange={(e) => setService({ ...service, price: e.target.value })}
                 required
@@ -742,11 +755,11 @@ function StudioPage() {
                     <div className="grid grid-cols-2 gap-3">
                       <Input
                         type="number"
-                        min="1"
                         value={editingService.price}
                         onChange={(e) =>
                           setEditingService({ ...editingService, price: e.target.value })
                         }
+                        min={MIN_SERVICE_PRICE_XAF}
                         placeholder={lang === "fr" ? "Prix" : "Price"}
                       />
                       <Input
