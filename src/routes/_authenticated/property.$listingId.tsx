@@ -206,7 +206,7 @@ function PropertyDetail() {
             size="icon"
             aria-label={tx("Share", "Partager")}
             onClick={() => {
-              void navigator.clipboard.writeText(window.location.href);
+              void navigator.clipboard.writeText(`https://ashglogroup.company/share/property/${listingId}`);
               trackEvent({
                 event_type: "share",
                 surface: "property",

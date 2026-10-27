@@ -22,9 +22,9 @@ const FALLBACK_IMAGE = `${SITE}/ash-social.png`;
 
 function previewImage(store: Storefront | null): string {
   const candidates = [
+    store?.photos?.find((p) => !isVideoSource(p.url))?.url,
     store?.cover_url,
     store?.avatar_url,
-    store?.photos?.find((p) => !isVideoSource(p.url))?.url,
   ];
   const found = candidates.find((u) => typeof u === "string" && u.startsWith("https://"));
   return found ?? FALLBACK_IMAGE;

@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-export type ShareKind = "post" | "spotlight";
+export type ShareKind = "post" | "spotlight" | "property";
 
 export type SharePreview = {
   kind: ShareKind;
@@ -13,7 +13,7 @@ export type SharePreview = {
 };
 
 const input = z.object({
-  kind: z.enum(["post", "spotlight"]),
+  kind: z.enum(["post", "spotlight", "property"]),
   id: z.string().uuid(),
 });
 
@@ -38,6 +38,37 @@ export const getSharePreview = createServerFn({ method: "GET" })
   .inputValidator((data: unknown) => input.parse(data))
   .handler(async ({ data }): Promise<SharePreview | null> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    if (data.kind === "property") {
+      const { data: listing } = await supabaseAdmin
+        .from("property_listings")
+        .select("id, title, description, city, price, currency, status")
+        .eq("id", data.id)
+        .maybeSingle();
+      if (!listing || listing.status !== "ACTIVE") return null;
+      const { data: imgs } = await supabaseAdmin
+        .from("property_images")
+        .select("image_path")
+        .eq("listing_id", data.id)
+        .order("sort_order", { ascending: true })
+        .limit(1);
+      let image: string | null = null;
+      const first = imgs?.[0]?.image_path;
+      if (first) {
+        const { data: signed } = await supabaseAdmin.storage
+          .from("property")
+          .createSignedUrl(first, 60 * 60 * 24 * 30);
+        image = signed?.signedUrl ?? null;
+      }
+      const price = `${Number(listing.price).toLocaleString("fr-FR")} ${listing.currency}`;
+      return {
+        kind: "property",
+        id: data.id,
+        author: listing.city,
+        title: `${listing.title} · ${listing.city} — ASH Homes`,
+        description: (listing.description?.replace(/\s+/g, " ").trim() || `${price} on ASH Glo`).slice(0, 150),
+        image,
+      };
+    }
     const table = data.kind === "post" ? "social_posts" : "spotlight_posts";
     const { data: row, error } = await supabaseAdmin
       .from(table)
