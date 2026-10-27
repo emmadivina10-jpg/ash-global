@@ -378,15 +378,17 @@ function ProviderPage() {
                       disabled={Boolean(blockedReason)}
                       onClick={() => {
                         setCartUser(user?.id);
-                        cart.add({
+                        void cart.add({
                           serviceId: service.id,
                           providerId: provider.id,
                           providerName: provider.business_name,
                           title: service.title,
                           price: Number(service.price),
                           image: gallery[0]?.url ?? null,
-                        });
-                        toast.success(tx("Added to your cart", "Ajouté à votre panier"));
+                        }).then(
+                          () => toast.success(tx("Added to your cart", "Ajouté à votre panier")),
+                          () => toast.error(tx("Could not add to cart.", "Ajout au panier impossible.")),
+                        );
                       }}
                     >
                       <ShoppingCart className="size-4" />
