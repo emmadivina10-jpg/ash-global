@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ChevronDown,
   ChevronUp,
@@ -9,8 +9,12 @@ import {
   PanelRight,
   Send,
   Share2,
-  Store,
+  Ban,
+  CalendarCheck,
+  MoreHorizontal,
+  ShoppingBag,
   Trash2,
+  UtensilsCrossed,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -18,11 +22,15 @@ import {
   useAddSpotlightComment,
   useDeleteSpotlightComment,
   useSetSpotlightReaction,
+  useToggleSpotlightCommentLike,
+  type SpotlightComment,
   useSpotlightComments,
   useSpotlightFeed,
   type SpotlightEntry,
 } from "@/lib/spotlight.queries";
-import { contactVendor, openMemberConversation } from "@/lib/contact-vendor";
+import { BlockUserDialog } from "@/components/refer/BlockUserDialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useUser } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -224,6 +232,8 @@ function timeAgo(iso: string, fr: boolean) {
   return `${Math.round(h / 24)} ${fr ? "j" : "d"}`;
 }
 
+type CommentSort = "relevant" | "newest";
+
 function CommentsPanel({ entry }: { entry: SpotlightEntry }) {
   const { tx, lang } = useI18n();
   const { user } = useUser();
@@ -231,15 +241,44 @@ function CommentsPanel({ entry }: { entry: SpotlightEntry }) {
   const { data: comments, isLoading } = useSpotlightComments(canComment ? entry.id : null);
   const add = useAddSpotlightComment(entry.id);
   const del = useDeleteSpotlightComment(entry.id);
+  const like = useToggleSpotlightCommentLike(entry.id);
   const [text, setText] = useState("");
+  const [sort, setSort] = useState<CommentSort>("relevant");
+  const [replyTo, setReplyTo] = useState<SpotlightComment | null>(null);
+  const [blockTarget, setBlockTarget] = useState<SpotlightComment | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const isSpotlightOwner = Boolean(user && entry.author_id === user.id);
+
+  const { roots, replies } = useMemo(() => {
+    const all = comments ?? [];
+    const top = all.filter((c) => !c.parent_id);
+    const byParent = new Map<string, SpotlightComment[]>();
+    for (const c of all)
+      if (c.parent_id) byParent.set(c.parent_id, [...(byParent.get(c.parent_id) ?? []), c]);
+    const sorted = [...top].sort((x, y) =>
+      sort === "newest"
+        ? Date.parse(y.created_at) - Date.parse(x.created_at)
+        : y.like_count +
+            (byParent.get(y.id)?.length ?? 0) -
+            (x.like_count + (byParent.get(x.id)?.length ?? 0)) ||
+          Date.parse(y.created_at) - Date.parse(x.created_at),
+    );
+    return { roots: sorted, replies: byParent };
+  }, [comments, sort]);
 
   function submit() {
     const body = text.trim();
     if (!body || add.isPending) return;
-    add.mutate(body, {
-      onSuccess: () => setText(""),
-      onError: () => toast.error(tx("Could not post comment", "Commentaire impossible")),
-    });
+    add.mutate(
+      { body, parentId: replyTo ? (replyTo.parent_id ?? replyTo.id) : null },
+      {
+        onSuccess: () => {
+          setText("");
+          setReplyTo(null);
+        },
+        onError: () => toast.error(tx("Could not post comment", "Commentaire impossible")),
+      },
+    );
   }
 
   if (!canComment)
@@ -249,38 +288,113 @@ function CommentsPanel({ entry }: { entry: SpotlightEntry }) {
       </p>
     );
 
+  const renderComment = (c: SpotlightComment, nested = false) => {
+    const canDelete = c.author_id === user?.id || isSpotlightOwner;
+    const canBlock = Boolean(user && c.author_id !== user.id);
+    return (
+      <div key={c.id} className={cn("flex gap-2", nested && "ml-10")}>
+        <Link to="/u/$userId" params={{ userId: c.author_id }} className="shrink-0">
+          <Avatar path={c.author?.avatar_url} name={c.author?.full_name} className={nested ? "size-7" : "size-8"} />
+        </Link>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start gap-1">
+            <div className="min-w-0 rounded-2xl bg-muted px-3 py-2">
+              <Link to="/u/$userId" params={{ userId: c.author_id }} className="text-xs font-bold hover:underline">
+                {c.author?.full_name ?? "Member"}
+              </Link>
+              <p className="whitespace-pre-line break-words text-sm">{c.body}</p>
+            </div>
+            {canDelete || canBlock ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  aria-label={tx("Comment options", "Options du commentaire")}
+                  className="grid size-7 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-muted"
+                >
+                  <MoreHorizontal className="size-4" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {canDelete ? (
+                    <DropdownMenuItem onClick={() => del.mutate(c.id)} className="text-destructive">
+                      <Trash2 className="size-4" />
+                      {tx("Delete comment", "Supprimer le commentaire")}
+                    </DropdownMenuItem>
+                  ) : null}
+                  {canBlock ? (
+                    <DropdownMenuItem onClick={() => setBlockTarget(c)}>
+                      <Ban className="size-4" />
+                      {tx("Block", "Bloquer")} {c.author?.full_name ?? ""}
+                    </DropdownMenuItem>
+                  ) : null}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : null}
+          </div>
+          <p className="mt-0.5 flex items-center gap-3 px-2 text-[11px] font-semibold text-muted-foreground">
+            <span className="font-normal">{timeAgo(c.created_at, lang === "fr")}</span>
+            <button
+              type="button"
+              onClick={() => like.mutate({ commentId: c.id, like: !c.liked })}
+              className={cn("hover:text-foreground", c.liked && "text-destructive")}
+            >
+              {tx("Like", "J'aime")}
+              {c.like_count ? ` · ${c.like_count}` : ""}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setReplyTo(c);
+                inputRef.current?.focus();
+              }}
+              className="hover:text-foreground"
+            >
+              {tx("Reply", "Répondre")}
+            </button>
+          </p>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
+      <div className="flex shrink-0 items-center justify-between px-4 pt-3">
+        <Select value={sort} onValueChange={(v) => setSort(v as CommentSort)}>
+          <SelectTrigger className="h-8 w-auto gap-1 border-0 bg-transparent px-1 text-sm font-bold shadow-none">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="relevant">{tx("Most relevant", "Les plus pertinents")}</SelectItem>
+            <SelectItem value="newest">{tx("Newest", "Les plus récents")}</SelectItem>
+          </SelectContent>
+        </Select>
+        <span className="text-xs text-muted-foreground">{comments?.length ?? 0}</span>
+      </div>
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
         {isLoading ? (
           <Loader2 className="mx-auto size-5 animate-spin text-muted-foreground" />
-        ) : !comments?.length ? (
+        ) : !roots.length ? (
           <p className="text-center text-sm text-muted-foreground">
             {tx("No comments yet. Be the first.", "Aucun commentaire. Soyez le premier.")}
           </p>
         ) : (
-          comments.map((c) => (
-            <div key={c.id} className="flex gap-2">
-              <Avatar path={c.author?.avatar_url} name={c.author?.full_name} className="size-8 shrink-0" />
-              <div className="min-w-0 flex-1">
-                <div className="rounded-2xl bg-muted px-3 py-2">
-                  <p className="text-xs font-bold">{c.author?.full_name ?? "Member"}</p>
-                  <p className="whitespace-pre-line break-words text-sm">{c.body}</p>
-                </div>
-                <p className="mt-0.5 flex gap-3 px-2 text-[11px] text-muted-foreground">
-                  {timeAgo(c.created_at, lang === "fr")}
-                  {c.author_id === user?.id ? (
-                    <button type="button" onClick={() => del.mutate(c.id)} className="inline-flex items-center gap-1 hover:text-destructive">
-                      <Trash2 className="size-3" />
-                      {tx("Delete", "Supprimer")}
-                    </button>
-                  ) : null}
-                </p>
-              </div>
+          roots.map((c) => (
+            <div key={c.id} className="space-y-3">
+              {renderComment(c)}
+              {(replies.get(c.id) ?? []).map((r) => renderComment(r, true))}
             </div>
           ))
         )}
       </div>
+      {replyTo ? (
+        <div className="flex shrink-0 items-center justify-between border-t border-border px-4 py-1.5 text-xs text-muted-foreground">
+          <span className="truncate">
+            {tx("Replying to", "Réponse à")} <b>{replyTo.author?.full_name ?? "Member"}</b>
+          </span>
+          <button type="button" onClick={() => setReplyTo(null)} aria-label={tx("Cancel reply", "Annuler")}>
+            <X className="size-4" />
+          </button>
+        </div>
+      ) : null}
       <form
         className="flex shrink-0 items-center gap-2 border-t border-border p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
         onSubmit={(e) => {
@@ -289,10 +403,11 @@ function CommentsPanel({ entry }: { entry: SpotlightEntry }) {
         }}
       >
         <Input
+          ref={inputRef}
           value={text}
           maxLength={1000}
           onChange={(e) => setText(e.target.value)}
-          placeholder={tx("Write a comment…", "Écrire un commentaire…")}
+          placeholder={replyTo ? tx("Write a reply…", "Écrire une réponse…") : tx("Write a comment…", "Écrire un commentaire…")}
           className="h-10 rounded-full"
         />
         <button
@@ -304,8 +419,25 @@ function CommentsPanel({ entry }: { entry: SpotlightEntry }) {
           {add.isPending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
         </button>
       </form>
+      {blockTarget ? (
+        <BlockUserDialog
+          open
+          onOpenChange={(o) => !o && setBlockTarget(null)}
+          targetUserId={blockTarget.author_id}
+          targetName={blockTarget.author?.full_name}
+          source="spotlight_comment"
+          onDone={() => setBlockTarget(null)}
+        />
+      ) : null}
     </>
   );
+}
+
+/** Food vendors take orders, service vendors take bookings, others sell. */
+export function vendorAction(category: string | null | undefined): "order" | "book" | "buy" {
+  if (category === "PRIVATE_CHEF" || category === "CATERING") return "order";
+  if (!category || category === "OTHER" || category === "DECORATION") return "buy";
+  return "book";
 }
 
 function SpotlightSlide({
@@ -366,27 +498,10 @@ function SpotlightSlide({
     );
   }
 
-  async function contact() {
-    if (busy) return;
-    setBusy(true);
-    try {
-      const id = entry.author_id
-        ? await openMemberConversation(entry.author_id)
-        : await contactVendor({
-            providerId: entry.provider.id,
-            businessName: entry.provider.business_name,
-            subject: entry.caption ?? "Spotlight",
-            fr: lang === "fr",
-            source: "spotlight_contact",
-          });
-      if (id) void navigate({ to: "/messages", search: { c: id } } as never);
-      else toast.message(tx("This is your own Spotlight.", "C'est votre propre Spotlight."));
-    } catch {
-      toast.error(tx("Could not open the chat.", "Impossible d'ouvrir la discussion."));
-    } finally {
-      setBusy(false);
-    }
-  }
+  const action = vendorAction(entry.provider.category);
+  const actionLabel =
+    action === "order" ? tx("Order", "Commander") : action === "book" ? tx("Book", "Réserver") : tx("Buy", "Acheter");
+  const ActionIcon = action === "order" ? UtensilsCrossed : action === "book" ? CalendarCheck : ShoppingBag;
 
   const rawId = entry.id.replace(/^post:/, "");
   const shareUrl =
@@ -432,18 +547,22 @@ function SpotlightSlide({
         <RailButton label={tx("Share", "Partager")} onClick={() => setShareOpen(true)}>
           <Share2 className="size-7" />
         </RailButton>
-        <button
-          type="button"
-          aria-label={tx("Contact vendor", "Contacter le vendeur")}
-          title={tx("Contact vendor", "Contacter le vendeur")}
-          onClick={() => void contact()}
-          className="relative grid size-12 place-items-center rounded-2xl bg-gold text-gold-foreground shadow-lg ring-2 ring-on-dark/40 transition-transform active:scale-90"
-        >
-          <Store className="size-6" aria-hidden />
-          <span className="absolute -right-1 -top-1 grid size-5 place-items-center rounded-full bg-primary text-primary-foreground ring-2 ring-media-backdrop">
-            <MessageCircle className="size-3" aria-hidden />
-          </span>
-        </button>
+        {entry.provider.id ? (
+          <button
+            type="button"
+            aria-label={actionLabel}
+            title={actionLabel}
+            onClick={() =>
+              void navigate({ to: "/services/$providerId", params: { providerId: entry.provider.id } })
+            }
+            className="flex flex-col items-center gap-0.5 transition-transform active:scale-90"
+          >
+            <span className="grid size-12 place-items-center rounded-full bg-gradient-to-br from-gold to-primary text-gold-foreground shadow-lg ring-2 ring-on-dark/50">
+              <ActionIcon className="size-6" aria-hidden />
+            </span>
+            <span className="text-xs font-bold drop-shadow">{actionLabel}</span>
+          </button>
+        ) : null}
       </div>
 
       <ShareSheet
