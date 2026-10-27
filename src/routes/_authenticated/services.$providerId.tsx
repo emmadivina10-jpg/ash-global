@@ -70,6 +70,8 @@ function bookingRequestError(code: string, fr: boolean): string {
 }
 
 export const Route = createFileRoute("/_authenticated/services/$providerId")({
+  validateSearch: (s: Record<string, unknown>): { book?: string } =>
+    typeof s.book === "string" ? { book: s.book } : {},
   head: () => ({
     meta: [
       { title: "Provider profile — ASH Glo" },
@@ -148,6 +150,16 @@ function ProviderPage() {
     () => ((services ?? []) as ServiceRow[]).filter((s) => s.is_active),
     [services],
   );
+  const { book: bookFromCart } = Route.useSearch();
+  const openedFromCart = useRef(false);
+  useEffect(() => {
+    if (!bookFromCart || openedFromCart.current) return;
+    const s = activeServices.find((x) => x.id === bookFromCart);
+    if (s) {
+      openedFromCart.current = true;
+      setBooking(s);
+    }
+  }, [bookFromCart, activeServices]);
   const bookable = Boolean(
     provider?.is_live &&
     (provider as { accepting_bookings?: boolean })?.accepting_bookings !== false,
