@@ -127,7 +127,14 @@ export function useSpotlightFeed(limit = 18) {
           ? supabase
               .from("provider_profiles")
               .select("id, user_id, business_name, slug, city, avatar_url, is_verified, category")
-              .or(`id.in.(${providerIds.join(",")}),user_id.in.(${authorIds.join(",")})`)
+              .or(
+                [
+                  providerIds.length ? `id.in.(${providerIds.join(",")})` : "",
+                  `user_id.in.(${authorIds.join(",")})`,
+                ]
+                  .filter(Boolean)
+                  .join(","),
+              )
           : Promise.resolve({ data: [] }),
         postRows.length
           ? supabase
