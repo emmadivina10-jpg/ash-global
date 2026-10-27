@@ -69,8 +69,14 @@ export function notificationLink(category: string, data: Record<string, unknown>
       return typeof data["post_id"] === "string" ? `/post/${data["post_id"]}` : "/feed";
     case "STORY":
     case "STORY_REACTION":
-    case "SPOTLIGHT_REACTION":
       return "/feed";
+    case "SPOTLIGHT_REACTION":
+    case "SPOTLIGHT_COMMENT":
+      return typeof data["spotlight_id"] === "string"
+        ? `/spotlight?open=post:${data["spotlight_id"]}`
+        : "/spotlight";
+    case "PROFILE_VIEW":
+      return typeof data["viewer_id"] === "string" ? `/u/${data["viewer_id"]}` : "/notifications";
     case "WALLET":
       return "/wallet";
     case "ACCOUNT":

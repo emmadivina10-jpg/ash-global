@@ -1,3 +1,4 @@
+import { useRecordProfileView } from "@/lib/profile-views";
 import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -57,6 +58,8 @@ function MemberProfilePage() {
     },
     Boolean(person),
   );
+
+  useRecordProfileView(person ? userId : null);
 
   const me = graph?.me ?? null;
   const isMe = me === userId;
