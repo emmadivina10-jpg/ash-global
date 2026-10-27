@@ -24,7 +24,7 @@ The ASH ecosystem:
 - Universal search: one search box across businesses, services, freelancers, projects, deals, events and properties.
 - Personal analytics: every member sees their deals, claims, tickets, projects, proposals and promotion spend.
 - Referral programme (available in Cameroon and Nigeria): members activate once for 5,000 XAF via mobile money, then earn on activations in their network — level 1 = 1,500 XAF, level 2 = 750 XAF, level 3 = 250 XAF, credited to the wallet.
-- Wallet withdrawals go to MTN Mobile Money or Orange Money, minimum 1,000 XAF, reviewed by an admin.
+- Wallet withdrawals go to MTN Mobile Money or Orange Money, minimum 100 XAF, reviewed by an admin.
 - Booking lifecycle: the client requests -> the provider has 24 hours to accept or decline -> the client then has 24 hours to pay -> the booking becomes Confirmed with an ASH invoice in the chat -> the provider marks it In progress, then Completed. Nobody pays before the provider accepts, and unanswered or unpaid bookings expire automatically.
 - Trust: ratings, verified badges, reviews after completed work, reporting and blocking.
 
