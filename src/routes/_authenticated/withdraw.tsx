@@ -63,13 +63,15 @@ const FRENCH_ERRORS: Record<string, string> = {
   INVALID_PHONE: "Saisissez un numéro Mobile Money camerounais valide.",
   MIN_AMOUNT_1000: `Le retrait minimum est de ${formatXAF(MIN_WITHDRAWAL)}.`,
   INSUFFICIENT_BALANCE: "Votre solde disponible est insuffisant.",
-  WRONG_FUNDING_SOURCE: "Les fonds doivent être retirés par leur méthode d’origine : carte ou banque pour les fonds de carte, MTN ou Orange pour le Mobile Money.",
+  WRONG_FUNDING_SOURCE:
+    "Les fonds doivent être retirés par leur méthode d’origine : carte ou banque pour les fonds de carte, MTN ou Orange pour le Mobile Money.",
   PENDING_WITHDRAWAL_EXISTS: "Un retrait est déjà en cours de traitement.",
   UNAUTHENTICATED: "Veuillez vous reconnecter.",
   BANK_NOT_CONNECTED: "Associez et vérifiez votre compte bancaire avant de demander un versement.",
   BANK_PAYOUTS_NOT_READY: "Configurez votre compte de versement Stripe depuis votre portefeuille.",
   PAYMENT_PROVIDER_NOT_CONFIGURED: "Les versements Mobile Money sont temporairement indisponibles.",
-  PROVIDER_UNREACHABLE: "Le prestataire de versement est injoignable. Votre retrait reste en attente et ne sera pas débité deux fois.",
+  PROVIDER_UNREACHABLE:
+    "Le prestataire de versement est injoignable. Votre retrait reste en attente et ne sera pas débité deux fois.",
   INVALID_REQUEST: "Vérifiez les informations de versement et réessayez.",
 };
 
@@ -186,7 +188,9 @@ function WithdrawPage() {
     const value = Number(amount);
 
     if (!Number.isFinite(value) || value < minimum) {
-      setError(`${tx("The minimum withdrawal is", "Le retrait minimum est de")} ${money(minimum)}.`);
+      setError(
+        `${tx("The minimum withdrawal is", "Le retrait minimum est de")} ${money(minimum)}.`,
+      );
       return;
     }
 
@@ -504,7 +508,7 @@ function WithdrawPage() {
 
             {error ? (
               <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
-                  {lang === "fr" && errorKey ? FRENCH_ERRORS[errorKey] ?? tx(error) : tx(error)}
+                {lang === "fr" && errorKey ? (FRENCH_ERRORS[errorKey] ?? tx(error)) : tx(error)}
               </p>
             ) : null}
 
