@@ -118,6 +118,16 @@ export const startBookingPayment = createServerFn({ method: "POST" })
       }
     }
 
+    // Card minimum is checked before a payment attempt starts, so a small
+    // booking is never marked failed just for choosing card.
+    if (data.method === "CARD") {
+      const { xafToUsdCents } = await import("./stripe.server");
+      const { minimumChargeMinor } = await import("./stripe-mode");
+      if (xafToUsdCents(Number(booking.price)) < minimumChargeMinor("USD")) {
+        return { ok: false as const, error: "BELOW_MINIMUM_CHARGE" };
+      }
+    }
+
     const reference = makeReference();
     const { data: begun, error: beginError } = await supabase.rpc("begin_booking_payment", {
       _booking_id: booking.id,
