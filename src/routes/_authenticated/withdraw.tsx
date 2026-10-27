@@ -104,7 +104,6 @@ export const Route = createFileRoute("/_authenticated/withdraw")({
 function WithdrawPage() {
   const cardBank = useCardBankAvailable();
   const { lang, tx } = useI18n();
-  const errorKey = Object.keys(ERRORS).find((key) => ERRORS[key] === error);
   const queryClient = useQueryClient();
   const disburse = useServerFn(disburseWithdrawal);
 
@@ -119,6 +118,7 @@ function WithdrawPage() {
   const [phone, setPhone] = useState(profile?.phone ?? "");
 
   const [error, setError] = useState<string | null>(null);
+  const errorKey = Object.keys(ERRORS).find((key) => ERRORS[key] === error);
 
   const [confirming, setConfirming] = useState(false);
 
@@ -186,7 +186,7 @@ function WithdrawPage() {
     const value = Number(amount);
 
     if (!Number.isFinite(value) || value < minimum) {
-      setError(`The minimum withdrawal is ${money(minimum)}.`);
+      setError(`${tx("The minimum withdrawal is", "Le retrait minimum est de")} ${money(minimum)}.`);
       return;
     }
 
@@ -504,7 +504,7 @@ function WithdrawPage() {
 
             {error ? (
               <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
-                {tx(error)}
+                  {lang === "fr" && errorKey ? FRENCH_ERRORS[errorKey] ?? tx(error) : tx(error)}
               </p>
             ) : null}
 
