@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { extractTags, recordTagInterest } from "@/lib/interests";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BarChart3, Camera, ImagePlus, Loader2, Plus, Sparkles, X } from "lucide-react";
+import { Camera, Gift, ImagePlus, Loader2, Plus, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { PullToRefresh } from "@/components/refer/PullToRefresh";
@@ -184,12 +184,12 @@ function FeedPage() {
           </div>
           <div className="flex items-center gap-1.5">
             <Link
-              to="/fx-analytics"
-              aria-label={tx("Open FX Analytics", "Ouvrir Analyse FX")}
-              className="inline-flex h-10 items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3 text-xs font-bold text-primary transition-colors hover:bg-primary/15"
+              to="/referral-rewards"
+              aria-label={tx("Open Referral rewards", "Ouvrir les récompenses de parrainage")}
+              className="inline-flex h-10 items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3 text-xs font-bold text-foreground transition-colors hover:bg-gold/20"
             >
-              <BarChart3 className="size-4" aria-hidden />
-              <span className="hidden min-[390px]:inline">{tx("FX Analytics", "Analyse FX")}</span>
+              <Gift className="size-4 text-gold" aria-hidden />
+              <span className="hidden min-[390px]:inline">{tx("Referral rewards", "Parrainage")}</span>
             </Link>
             <Button
               type="button"

@@ -3,7 +3,8 @@ import { extractTags, recordTagInterest } from "@/lib/interests";
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { MessageCircle, Repeat2, ShieldCheck } from "lucide-react";
+import { MessageCircle, Repeat2, Share2, ShieldCheck } from "lucide-react";
+import { ShareSheet, shareLink } from "./ShareSheet";
 import { toast } from "sonner";
 import { Avatar } from "./AvatarUpload";
 import { Button } from "@/components/ui/button";
@@ -83,6 +84,7 @@ export function PostCard({
   };
   const react = useSetPostReaction();
   const repost = useToggleRepost();
+  const [shareOpen, setShareOpen] = useState(false);
   const setFilter = useSetCommentFilter();
   const mine = currentUserId === post.author_id;
   useEngagementRealtime(detail ? post.id : null);
@@ -273,6 +275,23 @@ export function PostCard({
           <Repeat2 className="size-4" aria-hidden />
           {post.repost_count}
         </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="ml-auto"
+          aria-label={tx("Share", "Partager")}
+          onClick={() => setShareOpen(true)}
+        >
+          <Share2 className="size-4" aria-hidden />
+        </Button>
+        <ShareSheet
+          open={shareOpen}
+          onOpenChange={setShareOpen}
+          url={shareLink("post", post.id)}
+          title={(post.caption || tx("A post on ASH Glo", "Une publication sur ASH Glo")).slice(0, 120)}
+          targetType="post"
+          targetId={post.id}
+        />
       </div>
 
       {mine ? (

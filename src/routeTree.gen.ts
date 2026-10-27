@@ -51,9 +51,11 @@ import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedNetworkRouteImport } from './routes/_authenticated/network'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedReferralRewardsRouteImport } from './routes/_authenticated/referral-rewards'
 import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedShareholderRouteImport } from './routes/_authenticated/shareholder'
+import { Route as AuthenticatedSpotlightRouteImport } from './routes/_authenticated/spotlight'
 import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
 import { Route as AuthenticatedTransactionsRouteImport } from './routes/_authenticated/transactions'
 import { Route as AuthenticatedVerifiedRouteImport } from './routes/_authenticated/verified'
@@ -133,6 +135,7 @@ import { Route as ApiPublicCleanupStoriesRouteImport } from './routes/api/public
 import { Route as ApiPublicReconcileActivationsRouteImport } from './routes/api/public/reconcile-activations'
 import { Route as ApiPublicSecuritySelfcheckRouteImport } from './routes/api/public/security-selfcheck'
 import { Route as ConsoleMembersMemberIdRouteImport } from './routes/console.members.$memberId'
+import { Route as ShareKindIdRouteImport } from './routes/share.$kind.$id'
 import { Route as AuthenticatedBookingBookingIdConfirmedRouteImport } from './routes/_authenticated/booking.$bookingId.confirmed'
 import { Route as AuthenticatedBookingBookingIdReceiptRouteImport } from './routes/_authenticated/booking.$bookingId.receipt'
 import { Route as AuthenticatedBookingBookingIdTrackRouteImport } from './routes/_authenticated/booking.$bookingId.track'
@@ -362,6 +365,12 @@ const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedReferralRewardsRoute =
+  AuthenticatedReferralRewardsRouteImport.update({
+    id: '/referral-rewards',
+    path: '/referral-rewards',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSearchRoute = AuthenticatedSearchRouteImport.update({
   id: '/search',
   path: '/search',
@@ -378,6 +387,11 @@ const AuthenticatedShareholderRoute =
     path: '/shareholder',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedSpotlightRoute = AuthenticatedSpotlightRouteImport.update({
+  id: '/spotlight',
+  path: '/spotlight',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedStudioRoute = AuthenticatedStudioRouteImport.update({
   id: '/studio',
   path: '/studio',
@@ -796,6 +810,11 @@ const ConsoleMembersMemberIdRoute = ConsoleMembersMemberIdRouteImport.update({
   path: '/members/$memberId',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const ShareKindIdRoute = ShareKindIdRouteImport.update({
+  id: '/share/$kind/$id',
+  path: '/share/$kind/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedBookingBookingIdConfirmedRoute =
   AuthenticatedBookingBookingIdConfirmedRouteImport.update({
     id: '/booking/$bookingId/confirmed',
@@ -932,9 +951,11 @@ export interface FileRoutesByFullPath {
   '/network': typeof AuthenticatedNetworkRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/referral-rewards': typeof AuthenticatedReferralRewardsRoute
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shareholder': typeof AuthenticatedShareholderRoute
+  '/spotlight': typeof AuthenticatedSpotlightRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/verified': typeof AuthenticatedVerifiedRoute
@@ -1005,6 +1026,7 @@ export interface FileRoutesByFullPath {
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
   '/console/members/$memberId': typeof ConsoleMembersMemberIdRoute
+  '/share/$kind/$id': typeof ShareKindIdRoute
   '/articles/': typeof AuthenticatedArticlesIndexRoute
   '/campus/': typeof AuthenticatedCampusIndexRoute
   '/clean/': typeof AuthenticatedCleanIndexRoute
@@ -1072,9 +1094,11 @@ export interface FileRoutesByTo {
   '/network': typeof AuthenticatedNetworkRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/referral-rewards': typeof AuthenticatedReferralRewardsRoute
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shareholder': typeof AuthenticatedShareholderRoute
+  '/spotlight': typeof AuthenticatedSpotlightRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/verified': typeof AuthenticatedVerifiedRoute
@@ -1145,6 +1169,7 @@ export interface FileRoutesByTo {
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
   '/console/members/$memberId': typeof ConsoleMembersMemberIdRoute
+  '/share/$kind/$id': typeof ShareKindIdRoute
   '/articles': typeof AuthenticatedArticlesIndexRoute
   '/campus': typeof AuthenticatedCampusIndexRoute
   '/clean': typeof AuthenticatedCleanIndexRoute
@@ -1215,9 +1240,11 @@ export interface FileRoutesById {
   '/_authenticated/network': typeof AuthenticatedNetworkRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/referral-rewards': typeof AuthenticatedReferralRewardsRoute
   '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/shareholder': typeof AuthenticatedShareholderRoute
+  '/_authenticated/spotlight': typeof AuthenticatedSpotlightRoute
   '/_authenticated/studio': typeof AuthenticatedStudioRoute
   '/_authenticated/transactions': typeof AuthenticatedTransactionsRoute
   '/_authenticated/verified': typeof AuthenticatedVerifiedRoute
@@ -1288,6 +1315,7 @@ export interface FileRoutesById {
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
   '/console/members/$memberId': typeof ConsoleMembersMemberIdRoute
+  '/share/$kind/$id': typeof ShareKindIdRoute
   '/_authenticated/articles/': typeof AuthenticatedArticlesIndexRoute
   '/_authenticated/campus/': typeof AuthenticatedCampusIndexRoute
   '/_authenticated/clean/': typeof AuthenticatedCleanIndexRoute
@@ -1358,9 +1386,11 @@ export interface FileRouteTypes {
     | '/network'
     | '/notifications'
     | '/profile'
+    | '/referral-rewards'
     | '/search'
     | '/settings'
     | '/shareholder'
+    | '/spotlight'
     | '/studio'
     | '/transactions'
     | '/verified'
@@ -1431,6 +1461,7 @@ export interface FileRouteTypes {
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
     | '/console/members/$memberId'
+    | '/share/$kind/$id'
     | '/articles/'
     | '/campus/'
     | '/clean/'
@@ -1498,9 +1529,11 @@ export interface FileRouteTypes {
     | '/network'
     | '/notifications'
     | '/profile'
+    | '/referral-rewards'
     | '/search'
     | '/settings'
     | '/shareholder'
+    | '/spotlight'
     | '/studio'
     | '/transactions'
     | '/verified'
@@ -1571,6 +1604,7 @@ export interface FileRouteTypes {
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
     | '/console/members/$memberId'
+    | '/share/$kind/$id'
     | '/articles'
     | '/campus'
     | '/clean'
@@ -1640,9 +1674,11 @@ export interface FileRouteTypes {
     | '/_authenticated/network'
     | '/_authenticated/notifications'
     | '/_authenticated/profile'
+    | '/_authenticated/referral-rewards'
     | '/_authenticated/search'
     | '/_authenticated/settings'
     | '/_authenticated/shareholder'
+    | '/_authenticated/spotlight'
     | '/_authenticated/studio'
     | '/_authenticated/transactions'
     | '/_authenticated/verified'
@@ -1713,6 +1749,7 @@ export interface FileRouteTypes {
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
     | '/console/members/$memberId'
+    | '/share/$kind/$id'
     | '/_authenticated/articles/'
     | '/_authenticated/campus/'
     | '/_authenticated/clean/'
@@ -1771,6 +1808,7 @@ export interface RootRouteChildren {
   ApiPublicCleanupStoriesRoute: typeof ApiPublicCleanupStoriesRoute
   ApiPublicReconcileActivationsRoute: typeof ApiPublicReconcileActivationsRoute
   ApiPublicSecuritySelfcheckRoute: typeof ApiPublicSecuritySelfcheckRoute
+  ShareKindIdRoute: typeof ShareKindIdRoute
   ApiPublicProfilesUsernameRoute: typeof ApiPublicProfilesUsernameRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
   ApiPublicWebhooksStripeFlightsRoute: typeof ApiPublicWebhooksStripeFlightsRoute
@@ -2076,6 +2114,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/referral-rewards': {
+      id: '/_authenticated/referral-rewards'
+      path: '/referral-rewards'
+      fullPath: '/referral-rewards'
+      preLoaderRoute: typeof AuthenticatedReferralRewardsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/search': {
       id: '/_authenticated/search'
       path: '/search'
@@ -2095,6 +2140,13 @@ declare module '@tanstack/react-router' {
       path: '/shareholder'
       fullPath: '/shareholder'
       preLoaderRoute: typeof AuthenticatedShareholderRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/spotlight': {
+      id: '/_authenticated/spotlight'
+      path: '/spotlight'
+      fullPath: '/spotlight'
+      preLoaderRoute: typeof AuthenticatedSpotlightRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/studio': {
@@ -2650,6 +2702,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleMembersMemberIdRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/share/$kind/$id': {
+      id: '/share/$kind/$id'
+      path: '/share/$kind/$id'
+      fullPath: '/share/$kind/$id'
+      preLoaderRoute: typeof ShareKindIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/booking/$bookingId/confirmed': {
       id: '/_authenticated/booking/$bookingId/confirmed'
       path: '/booking/$bookingId/confirmed'
@@ -2787,9 +2846,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedNetworkRoute: typeof AuthenticatedNetworkRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedReferralRewardsRoute: typeof AuthenticatedReferralRewardsRoute
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedShareholderRoute: typeof AuthenticatedShareholderRoute
+  AuthenticatedSpotlightRoute: typeof AuthenticatedSpotlightRoute
   AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
   AuthenticatedTransactionsRoute: typeof AuthenticatedTransactionsRoute
   AuthenticatedVerifiedRoute: typeof AuthenticatedVerifiedRoute
@@ -2854,9 +2915,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedNetworkRoute: AuthenticatedNetworkRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedReferralRewardsRoute: AuthenticatedReferralRewardsRoute,
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedShareholderRoute: AuthenticatedShareholderRoute,
+  AuthenticatedSpotlightRoute: AuthenticatedSpotlightRoute,
   AuthenticatedStudioRoute: AuthenticatedStudioRoute,
   AuthenticatedTransactionsRoute: AuthenticatedTransactionsRoute,
   AuthenticatedVerifiedRoute: AuthenticatedVerifiedRoute,
@@ -3029,6 +3092,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCleanupStoriesRoute: ApiPublicCleanupStoriesRoute,
   ApiPublicReconcileActivationsRoute: ApiPublicReconcileActivationsRoute,
   ApiPublicSecuritySelfcheckRoute: ApiPublicSecuritySelfcheckRoute,
+  ShareKindIdRoute: ShareKindIdRoute,
   ApiPublicProfilesUsernameRoute: ApiPublicProfilesUsernameRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
   ApiPublicWebhooksStripeFlightsRoute: ApiPublicWebhooksStripeFlightsRoute,
