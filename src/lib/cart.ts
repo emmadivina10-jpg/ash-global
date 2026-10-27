@@ -28,64 +28,101 @@ export function addItem(items: CartItem[], item: Omit<CartItem, "qty">, qty = 1)
   return [...items, { ...item, qty: Math.max(1, qty) }];
 }
 
-const KEY = (uid: string | null | undefined) => `ash-cart:v1:${uid ?? "guest"}`;
-const listeners = new Set<() => void>();
-let cache: { key: string; raw: string | null; items: CartItem[] } | null = null;
-let currentUser: string | null = null;
-
-function read(): CartItem[] {
-  if (typeof window === "undefined") return EMPTY;
-  const key = KEY(currentUser);
-  let raw: string | null = null;
-  try {
-    raw = window.localStorage.getItem(key);
-  } catch {
-    raw = null;
-  }
-  if (cache && cache.key === key && cache.raw === raw) return cache.items;
-  let items: CartItem[] = [];
-  try {
-    const parsed = raw ? JSON.parse(raw) : [];
-    if (Array.isArray(parsed)) items = parsed.filter((i) => i && typeof i.serviceId === "string");
-  } catch {
-    items = [];
-  }
-  cache = { key, raw, items };
-  return items;
-}
 const EMPTY: CartItem[] = [];
+const listeners = new Set<() => void>();
+let items: CartItem[] = EMPTY;
+let currentUser: string | null = null;
+const emit = () => listeners.forEach((l) => l());
 
-function write(items: CartItem[]) {
-  try {
-    window.localStorage.setItem(KEY(currentUser), JSON.stringify(items));
-  } catch {
-    /* storage unavailable */
-  }
-  listeners.forEach((l) => l());
+async function db() {
+  return (await import("@/integrations/supabase/client")).supabase;
 }
 
-if (typeof window !== "undefined") {
-  window.addEventListener("storage", (e) => {
-    if (e.key?.startsWith("ash-cart:")) listeners.forEach((l) => l());
-  });
+/** Load the member's saved cart from their account so it follows them on any device. */
+async function refresh() {
+  const uid = currentUser;
+  if (!uid) {
+    items = EMPTY;
+    emit();
+    return;
+  }
+  const supabase = await db();
+  const { data, error } = await supabase
+    .from("cart_items")
+    .select("service_id, provider_id, provider_name, title, price, qty, image")
+    .eq("user_id", uid)
+    .order("created_at");
+  if (error || uid !== currentUser) return;
+  items = (data ?? []).map((r) => ({
+    serviceId: r.service_id,
+    providerId: r.provider_id,
+    providerName: r.provider_name,
+    title: r.title,
+    price: Number(r.price),
+    qty: r.qty,
+    image: r.image,
+  }));
+  emit();
 }
 
 export function setCartUser(uid: string | null | undefined) {
   if ((uid ?? null) === currentUser) return;
   currentUser = uid ?? null;
-  listeners.forEach((l) => l());
+  void refresh();
+}
+
+async function save(next: CartItem[]) {
+  const uid = currentUser;
+  if (!uid) throw new Error("SIGN_IN_REQUIRED");
+  const prev = items;
+  items = next;
+  emit();
+  const supabase = await db();
+  const removed = prev.filter((p) => !next.some((n) => n.serviceId === p.serviceId));
+  const ops = [];
+  if (removed.length)
+    ops.push(
+      supabase
+        .from("cart_items")
+        .delete()
+        .eq("user_id", uid)
+        .in("service_id", removed.map((r) => r.serviceId)),
+    );
+  if (next.length)
+    ops.push(
+      supabase.from("cart_items").upsert(
+        next.map((i) => ({
+          user_id: uid,
+          service_id: i.serviceId,
+          provider_id: i.providerId,
+          provider_name: i.providerName,
+          title: i.title,
+          price: i.price,
+          qty: i.qty,
+          image: i.image ?? null,
+        })),
+        { onConflict: "user_id,service_id" },
+      ),
+    );
+  const results = await Promise.all(ops);
+  if (results.some((r) => r.error)) {
+    await refresh();
+    throw new Error("CART_SAVE_FAILED");
+  }
 }
 
 export const cart = {
-  add: (item: Omit<CartItem, "qty">, qty = 1) => write(addItem(read(), item, qty)),
+  add: (item: Omit<CartItem, "qty">, qty = 1) => save(addItem(items, item, qty)),
   setQty: (serviceId: string, qty: number) =>
-    write(
+    save(
       qty <= 0
-        ? read().filter((i) => i.serviceId !== serviceId)
-        : read().map((i) => (i.serviceId === serviceId ? { ...i, qty: Math.min(99, qty) } : i)),
+        ? items.filter((i) => i.serviceId !== serviceId)
+        : items.map((i) => (i.serviceId === serviceId ? { ...i, qty: Math.min(99, qty) } : i)),
     ),
-  remove: (serviceId: string) => write(read().filter((i) => i.serviceId !== serviceId)),
-  clear: () => write([]),
+  remove: (serviceId: string) => save(items.filter((i) => i.serviceId !== serviceId)),
+  removeMany: (ids: string[]) => save(items.filter((i) => !ids.includes(i.serviceId))),
+  clear: () => save([]),
+  refresh,
 };
 
 export function useCart(): CartItem[] {
@@ -94,7 +131,7 @@ export function useCart(): CartItem[] {
       listeners.add(cb);
       return () => listeners.delete(cb);
     },
-    read,
+    () => items,
     () => EMPTY,
   );
 }

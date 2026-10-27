@@ -990,6 +990,45 @@ export type Database = {
         }
         Relationships: []
       }
+      cart_items: {
+        Row: {
+          created_at: string
+          id: string
+          image: string | null
+          price: number
+          provider_id: string
+          provider_name: string
+          qty: number
+          service_id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image?: string | null
+          price?: number
+          provider_id: string
+          provider_name?: string
+          qty?: number
+          service_id: string
+          title?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image?: string | null
+          price?: number
+          provider_id?: string
+          provider_name?: string
+          qty?: number
+          service_id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       chat_groups: {
         Row: {
           avatar_path: string | null

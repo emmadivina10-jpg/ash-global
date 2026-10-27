@@ -253,6 +253,13 @@
       "when": 1793119941739,
       "tag": "0035_enforce_service_min_price",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1793124142079,
+      "tag": "0036_create_cart_items",
+      "breakpoints": true
     }
   ]
 }
