@@ -367,6 +367,28 @@ function ProviderPage() {
                 </button>
                 <div className="flex shrink-0 items-center gap-2">
                   <span className="tabular text-sm font-bold">{formatXAF(service.price)}</span>
+                  {provider.owner_id !== user?.id ? (
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="size-9 touch-manipulation rounded-full"
+                      aria-label={tx("Add to cart", "Ajouter au panier")}
+                      disabled={Boolean(blockedReason)}
+                      onClick={() => {
+                        cart.add({
+                          serviceId: service.id,
+                          providerId: provider.id,
+                          providerName: provider.business_name,
+                          title: service.title,
+                          price: Number(service.price),
+                          image: gallery[0]?.url ?? null,
+                        });
+                        toast.success(tx("Added to your cart", "Ajouté à votre panier"));
+                      }}
+                    >
+                      <ShoppingCart className="size-4" />
+                    </Button>
+                  ) : null}
                   <Button
                     size="sm"
                     className="touch-manipulation"
