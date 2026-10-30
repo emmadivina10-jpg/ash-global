@@ -472,13 +472,20 @@ workflows:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/**
 
-    # Artifact-only: retain Apple signing above, but do not upload to TestFlight.
+    publishing:
+      app_store_connect:
+        # Uses the existing "ash glo" App Store Connect integration
+        # declared under integrations above — no new API key variables.
+        auth: integration
+        # Upload the signed IPA and make it available through TestFlight
+        # processing. Does not submit an App Store production release.
+        submit_to_testflight: true
 
   # ================================================================
   # ANDROID — GOOGLE PLAY
   # ================================================================
   android-play:
-    name: ASH Glo Android — signed AAB only (no publishing)
+    name: ASH Glo Android — Google Play
     # linux_x2 requires billing-enabled pay-as-you-go; mac_mini_m2 is the
     # instance this plan already runs (same as the iOS workflow) and includes
     # the Android SDK, so the AAB build works without a billing change.
