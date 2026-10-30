@@ -607,4 +607,12 @@ workflows:
 
     artifacts:
       - android/app/build/outputs/bundle/release/*.aab
-    # Artifact-only. No Google Play publishing or automatic build trigger.
+
+    publishing:
+      google_play:
+        # Service account JSON stored securely in the android_release
+        # environment group as GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS.
+        # Never printed or committed; referenced by name only.
+        credentials: $GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS
+        # Internal testing track only — never production.
+        track: internal
