@@ -12,7 +12,6 @@ import { Label } from "@/components/ui/label";
 import { AuthLayout } from "@/components/refer/AuthLayout";
 import { CountryPhoneInput } from "@/components/refer/CountryPhoneInput";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { SocialAuth } from "@/components/refer/SocialAuth";
 import { callbackUrl, pendingReturn } from "@/lib/oauth-return-path";
 import { isValidPhone, normalizePhone } from "@/lib/format";
 import { useI18n, type TKey } from "@/lib/i18n";
@@ -462,10 +461,6 @@ function RegisterPage() {
           </Button>
         )}
       </form>
-
-      {step === 1 || agreed ? (
-        <SocialAuth label={t("auth.register.orSignUp")} next={returnTo} />
-      ) : null}
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         {t("auth.register.haveAccount")}{" "}
