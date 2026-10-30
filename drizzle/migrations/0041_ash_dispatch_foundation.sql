@@ -1,159 +1,162 @@
--- ASH Dispatch foundation
--- Rider profiles, vendor/rider relationships, delivery jobs and verification.
+-- ASH Dispatch RLS and authorization rules
+-- These policies are SQL-first and can be applied to a local Supabase/PostgreSQL test database.
 
-CREATE TABLE IF NOT EXISTS public.rider_profiles (
-  user_id uuid PRIMARY KEY REFERENCES public.profiles(user_id) ON DELETE CASCADE,
-  vendor_id uuid REFERENCES auth.users(id) ON DELETE SET NULL,
-  is_active boolean NOT NULL DEFAULT true,
-  availability_status text NOT NULL DEFAULT 'AVAILABLE' CHECK (availability_status IN ('AVAILABLE','BUSY','OFFLINE')),
-  vehicle_type text NOT NULL DEFAULT 'MOTORCYCLE' CHECK (vehicle_type IN ('MOTORCYCLE','CAR','BICYCLE','WALKING')),
-  licence_number text,
-  phone text,
-  city text,
-  latitude double precision,
-  longitude double precision,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
-);
-
-CREATE INDEX IF NOT EXISTS rider_profiles_vendor_idx ON public.rider_profiles(vendor_id, availability_status);
-
-CREATE TABLE IF NOT EXISTS public.vendor_rider_relationships (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  vendor_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  rider_user_id uuid NOT NULL REFERENCES public.profiles(user_id) ON DELETE CASCADE,
-  status text NOT NULL DEFAULT 'INVITED' CHECK (status IN ('INVITED','ACCEPTED','REJECTED','SUSPENDED')),
-  invited_by uuid REFERENCES auth.users(id),
-  accepted_at timestamptz,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  UNIQUE (vendor_id, rider_user_id)
-);
-
-CREATE INDEX IF NOT EXISTS vendor_rider_vendor_idx ON public.vendor_rider_relationships(vendor_id, status);
-CREATE INDEX IF NOT EXISTS vendor_rider_rider_idx ON public.vendor_rider_relationships(rider_user_id, status);
-
-CREATE TABLE IF NOT EXISTS public.delivery_jobs (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  vendor_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  customer_id uuid NOT NULL REFERENCES public.profiles(user_id) ON DELETE CASCADE,
-  rider_user_id uuid REFERENCES public.profiles(user_id) ON DELETE SET NULL,
-  status text NOT NULL DEFAULT 'REQUESTED' CHECK (
-    status IN (
-      'REQUESTED',
-      'INVITED',
-      'ASSIGNED',
-      'ACCEPTED',
-      'REJECTED',
-      'PICKUP_CONFIRMED',
-      'IN_TRANSIT',
-      'DELIVERED',
-      'CANCELLED'
-    )
-  ),
-  pickup_address text NOT NULL,
-  pickup_lat double precision,
-  pickup_lng double precision,
-  dropoff_address text NOT NULL,
-  dropoff_lat double precision,
-  dropoff_lng double precision,
-  service_type text NOT NULL DEFAULT 'DELIVERY' CHECK (service_type IN ('DELIVERY','PICKUP_VERIFICATION','SELF_PICKUP')),
-  notes text,
-  customer_phone text,
-  eta_minutes integer,
-  fee_amount numeric(12,2) NOT NULL DEFAULT 0,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
-);
-
-CREATE INDEX IF NOT EXISTS delivery_jobs_vendor_idx ON public.delivery_jobs(vendor_id, status, created_at DESC);
-CREATE INDEX IF NOT EXISTS delivery_jobs_rider_idx ON public.delivery_jobs(rider_user_id, status, created_at DESC);
-CREATE INDEX IF NOT EXISTS delivery_jobs_customer_idx ON public.delivery_jobs(customer_id, status, created_at DESC);
-
-CREATE TABLE IF NOT EXISTS public.delivery_assignments (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  delivery_id uuid NOT NULL REFERENCES public.delivery_jobs(id) ON DELETE CASCADE,
-  rider_user_id uuid NOT NULL REFERENCES public.profiles(user_id) ON DELETE CASCADE,
-  vendor_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  status text NOT NULL DEFAULT 'OPEN' CHECK (status IN ('OPEN','ACCEPTED','REJECTED','IN_PROGRESS','COMPLETED','CANCELLED')),
-  assigned_by uuid REFERENCES auth.users(id),
-  accepted_at timestamptz,
-  rejected_at timestamptz,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  UNIQUE (delivery_id, rider_user_id)
-);
-
-CREATE INDEX IF NOT EXISTS delivery_assignments_delivery_idx ON public.delivery_assignments(delivery_id, status);
-CREATE INDEX IF NOT EXISTS delivery_assignments_rider_idx ON public.delivery_assignments(rider_user_id, status, created_at DESC);
-
-CREATE TABLE IF NOT EXISTS public.delivery_status_events (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  delivery_id uuid NOT NULL REFERENCES public.delivery_jobs(id) ON DELETE CASCADE,
-  status text NOT NULL,
-  actor_type text NOT NULL DEFAULT 'SYSTEM' CHECK (actor_type IN ('SYSTEM','VENDOR','RIDER','CUSTOMER','ADMIN')),
-  actor_user_id uuid REFERENCES auth.users(id),
-  note text,
-  created_at timestamptz NOT NULL DEFAULT now()
-);
-
-CREATE INDEX IF NOT EXISTS delivery_events_delivery_idx ON public.delivery_status_events(delivery_id, created_at DESC);
-
-CREATE TABLE IF NOT EXISTS public.pickup_verifications (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  delivery_id uuid NOT NULL REFERENCES public.delivery_jobs(id) ON DELETE CASCADE,
-  code text NOT NULL,
-  created_by uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  verified_by uuid REFERENCES auth.users(id),
-  verified_at timestamptz,
-  is_verified boolean NOT NULL DEFAULT false,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  UNIQUE (delivery_id)
-);
-
-CREATE INDEX IF NOT EXISTS pickup_verification_delivery_idx ON public.pickup_verifications(delivery_id, is_verified);
-
-CREATE OR REPLACE FUNCTION public.set_rider_profile_updated_at()
-RETURNS trigger LANGUAGE plpgsql AS $$
-BEGIN
-  NEW.updated_at = now();
-  RETURN NEW;
-END;
+CREATE OR REPLACE FUNCTION public.is_dispatch_admin(_uid uuid)
+RETURNS boolean LANGUAGE sql STABLE AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.staff_accounts sa
+    WHERE sa.user_id = _uid AND sa.is_active = true
+      AND (
+        sa.department IN ('OPERATIONS', 'SUPPORT', 'CYBERSECURITY', 'SUPER_ADMIN')
+        OR 'OPERATIONS' = ANY (COALESCE(sa.extra_departments, ARRAY[]::text[]))
+      )
+  );
 $$;
 
-CREATE TRIGGER rider_profiles_updated_at
-BEFORE UPDATE ON public.rider_profiles
-FOR EACH ROW EXECUTE FUNCTION public.set_rider_profile_updated_at();
+CREATE OR REPLACE FUNCTION public.is_dispatch_vendor_owner(_vendor_id uuid, _uid uuid)
+RETURNS boolean LANGUAGE sql STABLE AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.vendor_profiles vp
+    WHERE vp.user_id = _vendor_id
+      AND vp.owner_user_id = _uid
+  );
+$$;
 
-CREATE TRIGGER vendor_rider_relationships_updated_at
-BEFORE UPDATE ON public.vendor_rider_relationships
-FOR EACH ROW EXECUTE FUNCTION public.set_rider_profile_updated_at();
+CREATE OR REPLACE FUNCTION public.is_dispatch_rider_self(_uid uuid, _rider_user_id uuid)
+RETURNS boolean LANGUAGE sql STABLE AS $$
+  SELECT _uid = _rider_user_id;
+$$;
 
-CREATE TRIGGER delivery_jobs_updated_at
-BEFORE UPDATE ON public.delivery_jobs
-FOR EACH ROW EXECUTE FUNCTION public.set_rider_profile_updated_at();
+ALTER TABLE public.dispatch_riders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.dispatch_vendor_riders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.dispatch_jobs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.dispatch_job_assignments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.dispatch_job_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.dispatch_pickup_verifications ENABLE ROW LEVEL SECURITY;
 
-CREATE TRIGGER delivery_assignments_updated_at
-BEFORE UPDATE ON public.delivery_assignments
-FOR EACH ROW EXECUTE FUNCTION public.set_rider_profile_updated_at();
+DROP POLICY IF EXISTS dispatch_riders_select_policy ON public.dispatch_riders;
+CREATE POLICY dispatch_riders_select_policy ON public.dispatch_riders
+FOR SELECT TO authenticated
+USING (
+  is_dispatch_admin(auth.uid())
+  OR user_id = auth.uid()
+  OR vendor_id = auth.uid()
+);
 
-ALTER TABLE public.rider_profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.vendor_rider_relationships ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.delivery_jobs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.delivery_assignments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.delivery_status_events ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.pickup_verifications ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS dispatch_riders_insert_policy ON public.dispatch_riders;
+CREATE POLICY dispatch_riders_insert_policy ON public.dispatch_riders
+FOR INSERT TO authenticated
+WITH CHECK (
+  user_id = auth.uid()
+  OR is_dispatch_admin(auth.uid())
+);
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.rider_profiles TO authenticated;
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.vendor_rider_relationships TO authenticated;
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.delivery_jobs TO authenticated;
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.delivery_assignments TO authenticated;
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.delivery_status_events TO authenticated;
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.pickup_verifications TO authenticated;
+DROP POLICY IF EXISTS dispatch_riders_update_policy ON public.dispatch_riders;
+CREATE POLICY dispatch_riders_update_policy ON public.dispatch_riders
+FOR UPDATE TO authenticated
+USING (
+  user_id = auth.uid() OR is_dispatch_admin(auth.uid())
+)
+WITH CHECK (
+  user_id = auth.uid() OR is_dispatch_admin(auth.uid())
+);
 
-GRANT ALL ON public.rider_profiles TO service_role;
-GRANT ALL ON public.vendor_rider_relationships TO service_role;
-GRANT ALL ON public.delivery_jobs TO service_role;
-GRANT ALL ON public.delivery_assignments TO service_role;
-GRANT ALL ON public.delivery_status_events TO service_role;
-GRANT ALL ON public.pickup_verifications TO service_role;
+DROP POLICY IF EXISTS dispatch_vendor_riders_select_policy ON public.dispatch_vendor_riders;
+CREATE POLICY dispatch_vendor_riders_select_policy ON public.dispatch_vendor_riders
+FOR SELECT TO authenticated
+USING (
+  is_dispatch_admin(auth.uid())
+  OR vendor_id = auth.uid()
+  OR rider_user_id = auth.uid()
+);
+
+DROP POLICY IF EXISTS dispatch_vendor_riders_insert_policy ON public.dispatch_vendor_riders;
+CREATE POLICY dispatch_vendor_riders_insert_policy ON public.dispatch_vendor_riders
+FOR INSERT TO authenticated
+WITH CHECK (
+  vendor_id = auth.uid() OR is_dispatch_admin(auth.uid()) OR rider_user_id = auth.uid()
+);
+
+DROP POLICY IF EXISTS dispatch_jobs_select_policy ON public.dispatch_jobs;
+CREATE POLICY dispatch_jobs_select_policy ON public.dispatch_jobs
+FOR SELECT TO authenticated
+USING (
+  is_dispatch_admin(auth.uid())
+  OR vendor_id = auth.uid()
+  OR customer_id = auth.uid()
+  OR rider_user_id = auth.uid()
+);
+
+DROP POLICY IF EXISTS dispatch_jobs_insert_policy ON public.dispatch_jobs;
+CREATE POLICY dispatch_jobs_insert_policy ON public.dispatch_jobs
+FOR INSERT TO authenticated
+WITH CHECK (
+  customer_id = auth.uid() OR is_dispatch_admin(auth.uid()) OR vendor_id = auth.uid()
+);
+
+DROP POLICY IF EXISTS dispatch_jobs_update_policy ON public.dispatch_jobs;
+CREATE POLICY dispatch_jobs_update_policy ON public.dispatch_jobs
+FOR UPDATE TO authenticated
+USING (
+  is_dispatch_admin(auth.uid())
+  OR vendor_id = auth.uid()
+  OR customer_id = auth.uid()
+  OR rider_user_id = auth.uid()
+)
+WITH CHECK (
+  is_dispatch_admin(auth.uid())
+  OR vendor_id = auth.uid()
+  OR customer_id = auth.uid()
+  OR rider_user_id = auth.uid()
+);
+
+DROP POLICY IF EXISTS dispatch_job_assignments_select_policy ON public.dispatch_job_assignments;
+CREATE POLICY dispatch_job_assignments_select_policy ON public.dispatch_job_assignments
+FOR SELECT TO authenticated
+USING (
+  is_dispatch_admin(auth.uid())
+  OR vendor_id = auth.uid()
+  OR rider_user_id = auth.uid()
+);
+
+DROP POLICY IF EXISTS dispatch_job_assignments_insert_policy ON public.dispatch_job_assignments;
+CREATE POLICY dispatch_job_assignments_insert_policy ON public.dispatch_job_assignments
+FOR INSERT TO authenticated
+WITH CHECK (
+  is_dispatch_admin(auth.uid()) OR vendor_id = auth.uid() OR rider_user_id = auth.uid()
+);
+
+DROP POLICY IF EXISTS dispatch_job_events_select_policy ON public.dispatch_job_events;
+CREATE POLICY dispatch_job_events_select_policy ON public.dispatch_job_events
+FOR SELECT TO authenticated
+USING (
+  is_dispatch_admin(auth.uid())
+  OR EXISTS (
+    SELECT 1 FROM public.dispatch_jobs dj
+    WHERE dj.id = delivery_id AND (
+      dj.vendor_id = auth.uid() OR dj.customer_id = auth.uid() OR dj.rider_user_id = auth.uid()
+    )
+  )
+);
+
+DROP POLICY IF EXISTS dispatch_pickup_verifications_select_policy ON public.dispatch_pickup_verifications;
+CREATE POLICY dispatch_pickup_verifications_select_policy ON public.dispatch_pickup_verifications
+FOR SELECT TO authenticated
+USING (
+  is_dispatch_admin(auth.uid())
+  OR EXISTS (
+    SELECT 1 FROM public.dispatch_jobs dj
+    WHERE dj.id = delivery_id AND (
+      dj.vendor_id = auth.uid() OR dj.customer_id = auth.uid() OR dj.rider_user_id = auth.uid()
+    )
+  )
+);
+
+DROP POLICY IF EXISTS dispatch_pickup_verifications_insert_policy ON public.dispatch_pickup_verifications;
+CREATE POLICY dispatch_pickup_verifications_insert_policy ON public.dispatch_pickup_verifications
+FOR INSERT TO authenticated
+WITH CHECK (
+  created_by = auth.uid() OR is_dispatch_admin(auth.uid())
+);
