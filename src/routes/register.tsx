@@ -463,10 +463,6 @@ function RegisterPage() {
         )}
       </form>
 
-      {step === 1 || agreed ? (
-        <SocialAuth label={t("auth.register.orSignUp")} next={returnTo} />
-      ) : null}
-
       <p className="mt-6 text-center text-sm text-muted-foreground">
         {t("auth.register.haveAccount")}{" "}
         <Link
