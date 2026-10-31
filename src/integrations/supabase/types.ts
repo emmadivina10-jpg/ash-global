@@ -1994,6 +1994,314 @@ export type Database = {
           },
         ]
       }
+      dispatch_job_assignments: {
+        Row: {
+          accepted_at: string | null
+          assigned_by: string | null
+          created_at: string
+          delivery_id: string
+          id: string
+          rejected_at: string | null
+          rider_user_id: string
+          status: string
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          assigned_by?: string | null
+          created_at?: string
+          delivery_id: string
+          id?: string
+          rejected_at?: string | null
+          rider_user_id: string
+          status?: string
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          accepted_at?: string | null
+          assigned_by?: string | null
+          created_at?: string
+          delivery_id?: string
+          id?: string
+          rejected_at?: string | null
+          rider_user_id?: string
+          status?: string
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispatch_job_assignments_delivery_id_fkey"
+            columns: ["delivery_id"]
+            isOneToOne: false
+            referencedRelation: "dispatch_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dispatch_job_assignments_rider_user_id_fkey"
+            columns: ["rider_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      dispatch_job_events: {
+        Row: {
+          actor_type: string
+          actor_user_id: string | null
+          created_at: string
+          delivery_id: string
+          id: string
+          note: string | null
+          status: string
+        }
+        Insert: {
+          actor_type?: string
+          actor_user_id?: string | null
+          created_at?: string
+          delivery_id: string
+          id?: string
+          note?: string | null
+          status: string
+        }
+        Update: {
+          actor_type?: string
+          actor_user_id?: string | null
+          created_at?: string
+          delivery_id?: string
+          id?: string
+          note?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispatch_job_events_delivery_id_fkey"
+            columns: ["delivery_id"]
+            isOneToOne: false
+            referencedRelation: "dispatch_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dispatch_jobs: {
+        Row: {
+          created_at: string
+          customer_id: string
+          customer_phone: string | null
+          dropoff_address: string
+          dropoff_lat: number | null
+          dropoff_lng: number | null
+          eta_minutes: number | null
+          fee_amount: number
+          id: string
+          notes: string | null
+          pickup_address: string
+          pickup_lat: number | null
+          pickup_lng: number | null
+          rider_user_id: string | null
+          service_type: string
+          status: string
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          customer_phone?: string | null
+          dropoff_address: string
+          dropoff_lat?: number | null
+          dropoff_lng?: number | null
+          eta_minutes?: number | null
+          fee_amount?: number
+          id?: string
+          notes?: string | null
+          pickup_address: string
+          pickup_lat?: number | null
+          pickup_lng?: number | null
+          rider_user_id?: string | null
+          service_type?: string
+          status?: string
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          customer_phone?: string | null
+          dropoff_address?: string
+          dropoff_lat?: number | null
+          dropoff_lng?: number | null
+          eta_minutes?: number | null
+          fee_amount?: number
+          id?: string
+          notes?: string | null
+          pickup_address?: string
+          pickup_lat?: number | null
+          pickup_lng?: number | null
+          rider_user_id?: string | null
+          service_type?: string
+          status?: string
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispatch_jobs_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "dispatch_jobs_rider_user_id_fkey"
+            columns: ["rider_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      dispatch_pickup_verifications: {
+        Row: {
+          code_hash: string
+          created_at: string
+          created_by: string
+          delivery_id: string
+          expires_at: string
+          id: string
+          is_verified: boolean
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          code_hash: string
+          created_at?: string
+          created_by: string
+          delivery_id: string
+          expires_at: string
+          id?: string
+          is_verified?: boolean
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          code_hash?: string
+          created_at?: string
+          created_by?: string
+          delivery_id?: string
+          expires_at?: string
+          id?: string
+          is_verified?: boolean
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispatch_pickup_verifications_delivery_id_fkey"
+            columns: ["delivery_id"]
+            isOneToOne: true
+            referencedRelation: "dispatch_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dispatch_riders: {
+        Row: {
+          availability_status: string
+          city: string | null
+          created_at: string
+          is_active: boolean
+          latitude: number | null
+          licence_number: string | null
+          longitude: number | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+          vehicle_type: string
+          vendor_id: string | null
+        }
+        Insert: {
+          availability_status?: string
+          city?: string | null
+          created_at?: string
+          is_active?: boolean
+          latitude?: number | null
+          licence_number?: string | null
+          longitude?: number | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+          vehicle_type?: string
+          vendor_id?: string | null
+        }
+        Update: {
+          availability_status?: string
+          city?: string | null
+          created_at?: string
+          is_active?: boolean
+          latitude?: number | null
+          licence_number?: string | null
+          longitude?: number | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+          vehicle_type?: string
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispatch_riders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      dispatch_vendor_riders: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          id: string
+          invited_by: string | null
+          rider_user_id: string
+          status: string
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          id?: string
+          invited_by?: string | null
+          rider_user_id: string
+          status?: string
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          id?: string
+          invited_by?: string | null
+          rider_user_id?: string
+          status?: string
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispatch_vendor_riders_rider_user_id_fkey"
+            columns: ["rider_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       employee_terms_acceptance: {
         Row: {
           accepted_at: string
