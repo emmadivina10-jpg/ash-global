@@ -1,8 +1,8 @@
 # Roadmap
 
 ## ASH Dispatch & Pickup (Oct 31)
-- [ ] Audit all six existing dispatch tables, repository foundations, staff authorization, tracking and notifications.
-- [ ] Restore the broken staff console placeholder without introducing dispatch privileges.
+- [x] Audit all six existing dispatch tables, repository foundations, staff authorization, tracking and notifications: RLS on, no policies, anon denied; authenticated CRUD grants remain, so access currently fails closed.
+- [x] Restore the broken staff console placeholder without introducing dispatch privileges; staff sign-in renders, no runtime errors, preview build OK. Existing dispatch test file contains zero tests and fails collection.
 - [ ] Present a phased plan, including schema/security corrections and isolated testing.
 - [ ] Implement secure operations and customer/vendor/rider/admin screens after plan approval; shared production database changes require separate authorization.
 - [ ] Verify GPS, notifications, privacy and role-specific workflows; prepare release documentation without publishing or moving funds.
