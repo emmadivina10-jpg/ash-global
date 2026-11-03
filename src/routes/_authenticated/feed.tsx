@@ -22,7 +22,9 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { useCreateSocialPost, useSocialFeed } from "@/lib/social.queries";
+import { useCreateSocialPost, useFriendships, useSocialFeed } from "@/lib/social.queries";
+import { FEED_CATEGORIES, matchesCategory, type FeedCategory } from "@/components/refer/feed-categories";
+import { cn } from "@/lib/utils";
 import { useProfile, useUser } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
 
@@ -75,7 +77,21 @@ function FeedPage() {
   >();
   // Spotlights keep their slots too, so the Feed never shuffles under the reader.
   const navigate = useNavigate();
-  const mixed = useMemo(() => interleaveSpotlights(posts ?? [], spotlights), [posts, spotlights]);
+  const [category, setCategory] = useState<FeedCategory>("for_you");
+  const { data: friendships } = useFriendships();
+  const filtered = useMemo(() => {
+    const all = posts ?? [];
+    if (category === "for_you") return all;
+    if (category === "following") {
+      const ids = new Set((friendships?.friends ?? []).map((f) => f.other.id));
+      return all.filter((p) => ids.has(p.author_id));
+    }
+    return all.filter((p) => matchesCategory(p.caption, category, p.images.length));
+  }, [posts, category, friendships]);
+  const mixed = useMemo(
+    () => interleaveSpotlights(filtered, category === "for_you" ? spotlights : []),
+    [filtered, spotlights, category],
+  );
   const create = useCreateSocialPost();
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
@@ -340,6 +356,33 @@ function FeedPage() {
           />
         ) : null}
 
+        <div
+          role="tablist"
+          aria-label={tx("Discover", "Découvrir")}
+          className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {FEED_CATEGORIES.map((c) => {
+            const on = c.id === category;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                role="tab"
+                aria-selected={on}
+                onClick={() => setCategory(c.id)}
+                className={cn(
+                  "h-8 shrink-0 rounded-full border px-3.5 text-xs font-bold transition-colors",
+                  on
+                    ? "border-transparent bg-gradient-to-r from-primary to-gold text-primary-foreground shadow-[var(--shadow-gold)]"
+                    : "border-border bg-card text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {fr ? c.fr : c.en}
+              </button>
+            );
+          })}
+        </div>
+
         {isLoading || !spotlightsReady ? (
           <div className="space-y-3">
             {[0, 1, 2].map((i) => (
@@ -352,7 +395,9 @@ function FeedPage() {
               <Sparkles className="size-5" aria-hidden />
             </span>
             <p className="mt-3 text-sm font-bold text-foreground">
-              {tx("Nothing here yet", "Rien encore")}
+              {category === "for_you"
+                ? tx("Nothing here yet", "Rien encore")
+                : tx("No posts in this category yet", "Aucune publication dans cette catégorie")}
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
               {tx(
@@ -362,7 +407,7 @@ function FeedPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-0 sm:space-y-4">
+          <div className="space-y-4">
             {mixed.map((entry) => {
               if (entry.kind === "spotlight")
                 return (
@@ -378,11 +423,11 @@ function FeedPage() {
               const index = entry.postIndex;
               // A single calm listings row every four posts — easy to scroll past.
               const block =
-                index > 0 && index % 4 === 0
+                category === "for_you" && index > 0 && index % 4 === 0
                   ? (discovery ?? [])[Math.floor(index / 4) - 1]
                   : undefined;
               return (
-                <div key={post.id} className="space-y-0 sm:space-y-4">
+                <div key={post.id} className="space-y-4">
                   {block ? <DiscoveryRow block={block} /> : null}
                   <PostCard post={post} currentUserId={me} />
                 </div>
