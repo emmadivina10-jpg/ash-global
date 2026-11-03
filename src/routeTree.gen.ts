@@ -94,6 +94,7 @@ import { Route as ConsolePropertyRouteImport } from './routes/console.property'
 import { Route as ConsoleProvidersRouteImport } from './routes/console.providers'
 import { Route as ConsoleReportsRouteImport } from './routes/console.reports'
 import { Route as ConsoleRevenueRouteImport } from './routes/console.revenue'
+import { Route as ConsoleRidersRouteImport } from './routes/console.riders'
 import { Route as ConsoleSalesRouteImport } from './routes/console.sales'
 import { Route as ConsoleSecurityRouteImport } from './routes/console.security'
 import { Route as ConsoleSecurityUpdatesRouteImport } from './routes/console.security-updates'
@@ -589,6 +590,11 @@ const ConsoleRevenueRoute = ConsoleRevenueRouteImport.update({
   path: '/revenue',
   getParentRoute: () => ConsoleRoute,
 } as any)
+const ConsoleRidersRoute = ConsoleRidersRouteImport.update({
+  id: '/riders',
+  path: '/riders',
+  getParentRoute: () => ConsoleRoute,
+} as any)
 const ConsoleSalesRoute = ConsoleSalesRouteImport.update({
   id: '/sales',
   path: '/sales',
@@ -1018,6 +1024,7 @@ export interface FileRoutesByFullPath {
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/reports': typeof ConsoleReportsRoute
   '/console/revenue': typeof ConsoleRevenueRoute
+  '/console/riders': typeof ConsoleRidersRoute
   '/console/sales': typeof ConsoleSalesRoute
   '/console/security': typeof ConsoleSecurityRoute
   '/console/security-updates': typeof ConsoleSecurityUpdatesRoute
@@ -1165,6 +1172,7 @@ export interface FileRoutesByTo {
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/reports': typeof ConsoleReportsRoute
   '/console/revenue': typeof ConsoleRevenueRoute
+  '/console/riders': typeof ConsoleRidersRoute
   '/console/sales': typeof ConsoleSalesRoute
   '/console/security': typeof ConsoleSecurityRoute
   '/console/security-updates': typeof ConsoleSecurityUpdatesRoute
@@ -1315,6 +1323,7 @@ export interface FileRoutesById {
   '/console/providers': typeof ConsoleProvidersRoute
   '/console/reports': typeof ConsoleReportsRoute
   '/console/revenue': typeof ConsoleRevenueRoute
+  '/console/riders': typeof ConsoleRidersRoute
   '/console/sales': typeof ConsoleSalesRoute
   '/console/security': typeof ConsoleSecurityRoute
   '/console/security-updates': typeof ConsoleSecurityUpdatesRoute
@@ -1465,6 +1474,7 @@ export interface FileRouteTypes {
     | '/console/providers'
     | '/console/reports'
     | '/console/revenue'
+    | '/console/riders'
     | '/console/sales'
     | '/console/security'
     | '/console/security-updates'
@@ -1612,6 +1622,7 @@ export interface FileRouteTypes {
     | '/console/providers'
     | '/console/reports'
     | '/console/revenue'
+    | '/console/riders'
     | '/console/sales'
     | '/console/security'
     | '/console/security-updates'
@@ -1761,6 +1772,7 @@ export interface FileRouteTypes {
     | '/console/providers'
     | '/console/reports'
     | '/console/revenue'
+    | '/console/riders'
     | '/console/sales'
     | '/console/security'
     | '/console/security-updates'
@@ -2464,6 +2476,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleRevenueRouteImport
       parentRoute: typeof ConsoleRoute
     }
+    '/console/riders': {
+      id: '/console/riders'
+      path: '/riders'
+      fullPath: '/console/riders'
+      preLoaderRoute: typeof ConsoleRidersRouteImport
+      parentRoute: typeof ConsoleRoute
+    }
     '/console/sales': {
       id: '/console/sales'
       path: '/sales'
@@ -3086,6 +3105,7 @@ interface ConsoleRouteChildren {
   ConsoleProvidersRoute: typeof ConsoleProvidersRoute
   ConsoleReportsRoute: typeof ConsoleReportsRoute
   ConsoleRevenueRoute: typeof ConsoleRevenueRoute
+  ConsoleRidersRoute: typeof ConsoleRidersRoute
   ConsoleSalesRoute: typeof ConsoleSalesRoute
   ConsoleSecurityRoute: typeof ConsoleSecurityRoute
   ConsoleSecurityUpdatesRoute: typeof ConsoleSecurityUpdatesRoute
@@ -3128,6 +3148,7 @@ const ConsoleRouteChildren: ConsoleRouteChildren = {
   ConsoleProvidersRoute: ConsoleProvidersRoute,
   ConsoleReportsRoute: ConsoleReportsRoute,
   ConsoleRevenueRoute: ConsoleRevenueRoute,
+  ConsoleRidersRoute: ConsoleRidersRoute,
   ConsoleSalesRoute: ConsoleSalesRoute,
   ConsoleSecurityRoute: ConsoleSecurityRoute,
   ConsoleSecurityUpdatesRoute: ConsoleSecurityUpdatesRoute,

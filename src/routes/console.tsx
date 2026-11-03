@@ -128,6 +128,7 @@ const NAV = [
     group: "People",
     dept: "MARKETPLACE_OPS",
   },
+  { to: "/console/riders", label: "Riders", icon: ShieldCheck, group: "People", dept: "TRUST" },
   {
     to: "/console/deletions",
     label: "Deletions",
