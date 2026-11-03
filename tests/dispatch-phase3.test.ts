@@ -105,15 +105,54 @@ describe("phase 3: accept-time rider check", () => {
 });
 
 describe("phase 3: live location", () => {
-  it("only a rider on an active delivery can share position; only parties can read it", async () => {
-    expect(await err(RIDER2, "SELECT dispatch_rider_update_location(4.05,9.7)")).toContain("NOT_ON_DELIVERY");
-    expect(await err(RIDER, "SELECT dispatch_rider_update_location(95,9.7)")).toContain("INVALID_INPUT");
-    expect(await err(RIDER, "SELECT dispatch_rider_update_location(4.05,9.7)")).toBe("NO_ERROR");
-    const [job] = await as<{ id: string }>(ADMIN, "SELECT id FROM dispatch_jobs WHERE rider_user_id=$1 AND status='ACCEPTED'", [RIDER]);
-    const seen = await as<{ latitude: number }>(CUSTOMER, "SELECT * FROM dispatch_job_rider_location($1)", [job!.id]);
-    expect(seen[0]?.latitude).toBe(4.05);
-    expect(await as(STRANGER, "SELECT * FROM dispatch_job_rider_location($1)", [job!.id])).toHaveLength(0);
-    expect(await err(null, "SELECT * FROM dispatch_job_rider_location($1)", [job!.id])).toContain("permission denied");
+  const VENDOR_TEAM_ONLY = VENDOR2;
+  const loc = (u: string | null, job: string) => as<{ latitude: number }>(u, "SELECT * FROM dispatch_job_rider_location($1)", [job]);
+  const rows = async (job: string) => (await db.query("SELECT 1 FROM dispatch_job_live_locations WHERE delivery_id=$1", [job])).rows.length;
+  let job = "";
+  it("only the assigned rider on an active delivery can share; input validated", async () => {
+    [{ id: job }] = await as<{ id: string }>(ADMIN, "SELECT id FROM dispatch_jobs WHERE rider_user_id=$1 AND status='ACCEPTED'", [RIDER]) as { id: string }[];
+    expect(await err(RIDER2, "SELECT dispatch_rider_update_location($1,4.05,9.7)", [job])).toContain("NOT_ON_DELIVERY");
+    expect(await err(STRANGER, "SELECT dispatch_rider_update_location($1,4.05,9.7)", [job])).toContain("NOT_ON_DELIVERY");
+    expect(await err(RIDER, "SELECT dispatch_rider_update_location($1,95,9.7)", [job])).toContain("INVALID_INPUT");
+    expect(await err(RIDER, "SELECT dispatch_rider_update_location($1,4.05,9.7,12)", [job])).toBe("NO_ERROR");
+  });
+  it("customer, rider, shop and staff can read; strangers, other shops and visitors cannot", async () => {
+    for (const u of [CUSTOMER, RIDER, VENDOR, ADMIN]) expect((await loc(u, job))[0]?.latitude).toBe(4.05);
+    expect(await loc(STRANGER, job)).toHaveLength(0);
+    expect(await loc(VENDOR_TEAM_ONLY, job)).toHaveLength(0);
+    expect(await loc(RIDER2, job)).toHaveLength(0);
+    expect(await err(null, "SELECT * FROM dispatch_job_rider_location($1)", [job])).toContain("permission denied");
+  });
+  it("the location table cannot be read or written directly by anyone signed in", async () => {
+    for (const u of [CUSTOMER, RIDER, VENDOR, ADMIN]) {
+      expect(await err(u, "SELECT * FROM dispatch_job_live_locations")).toContain("permission denied");
+      expect(await err(u, "UPDATE dispatch_job_live_locations SET latitude=0")).toContain("permission denied");
+    }
+    expect(await err(null, "SELECT * FROM dispatch_job_live_locations")).toContain("permission denied");
+    expect(await err(CUSTOMER, "SELECT dispatch_clear_live_location()")).toContain("permission denied");
+  });
+  it("position is erased when the delivery is completed", async () => {
+    await as(RIDER, "SELECT dispatch_rider_progress($1,'PICKUP_CONFIRMED')", [job]);
+    await as(RIDER, "SELECT dispatch_rider_progress($1,'IN_TRANSIT')", [job]);
+    await as(RIDER, "SELECT dispatch_rider_update_location($1,4.06,9.71)", [job]);
+    const [{ code }] = await as<{ code: string }>(CUSTOMER, "SELECT dispatch_issue_handover_code($1) AS code", [job]);
+    expect((await as<{ r: string }>(RIDER, "SELECT dispatch_complete_with_code($1,$2) AS r", [job, code]))[0]!.r).toBe("OK");
+    expect(await rows(job)).toBe(0);
+    expect(await loc(CUSTOMER, job)).toHaveLength(0);
+    expect(await err(RIDER, "SELECT dispatch_rider_update_location($1,4.05,9.7)", [job])).toContain("NOT_ON_DELIVERY");
+  });
+  it("position is erased when the delivery is cancelled, and when the rider stops sharing", async () => {
+    await as(RIDER2, "SELECT dispatch_rider_set_availability('AVAILABLE')");
+    const j2 = await offer(RIDER2);
+    await as(RIDER2, "SELECT dispatch_rider_respond($1,true)", [j2]);
+    await as(RIDER2, "SELECT dispatch_rider_update_location($1,4.05,9.7)", [j2]);
+    await as(RIDER2, "SELECT dispatch_rider_stop_location($1)", [j2]);
+    expect(await rows(j2)).toBe(0);
+    await as(RIDER2, "SELECT dispatch_rider_update_location($1,4.05,9.7)", [j2]);
+    expect(await rows(j2)).toBe(1);
+    await as(CUSTOMER, "SELECT dispatch_cancel($1)", [j2]);
+    expect(await rows(j2)).toBe(0);
+    expect(await loc(VENDOR, j2)).toHaveLength(0);
   });
 });
 
@@ -122,6 +161,9 @@ describe("phase 3 rollback", () => {
     await db.exec(`BEGIN; ${ROLLBACK3}; COMMIT;`);
     const fns = await db.query<{ proname: string }>("SELECT proname FROM pg_proc WHERE proname IN ('dispatch_rider_update_location','dispatch_job_rider_location')");
     expect(fns.rows).toHaveLength(0);
+    expect((await db.query("SELECT to_regclass('public.dispatch_job_live_locations') AS t")).rows[0]).toEqual({ t: null });
+    const live = (await db.query<{ d: string }>("SELECT pg_get_functiondef('dispatch_rider_respond(uuid,boolean)'::regprocedure) AS d")).rows[0]!.d;
+    expect(live).not.toContain("RIDER_UNAVAILABLE");
     await db.exec(`BEGIN; ${PHASE3}; COMMIT;`);
   });
 });
