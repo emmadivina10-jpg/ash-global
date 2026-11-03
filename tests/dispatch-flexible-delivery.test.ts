@@ -106,6 +106,8 @@ describe("shop delivery preferences", () => {
 
 describe("choose an ASH rider", () => {
   it("directory shows only verified available riders and no private fields", async () => {
+    await verify(RIDER);
+    await verify(RIDER2);
     await as(RIDER, "SELECT dispatch_rider_set_availability('AVAILABLE')");
     await as(RIDER2, "SELECT dispatch_rider_set_availability('OFFLINE')");
     const rows = await as<Record<string, unknown>>(CUSTOMER, "SELECT * FROM dispatch_rider_directory()");
