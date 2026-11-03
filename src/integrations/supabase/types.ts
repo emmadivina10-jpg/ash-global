@@ -2223,48 +2223,140 @@ export type Database = {
           },
         ]
       }
+      dispatch_rider_documents: {
+        Row: {
+          created_at: string
+          doc_type: string
+          id: string
+          rider_user_id: string
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          doc_type: string
+          id?: string
+          rider_user_id: string
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          doc_type?: string
+          id?: string
+          rider_user_id?: string
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispatch_rider_documents_rider_user_id_fkey"
+            columns: ["rider_user_id"]
+            isOneToOne: false
+            referencedRelation: "dispatch_riders"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      dispatch_rider_invites: {
+        Row: {
+          code_hash: string
+          created_at: string
+          expires_at: string
+          id: string
+          revoked_at: string | null
+          used_at: string | null
+          used_by: string | null
+          vendor_id: string
+        }
+        Insert: {
+          code_hash: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          revoked_at?: string | null
+          used_at?: string | null
+          used_by?: string | null
+          vendor_id: string
+        }
+        Update: {
+          code_hash?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          revoked_at?: string | null
+          used_at?: string | null
+          used_by?: string | null
+          vendor_id?: string
+        }
+        Relationships: []
+      }
       dispatch_riders: {
         Row: {
           availability_status: string
           city: string | null
           created_at: string
+          full_name: string | null
           is_active: boolean
           latitude: number | null
           licence_number: string | null
           longitude: number | null
           phone: string | null
+          service_zones: string[]
           updated_at: string
           user_id: string
+          vehicle_color: string | null
+          vehicle_model: string | null
+          vehicle_plate: string | null
           vehicle_type: string
           vendor_id: string | null
+          verification_note: string | null
+          verification_status: string
+          verified_at: string | null
+          verified_by: string | null
         }
         Insert: {
           availability_status?: string
           city?: string | null
           created_at?: string
+          full_name?: string | null
           is_active?: boolean
           latitude?: number | null
           licence_number?: string | null
           longitude?: number | null
           phone?: string | null
+          service_zones?: string[]
           updated_at?: string
           user_id: string
+          vehicle_color?: string | null
+          vehicle_model?: string | null
+          vehicle_plate?: string | null
           vehicle_type?: string
           vendor_id?: string | null
+          verification_note?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Update: {
           availability_status?: string
           city?: string | null
           created_at?: string
+          full_name?: string | null
           is_active?: boolean
           latitude?: number | null
           licence_number?: string | null
           longitude?: number | null
           phone?: string | null
+          service_zones?: string[]
           updated_at?: string
           user_id?: string
+          vehicle_color?: string | null
+          vehicle_model?: string | null
+          vehicle_plate?: string | null
           vehicle_type?: string
           vendor_id?: string | null
+          verification_note?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Relationships: [
           {
@@ -8234,16 +8326,71 @@ export type Database = {
         }
         Returns: string
       }
+      dispatch_rider_add_document: {
+        Args: { _doc_type: string; _path: string }
+        Returns: undefined
+      }
+      dispatch_rider_leave_vendor: {
+        Args: { _vendor: string }
+        Returns: undefined
+      }
       dispatch_rider_progress: {
         Args: { _job: string; _next: string }
+        Returns: undefined
+      }
+      dispatch_rider_redeem_invite: { Args: { _code: string }; Returns: string }
+      dispatch_rider_register: {
+        Args: {
+          _city: string
+          _color?: string
+          _full_name: string
+          _licence?: string
+          _model?: string
+          _phone: string
+          _plate?: string
+          _vehicle_type: string
+        }
         Returns: undefined
       }
       dispatch_rider_respond: {
         Args: { _accept: boolean; _job: string }
         Returns: undefined
       }
+      dispatch_rider_review: {
+        Args: { _decision: string; _note?: string; _rider: string }
+        Returns: undefined
+      }
+      dispatch_rider_set_availability: {
+        Args: { _status: string }
+        Returns: undefined
+      }
+      dispatch_rider_set_zones: {
+        Args: { _zones: string[] }
+        Returns: undefined
+      }
+      dispatch_rider_submit_verification: { Args: never; Returns: undefined }
       dispatch_set_quote: {
         Args: { _fee: number; _job: string }
+        Returns: undefined
+      }
+      dispatch_vendor_create_invite: { Args: never; Returns: string }
+      dispatch_vendor_list_invites: {
+        Args: never
+        Returns: {
+          created_at: string
+          expires_at: string
+          id: string
+          revoked_at: string
+          used_at: string
+          used_by: string
+        }[]
+      }
+      dispatch_vendor_revoke_invite: {
+        Args: { _invite: string }
+        Returns: undefined
+      }
+      dispatch_vendor_set_rider_status: {
+        Args: { _rider: string; _status: string }
         Returns: undefined
       }
       expire_property_listings: { Args: never; Returns: number }
