@@ -24,7 +24,7 @@ const GATE_COLUMNS =
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
-  beforeLoad: async () => {
+  beforeLoad: async ({ location }) => {
     // Trust the persisted session first. `getUser()` is a network round-trip:
     // on cold start, on resume from background, or on a flaky connection it
     // can fail while a perfectly valid session is still in storage, which is
@@ -74,7 +74,8 @@ export const Route = createFileRoute("/_authenticated")({
       const { data: last } = await supabase.auth.getSession();
       if (last.session?.user) return { user: last.session.user };
     }
-    throw redirect({ to: "/login" });
+    // Guests keep their place: after sign-in they return to what they were doing.
+    throw redirect({ to: "/login", search: { next: location.href } });
   },
   component: () => (
     <AppShell>
