@@ -54,3 +54,6 @@ All screens use ASH components/tokens, English/French labels, light/dark themes,
 - Until that authorization and isolated validation, keep unavailable actions explicitly disabled rather than presenting a functioning mockup.
 - No Stripe, MTN/Orange/TchokoPay, wallet, payout, refund or existing financial-record changes. Fee quotes are operational records only; collecting delivery fees requires separately approved payment integration.
 - No publishing, production test jobs, webhook replays or money-moving operations.
+## Sign-in options
+- The brief asks for Google and Apple on both sign-in and sign-up. They are currently hidden on sign-up at your earlier request; they stay hidden unless you confirm restoring them. Sign-in keeps Google, Apple and email/password unchanged.
+- Card and bank payments remain blocked everywhere; delivery fees are not collected by card.
