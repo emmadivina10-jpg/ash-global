@@ -161,13 +161,13 @@ export function DesktopLanding() {
           <Link to="/" className="landing-nav-link">
             {tx("Home", "Accueil")}
           </Link>
-          <Link to="/login" search={{ next: "/feed" }} className="landing-nav-link">
+          <Link to="/feed" className="landing-nav-link">
             {tx("Discover", "Découvrir")}
           </Link>
-          <Link to="/login" search={{ next: "/services" }} className="landing-nav-link">
+          <Link to="/services" className="landing-nav-link">
             {tx("Marketplace", "Marché")}
           </Link>
-          <Link to="/login" search={{ next: "/services" }} className="landing-nav-link">
+          <Link to="/services" className="landing-nav-link">
             {tx("Services", "Services")}
           </Link>
           <Link to="/contact" className="landing-nav-link">
@@ -204,10 +204,10 @@ export function DesktopLanding() {
             className="landing-mobile-menu"
             aria-label={tx("Navigation", "Navigation")}
           >
-            <Link to="/login" search={{ next: "/feed" }}>
+            <Link to="/feed">
               {tx("Discover", "Découvrir")}
             </Link>
-            <Link to="/login" search={{ next: "/services" }}>
+            <Link to="/services">
               {tx("Marketplace & Services", "Marché et services")}
             </Link>
             <Link to="/contact">{tx("Contact", "Contact")}</Link>
