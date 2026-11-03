@@ -67,6 +67,7 @@ function EventDetail() {
   );
   const start = useServerFn(startTicketPurchase);
   const verify = useServerFn(verifyCommerceCharge);
+  const { requireAuth } = useAuthGate();
 
   const [quantity, setQuantity] = useState(1);
   const [busy, setBusy] = useState(false);

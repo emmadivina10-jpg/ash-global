@@ -80,6 +80,7 @@ function PropertyDetail() {
   const queryClient = useQueryClient();
   const navigate = Route.useNavigate();
   const { user } = useUser();
+  const { requireAuth } = useAuthGate();
 
   const { data, isLoading } = useProperty(listingId);
   const { data: similar } = useSimilarProperties(data?.listing ?? null);
@@ -124,6 +125,13 @@ function PropertyDetail() {
   const gallery = images.filter((image) => image.url);
 
   async function toggleSave() {
+    if (
+      !requireAuth({
+        en: "Sign in to save this listing.",
+        fr: "Connectez-vous pour enregistrer cette annonce.",
+      })
+    )
+      return;
     const { data: auth } = await supabase.auth.getUser();
     if (!auth.user) return;
     if (saved) {
@@ -148,6 +156,13 @@ function PropertyDetail() {
   }
 
   async function requestViewing() {
+    if (
+      !requireAuth({
+        en: "Sign in to request a viewing.",
+        fr: "Connectez-vous pour demander une visite.",
+      })
+    )
+      return;
     if (!when) {
       toast.error(tx("Pick a date and time.", "Choisissez une date et une heure."));
       return;
@@ -174,6 +189,13 @@ function PropertyDetail() {
   }
 
   async function messageOwner() {
+    if (
+      !requireAuth({
+        en: "Sign in to message the owner.",
+        fr: "Connectez-vous pour écrire au propriétaire.",
+      })
+    )
+      return;
     setBusy(true);
     try {
       const conversationId = await openPropertyConversation(listingId);
