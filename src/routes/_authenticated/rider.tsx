@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { LoadingState } from "@/components/refer/states";
 import { PageHead, Panel, StatusPill, Timeline, modeLabel } from "@/components/dispatch/DispatchUI";
 import { useI18n } from "@/lib/i18n";
+import { RiderLocationSharer } from "@/components/dispatch/DeliveryLiveMap";
 import { formatXAF } from "@/lib/format";
 import { RIDER_DOC_TYPES, missingDocs, riderCanTakeWork, type RiderDocType } from "@/lib/dispatch-docs";
 import {
@@ -280,6 +281,7 @@ function RiderJob({ job, canTake, fr }: { job: DispatchJob; canTake: boolean; fr
           <Button onClick={() => act("dispatch_complete_with_code", { _job: job.id, _code: code }, tx("Delivered", "Livrée"))}>{tx("Complete", "Terminer")}</Button>
         </div>
       ) : null}
+      <RiderLocationSharer job={job} />
       <Button variant="ghost" size="sm" onClick={() => setOpen((v) => !v)}>{open ? tx("Hide history", "Masquer") : tx("History", "Historique")}</Button>
       {open ? <Timeline events={events.data ?? []} fr={fr} /> : null}
     </div>
