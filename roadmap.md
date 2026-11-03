@@ -5,7 +5,9 @@
 - [x] Restore the broken staff console placeholder without introducing dispatch privileges; staff sign-in renders, no runtime errors, preview build OK. Existing dispatch test file contains zero tests and fails collection.
 - [x] Phased plan approved (Nov 3).
 - [x] Delivery rules (status chain, who may act, quote approval, pickup code expiry/attempts/replay) with 14 tests.
-- [ ] Database access rules and delivery actions — blocked: waiting for your approval to change the shared live database.
+- [x] Proposed access rules + actions SQL and rollback written (docs/proposed); 18 isolated database tests pass.
+- [ ] Apply to live database — blocked: waiting for your separate approval.
+- [ ] Rider sign-up and vendor rider invitations actions (next migration, not in this one).
 - [ ] Customer/vendor/rider/admin screens — follow the database step.
 - [ ] Verify GPS, notifications, privacy and role-specific workflows; prepare release documentation without publishing or moving funds.
 
