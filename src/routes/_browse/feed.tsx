@@ -369,6 +369,25 @@ function FeedPage() {
           </DialogContent>
         </Dialog>
 
+        {isGuest && (
+          <div className="tile flex items-center gap-3 rounded-3xl border border-primary/30 bg-primary/5 p-4">
+            <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
+              <Sparkles className="size-5" aria-hidden />
+            </span>
+            <p className="min-w-0 flex-1 text-xs text-muted-foreground">
+              {tx(
+                "You're browsing as a guest. Create a free account to post, react and message.",
+                "Vous explorez en invité. Créez un compte gratuit pour publier, réagir et écrire.",
+              )}
+            </p>
+            <Link to="/register" search={{ next: "/feed" }}>
+              <Button size="sm" className="h-9 rounded-full px-4">
+                {tx("Join free", "Rejoindre")}
+              </Button>
+            </Link>
+          </div>
+        )}
+
         <StoriesRail />
         {spotlightRequest ? (
           <StoriesRail
@@ -422,10 +441,15 @@ function FeedPage() {
                 : tx("No posts in this category yet", "Aucune publication dans cette catégorie")}
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              {tx(
-                "Share a photo — that is how the feed comes alive.",
-                "Partagez une photo — c'est ainsi que le fil prend vie.",
-              )}
+              {isGuest
+                ? tx(
+                    "Public posts will appear here as the community grows.",
+                    "Les publications publiques apparaîtront ici au fur et à mesure.",
+                  )
+                : tx(
+                    "Share a photo — that is how the feed comes alive.",
+                    "Partagez une photo — c'est ainsi que le fil prend vie.",
+                  )}
             </p>
           </div>
         ) : (
