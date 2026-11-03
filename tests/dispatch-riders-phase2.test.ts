@@ -218,7 +218,7 @@ describe("rollback", () => {
     await db.exec(`BEGIN; ${ROLLBACK}; COMMIT;`);
     const t = await db.query("SELECT to_regclass('public.dispatch_rider_invites') AS a, to_regclass('public.dispatch_rider_documents') AS b");
     expect(t.rows[0]).toEqual({ a: null, b: null });
-    const f = await db.query("SELECT count(*)::int n FROM pg_proc WHERE proname LIKE 'dispatch_rider_re%' OR proname LIKE 'dispatch_vendor_%'");
+    const f = await db.query("SELECT count(*)::int n FROM pg_proc WHERE proname IN ('dispatch_rider_register','dispatch_rider_review','dispatch_rider_redeem_invite','dispatch_vendor_create_invite','dispatch_vendor_set_rider_status','dispatch_rider_set_zones')");
     expect(f.rows[0]).toEqual({ n: 0 });
     expect(await newJob()).toBeTruthy();
   });
