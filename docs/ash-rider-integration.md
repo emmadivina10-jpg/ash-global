@@ -96,3 +96,29 @@ the delivery only. Any rider earnings/payout feature needs a separate reviewed d
 
 Each database change is shown as exact SQL with isolated tests and a rollback file, and is applied only after
 written approval.
+
+## Next stage: separate ASH Rider app (prepared, not built)
+
+Status at this stage: rider, shop, customer and staff screens live inside ASH Glo (`/rider`, `/dispatch`, `/deliveries`, `/logistics-admin`) using only the backend actions below. The separate ASH Rider app must reuse exactly the same actions and must not add tables, accounts or databases.
+
+### Actions the Rider app calls (signed-in ASH Glo account, user's own access token)
+- `dispatch_rider_register`, `dispatch_rider_add_document`, `dispatch_rider_submit_verification`
+- `dispatch_rider_set_availability`, `dispatch_rider_set_zones`
+- `dispatch_rider_redeem_invite`, `dispatch_rider_leave_vendor`
+- `dispatch_rider_respond`, `dispatch_rider_progress`, `dispatch_complete_with_code`
+- Reads (row rules apply): `dispatch_riders` (own row), `dispatch_jobs` / `dispatch_job_events` (assigned only), `dispatch_vendor_riders` (own memberships), `dispatch_rider_documents` (own list).
+
+### Identity documents
+- Upload to private folder `rider-documents/<user id>/<type>-<timestamp>.<jpg|png|webp|pdf>`, max 10 MB, never overwrite.
+- Then call `dispatch_rider_add_document(type, path)`.
+- Signed links: 60 seconds maximum. Only the owner and ASH staff can create them; public URLs return an error.
+
+### Pending (needs separate approval): `docs/proposed/dispatch_phase3_accept_guard.sql`
+- Re-checks approved + active + available at the moment a rider accepts (today the check happens when the delivery is offered).
+- `dispatch_rider_update_location(lat, lng)` — only while on an active delivery.
+- `dispatch_job_rider_location(job)` — customer, shop or staff of that delivery see rider first name, vehicle and last position.
+- Rollback: `docs/proposed/dispatch_phase3_accept_guard_rollback.sql`. Tests: `tests/dispatch-phase3.test.ts`.
+
+### Native requirements (later build)
+- Browsers only share GPS while the page is open. Background tracking needs a native Android/iOS build with location permission ("while using" + background), a foreground service on Android and the background location mode on iOS, plus store disclosures.
+- Credentials: backend address + public key only. Never the admin key, database password, or any Stripe/TchokoPay/MTN/Orange keys.
