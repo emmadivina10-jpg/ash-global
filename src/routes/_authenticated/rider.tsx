@@ -272,6 +272,7 @@ function RiderJob({ job, canTake, fr }: { job: DispatchJob; canTake: boolean; fr
           <Button className="flex-1" variant="outline" onClick={() => act("dispatch_rider_respond", { _job: job.id, _accept: false }, tx("Declined", "Refusée"))}>{tx("Decline", "Refuser")}</Button>
         </div>
       ) : null}
+      {job.status === "ASSIGNED" && job.offer_expires_at ? <p className="text-xs text-muted-foreground">{tx("Offer expires at", "La proposition expire à")} {new Date(job.offer_expires_at).toLocaleTimeString()}</p> : null}
       {job.status === "ASSIGNED" && !canTake ? <p className="text-xs text-destructive">{tx("Set yourself Available to accept.", "Passez en Disponible pour accepter.")}</p> : null}
       {job.status === "ACCEPTED" ? <Button className="w-full" onClick={() => act("dispatch_rider_progress", { _job: job.id, _next: "PICKUP_CONFIRMED" }, tx("Pickup confirmed", "Retrait confirmé"))}>{tx("I picked up the order", "J'ai récupéré la commande")}</Button> : null}
       {job.status === "PICKUP_CONFIRMED" ? <Button className="w-full" onClick={() => act("dispatch_rider_progress", { _job: job.id, _next: "IN_TRANSIT" }, tx("On the way", "En route"))}>{tx("Start delivery", "Commencer la livraison")}</Button> : null}

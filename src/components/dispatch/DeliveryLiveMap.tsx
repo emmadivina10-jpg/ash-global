@@ -10,7 +10,7 @@ const LiveTripMap = lazy(() => import("@/components/refer/LiveTripMap"));
 
 export const LIVE_STATUSES = ["ACCEPTED", "PICKUP_CONFIRMED", "IN_TRANSIT"] as const;
 export const isLiveDelivery = (j: Pick<DispatchJob, "status" | "fulfillment_mode">) =>
-  j.fulfillment_mode !== "SELF_PICKUP" && (LIVE_STATUSES as readonly string[]).includes(j.status);
+  j.fulfillment_mode !== "SELF_PICKUP" && j.fulfillment_mode !== "EXTERNAL_RIDER" && (LIVE_STATUSES as readonly string[]).includes(j.status);
 
 type RiderLoc = { rider_name: string | null; vehicle: string | null; plate: string | null; latitude: number; longitude: number; accuracy_m: number | null; updated_at: string };
 

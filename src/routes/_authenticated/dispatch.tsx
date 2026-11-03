@@ -13,9 +13,11 @@ import { DeliveryLiveMap } from "@/components/dispatch/DeliveryLiveMap";
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { riderCanTakeWork } from "@/lib/dispatch-docs";
 import {
-  dispatchError, rpc, useInvalidateDispatch, useIsShopOwner, useJobEvents, useJobs, useMe, useNames, useRiders, useTeam,
-  type DispatchJob, type RiderRow,
+  DEFAULT_PREFS, dispatchError, rpc, useExternalRider, useInvalidateDispatch, useIsShopOwner, useJobEvents, useJobs, useMe, useNames, useRiders, useTeam, useVendorPrefs,
+  type DispatchJob, type RiderRow, type VendorPrefs,
 } from "@/lib/dispatch.queries";
+import { Switch } from "@/components/ui/switch";
+import { vehicleLabel } from "@/components/dispatch/DeliveryOptions";
 
 export const Route = createFileRoute("/_authenticated/dispatch")({
   head: () => ({
@@ -49,12 +51,14 @@ function DispatchPage() {
     <div className="mx-auto max-w-3xl space-y-4 px-4 py-5">
       <PageHead title={tx("Shop dispatch", "Livraisons de la boutique")} subtitle={shop.data.business_name ?? ""} />
       <Tabs defaultValue="jobs">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="jobs">{tx("Deliveries", "Livraisons")}</TabsTrigger>
           <TabsTrigger value="team">{tx("My Dispatch Team", "Mon équipe")}</TabsTrigger>
+          <TabsTrigger value="prefs">{tx("Delivery options", "Options")}</TabsTrigger>
         </TabsList>
         <TabsContent value="jobs" className="space-y-3"><VendorJobs me={me} fr={fr} /></TabsContent>
         <TabsContent value="team" className="space-y-3"><Team me={me} fr={fr} /></TabsContent>
+        <TabsContent value="prefs" className="space-y-3"><DeliveryPrefs me={me} fr={fr} /></TabsContent>
       </Tabs>
     </div>
   );
@@ -83,11 +87,13 @@ function VendorJob({ job, riders, names, fr }: { job: DispatchJob; riders: Rider
   const quotable = ["REQUESTED", "INVITED", "REJECTED"].includes(job.status);
   const approved = job.fee_amount !== null && job.approved_fee_amount === job.fee_amount && !!job.quote_approved_at;
   const ready = riders.filter(riderCanTakeWork);
+  const external = job.fulfillment_mode === "EXTERNAL_RIDER";
+  const ext = useExternalRider(job.id, external);
 
   async function act(fn: string, args: Record<string, unknown>, ok: string) {
     try {
       const out = await rpc<string>(fn, args);
-      if (fn === "dispatch_complete_with_code" && out !== "OK") {
+      if ((fn === "dispatch_complete_with_code" || fn === "dispatch_external_pickup") && out !== "OK") {
         toast.error({ WRONG: tx("Wrong code", "Code incorrect"), EXPIRED: tx("Code expired", "Code expiré"), LOCKED: tx("Too many tries; ask for a new code", "Trop d'essais ; demandez un nouveau code"), USED: tx("Code already used", "Code déjà utilisé"), NO_CODE: tx("The customer has not created a code yet", "Le client n'a pas encore créé de code") }[out] ?? out);
         return;
       }
@@ -104,7 +110,23 @@ function VendorJob({ job, riders, names, fr }: { job: DispatchJob; riders: Rider
         <p className="text-muted-foreground">{job.pickup_address}{job.fulfillment_mode !== "SELF_PICKUP" ? ` → ${job.dropoff_address}` : ""}</p>
         <p className="text-xs text-muted-foreground">{modeLabel(job.fulfillment_mode, fr)} · {formatDateTime(job.created_at)}{job.notes ? ` · ${job.notes}` : ""}</p>
         <DeliveryLiveMap job={job} />
-        {quotable ? (
+        {external ? (
+          <div className="rounded-xl border border-border p-3 text-xs">
+            <p className="font-semibold">{tx("Customer's own rider — externally managed", "Livreur du client — géré en externe")}</p>
+            {ext.data ? (
+              <p className="text-muted-foreground">{ext.data.full_name} · {vehicleLabel(ext.data.vehicle_type, fr)}{ext.data.vehicle_plate ? ` · ${ext.data.vehicle_plate}` : ""} · {ext.data.phone}</p>
+            ) : (
+              <p className="text-muted-foreground">{tx("Waiting for the customer to add their rider.", "En attente des informations du livreur.")}</p>
+            )}
+          </div>
+        ) : null}
+        {external && job.status === "REQUESTED" && ext.data ? (
+          <div className="flex gap-2">
+            <Input inputMode="numeric" maxLength={6} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))} placeholder={tx("Rider's 6-digit collection code", "Code de retrait à 6 chiffres")} />
+            <Button onClick={() => act("dispatch_external_pickup", { _job: job.id, _code: code }, tx("Handed to the customer's rider", "Remise au livreur du client"))}>{tx("Hand over", "Remettre")}</Button>
+          </div>
+        ) : null}
+        {quotable && !external ? (
           <div className="flex gap-2">
             <Input type="number" min={0} max={1000000} value={fee} onChange={(e) => setFee(e.target.value)} placeholder="XAF" />
             <Button variant="outline" onClick={() => act("dispatch_set_quote", { _job: job.id, _fee: Number(fee) }, tx("Fee sent to customer", "Frais envoyés au client"))}>
@@ -112,7 +134,7 @@ function VendorJob({ job, riders, names, fr }: { job: DispatchJob; riders: Rider
             </Button>
           </div>
         ) : null}
-        {job.fee_amount !== null ? (
+        {job.fee_amount !== null && !external ? (
           <p className="text-xs">{formatXAF(job.fee_amount)} · {approved ? tx("approved by customer", "approuvés par le client") : tx("waiting for customer approval", "en attente du client")}</p>
         ) : null}
         {quotable && approved && job.fulfillment_mode === "VENDOR_DISPATCH" ? (
@@ -127,6 +149,9 @@ function VendorJob({ job, riders, names, fr }: { job: DispatchJob; riders: Rider
           ) : (
             <p className="text-xs text-muted-foreground">{tx("No approved rider on your team is available right now.", "Aucun livreur approuvé de votre équipe n'est disponible.")}</p>
           )
+        ) : null}
+        {quotable && approved && job.fulfillment_mode === "CHOSEN_RIDER" ? (
+          <p className="text-xs text-muted-foreground">{tx("The customer is choosing an ASH rider.", "Le client choisit un livreur ASH.")}</p>
         ) : null}
         {quotable && approved && job.fulfillment_mode === "ASH_DISPATCH" ? (
           <p className="text-xs text-muted-foreground">{tx("ASH Logistics will assign a verified rider.", "ASH Logistics attribuera un livreur vérifié.")}</p>
@@ -219,5 +244,52 @@ function Team({ me, fr }: { me: string; fr: boolean }) {
         )}
       </Panel>
     </>
+  );
+}
+
+const PREF_ROWS: { key: keyof VendorPrefs; en: string; fr: string }[] = [
+  { key: "allow_ash_dispatch", en: "ASH Glo riders (ASH Dispatch)", fr: "Livreurs ASH Glo (ASH Dispatch)" },
+  { key: "allow_chosen_rider", en: "Customer chooses an ASH Glo rider", fr: "Le client choisit un livreur ASH Glo" },
+  { key: "allow_external_rider", en: "Customer brings their own rider", fr: "Le client amène son propre livreur" },
+  { key: "allow_vendor_riders", en: "My own ASH riders (Dispatch Team)", fr: "Mes livreurs ASH (équipe)" },
+  { key: "allow_self_pickup", en: "Self pickup at the shop", fr: "Retrait en boutique" },
+];
+
+function DeliveryPrefs({ me, fr }: { me: string; fr: boolean }) {
+  const { tx } = useI18n();
+  const refresh = useInvalidateDispatch();
+  const prefs = useVendorPrefs(me);
+  const [draft, setDraft] = useState<VendorPrefs | null>(null);
+  const [busy, setBusy] = useState(false);
+  const cur = draft ?? prefs.data ?? DEFAULT_PREFS;
+  if (prefs.isLoading) return <LoadingState />;
+
+  async function save() {
+    setBusy(true);
+    try {
+      await rpc("dispatch_vendor_set_prefs", { _ash: cur.allow_ash_dispatch, _chosen: cur.allow_chosen_rider, _external: cur.allow_external_rider, _own: cur.allow_vendor_riders, _pickup: cur.allow_self_pickup });
+      toast.success(tx("Delivery options saved", "Options enregistrées"));
+      setDraft(null);
+      refresh();
+    } catch (e) {
+      toast.error(dispatchError(e, fr));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Panel title={tx("Delivery methods you accept", "Modes de livraison acceptés")}>
+      <ul className="divide-y divide-border">
+        {PREF_ROWS.map((r) => (
+          <li key={r.key} className="flex items-center justify-between gap-3 py-2.5 text-sm">
+            <span>{fr ? r.fr : r.en}</span>
+            <Switch checked={cur[r.key]} onCheckedChange={(v) => setDraft({ ...cur, [r.key]: v })} aria-label={fr ? r.fr : r.en} />
+          </li>
+        ))}
+      </ul>
+      <Button className="mt-3 w-full" disabled={busy || !draft} onClick={save}>{tx("Save", "Enregistrer")}</Button>
+      <p className="mt-2 text-xs text-muted-foreground">{tx("Customers only see the methods you switch on. Keep at least one on.", "Les clients ne voient que les modes activés. Gardez-en au moins un.")}</p>
+    </Panel>
   );
 }
