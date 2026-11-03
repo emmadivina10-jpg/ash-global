@@ -94,6 +94,7 @@ function PropertyDetail() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
+    if (!user) return;
     void supabase.rpc("record_property_view", { _listing_id: listingId });
     trackEvent({
       event_type: "listing_view",
