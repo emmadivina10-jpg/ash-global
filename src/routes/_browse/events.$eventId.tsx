@@ -17,7 +17,7 @@ import { useUser } from "@/lib/queries";
 import { SafetyMenu } from "@/components/refer/SafetyMenu";
 import { ComingSoon } from "@/components/refer/ComingSoon";
 
-export const Route = createFileRoute("/_authenticated/events/$eventId")({
+export const Route = createFileRoute("/_browse/events/$eventId")({
   head: () => ({
     meta: [
       { title: "Event details — Coming soon" },

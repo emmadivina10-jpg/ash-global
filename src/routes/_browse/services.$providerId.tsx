@@ -72,7 +72,7 @@ function bookingRequestError(code: string, fr: boolean): string {
   }
 }
 
-export const Route = createFileRoute("/_authenticated/services/$providerId")({
+export const Route = createFileRoute("/_browse/services/$providerId")({
   validateSearch: (s: Record<string, unknown>): { book?: string } =>
     typeof s["book"] === "string" ? { book: s["book"] } : {},
   head: () => ({

@@ -7,7 +7,7 @@ import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { useArticle, useToggleArticleLike } from "@/lib/hub.queries";
 
-export const Route = createFileRoute("/_authenticated/articles/$articleId")({
+export const Route = createFileRoute("/_browse/articles/$articleId")({
   head: () => ({
     meta: [
       { title: "Article — ASH Stories" },

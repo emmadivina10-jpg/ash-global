@@ -6,7 +6,7 @@ import { PostCard } from "@/components/refer/PostCard";
 import { usePost } from "@/lib/social.queries";
 import { useI18n } from "@/lib/i18n";
 
-export const Route = createFileRoute("/_authenticated/post/$postId")({
+export const Route = createFileRoute("/_browse/post/$postId")({
   head: () => ({
     meta: [
       { title: "Post — ASH" },

@@ -19,7 +19,7 @@ import {
 } from "@/lib/hub.queries";
 import { ComingSoon } from "@/components/refer/ComingSoon";
 
-export const Route = createFileRoute("/_authenticated/jobs/$jobId")({
+export const Route = createFileRoute("/_browse/jobs/$jobId")({
   head: () => ({
     meta: [
       { title: "Job opening — Coming soon" },

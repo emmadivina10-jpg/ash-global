@@ -28,7 +28,7 @@ const TITLE = "ASH Property — Find a place. Find land. Find opportunities.";
 const DESCRIPTION =
   "Search student housing, rooms, apartments, houses, commercial space and land on ASH. Free to browse, free to contact, free to list.";
 
-export const Route = createFileRoute("/_authenticated/property/")({
+export const Route = createFileRoute("/_browse/property/")({
   head: () => ({
     meta: [
       { title: TITLE },

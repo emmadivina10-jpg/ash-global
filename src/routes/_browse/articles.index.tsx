@@ -23,7 +23,7 @@ import {
   useToggleArticleLike,
 } from "@/lib/hub.queries";
 
-export const Route = createFileRoute("/_authenticated/articles/")({
+export const Route = createFileRoute("/_browse/articles/")({
   head: () => ({
     meta: [
       { title: "ASH Stories — articles written by the ASH community" },

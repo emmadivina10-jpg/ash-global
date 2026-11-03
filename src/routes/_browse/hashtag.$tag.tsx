@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useHashtagFeed } from "@/lib/social.queries";
 
-export const Route = createFileRoute("/_authenticated/hashtag/$tag")({
+export const Route = createFileRoute("/_browse/hashtag/$tag")({
   head: ({ params }) => ({
     meta: [
       { title: `#${params.tag} — ASH` },

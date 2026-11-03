@@ -51,7 +51,7 @@ import { Input } from "@/components/ui/input";
 
 type Search = { open?: string | undefined };
 
-export const Route = createFileRoute("/_authenticated/spotlight")({
+export const Route = createFileRoute("/_browse/spotlight")({
   validateSearch: (s: Record<string, unknown>): Search => ({
     open: typeof s["open"] === "string" ? s["open"] : undefined,
   }),

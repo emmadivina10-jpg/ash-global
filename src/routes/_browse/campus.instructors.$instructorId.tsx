@@ -34,7 +34,7 @@ import {
 } from "@/lib/campus.queries";
 import { providerTimeZone, zoneLabel } from "@/lib/timezone";
 
-export const Route = createFileRoute("/_authenticated/campus/instructors/$instructorId")({
+export const Route = createFileRoute("/_browse/campus/instructors/$instructorId")({
   head: () => ({
     meta: [
       { title: "Instructor profile — ASH Campus" },

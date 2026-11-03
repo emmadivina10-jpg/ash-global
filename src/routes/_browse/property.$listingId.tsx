@@ -51,7 +51,7 @@ import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/activity";
 
-export const Route = createFileRoute("/_authenticated/property/$listingId")({
+export const Route = createFileRoute("/_browse/property/$listingId")({
   head: () => ({
     meta: [
       { title: "Property details — ASH Property" },

@@ -8,7 +8,7 @@ import { formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 import { trackEvent } from "@/lib/activity";
 
-export const Route = createFileRoute("/_authenticated/search")({
+export const Route = createFileRoute("/_browse/search")({
   head: () => ({
     meta: [
       { title: "Universal search — find anything on ASH" },

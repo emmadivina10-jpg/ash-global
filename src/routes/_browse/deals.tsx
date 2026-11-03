@@ -15,7 +15,7 @@ import { formatDateTime, formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 import { useTrackView } from "@/lib/activity";
 
-export const Route = createFileRoute("/_authenticated/deals")({
+export const Route = createFileRoute("/_browse/deals")({
   head: () => ({
     meta: [
       { title: "ASH Deals — Coming soon" },
