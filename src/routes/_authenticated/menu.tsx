@@ -31,6 +31,8 @@ import {
   ChartNoAxesCombined,
   Plane,
   Gift,
+  Truck,
+  Bike,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -100,6 +102,9 @@ const sections: { en: string; fr: string; items: MenuItem[] }[] = [
       { en: "Jobs", fr: "Emplois", to: "/jobs", icon: BriefcaseBusiness, soon: true },
       { en: "Create", fr: "Créer", to: "/create", icon: PlusCircle },
       { en: "Bookings", fr: "Réservations", to: "/bookings", icon: CalendarDays },
+      { en: "My deliveries", fr: "Mes livraisons", to: "/deliveries", icon: Truck },
+      { en: "Shop dispatch", fr: "Livraisons boutique", to: "/dispatch", icon: Store },
+      { en: "ASH Rider", fr: "ASH Rider", to: "/rider", icon: Bike },
       { en: "Inventory", fr: "Inventaire", to: "/inventory", icon: BarChart3, soon: true },
     ],
   },

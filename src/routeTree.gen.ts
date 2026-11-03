@@ -54,6 +54,7 @@ import { Route as AuthenticatedNetworkRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedReferralRewardsRouteImport } from './routes/_authenticated/referral-rewards'
+import { Route as AuthenticatedRiderRouteImport } from './routes/_authenticated/rider'
 import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedShareholderRouteImport } from './routes/_authenticated/shareholder'
@@ -383,6 +384,11 @@ const AuthenticatedReferralRewardsRoute =
     path: '/referral-rewards',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedRiderRoute = AuthenticatedRiderRouteImport.update({
+  id: '/rider',
+  path: '/rider',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSearchRoute = AuthenticatedSearchRouteImport.update({
   id: '/search',
   path: '/search',
@@ -966,6 +972,7 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/referral-rewards': typeof AuthenticatedReferralRewardsRoute
+  '/rider': typeof AuthenticatedRiderRoute
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shareholder': typeof AuthenticatedShareholderRoute
@@ -1111,6 +1118,7 @@ export interface FileRoutesByTo {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/referral-rewards': typeof AuthenticatedReferralRewardsRoute
+  '/rider': typeof AuthenticatedRiderRoute
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shareholder': typeof AuthenticatedShareholderRoute
@@ -1259,6 +1267,7 @@ export interface FileRoutesById {
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/referral-rewards': typeof AuthenticatedReferralRewardsRoute
+  '/_authenticated/rider': typeof AuthenticatedRiderRoute
   '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/shareholder': typeof AuthenticatedShareholderRoute
@@ -1407,6 +1416,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/profile'
     | '/referral-rewards'
+    | '/rider'
     | '/search'
     | '/settings'
     | '/shareholder'
@@ -1552,6 +1562,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/profile'
     | '/referral-rewards'
+    | '/rider'
     | '/search'
     | '/settings'
     | '/shareholder'
@@ -1699,6 +1710,7 @@ export interface FileRouteTypes {
     | '/_authenticated/notifications'
     | '/_authenticated/profile'
     | '/_authenticated/referral-rewards'
+    | '/_authenticated/rider'
     | '/_authenticated/search'
     | '/_authenticated/settings'
     | '/_authenticated/shareholder'
@@ -2157,6 +2169,13 @@ declare module '@tanstack/react-router' {
       path: '/referral-rewards'
       fullPath: '/referral-rewards'
       preLoaderRoute: typeof AuthenticatedReferralRewardsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/rider': {
+      id: '/_authenticated/rider'
+      path: '/rider'
+      fullPath: '/rider'
+      preLoaderRoute: typeof AuthenticatedRiderRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/search': {
@@ -2887,6 +2906,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedReferralRewardsRoute: typeof AuthenticatedReferralRewardsRoute
+  AuthenticatedRiderRoute: typeof AuthenticatedRiderRoute
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedShareholderRoute: typeof AuthenticatedShareholderRoute
@@ -2958,6 +2978,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedReferralRewardsRoute: AuthenticatedReferralRewardsRoute,
+  AuthenticatedRiderRoute: AuthenticatedRiderRoute,
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedShareholderRoute: AuthenticatedShareholderRoute,
