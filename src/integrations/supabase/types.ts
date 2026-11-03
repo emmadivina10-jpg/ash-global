@@ -2088,6 +2088,7 @@ export type Database = {
       }
       dispatch_jobs: {
         Row: {
+          approved_fee_amount: number | null
           created_at: string
           customer_id: string
           customer_phone: string | null
@@ -2096,11 +2097,13 @@ export type Database = {
           dropoff_lng: number | null
           eta_minutes: number | null
           fee_amount: number
+          fulfillment_mode: string
           id: string
           notes: string | null
           pickup_address: string
           pickup_lat: number | null
           pickup_lng: number | null
+          quote_approved_at: string | null
           rider_user_id: string | null
           service_type: string
           status: string
@@ -2108,6 +2111,7 @@ export type Database = {
           vendor_id: string
         }
         Insert: {
+          approved_fee_amount?: number | null
           created_at?: string
           customer_id: string
           customer_phone?: string | null
@@ -2116,11 +2120,13 @@ export type Database = {
           dropoff_lng?: number | null
           eta_minutes?: number | null
           fee_amount?: number
+          fulfillment_mode?: string
           id?: string
           notes?: string | null
           pickup_address: string
           pickup_lat?: number | null
           pickup_lng?: number | null
+          quote_approved_at?: string | null
           rider_user_id?: string | null
           service_type?: string
           status?: string
@@ -2128,6 +2134,7 @@ export type Database = {
           vendor_id: string
         }
         Update: {
+          approved_fee_amount?: number | null
           created_at?: string
           customer_id?: string
           customer_phone?: string | null
@@ -2136,11 +2143,13 @@ export type Database = {
           dropoff_lng?: number | null
           eta_minutes?: number | null
           fee_amount?: number
+          fulfillment_mode?: string
           id?: string
           notes?: string | null
           pickup_address?: string
           pickup_lat?: number | null
           pickup_lng?: number | null
+          quote_approved_at?: string | null
           rider_user_id?: string | null
           service_type?: string
           status?: string
@@ -2166,6 +2175,7 @@ export type Database = {
       }
       dispatch_pickup_verifications: {
         Row: {
+          attempts: number
           code_hash: string
           created_at: string
           created_by: string
@@ -2173,10 +2183,12 @@ export type Database = {
           expires_at: string
           id: string
           is_verified: boolean
+          used_at: string | null
           verified_at: string | null
           verified_by: string | null
         }
         Insert: {
+          attempts?: number
           code_hash: string
           created_at?: string
           created_by: string
@@ -2184,10 +2196,12 @@ export type Database = {
           expires_at: string
           id?: string
           is_verified?: boolean
+          used_at?: string | null
           verified_at?: string | null
           verified_by?: string | null
         }
         Update: {
+          attempts?: number
           code_hash?: string
           created_at?: string
           created_by?: string
@@ -2195,6 +2209,7 @@ export type Database = {
           expires_at?: string
           id?: string
           is_verified?: boolean
+          used_at?: string | null
           verified_at?: string | null
           verified_by?: string | null
         }
@@ -8187,6 +8202,49 @@ export type Database = {
       delete_spotlight_post: {
         Args: { _spotlight_id: string }
         Returns: string
+      }
+      dispatch_approve_quote: {
+        Args: { _fee: number; _job: string }
+        Returns: undefined
+      }
+      dispatch_assign_rider: {
+        Args: { _job: string; _rider: string }
+        Returns: undefined
+      }
+      dispatch_cancel: {
+        Args: { _job: string; _reason?: string }
+        Returns: undefined
+      }
+      dispatch_complete_with_code: {
+        Args: { _code: string; _job: string }
+        Returns: string
+      }
+      dispatch_issue_handover_code: { Args: { _job: string }; Returns: string }
+      dispatch_log: {
+        Args: { _actor: string; _job: string; _note: string; _status: string }
+        Returns: undefined
+      }
+      dispatch_request_job: {
+        Args: {
+          _dropoff: string
+          _mode: string
+          _notes?: string
+          _pickup: string
+          _vendor: string
+        }
+        Returns: string
+      }
+      dispatch_rider_progress: {
+        Args: { _job: string; _next: string }
+        Returns: undefined
+      }
+      dispatch_rider_respond: {
+        Args: { _accept: boolean; _job: string }
+        Returns: undefined
+      }
+      dispatch_set_quote: {
+        Args: { _fee: number; _job: string }
+        Returns: undefined
       }
       expire_property_listings: { Args: never; Returns: number }
       expired_spotlight_video_batch: {
