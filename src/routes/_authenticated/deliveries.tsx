@@ -11,7 +11,8 @@ import { PageHead, Panel, ProgressSteps, StatusPill, Timeline, modeLabel } from 
 import { useI18n } from "@/lib/i18n";
 import { DeliveryLiveMap } from "@/components/dispatch/DeliveryLiveMap";
 import { formatXAF } from "@/lib/format";
-import { dispatchError, rpc, useInvalidateDispatch, useJobEvents, useJobs, useMe, useNames, type DispatchJob } from "@/lib/dispatch.queries";
+import { allowedModes, dispatchError, rpc, useExternalRider, useInvalidateDispatch, useJobEvents, useJobs, useMe, useNames, useVendorPrefs, type DeliveryMode, type DispatchJob } from "@/lib/dispatch.queries";
+import { ExternalRiderForm, MethodSelector, RiderPicker, vehicleLabel } from "@/components/dispatch/DeliveryOptions";
 
 export const Route = createFileRoute("/_authenticated/deliveries")({
   validateSearch: (s: Record<string, unknown>): { vendor?: string } =>
@@ -63,7 +64,10 @@ function RequestForm({ vendorId, fr }: { vendorId: string; fr: boolean }) {
   const { tx } = useI18n();
   const refresh = useInvalidateDispatch();
   const names = useNames([vendorId]);
-  const [mode, setMode] = useState<"ASH_DISPATCH" | "VENDOR_DISPATCH" | "SELF_PICKUP">("ASH_DISPATCH");
+  const prefs = useVendorPrefs(vendorId);
+  const modes = prefs.data ? allowedModes(prefs.data) : [];
+  const [picked, setMode] = useState<DeliveryMode | null>(null);
+  const mode: DeliveryMode = picked && modes.includes(picked) ? picked : (modes[0] ?? "ASH_DISPATCH");
   const [pickup, setPickup] = useState("");
   const [dropoff, setDropoff] = useState("");
   const [notes, setNotes] = useState("");
@@ -73,7 +77,11 @@ function RequestForm({ vendorId, fr }: { vendorId: string; fr: boolean }) {
     setBusy(true);
     try {
       await rpc("dispatch_request_job", { _vendor: vendorId, _mode: mode, _pickup: pickup, _dropoff: mode === "SELF_PICKUP" ? pickup : dropoff, _notes: notes || null });
-      toast.success(tx("Delivery requested. The shop will send the fee.", "Livraison demandée. La boutique enverra les frais."));
+      toast.success(
+        mode === "EXTERNAL_RIDER"
+          ? tx("Request sent. Add your rider's details below.", "Demande envoyée. Ajoutez votre livreur ci-dessous.")
+          : tx("Delivery requested. The shop will send the fee.", "Livraison demandée. La boutique enverra les frais."),
+      );
       setDropoff(""); setNotes("");
       refresh();
     } catch (e) {
@@ -86,13 +94,9 @@ function RequestForm({ vendorId, fr }: { vendorId: string; fr: boolean }) {
   return (
     <Panel title={`${tx("Request delivery from", "Demander une livraison à")} ${names.data?.[vendorId] ?? tx("this shop", "cette boutique")}`}>
       <div className="space-y-3">
-        <div className="grid grid-cols-3 gap-2">
-          {(["ASH_DISPATCH", "VENDOR_DISPATCH", "SELF_PICKUP"] as const).map((m) => (
-            <Button key={m} type="button" variant={mode === m ? "default" : "outline"} size="sm" onClick={() => setMode(m)}>
-              {modeLabel(m, fr)}
-            </Button>
-          ))}
-        </div>
+        {prefs.isLoading ? <p className="text-xs text-muted-foreground">{tx("Loading delivery options…", "Chargement des options…")}</p> : null}
+        {prefs.isError ? <p className="text-xs text-destructive">{tx("Delivery options could not be loaded.", "Options de livraison indisponibles.")}</p> : null}
+        <MethodSelector modes={modes} value={mode} onChange={setMode} fr={fr} />
         <div>
           <Label>{mode === "SELF_PICKUP" ? tx("Pickup location (shop)", "Lieu de retrait (boutique)") : tx("Pickup address", "Adresse de retrait")}</Label>
           <Input value={pickup} onChange={(e) => setPickup(e.target.value)} maxLength={200} />
@@ -107,12 +111,14 @@ function RequestForm({ vendorId, fr }: { vendorId: string; fr: boolean }) {
           <Label>{tx("Notes for the shop (optional)", "Notes pour la boutique (facultatif)")}</Label>
           <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} rows={2} />
         </div>
-        <Button className="w-full" disabled={busy} onClick={submit}>
+        <Button className="w-full" disabled={busy || modes.length === 0} onClick={submit}>
           <Truck className="mr-2 h-4 w-4" />
           {tx("Send request", "Envoyer la demande")}
         </Button>
         <p className="text-xs text-muted-foreground">
-          {tx("No payment is taken here. You approve the delivery fee before a rider is assigned.", "Aucun paiement ici. Vous approuvez les frais avant l'attribution d'un livreur.")}
+          {mode === "EXTERNAL_RIDER"
+            ? tx("No payment is taken here. You arrange and pay your own rider directly.", "Aucun paiement ici. Vous organisez et payez votre livreur directement.")
+            : tx("No payment is taken here. You approve the delivery fee before a rider is offered the job.", "Aucun paiement ici. Vous approuvez les frais avant qu'un livreur ne reçoive la course.")}
         </p>
       </div>
     </Panel>
@@ -126,7 +132,12 @@ function CustomerJob({ job, shop, fr }: { job: DispatchJob; shop?: string | unde
   const events = useJobEvents(open ? job.id : null);
   const [code, setCode] = useState<string | null>(null);
   const done = job.status === "DELIVERED" || job.status === "CANCELLED";
-  const needsApproval = job.fee_amount !== null && job.approved_fee_amount !== job.fee_amount && !done;
+  const external = job.fulfillment_mode === "EXTERNAL_RIDER";
+  const ext = useExternalRider(job.id, external);
+  const needsApproval = !external && job.fee_amount !== null && job.approved_fee_amount !== job.fee_amount && !done;
+  const approved = job.fee_amount !== null && job.approved_fee_amount === job.fee_amount && !!job.quote_approved_at;
+  const offerExpired = job.status === "ASSIGNED" && !!job.offer_expires_at && new Date(job.offer_expires_at) < new Date();
+  const choosing = job.fulfillment_mode === "CHOSEN_RIDER" && approved && ["REQUESTED", "REJECTED"].includes(job.status);
   const canCancel = !["IN_TRANSIT", "DELIVERED", "CANCELLED"].includes(job.status);
 
   async function act(fn: string, args: Record<string, unknown>, ok: string) {
@@ -149,7 +160,7 @@ function CustomerJob({ job, shop, fr }: { job: DispatchJob; shop?: string | unde
           {job.fulfillment_mode !== "SELF_PICKUP" ? ` → ${job.dropoff_address}` : ""}
         </p>
         <p className="text-xs text-muted-foreground">
-          {modeLabel(job.fulfillment_mode, fr)} · {job.fee_amount === null ? tx("Waiting for the shop's fee", "En attente des frais") : formatXAF(job.fee_amount)}
+          {modeLabel(job.fulfillment_mode, fr)} · {external ? tx("Externally managed — not dispatched by ASH Glo, no live tracking", "Gérée par vous — non envoyée par ASH Glo, sans suivi en direct") : job.fee_amount === null ? tx("Waiting for the shop's fee", "En attente des frais") : formatXAF(job.fee_amount)}
         </p>
         <ProgressSteps status={job.status} mode={job.fulfillment_mode} fr={fr} />
         <DeliveryLiveMap job={job} />
@@ -158,17 +169,50 @@ function CustomerJob({ job, shop, fr }: { job: DispatchJob; shop?: string | unde
             {tx("Approve fee", "Approuver les frais")} {formatXAF(job.fee_amount)}
           </Button>
         ) : null}
-        {!done && (job.fulfillment_mode === "SELF_PICKUP" || job.status === "IN_TRANSIT" || job.status === "PICKUP_CONFIRMED") ? (
+        {job.status === "ASSIGNED" ? (
+          <div className="rounded-xl bg-muted p-3 text-xs">
+            {offerExpired
+              ? tx("The rider did not answer in time.", "Le livreur n'a pas répondu à temps.")
+              : tx("Offered to a rider. Not assigned until they accept.", "Proposée à un livreur. Non attribuée avant acceptation.")}
+            {offerExpired ? (
+              <Button size="sm" variant="outline" className="mt-2 w-full" onClick={() => act("dispatch_release_expired", { _job: job.id }, tx("You can choose again", "Vous pouvez choisir à nouveau"))}>
+                {tx("Choose another option", "Choisir une autre option")}
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
+        {job.status === "REJECTED" && (job.fulfillment_mode === "CHOSEN_RIDER" || job.fulfillment_mode === "ASH_DISPATCH") ? (
+          <div className="flex gap-2">
+            {job.fulfillment_mode === "CHOSEN_RIDER" ? (
+              <Button size="sm" variant="outline" className="flex-1" onClick={() => act("dispatch_switch_mode", { _job: job.id, _mode: "ASH_DISPATCH" }, tx("Switched to ASH Dispatch", "Passée à ASH Dispatch"))}>{tx("Use ASH Dispatch instead", "Utiliser ASH Dispatch")}</Button>
+            ) : (
+              <Button size="sm" variant="outline" className="flex-1" onClick={() => act("dispatch_switch_mode", { _job: job.id, _mode: "CHOSEN_RIDER" }, tx("Choose a rider below", "Choisissez un livreur"))}>{tx("Choose a rider myself", "Choisir moi-même un livreur")}</Button>
+            )}
+          </div>
+        ) : null}
+        {choosing ? <RiderPicker jobId={job.id} fr={fr} /> : null}
+        {external && job.status === "REQUESTED" && ext.isFetched && !ext.data ? <ExternalRiderForm jobId={job.id} fr={fr} /> : null}
+        {external && ext.data ? (
+          <div className="rounded-xl border border-border p-3 text-xs">
+            <p className="font-semibold">{ext.data.full_name} · {vehicleLabel(ext.data.vehicle_type, fr)}{ext.data.vehicle_plate ? ` · ${ext.data.vehicle_plate}` : ""}</p>
+            <p className="text-muted-foreground">{ext.data.phone}{ext.data.note ? ` · ${ext.data.note}` : ""}</p>
+            <p className="mt-1 text-muted-foreground">{ext.data.picked_up_at ? tx("Collected from the shop", "Récupérée à la boutique") : tx("Waiting for collection at the shop", "En attente de retrait à la boutique")}</p>
+          </div>
+        ) : null}
+        {external && job.status === "IN_TRANSIT" ? (
+          <Button className="w-full" onClick={() => act("dispatch_external_delivered", { _job: job.id }, tx("Marked as received", "Réception confirmée"))}>{tx("I received my order", "J'ai reçu ma commande")}</Button>
+        ) : null}
+        {!done && (external ? job.status === "REQUESTED" && !!ext.data : job.fulfillment_mode === "SELF_PICKUP" || job.status === "IN_TRANSIT" || job.status === "PICKUP_CONFIRMED") ? (
           <div className="rounded-xl bg-muted p-3">
             {code ? (
               <p className="text-center">
-                <span className="block text-xs text-muted-foreground">{tx("Give this code only when you receive your order. Valid 30 minutes.", "Donnez ce code uniquement à la réception. Valable 30 minutes.")}</span>
+                <span className="block text-xs text-muted-foreground">{external ? tx("Give this collection code to your rider. The shop checks it before handing over. Valid 30 minutes.", "Donnez ce code de retrait à votre livreur. La boutique le vérifie avant la remise. Valable 30 minutes.") : tx("Give this code only when you receive your order. Valid 30 minutes.", "Donnez ce code uniquement à la réception. Valable 30 minutes.")}</span>
                 <span className="font-mono text-2xl font-bold tracking-[0.3em]">{code}</span>
               </p>
             ) : (
               <Button variant="outline" className="w-full" onClick={() => act("dispatch_issue_handover_code", { _job: job.id }, tx("Code ready", "Code prêt"))}>
                 <KeyRound className="mr-2 h-4 w-4" />
-                {tx("Show handover code", "Afficher le code de remise")}
+                {external ? tx("Create collection code", "Créer le code de retrait") : tx("Show handover code", "Afficher le code de remise")}
               </Button>
             )}
           </div>
