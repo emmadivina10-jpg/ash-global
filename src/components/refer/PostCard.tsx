@@ -31,6 +31,7 @@ import { SocialSuggestions } from "./SocialSuggestions";
 import { ExpandableSocialText } from "./ExpandableSocialText";
 import { trackEvent, useImpression } from "@/lib/activity";
 import { MediaLightbox } from "./MediaLightbox";
+import { actionFor } from "./feed-categories";
 
 function timeAgo(iso: string, fr: boolean) {
   const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
@@ -88,6 +89,20 @@ export function PostCard({
   const setFilter = useSetCommentFilter();
   const mine = currentUserId === post.author_id;
   useEngagementRealtime(detail ? post.id : null);
+  const action = detail ? null : actionFor(post.caption);
+  const singleImage = !detail && post.images.length === 1;
+  // Short captions sit on the photo like a discovery card; long ones stay readable above.
+  const overlayCaption = singleImage && post.caption.length > 0 && post.caption.length <= 160;
+  const actionButton = action ? (
+    <Link
+      to={action.to}
+      {...(action.to === "/u/$userId" ? { params: { userId: post.author_id } } : {})}
+      onClick={(e) => e.stopPropagation()}
+      className="inline-flex h-10 items-center justify-center rounded-full bg-gradient-to-r from-primary to-gold px-5 text-sm font-extrabold text-primary-foreground shadow-[var(--shadow-gold)] transition-transform active:scale-95"
+    >
+      {fr ? action.fr : action.en}
+    </Link>
+  ) : null;
 
   return (
     <article
@@ -95,7 +110,7 @@ export function PostCard({
       className={cn(
         "tile overflow-hidden",
         !detail &&
-          "-mx-4 rounded-none border-x-0 border-y border-border/20 bg-card bg-none shadow-none sm:mx-0 sm:rounded-3xl sm:border sm:border-border sm:shadow-[var(--shadow-card)]",
+          "rounded-3xl border border-border/60 bg-card bg-none shadow-[var(--shadow-card)]",
         detail && "rounded-none border-0 shadow-none sm:rounded-3xl sm:border",
       )}
     >
@@ -153,7 +168,7 @@ export function PostCard({
         ) : null}
       </header>
 
-      {post.caption ? (
+      {post.caption && !overlayCaption ? (
         <div className="px-4 pb-3">
           {detail ? (
             <SocialText
@@ -170,6 +185,7 @@ export function PostCard({
       ) : null}
 
       {post.images.length > 0 ? (
+        <div className={cn(!detail && "relative mx-3 overflow-hidden rounded-2xl")}>
         <div
           className={cn(
             "grid gap-0.5",
@@ -202,9 +218,22 @@ export function PostCard({
             </Button>
           ))}
         </div>
+        {overlayCaption || (action && !detail) ? (
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/95 via-background/60 to-transparent p-4 pt-16">
+            {overlayCaption ? (
+              <p className="line-clamp-3 max-w-[85%] whitespace-pre-wrap break-words text-base font-extrabold leading-snug text-foreground">
+                {post.caption}
+              </p>
+            ) : null}
+            {actionButton ? <div className="pointer-events-auto mt-3">{actionButton}</div> : null}
+          </div>
+        ) : null}
+        </div>
+      ) : action ? (
+        <div className="px-4 pb-2">{actionButton}</div>
       ) : null}
 
-      <div className="flex items-center justify-between px-4 pt-2">
+      <div className={cn("flex items-center justify-between px-4 pt-2", !detail && "hidden")}>
         <ReactionSummary breakdown={post.reaction_breakdown} />
         <span className="text-[11px] text-muted-foreground">
           {post.comment_count} {tx("comments", "commentaires")} · {post.repost_count}{" "}
