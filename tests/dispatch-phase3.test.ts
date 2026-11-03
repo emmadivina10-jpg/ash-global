@@ -156,6 +156,49 @@ describe("phase 3: live location", () => {
   });
 });
 
+describe("end-to-end journeys (isolated)", () => {
+  const rows = async (job: string) => (await db.query("SELECT 1 FROM dispatch_job_live_locations WHERE delivery_id=$1", [job])).rows.length;
+  it("shop-owned rider: invite, assign, accept, share, deliver; location erased", async () => {
+    const c = (await as<{ c: string }>(VENDOR, "SELECT dispatch_vendor_create_invite() AS c"))[0]!.c;
+    await as(RIDER2, "SELECT dispatch_rider_redeem_invite($1)", [c]);
+    await as(RIDER2, "SELECT dispatch_rider_set_availability('AVAILABLE')");
+    const job = await newJob("VENDOR_DISPATCH");
+    expect(await err(VENDOR2, "SELECT dispatch_assign_rider($1,$2)", [job, RIDER2])).toContain("NOT_ALLOWED");
+    await as(VENDOR, "SELECT dispatch_assign_rider($1,$2)", [job, RIDER2]);
+    await as(RIDER2, "SELECT dispatch_rider_respond($1,true)", [job]);
+    await as(RIDER2, "SELECT dispatch_rider_update_location($1,4.0,9.6)", [job]);
+    expect((await as<{ latitude: number }>(VENDOR, "SELECT * FROM dispatch_job_rider_location($1)", [job]))[0]?.latitude).toBe(4.0);
+    await as(RIDER2, "SELECT dispatch_rider_progress($1,'PICKUP_CONFIRMED')", [job]);
+    await as(RIDER2, "SELECT dispatch_rider_progress($1,'IN_TRANSIT')", [job]);
+    const [{ code }] = await as<{ code: string }>(CUSTOMER, "SELECT dispatch_issue_handover_code($1) AS code", [job]);
+    expect((await as<{ r: string }>(RIDER2, "SELECT dispatch_complete_with_code($1,'000000') AS r", [job]))[0]!.r).toBe(code === "000000" ? "OK" : "WRONG");
+    expect((await as<{ r: string }>(RIDER2, "SELECT dispatch_complete_with_code($1,$2) AS r", [job, code]))[0]!.r).toBe("OK");
+    expect(await rows(job)).toBe(0);
+  });
+  it("rider declines, delivery is reassigned; old rider's position is erased and cannot be resent", async () => {
+    await as(RIDER, "SELECT dispatch_rider_set_availability('AVAILABLE')");
+    const job = await offer(RIDER);
+    expect(await err(RIDER, "SELECT dispatch_rider_update_location($1,4.0,9.6)", [job])).toContain("NOT_ON_DELIVERY");
+    await as(RIDER, "SELECT dispatch_rider_respond($1,false)", [job]);
+    await as(ADMIN, "SELECT dispatch_assign_rider($1,$2)", [job, RIDER2]);
+    await as(RIDER2, "SELECT dispatch_rider_respond($1,true)", [job]);
+    await as(RIDER2, "SELECT dispatch_rider_update_location($1,4.1,9.6)", [job]);
+    expect(await err(RIDER, "SELECT dispatch_rider_update_location($1,4.0,9.6)", [job])).toContain("NOT_ON_DELIVERY");
+    expect(await as(RIDER, "SELECT * FROM dispatch_job_rider_location($1)", [job])).toHaveLength(0);
+    await db.query("UPDATE dispatch_jobs SET rider_user_id=$2 WHERE id=$1", [job, RIDER]);
+    expect(await rows(job)).toBe(0);
+    await db.query("UPDATE dispatch_jobs SET rider_user_id=$2 WHERE id=$1", [job, RIDER2]);
+    await as(CUSTOMER, "SELECT dispatch_cancel($1)", [job]);
+  });
+  it("self pickup: no rider, no location; shop confirms with customer's code", async () => {
+    const [r] = await as<{ id: string }>(CUSTOMER, "SELECT dispatch_request_job($1,'SELF_PICKUP','Akwa, Douala','Akwa, Douala') AS id", [VENDOR]);
+    expect(await err(VENDOR, "SELECT dispatch_assign_rider($1,$2)", [r!.id, RIDER])).toContain("NO_RIDER_FOR_SELF_PICKUP");
+    expect(await as(CUSTOMER, "SELECT * FROM dispatch_job_rider_location($1)", [r!.id])).toHaveLength(0);
+    const [{ code }] = await as<{ code: string }>(CUSTOMER, "SELECT dispatch_issue_handover_code($1) AS code", [r!.id]);
+    expect((await as<{ r: string }>(VENDOR, "SELECT dispatch_complete_with_code($1,$2) AS r", [r!.id, code]))[0]!.r).toBe("OK");
+  });
+});
+
 describe("phase 3 rollback", () => {
   it("removes location actions and restores the live accept action", async () => {
     await db.exec(`BEGIN; ${ROLLBACK3}; COMMIT;`);
