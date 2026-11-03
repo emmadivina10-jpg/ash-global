@@ -77,6 +77,8 @@ beforeAll(async () => {
   await db.exec(PHASE1);
   await db.exec(`BEGIN; ${PHASE2}; COMMIT;`);
   await db.exec(`BEGIN; ${PHASE3}; COMMIT;`);
+});
+afterAll(async () => { await db.close(); });
 
 async function offer(u: string) {
   const job = await newJob();

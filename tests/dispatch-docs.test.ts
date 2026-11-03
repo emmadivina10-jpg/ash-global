@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SIGNED_URL_MAX_SECONDS, clampSignedUrlSeconds, missingDocs, riderCanTakeWork, riderDocPath, validateRiderDoc } from "@/lib/dispatch-docs";
+import { SIGNED_URL_MAX_SECONDS, clampSignedUrlSeconds, missingDocs, riderCanTakeWork, riderDocPath, validateRiderDoc } from "../src/lib/dispatch-docs";
 
 const UID = "33333333-3333-3333-3333-333333333333";
 
