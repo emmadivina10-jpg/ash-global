@@ -126,6 +126,7 @@ function ProviderPage() {
   const fr = lang === "fr";
   const navigate = useNavigate();
   const { user } = useUser();
+  const { requireAuth } = useAuthGate();
   const queryClient = useQueryClient();
   const { data: provider, isLoading } = useProvider(providerId);
   const { data: services } = useProviderServices(providerId);
@@ -171,7 +172,25 @@ function ProviderPage() {
   const isOwner = provider?.user_id === user?.id;
   useRecordProfileView(provider?.user_id ?? null);
 
+  function openBooking(service: ServiceRow) {
+    if (
+      !requireAuth({
+        en: "Sign in to book this service.",
+        fr: "Connectez-vous pour réserver ce service.",
+      })
+    )
+      return;
+    setBooking(service);
+  }
+
   async function chat() {
+    if (
+      !requireAuth({
+        en: "Sign in to message this provider.",
+        fr: "Connectez-vous pour écrire à ce prestataire.",
+      })
+    )
+      return;
     try {
       // Opens with a friendly "Hi + why I'm reaching out" so the vendor has
       // context from the first message.
@@ -299,7 +318,7 @@ function ProviderPage() {
         <Button
           className="touch-manipulation"
           disabled={Boolean(blockedReason)}
-          onClick={() => setBooking(activeServices[0] ?? customService(fr))}
+          onClick={() => openBooking(activeServices[0] ?? customService(fr))}
         >
           {tx("Book service", "Réserver un service")}
         </Button>
@@ -408,7 +427,7 @@ function ProviderPage() {
                     size="sm"
                     className="touch-manipulation"
                     disabled={Boolean(blockedReason)}
-                    onClick={() => setBooking(service)}
+                    onClick={() => openBooking(service)}
                   >
                     {t("svc.book")}
                   </Button>
@@ -577,6 +596,7 @@ function BookingRequestDialog({
 }) {
   const { tx, lang } = useI18n();
   const fr = lang === "fr";
+  const { requireAuth } = useAuthGate();
   const zone = providerTimeZone(provider.country);
   const showZone = isDifferentZone(zone);
   const [serviceId, setServiceId] = useState(service.id);
@@ -657,6 +677,13 @@ function BookingRequestDialog({
   async function submit() {
     // Prevent duplicate submissions from double taps or repeated clicks.
     if (sending.current || busy) return;
+    if (
+      !requireAuth({
+        en: "Sign in to send this booking request.",
+        fr: "Connectez-vous pour envoyer cette demande de réservation.",
+      })
+    )
+      return;
 
     const scheduledAt = new Date(when);
     if (!when || Number.isNaN(scheduledAt.getTime())) {
@@ -1124,6 +1151,7 @@ function SellerMessageBox({
 }) {
   const { tx } = useI18n();
   const navigate = useNavigate();
+  const { requireAuth } = useAuthGate();
   const food = categories.some((c) => FOOD.has(c));
   const [text, setText] = useState(
     food
@@ -1134,6 +1162,13 @@ function SellerMessageBox({
   async function send() {
     const body = text.trim();
     if (!body || busy) return;
+    if (
+      !requireAuth({
+        en: "Sign in to message this seller.",
+        fr: "Connectez-vous pour écrire à ce vendeur.",
+      })
+    )
+      return;
     setBusy(true);
     try {
       const id = await openConversation(providerId);
