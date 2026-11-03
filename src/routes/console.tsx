@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -8,6 +8,7 @@ import {
   Building2,
   BarChart3,
   CalendarCheck,
+  ChevronDown,
   CreditCard,
   GraduationCap,
   Lock,
@@ -93,149 +94,148 @@ const NAV = [
     group: "Insights",
     dept: "CYBERSECURITY",
   },
-  { to: "/console/payments", label: "Payments", icon: CreditCard, group: "Money", dept: "REVENUE" },
+  { to: "/console/payments", label: "Payments", icon: CreditCard, group: "Finance & Money", dept: "REVENUE" },
   {
     to: "/console/withdrawals",
     label: "Withdrawals",
     icon: Wallet,
-    group: "Money",
+    group: "Finance & Money",
     dept: "REVENUE",
   },
-  { to: "/console/payout", label: "Payout", icon: Banknote, group: "Money", dept: "REVENUE" },
-  { to: "/console/ledger", label: "Ledger", icon: ReceiptText, group: "Money", dept: "REVENUE" },
-  { to: "/console/commission", label: "Commission", icon: Target, group: "Money", dept: "REVENUE" },
-  { to: "/console/finance", label: "Finance", icon: Banknote, group: "Money", dept: "REVENUE" },
+  { to: "/console/payout", label: "Payout", icon: Banknote, group: "Finance & Money", dept: "REVENUE" },
+  { to: "/console/ledger", label: "Ledger", icon: ReceiptText, group: "Finance & Money", dept: "REVENUE" },
+  { to: "/console/commission", label: "Commission", icon: Target, group: "Finance & Money", dept: "REVENUE" },
+  { to: "/console/finance", label: "Finance", icon: Banknote, group: "Finance & Money", dept: "REVENUE" },
   {
     to: "/console/shareholders",
     label: "Shareholders",
     icon: Handshake,
-    group: "Money",
+    group: "Finance & Money",
     dept: "SUPER_ADMIN",
   },
-  { to: "/console/users", label: "Users", icon: Users, group: "People", dept: "SUPER_ADMIN" },
-  { to: "/console/providers", label: "Providers", icon: Store, group: "People", dept: "TRUST" },
+  { to: "/console/users", label: "Users", icon: Users, group: "People & Services", dept: "SUPER_ADMIN" },
+  { to: "/console/providers", label: "Providers", icon: Store, group: "People & Services", dept: "TRUST" },
   {
     to: "/console/clean",
     label: "Cleaning services",
     icon: Shirt,
-    group: "People",
+    group: "People & Services",
     dept: "MARKETPLACE_OPS",
   },
   {
     to: "/console/bookings",
     label: "Bookings",
     icon: CalendarCheck,
-    group: "People",
+    group: "People & Services",
     dept: "MARKETPLACE_OPS",
   },
-  { to: "/console/riders", label: "Riders", icon: ShieldCheck, group: "People", dept: "TRUST" },
-  {
+    {
     to: "/console/deletions",
     label: "Deletions",
     icon: Trash2,
-    group: "People",
+    group: "People & Services",
     dept: "SUPER_ADMIN",
   },
-  { to: "/console/support", label: "Support", icon: LifeBuoy, group: "People", dept: "SUPPORT" },
-  { to: "/console/outreach", label: "Outreach", icon: Send, group: "People", dept: "SUPPORT" },
+  { to: "/console/support", label: "Support", icon: LifeBuoy, group: "People & Services", dept: "SUPPORT" },
+  { to: "/console/outreach", label: "Outreach", icon: Send, group: "People & Services", dept: "SUPPORT" },
   {
     to: "/console/operations",
     label: "Operations",
     icon: CalendarCheck,
-    group: "Workforce",
+    group: "Workforce & Departments",
     dept: "OPERATIONS",
   },
   {
     to: "/console/merchant",
     label: "Merchants",
     icon: Store,
-    group: "Workforce",
+    group: "Workforce & Departments",
     dept: "OPERATIONS",
   },
-  { to: "/console/growth", label: "Growth", icon: Rocket, group: "Workforce", dept: "GROWTH" },
-  { to: "/console/sales", label: "Sales", icon: Target, group: "Workforce", dept: "SALES" },
+  { to: "/console/growth", label: "Growth", icon: Rocket, group: "Workforce & Departments", dept: "GROWTH" },
+  { to: "/console/sales", label: "Sales", icon: Target, group: "Workforce & Departments", dept: "SALES" },
   {
     to: "/console/marketplace",
     label: "Marketplace Ops",
     icon: Store,
-    group: "Workforce",
+    group: "Workforce & Departments",
     dept: "MARKETPLACE_OPS",
   },
   {
     to: "/console/advertising",
     label: "Advertising & Marketing",
     icon: Megaphone,
-    group: "Workforce",
+    group: "Workforce & Departments",
     dept: "ADVERTISING",
   },
   {
     to: "/console/partnerships",
     label: "Partnerships",
     icon: Handshake,
-    group: "Workforce",
+    group: "Workforce & Departments",
     dept: "PARTNERSHIPS",
   },
   {
     to: "/console/content",
     label: "Content & Creators",
     icon: Video,
-    group: "Workforce",
+    group: "Workforce & Departments",
     dept: "CONTENT",
   },
   {
     to: "/console/expansion",
     label: "Expansion",
     icon: Map,
-    group: "Workforce",
+    group: "Workforce & Departments",
     dept: "EXPANSION",
   },
   {
     to: "/console/property",
     label: "Property",
     icon: Building2,
-    group: "Workforce",
+    group: "Workforce & Departments",
     dept: "TRUST",
   },
   {
     to: "/console/campus-catalogue",
     label: "Campus catalogue",
     icon: GraduationCap,
-    group: "Workforce",
+    group: "Workforce & Departments",
     dept: "TRUST",
   },
   {
     to: "/console/trust",
     label: "Overview & user verification",
     icon: ShieldCheck,
-    group: "Trust & Verification",
+    group: "Trust & Compliance",
     dept: "TRUST",
   },
   {
     to: "/console/reports",
     label: "Safety & reports",
     icon: ShieldAlert,
-    group: "Trust & Verification",
+    group: "Trust & Compliance",
     dept: "TRUST",
   },
   {
     to: "/console/verification",
     label: "Verified badges",
     icon: BadgeCheck,
-    group: "Trust & Verification",
+    group: "Trust & Compliance",
     dept: "TRUST",
   },
   {
     to: "/console/campus-instructors",
     label: "Instructors · Campus",
     icon: GraduationCap,
-    group: "Trust & Verification",
+    group: "Trust & Compliance",
     dept: "TRUST",
   },
   {
     to: "/console/instructors",
     label: "Instructors · FX",
     icon: GraduationCap,
-    group: "Trust & Verification",
+    group: "Trust & Compliance",
     dept: "TRUST",
   },
   {
@@ -245,15 +245,35 @@ const NAV = [
     group: "Admin",
     dept: "SUPER_ADMIN",
   },
-];
+  {
+    to: "/console/riders",
+    label: "Rider verification & documents",
+    icon: ShieldCheck,
+    group: "Supply Chain & Inventory",
+    sub: "ASH Logistics",
+    dept: "TRUST",
+  },
+] as Array<{ to: string; label: string; icon: typeof ShieldCheck; group: string; dept: string; sub?: string }>;
 const GROUPS = [
   "Insights",
-  "Money",
-  "Trust & Verification",
-  "People",
-  "Workforce",
+  "Finance & Money",
+  "Trust & Compliance",
+  "People & Services",
+  "Workforce & Departments",
+  "Supply Chain & Inventory",
   "Admin",
 ] as const;
+/** Insights stays flat; other groups collapse. */
+const FLAT_GROUPS = new Set(["Insights"]);
+/** Planned ASH Logistics pages without a console route yet — shown disabled, never linked. */
+const LOGISTICS_PLANNED = [
+  "Logistics overview",
+  "Rider management",
+  "Delivery management",
+  "Shop dispatch",
+  "Live rider tracking",
+  "Delivery reports",
+];
 
 export const Route = createFileRoute("/console")({
   ssr: false,
@@ -330,45 +350,127 @@ function SidebarNav({
   supportCount?: number;
 }) {
   const items = allowedNav(superAdmin, department, extra);
+  const renderItem = (item: (typeof NAV)[number], nested = false) => {
+    const active = pathname === item.to;
+    const Icon = item.icon;
+    return (
+      <Link
+        key={item.to}
+        to={item.to}
+        onClick={onNavigate}
+        aria-current={active ? "page" : undefined}
+        className={cn(
+          "flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+          nested && "pl-4",
+          active
+            ? "console-brand text-primary-foreground shadow-md"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground",
+        )}
+      >
+        <Icon className="size-4 shrink-0" aria-hidden />
+        <span className="min-w-0 flex-1 truncate">{item.label}</span>
+        {item.to === "/console/support" && supportCount > 0 ? (
+          <span className="grid min-w-5 shrink-0 place-items-center rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-bold text-destructive-foreground">
+            {supportCount > 99 ? "99+" : supportCount}
+          </span>
+        ) : null}
+      </Link>
+    );
+  };
   return (
-    <nav className="space-y-6">
-      {GROUPS.filter((group) => items.some((item) => item.group === group)).map((group) => (
-        <div key={group}>
-          <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-            {group}
-          </p>
-          <div className="space-y-0.5">
-            {items
-              .filter((item) => item.group === group)
-              .map((item) => {
-                const active = pathname === item.to;
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    onClick={onNavigate}
-                    className={cn(
-                      "flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-semibold transition-colors",
-                      active
-                        ? "console-brand text-primary-foreground shadow-md"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                    )}
-                  >
-                    <Icon className="size-4 shrink-0" aria-hidden />
-                    <span className="min-w-0 flex-1">{item.label}</span>
-                    {item.to === "/console/support" && supportCount > 0 ? (
-                      <span className="grid min-w-5 shrink-0 place-items-center rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-bold text-destructive-foreground">
-                        {supportCount > 99 ? "99+" : supportCount}
-                      </span>
-                    ) : null}
-                  </Link>
-                );
-              })}
-          </div>
-        </div>
-      ))}
+    <nav className="divide-y divide-border/50">
+      {GROUPS.filter((group) => items.some((item) => item.group === group)).map((group) => {
+        const groupItems = items.filter((item) => item.group === group);
+        if (FLAT_GROUPS.has(group))
+          return (
+            <div key={group} className="pb-3">
+              <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                {group}
+              </p>
+              <div className="space-y-0.5">{groupItems.map((i) => renderItem(i))}</div>
+            </div>
+          );
+        const flat = groupItems.filter((i) => !i.sub);
+        const subs = Array.from(new Set(groupItems.filter((i) => i.sub).map((i) => i.sub!)));
+        return (
+          <NavGroup key={group} label={group} active={groupItems.some((i) => i.to === pathname)}>
+            {flat.map((i) => renderItem(i))}
+            {subs.map((sub) => {
+              const subItems = groupItems.filter((i) => i.sub === sub);
+              return (
+                <NavGroup
+                  key={sub}
+                  label={sub}
+                  nested
+                  active={subItems.some((i) => i.to === pathname)}
+                >
+                  {subItems.map((i) => renderItem(i, true))}
+                  {sub === "ASH Logistics" &&
+                    LOGISTICS_PLANNED.map((label) => (
+                      <p
+                        key={label}
+                        aria-disabled
+                        className="flex items-center gap-2.5 px-3 py-1.5 pl-4 text-sm text-muted-foreground/50"
+                      >
+                        <span className="min-w-0 flex-1 truncate">{label}</span>
+                        <span className="text-[9px] font-bold uppercase tracking-wider">Soon</span>
+                      </p>
+                    ))}
+                </NavGroup>
+              );
+            })}
+          </NavGroup>
+        );
+      })}
     </nav>
+  );
+}
+
+function NavGroup({
+  label,
+  active,
+  nested = false,
+  children,
+}: {
+  label: string;
+  active: boolean;
+  nested?: boolean;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(active);
+  useEffect(() => {
+    if (active) setOpen(true);
+  }, [active]);
+  return (
+    <div className={nested ? "pt-1" : "py-2"}>
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className={cn(
+          "flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-left transition-colors hover:bg-muted",
+          nested
+            ? "text-xs font-semibold text-foreground"
+            : "text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground",
+        )}
+      >
+        <span className="min-w-0 flex-1 truncate">{label}</span>
+        <ChevronDown
+          className={cn("size-3.5 shrink-0 transition-transform duration-200", open && "rotate-180")}
+          aria-hidden
+        />
+      </button>
+      <div
+        className={cn(
+          "grid transition-[grid-template-rows] duration-200 ease-out",
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+        )}
+      >
+        <div className={cn("space-y-0.5 overflow-hidden", nested && "ml-3 border-l border-border/60")}>
+          {children}
+        </div>
+      </div>
+    </div>
   );
 }
 
