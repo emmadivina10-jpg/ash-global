@@ -1994,6 +1994,50 @@ export type Database = {
           },
         ]
       }
+      dispatch_external_riders: {
+        Row: {
+          created_at: string
+          delivery_id: string
+          full_name: string
+          note: string | null
+          phone: string
+          picked_up_at: string | null
+          provided_by: string
+          vehicle_plate: string | null
+          vehicle_type: string
+        }
+        Insert: {
+          created_at?: string
+          delivery_id: string
+          full_name: string
+          note?: string | null
+          phone: string
+          picked_up_at?: string | null
+          provided_by: string
+          vehicle_plate?: string | null
+          vehicle_type: string
+        }
+        Update: {
+          created_at?: string
+          delivery_id?: string
+          full_name?: string
+          note?: string | null
+          phone?: string
+          picked_up_at?: string | null
+          provided_by?: string
+          vehicle_plate?: string | null
+          vehicle_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispatch_external_riders_delivery_id_fkey"
+            columns: ["delivery_id"]
+            isOneToOne: true
+            referencedRelation: "dispatch_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dispatch_job_assignments: {
         Row: {
           accepted_at: string | null
@@ -2135,6 +2179,7 @@ export type Database = {
           fulfillment_mode: string
           id: string
           notes: string | null
+          offer_expires_at: string | null
           pickup_address: string
           pickup_lat: number | null
           pickup_lng: number | null
@@ -2158,6 +2203,7 @@ export type Database = {
           fulfillment_mode?: string
           id?: string
           notes?: string | null
+          offer_expires_at?: string | null
           pickup_address: string
           pickup_lat?: number | null
           pickup_lng?: number | null
@@ -2181,6 +2227,7 @@ export type Database = {
           fulfillment_mode?: string
           id?: string
           notes?: string | null
+          offer_expires_at?: string | null
           pickup_address?: string
           pickup_lat?: number | null
           pickup_lng?: number | null
@@ -2402,6 +2449,36 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      dispatch_vendor_prefs: {
+        Row: {
+          allow_ash_dispatch: boolean
+          allow_chosen_rider: boolean
+          allow_external_rider: boolean
+          allow_self_pickup: boolean
+          allow_vendor_riders: boolean
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          allow_ash_dispatch?: boolean
+          allow_chosen_rider?: boolean
+          allow_external_rider?: boolean
+          allow_self_pickup?: boolean
+          allow_vendor_riders?: boolean
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          allow_ash_dispatch?: boolean
+          allow_chosen_rider?: boolean
+          allow_external_rider?: boolean
+          allow_self_pickup?: boolean
+          allow_vendor_riders?: boolean
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: []
       }
       dispatch_vendor_riders: {
         Row: {
@@ -8346,6 +8423,14 @@ export type Database = {
         Args: { _code: string; _job: string }
         Returns: string
       }
+      dispatch_external_delivered: {
+        Args: { _job: string }
+        Returns: undefined
+      }
+      dispatch_external_pickup: {
+        Args: { _code: string; _job: string }
+        Returns: string
+      }
       dispatch_issue_handover_code: { Args: { _job: string }; Returns: string }
       dispatch_job_rider_location: {
         Args: { _job: string }
@@ -8363,6 +8448,15 @@ export type Database = {
         Args: { _actor: string; _job: string; _note: string; _status: string }
         Returns: undefined
       }
+      dispatch_mode_allowed: {
+        Args: { _mode: string; _vendor: string }
+        Returns: boolean
+      }
+      dispatch_offer_chosen_rider: {
+        Args: { _job: string; _rider: string }
+        Returns: undefined
+      }
+      dispatch_release_expired: { Args: { _job: string }; Returns: boolean }
       dispatch_request_job: {
         Args: {
           _dropoff: string
@@ -8376,6 +8470,18 @@ export type Database = {
       dispatch_rider_add_document: {
         Args: { _doc_type: string; _path: string }
         Returns: undefined
+      }
+      dispatch_rider_directory: {
+        Args: { _city?: string }
+        Returns: {
+          availability_status: string
+          avatar_url: string
+          city: string
+          display_name: string
+          service_zones: string[]
+          user_id: string
+          vehicle_type: string
+        }[]
       }
       dispatch_rider_leave_vendor: {
         Args: { _vendor: string }
@@ -8424,8 +8530,23 @@ export type Database = {
         Args: { _accuracy?: number; _job: string; _lat: number; _lng: number }
         Returns: undefined
       }
+      dispatch_set_external_rider: {
+        Args: {
+          _job: string
+          _name: string
+          _note?: string
+          _phone: string
+          _plate?: string
+          _vehicle: string
+        }
+        Returns: undefined
+      }
       dispatch_set_quote: {
         Args: { _fee: number; _job: string }
+        Returns: undefined
+      }
+      dispatch_switch_mode: {
+        Args: { _job: string; _mode: string }
         Returns: undefined
       }
       dispatch_vendor_create_invite: { Args: never; Returns: string }
@@ -8442,6 +8563,16 @@ export type Database = {
       }
       dispatch_vendor_revoke_invite: {
         Args: { _invite: string }
+        Returns: undefined
+      }
+      dispatch_vendor_set_prefs: {
+        Args: {
+          _ash: boolean
+          _chosen: boolean
+          _external: boolean
+          _own: boolean
+          _pickup: boolean
+        }
         Returns: undefined
       }
       dispatch_vendor_set_rider_status: {
