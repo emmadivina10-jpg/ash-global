@@ -65,6 +65,15 @@ export function StaffNotificationCenter() {
 
   const unread = data?.unread ?? 0;
 
+  // Chime when a new unread alert arrives (and once on open if any are waiting).
+  const lastUnread = useRef<number | null>(null);
+  useEffect(() => {
+    if (data === undefined) return;
+    const prev = lastUnread.current;
+    lastUnread.current = unread;
+    if (unread > 0 && (prev === null || unread > prev)) playChime();
+  }, [data, unread]);
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
