@@ -37,6 +37,8 @@ import { Route as AuthenticatedBookingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedCreateRouteImport } from './routes/_authenticated/create'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedDealsRouteImport } from './routes/_authenticated/deals'
+import { Route as AuthenticatedDeliveriesRouteImport } from './routes/_authenticated/deliveries'
+import { Route as AuthenticatedDispatchRouteImport } from './routes/_authenticated/dispatch'
 import { Route as AuthenticatedElectricityRouteImport } from './routes/_authenticated/electricity'
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
 import { Route as AuthenticatedFlightsRouteImport } from './routes/_authenticated/flights'
@@ -45,6 +47,7 @@ import { Route as AuthenticatedFxAnalyticsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
 import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
 import { Route as AuthenticatedInvestmentRouteImport } from './routes/_authenticated/investment'
+import { Route as AuthenticatedLogisticsAdminRouteImport } from './routes/_authenticated/logistics-admin'
 import { Route as AuthenticatedMentorsRouteImport } from './routes/_authenticated/mentors'
 import { Route as AuthenticatedMenuRouteImport } from './routes/_authenticated/menu'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
@@ -52,6 +55,7 @@ import { Route as AuthenticatedNetworkRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedReferralRewardsRouteImport } from './routes/_authenticated/referral-rewards'
+import { Route as AuthenticatedRiderRouteImport } from './routes/_authenticated/rider'
 import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedShareholderRouteImport } from './routes/_authenticated/shareholder'
@@ -292,6 +296,16 @@ const AuthenticatedDealsRoute = AuthenticatedDealsRouteImport.update({
   path: '/deals',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDeliveriesRoute = AuthenticatedDeliveriesRouteImport.update({
+  id: '/deliveries',
+  path: '/deliveries',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDispatchRoute = AuthenticatedDispatchRouteImport.update({
+  id: '/dispatch',
+  path: '/dispatch',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedElectricityRoute =
   AuthenticatedElectricityRouteImport.update({
     id: '/electricity',
@@ -334,6 +348,12 @@ const AuthenticatedInvestmentRoute = AuthenticatedInvestmentRouteImport.update({
   path: '/investment',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedLogisticsAdminRoute =
+  AuthenticatedLogisticsAdminRouteImport.update({
+    id: '/logistics-admin',
+    path: '/logistics-admin',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMentorsRoute = AuthenticatedMentorsRouteImport.update({
   id: '/mentors',
   path: '/mentors',
@@ -371,6 +391,11 @@ const AuthenticatedReferralRewardsRoute =
     path: '/referral-rewards',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedRiderRoute = AuthenticatedRiderRouteImport.update({
+  id: '/rider',
+  path: '/rider',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSearchRoute = AuthenticatedSearchRouteImport.update({
   id: '/search',
   path: '/search',
@@ -937,6 +962,8 @@ export interface FileRoutesByFullPath {
   '/create': typeof AuthenticatedCreateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/deals': typeof AuthenticatedDealsRoute
+  '/deliveries': typeof AuthenticatedDeliveriesRoute
+  '/dispatch': typeof AuthenticatedDispatchRoute
   '/electricity': typeof AuthenticatedElectricityRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/flights': typeof AuthenticatedFlightsRoute
@@ -945,6 +972,7 @@ export interface FileRoutesByFullPath {
   '/groups': typeof AuthenticatedGroupsRoute
   '/inventory': typeof AuthenticatedInventoryRoute
   '/investment': typeof AuthenticatedInvestmentRoute
+  '/logistics-admin': typeof AuthenticatedLogisticsAdminRoute
   '/mentors': typeof AuthenticatedMentorsRoute
   '/menu': typeof AuthenticatedMenuRoute
   '/messages': typeof AuthenticatedMessagesRoute
@@ -952,6 +980,7 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/referral-rewards': typeof AuthenticatedReferralRewardsRoute
+  '/rider': typeof AuthenticatedRiderRoute
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shareholder': typeof AuthenticatedShareholderRoute
@@ -1080,6 +1109,8 @@ export interface FileRoutesByTo {
   '/create': typeof AuthenticatedCreateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/deals': typeof AuthenticatedDealsRoute
+  '/deliveries': typeof AuthenticatedDeliveriesRoute
+  '/dispatch': typeof AuthenticatedDispatchRoute
   '/electricity': typeof AuthenticatedElectricityRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/flights': typeof AuthenticatedFlightsRoute
@@ -1088,6 +1119,7 @@ export interface FileRoutesByTo {
   '/groups': typeof AuthenticatedGroupsRoute
   '/inventory': typeof AuthenticatedInventoryRoute
   '/investment': typeof AuthenticatedInvestmentRoute
+  '/logistics-admin': typeof AuthenticatedLogisticsAdminRoute
   '/mentors': typeof AuthenticatedMentorsRoute
   '/menu': typeof AuthenticatedMenuRoute
   '/messages': typeof AuthenticatedMessagesRoute
@@ -1095,6 +1127,7 @@ export interface FileRoutesByTo {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/referral-rewards': typeof AuthenticatedReferralRewardsRoute
+  '/rider': typeof AuthenticatedRiderRoute
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shareholder': typeof AuthenticatedShareholderRoute
@@ -1226,6 +1259,8 @@ export interface FileRoutesById {
   '/_authenticated/create': typeof AuthenticatedCreateRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/deals': typeof AuthenticatedDealsRoute
+  '/_authenticated/deliveries': typeof AuthenticatedDeliveriesRoute
+  '/_authenticated/dispatch': typeof AuthenticatedDispatchRoute
   '/_authenticated/electricity': typeof AuthenticatedElectricityRoute
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
   '/_authenticated/flights': typeof AuthenticatedFlightsRoute
@@ -1234,6 +1269,7 @@ export interface FileRoutesById {
   '/_authenticated/groups': typeof AuthenticatedGroupsRoute
   '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
   '/_authenticated/investment': typeof AuthenticatedInvestmentRoute
+  '/_authenticated/logistics-admin': typeof AuthenticatedLogisticsAdminRoute
   '/_authenticated/mentors': typeof AuthenticatedMentorsRoute
   '/_authenticated/menu': typeof AuthenticatedMenuRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
@@ -1241,6 +1277,7 @@ export interface FileRoutesById {
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/referral-rewards': typeof AuthenticatedReferralRewardsRoute
+  '/_authenticated/rider': typeof AuthenticatedRiderRoute
   '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/shareholder': typeof AuthenticatedShareholderRoute
@@ -1372,6 +1409,8 @@ export interface FileRouteTypes {
     | '/create'
     | '/dashboard'
     | '/deals'
+    | '/deliveries'
+    | '/dispatch'
     | '/electricity'
     | '/feed'
     | '/flights'
@@ -1380,6 +1419,7 @@ export interface FileRouteTypes {
     | '/groups'
     | '/inventory'
     | '/investment'
+    | '/logistics-admin'
     | '/mentors'
     | '/menu'
     | '/messages'
@@ -1387,6 +1427,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/profile'
     | '/referral-rewards'
+    | '/rider'
     | '/search'
     | '/settings'
     | '/shareholder'
@@ -1515,6 +1556,8 @@ export interface FileRouteTypes {
     | '/create'
     | '/dashboard'
     | '/deals'
+    | '/deliveries'
+    | '/dispatch'
     | '/electricity'
     | '/feed'
     | '/flights'
@@ -1523,6 +1566,7 @@ export interface FileRouteTypes {
     | '/groups'
     | '/inventory'
     | '/investment'
+    | '/logistics-admin'
     | '/mentors'
     | '/menu'
     | '/messages'
@@ -1530,6 +1574,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/profile'
     | '/referral-rewards'
+    | '/rider'
     | '/search'
     | '/settings'
     | '/shareholder'
@@ -1660,6 +1705,8 @@ export interface FileRouteTypes {
     | '/_authenticated/create'
     | '/_authenticated/dashboard'
     | '/_authenticated/deals'
+    | '/_authenticated/deliveries'
+    | '/_authenticated/dispatch'
     | '/_authenticated/electricity'
     | '/_authenticated/feed'
     | '/_authenticated/flights'
@@ -1668,6 +1715,7 @@ export interface FileRouteTypes {
     | '/_authenticated/groups'
     | '/_authenticated/inventory'
     | '/_authenticated/investment'
+    | '/_authenticated/logistics-admin'
     | '/_authenticated/mentors'
     | '/_authenticated/menu'
     | '/_authenticated/messages'
@@ -1675,6 +1723,7 @@ export interface FileRouteTypes {
     | '/_authenticated/notifications'
     | '/_authenticated/profile'
     | '/_authenticated/referral-rewards'
+    | '/_authenticated/rider'
     | '/_authenticated/search'
     | '/_authenticated/settings'
     | '/_authenticated/shareholder'
@@ -2016,6 +2065,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDealsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/deliveries': {
+      id: '/_authenticated/deliveries'
+      path: '/deliveries'
+      fullPath: '/deliveries'
+      preLoaderRoute: typeof AuthenticatedDeliveriesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dispatch': {
+      id: '/_authenticated/dispatch'
+      path: '/dispatch'
+      fullPath: '/dispatch'
+      preLoaderRoute: typeof AuthenticatedDispatchRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/electricity': {
       id: '/_authenticated/electricity'
       path: '/electricity'
@@ -2072,6 +2135,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInvestmentRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/logistics-admin': {
+      id: '/_authenticated/logistics-admin'
+      path: '/logistics-admin'
+      fullPath: '/logistics-admin'
+      preLoaderRoute: typeof AuthenticatedLogisticsAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/mentors': {
       id: '/_authenticated/mentors'
       path: '/mentors'
@@ -2119,6 +2189,13 @@ declare module '@tanstack/react-router' {
       path: '/referral-rewards'
       fullPath: '/referral-rewards'
       preLoaderRoute: typeof AuthenticatedReferralRewardsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/rider': {
+      id: '/_authenticated/rider'
+      path: '/rider'
+      fullPath: '/rider'
+      preLoaderRoute: typeof AuthenticatedRiderRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/search': {
@@ -2832,6 +2909,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCreateRoute: typeof AuthenticatedCreateRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDealsRoute: typeof AuthenticatedDealsRoute
+  AuthenticatedDeliveriesRoute: typeof AuthenticatedDeliveriesRoute
+  AuthenticatedDispatchRoute: typeof AuthenticatedDispatchRoute
   AuthenticatedElectricityRoute: typeof AuthenticatedElectricityRoute
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
   AuthenticatedFlightsRoute: typeof AuthenticatedFlightsRoute
@@ -2840,6 +2919,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRoute
   AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
   AuthenticatedInvestmentRoute: typeof AuthenticatedInvestmentRoute
+  AuthenticatedLogisticsAdminRoute: typeof AuthenticatedLogisticsAdminRoute
   AuthenticatedMentorsRoute: typeof AuthenticatedMentorsRoute
   AuthenticatedMenuRoute: typeof AuthenticatedMenuRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
@@ -2847,6 +2927,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedReferralRewardsRoute: typeof AuthenticatedReferralRewardsRoute
+  AuthenticatedRiderRoute: typeof AuthenticatedRiderRoute
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedShareholderRoute: typeof AuthenticatedShareholderRoute
@@ -2901,6 +2982,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCreateRoute: AuthenticatedCreateRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDealsRoute: AuthenticatedDealsRoute,
+  AuthenticatedDeliveriesRoute: AuthenticatedDeliveriesRoute,
+  AuthenticatedDispatchRoute: AuthenticatedDispatchRoute,
   AuthenticatedElectricityRoute: AuthenticatedElectricityRoute,
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
   AuthenticatedFlightsRoute: AuthenticatedFlightsRoute,
@@ -2909,6 +2992,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedGroupsRoute: AuthenticatedGroupsRoute,
   AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
   AuthenticatedInvestmentRoute: AuthenticatedInvestmentRoute,
+  AuthenticatedLogisticsAdminRoute: AuthenticatedLogisticsAdminRoute,
   AuthenticatedMentorsRoute: AuthenticatedMentorsRoute,
   AuthenticatedMenuRoute: AuthenticatedMenuRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
@@ -2916,6 +3000,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedReferralRewardsRoute: AuthenticatedReferralRewardsRoute,
+  AuthenticatedRiderRoute: AuthenticatedRiderRoute,
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedShareholderRoute: AuthenticatedShareholderRoute,

@@ -31,6 +31,8 @@ import {
   ChartNoAxesCombined,
   Plane,
   Gift,
+  Truck,
+  Bike,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -100,6 +102,9 @@ const sections: { en: string; fr: string; items: MenuItem[] }[] = [
       { en: "Jobs", fr: "Emplois", to: "/jobs", icon: BriefcaseBusiness, soon: true },
       { en: "Create", fr: "Créer", to: "/create", icon: PlusCircle },
       { en: "Bookings", fr: "Réservations", to: "/bookings", icon: CalendarDays },
+      { en: "My deliveries", fr: "Mes livraisons", to: "/deliveries", icon: Truck },
+      { en: "Shop dispatch", fr: "Livraisons boutique", to: "/dispatch", icon: Store },
+      { en: "ASH Rider", fr: "ASH Rider", to: "/rider", icon: Bike },
       { en: "Inventory", fr: "Inventaire", to: "/inventory", icon: BarChart3, soon: true },
     ],
   },
@@ -285,6 +290,15 @@ function MenuPage() {
           <Shield className="size-6 text-primary" aria-hidden />
           {tx("Admin console", "Console d’administration")}
         </a>
+      ) : null}
+      {isAdmin ? (
+        <Link
+          to="/logistics-admin"
+          className="flex items-center gap-3 rounded-2xl bg-card px-4 py-3 text-sm font-bold text-foreground ring-1 ring-border"
+        >
+          <Truck className="size-6 text-primary" aria-hidden />
+          {tx("ASH Logistics operations", "Opérations ASH Logistics")}
+        </Link>
       ) : null}
 
       <Button
