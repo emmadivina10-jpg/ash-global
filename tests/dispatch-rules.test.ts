@@ -35,7 +35,7 @@ describe("quote approval", () => {
 });
 
 describe("pickup code", () => {
-  it("is six digits", () => expect(generatePickupCode(() => new Uint32Array([42]))).toBe("000042"));
+  it("is six digits", () => expect(generatePickupCode(() => 42)).toBe("000042"));
   const base = { matches: true, issuedAt: 0, now: 1000, attempts: 0, usedAt: null };
   it("accepts a fresh correct code", () => expect(checkPickupCode(base)).toBe("OK"));
   it("expires after 30 minutes", () => expect(checkPickupCode({ ...base, now: PICKUP_CODE_TTL_MS + 1 })).toBe("EXPIRED"));

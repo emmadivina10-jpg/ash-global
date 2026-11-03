@@ -62,8 +62,8 @@ export const PICKUP_CODE_TTL_MS = 30 * 60 * 1000;
 export const PICKUP_CODE_MAX_ATTEMPTS = 5;
 
 /** 6-digit code from the platform CSPRNG (no modulo bias beyond negligible). */
-export function generatePickupCode(rand: (b: Uint32Array) => Uint32Array = (b) => crypto.getRandomValues(b)): string {
-  const n = rand(new Uint32Array(1))[0] % 1_000_000;
+export function generatePickupCode(rand: () => number = () => crypto.getRandomValues(new Uint32Array(1))[0] ?? 0): string {
+  const n = rand() % 1_000_000;
   return String(n).padStart(6, "0");
 }
 
