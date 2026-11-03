@@ -27,6 +27,7 @@ import { FEED_CATEGORIES, matchesCategory, type FeedCategory } from "@/component
 import { cn } from "@/lib/utils";
 import { useProfile, useUser } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
+import { useAuthGate } from "@/lib/guest-gate";
 
 export const Route = createFileRoute("/_browse/feed")({
   head: () => ({
@@ -54,6 +55,7 @@ function FeedPage() {
   const fr = lang === "fr";
   const { user } = useUser();
   const me = user?.id ?? null;
+  const { isGuest, requireAuth } = useAuthGate();
   // Preserve the same safety-filtered, stable feed pool.
   const { data: posts, isLoading, refetch } = useSocialFeed(120);
   const { data: profile } = useProfile();
@@ -132,6 +134,13 @@ function FeedPage() {
 
   async function publish() {
     if (create.isPending) return;
+    if (
+      !requireAuth({
+        en: "Sign in to share a post.",
+        fr: "Connectez-vous pour publier.",
+      })
+    )
+      return;
 
     const cleanCaption = caption.trim();
 
@@ -186,35 +195,48 @@ function FeedPage() {
         <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
           <div className="min-w-0 self-center">
             <h1 className="sr-only">{tx("ASH Feed", "Fil ASH")}</h1>
-            <Link
-              to="/profile"
-              aria-label={tx("My profile", "Mon profil")}
-              className="inline-flex rounded-full ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <Avatar
-                path={profile?.avatar_url}
-                name={profile?.full_name}
-                online
-                className="size-11 shrink-0"
-              />
-            </Link>
+            {!isGuest && (
+              <Link
+                to="/profile"
+                aria-label={tx("My profile", "Mon profil")}
+                className="inline-flex rounded-full ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <Avatar
+                  path={profile?.avatar_url}
+                  name={profile?.full_name}
+                  online
+                  className="size-11 shrink-0"
+                />
+              </Link>
+            )}
           </div>
           <div className="flex items-center gap-1.5">
-            <Link
-              to="/referral-rewards"
-              aria-label={tx("Open Referral rewards", "Ouvrir les récompenses de parrainage")}
-              className="inline-flex h-10 items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3 text-xs font-bold text-foreground transition-colors hover:bg-gold/20"
-            >
-              <Gift className="size-4 text-gold" aria-hidden />
-              <span className="hidden min-[390px]:inline">{tx("Referral rewards", "Parrainage")}</span>
-            </Link>
+            {!isGuest && (
+              <Link
+                to="/referral-rewards"
+                aria-label={tx("Open Referral rewards", "Ouvrir les récompenses de parrainage")}
+                className="inline-flex h-10 items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3 text-xs font-bold text-foreground transition-colors hover:bg-gold/20"
+              >
+                <Gift className="size-4 text-gold" aria-hidden />
+                <span className="hidden min-[390px]:inline">{tx("Referral rewards", "Parrainage")}</span>
+              </Link>
+            )}
             <Button
               type="button"
               size="icon"
               className="size-10 rounded-full shadow-sm [&_svg]:size-6 motion-safe:transition-transform motion-safe:hover:rotate-90"
               aria-label={tx("Create a post", "Créer une publication")}
               title={tx("Create a post", "Créer une publication")}
-              onClick={() => setComposerOpen(true)}
+              onClick={() => {
+                if (
+                  !requireAuth({
+                    en: "Sign in to share a post.",
+                    fr: "Connectez-vous pour publier.",
+                  })
+                )
+                  return;
+                setComposerOpen(true);
+              }}
             >
               <Plus aria-hidden />
             </Button>
