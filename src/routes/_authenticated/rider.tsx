@@ -159,7 +159,7 @@ function Documents({ me, rider, fr }: { me: string; rider: RiderRow; fr: boolean
         ))}
       </ul>
       {canSubmit ? (
-        <Button className="mt-4 w-full" disabled={missing.length > 0} onClick={async () => {
+        <Button className="mt-4 h-auto w-full whitespace-normal py-2" disabled={missing.length > 0} onClick={async () => {
           try { await rpc("dispatch_rider_submit_verification"); toast.success(tx("Sent for review", "Envoyé pour examen")); refresh(); } catch (e) { toast.error(dispatchError(e, fr)); }
         }}>
           {missing.length ? `${tx("Missing", "Manquant")}: ${missing.map((m) => DOC_LABEL[m][fr ? 1 : 0]).join(", ")}` : tx("Submit for verification", "Soumettre pour vérification")}
