@@ -14,7 +14,7 @@ import { dispatchError, rpc, useInvalidateDispatch, useJobEvents, useJobs, useMe
 
 export const Route = createFileRoute("/_authenticated/deliveries")({
   validateSearch: (s: Record<string, unknown>): { vendor?: string } =>
-    typeof s.vendor === "string" && /^[0-9a-f-]{36}$/i.test(s.vendor) ? { vendor: s.vendor } : {},
+    typeof s['vendor'] === "string" && /^[0-9a-f-]{36}$/i.test(s['vendor']) ? { vendor: s['vendor'] } : {},
   head: () => ({
     meta: [
       { title: "My deliveries — ASH Glo" },
@@ -118,7 +118,7 @@ function RequestForm({ vendorId, fr }: { vendorId: string; fr: boolean }) {
   );
 }
 
-function CustomerJob({ job, shop, fr }: { job: DispatchJob; shop?: string; fr: boolean }) {
+function CustomerJob({ job, shop, fr }: { job: DispatchJob; shop?: string | undefined; fr: boolean }) {
   const { tx } = useI18n();
   const refresh = useInvalidateDispatch();
   const [open, setOpen] = useState(false);
