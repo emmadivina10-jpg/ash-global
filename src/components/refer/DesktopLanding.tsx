@@ -369,7 +369,7 @@ export function DesktopLanding() {
                 <h3>{tx(item.title, item.fr)}</h3>
                 <p>{tx(item.body, item.bodyFr)}</p>
                 <Button asChild variant="link">
-                  <Link to="/login" search={{ next: item.to }}>
+                  <Link to={item.to}>
                     {tx(item.cta, item.ctaFr)}
                     <ArrowUpRight />
                   </Link>
@@ -550,7 +550,7 @@ export function DesktopLanding() {
                   <h3>{tx(item.title, item.fr)}</h3>
                   <p>{tx(item.body, item.bodyFr)}</p>
                   <Button asChild variant="link">
-                    <Link to="/login" search={{ next: "/services" }}>
+                    <Link to="/services">
                       {tx("Discover more", "En savoir plus")}
                       <ArrowUpRight />
                     </Link>
