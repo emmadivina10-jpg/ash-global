@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState, LoadingState } from "@/components/refer/states";
 import { PageHead, Panel, StatusPill, Timeline, modeLabel } from "@/components/dispatch/DispatchUI";
 import { useI18n } from "@/lib/i18n";
+import { DeliveryLiveMap } from "@/components/dispatch/DeliveryLiveMap";
 import { useIsAdmin } from "@/lib/queries";
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { SIGNED_URL_MAX_SECONDS, riderCanTakeWork } from "@/lib/dispatch-docs";
@@ -163,6 +164,7 @@ function OpsJob({ job, ready, names, fr }: { job: DispatchJob; ready: RiderRow[]
     <Panel title={`${names[job.vendor_id ?? ""] ?? tx("Shop", "Boutique")} → ${names[job.customer_id ?? ""] ?? tx("Customer", "Client")}`} action={<StatusPill status={job.status} fr={fr} />}>
       <p className="text-sm text-muted-foreground">{job.pickup_address} → {job.dropoff_address}</p>
       <p className="text-xs text-muted-foreground">{modeLabel(job.fulfillment_mode, fr)} · {job.fee_amount === null ? tx("no fee yet", "pas de frais") : formatXAF(job.fee_amount)} {approved ? `· ${tx("approved", "approuvés")}` : ""} · {formatDateTime(job.created_at)}</p>
+      <DeliveryLiveMap job={job} />
       {assignable ? (
         <div className="mt-2 flex flex-wrap gap-2">
           {ready.length ? ready.map((r) => (

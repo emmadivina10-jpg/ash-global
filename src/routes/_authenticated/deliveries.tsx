@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { EmptyState, LoadingState } from "@/components/refer/states";
 import { PageHead, Panel, ProgressSteps, StatusPill, Timeline, modeLabel } from "@/components/dispatch/DispatchUI";
 import { useI18n } from "@/lib/i18n";
+import { DeliveryLiveMap } from "@/components/dispatch/DeliveryLiveMap";
 import { formatXAF } from "@/lib/format";
 import { dispatchError, rpc, useInvalidateDispatch, useJobEvents, useJobs, useMe, useNames, type DispatchJob } from "@/lib/dispatch.queries";
 
@@ -151,6 +152,7 @@ function CustomerJob({ job, shop, fr }: { job: DispatchJob; shop?: string | unde
           {modeLabel(job.fulfillment_mode, fr)} · {job.fee_amount === null ? tx("Waiting for the shop's fee", "En attente des frais") : formatXAF(job.fee_amount)}
         </p>
         <ProgressSteps status={job.status} mode={job.fulfillment_mode} fr={fr} />
+        <DeliveryLiveMap job={job} />
         {needsApproval ? (
           <Button className="w-full" onClick={() => act("dispatch_approve_quote", { _job: job.id, _fee: job.fee_amount }, tx("Fee approved", "Frais approuvés"))}>
             {tx("Approve fee", "Approuver les frais")} {formatXAF(job.fee_amount)}
@@ -182,11 +184,6 @@ function CustomerJob({ job, shop, fr }: { job: DispatchJob; shop?: string | unde
           ) : null}
         </div>
         {open ? <Timeline events={events.data ?? []} fr={fr} /> : null}
-        {!done && job.fulfillment_mode !== "SELF_PICKUP" ? (
-          <p className="text-xs text-muted-foreground">
-            {tx("Status updates every few seconds. The rider's live map position is not shown yet.", "Le statut se met à jour toutes les quelques secondes. La position du livreur sur la carte n'est pas encore affichée.")}
-          </p>
-        ) : null}
       </div>
     </Panel>
   );

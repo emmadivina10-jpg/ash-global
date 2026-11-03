@@ -2086,6 +2086,41 @@ export type Database = {
           },
         ]
       }
+      dispatch_job_live_locations: {
+        Row: {
+          accuracy_m: number | null
+          delivery_id: string
+          latitude: number
+          longitude: number
+          rider_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          accuracy_m?: number | null
+          delivery_id: string
+          latitude: number
+          longitude: number
+          rider_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          accuracy_m?: number | null
+          delivery_id?: string
+          latitude?: number
+          longitude?: number
+          rider_user_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispatch_job_live_locations_delivery_id_fkey"
+            columns: ["delivery_id"]
+            isOneToOne: true
+            referencedRelation: "dispatch_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dispatch_jobs: {
         Row: {
           approved_fee_amount: number | null
@@ -8312,6 +8347,18 @@ export type Database = {
         Returns: string
       }
       dispatch_issue_handover_code: { Args: { _job: string }; Returns: string }
+      dispatch_job_rider_location: {
+        Args: { _job: string }
+        Returns: {
+          accuracy_m: number
+          latitude: number
+          longitude: number
+          plate: string
+          rider_name: string
+          updated_at: string
+          vehicle: string
+        }[]
+      }
       dispatch_log: {
         Args: { _actor: string; _job: string; _note: string; _status: string }
         Returns: undefined
@@ -8368,7 +8415,15 @@ export type Database = {
         Args: { _zones: string[] }
         Returns: undefined
       }
+      dispatch_rider_stop_location: {
+        Args: { _job: string }
+        Returns: undefined
+      }
       dispatch_rider_submit_verification: { Args: never; Returns: undefined }
+      dispatch_rider_update_location: {
+        Args: { _accuracy?: number; _job: string; _lat: number; _lng: number }
+        Returns: undefined
+      }
       dispatch_set_quote: {
         Args: { _fee: number; _job: string }
         Returns: undefined
