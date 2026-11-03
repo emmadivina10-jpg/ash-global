@@ -49,3 +49,11 @@ Clean-up after the run: cancel/complete all QA deliveries, remove QA rider docum
 2. Real-device GPS check (Android Chrome + iOS Safari) — requires a person with a phone during layer B.
 3. Concurrency is protected by database locks and a unique index; isolated tests cannot run truly parallel requests.
 4. Browser sharing stops in the background — by design until the native ASH Rider app exists.
+
+## Live QA run — 2026-11-03 (approved)
+- Five temporary QA accounts (customer, shop, two riders, staff), one hidden test shop, five test deliveries. No payments started.
+- Live checks with the real accounts: 61/61 passed (46 setup, privacy and journey checks + 15 completion and clean-up checks).
+- Screens (phone size): customer, shop and staff each saw the live OpenStreetMap position; an unrelated rider saw no delivery, address or map; the rider's limitation notice and "Sharing — keep this screen open" were shown.
+- Browser location: Android Chrome (emulated Pixel) and iPhone Safari engine (WebKit, emulated iPhone 14) both saved positions when permission was granted and showed the refusal message when it was denied. **Not tested on physical phones** — needs a person with devices.
+- Concurrency: three simultaneous assignment requests on one delivery → exactly one succeeded, one live rider.
+- Clean-up: all QA deliveries, events, codes, assignments, invites, team links, rider records, six document records, six stored files, test shop and five accounts removed (their auto-created empty profiles/wallets/roles went with the accounts). Before/after fingerprints of profiles, wallets, wallet balances, bookings, transactions, payments, referrals, providers and roles are identical.
