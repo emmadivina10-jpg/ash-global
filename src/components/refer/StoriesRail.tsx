@@ -593,6 +593,13 @@ export function StoriesRail({
   }
 
   function openCreate() {
+    if (
+      !requireAuth({
+        en: "Sign in to share a Story or Spotlight.",
+        fr: "Connectez-vous pour partager une Story ou un Spotlight.",
+      })
+    )
+      return;
     setChooserOpen(true);
   }
 
