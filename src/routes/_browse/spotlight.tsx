@@ -255,7 +255,6 @@ function timeAgo(iso: string, fr: boolean) {
 type CommentSort = "relevant" | "newest";
 
 function CommentsPanel({ entry }: { entry: SpotlightEntry }) {
-  // eslint-disable-next-line react-hooks/rules-of-hooks -- panel header
   const { requireAuth } = useAuthGate();
   const { tx, lang } = useI18n();
   const { user } = useUser();
@@ -362,7 +361,16 @@ function CommentsPanel({ entry }: { entry: SpotlightEntry }) {
             <span className="font-normal">{timeAgo(c.created_at, lang === "fr")}</span>
             <button
               type="button"
-              onClick={() => like.mutate({ commentId: c.id, like: !c.liked })}
+              onClick={() => {
+                if (
+                  !requireAuth({
+                    en: "Sign in to like comments.",
+                    fr: "Connectez-vous pour aimer les commentaires.",
+                  })
+                )
+                  return;
+                like.mutate({ commentId: c.id, like: !c.liked });
+              }}
               className={cn("hover:text-foreground", c.liked && "text-destructive")}
             >
               {tx("Like", "J'aime")}
@@ -502,8 +510,16 @@ function SpotlightSlide({
   }, [root]);
 
   const canReact = entry.source === "post";
+  const { requireAuth } = useAuthGate();
   function toggleLike() {
     if (!canReact || react.isPending) return;
+    if (
+      !requireAuth({
+        en: "Sign in to like this video.",
+        fr: "Connectez-vous pour aimer cette vidéo.",
+      })
+    )
+      return;
     const next = !liked;
     setLiked(next);
     setCount((c) => Math.max(0, c + (next ? 1 : -1)));
