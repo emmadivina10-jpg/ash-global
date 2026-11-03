@@ -58,6 +58,7 @@ import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { ProfilePhotoOverlay, VendorProfileSheet } from "@/components/refer/VendorProfileSheet";
 import { directory, type DirectoryProfile } from "@/lib/public-profiles";
 import { rotateSessionContent, freshness } from "@/lib/rotation";
+import { useAuthGate } from "@/lib/guest-gate";
 
 const SOCIAL_BUCKET = "spotlight";
 const IMAGE_MAX_BYTES = 12 * 1024 * 1024;
@@ -367,6 +368,7 @@ export function StoriesRail({
   const me = user?.id ?? null;
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { requireAuth } = useAuthGate();
 
   const { data: storyData, isLoading: storiesLoading } = useStories();
   const createStory = useCreateStory();
