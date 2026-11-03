@@ -44,7 +44,7 @@ function DeliveriesPage() {
         <LoadingState />
       ) : !jobs.data?.length ? (
         <EmptyState
-          icon={Package}
+          icon={<Package className="h-5 w-5" />}
           title={tx("No deliveries yet", "Aucune livraison")}
           description={tx("Open a shop and choose Request delivery to start.", "Ouvrez une boutique et choisissez Demander une livraison.")}
         />
