@@ -18,7 +18,7 @@ import { useI18n } from "@/lib/i18n";
 import { playTabSound } from "@/lib/sound";
 import ashLogo from "@/assets/ash-logo.png.asset.json";
 
-export const Route = createFileRoute("/_authenticated/services/extras")({
+export const Route = createFileRoute("/_browse/services/extras")({
   head: () => ({
     meta: [
       { title: "Market Extras — ASH Glo" },

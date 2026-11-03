@@ -32,6 +32,7 @@ import { ExpandableSocialText } from "./ExpandableSocialText";
 import { trackEvent, useImpression } from "@/lib/activity";
 import { MediaLightbox } from "./MediaLightbox";
 import { actionFor } from "./feed-categories";
+import { useAuthGate } from "@/lib/guest-gate";
 
 function timeAgo(iso: string, fr: boolean) {
   const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
@@ -85,6 +86,7 @@ export function PostCard({
   };
   const react = useSetPostReaction();
   const repost = useToggleRepost();
+  const { requireAuth } = useAuthGate();
   const [shareOpen, setShareOpen] = useState(false);
   const setFilter = useSetCommentFilter();
   const mine = currentUserId === post.author_id;
@@ -245,8 +247,14 @@ export function PostCard({
           value={post.current_reaction}
           total={post.like_count}
           breakdown={post.reaction_breakdown}
-          disabled={!currentUserId}
           onChange={(reaction) => {
+            if (
+              !requireAuth({
+                en: "Sign in to react to posts.",
+                fr: "Connectez-vous pour réagir aux publications.",
+              })
+            )
+              return;
             trackEvent({
               event_type: reaction ? "reaction" : "unlike",
               surface: "feed",
@@ -279,6 +287,13 @@ export function PostCard({
           aria-pressed={post.reposted}
           className={cn(post.reposted && "text-primary")}
           onClick={() => {
+            if (
+              !requireAuth({
+                en: "Sign in to repost this to your people.",
+                fr: "Connectez-vous pour republier ceci.",
+              })
+            )
+              return;
             trackEvent({
               event_type: "repost",
               surface: "feed",
@@ -361,12 +376,20 @@ function Comments({
   const fr = lang === "fr";
   const { data, isLoading } = useComments(post.id);
   const add = useAddComment();
+  const { requireAuth } = useAuthGate();
   const [body, setBody] = useState("");
   const [replyTo, setReplyTo] = useState<PostComment | null>(null);
 
   function submit() {
     const text = body.trim();
     if (!text) return;
+    if (
+      !requireAuth({
+        en: "Sign in to join the conversation.",
+        fr: "Connectez-vous pour participer à la conversation.",
+      })
+    )
+      return;
     add.mutate(
       { postId: post.id, body: text, parentId: replyTo?.id ?? null, screen: post.filter_comments },
       {

@@ -218,6 +218,13 @@ export function MobileOnboarding() {
               <Link to="/login">{tx("Log in", "Se connecter")}</Link>
             </Button>
           </p>
+          <p className="mobile-welcome-login">
+            <Button asChild variant="link">
+              <Link to="/feed">
+                {tx("Explore as a guest first", "Explorer d'abord en invité")}
+              </Link>
+            </Button>
+          </p>
         </footer>
       </main>
     </div>

@@ -48,10 +48,11 @@ import {
 import { formatDateTime } from "@/lib/format";
 import { useUser } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
+import { useAuthGate } from "@/lib/guest-gate";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/activity";
 
-export const Route = createFileRoute("/_authenticated/property/$listingId")({
+export const Route = createFileRoute("/_browse/property/$listingId")({
   head: () => ({
     meta: [
       { title: "Property details — ASH Property" },
@@ -79,6 +80,7 @@ function PropertyDetail() {
   const queryClient = useQueryClient();
   const navigate = Route.useNavigate();
   const { user } = useUser();
+  const { requireAuth } = useAuthGate();
 
   const { data, isLoading } = useProperty(listingId);
   const { data: similar } = useSimilarProperties(data?.listing ?? null);
@@ -92,6 +94,7 @@ function PropertyDetail() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
+    if (!user) return;
     void supabase.rpc("record_property_view", { _listing_id: listingId });
     trackEvent({
       event_type: "listing_view",
@@ -123,6 +126,13 @@ function PropertyDetail() {
   const gallery = images.filter((image) => image.url);
 
   async function toggleSave() {
+    if (
+      !requireAuth({
+        en: "Sign in to save this listing.",
+        fr: "Connectez-vous pour enregistrer cette annonce.",
+      })
+    )
+      return;
     const { data: auth } = await supabase.auth.getUser();
     if (!auth.user) return;
     if (saved) {
@@ -147,6 +157,13 @@ function PropertyDetail() {
   }
 
   async function requestViewing() {
+    if (
+      !requireAuth({
+        en: "Sign in to request a viewing.",
+        fr: "Connectez-vous pour demander une visite.",
+      })
+    )
+      return;
     if (!when) {
       toast.error(tx("Pick a date and time.", "Choisissez une date et une heure."));
       return;
@@ -173,6 +190,13 @@ function PropertyDetail() {
   }
 
   async function messageOwner() {
+    if (
+      !requireAuth({
+        en: "Sign in to message the owner.",
+        fr: "Connectez-vous pour écrire au propriétaire.",
+      })
+    )
+      return;
     setBusy(true);
     try {
       const conversationId = await openPropertyConversation(listingId);

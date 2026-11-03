@@ -374,7 +374,7 @@ function isVideoSource(url: string | null | undefined) {
   return /\.(mp4|webm|mov|m4v|ogg)(?:\?|#|$)/i.test(url);
 }
 
-export const Route = createFileRoute("/_authenticated/services/")({
+export const Route = createFileRoute("/_browse/services/")({
   head: () => ({
     meta: [
       {

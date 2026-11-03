@@ -46,12 +46,13 @@ import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { ShareSheet, shareLink } from "@/components/refer/ShareSheet";
+import { useAuthGate } from "@/lib/guest-gate";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 
 type Search = { open?: string | undefined };
 
-export const Route = createFileRoute("/_authenticated/spotlight")({
+export const Route = createFileRoute("/_browse/spotlight")({
   validateSearch: (s: Record<string, unknown>): Search => ({
     open: typeof s["open"] === "string" ? s["open"] : undefined,
   }),
@@ -254,6 +255,7 @@ function timeAgo(iso: string, fr: boolean) {
 type CommentSort = "relevant" | "newest";
 
 function CommentsPanel({ entry }: { entry: SpotlightEntry }) {
+  const { requireAuth } = useAuthGate();
   const { tx, lang } = useI18n();
   const { user } = useUser();
   const canComment = entry.source === "post";
@@ -288,6 +290,13 @@ function CommentsPanel({ entry }: { entry: SpotlightEntry }) {
   function submit() {
     const body = text.trim();
     if (!body || add.isPending) return;
+    if (
+      !requireAuth({
+        en: "Sign in to join the conversation.",
+        fr: "Connectez-vous pour participer à la conversation.",
+      })
+    )
+      return;
     add.mutate(
       { body, parentId: replyTo ? (replyTo.parent_id ?? replyTo.id) : null },
       {
@@ -352,7 +361,16 @@ function CommentsPanel({ entry }: { entry: SpotlightEntry }) {
             <span className="font-normal">{timeAgo(c.created_at, lang === "fr")}</span>
             <button
               type="button"
-              onClick={() => like.mutate({ commentId: c.id, like: !c.liked })}
+              onClick={() => {
+                if (
+                  !requireAuth({
+                    en: "Sign in to like comments.",
+                    fr: "Connectez-vous pour aimer les commentaires.",
+                  })
+                )
+                  return;
+                like.mutate({ commentId: c.id, like: !c.liked });
+              }}
               className={cn("hover:text-foreground", c.liked && "text-destructive")}
             >
               {tx("Like", "J'aime")}
@@ -492,8 +510,16 @@ function SpotlightSlide({
   }, [root]);
 
   const canReact = entry.source === "post";
+  const { requireAuth } = useAuthGate();
   function toggleLike() {
     if (!canReact || react.isPending) return;
+    if (
+      !requireAuth({
+        en: "Sign in to like this video.",
+        fr: "Connectez-vous pour aimer cette vidéo.",
+      })
+    )
+      return;
     const next = !liked;
     setLiked(next);
     setCount((c) => Math.max(0, c + (next ? 1 : -1)));

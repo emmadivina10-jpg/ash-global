@@ -27,8 +27,9 @@ import { FEED_CATEGORIES, matchesCategory, type FeedCategory } from "@/component
 import { cn } from "@/lib/utils";
 import { useProfile, useUser } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
+import { useAuthGate } from "@/lib/guest-gate";
 
-export const Route = createFileRoute("/_authenticated/feed")({
+export const Route = createFileRoute("/_browse/feed")({
   head: () => ({
     meta: [
       { title: "ASH Feed — the community wall" },
@@ -54,6 +55,7 @@ function FeedPage() {
   const fr = lang === "fr";
   const { user } = useUser();
   const me = user?.id ?? null;
+  const { isGuest, requireAuth } = useAuthGate();
   // Preserve the same safety-filtered, stable feed pool.
   const { data: posts, isLoading, refetch } = useSocialFeed(120);
   const { data: profile } = useProfile();
@@ -70,8 +72,9 @@ function FeedPage() {
     staleTime: 15_000,
   });
   // Wait for Spotlights before showing the Feed, so they never slot in late
-  // and push the people you're looking at up or down.
-  const spotlightsReady = spotlightsFetched || spotlightsFailed;
+  // and push the people you're looking at up or down. Guests skip the wait:
+  // their Spotlights query is disabled until sign-in.
+  const spotlightsReady = isGuest || spotlightsFetched || spotlightsFailed;
   const [spotlightRequest, setSpotlightRequest] = useState<
     { authorId: string; kind: "spotlight"; spotlightId: string } | undefined
   >();
@@ -132,6 +135,13 @@ function FeedPage() {
 
   async function publish() {
     if (create.isPending) return;
+    if (
+      !requireAuth({
+        en: "Sign in to share a post.",
+        fr: "Connectez-vous pour publier.",
+      })
+    )
+      return;
 
     const cleanCaption = caption.trim();
 
@@ -186,35 +196,48 @@ function FeedPage() {
         <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
           <div className="min-w-0 self-center">
             <h1 className="sr-only">{tx("ASH Feed", "Fil ASH")}</h1>
-            <Link
-              to="/profile"
-              aria-label={tx("My profile", "Mon profil")}
-              className="inline-flex rounded-full ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <Avatar
-                path={profile?.avatar_url}
-                name={profile?.full_name}
-                online
-                className="size-11 shrink-0"
-              />
-            </Link>
+            {!isGuest && (
+              <Link
+                to="/profile"
+                aria-label={tx("My profile", "Mon profil")}
+                className="inline-flex rounded-full ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <Avatar
+                  path={profile?.avatar_url}
+                  name={profile?.full_name}
+                  online
+                  className="size-11 shrink-0"
+                />
+              </Link>
+            )}
           </div>
           <div className="flex items-center gap-1.5">
-            <Link
-              to="/referral-rewards"
-              aria-label={tx("Open Referral rewards", "Ouvrir les récompenses de parrainage")}
-              className="inline-flex h-10 items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3 text-xs font-bold text-foreground transition-colors hover:bg-gold/20"
-            >
-              <Gift className="size-4 text-gold" aria-hidden />
-              <span className="hidden min-[390px]:inline">{tx("Referral rewards", "Parrainage")}</span>
-            </Link>
+            {!isGuest && (
+              <Link
+                to="/referral-rewards"
+                aria-label={tx("Open Referral rewards", "Ouvrir les récompenses de parrainage")}
+                className="inline-flex h-10 items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3 text-xs font-bold text-foreground transition-colors hover:bg-gold/20"
+              >
+                <Gift className="size-4 text-gold" aria-hidden />
+                <span className="hidden min-[390px]:inline">{tx("Referral rewards", "Parrainage")}</span>
+              </Link>
+            )}
             <Button
               type="button"
               size="icon"
               className="size-10 rounded-full shadow-sm [&_svg]:size-6 motion-safe:transition-transform motion-safe:hover:rotate-90"
               aria-label={tx("Create a post", "Créer une publication")}
               title={tx("Create a post", "Créer une publication")}
-              onClick={() => setComposerOpen(true)}
+              onClick={() => {
+                if (
+                  !requireAuth({
+                    en: "Sign in to share a post.",
+                    fr: "Connectez-vous pour publier.",
+                  })
+                )
+                  return;
+                setComposerOpen(true);
+              }}
             >
               <Plus aria-hidden />
             </Button>
@@ -347,6 +370,25 @@ function FeedPage() {
           </DialogContent>
         </Dialog>
 
+        {isGuest && (
+          <div className="tile flex items-center gap-3 rounded-3xl border border-primary/30 bg-primary/5 p-4">
+            <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
+              <Sparkles className="size-5" aria-hidden />
+            </span>
+            <p className="min-w-0 flex-1 text-xs text-muted-foreground">
+              {tx(
+                "You're browsing as a guest. Create a free account to post, react and message.",
+                "Vous explorez en invité. Créez un compte gratuit pour publier, réagir et écrire.",
+              )}
+            </p>
+            <Link to="/register" search={{ next: "/feed" }}>
+              <Button size="sm" className="h-9 rounded-full px-4">
+                {tx("Join free", "Rejoindre")}
+              </Button>
+            </Link>
+          </div>
+        )}
+
         <StoriesRail />
         {spotlightRequest ? (
           <StoriesRail
@@ -400,10 +442,15 @@ function FeedPage() {
                 : tx("No posts in this category yet", "Aucune publication dans cette catégorie")}
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              {tx(
-                "Share a photo — that is how the feed comes alive.",
-                "Partagez une photo — c'est ainsi que le fil prend vie.",
-              )}
+              {isGuest
+                ? tx(
+                    "Public posts will appear here as the community grows.",
+                    "Les publications publiques apparaîtront ici au fur et à mesure.",
+                  )
+                : tx(
+                    "Share a photo — that is how the feed comes alive.",
+                    "Partagez une photo — c'est ainsi que le fil prend vie.",
+                  )}
             </p>
           </div>
         ) : (

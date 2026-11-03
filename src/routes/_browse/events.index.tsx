@@ -8,7 +8,7 @@ import { formatDateTime, formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 import { ComingSoon } from "@/components/refer/ComingSoon";
 
-export const Route = createFileRoute("/_authenticated/events/")({
+export const Route = createFileRoute("/_browse/events/")({
   head: () => ({
     meta: [
       { title: "ASH Events — Coming soon" },

@@ -40,7 +40,7 @@ import {
   type CampusInstructor,
 } from "@/lib/campus.queries";
 
-export const Route = createFileRoute("/_authenticated/campus/instructors/")({
+export const Route = createFileRoute("/_browse/campus/instructors/")({
   head: () => ({
     meta: [
       { title: "Find Someone Who Can Teach You — ASH Campus" },

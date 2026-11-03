@@ -14,8 +14,9 @@ import { EmptyState, LoadingState } from "@/components/refer/states";
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 import { useTrackView } from "@/lib/activity";
+import { useAuthGate } from "@/lib/guest-gate";
 
-export const Route = createFileRoute("/_authenticated/deals")({
+export const Route = createFileRoute("/_browse/deals")({
   head: () => ({
     meta: [
       { title: "ASH Deals — Coming soon" },
@@ -66,7 +67,16 @@ function DealsPage() {
   useTrackView({ event_type: "view", surface: "deals", target_type: "deals_page" });
   const [pending, setPending] = useState<string | null>(null);
 
+  const { requireAuth } = useAuthGate();
+
   async function onClaim(dealId: string) {
+    if (
+      !requireAuth({
+        en: "Sign in to claim this deal.",
+        fr: "Connectez-vous pour profiter de cette offre.",
+      })
+    )
+      return;
     setPending(dealId);
     try {
       const result = await claim({ data: { dealId } });

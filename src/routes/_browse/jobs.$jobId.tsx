@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { EmptyState, LoadingState } from "@/components/refer/states";
 import { formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
+import { useAuthGate } from "@/lib/guest-gate";
 import { useTrackView } from "@/lib/activity";
 import {
   useApplyToJob,
@@ -19,7 +20,7 @@ import {
 } from "@/lib/hub.queries";
 import { ComingSoon } from "@/components/refer/ComingSoon";
 
-export const Route = createFileRoute("/_authenticated/jobs/$jobId")({
+export const Route = createFileRoute("/_browse/jobs/$jobId")({
   head: () => ({
     meta: [
       { title: "Job opening — Coming soon" },
@@ -62,6 +63,7 @@ function JobDetail() {
   const navigate = useNavigate();
   const job = useJob(jobId);
   const applications = useJobApplications(jobId);
+  const { requireAuth } = useAuthGate();
 
   useTrackView(
     {
@@ -96,6 +98,13 @@ function JobDetail() {
   const alreadyApplied = !mine && (applications.data ?? []).length > 0;
 
   async function submit() {
+    if (
+      !requireAuth({
+        en: "Sign in to apply for this job.",
+        fr: "Connectez-vous pour postuler à cette offre.",
+      })
+    )
+      return;
     if (coverLetter.trim().length < 20) {
       toast.error(
         tx("Write a few lines about yourself.", "Écrivez quelques lignes de motivation."),

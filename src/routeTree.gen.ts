@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as BrowseRouteRouteImport } from './routes/_browse/route'
 import { Route as AccountDeletionRouteImport } from './routes/account-deletion'
 import { Route as CommunityGuidelinesRouteImport } from './routes/community-guidelines'
 import { Route as ConsentRouteImport } from './routes/consent'
@@ -36,11 +37,9 @@ import { Route as AuthenticatedAssistantRouteImport } from './routes/_authentica
 import { Route as AuthenticatedBookingsRouteImport } from './routes/_authenticated/bookings'
 import { Route as AuthenticatedCreateRouteImport } from './routes/_authenticated/create'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedDealsRouteImport } from './routes/_authenticated/deals'
 import { Route as AuthenticatedDeliveriesRouteImport } from './routes/_authenticated/deliveries'
 import { Route as AuthenticatedDispatchRouteImport } from './routes/_authenticated/dispatch'
 import { Route as AuthenticatedElectricityRouteImport } from './routes/_authenticated/electricity'
-import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
 import { Route as AuthenticatedFlightsRouteImport } from './routes/_authenticated/flights'
 import { Route as AuthenticatedFriendsRouteImport } from './routes/_authenticated/friends'
 import { Route as AuthenticatedFxAnalyticsRouteImport } from './routes/_authenticated/fx-analytics'
@@ -56,15 +55,17 @@ import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authen
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedReferralRewardsRouteImport } from './routes/_authenticated/referral-rewards'
 import { Route as AuthenticatedRiderRouteImport } from './routes/_authenticated/rider'
-import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedShareholderRouteImport } from './routes/_authenticated/shareholder'
-import { Route as AuthenticatedSpotlightRouteImport } from './routes/_authenticated/spotlight'
 import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
 import { Route as AuthenticatedTransactionsRouteImport } from './routes/_authenticated/transactions'
 import { Route as AuthenticatedVerifiedRouteImport } from './routes/_authenticated/verified'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedWithdrawRouteImport } from './routes/_authenticated/withdraw'
+import { Route as BrowseDealsRouteImport } from './routes/_browse/deals'
+import { Route as BrowseFeedRouteImport } from './routes/_browse/feed'
+import { Route as BrowseSearchRouteImport } from './routes/_browse/search'
+import { Route as BrowseSpotlightRouteImport } from './routes/_browse/spotlight'
 import { Route as ApiStaffMemberAiRouteImport } from './routes/api/staff-member-ai'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ConsoleIndexRouteImport } from './routes/console.index'
@@ -109,32 +110,32 @@ import { Route as ConsoleWorkspaceRouteImport } from './routes/console.workspace
 import { Route as PayCodeRouteImport } from './routes/pay.$code'
 import { Route as SSlugRouteImport } from './routes/s.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
-import { Route as AuthenticatedArticlesIndexRouteImport } from './routes/_authenticated/articles.index'
-import { Route as AuthenticatedArticlesArticleIdRouteImport } from './routes/_authenticated/articles.$articleId'
-import { Route as AuthenticatedCampusIndexRouteImport } from './routes/_authenticated/campus.index'
 import { Route as AuthenticatedCampusBecomeInstructorRouteImport } from './routes/_authenticated/campus.become-instructor'
 import { Route as AuthenticatedCampusTeachingRouteImport } from './routes/_authenticated/campus.teaching'
 import { Route as AuthenticatedCleanIndexRouteImport } from './routes/_authenticated/clean.index'
 import { Route as AuthenticatedCleanBookRouteImport } from './routes/_authenticated/clean.book'
 import { Route as AuthenticatedCleanJobsRouteImport } from './routes/_authenticated/clean.jobs'
-import { Route as AuthenticatedEventsIndexRouteImport } from './routes/_authenticated/events.index'
-import { Route as AuthenticatedEventsEventIdRouteImport } from './routes/_authenticated/events.$eventId'
 import { Route as AuthenticatedFreelanceIndexRouteImport } from './routes/_authenticated/freelance.index'
 import { Route as AuthenticatedFreelanceProjectIdRouteImport } from './routes/_authenticated/freelance.$projectId'
-import { Route as AuthenticatedHashtagTagRouteImport } from './routes/_authenticated/hashtag.$tag'
 import { Route as AuthenticatedIncubatorIndexRouteImport } from './routes/_authenticated/incubator/index'
-import { Route as AuthenticatedJobsIndexRouteImport } from './routes/_authenticated/jobs.index'
-import { Route as AuthenticatedJobsJobIdRouteImport } from './routes/_authenticated/jobs.$jobId'
-import { Route as AuthenticatedPostPostIdRouteImport } from './routes/_authenticated/post.$postId'
-import { Route as AuthenticatedPropertyIndexRouteImport } from './routes/_authenticated/property.index'
-import { Route as AuthenticatedPropertyListingIdRouteImport } from './routes/_authenticated/property.$listingId'
 import { Route as AuthenticatedPropertyManageRouteImport } from './routes/_authenticated/property.manage'
 import { Route as AuthenticatedPropertyNewRouteImport } from './routes/_authenticated/property.new'
 import { Route as AuthenticatedSecurityUpdateBulletinIdRouteImport } from './routes/_authenticated/security-update.$bulletinId'
-import { Route as AuthenticatedServicesIndexRouteImport } from './routes/_authenticated/services.index'
-import { Route as AuthenticatedServicesProviderIdRouteImport } from './routes/_authenticated/services.$providerId'
-import { Route as AuthenticatedServicesExtrasRouteImport } from './routes/_authenticated/services.extras'
-import { Route as AuthenticatedUUserIdRouteImport } from './routes/_authenticated/u.$userId'
+import { Route as BrowseArticlesIndexRouteImport } from './routes/_browse/articles.index'
+import { Route as BrowseArticlesArticleIdRouteImport } from './routes/_browse/articles.$articleId'
+import { Route as BrowseCampusIndexRouteImport } from './routes/_browse/campus.index'
+import { Route as BrowseEventsIndexRouteImport } from './routes/_browse/events.index'
+import { Route as BrowseEventsEventIdRouteImport } from './routes/_browse/events.$eventId'
+import { Route as BrowseHashtagTagRouteImport } from './routes/_browse/hashtag.$tag'
+import { Route as BrowseJobsIndexRouteImport } from './routes/_browse/jobs.index'
+import { Route as BrowseJobsJobIdRouteImport } from './routes/_browse/jobs.$jobId'
+import { Route as BrowsePostPostIdRouteImport } from './routes/_browse/post.$postId'
+import { Route as BrowsePropertyIndexRouteImport } from './routes/_browse/property.index'
+import { Route as BrowsePropertyListingIdRouteImport } from './routes/_browse/property.$listingId'
+import { Route as BrowseServicesIndexRouteImport } from './routes/_browse/services.index'
+import { Route as BrowseServicesProviderIdRouteImport } from './routes/_browse/services.$providerId'
+import { Route as BrowseServicesExtrasRouteImport } from './routes/_browse/services.extras'
+import { Route as BrowseUUserIdRouteImport } from './routes/_browse/u.$userId'
 import { Route as ApiPublicCleanupSpotlightVideosRouteImport } from './routes/api/public/cleanup-spotlight-videos'
 import { Route as ApiPublicCleanupStoriesRouteImport } from './routes/api/public/cleanup-stories'
 import { Route as ApiPublicReconcileActivationsRouteImport } from './routes/api/public/reconcile-activations'
@@ -144,12 +145,12 @@ import { Route as ShareKindIdRouteImport } from './routes/share.$kind.$id'
 import { Route as AuthenticatedBookingBookingIdConfirmedRouteImport } from './routes/_authenticated/booking.$bookingId.confirmed'
 import { Route as AuthenticatedBookingBookingIdReceiptRouteImport } from './routes/_authenticated/booking.$bookingId.receipt'
 import { Route as AuthenticatedBookingBookingIdTrackRouteImport } from './routes/_authenticated/booking.$bookingId.track'
-import { Route as AuthenticatedCampusInstructorsIndexRouteImport } from './routes/_authenticated/campus.instructors.index'
-import { Route as AuthenticatedCampusInstructorsInstructorIdRouteImport } from './routes/_authenticated/campus.instructors.$instructorId'
 import { Route as AuthenticatedCleanOrdersOrderIdRouteImport } from './routes/_authenticated/clean.orders.$orderId'
 import { Route as AuthenticatedCleanReceiptOrderIdRouteImport } from './routes/_authenticated/clean.receipt.$orderId'
 import { Route as AuthenticatedMarketsInstructorsInstructorIdRouteImport } from './routes/_authenticated/markets.instructors.$instructorId'
 import { Route as AuthenticatedMarketsUpdateMarketPostIdRouteImport } from './routes/_authenticated/markets.update.$marketPostId'
+import { Route as BrowseCampusInstructorsIndexRouteImport } from './routes/_browse/campus.instructors.index'
+import { Route as BrowseCampusInstructorsInstructorIdRouteImport } from './routes/_browse/campus.instructors.$instructorId'
 import { Route as ApiPublicProfilesUsernameRouteImport } from './routes/api/public/profiles/$username'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 import { Route as ApiPublicWebhooksStripeFlightsRouteImport } from './routes/api/public/webhooks/stripe-flights'
@@ -165,6 +166,10 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BrowseRouteRoute = BrowseRouteRouteImport.update({
+  id: '/_browse',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccountDeletionRoute = AccountDeletionRouteImport.update({
@@ -292,11 +297,6 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedDealsRoute = AuthenticatedDealsRouteImport.update({
-  id: '/deals',
-  path: '/deals',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedDeliveriesRoute = AuthenticatedDeliveriesRouteImport.update({
   id: '/deliveries',
   path: '/deliveries',
@@ -313,11 +313,6 @@ const AuthenticatedElectricityRoute =
     path: '/electricity',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedFeedRoute = AuthenticatedFeedRouteImport.update({
-  id: '/feed',
-  path: '/feed',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedFlightsRoute = AuthenticatedFlightsRouteImport.update({
   id: '/flights',
   path: '/flights',
@@ -397,11 +392,6 @@ const AuthenticatedRiderRoute = AuthenticatedRiderRouteImport.update({
   path: '/rider',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedSearchRoute = AuthenticatedSearchRouteImport.update({
-  id: '/search',
-  path: '/search',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -413,11 +403,6 @@ const AuthenticatedShareholderRoute =
     path: '/shareholder',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedSpotlightRoute = AuthenticatedSpotlightRouteImport.update({
-  id: '/spotlight',
-  path: '/spotlight',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedStudioRoute = AuthenticatedStudioRouteImport.update({
   id: '/studio',
   path: '/studio',
@@ -443,6 +428,26 @@ const AuthenticatedWithdrawRoute = AuthenticatedWithdrawRouteImport.update({
   id: '/withdraw',
   path: '/withdraw',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const BrowseDealsRoute = BrowseDealsRouteImport.update({
+  id: '/deals',
+  path: '/deals',
+  getParentRoute: () => BrowseRouteRoute,
+} as any)
+const BrowseFeedRoute = BrowseFeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
+  getParentRoute: () => BrowseRouteRoute,
+} as any)
+const BrowseSearchRoute = BrowseSearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => BrowseRouteRoute,
+} as any)
+const BrowseSpotlightRoute = BrowseSpotlightRouteImport.update({
+  id: '/spotlight',
+  path: '/spotlight',
+  getParentRoute: () => BrowseRouteRoute,
 } as any)
 const ApiStaffMemberAiRoute = ApiStaffMemberAiRouteImport.update({
   id: '/api/staff-member-ai',
@@ -665,24 +670,6 @@ const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   path: '/.lovable/oauth/consent',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedArticlesIndexRoute =
-  AuthenticatedArticlesIndexRouteImport.update({
-    id: '/articles/',
-    path: '/articles/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedArticlesArticleIdRoute =
-  AuthenticatedArticlesArticleIdRouteImport.update({
-    id: '/articles/$articleId',
-    path: '/articles/$articleId',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedCampusIndexRoute =
-  AuthenticatedCampusIndexRouteImport.update({
-    id: '/campus/',
-    path: '/campus/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedCampusBecomeInstructorRoute =
   AuthenticatedCampusBecomeInstructorRouteImport.update({
     id: '/campus/become-instructor',
@@ -710,18 +697,6 @@ const AuthenticatedCleanJobsRoute = AuthenticatedCleanJobsRouteImport.update({
   path: '/clean/jobs',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedEventsIndexRoute =
-  AuthenticatedEventsIndexRouteImport.update({
-    id: '/events/',
-    path: '/events/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedEventsEventIdRoute =
-  AuthenticatedEventsEventIdRouteImport.update({
-    id: '/events/$eventId',
-    path: '/events/$eventId',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedFreelanceIndexRoute =
   AuthenticatedFreelanceIndexRouteImport.update({
     id: '/freelance/',
@@ -734,42 +709,10 @@ const AuthenticatedFreelanceProjectIdRoute =
     path: '/freelance/$projectId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedHashtagTagRoute = AuthenticatedHashtagTagRouteImport.update({
-  id: '/hashtag/$tag',
-  path: '/hashtag/$tag',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedIncubatorIndexRoute =
   AuthenticatedIncubatorIndexRouteImport.update({
     id: '/incubator/',
     path: '/incubator/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedJobsIndexRoute = AuthenticatedJobsIndexRouteImport.update({
-  id: '/jobs/',
-  path: '/jobs/',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedJobsJobIdRoute = AuthenticatedJobsJobIdRouteImport.update({
-  id: '/jobs/$jobId',
-  path: '/jobs/$jobId',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedPostPostIdRoute = AuthenticatedPostPostIdRouteImport.update({
-  id: '/post/$postId',
-  path: '/post/$postId',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedPropertyIndexRoute =
-  AuthenticatedPropertyIndexRouteImport.update({
-    id: '/property/',
-    path: '/property/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedPropertyListingIdRoute =
-  AuthenticatedPropertyListingIdRouteImport.update({
-    id: '/property/$listingId',
-    path: '/property/$listingId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedPropertyManageRoute =
@@ -790,28 +733,81 @@ const AuthenticatedSecurityUpdateBulletinIdRoute =
     path: '/security-update/$bulletinId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedServicesIndexRoute =
-  AuthenticatedServicesIndexRouteImport.update({
-    id: '/services/',
-    path: '/services/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedServicesProviderIdRoute =
-  AuthenticatedServicesProviderIdRouteImport.update({
+const BrowseArticlesIndexRoute = BrowseArticlesIndexRouteImport.update({
+  id: '/articles/',
+  path: '/articles/',
+  getParentRoute: () => BrowseRouteRoute,
+} as any)
+const BrowseArticlesArticleIdRoute = BrowseArticlesArticleIdRouteImport.update({
+  id: '/articles/$articleId',
+  path: '/articles/$articleId',
+  getParentRoute: () => BrowseRouteRoute,
+} as any)
+const BrowseCampusIndexRoute = BrowseCampusIndexRouteImport.update({
+  id: '/campus/',
+  path: '/campus/',
+  getParentRoute: () => BrowseRouteRoute,
+} as any)
+const BrowseEventsIndexRoute = BrowseEventsIndexRouteImport.update({
+  id: '/events/',
+  path: '/events/',
+  getParentRoute: () => BrowseRouteRoute,
+} as any)
+const BrowseEventsEventIdRoute = BrowseEventsEventIdRouteImport.update({
+  id: '/events/$eventId',
+  path: '/events/$eventId',
+  getParentRoute: () => BrowseRouteRoute,
+} as any)
+const BrowseHashtagTagRoute = BrowseHashtagTagRouteImport.update({
+  id: '/hashtag/$tag',
+  path: '/hashtag/$tag',
+  getParentRoute: () => BrowseRouteRoute,
+} as any)
+const BrowseJobsIndexRoute = BrowseJobsIndexRouteImport.update({
+  id: '/jobs/',
+  path: '/jobs/',
+  getParentRoute: () => BrowseRouteRoute,
+} as any)
+const BrowseJobsJobIdRoute = BrowseJobsJobIdRouteImport.update({
+  id: '/jobs/$jobId',
+  path: '/jobs/$jobId',
+  getParentRoute: () => BrowseRouteRoute,
+} as any)
+const BrowsePostPostIdRoute = BrowsePostPostIdRouteImport.update({
+  id: '/post/$postId',
+  path: '/post/$postId',
+  getParentRoute: () => BrowseRouteRoute,
+} as any)
+const BrowsePropertyIndexRoute = BrowsePropertyIndexRouteImport.update({
+  id: '/property/',
+  path: '/property/',
+  getParentRoute: () => BrowseRouteRoute,
+} as any)
+const BrowsePropertyListingIdRoute = BrowsePropertyListingIdRouteImport.update({
+  id: '/property/$listingId',
+  path: '/property/$listingId',
+  getParentRoute: () => BrowseRouteRoute,
+} as any)
+const BrowseServicesIndexRoute = BrowseServicesIndexRouteImport.update({
+  id: '/services/',
+  path: '/services/',
+  getParentRoute: () => BrowseRouteRoute,
+} as any)
+const BrowseServicesProviderIdRoute =
+  BrowseServicesProviderIdRouteImport.update({
     id: '/services/$providerId',
     path: '/services/$providerId',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    getParentRoute: () => BrowseRouteRoute,
   } as any)
-const AuthenticatedServicesExtrasRoute =
-  AuthenticatedServicesExtrasRouteImport.update({
-    id: '/services/extras',
-    path: '/services/extras',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedUUserIdRoute = AuthenticatedUUserIdRouteImport.update({
+const BrowseServicesExtrasRoute = BrowseServicesExtrasRouteImport.update({
+  id: '/services/extras',
+  path: '/services/extras',
+  getParentRoute: () => BrowseRouteRoute,
+} as any)
+const BrowseUUserIdRoute = BrowseUUserIdRouteImport.update({
   id: '/u/$userId',
   path: '/u/$userId',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => BrowseRouteRoute,
 } as any)
 const ApiPublicCleanupSpotlightVideosRoute =
   ApiPublicCleanupSpotlightVideosRouteImport.update({
@@ -864,18 +860,6 @@ const AuthenticatedBookingBookingIdTrackRoute =
     path: '/booking/$bookingId/track',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedCampusInstructorsIndexRoute =
-  AuthenticatedCampusInstructorsIndexRouteImport.update({
-    id: '/campus/instructors/',
-    path: '/campus/instructors/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedCampusInstructorsInstructorIdRoute =
-  AuthenticatedCampusInstructorsInstructorIdRouteImport.update({
-    id: '/campus/instructors/$instructorId',
-    path: '/campus/instructors/$instructorId',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedCleanOrdersOrderIdRoute =
   AuthenticatedCleanOrdersOrderIdRouteImport.update({
     id: '/clean/orders/$orderId',
@@ -899,6 +883,18 @@ const AuthenticatedMarketsUpdateMarketPostIdRoute =
     id: '/markets/update/$marketPostId',
     path: '/markets/update/$marketPostId',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const BrowseCampusInstructorsIndexRoute =
+  BrowseCampusInstructorsIndexRouteImport.update({
+    id: '/campus/instructors/',
+    path: '/campus/instructors/',
+    getParentRoute: () => BrowseRouteRoute,
+  } as any)
+const BrowseCampusInstructorsInstructorIdRoute =
+  BrowseCampusInstructorsInstructorIdRouteImport.update({
+    id: '/campus/instructors/$instructorId',
+    path: '/campus/instructors/$instructorId',
+    getParentRoute: () => BrowseRouteRoute,
   } as any)
 const ApiPublicProfilesUsernameRoute =
   ApiPublicProfilesUsernameRouteImport.update({
@@ -967,11 +963,9 @@ export interface FileRoutesByFullPath {
   '/bookings': typeof AuthenticatedBookingsRoute
   '/create': typeof AuthenticatedCreateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/deals': typeof AuthenticatedDealsRoute
   '/deliveries': typeof AuthenticatedDeliveriesRoute
   '/dispatch': typeof AuthenticatedDispatchRoute
   '/electricity': typeof AuthenticatedElectricityRoute
-  '/feed': typeof AuthenticatedFeedRoute
   '/flights': typeof AuthenticatedFlightsRoute
   '/friends': typeof AuthenticatedFriendsRoute
   '/fx-analytics': typeof AuthenticatedFxAnalyticsRoute
@@ -987,15 +981,17 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/referral-rewards': typeof AuthenticatedReferralRewardsRoute
   '/rider': typeof AuthenticatedRiderRoute
-  '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shareholder': typeof AuthenticatedShareholderRoute
-  '/spotlight': typeof AuthenticatedSpotlightRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/verified': typeof AuthenticatedVerifiedRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
+  '/deals': typeof BrowseDealsRoute
+  '/feed': typeof BrowseFeedRoute
+  '/search': typeof BrowseSearchRoute
+  '/spotlight': typeof BrowseSpotlightRoute
   '/api/staff-member-ai': typeof ApiStaffMemberAiRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/console/advertising': typeof ConsoleAdvertisingRoute
@@ -1040,46 +1036,46 @@ export interface FileRoutesByFullPath {
   '/s/$slug': typeof SSlugRoute
   '/console/': typeof ConsoleIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
-  '/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
   '/campus/become-instructor': typeof AuthenticatedCampusBecomeInstructorRoute
   '/campus/teaching': typeof AuthenticatedCampusTeachingRoute
   '/clean/book': typeof AuthenticatedCleanBookRoute
   '/clean/jobs': typeof AuthenticatedCleanJobsRoute
-  '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
-  '/hashtag/$tag': typeof AuthenticatedHashtagTagRoute
-  '/jobs/$jobId': typeof AuthenticatedJobsJobIdRoute
-  '/post/$postId': typeof AuthenticatedPostPostIdRoute
-  '/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
   '/property/manage': typeof AuthenticatedPropertyManageRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
   '/security-update/$bulletinId': typeof AuthenticatedSecurityUpdateBulletinIdRoute
-  '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
-  '/services/extras': typeof AuthenticatedServicesExtrasRoute
-  '/u/$userId': typeof AuthenticatedUUserIdRoute
+  '/articles/$articleId': typeof BrowseArticlesArticleIdRoute
+  '/events/$eventId': typeof BrowseEventsEventIdRoute
+  '/hashtag/$tag': typeof BrowseHashtagTagRoute
+  '/jobs/$jobId': typeof BrowseJobsJobIdRoute
+  '/post/$postId': typeof BrowsePostPostIdRoute
+  '/property/$listingId': typeof BrowsePropertyListingIdRoute
+  '/services/$providerId': typeof BrowseServicesProviderIdRoute
+  '/services/extras': typeof BrowseServicesExtrasRoute
+  '/u/$userId': typeof BrowseUUserIdRoute
   '/api/public/cleanup-spotlight-videos': typeof ApiPublicCleanupSpotlightVideosRoute
   '/api/public/cleanup-stories': typeof ApiPublicCleanupStoriesRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
   '/console/members/$memberId': typeof ConsoleMembersMemberIdRoute
   '/share/$kind/$id': typeof ShareKindIdRoute
-  '/articles/': typeof AuthenticatedArticlesIndexRoute
-  '/campus/': typeof AuthenticatedCampusIndexRoute
   '/clean/': typeof AuthenticatedCleanIndexRoute
-  '/events/': typeof AuthenticatedEventsIndexRoute
   '/freelance/': typeof AuthenticatedFreelanceIndexRoute
   '/incubator/': typeof AuthenticatedIncubatorIndexRoute
-  '/jobs/': typeof AuthenticatedJobsIndexRoute
-  '/property/': typeof AuthenticatedPropertyIndexRoute
-  '/services/': typeof AuthenticatedServicesIndexRoute
+  '/articles/': typeof BrowseArticlesIndexRoute
+  '/campus/': typeof BrowseCampusIndexRoute
+  '/events/': typeof BrowseEventsIndexRoute
+  '/jobs/': typeof BrowseJobsIndexRoute
+  '/property/': typeof BrowsePropertyIndexRoute
+  '/services/': typeof BrowseServicesIndexRoute
   '/booking/$bookingId/confirmed': typeof AuthenticatedBookingBookingIdConfirmedRoute
   '/booking/$bookingId/receipt': typeof AuthenticatedBookingBookingIdReceiptRoute
   '/booking/$bookingId/track': typeof AuthenticatedBookingBookingIdTrackRoute
-  '/campus/instructors/$instructorId': typeof AuthenticatedCampusInstructorsInstructorIdRoute
   '/clean/orders/$orderId': typeof AuthenticatedCleanOrdersOrderIdRoute
   '/clean/receipt/$orderId': typeof AuthenticatedCleanReceiptOrderIdRoute
   '/markets/instructors/$instructorId': typeof AuthenticatedMarketsInstructorsInstructorIdRoute
   '/markets/update/$marketPostId': typeof AuthenticatedMarketsUpdateMarketPostIdRoute
+  '/campus/instructors/$instructorId': typeof BrowseCampusInstructorsInstructorIdRoute
   '/api/public/profiles/$username': typeof ApiPublicProfilesUsernameRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/api/public/webhooks/stripe-flights': typeof ApiPublicWebhooksStripeFlightsRoute
@@ -1087,7 +1083,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
-  '/campus/instructors/': typeof AuthenticatedCampusInstructorsIndexRoute
+  '/campus/instructors/': typeof BrowseCampusInstructorsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -1115,11 +1111,9 @@ export interface FileRoutesByTo {
   '/bookings': typeof AuthenticatedBookingsRoute
   '/create': typeof AuthenticatedCreateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/deals': typeof AuthenticatedDealsRoute
   '/deliveries': typeof AuthenticatedDeliveriesRoute
   '/dispatch': typeof AuthenticatedDispatchRoute
   '/electricity': typeof AuthenticatedElectricityRoute
-  '/feed': typeof AuthenticatedFeedRoute
   '/flights': typeof AuthenticatedFlightsRoute
   '/friends': typeof AuthenticatedFriendsRoute
   '/fx-analytics': typeof AuthenticatedFxAnalyticsRoute
@@ -1135,15 +1129,17 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/referral-rewards': typeof AuthenticatedReferralRewardsRoute
   '/rider': typeof AuthenticatedRiderRoute
-  '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/shareholder': typeof AuthenticatedShareholderRoute
-  '/spotlight': typeof AuthenticatedSpotlightRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/verified': typeof AuthenticatedVerifiedRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
+  '/deals': typeof BrowseDealsRoute
+  '/feed': typeof BrowseFeedRoute
+  '/search': typeof BrowseSearchRoute
+  '/spotlight': typeof BrowseSpotlightRoute
   '/api/staff-member-ai': typeof ApiStaffMemberAiRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/console/advertising': typeof ConsoleAdvertisingRoute
@@ -1188,46 +1184,46 @@ export interface FileRoutesByTo {
   '/s/$slug': typeof SSlugRoute
   '/console': typeof ConsoleIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
-  '/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
   '/campus/become-instructor': typeof AuthenticatedCampusBecomeInstructorRoute
   '/campus/teaching': typeof AuthenticatedCampusTeachingRoute
   '/clean/book': typeof AuthenticatedCleanBookRoute
   '/clean/jobs': typeof AuthenticatedCleanJobsRoute
-  '/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
-  '/hashtag/$tag': typeof AuthenticatedHashtagTagRoute
-  '/jobs/$jobId': typeof AuthenticatedJobsJobIdRoute
-  '/post/$postId': typeof AuthenticatedPostPostIdRoute
-  '/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
   '/property/manage': typeof AuthenticatedPropertyManageRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
   '/security-update/$bulletinId': typeof AuthenticatedSecurityUpdateBulletinIdRoute
-  '/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
-  '/services/extras': typeof AuthenticatedServicesExtrasRoute
-  '/u/$userId': typeof AuthenticatedUUserIdRoute
+  '/articles/$articleId': typeof BrowseArticlesArticleIdRoute
+  '/events/$eventId': typeof BrowseEventsEventIdRoute
+  '/hashtag/$tag': typeof BrowseHashtagTagRoute
+  '/jobs/$jobId': typeof BrowseJobsJobIdRoute
+  '/post/$postId': typeof BrowsePostPostIdRoute
+  '/property/$listingId': typeof BrowsePropertyListingIdRoute
+  '/services/$providerId': typeof BrowseServicesProviderIdRoute
+  '/services/extras': typeof BrowseServicesExtrasRoute
+  '/u/$userId': typeof BrowseUUserIdRoute
   '/api/public/cleanup-spotlight-videos': typeof ApiPublicCleanupSpotlightVideosRoute
   '/api/public/cleanup-stories': typeof ApiPublicCleanupStoriesRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
   '/console/members/$memberId': typeof ConsoleMembersMemberIdRoute
   '/share/$kind/$id': typeof ShareKindIdRoute
-  '/articles': typeof AuthenticatedArticlesIndexRoute
-  '/campus': typeof AuthenticatedCampusIndexRoute
   '/clean': typeof AuthenticatedCleanIndexRoute
-  '/events': typeof AuthenticatedEventsIndexRoute
   '/freelance': typeof AuthenticatedFreelanceIndexRoute
   '/incubator': typeof AuthenticatedIncubatorIndexRoute
-  '/jobs': typeof AuthenticatedJobsIndexRoute
-  '/property': typeof AuthenticatedPropertyIndexRoute
-  '/services': typeof AuthenticatedServicesIndexRoute
+  '/articles': typeof BrowseArticlesIndexRoute
+  '/campus': typeof BrowseCampusIndexRoute
+  '/events': typeof BrowseEventsIndexRoute
+  '/jobs': typeof BrowseJobsIndexRoute
+  '/property': typeof BrowsePropertyIndexRoute
+  '/services': typeof BrowseServicesIndexRoute
   '/booking/$bookingId/confirmed': typeof AuthenticatedBookingBookingIdConfirmedRoute
   '/booking/$bookingId/receipt': typeof AuthenticatedBookingBookingIdReceiptRoute
   '/booking/$bookingId/track': typeof AuthenticatedBookingBookingIdTrackRoute
-  '/campus/instructors/$instructorId': typeof AuthenticatedCampusInstructorsInstructorIdRoute
   '/clean/orders/$orderId': typeof AuthenticatedCleanOrdersOrderIdRoute
   '/clean/receipt/$orderId': typeof AuthenticatedCleanReceiptOrderIdRoute
   '/markets/instructors/$instructorId': typeof AuthenticatedMarketsInstructorsInstructorIdRoute
   '/markets/update/$marketPostId': typeof AuthenticatedMarketsUpdateMarketPostIdRoute
+  '/campus/instructors/$instructorId': typeof BrowseCampusInstructorsInstructorIdRoute
   '/api/public/profiles/$username': typeof ApiPublicProfilesUsernameRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/api/public/webhooks/stripe-flights': typeof ApiPublicWebhooksStripeFlightsRoute
@@ -1235,12 +1231,13 @@ export interface FileRoutesByTo {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
-  '/campus/instructors': typeof AuthenticatedCampusInstructorsIndexRoute
+  '/campus/instructors': typeof BrowseCampusInstructorsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_browse': typeof BrowseRouteRouteWithChildren
   '/account-deletion': typeof AccountDeletionRoute
   '/community-guidelines': typeof CommunityGuidelinesRoute
   '/consent': typeof ConsentRoute
@@ -1266,11 +1263,9 @@ export interface FileRoutesById {
   '/_authenticated/bookings': typeof AuthenticatedBookingsRoute
   '/_authenticated/create': typeof AuthenticatedCreateRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/deals': typeof AuthenticatedDealsRoute
   '/_authenticated/deliveries': typeof AuthenticatedDeliveriesRoute
   '/_authenticated/dispatch': typeof AuthenticatedDispatchRoute
   '/_authenticated/electricity': typeof AuthenticatedElectricityRoute
-  '/_authenticated/feed': typeof AuthenticatedFeedRoute
   '/_authenticated/flights': typeof AuthenticatedFlightsRoute
   '/_authenticated/friends': typeof AuthenticatedFriendsRoute
   '/_authenticated/fx-analytics': typeof AuthenticatedFxAnalyticsRoute
@@ -1286,15 +1281,17 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/referral-rewards': typeof AuthenticatedReferralRewardsRoute
   '/_authenticated/rider': typeof AuthenticatedRiderRoute
-  '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/shareholder': typeof AuthenticatedShareholderRoute
-  '/_authenticated/spotlight': typeof AuthenticatedSpotlightRoute
   '/_authenticated/studio': typeof AuthenticatedStudioRoute
   '/_authenticated/transactions': typeof AuthenticatedTransactionsRoute
   '/_authenticated/verified': typeof AuthenticatedVerifiedRoute
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/_authenticated/withdraw': typeof AuthenticatedWithdrawRoute
+  '/_browse/deals': typeof BrowseDealsRoute
+  '/_browse/feed': typeof BrowseFeedRoute
+  '/_browse/search': typeof BrowseSearchRoute
+  '/_browse/spotlight': typeof BrowseSpotlightRoute
   '/api/staff-member-ai': typeof ApiStaffMemberAiRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/console/advertising': typeof ConsoleAdvertisingRoute
@@ -1339,46 +1336,46 @@ export interface FileRoutesById {
   '/s/$slug': typeof SSlugRoute
   '/console/': typeof ConsoleIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
-  '/_authenticated/articles/$articleId': typeof AuthenticatedArticlesArticleIdRoute
   '/_authenticated/campus/become-instructor': typeof AuthenticatedCampusBecomeInstructorRoute
   '/_authenticated/campus/teaching': typeof AuthenticatedCampusTeachingRoute
   '/_authenticated/clean/book': typeof AuthenticatedCleanBookRoute
   '/_authenticated/clean/jobs': typeof AuthenticatedCleanJobsRoute
-  '/_authenticated/events/$eventId': typeof AuthenticatedEventsEventIdRoute
   '/_authenticated/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
-  '/_authenticated/hashtag/$tag': typeof AuthenticatedHashtagTagRoute
-  '/_authenticated/jobs/$jobId': typeof AuthenticatedJobsJobIdRoute
-  '/_authenticated/post/$postId': typeof AuthenticatedPostPostIdRoute
-  '/_authenticated/property/$listingId': typeof AuthenticatedPropertyListingIdRoute
   '/_authenticated/property/manage': typeof AuthenticatedPropertyManageRoute
   '/_authenticated/property/new': typeof AuthenticatedPropertyNewRoute
   '/_authenticated/security-update/$bulletinId': typeof AuthenticatedSecurityUpdateBulletinIdRoute
-  '/_authenticated/services/$providerId': typeof AuthenticatedServicesProviderIdRoute
-  '/_authenticated/services/extras': typeof AuthenticatedServicesExtrasRoute
-  '/_authenticated/u/$userId': typeof AuthenticatedUUserIdRoute
+  '/_browse/articles/$articleId': typeof BrowseArticlesArticleIdRoute
+  '/_browse/events/$eventId': typeof BrowseEventsEventIdRoute
+  '/_browse/hashtag/$tag': typeof BrowseHashtagTagRoute
+  '/_browse/jobs/$jobId': typeof BrowseJobsJobIdRoute
+  '/_browse/post/$postId': typeof BrowsePostPostIdRoute
+  '/_browse/property/$listingId': typeof BrowsePropertyListingIdRoute
+  '/_browse/services/$providerId': typeof BrowseServicesProviderIdRoute
+  '/_browse/services/extras': typeof BrowseServicesExtrasRoute
+  '/_browse/u/$userId': typeof BrowseUUserIdRoute
   '/api/public/cleanup-spotlight-videos': typeof ApiPublicCleanupSpotlightVideosRoute
   '/api/public/cleanup-stories': typeof ApiPublicCleanupStoriesRoute
   '/api/public/reconcile-activations': typeof ApiPublicReconcileActivationsRoute
   '/api/public/security-selfcheck': typeof ApiPublicSecuritySelfcheckRoute
   '/console/members/$memberId': typeof ConsoleMembersMemberIdRoute
   '/share/$kind/$id': typeof ShareKindIdRoute
-  '/_authenticated/articles/': typeof AuthenticatedArticlesIndexRoute
-  '/_authenticated/campus/': typeof AuthenticatedCampusIndexRoute
   '/_authenticated/clean/': typeof AuthenticatedCleanIndexRoute
-  '/_authenticated/events/': typeof AuthenticatedEventsIndexRoute
   '/_authenticated/freelance/': typeof AuthenticatedFreelanceIndexRoute
   '/_authenticated/incubator/': typeof AuthenticatedIncubatorIndexRoute
-  '/_authenticated/jobs/': typeof AuthenticatedJobsIndexRoute
-  '/_authenticated/property/': typeof AuthenticatedPropertyIndexRoute
-  '/_authenticated/services/': typeof AuthenticatedServicesIndexRoute
+  '/_browse/articles/': typeof BrowseArticlesIndexRoute
+  '/_browse/campus/': typeof BrowseCampusIndexRoute
+  '/_browse/events/': typeof BrowseEventsIndexRoute
+  '/_browse/jobs/': typeof BrowseJobsIndexRoute
+  '/_browse/property/': typeof BrowsePropertyIndexRoute
+  '/_browse/services/': typeof BrowseServicesIndexRoute
   '/_authenticated/booking/$bookingId/confirmed': typeof AuthenticatedBookingBookingIdConfirmedRoute
   '/_authenticated/booking/$bookingId/receipt': typeof AuthenticatedBookingBookingIdReceiptRoute
   '/_authenticated/booking/$bookingId/track': typeof AuthenticatedBookingBookingIdTrackRoute
-  '/_authenticated/campus/instructors/$instructorId': typeof AuthenticatedCampusInstructorsInstructorIdRoute
   '/_authenticated/clean/orders/$orderId': typeof AuthenticatedCleanOrdersOrderIdRoute
   '/_authenticated/clean/receipt/$orderId': typeof AuthenticatedCleanReceiptOrderIdRoute
   '/_authenticated/markets/instructors/$instructorId': typeof AuthenticatedMarketsInstructorsInstructorIdRoute
   '/_authenticated/markets/update/$marketPostId': typeof AuthenticatedMarketsUpdateMarketPostIdRoute
+  '/_browse/campus/instructors/$instructorId': typeof BrowseCampusInstructorsInstructorIdRoute
   '/api/public/profiles/$username': typeof ApiPublicProfilesUsernameRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/api/public/webhooks/stripe-flights': typeof ApiPublicWebhooksStripeFlightsRoute
@@ -1386,7 +1383,7 @@ export interface FileRoutesById {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
-  '/_authenticated/campus/instructors/': typeof AuthenticatedCampusInstructorsIndexRoute
+  '/_browse/campus/instructors/': typeof BrowseCampusInstructorsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1417,11 +1414,9 @@ export interface FileRouteTypes {
     | '/bookings'
     | '/create'
     | '/dashboard'
-    | '/deals'
     | '/deliveries'
     | '/dispatch'
     | '/electricity'
-    | '/feed'
     | '/flights'
     | '/friends'
     | '/fx-analytics'
@@ -1437,15 +1432,17 @@ export interface FileRouteTypes {
     | '/profile'
     | '/referral-rewards'
     | '/rider'
-    | '/search'
     | '/settings'
     | '/shareholder'
-    | '/spotlight'
     | '/studio'
     | '/transactions'
     | '/verified'
     | '/wallet'
     | '/withdraw'
+    | '/deals'
+    | '/feed'
+    | '/search'
+    | '/spotlight'
     | '/api/staff-member-ai'
     | '/auth/callback'
     | '/console/advertising'
@@ -1490,20 +1487,20 @@ export interface FileRouteTypes {
     | '/s/$slug'
     | '/console/'
     | '/.lovable/oauth/consent'
-    | '/articles/$articleId'
     | '/campus/become-instructor'
     | '/campus/teaching'
     | '/clean/book'
     | '/clean/jobs'
-    | '/events/$eventId'
     | '/freelance/$projectId'
+    | '/property/manage'
+    | '/property/new'
+    | '/security-update/$bulletinId'
+    | '/articles/$articleId'
+    | '/events/$eventId'
     | '/hashtag/$tag'
     | '/jobs/$jobId'
     | '/post/$postId'
     | '/property/$listingId'
-    | '/property/manage'
-    | '/property/new'
-    | '/security-update/$bulletinId'
     | '/services/$providerId'
     | '/services/extras'
     | '/u/$userId'
@@ -1513,23 +1510,23 @@ export interface FileRouteTypes {
     | '/api/public/security-selfcheck'
     | '/console/members/$memberId'
     | '/share/$kind/$id'
-    | '/articles/'
-    | '/campus/'
     | '/clean/'
-    | '/events/'
     | '/freelance/'
     | '/incubator/'
+    | '/articles/'
+    | '/campus/'
+    | '/events/'
     | '/jobs/'
     | '/property/'
     | '/services/'
     | '/booking/$bookingId/confirmed'
     | '/booking/$bookingId/receipt'
     | '/booking/$bookingId/track'
-    | '/campus/instructors/$instructorId'
     | '/clean/orders/$orderId'
     | '/clean/receipt/$orderId'
     | '/markets/instructors/$instructorId'
     | '/markets/update/$marketPostId'
+    | '/campus/instructors/$instructorId'
     | '/api/public/profiles/$username'
     | '/api/public/webhooks/stripe'
     | '/api/public/webhooks/stripe-flights'
@@ -1565,11 +1562,9 @@ export interface FileRouteTypes {
     | '/bookings'
     | '/create'
     | '/dashboard'
-    | '/deals'
     | '/deliveries'
     | '/dispatch'
     | '/electricity'
-    | '/feed'
     | '/flights'
     | '/friends'
     | '/fx-analytics'
@@ -1585,15 +1580,17 @@ export interface FileRouteTypes {
     | '/profile'
     | '/referral-rewards'
     | '/rider'
-    | '/search'
     | '/settings'
     | '/shareholder'
-    | '/spotlight'
     | '/studio'
     | '/transactions'
     | '/verified'
     | '/wallet'
     | '/withdraw'
+    | '/deals'
+    | '/feed'
+    | '/search'
+    | '/spotlight'
     | '/api/staff-member-ai'
     | '/auth/callback'
     | '/console/advertising'
@@ -1638,20 +1635,20 @@ export interface FileRouteTypes {
     | '/s/$slug'
     | '/console'
     | '/.lovable/oauth/consent'
-    | '/articles/$articleId'
     | '/campus/become-instructor'
     | '/campus/teaching'
     | '/clean/book'
     | '/clean/jobs'
-    | '/events/$eventId'
     | '/freelance/$projectId'
+    | '/property/manage'
+    | '/property/new'
+    | '/security-update/$bulletinId'
+    | '/articles/$articleId'
+    | '/events/$eventId'
     | '/hashtag/$tag'
     | '/jobs/$jobId'
     | '/post/$postId'
     | '/property/$listingId'
-    | '/property/manage'
-    | '/property/new'
-    | '/security-update/$bulletinId'
     | '/services/$providerId'
     | '/services/extras'
     | '/u/$userId'
@@ -1661,23 +1658,23 @@ export interface FileRouteTypes {
     | '/api/public/security-selfcheck'
     | '/console/members/$memberId'
     | '/share/$kind/$id'
-    | '/articles'
-    | '/campus'
     | '/clean'
-    | '/events'
     | '/freelance'
     | '/incubator'
+    | '/articles'
+    | '/campus'
+    | '/events'
     | '/jobs'
     | '/property'
     | '/services'
     | '/booking/$bookingId/confirmed'
     | '/booking/$bookingId/receipt'
     | '/booking/$bookingId/track'
-    | '/campus/instructors/$instructorId'
     | '/clean/orders/$orderId'
     | '/clean/receipt/$orderId'
     | '/markets/instructors/$instructorId'
     | '/markets/update/$marketPostId'
+    | '/campus/instructors/$instructorId'
     | '/api/public/profiles/$username'
     | '/api/public/webhooks/stripe'
     | '/api/public/webhooks/stripe-flights'
@@ -1690,6 +1687,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/_browse'
     | '/account-deletion'
     | '/community-guidelines'
     | '/consent'
@@ -1715,11 +1713,9 @@ export interface FileRouteTypes {
     | '/_authenticated/bookings'
     | '/_authenticated/create'
     | '/_authenticated/dashboard'
-    | '/_authenticated/deals'
     | '/_authenticated/deliveries'
     | '/_authenticated/dispatch'
     | '/_authenticated/electricity'
-    | '/_authenticated/feed'
     | '/_authenticated/flights'
     | '/_authenticated/friends'
     | '/_authenticated/fx-analytics'
@@ -1735,15 +1731,17 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/referral-rewards'
     | '/_authenticated/rider'
-    | '/_authenticated/search'
     | '/_authenticated/settings'
     | '/_authenticated/shareholder'
-    | '/_authenticated/spotlight'
     | '/_authenticated/studio'
     | '/_authenticated/transactions'
     | '/_authenticated/verified'
     | '/_authenticated/wallet'
     | '/_authenticated/withdraw'
+    | '/_browse/deals'
+    | '/_browse/feed'
+    | '/_browse/search'
+    | '/_browse/spotlight'
     | '/api/staff-member-ai'
     | '/auth/callback'
     | '/console/advertising'
@@ -1788,46 +1786,46 @@ export interface FileRouteTypes {
     | '/s/$slug'
     | '/console/'
     | '/.lovable/oauth/consent'
-    | '/_authenticated/articles/$articleId'
     | '/_authenticated/campus/become-instructor'
     | '/_authenticated/campus/teaching'
     | '/_authenticated/clean/book'
     | '/_authenticated/clean/jobs'
-    | '/_authenticated/events/$eventId'
     | '/_authenticated/freelance/$projectId'
-    | '/_authenticated/hashtag/$tag'
-    | '/_authenticated/jobs/$jobId'
-    | '/_authenticated/post/$postId'
-    | '/_authenticated/property/$listingId'
     | '/_authenticated/property/manage'
     | '/_authenticated/property/new'
     | '/_authenticated/security-update/$bulletinId'
-    | '/_authenticated/services/$providerId'
-    | '/_authenticated/services/extras'
-    | '/_authenticated/u/$userId'
+    | '/_browse/articles/$articleId'
+    | '/_browse/events/$eventId'
+    | '/_browse/hashtag/$tag'
+    | '/_browse/jobs/$jobId'
+    | '/_browse/post/$postId'
+    | '/_browse/property/$listingId'
+    | '/_browse/services/$providerId'
+    | '/_browse/services/extras'
+    | '/_browse/u/$userId'
     | '/api/public/cleanup-spotlight-videos'
     | '/api/public/cleanup-stories'
     | '/api/public/reconcile-activations'
     | '/api/public/security-selfcheck'
     | '/console/members/$memberId'
     | '/share/$kind/$id'
-    | '/_authenticated/articles/'
-    | '/_authenticated/campus/'
     | '/_authenticated/clean/'
-    | '/_authenticated/events/'
     | '/_authenticated/freelance/'
     | '/_authenticated/incubator/'
-    | '/_authenticated/jobs/'
-    | '/_authenticated/property/'
-    | '/_authenticated/services/'
+    | '/_browse/articles/'
+    | '/_browse/campus/'
+    | '/_browse/events/'
+    | '/_browse/jobs/'
+    | '/_browse/property/'
+    | '/_browse/services/'
     | '/_authenticated/booking/$bookingId/confirmed'
     | '/_authenticated/booking/$bookingId/receipt'
     | '/_authenticated/booking/$bookingId/track'
-    | '/_authenticated/campus/instructors/$instructorId'
     | '/_authenticated/clean/orders/$orderId'
     | '/_authenticated/clean/receipt/$orderId'
     | '/_authenticated/markets/instructors/$instructorId'
     | '/_authenticated/markets/update/$marketPostId'
+    | '/_browse/campus/instructors/$instructorId'
     | '/api/public/profiles/$username'
     | '/api/public/webhooks/stripe'
     | '/api/public/webhooks/stripe-flights'
@@ -1835,12 +1833,13 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
-    | '/_authenticated/campus/instructors/'
+    | '/_browse/campus/instructors/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  BrowseRouteRoute: typeof BrowseRouteRouteWithChildren
   AccountDeletionRoute: typeof AccountDeletionRoute
   CommunityGuidelinesRoute: typeof CommunityGuidelinesRoute
   ConsentRoute: typeof ConsentRoute
@@ -1893,6 +1892,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_browse': {
+      id: '/_browse'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof BrowseRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/account-deletion': {
@@ -2070,13 +2076,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/deals': {
-      id: '/_authenticated/deals'
-      path: '/deals'
-      fullPath: '/deals'
-      preLoaderRoute: typeof AuthenticatedDealsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/deliveries': {
       id: '/_authenticated/deliveries'
       path: '/deliveries'
@@ -2096,13 +2095,6 @@ declare module '@tanstack/react-router' {
       path: '/electricity'
       fullPath: '/electricity'
       preLoaderRoute: typeof AuthenticatedElectricityRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/feed': {
-      id: '/_authenticated/feed'
-      path: '/feed'
-      fullPath: '/feed'
-      preLoaderRoute: typeof AuthenticatedFeedRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/flights': {
@@ -2210,13 +2202,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRiderRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/search': {
-      id: '/_authenticated/search'
-      path: '/search'
-      fullPath: '/search'
-      preLoaderRoute: typeof AuthenticatedSearchRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/settings': {
       id: '/_authenticated/settings'
       path: '/settings'
@@ -2229,13 +2214,6 @@ declare module '@tanstack/react-router' {
       path: '/shareholder'
       fullPath: '/shareholder'
       preLoaderRoute: typeof AuthenticatedShareholderRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/spotlight': {
-      id: '/_authenticated/spotlight'
-      path: '/spotlight'
-      fullPath: '/spotlight'
-      preLoaderRoute: typeof AuthenticatedSpotlightRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/studio': {
@@ -2272,6 +2250,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/withdraw'
       preLoaderRoute: typeof AuthenticatedWithdrawRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_browse/deals': {
+      id: '/_browse/deals'
+      path: '/deals'
+      fullPath: '/deals'
+      preLoaderRoute: typeof BrowseDealsRouteImport
+      parentRoute: typeof BrowseRouteRoute
+    }
+    '/_browse/feed': {
+      id: '/_browse/feed'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof BrowseFeedRouteImport
+      parentRoute: typeof BrowseRouteRoute
+    }
+    '/_browse/search': {
+      id: '/_browse/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof BrowseSearchRouteImport
+      parentRoute: typeof BrowseRouteRoute
+    }
+    '/_browse/spotlight': {
+      id: '/_browse/spotlight'
+      path: '/spotlight'
+      fullPath: '/spotlight'
+      preLoaderRoute: typeof BrowseSpotlightRouteImport
+      parentRoute: typeof BrowseRouteRoute
     }
     '/api/staff-member-ai': {
       id: '/api/staff-member-ai'
@@ -2581,27 +2587,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/articles/': {
-      id: '/_authenticated/articles/'
-      path: '/articles'
-      fullPath: '/articles/'
-      preLoaderRoute: typeof AuthenticatedArticlesIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/articles/$articleId': {
-      id: '/_authenticated/articles/$articleId'
-      path: '/articles/$articleId'
-      fullPath: '/articles/$articleId'
-      preLoaderRoute: typeof AuthenticatedArticlesArticleIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/campus/': {
-      id: '/_authenticated/campus/'
-      path: '/campus'
-      fullPath: '/campus/'
-      preLoaderRoute: typeof AuthenticatedCampusIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/campus/become-instructor': {
       id: '/_authenticated/campus/become-instructor'
       path: '/campus/become-instructor'
@@ -2637,20 +2622,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCleanJobsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/events/': {
-      id: '/_authenticated/events/'
-      path: '/events'
-      fullPath: '/events/'
-      preLoaderRoute: typeof AuthenticatedEventsIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/events/$eventId': {
-      id: '/_authenticated/events/$eventId'
-      path: '/events/$eventId'
-      fullPath: '/events/$eventId'
-      preLoaderRoute: typeof AuthenticatedEventsEventIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/freelance/': {
       id: '/_authenticated/freelance/'
       path: '/freelance'
@@ -2665,53 +2636,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFreelanceProjectIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/hashtag/$tag': {
-      id: '/_authenticated/hashtag/$tag'
-      path: '/hashtag/$tag'
-      fullPath: '/hashtag/$tag'
-      preLoaderRoute: typeof AuthenticatedHashtagTagRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/incubator/': {
       id: '/_authenticated/incubator/'
       path: '/incubator'
       fullPath: '/incubator/'
       preLoaderRoute: typeof AuthenticatedIncubatorIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/jobs/': {
-      id: '/_authenticated/jobs/'
-      path: '/jobs'
-      fullPath: '/jobs/'
-      preLoaderRoute: typeof AuthenticatedJobsIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/jobs/$jobId': {
-      id: '/_authenticated/jobs/$jobId'
-      path: '/jobs/$jobId'
-      fullPath: '/jobs/$jobId'
-      preLoaderRoute: typeof AuthenticatedJobsJobIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/post/$postId': {
-      id: '/_authenticated/post/$postId'
-      path: '/post/$postId'
-      fullPath: '/post/$postId'
-      preLoaderRoute: typeof AuthenticatedPostPostIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/property/': {
-      id: '/_authenticated/property/'
-      path: '/property'
-      fullPath: '/property/'
-      preLoaderRoute: typeof AuthenticatedPropertyIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/property/$listingId': {
-      id: '/_authenticated/property/$listingId'
-      path: '/property/$listingId'
-      fullPath: '/property/$listingId'
-      preLoaderRoute: typeof AuthenticatedPropertyListingIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/property/manage': {
@@ -2735,33 +2664,110 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSecurityUpdateBulletinIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/services/': {
-      id: '/_authenticated/services/'
+    '/_browse/articles/': {
+      id: '/_browse/articles/'
+      path: '/articles'
+      fullPath: '/articles/'
+      preLoaderRoute: typeof BrowseArticlesIndexRouteImport
+      parentRoute: typeof BrowseRouteRoute
+    }
+    '/_browse/articles/$articleId': {
+      id: '/_browse/articles/$articleId'
+      path: '/articles/$articleId'
+      fullPath: '/articles/$articleId'
+      preLoaderRoute: typeof BrowseArticlesArticleIdRouteImport
+      parentRoute: typeof BrowseRouteRoute
+    }
+    '/_browse/campus/': {
+      id: '/_browse/campus/'
+      path: '/campus'
+      fullPath: '/campus/'
+      preLoaderRoute: typeof BrowseCampusIndexRouteImport
+      parentRoute: typeof BrowseRouteRoute
+    }
+    '/_browse/events/': {
+      id: '/_browse/events/'
+      path: '/events'
+      fullPath: '/events/'
+      preLoaderRoute: typeof BrowseEventsIndexRouteImport
+      parentRoute: typeof BrowseRouteRoute
+    }
+    '/_browse/events/$eventId': {
+      id: '/_browse/events/$eventId'
+      path: '/events/$eventId'
+      fullPath: '/events/$eventId'
+      preLoaderRoute: typeof BrowseEventsEventIdRouteImport
+      parentRoute: typeof BrowseRouteRoute
+    }
+    '/_browse/hashtag/$tag': {
+      id: '/_browse/hashtag/$tag'
+      path: '/hashtag/$tag'
+      fullPath: '/hashtag/$tag'
+      preLoaderRoute: typeof BrowseHashtagTagRouteImport
+      parentRoute: typeof BrowseRouteRoute
+    }
+    '/_browse/jobs/': {
+      id: '/_browse/jobs/'
+      path: '/jobs'
+      fullPath: '/jobs/'
+      preLoaderRoute: typeof BrowseJobsIndexRouteImport
+      parentRoute: typeof BrowseRouteRoute
+    }
+    '/_browse/jobs/$jobId': {
+      id: '/_browse/jobs/$jobId'
+      path: '/jobs/$jobId'
+      fullPath: '/jobs/$jobId'
+      preLoaderRoute: typeof BrowseJobsJobIdRouteImport
+      parentRoute: typeof BrowseRouteRoute
+    }
+    '/_browse/post/$postId': {
+      id: '/_browse/post/$postId'
+      path: '/post/$postId'
+      fullPath: '/post/$postId'
+      preLoaderRoute: typeof BrowsePostPostIdRouteImport
+      parentRoute: typeof BrowseRouteRoute
+    }
+    '/_browse/property/': {
+      id: '/_browse/property/'
+      path: '/property'
+      fullPath: '/property/'
+      preLoaderRoute: typeof BrowsePropertyIndexRouteImport
+      parentRoute: typeof BrowseRouteRoute
+    }
+    '/_browse/property/$listingId': {
+      id: '/_browse/property/$listingId'
+      path: '/property/$listingId'
+      fullPath: '/property/$listingId'
+      preLoaderRoute: typeof BrowsePropertyListingIdRouteImport
+      parentRoute: typeof BrowseRouteRoute
+    }
+    '/_browse/services/': {
+      id: '/_browse/services/'
       path: '/services'
       fullPath: '/services/'
-      preLoaderRoute: typeof AuthenticatedServicesIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof BrowseServicesIndexRouteImport
+      parentRoute: typeof BrowseRouteRoute
     }
-    '/_authenticated/services/$providerId': {
-      id: '/_authenticated/services/$providerId'
+    '/_browse/services/$providerId': {
+      id: '/_browse/services/$providerId'
       path: '/services/$providerId'
       fullPath: '/services/$providerId'
-      preLoaderRoute: typeof AuthenticatedServicesProviderIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof BrowseServicesProviderIdRouteImport
+      parentRoute: typeof BrowseRouteRoute
     }
-    '/_authenticated/services/extras': {
-      id: '/_authenticated/services/extras'
+    '/_browse/services/extras': {
+      id: '/_browse/services/extras'
       path: '/services/extras'
       fullPath: '/services/extras'
-      preLoaderRoute: typeof AuthenticatedServicesExtrasRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof BrowseServicesExtrasRouteImport
+      parentRoute: typeof BrowseRouteRoute
     }
-    '/_authenticated/u/$userId': {
-      id: '/_authenticated/u/$userId'
+    '/_browse/u/$userId': {
+      id: '/_browse/u/$userId'
       path: '/u/$userId'
       fullPath: '/u/$userId'
-      preLoaderRoute: typeof AuthenticatedUUserIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof BrowseUUserIdRouteImport
+      parentRoute: typeof BrowseRouteRoute
     }
     '/api/public/cleanup-spotlight-videos': {
       id: '/api/public/cleanup-spotlight-videos'
@@ -2826,20 +2832,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBookingBookingIdTrackRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/campus/instructors/': {
-      id: '/_authenticated/campus/instructors/'
-      path: '/campus/instructors'
-      fullPath: '/campus/instructors/'
-      preLoaderRoute: typeof AuthenticatedCampusInstructorsIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/campus/instructors/$instructorId': {
-      id: '/_authenticated/campus/instructors/$instructorId'
-      path: '/campus/instructors/$instructorId'
-      fullPath: '/campus/instructors/$instructorId'
-      preLoaderRoute: typeof AuthenticatedCampusInstructorsInstructorIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/clean/orders/$orderId': {
       id: '/_authenticated/clean/orders/$orderId'
       path: '/clean/orders/$orderId'
@@ -2867,6 +2859,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/markets/update/$marketPostId'
       preLoaderRoute: typeof AuthenticatedMarketsUpdateMarketPostIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_browse/campus/instructors/': {
+      id: '/_browse/campus/instructors/'
+      path: '/campus/instructors'
+      fullPath: '/campus/instructors/'
+      preLoaderRoute: typeof BrowseCampusInstructorsIndexRouteImport
+      parentRoute: typeof BrowseRouteRoute
+    }
+    '/_browse/campus/instructors/$instructorId': {
+      id: '/_browse/campus/instructors/$instructorId'
+      path: '/campus/instructors/$instructorId'
+      fullPath: '/campus/instructors/$instructorId'
+      preLoaderRoute: typeof BrowseCampusInstructorsInstructorIdRouteImport
+      parentRoute: typeof BrowseRouteRoute
     }
     '/api/public/profiles/$username': {
       id: '/api/public/profiles/$username'
@@ -2927,11 +2933,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBookingsRoute: typeof AuthenticatedBookingsRoute
   AuthenticatedCreateRoute: typeof AuthenticatedCreateRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedDealsRoute: typeof AuthenticatedDealsRoute
   AuthenticatedDeliveriesRoute: typeof AuthenticatedDeliveriesRoute
   AuthenticatedDispatchRoute: typeof AuthenticatedDispatchRoute
   AuthenticatedElectricityRoute: typeof AuthenticatedElectricityRoute
-  AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
   AuthenticatedFlightsRoute: typeof AuthenticatedFlightsRoute
   AuthenticatedFriendsRoute: typeof AuthenticatedFriendsRoute
   AuthenticatedFxAnalyticsRoute: typeof AuthenticatedFxAnalyticsRoute
@@ -2947,50 +2951,31 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedReferralRewardsRoute: typeof AuthenticatedReferralRewardsRoute
   AuthenticatedRiderRoute: typeof AuthenticatedRiderRoute
-  AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedShareholderRoute: typeof AuthenticatedShareholderRoute
-  AuthenticatedSpotlightRoute: typeof AuthenticatedSpotlightRoute
   AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
   AuthenticatedTransactionsRoute: typeof AuthenticatedTransactionsRoute
   AuthenticatedVerifiedRoute: typeof AuthenticatedVerifiedRoute
   AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
   AuthenticatedWithdrawRoute: typeof AuthenticatedWithdrawRoute
-  AuthenticatedArticlesArticleIdRoute: typeof AuthenticatedArticlesArticleIdRoute
   AuthenticatedCampusBecomeInstructorRoute: typeof AuthenticatedCampusBecomeInstructorRoute
   AuthenticatedCampusTeachingRoute: typeof AuthenticatedCampusTeachingRoute
   AuthenticatedCleanBookRoute: typeof AuthenticatedCleanBookRoute
   AuthenticatedCleanJobsRoute: typeof AuthenticatedCleanJobsRoute
-  AuthenticatedEventsEventIdRoute: typeof AuthenticatedEventsEventIdRoute
   AuthenticatedFreelanceProjectIdRoute: typeof AuthenticatedFreelanceProjectIdRoute
-  AuthenticatedHashtagTagRoute: typeof AuthenticatedHashtagTagRoute
-  AuthenticatedJobsJobIdRoute: typeof AuthenticatedJobsJobIdRoute
-  AuthenticatedPostPostIdRoute: typeof AuthenticatedPostPostIdRoute
-  AuthenticatedPropertyListingIdRoute: typeof AuthenticatedPropertyListingIdRoute
   AuthenticatedPropertyManageRoute: typeof AuthenticatedPropertyManageRoute
   AuthenticatedPropertyNewRoute: typeof AuthenticatedPropertyNewRoute
   AuthenticatedSecurityUpdateBulletinIdRoute: typeof AuthenticatedSecurityUpdateBulletinIdRoute
-  AuthenticatedServicesProviderIdRoute: typeof AuthenticatedServicesProviderIdRoute
-  AuthenticatedServicesExtrasRoute: typeof AuthenticatedServicesExtrasRoute
-  AuthenticatedUUserIdRoute: typeof AuthenticatedUUserIdRoute
-  AuthenticatedArticlesIndexRoute: typeof AuthenticatedArticlesIndexRoute
-  AuthenticatedCampusIndexRoute: typeof AuthenticatedCampusIndexRoute
   AuthenticatedCleanIndexRoute: typeof AuthenticatedCleanIndexRoute
-  AuthenticatedEventsIndexRoute: typeof AuthenticatedEventsIndexRoute
   AuthenticatedFreelanceIndexRoute: typeof AuthenticatedFreelanceIndexRoute
   AuthenticatedIncubatorIndexRoute: typeof AuthenticatedIncubatorIndexRoute
-  AuthenticatedJobsIndexRoute: typeof AuthenticatedJobsIndexRoute
-  AuthenticatedPropertyIndexRoute: typeof AuthenticatedPropertyIndexRoute
-  AuthenticatedServicesIndexRoute: typeof AuthenticatedServicesIndexRoute
   AuthenticatedBookingBookingIdConfirmedRoute: typeof AuthenticatedBookingBookingIdConfirmedRoute
   AuthenticatedBookingBookingIdReceiptRoute: typeof AuthenticatedBookingBookingIdReceiptRoute
   AuthenticatedBookingBookingIdTrackRoute: typeof AuthenticatedBookingBookingIdTrackRoute
-  AuthenticatedCampusInstructorsInstructorIdRoute: typeof AuthenticatedCampusInstructorsInstructorIdRoute
   AuthenticatedCleanOrdersOrderIdRoute: typeof AuthenticatedCleanOrdersOrderIdRoute
   AuthenticatedCleanReceiptOrderIdRoute: typeof AuthenticatedCleanReceiptOrderIdRoute
   AuthenticatedMarketsInstructorsInstructorIdRoute: typeof AuthenticatedMarketsInstructorsInstructorIdRoute
   AuthenticatedMarketsUpdateMarketPostIdRoute: typeof AuthenticatedMarketsUpdateMarketPostIdRoute
-  AuthenticatedCampusInstructorsIndexRoute: typeof AuthenticatedCampusInstructorsIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -3000,11 +2985,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBookingsRoute: AuthenticatedBookingsRoute,
   AuthenticatedCreateRoute: AuthenticatedCreateRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedDealsRoute: AuthenticatedDealsRoute,
   AuthenticatedDeliveriesRoute: AuthenticatedDeliveriesRoute,
   AuthenticatedDispatchRoute: AuthenticatedDispatchRoute,
   AuthenticatedElectricityRoute: AuthenticatedElectricityRoute,
-  AuthenticatedFeedRoute: AuthenticatedFeedRoute,
   AuthenticatedFlightsRoute: AuthenticatedFlightsRoute,
   AuthenticatedFriendsRoute: AuthenticatedFriendsRoute,
   AuthenticatedFxAnalyticsRoute: AuthenticatedFxAnalyticsRoute,
@@ -3020,63 +3003,95 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedReferralRewardsRoute: AuthenticatedReferralRewardsRoute,
   AuthenticatedRiderRoute: AuthenticatedRiderRoute,
-  AuthenticatedSearchRoute: AuthenticatedSearchRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedShareholderRoute: AuthenticatedShareholderRoute,
-  AuthenticatedSpotlightRoute: AuthenticatedSpotlightRoute,
   AuthenticatedStudioRoute: AuthenticatedStudioRoute,
   AuthenticatedTransactionsRoute: AuthenticatedTransactionsRoute,
   AuthenticatedVerifiedRoute: AuthenticatedVerifiedRoute,
   AuthenticatedWalletRoute: AuthenticatedWalletRoute,
   AuthenticatedWithdrawRoute: AuthenticatedWithdrawRoute,
-  AuthenticatedArticlesArticleIdRoute: AuthenticatedArticlesArticleIdRoute,
   AuthenticatedCampusBecomeInstructorRoute:
     AuthenticatedCampusBecomeInstructorRoute,
   AuthenticatedCampusTeachingRoute: AuthenticatedCampusTeachingRoute,
   AuthenticatedCleanBookRoute: AuthenticatedCleanBookRoute,
   AuthenticatedCleanJobsRoute: AuthenticatedCleanJobsRoute,
-  AuthenticatedEventsEventIdRoute: AuthenticatedEventsEventIdRoute,
   AuthenticatedFreelanceProjectIdRoute: AuthenticatedFreelanceProjectIdRoute,
-  AuthenticatedHashtagTagRoute: AuthenticatedHashtagTagRoute,
-  AuthenticatedJobsJobIdRoute: AuthenticatedJobsJobIdRoute,
-  AuthenticatedPostPostIdRoute: AuthenticatedPostPostIdRoute,
-  AuthenticatedPropertyListingIdRoute: AuthenticatedPropertyListingIdRoute,
   AuthenticatedPropertyManageRoute: AuthenticatedPropertyManageRoute,
   AuthenticatedPropertyNewRoute: AuthenticatedPropertyNewRoute,
   AuthenticatedSecurityUpdateBulletinIdRoute:
     AuthenticatedSecurityUpdateBulletinIdRoute,
-  AuthenticatedServicesProviderIdRoute: AuthenticatedServicesProviderIdRoute,
-  AuthenticatedServicesExtrasRoute: AuthenticatedServicesExtrasRoute,
-  AuthenticatedUUserIdRoute: AuthenticatedUUserIdRoute,
-  AuthenticatedArticlesIndexRoute: AuthenticatedArticlesIndexRoute,
-  AuthenticatedCampusIndexRoute: AuthenticatedCampusIndexRoute,
   AuthenticatedCleanIndexRoute: AuthenticatedCleanIndexRoute,
-  AuthenticatedEventsIndexRoute: AuthenticatedEventsIndexRoute,
   AuthenticatedFreelanceIndexRoute: AuthenticatedFreelanceIndexRoute,
   AuthenticatedIncubatorIndexRoute: AuthenticatedIncubatorIndexRoute,
-  AuthenticatedJobsIndexRoute: AuthenticatedJobsIndexRoute,
-  AuthenticatedPropertyIndexRoute: AuthenticatedPropertyIndexRoute,
-  AuthenticatedServicesIndexRoute: AuthenticatedServicesIndexRoute,
   AuthenticatedBookingBookingIdConfirmedRoute:
     AuthenticatedBookingBookingIdConfirmedRoute,
   AuthenticatedBookingBookingIdReceiptRoute:
     AuthenticatedBookingBookingIdReceiptRoute,
   AuthenticatedBookingBookingIdTrackRoute:
     AuthenticatedBookingBookingIdTrackRoute,
-  AuthenticatedCampusInstructorsInstructorIdRoute:
-    AuthenticatedCampusInstructorsInstructorIdRoute,
   AuthenticatedCleanOrdersOrderIdRoute: AuthenticatedCleanOrdersOrderIdRoute,
   AuthenticatedCleanReceiptOrderIdRoute: AuthenticatedCleanReceiptOrderIdRoute,
   AuthenticatedMarketsInstructorsInstructorIdRoute:
     AuthenticatedMarketsInstructorsInstructorIdRoute,
   AuthenticatedMarketsUpdateMarketPostIdRoute:
     AuthenticatedMarketsUpdateMarketPostIdRoute,
-  AuthenticatedCampusInstructorsIndexRoute:
-    AuthenticatedCampusInstructorsIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface BrowseRouteRouteChildren {
+  BrowseDealsRoute: typeof BrowseDealsRoute
+  BrowseFeedRoute: typeof BrowseFeedRoute
+  BrowseSearchRoute: typeof BrowseSearchRoute
+  BrowseSpotlightRoute: typeof BrowseSpotlightRoute
+  BrowseArticlesArticleIdRoute: typeof BrowseArticlesArticleIdRoute
+  BrowseEventsEventIdRoute: typeof BrowseEventsEventIdRoute
+  BrowseHashtagTagRoute: typeof BrowseHashtagTagRoute
+  BrowseJobsJobIdRoute: typeof BrowseJobsJobIdRoute
+  BrowsePostPostIdRoute: typeof BrowsePostPostIdRoute
+  BrowsePropertyListingIdRoute: typeof BrowsePropertyListingIdRoute
+  BrowseServicesProviderIdRoute: typeof BrowseServicesProviderIdRoute
+  BrowseServicesExtrasRoute: typeof BrowseServicesExtrasRoute
+  BrowseUUserIdRoute: typeof BrowseUUserIdRoute
+  BrowseArticlesIndexRoute: typeof BrowseArticlesIndexRoute
+  BrowseCampusIndexRoute: typeof BrowseCampusIndexRoute
+  BrowseEventsIndexRoute: typeof BrowseEventsIndexRoute
+  BrowseJobsIndexRoute: typeof BrowseJobsIndexRoute
+  BrowsePropertyIndexRoute: typeof BrowsePropertyIndexRoute
+  BrowseServicesIndexRoute: typeof BrowseServicesIndexRoute
+  BrowseCampusInstructorsInstructorIdRoute: typeof BrowseCampusInstructorsInstructorIdRoute
+  BrowseCampusInstructorsIndexRoute: typeof BrowseCampusInstructorsIndexRoute
+}
+
+const BrowseRouteRouteChildren: BrowseRouteRouteChildren = {
+  BrowseDealsRoute: BrowseDealsRoute,
+  BrowseFeedRoute: BrowseFeedRoute,
+  BrowseSearchRoute: BrowseSearchRoute,
+  BrowseSpotlightRoute: BrowseSpotlightRoute,
+  BrowseArticlesArticleIdRoute: BrowseArticlesArticleIdRoute,
+  BrowseEventsEventIdRoute: BrowseEventsEventIdRoute,
+  BrowseHashtagTagRoute: BrowseHashtagTagRoute,
+  BrowseJobsJobIdRoute: BrowseJobsJobIdRoute,
+  BrowsePostPostIdRoute: BrowsePostPostIdRoute,
+  BrowsePropertyListingIdRoute: BrowsePropertyListingIdRoute,
+  BrowseServicesProviderIdRoute: BrowseServicesProviderIdRoute,
+  BrowseServicesExtrasRoute: BrowseServicesExtrasRoute,
+  BrowseUUserIdRoute: BrowseUUserIdRoute,
+  BrowseArticlesIndexRoute: BrowseArticlesIndexRoute,
+  BrowseCampusIndexRoute: BrowseCampusIndexRoute,
+  BrowseEventsIndexRoute: BrowseEventsIndexRoute,
+  BrowseJobsIndexRoute: BrowseJobsIndexRoute,
+  BrowsePropertyIndexRoute: BrowsePropertyIndexRoute,
+  BrowseServicesIndexRoute: BrowseServicesIndexRoute,
+  BrowseCampusInstructorsInstructorIdRoute:
+    BrowseCampusInstructorsInstructorIdRoute,
+  BrowseCampusInstructorsIndexRoute: BrowseCampusInstructorsIndexRoute,
+}
+
+const BrowseRouteRouteWithChildren = BrowseRouteRoute._addFileChildren(
+  BrowseRouteRouteChildren,
+)
 
 interface ConsoleRouteChildren {
   ConsoleAdvertisingRoute: typeof ConsoleAdvertisingRoute
@@ -3170,6 +3185,7 @@ const ConsoleRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  BrowseRouteRoute: BrowseRouteRouteWithChildren,
   AccountDeletionRoute: AccountDeletionRoute,
   CommunityGuidelinesRoute: CommunityGuidelinesRoute,
   ConsentRoute: ConsentRoute,

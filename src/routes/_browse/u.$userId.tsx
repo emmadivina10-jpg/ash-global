@@ -19,9 +19,10 @@ import {
   useSendFriendRequest,
 } from "@/lib/social.queries";
 import { useI18n } from "@/lib/i18n";
+import { useAuthGate } from "@/lib/guest-gate";
 import { useTrackView } from "@/lib/activity";
 
-export const Route = createFileRoute("/_authenticated/u/$userId")({
+export const Route = createFileRoute("/_browse/u/$userId")({
   head: () => ({
     meta: [
       { title: "Member profile — ASH" },
@@ -47,6 +48,7 @@ function MemberProfilePage() {
   const { data: posts } = useMemberPosts(userId);
   const { data: graph } = useFriendships();
   const send = useSendFriendRequest();
+  const { requireAuth } = useAuthGate();
 
   useTrackView(
     {
@@ -83,6 +85,13 @@ function MemberProfilePage() {
     (graph?.outgoing ?? []).some((f) => f.other.id === userId);
 
   async function message() {
+    if (
+      !requireAuth({
+        en: "Sign in to send a message.",
+        fr: "Connectez-vous pour envoyer un message.",
+      })
+    )
+      return;
     const conversationId = await openMemberConversation(userId);
     if (!conversationId) {
       toast.error(tx("Could not open the chat.", "Impossible d'ouvrir la discussion."));
@@ -170,12 +179,19 @@ function MemberProfilePage() {
             variant="outline"
             className="flex-1"
             disabled={linked || send.isPending}
-            onClick={() =>
+            onClick={() => {
+              if (
+                !requireAuth({
+                  en: "Sign in to add friends.",
+                  fr: "Connectez-vous pour ajouter des amis.",
+                })
+              )
+                return;
               send.mutate(userId, {
                 onSuccess: () => toast.success(tx("Request sent", "Demande envoyée")),
                 onError: () => toast.error(tx("Could not send", "Échec de l'envoi")),
-              })
-            }
+              });
+            }}
           >
             <UserPlus className="size-4" aria-hidden />
             {linked ? tx("Already linked", "Déjà lié") : tx("Add friend", "Ajouter")}

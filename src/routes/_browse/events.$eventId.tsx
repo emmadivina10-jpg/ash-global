@@ -12,12 +12,13 @@ import { Button } from "@/components/ui/button";
 import { EmptyState, LoadingState } from "@/components/refer/states";
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
+import { useAuthGate } from "@/lib/guest-gate";
 import { useTrackView } from "@/lib/activity";
 import { useUser } from "@/lib/queries";
 import { SafetyMenu } from "@/components/refer/SafetyMenu";
 import { ComingSoon } from "@/components/refer/ComingSoon";
 
-export const Route = createFileRoute("/_authenticated/events/$eventId")({
+export const Route = createFileRoute("/_browse/events/$eventId")({
   head: () => ({
     meta: [
       { title: "Event details — Coming soon" },
@@ -66,6 +67,7 @@ function EventDetail() {
   );
   const start = useServerFn(startTicketPurchase);
   const verify = useServerFn(verifyCommerceCharge);
+  const { requireAuth } = useAuthGate();
 
   const [quantity, setQuantity] = useState(1);
   const [busy, setBusy] = useState(false);
@@ -89,6 +91,13 @@ function EventDetail() {
   const total = event.ticket_price * quantity;
 
   async function charge(provider: string, phone: string) {
+    if (
+      !requireAuth({
+        en: "Sign in to get your ticket.",
+        fr: "Connectez-vous pour obtenir votre billet.",
+      })
+    )
+      return;
     setBusy(true);
     try {
       const result = await start({ data: { eventId, quantity, provider, phone } });

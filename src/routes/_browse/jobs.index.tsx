@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 import { EMPLOYMENT_TYPES, LOCATION_TYPES, usePostJob, useJobs } from "@/lib/hub.queries";
 import { ComingSoon } from "@/components/refer/ComingSoon";
 
-export const Route = createFileRoute("/_authenticated/jobs/")({
+export const Route = createFileRoute("/_browse/jobs/")({
   head: () => ({
     meta: [
       { title: "ASH Jobs — Coming soon" },
