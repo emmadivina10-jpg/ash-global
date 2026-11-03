@@ -505,3 +505,9 @@ Messages/Market checks: signed-in Market default and reload persistence, Extras 
 - [x] Spotlight tab replaces Flights (compact icon rail incl. contact-vendor icon); Flights first in Menu.
 - [x] Feed FX Analytics button replaced by Referral rewards with ASH Intelligence analysis.
 - [ ] Publish to live app — awaiting approval.
+
+## ASH Logistics phase 2 (prepared, awaiting approval)
+- [x] Proposed SQL: docs/proposed/dispatch_riders_phase2.sql (+ rollback), 21 isolated tests pass
+- [x] Integration + credentials guide: docs/ash-rider-integration.md
+- [ ] Apply to production — blocked on user approval
+- [ ] Rider/vendor/staff screens in ASH Glo — after approval
