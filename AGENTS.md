@@ -51,3 +51,4 @@
 - Marketplace reuses chats; lookup errors stop creation. Deletion keeps scoped hiding/sender policies; replies store IDs; voice-playback arbitrates audio/recording. Why: private history, exclusive audio.
 - Card/bank use mobile-payment-policy; viewers use useOverlayBack. PostCard photos use portal MediaLightbox. Why: Back keeps feed scroll; rails unchanged.
 - Staff wallet credits go only through admin_credit_wallet_audited with an individual seat and a client request ID held until resolved. Why: atomic audit, exactly-once credit.
+- ASH Logistics screens (/deliveries, /dispatch, /rider, /logistics-admin) use dispatch.queries.ts: RLS reads plus dispatch_* actions only; rider documents go to the private rider-documents folder with ≤60 s signed links (dispatch-docs.ts). Why: one shared backend for ASH Glo and the future Rider app, no bypass of server checks.

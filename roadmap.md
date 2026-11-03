@@ -511,3 +511,8 @@ Messages/Market checks: signed-in Market default and reload persistence, Extras 
 - [x] Integration + credentials guide: docs/ash-rider-integration.md
 - [ ] Apply to production — blocked on user approval
 - [ ] Rider/vendor/staff screens in ASH Glo — after approval
+
+## ASH Logistics UI (Nov 3)
+- [x] Customer deliveries, shop dispatch + team, rider dashboard, staff logistics screens (preview only)
+- [ ] Phase 3 accept-time check + live rider position — waiting for user approval of docs/proposed/dispatch_phase3_accept_guard.sql
+- [ ] Separate ASH Rider app — not authorised yet
