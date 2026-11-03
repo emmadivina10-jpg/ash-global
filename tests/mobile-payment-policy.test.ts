@@ -8,7 +8,7 @@ describe("mobile card and bank release gate", () => {
     expect(cardBankAvailable(true, true)).toBe(false);
   });
   it("blocks card/bank in phone-sized web previews", () => expect(cardBankAvailable(false, true)).toBe(false));
-  it("preserves desktop website card/bank availability", () => expect(cardBankAvailable(false, false)).toBe(true));
+  it("blocks card/bank on the desktop website too", () => expect(cardBankAvailable(false, false)).toBe(false));
   it("preserves MTN and Orange XAF withdrawal destinations", () => {
     expect(visibleWithdrawalMethods("XAF", false)).toEqual(["MTN_MOMO", "ORANGE_MONEY"]);
     expect(visibleWithdrawalMethods("XAF", true)).toEqual(["MTN_MOMO", "ORANGE_MONEY"]);
