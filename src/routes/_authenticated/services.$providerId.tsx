@@ -306,6 +306,13 @@ function ProviderPage() {
           <MessageCircle className="size-4" aria-hidden />
           {t("svc.chat")}
         </Button>
+        {!isOwner && provider.user_id ? (
+          <Button variant="outline" asChild>
+            <Link to="/deliveries" search={{ vendor: provider.user_id }}>
+              {tx("Request delivery", "Demander une livraison")}
+            </Link>
+          </Button>
+        ) : null}
         {isOwner ? null : (
           <ReportDialog
             targetType="PROVIDER"
