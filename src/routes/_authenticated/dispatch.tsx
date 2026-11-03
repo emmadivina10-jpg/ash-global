@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState, LoadingState } from "@/components/refer/states";
 import { PageHead, Panel, StatusPill, Timeline, modeLabel } from "@/components/dispatch/DispatchUI";
 import { useI18n } from "@/lib/i18n";
+import { DeliveryLiveMap } from "@/components/dispatch/DeliveryLiveMap";
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { riderCanTakeWork } from "@/lib/dispatch-docs";
 import {
@@ -102,6 +103,7 @@ function VendorJob({ job, riders, names, fr }: { job: DispatchJob; riders: Rider
       <div className="space-y-3 text-sm">
         <p className="text-muted-foreground">{job.pickup_address}{job.fulfillment_mode !== "SELF_PICKUP" ? ` → ${job.dropoff_address}` : ""}</p>
         <p className="text-xs text-muted-foreground">{modeLabel(job.fulfillment_mode, fr)} · {formatDateTime(job.created_at)}{job.notes ? ` · ${job.notes}` : ""}</p>
+        <DeliveryLiveMap job={job} />
         {quotable ? (
           <div className="flex gap-2">
             <Input type="number" min={0} max={1000000} value={fee} onChange={(e) => setFee(e.target.value)} placeholder="XAF" />
