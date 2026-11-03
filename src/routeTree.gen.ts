@@ -47,6 +47,7 @@ import { Route as AuthenticatedFxAnalyticsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
 import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
 import { Route as AuthenticatedInvestmentRouteImport } from './routes/_authenticated/investment'
+import { Route as AuthenticatedLogisticsAdminRouteImport } from './routes/_authenticated/logistics-admin'
 import { Route as AuthenticatedMentorsRouteImport } from './routes/_authenticated/mentors'
 import { Route as AuthenticatedMenuRouteImport } from './routes/_authenticated/menu'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
@@ -347,6 +348,12 @@ const AuthenticatedInvestmentRoute = AuthenticatedInvestmentRouteImport.update({
   path: '/investment',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedLogisticsAdminRoute =
+  AuthenticatedLogisticsAdminRouteImport.update({
+    id: '/logistics-admin',
+    path: '/logistics-admin',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMentorsRoute = AuthenticatedMentorsRouteImport.update({
   id: '/mentors',
   path: '/mentors',
@@ -965,6 +972,7 @@ export interface FileRoutesByFullPath {
   '/groups': typeof AuthenticatedGroupsRoute
   '/inventory': typeof AuthenticatedInventoryRoute
   '/investment': typeof AuthenticatedInvestmentRoute
+  '/logistics-admin': typeof AuthenticatedLogisticsAdminRoute
   '/mentors': typeof AuthenticatedMentorsRoute
   '/menu': typeof AuthenticatedMenuRoute
   '/messages': typeof AuthenticatedMessagesRoute
@@ -1111,6 +1119,7 @@ export interface FileRoutesByTo {
   '/groups': typeof AuthenticatedGroupsRoute
   '/inventory': typeof AuthenticatedInventoryRoute
   '/investment': typeof AuthenticatedInvestmentRoute
+  '/logistics-admin': typeof AuthenticatedLogisticsAdminRoute
   '/mentors': typeof AuthenticatedMentorsRoute
   '/menu': typeof AuthenticatedMenuRoute
   '/messages': typeof AuthenticatedMessagesRoute
@@ -1260,6 +1269,7 @@ export interface FileRoutesById {
   '/_authenticated/groups': typeof AuthenticatedGroupsRoute
   '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
   '/_authenticated/investment': typeof AuthenticatedInvestmentRoute
+  '/_authenticated/logistics-admin': typeof AuthenticatedLogisticsAdminRoute
   '/_authenticated/mentors': typeof AuthenticatedMentorsRoute
   '/_authenticated/menu': typeof AuthenticatedMenuRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
@@ -1409,6 +1419,7 @@ export interface FileRouteTypes {
     | '/groups'
     | '/inventory'
     | '/investment'
+    | '/logistics-admin'
     | '/mentors'
     | '/menu'
     | '/messages'
@@ -1555,6 +1566,7 @@ export interface FileRouteTypes {
     | '/groups'
     | '/inventory'
     | '/investment'
+    | '/logistics-admin'
     | '/mentors'
     | '/menu'
     | '/messages'
@@ -1703,6 +1715,7 @@ export interface FileRouteTypes {
     | '/_authenticated/groups'
     | '/_authenticated/inventory'
     | '/_authenticated/investment'
+    | '/_authenticated/logistics-admin'
     | '/_authenticated/mentors'
     | '/_authenticated/menu'
     | '/_authenticated/messages'
@@ -2120,6 +2133,13 @@ declare module '@tanstack/react-router' {
       path: '/investment'
       fullPath: '/investment'
       preLoaderRoute: typeof AuthenticatedInvestmentRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/logistics-admin': {
+      id: '/_authenticated/logistics-admin'
+      path: '/logistics-admin'
+      fullPath: '/logistics-admin'
+      preLoaderRoute: typeof AuthenticatedLogisticsAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/mentors': {
@@ -2899,6 +2919,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRoute
   AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
   AuthenticatedInvestmentRoute: typeof AuthenticatedInvestmentRoute
+  AuthenticatedLogisticsAdminRoute: typeof AuthenticatedLogisticsAdminRoute
   AuthenticatedMentorsRoute: typeof AuthenticatedMentorsRoute
   AuthenticatedMenuRoute: typeof AuthenticatedMenuRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
@@ -2971,6 +2992,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedGroupsRoute: AuthenticatedGroupsRoute,
   AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
   AuthenticatedInvestmentRoute: AuthenticatedInvestmentRoute,
+  AuthenticatedLogisticsAdminRoute: AuthenticatedLogisticsAdminRoute,
   AuthenticatedMentorsRoute: AuthenticatedMentorsRoute,
   AuthenticatedMenuRoute: AuthenticatedMenuRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
