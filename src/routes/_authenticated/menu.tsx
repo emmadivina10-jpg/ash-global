@@ -291,6 +291,15 @@ function MenuPage() {
           {tx("Admin console", "Console d’administration")}
         </a>
       ) : null}
+      {isAdmin ? (
+        <Link
+          to="/logistics-admin"
+          className="flex items-center gap-3 rounded-2xl bg-card px-4 py-3 text-sm font-bold text-foreground ring-1 ring-border"
+        >
+          <Truck className="size-6 text-primary" aria-hidden />
+          {tx("ASH Logistics operations", "Opérations ASH Logistics")}
+        </Link>
+      ) : null}
 
       <Button
         variant="secondary"
