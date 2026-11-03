@@ -13,9 +13,11 @@ import { DeliveryLiveMap } from "@/components/dispatch/DeliveryLiveMap";
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { riderCanTakeWork } from "@/lib/dispatch-docs";
 import {
-  dispatchError, rpc, useInvalidateDispatch, useIsShopOwner, useJobEvents, useJobs, useMe, useNames, useRiders, useTeam,
-  type DispatchJob, type RiderRow,
+  DEFAULT_PREFS, dispatchError, rpc, useExternalRider, useInvalidateDispatch, useIsShopOwner, useJobEvents, useJobs, useMe, useNames, useRiders, useTeam, useVendorPrefs,
+  type DispatchJob, type RiderRow, type VendorPrefs,
 } from "@/lib/dispatch.queries";
+import { Switch } from "@/components/ui/switch";
+import { vehicleLabel } from "@/components/dispatch/DeliveryOptions";
 
 export const Route = createFileRoute("/_authenticated/dispatch")({
   head: () => ({
