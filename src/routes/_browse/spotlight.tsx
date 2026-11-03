@@ -46,6 +46,7 @@ import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { ShareSheet, shareLink } from "@/components/refer/ShareSheet";
+import { useAuthGate } from "@/lib/guest-gate";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 
@@ -254,6 +255,8 @@ function timeAgo(iso: string, fr: boolean) {
 type CommentSort = "relevant" | "newest";
 
 function CommentsPanel({ entry }: { entry: SpotlightEntry }) {
+  // eslint-disable-next-line react-hooks/rules-of-hooks -- panel header
+  const { requireAuth } = useAuthGate();
   const { tx, lang } = useI18n();
   const { user } = useUser();
   const canComment = entry.source === "post";
@@ -288,6 +291,13 @@ function CommentsPanel({ entry }: { entry: SpotlightEntry }) {
   function submit() {
     const body = text.trim();
     if (!body || add.isPending) return;
+    if (
+      !requireAuth({
+        en: "Sign in to join the conversation.",
+        fr: "Connectez-vous pour participer à la conversation.",
+      })
+    )
+      return;
     add.mutate(
       { body, parentId: replyTo ? (replyTo.parent_id ?? replyTo.id) : null },
       {
