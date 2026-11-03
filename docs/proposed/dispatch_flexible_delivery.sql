@@ -79,7 +79,7 @@ DROP TRIGGER IF EXISTS trg_dispatch_offer_window ON public.dispatch_jobs;
 CREATE TRIGGER trg_dispatch_offer_window BEFORE UPDATE OF status ON public.dispatch_jobs
 FOR EACH ROW EXECUTE FUNCTION public.dispatch_offer_window();
 
--- Rider response: same accept-time guard, plus refuses expired offers
+-- Rider response: same accept-time guard, plus refuses expired offers and a second active delivery
 CREATE OR REPLACE FUNCTION public.dispatch_rider_respond(_job uuid, _accept boolean)
 RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 DECLARE j public.dispatch_jobs%ROWTYPE;
@@ -92,6 +92,8 @@ BEGIN
     PERFORM 1 FROM public.dispatch_riders r WHERE r.user_id = auth.uid()
       AND r.is_active AND r.verification_status = 'VERIFIED' AND r.availability_status = 'AVAILABLE' FOR UPDATE;
     IF NOT FOUND THEN RAISE EXCEPTION 'RIDER_UNAVAILABLE'; END IF;
+    IF EXISTS (SELECT 1 FROM public.dispatch_job_assignments a WHERE a.rider_user_id = auth.uid()
+        AND a.delivery_id <> _job AND a.status IN ('ACCEPTED','IN_PROGRESS')) THEN RAISE EXCEPTION 'RIDER_ON_DELIVERY'; END IF;
     UPDATE public.dispatch_job_assignments SET status = 'ACCEPTED', accepted_at = now() WHERE delivery_id = _job AND rider_user_id = auth.uid() AND status = 'OPEN';
     UPDATE public.dispatch_jobs SET status = 'ACCEPTED' WHERE id = _job;
     PERFORM public.dispatch_log(_job, 'ACCEPTED', 'RIDER', NULL);

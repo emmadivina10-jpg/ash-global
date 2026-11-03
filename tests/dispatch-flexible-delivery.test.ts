@@ -130,7 +130,10 @@ describe("choose an ASH rider", () => {
     expect(a!.status).toBe("OPEN");
     await as(RIDER, "SELECT dispatch_rider_respond($1,false)", [id]);
     expect((await job(id)).status).toBe("REJECTED");
+    expect(await err(CUSTOMER, "SELECT dispatch_switch_mode($1,'ASH_DISPATCH')", [id])).toContain("METHOD_NOT_ALLOWED");
+    await prefs(VENDOR, true, true, true, true, true);
     await as(CUSTOMER, "SELECT dispatch_switch_mode($1,'ASH_DISPATCH')", [id]);
+    await as(CUSTOMER, "SELECT dispatch_switch_mode($1,'CHOSEN_RIDER')", [id]);
     expect(await err(CUSTOMER, "SELECT dispatch_switch_mode($1,'EXTERNAL_RIDER')", [id])).toContain("BAD_MODE");
   });
   it("expired offers cannot be accepted and are released for another rider", async () => {
@@ -150,7 +153,7 @@ describe("choose an ASH rider", () => {
     expect((await as(CUSTOMER, "SELECT * FROM dispatch_rider_directory()")).map((r) => r.user_id)).not.toContain(RIDER);
     const b = await newJobFor("CHOSEN_RIDER");
     await as(CUSTOMER, "SELECT dispatch_offer_chosen_rider($1,$2)", [b, RIDER]);
-    expect(await err(RIDER, "SELECT dispatch_rider_respond($1,true)", [b])).not.toBe("NO_ERROR");
+    expect(await err(RIDER, "SELECT dispatch_rider_respond($1,true)", [b])).toContain("RIDER_ON_DELIVERY");
     await as(CUSTOMER, "SELECT dispatch_cancel($1)", [a]);
     await as(CUSTOMER, "SELECT dispatch_cancel($1)", [b]);
   });
