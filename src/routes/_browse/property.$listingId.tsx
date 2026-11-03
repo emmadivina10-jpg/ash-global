@@ -48,6 +48,7 @@ import {
 import { formatDateTime } from "@/lib/format";
 import { useUser } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
+import { useAuthGate } from "@/lib/guest-gate";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/activity";
 

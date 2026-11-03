@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState, LoadingState } from "@/components/refer/states";
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
+import { useAuthGate } from "@/lib/guest-gate";
 import { useTrackView } from "@/lib/activity";
 import { useUser } from "@/lib/queries";
 import { SafetyMenu } from "@/components/refer/SafetyMenu";

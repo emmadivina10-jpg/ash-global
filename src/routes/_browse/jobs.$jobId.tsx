@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { EmptyState, LoadingState } from "@/components/refer/states";
 import { formatXAF } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
+import { useAuthGate } from "@/lib/guest-gate";
 import { useTrackView } from "@/lib/activity";
 import {
   useApplyToJob,

@@ -21,6 +21,7 @@ import { EmptyState, LoadingState } from "@/components/refer/states";
 import { ReportDialog } from "@/components/refer/ReportDialog";
 import { openMemberConversation } from "@/lib/contact-vendor";
 import { useI18n } from "@/lib/i18n";
+import { useAuthGate } from "@/lib/guest-gate";
 import { useProviderReviews, useProviderServices } from "@/lib/marketplace.queries";
 import { useSendFriendRequest } from "@/lib/social.queries";
 import {

@@ -19,6 +19,7 @@ import {
   useSendFriendRequest,
 } from "@/lib/social.queries";
 import { useI18n } from "@/lib/i18n";
+import { useAuthGate } from "@/lib/guest-gate";
 import { useTrackView } from "@/lib/activity";
 
 export const Route = createFileRoute("/_browse/u/$userId")({

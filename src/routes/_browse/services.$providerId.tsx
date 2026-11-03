@@ -44,6 +44,7 @@ import { type ServiceCategory } from "@/lib/marketplace";
 import { categoryLabel } from "@/lib/taxonomy";
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { useI18n, baseLang } from "@/lib/i18n";
+import { useAuthGate } from "@/lib/guest-gate";
 import {
   formatDateTimeInZone,
   formatTimeInZone,
