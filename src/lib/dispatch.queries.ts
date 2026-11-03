@@ -29,6 +29,7 @@ export type DispatchJob = {
   fee_amount: number | null;
   approved_fee_amount: number | null;
   quote_approved_at: string | null;
+  offer_expires_at: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -80,6 +81,11 @@ const ERRORS: Record<string, [string, string]> = {
   INVITE_INVALID: ["This invitation code is not valid.", "Ce code d'invitation n'est pas valide."],
   SUSPENDED_BY_VENDOR: ["This shop has suspended you.", "Cette boutique vous a suspendu."],
   INVALID_PATH: ["The document could not be saved.", "Le document n'a pas pu être enregistré."],
+  METHOD_NOT_ALLOWED: ["This shop does not offer that delivery method.", "Cette boutique ne propose pas ce mode de livraison."],
+  OFFER_EXPIRED: ["This offer has expired.", "Cette proposition a expiré."],
+  BAD_MODE: ["That option is not available for this delivery.", "Cette option n'est pas disponible pour cette livraison."],
+  NO_METHOD: ["Keep at least one delivery method switched on.", "Gardez au moins un mode de livraison actif."],
+  RIDER_DETAILS_MISSING: ["The customer has not added their rider's details yet.", "Le client n'a pas encore ajouté les informations de son livreur."],
   CODE_ALREADY_USED: ["The handover code was already used.", "Le code de remise a déjà été utilisé."],
 };
 
@@ -105,7 +111,7 @@ export function useMe() {
 }
 
 const JOB_COLS =
-  "id,vendor_id,customer_id,rider_user_id,status,fulfillment_mode,pickup_address,dropoff_address,notes,fee_amount,approved_fee_amount,quote_approved_at,created_at,updated_at";
+  "id,vendor_id,customer_id,rider_user_id,status,fulfillment_mode,pickup_address,dropoff_address,notes,fee_amount,approved_fee_amount,quote_approved_at,offer_expires_at,created_at,updated_at";
 
 export function useJobs(role: "customer" | "vendor" | "rider" | "all", uid: string | null | undefined) {
   return useQuery({
@@ -248,7 +254,7 @@ export function useNames(ids: (string | null | undefined)[]) {
 export function useInvalidateDispatch() {
   const qc = useQueryClient();
   return () => {
-    for (const k of ["dispatch-jobs", "dispatch-events", "dispatch-my-rider", "dispatch-riders", "dispatch-team", "dispatch-my-shops", "dispatch-docs"])
+    for (const k of ["dispatch-jobs", "dispatch-events", "dispatch-my-rider", "dispatch-riders", "dispatch-team", "dispatch-my-shops", "dispatch-docs", "dispatch-prefs", "dispatch-directory", "dispatch-external"])
       void qc.invalidateQueries({ queryKey: [k] });
   };
 }
@@ -268,4 +274,83 @@ export async function signedDocUrl(path: string, seconds = 60): Promise<string> 
   const { data, error } = await supabase.storage.from(RIDER_DOC_BUCKET).createSignedUrl(path, clampSignedUrlSeconds(seconds));
   if (error || !data?.signedUrl) throw error ?? new Error("NO_URL");
   return data.signedUrl;
+}
+
+export type DeliveryMode = "ASH_DISPATCH" | "CHOSEN_RIDER" | "EXTERNAL_RIDER" | "VENDOR_DISPATCH" | "SELF_PICKUP";
+export type VendorPrefs = {
+  allow_ash_dispatch: boolean;
+  allow_chosen_rider: boolean;
+  allow_external_rider: boolean;
+  allow_vendor_riders: boolean;
+  allow_self_pickup: boolean;
+};
+export const DEFAULT_PREFS: VendorPrefs = {
+  allow_ash_dispatch: true,
+  allow_chosen_rider: false,
+  allow_external_rider: false,
+  allow_vendor_riders: false,
+  allow_self_pickup: true,
+};
+
+/** Methods a shop accepts, in display order. Mirrors dispatch_mode_allowed on the server. */
+export function allowedModes(p: VendorPrefs): DeliveryMode[] {
+  const out: DeliveryMode[] = [];
+  if (p.allow_ash_dispatch) out.push("ASH_DISPATCH");
+  if (p.allow_chosen_rider) out.push("CHOSEN_RIDER");
+  if (p.allow_external_rider) out.push("EXTERNAL_RIDER");
+  if (p.allow_vendor_riders) out.push("VENDOR_DISPATCH");
+  if (p.allow_self_pickup) out.push("SELF_PICKUP");
+  return out;
+}
+
+export function useVendorPrefs(vendorId: string | null | undefined) {
+  return useQuery({
+    queryKey: ["dispatch-prefs", vendorId],
+    enabled: !!vendorId,
+    queryFn: async () => {
+      const { data, error } = await sb
+        .from("dispatch_vendor_prefs")
+        .select("allow_ash_dispatch,allow_chosen_rider,allow_external_rider,allow_vendor_riders,allow_self_pickup")
+        .eq("vendor_id", vendorId)
+        .maybeSingle();
+      if (error) throw error;
+      return (data ?? DEFAULT_PREFS) as VendorPrefs;
+    },
+  });
+}
+
+export type DirectoryRider = {
+  user_id: string;
+  display_name: string;
+  avatar_url: string | null;
+  vehicle_type: string | null;
+  city: string | null;
+  service_zones: string[];
+  availability_status: string;
+};
+/** Safe directory: verified, active, available riders only; no private fields. */
+export function useRiderDirectory(enabled: boolean, city?: string) {
+  return useQuery({
+    queryKey: ["dispatch-directory", city ?? ""],
+    enabled,
+    refetchInterval: 30_000,
+    queryFn: () => rpc<DirectoryRider[]>("dispatch_rider_directory", { _city: city?.trim() || null }),
+  });
+}
+
+export type ExternalRider = { delivery_id: string; full_name: string; phone: string; vehicle_type: string; vehicle_plate: string | null; note: string | null; picked_up_at: string | null };
+export function useExternalRider(jobId: string | null, enabled: boolean) {
+  return useQuery({
+    queryKey: ["dispatch-external", jobId],
+    enabled: enabled && !!jobId,
+    queryFn: async () => {
+      const { data, error } = await sb
+        .from("dispatch_external_riders")
+        .select("delivery_id,full_name,phone,vehicle_type,vehicle_plate,note,picked_up_at")
+        .eq("delivery_id", jobId)
+        .maybeSingle();
+      if (error) throw error;
+      return (data ?? null) as ExternalRider | null;
+    },
+  });
 }

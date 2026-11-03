@@ -26,7 +26,17 @@ const MODE: Record<string, [string, string]> = {
   ASH_DISPATCH: ["ASH rider", "Livreur ASH"],
   VENDOR_DISPATCH: ["Shop's own rider", "Livreur de la boutique"],
   SELF_PICKUP: ["Self pickup", "Retrait en boutique"],
+  CHOSEN_RIDER: ["ASH rider I chose", "Livreur ASH choisi"],
+  EXTERNAL_RIDER: ["My own rider (external)", "Mon propre livreur (externe)"],
 };
+const MODE_HELP: Record<string, [string, string]> = {
+  ASH_DISPATCH: ["ASH Glo finds a verified rider. Live tracking once accepted.", "ASH Glo trouve un livreur vérifié. Suivi en direct après acceptation."],
+  CHOSEN_RIDER: ["Pick a verified ASH rider. Live tracking once they accept.", "Choisissez un livreur ASH vérifié. Suivi en direct après acceptation."],
+  EXTERNAL_RIDER: ["You arrange your own rider. Managed by you; no live tracking.", "Vous organisez votre livreur. Géré par vous ; pas de suivi en direct."],
+  VENDOR_DISPATCH: ["The shop's own ASH rider delivers. Live tracking once accepted.", "Un livreur ASH de la boutique livre. Suivi en direct après acceptation."],
+  SELF_PICKUP: ["Collect at the shop with your code. No rider.", "Retirez en boutique avec votre code. Sans livreur."],
+};
+export const modeHelp = (s: string, fr: boolean) => MODE_HELP[s]?.[fr ? 1 : 0] ?? "";
 
 export const statusLabel = (s: string, fr: boolean) => STATUS[s]?.[fr ? 1 : 0] ?? s;
 export const modeLabel = (s: string, fr: boolean) => MODE[s]?.[fr ? 1 : 0] ?? s;
@@ -43,9 +53,10 @@ export function StatusPill({ status, fr }: { status: string; fr: boolean }) {
 
 const RIDER_STEPS = ["REQUESTED", "ASSIGNED", "ACCEPTED", "PICKUP_CONFIRMED", "IN_TRANSIT", "DELIVERED"];
 const PICKUP_STEPS = ["REQUESTED", "DELIVERED"];
+const EXTERNAL_STEPS = ["REQUESTED", "IN_TRANSIT", "DELIVERED"];
 
 export function ProgressSteps({ status, mode, fr }: { status: string; mode: string; fr: boolean }) {
-  const steps = mode === "SELF_PICKUP" ? PICKUP_STEPS : RIDER_STEPS;
+  const steps = mode === "SELF_PICKUP" ? PICKUP_STEPS : mode === "EXTERNAL_RIDER" ? EXTERNAL_STEPS : RIDER_STEPS;
   const idx = Math.max(0, steps.indexOf(status === "INVITED" || status === "REJECTED" ? "REQUESTED" : status));
   if (status === "CANCELLED") return <StatusPill status="CANCELLED" fr={fr} />;
   return (
