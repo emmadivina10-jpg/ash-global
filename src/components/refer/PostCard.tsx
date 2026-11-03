@@ -96,7 +96,7 @@ export function PostCard({
   const actionButton = action ? (
     <Link
       to={action.to}
-      params={action.to === "/u/$userId" ? { userId: post.author_id } : undefined}
+      {...(action.to === "/u/$userId" ? { params: { userId: post.author_id } } : {})}
       onClick={(e) => e.stopPropagation()}
       className="inline-flex h-10 items-center justify-center rounded-full bg-gradient-to-r from-primary to-gold px-5 text-sm font-extrabold text-primary-foreground shadow-[var(--shadow-gold)] transition-transform active:scale-95"
     >
