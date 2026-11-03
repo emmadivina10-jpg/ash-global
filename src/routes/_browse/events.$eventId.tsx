@@ -91,6 +91,13 @@ function EventDetail() {
   const total = event.ticket_price * quantity;
 
   async function charge(provider: string, phone: string) {
+    if (
+      !requireAuth({
+        en: "Sign in to get your ticket.",
+        fr: "Connectez-vous pour obtenir votre billet.",
+      })
+    )
+      return;
     setBusy(true);
     try {
       const result = await start({ data: { eventId, quantity, provider, phone } });

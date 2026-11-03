@@ -69,6 +69,7 @@ function InstructorProfilePage() {
   const services = useProviderServices(instructor?.provider_id ?? undefined);
   const reviews = useProviderReviews(instructor?.provider_id ?? undefined);
   const follow = useSendFriendRequest();
+  const { requireAuth } = useAuthGate();
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -180,15 +181,22 @@ function InstructorProfilePage() {
           <Button
             variant="outline"
             disabled={follow.isPending}
-            onClick={() =>
+            onClick={() => {
+              if (
+                !requireAuth({
+                  en: "Sign in to follow this instructor.",
+                  fr: "Connectez-vous pour suivre cet instructeur.",
+                })
+              )
+                return;
               follow.mutate(instructor.user_id, {
                 onSuccess: () => toast.success(tx("Request sent.", "Demande envoyée.")),
                 onError: (error) =>
                   toast.error(
                     error instanceof Error ? error.message : "Could not send the request.",
                   ),
-              })
-            }
+              });
+            }}
           >
             <UserPlus className="size-4" aria-hidden />
             {tx("Follow", "Suivre")}

@@ -63,6 +63,7 @@ function JobDetail() {
   const navigate = useNavigate();
   const job = useJob(jobId);
   const applications = useJobApplications(jobId);
+  const { requireAuth } = useAuthGate();
 
   useTrackView(
     {
@@ -97,6 +98,13 @@ function JobDetail() {
   const alreadyApplied = !mine && (applications.data ?? []).length > 0;
 
   async function submit() {
+    if (
+      !requireAuth({
+        en: "Sign in to apply for this job.",
+        fr: "Connectez-vous pour postuler à cette offre.",
+      })
+    )
+      return;
     if (coverLetter.trim().length < 20) {
       toast.error(
         tx("Write a few lines about yourself.", "Écrivez quelques lignes de motivation."),
