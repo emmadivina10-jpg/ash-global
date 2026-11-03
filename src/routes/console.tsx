@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -8,6 +8,7 @@ import {
   Building2,
   BarChart3,
   CalendarCheck,
+  ChevronDown,
   CreditCard,
   GraduationCap,
   Lock,
@@ -434,7 +435,7 @@ function NavGroup({
   label: string;
   active: boolean;
   nested?: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   const [open, setOpen] = useState(active);
   useEffect(() => {
