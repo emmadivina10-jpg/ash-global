@@ -72,8 +72,9 @@ function FeedPage() {
     staleTime: 15_000,
   });
   // Wait for Spotlights before showing the Feed, so they never slot in late
-  // and push the people you're looking at up or down.
-  const spotlightsReady = spotlightsFetched || spotlightsFailed;
+  // and push the people you're looking at up or down. Guests skip the wait:
+  // their Spotlights query is disabled until sign-in.
+  const spotlightsReady = isGuest || spotlightsFetched || spotlightsFailed;
   const [spotlightRequest, setSpotlightRequest] = useState<
     { authorId: string; kind: "spotlight"; spotlightId: string } | undefined
   >();
