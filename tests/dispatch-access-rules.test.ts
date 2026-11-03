@@ -201,3 +201,14 @@ describe("full delivery and handover code", () => {
     expect(await complete(id, c!.c, VENDOR)).toBe("OK");
   });
 });
+
+describe("rollback", () => {
+  it("removes every function, policy and the index this migration added", async () => {
+    await db.exec(readFileSync("docs/proposed/dispatch_access_rules_rollback.sql", "utf8"));
+    const left = await db.query<{ n: number }>(`SELECT
+      (SELECT count(*) FROM pg_proc WHERE proname LIKE 'dispatch\\_%' AND proname <> 'dispatch_set_updated_at')::int +
+      (SELECT count(*) FROM pg_policies WHERE tablename LIKE 'dispatch\\_%')::int +
+      (SELECT count(*) FROM pg_indexes WHERE indexname = 'dispatch_one_live_assignment')::int AS n`);
+    expect(left.rows[0]!.n).toBe(0);
+  });
+});
