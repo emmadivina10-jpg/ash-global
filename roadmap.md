@@ -11,16 +11,19 @@
 - [x] Decisions: black/royal-purple/gold palette (progressive transition), web-first course sales (iOS viewer only), Cloudflare Stream (signed playback, swappable), unified instructor identity
 - [x] Phase 1a: 2026 brand tokens (royal/brass/onyx) added to styles.css alongside legacy tokens — no existing screen restyled
 - [x] Phase 1b: feature_flags table applied (8 flags, all off)
-- [ ] Phase 1c (CORRECTED, plan APPROVED): five tabs Discover | Shop | ASH Kitchen | Messages | Menu behind new_nav (still OFF)
+- [x] Phase 1c (CORRECTED, plan APPROVED): five tabs Discover | Shop | ASH Kitchen | Messages | Menu behind new_nav — DONE, flag ON in preview (published app does not read flags until a publish is approved)
   - [x] Feature-switch reader (src/lib/feature-flags.ts), loaded with sign-in in both layouts
-  - [x] Shared tab definitions + re-pointing logic (src/lib/member-tabs.ts); AppShell tab bar uses it (no visible change while switch is off)
-  - [ ] MobileNav: highlight via isTabActive (match prefixes)
-  - [ ] GuestShell + DesktopMenu + RightRail: same re-pointing
-  - [ ] /discover page (video-first, Stories, chips, featured, short videos, trending, instructors, markets, community) + /feed redirect when on
-  - [ ] /kitchen page (food sellers = primary food category or active PRIVATE_CHEF/CATERING dishes; today there are none, so honest empty state + seller CTA)
-  - [ ] Spotlight viewer close/back → Discover; AppShell home link → useHomePath
-  - [ ] Tests (tests/member-tabs.test.ts, kitchen open-now, discover ranking) + phone/desktop screen checks
-  - [ ] Turn new_nav on (preview only; live app unaffected until publishing approved)
+  - [x] Shared tab definitions + re-pointing logic (src/lib/member-tabs.ts); AppShell/MobileNav/GuestShell all use it
+  - [x] MobileNav: highlight via isTabActive (match prefixes)
+  - [x] GuestShell + desktop sidebar: same re-pointing (guest tabs: Discover | Shop | ASH Kitchen | Search | Sign in)
+  - [x] /discover page (Stories rail, chips, trending grid, honest empty states) + /feed redirect when on
+  - [x] /kitchen page — honest empty state (no genuine food vendors today) + seller CTA, gold cloche art
+  - [x] Spotlight viewer close/back → Discover; AppShell home link → useHomePath
+  - [x] Menu: seven entries (ASH Rider hero, Flight, Referral Rewards, Friends, Notifications, Wallet, Professional Studio)
+  - [x] Messages plus panel: ASH AI + ASH Support cards (portal, focus trap, Escape/arrow keys), permanent chat rows hidden under new_nav
+  - [x] Tests: tests/member-tabs.test.ts 9/9; full suite 534 pass / 5 pre-existing fixture failures (ios-release, service-verification)
+  - [x] Browser-verified: mobile/guest/desktop screenshots, /feed→/discover redirect, plus panel open/Escape/ASH-AI navigation, dark mode
+  - [x] new_nav turned ON (preview only; publish still needs approval)
 - [x] Pre-phase repair: payment security fixes integrated (per approved docs/proposed/payment_security_fixes.md)
 - [ ] Phase 2: Discover + video (managed provider, signed playback)
 - [ ] Phase 3: Courses + entitlements (vertical slice)

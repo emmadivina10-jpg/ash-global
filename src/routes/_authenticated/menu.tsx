@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowDownToLine,
@@ -43,6 +43,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { useIsAdmin, useProfile } from "@/lib/queries";
 import { useRegion } from "@/lib/region-context";
+import { useFeatureFlag } from "@/lib/feature-flags";
 
 export const Route = createFileRoute("/_authenticated/menu")({
   head: () => ({
@@ -130,6 +131,124 @@ const sections: { en: string; fr: string; items: MenuItem[] }[] = [
   },
 ];
 
+/** The simplified seven-entry Menu under the new navigation switch. */
+function NewMenuPage({
+  profile,
+  isAdmin,
+  signOut,
+}: {
+  profile: { full_name?: string | null; avatar_url?: string | null; verified_tier?: string | null; verified_until?: string | null } | null | undefined;
+  isAdmin: boolean | undefined;
+  signOut: () => Promise<void>;
+}) {
+  const { tx } = useI18n();
+  const entries = [
+    { en: "Flight", fr: "Vols", to: "/flights", icon: Plane },
+    { en: "Referral Rewards", fr: "Récompenses de parrainage", to: "/referral-rewards", icon: Gift },
+    { en: "Friends", fr: "Amis", to: "/friends", icon: Users },
+    { en: "Notifications", fr: "Notifications", to: "/notifications", icon: Bell },
+    { en: "Wallet", fr: "Portefeuille", to: "/wallet", icon: Wallet },
+    { en: "Professional Studio", fr: "Studio professionnel", to: "/studio", icon: Sparkles },
+  ];
+
+  return (
+    <div className="member-menu mx-auto w-full max-w-3xl space-y-5 pb-4">
+      <div className="flex items-center justify-between">
+        <h1 className="font-display text-3xl font-bold text-foreground">Menu</h1>
+        <div className="flex gap-1">
+          <Link
+            to="/search"
+            aria-label={tx("Search", "Rechercher")}
+            className="grid size-10 place-items-center rounded-full text-foreground hover:bg-muted"
+          >
+            <Search className="size-6" aria-hidden />
+          </Link>
+          <Link
+            to="/settings"
+            aria-label={tx("Settings", "Paramètres")}
+            className="grid size-10 place-items-center rounded-full text-foreground hover:bg-muted"
+          >
+            <Settings className="size-6" aria-hidden />
+          </Link>
+        </div>
+      </div>
+
+      <Link
+        to="/profile"
+        className="flex items-center gap-3 rounded-2xl bg-card px-4 py-3.5 shadow-sm ring-1 ring-border"
+      >
+        <Avatar path={profile?.avatar_url} name={profile?.full_name} online className="size-12" />
+        <span className="flex min-w-0 flex-1 items-center gap-1 text-lg font-bold text-foreground">
+          <span className="truncate">{profile?.full_name || tx("Your profile", "Votre profil")}</span>
+          <VerifiedBadge tier={profile?.verified_tier} until={profile?.verified_until} size={16} />
+        </span>
+        <span className="grid size-9 place-items-center rounded-full bg-muted">
+          <ChevronRight className="size-5 text-muted-foreground" aria-hidden />
+        </span>
+      </Link>
+
+      {/* ASH Rider — the hero entry */}
+      <Link
+        to="/rider"
+        className="flex min-h-[5.5rem] items-center gap-4 rounded-3xl border border-brass/35 bg-card p-4 shadow-[var(--shadow-card)] transition-transform duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass motion-safe:hover:scale-[1.01] active:scale-[0.99]"
+        style={{
+          backgroundImage:
+            "linear-gradient(120deg, rgba(75,0,130,0.28), transparent 55%)",
+        }}
+      >
+        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-brass/15 text-brass ring-1 ring-brass/30">
+          <Bike className="size-6" aria-hidden />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-base font-bold text-foreground">ASH Rider</span>
+          <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+            {tx("Deliveries, rides and rider tools", "Livraisons, courses et outils livreur")}
+          </span>
+        </span>
+        <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden />
+      </Link>
+
+      <div className="overflow-hidden rounded-[1.25rem] bg-card shadow-sm ring-1 ring-border">
+        {entries.map((item, index) => (
+          <Fragment key={item.to}>
+            {index > 0 ? <div className="ml-[4.25rem] border-t border-border" /> : null}
+            <Link
+              to={item.to}
+              className="flex h-14 items-center gap-3 px-4 transition-colors hover:bg-muted/60 active:bg-brass/10"
+            >
+              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-muted text-foreground">
+                <item.icon className="size-[22px]" strokeWidth={1.75} aria-hidden />
+              </span>
+              <span className="flex-1 truncate text-[15px] font-semibold text-foreground">
+                {tx(item.en, item.fr)}
+              </span>
+              <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+            </Link>
+          </Fragment>
+        ))}
+      </div>
+
+      {isAdmin ? (
+        <a
+          href="/console"
+          className="flex items-center gap-3 rounded-2xl bg-card px-4 py-3 text-sm font-bold text-foreground ring-1 ring-border"
+        >
+          <Shield className="size-6 text-primary" aria-hidden />
+          {tx("Admin console", "Console d’administration")}
+        </a>
+      ) : null}
+
+      <Button
+        variant="secondary"
+        className="h-11 w-full rounded-xl text-[15px] font-bold"
+        onClick={() => void signOut()}
+      >
+        <LogOut className="size-4" aria-hidden /> {tx("Log out", "Déconnexion")}
+      </Button>
+    </div>
+  );
+}
+
 function MenuPage() {
   const { tx, lang } = useI18n();
   const fr = lang === "fr";
@@ -138,6 +257,7 @@ function MenuPage() {
   const { data: isAdmin } = useIsAdmin();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const newNav = useFeatureFlag("new_nav");
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -148,6 +268,8 @@ function MenuPage() {
 
   const [showAll, setShowAll] = useState(false);
   const [openPanel, setOpenPanel] = useState<string | null>(null);
+
+  if (newNav) return <NewMenuPage profile={profile} isAdmin={isAdmin} signOut={signOut} />;
   const tiles = sections
     .flatMap((section) => section.items)
     .filter((item) => !item.referral || region.referralEnabled);

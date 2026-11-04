@@ -161,8 +161,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const servicesMode = useServicesMode();
   const flags = useFeatureFlags();
   const newNav = flags.new_nav === true;
-  // Discover and ASH Kitchen pages are not built yet, so home stays the Feed for now.
-  void homePath;
+  const home = homePath(flags);
   // Same destinations in the same order; the switch only re-points three slots.
   const visible = (items: NavItem[]): NavItem[] =>
     items
@@ -185,7 +184,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   void topLevel;
   const goBack = () => {
     if (typeof window !== "undefined" && window.history.length > 1) window.history.back();
-    else void navigate({ to: "/feed" });
+    else void navigate({ to: home });
   };
   const logoOnlyHeader = true; // Keep existing non-feed header controls unchanged.
   const pageOwnsHeader = ["/messages", "/services", "/flights", "/spotlight", "/kitchen", "/menu"].some(
@@ -370,7 +369,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   </button>
                 )}
                 {onFeed && (
-                  <Link to="/feed" className="mr-auto font-display text-xl font-bold text-foreground">
+                  <Link to={home} className="mr-auto font-display text-xl font-bold text-foreground">
                     {homeTitle}
                   </Link>
                 )}
@@ -503,7 +502,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     <ArrowLeft className="size-5" aria-hidden />
                   </button>
                 ) : (
-                  <Link to={onFeed ? "/feed" : "/services"} className="min-w-0">
+                  <Link to={onFeed ? home : "/services"} className="min-w-0">
                     {onFeed ? (
                       <span className="font-display text-xl font-bold text-foreground">
                         {homeTitle}

@@ -36,6 +36,7 @@ import {
   type SpotlightEntry,
 } from "@/lib/spotlight.queries";
 import { BlockUserDialog } from "@/components/refer/BlockUserDialog";
+import { useHomePath } from "@/lib/feature-flags";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useUser } from "@/lib/queries";
@@ -84,6 +85,8 @@ function useIsDesktop() {
 function SpotlightPage() {
   const { tx } = useI18n();
   const navigate = useNavigate();
+  // Closing the viewer returns to Discover under the new navigation, else the Feed.
+  const home = useHomePath();
   const { open } = Route.useSearch();
   const { data, isLoading } = useSpotlightFeed(40, open);
   const desktop = useIsDesktop();
@@ -113,11 +116,11 @@ function SpotlightPage() {
       if ((e.target as HTMLElement)?.tagName === "INPUT") return;
       if (e.key === "ArrowDown") step(1);
       if (e.key === "ArrowUp") step(-1);
-      if (e.key === "Escape") void navigate({ to: "/feed" });
+      if (e.key === "Escape") void navigate({ to: home });
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [desktop, navigate]);
+  }, [desktop, navigate, home]);
 
   const showPanel = desktop && panelOpen && active;
 
@@ -141,7 +144,7 @@ function SpotlightPage() {
       <div className="relative min-w-0 flex-1">
         <button
           type="button"
-          onClick={() => void navigate({ to: "/feed" })}
+          onClick={() => void navigate({ to: home })}
           aria-label={tx("Close", "Fermer")}
           className="absolute left-4 top-4 z-20 hidden size-10 place-items-center rounded-full bg-on-dark/15 hover:bg-on-dark/25 lg:grid"
         >

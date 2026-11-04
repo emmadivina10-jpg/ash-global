@@ -2988,3 +2988,57 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
     transition: none;
   }
 }
+
+/* ── ASH Kitchen empty state ─────────────────────────────── */
+@keyframes kitchen-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes kitchen-steam-drift {
+  0%, 100% { transform: translateY(0); opacity: 0.85; }
+  50% { transform: translateY(-5px); opacity: 0.55; }
+}
+.kitchen-enter {
+  animation: kitchen-enter 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.kitchen-steam {
+  animation: kitchen-steam-drift 4.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kitchen-enter { animation: none; }
+  .kitchen-steam { animation: none; }
+}
+
+/* ── Plus-button action panel ────────────────────────────── */
+@keyframes plus-panel-in {
+  from { opacity: 0; transform: scale(0.92) translateY(-6px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes plus-scrim-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes plus-card-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.plus-panel {
+  animation: plus-panel-in 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.plus-scrim {
+  animation: plus-scrim-in 180ms ease-out both;
+}
+.plus-card {
+  animation: plus-card-in 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .plus-panel,
+  .plus-scrim,
+  .plus-card {
+    animation-duration: 120ms;
+  }
+  .plus-panel,
+  .plus-card {
+    transform: none;
+  }
+}

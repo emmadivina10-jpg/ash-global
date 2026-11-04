@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { Avatar } from "./AvatarUpload";
 import { MemberNavIcon } from "./MemberNavIcon";
 import { UnreadMessageBadge } from "./UnreadMessageBadge";
+import { isTabActive } from "@/lib/member-tabs";
 
 export type MobileNavItem = {
   to: string;
@@ -129,7 +130,7 @@ export function MobileNav({
   if (conversationOpen) return null;
 
   const renderTab = (item: MobileNavItem) => {
-    const active = pathname === item.to || pathname.startsWith(`${item.to}/`);
+    const active = isTabActive(item, pathname);
     return (
       <li key={item.to} className="min-w-0">
         <Link

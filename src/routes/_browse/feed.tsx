@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils";
 import { useProfile, useUser } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
 import { useAuthGate } from "@/lib/guest-gate";
+import { useFeatureFlags } from "@/lib/feature-flags";
 
 export const Route = createFileRoute("/_browse/feed")({
   head: () => ({
@@ -56,6 +57,8 @@ function FeedPage() {
   const { user } = useUser();
   const me = user?.id ?? null;
   const { isGuest, requireAuth } = useAuthGate();
+  // Under the new navigation the Feed becomes Discover; /feed redirects there.
+  const newNav = useFeatureFlags().new_nav === true;
   // Preserve the same safety-filtered, stable feed pool.
   const { data: posts, isLoading, refetch } = useSocialFeed(120);
   const { data: profile } = useProfile();
@@ -80,6 +83,9 @@ function FeedPage() {
   >();
   // Spotlights keep their slots too, so the Feed never shuffles under the reader.
   const navigate = useNavigate();
+  useEffect(() => {
+    if (newNav) void navigate({ to: "/discover", replace: true });
+  }, [newNav, navigate]);
   const [category, setCategory] = useState<FeedCategory>("for_you");
   const { data: friendships } = useFriendships();
   const filtered = useMemo(() => {

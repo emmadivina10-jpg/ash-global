@@ -17,6 +17,8 @@ import { Logo } from "./Logo";
 import { LanguageSwitcher, ThemeToggle } from "./Preferences";
 import { useI18n } from "@/lib/i18n";
 import { useServicesMode } from "@/lib/services-mode";
+import { useFeatureFlags } from "@/lib/feature-flags";
+import { resolveTab } from "@/lib/member-tabs";
 import { cn } from "@/lib/utils";
 
 type GuestNavItem = {
@@ -55,13 +57,13 @@ const SIDE_TILES = ["gold-gradient", "brand-gradient", "bg-gold", "bg-primary"];
 export function GuestShell({ children }: { children: ReactNode }) {
   const { tx, lang } = useI18n();
   const servicesMode = useServicesMode();
+  const newNav = useFeatureFlags().new_nav === true;
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const label = (item: GuestNavItem) =>
-    item.to === "/services" && servicesMode === "market"
-      ? "Market"
-      : lang === "fr"
-        ? item.fr
-        : item.en;
+  // Same destinations in the same order; the switch only re-points three slots.
+  const navItems = GUEST_NAV.map((item) => resolveTab(item, { newNav, servicesMode }));
+  const tabItems = GUEST_TABS.map((item) => resolveTab(item, { newNav, servicesMode }));
+  const label = (item: { en?: string; fr?: string }) =>
+    (lang === "fr" ? item.fr : item.en) ?? item.en ?? "";
 
   return (
     <div className="app-shell safe-top min-h-dvh bg-background">
@@ -71,7 +73,7 @@ export function GuestShell({ children }: { children: ReactNode }) {
             <Logo />
           </Link>
           <nav className="flex flex-1 flex-col gap-0.5">
-            {GUEST_NAV.map((item, index) => (
+            {navItems.map((item, index) => (
               <Link
                 key={item.to}
                 to={item.to}
@@ -149,7 +151,7 @@ export function GuestShell({ children }: { children: ReactNode }) {
         className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden"
       >
         <ul className="grid grid-cols-5">
-          {GUEST_TABS.map((item) => {
+          {tabItems.map((item) => {
             const active = pathname === item.to;
             return (
               <li key={item.to}>
