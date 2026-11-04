@@ -150,7 +150,7 @@ END $function$;
 
 **Separate operational steps after approval (not schema):**
 1. Generate a random token; store only its SHA-256 hash in `app_private.reconcile_credentials`; store the raw token for the cron header in `app_private` (as the Spotlight job does).
-2. Re-schedule `ash-payment-reconcile` to POST with `x-reconcile-secret`. Address choice for you: keep the -dev preview address (today's behaviour) or switch to the published address `project--27f7580a-…lovable.app` — the latter needs the code published first, otherwise the published endpoint will reject calls once its own version requires the header… ordering: publish code → set token → update cron, all in one window. Between publish and cron update, reconcile is paused for ≤5 min; webhooks and member polling still settle.
+2. Re-schedule `ash-payment-reconcile` to POST with `x-reconcile-secret`. Address choice for you: keep the -dev preview address (today's behaviour) or switch to the published address `project--27f7580a-…lovable.app` — the latter is recommended so production reconciliation runs production code. Order: publish code → set token → update cron, in one short window. Between publish and cron update, reconcile is paused for ≤5 min; webhooks and member polling still settle.
 
 **Rollback:** restore the previous route files; `DROP FUNCTION public.reconcile_token_matches(text); DROP TABLE app_private.reconcile_credentials;`; re-run `issue_booking_code` with 0.12; restore the old cron command.
 
