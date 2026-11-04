@@ -1,12 +1,16 @@
-import { useEffect, useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { BadgeCheck, BookOpen, Check, ChevronDown, Play, Search, Upload } from "lucide-react";
+import { useMemo, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { BadgeCheck, BookOpen, Check, ChevronDown, Eye, MessageCircle, Play, Search, ThumbsUp, Upload } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { DiscoverVideo } from "@/components/refer/DiscoverVideo";
+import { NotificationBell } from "@/components/refer/NotificationBell";
 import { VideoActions } from "@/components/refer/VideoActions";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { DiscoverVideoEngagement } from "@/components/refer/DiscoverVideoEngagement";
+import ashLogo from "@/assets/ash-logo.png.asset.json";
 import { useInstructors } from "@/lib/campus.queries";
 import { DISCOVER_TOPICS, topicMatches } from "@/lib/discover-topics";
 import { useI18n } from "@/lib/i18n";
@@ -36,21 +40,39 @@ function firstLine(caption: string): string {
   return caption.split("\n").find((line) => line.trim().length > 0)?.trim() ?? "";
 }
 
-function VideoCard({ post }: { post: FeedPost }) {
+function VideoCard({ post, instructorId }: { post: FeedPost; instructorId?: string }) {
   const { tx } = useI18n();
   const video = postVideos(post)[0];
   if (!video) return null;
   const title = firstLine(post.caption) || tx("Untitled video", "Vidéo sans titre");
   return (
-    <article className="min-w-0 w-full">
-      <DiscoverVideo compact src={video} poster={post.images.find((src) => !isStoryVideoSource(src))} title={title} />
-      <div className="flex items-start gap-2.5 px-3 py-2.5 lg:px-0">
-        <Avatar path={post.author.avatar_url} name={post.author.name} className="size-9 shrink-0" />
+    <article className="min-w-0 w-full overflow-hidden rounded-2xl border border-border/60 bg-card shadow-[var(--shadow-card)]">
+      <DiscoverVideo autoPlayOnVisible compact src={video} poster={post.images.find((src) => !isStoryVideoSource(src))} title={title} />
+      <div className="flex items-start gap-2.5 px-3 py-3 lg:px-4">
+        <Avatar path={post.author.avatar_url} name={post.author.name} className="size-10 shrink-0" />
         <div className="min-w-0 flex-1">
           <Link to="/post/$postId" params={{ postId: post.id }} className="line-clamp-2 text-sm font-semibold leading-5 text-foreground">{title}</Link>
-          <p className="mt-0.5 truncate text-xs leading-4 text-muted-foreground">{post.author.name}</p>
+          <p className="mt-1 truncate text-xs leading-4 text-muted-foreground">{post.author.name}</p>
         </div>
         <VideoActions id={post.id} title={title} authorId={post.author.id} />
+      </div>
+      <div className="flex flex-wrap items-center gap-2 border-t border-border/60 px-3 py-2.5 lg:px-4">
+        <DiscoverVideoEngagement post={post} />
+        {instructorId ? (
+          <Button asChild size="sm" className="ml-auto h-9 rounded-full px-4 font-bold active:bg-transparent active:text-primary active:shadow-none">
+            <Link to="/campus/instructors/$instructorId" params={{ instructorId }}>
+              <BookOpen className="size-4" aria-hidden />
+              {tx("View Courses", "Voir les cours")}
+            </Link>
+          </Button>
+        ) : (
+          <Button asChild size="sm" className="ml-auto h-9 rounded-full px-4 font-bold active:bg-transparent active:text-primary active:shadow-none">
+            <Link to="/campus/instructors">
+              <BookOpen className="size-4" aria-hidden />
+              {tx("View Courses", "Voir les cours")}
+            </Link>
+          </Button>
+        )}
       </div>
     </article>
   );
@@ -59,19 +81,25 @@ function VideoCard({ post }: { post: FeedPost }) {
 function DiscoverPage() {
   const { tx, lang } = useI18n();
   const fr = lang === "fr";
+  const navigate = useNavigate();
   const { user } = useUser();
   const [topic, setTopic] = useState("all");
   const [coursesOpen, setCoursesOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const { data: posts, isLoading } = useSocialFeed(120);
   const { data: instructors } = useInstructors({});
 
   const isApprovedInstructor = Boolean(
     user && (instructors ?? []).some((instructor) => instructor.user_id === user.id && instructor.is_active),
   );
-  const videoPosts = useMemo(
-    () => (posts ?? []).filter((post) => postVideos(post).length > 0 && topicMatches(post.caption, topic)),
-    [posts, topic],
-  );
+  const videoPosts = useMemo(() => {
+    const term = searchTerm.trim().toLocaleLowerCase();
+    return (posts ?? []).filter((post) =>
+      postVideos(post).length > 0 && topicMatches(post.caption, topic) &&
+      (!term || `${post.caption} ${post.author.name}`.toLocaleLowerCase().includes(term)),
+    );
+  }, [posts, topic, searchTerm]);
   const selectedTopic = DISCOVER_TOPICS.find((item) => item.id === topic);
   const topicLabel = selectedTopic && selectedTopic.id !== "all"
     ? (fr ? selectedTopic.fr : selectedTopic.en)
@@ -87,43 +115,64 @@ function DiscoverPage() {
     refetchInterval: 30_000,
     staleTime: 15_000,
   });
-  const headerHidden = useHideOnScrollDown();
   const courseTopics = DISCOVER_TOPICS.filter((item) => item.id !== "all");
+
+  function submitSearch(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSearchOpen(false);
+  }
 
   return (
     <div className="discover-surface market-theme w-full">
-      <header className={cn(
-        "sticky top-0 z-20 bg-background/95 px-3 py-2 backdrop-blur transition-[opacity,transform] duration-300 motion-reduce:transition-none lg:px-6",
-        headerHidden && "pointer-events-none -translate-y-full opacity-0",
-      )}>
-        <h1 className="sr-only">{tx("Discover", "Découvrir")}</h1>
-        <div className="mx-auto flex max-w-3xl items-center gap-2">
-          <Link to="/search" className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-card px-3 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-            <Search className="size-4 shrink-0" aria-hidden />
-            <span className="truncate">{tx("Search videos", "Rechercher des vidéos")}</span>
+      <header className="bg-background/95 px-3 py-3 lg:px-6">
+        <div className="mx-auto flex max-w-5xl items-center gap-3">
+          <Link to="/discover" aria-label="ASH Glo" className="mr-auto inline-flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+            <img src={ashLogo.url} alt="ASH" className="size-9 shrink-0 rounded-xl object-cover" />
+            <span className="truncate font-display text-lg font-extrabold tracking-tight text-foreground">ASH Glo</span>
           </Link>
           {isApprovedInstructor ? (
-            <Link to="/discover/upload" aria-label={tx("Upload Video", "Publier une vidéo")} title={tx("Upload Video", "Publier une vidéo")} className="inline-flex size-10 shrink-0 items-center justify-center rounded-full text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary lg:w-auto lg:gap-2 lg:px-3">
-              <Upload className="size-4" aria-hidden />
-              <span className="hidden lg:inline">{tx("Upload Video", "Publier une vidéo")}</span>
+            <Link to="/discover/upload" aria-label={tx("Upload Video", "Publier une vidéo")} title={tx("Upload Video", "Publier une vidéo")} className="inline-flex size-10 shrink-0 items-center justify-center rounded-full text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+              <Upload className="size-5" aria-hidden />
             </Link>
           ) : null}
+          <Button type="button" variant="ghost" size="icon" className="shrink-0 rounded-full" aria-label={tx("Search videos", "Rechercher des vidéos")} onClick={() => setSearchOpen(true)}>
+            <Search className="size-5" aria-hidden />
+          </Button>
+          <NotificationBell />
         </div>
       </header>
+
+      <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
+        <DialogContent overlayClassName="bg-slate-950/45 backdrop-blur-md" className="max-w-xl rounded-3xl border-border/70 bg-background/95 p-5 shadow-2xl backdrop-blur-xl sm:p-7">
+          <DialogHeader className="pr-8 text-left">
+            <DialogTitle className="font-display text-xl font-bold">{tx("Search videos", "Rechercher des vidéos")}</DialogTitle>
+            <DialogDescription>{tx("Find a video, creator or topic on ASH Glo.", "Trouvez une vidéo, un créateur ou un sujet sur ASH Glo.")}</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={submitSearch} className="flex items-center gap-2">
+            <div className="relative min-w-0 flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+              <Input autoFocus value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder={tx("Search videos and creators", "Rechercher des vidéos et des créateurs")} aria-label={tx("Search videos and creators", "Rechercher des vidéos et des créateurs")} className="h-11 rounded-full pl-10" />
+            </div>
+            <Button type="submit" size="icon" className="size-11 shrink-0 rounded-full" aria-label={tx("Search", "Rechercher")}>
+              <Search className="size-4" aria-hidden />
+            </Button>
+          </form>
+          <Button type="button" variant="ghost" className="w-fit rounded-full" onClick={() => { setSearchTerm(""); setSearchOpen(false); }}>
+            {tx("Clear search", "Effacer la recherche")}
+          </Button>
+        </DialogContent>
+      </Dialog>
 
       <div role="group" aria-label={tx("Video categories", "Catégories de vidéos")} className="flex gap-2 overflow-x-auto px-3 pb-3 pt-1 lg:px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <Button type="button" aria-pressed={topic === "all"} onClick={() => setTopic("all")} className={cn(
           "h-9 shrink-0 rounded-full border px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
           topic === "all" ? "border-transparent bg-primary text-primary-foreground hover:bg-primary/90" : "border-border bg-card text-foreground hover:bg-muted",
-        )}>
-          {tx("All", "Tout")}
-        </Button>
+        )}>{tx("All", "Tout")}</Button>
         <Button type="button" aria-haspopup="dialog" aria-expanded={coursesOpen} onClick={() => setCoursesOpen(true)} className={cn(
           "h-9 shrink-0 rounded-full border px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
           topic !== "all" ? "border-primary/40 bg-primary/10 text-primary hover:bg-primary/15" : "border-border bg-card text-foreground hover:bg-muted",
         )}>
-          <BookOpen className="size-4" aria-hidden />
-          {tx("Buy Courses", "Acheter des cours")}
+          <BookOpen className="size-4" aria-hidden />{tx("Buy Courses", "Acheter des cours")}
           {topic !== "all" ? <span className="size-1.5 rounded-full bg-primary" aria-label={tx("A course category is selected", "Une catégorie de cours est sélectionnée")} /> : null}
           <ChevronDown className="size-4 opacity-70" aria-hidden />
         </Button>
@@ -164,11 +213,18 @@ function DiscoverPage() {
       {isLoading ? (
         <div className="discover-video-grid" aria-busy="true">{[0, 1, 2].map((id) => <div key={id} className="aspect-video w-full animate-pulse bg-muted" />)}</div>
       ) : videoPosts.length > 0 ? (
-        <section aria-label={tx("Videos", "Vidéos")} className="discover-video-grid">{videoPosts.map((post) => <VideoCard key={post.id} post={post} />)}</section>
+        <section aria-label={tx("Videos", "Vidéos")} className="discover-video-grid">
+          {videoPosts.map((post) => {
+            const instructor = instructors?.find((item) => item.user_id === post.author.id);
+            return <VideoCard key={post.id} post={post} instructorId={instructor?.id} />;
+          })}
+        </section>
       ) : (
         <section role="status" className="border-y border-border bg-primary/5 px-6 py-12 text-center">
           <Play className="mx-auto size-8 text-primary" aria-hidden />
-          <p className="mt-4 text-xl font-bold text-foreground">{topicLabel ? tx(`No ${topicLabel} videos yet`, `Pas encore de vidéos : ${topicLabel}`) : tx("No videos yet", "Pas encore de vidéos")}</p>
+          <p className="mt-4 text-xl font-bold text-foreground">{searchTerm.trim()
+            ? tx("No matching videos", "Aucune vidéo correspondante")
+            : topicLabel ? tx(`No ${topicLabel} videos yet`, `Pas encore de vidéos : ${topicLabel}`) : tx("No videos yet", "Pas encore de vidéos")}</p>
         </section>
       )}
 
@@ -198,23 +254,4 @@ function DiscoverPage() {
       </section>
     </div>
   );
-}
-
-function useHideOnScrollDown() {
-  const [hidden, setHidden] = useState(false);
-  useEffect(() => {
-    const container = document.querySelector<HTMLElement>(".app-shell-scroll");
-    const target: HTMLElement | Window = document.documentElement.classList.contains("native") && container ? container : window;
-    const scrollTop = () => target === window ? window.scrollY : container?.scrollTop ?? 0;
-    let last = scrollTop();
-    const onScroll = () => {
-      const y = scrollTop();
-      if (Math.abs(y - last) < 8) return;
-      setHidden(y > last && y > 80);
-      last = y;
-    };
-    target.addEventListener("scroll", onScroll, { passive: true });
-    return () => target.removeEventListener("scroll", onScroll);
-  }, []);
-  return hidden;
 }
