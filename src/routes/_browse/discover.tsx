@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BadgeCheck, GraduationCap, Play, Search, Upload } from "lucide-react";
 import { Avatar } from "@/components/refer/AvatarUpload";
@@ -59,7 +59,7 @@ function VideoCard({
       params={{ postId: post.id }}
       className={cn(
         "group relative block shrink-0 overflow-hidden rounded-2xl bg-onyx-elevated ring-1 ring-border/60 transition-transform duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass motion-safe:hover:scale-[1.02]",
-        large ? "w-full" : "w-64 sm:w-72",
+        large ? "w-full rounded-none sm:rounded-2xl" : "w-64 sm:w-72",
       )}
       aria-label={title}
     >
