@@ -114,11 +114,11 @@ function SpotlightPage() {
       if ((e.target as HTMLElement)?.tagName === "INPUT") return;
       if (e.key === "ArrowDown") step(1);
       if (e.key === "ArrowUp") step(-1);
-      if (e.key === "Escape") void navigate({ to: "/feed" });
+      if (e.key === "Escape") void navigate({ to: home });
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [desktop, navigate]);
+  }, [desktop, navigate, home]);
 
   const showPanel = desktop && panelOpen && active;
 
