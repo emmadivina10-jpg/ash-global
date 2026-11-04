@@ -117,6 +117,7 @@ import { Route as AuthenticatedCampusTeachingRouteImport } from './routes/_authe
 import { Route as AuthenticatedCleanIndexRouteImport } from './routes/_authenticated/clean.index'
 import { Route as AuthenticatedCleanBookRouteImport } from './routes/_authenticated/clean.book'
 import { Route as AuthenticatedCleanJobsRouteImport } from './routes/_authenticated/clean.jobs'
+import { Route as AuthenticatedDiscoverUploadRouteImport } from './routes/_authenticated/discover.upload'
 import { Route as AuthenticatedFreelanceIndexRouteImport } from './routes/_authenticated/freelance.index'
 import { Route as AuthenticatedFreelanceProjectIdRouteImport } from './routes/_authenticated/freelance.$projectId'
 import { Route as AuthenticatedIncubatorIndexRouteImport } from './routes/_authenticated/incubator/index'
@@ -709,6 +710,12 @@ const AuthenticatedCleanJobsRoute = AuthenticatedCleanJobsRouteImport.update({
   path: '/clean/jobs',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDiscoverUploadRoute =
+  AuthenticatedDiscoverUploadRouteImport.update({
+    id: '/discover/upload',
+    path: '/discover/upload',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedFreelanceIndexRoute =
   AuthenticatedFreelanceIndexRouteImport.update({
     id: '/freelance/',
@@ -1054,6 +1061,7 @@ export interface FileRoutesByFullPath {
   '/campus/teaching': typeof AuthenticatedCampusTeachingRoute
   '/clean/book': typeof AuthenticatedCleanBookRoute
   '/clean/jobs': typeof AuthenticatedCleanJobsRoute
+  '/discover/upload': typeof AuthenticatedDiscoverUploadRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/property/manage': typeof AuthenticatedPropertyManageRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
@@ -1204,6 +1212,7 @@ export interface FileRoutesByTo {
   '/campus/teaching': typeof AuthenticatedCampusTeachingRoute
   '/clean/book': typeof AuthenticatedCleanBookRoute
   '/clean/jobs': typeof AuthenticatedCleanJobsRoute
+  '/discover/upload': typeof AuthenticatedDiscoverUploadRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/property/manage': typeof AuthenticatedPropertyManageRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
@@ -1358,6 +1367,7 @@ export interface FileRoutesById {
   '/_authenticated/campus/teaching': typeof AuthenticatedCampusTeachingRoute
   '/_authenticated/clean/book': typeof AuthenticatedCleanBookRoute
   '/_authenticated/clean/jobs': typeof AuthenticatedCleanJobsRoute
+  '/_authenticated/discover/upload': typeof AuthenticatedDiscoverUploadRoute
   '/_authenticated/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/_authenticated/property/manage': typeof AuthenticatedPropertyManageRoute
   '/_authenticated/property/new': typeof AuthenticatedPropertyNewRoute
@@ -1511,6 +1521,7 @@ export interface FileRouteTypes {
     | '/campus/teaching'
     | '/clean/book'
     | '/clean/jobs'
+    | '/discover/upload'
     | '/freelance/$projectId'
     | '/property/manage'
     | '/property/new'
@@ -1661,6 +1672,7 @@ export interface FileRouteTypes {
     | '/campus/teaching'
     | '/clean/book'
     | '/clean/jobs'
+    | '/discover/upload'
     | '/freelance/$projectId'
     | '/property/manage'
     | '/property/new'
@@ -1814,6 +1826,7 @@ export interface FileRouteTypes {
     | '/_authenticated/campus/teaching'
     | '/_authenticated/clean/book'
     | '/_authenticated/clean/jobs'
+    | '/_authenticated/discover/upload'
     | '/_authenticated/freelance/$projectId'
     | '/_authenticated/property/manage'
     | '/_authenticated/property/new'
@@ -2660,6 +2673,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCleanJobsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/discover/upload': {
+      id: '/_authenticated/discover/upload'
+      path: '/discover/upload'
+      fullPath: '/discover/upload'
+      preLoaderRoute: typeof AuthenticatedDiscoverUploadRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/freelance/': {
       id: '/_authenticated/freelance/'
       path: '/freelance'
@@ -3000,6 +3020,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCampusTeachingRoute: typeof AuthenticatedCampusTeachingRoute
   AuthenticatedCleanBookRoute: typeof AuthenticatedCleanBookRoute
   AuthenticatedCleanJobsRoute: typeof AuthenticatedCleanJobsRoute
+  AuthenticatedDiscoverUploadRoute: typeof AuthenticatedDiscoverUploadRoute
   AuthenticatedFreelanceProjectIdRoute: typeof AuthenticatedFreelanceProjectIdRoute
   AuthenticatedPropertyManageRoute: typeof AuthenticatedPropertyManageRoute
   AuthenticatedPropertyNewRoute: typeof AuthenticatedPropertyNewRoute
@@ -3053,6 +3074,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCampusTeachingRoute: AuthenticatedCampusTeachingRoute,
   AuthenticatedCleanBookRoute: AuthenticatedCleanBookRoute,
   AuthenticatedCleanJobsRoute: AuthenticatedCleanJobsRoute,
+  AuthenticatedDiscoverUploadRoute: AuthenticatedDiscoverUploadRoute,
   AuthenticatedFreelanceProjectIdRoute: AuthenticatedFreelanceProjectIdRoute,
   AuthenticatedPropertyManageRoute: AuthenticatedPropertyManageRoute,
   AuthenticatedPropertyNewRoute: AuthenticatedPropertyNewRoute,

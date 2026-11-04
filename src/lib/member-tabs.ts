@@ -56,7 +56,7 @@ export const DISCOVER_TAB = {
   fr: "Découvrir",
   icon: Compass,
   // The full-screen viewer and post pages open from Discover.
-  match: ["/spotlight", "/post/", "/hashtag/"],
+  match: ["/post/", "/hashtag/"],
 } as const satisfies TabItem;
 
 export const SHOP_TAB = {
@@ -90,7 +90,6 @@ export function resolveTab(item: TabItem, { newNav, servicesMode }: TabOptions):
   if (newNav) {
     if (item.to === "/feed") return relabel(item, DISCOVER_TAB);
     if (item.to === "/services") return relabel(item, SHOP_TAB);
-    if (item.to === "/spotlight") return relabel(item, KITCHEN_TAB);
     return item;
   }
   // Legacy behaviour: the Services slot reads "Market" while Market mode is on.
@@ -99,9 +98,9 @@ export function resolveTab(item: TabItem, { newNav, servicesMode }: TabOptions):
   return item;
 }
 
-/** Under `new_nav` the old Spotlight/Kitchen slot is removed from the tab bar. */
+/** Under `new_nav` the Kitchen slot is removed; Spotlight stays in the middle. */
 export function isTabRemoved(item: Pick<TabItem, "to">, { newNav }: Pick<TabOptions, "newNav">): boolean {
-  return newNav && (item.to === "/spotlight" || item.to === "/kitchen");
+  return newNav && item.to === "/kitchen";
 }
 
 export function resolveTabs(items: TabItem[], options: TabOptions): TabItem[] {
