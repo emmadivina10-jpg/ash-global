@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
-  ArrowLeft,
   Baby,
   BadgeCheck,
   BookOpen,
@@ -115,15 +114,6 @@ export function FindInstructorPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
-      <div>
-        <Button asChild variant="ghost" size="sm" className="-ml-2">
-          <Link to="/campus">
-            <ArrowLeft className="size-4" aria-hidden />
-            ASH Campus
-          </Link>
-        </Button>
-      </div>
-
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-5">
         <div><h1 className="font-display text-2xl font-extrabold text-foreground">ASH Campus</h1>
           <p className="mt-1 text-sm text-muted-foreground">{tx("Instructor channels", "Chaînes des instructeurs")}</p></div>
@@ -471,11 +461,6 @@ function InstructorCard({ instructor, fr }: { instructor: CampusInstructor; fr: 
           {teaches.length ? (
             <p className="mt-1 text-sm font-medium text-foreground">{teaches.join(" • ")}</p>
           ) : null}
-          {instructor.levels.length ? (
-            <p className="text-xs text-muted-foreground">
-              {instructor.levels.map((level) => levelLabel(level, fr)).join(" • ")}
-            </p>
-          ) : null}
           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             {country ? (
               <span className="inline-flex items-center gap-1">
@@ -497,7 +482,7 @@ function InstructorCard({ instructor, fr }: { instructor: CampusInstructor; fr: 
             ) : null}
             {rating ? (
               <span className="inline-flex items-center gap-1 text-foreground">
-                <Star className="size-3 fill-gold text-gold" aria-hidden />
+                <Star className="size-3 fill-star text-star" aria-hidden />
                 {rating.toFixed(1)}
                 <span className="text-muted-foreground">
                   ({instructor.rating_count} {fr ? "avis" : "reviews"})
