@@ -59,9 +59,6 @@ function FeedPage() {
   const { isGuest, requireAuth } = useAuthGate();
   // Under the new navigation the Feed becomes Discover; /feed redirects there.
   const newNav = useFeatureFlags().new_nav === true;
-  useEffect(() => {
-    if (newNav) void navigate({ to: "/discover", replace: true });
-  }, [newNav, navigate]);
   // Preserve the same safety-filtered, stable feed pool.
   const { data: posts, isLoading, refetch } = useSocialFeed(120);
   const { data: profile } = useProfile();
