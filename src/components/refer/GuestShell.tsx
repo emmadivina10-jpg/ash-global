@@ -17,6 +17,8 @@ import { Logo } from "./Logo";
 import { LanguageSwitcher, ThemeToggle } from "./Preferences";
 import { useI18n } from "@/lib/i18n";
 import { useServicesMode } from "@/lib/services-mode";
+import { useFeatureFlags } from "@/lib/feature-flags";
+import { resolveTab } from "@/lib/member-tabs";
 import { cn } from "@/lib/utils";
 
 type GuestNavItem = {
@@ -55,13 +57,12 @@ const SIDE_TILES = ["gold-gradient", "brand-gradient", "bg-gold", "bg-primary"];
 export function GuestShell({ children }: { children: ReactNode }) {
   const { tx, lang } = useI18n();
   const servicesMode = useServicesMode();
+  const newNav = useFeatureFlags().new_nav === true;
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const label = (item: GuestNavItem) =>
-    item.to === "/services" && servicesMode === "market"
-      ? "Market"
-      : lang === "fr"
-        ? item.fr
-        : item.en;
+  // Same destinations in the same order; the switch only re-points three slots.
+  const navItems = GUEST_NAV.map((item) => resolveTab(item, { newNav, servicesMode }));
+  const tabItems = GUEST_TABS.map((item) => resolveTab(item, { newNav, servicesMode }));
+  const label = (item: GuestNavItem) => (lang === "fr" ? item.fr : item.en);
 
   return (
     <div className="app-shell safe-top min-h-dvh bg-background">
