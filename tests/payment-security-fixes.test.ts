@@ -26,10 +26,10 @@ function chain(table: string) {
   return q;
 }
 
-vi.mock("@/integrations/supabase/client.server", () => ({
+vi.mock("../src/integrations/supabase/client.server", () => ({
   supabaseAdmin: { rpc: h.rpc, from: (t: string) => chain(t) },
 }));
-vi.mock("@/lib/tchokopay.server", () => ({
+vi.mock("../src/lib/tchokopay.server", () => ({
   tchokoPay: {
     handleWebhook: h.webhook,
     isConfigured: () => true,
@@ -38,7 +38,7 @@ vi.mock("@/lib/tchokopay.server", () => ({
     getDisbursement: vi.fn(),
   },
 }));
-vi.mock("@/lib/payment-settlement.server", async () => {
+vi.mock("../src/lib/payment-settlement.server", async () => {
   const real = await vi.importActual<typeof import("../src/lib/payment-settlement.server")>(
     "../src/lib/payment-settlement.server",
   );
@@ -47,7 +47,7 @@ vi.mock("@/lib/payment-settlement.server", async () => {
       h.useRealSettle ? real.settleCollection(i) : h.settleMock(i),
   };
 });
-vi.mock("@/lib/rate-limit.server", () => ({
+vi.mock("../src/lib/rate-limit.server", () => ({
   guardPublicRequest: async () => null,
   rateLimit: async () => ({ allowed: true, retryAfter: 0 }),
 }));
