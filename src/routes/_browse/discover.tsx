@@ -149,13 +149,17 @@ function DiscoverPage() {
     return t && t.id !== "all" ? (fr ? t.fr : t.en) : undefined;
   })();
   const featured = (instructors ?? []).slice(0, 12);
+  const headerHidden = useHideOnScrollDown();
 
   return (
     <div className="mx-auto w-full max-w-xl space-y-5 lg:max-w-5xl">
-      <header className="space-y-3">
-        <h1 className="font-display text-[28px] font-bold leading-8 text-foreground">
-          ASH <span className="text-brass">Glo</span>
-        </h1>
+      <header
+        className={cn(
+          "sticky top-0 z-20 -mx-4 space-y-3 bg-background/90 px-4 py-2 backdrop-blur transition-[opacity,transform] duration-300 motion-reduce:transition-none",
+          headerHidden && "pointer-events-none -translate-y-full opacity-0",
+        )}
+      >
+        <h1 className="sr-only">{tx("Discover", "Découvrir")}</h1>
         <div className="flex items-center gap-2">
           <Link
             to="/search"
@@ -166,7 +170,7 @@ function DiscoverPage() {
           </Link>
           {isApprovedInstructor ? (
             <Link
-              to="/studio"
+              to="/discover/upload"
               className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full bg-brass px-4 text-sm font-bold text-onyx transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass"
             >
               <Upload className="size-4" aria-hidden />
@@ -206,7 +210,7 @@ function DiscoverPage() {
       {isLoading ? (
         <div className="aspect-video w-full animate-pulse rounded-2xl bg-muted" aria-busy="true" />
       ) : hero ? (
-        <section aria-label={tx("Featured video", "Vidéo à la une")} className="-mx-4 sm:mx-0">
+        <section aria-label={tx("Featured video", "Vidéo à la une")} className="-mx-4">
           <VideoCard post={hero} large categoryLabel={topicLabel} />
           <div className="flex items-start gap-3 px-4 pt-3 sm:px-0">
             <Avatar path={hero.author.avatar_url} name={hero.author.name} className="size-10 ring-2 ring-brass" />
@@ -248,9 +252,9 @@ function DiscoverPage() {
           <h2 className="mb-2.5 font-display text-xl font-semibold text-foreground">
             {tx("More videos", "Plus de vidéos")}
           </h2>
-          <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="-mx-4 flex flex-col gap-5">
             {rowVideos.map((post) => (
-              <VideoCard key={post.id} post={post} />
+              <VideoCard key={post.id} post={post} large />
             ))}
           </div>
         </section>
@@ -314,4 +318,21 @@ function DiscoverPage() {
       </section>
           </div>
   );
+}
+
+/** YouTube-style: hide the top bar while scrolling down, bring it back on scroll up. */
+function useHideOnScrollDown() {
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    let last = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (Math.abs(y - last) < 8) return;
+      setHidden(y > last && y > 80);
+      last = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  return hidden;
 }
