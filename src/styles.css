@@ -5,9 +5,11 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Refer design system — "Emerald Prestige".
- * Deep emerald + gold with familiar, highly readable mobile typography.
- * All colors are oklch semantic tokens. Never hardcode colors in components.
+ * ASH Glo design system.
+ * 2026 direction: black foundation, royal purple (#4B0082), gold (#D4AF37).
+ * New `royal`/`brass`/`onyx` tokens carry the 2026 palette; legacy tokens
+ * (coral/magenta `primary`, purple `gold`) remain mapped for existing screens
+ * while surfaces migrate progressively. Never hardcode colors in components.
  */
 
 @theme inline {
@@ -98,6 +100,18 @@
   --color-chat-wash: oklch(0.92 0.045 165);
   --color-chat-outgoing: var(--chat-outgoing);
   --color-media-backdrop: oklch(0.12 0 0);
+
+  /* ── 2026 brand palette: royal purple / true gold / black foundation ── */
+  --color-royal: var(--royal);
+  --color-royal-foreground: var(--royal-foreground);
+  --color-royal-deep: var(--royal-deep);
+  --color-royal-soft: var(--royal-soft);
+  --color-brass: var(--brass);
+  --color-brass-foreground: var(--brass-foreground);
+  --color-brass-soft: var(--brass-soft);
+  --color-onyx: var(--onyx);
+  --color-onyx-elevated: var(--onyx-elevated);
+  --color-onyx-foreground: var(--onyx-foreground);
 
   --shadow-card:
     0 1px 1px oklch(0.14 0.022 283 / 0.05), 0 12px 34px -18px oklch(0.14 0.022 283 / 0.3);
@@ -208,6 +222,18 @@
   --sidebar-accent-foreground: oklch(0.2265 0.0328 283.5);
   --sidebar-border: oklch(0.9137 0.0102 290);
   --sidebar-ring: oklch(0.638 0.2365 18.24);
+
+  /* 2026 brand palette (light theme values) */
+  --royal: oklch(0.353 0.165 305.5); /* #4B0082 */
+  --royal-foreground: oklch(0.985 0.005 295);
+  --royal-deep: oklch(0.25 0.1 305);
+  --royal-soft: oklch(0.95 0.02 305);
+  --brass: oklch(0.775 0.127 87.6); /* #D4AF37 */
+  --brass-foreground: oklch(0.21 0.04 90);
+  --brass-soft: oklch(0.95 0.04 90);
+  --onyx: oklch(0.16 0.01 295);
+  --onyx-elevated: oklch(0.21 0.015 295);
+  --onyx-foreground: oklch(0.95 0.008 295);
 }
 
 .dark {
@@ -253,6 +279,18 @@
   --sidebar-accent-foreground: oklch(0.9268 0.0065 264.5);
   --sidebar-border: oklch(0.9784 0.0045 285 / 12%);
   --sidebar-ring: oklch(0.6656 0.2262 18.24);
+
+  /* 2026 brand palette (dark theme values) */
+  --royal: oklch(0.48 0.17 305);
+  --royal-foreground: oklch(0.985 0.005 295);
+  --royal-deep: oklch(0.2 0.06 295);
+  --royal-soft: oklch(0.3 0.05 305);
+  --brass: oklch(0.82 0.12 88);
+  --brass-foreground: oklch(0.18 0.03 90);
+  --brass-soft: oklch(0.3 0.05 90);
+  --onyx: oklch(0.13 0.008 295);
+  --onyx-elevated: oklch(0.19 0.012 295);
+  --onyx-foreground: oklch(0.95 0.008 295);
 }
 
 @layer base {
