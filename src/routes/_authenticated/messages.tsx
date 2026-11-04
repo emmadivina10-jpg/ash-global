@@ -22,6 +22,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useConversations } from "@/lib/marketplace.queries";
 import { useUser } from "@/lib/queries";
 import { ChatActionDialog } from "@/components/refer/ChatActionDialog";
+import { PlusActionPanel } from "@/components/refer/PlusActionPanel";
+import { useFeatureFlag } from "@/lib/feature-flags";
 import { StoriesRail, loadSpotlights } from "@/components/refer/StoriesRail";
 import { useStories } from "@/lib/social.queries";
 import { Play, CircleUserRound } from "lucide-react";
@@ -140,6 +142,10 @@ function MessagesPage() {
   const supportPreview = tx(ashSupportConversation.preview, "Obtenez de l’aide de l’équipe ASH.");
   const fr = lang === "fr";
   const { user } = useUser();
+  // Under the new navigation, ASH AI and ASH Support live in the plus panel
+  // instead of permanent chat rows.
+  const newNav = useFeatureFlag("new_nav");
+  const plusButtonRef = useRef<HTMLButtonElement>(null);
   const { c } = Route.useSearch();
   const navigate = Route.useNavigate();
   const routerNavigate = useNavigate();
