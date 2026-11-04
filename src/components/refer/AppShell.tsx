@@ -65,25 +65,11 @@ import { cn } from "@/lib/utils";
 import { PayoutSetupReminder } from "./PayoutSetupReminder";
 import { SecurityAlertBanner } from "./SecurityAlertBanner";
 import { useServicesMode } from "@/lib/services-mode";
+import { useFeatureFlags, homePath } from "@/lib/feature-flags";
+import { MEMBER_TABS, isTabActive, resolveTab, type TabItem } from "@/lib/member-tabs";
 import { PRESENCE_HEARTBEAT_MS } from "@/lib/member-insights";
 
-type NavItem = {
-  to: string;
-  key?: TKey;
-  en?: string;
-  fr?: string;
-  label?: string;
-  icon: typeof Store;
-  referralOnly?: boolean;
-  tour?: string;
-};
-
-const MOBILE_NAV: NavItem[] = [
-  { to: "/feed", en: "Feed", fr: "Fil", icon: Flame, tour: "feed" },
-  { to: "/services", en: "Services", fr: "Services", icon: Sparkles, tour: "market" },
-  { to: "/spotlight", en: "Spotlight", fr: "Spotlight", icon: Clapperboard },
-  { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle, tour: "messages" },
-];
+type NavItem = TabItem;
 
 const DESKTOP_NAV: NavItem[] = [
   { to: "/services", key: "nav.services" as TKey, icon: Store, tour: "market" },
@@ -173,23 +159,24 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { t, tx, lang } = useI18n();
   const region = useRegion();
   const servicesMode = useServicesMode();
+  const flags = useFeatureFlags();
+  const newNav = flags.new_nav === true;
+  const home = homePath(flags);
+  // Same destinations in the same order; the switch only re-points three slots.
   const visible = (items: NavItem[]): NavItem[] =>
     items
       .filter((item) => !item.referralOnly || region.referralEnabled)
-      .map((item) => {
-        if (item.to !== "/services" || servicesMode !== "market") return item;
-        const marketItem: NavItem = { ...item, en: "Market", fr: "Market", icon: Store };
-        delete marketItem.key;
-        return marketItem;
-      });
+      .map((item) => resolveTab(item, { newNav, servicesMode }));
   const navLabel = (item: NavItem) =>
     item.key ? t(item.key) : ((lang === "fr" ? item.fr : item.en) ?? item.label ?? "");
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const onFeed = pathname === "/feed" || pathname === "/feed/";
+  const onDiscover = pathname === "/discover" || pathname === "/discover/";
+  const onFeed = onDiscover || pathname === "/feed" || pathname === "/feed/";
+  const homeTitle = onDiscover ? (lang === "fr" ? "Découvrir" : "Discover") : lang === "fr" ? "Fil" : "Feed";
   // Member profiles opened from the feed get a back arrow instead of the logo bar.
   const onMemberProfile = /^\/u\/.+/.test(pathname);
   // Every screen that isn't a main tab gets a Back button to where the member came from.
-  const topLevel = ["/feed", "/services", "/services/extras", "/spotlight", "/messages", "/menu"].includes(
+  const topLevel = ["/feed", "/discover", "/services", "/services/extras", "/spotlight", "/kitchen", "/messages", "/menu"].includes(
     pathname.replace(/\/$/, "") || "/",
   );
   // Back arrows only on member profiles; tapping the current tab returns to the top instead.
@@ -197,13 +184,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   void topLevel;
   const goBack = () => {
     if (typeof window !== "undefined" && window.history.length > 1) window.history.back();
-    else void navigate({ to: "/feed" });
+    else void navigate({ to: home });
   };
   const logoOnlyHeader = true; // Keep existing non-feed header controls unchanged.
-  const pageOwnsHeader = ["/messages", "/services", "/flights", "/spotlight", "/menu"].some(
+  const pageOwnsHeader = ["/messages", "/services", "/flights", "/spotlight", "/kitchen", "/menu"].some(
     (path) => pathname === path || pathname.startsWith(`${path}/`),
   );
-  const roomyMemberTab = ["/feed", "/services", "/spotlight", "/menu"].some(
+  const roomyMemberTab = ["/feed", "/discover", "/services", "/spotlight", "/kitchen", "/menu"].some(
     (path) => pathname === path || pathname === `${path}/` || pathname === `${path}/extras`,
   );
 
@@ -278,7 +265,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 to={item.to}
                 className={cn(
                   "group relative flex items-center gap-3 rounded-xl px-2 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-sidebar-accent",
-                  pathname === item.to && "bg-primary/10 font-semibold text-primary",
+                  isTabActive({ to: item.to }, pathname) && "bg-primary/10 font-semibold text-primary",
                 )}
               >
                 <span
@@ -382,8 +369,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                   </button>
                 )}
                 {onFeed && (
-                  <Link to="/feed" className="mr-auto text-xl font-bold text-foreground">
-                    {lang === "fr" ? "Fil" : "Feed"}
+                  <Link to={home} className="mr-auto font-display text-xl font-bold text-foreground">
+                    {homeTitle}
                   </Link>
                 )}
                 <DesktopMenu groups={WEB_MENU_GROUPS} create={WEB_MENU_CREATE} />
@@ -515,10 +502,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                     <ArrowLeft className="size-5" aria-hidden />
                   </button>
                 ) : (
-                  <Link to={onFeed ? "/feed" : "/services"} className="min-w-0">
+                  <Link to={onFeed ? home : "/services"} className="min-w-0">
                     {onFeed ? (
-                      <span className="text-xl font-bold text-foreground">
-                        {lang === "fr" ? "Fil" : "Feed"}
+                      <span className="font-display text-xl font-bold text-foreground">
+                        {homeTitle}
                       </span>
                     ) : (
                       <Logo compact />
@@ -559,7 +546,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </div>
 
       {!pathname.startsWith("/post/") ? (
-        <MobileNav items={visible(MOBILE_NAV)} profile={profile} unreadMessages={unreadMessages} />
+        <MobileNav items={visible(MEMBER_TABS)} profile={profile} unreadMessages={unreadMessages} />
       ) : null}
 
       <LocationNudge />
