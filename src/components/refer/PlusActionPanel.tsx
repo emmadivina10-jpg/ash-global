@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { ChevronRight, LifeBuoy, Sparkles, X } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -90,7 +91,9 @@ export function PlusActionPanel({
 
   if (!open) return null;
 
-  return (
+  // Portal to <body>: the Messages page uses transformed/sticky containers
+  // that would otherwise trap the fixed panel in a lower stacking context.
+  return createPortal(
     <div className="fixed inset-0 z-[70]">
       {/* scrim */}
       <button
