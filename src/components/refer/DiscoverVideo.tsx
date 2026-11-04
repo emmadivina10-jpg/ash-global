@@ -52,6 +52,7 @@ export function DiscoverVideo({ src, poster, title }: { src: string; poster?: st
     setOpened(true);
     setFailed(false);
     video.removeAttribute("poster");
+    video.currentTime = 0;
     video.muted = false;
     void video.play().catch(() => setFailed(true));
   };

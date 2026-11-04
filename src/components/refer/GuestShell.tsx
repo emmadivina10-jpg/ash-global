@@ -124,7 +124,7 @@ export function GuestShell({ children }: { children: ReactNode }) {
         </aside>
 
         <div className="app-shell-column flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur-xl lg:hidden">
+          {pathname !== "/discover" && <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur-xl lg:hidden">
             <div className="flex items-center justify-between gap-3 px-4 py-2">
               <Link to="/feed" className="min-w-0">
                 <Logo compact />
@@ -140,7 +140,7 @@ export function GuestShell({ children }: { children: ReactNode }) {
                 </Link>
               </div>
             </div>
-          </header>
+          </header>}
 
           <main className="app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:px-8 lg:pb-10">
             {!["/", "/feed", "/discover", "/services", "/spotlight", "/search", "/login", "/register"].includes(pathname.replace(/\/$/, "") || "/") ? (
