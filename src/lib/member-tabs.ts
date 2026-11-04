@@ -99,8 +99,13 @@ export function resolveTab(item: TabItem, { newNav, servicesMode }: TabOptions):
   return item;
 }
 
+/** Under `new_nav` the old Spotlight/Kitchen slot is removed from the tab bar. */
+export function isTabRemoved(item: Pick<TabItem, "to">, { newNav }: Pick<TabOptions, "newNav">): boolean {
+  return newNav && (item.to === "/spotlight" || item.to === "/kitchen");
+}
+
 export function resolveTabs(items: TabItem[], options: TabOptions): TabItem[] {
-  return items.map((item) => resolveTab(item, options));
+  return items.filter((item) => !isTabRemoved(item, options)).map((item) => resolveTab(item, options));
 }
 
 /** Whether `pathname` belongs to this tab. */

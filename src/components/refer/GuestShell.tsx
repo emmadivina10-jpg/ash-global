@@ -18,7 +18,8 @@ import { LanguageSwitcher, ThemeToggle } from "./Preferences";
 import { useI18n } from "@/lib/i18n";
 import { useServicesMode } from "@/lib/services-mode";
 import { useFeatureFlags } from "@/lib/feature-flags";
-import { resolveTab } from "@/lib/member-tabs";
+import { isTabRemoved, resolveTab } from "@/lib/member-tabs";
+import { AutoBackButton } from "@/components/refer/AutoBackButton";
 import { cn } from "@/lib/utils";
 
 type GuestNavItem = {
@@ -60,8 +61,8 @@ export function GuestShell({ children }: { children: ReactNode }) {
   const newNav = useFeatureFlags().new_nav === true;
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   // Same destinations in the same order; the switch only re-points three slots.
-  const navItems = GUEST_NAV.map((item) => resolveTab(item, { newNav, servicesMode }));
-  const tabItems = GUEST_TABS.map((item) => resolveTab(item, { newNav, servicesMode }));
+  const navItems = GUEST_NAV.filter((item) => !isTabRemoved(item, { newNav })).map((item) => resolveTab(item, { newNav, servicesMode }));
+  const tabItems = GUEST_TABS.filter((item) => !isTabRemoved(item, { newNav })).map((item) => resolveTab(item, { newNav, servicesMode }));
   const label = (item: { en?: string; fr?: string }) =>
     (lang === "fr" ? item.fr : item.en) ?? item.en ?? "";
 
@@ -141,6 +142,9 @@ export function GuestShell({ children }: { children: ReactNode }) {
           </header>
 
           <main className="app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:px-8 lg:pb-10">
+            {!["/", "/feed", "/discover", "/services", "/spotlight", "/search", "/login", "/register"].includes(pathname.replace(/\/$/, "") || "/") ? (
+              <AutoBackButton home={newNav ? "/discover" : "/feed"} />
+            ) : null}
             {children}
           </main>
         </div>
@@ -150,7 +154,7 @@ export function GuestShell({ children }: { children: ReactNode }) {
         aria-label={tx("Main navigation", "Navigation principale")}
         className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden"
       >
-        <ul className="grid grid-cols-5">
+        <ul className="grid" style={{ gridTemplateColumns: `repeat(${tabItems.length + 1}, minmax(0, 1fr))` }}>
           {tabItems.map((item) => {
             const active = pathname === item.to;
             return (

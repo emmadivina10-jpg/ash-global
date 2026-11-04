@@ -1,15 +1,8 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BadgeCheck, Play, Search, Sparkles } from "lucide-react";
+import { BadgeCheck, GraduationCap, Play, Search, Upload } from "lucide-react";
 import { Avatar } from "@/components/refer/AvatarUpload";
-import { StoriesRail } from "@/components/refer/StoriesRail";
-import {
-  FEED_CATEGORIES,
-  matchesCategory,
-  type FeedCategory,
-} from "@/components/refer/feed-categories";
 import { useInstructors } from "@/lib/campus.queries";
-import { useAuthGate } from "@/lib/guest-gate";
 import { useI18n } from "@/lib/i18n";
 import { useUser } from "@/lib/queries";
 import { isStoryVideoSource, useSocialFeed, type FeedPost } from "@/lib/social.queries";
@@ -113,73 +106,95 @@ function VideoCard({
   );
 }
 
+const DISCOVER_TOPICS: { id: string; en: string; fr: string; words: string[] }[] = [
+  { id: "all", en: "All", fr: "Tout", words: [] },
+  { id: "forex", en: "Forex", fr: "Forex", words: ["forex", "trading", "fx"] },
+  { id: "web", en: "Web", fr: "Web", words: ["web", "html", "css", "javascript", "react"] },
+  { id: "mobile", en: "Mobile apps", fr: "Applis mobiles", words: ["mobile", "android", "ios", "flutter", "app"] },
+  { id: "programming", en: "Programming", fr: "Programmation", words: ["code", "coding", "programming", "python", "developer"] },
+  { id: "maths", en: "Mathematics", fr: "Mathématiques", words: ["math", "maths", "algebra", "calculus"] },
+];
+
+function topicMatches(text: string, topic: string): boolean {
+  const t = DISCOVER_TOPICS.find((x) => x.id === topic);
+  if (!t || t.words.length === 0) return true;
+  const lower = text.toLowerCase();
+  return t.words.some((w) => lower.includes(w));
+}
+
 function DiscoverPage() {
   const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const { user } = useUser();
-  const { isGuest } = useAuthGate();
-  const [category, setCategory] = useState<FeedCategory>("for_you");
+  const [topic, setTopic] = useState("all");
   const { data: posts, isLoading } = useSocialFeed(120);
   const { data: instructors } = useInstructors({});
 
-  const filtered = useMemo(() => {
-    const all = posts ?? [];
-    if (category === "for_you" || category === "following") return all;
-    return all.filter((p) => matchesCategory(p.caption, category, p.images.length));
-  }, [posts, category]);
+  // Upload Video is only offered to approved instructors (server checks still apply).
+  const isApprovedInstructor = Boolean(
+    user && (instructors ?? []).some((i) => i.user_id === user.id && i.is_active),
+  );
 
-  const videoPosts = useMemo(() => filtered.filter((p) => postVideos(p).length > 0), [filtered]);
-  const photoPosts = useMemo(
+  const videoPosts = useMemo(
     () =>
-      filtered
-        .filter((p) => postVideos(p).length === 0 && p.images.length > 0)
-        .sort((a, b) => b.like_count + b.comment_count - (a.like_count + a.comment_count)),
-    [filtered],
+      (posts ?? []).filter(
+        (p) => postVideos(p).length > 0 && topicMatches(p.caption, topic),
+      ),
+    [posts, topic],
   );
   const hero = videoPosts[0];
-  const rowVideos = videoPosts.slice(hero ? 1 : 0, 9);
-  const categoryLabel = (id: FeedCategory) => {
-    const c = FEED_CATEGORIES.find((entry) => entry.id === id);
-    return c ? (fr ? c.fr : c.en) : undefined;
-  };
-  const hasContent = videoPosts.length > 0 || photoPosts.length > 0;
+  const rowVideos = videoPosts.slice(1, 9);
+  const topicLabel = (() => {
+    const t = DISCOVER_TOPICS.find((x) => x.id === topic);
+    return t && t.id !== "all" ? (fr ? t.fr : t.en) : undefined;
+  })();
+  const featured = (instructors ?? []).slice(0, 12);
 
   return (
     <div className="mx-auto w-full max-w-xl space-y-5 lg:max-w-5xl">
-      <header className="flex items-center justify-between gap-3">
+      <header className="space-y-3">
         <h1 className="font-display text-[28px] font-bold leading-8 text-foreground">
-          {tx("Discover", "Découvrir")}
+          ASH <span className="text-brass">Glo</span>
         </h1>
-        <Link
-          to="/search"
-          aria-label={tx("Search", "Rechercher")}
-          className="grid size-10 place-items-center rounded-full text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass"
-        >
-          <Search className="size-5" aria-hidden />
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/search"
+            className="flex h-11 min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass"
+          >
+            <Search className="size-4 shrink-0" aria-hidden />
+            <span className="truncate">{tx("Search videos and courses", "Rechercher vidéos et cours")}</span>
+          </Link>
+          {isApprovedInstructor ? (
+            <Link
+              to="/studio"
+              className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full bg-brass px-4 text-sm font-bold text-onyx transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass"
+            >
+              <Upload className="size-4" aria-hidden />
+              {tx("Upload Video", "Publier une vidéo")}
+            </Link>
+          ) : null}
+        </div>
       </header>
-
-      {!isGuest && <StoriesRail />}
 
       <div
         role="tablist"
         aria-label={tx("Categories", "Catégories")}
         className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        {FEED_CATEGORIES.map((c) => {
-          const on = c.id === category;
+        {DISCOVER_TOPICS.map((c) => {
+          const on = c.id === topic;
           return (
             <button
               key={c.id}
               type="button"
               role="tab"
               aria-selected={on}
-              onClick={() => setCategory(c.id)}
+              onClick={() => setTopic(c.id)}
               className={cn(
-                "h-8 shrink-0 rounded-full border px-3.5 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass",
+                "h-9 shrink-0 rounded-full border px-4 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass",
                 on
                   ? "border-transparent bg-brass text-onyx"
-                  : "border-border bg-card text-muted-foreground hover:text-foreground",
+                  : "border-border bg-card text-foreground hover:bg-muted",
               )}
             >
               {fr ? c.fr : c.en}
@@ -189,132 +204,114 @@ function DiscoverPage() {
       </div>
 
       {isLoading ? (
-        <div className="space-y-4" aria-busy="true">
-          <div className="aspect-video w-full animate-pulse rounded-2xl bg-muted" />
-          <div className="flex gap-3 overflow-hidden">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="aspect-video w-64 shrink-0 animate-pulse rounded-2xl bg-muted" />
-            ))}
+        <div className="aspect-video w-full animate-pulse rounded-2xl bg-muted" aria-busy="true" />
+      ) : hero ? (
+        <section aria-label={tx("Featured video", "Vidéo à la une")} className="-mx-4 sm:mx-0">
+          <VideoCard post={hero} large categoryLabel={topicLabel} />
+          <div className="flex items-start gap-3 px-4 pt-3 sm:px-0">
+            <Avatar path={hero.author.avatar_url} name={hero.author.name} className="size-10 ring-2 ring-brass" />
+            <div className="min-w-0">
+              <p className="line-clamp-2 font-semibold text-foreground">
+                {firstLine(hero.caption) || tx("Untitled video", "Vidéo sans titre")}
+              </p>
+              <p className="truncate text-xs text-muted-foreground">
+                {hero.author.name}
+                {topicLabel ? ` · ${topicLabel}` : ""} · {new Date(hero.created_at).toLocaleDateString(fr ? "fr" : "en")}
+              </p>
+            </div>
           </div>
-        </div>
-      ) : !hasContent ? (
-        <div className="relative overflow-hidden rounded-3xl border border-border bg-onyx px-6 py-14 text-center">
+        </section>
+      ) : (
+        <div className="relative overflow-hidden rounded-3xl border border-border bg-onyx px-6 py-12 text-center">
           <div
             className="pointer-events-none absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(60% 50% at 50% 20%, rgba(75,0,130,0.45), transparent 70%)",
-            }}
+            style={{ background: "radial-gradient(60% 50% at 50% 20%, rgba(75,0,130,0.45), transparent 70%)" }}
             aria-hidden
           />
-          <span className="relative mx-auto grid size-12 place-items-center rounded-2xl bg-brass/10 text-brass ring-1 ring-brass/30">
-            <Sparkles className="size-5" aria-hidden />
+          <span className="relative mx-auto grid size-14 place-items-center rounded-full bg-black/60 text-brass ring-1 ring-brass/40">
+            <Play className="size-6 fill-current" aria-hidden />
           </span>
           <p className="relative mt-4 font-display text-xl font-bold text-[#F5F5F7]">
-            {tx("Nothing to watch yet", "Rien à regarder pour le moment")}
+            {tx("No videos yet", "Pas encore de vidéos")}
           </p>
           <p className="relative mx-auto mt-2 max-w-sm text-sm text-[#A1A1AA]">
-            {isGuest
-              ? tx(
-                  "Creator and instructor videos will appear here as the community publishes.",
-                  "Les vidéos des créateurs et instructeurs apparaîtront ici au fur et à mesure.",
-                )
-              : tx(
-                  "Share the first video — Discover comes alive with real creator content.",
-                  "Partagez la première vidéo — Discover prend vie avec du vrai contenu.",
-                )}
+            {tx(
+              "Lessons and tutorials from approved ASH instructors will appear here.",
+              "Les leçons et tutoriels des instructeurs ASH approuvés apparaîtront ici.",
+            )}
           </p>
         </div>
-      ) : (
-        <>
-          {hero ? (
-            <section aria-label={tx("Featured", "À la une")}>
-              <VideoCard post={hero} large categoryLabel={categoryLabel(category)} />
-            </section>
-          ) : null}
-
-          {rowVideos.length > 0 ? (
-            <section aria-label={tx("Videos", "Vidéos")}>
-              <h2 className="mb-2.5 font-display text-xl font-semibold text-foreground">
-                {tx("Videos", "Vidéos")}
-              </h2>
-              <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {rowVideos.map((post) => (
-                  <VideoCard key={post.id} post={post} />
-                ))}
-              </div>
-            </section>
-          ) : null}
-
-          {photoPosts.length > 0 ? (
-            <section aria-label={tx("Trending", "Tendances")}>
-              <h2 className="mb-2.5 font-display text-xl font-semibold text-foreground">
-                {tx("Trending now", "Tendances")}
-              </h2>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {photoPosts.slice(0, 9).map((post) => (
-                  <Link
-                    key={post.id}
-                    to="/post/$postId"
-                    params={{ postId: post.id }}
-                    className="group relative block overflow-hidden rounded-2xl bg-onyx-elevated ring-1 ring-border/60 transition-transform duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass motion-safe:hover:scale-[1.02]"
-                  >
-                    <div className="relative aspect-square w-full">
-                      <img
-                        src={post.images[0]}
-                        alt=""
-                        loading="lazy"
-                        className="absolute inset-0 h-full w-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
-                      <p className="absolute inset-x-0 bottom-0 line-clamp-2 p-2.5 text-xs font-semibold text-[#F5F5F7] opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                        {firstLine(post.caption)}
-                      </p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          ) : null}
-        </>
       )}
 
-      {(instructors ?? []).length > 0 ? (
-        <section aria-label={tx("Creators and instructors", "Créateurs et instructeurs")}>
+      {rowVideos.length > 0 ? (
+        <section aria-label={tx("More videos", "Plus de vidéos")}>
           <h2 className="mb-2.5 font-display text-xl font-semibold text-foreground">
-            {tx("Creators & instructors", "Créateurs et instructeurs")}
+            {tx("More videos", "Plus de vidéos")}
           </h2>
-          <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {(instructors ?? []).slice(0, 12).map((instructor) => (
-              <Link
-                key={instructor.id}
-                to="/campus/instructors/$instructorId"
-                params={{ instructorId: instructor.id }}
-                className="flex w-20 shrink-0 flex-col items-center gap-1.5 rounded-2xl p-1 transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass"
-              >
-                <span
-                  className={cn(
-                    "rounded-full p-[2px]",
-                    instructor.is_verified ? "ring-2 ring-brass" : "ring-1 ring-border",
-                  )}
-                >
-                  <Avatar
-                    path={instructor.profile?.avatar_url}
-                    name={instructor.display_name}
-                    className="size-14"
-                  />
-                </span>
-                <span className="flex w-full items-center justify-center gap-0.5 text-center text-[11px] font-semibold leading-tight text-foreground">
-                  <span className="line-clamp-2">{instructor.display_name}</span>
-                  {instructor.is_verified ? (
-                    <BadgeCheck className="size-3 shrink-0 text-brass" aria-hidden />
-                  ) : null}
-                </span>
-              </Link>
+          <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {rowVideos.map((post) => (
+              <VideoCard key={post.id} post={post} />
             ))}
           </div>
         </section>
       ) : null}
-    </div>
+
+      <section aria-label={tx("Featured instructors", "Instructeurs à la une")}>
+        <div className="mb-2.5 flex items-center justify-between">
+          <h2 className="font-display text-xl font-semibold text-foreground">
+            {tx("Featured instructors", "Instructeurs à la une")}
+          </h2>
+          {featured.length > 0 ? (
+            <Link to="/campus" className="text-sm font-semibold text-brass hover:underline">
+              {tx("See all", "Tout voir")}
+            </Link>
+          ) : null}
+        </div>
+        {featured.length > 0 ? (
+          <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {featured.map((instructor) => (
+              <Link
+                key={instructor.id}
+                to="/campus/instructors/$instructorId"
+                params={{ instructorId: instructor.id }}
+                className="flex w-20 shrink-0 flex-col items-center gap-1.5 rounded-2xl p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass"
+              >
+                <span className="rounded-full p-[2px] ring-2 ring-brass">
+                  <Avatar path={instructor.profile?.avatar_url} name={instructor.display_name} className="size-16" />
+                </span>
+                <span className="flex w-full items-center justify-center gap-0.5 text-center text-xs font-bold leading-tight text-foreground">
+                  <span className="line-clamp-2">{instructor.display_name}</span>
+                  {instructor.is_verified ? <BadgeCheck className="size-3 shrink-0 text-brass" aria-hidden /> : null}
+                </span>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            {tx("Approved instructors will be featured here.", "Les instructeurs approuvés apparaîtront ici.")}
+          </p>
+        )}
+      </section>
+
+      <section aria-label={tx("Popular courses", "Cours populaires")}>
+        <h2 className="mb-2.5 font-display text-xl font-semibold text-foreground">
+          {tx("Popular courses", "Cours populaires")}
+        </h2>
+        <div className="relative grid aspect-[16/8] place-items-center overflow-hidden rounded-2xl bg-royal px-6 text-center">
+          <div>
+            <GraduationCap className="mx-auto size-8 text-brass" aria-hidden />
+            <p className="mt-2 font-display text-lg font-bold text-[#F5F5F7]">
+              {tx("Courses are coming soon", "Les cours arrivent bientôt")}
+            </p>
+            <p className="mt-1 text-sm text-[#D4D4D8]">
+              {tx(
+                "Full courses with lessons and free previews will appear here once instructors publish them.",
+                "Les cours complets avec leçons et aperçus gratuits apparaîtront ici dès leur publication.",
+              )}
+            </p>
+          </div>
+        </div>
+      </section>
+          </div>
   );
 }

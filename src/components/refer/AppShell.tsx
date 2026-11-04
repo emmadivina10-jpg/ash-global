@@ -66,7 +66,8 @@ import { PayoutSetupReminder } from "./PayoutSetupReminder";
 import { SecurityAlertBanner } from "./SecurityAlertBanner";
 import { useServicesMode } from "@/lib/services-mode";
 import { useFeatureFlags, homePath } from "@/lib/feature-flags";
-import { MEMBER_TABS, resolveTab, type TabItem } from "@/lib/member-tabs";
+import { MEMBER_TABS, isTabRemoved, resolveTab, type TabItem } from "@/lib/member-tabs";
+import { AutoBackButton } from "@/components/refer/AutoBackButton";
 import { PRESENCE_HEARTBEAT_MS } from "@/lib/member-insights";
 
 type NavItem = TabItem;
@@ -166,6 +167,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const visible = (items: NavItem[]): NavItem[] =>
     items
       .filter((item) => !item.referralOnly || region.referralEnabled)
+      .filter((item) => !isTabRemoved(item, { newNav }))
       .map((item) => resolveTab(item, { newNav, servicesMode }));
   const navLabel = (item: NavItem) =>
     item.key ? t(item.key) : ((lang === "fr" ? item.fr : item.en) ?? item.label ?? "");
@@ -538,6 +540,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 onFeed && "pt-1",
               )}
             >
+              {!topLevel && !onMemberProfile ? <AutoBackButton home={home} /> : null}
               {children}
             </main>
             {pathname !== "/messages" && <RightRail />}

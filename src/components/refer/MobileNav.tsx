@@ -175,7 +175,8 @@ export function MobileNav({
       <div className="premium-nav-pill nav-bar-fill relative w-full border-t border-border">
         <ul
           ref={gridRef}
-          className="premium-nav-grid relative mx-auto grid h-[3.75rem] max-w-lg grid-cols-5 items-stretch"
+          className="premium-nav-grid relative mx-auto grid h-[3.75rem] max-w-lg items-stretch"
+          style={{ gridTemplateColumns: `repeat(${items.length + 1}, minmax(0, 1fr))` }}
           data-held-index={heldIndex ?? undefined}
           onPointerDown={startHold}
           onPointerMove={moveHold}
