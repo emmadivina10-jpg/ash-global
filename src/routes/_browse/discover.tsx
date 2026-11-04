@@ -54,7 +54,7 @@ function VideoCard({
 }: {
   post: FeedPost;
   large?: boolean;
-  categoryLabel?: string;
+  categoryLabel?: string | undefined;
 }) {
   const { tx } = useI18n();
   const video = postVideos(post)[0];
@@ -106,7 +106,7 @@ function VideoCard({
           >
             {title}
           </p>
-          <p className="mt-1 truncate text-xs text-[#A1A1AA]">{post.author.full_name}</p>
+          <p className="mt-1 truncate text-xs text-[#A1A1AA]">{post.author.name}</p>
         </div>
       </div>
     </Link>

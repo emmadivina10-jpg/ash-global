@@ -62,7 +62,8 @@ export function GuestShell({ children }: { children: ReactNode }) {
   // Same destinations in the same order; the switch only re-points three slots.
   const navItems = GUEST_NAV.map((item) => resolveTab(item, { newNav, servicesMode }));
   const tabItems = GUEST_TABS.map((item) => resolveTab(item, { newNav, servicesMode }));
-  const label = (item: GuestNavItem) => (lang === "fr" ? item.fr : item.en);
+  const label = (item: { en?: string; fr?: string }) =>
+    (lang === "fr" ? item.fr : item.en) ?? item.en ?? "";
 
   return (
     <div className="app-shell safe-top min-h-dvh bg-background">
