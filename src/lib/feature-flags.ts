@@ -103,11 +103,11 @@ export function useFeatureFlag(key: FeatureFlagKey): boolean {
   return useFeatureFlags()[key] === true;
 }
 
-/** The member home tab: Discover under the new tab bar, otherwise Spotlight. */
-export function homePath(flags: FeatureFlags): "/discover" | "/spotlight" {
-  return flags.new_nav ? "/discover" : "/spotlight";
+/** The member home tab: Discover under the new tab bar, otherwise the Feed. */
+export function homePath(flags: FeatureFlags): "/discover" | "/feed" {
+  return flags.new_nav ? "/discover" : "/feed";
 }
 
-export function useHomePath(): "/discover" | "/spotlight" {
+export function useHomePath(): "/discover" | "/feed" {
   return homePath(useFeatureFlags());
 }

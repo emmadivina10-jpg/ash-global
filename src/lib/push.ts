@@ -66,10 +66,10 @@ export function notificationLink(category: string, data: Record<string, unknown>
     case "SOCIAL_REPLY":
     case "COMMENT_REACTION":
       // Open the exact post the notification is about whenever we know it.
-      return typeof data["post_id"] === "string" ? `/post/${data["post_id"]}` : "/spotlight";
+      return typeof data["post_id"] === "string" ? `/post/${data["post_id"]}` : "/feed";
     case "STORY":
     case "STORY_REACTION":
-      return "/spotlight";
+      return "/feed";
     case "SPOTLIGHT_REACTION":
     case "SPOTLIGHT_COMMENT":
       return typeof data["spotlight_id"] === "string"
@@ -95,7 +95,7 @@ export function notificationLink(category: string, data: Record<string, unknown>
         ? `/messages?c=${data["conversation_id"]}`
         : "/groups";
     default:
-      return "/spotlight";
+      return "/feed";
   }
 }
 

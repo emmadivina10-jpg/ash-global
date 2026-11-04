@@ -309,7 +309,7 @@ export function RightRail() {
         <Block
           icon={Flame}
           title={tx("Trending posts", "Publications populaires")}
-          action={{ label: tx("Spotlight", "Spotlight"), to: "/spotlight" }}
+          action={{ label: tx("Feed", "Fil"), to: "/feed" }}
         >
           {posts.data && posts.data.length > 0 ? (
             <ul className="space-y-2">

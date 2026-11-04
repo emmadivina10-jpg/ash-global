@@ -25,7 +25,6 @@ import { ChatActionDialog } from "@/components/refer/ChatActionDialog";
 import { PlusActionPanel } from "@/components/refer/PlusActionPanel";
 import { useFeatureFlag } from "@/lib/feature-flags";
 import { StoriesRail, loadSpotlights } from "@/components/refer/StoriesRail";
-import { MessagesStoryRow } from "@/components/refer/MessagesStoryRow";
 import { useStories } from "@/lib/social.queries";
 import { Play, CircleUserRound, Sparkles } from "lucide-react";
 import ashLogo from "@/assets/ash-logo.png.asset.json";
@@ -39,7 +38,7 @@ import { formatDateTime, formatXAF } from "@/lib/format";
 import { bookingStatusLabel } from "@/lib/booking";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { Archive, Lock, Plus, Trash2, UserPlus, Users, X } from "lucide-react";
+import { Archive, Lock, Plus, Trash2, UserPlus, Users } from "lucide-react";
 import { SelectChatRow } from "@/components/refer/SelectChatRow";
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import {
@@ -333,12 +332,6 @@ function MessagesPage() {
         (!supportTicket.member_read_at || message.created_at > supportTicket.member_read_at),
     ).length ?? 0;
   const [term, setTerm] = useState("");
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [createRequest, setCreateRequest] = useState(0);
-  const closeSearch = () => {
-    setSearchOpen(false);
-    setTerm("");
-  };
   const [newChatOpen, setNewChatOpen] = useState(false);
 
   const { data: prefs } = useChatPrefs();
@@ -387,8 +380,7 @@ function MessagesPage() {
   >();
   const { data: availableStories, isLoading: loadingStories } = useStories();
   const { data: availableSpotlights, isLoading: loadingSpotlights } = useQuery({
-    queryKey: ["ash-spotlights", user?.id ?? null],
-    enabled: Boolean(user?.id),
+    queryKey: ["ash-spotlights"],
     queryFn: loadSpotlights,
     staleTime: 15_000,
   });
@@ -765,16 +757,6 @@ function MessagesPage() {
             {/* Stays pinned while the title and search scroll away, like WhatsApp. */}
             <div className="sticky top-0 z-20 h-0 shrink-0">
               <Button
-                size="icon"
-                variant="secondary"
-                className="absolute right-[4.25rem] top-5 size-11 rounded-full shadow-lg"
-                aria-label={tx("Search chats", "Rechercher une discussion")}
-                aria-expanded={searchOpen}
-                onClick={() => (searchOpen ? closeSearch() : setSearchOpen(true))}
-              >
-                <Search className="size-5" aria-hidden />
-              </Button>
-              <Button
                 ref={plusButtonRef}
                 size="icon"
                 variant="default"
@@ -793,7 +775,7 @@ function MessagesPage() {
               </Button>
             </div>
             <div data-inbox-head className="shrink-0 border-b border-border bg-card/75 px-4 pb-4 pt-5 will-change-[opacity,transform]">
-              <h2 className="mb-4 flex min-h-11 items-center pr-28 font-display text-3xl font-bold text-foreground">
+              <h2 className="mb-4 flex min-h-11 items-center pr-14 font-display text-3xl font-bold text-foreground">
                 {t("chat.title")}
               </h2>
               {newNav ? (
@@ -915,39 +897,33 @@ function MessagesPage() {
                 </div>
               ) : null}
 
-              {searchOpen ? (
-                <div className="inbox-search-reveal mb-3 flex min-h-12 items-center gap-3 rounded-full bg-muted px-4 py-3 shadow-sm">
-                  <Search className="size-5 shrink-0 text-muted-foreground" aria-hidden />
+              <div className="flex min-h-12 items-center gap-3 rounded-full bg-muted px-4 py-3">
+                <Search className="size-5 shrink-0 text-muted-foreground" aria-hidden />
 
-                  <input
-                    autoFocus
-                    value={term}
-                    onChange={(event) => setTerm(event.target.value)}
-                    placeholder={tx(
-                      "Search chats or people",
-                      "Rechercher une discussion ou un membre",
-                    )}
-                    aria-label={tx("Search chats", "Rechercher une discussion")}
-                    className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                  />
-                  <button
-                    type="button"
-                    onClick={closeSearch}
-                    aria-label={tx("Close search", "Fermer la recherche")}
-                    className="grid size-7 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-background/60"
-                  >
-                    <X className="size-4" aria-hidden />
-                  </button>
-                </div>
-              ) : null}
+                <input
+                  value={term}
+                  onChange={(event) => setTerm(event.target.value)}
+                  placeholder={tx(
+                    "Search chats or people",
+                    "Rechercher une discussion ou un membre",
+                  )}
+                  aria-label={tx("Search chats", "Rechercher une discussion")}
+                  className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                />
+              </div>
 
-              <MessagesStoryRow
-                onView={(authorId) => setViewerRequest({ authorId, kind: "story" })}
-                onCreate={() => setCreateRequest((count) => count + 1)}
-              />
-
-              {archivedCount > 0 ? (
-                <div className="mt-3 flex flex-wrap items-center gap-2">
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-10 rounded-full px-3 text-sm"
+                  onClick={() => setGroupDialog(true)}
+                >
+                  <Users className="size-4" aria-hidden />
+                  {tx("New group", "Nouveau groupe")}
+                </Button>
+                {archivedCount > 0 ? (
                   <button
                     type="button"
                     onClick={() => setShowArchived((value) => !value)}
@@ -958,8 +934,19 @@ function MessagesPage() {
                       ? tx("Hide archived", "Masquer les archives")
                       : `${tx("Archived", "Archivées")} (${archivedCount})`}
                   </button>
-                </div>
-              ) : null}
+                ) : null}
+
+                {lockPin && lockedCount > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => setUnlockDialog(true)}
+                    className="flex min-h-10 items-center gap-2 rounded-full bg-muted px-3 py-2 text-sm font-bold text-muted-foreground"
+                  >
+                    <Lock className="size-4" aria-hidden />
+                    {fr ? `Verrouillées (${lockedCount})` : `Locked (${lockedCount})`}
+                  </button>
+                ) : null}
+              </div>
             </div>
 
             <Dialog open={groupDialog} onOpenChange={setGroupDialog}>
@@ -1305,8 +1292,6 @@ function MessagesPage() {
                     onTogglePin={() => void togglePin(conv.id)}
                     onArchive={() => toggleArchive(conv.id)}
                     onToggleLock={() => toggleLock(conv.id)}
-                    onNewGroup={() => setGroupDialog(true)}
-                    onOpenLocked={() => (lockPin ? setUnlockDialog(true) : setPinDialog(true))}
                   >
                     <div
                       className={cn(
@@ -1926,17 +1911,6 @@ function MessagesPage() {
             {tx("Loading updates…", "Chargement des actualités…")}
           </p>
         )}
-        <Button
-          variant="secondary"
-          className="h-14 w-full justify-start gap-4 text-base"
-          onClick={() => {
-            if (avatarChoice) openPeerProfile(avatarChoice);
-            setAvatarChoice(null);
-          }}
-        >
-          <CircleUserRound />
-          {tx("View profile", "Voir le profil")}
-        </Button>
         {hasStory && (
           <Button
             variant="secondary"
@@ -1948,7 +1922,7 @@ function MessagesPage() {
             }}
           >
             <CircleUserRound className="text-success" />
-            {tx("View status", "Voir le statut")}
+            {tx("View story", "Voir la story")}
           </Button>
         )}
         {hasSpotlight && (
@@ -1965,11 +1939,21 @@ function MessagesPage() {
             {tx("View Spotlight", "Voir le Spotlight")}
           </Button>
         )}
+        <Button
+          variant="secondary"
+          className="h-14 w-full justify-start gap-4 text-base"
+          onClick={() => {
+            if (avatarChoice) openPeerProfile(avatarChoice);
+            setAvatarChoice(null);
+          }}
+        >
+          <CircleUserRound />
+          {tx("View profile", "Voir le profil")}
+        </Button>
       </ChatActionDialog>
-      {(viewerRequest || createRequest > 0) && (
+      {viewerRequest && (
         <StoriesRail
-          {...(viewerRequest ? { viewerRequest } : {})}
-          createRequest={createRequest}
+          viewerRequest={viewerRequest}
           onViewerClose={() => setViewerRequest(undefined)}
         />
       )}

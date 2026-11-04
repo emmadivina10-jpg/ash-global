@@ -357,12 +357,9 @@ export async function loadSpotlights(): Promise<SpotlightPost[]> {
 
 export function StoriesRail({
   viewerRequest,
-  createRequest,
   onViewerClose,
 }: {
   compact?: boolean;
-  /** Bump to open the Story/Spotlight chooser from outside (the Messages story row). */
-  createRequest?: number;
   viewerRequest?: { authorId: string; kind: "story" | "spotlight"; spotlightId?: string };
   onViewerClose?: () => void;
 } = {}) {
@@ -607,12 +604,6 @@ export function StoriesRail({
       return;
     setChooserOpen(true);
   }
-
-  useEffect(() => {
-    if (createRequest) openCreate();
-    // Only a new request should reopen the chooser.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [createRequest]);
 
   function pickFile(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0] ?? null;
@@ -1009,7 +1000,7 @@ export function StoriesRail({
     <>
       <section
         className="-mx-1"
-        hidden={Boolean(viewerRequest) || createRequest !== undefined}
+        hidden={Boolean(viewerRequest)}
         aria-label="ASH Stories and Spotlight"
       >
         <div className="flex gap-3 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">

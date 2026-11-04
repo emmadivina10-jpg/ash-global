@@ -8,7 +8,6 @@ import {
   PinOff,
   Archive,
   ArchiveRestore,
-  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -36,8 +35,6 @@ export function SelectChatRow({
   onTogglePin,
   onToggleLock,
   onArchive,
-  onNewGroup,
-  onOpenLocked,
   label,
 }: {
   children: ReactNode;
@@ -53,8 +50,6 @@ export function SelectChatRow({
   onTogglePin: () => void;
   onToggleLock: () => void;
   onArchive: () => void;
-  onNewGroup?: () => void;
-  onOpenLocked?: () => void;
   label?: string;
 }) {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -210,26 +205,6 @@ export function SelectChatRow({
             onArchive();
           }}
         />
-        {onNewGroup ? (
-          <MenuItem
-            icon={Users}
-            label={fr ? "Nouveau groupe" : "New group"}
-            onClick={() => {
-              setMenuOpen(false);
-              onNewGroup();
-            }}
-          />
-        ) : null}
-        {onOpenLocked ? (
-          <MenuItem
-            icon={Lock}
-            label={fr ? "Discussions verrouillées" : "Locked chats"}
-            onClick={() => {
-              setMenuOpen(false);
-              onOpenLocked();
-            }}
-          />
-        ) : null}
       </ChatActionDialog>
     </div>
   );
