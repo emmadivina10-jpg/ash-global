@@ -62,7 +62,7 @@ function VideoCard({ post, instructorId }: { post: FeedPost; instructorId?: stri
   if (!video) return null;
   const title = firstLine(post.caption) || tx("Untitled video", "Vidéo sans titre");
   return (
-    <article className="w-full min-w-0 border-b border-border bg-background">
+    <article className="min-w-0 w-full overflow-hidden rounded-2xl border border-border/60 bg-card shadow-[var(--shadow-card)]">
       <DiscoverVideo compact src={video} poster={post.images.find((src) => !isStoryVideoSource(src))} title={title} />
       <div className="flex items-start gap-2.5 px-3 py-3 lg:px-4">
         <Avatar path={post.author.avatar_url} name={post.author.name} className="size-10 shrink-0" />
@@ -178,7 +178,7 @@ function DiscoverPage() {
   }
 
   return (
-    <div className="discover-surface market-theme -mx-4 w-[calc(100%+2rem)] sm:-mx-6 sm:w-[calc(100%+3rem)] lg:-mx-8 lg:w-[calc(100%+4rem)]">
+    <div className="discover-surface market-theme w-full">
       <header className="bg-background/95 px-3 py-3 lg:px-6">
         <div className="mx-auto flex max-w-5xl items-center gap-3">
           <Link to="/discover" aria-label="ASH Glo" className="mr-auto inline-flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
