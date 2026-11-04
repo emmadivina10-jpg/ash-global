@@ -2987,6 +2987,46 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
 /* ── ASH Kitchen empty state ─────────────────────────────── */
 .app-shell-scroll:has(.discover-surface) {
   padding-inline: 0;
+  padding-top: 0;
+}
+.discover-video-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+@media (min-width: 640px) {
+  .discover-video-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding-inline: 1rem;
+  }
+}
+@media (min-width: 1024px) {
+  .discover-video-grid {
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    gap: 1.25rem;
+    padding-inline: 1.5rem;
+  }
+  .discover-video-grid > article { max-width: 32rem; }
+  .discover-video-grid .discover-video-stage { border-radius: 8px; }
+}
+.desktop-sidebar {
+  width: 15rem;
+  padding-inline: 0.75rem;
+  padding-bottom: 1rem;
+}
+.desktop-sidebar-heading { padding-inline: 0.5rem; }
+.desktop-sidebar-compact-only { display: none; }
+.desktop-sidebar[data-collapsed="true"] { width: 4.5rem; padding-inline: 0.5rem; }
+.desktop-sidebar[data-collapsed="true"] .desktop-sidebar-heading { justify-content: center; padding-inline: 0; }
+.desktop-sidebar[data-collapsed="true"] .desktop-sidebar-expanded-only,
+.desktop-sidebar[data-collapsed="true"] .desktop-nav-label { display: none; }
+.desktop-sidebar[data-collapsed="true"] .desktop-sidebar-compact-only { display: flex; }
+.desktop-sidebar[data-collapsed="true"] .desktop-nav-link { justify-content: center; gap: 0; padding-inline: 0; }
+.desktop-sidebar[data-collapsed="true"] .desktop-nav-unread { position: absolute; right: 0; top: 0; }
+.desktop-sidebar .member-icon-green,
+.desktop-sidebar .member-icon-ash,
+.desktop-sidebar .member-icon-violet {
+  stop-color: currentColor;
 }
 .discover-video-stage {
   background: color-mix(in oklab, var(--primary-deep) 86%, var(--primary) 14%);

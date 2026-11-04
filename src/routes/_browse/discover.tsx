@@ -12,6 +12,7 @@ import { DiscoverVideo } from "@/components/refer/DiscoverVideo";
 import { DISCOVER_TOPICS, topicMatches } from "@/lib/discover-topics";
 import { useQuery } from "@tanstack/react-query";
 import { loadAuthors } from "@/lib/social.queries";
+import { VideoActions } from "@/components/refer/VideoActions";
 
 export const Route = createFileRoute("/_browse/discover")({
   head: () => ({
@@ -49,14 +50,15 @@ function VideoCard({ post }: { post: FeedPost }) {
   const video = postVideos(post)[0];
   if (!video) return null;
   const title = firstLine(post.caption) || tx("Untitled video", "Vidéo sans titre");
-  return <article className="w-full">
-    <DiscoverVideo src={video} poster={post.images.find((src) => !isStoryVideoSource(src))} title={title} />
-    <div className="flex items-start gap-3 px-4 pt-3">
-      <Avatar path={post.author.avatar_url} name={post.author.name} className="size-10 ring-2 ring-primary/40" />
+  return <article className="min-w-0 w-full">
+    <DiscoverVideo compact src={video} poster={post.images.find((src) => !isStoryVideoSource(src))} title={title} />
+    <div className="flex items-start gap-2.5 px-3 py-2.5 lg:px-0">
+      <Avatar path={post.author.avatar_url} name={post.author.name} className="size-9 shrink-0" />
       <div className="min-w-0 flex-1">
-        <Link to="/post/$postId" params={{ postId: post.id }} className="line-clamp-2 font-semibold text-foreground">{title}</Link>
-        <p className="truncate text-xs text-muted-foreground">{post.author.name}</p>
+        <Link to="/post/$postId" params={{ postId: post.id }} className="line-clamp-2 text-sm font-semibold leading-5 text-foreground">{title}</Link>
+        <p className="mt-0.5 truncate text-xs leading-4 text-muted-foreground">{post.author.name}</p>
       </div>
+      <VideoActions id={post.id} title={title} authorId={post.author.id} />
     </div>
   </article>;
 }
@@ -81,8 +83,6 @@ function DiscoverPage() {
       ),
     [posts, topic],
   );
-  const hero = videoPosts[0];
-  const rowVideos = videoPosts.slice(1);
   const topicLabel = (() => {
     const t = DISCOVER_TOPICS.find((x) => x.id === topic);
     return t && t.id !== "all" ? (fr ? t.fr : t.en) : undefined;
@@ -101,18 +101,18 @@ function DiscoverPage() {
   const headerHidden = useHideOnScrollDown();
 
   return (
-    <div className="discover-surface market-theme w-full space-y-5">
+    <div className="discover-surface market-theme w-full">
       <header
         className={cn(
-          "sticky top-0 z-20 space-y-3 bg-background/90 px-4 py-2 backdrop-blur transition-[opacity,transform] duration-300 motion-reduce:transition-none",
+          "sticky top-0 z-20 bg-background/95 px-3 py-2 backdrop-blur transition-[opacity,transform] duration-300 motion-reduce:transition-none lg:px-6",
           headerHidden && "pointer-events-none -translate-y-full opacity-0",
         )}
       >
         <h1 className="sr-only">{tx("Discover", "Découvrir")}</h1>
-        <div className="flex items-center gap-2">
+        <div className="mx-auto flex max-w-3xl items-center gap-2">
           <Link
             to="/search"
-            className="flex h-11 min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-card px-3 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <Search className="size-4 shrink-0" aria-hidden />
             <span className="truncate">{tx("Search videos", "Rechercher des vidéos")}</span>
@@ -120,10 +120,12 @@ function DiscoverPage() {
           {isApprovedInstructor ? (
             <Link
               to="/discover/upload"
-              className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              aria-label={tx("Upload Video", "Publier une vidéo")}
+              title={tx("Upload Video", "Publier une vidéo")}
+              className="inline-flex size-10 shrink-0 items-center justify-center rounded-full text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary lg:w-auto lg:gap-2 lg:px-3"
             >
               <Upload className="size-4" aria-hidden />
-              {tx("Upload Video", "Publier une vidéo")}
+              <span className="hidden lg:inline">{tx("Upload Video", "Publier une vidéo")}</span>
             </Link>
           ) : null}
         </div>
@@ -132,7 +134,7 @@ function DiscoverPage() {
       <div
         role="tablist"
         aria-label={tx("Categories", "Catégories")}
-        className="flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex gap-2 overflow-x-auto px-3 pb-3 pt-1 lg:px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {DISCOVER_TOPICS.map((c) => {
           const on = c.id === topic;
@@ -145,7 +147,7 @@ function DiscoverPage() {
               aria-selected={on}
               onClick={() => setTopic(c.id)}
               className={cn(
-                "h-9 shrink-0 rounded-full border px-4 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                "h-8 shrink-0 rounded-md border px-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                 on
                   ? "border-transparent bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
                   : "border-border bg-card text-foreground hover:bg-muted",
@@ -158,9 +160,9 @@ function DiscoverPage() {
       </div>
 
       {isLoading ? (
-        <div className="aspect-video w-full animate-pulse bg-muted" aria-busy="true" />
-      ) : hero ? (
-        <section aria-label={tx("Featured video", "Vidéo à la une")}><VideoCard key={hero.id} post={hero} /></section>
+        <div className="discover-video-grid" aria-busy="true">{[0, 1, 2].map((id) => <div key={id} className="aspect-video w-full animate-pulse bg-muted" />)}</div>
+      ) : videoPosts.length > 0 ? (
+        <section aria-label={tx("Videos", "Vidéos")} className="discover-video-grid">{videoPosts.map((post) => <VideoCard key={post.id} post={post} />)}</section>
       ) : (
         <section role="status" className="border-y border-border bg-primary/5 px-6 py-12 text-center">
           <Play className="mx-auto size-8 text-primary" aria-hidden />
@@ -169,13 +171,9 @@ function DiscoverPage() {
             : tx("No videos yet", "Pas encore de vidéos")}</p>
         </section>
       )}
-      {rowVideos.length > 0 && <section aria-label={tx("More videos", "Plus de vidéos")} className="flex flex-col gap-5">
-        {rowVideos.map((post) => <VideoCard key={post.id} post={post} />)}
-      </section>}
-
-      <section aria-label={tx("Featured instructors", "Instructeurs à la une")} className="px-4">
+      <section aria-label={tx("Featured instructors", "Instructeurs à la une")} className="px-3 py-5 lg:px-6">
         <div className="mb-2.5 flex items-center justify-between">
-          <h2 className="font-display text-xl font-semibold text-foreground">
+          <h2 className="font-display text-base font-semibold text-foreground">
             {tx("Featured instructors", "Instructeurs à la une")}
           </h2>
           {featured.length > 0 ? (

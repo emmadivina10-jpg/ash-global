@@ -22,6 +22,7 @@ import { useFeatureFlags } from "@/lib/feature-flags";
 import { isTabRemoved, resolveTab } from "@/lib/member-tabs";
 import { AutoBackButton } from "@/components/refer/AutoBackButton";
 import { cn } from "@/lib/utils";
+import { DesktopSidebar } from "./DesktopSidebar";
 
 type GuestNavItem = {
   to: string;
@@ -49,8 +50,6 @@ const GUEST_TABS: GuestNavItem[] = [
   { to: "/search", en: "Search", fr: "Rechercher", icon: Search },
 ];
 
-/** ASH-branded tile colours for the side menu icons, cycled in order. */
-const SIDE_TILES = ["gold-gradient", "brand-gradient", "bg-gold", "bg-primary"];
 
 /**
  * Public shell for signed-out visitors: same ASH navigation as members, but
@@ -70,58 +69,35 @@ export function GuestShell({ children }: { children: ReactNode }) {
   return (
     <div className="app-shell safe-top min-h-dvh bg-background">
       <div className="app-shell-frame flex w-full">
-        <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col overflow-y-auto overscroll-contain border-r border-border bg-sidebar p-5 lg:flex">
-          <Link to="/feed" className="mb-8 inline-flex">
-            <Logo />
-          </Link>
-          <nav className="flex flex-1 flex-col gap-0.5">
-            {navItems.map((item, index) => (
+        <DesktopSidebar compactFooter={<><ThemeToggle /><Button asChild variant="ghost" size="icon"><Link to="/login" title={tx("Sign in", "Se connecter")} aria-label={tx("Sign in", "Se connecter")}><LogIn aria-hidden /></Link></Button></>} footer={<>
+          <div className="flex items-center justify-between gap-2"><LanguageSwitcher /><ThemeToggle /></div>
+          <div className="mt-3 border-t border-border pt-3">
+            <p className="text-sm font-semibold text-foreground">{tx("Join ASH Glo", "Rejoignez ASH Glo")}</p>
+            <Button asChild className="mt-3 h-10 w-full"><Link to="/register">{tx("Create account", "Créer un compte")}</Link></Button>
+            <Button asChild variant="outline" className="mt-2 h-10 w-full"><Link to="/login">{tx("Sign in", "Se connecter")}</Link></Button>
+          </div>
+        </>}>
+          <nav className="flex flex-1 flex-col gap-0.5" aria-label={tx("Browse", "Parcourir")}>
+            {navItems.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
+                title={label(item)}
+                aria-label={label(item)}
+                aria-current={pathname === item.to ? "page" : undefined}
                 className={cn(
-                  "group relative flex items-center gap-3 rounded-xl px-2 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-sidebar-accent",
+                  "desktop-nav-link group relative flex items-center gap-3 rounded-lg px-2 py-2 text-sm font-medium text-foreground transition-colors hover:bg-sidebar-accent",
                   pathname === item.to && "bg-primary/10 font-semibold text-primary",
                 )}
               >
-                <span
-                  className={cn(
-                    "grid size-9 shrink-0 place-items-center rounded-[0.8rem] text-primary-foreground shadow-sm ring-1 ring-border/40 transition-transform group-hover:scale-105",
-                    SIDE_TILES[index % SIDE_TILES.length],
-                  )}
-                >
-                  <item.icon className="size-[18px]" aria-hidden />
+                <span className="grid size-9 shrink-0 place-items-center text-primary">
+                  <MemberNavIcon icon={item.icon} active={pathname === item.to} />
                 </span>
-                <span className="truncate">{label(item)}</span>
+                <span className="desktop-nav-label truncate">{label(item)}</span>
               </Link>
             ))}
           </nav>
-          <div className="mt-3 flex items-center justify-between gap-2">
-            <LanguageSwitcher />
-            <ThemeToggle />
-          </div>
-          <div className="mt-3 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-card)]">
-            <p className="text-sm font-semibold text-foreground">
-              {tx("Join ASH Glo", "Rejoignez ASH Glo")}
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {tx(
-                "Create a free account to buy, book, learn and earn.",
-                "Créez un compte gratuit pour acheter, réserver, apprendre et gagner.",
-              )}
-            </p>
-            <Link to="/register" className="mt-3 block">
-              <Button className="auth-cta h-10 w-full rounded-xl">
-                {tx("Create account", "Créer un compte")}
-              </Button>
-            </Link>
-            <Link to="/login" className="mt-2 block">
-              <Button variant="outline" className="h-10 w-full rounded-xl">
-                {tx("Sign in", "Se connecter")}
-              </Button>
-            </Link>
-          </div>
-        </aside>
+        </DesktopSidebar>
 
         <div className="app-shell-column flex min-w-0 flex-1 flex-col">
           {pathname !== "/discover" && <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur-xl lg:hidden">
