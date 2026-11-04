@@ -1,5 +1,11 @@
 # Roadmap
 
+## Discover and icon navigation correction
+- [ ] Matching video/instructor categories and specific empty states; remove Popular courses
+- [ ] Edge-to-edge Shop-colour video player, hold previews, seeking and orientation preservation
+- [ ] Real online instructor pulse and direct upload return to Discover
+- [ ] Icon-only tabs, centered Home and polished Shop icon; targeted tests and browser checks
+
 ## Guest-First Experience
 - [x] Phase 1: GuestShell + AuthGateDialog + return-to-action via next=
 - [x] Phase 2: Browsing surfaces moved to public _browse layout; guest mode on each page
