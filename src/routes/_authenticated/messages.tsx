@@ -757,13 +757,21 @@ function MessagesPage() {
             {/* Stays pinned while the title and search scroll away, like WhatsApp. */}
             <div className="sticky top-0 z-20 h-0 shrink-0">
               <Button
+                ref={plusButtonRef}
                 size="icon"
                 variant="default"
                 className="absolute right-4 top-5 size-11 rounded-full shadow-lg"
                 aria-label={tx("New chat", "Nouvelle discussion")}
+                aria-expanded={newChatOpen}
+                aria-haspopup="dialog"
                 onClick={() => setNewChatOpen(true)}
               >
-                <Plus className="size-6" />
+                <Plus
+                  className={cn(
+                    "size-6 transition-transform duration-200",
+                    newNav && newChatOpen && "rotate-45",
+                  )}
+                />
               </Button>
             </div>
             <div data-inbox-head className="shrink-0 border-b border-border bg-card/75 px-4 pb-4 pt-5 will-change-[opacity,transform]">
