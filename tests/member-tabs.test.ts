@@ -8,7 +8,7 @@ import {
   isTabActive,
   resolveTab,
   resolveTabs,
-} from "@/lib/member-tabs";
+} from "../src/lib/member-tabs";
 
 const OFF = { newNav: false, servicesMode: "services" as const };
 const ON = { newNav: true, servicesMode: "services" as const };
