@@ -85,6 +85,8 @@ function useIsDesktop() {
 function SpotlightPage() {
   const { tx } = useI18n();
   const navigate = useNavigate();
+  // Closing the viewer returns to Discover under the new navigation, else the Feed.
+  const home = useHomePath();
   const { open } = Route.useSearch();
   const { data, isLoading } = useSpotlightFeed(40, open);
   const desktop = useIsDesktop();
@@ -142,7 +144,7 @@ function SpotlightPage() {
       <div className="relative min-w-0 flex-1">
         <button
           type="button"
-          onClick={() => void navigate({ to: "/feed" })}
+          onClick={() => void navigate({ to: home })}
           aria-label={tx("Close", "Fermer")}
           className="absolute left-4 top-4 z-20 hidden size-10 place-items-center rounded-full bg-on-dark/15 hover:bg-on-dark/25 lg:grid"
         >
