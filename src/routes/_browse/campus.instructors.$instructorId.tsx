@@ -1,3 +1,4 @@
+import { isStoryVideoSource, useMemberPosts } from "@/lib/social.queries";
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
@@ -205,6 +206,8 @@ function InstructorProfilePage() {
         </div>
       </section>
 
+      <InstructorVideos userId={instructor.user_id} />
+
       <Section title={tx("What is taught", "Ce qui est enseigné")}>
         <div className="flex flex-wrap gap-2">
           {instructor.years_experience > 0 ? (
@@ -398,6 +401,58 @@ function Section({ title, children }: { title: string; children: React.ReactNode
     <section className="rounded-2xl border border-border bg-card p-5">
       <h2 className="mb-3 font-display text-base font-bold text-foreground">{title}</h2>
       {children}
+    </section>
+  );
+}
+
+function InstructorVideos({ userId }: { userId: string }) {
+  const { tx } = useI18n();
+  const { data } = useMemberPosts(userId);
+  const videos = (data ?? []).filter((p) => p.images.some((src) => isStoryVideoSource(src)));
+  return (
+    <section aria-label={tx("Videos", "Vidéos")} className="space-y-3">
+      <h2 className="font-display text-lg font-bold text-foreground">{tx("Videos", "Vidéos")}</h2>
+      {videos.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          {tx("This instructor hasn't posted videos yet.", "Cet instructeur n'a pas encore publié de vidéos.")}
+        </p>
+      ) : (
+        <div className="space-y-4">
+          {videos.map((post) => {
+            const video = post.images.find((src) => isStoryVideoSource(src));
+            const poster = post.images.find((src) => !isStoryVideoSource(src));
+            const title = post.caption.split("\n").find((l) => l.trim()) ?? tx("Untitled video", "Vidéo sans titre");
+            return (
+              <article key={post.id} className="overflow-hidden rounded-2xl border border-border bg-card">
+                <video src={video} poster={poster} controls preload="metadata" playsInline className="aspect-video w-full bg-onyx" />
+                <div className="space-y-2 p-3">
+                  <p className="line-clamp-2 font-semibold text-foreground">{title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {post.like_count} {tx("likes", "j'aime")} · {post.comment_count} {tx("reviews", "avis")}
+                  </p>
+                  <div className="flex gap-2">
+                    <Link
+                      to="/post/$postId"
+                      params={{ postId: post.id }}
+                      className="inline-flex h-10 flex-1 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground"
+                    >
+                      {tx("Watch & review", "Regarder et noter")}
+                    </Link>
+                    <button
+                      type="button"
+                      disabled
+                      title={tx("Paid lessons are coming soon (MTN / Orange Money)", "Leçons payantes bientôt (MTN / Orange Money)")}
+                      className="h-10 flex-1 rounded-full border border-border text-sm font-bold text-muted-foreground"
+                    >
+                      {tx("Buy — soon", "Acheter — bientôt")}
+                    </button>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
     </section>
   );
 }

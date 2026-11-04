@@ -22,23 +22,23 @@ describe("member tab re-pointing under the new_nav switch", () => {
     expect(tabs[2].en).toBe("Spotlight");
   });
 
-  it("re-points Discover and Shop and removes Kitchen when the switch is on", () => {
+  it("orders Discover | Shop | Spotlight | Messages when the switch is on", () => {
     const tabs = resolveTabs(MEMBER_TABS, ON);
-    expect(tabs.map((t) => t.to)).toEqual(["/discover", "/services", "/messages"]);
+    expect(tabs.map((t) => t.to)).toEqual(["/discover", "/services", "/spotlight", "/messages"]);
     expect(tabs[0].en).toBe("Discover");
     expect(tabs[1].en).toBe("Shop");
-    // Kitchen tab removed; Messages is untouched.
-    expect(tabs[2]).toBe(MEMBER_TABS[3]);
+    expect(tabs[2].en).toBe("Spotlight");
+    expect(tabs[3]).toBe(MEMBER_TABS[3]);
   });
 
   it("never adds a sixth tab", () => {
-    expect(resolveTabs(MEMBER_TABS, ON)).toHaveLength(3); // Discover | Shop | Messages, then Menu
+    expect(resolveTabs(MEMBER_TABS, ON)).toHaveLength(4); // then Menu
     expect(resolveTabs(MEMBER_TABS, OFF)).toHaveLength(4);
   });
 
   it("re-points guest tabs the same way", () => {
     const tabs = resolveTabs(GUEST_TABS, ON);
-    expect(tabs.map((t) => t.to)).toEqual(["/discover", "/services", "/search"]);
+    expect(tabs.map((t) => t.to)).toEqual(["/discover", "/services", "/spotlight", "/search"]);
     expect(tabs[0].en).toBe("Discover");
     expect(tabs[1].en).toBe("Shop");
   });
@@ -55,7 +55,6 @@ describe("member tab re-pointing under the new_nav switch", () => {
     expect(KITCHEN_TAB.icon).toBeDefined();
     expect(DISCOVER_TAB.icon).not.toBe(MEMBER_TABS[0].icon);
     expect(SHOP_TAB.icon).not.toBe(MEMBER_TABS[1].icon);
-    expect(KITCHEN_TAB.icon).not.toBe(MEMBER_TABS[2].icon);
   });
 
   it("preserves tour markers through re-pointing", () => {
@@ -73,8 +72,8 @@ describe("isTabActive", () => {
     expect(isTabActive({ to: "/discover" }, "/kitchen")).toBe(false);
   });
 
-  it("matches extra prefixes so the viewer keeps Discover highlighted", () => {
-    expect(isTabActive(DISCOVER_TAB, "/spotlight")).toBe(true);
+  it("matches extra prefixes so post pages keep Discover highlighted", () => {
+    expect(isTabActive(DISCOVER_TAB, "/spotlight")).toBe(false);
     expect(isTabActive(DISCOVER_TAB, "/post/abc")).toBe(true);
     expect(isTabActive(DISCOVER_TAB, "/hashtag/tech")).toBe(true);
     expect(isTabActive(DISCOVER_TAB, "/messages")).toBe(false);

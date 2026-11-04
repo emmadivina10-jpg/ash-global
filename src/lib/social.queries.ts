@@ -1033,12 +1033,16 @@ export function useMemberPosts(userId: string | null | undefined) {
         caption: string;
         media: unknown;
         created_at: string;
+        like_count: number | null;
+        comment_count: number | null;
       }[];
       const signed = await signPaths(rows.flatMap((r) => parseImages(r.media)));
       return rows.map((r) => ({
         id: r.id,
         caption: r.caption,
         created_at: r.created_at,
+        like_count: r.like_count ?? 0,
+        comment_count: r.comment_count ?? 0,
         images: parseImages(r.media)
           .map((p) => signed[p])
           .filter((u): u is string => Boolean(u)),

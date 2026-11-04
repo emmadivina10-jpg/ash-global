@@ -1,3 +1,4 @@
+import { SocialHub } from "@/components/refer/SocialHub";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
@@ -36,7 +37,6 @@ import {
   type SpotlightEntry,
 } from "@/lib/spotlight.queries";
 import { BlockUserDialog } from "@/components/refer/BlockUserDialog";
-import { useHomePath } from "@/lib/feature-flags";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useUser } from "@/lib/queries";
@@ -83,11 +83,24 @@ function useIsDesktop() {
 }
 
 function SpotlightPage() {
+  const { open } = Route.useSearch();
+  // Spotlight hub: bubbles + Spotlights + photo posts; a tapped Spotlight opens the reel viewer.
+  if (!open) {
+    return (
+      <div className="mx-auto w-full max-w-xl lg:max-w-2xl">
+        <h1 className="sr-only">Spotlight</h1>
+        <SocialHub />
+      </div>
+    );
+  }
+  return <SpotlightViewer open={open} />;
+}
+
+function SpotlightViewer({ open }: { open: string }) {
   const { tx } = useI18n();
   const navigate = useNavigate();
   // Closing the viewer returns to Discover under the new navigation, else the Feed.
-  const home = useHomePath();
-  const { open } = Route.useSearch();
+  const home = "/spotlight" as const;
   const { data, isLoading } = useSpotlightFeed(40, open);
   const desktop = useIsDesktop();
   const scroller = useRef<HTMLDivElement>(null);
