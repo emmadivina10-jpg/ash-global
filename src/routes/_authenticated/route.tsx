@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/refer/AppShell";
 import { lacksCurrentTerms } from "@/lib/consent";
+import { prefetchFeatureFlags } from "@/lib/feature-flags";
 
 type GateProfile = {
   moderation_banned_at: string | null;
@@ -24,7 +25,22 @@ const GATE_COLUMNS =
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
-  beforeLoad: async ({ location }) => {
+  beforeLoad: async ({ location, context }) => {
+    // Feature switches load alongside the session so the tab bar renders once, correctly.
+    const flags = prefetchFeatureFlags(context.queryClient);
+    const result = await resolveMember(location.href);
+    await flags;
+    return result;
+  },
+  component: () => (
+    <AppShell>
+      <Outlet />
+    </AppShell>
+  ),
+});
+
+async function resolveMember(href: string) {
+  {
     // Trust the persisted session first. `getUser()` is a network round-trip:
     // on cold start, on resume from background, or on a flaky connection it
     // can fail while a perfectly valid session is still in storage, which is
@@ -75,11 +91,6 @@ export const Route = createFileRoute("/_authenticated")({
       if (last.session?.user) return { user: last.session.user };
     }
     // Guests keep their place: after sign-in they return to what they were doing.
-    throw redirect({ to: "/login", search: { next: location.href } });
-  },
-  component: () => (
-    <AppShell>
-      <Outlet />
-    </AppShell>
-  ),
-});
+    throw redirect({ to: "/login", search: { next: href } });
+  }
+}
