@@ -184,7 +184,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   void topLevel;
   const goBack = () => {
     if (typeof window !== "undefined" && window.history.length > 1) window.history.back();
-    else void navigate({ to: "/feed" });
+    else void navigate({ to: home });
   };
   const logoOnlyHeader = true; // Keep existing non-feed header controls unchanged.
   const pageOwnsHeader = ["/messages", "/services", "/flights", "/spotlight", "/kitchen", "/menu"].some(

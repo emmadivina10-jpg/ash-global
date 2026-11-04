@@ -43,6 +43,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { useIsAdmin, useProfile } from "@/lib/queries";
 import { useRegion } from "@/lib/region-context";
+import { useFeatureFlag } from "@/lib/feature-flags";
+import { useUnreadMessageCount } from "@/lib/message-unread";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/menu")({
   head: () => ({
