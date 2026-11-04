@@ -20,9 +20,12 @@ export function AutoBackButton({ home }: { home: string }) {
     const main = ref.current?.parentElement;
     if (!main) return;
     const check = () => {
-      const found = Array.from(main.querySelectorAll(OWN_BACK)).some(
-        (el) => !ref.current?.contains(el),
-      );
+      const mine = (el: Element) => Boolean(ref.current?.contains(el));
+      const found =
+        Array.from(main.querySelectorAll(OWN_BACK)).some((el) => !mine(el)) ||
+        Array.from(main.querySelectorAll("a, button")).some(
+          (el) => !mine(el) && /^(←\s*)?(back|retour)$/i.test(el.textContent?.trim() ?? ""),
+        );
       setPageHasBack(found);
     };
     check();
