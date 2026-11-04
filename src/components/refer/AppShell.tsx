@@ -69,6 +69,8 @@ import { useFeatureFlags, homePath } from "@/lib/feature-flags";
 import { MEMBER_TABS, isTabRemoved, resolveTab, type TabItem } from "@/lib/member-tabs";
 import { AutoBackButton } from "@/components/refer/AutoBackButton";
 import { PRESENCE_HEARTBEAT_MS } from "@/lib/member-insights";
+import { DesktopSidebar } from "./DesktopSidebar";
+import { MemberNavIcon } from "./MemberNavIcon";
 
 type NavItem = TabItem;
 
@@ -144,8 +146,6 @@ const MORE_GROUPS: { en: string; fr: string; items: NavItem[] }[] = [
 
 /** How many side links show before "See more". */
 const SIDE_PREVIEW = 8;
-/** ASH-branded tile colours for the web side menu icons, cycled in order. */
-const SIDE_TILES = ["gold-gradient", "brand-gradient", "bg-gold", "bg-primary"];
 
 const SIDE_EXTRA: NavItem[] = MORE_GROUPS.flatMap((group) => group.items).filter(
   (item, index, list) => list.findIndex((other) => other.to === item.to) === index,
@@ -249,105 +249,85 @@ export function AppShell({ children }: { children: ReactNode }) {
       <PushBridge />
       <WelcomeIntro />
       <div className="app-shell-frame flex w-full">
-        <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col overflow-y-auto overscroll-contain border-r border-border bg-sidebar p-5 lg:flex">
-          <Link to="/services" className="mb-8 inline-flex">
-            <Logo />
-          </Link>
+        <DesktopSidebar compactFooter={<><ThemeToggle /><Link to="/profile" title={t("nav.profile")} aria-label={t("nav.profile")}><ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} /></Link><Button variant="ghost" size="icon" onClick={signOut} title={t("shell.signOut")} aria-label={t("shell.signOut")}><LogOut aria-hidden /></Button></>} footer={<>
+          <RegionSwitcher className="w-full justify-start" />
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <LanguageSwitcher /><div className="flex items-center gap-1"><NotificationBell /><ThemeToggle /></div>
+          </div>
+          <div className="mt-3 border-t border-border pt-3">
+            <div className="flex items-center gap-2">
+              <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
+              <p className="flex min-w-0 items-center gap-1 text-sm font-semibold text-foreground"><span className="truncate">{profile?.full_name || t("shell.member")}</span><VerifiedBadge tier={profile?.verified_tier} until={profile?.verified_until} size={13} /></p>
+            </div>
+            <StatusBadge status={profile?.account_status ?? "PENDING"} label={profile?.account_status === "ACTIVE" ? t("shell.active") : t("shell.pending")} className="mt-2" />
+            <Button variant="ghost" size="sm" className="mt-3 w-full justify-start" onClick={signOut}><LogOut className="size-4" aria-hidden />{t("shell.signOut")}</Button>
+          </div>
+        </>}>
           <nav className="flex flex-1 flex-col gap-0.5">
             <Link
               to="/profile"
-              className="flex items-center gap-3 rounded-xl px-2 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-sidebar-accent"
+              title={profile?.full_name || t("shell.member")}
+              aria-label={t("nav.profile")}
+              className="desktop-nav-link flex items-center gap-3 rounded-lg px-2 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-sidebar-accent"
             >
               <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
-              <span className="truncate">{profile?.full_name || t("shell.member")}</span>
+              <span className="desktop-nav-label truncate">{profile?.full_name || t("shell.member")}</span>
             </Link>
-            {(sideExpanded ? links : links.slice(0, SIDE_PREVIEW)).map((item, index) => (
+            {(sideExpanded ? links : links.slice(0, SIDE_PREVIEW)).map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
+                title={navLabel(item)}
+                aria-label={navLabel(item)}
+                aria-current={pathname === item.to ? "page" : undefined}
                 className={cn(
-                  "group relative flex items-center gap-3 rounded-xl px-2 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-sidebar-accent",
+                  "desktop-nav-link group relative flex items-center gap-3 rounded-lg px-2 py-2 text-sm font-medium text-foreground transition-colors hover:bg-sidebar-accent",
                   pathname === item.to && "bg-primary/10 font-semibold text-primary",
                 )}
               >
-                <span
-                  className={cn(
-                    "grid size-9 shrink-0 place-items-center rounded-[0.8rem] text-primary-foreground shadow-sm ring-1 ring-border/40 transition-transform group-hover:scale-105",
-                    SIDE_TILES[index % SIDE_TILES.length],
-                  )}
-                >
-                  <item.icon className="size-[18px]" aria-hidden />
+                <span className="grid size-9 shrink-0 place-items-center text-primary">
+                  <MemberNavIcon icon={item.icon} active={pathname === item.to} />
                 </span>
-                <span className="truncate">{navLabel(item)}</span>
+                <span className="desktop-nav-label truncate">{navLabel(item)}</span>
                 {item.to === "/messages" && (
-                  <UnreadMessageBadge count={unreadMessages} className="ml-auto" />
+                  <UnreadMessageBadge count={unreadMessages} className="desktop-nav-unread ml-auto" />
                 )}
               </Link>
             ))}
             {links.length > SIDE_PREVIEW ? (
-              <button
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={() => setSideExpanded((v) => !v)}
                 aria-expanded={sideExpanded}
-                className="flex items-center gap-3 rounded-xl px-2 py-1.5 text-sm font-semibold text-foreground transition-colors hover:bg-sidebar-accent"
+                title={sideExpanded ? tx("See less", "Voir moins") : tx("See more", "Voir plus")}
+                aria-label={sideExpanded ? tx("See less", "Voir moins") : tx("See more", "Voir plus")}
+                className="desktop-nav-link h-auto justify-start gap-3 rounded-lg px-2 py-2 text-sm font-semibold text-foreground hover:bg-sidebar-accent"
               >
-                <span className="grid size-9 place-items-center rounded-full bg-secondary">
+                <span className="grid size-9 shrink-0 place-items-center text-primary">
                   <ChevronDown
                     className={cn("size-5 transition-transform", sideExpanded && "rotate-180")}
                     aria-hidden
                   />
                 </span>
-                {sideExpanded ? tx("See less", "Voir moins") : tx("See more", "Voir plus")}
-              </button>
+                <span className="desktop-nav-label">{sideExpanded ? tx("See less", "Voir moins") : tx("See more", "Voir plus")}</span>
+              </Button>
             ) : null}
             {isAdmin ? (
               <a
                 href="/console"
-                className="relative mt-1 flex items-center gap-3 rounded-xl px-2 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-sidebar-accent"
+                title={t("nav.admin")}
+                aria-label={t("nav.admin")}
+                className="desktop-nav-link relative mt-1 flex items-center gap-3 rounded-lg px-2 py-2 text-sm font-medium text-foreground transition-colors hover:bg-sidebar-accent"
               >
-                <span className="grid size-9 place-items-center rounded-[0.8rem] bg-foreground text-background">
-                  <Shield className="size-[18px]" aria-hidden />
+                <span className="grid size-9 shrink-0 place-items-center text-primary">
+                  <MemberNavIcon icon={Shield} />
                 </span>
-                {t("nav.admin")}
+                <span className="desktop-nav-label">{t("nav.admin")}</span>
               </a>
             ) : null}
           </nav>
-          <RegionSwitcher className="mt-4 w-full justify-start" />
-          <div className="mt-3 flex items-center justify-between gap-2">
-            <LanguageSwitcher />
-            <div className="flex items-center gap-1">
-              <NotificationBell />
-              <ThemeToggle />
-            </div>
-          </div>
-          <div className="mt-3 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-card)]">
-            <div className="flex items-center gap-2">
-              <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
-              <p className="flex min-w-0 items-center gap-1 text-sm font-semibold text-foreground">
-                <span className="truncate">{profile?.full_name || t("shell.member")}</span>
-                <VerifiedBadge
-                  tier={profile?.verified_tier}
-                  until={profile?.verified_until}
-                  size={13}
-                />
-              </p>
-            </div>
-            <StatusBadge
-              status={profile?.account_status ?? "PENDING"}
-              label={profile?.account_status === "ACTIVE" ? t("shell.active") : t("shell.pending")}
-              className="mt-2"
-            />
-            <Button
-              variant="ghost"
-              size="sm"
-              className="mt-3 w-full justify-start"
-              onClick={signOut}
-            >
-              <LogOut className="size-4" aria-hidden />
-              {t("shell.signOut")}
-            </Button>
-          </div>
-        </aside>
+        </DesktopSidebar>
 
         <div className="app-shell-column flex min-w-0 flex-1 flex-col">
           {/* Web-only top bar: menu panel, notifications and the member photo. */}

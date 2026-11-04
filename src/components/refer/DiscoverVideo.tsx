@@ -5,7 +5,7 @@ import { useI18n } from "@/lib/i18n";
 import { videoOrientation } from "@/lib/campus-channel-policy";
 
 /** Hold for a silent preview; open playback retains native seek/fullscreen controls. */
-export function DiscoverVideo({ src, poster, title }: { src: string; poster?: string | undefined; title: string }) {
+export function DiscoverVideo({ src, poster, title, compact = false }: { src: string; poster?: string | undefined; title: string; compact?: boolean }) {
   const { tx } = useI18n();
   const ref = useRef<HTMLVideoElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -59,7 +59,7 @@ export function DiscoverVideo({ src, poster, title }: { src: string; poster?: st
     void video.play().catch(() => setFailed(true));
   };
   return (
-    <div data-orientation={orientation} className={`discover-video-stage relative w-full overflow-hidden ${orientation === "portrait" ? "h-[min(75dvh,48rem)]" : "aspect-video"}`}>
+    <div data-orientation={orientation} className={`discover-video-stage relative w-full overflow-hidden ${compact || orientation === "landscape" ? "aspect-video" : "h-[min(75dvh,48rem)]"}`}>
       <video
         ref={ref}
         src={src}
