@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 
 /** Hold for a silent preview; open playback retains native seek/fullscreen controls. */
-export function DiscoverVideo({ src, poster, title }: { src: string; poster?: string; title: string }) {
+export function DiscoverVideo({ src, poster, title }: { src: string; poster?: string | undefined; title: string }) {
   const { tx } = useI18n();
   const ref = useRef<HTMLVideoElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
