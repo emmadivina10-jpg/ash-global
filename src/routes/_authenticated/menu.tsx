@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowDownToLine,
@@ -210,22 +210,21 @@ function NewMenuPage({
 
       <div className="overflow-hidden rounded-[1.25rem] bg-card shadow-sm ring-1 ring-border">
         {entries.map((item, index) => (
-          <Link
-            key={item.to}
-            to={item.to}
-            className={cn(
-              "flex h-14 items-center gap-3 px-4 transition-colors hover:bg-muted/60 active:bg-brass/10",
-              index > 0 && "ml-[4.25rem] border-t border-border pl-0 -mr-4 pr-4",
-            )}
-          >
-            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-muted text-foreground">
-              <item.icon className="size-[22px]" strokeWidth={1.75} aria-hidden />
-            </span>
-            <span className="flex-1 truncate text-[15px] font-semibold text-foreground">
-              {tx(item.en, item.fr)}
-            </span>
-            <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-          </Link>
+          <Fragment key={item.to}>
+            {index > 0 ? <div className="ml-[4.25rem] border-t border-border" /> : null}
+            <Link
+              to={item.to}
+              className="flex h-14 items-center gap-3 px-4 transition-colors hover:bg-muted/60 active:bg-brass/10"
+            >
+              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-muted text-foreground">
+                <item.icon className="size-[22px]" strokeWidth={1.75} aria-hidden />
+              </span>
+              <span className="flex-1 truncate text-[15px] font-semibold text-foreground">
+                {tx(item.en, item.fr)}
+              </span>
+              <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+            </Link>
+          </Fragment>
         ))}
       </div>
 
