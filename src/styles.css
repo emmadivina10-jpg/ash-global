@@ -96,8 +96,9 @@
   --color-team-accent: oklch(0.67 0.15 164);
   --color-team-outgoing: oklch(0.36 0.075 164);
   --color-team-gold: oklch(0.82 0.13 88);
-  --color-chat-emerald: oklch(0.55 0.13 165);
-  --color-chat-wash: oklch(0.92 0.045 165);
+  /* One ASH colour app-wide: former chat green now follows the Shop accent. */
+  --color-chat-emerald: var(--primary);
+  --color-chat-wash: color-mix(in oklab, var(--primary) 14%, var(--background));
   --color-chat-outgoing: var(--chat-outgoing);
   --color-media-backdrop: oklch(0.12 0 0);
 
@@ -158,7 +159,7 @@
     var(--verified-magenta),
     var(--verified-violet)
   );
-  --chat-outgoing: oklch(0.91 0.065 160);
+  --chat-outgoing: color-mix(in oklab, var(--primary) 16%, var(--background));
   --radius: 1rem;
 
   --background: oklch(0.9885 0.0035 285);
@@ -237,7 +238,7 @@
 }
 
 .dark {
-  --chat-outgoing: oklch(0.43 0.068 165);
+  --chat-outgoing: color-mix(in oklab, var(--primary) 38%, var(--background));
   --background: oklch(0.24 0.004 260);
   --foreground: oklch(0.9268 0.0065 264.5);
   --card: oklch(0.29 0.005 260);
@@ -1369,14 +1370,7 @@ a {
 
 /* Member chat branding is local: employee console and other tabs are untouched. */
 .member-messages {
-  --primary: var(--color-chat-emerald);
-  --ring: var(--color-chat-emerald);
-  --success: var(--color-chat-emerald);
   position: relative;
-}
-.dark .member-messages {
-  --primary: oklch(0.73 0.14 165);
-  --success: var(--primary);
 }
 .messages-inbox,
 .member-chat-surface {
