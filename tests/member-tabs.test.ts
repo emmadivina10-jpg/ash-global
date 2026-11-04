@@ -19,7 +19,7 @@ describe("member tab re-pointing under the new_nav switch", () => {
     expect(tabs.map((t) => t.to)).toEqual(["/feed", "/services", "/spotlight", "/messages"]);
     expect(tabs[0].en).toBe("Feed");
     expect(tabs[1].en).toBe("Services");
-    expect(tabs[2].en).toBe("Spotlight");
+    expect(tabs[2].en).toBe("Home");
   });
 
   it("orders Discover | Shop | Spotlight | Messages when the switch is on", () => {
@@ -27,7 +27,7 @@ describe("member tab re-pointing under the new_nav switch", () => {
     expect(tabs.map((t) => t.to)).toEqual(["/discover", "/services", "/spotlight", "/messages"]);
     expect(tabs[0].en).toBe("Discover");
     expect(tabs[1].en).toBe("Shop");
-    expect(tabs[2].en).toBe("Spotlight");
+    expect(tabs[2].en).toBe("Home");
     expect(tabs[3]).toBe(MEMBER_TABS[3]);
   });
 

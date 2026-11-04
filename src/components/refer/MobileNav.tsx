@@ -142,6 +142,8 @@ export function MobileNav({
               refreshCurrent();
             } else playTabSound();
           }}
+          aria-label={label(item)}
+          title={label(item)}
           data-tour={item.tour}
           aria-current={active ? "page" : undefined}
           className={cn(
@@ -155,7 +157,7 @@ export function MobileNav({
               <UnreadMessageBadge count={unreadMessages} className="absolute -right-2 -top-1" />
             )}
           </span>
-          <span className="max-w-full truncate">{label(item)}</span>
+
           {active ? (
             <span
               className="absolute inset-x-2 top-0 h-0.5 rounded-b-full bg-primary"
@@ -202,7 +204,7 @@ export function MobileNav({
               <span className="member-tab-bubble-icon">
                 <MemberNavIcon icon={heldTab.icon} active />
               </span>
-              <span className="member-tab-bubble-label">{label(heldTab)}</span>
+
             </li>
           )}
           {items.map((item) => renderTab(item))}
@@ -216,6 +218,8 @@ export function MobileNav({
                   refreshCurrent();
                 } else playTabSound();
               }}
+              aria-label={t("nav.more")}
+              title={t("nav.more")}
               aria-current={pathname === "/menu" ? "page" : undefined}
               className={cn(
                 "premium-nav-item relative flex h-[3.75rem] min-w-0 flex-col items-center justify-center gap-0.5 px-0.5 pt-1 text-[10px] font-semibold",
@@ -234,7 +238,7 @@ export function MobileNav({
                   <Menu className="size-3.5" strokeWidth={3} aria-hidden />
                 </span>
               </span>
-              <span className="max-w-full truncate">{t("nav.more")}</span>
+
               {pathname === "/menu" ? (
                 <span
                   className="absolute inset-x-2 top-0 h-0.5 rounded-b-full bg-primary"

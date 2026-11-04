@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "./Logo";
+import { MemberNavIcon } from "./MemberNavIcon";
 import { LanguageSwitcher, ThemeToggle } from "./Preferences";
 import { useI18n } from "@/lib/i18n";
 import { useServicesMode } from "@/lib/services-mode";
@@ -161,13 +162,14 @@ export function GuestShell({ children }: { children: ReactNode }) {
               <li key={item.to}>
                 <Link
                   to={item.to}
+                  aria-label={label(item)}
+                  title={label(item)}
                   className={cn(
                     "flex flex-col items-center gap-1 py-2 text-[10px] font-semibold transition-colors",
                     active ? "text-primary" : "text-muted-foreground hover:text-foreground",
                   )}
                 >
-                  <item.icon className="size-5" aria-hidden />
-                  {label(item)}
+                  <MemberNavIcon icon={item.icon} active={active} />
                 </Link>
               </li>
             );
@@ -175,10 +177,12 @@ export function GuestShell({ children }: { children: ReactNode }) {
           <li>
             <Link
               to="/login"
+              aria-label={tx("Sign in", "Connexion")}
+              title={tx("Sign in", "Connexion")}
               className="flex flex-col items-center gap-1 py-2 text-[10px] font-semibold text-muted-foreground transition-colors hover:text-foreground"
             >
               <LogIn className="size-5" aria-hidden />
-              {tx("Sign in", "Connexion")}
+
             </Link>
           </li>
         </ul>

@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { SOCIAL_BUCKET, isStoryVideoSource, uploadResumableStorageFile } from "@/lib/social.queries";
 import { cn } from "@/lib/utils";
+import { DISCOVER_TOPICS, DISCOVER_UPLOAD_DESTINATION } from "@/lib/discover-topics";
 
 export const Route = createFileRoute("/_authenticated/discover/upload")({
   head: () => ({
@@ -22,14 +23,7 @@ export const Route = createFileRoute("/_authenticated/discover/upload")({
   component: DiscoverUpload,
 });
 
-const TOPICS = [
-  { id: "learning", en: "Learning", fr: "Apprentissage" },
-  { id: "business", en: "Business", fr: "Business" },
-  { id: "tech", en: "Tech", fr: "Tech" },
-  { id: "beauty", en: "Beauty", fr: "Beauté" },
-  { id: "food", en: "Food", fr: "Cuisine" },
-  { id: "lifestyle", en: "Lifestyle", fr: "Style de vie" },
-];
+const TOPICS = DISCOVER_TOPICS.filter((topic) => topic.id !== "all");
 
 function ext(file: File, fallback: string) {
   const e = file.name.split(".").pop()?.toLowerCase() ?? fallback;
@@ -46,7 +40,7 @@ function DiscoverUpload() {
   const [cover, setCover] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [topic, setTopic] = useState("learning");
+  const [topic, setTopic] = useState("forex");
   const [progress, setProgress] = useState<number | null>(null);
   const videoInput = useRef<HTMLInputElement>(null);
   const coverInput = useRef<HTMLInputElement>(null);
@@ -75,7 +69,7 @@ function DiscoverUpload() {
       );
       media.push(videoPath);
       const caption = [title.trim(), description.trim(), `#${topic}`].filter(Boolean).join("\n\n");
-      const { data: row, error } = await supabase
+      const { error } = await supabase
         .from("social_posts")
         .insert({ author_id: uid, caption, media, tags: [topic] })
         .select("id")
@@ -83,7 +77,7 @@ function DiscoverUpload() {
       if (error) throw error;
       await qc.invalidateQueries();
       toast.success(tx("Your video is live on Discover", "Votre vidéo est en ligne sur Découvrir"));
-      void navigate({ to: "/post/$postId", params: { postId: row.id } });
+      void navigate({ to: DISCOVER_UPLOAD_DESTINATION });
     } catch (e) {
       setProgress(null);
       toast.error(e instanceof Error ? e.message : tx("Upload failed", "Échec de l'envoi"));

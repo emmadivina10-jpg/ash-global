@@ -189,7 +189,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     else void navigate({ to: home });
   };
   const logoOnlyHeader = true; // Keep existing non-feed header controls unchanged.
-  const pageOwnsHeader = ["/messages", "/services", "/flights", "/spotlight", "/kitchen", "/menu"].some(
+  const pageOwnsHeader = ["/discover", "/messages", "/services", "/flights", "/spotlight", "/kitchen", "/menu"].some(
     (path) => pathname === path || pathname.startsWith(`${path}/`),
   );
   const roomyMemberTab = ["/feed", "/discover", "/services", "/spotlight", "/kitchen", "/menu"].some(
@@ -543,7 +543,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               {!topLevel && !onMemberProfile ? <AutoBackButton home={home} /> : null}
               {children}
             </main>
-            {pathname !== "/messages" && <RightRail />}
+            {pathname !== "/messages" && !onDiscover && <RightRail />}
           </div>
         </div>
       </div>
