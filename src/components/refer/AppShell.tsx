@@ -66,7 +66,7 @@ import { PayoutSetupReminder } from "./PayoutSetupReminder";
 import { SecurityAlertBanner } from "./SecurityAlertBanner";
 import { useServicesMode } from "@/lib/services-mode";
 import { useFeatureFlags, homePath } from "@/lib/feature-flags";
-import { MEMBER_TABS, isTabActive, resolveTab, type TabItem } from "@/lib/member-tabs";
+import { MEMBER_TABS, resolveTab, type TabItem } from "@/lib/member-tabs";
 import { PRESENCE_HEARTBEAT_MS } from "@/lib/member-insights";
 
 type NavItem = TabItem;
@@ -161,7 +161,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const servicesMode = useServicesMode();
   const flags = useFeatureFlags();
   const newNav = flags.new_nav === true;
-  const home = homePath(flags);
+  // Discover and ASH Kitchen pages are not built yet, so home stays the Feed for now.
+  void homePath;
   // Same destinations in the same order; the switch only re-points three slots.
   const visible = (items: NavItem[]): NavItem[] =>
     items
@@ -184,7 +185,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   void topLevel;
   const goBack = () => {
     if (typeof window !== "undefined" && window.history.length > 1) window.history.back();
-    else void navigate({ to: home });
+    else void navigate({ to: "/feed" });
   };
   const logoOnlyHeader = true; // Keep existing non-feed header controls unchanged.
   const pageOwnsHeader = ["/messages", "/services", "/flights", "/spotlight", "/kitchen", "/menu"].some(
@@ -265,7 +266,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 to={item.to}
                 className={cn(
                   "group relative flex items-center gap-3 rounded-xl px-2 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-sidebar-accent",
-                  isTabActive({ to: item.to }, pathname) && "bg-primary/10 font-semibold text-primary",
+                  pathname === item.to && "bg-primary/10 font-semibold text-primary",
                 )}
               >
                 <span
@@ -369,7 +370,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   </button>
                 )}
                 {onFeed && (
-                  <Link to={home} className="mr-auto font-display text-xl font-bold text-foreground">
+                  <Link to="/feed" className="mr-auto font-display text-xl font-bold text-foreground">
                     {homeTitle}
                   </Link>
                 )}
@@ -502,7 +503,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     <ArrowLeft className="size-5" aria-hidden />
                   </button>
                 ) : (
-                  <Link to={onFeed ? home : "/services"} className="min-w-0">
+                  <Link to={onFeed ? "/feed" : "/services"} className="min-w-0">
                     {onFeed ? (
                       <span className="font-display text-xl font-bold text-foreground">
                         {homeTitle}
