@@ -36,6 +36,7 @@ import {
   type SpotlightEntry,
 } from "@/lib/spotlight.queries";
 import { BlockUserDialog } from "@/components/refer/BlockUserDialog";
+import { useHomePath } from "@/lib/feature-flags";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useUser } from "@/lib/queries";
