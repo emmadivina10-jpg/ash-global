@@ -8,9 +8,11 @@
 
 ## Video-First Ecosystem (master prompt program)
 - [x] Phase 0: Architecture audit — docs/ash-glo-phase0-audit.md (read-only, nothing changed)
-- [ ] Blocking decisions: brand palette, Apple IAP strategy, video provider (Mux vs Cloudflare Stream), YouTube free-only confirmation, instructor unification
+- [x] Decisions: black/royal-purple/gold palette (progressive transition), web-first course sales (iOS viewer only), Cloudflare Stream (signed playback, swappable), unified instructor identity
+- [x] Phase 1a: 2026 brand tokens (royal/brass/onyx) added to styles.css alongside legacy tokens — no existing screen restyled
+- [ ] Phase 1b: feature_flags table — SQL proposed at docs/proposed/feature_flags.sql, NEEDS APPROVAL ("approve feature flags")
+- [ ] Phase 1c: New nav shell (Discover | Buy & Sell | Kitchen | Services | Account) behind new_nav flag; Feed/Spotlight/Market hidden to /legacy/* with redirects
 - [ ] Pre-phase repair (needs approval): TchokoPay webhook dispatcher misroutes TOP-/EVT-/PRM-; gate public reconcile-activations + syncLedgerPayment
-- [ ] Phase 1: Feature flags + nav shell + design tokens (after palette decision)
 - [ ] Phase 2: Discover + video (managed provider, signed playback)
 - [ ] Phase 3: Courses + entitlements (vertical slice)
 - [ ] Phase 4: Buy & Sell re-skin + ASH Kitchen
