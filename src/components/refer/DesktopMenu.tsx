@@ -164,9 +164,9 @@ export const WEB_MENU_GROUPS: MenuGroup[] = [
     fr: "Communauté",
     items: [
       {
-        to: "/feed",
-        en: "Feed",
-        fr: "Fil",
+        to: "/spotlight",
+        en: "Spotlight",
+        fr: "Spotlight",
         enHint: "Posts, stories and Spotlight from members.",
         frHint: "Publications, stories et Spotlight des membres.",
         icon: Flame,
@@ -271,8 +271,8 @@ export const WEB_MENU_GROUPS: MenuGroup[] = [
 
 /** Quick creation shortcuts in the right column of the web menu. */
 export const WEB_MENU_CREATE: MenuEntry[] = [
-  { to: "/feed", en: "Post", fr: "Publication", enHint: "", frHint: "", icon: PlusCircle },
-  { to: "/feed", en: "Story", fr: "Story", enHint: "", frHint: "", icon: BookOpen },
+  { to: "/spotlight", en: "Post", fr: "Publication", enHint: "", frHint: "", icon: PlusCircle },
+  { to: "/spotlight", en: "Story", fr: "Story", enHint: "", frHint: "", icon: BookOpen },
   { to: "/create", en: "Listing", fr: "Annonce", enHint: "", frHint: "", icon: Store },
   { to: "/events", en: "Event", fr: "Événement", enHint: "", frHint: "", icon: CalendarDays },
   { to: "/jobs", en: "Job", fr: "Emploi", enHint: "", frHint: "", icon: Briefcase },

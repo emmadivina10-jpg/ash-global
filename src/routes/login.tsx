@@ -74,7 +74,7 @@ function LoginPage() {
     }
     const { data: session } = await supabase.auth.getSession();
     const userId = session.session?.user.id;
-    const next = userId ? await nextOnboardingRoute(userId) : "/feed";
+    const next = userId ? await nextOnboardingRoute(userId) : "/spotlight";
     navigate({ to: next });
   }
 

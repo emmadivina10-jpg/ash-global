@@ -81,11 +81,11 @@ export async function needsProfilePhoto(userId: string): Promise<boolean> {
 /** Where a freshly signed-in member should land. */
 export async function nextOnboardingRoute(
   userId: string,
-): Promise<"/consent" | "/setup-profile" | "/feed"> {
+): Promise<"/consent" | "/setup-profile" | "/spotlight"> {
   if (await needsConsent(userId)) {
     await applyPendingAgreement(userId);
     if (await needsConsent(userId)) return "/consent";
   }
   if (await needsProfilePhoto(userId)) return "/setup-profile";
-  return "/feed";
+  return "/spotlight";
 }

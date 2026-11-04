@@ -26,3 +26,48 @@
     transition: none;
   }
 }
+
+/* Long-press must not highlight text on UI chrome; inputs and opt-in text stay selectable. */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+input,
+textarea,
+[contenteditable=""],
+[contenteditable="true"],
+.selectable-text,
+.selectable-text * {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+
+/* Messages search: opens from the top-right, like the plus menu. */
+.inbox-search-reveal {
+  transform-origin: top right;
+  animation: inbox-search-reveal 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes inbox-search-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inbox-search-reveal {
+    animation: none;
+  }
+}

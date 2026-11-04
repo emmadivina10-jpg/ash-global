@@ -92,7 +92,7 @@ function FxAnalyticsSoon() {
           fr: "Apprenez avec des instructeurs approuvés",
         },
       ]}
-      backTo="/feed"
+      backTo="/spotlight"
       backLabelEn="Back to Feed"
       backLabelFr="Retour au Fil"
     />

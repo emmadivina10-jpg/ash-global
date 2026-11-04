@@ -3,12 +3,12 @@
  *
  * The five-tab structure and order never change. Under the `new_nav` switch
  * only three slots are re-pointed, in place:
- *   Feed → Discover · Services/Market → Shop (same page) · center → Home
+ *   Feed → Discover · Services/Market → Shop (same page) · center → Spotlight
  * Messages and Menu are untouched.
  */
 import {
   ChefHat,
-  Home,
+  Clapperboard,
   Compass,
   Flame,
   MessageCircle,
@@ -38,7 +38,7 @@ export type TabItem = {
 export const MEMBER_TABS: TabItem[] = [
   { to: "/feed", en: "Feed", fr: "Fil", icon: Flame, tour: "feed" },
   { to: "/services", en: "Services", fr: "Services", icon: Sparkles, tour: "market" },
-  { to: "/spotlight", en: "Home", fr: "Accueil", icon: Home },
+  { to: "/spotlight", en: "Spotlight", fr: "Spotlight", icon: Clapperboard },
   { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle, tour: "messages" },
 ];
 
@@ -46,7 +46,7 @@ export const MEMBER_TABS: TabItem[] = [
 export const GUEST_TABS: TabItem[] = [
   { to: "/feed", en: "Feed", fr: "Fil", icon: Flame },
   { to: "/services", en: "Services", fr: "Services", icon: Sparkles },
-  { to: "/spotlight", en: "Home", fr: "Accueil", icon: Home },
+  { to: "/spotlight", en: "Spotlight", fr: "Spotlight", icon: Clapperboard },
   { to: "/search", en: "Search", fr: "Rechercher", icon: Search },
 ];
 
@@ -87,7 +87,7 @@ function relabel(item: TabItem, next: Pick<TabItem, "to" | "en" | "fr" | "icon" 
 
 /** Re-points one destination for the current switch state; anything else is returned as is. */
 export function resolveTab(item: TabItem, { newNav, servicesMode }: TabOptions): TabItem {
-  if (item.to === "/spotlight") return relabel(item, { to: "/spotlight", en: "Home", fr: "Accueil", icon: Home });
+  if (item.to === "/spotlight") return relabel(item, { to: "/spotlight", en: "Spotlight", fr: "Spotlight", icon: Clapperboard });
   if (newNav) {
     if (item.to === "/feed") return relabel(item, DISCOVER_TAB);
     if (item.to === "/services") return relabel(item, SHOP_TAB);
@@ -99,9 +99,12 @@ export function resolveTab(item: TabItem, { newNav, servicesMode }: TabOptions):
   return item;
 }
 
-/** Under `new_nav` the Kitchen slot is removed; Spotlight stays in the middle. */
+/**
+ * Under `new_nav` the Kitchen slot is removed; Spotlight stays in the middle.
+ * Without it the separate Home/Feed tab is gone: its posts live inside Spotlight.
+ */
 export function isTabRemoved(item: Pick<TabItem, "to">, { newNav }: Pick<TabOptions, "newNav">): boolean {
-  return newNav && item.to === "/kitchen";
+  return newNav ? item.to === "/kitchen" : item.to === "/feed";
 }
 
 export function resolveTabs(items: TabItem[], options: TabOptions): TabItem[] {

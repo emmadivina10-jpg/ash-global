@@ -220,7 +220,7 @@ export function MobileOnboarding() {
           </p>
           <p className="mobile-welcome-login">
             <Button asChild variant="link">
-              <Link to="/feed">
+              <Link to="/spotlight">
                 {tx("Explore as a guest first", "Explorer d'abord en invité")}
               </Link>
             </Button>

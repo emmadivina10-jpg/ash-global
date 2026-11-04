@@ -800,7 +800,7 @@ export function ChatThread({
                           );
                         }
                         return (
-                          <p className="whitespace-pre-wrap break-words text-[15px] leading-relaxed">
+                          <p className="selectable-text whitespace-pre-wrap break-words text-[15px] leading-relaxed">
                             {m.body}
                           </p>
                         );
@@ -835,7 +835,7 @@ export function ChatThread({
         {pending.map((text, i) => (
           <div key={`pending-${i}`} className="flex justify-end">
             <div className="max-w-[78%] rounded-2xl rounded-br-sm bg-primary/70 px-3.5 py-2 text-primary-foreground">
-              <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">{text}</p>
+              <p className="selectable-text whitespace-pre-wrap break-words text-sm leading-relaxed">{text}</p>
 
               <span className="mt-1 flex items-center justify-end gap-1 text-[10px] text-primary-foreground/80">
                 <Loader2 className="size-3 animate-spin" aria-hidden />

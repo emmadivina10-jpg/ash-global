@@ -367,7 +367,7 @@ export function SocialHub({ redirectToDiscover = false }: { redirectToDiscover?:
                 "Vous explorez en invité. Créez un compte gratuit pour publier, réagir et écrire.",
               )}
             </p>
-            <Link to="/register" search={{ next: "/feed" }}>
+            <Link to="/register" search={{ next: "/spotlight" }}>
               <Button size="sm" className="h-9 rounded-full px-4">
                 {tx("Join free", "Rejoindre")}
               </Button>

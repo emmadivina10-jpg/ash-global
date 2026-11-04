@@ -161,7 +161,7 @@ export function DesktopLanding() {
           <Link to="/" className="landing-nav-link">
             {tx("Home", "Accueil")}
           </Link>
-          <Link to="/feed" className="landing-nav-link">
+          <Link to="/spotlight" className="landing-nav-link">
             {tx("Discover", "Découvrir")}
           </Link>
           <Link to="/services" className="landing-nav-link">
@@ -204,7 +204,7 @@ export function DesktopLanding() {
             className="landing-mobile-menu"
             aria-label={tx("Navigation", "Navigation")}
           >
-            <Link to="/feed">
+            <Link to="/spotlight">
               {tx("Discover", "Découvrir")}
             </Link>
             <Link to="/services">
@@ -330,7 +330,7 @@ export function DesktopLanding() {
                 bodyFr: "Partagez des nouvelles, photos, vidéos et moments avec votre communauté.",
                 cta: "Explore the Feed",
                 ctaFr: "Découvrir le Fil",
-                to: "/feed" as const,
+                to: "/spotlight" as const,
               },
               {
                 icon: MessageCircle,
@@ -688,7 +688,7 @@ export function DesktopLanding() {
         </div>
         <div>
           <h3>{tx("Explore", "Découvrir")}</h3>
-          <Link to="/login" search={{ next: "/feed" }}>
+          <Link to="/login" search={{ next: "/spotlight" }}>
             {tx("Feed", "Fil")}
           </Link>
           <Link to="/login" search={{ next: "/services" }}>
