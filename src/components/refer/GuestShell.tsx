@@ -72,7 +72,7 @@ export function GuestShell({ children }: { children: ReactNode }) {
             <Logo />
           </Link>
           <nav className="flex flex-1 flex-col gap-0.5">
-            {GUEST_NAV.map((item, index) => (
+            {navItems.map((item, index) => (
               <Link
                 key={item.to}
                 to={item.to}
@@ -150,7 +150,7 @@ export function GuestShell({ children }: { children: ReactNode }) {
         className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden"
       >
         <ul className="grid grid-cols-5">
-          {GUEST_TABS.map((item) => {
+          {tabItems.map((item) => {
             const active = pathname === item.to;
             return (
               <li key={item.to}>
