@@ -872,6 +872,7 @@ function MessagesPage() {
                   {tx("Contact ASH support", "Contacter ASH")}
                 </Button>
               </ChatActionDialog>
+              )}
 
               {selection.length > 0 ? (
                 <div className="mb-2 flex items-center justify-between gap-2 rounded-full bg-primary/10 px-3 py-1.5">
