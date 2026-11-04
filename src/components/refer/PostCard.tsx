@@ -3,7 +3,7 @@ import { extractTags, recordTagInterest } from "@/lib/interests";
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { MessageCircle, Repeat2, Share2, ShieldCheck } from "lucide-react";
+import { MessageCircle, Repeat2, Share2, ShieldCheck, ThumbsUp } from "lucide-react";
 import { ShareSheet, shareLink } from "./ShareSheet";
 import { toast } from "sonner";
 import { Avatar } from "./AvatarUpload";
@@ -20,7 +20,10 @@ import {
   type FeedPost,
   type PostComment,
   useSetCommentReaction,
+  isStoryVideoSource,
 } from "@/lib/social.queries";
+import { DiscoverVideo } from "./DiscoverVideo";
+import { VideoActions } from "./VideoActions";
 import { SocialPostOwnerActions } from "./SocialPostOwnerActions";
 import { SafetyMenu } from "./SafetyMenu";
 import { useI18n } from "@/lib/i18n";
@@ -90,9 +93,11 @@ export function PostCard({
   const [shareOpen, setShareOpen] = useState(false);
   const setFilter = useSetCommentFilter();
   const mine = currentUserId === post.author_id;
+  const video = post.images.find((src) => isStoryVideoSource(src));
+  const poster = post.images.find((src) => !isStoryVideoSource(src));
   useEngagementRealtime(detail ? post.id : null);
   const action = detail ? null : actionFor(post.caption);
-  const singleImage = !detail && post.images.length === 1;
+  const singleImage = !video && !detail && post.images.length === 1;
   // Short captions sit on the photo like a discovery card; long ones stay readable above.
   const overlayCaption = singleImage && post.caption.length > 0 && post.caption.length <= 160;
   const actionButton = action ? (
@@ -116,6 +121,7 @@ export function PostCard({
         detail && "rounded-none border-0 shadow-none sm:rounded-3xl sm:border",
       )}
     >
+      {detail && video && <DiscoverVideo src={video} poster={poster} title={post.caption.split("\n")[0] || tx("Video", "Vidéo")} />}
       {post.market ? (
         <div className="flex items-center justify-between gap-3 border-b border-border bg-primary/5 px-4 py-2">
           <div className="min-w-0">
@@ -158,6 +164,7 @@ export function PostCard({
             {post.city ? ` · ${post.city}` : ""}
           </p>
         </div>
+        {video && <VideoActions id={post.id} title={post.caption.split("\n")[0] || tx("Video", "Vidéo")} authorId={post.author_id} />}
         {mine ? (
           <SocialPostOwnerActions postId={post.id} caption={post.caption} />
         ) : currentUserId ? (
@@ -186,14 +193,14 @@ export function PostCard({
         </div>
       ) : null}
 
-      {post.images.length > 0 ? (
+      {video ? (!detail ? <DiscoverVideo src={video} poster={poster} title={post.caption.split("\n")[0] || tx("Video", "Vidéo")} /> : null) : post.images.length > 0 ? (
         <div className={cn(!detail && "relative mx-3 overflow-hidden rounded-2xl")}>
         <div
           className={cn(
             "grid gap-0.5",
             post.images.length > 1 && !detail ? "grid-cols-2" : "grid-cols-1",
             !detail && post.images.length > 1 && "aspect-square grid-rows-2",
-            detail && "bg-black",
+            detail && "bg-media-backdrop",
           )}
         >
           {post.images.map((src, index) => (
@@ -243,7 +250,10 @@ export function PostCard({
         </span>
       </div>
       <div className="flex items-center gap-1 px-2 pb-2">
-        <ReactionButton
+        {video ? <Button variant="ghost" size="sm" disabled={react.isPending} aria-label={tx("Like video", "Aimer la vidéo")} aria-pressed={post.current_reaction === "like"} className={cn("active:scale-110 motion-reduce:transform-none", post.current_reaction === "like" && "text-primary")} onClick={() => {
+          if (!requireAuth({ en: "Sign in to like this video.", fr: "Connectez-vous pour aimer cette vidéo." })) return;
+          react.mutate({ postId: post.id, reaction: post.current_reaction === "like" ? null : "like" }, { onError: () => toast.error(tx("Could not save your like.", "Impossible d’enregistrer votre réaction.")) });
+        }}><ThumbsUp className={cn("size-4", post.current_reaction === "like" && "fill-current motion-safe:animate-in motion-safe:zoom-in-50")} />{post.like_count}</Button> : <ReactionButton
           value={post.current_reaction}
           total={post.like_count}
           breakdown={post.reaction_breakdown}
@@ -271,7 +281,7 @@ export function PostCard({
               },
             );
           }}
-        />
+        />}
         <Button
           variant="ghost"
           size="sm"

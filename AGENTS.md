@@ -24,6 +24,7 @@
 
 - Avatar updates use StoriesRail; ChatActionDialog owns panels; MemberNavIcon uses token SVG. Why: safe viewing, branding.
 - Discover upload and browsing share discover-topics; assigned category hashtags override prose, and DiscoverVideo owns hold previews/native playback. Why: consistent allocation without schema changes, unclipped orientation and accessible seeking.
+- Campus shares its instructor directory at both existing URLs; InstructorEntry separates creator onboarding, and all instructor/video detail playback uses DiscoverVideo. Paid features remain fail-closed in campus-channel-policy until reviewed entitlements and private delivery exist. Why: no duplicated player, public-media paywall or unverified collection.
 - Identity enforcement uses identity_restrictions, reviewed photo hashes, non-throwing denial triggers and identityMiddleware. Why: durable strikes and server-enforced bans.
 - Verified badges requireDepartment("TRUST") before privileged access. Why: staff authorization.
 

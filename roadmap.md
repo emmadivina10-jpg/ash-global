@@ -1,5 +1,13 @@
 # Roadmap
 
+## Campus instructor channels
+- [x] Instructor-only Campus and new/existing creator entry
+- [x] Single orientation-preserving video detail player, thumbs-up and comments; public-video share/report menu (watch-later/download unavailable)
+- [x] Channel courses and membership/live coming-soon states
+- [ ] Protected paid courses, individual/bundle pricing, purchase-gated ratings/views/downloads/watch-later and MTN/Orange checkout — blocked on reviewed schema/payment authorization and private media configuration
+- [ ] Paid memberships (15% platform / 85% creator) — blocked on membership price, billing implementation and live feature release; live remains unavailable
+- [x] 27 targeted tests, build OK, signed-in instructor directory/creator entry/channel/video checks; one portrait player playing with native controls, phone layout without overflow; no publishing
+
 ## Discover and icon navigation correction
 - [x] Matching video/instructor categories and specific empty states; remove Popular courses
 - [x] Edge-to-edge Shop-colour video player, hold previews, seeking and orientation preservation
