@@ -250,10 +250,10 @@ export function PostCard({
         </span>
       </div>
       <div className="flex items-center gap-1 px-2 pb-2">
-        {video ? <Button variant="ghost" size="sm" disabled={react.isPending} aria-label={tx("Like video", "Aimer la vidéo")} aria-pressed={post.current_reaction === "LIKE"} className={cn("active:scale-110 motion-reduce:transform-none", post.current_reaction === "LIKE" && "text-primary")} onClick={() => {
+        {video ? <Button variant="ghost" size="sm" disabled={react.isPending} aria-label={tx("Like video", "Aimer la vidéo")} aria-pressed={post.current_reaction === "like"} className={cn("active:scale-110 motion-reduce:transform-none", post.current_reaction === "like" && "text-primary")} onClick={() => {
           if (!requireAuth({ en: "Sign in to like this video.", fr: "Connectez-vous pour aimer cette vidéo." })) return;
-          react.mutate({ postId: post.id, reaction: post.current_reaction === "LIKE" ? null : "LIKE" }, { onError: () => toast.error(tx("Could not save your like.", "Impossible d’enregistrer votre réaction.")) });
-        }}><ThumbsUp className={cn("size-4", post.current_reaction === "LIKE" && "fill-current motion-safe:animate-in motion-safe:zoom-in-50")} />{post.like_count}</Button> : <ReactionButton
+          react.mutate({ postId: post.id, reaction: post.current_reaction === "like" ? null : "like" }, { onError: () => toast.error(tx("Could not save your like.", "Impossible d’enregistrer votre réaction.")) });
+        }}><ThumbsUp className={cn("size-4", post.current_reaction === "like" && "fill-current motion-safe:animate-in motion-safe:zoom-in-50")} />{post.like_count}</Button> : <ReactionButton
           value={post.current_reaction}
           total={post.like_count}
           breakdown={post.reaction_breakdown}
