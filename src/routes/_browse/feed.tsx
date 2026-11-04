@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils";
 import { useProfile, useUser } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
 import { useAuthGate } from "@/lib/guest-gate";
+import { useFeatureFlags } from "@/lib/feature-flags";
 
 export const Route = createFileRoute("/_browse/feed")({
   head: () => ({
