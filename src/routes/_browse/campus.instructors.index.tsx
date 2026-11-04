@@ -23,6 +23,7 @@ import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { InstructorEntry } from "@/components/refer/InstructorEntry";
 import { EmptyState, LoadingState } from "@/components/refer/states";
 import { useI18n } from "@/lib/i18n";
 import { countryMeta } from "@/lib/region";
@@ -86,7 +87,7 @@ const SHORTCUTS = [
   "Cybersecurity",
 ];
 
-function FindInstructorPage() {
+export function FindInstructorPage() {
   const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const [term, setTerm] = useState("");
@@ -145,29 +146,10 @@ function FindInstructorPage() {
         </Button>
       </div>
 
-      <header className="relative overflow-hidden rounded-3xl border border-border bg-[linear-gradient(135deg,var(--color-verified-violet),var(--color-verified-magenta)_55%,var(--color-verified-coral))] p-6 text-on-dark shadow-[var(--shadow-card)]">
-        <div
-          className="absolute -right-10 -top-12 size-44 rounded-full bg-white/10 blur-2xl"
-          aria-hidden
-        />
-        <div className="relative">
-          <p className="text-[11px] font-bold uppercase tracking-[0.22em] opacity-90">ASH Campus</p>
-          <h1 className="mt-2 font-display text-2xl font-extrabold leading-tight sm:text-3xl">
-            {tx("Find Someone Who Can Teach You.", "Trouvez quelqu'un qui peut vous apprendre.")}
-          </h1>
-          <p className="mt-2 max-w-xl text-sm opacity-95">
-            {tx(
-              "Connect with instructors for school, university, languages, professional skills and international exam preparation.",
-              "Des instructeurs pour l'école, l'université, les langues, les compétences professionnelles et la préparation aux examens internationaux.",
-            )}
-          </p>
-          <Button asChild size="sm" variant="secondary" className="mt-4 rounded-full font-bold">
-            <Link to="/campus/become-instructor">
-              <UserPlus className="size-4" aria-hidden />
-              {tx("Become an Instructor — free", "Devenir instructeur — gratuit")}
-            </Link>
-          </Button>
-        </div>
+      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-5">
+        <div><h1 className="font-display text-2xl font-extrabold text-foreground">ASH Campus</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{tx("Instructor channels", "Chaînes des instructeurs")}</p></div>
+        <InstructorEntry />
       </header>
 
       <section aria-labelledby="campus-instructors-heading">
@@ -438,7 +420,7 @@ function FindInstructorPage() {
         </div>
       )}
 
-      <p className="rounded-2xl border border-border bg-card p-4 text-xs leading-relaxed text-muted-foreground">
+      <p className="border-t border-border pt-4 text-xs leading-relaxed text-muted-foreground">
         {tx(
           "ASH instructors are independent. They are not affiliated with, endorsed by or certified by TCF, TEF, IELTS, CELPIP, Goethe, DELF, DALF or any examination organisation. ASH does not perform criminal background checks.",
           "Les instructeurs ASH sont indépendants. Ils ne sont ni affiliés, ni approuvés, ni certifiés par TCF, TEF, IELTS, CELPIP, Goethe, DELF, DALF ou toute autre organisation d'examen. ASH n'effectue pas de vérification d'antécédents judiciaires.",
@@ -488,7 +470,7 @@ function InstructorCard({ instructor, fr }: { instructor: CampusInstructor; fr: 
     <Link
       to="/campus/instructors/$instructorId"
       params={{ instructorId: instructor.id }}
-      className="block w-full rounded-2xl border border-border bg-card p-4 transition-colors hover:border-primary/40"
+      className="block w-full rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/40"
     >
       <div className="flex gap-3">
         <Avatar path={instructor.profile?.avatar_url} name={name} className="size-14" />
