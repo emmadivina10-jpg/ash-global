@@ -778,6 +778,61 @@ function MessagesPage() {
               <h2 className="mb-4 flex min-h-11 items-center pr-14 font-display text-3xl font-bold text-foreground">
                 {t("chat.title")}
               </h2>
+              {newNav ? (
+                <PlusActionPanel
+                  open={newChatOpen}
+                  onClose={() => setNewChatOpen(false)}
+                  triggerRef={plusButtonRef}
+                  actions={[
+                    {
+                      id: ASH_AI_ID,
+                      icon: Sparkles,
+                      en: "ASH AI",
+                      fr: "ASH AI",
+                      enHint: "Intelligent assistance and AI conversations",
+                      frHint: "Assistance intelligente et conversations IA",
+                      tone: "purple",
+                      onSelect: () => void navigate({ search: { c: ASH_AI_ID } }),
+                    },
+                    {
+                      id: ASH_SUPPORT_ID,
+                      icon: LifeBuoy,
+                      en: "ASH Support",
+                      fr: "ASH Support",
+                      enHint: "Contact the ASH support team",
+                      frHint: "Contacter l’équipe d’assistance ASH",
+                      tone: "gold",
+                      onSelect: () => void navigate({ search: { c: ASH_SUPPORT_ID } }),
+                    },
+                  ]}
+                  secondary={
+                    <>
+                      <Button
+                        variant="ghost"
+                        className="h-11 w-full justify-start gap-3 text-[#F5F5F7] hover:bg-white/10"
+                        onClick={() => {
+                          setNewChatOpen(false);
+                          void routerNavigate({ to: "/friends" });
+                        }}
+                      >
+                        <UserPlus className="size-4" aria-hidden />
+                        {tx("Choose a contact", "Choisir un contact")}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        className="h-11 w-full justify-start gap-3 text-[#F5F5F7] hover:bg-white/10"
+                        onClick={() => {
+                          setNewChatOpen(false);
+                          setGroupDialog(true);
+                        }}
+                      >
+                        <Users className="size-4" aria-hidden />
+                        {tx("New group", "Nouveau groupe")}
+                      </Button>
+                    </>
+                  }
+                />
+              ) : (
               <ChatActionDialog
                 open={newChatOpen}
                 onOpenChange={setNewChatOpen}
