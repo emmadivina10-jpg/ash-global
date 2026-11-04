@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 /**
- * Reconciliation endpoint (safe to call publicly and from a scheduler).
+ * Reconciliation endpoint (scheduler only: requires the private x-reconcile-secret header).
  *
  * It never trusts the caller: for every payment still awaiting an outcome it asks
  * TchokoPay for the authoritative status of that collection and only settles what
@@ -17,7 +17,7 @@ async function reconcile(limit: number) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { settleCollection } = await import("@/lib/payment-settlement.server");
 
-  const [activations, bookings, links, cleans] = await Promise.all([
+  const [activations, bookings, links, cleans, ledger] = await Promise.all([
     supabaseAdmin
       .from("activations")
       .select("payment_reference, provider_transaction_id")
@@ -42,6 +42,14 @@ async function reconcile(limit: number) {
       .select("payment_reference, provider_transaction_id")
       .eq("payment_status", "PROCESSING")
       .limit(limit),
+    // Central ledger covers wallet top-ups, event tickets and promotions.
+    supabaseAdmin
+      .from("payment_transactions")
+      .select("reference, provider_reference")
+      .eq("provider", "TCHOKOPAY")
+      .in("status", ["PENDING", "PROCESSING"])
+      .order("created_at", { ascending: false })
+      .limit(limit),
   ]);
 
   const pending: { merchantReference: string; providerReference: string | null }[] = [
@@ -65,12 +73,19 @@ async function reconcile(limit: number) {
       merchantReference: r.reference,
       providerReference: r.provider_transaction_id,
     })),
+    ...(ledger.data ?? []).map((r) => ({
+      merchantReference: r.reference,
+      providerReference: r.provider_reference,
+    })),
   ];
+  // A reference can appear in both a source table and the ledger; check it once.
+  const seen = new Set<string>();
+  const unique = pending.filter((p) => !seen.has(p.merchantReference) && seen.add(p.merchantReference));
 
   let settled = 0;
   const results: { reference: string; status: string }[] = [];
 
-  for (const row of pending) {
+  for (const row of unique) {
     const providerRef = row.providerReference ?? "";
     const collection = providerRef.startsWith("REQ-")
       ? await tchokoPay.getCollection(providerRef)
@@ -142,7 +157,7 @@ async function reconcile(limit: number) {
     source: "RECONCILE",
     outcome: "RECONCILED",
     detail: {
-      checked: pending.length,
+      checked: unique.length,
       settled,
       payoutsChecked: (payouts ?? []).length,
       payoutsSettled,
@@ -160,7 +175,7 @@ async function reconcile(limit: number) {
     await runFinanceReconciliation("SCHEDULED", null).catch(() => null);
   }
 
-  return { ok: true as const, checked: pending.length, settled, payoutsSettled, results };
+  return { ok: true as const, checked: unique.length, settled, payoutsSettled, results };
 }
 
 /** Bounds unauthenticated callers: global budget (the scheduler runs every 5 min) plus per visitor. */
@@ -183,23 +198,34 @@ async function throttled(request: Request): Promise<Response | null> {
   return null;
 }
 
+/** Only the scheduler holds the secret; it is compared inside the database by hash. */
+export async function isReconcileAuthorized(request: Request): Promise<boolean> {
+  const given = request.headers.get("x-reconcile-secret") ?? "";
+  if (!given || given.length > 256) return false;
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin.rpc("reconcile_token_matches", { _token: given });
+  return !error && data === true;
+}
+
 export const Route = createFileRoute("/api/public/reconcile-activations")({
   server: {
     handlers: {
-      GET: async ({ request }) => {
-        const blocked = await throttled(request);
-        if (blocked) return blocked;
-        const limit = Math.min(
-          Number(new URL(request.url).searchParams.get("limit") ?? 50) || 50,
-          100,
-        );
-        const result = await reconcile(limit);
-        return Response.json(result, { headers: { "cache-control": "no-store" } });
-      },
       POST: async ({ request }) => {
+        if (!(await isReconcileAuthorized(request))) {
+          return Response.json({ ok: false, error: "UNAUTHORIZED" }, { status: 401 });
+        }
         const blocked = await throttled(request);
         if (blocked) return blocked;
-        return Response.json(await reconcile(50), { headers: { "cache-control": "no-store" } });
+        const r = await reconcile(50);
+        return Response.json(
+          {
+            ok: r.ok,
+            checked: r.checked,
+            settled: r.settled,
+            payoutsSettled: "payoutsSettled" in r ? r.payoutsSettled : 0,
+          },
+          { headers: { "cache-control": "no-store" } },
+        );
       },
     },
   },
