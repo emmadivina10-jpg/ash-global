@@ -1,5 +1,10 @@
 # Roadmap
 
+## Discover proportions and desktop sidebar
+- [ ] Compact YouTube-style Discover feed and responsive video grid, preserving playback and categories
+- [ ] Collapsible member/guest desktop sidebar and transparent mobile-style icons; retain secondary links
+- [ ] Verify signed-in phone/tablet/desktop, collapse/expand and playback; no publishing
+
 ## Campus instructor channels
 - [x] Instructor-only Campus and new/existing creator entry
 - [x] Single orientation-preserving video detail player, thumbs-up and comments; public-video share/report menu (watch-later/download unavailable)
