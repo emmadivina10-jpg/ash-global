@@ -5,8 +5,8 @@ import { useI18n } from "@/lib/i18n";
 import { trackEvent } from "@/lib/activity";
 import { videoOrientation } from "@/lib/campus-channel-policy";
 
-/** Hold for a silent preview; optionally autoplay the most visible feed video. */
-export function DiscoverVideo({ src, poster, title, compact = false, autoPlayOnVisible = false }: { src: string; poster?: string | undefined; title: string; compact?: boolean; autoPlayOnVisible?: boolean }) {
+/** A thumbnail-first video: hold to preview, and pause automatically when scrolled away. */
+export function DiscoverVideo({ src, poster, title, compact = false }: { src: string; poster?: string | undefined; title: string; compact?: boolean }) {
   const { tx } = useI18n();
   const ref = useRef<HTMLVideoElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -15,10 +15,10 @@ export function DiscoverVideo({ src, poster, title, compact = false, autoPlayOnV
   const origin = useRef<{ x: number; y: number } | null>(null);
   const trackedView = useRef(false);
   const [opened, setOpened] = useState(false);
-  const [autoPlaying, setAutoPlaying] = useState(false);
   const [preview, setPreview] = useState(false);
   const [failed, setFailed] = useState(false);
   const [orientation, setOrientation] = useState<"portrait" | "landscape">("landscape");
+
   const clear = () => {
     if (timer.current) clearTimeout(timer.current);
     timer.current = null;
@@ -36,25 +36,16 @@ export function DiscoverVideo({ src, poster, title, compact = false, autoPlayOnV
 
   useEffect(() => {
     const video = ref.current;
-    if (!video) return;
+    if (!video || typeof IntersectionObserver === "undefined") return;
     const observer = new IntersectionObserver(([entry]) => {
       if (!entry?.isIntersecting || entry.intersectionRatio < 0.6) {
         video.pause();
-        setAutoPlaying(false);
-        return;
+        setPreview(false);
+        held.current = false;
       }
-      if (!autoPlayOnVisible || !video.paused) return;
-      video.muted = !opened;
-      void video.play().then(() => {
-        setAutoPlaying(true);
-        if (!trackedView.current) {
-          trackedView.current = true;
-          trackEvent({ event_type: "view", surface: "feed", target_type: "post", target_id: video.dataset["postId"] ?? null });
-        }
-      }).catch(() => setFailed(true));
     }, { threshold: [0, 0.6] });
     observer.observe(video);
-    const onVisibility = () => { if (document.hidden) { video.pause(); setAutoPlaying(false); } };
+    const onVisibility = () => { if (document.hidden) video.pause(); };
     document.addEventListener("visibilitychange", onVisibility);
     return () => {
       clear();
@@ -62,7 +53,22 @@ export function DiscoverVideo({ src, poster, title, compact = false, autoPlayOnV
       document.removeEventListener("visibilitychange", onVisibility);
       video.pause();
     };
-  }, [autoPlayOnVisible, opened]);
+  }, []);
+
+  const playHeldPreview = () => {
+    const video = ref.current;
+    if (!video || opened) return;
+    held.current = true;
+    setPreview(true);
+    setFailed(false);
+    video.muted = true;
+    void video.play().then(() => {
+      if (!trackedView.current) {
+        trackedView.current = true;
+        trackEvent({ event_type: "view", surface: "feed", target_type: "post", target_id: video.dataset["postId"] ?? null });
+      }
+    }).catch(() => setFailed(true));
+  };
 
   const open = () => {
     if (suppressClick.current) { suppressClick.current = false; return; }
@@ -70,10 +76,9 @@ export function DiscoverVideo({ src, poster, title, compact = false, autoPlayOnV
     const video = ref.current;
     if (!video) return;
     setOpened(true);
-    setAutoPlaying(false);
+    setPreview(false);
+    held.current = false;
     setFailed(false);
-    video.removeAttribute("poster");
-    video.currentTime = 0;
     video.muted = false;
     void video.play().catch(() => setFailed(true));
   };
@@ -82,45 +87,36 @@ export function DiscoverVideo({ src, poster, title, compact = false, autoPlayOnV
     <div data-orientation={orientation} className={`discover-video-stage relative w-full overflow-hidden bg-black ${compact || orientation === "landscape" ? "aspect-video" : "h-[min(75dvh,48rem)]"}`}>
       <video
         ref={ref}
-        data-post-id={autoPlayOnVisible ? title : undefined}
         src={src}
-        poster={opened || preview ? undefined : poster}
+        poster={poster}
         muted={!opened}
-        controls={opened || autoPlaying}
+        controls={opened}
         playsInline
         preload="metadata"
         aria-label={title}
-        className="absolute inset-0 h-full w-full object-contain"
+        className="absolute inset-0 size-full object-contain"
         onError={() => setFailed(true)}
         onLoadedMetadata={(event) => setOrientation(videoOrientation(event.currentTarget.videoWidth, event.currentTarget.videoHeight))}
-        onPlay={(event) => {
-          for (const other of document.querySelectorAll("video")) if (other !== event.currentTarget) other.pause();
-        }}
-        onClick={() => { if (autoPlaying && !opened) open(); }}
+        onPlay={(event) => { for (const other of document.querySelectorAll("video")) if (other !== event.currentTarget) other.pause(); }}
       />
-      {!opened && !autoPlaying ? (
+      {!opened ? (
         <Button
           variant="ghost"
-          aria-label={`${tx("Play video", "Lire la vidéo")} — ${title}`}
-          className="absolute inset-0 h-full w-full rounded-none p-0 hover:bg-transparent touch-pan-y"
+          aria-label={`${tx("Hold to preview or tap to play", "Maintenez pour prévisualiser ou touchez pour lire")} — ${title}`}
+          className="absolute inset-0 h-full w-full touch-pan-y rounded-none p-0 hover:bg-transparent"
           onPointerDown={(event) => {
             if (event.button !== 0) return;
             suppressClick.current = false;
             origin.current = { x: event.clientX, y: event.clientY };
             clear();
-            timer.current = setTimeout(() => {
-              const video = ref.current;
-              if (!video) return;
-              held.current = true;
-              setPreview(true);
-              video.removeAttribute("poster");
-              video.muted = true;
-              void video.play().catch(() => setFailed(true));
-            }, 220);
+            timer.current = setTimeout(playHeldPreview, 500);
           }}
           onPointerMove={(event) => {
             const start = origin.current;
-            if (start && Math.hypot(event.clientX - start.x, event.clientY - start.y) > 12) stopPreview();
+            if (start && Math.hypot(event.clientX - start.x, event.clientY - start.y) > 12) {
+              if (!held.current) clear();
+              else stopPreview();
+            }
           }}
           onPointerUp={stopPreview}
           onPointerCancel={stopPreview}

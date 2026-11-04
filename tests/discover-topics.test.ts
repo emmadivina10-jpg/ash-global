@@ -19,7 +19,9 @@ describe("Discover category allocation", () => {
     expect(topicMatches("Mathematics and algèbre", "maths")).toBe(true);
   });
   it("returns successful uploads directly to Discover", () => expect(DISCOVER_UPLOAD_DESTINATION).toBe("/discover"));
-  it("keeps the top-level navigation to All and Buy Courses while preserving the five course subjects", () => {
-    expect(DISCOVER_TOPICS.map((item) => item.id)).toEqual(["all", "forex", "web", "mobile", "programming", "maths"]);
+  it("includes additional course subjects", () => {
+    expect(DISCOVER_TOPICS.map((item) => item.id)).toEqual([
+      "all", "forex", "web", "mobile", "programming", "maths", "science", "arts", "business", "languages", "personal-growth",
+    ]);
   });
 });
