@@ -22,27 +22,25 @@ describe("member tab re-pointing under the new_nav switch", () => {
     expect(tabs[2].en).toBe("Spotlight");
   });
 
-  it("re-points exactly three slots when the switch is on", () => {
+  it("re-points Discover and Shop and removes Kitchen when the switch is on", () => {
     const tabs = resolveTabs(MEMBER_TABS, ON);
-    expect(tabs.map((t) => t.to)).toEqual(["/discover", "/services", "/kitchen", "/messages"]);
+    expect(tabs.map((t) => t.to)).toEqual(["/discover", "/services", "/messages"]);
     expect(tabs[0].en).toBe("Discover");
     expect(tabs[1].en).toBe("Shop");
-    expect(tabs[2].en).toBe("ASH Kitchen");
-    // Messages is untouched.
-    expect(tabs[3]).toBe(MEMBER_TABS[3]);
+    // Kitchen tab removed; Messages is untouched.
+    expect(tabs[2]).toBe(MEMBER_TABS[3]);
   });
 
   it("never adds a sixth tab", () => {
-    expect(resolveTabs(MEMBER_TABS, ON)).toHaveLength(4); // MobileNav appends Menu = 5 total
+    expect(resolveTabs(MEMBER_TABS, ON)).toHaveLength(3); // Discover | Shop | Messages, then Menu
     expect(resolveTabs(MEMBER_TABS, OFF)).toHaveLength(4);
   });
 
   it("re-points guest tabs the same way", () => {
     const tabs = resolveTabs(GUEST_TABS, ON);
-    expect(tabs.map((t) => t.to)).toEqual(["/discover", "/services", "/kitchen", "/search"]);
+    expect(tabs.map((t) => t.to)).toEqual(["/discover", "/services", "/search"]);
     expect(tabs[0].en).toBe("Discover");
     expect(tabs[1].en).toBe("Shop");
-    expect(tabs[2].en).toBe("ASH Kitchen");
   });
 
   it("keeps the Market label in legacy market mode", () => {
