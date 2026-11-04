@@ -44,7 +44,6 @@ import { useI18n } from "@/lib/i18n";
 import { useIsAdmin, useProfile } from "@/lib/queries";
 import { useRegion } from "@/lib/region-context";
 import { useFeatureFlag } from "@/lib/feature-flags";
-import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated/menu")({
   head: () => ({
