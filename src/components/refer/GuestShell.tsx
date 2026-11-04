@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "./Logo";
+import { MemberNavIcon } from "./MemberNavIcon";
 import { LanguageSwitcher, ThemeToggle } from "./Preferences";
 import { useI18n } from "@/lib/i18n";
 import { useServicesMode } from "@/lib/services-mode";
@@ -123,7 +124,7 @@ export function GuestShell({ children }: { children: ReactNode }) {
         </aside>
 
         <div className="app-shell-column flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur-xl lg:hidden">
+          {pathname !== "/discover" && <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur-xl lg:hidden">
             <div className="flex items-center justify-between gap-3 px-4 py-2">
               <Link to="/feed" className="min-w-0">
                 <Logo compact />
@@ -139,7 +140,7 @@ export function GuestShell({ children }: { children: ReactNode }) {
                 </Link>
               </div>
             </div>
-          </header>
+          </header>}
 
           <main className="app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:px-8 lg:pb-10">
             {!["/", "/feed", "/discover", "/services", "/spotlight", "/search", "/login", "/register"].includes(pathname.replace(/\/$/, "") || "/") ? (
@@ -161,13 +162,14 @@ export function GuestShell({ children }: { children: ReactNode }) {
               <li key={item.to}>
                 <Link
                   to={item.to}
+                  aria-label={label(item)}
+                  title={label(item)}
                   className={cn(
                     "flex flex-col items-center gap-1 py-2 text-[10px] font-semibold transition-colors",
                     active ? "text-primary" : "text-muted-foreground hover:text-foreground",
                   )}
                 >
-                  <item.icon className="size-5" aria-hidden />
-                  {label(item)}
+                  <MemberNavIcon icon={item.icon} active={active} />
                 </Link>
               </li>
             );
@@ -175,10 +177,12 @@ export function GuestShell({ children }: { children: ReactNode }) {
           <li>
             <Link
               to="/login"
+              aria-label={tx("Sign in", "Connexion")}
+              title={tx("Sign in", "Connexion")}
               className="flex flex-col items-center gap-1 py-2 text-[10px] font-semibold text-muted-foreground transition-colors hover:text-foreground"
             >
               <LogIn className="size-5" aria-hidden />
-              {tx("Sign in", "Connexion")}
+
             </Link>
           </li>
         </ul>

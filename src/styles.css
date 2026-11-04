@@ -2918,7 +2918,7 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
 /* ASH-branded tab bar: ASH green + ASH magenta accents. */
 :root {
   --tt-ink: oklch(0.13 0.01 280);
-  --tt-cyan: oklch(0.68 0.15 158);
+  --tt-cyan: var(--gold);
   --tt-pink: var(--primary);
   --tt-text: oklch(0.97 0 0);
   --tt-muted: oklch(0.72 0.01 280);
@@ -2939,7 +2939,7 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
 }
 .premium-mobile-nav .premium-nav-item {
   color: var(--tt-muted);
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
 }
 .premium-mobile-nav .premium-nav-item[aria-current="page"] {
   color: var(--tt-text);
@@ -2950,7 +2950,7 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
 }
 .premium-mobile-nav .premium-nav-item[aria-current="page"] > span:first-child {
   transform: translateY(-1px) scale(1.12);
-  filter: drop-shadow(-1.5px -1px 0 var(--tt-cyan)) drop-shadow(1.5px 1px 0 var(--tt-pink));
+  color: var(--primary);
 }
 .premium-mobile-nav .premium-nav-item:active > span:first-child {
   transform: scale(0.9);
@@ -2966,7 +2966,8 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   inset-inline: 30%;
   height: 3px;
   border-radius: 0 0 999px 999px;
-  background-image: linear-gradient(90deg, var(--tt-cyan), var(--tt-pink));
+  background-color: var(--primary);
+  background-image: none;
 }
 .premium-mobile-nav .member-tab-bubble {
   background-color: color-mix(in oklab, var(--tt-ink) 92%, transparent);
@@ -2984,6 +2985,26 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
 }
 
 /* ── ASH Kitchen empty state ─────────────────────────────── */
+.app-shell-scroll:has(.discover-surface) {
+  padding-inline: 0;
+}
+.discover-video-stage {
+  background: color-mix(in oklab, var(--primary-deep) 86%, var(--primary) 14%);
+}
+.instructor-online-ring {
+  animation: instructor-presence 1.8s ease-in-out infinite;
+}
+.instructor-online-dot {
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 18%, transparent);
+}
+@keyframes instructor-presence {
+  0%, 100% { box-shadow: 0 0 0 2px color-mix(in oklab, var(--primary) 45%, transparent); }
+  50% { box-shadow: 0 0 0 6px color-mix(in oklab, var(--primary) 12%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .instructor-online-ring { animation: none; }
+}
+
 @keyframes kitchen-enter {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
