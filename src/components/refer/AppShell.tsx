@@ -65,14 +65,25 @@ import { cn } from "@/lib/utils";
 import { PayoutSetupReminder } from "./PayoutSetupReminder";
 import { SecurityAlertBanner } from "./SecurityAlertBanner";
 import { useServicesMode } from "@/lib/services-mode";
-import { useFeatureFlags, homePath } from "@/lib/feature-flags";
-import { MEMBER_TABS, isTabRemoved, resolveTab, type TabItem } from "@/lib/member-tabs";
-import { AutoBackButton } from "@/components/refer/AutoBackButton";
 import { PRESENCE_HEARTBEAT_MS } from "@/lib/member-insights";
-import { DesktopSidebar } from "./DesktopSidebar";
-import { MemberNavIcon } from "./MemberNavIcon";
 
-type NavItem = TabItem;
+type NavItem = {
+  to: string;
+  key?: TKey;
+  en?: string;
+  fr?: string;
+  label?: string;
+  icon: typeof Store;
+  referralOnly?: boolean;
+  tour?: string;
+};
+
+const MOBILE_NAV: NavItem[] = [
+  { to: "/feed", en: "Feed", fr: "Fil", icon: Flame, tour: "feed" },
+  { to: "/services", en: "Services", fr: "Services", icon: Sparkles, tour: "market" },
+  { to: "/spotlight", en: "Spotlight", fr: "Spotlight", icon: Clapperboard },
+  { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle, tour: "messages" },
+];
 
 const DESKTOP_NAV: NavItem[] = [
   { to: "/services", key: "nav.services" as TKey, icon: Store, tour: "market" },
@@ -146,6 +157,8 @@ const MORE_GROUPS: { en: string; fr: string; items: NavItem[] }[] = [
 
 /** How many side links show before "See more". */
 const SIDE_PREVIEW = 8;
+/** ASH-branded tile colours for the web side menu icons, cycled in order. */
+const SIDE_TILES = ["gold-gradient", "brand-gradient", "bg-gold", "bg-primary"];
 
 const SIDE_EXTRA: NavItem[] = MORE_GROUPS.flatMap((group) => group.items).filter(
   (item, index, list) => list.findIndex((other) => other.to === item.to) === index,
@@ -160,25 +173,23 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { t, tx, lang } = useI18n();
   const region = useRegion();
   const servicesMode = useServicesMode();
-  const flags = useFeatureFlags();
-  const newNav = flags.new_nav === true;
-  const home = homePath(flags);
-  // Same destinations in the same order; the switch only re-points three slots.
   const visible = (items: NavItem[]): NavItem[] =>
     items
       .filter((item) => !item.referralOnly || region.referralEnabled)
-      .filter((item) => !isTabRemoved(item, { newNav }))
-      .map((item) => resolveTab(item, { newNav, servicesMode }));
+      .map((item) => {
+        if (item.to !== "/services" || servicesMode !== "market") return item;
+        const marketItem: NavItem = { ...item, en: "Market", fr: "Market", icon: Store };
+        delete marketItem.key;
+        return marketItem;
+      });
   const navLabel = (item: NavItem) =>
     item.key ? t(item.key) : ((lang === "fr" ? item.fr : item.en) ?? item.label ?? "");
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const onDiscover = pathname === "/discover" || pathname === "/discover/";
-  const onFeed = onDiscover || pathname === "/feed" || pathname === "/feed/";
-  const homeTitle = onDiscover ? (lang === "fr" ? "Découvrir" : "Discover") : lang === "fr" ? "Fil" : "Feed";
+  const onFeed = pathname === "/feed" || pathname === "/feed/";
   // Member profiles opened from the feed get a back arrow instead of the logo bar.
   const onMemberProfile = /^\/u\/.+/.test(pathname);
   // Every screen that isn't a main tab gets a Back button to where the member came from.
-  const topLevel = ["/feed", "/discover", "/services", "/services/extras", "/spotlight", "/kitchen", "/messages", "/menu"].includes(
+  const topLevel = ["/feed", "/services", "/services/extras", "/spotlight", "/messages", "/menu"].includes(
     pathname.replace(/\/$/, "") || "/",
   );
   // Back arrows only on member profiles; tapping the current tab returns to the top instead.
@@ -186,13 +197,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   void topLevel;
   const goBack = () => {
     if (typeof window !== "undefined" && window.history.length > 1) window.history.back();
-    else void navigate({ to: home });
+    else void navigate({ to: "/feed" });
   };
   const logoOnlyHeader = true; // Keep existing non-feed header controls unchanged.
-  const pageOwnsHeader = ["/discover", "/messages", "/services", "/flights", "/spotlight", "/kitchen", "/menu"].some(
+  const pageOwnsHeader = ["/messages", "/services", "/flights", "/spotlight", "/menu"].some(
     (path) => pathname === path || pathname.startsWith(`${path}/`),
   );
-  const roomyMemberTab = ["/feed", "/discover", "/services", "/spotlight", "/kitchen", "/menu"].some(
+  const roomyMemberTab = ["/feed", "/services", "/spotlight", "/menu"].some(
     (path) => pathname === path || pathname === `${path}/` || pathname === `${path}/extras`,
   );
 
@@ -249,85 +260,105 @@ export function AppShell({ children }: { children: ReactNode }) {
       <PushBridge />
       <WelcomeIntro />
       <div className="app-shell-frame flex w-full">
-        <DesktopSidebar compactFooter={<><ThemeToggle /><Link to="/profile" title={t("nav.profile")} aria-label={t("nav.profile")}><ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} /></Link><Button variant="ghost" size="icon" onClick={signOut} title={t("shell.signOut")} aria-label={t("shell.signOut")}><LogOut aria-hidden /></Button></>} footer={<>
-          <RegionSwitcher className="w-full justify-start" />
-          <div className="mt-3 flex items-center justify-between gap-2">
-            <LanguageSwitcher /><div className="flex items-center gap-1"><NotificationBell /><ThemeToggle /></div>
-          </div>
-          <div className="mt-3 border-t border-border pt-3">
-            <div className="flex items-center gap-2">
-              <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
-              <p className="flex min-w-0 items-center gap-1 text-sm font-semibold text-foreground"><span className="truncate">{profile?.full_name || t("shell.member")}</span><VerifiedBadge tier={profile?.verified_tier} until={profile?.verified_until} size={13} /></p>
-            </div>
-            <StatusBadge status={profile?.account_status ?? "PENDING"} label={profile?.account_status === "ACTIVE" ? t("shell.active") : t("shell.pending")} className="mt-2" />
-            <Button variant="ghost" size="sm" className="mt-3 w-full justify-start" onClick={signOut}><LogOut className="size-4" aria-hidden />{t("shell.signOut")}</Button>
-          </div>
-        </>}>
+        <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col overflow-y-auto overscroll-contain border-r border-border bg-sidebar p-5 lg:flex">
+          <Link to="/services" className="mb-8 inline-flex">
+            <Logo />
+          </Link>
           <nav className="flex flex-1 flex-col gap-0.5">
             <Link
               to="/profile"
-              title={profile?.full_name || t("shell.member")}
-              aria-label={t("nav.profile")}
-              className="desktop-nav-link flex items-center gap-3 rounded-lg px-2 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-sidebar-accent"
+              className="flex items-center gap-3 rounded-xl px-2 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-sidebar-accent"
             >
               <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
-              <span className="desktop-nav-label truncate">{profile?.full_name || t("shell.member")}</span>
+              <span className="truncate">{profile?.full_name || t("shell.member")}</span>
             </Link>
-            {(sideExpanded ? links : links.slice(0, SIDE_PREVIEW)).map((item) => (
+            {(sideExpanded ? links : links.slice(0, SIDE_PREVIEW)).map((item, index) => (
               <Link
                 key={item.to}
                 to={item.to}
-                title={navLabel(item)}
-                aria-label={navLabel(item)}
-                aria-current={pathname === item.to ? "page" : undefined}
                 className={cn(
-                  "desktop-nav-link group relative flex items-center gap-3 rounded-lg px-2 py-2 text-sm font-medium text-foreground transition-colors hover:bg-sidebar-accent",
+                  "group relative flex items-center gap-3 rounded-xl px-2 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-sidebar-accent",
                   pathname === item.to && "bg-primary/10 font-semibold text-primary",
                 )}
               >
-                <span className="grid size-9 shrink-0 place-items-center text-primary">
-                  <MemberNavIcon icon={item.icon} active={pathname === item.to} />
+                <span
+                  className={cn(
+                    "grid size-9 shrink-0 place-items-center rounded-[0.8rem] text-primary-foreground shadow-sm ring-1 ring-border/40 transition-transform group-hover:scale-105",
+                    SIDE_TILES[index % SIDE_TILES.length],
+                  )}
+                >
+                  <item.icon className="size-[18px]" aria-hidden />
                 </span>
-                <span className="desktop-nav-label truncate">{navLabel(item)}</span>
+                <span className="truncate">{navLabel(item)}</span>
                 {item.to === "/messages" && (
-                  <UnreadMessageBadge count={unreadMessages} className="desktop-nav-unread ml-auto" />
+                  <UnreadMessageBadge count={unreadMessages} className="ml-auto" />
                 )}
               </Link>
             ))}
             {links.length > SIDE_PREVIEW ? (
-              <Button
-                variant="ghost"
+              <button
                 type="button"
                 onClick={() => setSideExpanded((v) => !v)}
                 aria-expanded={sideExpanded}
-                title={sideExpanded ? tx("See less", "Voir moins") : tx("See more", "Voir plus")}
-                aria-label={sideExpanded ? tx("See less", "Voir moins") : tx("See more", "Voir plus")}
-                className="desktop-nav-link h-auto justify-start gap-3 rounded-lg px-2 py-2 text-sm font-semibold text-foreground hover:bg-sidebar-accent"
+                className="flex items-center gap-3 rounded-xl px-2 py-1.5 text-sm font-semibold text-foreground transition-colors hover:bg-sidebar-accent"
               >
-                <span className="grid size-9 shrink-0 place-items-center text-primary">
+                <span className="grid size-9 place-items-center rounded-full bg-secondary">
                   <ChevronDown
                     className={cn("size-5 transition-transform", sideExpanded && "rotate-180")}
                     aria-hidden
                   />
                 </span>
-                <span className="desktop-nav-label">{sideExpanded ? tx("See less", "Voir moins") : tx("See more", "Voir plus")}</span>
-              </Button>
+                {sideExpanded ? tx("See less", "Voir moins") : tx("See more", "Voir plus")}
+              </button>
             ) : null}
             {isAdmin ? (
               <a
                 href="/console"
-                title={t("nav.admin")}
-                aria-label={t("nav.admin")}
-                className="desktop-nav-link relative mt-1 flex items-center gap-3 rounded-lg px-2 py-2 text-sm font-medium text-foreground transition-colors hover:bg-sidebar-accent"
+                className="relative mt-1 flex items-center gap-3 rounded-xl px-2 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-sidebar-accent"
               >
-                <span className="grid size-9 shrink-0 place-items-center text-primary">
-                  <MemberNavIcon icon={Shield} />
+                <span className="grid size-9 place-items-center rounded-[0.8rem] bg-foreground text-background">
+                  <Shield className="size-[18px]" aria-hidden />
                 </span>
-                <span className="desktop-nav-label">{t("nav.admin")}</span>
+                {t("nav.admin")}
               </a>
             ) : null}
           </nav>
-        </DesktopSidebar>
+          <RegionSwitcher className="mt-4 w-full justify-start" />
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <LanguageSwitcher />
+            <div className="flex items-center gap-1">
+              <NotificationBell />
+              <ThemeToggle />
+            </div>
+          </div>
+          <div className="mt-3 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-card)]">
+            <div className="flex items-center gap-2">
+              <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
+              <p className="flex min-w-0 items-center gap-1 text-sm font-semibold text-foreground">
+                <span className="truncate">{profile?.full_name || t("shell.member")}</span>
+                <VerifiedBadge
+                  tier={profile?.verified_tier}
+                  until={profile?.verified_until}
+                  size={13}
+                />
+              </p>
+            </div>
+            <StatusBadge
+              status={profile?.account_status ?? "PENDING"}
+              label={profile?.account_status === "ACTIVE" ? t("shell.active") : t("shell.pending")}
+              className="mt-2"
+            />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mt-3 w-full justify-start"
+              onClick={signOut}
+            >
+              <LogOut className="size-4" aria-hidden />
+              {t("shell.signOut")}
+            </Button>
+          </div>
+        </aside>
 
         <div className="app-shell-column flex min-w-0 flex-1 flex-col">
           {/* Web-only top bar: menu panel, notifications and the member photo. */}
@@ -351,8 +382,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                   </button>
                 )}
                 {onFeed && (
-                  <Link to={home} className="mr-auto font-display text-xl font-bold text-foreground">
-                    {homeTitle}
+                  <Link to="/feed" className="mr-auto text-xl font-bold text-foreground">
+                    {lang === "fr" ? "Fil" : "Feed"}
                   </Link>
                 )}
                 <DesktopMenu groups={WEB_MENU_GROUPS} create={WEB_MENU_CREATE} />
@@ -484,10 +515,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                     <ArrowLeft className="size-5" aria-hidden />
                   </button>
                 ) : (
-                  <Link to={onFeed ? home : "/services"} className="min-w-0">
+                  <Link to={onFeed ? "/feed" : "/services"} className="min-w-0">
                     {onFeed ? (
-                      <span className="font-display text-xl font-bold text-foreground">
-                        {homeTitle}
+                      <span className="text-xl font-bold text-foreground">
+                        {lang === "fr" ? "Fil" : "Feed"}
                       </span>
                     ) : (
                       <Logo compact />
@@ -520,16 +551,15 @@ export function AppShell({ children }: { children: ReactNode }) {
                 onFeed && "pt-1",
               )}
             >
-              {!topLevel && !onMemberProfile ? <AutoBackButton home={home} /> : null}
               {children}
             </main>
-            {pathname !== "/messages" && !onDiscover && <RightRail />}
+            {pathname !== "/messages" && <RightRail />}
           </div>
         </div>
       </div>
 
       {!pathname.startsWith("/post/") ? (
-        <MobileNav items={visible(MEMBER_TABS)} profile={profile} unreadMessages={unreadMessages} />
+        <MobileNav items={visible(MOBILE_NAV)} profile={profile} unreadMessages={unreadMessages} />
       ) : null}
 
       <LocationNudge />

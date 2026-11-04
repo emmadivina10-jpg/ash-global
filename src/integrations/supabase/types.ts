@@ -2853,27 +2853,6 @@ export type Database = {
           },
         ]
       }
-      feature_flags: {
-        Row: {
-          description: string
-          enabled: boolean
-          key: string
-          updated_at: string
-        }
-        Insert: {
-          description?: string
-          enabled?: boolean
-          key: string
-          updated_at?: string
-        }
-        Update: {
-          description?: string
-          enabled?: boolean
-          key?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       forum_comments: {
         Row: {
           author_id: string
@@ -8896,7 +8875,6 @@ export type Database = {
           total_score: number
         }[]
       }
-      reconcile_token_matches: { Args: { _token: string }; Returns: boolean }
       record_identity_denial: {
         Args: { _actor: string; _kind: string; _owner: string; _value: string }
         Returns: Json

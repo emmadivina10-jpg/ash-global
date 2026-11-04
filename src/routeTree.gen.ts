@@ -63,9 +63,7 @@ import { Route as AuthenticatedVerifiedRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedWithdrawRouteImport } from './routes/_authenticated/withdraw'
 import { Route as BrowseDealsRouteImport } from './routes/_browse/deals'
-import { Route as BrowseDiscoverRouteImport } from './routes/_browse/discover'
 import { Route as BrowseFeedRouteImport } from './routes/_browse/feed'
-import { Route as BrowseKitchenRouteImport } from './routes/_browse/kitchen'
 import { Route as BrowseSearchRouteImport } from './routes/_browse/search'
 import { Route as BrowseSpotlightRouteImport } from './routes/_browse/spotlight'
 import { Route as ApiStaffMemberAiRouteImport } from './routes/api/staff-member-ai'
@@ -117,7 +115,6 @@ import { Route as AuthenticatedCampusTeachingRouteImport } from './routes/_authe
 import { Route as AuthenticatedCleanIndexRouteImport } from './routes/_authenticated/clean.index'
 import { Route as AuthenticatedCleanBookRouteImport } from './routes/_authenticated/clean.book'
 import { Route as AuthenticatedCleanJobsRouteImport } from './routes/_authenticated/clean.jobs'
-import { Route as AuthenticatedDiscoverUploadRouteImport } from './routes/_authenticated/discover.upload'
 import { Route as AuthenticatedFreelanceIndexRouteImport } from './routes/_authenticated/freelance.index'
 import { Route as AuthenticatedFreelanceProjectIdRouteImport } from './routes/_authenticated/freelance.$projectId'
 import { Route as AuthenticatedIncubatorIndexRouteImport } from './routes/_authenticated/incubator/index'
@@ -437,19 +434,9 @@ const BrowseDealsRoute = BrowseDealsRouteImport.update({
   path: '/deals',
   getParentRoute: () => BrowseRouteRoute,
 } as any)
-const BrowseDiscoverRoute = BrowseDiscoverRouteImport.update({
-  id: '/discover',
-  path: '/discover',
-  getParentRoute: () => BrowseRouteRoute,
-} as any)
 const BrowseFeedRoute = BrowseFeedRouteImport.update({
   id: '/feed',
   path: '/feed',
-  getParentRoute: () => BrowseRouteRoute,
-} as any)
-const BrowseKitchenRoute = BrowseKitchenRouteImport.update({
-  id: '/kitchen',
-  path: '/kitchen',
   getParentRoute: () => BrowseRouteRoute,
 } as any)
 const BrowseSearchRoute = BrowseSearchRouteImport.update({
@@ -710,12 +697,6 @@ const AuthenticatedCleanJobsRoute = AuthenticatedCleanJobsRouteImport.update({
   path: '/clean/jobs',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedDiscoverUploadRoute =
-  AuthenticatedDiscoverUploadRouteImport.update({
-    id: '/discover/upload',
-    path: '/discover/upload',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedFreelanceIndexRoute =
   AuthenticatedFreelanceIndexRouteImport.update({
     id: '/freelance/',
@@ -1008,9 +989,7 @@ export interface FileRoutesByFullPath {
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
   '/deals': typeof BrowseDealsRoute
-  '/discover': typeof BrowseDiscoverRoute
   '/feed': typeof BrowseFeedRoute
-  '/kitchen': typeof BrowseKitchenRoute
   '/search': typeof BrowseSearchRoute
   '/spotlight': typeof BrowseSpotlightRoute
   '/api/staff-member-ai': typeof ApiStaffMemberAiRoute
@@ -1061,7 +1040,6 @@ export interface FileRoutesByFullPath {
   '/campus/teaching': typeof AuthenticatedCampusTeachingRoute
   '/clean/book': typeof AuthenticatedCleanBookRoute
   '/clean/jobs': typeof AuthenticatedCleanJobsRoute
-  '/discover/upload': typeof AuthenticatedDiscoverUploadRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/property/manage': typeof AuthenticatedPropertyManageRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
@@ -1159,9 +1137,7 @@ export interface FileRoutesByTo {
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
   '/deals': typeof BrowseDealsRoute
-  '/discover': typeof BrowseDiscoverRoute
   '/feed': typeof BrowseFeedRoute
-  '/kitchen': typeof BrowseKitchenRoute
   '/search': typeof BrowseSearchRoute
   '/spotlight': typeof BrowseSpotlightRoute
   '/api/staff-member-ai': typeof ApiStaffMemberAiRoute
@@ -1212,7 +1188,6 @@ export interface FileRoutesByTo {
   '/campus/teaching': typeof AuthenticatedCampusTeachingRoute
   '/clean/book': typeof AuthenticatedCleanBookRoute
   '/clean/jobs': typeof AuthenticatedCleanJobsRoute
-  '/discover/upload': typeof AuthenticatedDiscoverUploadRoute
   '/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/property/manage': typeof AuthenticatedPropertyManageRoute
   '/property/new': typeof AuthenticatedPropertyNewRoute
@@ -1314,9 +1289,7 @@ export interface FileRoutesById {
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/_authenticated/withdraw': typeof AuthenticatedWithdrawRoute
   '/_browse/deals': typeof BrowseDealsRoute
-  '/_browse/discover': typeof BrowseDiscoverRoute
   '/_browse/feed': typeof BrowseFeedRoute
-  '/_browse/kitchen': typeof BrowseKitchenRoute
   '/_browse/search': typeof BrowseSearchRoute
   '/_browse/spotlight': typeof BrowseSpotlightRoute
   '/api/staff-member-ai': typeof ApiStaffMemberAiRoute
@@ -1367,7 +1340,6 @@ export interface FileRoutesById {
   '/_authenticated/campus/teaching': typeof AuthenticatedCampusTeachingRoute
   '/_authenticated/clean/book': typeof AuthenticatedCleanBookRoute
   '/_authenticated/clean/jobs': typeof AuthenticatedCleanJobsRoute
-  '/_authenticated/discover/upload': typeof AuthenticatedDiscoverUploadRoute
   '/_authenticated/freelance/$projectId': typeof AuthenticatedFreelanceProjectIdRoute
   '/_authenticated/property/manage': typeof AuthenticatedPropertyManageRoute
   '/_authenticated/property/new': typeof AuthenticatedPropertyNewRoute
@@ -1468,9 +1440,7 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/withdraw'
     | '/deals'
-    | '/discover'
     | '/feed'
-    | '/kitchen'
     | '/search'
     | '/spotlight'
     | '/api/staff-member-ai'
@@ -1521,7 +1491,6 @@ export interface FileRouteTypes {
     | '/campus/teaching'
     | '/clean/book'
     | '/clean/jobs'
-    | '/discover/upload'
     | '/freelance/$projectId'
     | '/property/manage'
     | '/property/new'
@@ -1619,9 +1588,7 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/withdraw'
     | '/deals'
-    | '/discover'
     | '/feed'
-    | '/kitchen'
     | '/search'
     | '/spotlight'
     | '/api/staff-member-ai'
@@ -1672,7 +1639,6 @@ export interface FileRouteTypes {
     | '/campus/teaching'
     | '/clean/book'
     | '/clean/jobs'
-    | '/discover/upload'
     | '/freelance/$projectId'
     | '/property/manage'
     | '/property/new'
@@ -1773,9 +1739,7 @@ export interface FileRouteTypes {
     | '/_authenticated/wallet'
     | '/_authenticated/withdraw'
     | '/_browse/deals'
-    | '/_browse/discover'
     | '/_browse/feed'
-    | '/_browse/kitchen'
     | '/_browse/search'
     | '/_browse/spotlight'
     | '/api/staff-member-ai'
@@ -1826,7 +1790,6 @@ export interface FileRouteTypes {
     | '/_authenticated/campus/teaching'
     | '/_authenticated/clean/book'
     | '/_authenticated/clean/jobs'
-    | '/_authenticated/discover/upload'
     | '/_authenticated/freelance/$projectId'
     | '/_authenticated/property/manage'
     | '/_authenticated/property/new'
@@ -2295,25 +2258,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BrowseDealsRouteImport
       parentRoute: typeof BrowseRouteRoute
     }
-    '/_browse/discover': {
-      id: '/_browse/discover'
-      path: '/discover'
-      fullPath: '/discover'
-      preLoaderRoute: typeof BrowseDiscoverRouteImport
-      parentRoute: typeof BrowseRouteRoute
-    }
     '/_browse/feed': {
       id: '/_browse/feed'
       path: '/feed'
       fullPath: '/feed'
       preLoaderRoute: typeof BrowseFeedRouteImport
-      parentRoute: typeof BrowseRouteRoute
-    }
-    '/_browse/kitchen': {
-      id: '/_browse/kitchen'
-      path: '/kitchen'
-      fullPath: '/kitchen'
-      preLoaderRoute: typeof BrowseKitchenRouteImport
       parentRoute: typeof BrowseRouteRoute
     }
     '/_browse/search': {
@@ -2673,13 +2622,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCleanJobsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/discover/upload': {
-      id: '/_authenticated/discover/upload'
-      path: '/discover/upload'
-      fullPath: '/discover/upload'
-      preLoaderRoute: typeof AuthenticatedDiscoverUploadRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/freelance/': {
       id: '/_authenticated/freelance/'
       path: '/freelance'
@@ -3020,7 +2962,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCampusTeachingRoute: typeof AuthenticatedCampusTeachingRoute
   AuthenticatedCleanBookRoute: typeof AuthenticatedCleanBookRoute
   AuthenticatedCleanJobsRoute: typeof AuthenticatedCleanJobsRoute
-  AuthenticatedDiscoverUploadRoute: typeof AuthenticatedDiscoverUploadRoute
   AuthenticatedFreelanceProjectIdRoute: typeof AuthenticatedFreelanceProjectIdRoute
   AuthenticatedPropertyManageRoute: typeof AuthenticatedPropertyManageRoute
   AuthenticatedPropertyNewRoute: typeof AuthenticatedPropertyNewRoute
@@ -3074,7 +3015,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCampusTeachingRoute: AuthenticatedCampusTeachingRoute,
   AuthenticatedCleanBookRoute: AuthenticatedCleanBookRoute,
   AuthenticatedCleanJobsRoute: AuthenticatedCleanJobsRoute,
-  AuthenticatedDiscoverUploadRoute: AuthenticatedDiscoverUploadRoute,
   AuthenticatedFreelanceProjectIdRoute: AuthenticatedFreelanceProjectIdRoute,
   AuthenticatedPropertyManageRoute: AuthenticatedPropertyManageRoute,
   AuthenticatedPropertyNewRoute: AuthenticatedPropertyNewRoute,
@@ -3102,9 +3042,7 @@ const AuthenticatedRouteRouteWithChildren =
 
 interface BrowseRouteRouteChildren {
   BrowseDealsRoute: typeof BrowseDealsRoute
-  BrowseDiscoverRoute: typeof BrowseDiscoverRoute
   BrowseFeedRoute: typeof BrowseFeedRoute
-  BrowseKitchenRoute: typeof BrowseKitchenRoute
   BrowseSearchRoute: typeof BrowseSearchRoute
   BrowseSpotlightRoute: typeof BrowseSpotlightRoute
   BrowseArticlesArticleIdRoute: typeof BrowseArticlesArticleIdRoute
@@ -3128,9 +3066,7 @@ interface BrowseRouteRouteChildren {
 
 const BrowseRouteRouteChildren: BrowseRouteRouteChildren = {
   BrowseDealsRoute: BrowseDealsRoute,
-  BrowseDiscoverRoute: BrowseDiscoverRoute,
   BrowseFeedRoute: BrowseFeedRoute,
-  BrowseKitchenRoute: BrowseKitchenRoute,
   BrowseSearchRoute: BrowseSearchRoute,
   BrowseSpotlightRoute: BrowseSpotlightRoute,
   BrowseArticlesArticleIdRoute: BrowseArticlesArticleIdRoute,

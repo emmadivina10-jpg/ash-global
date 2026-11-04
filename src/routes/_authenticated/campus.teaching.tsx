@@ -7,10 +7,7 @@ import {
   Star,
   Store,
   Wallet,
-  Upload,
-  Radio,
 } from "lucide-react";
-import { CAMPUS_CHANNEL_POLICY } from "@/lib/campus-channel-policy";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState, LoadingState } from "@/components/refer/states";
@@ -133,8 +130,6 @@ function TeachingDashboard() {
           </Badge>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
-          <Button asChild size="sm"><Link to="/discover/upload"><Upload className="size-4" />{tx("Upload a video", "Publier une vidéo")}</Link></Button>
-          <Button variant="outline" size="sm" disabled={!CAMPUS_CHANNEL_POLICY.liveEnabled}><Radio className="size-4" />{tx("Live — coming soon", "Direct — bientôt")}</Button>
           <Button asChild variant="outline" size="sm">
             <Link to="/campus/instructors/$instructorId" params={{ instructorId: instructor.id }}>
               {tx("View public profile", "Voir mon profil public")}

@@ -8,7 +8,6 @@ import { cn } from "@/lib/utils";
 import { Avatar } from "./AvatarUpload";
 import { MemberNavIcon } from "./MemberNavIcon";
 import { UnreadMessageBadge } from "./UnreadMessageBadge";
-import { isTabActive } from "@/lib/member-tabs";
 
 export type MobileNavItem = {
   to: string;
@@ -33,7 +32,8 @@ export function MobileNav({
   unreadMessages?: number;
   profile: { full_name?: string | null; avatar_url?: string | null } | null | undefined;
 }) {
-  const { tx, t } = useI18n();
+  const { tx, t, lang } = useI18n();
+  const fr = lang === "fr";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const queryClient = useQueryClient();
   // Tapping the tab you're already on scrolls back to the top and refreshes it.
@@ -48,7 +48,9 @@ export function MobileNav({
   const [heldIndex, setHeldIndex] = useState<number | null>(null);
   const gridRef = useRef<HTMLUListElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const gesture = useRef<{ id: number; x: number; y: number; held: boolean; index: number } | null>(null);
+  const gesture = useRef<{ id: number; x: number; y: number; held: boolean; index: number } | null>(
+    null,
+  );
   const suppressClick = useRef(false);
   const clearTimer = () => {
     if (timer.current) clearTimeout(timer.current);
@@ -62,20 +64,26 @@ export function MobileNav({
   const label = (item: MobileNavItem) =>
     item.key ? t(item.key) : tx(item.en ?? item.label ?? "", item.fr);
   const tabs = [...items, { to: "/menu", icon: Menu, label: t("nav.more") }];
-  const selectedTabIndex = pathname === "/menu"
-    ? items.length
-    : Math.max(0, items.findIndex((item) => isTabActive(item, pathname)));
   const indexAt = (x: number) => {
     const rect = gridRef.current?.getBoundingClientRect();
     if (!rect) return 0;
-    return Math.max(0, Math.min(tabs.length - 1, Math.floor((x - rect.left) / (rect.width / tabs.length))));
+    return Math.max(
+      0,
+      Math.min(tabs.length - 1, Math.floor((x - rect.left) / (rect.width / tabs.length))),
+    );
   };
   const startHold = (event: PointerEvent<HTMLUListElement>) => {
     if (event.button !== 0) return;
     clearTimer();
     suppressClick.current = false;
     const index = indexAt(event.clientX);
-    gesture.current = { id: event.pointerId, x: event.clientX, y: event.clientY, held: false, index };
+    gesture.current = {
+      id: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      held: false,
+      index,
+    };
     timer.current = setTimeout(() => {
       const current = gesture.current;
       if (!current) return;
@@ -105,9 +113,11 @@ export function MobileNav({
     gesture.current = null;
     setHeldIndex(null);
     if (!current.held) return;
-    if (gridRef.current?.hasPointerCapture(event.pointerId)) gridRef.current.releasePointerCapture(event.pointerId);
+    if (gridRef.current?.hasPointerCapture(event.pointerId))
+      gridRef.current.releasePointerCapture(event.pointerId);
     const rect = gridRef.current?.getBoundingClientRect();
-    if (cancelled || !rect || event.clientY < rect.top - 100 || event.clientY > rect.bottom + 60) return;
+    if (cancelled || !rect || event.clientY < rect.top - 100 || event.clientY > rect.bottom + 60)
+      return;
     const selected = tabs[indexAt(event.clientX)];
     if (selected && selected.to !== pathname) {
       playTabSound();
@@ -119,7 +129,7 @@ export function MobileNav({
   if (conversationOpen) return null;
 
   const renderTab = (item: MobileNavItem) => {
-    const active = isTabActive(item, pathname);
+    const active = pathname === item.to || pathname.startsWith(`${item.to}/`);
     return (
       <li key={item.to} className="min-w-0">
         <Link
@@ -131,8 +141,6 @@ export function MobileNav({
               refreshCurrent();
             } else playTabSound();
           }}
-          aria-label={label(item)}
-          title={label(item)}
           data-tour={item.tour}
           aria-current={active ? "page" : undefined}
           className={cn(
@@ -140,28 +148,43 @@ export function MobileNav({
             active ? "text-primary" : "text-muted-foreground active:text-foreground",
           )}
         >
-          <span className={cn("nav-tab-icon relative grid size-7 place-items-center", active && "nav-tab-icon-active")}>
+          <span className="relative grid size-7 place-items-center">
             <MemberNavIcon icon={item.icon} active={active} />
-            {item.to === "/messages" ? <UnreadMessageBadge count={unreadMessages} className="absolute -right-2 -top-1" /> : null}
+            {item.to === "/messages" && (
+              <UnreadMessageBadge count={unreadMessages} className="absolute -right-2 -top-1" />
+            )}
           </span>
+          <span className="max-w-full truncate">{label(item)}</span>
+          {active ? (
+            <span
+              className="absolute inset-x-2 top-0 h-0.5 rounded-b-full bg-primary"
+              aria-hidden
+            />
+          ) : null}
         </Link>
       </li>
     );
   };
 
   return (
-    <nav className="premium-mobile-nav fixed inset-x-0 z-40 lg:hidden" aria-label={tx("Primary navigation", "Navigation principale")}>
+    <nav
+      className="premium-mobile-nav fixed inset-x-0 z-40 lg:hidden"
+      aria-label={tx("Primary navigation", "Navigation principale")}
+    >
       <div className="premium-nav-pill nav-bar-fill relative w-full border-t border-border">
         <ul
           ref={gridRef}
-          className="premium-nav-grid relative mx-auto grid h-[3.75rem] max-w-lg items-stretch"
-          style={{ gridTemplateColumns: `repeat(${items.length + 1}, minmax(0, 1fr))` }}
+          className="premium-nav-grid relative mx-auto grid h-[3.75rem] max-w-lg grid-cols-5 items-stretch"
           data-held-index={heldIndex ?? undefined}
           onPointerDown={startHold}
           onPointerMove={moveHold}
           onPointerUp={(event) => endHold(event)}
           onPointerCancel={(event) => endHold(event, true)}
-          onLostPointerCapture={() => { clearTimer(); gesture.current = null; setHeldIndex(null); }}
+          onLostPointerCapture={() => {
+            clearTimer();
+            gesture.current = null;
+            setHeldIndex(null);
+          }}
           onContextMenu={(event) => event.preventDefault()}
           onDragStart={(event) => event.preventDefault()}
           onClickCapture={(event) => {
@@ -172,29 +195,50 @@ export function MobileNav({
             }
           }}
         >
-          <span aria-hidden="true" className="member-tab-indicator" style={{ width: `${100 / tabs.length}%`, transform: `translateX(${selectedTabIndex * 100}%)` }} />
-          {heldTab ? <li className="member-tab-bubble" aria-hidden="true"><span className="member-tab-bubble-icon"><MemberNavIcon icon={heldTab.icon} active /></span></li> : null}
+          {heldTab && (
+            <li className="member-tab-bubble" aria-hidden="true">
+              <span className="member-tab-bubble-icon">
+                <MemberNavIcon icon={heldTab.icon} active />
+              </span>
+              <span className="member-tab-bubble-label">{label(heldTab)}</span>
+            </li>
+          )}
           {items.map((item) => renderTab(item))}
           <li className="min-w-0">
             <Link
               to="/menu"
               preload="render"
               onClick={(event) => {
-                if (pathname === "/menu") { event.preventDefault(); refreshCurrent(); }
-                else playTabSound();
+                if (pathname === "/menu") {
+                  event.preventDefault();
+                  refreshCurrent();
+                } else playTabSound();
               }}
-              aria-label={t("nav.more")}
-              title={t("nav.more")}
               aria-current={pathname === "/menu" ? "page" : undefined}
               className={cn(
                 "premium-nav-item relative flex h-[3.75rem] min-w-0 flex-col items-center justify-center gap-0.5 px-0.5 pt-1 text-[10px] font-semibold",
-                pathname === "/menu" ? "text-primary" : "text-muted-foreground active:text-foreground",
+                pathname === "/menu"
+                  ? "text-primary"
+                  : "text-muted-foreground active:text-foreground",
               )}
             >
-              <span className={cn("nav-tab-icon relative grid size-7 place-items-center", pathname === "/menu" && "nav-tab-icon-active")}>
-                <Avatar path={profile?.avatar_url} name={profile?.full_name} className="member-avatar-ring size-7 p-[2px]" />
-                <span className="absolute -bottom-1 -right-1.5 z-10 grid size-[18px] place-items-center rounded-full border border-border bg-background text-foreground shadow-sm"><Menu className="size-3.5" strokeWidth={3} aria-hidden /></span>
+              <span className="relative grid size-7 place-items-center">
+                <Avatar
+                  path={profile?.avatar_url}
+                  name={profile?.full_name}
+                  className="member-avatar-ring size-7 p-[2px]"
+                />
+                <span className="absolute -bottom-1 -right-1.5 z-10 grid size-[18px] place-items-center rounded-full border border-border bg-background text-foreground shadow-sm">
+                  <Menu className="size-3.5" strokeWidth={3} aria-hidden />
+                </span>
               </span>
+              <span className="max-w-full truncate">{t("nav.more")}</span>
+              {pathname === "/menu" ? (
+                <span
+                  className="absolute inset-x-2 top-0 h-0.5 rounded-b-full bg-primary"
+                  aria-hidden
+                />
+              ) : null}
             </Link>
           </li>
         </ul>

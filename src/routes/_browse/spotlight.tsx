@@ -1,4 +1,3 @@
-import { SocialHub } from "@/components/refer/SocialHub";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
@@ -83,24 +82,9 @@ function useIsDesktop() {
 }
 
 function SpotlightPage() {
-  const { open } = Route.useSearch();
-  // Spotlight hub: bubbles + Spotlights + photo posts; a tapped Spotlight opens the reel viewer.
-  if (!open) {
-    return (
-      <div className="mx-auto w-full max-w-xl lg:max-w-2xl">
-        <h1 className="sr-only">Spotlight</h1>
-        <SocialHub />
-      </div>
-    );
-  }
-  return <SpotlightViewer open={open} />;
-}
-
-function SpotlightViewer({ open }: { open: string }) {
   const { tx } = useI18n();
   const navigate = useNavigate();
-  // Closing the viewer returns to Discover under the new navigation, else the Feed.
-  const home = "/spotlight" as const;
+  const { open } = Route.useSearch();
   const { data, isLoading } = useSpotlightFeed(40, open);
   const desktop = useIsDesktop();
   const scroller = useRef<HTMLDivElement>(null);
@@ -129,11 +113,11 @@ function SpotlightViewer({ open }: { open: string }) {
       if ((e.target as HTMLElement)?.tagName === "INPUT") return;
       if (e.key === "ArrowDown") step(1);
       if (e.key === "ArrowUp") step(-1);
-      if (e.key === "Escape") void navigate({ to: home });
+      if (e.key === "Escape") void navigate({ to: "/feed" });
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [desktop, navigate, home]);
+  }, [desktop, navigate]);
 
   const showPanel = desktop && panelOpen && active;
 
@@ -157,7 +141,7 @@ function SpotlightViewer({ open }: { open: string }) {
       <div className="relative min-w-0 flex-1">
         <button
           type="button"
-          onClick={() => void navigate({ to: home })}
+          onClick={() => void navigate({ to: "/feed" })}
           aria-label={tx("Close", "Fermer")}
           className="absolute left-4 top-4 z-20 hidden size-10 place-items-center rounded-full bg-on-dark/15 hover:bg-on-dark/25 lg:grid"
         >

@@ -1,4 +1,3 @@
-import { isStoryVideoSource, useMemberPosts } from "@/lib/social.queries";
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
@@ -35,20 +34,17 @@ import {
   useInstructorDetails,
 } from "@/lib/campus.queries";
 import { providerTimeZone, zoneLabel } from "@/lib/timezone";
-import { DiscoverVideo } from "@/components/refer/DiscoverVideo";
-import { CAMPUS_CHANNEL_POLICY } from "@/lib/campus-channel-policy";
-import { LockKeyhole, Radio, Bell } from "lucide-react";
 
 export const Route = createFileRoute("/_browse/campus/instructors/$instructorId")({
   head: () => ({
     meta: [
-      { title: "Instructor channel — ASH Campus" },
+      { title: "Instructor profile — ASH Campus" },
       {
         name: "description",
         content:
           "Qualifications, subjects, availability, services and reviews for an ASH Campus instructor.",
       },
-      { property: "og:title", content: "Instructor channel — ASH Campus" },
+      { property: "og:title", content: "Instructor profile — ASH Campus" },
       {
         property: "og:description",
         content: "See an ASH instructor's subjects, experience, availability and services.",
@@ -120,7 +116,7 @@ function InstructorProfilePage() {
         </Link>
       </Button>
 
-      <section className="border-b border-border pb-5">
+      <section className="rounded-3xl border border-border bg-card p-5">
         <div className="flex flex-wrap gap-4">
           <Avatar path={instructor.profile?.avatar_url} name={name} className="size-20" />
           <div className="min-w-0 flex-1">
@@ -162,8 +158,6 @@ function InstructorProfilePage() {
         ) : null}
 
         <div className="mt-4 flex flex-wrap gap-2">
-          <Button variant="outline" disabled={!CAMPUS_CHANNEL_POLICY.membershipsEnabled}><Bell className="size-4" />{tx("Subscribe — coming soon", "S’abonner — bientôt")}</Button>
-          <Button variant="outline" disabled={!CAMPUS_CHANNEL_POLICY.liveEnabled}><Radio className="size-4" />{tx("Live — coming soon", "Direct — bientôt")}</Button>
           <Button onClick={() => void message()} disabled={busy}>
             <MessageCircle className="size-4" aria-hidden />
             {tx("Message", "Message")}
@@ -210,12 +204,6 @@ function InstructorProfilePage() {
           <ReportDialog targetType="USER" targetUserId={instructor.user_id} targetLabel={name} />
         </div>
       </section>
-
-      <InstructorVideos userId={instructor.user_id} />
-      <Section title={tx("Courses", "Cours")}>
-        <div className="flex items-center gap-2 text-muted-foreground"><LockKeyhole className="size-5 text-primary" /><p className="text-sm">{tx("No paid courses published yet.", "Aucun cours payant publié pour l’instant.")}</p></div>
-        <Button className="mt-3" disabled={!CAMPUS_CHANNEL_POLICY.purchasesEnabled}>{tx("Buy all courses — coming soon", "Acheter tous les cours — bientôt")}</Button>
-      </Section>
 
       <Section title={tx("What is taught", "Ce qui est enseigné")}>
         <div className="flex flex-wrap gap-2">
@@ -407,52 +395,9 @@ function InstructorProfilePage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="border-t border-border pt-5">
+    <section className="rounded-2xl border border-border bg-card p-5">
       <h2 className="mb-3 font-display text-base font-bold text-foreground">{title}</h2>
       {children}
-    </section>
-  );
-}
-
-function InstructorVideos({ userId }: { userId: string }) {
-  const { tx } = useI18n();
-  const { data } = useMemberPosts(userId);
-  const videos = (data ?? []).filter((p) => p.images.some((src) => isStoryVideoSource(src)));
-  return (
-    <section aria-label={tx("Videos", "Vidéos")} className="space-y-3">
-      <h2 className="font-display text-lg font-bold text-foreground">{tx("Videos", "Vidéos")}</h2>
-      {videos.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          {tx("This instructor hasn't posted videos yet.", "Cet instructeur n'a pas encore publié de vidéos.")}
-        </p>
-      ) : (
-        <div className="space-y-4">
-          {videos.map((post) => {
-            const video = post.images.find((src) => isStoryVideoSource(src));
-            const poster = post.images.find((src) => !isStoryVideoSource(src));
-            const title = post.caption.split("\n").find((l) => l.trim()) ?? tx("Untitled video", "Vidéo sans titre");
-            return (
-              <article key={post.id} className="overflow-hidden">
-                {video && <DiscoverVideo src={video} poster={poster} title={title} />}
-                <div className="space-y-2 p-3">
-                  <p className="line-clamp-2 font-semibold text-foreground">{title}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {post.like_count} {tx("likes", "j'aime")} · {post.comment_count} {tx("comments", "commentaires")}
-                  </p>
-                  <div className="flex gap-2">
-                    <Button asChild><Link
-                      to="/post/$postId"
-                      params={{ postId: post.id }}
-                    >
-                      {tx("Watch & comment", "Regarder et commenter")}
-                    </Link></Button>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      )}
     </section>
   );
 }

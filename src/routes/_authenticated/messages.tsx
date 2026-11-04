@@ -22,11 +22,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useConversations } from "@/lib/marketplace.queries";
 import { useUser } from "@/lib/queries";
 import { ChatActionDialog } from "@/components/refer/ChatActionDialog";
-import { PlusActionPanel } from "@/components/refer/PlusActionPanel";
-import { useFeatureFlag } from "@/lib/feature-flags";
 import { StoriesRail, loadSpotlights } from "@/components/refer/StoriesRail";
 import { useStories } from "@/lib/social.queries";
-import { Play, CircleUserRound, Sparkles } from "lucide-react";
+import { Play, CircleUserRound } from "lucide-react";
 import ashLogo from "@/assets/ash-logo.png.asset.json";
 import { ChatThread } from "@/components/refer/ChatThread";
 import { AssistantPanel } from "@/components/refer/AssistantPanel";
@@ -142,10 +140,6 @@ function MessagesPage() {
   const supportPreview = tx(ashSupportConversation.preview, "Obtenez de l’aide de l’équipe ASH.");
   const fr = lang === "fr";
   const { user } = useUser();
-  // Under the new navigation, ASH AI and ASH Support live in the plus panel
-  // instead of permanent chat rows.
-  const newNav = useFeatureFlag("new_nav");
-  const plusButtonRef = useRef<HTMLButtonElement>(null);
   const { c } = Route.useSearch();
   const navigate = Route.useNavigate();
   const routerNavigate = useNavigate();
@@ -757,82 +751,19 @@ function MessagesPage() {
             {/* Stays pinned while the title and search scroll away, like WhatsApp. */}
             <div className="sticky top-0 z-20 h-0 shrink-0">
               <Button
-                ref={plusButtonRef}
                 size="icon"
                 variant="default"
                 className="absolute right-4 top-5 size-11 rounded-full shadow-lg"
                 aria-label={tx("New chat", "Nouvelle discussion")}
-                aria-expanded={newChatOpen}
-                aria-haspopup="dialog"
                 onClick={() => setNewChatOpen(true)}
               >
-                <Plus
-                  className={cn(
-                    "size-6 transition-transform duration-200",
-                    newNav && newChatOpen && "rotate-45",
-                  )}
-                />
+                <Plus className="size-6" />
               </Button>
             </div>
             <div data-inbox-head className="shrink-0 border-b border-border bg-card/75 px-4 pb-4 pt-5 will-change-[opacity,transform]">
               <h2 className="mb-4 flex min-h-11 items-center pr-14 font-display text-3xl font-bold text-foreground">
                 {t("chat.title")}
               </h2>
-              {newNav ? (
-                <PlusActionPanel
-                  open={newChatOpen}
-                  onClose={() => setNewChatOpen(false)}
-                  triggerRef={plusButtonRef}
-                  actions={[
-                    {
-                      id: ASH_AI_ID,
-                      icon: Sparkles,
-                      en: "ASH AI",
-                      fr: "ASH AI",
-                      enHint: "Intelligent assistance and AI conversations",
-                      frHint: "Assistance intelligente et conversations IA",
-                      tone: "purple",
-                      onSelect: () => void navigate({ search: { c: ASH_AI_ID } }),
-                    },
-                    {
-                      id: ASH_SUPPORT_ID,
-                      icon: LifeBuoy,
-                      en: "ASH Support",
-                      fr: "ASH Support",
-                      enHint: "Contact the ASH support team",
-                      frHint: "Contacter l’équipe d’assistance ASH",
-                      tone: "gold",
-                      onSelect: () => void navigate({ search: { c: ASH_SUPPORT_ID } }),
-                    },
-                  ]}
-                  secondary={
-                    <>
-                      <Button
-                        variant="ghost"
-                        className="h-11 w-full justify-start gap-3 text-[#F5F5F7] hover:bg-white/10"
-                        onClick={() => {
-                          setNewChatOpen(false);
-                          void routerNavigate({ to: "/friends" });
-                        }}
-                      >
-                        <UserPlus className="size-4" aria-hidden />
-                        {tx("Choose a contact", "Choisir un contact")}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        className="h-11 w-full justify-start gap-3 text-[#F5F5F7] hover:bg-white/10"
-                        onClick={() => {
-                          setNewChatOpen(false);
-                          setGroupDialog(true);
-                        }}
-                      >
-                        <Users className="size-4" aria-hidden />
-                        {tx("New group", "Nouveau groupe")}
-                      </Button>
-                    </>
-                  }
-                />
-              ) : (
               <ChatActionDialog
                 open={newChatOpen}
                 onOpenChange={setNewChatOpen}
@@ -872,7 +803,6 @@ function MessagesPage() {
                   {tx("Contact ASH support", "Contacter ASH")}
                 </Button>
               </ChatActionDialog>
-              )}
 
               {selection.length > 0 ? (
                 <div className="mb-2 flex items-center justify-between gap-2 rounded-full bg-primary/10 px-3 py-1.5">
@@ -1187,8 +1117,7 @@ function MessagesPage() {
                 </p>
               ) : null}
 
-              {!newNav &&
-                !showArchived &&
+              {!showArchived &&
                 (!term.trim() ||
                   `${ashSupportConversation.label} ${supportPreview}`
                     .toLowerCase()
@@ -1227,8 +1156,7 @@ function MessagesPage() {
                   </button>
                 )}
 
-              {!newNav &&
-                !showArchived &&
+              {!showArchived &&
                 (!term.trim() ||
                   `${ashAiConversation.label} ${aiPreview}`
                     .toLowerCase()

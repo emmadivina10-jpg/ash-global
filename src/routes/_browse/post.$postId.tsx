@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { PostCard } from "@/components/refer/PostCard";
 import { usePost } from "@/lib/social.queries";
 import { useI18n } from "@/lib/i18n";
-import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_browse/post/$postId")({
   head: () => ({
@@ -41,13 +40,14 @@ function PostPage() {
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
       <header className="flex shrink-0 items-center gap-3 border-b border-border px-3 pb-2 pt-[calc(0.5rem+env(safe-area-inset-top))]">
-        <Button variant="ghost" size="icon"
+        <button
+          type="button"
           onClick={back}
           aria-label={tx("Back", "Retour")}
           className="grid size-10 shrink-0 place-items-center rounded-full text-foreground transition-colors hover:bg-muted"
         >
           <ArrowLeft className="size-5" aria-hidden />
-        </Button>
+        </button>
         <p className="min-w-0 truncate text-sm font-bold text-foreground">
           {tx("Post", "Publication")}
         </p>

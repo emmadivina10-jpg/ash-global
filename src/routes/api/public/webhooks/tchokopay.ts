@@ -59,20 +59,128 @@ export const Route = createFileRoute("/api/public/webhooks/tchokopay")({
           const merchantReference = result.merchantReference;
           const status = result.status ?? "PENDING";
 
-          // Every collection kind (BKG/PLK/EVT/PRM/VER/CLN/TOP/activation) settles
-          // through the one idempotent settlement path, which also mirrors the ledger.
-          const { settleCollection } = await import("@/lib/payment-settlement.server");
-          const outcome = await settleCollection({
-            merchantReference,
-            providerReference: result.providerReference ?? null,
-            status,
+          // ASH Clean laundry payments share the one settlement path.
+          if (merchantReference.startsWith("CLN-")) {
+            const { settleCollection } = await import("@/lib/payment-settlement.server");
+            const outcome = await settleCollection({
+              merchantReference,
+              providerReference: result.providerReference ?? null,
+              status,
+              source: "WEBHOOK",
+              signatureVerified: true,
+            });
+            return new Response(JSON.stringify({ ok: outcome.ok }), {
+              status: outcome.ok ? 200 : 500,
+              headers: { "content-type": "application/json" },
+            });
+          }
+
+          const isBooking = merchantReference.startsWith("BKG-");
+
+          const isLink = merchantReference.startsWith("PLK-");
+
+          const isVerification = merchantReference.startsWith("VER-");
+
+          let settlementError: string | null = null;
+
+          if (status === "PAID") {
+            const { error } = isBooking
+              ? await supabaseAdmin.rpc("complete_booking_payment", {
+                  _payment_reference: merchantReference,
+                  ...(result.providerReference
+                    ? { _provider_transaction_id: result.providerReference }
+                    : {}),
+                })
+              : isLink
+                ? await supabaseAdmin.rpc("complete_link_payment", {
+                    _payment_reference: merchantReference,
+                    ...(result.providerReference
+                      ? { _provider_transaction_id: result.providerReference }
+                      : {}),
+                  })
+                : isVerification
+                  ? await supabaseAdmin.rpc("complete_verification", {
+                      _payment_reference: merchantReference,
+                      _provider_transaction_id: result.providerReference ?? "",
+                    })
+                  : await supabaseAdmin.rpc("complete_activation", {
+                      _payment_reference: merchantReference,
+                      _provider_transaction_id: result.providerReference ?? "",
+                    });
+
+            settlementError = error?.message ?? null;
+          }
+
+          if (status === "FAILED" || status === "CANCELLED") {
+            if (isBooking) {
+              const { error } = await supabaseAdmin.rpc("fail_booking_payment", {
+                _payment_reference: merchantReference,
+                _status: status,
+              });
+
+              settlementError = error?.message ?? null;
+            } else if (isLink) {
+              const { error } = await supabaseAdmin.rpc("fail_link_payment", {
+                _payment_reference: merchantReference,
+                _status: status,
+              });
+
+              settlementError = error?.message ?? null;
+            } else {
+              await supabaseAdmin
+                .from("activations")
+                .update({
+                  status,
+                  updated_at: new Date().toISOString(),
+                })
+                .eq("payment_reference", merchantReference)
+                .neq("status", "PAID");
+            }
+          }
+
+          await supabaseAdmin.from("payment_events").insert({
             source: "WEBHOOK",
-            signatureVerified: true,
+            reference: merchantReference,
+            status,
+            signature_verified: true,
+            outcome: settlementError ? "SETTLEMENT_FAILED" : "PROCESSED",
+            detail: {
+              event: result.event ?? null,
+              provider_reference: result.providerReference ?? null,
+              error: settlementError,
+              failure_reason: result.failureReason ?? null,
+            },
           });
-          return new Response(JSON.stringify({ ok: outcome.ok, type: "collection", status }), {
-            status: outcome.ok ? 200 : 500,
-            headers: { "content-type": "application/json" },
-          });
+
+          if (settlementError) {
+            return new Response(
+              JSON.stringify({
+                ok: false,
+                error: "SETTLEMENT_FAILED",
+              }),
+              {
+                status: 500,
+                headers: {
+                  "content-type": "application/json",
+                },
+              },
+            );
+          }
+
+          return new Response(
+            JSON.stringify({
+              ok: true,
+              type: "collection",
+              reference: merchantReference,
+              status,
+            }),
+            {
+              status: 200,
+              headers: {
+                "content-type": "application/json",
+              },
+            },
+          );
         }
 
         /*
