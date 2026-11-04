@@ -83,6 +83,9 @@ function FeedPage() {
   >();
   // Spotlights keep their slots too, so the Feed never shuffles under the reader.
   const navigate = useNavigate();
+  useEffect(() => {
+    if (newNav) void navigate({ to: "/discover", replace: true });
+  }, [newNav, navigate]);
   const [category, setCategory] = useState<FeedCategory>("for_you");
   const { data: friendships } = useFriendships();
   const filtered = useMemo(() => {
