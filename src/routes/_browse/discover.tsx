@@ -3,7 +3,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { BadgeCheck, GraduationCap, Play, Search, Upload } from "lucide-react";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { useInstructors } from "@/lib/campus.queries";
-import { useAuthGate } from "@/lib/guest-gate";
 import { useI18n } from "@/lib/i18n";
 import { useUser } from "@/lib/queries";
 import { isStoryVideoSource, useSocialFeed, type FeedPost } from "@/lib/social.queries";
@@ -127,7 +126,6 @@ function DiscoverPage() {
   const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const { user } = useUser();
-  const { isGuest } = useAuthGate();
   const [topic, setTopic] = useState("all");
   const { data: posts, isLoading } = useSocialFeed(120);
   const { data: instructors } = useInstructors({});
