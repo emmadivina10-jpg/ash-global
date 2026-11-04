@@ -26,9 +26,6 @@ function chain(table: string) {
   return q;
 }
 
-vi.mock("../src/integrations/supabase/client.server", () => ({
-  supabaseAdmin: { rpc: h.rpc, from: (t: string) => chain(t) },
-}));
 vi.mock("@/integrations/supabase/client.server", () => ({
   supabaseAdmin: { rpc: h.rpc, from: (t: string) => chain(t) },
 }));
@@ -40,9 +37,6 @@ vi.mock("@/lib/tchokopay.server", () => ({
     verifyLegacyPayment: h.verifyLegacy,
     getDisbursement: vi.fn(),
   },
-}));
-vi.mock("../src/lib/tchokopay.server", () => ({
-  tchokoPay: { getCollection: h.getCollection },
 }));
 vi.mock("@/lib/payment-settlement.server", async () => {
   const real = await vi.importActual<typeof import("../src/lib/payment-settlement.server")>(
