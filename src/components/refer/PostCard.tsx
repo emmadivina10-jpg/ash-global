@@ -23,6 +23,7 @@ import {
   isStoryVideoSource,
 } from "@/lib/social.queries";
 import { DiscoverVideo } from "./DiscoverVideo";
+import { VideoActions } from "./VideoActions";
 import { SocialPostOwnerActions } from "./SocialPostOwnerActions";
 import { SafetyMenu } from "./SafetyMenu";
 import { useI18n } from "@/lib/i18n";
@@ -163,6 +164,7 @@ export function PostCard({
             {post.city ? ` · ${post.city}` : ""}
           </p>
         </div>
+        {video && <VideoActions id={post.id} title={post.caption.split("\n")[0] || tx("Video", "Vidéo")} authorId={post.author_id} />}
         {mine ? (
           <SocialPostOwnerActions postId={post.id} caption={post.caption} />
         ) : currentUserId ? (
