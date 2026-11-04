@@ -97,7 +97,7 @@ export function PlusActionPanel({
         type="button"
         aria-label={tx("Close", "Fermer")}
         onClick={onClose}
-        className="plus-scrim absolute inset-0 cursor-default bg-black/55 backdrop-blur-[2px]"
+        className="plus-scrim absolute inset-0 cursor-default bg-black/60 backdrop-blur-sm"
       />
       <div
         ref={panelRef}
@@ -106,7 +106,7 @@ export function PlusActionPanel({
         aria-label={tx("Quick actions", "Actions rapides")}
         className="plus-panel absolute right-3 top-[calc(4.5rem+env(safe-area-inset-top))] w-[min(92vw,360px)] rounded-3xl border border-white/10 p-3 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.7),0_0_40px_-10px_rgba(75,0,130,0.45)]"
         style={{
-          background: "rgba(18,18,24,0.72)",
+          background: "rgba(18,18,24,0.94)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
           transformOrigin: "top right",
