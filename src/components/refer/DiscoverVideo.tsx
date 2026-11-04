@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
+import { videoOrientation } from "@/lib/campus-channel-policy";
 
 /** Hold for a silent preview; open playback retains native seek/fullscreen controls. */
 export function DiscoverVideo({ src, poster, title }: { src: string; poster?: string | undefined; title: string }) {
@@ -14,6 +15,7 @@ export function DiscoverVideo({ src, poster, title }: { src: string; poster?: st
   const [opened, setOpened] = useState(false);
   const [preview, setPreview] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [orientation, setOrientation] = useState<"portrait" | "landscape">("landscape");
   const clear = () => {
     if (timer.current) clearTimeout(timer.current);
     timer.current = null;
@@ -57,7 +59,7 @@ export function DiscoverVideo({ src, poster, title }: { src: string; poster?: st
     void video.play().catch(() => setFailed(true));
   };
   return (
-    <div className="discover-video-stage relative aspect-video w-full overflow-hidden">
+    <div data-orientation={orientation} className={`discover-video-stage relative w-full overflow-hidden ${orientation === "portrait" ? "h-[min(75dvh,48rem)]" : "aspect-video"}`}>
       <video
         ref={ref}
         src={src}
@@ -69,6 +71,7 @@ export function DiscoverVideo({ src, poster, title }: { src: string; poster?: st
         aria-label={title}
         className="absolute inset-0 h-full w-full object-contain"
         onError={() => setFailed(true)}
+        onLoadedMetadata={(event) => setOrientation(videoOrientation(event.currentTarget.videoWidth, event.currentTarget.videoHeight))}
         onPlay={(event) => {
           for (const other of document.querySelectorAll("video")) {
             if (other !== event.currentTarget) other.pause();
