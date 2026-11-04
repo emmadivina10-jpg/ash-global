@@ -172,6 +172,7 @@ export function PlusActionPanel({
           <div className="mt-2 space-y-1 border-t border-white/10 pt-2">{secondary}</div>
         ) : null}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
