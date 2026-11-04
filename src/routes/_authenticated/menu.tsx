@@ -44,6 +44,7 @@ import { useI18n } from "@/lib/i18n";
 import { useIsAdmin, useProfile } from "@/lib/queries";
 import { useRegion } from "@/lib/region-context";
 import { useFeatureFlag } from "@/lib/feature-flags";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/menu")({
   head: () => ({
@@ -265,6 +266,8 @@ function MenuPage() {
     await supabase.auth.signOut();
     void navigate({ to: "/login", replace: true });
   }
+
+  if (newNav) return <NewMenuPage profile={profile} isAdmin={isAdmin} signOut={signOut} />;
 
   const [showAll, setShowAll] = useState(false);
   const [openPanel, setOpenPanel] = useState<string | null>(null);
