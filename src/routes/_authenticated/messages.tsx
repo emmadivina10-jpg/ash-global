@@ -26,7 +26,7 @@ import { PlusActionPanel } from "@/components/refer/PlusActionPanel";
 import { useFeatureFlag } from "@/lib/feature-flags";
 import { StoriesRail, loadSpotlights } from "@/components/refer/StoriesRail";
 import { useStories } from "@/lib/social.queries";
-import { Play, CircleUserRound } from "lucide-react";
+import { Play, CircleUserRound, Sparkles } from "lucide-react";
 import ashLogo from "@/assets/ash-logo.png.asset.json";
 import { ChatThread } from "@/components/refer/ChatThread";
 import { AssistantPanel } from "@/components/refer/AssistantPanel";
@@ -1187,7 +1187,8 @@ function MessagesPage() {
                 </p>
               ) : null}
 
-              {!showArchived &&
+              {!newNav &&
+                !showArchived &&
                 (!term.trim() ||
                   `${ashSupportConversation.label} ${supportPreview}`
                     .toLowerCase()
@@ -1226,7 +1227,8 @@ function MessagesPage() {
                   </button>
                 )}
 
-              {!showArchived &&
+              {!newNav &&
+                !showArchived &&
                 (!term.trim() ||
                   `${ashAiConversation.label} ${aiPreview}`
                     .toLowerCase()
