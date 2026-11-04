@@ -159,7 +159,7 @@
     var(--verified-magenta),
     var(--verified-violet)
   );
-  --chat-outgoing: oklch(0.91 0.065 160);
+  --chat-outgoing: color-mix(in oklab, var(--primary) 16%, var(--background));
   --radius: 1rem;
 
   --background: oklch(0.9885 0.0035 285);
@@ -238,7 +238,7 @@
 }
 
 .dark {
-  --chat-outgoing: oklch(0.43 0.068 165);
+  --chat-outgoing: color-mix(in oklab, var(--primary) 38%, var(--background));
   --background: oklch(0.24 0.004 260);
   --foreground: oklch(0.9268 0.0065 264.5);
   --card: oklch(0.29 0.005 260);
