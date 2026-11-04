@@ -5,6 +5,7 @@ import { AppShell } from "@/components/refer/AppShell";
 import { GuestShell } from "@/components/refer/GuestShell";
 import { BrowseAuthProvider } from "@/lib/guest-gate";
 import { lacksCurrentTerms } from "@/lib/consent";
+import { prefetchFeatureFlags } from "@/lib/feature-flags";
 
 type GateProfile = {
   moderation_banned_at: string | null;
@@ -41,41 +42,49 @@ async function memberGate(user: User) {
  */
 export const Route = createFileRoute("/_browse")({
   ssr: false,
-  beforeLoad: async () => {
-    // Trust the persisted session first, mirroring the authenticated gate.
-    const { data: sessionData } = await supabase.auth.getSession();
-    if (sessionData.session?.user) {
-      await memberGate(sessionData.session.user);
-      return { user: sessionData.session.user };
-    }
-
-    // The session may still be rehydrating on a cold start; give it a brief
-    // window before treating the visitor as a guest.
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      await new Promise((resolve) => setTimeout(resolve, 120));
-      const { data: retry } = await supabase.auth.getSession();
-      if (retry.session?.user) {
-        await memberGate(retry.session.user);
-        return { user: retry.session.user };
-      }
-    }
-
-    try {
-      const { data, error } = await supabase.auth.getUser();
-      if (data.user) {
-        await memberGate(data.user);
-        return { user: data.user };
-      }
-      if (error) throw error;
-    } catch {
-      const { data: last } = await supabase.auth.getSession();
-      if (last.session?.user) return { user: last.session.user };
-    }
-    // No session: welcome, guest.
-    return { user: null };
+  beforeLoad: async ({ context }) => {
+    // Feature switches load alongside the session so the tab bar renders once, correctly.
+    const flags = prefetchFeatureFlags(context.queryClient);
+    const result = await resolveVisitor();
+    await flags;
+    return result;
   },
   component: BrowseLayout,
 });
+
+async function resolveVisitor(): Promise<{ user: User | null }> {
+  // Trust the persisted session first, mirroring the authenticated gate.
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (sessionData.session?.user) {
+    await memberGate(sessionData.session.user);
+    return { user: sessionData.session.user };
+  }
+
+  // The session may still be rehydrating on a cold start; give it a brief
+  // window before treating the visitor as a guest.
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 120));
+    const { data: retry } = await supabase.auth.getSession();
+    if (retry.session?.user) {
+      await memberGate(retry.session.user);
+      return { user: retry.session.user };
+    }
+  }
+
+  try {
+    const { data, error } = await supabase.auth.getUser();
+    if (data.user) {
+      await memberGate(data.user);
+      return { user: data.user };
+    }
+    if (error) throw error;
+  } catch {
+    const { data: last } = await supabase.auth.getSession();
+    if (last.session?.user) return { user: last.session.user };
+  }
+  // No session: welcome, guest.
+  return { user: null };
+}
 
 function BrowseLayout() {
   const { user } = Route.useRouteContext();
