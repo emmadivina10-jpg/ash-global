@@ -63,7 +63,9 @@ import { Route as AuthenticatedVerifiedRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedWithdrawRouteImport } from './routes/_authenticated/withdraw'
 import { Route as BrowseDealsRouteImport } from './routes/_browse/deals'
+import { Route as BrowseDiscoverRouteImport } from './routes/_browse/discover'
 import { Route as BrowseFeedRouteImport } from './routes/_browse/feed'
+import { Route as BrowseKitchenRouteImport } from './routes/_browse/kitchen'
 import { Route as BrowseSearchRouteImport } from './routes/_browse/search'
 import { Route as BrowseSpotlightRouteImport } from './routes/_browse/spotlight'
 import { Route as ApiStaffMemberAiRouteImport } from './routes/api/staff-member-ai'
@@ -434,9 +436,19 @@ const BrowseDealsRoute = BrowseDealsRouteImport.update({
   path: '/deals',
   getParentRoute: () => BrowseRouteRoute,
 } as any)
+const BrowseDiscoverRoute = BrowseDiscoverRouteImport.update({
+  id: '/discover',
+  path: '/discover',
+  getParentRoute: () => BrowseRouteRoute,
+} as any)
 const BrowseFeedRoute = BrowseFeedRouteImport.update({
   id: '/feed',
   path: '/feed',
+  getParentRoute: () => BrowseRouteRoute,
+} as any)
+const BrowseKitchenRoute = BrowseKitchenRouteImport.update({
+  id: '/kitchen',
+  path: '/kitchen',
   getParentRoute: () => BrowseRouteRoute,
 } as any)
 const BrowseSearchRoute = BrowseSearchRouteImport.update({
@@ -989,7 +1001,9 @@ export interface FileRoutesByFullPath {
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
   '/deals': typeof BrowseDealsRoute
+  '/discover': typeof BrowseDiscoverRoute
   '/feed': typeof BrowseFeedRoute
+  '/kitchen': typeof BrowseKitchenRoute
   '/search': typeof BrowseSearchRoute
   '/spotlight': typeof BrowseSpotlightRoute
   '/api/staff-member-ai': typeof ApiStaffMemberAiRoute
@@ -1137,7 +1151,9 @@ export interface FileRoutesByTo {
   '/wallet': typeof AuthenticatedWalletRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
   '/deals': typeof BrowseDealsRoute
+  '/discover': typeof BrowseDiscoverRoute
   '/feed': typeof BrowseFeedRoute
+  '/kitchen': typeof BrowseKitchenRoute
   '/search': typeof BrowseSearchRoute
   '/spotlight': typeof BrowseSpotlightRoute
   '/api/staff-member-ai': typeof ApiStaffMemberAiRoute
@@ -1289,7 +1305,9 @@ export interface FileRoutesById {
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/_authenticated/withdraw': typeof AuthenticatedWithdrawRoute
   '/_browse/deals': typeof BrowseDealsRoute
+  '/_browse/discover': typeof BrowseDiscoverRoute
   '/_browse/feed': typeof BrowseFeedRoute
+  '/_browse/kitchen': typeof BrowseKitchenRoute
   '/_browse/search': typeof BrowseSearchRoute
   '/_browse/spotlight': typeof BrowseSpotlightRoute
   '/api/staff-member-ai': typeof ApiStaffMemberAiRoute
@@ -1440,7 +1458,9 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/withdraw'
     | '/deals'
+    | '/discover'
     | '/feed'
+    | '/kitchen'
     | '/search'
     | '/spotlight'
     | '/api/staff-member-ai'
@@ -1588,7 +1608,9 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/withdraw'
     | '/deals'
+    | '/discover'
     | '/feed'
+    | '/kitchen'
     | '/search'
     | '/spotlight'
     | '/api/staff-member-ai'
@@ -1739,7 +1761,9 @@ export interface FileRouteTypes {
     | '/_authenticated/wallet'
     | '/_authenticated/withdraw'
     | '/_browse/deals'
+    | '/_browse/discover'
     | '/_browse/feed'
+    | '/_browse/kitchen'
     | '/_browse/search'
     | '/_browse/spotlight'
     | '/api/staff-member-ai'
@@ -2258,11 +2282,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BrowseDealsRouteImport
       parentRoute: typeof BrowseRouteRoute
     }
+    '/_browse/discover': {
+      id: '/_browse/discover'
+      path: '/discover'
+      fullPath: '/discover'
+      preLoaderRoute: typeof BrowseDiscoverRouteImport
+      parentRoute: typeof BrowseRouteRoute
+    }
     '/_browse/feed': {
       id: '/_browse/feed'
       path: '/feed'
       fullPath: '/feed'
       preLoaderRoute: typeof BrowseFeedRouteImport
+      parentRoute: typeof BrowseRouteRoute
+    }
+    '/_browse/kitchen': {
+      id: '/_browse/kitchen'
+      path: '/kitchen'
+      fullPath: '/kitchen'
+      preLoaderRoute: typeof BrowseKitchenRouteImport
       parentRoute: typeof BrowseRouteRoute
     }
     '/_browse/search': {
@@ -3042,7 +3080,9 @@ const AuthenticatedRouteRouteWithChildren =
 
 interface BrowseRouteRouteChildren {
   BrowseDealsRoute: typeof BrowseDealsRoute
+  BrowseDiscoverRoute: typeof BrowseDiscoverRoute
   BrowseFeedRoute: typeof BrowseFeedRoute
+  BrowseKitchenRoute: typeof BrowseKitchenRoute
   BrowseSearchRoute: typeof BrowseSearchRoute
   BrowseSpotlightRoute: typeof BrowseSpotlightRoute
   BrowseArticlesArticleIdRoute: typeof BrowseArticlesArticleIdRoute
@@ -3066,7 +3106,9 @@ interface BrowseRouteRouteChildren {
 
 const BrowseRouteRouteChildren: BrowseRouteRouteChildren = {
   BrowseDealsRoute: BrowseDealsRoute,
+  BrowseDiscoverRoute: BrowseDiscoverRoute,
   BrowseFeedRoute: BrowseFeedRoute,
+  BrowseKitchenRoute: BrowseKitchenRoute,
   BrowseSearchRoute: BrowseSearchRoute,
   BrowseSpotlightRoute: BrowseSpotlightRoute,
   BrowseArticlesArticleIdRoute: BrowseArticlesArticleIdRoute,
