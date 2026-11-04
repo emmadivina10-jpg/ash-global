@@ -267,10 +267,10 @@ function MenuPage() {
     void navigate({ to: "/login", replace: true });
   }
 
-  if (newNav) return <NewMenuPage profile={profile} isAdmin={isAdmin} signOut={signOut} />;
-
   const [showAll, setShowAll] = useState(false);
   const [openPanel, setOpenPanel] = useState<string | null>(null);
+
+  if (newNav) return <NewMenuPage profile={profile} isAdmin={isAdmin} signOut={signOut} />;
   const tiles = sections
     .flatMap((section) => section.items)
     .filter((item) => !item.referral || region.referralEnabled);
