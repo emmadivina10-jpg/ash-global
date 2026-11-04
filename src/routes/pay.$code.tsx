@@ -12,7 +12,7 @@ import {
 } from "@/components/refer/PaymentMethodPicker";
 import {
   startLinkAltPayment,
-  syncLedgerPayment,
+  syncLinkPayment,
   type BankDetails,
 } from "@/lib/payments-ledger.functions";
 import { Button } from "@/components/ui/button";
@@ -77,7 +77,7 @@ function PayPage() {
   const start = useServerFn(startLinkPayment);
   const verify = useServerFn(verifyLinkPayment);
   const startAlt = useServerFn(startLinkAltPayment);
-  const syncLedger = useServerFn(syncLedgerPayment);
+  const syncLedger = useServerFn(syncLinkPayment);
   const [bank, setBank] = useState<BankDetails | null>(null);
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
@@ -105,7 +105,7 @@ function PayPage() {
         return;
       }
       // Card and bank payments are tracked on the central ledger.
-      const ledger = await syncLedger({ data: { reference: reference! } });
+      const ledger = await syncLedger({ data: { reference: reference!, code: link.code } });
       if (cancelled) return;
       if (ledger.status === "SUCCESS") setStatus("PAID");
       else if (ledger.status !== "NOT_FOUND") setStatus(ledger.status);

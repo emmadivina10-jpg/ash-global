@@ -401,66 +401,116 @@ export const startBookingBankPayment = createServerFn({ method: "POST" })
 
 /* ------------------------------ Sync status ------------------------------ */
 
+type LedgerSyncRow = {
+  reference: string;
+  provider: string;
+  provider_reference: string | null;
+  status: string;
+  method: string | null;
+  detail: unknown;
+};
+
+const LEDGER_SYNC_COLUMNS =
+  "reference, user_id, provider, provider_reference, status, method, detail, purpose, purpose_ref";
+
 /**
  * Re-checks a ledger payment with its provider (Stripe or TchokoPay) and
  * settles only on a verified outcome. Bank rows are never changed here.
- * References are unguessable; only the status is returned.
+ * Callers must have already proven they own the row.
  */
-export const syncLedgerPayment = createServerFn({ method: "POST" })
+async function syncLedgerRow(
+  row: LedgerSyncRow,
+): Promise<{ status: string; method: string | null }> {
+  if (
+    ["SUCCESS", "FAILED", "CANCELLED", "REFUNDED", "EXPIRED"].includes(row.status) ||
+    row.provider === "BANK"
+  ) {
+    return { status: row.status, method: row.method };
+  }
+  const { settleCollection } = await import("./payment-settlement.server");
+  if (row.provider === "STRIPE") {
+    const sessionId = (row.detail as { session_id?: string } | null)?.session_id;
+    if (!sessionId) return { status: row.status, method: row.method };
+    const { stripePay } = await import("./stripe.server");
+    const v = await stripePay.verifySession(sessionId);
+    if (v.ok && v.status !== "PENDING") {
+      const r = await settleCollection({
+        merchantReference: row.reference,
+        providerReference: v.paymentIntentId,
+        status: v.status,
+        source: "STRIPE_VERIFY",
+      });
+      return {
+        status: v.status === "PAID" ? (r.ok ? "SUCCESS" : "PROCESSING") : v.status,
+        method: row.method,
+      };
+    }
+    return { status: row.status, method: row.method };
+  }
+  if (row.provider_reference?.startsWith("REQ-")) {
+    const { tchokoPay } = await import("./tchokopay.server");
+    const v = await tchokoPay.getCollection(row.provider_reference);
+    if (v.ok && v.status !== "PENDING" && v.status !== "PROCESSING") {
+      const r = await settleCollection({
+        merchantReference: row.reference,
+        providerReference: row.provider_reference,
+        status: v.status,
+        source: "LEDGER_VERIFY",
+      });
+      return {
+        status: v.status === "PAID" ? (r.ok ? "SUCCESS" : "PROCESSING") : v.status,
+        method: row.method,
+      };
+    }
+  }
+  return { status: row.status, method: row.method };
+}
+
+/** Signed-in member re-checks one of their own ledger payments (e.g. a top-up). */
+export const syncMyLedgerPayment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((i: { reference: string }) => ({
     reference: String(i?.reference ?? "").slice(0, 64),
   }))
-  .handler(async ({ data }): Promise<{ status: string; method: string | null }> => {
+  .handler(async ({ data, context }): Promise<{ status: string; method: string | null }> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row } = await supabaseAdmin
       .from("payment_transactions")
-      .select("reference, provider, provider_reference, status, method, detail")
+      .select(LEDGER_SYNC_COLUMNS)
       .eq("reference", data.reference)
       .maybeSingle();
-    if (!row) return { status: "NOT_FOUND", method: null };
-    if (
-      ["SUCCESS", "FAILED", "CANCELLED", "REFUNDED", "EXPIRED"].includes(row.status) ||
-      row.provider === "BANK"
-    ) {
-      return { status: row.status, method: row.method };
+    if (!row || row.user_id !== context.userId) return { status: "NOT_FOUND", method: null };
+    return syncLedgerRow(row as LedgerSyncRow);
+  });
+
+/** Payer (possibly a guest) re-checks a payment-link charge; needs the link code too. */
+export const syncLinkPayment = createServerFn({ method: "POST" })
+  .inputValidator((i: { reference: string; code: string }) => ({
+    reference: String(i?.reference ?? "").slice(0, 64),
+    code: String(i?.code ?? "").slice(0, 64),
+  }))
+  .handler(async ({ data }): Promise<{ status: string; method: string | null }> => {
+    const { getRequest } = await import("@tanstack/react-start/server");
+    const { guardPublicRequest } = await import("./rate-limit.server");
+    const blocked = await guardPublicRequest({
+      request: getRequest(),
+      bucket: "ledger-link-sync",
+      route: "syncLinkPayment",
+      limit: 10,
+      windowSeconds: 60,
+    });
+    if (blocked) return { status: "RATE_LIMITED", method: null };
+    if (!data.reference || !data.code) return { status: "NOT_FOUND", method: null };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row } = await supabaseAdmin
+      .from("payment_transactions")
+      .select(LEDGER_SYNC_COLUMNS)
+      .eq("reference", data.reference)
+      .maybeSingle();
+    if (!row || row.purpose !== "PAYMENT_LINK" || row.purpose_ref !== data.code) {
+      return { status: "NOT_FOUND", method: null };
     }
-    const { settleCollection } = await import("./payment-settlement.server");
-    if (row.provider === "STRIPE") {
-      const sessionId = (row.detail as { session_id?: string } | null)?.session_id;
-      if (!sessionId) return { status: row.status, method: row.method };
-      const { stripePay } = await import("./stripe.server");
-      const v = await stripePay.verifySession(sessionId);
-      if (v.ok && v.status !== "PENDING") {
-        const r = await settleCollection({
-          merchantReference: row.reference,
-          providerReference: v.paymentIntentId,
-          status: v.status,
-          source: "STRIPE_VERIFY",
-        });
-        return {
-          status: v.status === "PAID" ? (r.ok ? "SUCCESS" : "PROCESSING") : v.status,
-          method: row.method,
-        };
-      }
-      return { status: row.status, method: row.method };
-    }
-    if (row.provider_reference?.startsWith("REQ-")) {
-      const { tchokoPay } = await import("./tchokopay.server");
-      const v = await tchokoPay.getCollection(row.provider_reference);
-      if (v.ok && v.status !== "PENDING" && v.status !== "PROCESSING") {
-        const r = await settleCollection({
-          merchantReference: row.reference,
-          providerReference: row.provider_reference,
-          status: v.status,
-          source: "LEDGER_VERIFY",
-        });
-        return {
-          status: v.status === "PAID" ? (r.ok ? "SUCCESS" : "PROCESSING") : v.status,
-          method: row.method,
-        };
-      }
-    }
-    return { status: row.status, method: row.method };
+    return syncLedgerRow(row as LedgerSyncRow);
   });
 
 /* ------------------------------ Finance console ------------------------------ */

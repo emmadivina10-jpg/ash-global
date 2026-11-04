@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
   startWalletTopup,
-  syncLedgerPayment,
+  syncMyLedgerPayment,
   type BankDetails,
 } from "@/lib/payments-ledger.functions";
 import { paymentErrorMessage } from "@/lib/payment-errors";
@@ -33,7 +33,7 @@ export function WalletTopupDialog({
   const queryClient = useQueryClient();
   const { country } = useRegion();
   const start = useServerFn(startWalletTopup);
-  const sync = useServerFn(syncLedgerPayment);
+  const sync = useServerFn(syncMyLedgerPayment);
   const [amount, setAmount] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
