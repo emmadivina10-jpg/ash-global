@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
+  Aperture,
   ArrowLeft,
   ChevronDown,
   Bell,
@@ -41,7 +42,6 @@ import { LocationNudge } from "./LocationNudge";
 import { StatusBadge } from "./StatusBadge";
 import { NotificationBell } from "./NotificationBell";
 import { PushBridge } from "./PushBridge";
-import { WelcomeIntro } from "./WelcomeIntro";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAvatarUrl } from "./AvatarUpload";
 import { VerifiedBadge } from "./VerifiedBadge";
@@ -79,16 +79,17 @@ type NavItem = {
 };
 
 const MOBILE_NAV: NavItem[] = [
-  { to: "/feed", en: "Feed", fr: "Fil", icon: Flame, tour: "feed" },
+  { to: "/discover", en: "Discover", fr: "Découvrir", icon: Clapperboard },
   { to: "/services", en: "Services", fr: "Services", icon: Sparkles, tour: "market" },
-  { to: "/spotlight", en: "Spotlight", fr: "Spotlight", icon: Clapperboard },
+  { to: "/spotlight", en: "Spotlight", fr: "Spotlight", icon: Aperture },
   { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle, tour: "messages" },
 ];
 
 const DESKTOP_NAV: NavItem[] = [
   { to: "/services", key: "nav.services" as TKey, icon: Store, tour: "market" },
   { to: "/feed", en: "Feed", fr: "Fil", icon: Flame, tour: "feed" },
-  { to: "/spotlight", en: "Spotlight", fr: "Spotlight", icon: Clapperboard },
+  { to: "/discover", en: "Discover", fr: "Découvrir", icon: Clapperboard },
+  { to: "/spotlight", en: "Spotlight", fr: "Spotlight", icon: Aperture },
   { to: "/flights", en: "Flights", fr: "Vols", icon: Plane },
   { to: "/search", key: "nav.search" as TKey, label: "Search", icon: Search, tour: "search" },
   { to: "/campus", en: "Learn", fr: "Apprendre", label: "Learn", icon: GraduationCap },
@@ -105,6 +106,7 @@ const MORE_GROUPS: { en: string; fr: string; items: NavItem[] }[] = [
     fr: "Communauté",
     items: [
       { to: "/feed", en: "Feed", fr: "Fil", icon: Flame },
+      { to: "/spotlight", en: "Spotlight", fr: "Spotlight", icon: Aperture },
       { to: "/friends", en: "Friends", fr: "Amis", icon: Users },
       { to: "/groups", en: "Groups", fr: "Groupes", icon: MessageCircle },
       { to: "/articles", key: "nav.articles" as TKey, label: "Articles", icon: BookOpen },
@@ -178,7 +180,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       .filter((item) => !item.referralOnly || region.referralEnabled)
       .map((item) => {
         if (item.to !== "/services" || servicesMode !== "market") return item;
-        const marketItem: NavItem = { ...item, en: "Market", fr: "Market", icon: Store };
+        const marketItem: NavItem = { ...item, en: "Shop", fr: "Shop", icon: Store };
         delete marketItem.key;
         return marketItem;
       });
@@ -189,9 +191,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   // Member profiles opened from the feed get a back arrow instead of the logo bar.
   const onMemberProfile = /^\/u\/.+/.test(pathname);
   // Every screen that isn't a main tab gets a Back button to where the member came from.
-  const topLevel = ["/feed", "/services", "/services/extras", "/spotlight", "/messages", "/menu"].includes(
-    pathname.replace(/\/$/, "") || "/",
-  );
+  const topLevel = [
+    "/feed",
+    "/services",
+    "/services/extras",
+    "/spotlight",
+    "/messages",
+    "/menu",
+  ].includes(pathname.replace(/\/$/, "") || "/");
   // Back arrows only on member profiles; tapping the current tab returns to the top instead.
   const showBack = onMemberProfile;
   void topLevel;
@@ -200,10 +207,15 @@ export function AppShell({ children }: { children: ReactNode }) {
     else void navigate({ to: "/feed" });
   };
   const logoOnlyHeader = true; // Keep existing non-feed header controls unchanged.
-  const pageOwnsHeader = ["/messages", "/services", "/flights", "/spotlight", "/menu"].some(
-    (path) => pathname === path || pathname.startsWith(`${path}/`),
-  );
-  const roomyMemberTab = ["/feed", "/services", "/spotlight", "/menu"].some(
+  const pageOwnsHeader = [
+    "/messages",
+    "/services",
+    "/flights",
+    "/spotlight",
+    "/discover",
+    "/menu",
+  ].some((path) => pathname === path || pathname.startsWith(`${path}/`));
+  const roomyMemberTab = ["/feed", "/services", "/spotlight", "/discover", "/menu"].some(
     (path) => pathname === path || pathname === `${path}/` || pathname === `${path}/extras`,
   );
 
@@ -258,7 +270,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="app-shell safe-top min-h-dvh bg-background">
       <PushBridge />
-      <WelcomeIntro />
       <div className="app-shell-frame flex w-full">
         <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col overflow-y-auto overscroll-contain border-r border-border bg-sidebar p-5 lg:flex">
           <Link to="/services" className="mb-8 inline-flex">
@@ -283,7 +294,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               >
                 <span
                   className={cn(
-                    "grid size-9 shrink-0 place-items-center rounded-[0.8rem] text-primary-foreground shadow-sm ring-1 ring-border/40 transition-transform group-hover:scale-105",
+                    "icon-luxe-surface grid size-9 shrink-0 place-items-center rounded-[0.8rem] text-primary-foreground shadow-sm ring-1 ring-border/40 transition-transform group-hover:scale-105",
                     SIDE_TILES[index % SIDE_TILES.length],
                   )}
                 >
@@ -533,7 +544,6 @@ export function AppShell({ children }: { children: ReactNode }) {
               </div>
             </header>
           )}
-
 
           {profile && <SecurityAlertBanner />}
           {profile && (

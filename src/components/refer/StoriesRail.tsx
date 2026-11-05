@@ -30,6 +30,7 @@ import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useUser } from "@/lib/queries";
+import { fetchPublicProviderIdentities } from "@/lib/provider-public";
 import { openConversation } from "@/lib/marketplace.queries";
 import { verifyMediaFiles } from "@/lib/media-safety";
 import {
@@ -262,11 +263,16 @@ export async function loadSpotlights(): Promise<SpotlightPost[]> {
     .filter((path): path is string => Boolean(path));
 
   const since = new Date(Date.now() - 5 * 60_000).toISOString();
+  const { data: sessionData } = await supabase.auth.getSession();
   const [providersResult, profilesResult, signedResult, presenceResult] = await Promise.all([
-    supabase
-      .from("provider_profiles")
-      .select("id, user_id, business_name, city, avatar_url, is_verified, rating_avg, rating_count")
-      .in("user_id", authorIds),
+    sessionData.session
+      ? supabase
+          .from("provider_profiles")
+          .select(
+            "id, user_id, business_name, city, avatar_url, is_verified, rating_avg, rating_count",
+          )
+          .in("user_id", authorIds)
+      : fetchPublicProviderIdentities(authorIds, []).then((rows) => ({ data: rows, error: null })),
     directory()
       .select("user_id, full_name, avatar_url, verified_tier, verified_until")
       .in("user_id", authorIds),

@@ -11,6 +11,7 @@ import { directory } from "@/lib/public-profiles";
 import { trackEvent } from "./activity";
 import { rotateSessionContent, freshness, engagement } from "./rotation";
 import { useUser } from "./queries";
+import { fetchPublicProviderIdentities } from "./provider-public";
 
 export const SPOTLIGHT_BUCKET = "spotlight";
 
@@ -78,27 +79,31 @@ export function useSpotlightFeed(limit = 18, pinnedId?: string | null) {
   const { user, loading } = useUser();
   return useQuery({
     queryKey: ["spotlight-feed", limit, user?.id, pinned],
-    enabled: !loading && Boolean(user),
+    enabled: !loading,
     staleTime: 30_000,
     queryFn: async (): Promise<SpotlightEntry[]> => {
+      const postsQuery = user
+        ? supabase
+            .from("spotlight_posts")
+            .select("id, author_id, provider_id, caption, media, created_at")
+            .eq("is_published", true)
+            // Spotlights (and their likes and comments) last 30 days.
+            .gt("created_at", new Date(Date.now() - SPOTLIGHT_LIFETIME_MS).toISOString())
+            .order("created_at", { ascending: false })
+            .limit(limit)
+        : supabase.rpc("discover_public_spotlight_feed", { _limit: limit });
       const [postsResult, portfolioResult] = await Promise.all([
-        supabase
-          .from("spotlight_posts")
-          .select("id, author_id, provider_id, caption, media, created_at")
-          .eq("is_published", true)
-          // Spotlights (and their likes and comments) last 30 days.
-          .gt("created_at", new Date(Date.now() - SPOTLIGHT_LIFETIME_MS).toISOString())
-          .order("created_at", { ascending: false })
-          .limit(limit),
+        postsQuery,
         supabase
           .from("portfolio_items")
           .select(
-            "id, provider_id, image_path, caption, created_at, provider:provider_profiles!inner(id, user_id, business_name, slug, city, avatar_url, is_live, is_verified, categories)",
+            `id, provider_id, image_path, caption, created_at, provider:provider_profiles!inner(id, ${user ? "user_id, " : ""}business_name, slug, city, avatar_url, is_live, is_verified, categories)`,
           )
           .eq("provider.is_live", true)
           .order("created_at", { ascending: false })
           .limit(limit),
       ]);
+      if (!user && postsResult.error) throw postsResult.error;
 
       const postRows = (postsResult.data ?? []) as unknown as {
         id: string;
@@ -118,51 +123,58 @@ export function useSpotlightFeed(limit = 18, pinnedId?: string | null) {
 
       const { data: auth } = await supabase.auth.getUser();
       const since = new Date(Date.now() - 5 * 60_000).toISOString();
-      const [profilesResult, providersResult, reactionsResult, presenceResult, commentsResult] = await Promise.all([
-        authorIds.length
-          ? directory()
-              .select("user_id, full_name, avatar_url, verified_tier, verified_until")
-              .in("user_id", authorIds)
-          : Promise.resolve({ data: [] }),
-        authorIds.length
-          ? supabase
-              .from("provider_profiles")
-              .select("id, user_id, business_name, slug, city, avatar_url, is_verified, categories")
-              .or(
-                [
-                  providerIds.length ? `id.in.(${providerIds.join(",")})` : "",
-                  `user_id.in.(${authorIds.join(",")})`,
-                ]
-                  .filter(Boolean)
-                  .join(","),
-              )
-          : Promise.resolve({ data: [] }),
-        postRows.length
-          ? supabase
-              .from("spotlight_reactions")
-              .select("spotlight_id, user_id, reaction_type")
-              .in(
-                "spotlight_id",
-                postRows.map((row) => row.id),
-              )
-          : Promise.resolve({ data: [] }),
-        authorIds.length
-          ? supabase
-              .from("member_presence")
-              .select("user_id")
-              .in("user_id", authorIds)
-              .gte("last_active_at", since)
-          : Promise.resolve({ data: [] }),
-        postRows.length
-          ? supabase
-              .from("spotlight_comments")
-              .select("spotlight_id")
-              .in(
-                "spotlight_id",
-                postRows.map((row) => row.id),
-              )
-          : Promise.resolve({ data: [] }),
-      ]);
+      const [profilesResult, providersResult, reactionsResult, presenceResult, commentsResult] =
+        await Promise.all([
+          user && authorIds.length
+            ? directory()
+                .select("user_id, full_name, avatar_url, verified_tier, verified_until")
+                .in("user_id", authorIds)
+            : Promise.resolve({ data: [] }),
+          authorIds.length
+            ? user
+              ? supabase
+                  .from("provider_profiles")
+                  .select(
+                    "id, user_id, business_name, slug, city, avatar_url, is_verified, categories",
+                  )
+                  .or(
+                    [
+                      providerIds.length ? `id.in.(${providerIds.join(",")})` : "",
+                      `user_id.in.(${authorIds.join(",")})`,
+                    ]
+                      .filter(Boolean)
+                      .join(","),
+                  )
+              : fetchPublicProviderIdentities(authorIds, providerIds).then((rows) => ({
+                  data: rows,
+                }))
+            : Promise.resolve({ data: [] }),
+          user && postRows.length
+            ? supabase
+                .from("spotlight_reactions")
+                .select("spotlight_id, user_id, reaction_type")
+                .in(
+                  "spotlight_id",
+                  postRows.map((row) => row.id),
+                )
+            : Promise.resolve({ data: [] }),
+          user && authorIds.length
+            ? supabase
+                .from("member_presence")
+                .select("user_id")
+                .in("user_id", authorIds)
+                .gte("last_active_at", since)
+            : Promise.resolve({ data: [] }),
+          user && postRows.length
+            ? supabase
+                .from("spotlight_comments")
+                .select("spotlight_id")
+                .in(
+                  "spotlight_id",
+                  postRows.map((row) => row.id),
+                )
+            : Promise.resolve({ data: [] }),
+        ]);
       const commentCounts = new Map<string, number>();
       for (const c of (commentsResult.data ?? []) as { spotlight_id: string }[])
         commentCounts.set(c.spotlight_id, (commentCounts.get(c.spotlight_id) ?? 0) + 1);
@@ -310,8 +322,7 @@ export function useSpotlightFeed(limit = 18, pinnedId?: string | null) {
             current_reaction: null,
             provider: {
               ...row.provider,
-              category:
-                (row.provider as { categories?: string[] | null }).categories?.[0] ?? null,
+              category: (row.provider as { categories?: string[] | null }).categories?.[0] ?? null,
               avatar_url:
                 row.provider.avatar_url ||
                 ownerAvatar.get((row.provider as { user_id?: string }).user_id ?? "") ||
@@ -407,9 +418,9 @@ export function useSpotlightComments(entryId: string | null) {
         ),
       );
       const map = new Map(
-        ((people.data ?? []) as { user_id: string; full_name: string; avatar_url: string | null }[]).map(
-          (p) => [p.user_id, p],
-        ),
+        (
+          (people.data ?? []) as { user_id: string; full_name: string; avatar_url: string | null }[]
+        ).map((p) => [p.user_id, p]),
       );
       const likeRows = (likes.data ?? []) as { comment_id: string; user_id: string }[];
       return rows

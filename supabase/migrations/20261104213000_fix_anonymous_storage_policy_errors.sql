@@ -1,0 +1,15 @@
+-- Anonymous Storage reads were failing for every bucket: PostgreSQL evaluates
+-- all permissive storage.objects SELECT policies that apply to a role, and
+-- "property images readable" (TO anon, authenticated) references
+-- public.property_images (SELECT revoked from anon in 20260902185313) and
+-- public.has_role (EXECUTE not granted to anon). The anon request therefore
+-- raised "permission denied" before any other policy, including the public
+-- Discover/Spotlight media policy, could grant access.
+--
+-- Effective anonymous access to the property bucket was already deny (the
+-- policy errored), and the signed-in-only table policy on property_images
+-- documents that property photos are for signed-in members. Restricting the
+-- policy to authenticated therefore keeps its USING expression and the
+-- authenticated behaviour byte-for-byte unchanged and does not widen anonymous
+-- access.
+ALTER POLICY "property images readable" ON storage.objects TO authenticated;

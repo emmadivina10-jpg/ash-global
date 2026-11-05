@@ -57,6 +57,7 @@ import { formatPropertyPrice } from "@/lib/property";
 import { type DiscoveryProvider } from "@/lib/discovery.queries";
 import { claimDeal } from "@/lib/commerce.functions";
 import { useI18n } from "@/lib/i18n";
+import { useAuthGate } from "@/lib/guest-gate";
 import { useRegion } from "@/lib/region-context";
 import { formatXAF } from "@/lib/format";
 import { playTabSound } from "@/lib/sound";
@@ -138,10 +139,10 @@ function RoundIcon({
     >
       <span
         className={cn(
-          "grid size-14 place-items-center rounded-full ring-1 transition-colors",
+          "icon-luxe-surface grid size-14 place-items-center rounded-full ring-1 transition-colors",
           active
-            ? "bg-primary text-primary-foreground ring-primary"
-            : "bg-muted text-foreground ring-border",
+            ? "icon-luxe-active text-primary-foreground ring-primary"
+            : "icon-luxe-muted text-foreground ring-border",
         )}
       >
         <Icon className="size-6" aria-hidden />
@@ -174,6 +175,7 @@ export function MarketBrowser({
   loadingMore: boolean;
 }) {
   const { tx, lang } = useI18n();
+  const { requireAuth } = useAuthGate();
   const fr = lang === "fr";
   const region = useRegion();
   const deals = useDeals();
@@ -181,10 +183,11 @@ export function MarketBrowser({
   const claim = useServerFn(claimDeal);
   const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [city, setCity] = useState("");
   const [kind, setKind] = useState("all");
-    const [sellOpen, setSellOpen] = useState(false);
+  const [sellOpen, setSellOpen] = useState(false);
   const [locOpen, setLocOpen] = useState(false);
   const [cityDraft, setCityDraft] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -292,6 +295,16 @@ export function MarketBrowser({
     { value: "deal", label: tx("Deals", "Offres"), icon: Tag },
     { value: "service", label: "Services", icon: Sparkles },
   ];
+  const searchSuggestions = useMemo(() => {
+    const term = query.trim().toLocaleLowerCase();
+    return Array.from(
+      new Set(listings.flatMap((listing) => [listing.title.trim(), listing.city.trim()])),
+    )
+      .filter(
+        (suggestion) => suggestion && (!term || suggestion.toLocaleLowerCase().includes(term)),
+      )
+      .slice(0, 6);
+  }, [listings, query]);
   const citySuggestions = useMemo(
     () => Array.from(new Set(listings.map((l) => l.city.trim()).filter(Boolean))).slice(0, 10),
     [listings],
@@ -300,6 +313,13 @@ export function MarketBrowser({
   const hasError = providerError || properties.isError || deals.isError;
   async function onClaim() {
     if (!selected || claiming) return;
+    if (
+      !requireAuth({
+        en: "Sign in to claim this deal.",
+        fr: "Connectez-vous pour profiter de cette offre.",
+      })
+    )
+      return;
     setClaiming(true);
     try {
       const result = await claim({ data: { dealId: selected.id } });
@@ -378,15 +398,14 @@ export function MarketBrowser({
         </h1>
         <div className="flex shrink-0 gap-1">
           <Button
-            variant="secondary"
+            variant="ghost"
             size="icon"
             className="rounded-full"
-            asChild
-            title={tx("Wallet", "Portefeuille")}
+            onClick={() => setSearchOpen(true)}
+            aria-label={tx("Search Market", "Rechercher dans Market")}
+            title={tx("Search Market", "Rechercher dans Market")}
           >
-            <Link to="/wallet" aria-label={tx("Wallet", "Portefeuille")}>
-              <Wallet />
-            </Link>
+            <Search aria-hidden />
           </Button>
           <MarketCart />
           {optionsOpen && typeof document !== "undefined"
@@ -421,21 +440,87 @@ export function MarketBrowser({
                   {tx("Your Market", "Votre Market")}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {tx("Sell, filter and manage in one place", "Vendre, filtrer et gérer au même endroit")}
+                  {tx(
+                    "Sell, filter and manage in one place",
+                    "Vendre, filtrer et gérer au même endroit",
+                  )}
                 </p>
               </div>
               <div className="grid grid-cols-3 gap-2 p-4">
-                {[
-                  { icon: Plus, label: tx("Sell", "Vendre"), onClick: () => { setOptionsOpen(false); setSellOpen(true); } },
-                  { icon: MapPin, label: city || tx("Location", "Lieu"), onClick: () => { setOptionsOpen(false); setCityDraft(city); setLocOpen(true); } },
-                  { icon: House, label: tx("Homes", "Biens"), to: "/property/manage" as const },
-                  { icon: Tag, label: tx("Deals", "Offres"), to: "/deals" as const },
-                  { icon: Store, label: tx("My shop", "Ma boutique"), to: "/studio" as const },
-                  { icon: Briefcase, label: tx("Bookings", "Réservations"), to: "/bookings" as const },
-                ].map((item, i) => {
+                {(
+                  [
+                    {
+                      icon: Plus,
+                      label: tx("Sell", "Vendre"),
+                      onClick: () => {
+                        setOptionsOpen(false);
+                        if (
+                          requireAuth({
+                            en: "Sign in to list something on Market.",
+                            fr: "Connectez-vous pour publier une annonce sur Market.",
+                          })
+                        ) {
+                          setSellOpen(true);
+                        }
+                      },
+                    },
+                    {
+                      icon: MapPin,
+                      label: city || tx("Location", "Lieu"),
+                      onClick: () => {
+                        setOptionsOpen(false);
+                        setCityDraft(city);
+                        setLocOpen(true);
+                      },
+                    },
+                    {
+                      icon: Wallet,
+                      label: tx("Wallet", "Portefeuille"),
+                      to: "/wallet",
+                      auth: {
+                        en: "Sign in to open your Wallet.",
+                        fr: "Connectez-vous pour ouvrir votre portefeuille.",
+                      },
+                    },
+                    {
+                      icon: House,
+                      label: tx("Homes", "Biens"),
+                      to: "/property/manage",
+                      auth: {
+                        en: "Sign in to manage your homes.",
+                        fr: "Connectez-vous pour gérer vos biens.",
+                      },
+                    },
+                    { icon: Tag, label: tx("Deals", "Offres"), to: "/deals" as const },
+                    {
+                      icon: Store,
+                      label: tx("My shop", "Ma boutique"),
+                      to: "/studio",
+                      auth: {
+                        en: "Sign in to open your shop.",
+                        fr: "Connectez-vous pour ouvrir votre boutique.",
+                      },
+                    },
+                    {
+                      icon: Briefcase,
+                      label: tx("Bookings", "Réservations"),
+                      to: "/bookings",
+                      auth: {
+                        en: "Sign in to view your bookings.",
+                        fr: "Connectez-vous pour voir vos réservations.",
+                      },
+                    },
+                  ] as Array<{
+                    icon: LucideIcon;
+                    label: string;
+                    to?: "/wallet" | "/property/manage" | "/deals" | "/studio" | "/bookings";
+                    auth?: { en: string; fr: string };
+                    onClick?: () => void;
+                  }>
+                ).map((item, i) => {
                   const inner = (
                     <>
-                      <span className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary">
+                      <span className="icon-luxe-surface icon-luxe-muted grid size-11 place-items-center rounded-2xl text-primary">
                         <item.icon className="size-5" aria-hidden />
                       </span>
                       <span className="w-full truncate text-center text-[11px] font-semibold text-foreground">
@@ -446,11 +531,26 @@ export function MarketBrowser({
                   const cls =
                     "market-option-tile flex flex-col items-center gap-1.5 rounded-2xl p-2 transition-colors hover:bg-muted";
                   return item.to ? (
-                    <Link key={item.to} to={item.to} className={cls} style={{ animationDelay: `${60 + i * 35}ms` }} onClick={() => setOptionsOpen(false)}>
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      className={cls}
+                      style={{ animationDelay: `${60 + i * 35}ms` }}
+                      onClick={(event) => {
+                        if (item.auth && !requireAuth(item.auth)) event.preventDefault();
+                        setOptionsOpen(false);
+                      }}
+                    >
                       {inner}
                     </Link>
                   ) : (
-                    <button key={i} type="button" className={cls} style={{ animationDelay: `${60 + i * 35}ms` }} onClick={item.onClick}>
+                    <button
+                      key={i}
+                      type="button"
+                      className={cls}
+                      style={{ animationDelay: `${60 + i * 35}ms` }}
+                      onClick={item.onClick}
+                    >
                       {inner}
                     </button>
                   );
@@ -475,13 +575,20 @@ export function MarketBrowser({
                   <div className="space-y-1.5">
                     <Label className="text-xs text-muted-foreground">{tx("Sort", "Trier")}</Label>
                     <Select value={sort} onValueChange={setSort}>
-                      <SelectTrigger className="h-10 rounded-xl bg-background" aria-label={tx("Sort listings", "Trier les annonces")}>
+                      <SelectTrigger
+                        className="h-10 rounded-xl bg-background"
+                        aria-label={tx("Sort listings", "Trier les annonces")}
+                      >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="z-[60]">
                         <SelectItem value="recent">{tx("For you", "Pour vous")}</SelectItem>
-                        <SelectItem value="low">{tx("Price: low to high", "Prix croissant")}</SelectItem>
-                        <SelectItem value="high">{tx("Price: high to low", "Prix décroissant")}</SelectItem>
+                        <SelectItem value="low">
+                          {tx("Price: low to high", "Prix croissant")}
+                        </SelectItem>
+                        <SelectItem value="high">
+                          {tx("Price: high to low", "Prix décroissant")}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -504,21 +611,79 @@ export function MarketBrowser({
           </Popover>
         </div>
       </header>
-      <div className="flex gap-2">
-        <div className="relative min-w-0 flex-1">
-          <Search
-            className="pointer-events-none absolute left-3 top-3 size-5 text-muted-foreground"
-            aria-hidden
-          />
-          <Input
-            aria-label={tx("Search Market", "Rechercher dans Market")}
-            placeholder={tx("Search Market", "Rechercher dans Market")}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="h-11 rounded-full bg-muted pl-10"
-          />
-        </div>
-      </div>
+      <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
+        <DialogContent
+          overlayClassName="bg-foreground/30 backdrop-blur-md"
+          className="max-w-xl rounded-3xl border-border/70 bg-card p-5 shadow-2xl sm:p-6"
+        >
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl font-bold">
+              {tx("Search Market", "Rechercher dans Market")}
+            </DialogTitle>
+            <DialogDescription>
+              {tx(
+                "Find products, services and places near you.",
+                "Trouvez des produits, services et lieux près de vous.",
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="relative">
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden
+            />
+            <Input
+              autoFocus
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={tx("What are you looking for?", "Que recherchez-vous ?")}
+              aria-label={tx("Search Market", "Rechercher dans Market")}
+              className="h-12 rounded-full bg-muted pl-10"
+            />
+          </div>
+          <section
+            aria-label={tx("Search suggestions", "Suggestions de recherche")}
+            className="space-y-2"
+          >
+            <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+              {tx("Suggestions", "Suggestions")}
+            </p>
+            {searchSuggestions.length ? (
+              <div className="space-y-1">
+                {searchSuggestions.map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    onClick={() => {
+                      setQuery(suggestion);
+                      setSearchOpen(false);
+                    }}
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-foreground transition-colors hover:bg-muted"
+                  >
+                    <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+                    <span className="truncate">{suggestion}</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="rounded-xl bg-muted/50 px-3 py-3 text-sm text-muted-foreground">
+                {tx(
+                  "No matching suggestions yet.",
+                  "Aucune suggestion correspondante pour le moment.",
+                )}
+              </p>
+            )}
+          </section>
+          <div className="flex justify-between gap-2">
+            <Button type="button" variant="ghost" onClick={() => setQuery("")}>
+              {tx("Clear", "Effacer")}
+            </Button>
+            <Button type="button" onClick={() => setSearchOpen(false)}>
+              {tx("Show results", "Voir les résultats")}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       <nav
         aria-label={tx("Market categories", "Catégories Market")}
         className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none]"

@@ -942,6 +942,66 @@ export function useSocialFeed(limit = 40) {
   });
 }
 
+/** Public, moderation-approved video posts shown to signed-out Discover visitors. */
+export function usePublicDiscoverVideoFeed(limit = 60, enabled = true) {
+  return useQuery({
+    queryKey: ["public-discover-videos", limit],
+    enabled,
+    staleTime: 15_000,
+    queryFn: async (): Promise<FeedPost[]> => {
+      const { data, error } = await supabase.rpc("discover_video_feed", {
+        _limit: limit,
+        _offset: 0,
+      });
+      if (error) throw error;
+
+      const rows = data ?? [];
+      if (!rows.length) return [];
+      const mediaPaths = rows.flatMap((row) => parseImages(row.media));
+      const [signed, instructorResult] = await Promise.all([
+        signPaths(mediaPaths),
+        supabase.rpc("discover_active_instructors"),
+      ]);
+      if (instructorResult.error) throw instructorResult.error;
+      const authors = new Map(
+        (instructorResult.data ?? []).map((instructor) => [
+          instructor.user_id,
+          {
+            id: instructor.user_id,
+            name: instructor.display_name,
+            avatar_url: instructor.avatar_url,
+          },
+        ]),
+      );
+
+      return rows.map((row) => ({
+        id: row.id,
+        author_id: row.author_id,
+        caption: row.caption,
+        city: row.city,
+        images: parseImages(row.media)
+          .map((path) => signed[path])
+          .filter((url): url is string => Boolean(url)),
+        like_count: row.like_count,
+        comment_count: row.comment_count,
+        repost_count: row.repost_count,
+        filter_comments: false,
+        liked: false,
+        current_reaction: null,
+        reaction_breakdown: { ...EMPTY_REACTIONS },
+        reposted: false,
+        created_at: row.created_at,
+        author: authors.get(row.author_id) ?? {
+          id: row.author_id,
+          name: "Profile",
+          avatar_url: null,
+        },
+        market: null,
+      }));
+    },
+  });
+}
+
 /** One post, so a like/comment notification can open exactly what it is about. */
 export function usePost(postId: string | null | undefined) {
   return useQuery({

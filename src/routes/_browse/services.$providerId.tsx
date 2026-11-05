@@ -18,7 +18,8 @@ import { toast } from "sonner";
 import { cart, setCartUser } from "@/lib/cart";
 import { supabase } from "@/integrations/supabase/client";
 import { contactVendor } from "@/lib/contact-vendor";
-import { ShareSheet, shareLink } from "@/components/refer/ShareSheet";
+import { ShareSheet } from "@/components/refer/ShareSheet";
+import { shareLink } from "@/lib/share-links";
 import { Share2 as ShareIcon } from "lucide-react";
 import { trackEvent } from "@/lib/activity";
 import {
@@ -407,17 +408,22 @@ function ProviderPage() {
                       disabled={Boolean(blockedReason)}
                       onClick={() => {
                         setCartUser(user?.id);
-                        void cart.add({
-                          serviceId: service.id,
-                          providerId: provider.id,
-                          providerName: provider.business_name,
-                          title: service.title,
-                          price: Number(service.price),
-                          image: gallery[0]?.url ?? null,
-                        }).then(
-                          () => toast.success(tx("Added to your cart", "Ajouté à votre panier")),
-                          () => toast.error(tx("Could not add to cart.", "Ajout au panier impossible.")),
-                        );
+                        void cart
+                          .add({
+                            serviceId: service.id,
+                            providerId: provider.id,
+                            providerName: provider.business_name,
+                            title: service.title,
+                            price: Number(service.price),
+                            image: gallery[0]?.url ?? null,
+                          })
+                          .then(
+                            () => toast.success(tx("Added to your cart", "Ajouté à votre panier")),
+                            () =>
+                              toast.error(
+                                tx("Could not add to cart.", "Ajout au panier impossible."),
+                              ),
+                          );
                       }}
                     >
                       <ShoppingCart className="size-4" />
