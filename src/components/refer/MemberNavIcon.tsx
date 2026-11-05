@@ -20,9 +20,9 @@ export function MemberNavIcon({
       <defs>
         <linearGradient id={id} x1="0" y1="0" x2="1" y2="0">
           <stop offset="0%" stopColor={active ? "var(--primary)" : "currentColor"} />
-          <stop offset="48%" stopColor={active ? "var(--gold)" : "currentColor"} />
-          <stop offset="52%" stopColor={active ? "var(--gold)" : "currentColor"} />
-          <stop offset="100%" stopColor={active ? "var(--primary-dark)" : "currentColor"} />
+          <stop offset="48%" stopColor={active ? "var(--primary-dark)" : "currentColor"} />
+          <stop offset="52%" stopColor={active ? "var(--primary-dark)" : "currentColor"} />
+          <stop offset="100%" stopColor={active ? "var(--gold)" : "currentColor"} />
         </linearGradient>
       </defs>
     </Icon>

@@ -153,12 +153,7 @@ export function MobileNav({
             active ? "text-primary" : "text-muted-foreground active:text-foreground",
           )}
         >
-          <span
-            className={cn(
-              "relative grid size-7 place-items-center",
-              active && "is-active",
-            )}
-          >
+          <span className={cn("relative grid size-7 place-items-center", active && "is-active")}>
             <MemberNavIcon icon={item.icon} active={active} />
             {item.to === "/messages" && (
               <UnreadMessageBadge count={unreadMessages} className="absolute -right-2 -top-1" />
@@ -202,7 +197,7 @@ export function MobileNav({
           {activeTab >= 0 ? (
             <li
               aria-hidden="true"
-              className="pointer-events-none absolute inset-y-0 left-0 z-0 w-1/5 transition-transform duration-300 ease-out motion-reduce:transition-none"
+              className="pointer-events-none absolute inset-y-0 left-0 z-0 w-1/5 transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none"
               style={{ transform: `translateX(${activeTab * 100}%)` }}
             >
               <span className="nav-active-pill" />

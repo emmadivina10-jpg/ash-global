@@ -79,7 +79,12 @@ const sections: { en: string; fr: string; items: MenuItem[] }[] = [
     fr: "Social",
     items: [
       { en: "Flights", fr: "Vols", to: "/flights", icon: Plane },
-      { en: "Referral rewards", fr: "Récompenses de parrainage", to: "/referral-rewards", icon: Gift },
+      {
+        en: "Referral rewards",
+        fr: "Récompenses de parrainage",
+        to: "/referral-rewards",
+        icon: Gift,
+      },
       { en: "Search ASH", fr: "Rechercher sur ASH", to: "/search", icon: Search },
       { en: "Friends", fr: "Amis", to: "/friends", icon: Users },
       { en: "Groups", fr: "Groupes", to: "/groups", icon: MessageCircle },
@@ -104,7 +109,7 @@ const sections: { en: string; fr: string; items: MenuItem[] }[] = [
       { en: "Bookings", fr: "Réservations", to: "/bookings", icon: CalendarDays },
       { en: "My deliveries", fr: "Mes livraisons", to: "/deliveries", icon: Truck },
       { en: "Shop dispatch", fr: "Livraisons boutique", to: "/dispatch", icon: Store },
-      { en: "ASH Rider", fr: "ASH Rider", to: "/rider", icon: Bike },
+      { en: "ASH Rider", fr: "ASH Rider", to: "/rider", icon: Bike, soon: true },
       { en: "Inventory", fr: "Inventaire", to: "/inventory", icon: BarChart3, soon: true },
     ],
   },
@@ -205,7 +210,9 @@ function MenuPage() {
       >
         <Avatar path={profile?.avatar_url} name={profile?.full_name} online className="size-12" />
         <span className="flex min-w-0 flex-1 items-center gap-1 text-lg font-bold text-foreground">
-          <span className="truncate">{profile?.full_name || tx("Your profile", "Votre profil")}</span>
+          <span className="truncate">
+            {profile?.full_name || tx("Your profile", "Votre profil")}
+          </span>
           <VerifiedBadge tier={profile?.verified_tier} until={profile?.verified_until} size={16} />
         </span>
         <span className="grid size-9 place-items-center rounded-full bg-muted">
@@ -260,7 +267,9 @@ function MenuPage() {
                 <panel.icon className="size-7" strokeWidth={1.75} aria-hidden />
                 <span className="flex-1">{tx(panel.en, panel.fr)}</span>
                 <ChevronDown
-                  className={"size-5 transition-transform duration-300 " + (isOpen ? "rotate-180" : "")}
+                  className={
+                    "size-5 transition-transform duration-300 " + (isOpen ? "rotate-180" : "")
+                  }
                   aria-hidden
                 />
               </button>
