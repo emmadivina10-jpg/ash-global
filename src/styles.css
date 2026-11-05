@@ -3126,3 +3126,33 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
     transition: none;
   }
 }
+
+/* Online instructors: a soft pulsing halo in the brand palette. */
+.instructor-online-ring {
+  animation: instructor-pulse 2s ease-out infinite;
+}
+.instructor-online-dot {
+  animation: instructor-dot 2s ease-in-out infinite;
+}
+@keyframes instructor-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--primary) 55%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 10px color-mix(in oklab, var(--gold) 0%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+@keyframes instructor-dot {
+  50% {
+    transform: scale(1.25);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .instructor-online-ring,
+  .instructor-online-dot {
+    animation: none;
+  }
+}

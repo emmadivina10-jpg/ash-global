@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import {
   useAddComment,
+  isStoryVideoSource,
   useComments,
   useSetCommentFilter,
   useEngagementRealtime,
@@ -34,6 +35,7 @@ import { trackEvent, useImpression } from "@/lib/activity";
 import { MediaLightbox } from "./MediaLightbox";
 import { actionFor } from "./feed-categories";
 import { useAuthGate } from "@/lib/guest-gate";
+import { DiscoverVideo } from "./DiscoverVideo";
 
 function timeAgo(iso: string, fr: boolean) {
   const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
@@ -93,6 +95,7 @@ export function PostCard({
   const mine = currentUserId === post.author_id;
   useEngagementRealtime(detail ? post.id : null);
   const action = detail ? null : actionFor(post.caption);
+  const postVideo = post.images.find((src) => isStoryVideoSource(src));
   const singleImage = !detail && post.images.length === 1;
   // Short captions sit on the photo like a discovery card; long ones stay readable above.
   const overlayCaption = singleImage && post.caption.length > 0 && post.caption.length <= 160;
@@ -187,7 +190,14 @@ export function PostCard({
         </div>
       ) : null}
 
-      {post.images.length > 0 ? (
+      {postVideo ? (
+        <DiscoverVideo
+          src={postVideo}
+          poster={post.images.find((src) => !isStoryVideoSource(src))}
+          title={post.caption.split("\n")[0] || "Video"}
+          postId={post.id}
+        />
+      ) : post.images.length > 0 ? (
         <div className={cn(!detail && "relative mx-3 overflow-hidden rounded-2xl")}>
           <div
             className={cn(
