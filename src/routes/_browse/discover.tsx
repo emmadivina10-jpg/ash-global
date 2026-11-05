@@ -1,6 +1,16 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BadgeCheck, BookOpen, Check, ChevronDown, Play, Plus, Search } from "lucide-react";
+import {
+  ArrowLeft,
+  BadgeCheck,
+  BookOpen,
+  Check,
+  ChevronDown,
+  Play,
+  Plus,
+  Search,
+  X,
+} from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { DiscoverVideo } from "@/components/refer/DiscoverVideo";
@@ -344,130 +354,136 @@ function DiscoverPage() {
 
   return (
     <div className="discover-surface market-theme -mx-4 w-[calc(100%+2rem)] sm:-mx-6 sm:w-[calc(100%+3rem)] lg:-mx-8 lg:w-[calc(100%+4rem)]">
-      <header className="bg-background/95 px-3 py-3 lg:px-6">
-        <div className="mx-auto flex max-w-5xl items-center gap-3">
-          <Link
-            to="/discover"
-            aria-label="ASH Glo"
-            className="mr-auto inline-flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          >
-            <img src={ashLogo.url} alt="ASH" className="size-9 shrink-0 rounded-xl object-cover" />
-            <span className="truncate font-display text-lg font-extrabold tracking-tight text-foreground">
-              ASH Glo
-            </span>
-          </Link>
-          {isApprovedInstructor ? (
-            <Link
-              to="/discover/upload"
-              aria-label={tx("Upload a video", "Publier une vidéo")}
-              title={tx("Upload a video", "Publier une vidéo")}
-              className="inline-flex size-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      <header className="relative bg-background px-3 py-2.5 lg:px-6">
+        <div className="mx-auto flex h-11 max-w-5xl items-center gap-2">
+          {searchOpen ? (
+            <form
+              role="search"
+              onSubmit={submitSearch}
+              className="discover-search-open flex min-w-0 flex-1 items-center gap-2"
             >
-              <Plus className="size-5" aria-hidden />
-              <span className="sr-only">{tx("Upload a video", "Publier une vidéo")}</span>
-            </Link>
-          ) : null}
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="shrink-0 rounded-full"
-            aria-label={tx("Search videos", "Rechercher des vidéos")}
-            onClick={() => setSearchOpen(true)}
-          >
-            <Search className="size-5" aria-hidden />
-          </Button>
-          <NotificationBell />
-        </div>
-      </header>
-
-      <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
-        <DialogContent
-          overlayClassName="bg-slate-950/45 backdrop-blur-md"
-          className="max-w-xl rounded-3xl border-border/70 bg-background/95 p-5 shadow-2xl backdrop-blur-xl sm:p-7"
-        >
-          <DialogHeader className="pr-8 text-left">
-            <DialogTitle className="font-display text-xl font-bold">
-              {tx("Search videos", "Rechercher des vidéos")}
-            </DialogTitle>
-            <DialogDescription>
-              {tx(
-                "Find a video, creator or topic on ASH Glo.",
-                "Trouvez une vidéo, un créateur ou un sujet sur ASH Glo.",
-              )}
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={submitSearch} className="flex items-center gap-2">
-            <div className="relative min-w-0 flex-1">
-              <Search
-                className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-                aria-hidden
-              />
-              <Input
-                autoFocus
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder={tx(
-                  "Search videos and creators",
-                  "Rechercher des vidéos et des créateurs",
-                )}
-                aria-label={tx(
-                  "Search videos and creators",
-                  "Rechercher des vidéos et des créateurs",
-                )}
-                className="h-11 rounded-full pl-10"
-              />
-            </div>
-            <Button
-              type="submit"
-              size="icon"
-              className="size-11 shrink-0 rounded-full"
-              aria-label={tx("Search", "Rechercher")}
-            >
-              <Search className="size-4" aria-hidden />
-            </Button>
-          </form>
-          <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
-            {tx("Suggestions", "Suggestions")}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {[
-              ...EXPLORE_CATEGORIES.slice(1, 6).map((item) => (fr ? item.fr : item.en)),
-              ...(instructors ?? []).slice(0, 4).map((item) => item.display_name),
-            ].map((suggestion) => (
               <Button
-                key={suggestion}
                 type="button"
-                variant="outline"
-                size="sm"
-                className="rounded-full"
-                onClick={() => {
-                  setSearchTerm(suggestion);
-                  setSearchOpen(false);
-                }}
+                variant="ghost"
+                size="icon"
+                className="shrink-0 rounded-full"
+                aria-label={tx("Close search", "Fermer la recherche")}
+                onClick={() => setSearchOpen(false)}
               >
-                {suggestion}
+                <ArrowLeft className="size-5" aria-hidden />
               </Button>
-            ))}
+              <div className="relative min-w-0 flex-1">
+                <Input
+                  autoFocus
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Escape") setSearchOpen(false);
+                  }}
+                  placeholder={tx("Search ASH Glo", "Rechercher sur ASH Glo")}
+                  aria-label={tx(
+                    "Search videos and creators",
+                    "Rechercher des vidéos et des créateurs",
+                  )}
+                  className="h-10 rounded-full border-border bg-muted/60 pl-4 pr-10 focus-visible:ring-primary"
+                />
+                {searchTerm ? (
+                  <button
+                    type="button"
+                    aria-label={tx("Clear search", "Effacer la recherche")}
+                    onClick={() => setSearchTerm("")}
+                    className="absolute right-2 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-full text-muted-foreground hover:bg-background"
+                  >
+                    <X className="size-4" aria-hidden />
+                  </button>
+                ) : null}
+              </div>
+              <Button
+                type="submit"
+                size="icon"
+                variant="secondary"
+                className="shrink-0 rounded-full"
+                aria-label={tx("Search", "Rechercher")}
+              >
+                <Search className="size-5" aria-hidden />
+              </Button>
+            </form>
+          ) : (
+            <>
+              <Link
+                to="/discover"
+                aria-label="ASH Glo"
+                className="mr-auto inline-flex min-w-0 items-center gap-2 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                <img
+                  src={ashLogo.url}
+                  alt="ASH"
+                  className="size-9 shrink-0 rounded-full object-cover"
+                />
+                <span className="truncate font-display text-xl font-extrabold tracking-tight text-foreground">
+                  ASH Glo
+                </span>
+              </Link>
+              {isApprovedInstructor ? (
+                <Link
+                  to="/discover/upload"
+                  aria-label={tx("Upload a video", "Publier une vidéo")}
+                  title={tx("Upload a video", "Publier une vidéo")}
+                  className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  <Plus className="size-5" aria-hidden />
+                </Link>
+              ) : null}
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="shrink-0 rounded-full"
+                aria-label={tx("Search videos", "Rechercher des vidéos")}
+                onClick={() => setSearchOpen(true)}
+              >
+                <Search className="size-5" aria-hidden />
+              </Button>
+              <NotificationBell />
+            </>
+          )}
+        </div>
+        {searchOpen ? (
+          <div className="absolute inset-x-0 top-full z-40 border-b border-border bg-background px-3 pb-3 shadow-lg lg:px-6">
+            <ul className="mx-auto max-w-5xl divide-y divide-border/50">
+              {[
+                ...EXPLORE_CATEGORIES.slice(1, 6).map((item) => (fr ? item.fr : item.en)),
+                ...(instructors ?? []).slice(0, 4).map((item) => item.display_name),
+              ]
+                .filter(
+                  (item) =>
+                    !searchTerm.trim() ||
+                    item.toLocaleLowerCase().includes(searchTerm.trim().toLocaleLowerCase()),
+                )
+                .map((suggestion) => (
+                  <li key={suggestion}>
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-3 py-2.5 text-left text-sm text-foreground hover:text-primary"
+                      onClick={() => {
+                        setSearchTerm(suggestion);
+                        setSearchOpen(false);
+                      }}
+                    >
+                      <Search className="size-4 text-muted-foreground" aria-hidden />
+                      {suggestion}
+                    </button>
+                  </li>
+                ))}
+            </ul>
           </div>
-          <Button
-            type="button"
-            variant="ghost"
-            className="w-fit rounded-full"
-            onClick={() => {
-              setSearchTerm("");
-              setSearchOpen(false);
-            }}
-          >
-            {tx("Clear search", "Effacer la recherche")}
-          </Button>
-        </DialogContent>
-      </Dialog>
+        ) : null}
+      </header>
 
       <div
         role="group"
         aria-label={tx("Video categories", "Catégories de vidéos")}
-        className="flex gap-2 overflow-x-auto px-3 pb-3 pt-1 lg:px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="sticky top-0 z-30 flex gap-2 overflow-x-auto bg-background/95 px-3 pb-3 pt-2 backdrop-blur lg:px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         <Button
           type="button"

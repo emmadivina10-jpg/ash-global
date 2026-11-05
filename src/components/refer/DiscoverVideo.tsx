@@ -29,6 +29,8 @@ export function DiscoverVideo({
   const origin = useRef<{ x: number; y: number } | null>(null);
   const trackedView = useRef(false);
   const [opened, setOpened] = useState(false);
+  const openedRef = useRef(false);
+  openedRef.current = opened;
   const [preview, setPreview] = useState(false);
   const [failed, setFailed] = useState(false);
   const [orientation, setOrientation] = useState<"portrait" | "landscape">("landscape");
@@ -51,12 +53,19 @@ export function DiscoverVideo({
   useEffect(() => {
     const video = ref.current;
     if (!video || typeof IntersectionObserver === "undefined") return;
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry?.isIntersecting || entry.intersectionRatio < 0.6) {
           video.pause();
           setPreview(false);
           held.current = false;
+          return;
+        }
+        // Like YouTube's feed: the video in view plays silently until the user opens it.
+        if (!reduceMotion && !document.hidden && !video.dataset["failed"]) {
+          video.muted = !openedRef.current;
+          void video.play().catch(() => undefined);
         }
       },
       { threshold: [0, 0.6] },
@@ -141,6 +150,7 @@ export function DiscoverVideo({
         preload="metadata"
         aria-label={title}
         className="absolute inset-0 size-full object-contain"
+        data-failed={failed ? "1" : undefined}
         onError={() => setFailed(true)}
         onLoadedMetadata={(event) =>
           setOrientation(

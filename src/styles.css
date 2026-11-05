@@ -94,8 +94,8 @@
   --color-team-accent: oklch(0.67 0.15 164);
   --color-team-outgoing: oklch(0.36 0.075 164);
   --color-team-gold: oklch(0.82 0.13 88);
-  --color-chat-emerald: oklch(0.55 0.13 165);
-  --color-chat-wash: oklch(0.92 0.045 165);
+  --color-chat-emerald: oklch(0.62 0.25 22);
+  --color-chat-wash: oklch(0.94 0.04 10);
   --color-chat-outgoing: var(--chat-outgoing);
   --color-media-backdrop: oklch(0.12 0 0);
 
@@ -144,7 +144,7 @@
     var(--verified-magenta),
     var(--verified-violet)
   );
-  --chat-outgoing: oklch(0.91 0.065 160);
+  --chat-outgoing: oklch(0.93 0.05 12);
   --radius: 1rem;
 
   --background: oklch(0.9885 0.0035 285);
@@ -156,10 +156,10 @@
   --popover-foreground: oklch(0.1789 0.0262 283.6);
 
   /* ASH coral */
-  --primary: oklch(0.638 0.2365 18.24);
+  --primary: oklch(0.62 0.25 22);
   --primary-foreground: oklch(1 0 0);
   /* ASH magenta */
-  --primary-dark: oklch(0.6094 0.2152 7.65);
+  --primary-dark: oklch(0.6 0.25 350);
   /* near-black navy */
   --primary-deep: oklch(0.1404 0.022 283.2);
 
@@ -211,7 +211,7 @@
 }
 
 .dark {
-  --chat-outgoing: oklch(0.43 0.068 165);
+  --chat-outgoing: oklch(0.38 0.11 12);
   --background: oklch(0.24 0.004 260);
   --foreground: oklch(0.9268 0.0065 264.5);
   --card: oklch(0.29 0.005 260);
@@ -219,9 +219,9 @@
   --popover: oklch(0.29 0.005 260);
   --popover-foreground: oklch(0.9268 0.0065 264.5);
 
-  --primary: oklch(0.6656 0.2262 18.24);
+  --primary: oklch(0.66 0.24 22);
   --primary-foreground: oklch(1 0 0);
-  --primary-dark: oklch(0.6094 0.2152 7.65);
+  --primary-dark: oklch(0.6 0.25 350);
   --primary-deep: oklch(0.24 0.004 260);
 
   --secondary: oklch(0.36 0.006 260);
@@ -374,7 +374,12 @@
 }
 
 @utility gold-gradient {
-  background-image: linear-gradient(120deg, var(--color-primary) 0%, var(--color-gold) 100%);
+  background-image: linear-gradient(
+    120deg,
+    var(--color-primary) 0%,
+    var(--color-primary-dark) 45%,
+    var(--color-gold) 100%
+  );
 }
 
 @utility icon-luxe-surface {
@@ -417,7 +422,13 @@
       color-mix(in oklab, white 34%, transparent),
       transparent 72%
     ),
-    linear-gradient(145deg, var(--color-primary), var(--color-primary-dark) 58%, var(--color-gold));
+    linear-gradient(
+      145deg,
+      var(--color-primary),
+      var(--color-primary-dark) 45%,
+      var(--color-gold) 78%,
+      oklch(0.42 0.2 275)
+    );
 }
 
 @utility icon-luxe-muted {
@@ -1392,9 +1403,9 @@ a {
   --card-foreground: oklch(0.96 0.01 285);
   --popover: oklch(0.2 0.026 278);
   --popover-foreground: oklch(0.96 0.01 285);
-  --primary: oklch(0.66 0.23 18);
+  --primary: oklch(0.66 0.24 22);
   --primary-foreground: oklch(0.99 0 0);
-  --primary-dark: oklch(0.62 0.24 350);
+  --primary-dark: oklch(0.62 0.25 350);
   --primary-deep: oklch(0.15 0.02 280);
   --secondary: oklch(0.23 0.03 280);
   --secondary-foreground: oklch(0.96 0.01 285);
@@ -1440,12 +1451,10 @@ a {
 .member-messages {
   --primary: var(--color-chat-emerald);
   --ring: var(--color-chat-emerald);
-  --success: var(--color-chat-emerald);
   position: relative;
 }
 .dark .member-messages {
-  --primary: oklch(0.73 0.14 165);
-  --success: var(--primary);
+  --primary: oklch(0.7 0.22 22);
 }
 .messages-inbox,
 .member-chat-surface {
@@ -3071,6 +3080,33 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   box-shadow:
     -3px 0 0 var(--tt-cyan),
     3px 0 0 var(--tt-pink);
+}
+@media (prefers-reduced-motion: reduce) {
+  .premium-mobile-nav .premium-nav-item > span:first-child {
+    transition: none;
+  }
+}
+
+/* Tab bar motion: a springy gradient indicator glides between tabs; icons lift and press. */
+.nav-active-bar {
+  background-image: linear-gradient(90deg, var(--primary), var(--primary-dark), var(--gold));
+  box-shadow: 0 2px 12px color-mix(in oklab, var(--primary-dark) 70%, transparent);
+}
+.nav-active-glow {
+  background-image: radial-gradient(
+    70% 90% at 50% 0%,
+    color-mix(in oklab, var(--primary) 20%, transparent),
+    transparent 75%
+  );
+}
+.premium-mobile-nav .premium-nav-item > span:first-child {
+  transition: transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.premium-mobile-nav .premium-nav-item[aria-current="page"] > span:first-child {
+  transform: translateY(-2px) scale(1.12);
+}
+.premium-mobile-nav .premium-nav-item:active > span:first-child {
+  transform: scale(0.88);
 }
 @media (prefers-reduced-motion: reduce) {
   .premium-mobile-nav .premium-nav-item > span:first-child {

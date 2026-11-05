@@ -202,10 +202,11 @@ export function MobileNav({
           {activeTab >= 0 ? (
             <li
               aria-hidden="true"
-              className="pointer-events-none absolute inset-y-0 left-0 z-0 w-1/5 transition-transform duration-300 ease-out motion-reduce:transition-none"
+              className="pointer-events-none absolute inset-y-0 left-0 z-0 w-1/5 transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none"
               style={{ transform: `translateX(${activeTab * 100}%)` }}
             >
-              <span className="absolute inset-x-2 top-0 h-0.5 rounded-b-full bg-primary" />
+              <span className="nav-active-glow absolute inset-x-3 inset-y-1.5 rounded-2xl" />
+              <span className="nav-active-bar absolute inset-x-4 top-0 h-[3px] rounded-b-full" />
             </li>
           ) : null}
           {heldTab && (
@@ -246,12 +247,6 @@ export function MobileNav({
                 </span>
               </span>
               <span className="max-w-full truncate">{t("nav.more")}</span>
-              {pathname === "/menu" ? (
-                <span
-                  className="absolute inset-x-2 top-0 h-0.5 rounded-b-full bg-primary"
-                  aria-hidden
-                />
-              ) : null}
             </Link>
           </li>
         </ul>
