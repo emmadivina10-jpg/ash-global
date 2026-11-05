@@ -170,7 +170,7 @@ export function useFxInstructors() {
       if (error) throw error;
       const ids = (rows ?? []).map((row: { user_id: string }) => row.user_id);
       if (!ids.length) return [];
-      const since = new Date(Date.now() - 5 * 60_000).toISOString();
+      const since = new Date(Date.now() - 2 * 60_000).toISOString();
       const [{ data: profiles }, { data: presence }] = await Promise.all([
         directory()
           .select("user_id,full_name,username,avatar_url,verified_tier,verified_until")
@@ -179,6 +179,7 @@ export function useFxInstructors() {
           .from("member_presence")
           .select("user_id")
           .in("user_id", ids)
+          .eq("show_online", true)
           .gte("last_active_at", since),
       ]);
       const onlineIds = new Set((presence ?? []).map((row) => row.user_id));
@@ -316,7 +317,7 @@ export function useFxInstructorProfile(instructorId: string) {
         .maybeSingle();
       if (error) throw error;
       if (!data) return null;
-      const since = new Date(Date.now() - 5 * 60_000).toISOString();
+      const since = new Date(Date.now() - 2 * 60_000).toISOString();
       const [{ data: profile }, { data: presence }] = await Promise.all([
         directory()
           .select("full_name,username,avatar_url,verified_tier,verified_until")
@@ -326,6 +327,7 @@ export function useFxInstructorProfile(instructorId: string) {
           .from("member_presence")
           .select("user_id")
           .eq("user_id", data.user_id)
+          .eq("show_online", true)
           .gte("last_active_at", since)
           .maybeSingle(),
       ]);

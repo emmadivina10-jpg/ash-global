@@ -45,13 +45,14 @@ export function useNotifications(limit = 30) {
       const actorIds = Array.from(new Set(rowActorIds.filter((id): id is string => Boolean(id))));
       if (actorIds.length === 0) return rows.map((row) => ({ ...row, actor: null }));
 
-      const since = new Date(Date.now() - 5 * 60_000).toISOString();
+      const since = new Date(Date.now() - 2 * 60_000).toISOString();
       const [map, { data: presence }] = await Promise.all([
         loadActors(actorIds),
         supabase
           .from("member_presence")
           .select("user_id")
           .in("user_id", actorIds)
+          .eq("show_online", true)
           .gte("last_active_at", since),
       ]);
       const onlineIds = new Set((presence ?? []).map((row) => row.user_id));

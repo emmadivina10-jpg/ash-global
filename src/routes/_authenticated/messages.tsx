@@ -8,14 +8,7 @@ import {
 } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import {
-  ArrowLeft,
-  Camera,
-  LifeBuoy,
-  Search,
-  Settings2,
-  UserMinus,
-} from "lucide-react";
+import { ArrowLeft, Camera, LifeBuoy, Search, Settings2, UserMinus } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 
@@ -27,6 +20,7 @@ import { useStories } from "@/lib/social.queries";
 import { Play, CircleUserRound } from "lucide-react";
 import ashLogo from "@/assets/ash-logo.png.asset.json";
 import { ChatThread } from "@/components/refer/ChatThread";
+import { LiveConnectRail } from "@/components/refer/LiveConnectRail";
 import { AssistantPanel } from "@/components/refer/AssistantPanel";
 import { SupportChatPanel } from "@/components/refer/SupportChatPanel";
 import { Avatar } from "@/components/refer/AvatarUpload";
@@ -748,6 +742,7 @@ function MessagesPage() {
               head.style.transform = `translateY(${progress * -12}px)`;
             }}
           >
+            {mobileView !== "thread" ? <LiveConnectRail /> : null}
             {/* Stays pinned while the title and search scroll away, like WhatsApp. */}
             <div className="sticky top-0 z-20 h-0 shrink-0">
               <Button
@@ -760,7 +755,10 @@ function MessagesPage() {
                 <Plus className="size-6" />
               </Button>
             </div>
-            <div data-inbox-head className="shrink-0 border-b border-border bg-card/75 px-4 pb-4 pt-5 will-change-[opacity,transform]">
+            <div
+              data-inbox-head
+              className="shrink-0 border-b border-border bg-card/75 px-4 pb-4 pt-5 will-change-[opacity,transform]"
+            >
               <h2 className="mb-4 flex min-h-11 items-center pr-14 font-display text-3xl font-bold text-foreground">
                 {t("chat.title")}
               </h2>

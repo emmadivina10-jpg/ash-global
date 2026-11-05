@@ -53,7 +53,8 @@ function PrivacyPage() {
         In this mobile release and phone preview, only eligible MTN Mobile Money and Orange Money
         through TchokoPay are offered (Cameroon/XAF). Card/Stripe payments, saved cards, bank setup
         and bank withdrawals are coming soon and unavailable. Stripe disclosures below concern
-        separate desktop website services and existing transaction records, not active mobile card entry.
+        separate desktop website services and existing transaction records, not active mobile card
+        entry.
       </p>
 
       <LegalSection id="age" title="1. Age">
@@ -75,6 +76,7 @@ function PrivacyPage() {
             "Transaction and accounting information required for payments, wallet, referrals, commissions, activation, withdrawals and reconciliation, including payment provider, amount, currency, transaction reference, booking reference and transaction status. For card payments through Stripe-hosted Checkout, Stripe processes card information on its checkout page. ASH Glo may receive related transaction and payment-status information. ASH Glo does not receive or store full card numbers or card security codes through this hosted Checkout flow. We do not receive or store Mobile Money PINs.",
             "Verification information where applicable, including private government-ID and selfie/face files, application answers, review status and reviewer notes. Submission is manually reviewed and is not a claim of completed external KYC.",
             "Device and technical information needed to run and secure the service, such as session, browser or app information, request and error data, notification token and security events. Restricted security records can include raw IP addresses, user-agent strings, device/access fingerprints, approximate IP-derived city/country/coordinates, access timestamps and audited restrictions.",
+            "Active-presence heartbeats and a random per-session identifier used to expire stale online status. Online status is available to accepted friends and conversation partners according to your visibility choice; appearing as available in public Live Now discovery additionally requires an active storefront and your explicit availability choice. Stale sessions stop counting as online after two minutes.",
             "Profile-photo file and decoded-pixel fingerprints used to detect exact JPG/PNG copies of an active verified member’s photo; denied identity attempts and account restriction/restoration records. This matching is not facial recognition and does not reliably detect cropped, resized or edited copies.",
             "For nearby discovery, coordinates resolve a city on the device; personalization receives a cached city/country when enabled. Separately, opt-in active booking tracking transmits and stores precise coordinates, accuracy and update time so booking parties can see each other. Authorized security staff can access active trip locations for safety review. Sharing records are cleared when the booking ends; you can stop sharing through booking controls or device permissions.",
           ]}
@@ -200,6 +202,12 @@ function PrivacyPage() {
           members, report content, delete eligible content, and manage notification or location
           permissions through ASH Glo or device settings. A block does not erase information that
           must remain for safety, disputes or legal obligations.
+        </p>
+        <p>
+          Vendors can manage Live Connect from their Professional Studio: they can appear as
+          available in Live Now, pause the live-availability indicator while remaining visible to
+          friends, or hide their online status. Marketplace storefronts and listings remain governed
+          by their existing listing visibility and status controls.
         </p>
       </LegalSection>
 

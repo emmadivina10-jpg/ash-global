@@ -122,7 +122,7 @@ export function useSpotlightFeed(limit = 18, pinnedId?: string | null) {
         .filter((id): id is string => Boolean(id));
 
       const { data: auth } = await supabase.auth.getUser();
-      const since = new Date(Date.now() - 5 * 60_000).toISOString();
+      const since = new Date(Date.now() - 2 * 60_000).toISOString();
       const [profilesResult, providersResult, reactionsResult, presenceResult, commentsResult] =
         await Promise.all([
           user && authorIds.length
@@ -163,6 +163,7 @@ export function useSpotlightFeed(limit = 18, pinnedId?: string | null) {
                 .from("member_presence")
                 .select("user_id")
                 .in("user_id", authorIds)
+                .eq("show_online", true)
                 .gte("last_active_at", since)
             : Promise.resolve({ data: [] }),
           user && postRows.length

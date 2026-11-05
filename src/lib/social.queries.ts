@@ -258,7 +258,7 @@ export async function loadAuthors(ids: string[]): Promise<Map<string, SocialAuth
   const unique = Array.from(new Set(ids.filter(Boolean)));
   const map = new Map<string, SocialAuthor>();
   if (unique.length === 0) return map;
-  const since = new Date(Date.now() - 5 * 60_000).toISOString();
+  const since = new Date(Date.now() - 2 * 60_000).toISOString();
   const now = new Date().toISOString();
   const [{ data }, { data: presence }, { data: stories }, { data: spotlights }] = await Promise.all(
     [
@@ -269,6 +269,7 @@ export async function loadAuthors(ids: string[]): Promise<Map<string, SocialAuth
         .from("member_presence")
         .select("user_id")
         .in("user_id", unique)
+        .eq("show_online", true)
         .gte("last_active_at", since),
       supabase.from("stories").select("author_id").in("author_id", unique).gt("expires_at", now),
       supabase

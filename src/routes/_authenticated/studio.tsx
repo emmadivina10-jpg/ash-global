@@ -61,6 +61,7 @@ import {
   PaymentLinksCard,
   StorefrontCard,
 } from "@/components/refer/StorefrontTools";
+import { LiveConnectSettingsCard } from "@/components/refer/LiveConnectSettingsCard";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/studio")({
@@ -605,6 +606,7 @@ function StudioPage() {
         <>
           <StorefrontCard studio={studio as never} />
           <AvailabilityCard studio={studio as never} />
+          {studio?.user_id ? <LiveConnectSettingsCard userId={studio.user_id} /> : null}
           <PaymentLinksCard
             studio={studio as never}
             services={(services ?? []).map((s) => ({ id: s.id, title: s.title, price: s.price }))}

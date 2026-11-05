@@ -34,13 +34,17 @@ export function useUpcomingBirthdays() {
     queryKey: ["rail", "birthdays"],
     staleTime: 30 * 60_000,
     queryFn: async (): Promise<BirthdayPerson[]> => {
-      const since = new Date(Date.now() - 5 * 60_000).toISOString();
+      const since = new Date(Date.now() - 2 * 60_000).toISOString();
       const [{ data }, { data: presence }] = await Promise.all([
         directory()
           .select("user_id, full_name, avatar_url, verified_tier, verified_until, birthday")
           .not("birthday", "is", null)
           .limit(500),
-        supabase.from("member_presence").select("user_id").gte("last_active_at", since),
+        supabase
+          .from("member_presence")
+          .select("user_id")
+          .eq("show_online", true)
+          .gte("last_active_at", since),
       ]);
       const onlineIds = new Set((presence ?? []).map((row) => row.user_id));
 

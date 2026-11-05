@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 import { Avatar } from "./AvatarUpload";
 import { MemberNavIcon } from "./MemberNavIcon";
 import { UnreadMessageBadge } from "./UnreadMessageBadge";
+import { useLiveConnectVendors } from "@/lib/live-connect.queries";
+import { useRegion } from "@/lib/region-context";
 
 export type MobileNavItem = {
   to: string;
@@ -36,6 +38,12 @@ export function MobileNav({
   const fr = lang === "fr";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const queryClient = useQueryClient();
+  const region = useRegion();
+  const { data: liveVendors = [] } = useLiveConnectVendors(
+    region.seesEverything ? null : region.country,
+    1,
+  );
+  const hasAvailableVendors = liveVendors.some((vendor) => vendor.is_online);
   // Tapping the tab you're already on scrolls back to the top and refreshes it.
   const refreshCurrent = () => {
     for (const el of Array.from(
@@ -156,7 +164,16 @@ export function MobileNav({
           <span className={cn("relative grid size-7 place-items-center", active && "is-active")}>
             <MemberNavIcon icon={item.icon} active={active} />
             {item.to === "/messages" && (
-              <UnreadMessageBadge count={unreadMessages} className="absolute -right-2 -top-1" />
+              <>
+                {hasAvailableVendors ? (
+                  <span
+                    className="live-connect-nav-indicator"
+                    role="img"
+                    aria-label={tx("Vendors are online", "Des vendeurs sont en ligne")}
+                  />
+                ) : null}
+                <UnreadMessageBadge count={unreadMessages} className="absolute -right-2 -top-1" />
+              </>
             )}
           </span>
           <span className="sr-only">{label(item)}</span>

@@ -1,20 +1,20 @@
-import { useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import {
-  ArrowLeft,
   BadgeCheck,
   BookOpen,
-  Check,
-  ChevronDown,
-  Play,
+  MapPin,
+  MessageCircle,
   Plus,
   Search,
-  X,
+  Sparkles,
+  Star,
 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { DiscoverVideo } from "@/components/refer/DiscoverVideo";
 import { DiscoverVideoEngagement } from "@/components/refer/DiscoverVideoEngagement";
+import { LiveConnectVendorCard } from "@/components/refer/LiveConnectRail";
 import { NotificationBell } from "@/components/refer/NotificationBell";
 import { StoriesRail } from "@/components/refer/StoriesRail";
 import { VideoActions } from "@/components/refer/VideoActions";
@@ -28,38 +28,43 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import ashLogo from "@/assets/ash-logo.png.asset.json";
+import { useImpression, trackEvent } from "@/lib/activity";
 import { useDiscoverInstructors } from "@/lib/campus.queries";
-import { DISCOVER_TOPICS, topicMatches } from "@/lib/discover-topics";
-import { useI18n } from "@/lib/i18n";
+import { useLiveConnectVendors, type LiveConnectVendor } from "@/lib/live-connect.queries";
+import { useRegion } from "@/lib/region-context";
+import { useUser } from "@/lib/queries";
 import {
-  loadAuthors,
   isStoryVideoSource,
+  loadAuthors,
   usePublicDiscoverVideoFeed,
   useSocialFeed,
   type FeedPost,
 } from "@/lib/social.queries";
-import { useUser } from "@/lib/queries";
+import { CATEGORY_GROUPS, categoryLabel, type GroupId } from "@/lib/taxonomy";
+import { useI18n } from "@/lib/i18n";
+import { newSessionSeed, rotate } from "@/lib/rotation";
 import { cn } from "@/lib/utils";
+import { topicMatches } from "@/lib/discover-topics";
+import { openConversation } from "@/lib/marketplace.queries";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_browse/discover")({
   head: () => ({
     meta: [
-      { title: "Discover — ASH Glo" },
+      { title: "Discover on ASH — ASH Glo" },
       {
         name: "description",
-        content:
-          "Watch creators, instructors and the ASH community — videos, tutorials, business and learning content in one premium destination.",
+        content: "Find real ASH businesses and service providers who are ready to connect.",
       },
-      { property: "og:title", content: "Discover — ASH Glo" },
+      { property: "og:title", content: "Discover on ASH — ASH Glo" },
       {
         property: "og:description",
-        content: "A video-first home for ASH creators, instructors and learning content.",
+        content: "Find people ready to serve you on ASH Glo.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: DiscoverPage,
+  component: DiscoverLiveConnectPage,
 });
 
 function postVideos(post: FeedPost): string[] {
@@ -75,8 +80,8 @@ function firstLine(caption: string): string {
   );
 }
 
-const EXPLORE_CATEGORIES = [
-  { id: "all", en: "All", fr: "Tout", words: [] },
+const VIDEO_CATEGORIES = [
+  { id: "all", en: "All videos", fr: "Toutes", words: [] },
   {
     id: "food",
     en: "Food",
@@ -170,55 +175,192 @@ function VideoCard({ post, instructorId }: { post: FeedPost; instructorId?: stri
   );
 }
 
-function CategoryShelf({
-  selected,
-  onSelect,
-  sticky = false,
-}: {
-  selected: string;
-  onSelect: (id: string) => void;
-  sticky?: boolean;
-}) {
+function DiscoverVendorCard({ vendor }: { vendor: LiveConnectVendor }) {
   const { tx, lang } = useI18n();
+  const { user } = useUser();
+  const navigate = useNavigate();
+  const impression = useImpression({
+    event_type: "impression",
+    surface: "discover",
+    target_type: "provider",
+    target_id: vendor.provider_id,
+  });
+  const messageVendor = async () => {
+    if (!user) {
+      await navigate({ to: "/login" });
+      return;
+    }
+    try {
+      const conversationId = await openConversation(vendor.provider_id);
+      if (!conversationId) throw new Error("The conversation could not be opened.");
+      trackEvent({
+        event_type: "click",
+        surface: "discover",
+        target_type: "provider",
+        target_id: vendor.provider_id,
+        metadata: { action: "message" },
+      });
+      await navigate({ to: "/messages", search: { c: conversationId } });
+    } catch (error) {
+      console.error("Could not start vendor conversation", error);
+      toast.error(tx("Could not open this vendor chat.", "Impossible d’ouvrir cette discussion."));
+    }
+  };
   return (
-    <nav
-      aria-label={tx("Explore topics", "Explorer les thèmes")}
-      className={cn(
-        "border-y border-border bg-background/95 py-3 backdrop-blur",
-        sticky && "sticky top-0 z-30",
-      )}
+    <article
+      ref={impression}
+      className="live-connect-discovery-card overflow-hidden rounded-3xl border border-border bg-card shadow-sm"
     >
-      <div className="flex gap-2 overflow-x-auto px-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {EXPLORE_CATEGORIES.map((category) => (
-          <Button
-            key={category.id}
-            type="button"
-            size="sm"
-            variant={selected === category.id ? "default" : "outline"}
-            aria-pressed={selected === category.id}
-            onClick={() => onSelect(category.id)}
-            className="h-8 shrink-0 rounded-full px-3 text-xs font-semibold"
+      <div className="flex items-center gap-3 p-4">
+        <Link
+          to="/services/$providerId"
+          params={{ providerId: vendor.provider_id }}
+          onClick={() =>
+            trackEvent({
+              event_type: "provider_view",
+              surface: "discover",
+              target_type: "provider",
+              target_id: vendor.provider_id,
+            })
+          }
+          aria-label={tx(`View ${vendor.business_name}`, `Voir ${vendor.business_name}`)}
+        >
+          <Avatar path={vendor.avatar_url} name={vendor.business_name} className="size-14" />
+        </Link>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1">
+            <h2 className="truncate font-display text-base font-bold text-foreground">
+              {vendor.business_name}
+            </h2>
+            {vendor.is_verified ? (
+              <BadgeCheck
+                className="size-4 shrink-0 text-primary"
+                aria-label={tx("Verified business", "Entreprise vérifiée")}
+              />
+            ) : null}
+          </div>
+          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              {vendor.is_online ? (
+                <>
+                  <span className="live-connect-dot" aria-hidden />
+                  <span className="font-semibold text-primary">{tx("Live now", "En ligne")}</span>
+                </>
+              ) : (
+                tx("Storefront", "Boutique")
+              )}
+            </span>
+            {vendor.city ? (
+              <span className="flex items-center gap-1">
+                <MapPin className="size-3.5" aria-hidden />
+                {vendor.city}
+              </span>
+            ) : null}
+            {vendor.rating_count > 0 ? (
+              <span className="flex items-center gap-1">
+                <Star className="size-3.5 fill-current text-primary" aria-hidden />
+                {Number(vendor.rating_avg).toFixed(1)} ({vendor.rating_count})
+              </span>
+            ) : null}
+          </div>
+        </div>
+      </div>
+      <p className="mx-4 line-clamp-2 min-h-10 text-sm leading-5 text-muted-foreground">
+        {vendor.bio || tx("Discover this ASH business.", "Découvrez cette entreprise ASH.")}
+      </p>
+      <div className="flex flex-wrap gap-1.5 px-4 pt-3">
+        {vendor.categories.slice(0, 3).map((category) => (
+          <span
+            key={category}
+            className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary"
           >
-            {lang === "fr" ? category.fr : category.en}
-          </Button>
+            {categoryLabel(category, lang)}
+          </span>
         ))}
       </div>
-    </nav>
+      {Array.isArray(vendor.services) && vendor.services.length ? (
+        <div className="mx-4 mt-3 rounded-2xl bg-muted/50 p-3">
+          <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+            {tx("Services", "Services")}
+          </p>
+          <p className="line-clamp-2 text-xs font-medium text-foreground">
+            {(vendor.services as { title: string }[])
+              .slice(0, 3)
+              .map((service) => service.title)
+              .join(" · ")}
+          </p>
+        </div>
+      ) : null}
+      <div className="grid grid-cols-2 gap-2 p-4">
+        <Link
+          to="/services/$providerId"
+          params={{ providerId: vendor.provider_id }}
+          onClick={() =>
+            trackEvent({
+              event_type: "provider_view",
+              surface: "discover",
+              target_type: "provider",
+              target_id: vendor.provider_id,
+            })
+          }
+          className="inline-flex min-h-10 items-center justify-center rounded-full bg-primary px-3 text-center text-xs font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+        >
+          {tx("View services", "Voir les services")}
+        </Link>
+        <Button
+          type="button"
+          variant="outline"
+          className="min-h-10 rounded-full px-3 text-xs"
+          onClick={() => void messageVendor()}
+        >
+          <MessageCircle className="size-4" aria-hidden />
+          {tx("Message", "Écrire")}
+        </Button>
+      </div>
+      {vendor.accepting_bookings ? (
+        <Link
+          to="/services/$providerId"
+          params={{ providerId: vendor.provider_id }}
+          onClick={() =>
+            trackEvent({
+              event_type: "click",
+              surface: "discover",
+              target_type: "provider",
+              target_id: vendor.provider_id,
+              metadata: { action: "booking_entry" },
+            })
+          }
+          className="mx-4 mb-4 inline-flex min-h-9 w-[calc(100%-2rem)] items-center justify-center rounded-full bg-primary/10 px-3 text-xs font-bold text-primary hover:bg-primary/15"
+        >
+          {tx("Book a service", "Réserver un service")}
+        </Link>
+      ) : null}
+    </article>
   );
 }
 
-function DiscoverPage() {
+function DiscoverLiveConnectPage() {
   const { tx, lang } = useI18n();
   const fr = lang === "fr";
+  const region = useRegion();
   const { user } = useUser();
-  const topic = "all";
-  const [marketCategory, setMarketCategory] = useState("all");
+  const navigate = useNavigate();
+  const [selectedGroup, setSelectedGroup] = useState<GroupId | "ALL">("ALL");
+  const [search, setSearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [videoCategory, setVideoCategory] = useState("all");
+  const [onlineLimit, setOnlineLimit] = useState(9);
+  const [storefrontLimit, setStorefrontLimit] = useState(12);
+  const {
+    data: vendors = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useLiveConnectVendors(region.seesEverything ? null : region.country);
   const memberFeed = useSocialFeed(120);
   const publicFeed = usePublicDiscoverVideoFeed(120, !user);
   const posts = user ? memberFeed.data : publicFeed.data;
-  const isLoading = user ? memberFeed.isLoading : publicFeed.isLoading;
+  const feedLoading = user ? memberFeed.isLoading : publicFeed.isLoading;
   const feedError = user ? memberFeed.isError : publicFeed.isError;
   const { data: instructors } = useDiscoverInstructors();
   const isApprovedInstructor = Boolean(
@@ -227,38 +369,69 @@ function DiscoverPage() {
       (instructor) => instructor.user_id === user.id && instructor.is_active,
     ),
   );
+  const [sessionSeed, setSessionSeed] = useState("live-connect");
+  useEffect(() => {
+    setSessionSeed(newSessionSeed(user?.id ?? null));
+  }, [user?.id]);
+
+  const filtered = useMemo(() => {
+    const term = search.trim().toLocaleLowerCase();
+    return vendors.filter((vendor) => {
+      const group = CATEGORY_GROUPS.find((item) => item.id === selectedGroup);
+      const groupMatch =
+        !group || vendor.categories.some((category) => group.categories.includes(category));
+      const text = [
+        vendor.business_name,
+        vendor.city ?? "",
+        vendor.bio ?? "",
+        ...vendor.categories,
+        ...(Array.isArray(vendor.services)
+          ? (vendor.services as { title: string }[]).map((service) => service.title)
+          : []),
+      ]
+        .join(" ")
+        .toLocaleLowerCase();
+      return groupMatch && (!term || text.includes(term));
+    });
+  }, [search, selectedGroup, vendors]);
+
+  const onlineVendors = useMemo(() => {
+    const online = filtered.filter((vendor) => vendor.is_online);
+    const ranked = rotate(
+      "live-vendor",
+      online.map((vendor) => ({
+        item: vendor,
+        id: vendor.provider_id,
+        creator: vendor.provider_id,
+        relevance:
+          (vendor.is_verified ? 0.3 : 0) +
+          Math.min(0.35, (vendor.rating_avg / 5) * 0.35) +
+          (vendor.accepting_bookings ? 0.25 : 0) +
+          Math.min(0.1, vendor.rating_count / 100),
+        explorable: vendor.rating_count < 3,
+      })),
+      sessionSeed,
+    );
+    return ranked;
+  }, [filtered, sessionSeed]);
+
+  const offlineVendors = filtered.filter((vendor) => !vendor.is_online);
   const videoPosts = useMemo(() => {
-    const term = searchTerm.trim().toLocaleLowerCase();
-    const category = EXPLORE_CATEGORIES.find((item) => item.id === marketCategory);
+    const term = search.trim().toLocaleLowerCase();
+    const category = VIDEO_CATEGORIES.find((item) => item.id === videoCategory);
     return (posts ?? []).filter((post) => {
       const content = `${post.caption} ${post.author.name}`.toLocaleLowerCase();
-      const categoryMatches =
-        !category || category.id === "all" || category.words.some((word) => content.includes(word));
       return (
         postVideos(post).length > 0 &&
-        topicMatches(post.caption, topic) &&
-        categoryMatches &&
+        topicMatches(post.caption, "all") &&
+        (!category ||
+          category.id === "all" ||
+          category.words.some((word) => content.includes(word))) &&
         (!term || content.includes(term))
       );
     });
-  }, [posts, topic, marketCategory, searchTerm]);
-  const selectedTopic = DISCOVER_TOPICS.find((item) => item.id === topic);
-  const topicLabel =
-    selectedTopic && selectedTopic.id !== "all"
-      ? fr
-        ? selectedTopic.fr
-        : selectedTopic.en
-      : undefined;
-  const featured = (instructors ?? [])
-    .filter((instructor) =>
-      topicMatches(
-        [instructor.headline, instructor.bio, ...instructor.subjects, ...instructor.skills].join(
-          " ",
-        ),
-        topic,
-      ),
-    )
-    .slice(0, 12);
+  }, [posts, search, videoCategory]);
+  const featuredInstructors = (instructors ?? []).slice(0, 12);
   const instructorIds = (instructors ?? []).map((instructor) => instructor.user_id).sort();
   const { data: instructorPresence } = useQuery({
     queryKey: ["discover-instructor-presence", user?.id, instructorIds],
@@ -267,160 +440,298 @@ function DiscoverPage() {
     refetchInterval: 30_000,
     staleTime: 15_000,
   });
-  function submitSearch(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setSearchOpen(false);
-  }
+  const selectCategory = (group: GroupId | "ALL") => {
+    setSelectedGroup(group);
+    setOnlineLimit(9);
+    setStorefrontLimit(12);
+    trackEvent({
+      event_type: "category_view",
+      surface: "services",
+      target_type: "category",
+      category: group,
+    });
+  };
 
   return (
-    <div className="discover-surface market-theme -mx-4 w-[calc(100%+2rem)] sm:-mx-6 sm:w-[calc(100%+3rem)] lg:-mx-8 lg:w-[calc(100%+4rem)]">
-      <header className="relative bg-background px-3 py-2.5 lg:px-6">
-        <div className="mx-auto flex h-11 max-w-5xl items-center gap-2">
-          {searchOpen ? (
-            <form
-              role="search"
-              onSubmit={submitSearch}
-              className="discover-search-open flex min-w-0 flex-1 items-center gap-2"
-            >
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="shrink-0 rounded-full"
-                aria-label={tx("Close search", "Fermer la recherche")}
-                onClick={() => setSearchOpen(false)}
-              >
-                <ArrowLeft className="size-5" aria-hidden />
-              </Button>
-              <div className="relative min-w-0 flex-1">
-                <Input
-                  autoFocus
-                  value={searchTerm}
-                  onChange={(event) => setSearchTerm(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Escape") setSearchOpen(false);
-                  }}
-                  placeholder={tx("Search ASH Glo", "Rechercher sur ASH Glo")}
-                  aria-label={tx(
-                    "Search videos and creators",
-                    "Rechercher des vidéos et des créateurs",
-                  )}
-                  className="h-10 rounded-full border-border bg-muted/60 pl-4 pr-10 focus-visible:ring-primary"
-                />
-                {searchTerm ? (
-                  <button
-                    type="button"
-                    aria-label={tx("Clear search", "Effacer la recherche")}
-                    onClick={() => setSearchTerm("")}
-                    className="absolute right-2 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-full text-muted-foreground hover:bg-background"
-                  >
-                    <X className="size-4" aria-hidden />
-                  </button>
-                ) : null}
-              </div>
-              <Button
-                type="submit"
-                size="icon"
-                variant="secondary"
-                className="shrink-0 rounded-full"
-                aria-label={tx("Search", "Rechercher")}
-              >
-                <Search className="size-5" aria-hidden />
-              </Button>
-            </form>
-          ) : (
-            <>
-              <Link
-                to="/discover"
-                aria-label="ASH Glo"
-                className="mr-auto inline-flex min-w-0 items-center gap-2 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              >
-                <img
-                  src={ashLogo.url}
-                  alt="ASH"
-                  className="size-9 shrink-0 rounded-full object-cover"
-                />
-                <span className="truncate font-display text-xl font-extrabold tracking-tight text-foreground">
-                  ASH Glo
-                </span>
-              </Link>
-              {isApprovedInstructor ? (
-                <Link
-                  to="/discover/upload"
-                  aria-label={tx("Upload a video", "Publier une vidéo")}
-                  title={tx("Upload a video", "Publier une vidéo")}
-                  className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                >
-                  <Plus className="size-5" aria-hidden />
-                </Link>
-              ) : null}
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="shrink-0 rounded-full"
-                aria-label={tx("Search videos", "Rechercher des vidéos")}
-                onClick={() => setSearchOpen(true)}
-              >
-                <Search className="size-5" aria-hidden />
-              </Button>
-              <NotificationBell />
-            </>
-          )}
-        </div>
-        {searchOpen ? (
-          <div className="absolute inset-x-0 top-full z-40 border-b border-border bg-background px-3 pb-3 shadow-lg lg:px-6">
-            <ul className="mx-auto max-w-5xl divide-y divide-border/50">
-              {[
-                ...EXPLORE_CATEGORIES.slice(1, 6).map((item) => (fr ? item.fr : item.en)),
-                ...(instructors ?? []).slice(0, 4).map((item) => item.display_name),
-              ]
-                .filter(
-                  (item) =>
-                    !searchTerm.trim() ||
-                    item.toLocaleLowerCase().includes(searchTerm.trim().toLocaleLowerCase()),
-                )
-                .map((suggestion) => (
-                  <li key={suggestion}>
-                    <button
-                      type="button"
-                      className="flex w-full items-center gap-3 py-2.5 text-left text-sm text-foreground hover:text-primary"
-                      onClick={() => {
-                        setSearchTerm(suggestion);
-                        setSearchOpen(false);
-                      }}
-                    >
-                      <Search className="size-4 text-muted-foreground" aria-hidden />
-                      {suggestion}
-                    </button>
-                  </li>
-                ))}
-            </ul>
-          </div>
+    <main className="live-connect-discover mx-auto w-full max-w-7xl space-y-7 px-4 pb-8 pt-3 sm:px-6 lg:px-8">
+      <header className="flex items-center gap-2 border-b border-border pb-3">
+        <Link
+          to="/discover"
+          aria-label="ASH Glo"
+          className="mr-auto inline-flex min-w-0 items-center gap-2 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          <img src={ashLogo.url} alt="ASH" className="size-9 shrink-0 rounded-full object-cover" />
+          <span className="truncate font-display text-xl font-extrabold tracking-tight text-foreground">
+            ASH Glo
+          </span>
+        </Link>
+        {isApprovedInstructor ? (
+          <Link
+            to="/discover/upload"
+            aria-label={tx("Upload a video", "Publier une vidéo")}
+            title={tx("Upload a video", "Publier une vidéo")}
+            className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            <Plus className="size-5" aria-hidden />
+          </Link>
         ) : null}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="shrink-0 rounded-full"
+          aria-label={tx("Search ASH", "Rechercher sur ASH")}
+          onClick={() => setSearchOpen(true)}
+        >
+          <Search className="size-5" aria-hidden />
+        </Button>
+        <NotificationBell />
       </header>
+
+      <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
+        <DialogContent className="top-0 max-w-2xl translate-y-0 rounded-b-3xl rounded-t-none p-4 sm:top-16 sm:translate-y-0 sm:rounded-3xl">
+          <DialogHeader>
+            <DialogTitle>{tx("Search ASH Glo", "Rechercher sur ASH Glo")}</DialogTitle>
+            <DialogDescription>
+              {tx(
+                "Search businesses, services, creators and videos.",
+                "Rechercher des entreprises, services, créateurs et vidéos.",
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            autoFocus
+            value={search}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              setOnlineLimit(9);
+              setStorefrontLimit(12);
+            }}
+            placeholder={tx("Search ASH Glo", "Rechercher sur ASH Glo")}
+            aria-label={tx("Search ASH Glo", "Rechercher sur ASH Glo")}
+            className="h-11 rounded-full bg-background"
+          />
+        </DialogContent>
+      </Dialog>
+
+      <section className="relative overflow-hidden rounded-[2rem] border border-border bg-card px-5 py-7 shadow-sm sm:px-8 sm:py-9">
+        <div
+          className="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full bg-primary/10 blur-3xl"
+          aria-hidden
+        />
+        <p className="relative flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.18em] text-primary">
+          <Sparkles className="size-4" aria-hidden />
+          {tx("Discover on ASH", "Découvrir sur ASH")}
+        </p>
+        <h1 className="relative mt-3 max-w-2xl font-display text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl">
+          {tx("Find people ready to serve you.", "Trouvez des personnes prêtes à vous aider.")}
+        </h1>
+        <p className="relative mt-3 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
+          {tx(
+            "Meet real businesses, explore their services and start a conversation when you’re ready.",
+            "Découvrez des entreprises, explorez leurs services et contactez-les.",
+          )}
+        </p>
+        <div className="relative mt-5 flex max-w-xl flex-col gap-3 sm:flex-row">
+          {!user ? (
+            <Button
+              className="h-11 rounded-full px-5"
+              onClick={() => void navigate({ to: "/login" })}
+            >
+              {tx("Join ASH", "Rejoindre ASH")}
+            </Button>
+          ) : null}
+        </div>
+      </section>
+
+      <nav
+        aria-label={tx("Business categories", "Catégories d’entreprise")}
+        className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        <Button
+          type="button"
+          size="sm"
+          variant={selectedGroup === "ALL" ? "default" : "outline"}
+          aria-pressed={selectedGroup === "ALL"}
+          onClick={() => selectCategory("ALL")}
+          className="h-9 shrink-0 rounded-full px-4"
+        >
+          {tx("All", "Tout")}
+        </Button>
+        {CATEGORY_GROUPS.map((group) => (
+          <Button
+            key={group.id}
+            type="button"
+            size="sm"
+            variant={selectedGroup === group.id ? "default" : "outline"}
+            aria-pressed={selectedGroup === group.id}
+            onClick={() => selectCategory(group.id)}
+            className={cn("h-9 shrink-0 rounded-full px-4")}
+          >
+            {fr ? group.label.fr : group.label.en}
+          </Button>
+        ))}
+      </nav>
+
+      {isError ? (
+        <section
+          role="alert"
+          className="rounded-3xl border border-destructive/30 bg-destructive/5 p-6 text-center"
+        >
+          <p className="font-semibold text-foreground">
+            {tx("Live businesses could not be loaded.", "Impossible de charger les entreprises.")}
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-3 rounded-full"
+            onClick={() => void refetch()}
+          >
+            {tx("Try again", "Réessayer")}
+          </Button>
+        </section>
+      ) : null}
+
+      <section aria-labelledby="live-now-heading" className="space-y-4">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-primary">
+              {tx("Available now", "Disponibles maintenant")}
+            </p>
+            <h2
+              id="live-now-heading"
+              className="mt-1 font-display text-2xl font-bold text-foreground"
+            >
+              {tx("Live on ASH", "En direct sur ASH")}
+            </h2>
+          </div>
+          <span className="text-xs font-semibold text-muted-foreground">
+            {onlineVendors.length} {tx("available", "disponibles")}
+          </span>
+        </div>
+        {isLoading ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[0, 1, 2].map((item) => (
+              <div key={item} className="h-60 animate-pulse rounded-3xl bg-muted" />
+            ))}
+          </div>
+        ) : onlineVendors.length ? (
+          <>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {onlineVendors.slice(0, onlineLimit).map((vendor) => (
+                <DiscoverVendorCard key={vendor.provider_id} vendor={vendor} />
+              ))}
+            </div>
+            {onlineVendors.length > onlineLimit ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="mx-auto mt-4 flex rounded-full"
+                onClick={() => setOnlineLimit((limit) => Math.min(limit + 9, onlineVendors.length))}
+              >
+                {tx("Show more live businesses", "Voir plus d’entreprises en direct")}
+              </Button>
+            ) : null}
+          </>
+        ) : (
+          <p className="rounded-3xl border border-dashed border-border bg-card/60 px-5 py-8 text-center text-sm text-muted-foreground">
+            {tx(
+              "No businesses are live in this category right now. Browse storefronts below.",
+              "Aucune entreprise en direct dans cette catégorie. Découvrez les boutiques ci-dessous.",
+            )}
+          </p>
+        )}
+      </section>
+
+      <section aria-labelledby="storefronts-heading" className="space-y-4">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-muted-foreground">
+              {tx("Explore businesses", "Explorer les entreprises")}
+            </p>
+            <h2
+              id="storefronts-heading"
+              className="mt-1 font-display text-2xl font-bold text-foreground"
+            >
+              {tx("Storefronts", "Boutiques")}
+            </h2>
+          </div>
+          <Link to="/services" className="text-sm font-bold text-primary hover:underline">
+            {tx("All services", "Tous les services")}
+          </Link>
+        </div>
+        {isLoading ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[0, 1, 2].map((item) => (
+              <div key={item} className="h-60 animate-pulse rounded-3xl bg-muted" />
+            ))}
+          </div>
+        ) : offlineVendors.length ? (
+          <>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {offlineVendors.slice(0, storefrontLimit).map((vendor) => (
+                <LiveConnectVendorCard key={vendor.provider_id} vendor={vendor} online={false} />
+              ))}
+            </div>
+            {offlineVendors.length > storefrontLimit ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="mx-auto mt-4 flex rounded-full"
+                onClick={() =>
+                  setStorefrontLimit((limit) => Math.min(limit + 12, offlineVendors.length))
+                }
+              >
+                {tx("Show more storefronts", "Voir plus de boutiques")}
+              </Button>
+            ) : null}
+          </>
+        ) : (
+          <p className="rounded-3xl border border-dashed border-border bg-card/60 px-5 py-8 text-center text-sm text-muted-foreground">
+            {tx("No other storefronts match this search.", "Aucune autre boutique ne correspond.")}
+          </p>
+        )}
+      </section>
+
+      <nav
+        aria-label={tx("Explore other ASH markets", "Explorer les autres marchés ASH")}
+        className="flex flex-wrap gap-2"
+      >
+        {[
+          { to: "/services", label: tx("Services", "Services") },
+          { to: "/property", label: tx("Property & land", "Immobilier et terrains") },
+          { to: "/deals", label: tx("Deals", "Offres") },
+          { to: "/events", label: tx("Events", "Événements") },
+        ].map((item) => (
+          <Link
+            key={item.to}
+            to={item.to}
+            className="rounded-full border border-border bg-background px-3 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+          >
+            {item.label}
+          </Link>
+        ))}
+      </nav>
 
       <StoriesRail />
 
-      <CategoryShelf selected={marketCategory} onSelect={setMarketCategory} sticky />
-
       <section
         aria-label={tx("Featured instructors", "Instructeurs à la une")}
-        className="border-y border-border bg-background px-3 py-4 lg:px-6"
+        className="space-y-3"
       >
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-display text-base font-semibold text-foreground">
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-lg font-bold text-foreground">
             {tx("Featured instructors", "Instructeurs à la une")}
           </h2>
-          {featured.length > 0 ? (
+          {featuredInstructors.length > 0 ? (
             <Link to="/campus" className="text-sm font-semibold text-primary hover:underline">
               {tx("See all", "Tout voir")}
             </Link>
           ) : null}
         </div>
-        {featured.length ? (
-          <div className="-mx-2 flex gap-4 overflow-x-auto px-2 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {featured.map((instructor) => (
+        {featuredInstructors.length ? (
+          <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {featuredInstructors.map((instructor) => (
               <Link
                 key={instructor.id}
                 to="/campus/instructors/$instructorId"
@@ -465,49 +776,68 @@ function DiscoverPage() {
         )}
       </section>
 
-      {isLoading ? (
-        <div className="space-y-4" aria-busy="true">
-          {[0, 1, 2].map((id) => (
-            <div key={id} className="aspect-video w-full animate-pulse bg-muted" />
-          ))}
+      <section aria-label={tx("Community videos", "Vidéos de la communauté")} className="space-y-4">
+        <div>
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-primary">
+            {tx("From the community", "De la communauté")}
+          </p>
+          <h2 className="mt-1 font-display text-2xl font-bold text-foreground">
+            {tx("Videos on ASH", "Vidéos sur ASH")}
+          </h2>
         </div>
-      ) : feedError ? (
-        <p role="alert" className="px-4 py-8 text-center text-sm text-muted-foreground">
-          {tx(
-            "Videos could not be loaded. Please try again.",
-            "Impossible de charger les vidéos. Veuillez réessayer.",
-          )}
-        </p>
-      ) : videoPosts.length ? (
-        <section aria-label={tx("Videos", "Vidéos")} className="w-full">
-          {videoPosts.map((post) => {
-            const instructor = instructors?.find((item) => item.user_id === post.author.id);
-            return (
-              <VideoCard
-                key={post.id}
-                post={post}
-                {...(instructor ? { instructorId: instructor.id } : {})}
-              />
-            );
-          })}
-        </section>
-      ) : (
-        <>
-          <CategoryShelf selected={marketCategory} onSelect={setMarketCategory} />
-          <section
-            role="status"
-            className="border-y border-border bg-primary/5 px-6 py-12 text-center"
+        <nav
+          aria-label={tx("Video topics", "Thèmes vidéo")}
+          className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {VIDEO_CATEGORIES.map((category) => (
+            <Button
+              key={category.id}
+              type="button"
+              size="sm"
+              variant={videoCategory === category.id ? "default" : "outline"}
+              aria-pressed={videoCategory === category.id}
+              onClick={() => setVideoCategory(category.id)}
+              className="h-9 shrink-0 rounded-full px-4"
+            >
+              {fr ? category.fr : category.en}
+            </Button>
+          ))}
+        </nav>
+        {feedLoading ? (
+          <div className="space-y-4" aria-busy="true">
+            {[0, 1, 2].map((id) => (
+              <div key={id} className="aspect-video w-full animate-pulse rounded-3xl bg-muted" />
+            ))}
+          </div>
+        ) : feedError ? (
+          <p
+            role="alert"
+            className="rounded-3xl border border-destructive/30 bg-destructive/5 px-4 py-8 text-center text-sm text-muted-foreground"
           >
-            <p className="text-xl font-bold text-foreground">
-              {searchTerm.trim()
-                ? tx("No matching videos", "Aucune vidéo correspondante")
-                : topicLabel
-                  ? tx(`No ${topicLabel} videos yet`, `Pas encore de vidéos : ${topicLabel}`)
-                  : tx("No videos yet", "Pas encore de vidéos")}
-            </p>
-          </section>
-        </>
-      )}
-    </div>
+            {tx(
+              "Videos could not be loaded. Please try again.",
+              "Impossible de charger les vidéos. Veuillez réessayer.",
+            )}
+          </p>
+        ) : videoPosts.length ? (
+          <div className="mx-auto w-full max-w-3xl overflow-hidden rounded-3xl border border-border bg-background">
+            {videoPosts.map((post) => {
+              const instructor = instructors?.find((item) => item.user_id === post.author.id);
+              return (
+                <VideoCard
+                  key={post.id}
+                  post={post}
+                  {...(instructor ? { instructorId: instructor.id } : {})}
+                />
+              );
+            })}
+          </div>
+        ) : (
+          <p className="rounded-3xl border border-dashed border-border bg-card/60 px-5 py-8 text-center text-sm text-muted-foreground">
+            {tx("No videos match this search.", "Aucune vidéo ne correspond à cette recherche.")}
+          </p>
+        )}
+      </section>
+    </main>
   );
 }

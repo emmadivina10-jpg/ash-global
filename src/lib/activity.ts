@@ -64,6 +64,8 @@ export type ActivitySurface =
   | "freelance"
   | "markets"
   | "notifications"
+  | "discover"
+  | "messages"
   | "other";
 
 export type ActivityEvent = {

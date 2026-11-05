@@ -262,7 +262,7 @@ export async function loadSpotlights(): Promise<SpotlightPost[]> {
     .map((row) => spotlightMediaPath(row.media))
     .filter((path): path is string => Boolean(path));
 
-  const since = new Date(Date.now() - 5 * 60_000).toISOString();
+  const since = new Date(Date.now() - 2 * 60_000).toISOString();
   const { data: sessionData } = await supabase.auth.getSession();
   const [providersResult, profilesResult, signedResult, presenceResult] = await Promise.all([
     sessionData.session
@@ -284,6 +284,7 @@ export async function loadSpotlights(): Promise<SpotlightPost[]> {
           .from("member_presence")
           .select("user_id")
           .in("user_id", authorIds)
+          .eq("show_online", true)
           .gte("last_active_at", since)
       : Promise.resolve({ data: [] }),
   ]);

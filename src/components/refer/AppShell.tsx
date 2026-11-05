@@ -41,6 +41,7 @@ import { Button } from "@/components/ui/button";
 import { MobileNav } from "./MobileNav";
 import { UnreadMessageBadge } from "./UnreadMessageBadge";
 import { useUnreadMessageCount } from "@/lib/message-unread";
+import { getPresenceSessionId } from "@/lib/live-connect.queries";
 import { LocationNudge } from "./LocationNudge";
 import { StatusBadge } from "./StatusBadge";
 import { NotificationBell } from "./NotificationBell";
@@ -232,7 +233,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       inFlight = true;
       try {
         // PostgREST builders are lazy: awaiting executes the heartbeat request.
-        const { error } = await supabase.rpc("touch_member_presence");
+        const { error } = await supabase.rpc("touch_member_presence", {
+          _session_id: getPresenceSessionId(),
+        });
         if (error) console.warn("Member presence update failed", error.code);
       } catch {
         console.warn("Member presence update unavailable");

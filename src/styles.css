@@ -3156,3 +3156,73 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
     animation: none;
   }
 }
+
+.live-connect-dot {
+  position: relative;
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: none;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 12%, transparent);
+}
+.live-connect-avatar {
+  position: relative;
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark), var(--verified-violet));
+  animation: live-connect-pulse 2.4s ease-out infinite;
+}
+.live-connect-card-enter {
+  animation: live-connect-enter 320ms ease-out both;
+}
+.live-connect-card-enter.is-interacting {
+  animation-play-state: paused;
+}
+.live-connect-nav-indicator {
+  position: absolute;
+  right: -0.3rem;
+  top: -0.2rem;
+  width: 0.55rem;
+  height: 0.55rem;
+  border: 2px solid var(--background);
+  border-radius: 9999px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark), var(--verified-violet));
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--primary-dark) 25%, transparent);
+  animation: live-connect-dot 2.4s ease-in-out infinite;
+}
+@keyframes live-connect-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--primary) 28%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 7px color-mix(in oklab, var(--primary-dark) 0%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+@keyframes live-connect-dot {
+  50% {
+    transform: scale(1.16);
+  }
+}
+@keyframes live-connect-enter {
+  from {
+    opacity: 0.65;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-connect-avatar,
+  .live-connect-nav-indicator,
+  .live-connect-card-enter {
+    animation: none;
+  }
+}
