@@ -18,10 +18,13 @@ import {
   Users,
   Wrench,
 } from "lucide-react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/onboarding")({
+  beforeLoad: () => {
+    throw redirect({ to: "/discover" });
+  },
   head: () => ({
     meta: [
       {

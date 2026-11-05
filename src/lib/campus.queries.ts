@@ -71,6 +71,21 @@ export type CampusInstructor = {
   rating_count?: number | null;
 };
 
+export type DiscoverInstructor = Pick<
+  CampusInstructor,
+  | "id"
+  | "user_id"
+  | "display_name"
+  | "headline"
+  | "bio"
+  | "subjects"
+  | "skills"
+  | "is_active"
+  | "is_verified"
+> & {
+  profile: Pick<DirectoryProfile, "avatar_url"> | null;
+};
+
 export type CampusApplication = {
   id: string;
   user_id: string;
@@ -369,6 +384,29 @@ export function useInstructors(filters: InstructorFilters) {
       }
 
       return decorate(rows.slice(0, 40));
+    },
+  });
+}
+
+export function useDiscoverInstructors() {
+  return useQuery({
+    queryKey: ["discover", "active-instructors"],
+    staleTime: 60_000,
+    queryFn: async (): Promise<DiscoverInstructor[]> => {
+      const { data, error } = await supabase.rpc("discover_active_instructors");
+      if (error) throw error;
+      return (data ?? []).map((row) => ({
+        id: row.id,
+        user_id: row.user_id,
+        display_name: row.display_name,
+        headline: row.headline,
+        bio: row.bio,
+        subjects: row.subjects,
+        skills: row.skills,
+        is_active: row.is_active,
+        is_verified: row.is_verified,
+        profile: row.avatar_url ? { avatar_url: row.avatar_url } : null,
+      }));
     },
   });
 }

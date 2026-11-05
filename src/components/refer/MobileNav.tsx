@@ -38,7 +38,9 @@ export function MobileNav({
   const queryClient = useQueryClient();
   // Tapping the tab you're already on scrolls back to the top and refreshes it.
   const refreshCurrent = () => {
-    for (const el of Array.from(document.querySelectorAll<HTMLElement>(".app-shell-scroll, .snap-y")))
+    for (const el of Array.from(
+      document.querySelectorAll<HTMLElement>(".app-shell-scroll, .snap-y"),
+    ))
       el.scrollTo({ top: 0, behavior: "smooth" });
     window.scrollTo({ top: 0, behavior: "smooth" });
     playRefreshSound();
@@ -64,6 +66,9 @@ export function MobileNav({
   const label = (item: MobileNavItem) =>
     item.key ? t(item.key) : tx(item.en ?? item.label ?? "", item.fr);
   const tabs = [...items, { to: "/menu", icon: Menu, label: t("nav.more") }];
+  const activeTab = tabs.findIndex(
+    (item) => pathname === item.to || pathname.startsWith(`${item.to}/`),
+  );
   const indexAt = (x: number) => {
     const rect = gridRef.current?.getBoundingClientRect();
     if (!rect) return 0;
@@ -148,19 +153,18 @@ export function MobileNav({
             active ? "text-primary" : "text-muted-foreground active:text-foreground",
           )}
         >
-          <span className="relative grid size-7 place-items-center">
+          <span
+            className={cn(
+              "member-icon-well relative grid size-7 place-items-center",
+              active && "is-active",
+            )}
+          >
             <MemberNavIcon icon={item.icon} active={active} />
             {item.to === "/messages" && (
               <UnreadMessageBadge count={unreadMessages} className="absolute -right-2 -top-1" />
             )}
           </span>
           <span className="max-w-full truncate">{label(item)}</span>
-          {active ? (
-            <span
-              className="absolute inset-x-2 top-0 h-0.5 rounded-b-full bg-primary"
-              aria-hidden
-            />
-          ) : null}
         </Link>
       </li>
     );
@@ -195,6 +199,15 @@ export function MobileNav({
             }
           }}
         >
+          {activeTab >= 0 ? (
+            <li
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 left-0 z-0 w-1/5 transition-transform duration-300 ease-out motion-reduce:transition-none"
+              style={{ transform: `translateX(${activeTab * 100}%)` }}
+            >
+              <span className="absolute inset-x-2 top-0 h-0.5 rounded-b-full bg-primary" />
+            </li>
+          ) : null}
           {heldTab && (
             <li className="member-tab-bubble" aria-hidden="true">
               <span className="member-tab-bubble-icon">

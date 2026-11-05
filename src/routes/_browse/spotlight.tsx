@@ -36,8 +36,19 @@ import {
   type SpotlightEntry,
 } from "@/lib/spotlight.queries";
 import { BlockUserDialog } from "@/components/refer/BlockUserDialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useUser } from "@/lib/queries";
 import { vendorAction } from "@/lib/vendor-action";
 import { SpotlightComposer } from "@/components/refer/SpotlightComposer";
@@ -45,7 +56,8 @@ import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
-import { ShareSheet, shareLink } from "@/components/refer/ShareSheet";
+import { ShareSheet } from "@/components/refer/ShareSheet";
+import { shareLink } from "@/lib/share-links";
 import { useAuthGate } from "@/lib/guest-gate";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
@@ -59,9 +71,15 @@ export const Route = createFileRoute("/_browse/spotlight")({
   head: () => ({
     meta: [
       { title: "Spotlight — ASH Glo" },
-      { name: "description", content: "Watch Spotlight photos and videos from ASH members and vendors." },
+      {
+        name: "description",
+        content: "Watch Spotlight photos and videos from ASH members and vendors.",
+      },
       { property: "og:title", content: "Spotlight — ASH Glo" },
-      { property: "og:description", content: "Spotlight photos and videos from ASH members and vendors." },
+      {
+        property: "og:description",
+        content: "Spotlight photos and videos from ASH members and vendors.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -167,7 +185,10 @@ function SpotlightPage() {
             {tx("No Spotlights yet.", "Aucun Spotlight pour le moment.")}
           </p>
         ) : (
-          <div ref={scroller} className="h-full snap-y snap-mandatory overflow-y-auto overscroll-contain">
+          <div
+            ref={scroller}
+            className="h-full snap-y snap-mandatory overflow-y-auto overscroll-contain"
+          >
             {items.map((entry) => (
               <SpotlightSlide
                 key={entry.id}
@@ -222,7 +243,9 @@ function SpotlightPage() {
       <Sheet open={Boolean(mobileComments)} onOpenChange={(o) => !o && setMobileComments(null)}>
         <SheetContent side="bottom" className="flex h-[75dvh] flex-col gap-0 rounded-t-2xl p-0">
           <SheetHeader className="border-b border-border px-4 py-3">
-            <SheetTitle className="text-center text-base">{tx("Comments", "Commentaires")}</SheetTitle>
+            <SheetTitle className="text-center text-base">
+              {tx("Comments", "Commentaires")}
+            </SheetTitle>
           </SheetHeader>
           {mobileComments ? <CommentsPanel entry={mobileComments} /> : null}
         </SheetContent>
@@ -235,9 +258,17 @@ function AuthorBlock({ entry }: { entry: SpotlightEntry }) {
   return (
     <div className="space-y-2 border-b border-border px-4 pb-4">
       <p className="flex items-center gap-2 font-bold">
-        <Avatar path={entry.provider.avatar_url} name={entry.provider.business_name} className="size-10" />
+        <Avatar
+          path={entry.provider.avatar_url}
+          name={entry.provider.business_name}
+          className="size-10"
+        />
         <span className="truncate">{entry.provider.business_name}</span>
-        <VerifiedBadge tier={entry.provider.verified_tier} until={entry.provider.verified_until} size={14} />
+        <VerifiedBadge
+          tier={entry.provider.verified_tier}
+          until={entry.provider.verified_until}
+          size={14}
+        />
       </p>
       {entry.caption ? <p className="whitespace-pre-line text-sm">{entry.caption}</p> : null}
     </div>
@@ -312,7 +343,10 @@ function CommentsPanel({ entry }: { entry: SpotlightEntry }) {
   if (!canComment)
     return (
       <p className="p-4 text-sm text-muted-foreground">
-        {tx("Comments are off for shop photos.", "Les commentaires sont désactivés pour les photos de boutique.")}
+        {tx(
+          "Comments are off for shop photos.",
+          "Les commentaires sont désactivés pour les photos de boutique.",
+        )}
       </p>
     );
 
@@ -322,12 +356,20 @@ function CommentsPanel({ entry }: { entry: SpotlightEntry }) {
     return (
       <div key={c.id} className={cn("flex gap-2", nested && "ml-10")}>
         <Link to="/u/$userId" params={{ userId: c.author_id }} className="shrink-0">
-          <Avatar path={c.author?.avatar_url} name={c.author?.full_name} className={nested ? "size-7" : "size-8"} />
+          <Avatar
+            path={c.author?.avatar_url}
+            name={c.author?.full_name}
+            className={nested ? "size-7" : "size-8"}
+          />
         </Link>
         <div className="min-w-0 flex-1">
           <div className="flex items-start gap-1">
             <div className="min-w-0 rounded-2xl bg-muted px-3 py-2">
-              <Link to="/u/$userId" params={{ userId: c.author_id }} className="text-xs font-bold hover:underline">
+              <Link
+                to="/u/$userId"
+                params={{ userId: c.author_id }}
+                className="text-xs font-bold hover:underline"
+              >
                 {c.author?.full_name ?? "Member"}
               </Link>
               <p className="whitespace-pre-line break-words text-sm">{c.body}</p>
@@ -427,7 +469,11 @@ function CommentsPanel({ entry }: { entry: SpotlightEntry }) {
           <span className="truncate">
             {tx("Replying to", "Réponse à")} <b>{replyTo.author?.full_name ?? "Member"}</b>
           </span>
-          <button type="button" onClick={() => setReplyTo(null)} aria-label={tx("Cancel reply", "Annuler")}>
+          <button
+            type="button"
+            onClick={() => setReplyTo(null)}
+            aria-label={tx("Cancel reply", "Annuler")}
+          >
             <X className="size-4" />
           </button>
         </div>
@@ -444,7 +490,11 @@ function CommentsPanel({ entry }: { entry: SpotlightEntry }) {
           value={text}
           maxLength={1000}
           onChange={(e) => setText(e.target.value)}
-          placeholder={replyTo ? tx("Write a reply…", "Écrire une réponse…") : tx("Write a comment…", "Écrire un commentaire…")}
+          placeholder={
+            replyTo
+              ? tx("Write a reply…", "Écrire une réponse…")
+              : tx("Write a comment…", "Écrire un commentaire…")
+          }
           className="h-10 rounded-full"
         />
         <button
@@ -453,7 +503,11 @@ function CommentsPanel({ entry }: { entry: SpotlightEntry }) {
           aria-label={tx("Send", "Envoyer")}
           className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground disabled:opacity-50"
         >
-          {add.isPending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+          {add.isPending ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Send className="size-4" />
+          )}
         </button>
       </form>
       {blockTarget ? (
@@ -537,8 +591,13 @@ function SpotlightSlide({
 
   const action = vendorAction(entry.provider.category);
   const actionLabel =
-    action === "order" ? tx("Order", "Commander") : action === "book" ? tx("Book", "Réserver") : tx("Buy", "Acheter");
-  const ActionIcon = action === "order" ? UtensilsCrossed : action === "book" ? CalendarCheck : ShoppingBag;
+    action === "order"
+      ? tx("Order", "Commander")
+      : action === "book"
+        ? tx("Book", "Réserver")
+        : tx("Buy", "Acheter");
+  const ActionIcon =
+    action === "order" ? UtensilsCrossed : action === "book" ? CalendarCheck : ShoppingBag;
 
   const rawId = entry.id.replace(/^post:/, "");
   const shareUrl =
@@ -557,21 +616,45 @@ function SpotlightSlide({
         {entry.media_type === "video" ? (
           <SpotlightVideo videoRef={videoRef} src={entry.url} />
         ) : (
-          <img src={entry.url} alt={entry.caption ?? entry.provider.business_name} className="size-full object-cover" />
+          <img
+            src={entry.url}
+            alt={entry.caption ?? entry.provider.business_name}
+            className="size-full object-cover"
+          />
         )}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-media-backdrop/90 to-transparent" />
-        <div className={cn("absolute left-4 right-20 space-y-2 lg:right-4", entry.media_type === "video" ? "bottom-10" : "bottom-4")}>
+        <div
+          className={cn(
+            "absolute left-4 right-20 space-y-2 lg:right-4",
+            entry.media_type === "video" ? "bottom-10" : "bottom-4",
+          )}
+        >
           <p className="flex items-center gap-2 text-sm font-bold">
-            <Avatar path={entry.provider.avatar_url} name={entry.provider.business_name} className="size-9 ring-2 ring-on-dark/70" />
+            <Avatar
+              path={entry.provider.avatar_url}
+              name={entry.provider.business_name}
+              className="size-9 ring-2 ring-on-dark/70"
+            />
             <span className="truncate">{entry.provider.business_name}</span>
-            <VerifiedBadge tier={entry.provider.verified_tier} until={entry.provider.verified_until} size={14} />
+            <VerifiedBadge
+              tier={entry.provider.verified_tier}
+              until={entry.provider.verified_until}
+              size={14}
+            />
           </p>
-          {entry.caption ? <p className="line-clamp-3 text-sm opacity-90">{entry.caption}</p> : null}
+          {entry.caption ? (
+            <p className="line-clamp-3 text-sm opacity-90">{entry.caption}</p>
+          ) : null}
         </div>
       </div>
 
       <div className="absolute bottom-4 right-3 flex flex-col items-center gap-4 lg:static lg:ml-4 lg:self-end lg:pb-4">
-        <RailButton label={tx("Like", "J'aime")} onClick={toggleLike} disabled={!canReact} count={count}>
+        <RailButton
+          label={tx("Like", "J'aime")}
+          onClick={toggleLike}
+          disabled={!canReact}
+          count={count}
+        >
           <Heart className={cn("size-7", liked && "fill-current text-destructive")} />
         </RailButton>
         <RailButton
@@ -590,7 +673,10 @@ function SpotlightSlide({
             aria-label={actionLabel}
             title={actionLabel}
             onClick={() =>
-              void navigate({ to: "/services/$providerId", params: { providerId: entry.provider.id } })
+              void navigate({
+                to: "/services/$providerId",
+                params: { providerId: entry.provider.id },
+              })
             }
             className="flex flex-col items-center gap-0.5 transition-transform active:scale-90"
           >
@@ -606,7 +692,10 @@ function SpotlightSlide({
         open={shareOpen}
         onOpenChange={setShareOpen}
         url={shareUrl}
-        title={`${entry.provider.business_name}${entry.caption ? ` — ${entry.caption}` : ""}`.slice(0, 120)}
+        title={`${entry.provider.business_name}${entry.caption ? ` — ${entry.caption}` : ""}`.slice(
+          0,
+          120,
+        )}
         targetType="spotlight"
         targetId={rawId}
       />
@@ -669,7 +758,10 @@ function SpotlightVideo({
   const skip = (delta: number) => {
     const v = videoRef.current;
     if (!v) return;
-    v.currentTime = Math.min(Math.max(0, v.currentTime + delta), v.duration || v.currentTime + delta);
+    v.currentTime = Math.min(
+      Math.max(0, v.currentTime + delta),
+      v.duration || v.currentTime + delta,
+    );
     setFlash(delta > 0 ? "+10s" : "-10s");
     setTimeout(() => setFlash(null), 600);
   };
@@ -725,13 +817,32 @@ function SpotlightVideo({
         </span>
       ) : null}
       <div className="absolute inset-x-0 bottom-0 z-[3] flex items-center gap-2 px-3 pb-1">
-        <button type="button" onClick={() => skip(-10)} aria-label={tx("Back 10 seconds", "Reculer de 10 s")} className="p-1">
+        <button
+          type="button"
+          onClick={() => skip(-10)}
+          aria-label={tx("Back 10 seconds", "Reculer de 10 s")}
+          className="p-1"
+        >
           <RotateCcw className="size-4" />
         </button>
-        <button type="button" onClick={toggle} aria-label={paused ? tx("Play", "Lecture") : tx("Pause", "Pause")} className="p-1">
-          {paused ? <Play className="size-4 fill-current" /> : <Pause className="size-4 fill-current" />}
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label={paused ? tx("Play", "Lecture") : tx("Pause", "Pause")}
+          className="p-1"
+        >
+          {paused ? (
+            <Play className="size-4 fill-current" />
+          ) : (
+            <Pause className="size-4 fill-current" />
+          )}
         </button>
-        <button type="button" onClick={() => skip(10)} aria-label={tx("Forward 10 seconds", "Avancer de 10 s")} className="p-1">
+        <button
+          type="button"
+          onClick={() => skip(10)}
+          aria-label={tx("Forward 10 seconds", "Avancer de 10 s")}
+          className="p-1"
+        >
           <RotateCw className="size-4" />
         </button>
         <input
@@ -750,7 +861,12 @@ function SpotlightVideo({
         <span className="text-[10px] tabular-nums opacity-90">
           {fmt(time)} / {fmt(duration)}
         </span>
-        <button type="button" onClick={() => setMuted((m) => !m)} aria-label={muted ? tx("Unmute", "Activer le son") : tx("Mute", "Couper le son")} className="p-1">
+        <button
+          type="button"
+          onClick={() => setMuted((m) => !m)}
+          aria-label={muted ? tx("Unmute", "Activer le son") : tx("Mute", "Couper le son")}
+          className="p-1"
+        >
           {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
         </button>
       </div>

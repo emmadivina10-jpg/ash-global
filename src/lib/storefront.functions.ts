@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { PUBLIC_PROVIDER_COLUMNS } from "./provider-public-columns";
 
 export type StorefrontService = {
   id: string;
@@ -87,7 +88,7 @@ export const getStorefront = createServerFn({ method: "GET" })
 
     const { data: provider } = await supabase
       .from("provider_profiles")
-      .select("*")
+      .select(PUBLIC_PROVIDER_COLUMNS)
       .eq("slug", data.slug)
       .eq("is_live", true)
       .maybeSingle();
@@ -96,26 +97,35 @@ export const getStorefront = createServerFn({ method: "GET" })
     // Portfolio photos of a live storefront are public showcase images; read and
     // sign them server-side so shared links preview the vendor's real work.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const [{ data: services }, { data: photos }, { data: reviews }] = await Promise.all([
-      supabase
-        .from("provider_services")
-        .select("id, title, description, price, duration_minutes, category")
-        .eq("provider_id", provider.id)
-        .eq("is_active", true)
-        .order("price", { ascending: true }),
-      supabaseAdmin
-        .from("portfolio_items")
-        .select("id, image_path, caption")
-        .eq("provider_id", provider.id)
-        .order("created_at", { ascending: false })
-        .limit(12),
-      supabase
-        .from("reviews")
-        .select("id, rating, comment, created_at")
-        .eq("provider_id", provider.id)
-        .order("created_at", { ascending: false })
-        .limit(8),
-    ]);
+    const [{ data: services }, { data: photos }, { data: reviews }, { data: contact }] =
+      await Promise.all([
+        supabase
+          .from("provider_services")
+          .select("id, title, description, price, duration_minutes, category")
+          .eq("provider_id", provider.id)
+          .eq("is_active", true)
+          .order("price", { ascending: true }),
+        supabaseAdmin
+          .from("portfolio_items")
+          .select("id, image_path, caption")
+          .eq("provider_id", provider.id)
+          .order("created_at", { ascending: false })
+          .limit(12),
+        supabase
+          .from("reviews")
+          .select("id, rating, comment, created_at")
+          .eq("provider_id", provider.id)
+          .order("created_at", { ascending: false })
+          .limit(8),
+        // The vendor's published business contact details are served only through
+        // this throttled single-storefront lookup, never from the public table.
+        supabaseAdmin
+          .from("provider_profiles")
+          .select("phone, whatsapp")
+          .eq("id", provider.id)
+          .eq("is_live", true)
+          .maybeSingle(),
+      ]);
 
     const paths = (photos ?? []).map((p) => p.image_path).filter(Boolean);
     const signed: Record<string, string> = {};
@@ -135,8 +145,8 @@ export const getStorefront = createServerFn({ method: "GET" })
       tagline: provider.tagline ?? null,
       bio: provider.bio,
       city: provider.city,
-      whatsapp: provider.whatsapp,
-      phone: provider.phone,
+      whatsapp: contact?.whatsapp ?? null,
+      phone: contact?.phone ?? null,
       categories: (provider.categories ?? []) as string[],
       avatar_url: provider.avatar_url,
       cover_url: provider.cover_url,

@@ -1,5 +1,6 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { providerColumns } from "./provider-public";
 import { signPortfolioPaths, type ServiceCategory } from "./marketplace";
 import type { ProviderProfile } from "./marketplace.queries";
 import { engagement, freshness, newSessionSeed, recordExposure, rotate } from "./rotation";
@@ -84,7 +85,7 @@ export function useDiscovery(filters: DiscoveryFilters) {
         : "services:provider_services(id, title, price, category, is_active)";
       let query = supabase
         .from("provider_profiles")
-        .select(`*, ${servicesRelation}`)
+        .select(`${await providerColumns()}, ${servicesRelation}`)
         .eq("is_live", true)
         .eq("services.is_active", true);
 

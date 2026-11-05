@@ -4,7 +4,8 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { MessageCircle, Repeat2, Share2, ShieldCheck } from "lucide-react";
-import { ShareSheet, shareLink } from "./ShareSheet";
+import { ShareSheet } from "./ShareSheet";
+import { shareLink } from "@/lib/share-links";
 import { toast } from "sonner";
 import { Avatar } from "./AvatarUpload";
 import { Button } from "@/components/ui/button";
@@ -188,48 +189,48 @@ export function PostCard({
 
       {post.images.length > 0 ? (
         <div className={cn(!detail && "relative mx-3 overflow-hidden rounded-2xl")}>
-        <div
-          className={cn(
-            "grid gap-0.5",
-            post.images.length > 1 && !detail ? "grid-cols-2" : "grid-cols-1",
-            !detail && post.images.length > 1 && "aspect-square grid-rows-2",
-            detail && "bg-black",
-          )}
-        >
-          {post.images.map((src, index) => (
-            <Button
-              key={index}
-              variant="ghost"
-              aria-label={tx("Open photo", "Ouvrir la photo")}
-              onClick={() => setPhoto(src)}
-              className={cn(
-                "h-auto min-h-0 w-full overflow-hidden rounded-none bg-muted p-0 touch-manipulation hover:bg-muted",
-                !detail && post.images.length === 2 && "row-span-2",
-                !detail && post.images.length === 3 && index === 0 && "col-span-2",
-              )}
-            >
-              <img
-                src={src}
-                alt=""
-                loading="lazy"
+          <div
+            className={cn(
+              "grid gap-0.5",
+              post.images.length > 1 && !detail ? "grid-cols-2" : "grid-cols-1",
+              !detail && post.images.length > 1 && "aspect-square grid-rows-2",
+              detail && "bg-black",
+            )}
+          >
+            {post.images.map((src, index) => (
+              <Button
+                key={index}
+                variant="ghost"
+                aria-label={tx("Open photo", "Ouvrir la photo")}
+                onClick={() => setPhoto(src)}
                 className={cn(
-                  "size-full min-h-0",
-                  detail ? "max-h-[75dvh] object-contain" : "object-cover",
+                  "h-auto min-h-0 w-full overflow-hidden rounded-none bg-muted p-0 touch-manipulation hover:bg-muted",
+                  !detail && post.images.length === 2 && "row-span-2",
+                  !detail && post.images.length === 3 && index === 0 && "col-span-2",
                 )}
-              />
-            </Button>
-          ))}
-        </div>
-        {overlayCaption || (action && !detail) ? (
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/95 via-background/60 to-transparent p-4 pt-16">
-            {overlayCaption ? (
-              <p className="line-clamp-3 max-w-[85%] whitespace-pre-wrap break-words text-base font-extrabold leading-snug text-foreground">
-                {post.caption}
-              </p>
-            ) : null}
-            {actionButton ? <div className="pointer-events-auto mt-3">{actionButton}</div> : null}
+              >
+                <img
+                  src={src}
+                  alt=""
+                  loading="lazy"
+                  className={cn(
+                    "size-full min-h-0",
+                    detail ? "max-h-[75dvh] object-contain" : "object-cover",
+                  )}
+                />
+              </Button>
+            ))}
           </div>
-        ) : null}
+          {overlayCaption || (action && !detail) ? (
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/95 via-background/60 to-transparent p-4 pt-16">
+              {overlayCaption ? (
+                <p className="line-clamp-3 max-w-[85%] whitespace-pre-wrap break-words text-base font-extrabold leading-snug text-foreground">
+                  {post.caption}
+                </p>
+              ) : null}
+              {actionButton ? <div className="pointer-events-auto mt-3">{actionButton}</div> : null}
+            </div>
+          ) : null}
         </div>
       ) : action ? (
         <div className="px-4 pb-2">{actionButton}</div>
@@ -332,7 +333,10 @@ export function PostCard({
           open={shareOpen}
           onOpenChange={setShareOpen}
           url={shareLink("post", post.id)}
-          title={(post.caption || tx("A post on ASH Glo", "Une publication sur ASH Glo")).slice(0, 120)}
+          title={(post.caption || tx("A post on ASH Glo", "Une publication sur ASH Glo")).slice(
+            0,
+            120,
+          )}
           targetType="post"
           targetId={post.id}
         />

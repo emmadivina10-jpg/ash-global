@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { providerColumns } from "@/lib/provider-public";
 import { signPortfolioPaths, type ServiceCategory } from "./marketplace";
 import { findSellerConversation } from "@/lib/conversation-match";
 import { directory, type DirectoryProfile } from "@/lib/public-profiles";
@@ -49,11 +50,11 @@ export function useProviders() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("provider_profiles")
-        .select("*")
+        .select(await providerColumns())
         .eq("is_live", true)
         .order("rating_avg", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as ProviderProfile[];
+      return (data ?? []) as unknown as ProviderProfile[];
     },
   });
 }
@@ -65,7 +66,7 @@ export function useProvider(providerId: string | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("provider_profiles")
-        .select("*")
+        .select(await providerColumns())
         .eq("id", providerId!)
         .maybeSingle();
       if (error) throw error;

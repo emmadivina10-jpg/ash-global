@@ -9041,6 +9041,65 @@ export type Database = {
         Returns: Json
       }
       slugify: { Args: { _value: string }; Returns: string }
+      public_provider_identities: {
+        Args: { _user_ids?: string[]; _provider_ids?: string[] }
+        Returns: {
+          avatar_url: string | null
+          business_name: string
+          categories: string[] | null
+          city: string | null
+          id: string
+          is_verified: boolean
+          rating_avg: number
+          rating_count: number
+          slug: string | null
+          user_id: string | null
+        }[]
+      }
+      discover_video_feed: {
+        Args: { _limit?: number; _offset?: number }
+        Returns: {
+          author_id: string
+          caption: string
+          city: string
+          comment_count: number
+          created_at: string
+          id: string
+          like_count: number
+          media: Json
+          repost_count: number
+        }[]
+      }
+      discover_active_instructors: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          avatar_url: string | null
+          bio: string
+          display_name: string
+          headline: string
+          id: string
+          is_active: boolean
+          is_verified: boolean
+          skills: string[]
+          subjects: string[]
+          user_id: string
+        }[]
+      }
+      discover_public_spotlight_feed: {
+        Args: { _limit?: number }
+        Returns: {
+          author_id: string
+          caption: string
+          created_at: string
+          id: string
+          media: Json
+          provider_id: string | null
+        }[]
+      }
+      current_user_is_active_campus_instructor: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       social_feed: {
         Args: { _limit?: number; _offset?: number }
         Returns: {
