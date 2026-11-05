@@ -31,6 +31,9 @@ import {
   BookOpen,
   BriefcaseBusiness,
   GraduationCap,
+  Compass,
+  ShoppingBag,
+  House,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin, useProfile } from "@/lib/queries";
