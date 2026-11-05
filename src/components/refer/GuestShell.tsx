@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   BriefcaseBusiness,
   Building2,
@@ -16,6 +15,7 @@ import {
   Store,
 } from "lucide-react";
 import { Logo } from "./Logo";
+import { AshOrbitMenu } from "./MobileNav";
 import { LanguageSwitcher, ThemeToggle } from "./Preferences";
 import { useI18n } from "@/lib/i18n";
 import { useServicesMode } from "@/lib/services-mode";
@@ -57,37 +57,9 @@ const SIDE_TILES = ["gold-gradient", "brand-gradient", "bg-gold", "bg-primary"];
  * action requires authentication rather than blocking browsing.
  */
 export function GuestShell({ children }: { children: ReactNode }) {
-  const { tx, lang } = useI18n();
+  const { lang } = useI18n();
   const servicesMode = useServicesMode();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const [expanded, setExpanded] = useState(false);
-  const dockRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    if (!expanded) return;
-
-    const handlePointerDown = (event: PointerEvent) => {
-      if (dockRef.current && !dockRef.current.contains(event.target as Node)) {
-        setExpanded(false);
-      }
-    };
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setExpanded(false);
-    };
-
-    document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [expanded]);
-
-  const activeTab = GUEST_TABS.findIndex(
-    (item) => pathname === item.to || pathname.startsWith(`${item.to}/`),
-  );
   const label = (item: GuestNavItem) =>
     item.to === "/services" && servicesMode === "market"
       ? "Shop"
@@ -156,58 +128,33 @@ export function GuestShell({ children }: { children: ReactNode }) {
         </div>
       </div>
 
-      <nav
-        ref={dockRef}
-        aria-label={tx("Main navigation", "Navigation principale")}
-        className={cn("premium-mobile-nav ash-orbit fixed z-40", expanded && "is-expanded")}
-        data-expanded={expanded}
+      <AshOrbitMenu
+        ariaLabel={lang === "fr" ? "Navigation principale" : "Main navigation"}
+        launcherLabel={lang === "fr" ? "Ouvrir la navigation ASH" : "Open ASH navigation"}
       >
-        <button
-          type="button"
-          className="ash-orbit-toggle"
-          onClick={() => setExpanded((value) => !value)}
-          aria-label={
-            expanded
-              ? tx("Collapse navigation", "Réduire la navigation")
-              : tx("Expand navigation", "Développer la navigation")
-          }
-          aria-expanded={expanded}
-        >
-          <span className="ash-orbit-brand-mark">A</span>
-          {expanded ? (
-            <ChevronRight className="size-4" aria-hidden />
-          ) : (
-            <ChevronLeft className="size-4" aria-hidden />
-          )}
-        </button>
-
-        <div className="ash-orbit-divider" />
-
-        <ul className="ash-orbit-list">
+        <ul className="ash-orbit-menu-grid">
           {GUEST_TABS.map((item) => {
             const active = pathname === item.to || pathname.startsWith(`${item.to}/`);
 
             return (
-              <li key={item.to} className="ash-orbit-entry">
+              <li key={item.to}>
                 <Link
                   to={item.to}
-                  onClick={() => setExpanded(false)}
                   aria-current={active ? "page" : undefined}
                   aria-label={label(item)}
-                  title={!expanded ? label(item) : undefined}
-                  className={cn("ash-orbit-link", active && "is-active")}
+                  className={`ash-orbit-menu-link${active ? " is-active" : ""}`}
                 >
-                  <span className="ash-orbit-icon">
-                    <item.icon className="size-5" aria-hidden />
+                  <span className="ash-orbit-menu-icon">
+                    <item.icon className="size-6" aria-hidden />
                   </span>
-                  <span className="ash-orbit-label">{label(item)}</span>
+                  <span className="ash-orbit-menu-label">{label(item)}</span>
                   {active && <span className="ash-orbit-active-dot" aria-hidden />}
                 </Link>
               </li>
             );
           })}
         </ul>
-      </nav>
+      </AshOrbitMenu>
     </div>
   );
 }
