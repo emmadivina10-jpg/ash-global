@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   BriefcaseBusiness,
   Building2,
@@ -59,6 +60,31 @@ export function GuestShell({ children }: { children: ReactNode }) {
   const { tx, lang } = useI18n();
   const servicesMode = useServicesMode();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [expanded, setExpanded] = useState(false);
+  const dockRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!expanded) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (dockRef.current && !dockRef.current.contains(event.target as Node)) {
+        setExpanded(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setExpanded(false);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [expanded]);
+
   const activeTab = GUEST_TABS.findIndex(
     (item) => pathname === item.to || pathname.startsWith(`${item.to}/`),
   );
@@ -121,7 +147,7 @@ export function GuestShell({ children }: { children: ReactNode }) {
 
           <main
             className={cn(
-              "app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8 lg:pb-10",
+              "app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pr-20 sm:pr-24 sm:px-6 lg:px-8 lg:pb-10",
               pathname === "/discover" ? "pt-0" : "pt-5",
             )}
           >
@@ -131,39 +157,51 @@ export function GuestShell({ children }: { children: ReactNode }) {
       </div>
 
       <nav
+        ref={dockRef}
         aria-label={tx("Main navigation", "Navigation principale")}
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden"
+        className={cn("premium-mobile-nav ash-orbit fixed z-40", expanded && "is-expanded")}
+        data-expanded={expanded}
       >
-        <ul className="relative grid grid-cols-5">
-          {activeTab >= 0 ? (
-            <li
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-y-0 left-0 z-0 w-1/5 transition-transform duration-300 ease-out motion-reduce:transition-none"
-              style={{ transform: `translateX(${activeTab * 100}%)` }}
-            >
-              <span className="absolute inset-x-2 top-0 h-0.5 rounded-b-full bg-primary" />
-            </li>
-          ) : null}
+        <button
+          type="button"
+          className="ash-orbit-toggle"
+          onClick={() => setExpanded((value) => !value)}
+          aria-label={
+            expanded
+              ? tx("Collapse navigation", "Réduire la navigation")
+              : tx("Expand navigation", "Développer la navigation")
+          }
+          aria-expanded={expanded}
+        >
+          <span className="ash-orbit-brand-mark">A</span>
+          {expanded ? (
+            <ChevronRight className="size-4" aria-hidden />
+          ) : (
+            <ChevronLeft className="size-4" aria-hidden />
+          )}
+        </button>
+
+        <div className="ash-orbit-divider" />
+
+        <ul className="ash-orbit-list">
           {GUEST_TABS.map((item) => {
             const active = pathname === item.to || pathname.startsWith(`${item.to}/`);
+
             return (
-              <li key={item.to}>
+              <li key={item.to} className="ash-orbit-entry">
                 <Link
                   to={item.to}
-                  className={cn(
-                    "flex flex-col items-center gap-1 py-2 text-[10px] font-semibold transition-colors",
-                    active ? "text-primary" : "text-muted-foreground hover:text-foreground",
-                  )}
+                  onClick={() => setExpanded(false)}
+                  aria-current={active ? "page" : undefined}
+                  aria-label={label(item)}
+                  title={!expanded ? label(item) : undefined}
+                  className={cn("ash-orbit-link", active && "is-active")}
                 >
-                  <span
-                    className={cn(
-                      "member-icon-well grid size-7 place-items-center",
-                      active && "is-active",
-                    )}
-                  >
+                  <span className="ash-orbit-icon">
                     <item.icon className="size-5" aria-hidden />
                   </span>
-                  {label(item)}
+                  <span className="ash-orbit-label">{label(item)}</span>
+                  {active && <span className="ash-orbit-active-dot" aria-hidden />}
                 </Link>
               </li>
             );

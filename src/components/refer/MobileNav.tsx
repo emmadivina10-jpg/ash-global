@@ -1,8 +1,8 @@
 import { playRefreshDoneSound, playRefreshSound, playTabSound } from "@/lib/sound";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type PointerEvent } from "react";
-import { Menu, Shield } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Menu, ChevronLeft, ChevronRight, Shield } from "lucide-react";
 import { useI18n, type TKey } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { Avatar } from "./AvatarUpload";
@@ -24,7 +24,7 @@ export type MobileNavItem = {
 
 export type MoreGroup = { en: string; fr: string; items: MobileNavItem[] };
 
-/** Facebook-style phone navigation with five equal, always-visible destinations. */
+/** ASH Orbit: floating, expandable vertical navigation dock. */
 export function MobileNav({
   items,
   profile,
@@ -34,117 +34,70 @@ export function MobileNav({
   unreadMessages?: number;
   profile: { full_name?: string | null; avatar_url?: string | null } | null | undefined;
 }) {
-  const { tx, t, lang } = useI18n();
-  const fr = lang === "fr";
+  const { tx, t } = useI18n();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const region = useRegion();
   const { data: liveVendors = [] } = useLiveConnectVendors(
     region.seesEverything ? null : region.country,
     1,
   );
+
+  const [expanded, setExpanded] = useState(false);
+  const dockRef = useRef<HTMLElement>(null);
   const hasAvailableVendors = liveVendors.some((vendor) => vendor.is_online);
-  // Tapping the tab you're already on scrolls back to the top and refreshes it.
-  const refreshCurrent = () => {
-    for (const el of Array.from(
-      document.querySelectorAll<HTMLElement>(".app-shell-scroll, .snap-y"),
-    ))
-      el.scrollTo({ top: 0, behavior: "smooth" });
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    playRefreshSound();
-    void queryClient.invalidateQueries().then(() => playRefreshDoneSound());
-  };
-  const navigate = useNavigate();
-  const [heldIndex, setHeldIndex] = useState<number | null>(null);
-  const gridRef = useRef<HTMLUListElement>(null);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const gesture = useRef<{ id: number; x: number; y: number; held: boolean; index: number } | null>(
-    null,
-  );
-  const suppressClick = useRef(false);
-  const clearTimer = () => {
-    if (timer.current) clearTimeout(timer.current);
-    timer.current = null;
-  };
-  useEffect(() => () => clearTimer(), []);
+
   const conversationOpen = useRouterState({
     select: (s) => s.location.pathname === "/messages" && Boolean(s.location.search.c),
   });
 
+  const tabs = [...items, { to: "/menu", icon: Menu, label: t("nav.more") }];
+
   const label = (item: MobileNavItem) =>
     item.key ? t(item.key) : tx(item.en ?? item.label ?? "", item.fr);
-  const tabs = [...items, { to: "/menu", icon: Menu, label: t("nav.more") }];
-  const activeTab = tabs.findIndex(
-    (item) => pathname === item.to || pathname.startsWith(`${item.to}/`),
-  );
-  const indexAt = (x: number) => {
-    const rect = gridRef.current?.getBoundingClientRect();
-    if (!rect) return 0;
-    return Math.max(
-      0,
-      Math.min(tabs.length - 1, Math.floor((x - rect.left) / (rect.width / tabs.length))),
-    );
+
+  const refreshCurrent = () => {
+    for (const el of Array.from(
+      document.querySelectorAll<HTMLElement>(".app-shell-scroll, .snap-y"),
+    )) {
+      el.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    playRefreshSound();
+    void queryClient.invalidateQueries().then(() => playRefreshDoneSound());
   };
-  const startHold = (event: PointerEvent<HTMLUListElement>) => {
-    if (event.button !== 0) return;
-    clearTimer();
-    suppressClick.current = false;
-    const index = indexAt(event.clientX);
-    gesture.current = {
-      id: event.pointerId,
-      x: event.clientX,
-      y: event.clientY,
-      held: false,
-      index,
-    };
-    timer.current = setTimeout(() => {
-      const current = gesture.current;
-      if (!current) return;
-      current.held = true;
-      suppressClick.current = true;
-      gridRef.current?.setPointerCapture(current.id);
-      setHeldIndex(current.index);
-    }, 380);
-  };
-  const moveHold = (event: PointerEvent<HTMLUListElement>) => {
-    const current = gesture.current;
-    if (!current || current.id !== event.pointerId) return;
-    if (!current.held) {
-      if (Math.hypot(event.clientX - current.x, event.clientY - current.y) > 12) {
-        clearTimer();
-        gesture.current = null;
+
+  useEffect(() => {
+    if (!expanded) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (dockRef.current && !dockRef.current.contains(event.target as Node)) {
+        setExpanded(false);
       }
-      return;
-    }
-    current.index = indexAt(event.clientX);
-    setHeldIndex(current.index);
-  };
-  const endHold = (event: PointerEvent<HTMLUListElement>, cancelled = false) => {
-    clearTimer();
-    const current = gesture.current;
-    if (!current || current.id !== event.pointerId) return;
-    gesture.current = null;
-    setHeldIndex(null);
-    if (!current.held) return;
-    if (gridRef.current?.hasPointerCapture(event.pointerId))
-      gridRef.current.releasePointerCapture(event.pointerId);
-    const rect = gridRef.current?.getBoundingClientRect();
-    if (cancelled || !rect || event.clientY < rect.top - 100 || event.clientY > rect.bottom + 60)
-      return;
-    const selected = tabs[indexAt(event.clientX)];
-    if (selected && selected.to !== pathname) {
-      playTabSound();
-      void navigate({ to: selected.to });
-    }
-  };
-  const heldTab = heldIndex === null ? null : tabs[heldIndex];
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setExpanded(false);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [expanded]);
 
   if (conversationOpen) return null;
 
   const renderTab = (item: MobileNavItem) => {
     const active = pathname === item.to || pathname.startsWith(`${item.to}/`);
+    const isMore = item.to === "/menu";
+
     return (
-      <li key={item.to} className="min-w-0">
+      <li key={item.to} className="ash-orbit-entry">
         <Link
           to={item.to}
           preload="render"
@@ -152,31 +105,49 @@ export function MobileNav({
             if (active) {
               event.preventDefault();
               refreshCurrent();
-            } else playTabSound();
+            } else {
+              playTabSound();
+            }
+            setExpanded(false);
           }}
           data-tour={item.tour}
           aria-current={active ? "page" : undefined}
-          className={cn(
-            "premium-nav-item relative flex h-[3.75rem] min-w-0 flex-col items-center justify-center gap-0.5 px-0.5 pt-1 text-[10px] font-semibold",
-            active ? "text-primary" : "text-muted-foreground active:text-foreground",
-          )}
+          aria-label={isMore ? t("nav.more") : label(item)}
+          title={!expanded ? (isMore ? t("nav.more") : label(item)) : undefined}
+          className={cn("ash-orbit-link", active && "is-active")}
         >
-          <span className={cn("relative grid size-7 place-items-center", active && "is-active")}>
-            <MemberNavIcon icon={item.icon} active={active} />
+          <span className="ash-orbit-icon">
+            {isMore ? (
+              <>
+                <Avatar
+                  path={profile?.avatar_url}
+                  name={profile?.full_name}
+                  className="member-avatar-ring size-7 p-[2px]"
+                />
+                <span className="ash-orbit-avatar-menu">
+                  <Menu className="size-3" strokeWidth={3} aria-hidden />
+                </span>
+              </>
+            ) : (
+              <MemberNavIcon icon={item.icon} active={active} />
+            )}
+
             {item.to === "/messages" && (
               <>
-                {hasAvailableVendors ? (
+                {hasAvailableVendors && (
                   <span
                     className="live-connect-nav-indicator"
                     role="img"
                     aria-label={tx("Vendors are online", "Des vendeurs sont en ligne")}
                   />
-                ) : null}
+                )}
                 <UnreadMessageBadge count={unreadMessages} className="absolute -right-2 -top-1" />
               </>
             )}
           </span>
-          <span className="sr-only">{label(item)}</span>
+
+          <span className="ash-orbit-label">{isMore ? t("nav.more") : label(item)}</span>
+          {active && <span className="ash-orbit-active-dot" aria-hidden />}
         </Link>
       </li>
     );
@@ -184,84 +155,33 @@ export function MobileNav({
 
   return (
     <nav
-      className="premium-mobile-nav fixed inset-x-0 z-40 lg:hidden"
+      ref={dockRef}
+      className={cn("premium-mobile-nav ash-orbit fixed z-40", expanded && "is-expanded")}
       aria-label={tx("Primary navigation", "Navigation principale")}
+      data-expanded={expanded}
     >
-      <div className="premium-nav-pill nav-bar-fill relative w-full border-t border-border">
-        <ul
-          ref={gridRef}
-          className="premium-nav-grid relative mx-auto grid h-[3.75rem] max-w-lg grid-cols-5 items-stretch"
-          data-held-index={heldIndex ?? undefined}
-          onPointerDown={startHold}
-          onPointerMove={moveHold}
-          onPointerUp={(event) => endHold(event)}
-          onPointerCancel={(event) => endHold(event, true)}
-          onLostPointerCapture={() => {
-            clearTimer();
-            gesture.current = null;
-            setHeldIndex(null);
-          }}
-          onContextMenu={(event) => event.preventDefault()}
-          onDragStart={(event) => event.preventDefault()}
-          onClickCapture={(event) => {
-            if (suppressClick.current) {
-              event.preventDefault();
-              event.stopPropagation();
-              suppressClick.current = false;
-            }
-          }}
-        >
-          {activeTab >= 0 ? (
-            <li
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-y-0 left-0 z-0 w-1/5 transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none"
-              style={{ transform: `translateX(${activeTab * 100}%)` }}
-            >
-              <span className="nav-active-pill" />
-            </li>
-          ) : null}
-          {heldTab && (
-            <li className="member-tab-bubble" aria-hidden="true">
-              <span className="member-tab-bubble-icon">
-                <MemberNavIcon icon={heldTab.icon} active />
-              </span>
-              <span className="member-tab-bubble-label">{label(heldTab)}</span>
-            </li>
-          )}
-          {items.map((item) => renderTab(item))}
-          <li className="min-w-0">
-            <Link
-              to="/menu"
-              preload="render"
-              onClick={(event) => {
-                if (pathname === "/menu") {
-                  event.preventDefault();
-                  refreshCurrent();
-                } else playTabSound();
-              }}
-              aria-current={pathname === "/menu" ? "page" : undefined}
-              className={cn(
-                "premium-nav-item relative flex h-[3.75rem] min-w-0 flex-col items-center justify-center gap-0.5 px-0.5 pt-1 text-[10px] font-semibold",
-                pathname === "/menu"
-                  ? "text-primary"
-                  : "text-muted-foreground active:text-foreground",
-              )}
-            >
-              <span className="relative grid size-7 place-items-center">
-                <Avatar
-                  path={profile?.avatar_url}
-                  name={profile?.full_name}
-                  className="member-avatar-ring size-7 p-[2px]"
-                />
-                <span className="absolute -bottom-1 -right-1.5 z-10 grid size-[18px] place-items-center rounded-full border border-border bg-background text-foreground shadow-sm">
-                  <Menu className="size-3.5" strokeWidth={3} aria-hidden />
-                </span>
-              </span>
-              <span className="sr-only">{t("nav.more")}</span>
-            </Link>
-          </li>
-        </ul>
-      </div>
+      <button
+        type="button"
+        className="ash-orbit-toggle"
+        onClick={() => setExpanded((value) => !value)}
+        aria-label={
+          expanded
+            ? tx("Collapse navigation", "Réduire la navigation")
+            : tx("Expand navigation", "Développer la navigation")
+        }
+        aria-expanded={expanded}
+      >
+        <span className="ash-orbit-brand-mark">A</span>
+        {expanded ? (
+          <ChevronRight className="size-4" aria-hidden />
+        ) : (
+          <ChevronLeft className="size-4" aria-hidden />
+        )}
+      </button>
+
+      <div className="ash-orbit-divider" />
+
+      <ul className="ash-orbit-list">{tabs.map(renderTab)}</ul>
     </nav>
   );
 }
