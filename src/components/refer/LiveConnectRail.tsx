@@ -165,7 +165,7 @@ export function LiveConnectRail() {
     onlineFriendIds?.has(friend.other.id),
   );
   const vendorsQuery = useLiveConnectVendors(seesEverything ? null : country);
-  const vendors = (vendorsQuery.data ?? []).filter((vendor) => vendor.is_online);
+  const vendors = vendorsQuery.data ?? [];
   const [offset, setOffset] = useState(0);
   const [interacting, setInteracting] = useState(false);
 
@@ -196,9 +196,6 @@ export function LiveConnectRail() {
       toast.error(tx("Could not open this conversation.", "Impossible d’ouvrir cette discussion."));
     }
   };
-
-  if (!friends.length && !vendors.length && !vendorsQuery.isLoading && !vendorsQuery.isError)
-    return null;
 
   return (
     <section
@@ -259,35 +256,30 @@ export function LiveConnectRail() {
         <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
           {tx("Available vendors", "Vendeurs disponibles")}
         </h3>
-        {vendorsQuery.isLoading ? (
-          <div className="flex gap-3" aria-busy="true">
-            {[0, 1, 2].map((item) => (
-              <div
-                key={item}
-                className="h-56 w-[min(82vw,19rem)] shrink-0 animate-pulse rounded-3xl bg-muted"
-              />
-            ))}
-          </div>
-        ) : vendorsQuery.isError ? (
-          <p role="alert" className="text-sm text-destructive">
-            {tx("Available vendors could not be loaded.", "Impossible de charger les vendeurs.")}
-          </p>
-        ) : vendors.length ? (
-          <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {rotated.slice(0, 12).map((vendor: LiveConnectVendor) => (
-              <div
-                key={vendor.provider_id}
-                className={cn("live-connect-card-enter", interacting && "is-interacting")}
-              >
-                <LiveConnectVendorCard vendor={vendor} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="rounded-2xl bg-muted/50 px-3 py-3 text-sm text-muted-foreground">
-            {tx("No vendors are available right now.", "Aucun vendeur disponible pour le moment.")}
-          </p>
-        )}
+        <div className="min-h-[5rem]">
+          {vendors.length ? (
+            <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {rotated.map((vendor: LiveConnectVendor) => (
+                <div
+                  key={vendor.provider_id}
+                  className={cn("live-connect-card-enter", interacting && "is-interacting")}
+                >
+                  <LiveConnectVendorCard vendor={vendor} />
+                </div>
+              ))}
+            </div>
+          ) : vendorsQuery.isLoading ? (
+            <div className="flex items-center gap-3 py-2" aria-busy="true">
+              {[0, 1, 2, 3, 4].map((item) => (
+                <div key={item} className="size-12 shrink-0 animate-pulse rounded-full bg-muted" />
+              ))}
+            </div>
+          ) : (
+            <p className="py-3 text-sm text-muted-foreground">
+              {tx("Discover vendors and services on ASH.", "Découvrez les vendeurs et services sur ASH.")}
+            </p>
+          )}
+        </div>
       </div>
     </section>
   );
