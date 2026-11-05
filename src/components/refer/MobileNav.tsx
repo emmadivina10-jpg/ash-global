@@ -155,7 +155,7 @@ export function MobileNav({
         >
           <span
             className={cn(
-              "member-icon-well relative grid size-7 place-items-center",
+              "relative grid size-7 place-items-center",
               active && "is-active",
             )}
           >
