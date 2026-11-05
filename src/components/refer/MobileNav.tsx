@@ -153,18 +153,13 @@ export function MobileNav({
             active ? "text-primary" : "text-muted-foreground active:text-foreground",
           )}
         >
-          <span
-            className={cn(
-              "member-icon-well relative grid size-7 place-items-center",
-              active && "is-active",
-            )}
-          >
+          <span className={cn("relative grid size-7 place-items-center", active && "is-active")}>
             <MemberNavIcon icon={item.icon} active={active} />
             {item.to === "/messages" && (
               <UnreadMessageBadge count={unreadMessages} className="absolute -right-2 -top-1" />
             )}
           </span>
-          <span className="max-w-full truncate">{label(item)}</span>
+          <span className="sr-only">{label(item)}</span>
         </Link>
       </li>
     );
@@ -205,8 +200,7 @@ export function MobileNav({
               className="pointer-events-none absolute inset-y-0 left-0 z-0 w-1/5 transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none"
               style={{ transform: `translateX(${activeTab * 100}%)` }}
             >
-              <span className="nav-active-glow absolute inset-x-3 inset-y-1.5 rounded-2xl" />
-              <span className="nav-active-bar absolute inset-x-4 top-0 h-[3px] rounded-b-full" />
+              <span className="nav-active-pill" />
             </li>
           ) : null}
           {heldTab && (
@@ -246,7 +240,7 @@ export function MobileNav({
                   <Menu className="size-3.5" strokeWidth={3} aria-hidden />
                 </span>
               </span>
-              <span className="max-w-full truncate">{t("nav.more")}</span>
+              <span className="sr-only">{t("nav.more")}</span>
             </Link>
           </li>
         </ul>

@@ -31,6 +31,9 @@ import {
   BookOpen,
   BriefcaseBusiness,
   GraduationCap,
+  Compass,
+  ShoppingBag,
+  House,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin, useProfile } from "@/lib/queries";
@@ -79,9 +82,9 @@ type NavItem = {
 };
 
 const MOBILE_NAV: NavItem[] = [
-  { to: "/discover", en: "Discover", fr: "Découvrir", icon: Clapperboard },
-  { to: "/services", en: "Services", fr: "Services", icon: Sparkles, tour: "market" },
-  { to: "/spotlight", en: "Spotlight", fr: "Spotlight", icon: Aperture },
+  { to: "/discover", en: "Discover", fr: "Découvrir", icon: Compass },
+  { to: "/services", en: "Shop", fr: "Boutique", icon: ShoppingBag, tour: "market" },
+  { to: "/spotlight", en: "Home", fr: "Accueil", icon: House },
   { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle, tour: "messages" },
 ];
 
