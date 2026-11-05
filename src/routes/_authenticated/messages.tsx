@@ -766,7 +766,28 @@ function MessagesPage() {
                   />
                 </div>
               ) : null}
-              {selection}
+              {selection.length > 0 ? (
+                <div className="mb-2 flex items-center justify-between gap-2 rounded-full bg-primary/10 px-3 py-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setSelection([])}
+                    className="text-[12px] font-bold text-primary"
+                  >
+                    {tx("Cancel", "Annuler")}
+                  </button>
+                  <span className="text-[12px] font-bold text-foreground">
+                    {selection.length} {tx("selected", "sélectionnée(s)")}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmBulkDelete(true)}
+                    aria-label={tx("Delete", "Supprimer")}
+                    className="grid size-8 place-items-center rounded-full text-destructive transition-colors hover:bg-destructive/10"
+                  >
+                    <Trash2 className="size-4" aria-hidden />
+                  </button>
+                </div>
+              ) : null}
               <div className="mt-2 flex items-center">
                 {archivedCount > 0 ? (
                   <button
@@ -781,7 +802,69 @@ function MessagesPage() {
                   </button>
                 ) : null}
               </div>
-              {chat_dialog}
+              <ChatActionDialog
+                open={newChatOpen}
+                onOpenChange={setNewChatOpen}
+                title={tx("New chat", "Nouvelle discussion")}
+              >
+                <Button
+                  variant="ghost"
+                  className="h-14 w-full justify-start gap-3"
+                  onClick={() => {
+                    setNewChatOpen(false);
+                    void routerNavigate({ to: "/friends" });
+                  }}
+                >
+                  <UserPlus />
+                  {tx("Choose a contact", "Choisir un contact")}
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="h-14 w-full justify-start gap-3"
+                  onClick={() => {
+                    setNewChatOpen(false);
+                    setGroupDialog(true);
+                  }}
+                >
+                  <Users />
+                  {tx("New group", "Nouveau groupe")}
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="h-14 w-full justify-start gap-3"
+                  onClick={() => {
+                    setNewChatOpen(false);
+                    void navigate({ search: { c: ASH_SUPPORT_ID } });
+                  }}
+                >
+                  <LifeBuoy />
+                  {tx("Contact ASH support", "Contacter ASH")}
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="h-14 w-full justify-start gap-3"
+                  onClick={() => {
+                    setNewChatOpen(false);
+                    void navigate({ search: { c: ASH_AI_ID } });
+                  }}
+                >
+                  <img src={ashLogo.url} alt="" className="size-6 rounded-full" />
+                  ASH AI
+                </Button>
+                {lockPin && lockedCount > 0 ? (
+                  <Button
+                    variant="ghost"
+                    className="h-14 w-full justify-start gap-3"
+                    onClick={() => {
+                      setNewChatOpen(false);
+                      setUnlockDialog(true);
+                    }}
+                  >
+                    <Lock />
+                    {fr ? `Verrouillées (${lockedCount})` : `Locked (${lockedCount})`}
+                  </Button>
+                ) : null}
+              </ChatActionDialog>
             </div>
             {mobileView !== "thread" ? <LiveConnectRail /> : null}{" "}
             <Dialog open={groupDialog} onOpenChange={setGroupDialog}>
