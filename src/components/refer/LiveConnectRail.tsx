@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { BadgeCheck, MessageCircle, Store } from "lucide-react";
 import { Avatar } from "@/components/refer/AvatarUpload";
@@ -78,7 +78,9 @@ export function LiveConnectVendorCard({
           }
           aria-label={tx(`View ${vendor.business_name}`, `Voir ${vendor.business_name}`)}
         >
-          <Avatar path={vendor.avatar_url} name={vendor.business_name} className="size-14" />
+          <span className={cn(online && "live-connect-avatar")}>
+            <Avatar path={vendor.avatar_url} name={vendor.business_name} className="size-14" />
+          </span>
         </Link>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1">
@@ -90,7 +92,7 @@ export function LiveConnectVendorCard({
           <p
             className={cn(
               "mt-1 flex items-center gap-1.5 text-xs font-semibold",
-              online ? "text-primary" : "text-muted-foreground",
+              online ? "text-green-500" : "text-red-500",
             )}
           >
             {online ? <span className="live-connect-dot" aria-hidden /> : null}
@@ -166,25 +168,9 @@ export function LiveConnectRail() {
   );
   const vendorsQuery = useLiveConnectVendors(seesEverything ? null : country);
   const vendors = vendorsQuery.data ?? [];
-  const [offset, setOffset] = useState(0);
   const [interacting, setInteracting] = useState(false);
 
-  useEffect(() => {
-    if (vendors.length < 2) return;
-    const timer = window.setInterval(() => {
-      if (document.visibilityState === "visible" && !interacting) {
-        setOffset((index) => (index + 1) % vendors.length);
-      }
-    }, 12_000);
-    return () => window.clearInterval(timer);
-  }, [interacting, vendors.length]);
-
-  const rotated = vendors.length
-    ? Array.from(
-        { length: vendors.length },
-        (_, index) => vendors[(offset + index) % vendors.length]!,
-      )
-    : [];
+  const sortedVendors = [...vendors].sort((a, b) => Number(b.is_online) - Number(a.is_online));
 
   const startFriendChat = async (friendId: string) => {
     try {
@@ -200,7 +186,7 @@ export function LiveConnectRail() {
   return (
     <section
       aria-label={tx("Online on ASH", "En ligne sur ASH")}
-      className="live-connect-section border-b border-border bg-background px-4 py-4"
+      className="live-connect-section bg-background px-4 pt-2 pb-1"
       onPointerEnter={() => setInteracting(true)}
       onPointerLeave={() => setInteracting(false)}
       onFocusCapture={() => setInteracting(true)}
@@ -209,20 +195,6 @@ export function LiveConnectRail() {
           setInteracting(false);
       }}
     >
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <div>
-          <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-primary">
-            {tx("Live Connect", "Live Connect")}
-          </p>
-          <h2 className="mt-1 font-display text-lg font-bold text-foreground">
-            {tx("Online on ASH", "En ligne sur ASH")}
-          </h2>
-        </div>
-        <Link to="/discover" className="text-xs font-bold text-primary hover:underline">
-          {tx("Discover", "Découvrir")}
-        </Link>
-      </div>
-
       {friends.length ? (
         <div className="mb-4">
           <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
@@ -259,7 +231,7 @@ export function LiveConnectRail() {
         <div className="min-h-[5rem]">
           {vendors.length ? (
             <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {rotated.map((vendor: LiveConnectVendor) => (
+              {sortedVendors.map((vendor: LiveConnectVendor) => (
                 <div
                   key={vendor.provider_id}
                   className={cn("live-connect-card-enter", interacting && "is-interacting")}
@@ -276,7 +248,10 @@ export function LiveConnectRail() {
             </div>
           ) : (
             <p className="py-3 text-sm text-muted-foreground">
-              {tx("Discover vendors and services on ASH.", "Découvrez les vendeurs et services sur ASH.")}
+              {tx(
+                "Discover vendors and services on ASH.",
+                "Découvrez les vendeurs et services sur ASH.",
+              )}
             </p>
           )}
         </div>

@@ -316,6 +316,7 @@ function MessagesPage() {
         (!supportTicket.member_read_at || message.created_at > supportTicket.member_read_at),
     ).length ?? 0;
   const [term, setTerm] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const [newChatOpen, setNewChatOpen] = useState(false);
 
   const { data: prefs } = useChatPrefs();
@@ -727,145 +728,51 @@ function MessagesPage() {
                 ? { height: `calc(var(--ash-vh, 100dvh) - ${chromeReservePx}px)` }
                 : undefined
             }
-            onScroll={(event) => {
-              // WhatsApp-style: the title, search and chips fade as they scroll
-              // away and fade back in as the member scrolls back to the top.
-              const el = event.currentTarget;
-              const head = el.querySelector<HTMLElement>("[data-inbox-head]");
-              if (!head) return;
-              const progress = Math.min(1, el.scrollTop / Math.max(1, head.offsetHeight * 0.8));
-              head.style.opacity = String(1 - progress);
-              head.style.transform = `translateY(${progress * -12}px)`;
-            }}
           >
-            {mobileView !== "thread" ? <LiveConnectRail /> : null}
-            {/* Stays pinned while the title and search scroll away, like WhatsApp. */}
-            <div className="sticky top-0 z-20 h-0 shrink-0">
-              <Button
-                size="icon"
-                variant="default"
-                className="absolute right-4 top-5 size-11 rounded-full shadow-lg"
-                aria-label={tx("New chat", "Nouvelle discussion")}
-                onClick={() => setNewChatOpen(true)}
-              >
-                <Plus className="size-6" />
-              </Button>
-            </div>
-            <div
-              data-inbox-head
-              className="shrink-0 border-b border-border bg-card/75 px-4 pb-4 pt-5 will-change-[opacity,transform]"
-            >
-              <h2 className="mb-4 flex min-h-11 items-center pr-14 font-display text-3xl font-bold text-foreground">
-                {t("chat.title")}
-              </h2>
-              <ChatActionDialog
-                open={newChatOpen}
-                onOpenChange={setNewChatOpen}
-                title={tx("New chat", "Nouvelle discussion")}
-              >
+            <div className="shrink-0 bg-background px-4 py-2">
+              <div className="flex items-center justify-end gap-2">
                 <Button
+                  size="icon"
                   variant="ghost"
-                  className="h-14 w-full justify-start gap-3"
-                  onClick={() => {
-                    setNewChatOpen(false);
-                    void routerNavigate({ to: "/friends" });
-                  }}
+                  className="size-10 rounded-full"
+                  aria-label={tx("Search chats", "Rechercher une discussion")}
+                  onClick={() => setSearchOpen((open) => !open)}
                 >
-                  <UserPlus />
-                  {tx("Choose a contact", "Choisir un contact")}
+                  <Search className="size-5" />
                 </Button>
                 <Button
-                  variant="ghost"
-                  className="h-14 w-full justify-start gap-3"
-                  onClick={() => {
-                    setNewChatOpen(false);
-                    setGroupDialog(true);
-                  }}
+                  size="icon"
+                  variant="default"
+                  className="size-10 rounded-full shadow-sm"
+                  aria-label={tx("New chat", "Nouvelle discussion")}
+                  onClick={() => setNewChatOpen(true)}
                 >
-                  <Users />
-                  {tx("New group", "Nouveau groupe")}
+                  <Plus className="size-5" />
                 </Button>
-                <Button
-                  variant="ghost"
-                  className="h-14 w-full justify-start gap-3"
-                  onClick={() => {
-                    setNewChatOpen(false);
-                    void navigate({ search: { c: ASH_SUPPORT_ID } });
-                  }}
-                >
-                  <LifeBuoy />
-                  {tx("Contact ASH support", "Contacter ASH")}
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="h-14 w-full justify-start gap-3"
-                  onClick={() => {
-                    setNewChatOpen(false);
-                    void navigate({ search: { c: ASH_AI_ID } });
-                  }}
-                >
-                  <img src={ashLogo.url} alt="" className="size-6 rounded-full" />
-                  ASH AI
-                </Button>
-                {lockPin && lockedCount > 0 ? (
-                  <Button
-                    variant="ghost"
-                    className="h-14 w-full justify-start gap-3"
-                    onClick={() => {
-                      setNewChatOpen(false);
-                      setUnlockDialog(true);
-                    }}
-                  >
-                    <Lock />
-                    {fr ? `Verrouillées (${lockedCount})` : `Locked (${lockedCount})`}
-                  </Button>
-                ) : null}
-              </ChatActionDialog>
-
-              {selection.length > 0 ? (
-                <div className="mb-2 flex items-center justify-between gap-2 rounded-full bg-primary/10 px-3 py-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setSelection([])}
-                    className="text-[12px] font-bold text-primary"
-                  >
-                    {tx("Cancel", "Annuler")}
-                  </button>
-                  <span className="text-[12px] font-bold text-foreground">
-                    {selection.length} {tx("selected", "sélectionnée(s)")}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setConfirmBulkDelete(true)}
-                    aria-label={tx("Delete", "Supprimer")}
-                    className="grid size-8 place-items-center rounded-full text-destructive transition-colors hover:bg-destructive/10"
-                  >
-                    <Trash2 className="size-4" aria-hidden />
-                  </button>
+              </div>
+              {searchOpen ? (
+                <div className="mt-2 flex items-center gap-3 rounded-full bg-muted px-4 py-3">
+                  <Search className="size-5 shrink-0 text-muted-foreground" aria-hidden />
+                  <input
+                    autoFocus
+                    value={term}
+                    onChange={(event) => setTerm(event.target.value)}
+                    placeholder={tx(
+                      "Search chats or people",
+                      "Rechercher une discussion ou un membre",
+                    )}
+                    aria-label={tx("Search chats", "Rechercher une discussion")}
+                    className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                  />
                 </div>
               ) : null}
-
-              <div className="flex min-h-12 items-center gap-3 rounded-full bg-muted px-4 py-3">
-                <Search className="size-5 shrink-0 text-muted-foreground" aria-hidden />
-
-                <input
-                  value={term}
-                  onChange={(event) => setTerm(event.target.value)}
-                  placeholder={tx(
-                    "Search chats or people",
-                    "Rechercher une discussion ou un membre",
-                  )}
-                  aria-label={tx("Search chats", "Rechercher une discussion")}
-                  className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                />
-              </div>
-
-              <div className="mt-3 flex flex-wrap items-center gap-2">
+              {selection}
+              <div className="mt-2 flex items-center">
                 {archivedCount > 0 ? (
                   <button
                     type="button"
                     onClick={() => setShowArchived((value) => !value)}
-                    className="flex min-h-10 items-center gap-2 rounded-full bg-muted px-3 py-2 text-sm font-bold text-muted-foreground"
+                    className="flex min-h-8 items-center gap-2 rounded-full bg-muted px-3 py-1.5 text-xs font-bold text-muted-foreground"
                   >
                     <Archive className="size-4" aria-hidden />
                     {showArchived
@@ -873,10 +780,10 @@ function MessagesPage() {
                       : `${tx("Archived", "Archivées")} (${archivedCount})`}
                   </button>
                 ) : null}
-
               </div>
+              {chat_dialog}
             </div>
-
+            {mobileView !== "thread" ? <LiveConnectRail /> : null}{" "}
             <Dialog open={groupDialog} onOpenChange={setGroupDialog}>
               <DialogContent className="max-h-[calc(100dvh-2rem)] max-w-sm overflow-y-auto">
                 <DialogHeader>
@@ -974,7 +881,6 @@ function MessagesPage() {
                 </Button>
               </DialogContent>
             </Dialog>
-
             <Dialog
               open={unlockDialog}
               onOpenChange={(open) => {
@@ -1015,7 +921,6 @@ function MessagesPage() {
                 </Button>
               </DialogContent>
             </Dialog>
-
             <Dialog open={confirmBulkDelete} onOpenChange={setConfirmBulkDelete}>
               <DialogContent className="max-w-sm">
                 <DialogHeader>
@@ -1046,7 +951,6 @@ function MessagesPage() {
                 </div>
               </DialogContent>
             </Dialog>
-
             <Dialog open={pinDialog} onOpenChange={setPinDialog}>
               <DialogContent className="max-w-sm">
                 <DialogHeader>
@@ -1103,7 +1007,6 @@ function MessagesPage() {
                 </div>
               </DialogContent>
             </Dialog>
-
             <nav className="min-h-0 flex-1 shrink-0 overflow-x-hidden touch-pan-y">
               {term.trim() &&
               !`${ashAiConversation.label} ${aiPreview}`
@@ -1172,7 +1075,12 @@ function MessagesPage() {
                             "member-avatar-update",
                         )}
                       >
-                        <span className="grid size-full place-items-center overflow-hidden rounded-full bg-background">
+                        <span
+                          className={cn(
+                            "grid size-full place-items-center overflow-hidden rounded-full bg-background",
+                            peerStateOf(conv)?.online && "live-connect-avatar",
+                          )}
+                        >
                           <Avatar
                             path={peerAvatarOf(conv)}
                             name={label}
