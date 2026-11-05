@@ -147,7 +147,7 @@ export function GuestShell({ children }: { children: ReactNode }) {
 
           <main
             className={cn(
-              "app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pr-20 sm:pr-24 sm:px-6 lg:px-8 lg:pb-10",
+              "app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8 lg:pb-10",
               pathname === "/discover" ? "pt-0" : "pt-5",
             )}
           >
