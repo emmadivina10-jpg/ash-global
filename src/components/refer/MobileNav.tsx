@@ -164,7 +164,7 @@ export function MobileNav({
               <UnreadMessageBadge count={unreadMessages} className="absolute -right-2 -top-1" />
             )}
           </span>
-          <span className="max-w-full truncate">{label(item)}</span>
+          <span className="sr-only">{label(item)}</span>
         </Link>
       </li>
     );
@@ -205,7 +205,7 @@ export function MobileNav({
               className="pointer-events-none absolute inset-y-0 left-0 z-0 w-1/5 transition-transform duration-300 ease-out motion-reduce:transition-none"
               style={{ transform: `translateX(${activeTab * 100}%)` }}
             >
-              <span className="absolute inset-x-2 top-0 h-0.5 rounded-b-full bg-primary" />
+              <span className="nav-active-pill" />
             </li>
           ) : null}
           {heldTab && (
@@ -245,13 +245,7 @@ export function MobileNav({
                   <Menu className="size-3.5" strokeWidth={3} aria-hidden />
                 </span>
               </span>
-              <span className="max-w-full truncate">{t("nav.more")}</span>
-              {pathname === "/menu" ? (
-                <span
-                  className="absolute inset-x-2 top-0 h-0.5 rounded-b-full bg-primary"
-                  aria-hidden
-                />
-              ) : null}
+              <span className="sr-only">{t("nav.more")}</span>
             </Link>
           </li>
         </ul>
