@@ -949,7 +949,7 @@ export function usePublicDiscoverVideoFeed(limit = 60, enabled = true) {
     enabled,
     staleTime: 15_000,
     queryFn: async (): Promise<FeedPost[]> => {
-      const { data, error } = await supabase.rpc("discover_video_feed", {
+      const { data, error } = await (supabase as any).rpc("discover_video_feed", {
         _limit: limit,
         _offset: 0,
       });
@@ -957,14 +957,14 @@ export function usePublicDiscoverVideoFeed(limit = 60, enabled = true) {
 
       const rows = data ?? [];
       if (!rows.length) return [];
-      const mediaPaths = rows.flatMap((row) => parseImages(row.media));
+      const mediaPaths = rows.flatMap((row: any) => parseImages(row.media));
       const [signed, instructorResult] = await Promise.all([
         signPaths(mediaPaths),
-        supabase.rpc("discover_active_instructors"),
+        (supabase as any).rpc("discover_active_instructors"),
       ]);
       if (instructorResult.error) throw instructorResult.error;
       const authors = new Map(
-        (instructorResult.data ?? []).map((instructor) => [
+        (instructorResult.data ?? []).map((instructor: any) => [
           instructor.user_id,
           {
             id: instructor.user_id,
@@ -974,7 +974,7 @@ export function usePublicDiscoverVideoFeed(limit = 60, enabled = true) {
         ]),
       );
 
-      return rows.map((row) => ({
+      return rows.map((row: any) => ({
         id: row.id,
         author_id: row.author_id,
         caption: row.caption,

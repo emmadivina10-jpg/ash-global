@@ -393,9 +393,9 @@ export function useDiscoverInstructors() {
     queryKey: ["discover", "active-instructors"],
     staleTime: 60_000,
     queryFn: async (): Promise<DiscoverInstructor[]> => {
-      const { data, error } = await supabase.rpc("discover_active_instructors");
+      const { data, error } = await (supabase as any).rpc("discover_active_instructors");
       if (error) throw error;
-      return (data ?? []).map((row) => ({
+      return (data ?? []).map((row: any) => ({
         id: row.id,
         user_id: row.user_id,
         display_name: row.display_name,

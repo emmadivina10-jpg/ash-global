@@ -19,8 +19,7 @@ export const Route = createFileRoute("/_authenticated/discover/upload")({
     if (!sessionData.session?.user) {
       throw redirect({ to: "/login", search: { next: "/discover/upload" } });
     }
-    const { data: isActiveInstructor, error } = await supabase.rpc(
-      "current_user_is_active_campus_instructor",
+    const { data: isActiveInstructor, error } = await (supabase as any).rpc("current_user_is_active_campus_instructor",
     );
     if (error) throw error;
     if (!isActiveInstructor) throw redirect({ to: "/discover" });

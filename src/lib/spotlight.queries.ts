@@ -91,7 +91,7 @@ export function useSpotlightFeed(limit = 18, pinnedId?: string | null) {
             .gt("created_at", new Date(Date.now() - SPOTLIGHT_LIFETIME_MS).toISOString())
             .order("created_at", { ascending: false })
             .limit(limit)
-        : supabase.rpc("discover_public_spotlight_feed", { _limit: limit });
+        : (supabase as any).rpc("discover_public_spotlight_feed", { _limit: limit });
       const [postsResult, portfolioResult] = await Promise.all([
         postsQuery,
         supabase

@@ -25,7 +25,7 @@ export async function fetchPublicProviderIdentities(
   userIds: string[],
   providerIds: string[],
 ): Promise<PublicProviderIdentity[]> {
-  const { data, error } = await supabase.rpc("public_provider_identities", {
+  const { data, error } = await (supabase as any).rpc("public_provider_identities", {
     _user_ids: userIds,
     _provider_ids: providerIds,
   });
