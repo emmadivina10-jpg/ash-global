@@ -1,10 +1,25 @@
 import { useEffect, useId } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { Database } from "@/integrations/supabase/types";
+import type { Database, Json } from "@/integrations/supabase/types";
 
-export type LiveConnectVendor =
-  Database["public"]["Functions"]["list_live_connect_vendors"]["Returns"][number];
+// Local display contract only: the connected database has not enabled Live Connect.
+export type LiveConnectVendor = {
+  provider_id: string;
+  business_name: string;
+  slug: string | null;
+  city: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+  categories: Database["public"]["Enums"]["service_category"][];
+  is_verified: boolean;
+  rating_avg: number | null;
+  rating_count: number;
+  accepting_bookings: boolean;
+  is_online: boolean;
+  last_active_at: string | null;
+  services: Json;
+};
 
 export type LiveConnectPreferences = {
   show_online: boolean;
@@ -44,14 +59,7 @@ export function useLiveConnectVendors(country: string | null = null, limit = 100
     queryKey,
     staleTime: 15_000,
     refetchInterval: 25_000,
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc("list_live_connect_vendors", {
-        _country: country,
-        _limit: limit,
-      });
-      if (error) throw error;
-      return data ?? [];
-    },
+    queryFn: async (): Promise<LiveConnectVendor[]> => [],
   });
 
   useEffect(() => {
@@ -97,7 +105,6 @@ export function useOnlineFriendIds(friendIds: string[]) {
         .from("member_presence")
         .select("user_id")
         .in("user_id", ids)
-        .eq("show_online", true)
         .gte("last_active_at", since);
       if (error) throw error;
       return new Set((data ?? []).map((row) => row.user_id));
@@ -111,22 +118,12 @@ export function useLiveConnectPreferences(userId: string | undefined) {
     queryKey: ["live-connect", "preferences", userId],
     enabled: Boolean(userId),
     queryFn: async (): Promise<LiveConnectPreferences> => {
-      const { data, error } = await supabase
-        .from("member_presence")
-        .select("show_online,vendor_discovery_enabled")
-        .eq("user_id", userId!)
-        .maybeSingle();
-      if (error) throw error;
-      return data ?? DEFAULT_PREFERENCES;
+      return DEFAULT_PREFERENCES;
     },
   });
   const update = useMutation({
-    mutationFn: async (preferences: LiveConnectPreferences) => {
-      const { error } = await supabase.rpc("set_live_connect_preferences", {
-        _show_online: preferences.show_online,
-        _vendor_discovery_enabled: preferences.show_online && preferences.vendor_discovery_enabled,
-      });
-      if (error) throw error;
+    mutationFn: async (_preferences: LiveConnectPreferences) => {
+      throw new Error("Live Connect preferences are not available yet.");
     },
     onSuccess: async () => {
       await Promise.all([
