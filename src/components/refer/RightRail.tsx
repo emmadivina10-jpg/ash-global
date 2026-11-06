@@ -47,7 +47,7 @@ function Block({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-border bg-card/70 p-3.5 shadow-sm">
+    <section className="border-b border-border/50 pb-4">
       <header className="mb-2.5 flex items-center justify-between gap-2">
         <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground">
           <span className="grid size-7 place-items-center rounded-full bg-muted text-muted-foreground">
@@ -164,6 +164,7 @@ function timeAgo(value: string | null, fr: boolean): string {
 export function RightRail() {
   const { tx, lang } = useI18n();
   const fr = lang === "fr";
+  const [railOpen, setRailOpen] = useState(true);
 
   const place = useRailPlace();
   const weather = useWeather(place.data);
@@ -186,11 +187,30 @@ export function RightRail() {
   const dateLabel = (value: string) =>
     new Date(value).toLocaleDateString(fr ? "fr-FR" : "en-GB", { day: "numeric", month: "short" });
 
+  if (!railOpen)
+    return (
+      <button
+        type="button"
+        onClick={() => setRailOpen(true)}
+        className="sticky top-3 mr-3 hidden h-9 shrink-0 self-start place-items-center rounded-full px-3 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground xl:grid"
+      >
+        {tx("Show panel", "Afficher le panneau")}
+      </button>
+    );
   return (
-    <aside className="app-shell-scroll sticky top-0 hidden h-dvh w-[22rem] shrink-0 overflow-y-auto border-l border-border px-4 py-5 xl:block">
+    <aside className="app-shell-scroll sticky top-0 hidden h-dvh w-[22rem] shrink-0 overflow-y-auto bg-background px-5 py-5 xl:block">
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={() => setRailOpen(false)}
+          className="text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
+        >
+          {tx("Hide panel", "Masquer le panneau")}
+        </button>
+      </div>
       <div className="space-y-3.5">
         {/* Weather */}
-        <section className="rounded-2xl border border-border bg-gradient-to-br from-sky-500/10 to-primary/5 p-4">
+        <section className="border-b border-border/50 pb-4">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-foreground">

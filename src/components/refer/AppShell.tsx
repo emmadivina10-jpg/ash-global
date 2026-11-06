@@ -58,6 +58,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Logo } from "./Logo";
+import { MemberNavIcon } from "./MemberNavIcon";
 import { RightRail } from "./RightRail";
 import { DesktopMenu, WEB_MENU_CREATE, WEB_MENU_GROUPS } from "./DesktopMenu";
 import { LanguageSwitcher, ThemeToggle } from "./Preferences";
@@ -162,12 +163,32 @@ const MORE_GROUPS: { en: string; fr: string; items: NavItem[] }[] = [
 
 /** How many side links show before "See more". */
 const SIDE_PREVIEW = 8;
-/** ASH-branded tile colours for the web side menu icons, cycled in order. */
-const SIDE_TILES = ["gold-gradient", "brand-gradient", "bg-gold", "bg-primary"];
 
-const SIDE_EXTRA: NavItem[] = MORE_GROUPS.flatMap((group) => group.items).filter(
-  (item, index, list) => list.findIndex((other) => other.to === item.to) === index,
-);
+/** Desktop sidebar: the five main destinations, in the same order as mobile. */
+const SIDE_PRIMARY: NavItem[] = [
+  { to: "/discover", en: "Discover", fr: "Découvrir", icon: Compass },
+  { to: "/services", en: "Shop", fr: "Boutique", icon: ShoppingBag, tour: "market" },
+  { to: "/feed", en: "Home", fr: "Accueil", icon: House, tour: "feed" },
+  { to: "/messages", en: "Messages", fr: "Messages", icon: MessageCircle, tour: "messages" },
+  { to: "/menu", en: "Menu", fr: "Menu", icon: Menu },
+];
+const SIDE_PRIMARY_PATHS = SIDE_PRIMARY.map((item) => item.to);
+const GROUPED_PATHS = MORE_GROUPS.flatMap((group) => group.items.map((item) => item.to));
+
+/** Everything else, folded into groups so the sidebar stays calm. */
+const SIDE_GROUPS: { en: string; fr: string; items: NavItem[] }[] = [
+  ...MORE_GROUPS.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => !SIDE_PRIMARY_PATHS.includes(item.to)),
+  })),
+  {
+    en: "Explore",
+    fr: "Explorer",
+    items: DESKTOP_NAV.filter(
+      (item) => !SIDE_PRIMARY_PATHS.includes(item.to) && !GROUPED_PATHS.includes(item.to),
+    ),
+  },
+].filter((group) => group.items.length > 0);
 
 export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
@@ -276,49 +297,39 @@ export function AppShell({ children }: { children: ReactNode }) {
     setSideCollapsed(next);
     window.localStorage.setItem("ash.sidebar.collapsed", next ? "1" : "0");
   };
-  const links = visible([...DESKTOP_NAV, ...SIDE_EXTRA]).filter(
-    (item, index, all) => all.findIndex((other) => other.to === item.to) === index,
-  );
+  const links = visible(SIDE_PRIMARY);
 
   return (
     <div className="app-shell safe-top min-h-dvh bg-background">
       <PushBridge />
       <div className="app-shell-frame flex w-full">
-        <aside
-          className={cn(
-            "sticky top-0 hidden h-dvh shrink-0 flex-col overflow-y-auto overscroll-contain border-r border-border bg-sidebar lg:flex",
-            sideCollapsed ? "w-[4.5rem] px-2 py-5" : "w-64 p-5",
-          )}
-        >
-          <div className={cn("mb-8 flex items-center gap-2", sideCollapsed && "flex-col")}>
+        {sideCollapsed ? (
+          <button
+            type="button"
+            onClick={toggleSide}
+            aria-label={tx("Open sidebar", "Ouvrir la barre latérale")}
+            className="fixed left-3 top-3 z-50 hidden size-10 place-items-center rounded-full bg-background text-foreground transition-colors hover:bg-muted lg:grid"
+          >
+            <Menu className="size-5" aria-hidden />
+          </button>
+        ) : (
+        <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col overflow-y-auto overscroll-contain bg-background p-5 lg:flex">
+          <div className="relative z-10 mb-6 flex items-center gap-2">
             <button
               type="button"
               onClick={toggleSide}
-              aria-label={
-                sideCollapsed
-                  ? tx("Expand sidebar", "Ouvrir la barre latérale")
-                  : tx("Collapse sidebar", "Réduire la barre latérale")
-              }
-              aria-expanded={!sideCollapsed}
-              className="grid size-9 shrink-0 place-items-center rounded-full text-foreground transition-colors hover:bg-sidebar-accent"
+              aria-label={tx("Collapse sidebar", "Réduire la barre latérale")}
+              aria-expanded={true}
+              className="grid size-10 shrink-0 place-items-center rounded-full text-foreground transition-colors hover:bg-muted"
             >
               <Menu className="size-5" aria-hidden />
             </button>
-            {sideCollapsed ? null : (
-              <Link to="/services" className="inline-flex">
-                <Logo />
-              </Link>
-            )}
           </div>
+          <Link to="/services" className="relative mb-6 inline-flex">
+            <Logo />
+          </Link>
           <nav className="flex flex-1 flex-col gap-0.5">
-            <Link
-              to="/profile"
-              className="flex items-center gap-3 rounded-xl px-2 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-sidebar-accent"
-            >
-              <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
-              <span className="truncate">{profile?.full_name || t("shell.member")}</span>
-            </Link>
-            {(sideExpanded || sideCollapsed ? links : links.slice(0, SIDE_PREVIEW)).map((item, index) => (
+            {(sideExpanded || sideCollapsed ? links : links.slice(0, SIDE_PREVIEW)).map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
@@ -328,13 +339,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                   sideCollapsed && "justify-center",
                 )}
               >
-                <span
-                  className={cn(
-                    "icon-luxe-surface grid size-9 shrink-0 place-items-center rounded-[0.8rem] text-primary-foreground shadow-sm ring-1 ring-border/40 transition-transform group-hover:scale-105",
-                    SIDE_TILES[index % SIDE_TILES.length],
-                  )}
-                >
-                  <item.icon className="size-[18px]" aria-hidden />
+                <span className="grid size-7 place-items-center">
+                  <MemberNavIcon icon={item.icon} active={pathname === item.to} />
                 </span>
                 {sideCollapsed ? (
                   <span className="sr-only">{navLabel(item)}</span>
@@ -362,6 +368,36 @@ export function AppShell({ children }: { children: ReactNode }) {
                 {sideExpanded ? tx("See less", "Voir moins") : tx("See more", "Voir plus")}
               </button>
             ) : null}
+            {sideGroups.map((group) => {
+              const open = visible(group.items).some(
+                (item) => pathname === item.to || pathname.startsWith(`${item.to}/`),
+              );
+              return (
+                <details key={group.en} open={open} className="group mt-2">
+                  <summary className="flex cursor-pointer list-none items-center gap-2 rounded-xl px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground">
+                    {lang === "fr" ? group.fr : group.en}
+                    <ChevronDown
+                      className="ml-auto size-3.5 transition-transform group-open:rotate-180"
+                      aria-hidden
+                    />
+                  </summary>
+                  <div className="mt-1 space-y-0.5">
+                    {visible(group.items).map((item) => (
+                      <Link
+                        key={item.to}
+                        to={item.to}
+                        className="flex items-center gap-3 rounded-xl px-2 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-sidebar-accent"
+                      >
+                        <span className="grid size-7 place-items-center">
+                          <MemberNavIcon icon={item.icon} active={pathname === item.to} />
+                        </span>
+                        <span className="truncate">{lang === "fr" ? item.fr : item.en}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </details>
+              );
+            })}
             {isAdmin ? (
               <a
                 href="/console"
@@ -384,7 +420,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <ThemeToggle />
             </div>
           </div>
-          <div className="mt-3 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-card)]">
+          <div className="mt-3 border-t border-border/50 pt-4">
             <div className="flex items-center gap-2">
               <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
               <p className="flex min-w-0 items-center gap-1 text-sm font-semibold text-foreground">
@@ -414,6 +450,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </>
           )}
         </aside>
+        )}
 
         <div className="app-shell-column flex min-w-0 flex-1 flex-col">
           {/* Web-only top bar: menu panel, notifications and the member photo. */}
