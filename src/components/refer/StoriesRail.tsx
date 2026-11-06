@@ -336,7 +336,7 @@ export async function loadSpotlights(): Promise<SpotlightPost[]> {
         provider: {
           id: provider?.id ?? "",
           user_id: row.author_id,
-          business_name: profile?.full_name ?? provider?.business_name ?? "Profile",
+          business_name: provider?.business_name ?? profile?.full_name ?? "Profile",
           city: provider?.city ?? null,
           avatar_url: profile?.avatar_url ?? provider?.avatar_url ?? null,
           verified_tier: profile?.verified_tier ?? (provider?.is_verified ? "BUSINESS" : null),
@@ -990,7 +990,9 @@ export function StoriesRail({
   }
 
   const composerTitle =
-    composerMode === "spotlight" ? tx("Create Spotlight", "Créer un Spotlight") : "Create Story";
+    composerMode === "spotlight"
+      ? tx("Create Business Spotlight", "Créer un Spotlight professionnel")
+      : "Create Story";
   const composerSubtitle =
     composerMode === "spotlight"
       ? tx(
@@ -1240,7 +1242,9 @@ export function StoriesRail({
                 <span className="grid size-11 place-items-center rounded-full bg-gold text-gold-foreground">
                   <Sparkles className="size-5" />
                 </span>
-                <span className="mt-4 block text-sm font-black">Spotlight</span>
+                <span className="mt-4 block text-sm font-black">
+                  {tx("Business Spotlight", "Spotlight professionnel")}
+                </span>
                 <span className="mt-1 block text-xs leading-5 text-muted-foreground">
                   {tx(
                     "Showcase a business, offer or service in the ASH reel.",

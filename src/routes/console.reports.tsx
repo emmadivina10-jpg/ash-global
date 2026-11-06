@@ -15,6 +15,7 @@ import { LoadingState } from "@/components/refer/states";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TrustSafetyPanel } from "@/components/console/TrustSafetyPanel";
+import { MusicianReviews } from "@/components/console/MusicianReviews";
 
 export const Route = createFileRoute("/console/reports")({
   ssr: false,
@@ -162,6 +163,7 @@ function ReportsPage() {
         </div>
       </section>
 
+      <MusicianReviews />
       <TrustSafetyPanel />
     </div>
   );

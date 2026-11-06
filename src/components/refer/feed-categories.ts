@@ -36,14 +36,32 @@ type Topic = Exclude<FeedCategory, "for_you" | "following" | "creators"> | "deli
 const KEYWORDS: [Topic, RegExp][] = [
   ["delivery", /\b(delivery|deliveries|livraison|livrer|courier|coursier|rider)\b/i],
   ["jobs", /\b(job|jobs|hiring|vacancy|recrut\w*|emploi|poste|career|stage|internship)\b/i],
-  ["learn", /\b(course|courses|cours|class|training|formation|learn\w*|apprendre|tutor\w*|academy|enrol\w*|bootcamp)\b/i],
-  ["property", /\b(property|apartment|appartement|house|maison|rent|louer|location|land|terrain|studio meublé)\b/i],
+  [
+    "learn",
+    /\b(course|courses|cours|class|training|formation|learn\w*|apprendre|tutor\w*|academy|enrol\w*|bootcamp)\b/i,
+  ],
+  [
+    "property",
+    /\b(property|apartment|appartement|house|maison|rent|louer|location|land|terrain|studio meublé)\b/i,
+  ],
   ["vehicles", /\b(car|cars|voiture|vehicle|véhicule|motorbike|moto|toyota|for sale car)\b/i],
-  ["events", /\b(event|events|événement|evenement|concert|party|soirée|conference|conférence|register|inscription)\b/i],
+  [
+    "events",
+    /\b(event|events|événement|evenement|concert|party|soirée|conference|conférence|register|inscription)\b/i,
+  ],
   ["suppliers", /\b(supplier|suppliers|fournisseur|wholesale|gros|grossiste|bulk)\b/i],
-  ["services", /\b(service|services|book now|réserv\w*|booking|repair|réparation|cleaning|salon|barber|plumber)\b/i],
-  ["products", /\b(shop|buy|acheter|sale|vente|price|prix|xaf|fcfa|collection|product|produit|order|commande|new arrival)\b/i],
-  ["business", /\b(business|store|boutique|shop|company|entreprise|brand|marque|vendor|vendeur)\b/i],
+  [
+    "services",
+    /\b(service|services|book now|réserv\w*|booking|repair|réparation|cleaning|salon|barber|plumber)\b/i,
+  ],
+  [
+    "products",
+    /\b(shop|buy|acheter|sale|vente|price|prix|xaf|fcfa|collection|product|produit|order|commande|new arrival)\b/i,
+  ],
+  [
+    "business",
+    /\b(business|store|boutique|shop|company|entreprise|brand|marque|vendor|vendeur)\b/i,
+  ],
 ];
 
 export function classifyPost(caption: string): Topic | null {
@@ -52,12 +70,29 @@ export function classifyPost(caption: string): Topic | null {
   return null;
 }
 
-export function matchesCategory(caption: string, cat: FeedCategory, images: number): boolean {
+export function matchesCategory(caption: string, cat: FeedCategory, _images: number): boolean {
   if (cat === "for_you" || cat === "following") return true;
-  const topic = classifyPost(caption);
-  if (cat === "creators") return topic === null && images > 0;
-  if (cat === "business") return topic === "business" || topic === "products";
-  return topic === cat;
+  const tags = new Set(
+    [
+      ...caption
+        .normalize("NFC")
+        .toLocaleLowerCase()
+        .matchAll(/#([\p{L}\p{N}_-]+)/gu),
+    ].map((match) => match[1]),
+  );
+  const aliases: Partial<Record<FeedCategory, string[]>> = {
+    business: ["business", "pro", "entreprise"],
+    products: ["product", "products", "produit", "produits"],
+    services: ["service", "services"],
+    suppliers: ["supplier", "suppliers", "fournisseur", "fournisseurs"],
+    learn: ["learn", "course", "courses", "formation"],
+    jobs: ["job", "jobs", "emploi", "emplois"],
+    property: ["property", "properties", "immobilier"],
+    vehicles: ["vehicle", "vehicles", "véhicule", "véhicules"],
+    creators: ["creator", "creators", "créateur", "créateurs"],
+    events: ["event", "events", "événement", "événements"],
+  };
+  return (aliases[cat] ?? []).some((tag) => tags.has(tag));
 }
 
 export type FeedAction = {

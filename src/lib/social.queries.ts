@@ -1130,6 +1130,9 @@ export function useCreateSocialPost() {
 
       const cleanCaption = caption.trim();
       const selectedFiles = files.slice(0, 4);
+      if (selectedFiles.some(isStoryVideoSource) && selectedFiles.length !== 1) {
+        throw new Error("Please upload a video on its own.");
+      }
 
       if (selectedFiles.length === 0 && !cleanCaption) {
         throw new Error("Write something or add a photo.");
@@ -1149,25 +1152,42 @@ export function useCreateSocialPost() {
         // Upload photos one at a time so failures are attributable and partial
         // uploads can be cleaned up reliably.
         for (const file of selectedFiles) {
-          const path = await uploadImage(userId, file, "post");
+          let path: string;
+          if (isStoryVideoSource(file)) {
+            if (file.size > STORY_MAX_VIDEO_BYTES)
+              throw new Error(`${file.name} is larger than 50 MB.`);
+            const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
+            if (!["mp4", "webm", "mov", "m4v", "ogv"].includes(extension))
+              throw new Error("Use an MP4, WebM, MOV, M4V or OGV video.");
+            path = `${userId}/post/${crypto.randomUUID()}.${extension}`;
+            const contentType = getStoryVideoContentType(file);
+            if (file.size > 6 * 1024 * 1024) {
+              await uploadResumableStorageFile(SOCIAL_BUCKET, path, file, contentType);
+            } else {
+              const { error } = await supabase.storage.from(SOCIAL_BUCKET).upload(path, file, {
+                cacheControl: "3600",
+                contentType,
+                upsert: false,
+              });
+              if (error) throw new Error(`Video upload failed: ${error.message}`);
+            }
+          } else {
+            path = await uploadImage(userId, file, "post");
+          }
           media.push(path);
         }
 
-        const insertResult = await withTimeout(
-          supabase
-            .from("social_posts")
-            .insert({
-              author_id: userId,
-              caption: cleanCaption,
-              media: media,
-              city: city ?? null,
-              filter_comments: filterComments ?? false,
-            })
-            .select("id")
-            .single(),
-          30_000,
-          "Post creation",
-        );
+        const insertResult = await supabase
+          .from("social_posts")
+          .insert({
+            author_id: userId,
+            caption: cleanCaption,
+            media: media,
+            city: city ?? null,
+            filter_comments: filterComments ?? false,
+          })
+          .select("id")
+          .single();
 
         if (insertResult.error) {
           throw new Error(`Post creation failed: ${insertResult.error.message}`);

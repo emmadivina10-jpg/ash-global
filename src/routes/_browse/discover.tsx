@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  BadgeCheck,
   Building2,
   CalendarDays,
   Car,
@@ -11,15 +10,17 @@ import {
   Search,
   Store,
   Tag,
+  X,
 } from "lucide-react";
-import { Avatar } from "@/components/refer/AvatarUpload";
+import { MusicianCard, MusicianManager } from "@/components/refer/TalentHub";
 import { NotificationBell } from "@/components/refer/NotificationBell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/lib/i18n";
 import { useLocation } from "@/lib/location";
 import { useRegion } from "@/lib/region-context";
-import { TALENT_ROLES, useTalentProviders, type TalentRole } from "@/lib/talent.queries";
+import { TALENT_ROLES, type TalentRole } from "@/lib/talent.queries";
+import { useMusicians } from "@/lib/musician.queries";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_browse/discover")({
@@ -37,9 +38,27 @@ function TalentPage() {
   const region = useRegion();
   const { location, request, busy } = useLocation();
   const [city, setCity] = useState("");
+  const [search, setSearch] = useState("");
   const [role, setRole] = useState<TalentRole>("all");
   const [locationError, setLocationError] = useState(false);
-  const providers = useTalentProviders(region.seesEverything ? null : region.country, city, role);
+  const [showIntroduction, setShowIntroduction] = useState(false);
+  const introStarted = useRef(false);
+  const musicians = useMusicians(region.seesEverything ? null : region.country, city, role, search);
+
+  useEffect(() => {
+    if (!introStarted.current) {
+      try {
+        if (sessionStorage.getItem("ash.talent.intro.seen")) return;
+        sessionStorage.setItem("ash.talent.intro.seen", "1");
+      } catch {
+        // Session storage can be disabled; show the introduction for this visit.
+      }
+      introStarted.current = true;
+    }
+    setShowIntroduction(true);
+    const timer = window.setTimeout(() => setShowIntroduction(false), 8000);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const nearMe = async () => {
     setLocationError(false);
@@ -61,24 +80,38 @@ function TalentPage() {
         </div>
         <NotificationBell />
       </header>
-      <section className="talent-hero overflow-hidden rounded-3xl p-5 text-white sm:p-8">
-        <div className="grid size-10 place-items-center rounded-2xl bg-white/10">
-          <Music2 className="size-5" aria-hidden />
-        </div>
-        <h2 className="mt-4 font-display text-2xl font-bold sm:text-3xl">
-          {tx("Find musicians near you", "Trouvez des musiciens près de vous")}
-        </h2>
-        <p className="mt-2 max-w-xl text-sm text-white/75">
-          {tx(
-            "Discover music providers and connect through their existing ASH profiles.",
-            "Découvrez des prestataires musicaux et contactez-les sur ASH.",
-          )}
-        </p>
+      {showIntroduction ? (
+        <section className="talent-hero relative overflow-hidden rounded-3xl p-5 text-white sm:p-8">
+          <button
+            type="button"
+            onClick={() => setShowIntroduction(false)}
+            aria-label={tx("Dismiss introduction", "Fermer la présentation")}
+            className="absolute right-4 top-4 grid size-9 place-items-center rounded-full bg-white/10 hover:bg-white/20"
+          >
+            <X className="size-4" aria-hidden />
+          </button>
+          <div className="grid size-10 place-items-center rounded-2xl bg-white/10">
+            <Music2 className="size-5" aria-hidden />
+          </div>
+          <h2 className="mt-4 font-display text-2xl font-bold sm:text-3xl">
+            {tx("Find musicians near you", "Trouvez des musiciens près de vous")}
+          </h2>
+          <p className="mt-2 max-w-xl text-sm text-white/75">
+            {tx(
+              "Discover music providers and connect through their existing ASH profiles.",
+              "Découvrez des prestataires musicaux et contactez-les sur ASH.",
+            )}
+          </p>
+        </section>
+      ) : null}
+      <section aria-label={tx("Find talent", "Trouver des talents")} className="space-y-3">
+        <MusicianManager />
         <Button
           type="button"
           onClick={() => void nearMe()}
           disabled={busy}
-          className="mt-4 rounded-full bg-white text-black hover:bg-white/90"
+          variant="outline"
+          className="rounded-full"
         >
           <MapPin className="size-4" aria-hidden />
           {busy
@@ -86,15 +119,13 @@ function TalentPage() {
             : tx("Find musicians near me", "Musiciens près de moi")}
         </Button>
         {locationError ? (
-          <p role="alert" className="mt-2 text-xs text-white">
+          <p role="alert" className="text-xs text-destructive">
             {tx(
               "Could not determine a nearby city. Enter a city below.",
               "Ville introuvable. Saisissez une ville ci-dessous.",
             )}
           </p>
         ) : null}
-      </section>
-      <section aria-label={tx("Find talent", "Trouver des talents")} className="space-y-3">
         <div className="relative">
           <Search
             className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
@@ -108,6 +139,12 @@ function TalentPage() {
             className="h-11 rounded-2xl pl-10"
           />
         </div>
+        <Input
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder={tx("Search musicians", "Rechercher des musiciens")}
+          aria-label={tx("Search musicians", "Rechercher des musiciens")}
+        />
         <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <button
             type="button"
@@ -139,76 +176,28 @@ function TalentPage() {
             </button>
           ))}
         </div>
-        <p className="text-xs text-muted-foreground">
-          {tx(
-            "Results are based on provider profiles and active service descriptions.",
-            "Résultats basés sur les profils et les descriptions de services actifs.",
-          )}
-        </p>
-        {providers.isLoading ? (
+        {musicians.isLoading ? (
           <p role="status" className="text-sm text-muted-foreground">
             {tx("Finding talent…", "Recherche de talents…")}
           </p>
-        ) : providers.isError ? (
+        ) : musicians.isError ? (
           <div role="alert" className="text-sm text-destructive">
             {tx("Could not load talent.", "Impossible de charger les talents.")}{" "}
-            <button type="button" className="underline" onClick={() => void providers.refetch()}>
+            <button type="button" className="underline" onClick={() => void musicians.refetch()}>
               {tx("Try again", "Réessayer")}
             </button>
           </div>
-        ) : providers.data?.length ? (
+        ) : musicians.data?.length ? (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {providers.data.map((provider) => (
-              <article
-                key={provider.id}
-                className="rounded-2xl border border-border bg-card p-4 shadow-sm"
-              >
-                <Link
-                  to="/services/$providerId"
-                  params={{ providerId: provider.id }}
-                  className="flex items-center gap-3"
-                >
-                  <Avatar
-                    path={provider.avatar_url}
-                    name={provider.business_name}
-                    className="size-14"
-                  />
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center gap-1 font-bold">
-                      <span className="truncate">{provider.business_name}</span>
-                      {provider.is_verified ? (
-                        <BadgeCheck
-                          className="size-4 shrink-0 text-primary"
-                          aria-label={tx("Verified", "Vérifié")}
-                        />
-                      ) : null}
-                    </span>
-                    {provider.city ? (
-                      <span className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                        <MapPin className="size-3" aria-hidden />
-                        {provider.city}
-                      </span>
-                    ) : null}
-                  </span>
-                </Link>
-                {provider.bio ? (
-                  <p className="mt-3 line-clamp-2 text-xs text-muted-foreground">{provider.bio}</p>
-                ) : null}
-                <Button asChild size="sm" className="mt-3 w-full rounded-full">
-                  <Link to="/services/$providerId" params={{ providerId: provider.id }}>
-                    {provider.accepting_bookings
-                      ? tx("View profile & book", "Voir le profil et réserver")
-                      : tx("View profile", "Voir le profil")}
-                  </Link>
-                </Button>
-              </article>
+            {musicians.data.map((musician) => (
+              <MusicianCard key={musician.id} musician={musician} />
             ))}
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">
             {tx(
-              "No matching music providers found. Try another role or city.",
-              "Aucun prestataire musical trouvé. Essayez un autre rôle ou une autre ville.",
+              "No matching musicians yet. Try another search or become a musician.",
+              "Aucun musicien trouvé. Essayez une autre recherche ou devenez musicien.",
             )}
           </p>
         )}

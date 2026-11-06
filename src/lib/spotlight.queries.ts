@@ -22,6 +22,7 @@ export type SpotlightMedia = { path: string; type: "image" | "video" };
 
 export type SpotlightEntry = {
   id: string;
+  mediaKey: string;
   caption: string | null;
   created_at: string;
   url: string;
@@ -221,7 +222,7 @@ export function useSpotlightFeed(limit = 18, pinnedId?: string | null) {
 
       const postEntries: SpotlightEntry[] = postRows.flatMap((row) => {
         const media = parseMedia(row.media);
-        const first = media[0];
+        const first = media.find((item) => signed[item.path]);
         if (!first) return [];
         const url = signed[first.path];
         if (!url) return [];
@@ -237,6 +238,7 @@ export function useSpotlightFeed(limit = 18, pinnedId?: string | null) {
         return [
           {
             id: `post:${row.id}`,
+            mediaKey: `post:${row.id}:${first.path}`,
             caption: row.caption?.trim() ? row.caption : null,
             created_at: row.created_at,
             url,
@@ -311,6 +313,7 @@ export function useSpotlightFeed(limit = 18, pinnedId?: string | null) {
         return [
           {
             id: `portfolio:${row.id}`,
+            mediaKey: `portfolio:${row.id}`,
             caption: row.caption,
             created_at: row.created_at,
             url,
@@ -351,9 +354,27 @@ export function useSpotlightFeed(limit = 18, pinnedId?: string | null) {
         auth.user?.id ?? null,
       ).slice(0, limit * 2);
       const pinnedItem = pinned ? balanced.find((item) => item.id === pinned) : undefined;
-      return pinnedItem && !rotated.some((item) => item.id === pinned)
-        ? [pinnedItem, ...rotated]
-        : rotated;
+      const selected =
+        pinnedItem && !rotated.some((item) => item.id === pinned)
+          ? [pinnedItem, ...rotated]
+          : rotated;
+      const postMedia = new Map(postRows.map((row) => [`post:${row.id}`, parseMedia(row.media)]));
+      return selected.flatMap((entry) => {
+        if (entry.source !== "post") return [entry];
+        return (postMedia.get(entry.id) ?? []).flatMap((media, index) => {
+          const url = signed[media.path];
+          return url
+            ? [
+                {
+                  ...entry,
+                  mediaKey: `${entry.id}:${index}:${media.path}`,
+                  url,
+                  media_type: media.type,
+                },
+              ]
+            : [];
+        });
+      });
     },
   });
 }

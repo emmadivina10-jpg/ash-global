@@ -116,9 +116,9 @@ function SpotlightPage() {
     if (!open) return list;
     const want = open.startsWith("post:") || open.startsWith("portfolio:") ? open : `post:${open}`;
     const first = list.find((e) => e.id === want);
-    return first ? [first, ...list.filter((e) => e.id !== want)] : list;
+    return first ? [first, ...list.filter((e) => e.mediaKey !== first.mediaKey)] : list;
   }, [data, open]);
-  const active = items.find((e) => e.id === activeId) ?? items[0] ?? null;
+  const active = items.find((e) => e.mediaKey === activeId) ?? items[0] ?? null;
 
   const step = (dir: 1 | -1) => {
     const el = scroller.current;
@@ -150,7 +150,7 @@ function SpotlightPage() {
       <button
         type="button"
         onClick={() => setComposerOpen(true)}
-        aria-label={tx("Post a Spotlight", "Publier un Spotlight")}
+        aria-label={tx("Create Business Spotlight", "Créer un Spotlight professionnel")}
         className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] z-40 grid size-11 place-items-center rounded-full gold-gradient text-primary-foreground shadow-lg ring-2 ring-on-dark/40 lg:left-20 lg:right-auto"
       >
         <Plus className="size-6" />
@@ -191,10 +191,10 @@ function SpotlightPage() {
           >
             {items.map((entry) => (
               <SpotlightSlide
-                key={entry.id}
+                key={entry.mediaKey}
                 entry={entry}
                 root={scroller}
-                onActive={() => setActiveId(entry.id)}
+                onActive={() => setActiveId(entry.mediaKey)}
                 onComments={() => (desktop ? setPanelOpen(true) : setMobileComments(entry))}
               />
             ))}
@@ -545,6 +545,11 @@ function SpotlightSlide({
   const videoRef = useRef<HTMLVideoElement>(null);
   const activeRef = useRef(onActive);
   activeRef.current = onActive;
+
+  useEffect(() => {
+    setLiked(Boolean(entry.current_reaction));
+    setCount(entry.reaction_count);
+  }, [entry.current_reaction, entry.reaction_count]);
 
   useEffect(() => {
     const el = sectionRef.current;

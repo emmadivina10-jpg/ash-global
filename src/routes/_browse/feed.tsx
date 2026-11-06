@@ -1,13 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { extractTags, recordTagInterest } from "@/lib/interests";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Camera, Gift, ImagePlus, Loader2, Plus, Sparkles, X } from "lucide-react";
+import { Camera, Gift, ImagePlus, Loader2, Plus, Search, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { PullToRefresh } from "@/components/refer/PullToRefresh";
 import { PostCard } from "@/components/refer/PostCard";
 import { CommunityVideoCard } from "@/components/refer/CommunityVideoCard";
 import { SwipeDeck } from "@/components/refer/SwipeDeck";
+import {
+  COMMUNITY_TOPICS,
+  matchesCommunityPost,
+  matchesCommunityTopic,
+} from "@/components/refer/community-topics";
 import { StoriesRail, loadSpotlights, type SpotlightPost } from "@/components/refer/StoriesRail";
 import { useQuery } from "@tanstack/react-query";
 import { resetFeedRotation } from "@/lib/rotation";
@@ -76,63 +81,18 @@ function FeedPage() {
   const { data: instructors } = useDiscoverInstructors();
   const [videoTopic, setVideoTopic] = useState("all");
   const [communitySearch, setCommunitySearch] = useState("");
-  const videoTopics = [
-    { id: "all", en: "All videos", fr: "Toutes", words: [] },
-    {
-      id: "food",
-      en: "Food",
-      fr: "Cuisine",
-      words: ["food", "chef", "cooking", "recipe", "restaurant"],
-    },
-    {
-      id: "tech",
-      en: "Tech",
-      fr: "Tech",
-      words: ["tech", "technology", "software", "computer", "digital"],
-    },
-    {
-      id: "beauty",
-      en: "Beauty",
-      fr: "Beauté",
-      words: ["beauty", "makeup", "hair", "skincare", "fashion"],
-    },
-    { id: "home", en: "Home", fr: "Maison", words: ["home", "interior", "decor", "furniture"] },
-    {
-      id: "events",
-      en: "Events",
-      fr: "Événements",
-      words: ["event", "events", "wedding", "party"],
-    },
-    {
-      id: "health",
-      en: "Health",
-      fr: "Santé",
-      words: ["health", "fitness", "wellness", "medical"],
-    },
-    { id: "pro", en: "Pro", fr: "Pro", words: ["professional", "business", "career", "freelance"] },
-    {
-      id: "homes",
-      en: "Homes",
-      fr: "Logement",
-      words: ["homes", "property", "real estate", "housing"],
-    },
-    { id: "deals", en: "Deals", fr: "Offres", words: ["deal", "deals", "discount", "offer"] },
-    { id: "services", en: "Services", fr: "Services", words: ["service", "services", "tutorial"] },
-    { id: "extra", en: "Extra", fr: "Autres", words: ["extra", "other", "community"] },
-  ];
-  const activeTopic = videoTopics.find((topic) => topic.id === videoTopic);
+  const [searchOpen, setSearchOpen] = useState(false);
   const communityPosts =
     (isGuest ? publicVideos.data : posts)?.filter(
       (post) =>
         post.images.length > 0 &&
-        `${post.caption} ${post.author.name}`
-          .toLowerCase()
-          .includes(communitySearch.trim().toLowerCase()) &&
-        (!activeTopic ||
-          activeTopic.id === "all" ||
-          activeTopic.words.some((word) =>
-            `${post.caption} ${post.author.name}`.toLowerCase().includes(word),
-          )),
+        matchesCommunityPost(
+          post.caption,
+          post.author.name,
+          post.images.some(isStoryVideoSource),
+          videoTopic,
+          communitySearch,
+        ),
     ) ?? [];
   const isApprovedInstructor = Boolean(
     user &&
@@ -179,19 +139,37 @@ function FeedPage() {
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const [caption, setCaption] = useState("");
+  const [postTopic, setPostTopic] = useState("");
   const [composerOpen, setComposerOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
+  const publishingRef = useRef(false);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
 
   function pick(event: React.ChangeEvent<HTMLInputElement>) {
-    const picked = Array.from(event.target.files ?? []).filter((file) =>
-      file.type.startsWith("image/"),
+    const picked = Array.from(event.target.files ?? []).filter(
+      (file) => file.type.startsWith("image/") || file.type.startsWith("video/"),
     );
 
     event.target.value = "";
 
     if (picked.length === 0) {
-      toast.error(tx("Please choose an image.", "Veuillez choisir une image."));
+      toast.error(tx("Please choose a photo or video.", "Choisissez une photo ou une vidéo."));
+      return;
+    }
+    if (picked.some(isStoryVideoSource) && !isApprovedInstructor) {
+      toast.error(
+        tx(
+          "Video posts are currently available to approved instructors.",
+          "Les vidéos sont actuellement réservées aux instructeurs approuvés.",
+        ),
+      );
+      return;
+    }
+    if (
+      (picked.some(isStoryVideoSource) && (picked.length > 1 || files.length > 0)) ||
+      (files.some(isStoryVideoSource) && picked.length > 0)
+    ) {
+      toast.error(tx("Upload a video on its own.", "Publiez une vidéo seule."));
       return;
     }
 
@@ -209,12 +187,13 @@ function FeedPage() {
 
   function clearComposer() {
     setCaption("");
+    setPostTopic("");
     setFiles([]);
     setComposerOpen(false);
   }
 
   async function publish() {
-    if (create.isPending) return;
+    if (create.isPending || publishingRef.current) return;
     if (
       !requireAuth({
         en: "Sign in to share a post.",
@@ -232,10 +211,24 @@ function FeedPage() {
       return;
     }
 
+    const tag =
+      postTopic && !matchesCommunityTopic(cleanCaption, postTopic, false) ? `#${postTopic}` : "";
+    const taggedCaption = tag ? [cleanCaption, tag].filter(Boolean).join("\n") : cleanCaption;
+    if (taggedCaption.length > 1200) {
+      toast.error(
+        tx(
+          "Please shorten your post to include its category.",
+          "Raccourcissez votre publication pour inclure sa catégorie.",
+        ),
+      );
+      return;
+    }
+
+    publishingRef.current = true;
     try {
       recordTagInterest(extractTags(cleanCaption), 1.5);
       await create.mutateAsync({
-        caption: cleanCaption,
+        caption: taggedCaption,
         files,
       });
 
@@ -250,6 +243,8 @@ function FeedPage() {
               "Impossible de publier. Veuillez réessayer.",
             ),
       );
+    } finally {
+      publishingRef.current = false;
     }
   }
 
@@ -317,8 +312,8 @@ function FeedPage() {
               type="button"
               size="icon"
               className="size-10 rounded-full shadow-sm [&_svg]:size-6 motion-safe:transition-transform motion-safe:hover:rotate-90"
-              aria-label={tx("Create a post", "Créer une publication")}
-              title={tx("Create a post", "Créer une publication")}
+              aria-label={tx("Create Business Post", "Créer une publication professionnelle")}
+              title={tx("Create Business Post", "Créer une publication professionnelle")}
               onClick={() => {
                 if (
                   !requireAuth({
@@ -350,7 +345,7 @@ function FeedPage() {
                 <span className="grid size-8 place-items-center rounded-full bg-primary/10 text-primary">
                   <Plus className="size-4" aria-hidden />
                 </span>
-                {tx("Create a post", "Créer une publication")}
+                {tx("Create Business Post", "Créer une publication professionnelle")}
               </DialogTitle>
               <DialogDescription className="sr-only">
                 {tx("Your post", "Votre publication")}
@@ -383,16 +378,40 @@ function FeedPage() {
               className="min-h-28 resize-none border-border bg-background"
             />
             <SocialSuggestions value={caption} onChange={setCaption} />
+            <label className="space-y-1 text-sm font-medium">
+              <span>{tx("Post category", "Catégorie de publication")}</span>
+              <select
+                value={postTopic}
+                onChange={(event) => setPostTopic(event.target.value)}
+                className="h-10 w-full rounded-xl border border-input bg-background px-3 text-sm"
+              >
+                <option value="">{tx("No category", "Sans catégorie")}</option>
+                {COMMUNITY_TOPICS.filter((topic) => topic.id !== "all").map((topic) => (
+                  <option key={topic.id} value={topic.id}>
+                    {fr ? topic.fr : topic.en}
+                  </option>
+                ))}
+              </select>
+            </label>
 
             {files.length > 0 ? (
               <div className="mt-3 flex flex-wrap gap-2">
                 {previewUrls.map((url, index) => (
                   <span key={`${url}-${index}`} className="relative">
-                    <img
-                      src={url}
-                      alt=""
-                      className="size-20 rounded-xl border border-border object-cover"
-                    />
+                    {files[index]?.type.startsWith("video/") ? (
+                      <video
+                        src={url}
+                        muted
+                        playsInline
+                        className="size-20 rounded-xl border border-border object-cover"
+                      />
+                    ) : (
+                      <img
+                        src={url}
+                        alt=""
+                        className="size-20 rounded-xl border border-border object-cover"
+                      />
+                    )}
                     <button
                       type="button"
                       aria-label={tx("Remove", "Retirer")}
@@ -430,10 +449,18 @@ function FeedPage() {
             </div>
             <div className="flex items-center justify-between gap-2 text-[11px] tabular-nums text-muted-foreground">
               <span>
-                {files.length}/4 {tx("photos", "photos")}
+                {files.length}/4 {tx("media", "médias")}
               </span>
               <span>{caption.length}/1200</span>
             </div>
+            {!isApprovedInstructor ? (
+              <p className="text-xs text-muted-foreground">
+                {tx(
+                  "Video posts are currently available to approved instructors.",
+                  "Les vidéos sont actuellement réservées aux instructeurs approuvés.",
+                )}
+              </p>
+            ) : null}
             <Button
               onClick={publish}
               disabled={create.isPending || (caption.trim().length === 0 && files.length === 0)}
@@ -445,7 +472,11 @@ function FeedPage() {
             <input
               ref={fileRef}
               type="file"
-              accept="image/*"
+              accept={
+                isApprovedInstructor
+                  ? "image/*,video/mp4,video/webm,video/quicktime,video/x-m4v,video/ogg"
+                  : "image/*"
+              }
               multiple
               className="hidden"
               onChange={pick}
@@ -481,6 +512,38 @@ function FeedPage() {
         )}
 
         <StoriesRail />
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label={tx("Search community posts", "Rechercher des publications")}
+            onClick={() => setSearchOpen(true)}
+            className={cn("rounded-full", communitySearch && "text-primary")}
+          >
+            <Search className="size-5" aria-hidden />
+          </Button>
+        </div>
+        <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                {tx("Search community posts", "Rechercher des publications")}
+              </DialogTitle>
+            </DialogHeader>
+            <Input
+              value={communitySearch}
+              onChange={(event) => setCommunitySearch(event.target.value)}
+              placeholder={tx("Search posts and creators", "Rechercher publications et créateurs")}
+              aria-label={tx("Search posts and creators", "Rechercher publications et créateurs")}
+            />
+            {communitySearch ? (
+              <Button type="button" variant="outline" onClick={() => setCommunitySearch("")}>
+                {tx("Clear search", "Effacer la recherche")}
+              </Button>
+            ) : null}
+          </DialogContent>
+        </Dialog>
         {(isGuest ? publicVideos.data : posts)?.some((post) => post.images.length > 0) ? (
           <section
             aria-label={tx("Community posts", "Publications de la communauté")}
@@ -489,18 +552,11 @@ function FeedPage() {
             <h2 className="font-display text-lg font-bold">
               {tx("Community posts", "Publications de la communauté")}
             </h2>
-            <Input
-              value={communitySearch}
-              onChange={(event) => setCommunitySearch(event.target.value)}
-              placeholder={tx("Search posts and creators", "Rechercher publications et créateurs")}
-              aria-label={tx("Search posts and creators", "Rechercher publications et créateurs")}
-              className="h-10 rounded-full"
-            />
             <nav
               aria-label={tx("Video topics", "Thèmes vidéo")}
               className="flex gap-2 overflow-x-auto pb-1"
             >
-              {videoTopics.map((topic) => (
+              {COMMUNITY_TOPICS.map((topic) => (
                 <Button
                   key={topic.id}
                   type="button"
@@ -516,6 +572,7 @@ function FeedPage() {
             </nav>
             {communityPosts.length ? (
               <SwipeDeck
+                key={`${videoTopic}:${communitySearch}`}
                 items={communityPosts}
                 getKey={(post) => post.id}
                 renderItem={(post) => {
@@ -533,8 +590,8 @@ function FeedPage() {
             ) : (
               <p className="text-sm text-muted-foreground">
                 {tx(
-                  "No posts match this search.",
-                  "Aucune publication ne correspond à cette recherche.",
+                  "No posts match this category and search.",
+                  "Aucune publication ne correspond à cette catégorie et à cette recherche.",
                 )}
               </p>
             )}

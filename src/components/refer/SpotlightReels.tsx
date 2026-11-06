@@ -159,7 +159,7 @@ export function SpotlightReels({
             entry.source === "post" && Boolean(currentUserId && entry.author_id === currentUserId);
           return (
             <section
-              key={entry.id}
+              key={entry.mediaKey}
               data-spotlight-id={entry.id}
               data-author-id={entry.author_id ?? ""}
               className="relative h-full w-full snap-start snap-always"

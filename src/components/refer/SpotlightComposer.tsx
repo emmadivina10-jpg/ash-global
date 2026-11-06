@@ -145,7 +145,7 @@ export function SpotlightComposer({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Sparkles className="size-4 text-primary" aria-hidden />
-              {tx("Create a Spotlight", "Créer un Spotlight")}
+              {tx("Create Business Spotlight", "Créer un Spotlight professionnel")}
             </DialogTitle>
           </DialogHeader>
 
