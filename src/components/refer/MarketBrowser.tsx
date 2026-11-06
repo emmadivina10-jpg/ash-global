@@ -342,8 +342,8 @@ export function MarketBrowser({
     }
   }
   const listingContent = (l: Listing) => (
-    <>
-      <div className="relative aspect-square overflow-hidden rounded-md bg-muted">
+    <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card">
+      <div className="relative aspect-square overflow-hidden bg-muted">
         {l.image ? (
           <img
             src={l.image}
@@ -358,7 +358,7 @@ export function MarketBrowser({
           </div>
         )}
       </div>
-      <div className="min-w-0 space-y-1 pt-2.5 text-left">
+      <div className="min-w-0 flex-1 space-y-1.5 p-3 text-left">
         <p className="truncate text-sm font-bold tabular-nums text-foreground">{l.priceLabel}</p>
         <h3 className="line-clamp-2 text-[13px] leading-snug text-foreground">{l.title}</h3>
         {l.kind === "service" && l.cats?.[0] ? (
@@ -379,7 +379,7 @@ export function MarketBrowser({
           <span className="truncate">{l.city || tx("Location not provided", "Lieu non précisé")}</span>
         </p>
       </div>
-    </>
+    </div>
   );
   return (
     <div className="member-market space-y-4">

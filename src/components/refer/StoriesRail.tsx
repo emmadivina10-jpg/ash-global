@@ -27,9 +27,10 @@ import {
   VolumeX,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useAvatarUrl } from "./AvatarUpload";
 
 import { supabase } from "@/integrations/supabase/client";
-import { useUser } from "@/lib/queries";
+import { useProfile, useUser } from "@/lib/queries";
 import { fetchPublicProviderIdentities } from "@/lib/provider-public";
 import { openConversation } from "@/lib/marketplace.queries";
 import { verifyMediaFiles } from "@/lib/media-safety";
@@ -377,6 +378,8 @@ export function StoriesRail({
   const navigate = useNavigate();
   const { requireAuth } = useAuthGate();
 
+  const { data: myProfile } = useProfile();
+  const myAvatar = useAvatarUrl(myProfile?.avatar_url);
   const { data: storyData, isLoading: storiesLoading } = useStories();
   const createStory = useCreateStory();
   const deleteStory = useDeleteStory();
@@ -1017,11 +1020,14 @@ export function StoriesRail({
             <button
               type="button"
               onClick={openCreate}
-              className="flex h-44 w-28 shrink-0 flex-col items-center justify-center gap-2 overflow-hidden rounded-xl bg-muted text-foreground"
+              className="relative flex h-44 w-28 shrink-0 flex-col justify-end overflow-hidden rounded-xl bg-muted"
               aria-label={tx("Create Story or Spotlight", "Créer une Story ou un Spotlight")}
             >
-              <span className="grid size-10 place-items-center rounded-full bg-primary text-primary-foreground">
-                <Plus className="size-5" aria-hidden />
+              {myAvatar ? (
+                <img src={myAvatar} alt="" className="absolute inset-0 size-full object-cover" />
+              ) : null}
+              <span className="relative mx-auto mb-3 grid size-9 place-items-center rounded-full border-4 border-background bg-primary text-primary-foreground">
+                <Plus className="size-4" aria-hidden />
               </span>
               <span className="sr-only">{tx("Create Story", "Créer une Story")}</span>
             </button>

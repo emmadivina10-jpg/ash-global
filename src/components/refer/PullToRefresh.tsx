@@ -125,7 +125,7 @@ export function PullToRefresh({
 
   const ready = pull >= THRESHOLD;
   return (
-    <div ref={root} className="relative">
+    <div ref={root} className="relative min-h-dvh bg-background">
       <div
         aria-live="polite"
         className="pointer-events-none absolute inset-x-0 top-0 z-10 flex justify-center"
