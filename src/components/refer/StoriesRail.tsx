@@ -27,7 +27,6 @@ import {
   VolumeX,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useAvatarUrl } from "./AvatarUpload";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile, useUser } from "@/lib/queries";
