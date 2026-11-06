@@ -164,7 +164,7 @@ function timeAgo(value: string | null, fr: boolean): string {
 export function RightRail() {
   const { tx, lang } = useI18n();
   const fr = lang === "fr";
-  const [railOpen, setRailOpen] = useState(false);
+  const [railOpen, setRailOpen] = useState(true);
 
   const place = useRailPlace();
   const weather = useWeather(place.data);
@@ -192,20 +192,13 @@ export function RightRail() {
       <button
         type="button"
         onClick={() => setRailOpen(true)}
-        className="fixed right-3 top-3 z-50 hidden h-10 place-items-center rounded-full bg-background px-4 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground xl:grid"
+        className="fixed right-3 top-3 z-50 hidden h-10 place-items-center rounded-full bg-background px-4 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground min-[1400px]:grid"
       >
         {tx("Show panel", "Afficher le panneau")}
       </button>
     );
   return (
-    <>
-    <button
-      type="button"
-      onClick={() => setRailOpen(false)}
-      aria-label={tx("Close panel", "Fermer le panneau")}
-      className="fixed inset-0 z-40 hidden bg-background/40 backdrop-blur-md xl:block"
-    />
-    <aside className="app-shell-scroll fixed inset-y-0 right-0 z-50 hidden w-[22rem] animate-in slide-in-from-right overflow-y-auto bg-background/80 px-5 py-5 backdrop-blur-xl duration-300 xl:block">
+    <aside className="app-shell-scroll sticky top-0 hidden h-dvh w-[20rem] shrink-0 overflow-y-auto bg-background px-5 py-5 min-[1400px]:block">
       <div className="flex justify-end">
         <button
           type="button"
@@ -470,6 +463,5 @@ export function RightRail() {
         </p>
       </div>
     </aside>
-    </>
   );
 }

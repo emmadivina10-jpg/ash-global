@@ -70,7 +70,7 @@ export function GuestShell({ children }: { children: ReactNode }) {
   return (
     <div className="app-shell safe-top min-h-dvh bg-background">
       <div className="app-shell-frame flex w-full">
-        <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col overflow-y-auto overscroll-contain border-r border-border bg-sidebar p-5 lg:flex">
+        <aside className="sticky top-0 hidden h-dvh w-56 shrink-0 flex-col overflow-y-auto overscroll-contain bg-background p-4 lg:flex xl:w-64 xl:p-5">
           <Link to="/feed" className="mb-8 inline-flex">
             <Logo />
           </Link>
@@ -123,7 +123,7 @@ export function GuestShell({ children }: { children: ReactNode }) {
               pathname === "/discover" || pathname === "/feed" ? "px-0 pt-0 sm:px-0" : "pt-5",
             )}
           >
-            {children}
+            <div className="mx-auto w-full max-w-[72rem]">{children}</div>
           </main>
         </div>
       </div>

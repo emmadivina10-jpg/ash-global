@@ -231,6 +231,9 @@ export function AppShell({ children }: { children: ReactNode }) {
     else void navigate({ to: "/feed" });
   };
   const logoOnlyHeader = true; // Keep existing non-feed header controls unchanged.
+  // Feed-style screens read best in a narrower centred column than catalogues.
+  const narrowColumn =
+    pathname === "/feed" || pathname === "/menu" || pathname.startsWith("/post/") || /^\/u\//.test(pathname);
   const pageOwnsHeader = [
     "/feed",
     "/messages",
@@ -288,9 +291,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   // Some destinations appear in both lists — show each one once.
   const [sideExpanded, setSideExpanded] = useState(false);
-  const [sideCollapsed, setSideCollapsed] = useState(true);
+  const [sideCollapsed, setSideCollapsed] = useState(false);
   useEffect(() => {
-    setSideCollapsed(window.localStorage.getItem("ash.sidebar.collapsed") !== "0");
+    setSideCollapsed(window.localStorage.getItem("ash.sidebar.collapsed") === "1");
   }, []);
   const toggleSide = () => {
     const next = !sideCollapsed;
@@ -313,14 +316,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Menu className="size-5" aria-hidden />
           </button>
         ) : (
-        <>
-        <button
-          type="button"
-          onClick={toggleSide}
-          aria-label={tx("Close sidebar", "Fermer la barre latérale")}
-          className="fixed inset-0 z-40 hidden bg-background/40 backdrop-blur-md lg:block"
-        />
-        <aside className="fixed inset-y-0 left-0 z-50 hidden w-72 animate-in slide-in-from-left flex-col overflow-y-auto overscroll-contain bg-background/80 p-5 backdrop-blur-xl duration-300 lg:flex">
+        <aside className="sticky top-0 hidden h-dvh w-56 shrink-0 flex-col overflow-y-auto overscroll-contain bg-background p-4 lg:flex xl:w-64 xl:p-5">
           <div className="relative z-10 mb-6 flex items-center gap-2">
             <button
               type="button"
@@ -457,7 +453,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             </>
           )}
         </aside>
-        </>
         )}
 
         <div className="app-shell-column flex min-w-0 flex-1 flex-col">
@@ -651,7 +646,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                 onFeed && "px-0 pt-1 sm:px-0",
               )}
             >
-              {children}
+              <div className={cn("mx-auto w-full", narrowColumn ? "max-w-[42rem]" : "max-w-[72rem]")}>
+                {children}
+              </div>
             </main>
             {pathname !== "/messages" && <RightRail />}
           </div>
