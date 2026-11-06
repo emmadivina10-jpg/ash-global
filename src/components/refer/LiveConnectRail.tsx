@@ -157,11 +157,12 @@ export function LiveConnectRail() {
     [friendships?.friends],
   );
   const { data: onlineFriendIds } = useOnlineFriendIds(friendIds);
-  const friends = (friendships?.friends ?? []).filter((friend) =>
-    onlineFriendIds?.has(friend.other.id),
-  );
   const vendorsQuery = useAvailableVendors(seesEverything ? null : country, user?.id);
   const vendors = (vendorsQuery.data ?? []).filter((vendor) => vendor.business_name?.trim());
+  const vendorUserIds = new Set(vendors.map((vendor) => vendor.user_id));
+  const friends = (friendships?.friends ?? []).filter(
+    (friend) => onlineFriendIds?.has(friend.other.id) && !vendorUserIds.has(friend.other.id),
+  );
   const { data: vendorProfiles } = useMemberStates(vendors.map((vendor) => vendor.user_id));
   const { data: onlineVendorIds } = useOnlineFriendIds(vendors.map((vendor) => vendor.user_id));
   // Soft notification when a vendor newly comes online (never on first load).
@@ -198,50 +199,53 @@ export function LiveConnectRail() {
           setInteracting(false);
       }}
     >
-      {friends.length ? (
-        <div className="mb-2">
-          <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
-            {tx("Online friends", "Amis en ligne")}
-          </h3>
-          <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {friends.map((friend) => (
-              <button
-                key={friend.other.id}
-                type="button"
-                onClick={() => void startFriendChat(friend.other.id)}
-                className="flex w-[4.5rem] shrink-0 flex-col items-center gap-1.5 rounded-2xl p-1 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              >
-                <span className="live-connect-avatar">
-                  <Avatar
-                    path={friend.other.avatar_url}
-                    name={friend.other.name}
-                    className="size-12"
-                  />
-                </span>
-                <span className="w-full truncate text-[11px] font-semibold text-foreground">
-                  {friend.other.name}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-      ) : null}
-
       <div>
         <h3 className="mb-1 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
-          {tx("Available vendors", "Vendeurs disponibles")}
+          {tx("Business Chat", "Discussion entreprise")}
           {vendorsQuery.isSuccess ? (
             <span
               className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-primary/10 px-1.5 text-xs font-semibold text-primary"
               data-vendor-count={vendors.length}
             >
-              {vendors.length}
+              {vendors.length + friends.length}
             </span>
           ) : null}
         </h3>
         <div>
-          {vendors.length ? (
-            <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {vendors.length || friends.length ? (
+            <div className="flex gap-2 overflow-x-auto px-1 pb-1 pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {friends.map((friend) => (
+                <button
+                  key={`friend:${friend.other.id}`}
+                  type="button"
+                  onClick={() => void startFriendChat(friend.other.id)}
+                  aria-label={tx(
+                    `Message ${friend.other.name}, online`,
+                    `Écrire à ${friend.other.name}, en ligne`,
+                  )}
+                  className={cn(
+                    "live-connect-card-enter flex w-20 shrink-0 flex-col items-center gap-1.5 rounded-lg p-1 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                    interacting && "is-interacting",
+                  )}
+                >
+                  <span className="vendor-presence-avatar is-online relative block size-14 shrink-0 rounded-full p-[2px]">
+                    <Avatar
+                      path={friend.other.avatar_url}
+                      name={friend.other.name}
+                      className="size-full rounded-full"
+                    />
+                    <span
+                      className="vendor-flame absolute -bottom-0.5 -right-0.5 z-10 grid size-5 place-items-center rounded-full"
+                      aria-hidden
+                    >
+                      <Flame className="size-3.5" fill="currentColor" />
+                    </span>
+                  </span>
+                  <span className="w-full truncate text-[11px] font-semibold text-foreground">
+                    {friend.other.name}
+                  </span>
+                </button>
+              ))}
               {vendors.map((vendor) => (
                 <Link
                   key={vendor.id}
@@ -254,7 +258,14 @@ export function LiveConnectRail() {
                     interacting && "is-interacting",
                   )}
                 >
-                  <span className="vendor-presence-avatar relative block size-14 shrink-0 rounded-full p-[2px]">
+                  <span
+                    className={cn(
+                      "vendor-presence-avatar relative block size-14 shrink-0 rounded-full p-[2px]",
+                      (onlineVendorIds?.has(vendor.user_id) ||
+                        onlineFriendIds?.has(vendor.user_id)) &&
+                        "is-online",
+                    )}
+                  >
                     <Avatar
                       path={vendor.avatar_url}
                       fallbackPath={vendorProfiles?.get(vendor.user_id)?.avatar_url}
@@ -298,6 +309,16 @@ export function LiveConnectRail() {
               )}
             </p>
           )}
+          {friends.length > 0 && vendorsQuery.isError ? (
+            <div className="flex items-center gap-2 py-2" role="alert">
+              <p className="text-sm text-muted-foreground">
+                {tx("Could not load vendors.", "Impossible de charger les vendeurs.")}
+              </p>
+              <Button variant="ghost" size="sm" onClick={() => void vendorsQuery.refetch()}>
+                {tx("Retry", "Réessayer")}
+              </Button>
+            </div>
+          ) : null}
         </div>
       </div>
     </section>

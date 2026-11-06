@@ -3274,6 +3274,9 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   background: linear-gradient(145deg, var(--primary), var(--primary-dark), var(--verified-violet));
   animation: vendor-avatar-breathe 3.8s ease-in-out infinite;
 }
+.vendor-presence-avatar.is-online {
+  animation: vendor-avatar-online 1.8s ease-out infinite;
+}
 .vendor-flame {
   color: #ff5263;
   background: #29121b;
@@ -3284,8 +3287,18 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
     box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary-dark) 18%, transparent);
   }
 }
+@keyframes vendor-avatar-online {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--primary) 70%, transparent);
+  }
+  65%,
+  100% {
+    box-shadow: 0 0 0 7px color-mix(in oklab, var(--verified-violet) 0%, transparent);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
-  .vendor-presence-avatar {
+  .vendor-presence-avatar,
+  .vendor-presence-avatar.is-online {
     animation: none;
   }
 }
