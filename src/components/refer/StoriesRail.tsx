@@ -362,6 +362,7 @@ export async function loadSpotlights(): Promise<SpotlightPost[]> {
 }
 
 export function StoriesRail({
+  compact = false,
   viewerRequest,
   onViewerClose,
 }: {
@@ -1011,178 +1012,231 @@ export function StoriesRail({
         hidden={Boolean(viewerRequest)}
         aria-label="ASH Stories and Spotlight"
       >
-        <div className="flex gap-3 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {/* The original Facebook-style Create card: user profile behind the lower half + plus at the seam. */}
-          <Button
-            variant="ghost"
-            type="button"
-            onClick={openCreate}
-            className="rail-tile block p-0 whitespace-normal relative h-60 w-36 shrink-0 overflow-hidden rounded-2xl border border-border bg-card text-left shadow-sm transition-transform active:scale-[0.98]"
-            aria-label={tx("Create Story or Spotlight", "Créer une Story ou un Spotlight")}
-          >
-            <div className="absolute inset-x-0 top-0 z-0 h-[66%] overflow-hidden rounded-t-2xl bg-muted">
-              {profile?.avatar_url ? (
-                <CreateCardPhoto path={profile.avatar_url} name={profile.full_name} />
-              ) : (
-                <div className="grid size-full place-items-center bg-primary/10">
-                  <span className="text-4xl font-black text-primary">
-                    {initials(profile?.full_name)}
-                  </span>
-                </div>
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-foreground/45 via-transparent to-foreground/5" />
-            </div>
-            <span className="absolute left-1/2 top-[66%] z-20 grid size-10 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-primary text-primary-foreground shadow-md ring-4 ring-card">
-              <Plus className="size-6" strokeWidth={2.75} aria-hidden />
-            </span>
-            <span className="absolute inset-x-0 bottom-0 z-10 h-[34%] rounded-b-2xl bg-card" />
-            <span className="absolute inset-x-2 bottom-3 z-10 text-center">
-              <span className="block text-[15px] font-black text-foreground">
-                {tx("Create", "Créer")}
+        {compact ? (
+          <div className="flex gap-3 overflow-x-auto px-3 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <button
+              type="button"
+              onClick={openCreate}
+              className="flex h-24 w-20 shrink-0 flex-col items-center justify-center gap-2 rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/25 to-violet-950/40 text-white"
+              aria-label={tx("Create Story or Spotlight", "Créer une Story ou un Spotlight")}
+            >
+              <span className="grid size-9 place-items-center rounded-full border border-pink-400 text-pink-400">
+                <Plus className="size-5" aria-hidden />
               </span>
-              <span className="mt-0.5 block text-xs font-semibold leading-4 text-muted-foreground">
-                {tx("Story or Spotlight", "Story ou Spotlight")}
+              <span className="text-center text-xs font-semibold">
+                {tx("Create Story", "Créer une Story")}
               </span>
-            </span>
-          </Button>
-
-          {storiesLoading
-            ? [0, 1, 2].map((item) => (
-                <div
-                  key={item}
-                  className="rail-tile h-60 w-36 shrink-0 animate-pulse rounded-[24px] bg-muted"
-                />
-              ))
-            : null}
-
-          {!storiesLoading &&
-            railItems.map((item, index) => {
-              if (item.kind === "story") {
-                const mine = item.group.author.id === me;
-                const storyIsVideo = item.story.media_type === "video";
-                return (
-                  <Button
-                    variant="ghost"
-                    key={`story-${item.story.id}`}
-                    type="button"
-                    onClick={() => {
+            </button>
+            {railItems.map((item) => {
+              const isStory = item.kind === "story";
+              const author = isStory ? item.group.author : item.spotlight.provider;
+              const name = isStory ? item.group.author.name : item.spotlight.provider.business_name;
+              const avatar = isStory
+                ? item.group.author.avatar_url
+                : item.spotlight.provider.avatar_url;
+              return (
+                <button
+                  key={isStory ? `story-${item.story.id}` : `spotlight-${item.spotlight.id}`}
+                  type="button"
+                  className="flex w-20 shrink-0 flex-col items-center gap-1.5 text-center"
+                  onClick={() => {
+                    if (item.kind === "story") {
                       const groupIndex = stories.findIndex(
                         (group) => group.author.id === item.group.author.id,
                       );
-                      const group = stories[groupIndex];
-                      const latestIndex = Math.max(0, (group?.stories.length ?? 1) - 1);
-                      openStory(groupIndex, latestIndex);
-                    }}
-                    className="group rail-tile block p-0 whitespace-normal relative h-60 w-36 shrink-0 overflow-hidden rounded-[24px] border border-border bg-black text-left shadow-sm transition-transform active:scale-[0.98]"
+                      openStory(groupIndex, Math.max(0, item.group.stories.length - 1));
+                    } else {
+                      openSpotlight(spotlights.findIndex((post) => post.id === item.spotlight.id));
+                    }
+                  }}
+                >
+                  <span className="rounded-full bg-gradient-to-br from-pink-400 to-violet-600 p-0.5">
+                    <Avatar
+                      src={avatar}
+                      name={name}
+                      online={author.online}
+                      className="size-[4.25rem] !border-2 !border-black"
+                    />
+                  </span>
+                  <span className="w-full truncate text-xs text-white">{name}</span>
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="flex gap-3 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {/* The original Facebook-style Create card: user profile behind the lower half + plus at the seam. */}
+            <Button
+              variant="ghost"
+              type="button"
+              onClick={openCreate}
+              className="rail-tile block p-0 whitespace-normal relative h-60 w-36 shrink-0 overflow-hidden rounded-2xl border border-border bg-card text-left shadow-sm transition-transform active:scale-[0.98]"
+              aria-label={tx("Create Story or Spotlight", "Créer une Story ou un Spotlight")}
+            >
+              <div className="absolute inset-x-0 top-0 z-0 h-[66%] overflow-hidden rounded-t-2xl bg-muted">
+                {profile?.avatar_url ? (
+                  <CreateCardPhoto path={profile.avatar_url} name={profile.full_name} />
+                ) : (
+                  <div className="grid size-full place-items-center bg-primary/10">
+                    <span className="text-4xl font-black text-primary">
+                      {initials(profile?.full_name)}
+                    </span>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-foreground/45 via-transparent to-foreground/5" />
+              </div>
+              <span className="absolute left-1/2 top-[66%] z-20 grid size-10 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-primary text-primary-foreground shadow-md ring-4 ring-card">
+                <Plus className="size-6" strokeWidth={2.75} aria-hidden />
+              </span>
+              <span className="absolute inset-x-0 bottom-0 z-10 h-[34%] rounded-b-2xl bg-card" />
+              <span className="absolute inset-x-2 bottom-3 z-10 text-center">
+                <span className="block text-[15px] font-black text-foreground">
+                  {tx("Create", "Créer")}
+                </span>
+                <span className="mt-0.5 block text-xs font-semibold leading-4 text-muted-foreground">
+                  {tx("Story or Spotlight", "Story ou Spotlight")}
+                </span>
+              </span>
+            </Button>
+
+            {storiesLoading
+              ? [0, 1, 2].map((item) => (
+                  <div
+                    key={item}
+                    className="rail-tile h-60 w-36 shrink-0 animate-pulse rounded-[24px] bg-muted"
+                  />
+                ))
+              : null}
+
+            {!storiesLoading &&
+              railItems.map((item, index) => {
+                if (item.kind === "story") {
+                  const mine = item.group.author.id === me;
+                  const storyIsVideo = item.story.media_type === "video";
+                  return (
+                    <Button
+                      variant="ghost"
+                      key={`story-${item.story.id}`}
+                      type="button"
+                      onClick={() => {
+                        const groupIndex = stories.findIndex(
+                          (group) => group.author.id === item.group.author.id,
+                        );
+                        const group = stories[groupIndex];
+                        const latestIndex = Math.max(0, (group?.stories.length ?? 1) - 1);
+                        openStory(groupIndex, latestIndex);
+                      }}
+                      className="group rail-tile block p-0 whitespace-normal relative h-60 w-36 shrink-0 overflow-hidden rounded-[24px] border border-border bg-black text-left shadow-sm transition-transform active:scale-[0.98]"
+                    >
+                      {storyIsVideo ? (
+                        <video
+                          src={item.story.url}
+                          muted
+                          playsInline
+                          preload="metadata"
+                          className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <img
+                          src={item.story.url}
+                          alt=""
+                          className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      )}
+                      <span className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+                      <span
+                        className={`absolute left-2.5 top-2.5 z-10 grid size-[42px] place-items-center rounded-full p-[2px] shadow-lg ${
+                          item.group.seen
+                            ? "bg-white/20"
+                            : "bg-[conic-gradient(from_220deg,#ff2d55,#4B0082,#D4AF37,#ff2d55)]"
+                        }`}
+                        aria-label={item.group.seen ? "Story viewed" : "New Story"}
+                      >
+                        <span className="grid size-full place-items-center rounded-full bg-black">
+                          <Avatar
+                            src={item.group.author.avatar_url}
+                            name={item.group.author.name}
+                            online={item.group.author.online}
+                            className="size-9 !border-0"
+                          />
+                        </span>
+                      </span>
+                      <span className="absolute right-2.5 top-2.5 z-10 rounded-full bg-black/40 px-2 py-1 text-[9px] font-bold text-white backdrop-blur-md">
+                        24h
+                      </span>
+                      <span className="absolute inset-x-3 bottom-3 z-10 text-white">
+                        {storyIsVideo ? <Play className="mb-1 size-3.5 fill-current" /> : null}
+                        <span className="block truncate text-[12px] font-extrabold">
+                          {mine ? tx("Your Story", "Votre Story") : item.group.author.name}
+                        </span>
+                        <span className="mt-0.5 block text-[10px] font-semibold text-white/70">
+                          {mine ? tx("Your 24h story", "Votre Story de 24 h") : "Story"}
+                        </span>
+                      </span>
+                    </Button>
+                  );
+                }
+
+                const spotlight = item.spotlight;
+                const spotlightVideo = isVideoSource(spotlight.url);
+                return (
+                  <Button
+                    variant="ghost"
+                    key={`spotlight-${spotlight.id}`}
+                    type="button"
+                    onClick={() =>
+                      openSpotlight(spotlights.findIndex((post) => post.id === spotlight.id))
+                    }
+                    className="group rail-tile block p-0 whitespace-normal relative h-60 w-36 shrink-0 overflow-hidden rounded-[24px] border border-[#D4AF37]/30 bg-black text-left shadow-sm transition-transform active:scale-[0.98]"
                   >
-                    {storyIsVideo ? (
+                    {spotlightVideo ? (
                       <video
-                        src={item.story.url}
+                        src={spotlight.url}
                         muted
+                        loop
+                        autoPlay
                         playsInline
                         preload="metadata"
                         className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
                       <img
-                        src={item.story.url}
-                        alt=""
+                        src={spotlight.url}
+                        alt={spotlight.caption ?? spotlight.provider.business_name}
                         className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     )}
-                    <span className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
-                    <span
-                      className={`absolute left-2.5 top-2.5 z-10 grid size-[42px] place-items-center rounded-full p-[2px] shadow-lg ${
-                        item.group.seen
-                          ? "bg-white/20"
-                          : "bg-[conic-gradient(from_220deg,#ff2d55,#4B0082,#D4AF37,#ff2d55)]"
-                      }`}
-                      aria-label={item.group.seen ? "Story viewed" : "New Story"}
-                    >
-                      <span className="grid size-full place-items-center rounded-full bg-black">
-                        <Avatar
-                          src={item.group.author.avatar_url}
-                          name={item.group.author.name}
-                          online={item.group.author.online}
-                          className="size-9 !border-0"
-                        />
+                    <span className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/15 to-transparent" />
+                    <span className="absolute left-2.5 top-2.5 z-10 flex items-center gap-1.5 rounded-full border border-[#D4AF37]/40 bg-black/35 px-2 py-1 text-[8px] font-black tracking-[0.12em] text-[#D4AF37] backdrop-blur-md">
+                      <Sparkles className="size-3" />
+                      SPOTLIGHT
+                    </span>
+                    <span className="absolute left-2.5 top-12 z-10">
+                      <Avatar
+                        src={spotlight.provider.avatar_url}
+                        name={spotlight.provider.business_name}
+                        online={spotlight.provider.online}
+                        className="size-9"
+                      />
+                    </span>
+                    {spotlightVideo ? (
+                      <span className="absolute right-2.5 top-12 z-10 grid size-8 place-items-center rounded-full bg-black/45 text-white backdrop-blur-md">
+                        <Play className="size-3.5 fill-current" />
                       </span>
-                    </span>
-                    <span className="absolute right-2.5 top-2.5 z-10 rounded-full bg-black/40 px-2 py-1 text-[9px] font-bold text-white backdrop-blur-md">
-                      24h
-                    </span>
+                    ) : null}
                     <span className="absolute inset-x-3 bottom-3 z-10 text-white">
-                      {storyIsVideo ? <Play className="mb-1 size-3.5 fill-current" /> : null}
                       <span className="block truncate text-[12px] font-extrabold">
-                        {mine ? tx("Your Story", "Votre Story") : item.group.author.name}
+                        {spotlight.provider.business_name}
                       </span>
-                      <span className="mt-0.5 block text-[10px] font-semibold text-white/70">
-                        {mine ? tx("Your 24h story", "Votre Story de 24 h") : "Story"}
+                      <span className="mt-0.5 block truncate text-[10px] font-semibold text-white/70">
+                        {tx("Discover · Contact · Order", "Découvrir · Contacter · Commander")}
                       </span>
                     </span>
                   </Button>
                 );
-              }
-
-              const spotlight = item.spotlight;
-              const spotlightVideo = isVideoSource(spotlight.url);
-              return (
-                <Button
-                  variant="ghost"
-                  key={`spotlight-${spotlight.id}`}
-                  type="button"
-                  onClick={() =>
-                    openSpotlight(spotlights.findIndex((post) => post.id === spotlight.id))
-                  }
-                  className="group rail-tile block p-0 whitespace-normal relative h-60 w-36 shrink-0 overflow-hidden rounded-[24px] border border-[#D4AF37]/30 bg-black text-left shadow-sm transition-transform active:scale-[0.98]"
-                >
-                  {spotlightVideo ? (
-                    <video
-                      src={spotlight.url}
-                      muted
-                      loop
-                      autoPlay
-                      playsInline
-                      preload="metadata"
-                      className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  ) : (
-                    <img
-                      src={spotlight.url}
-                      alt={spotlight.caption ?? spotlight.provider.business_name}
-                      className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  )}
-                  <span className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/15 to-transparent" />
-                  <span className="absolute left-2.5 top-2.5 z-10 flex items-center gap-1.5 rounded-full border border-[#D4AF37]/40 bg-black/35 px-2 py-1 text-[8px] font-black tracking-[0.12em] text-[#D4AF37] backdrop-blur-md">
-                    <Sparkles className="size-3" />
-                    SPOTLIGHT
-                  </span>
-                  <span className="absolute left-2.5 top-12 z-10">
-                    <Avatar
-                      src={spotlight.provider.avatar_url}
-                      name={spotlight.provider.business_name}
-                      online={spotlight.provider.online}
-                      className="size-9"
-                    />
-                  </span>
-                  {spotlightVideo ? (
-                    <span className="absolute right-2.5 top-12 z-10 grid size-8 place-items-center rounded-full bg-black/45 text-white backdrop-blur-md">
-                      <Play className="size-3.5 fill-current" />
-                    </span>
-                  ) : null}
-                  <span className="absolute inset-x-3 bottom-3 z-10 text-white">
-                    <span className="block truncate text-[12px] font-extrabold">
-                      {spotlight.provider.business_name}
-                    </span>
-                    <span className="mt-0.5 block truncate text-[10px] font-semibold text-white/70">
-                      {tx("Discover · Contact · Order", "Découvrir · Contacter · Commander")}
-                    </span>
-                  </span>
-                </Button>
-              );
-            })}
-        </div>
+              })}
+          </div>
+        )}
       </section>
 
       <input

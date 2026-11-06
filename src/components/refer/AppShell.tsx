@@ -88,6 +88,13 @@ const MOBILE_NAV: NavItem[] = [
   { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle, tour: "messages" },
 ];
 
+const DISCOVER_MOBILE_NAV: NavItem[] = [
+  { to: "/feed", en: "Home", fr: "Accueil", icon: House },
+  { to: "/discover", en: "Discover", fr: "Découvrir", icon: Compass },
+  { to: "/create", en: "Create", fr: "Créer", icon: PlusCircle },
+  { to: "/messages", en: "Business Chat", fr: "Chat professionnel", icon: MessageCircle },
+];
+
 const DESKTOP_NAV: NavItem[] = [
   { to: "/services", key: "nav.services" as TKey, icon: Store, tour: "market" },
   { to: "/feed", en: "Home", fr: "Accueil", icon: House, tour: "feed" },
@@ -211,6 +218,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   };
   const logoOnlyHeader = true; // Keep existing non-feed header controls unchanged.
   const pageOwnsHeader = [
+    "/feed",
     "/messages",
     "/services",
     "/flights",
@@ -562,7 +570,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 "app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(5rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:px-8 lg:pb-10",
                 pathname === "/discover" && "px-0 pt-0 sm:px-0",
                 roomyMemberTab && "member-roomy-tab",
-                onFeed && "pt-1",
+                onFeed && "px-0 pt-1 sm:px-0",
               )}
             >
               {children}
@@ -573,7 +581,11 @@ export function AppShell({ children }: { children: ReactNode }) {
       </div>
 
       {!pathname.startsWith("/post/") ? (
-        <MobileNav items={visible(MOBILE_NAV)} profile={profile} unreadMessages={unreadMessages} />
+        <MobileNav
+          items={visible(pathname === "/discover" || onFeed ? DISCOVER_MOBILE_NAV : MOBILE_NAV)}
+          profile={profile}
+          unreadMessages={unreadMessages}
+        />
       ) : null}
 
       <LocationNudge />

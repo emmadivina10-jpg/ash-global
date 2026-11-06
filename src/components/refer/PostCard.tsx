@@ -1,6 +1,6 @@
 import { VerifiedBadge } from "@/components/refer/VerifiedBadge";
 import { extractTags, recordTagInterest } from "@/lib/interests";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { MessageCircle, Repeat2, Share2, ShieldCheck } from "lucide-react";
@@ -51,6 +51,7 @@ export function PostCard({
   currentUserId,
   detail = false,
   fullScreen = false,
+  home = false,
 }: {
   post: FeedPost;
   currentUserId: string | null;
@@ -58,6 +59,7 @@ export function PostCard({
   detail?: boolean;
   /** The standalone post view has a full-height comment composer. */
   fullScreen?: boolean;
+  home?: boolean;
 }) {
   const { tx, lang } = useI18n();
   const fr = lang === "fr";
@@ -98,7 +100,8 @@ export function PostCard({
   const postVideo = post.images.find((src) => isStoryVideoSource(src));
   const singleImage = !detail && post.images.length === 1;
   // Short captions sit on the photo like a discovery card; long ones stay readable above.
-  const overlayCaption = singleImage && post.caption.length > 0 && post.caption.length <= 160;
+  const overlayCaption =
+    !home && singleImage && post.caption.length > 0 && post.caption.length <= 160;
   const actionButton = action ? (
     <Link
       to={action.to}
@@ -116,7 +119,9 @@ export function PostCard({
       className={cn(
         "tile overflow-hidden",
         !detail &&
+          !home &&
           "rounded-3xl border border-border/60 bg-card bg-none shadow-[var(--shadow-card)]",
+        !detail && home && "border-y border-border/60 bg-card bg-none",
         detail && "rounded-none border-0 shadow-none sm:rounded-3xl sm:border",
       )}
     >
@@ -198,7 +203,12 @@ export function PostCard({
           postId={post.id}
         />
       ) : post.images.length > 0 ? (
-        <div className={cn(!detail && "relative mx-3 overflow-hidden rounded-2xl")}>
+        <div
+          className={cn(
+            !detail && "relative overflow-hidden",
+            !detail && !home && "mx-3 rounded-2xl",
+          )}
+        >
           <div
             className={cn(
               "grid gap-0.5",
@@ -246,7 +256,9 @@ export function PostCard({
         <div className="px-4 pb-2">{actionButton}</div>
       ) : null}
 
-      <div className={cn("flex items-center justify-between px-4 pt-2", !detail && "hidden")}>
+      <div
+        className={cn("flex items-center justify-between px-4 pt-2", !detail && !home && "hidden")}
+      >
         <ReactionSummary breakdown={post.reaction_breakdown} />
         <span className="text-[11px] text-muted-foreground">
           {post.comment_count} {tx("comments", "commentaires")} · {post.repost_count}{" "}
@@ -393,10 +405,11 @@ function Comments({
   const { requireAuth } = useAuthGate();
   const [body, setBody] = useState("");
   const [replyTo, setReplyTo] = useState<PostComment | null>(null);
+  const submitting = useRef(false);
 
   function submit() {
     const text = body.trim();
-    if (!text) return;
+    if (!text || submitting.current) return;
     if (
       !requireAuth({
         en: "Sign in to join the conversation.",
@@ -404,6 +417,7 @@ function Comments({
       })
     )
       return;
+    submitting.current = true;
     add.mutate(
       { postId: post.id, body: text, parentId: replyTo?.id ?? null, screen: post.filter_comments },
       {
@@ -413,6 +427,9 @@ function Comments({
         },
         onError: (error) =>
           toast.error(error instanceof Error ? error.message : "Could not comment."),
+        onSettled: () => {
+          submitting.current = false;
+        },
       },
     );
   }

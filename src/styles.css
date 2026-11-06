@@ -3040,6 +3040,20 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   --tt-text: oklch(0.18 0.01 280);
   --tt-muted: oklch(0.5 0.01 280);
 }
+.talent-mobile-nav {
+  --tt-ink: #08070b;
+  --tt-text: #faf8fc;
+  --tt-muted: #a7a2ad;
+}
+body:has(.talent-discover) {
+  background-color: #08070b;
+}
+body:has(.talent-discover) .app-shell {
+  background-color: #08070b;
+}
+body:has(.home-feed) .app-shell {
+  background-color: #08070b;
+}
 /* Professional tab bar: frosted glass, one sliding purple-gold pill behind the
    active icon, no labels, no neon accents. */
 .premium-mobile-nav {

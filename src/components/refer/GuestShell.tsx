@@ -11,6 +11,7 @@ import {
   House,
   Menu,
   MessageCircle,
+  PlusCircle,
   Search,
   Sparkles,
   Store,
@@ -46,6 +47,14 @@ const GUEST_TABS: GuestNavItem[] = [
   { to: "/services", en: "Services", fr: "Services", icon: Sparkles },
   { to: "/feed", en: "Home", fr: "Accueil", icon: House },
   { to: "/messages", en: "Messages", fr: "Messages", icon: MessageCircle },
+  { to: "/menu", en: "Menu", fr: "Menu", icon: Menu },
+];
+
+const DISCOVER_GUEST_TABS: GuestNavItem[] = [
+  { to: "/feed", en: "Home", fr: "Accueil", icon: House },
+  { to: "/discover", en: "Discover", fr: "Découvrir", icon: Clapperboard },
+  { to: "/create", en: "Create", fr: "Créer", icon: PlusCircle },
+  { to: "/messages", en: "Business Chat", fr: "Chat professionnel", icon: MessageCircle },
   { to: "/menu", en: "Menu", fr: "Menu", icon: Menu },
 ];
 
@@ -103,7 +112,7 @@ export function GuestShell({ children }: { children: ReactNode }) {
         </aside>
 
         <div className="app-shell-column flex min-w-0 flex-1 flex-col">
-          {pathname !== "/discover" ? (
+          {pathname !== "/discover" && pathname !== "/feed" ? (
             <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur-xl lg:hidden">
               <div className="flex items-center justify-between gap-3 px-4 py-2">
                 <Link to="/feed" className="min-w-0">
@@ -120,7 +129,7 @@ export function GuestShell({ children }: { children: ReactNode }) {
           <main
             className={cn(
               "app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8 lg:pb-10",
-              pathname === "/discover" ? "px-0 pt-0 sm:px-0" : "pt-5",
+              pathname === "/discover" || pathname === "/feed" ? "px-0 pt-0 sm:px-0" : "pt-5",
             )}
           >
             {children}
@@ -129,11 +138,17 @@ export function GuestShell({ children }: { children: ReactNode }) {
       </div>
 
       <nav
-        className="premium-mobile-nav fixed inset-x-0 z-40 lg:hidden"
+        className={cn(
+          "premium-mobile-nav fixed inset-x-0 z-40 lg:hidden",
+          (pathname === "/discover" || pathname === "/feed") && "talent-mobile-nav",
+        )}
         aria-label={lang === "fr" ? "Navigation principale" : "Main navigation"}
       >
         <ul className="premium-nav-pill nav-bar-fill grid h-[3.75rem] grid-cols-5 border-t border-border">
-          {GUEST_TABS.map((item) => {
+          {(pathname === "/discover" || pathname === "/feed"
+            ? DISCOVER_GUEST_TABS
+            : GUEST_TABS
+          ).map((item) => {
             const active = pathname === item.to || pathname.startsWith(`${item.to}/`);
 
             return (

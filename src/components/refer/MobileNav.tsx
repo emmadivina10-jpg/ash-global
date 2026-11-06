@@ -184,7 +184,10 @@ export function MobileNav({
 
   return (
     <nav
-      className="premium-mobile-nav fixed inset-x-0 z-40 lg:hidden"
+      className={cn(
+        "premium-mobile-nav fixed inset-x-0 z-40 lg:hidden",
+        (pathname === "/discover" || pathname === "/feed") && "talent-mobile-nav",
+      )}
       aria-label={tx("Primary navigation", "Navigation principale")}
     >
       <div className="premium-nav-pill nav-bar-fill relative w-full border-t border-border">

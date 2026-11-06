@@ -138,6 +138,7 @@ import { Route as BrowsePropertyListingIdRouteImport } from './routes/_browse/pr
 import { Route as BrowseServicesIndexRouteImport } from './routes/_browse/services.index'
 import { Route as BrowseServicesProviderIdRouteImport } from './routes/_browse/services.$providerId'
 import { Route as BrowseServicesExtrasRouteImport } from './routes/_browse/services.extras'
+import { Route as BrowseTalentMusicianIdRouteImport } from './routes/_browse/talent.$musicianId'
 import { Route as BrowseUUserIdRouteImport } from './routes/_browse/u.$userId'
 import { Route as ApiPublicCleanupSpotlightVideosRouteImport } from './routes/api/public/cleanup-spotlight-videos'
 import { Route as ApiPublicCleanupStoriesRouteImport } from './routes/api/public/cleanup-stories'
@@ -823,6 +824,11 @@ const BrowseServicesExtrasRoute = BrowseServicesExtrasRouteImport.update({
   path: '/services/extras',
   getParentRoute: () => BrowseRouteRoute,
 } as any)
+const BrowseTalentMusicianIdRoute = BrowseTalentMusicianIdRouteImport.update({
+  id: '/talent/$musicianId',
+  path: '/talent/$musicianId',
+  getParentRoute: () => BrowseRouteRoute,
+} as any)
 const BrowseUUserIdRoute = BrowseUUserIdRouteImport.update({
   id: '/u/$userId',
   path: '/u/$userId',
@@ -1074,6 +1080,7 @@ export interface FileRoutesByFullPath {
   '/property/$listingId': typeof BrowsePropertyListingIdRoute
   '/services/$providerId': typeof BrowseServicesProviderIdRoute
   '/services/extras': typeof BrowseServicesExtrasRoute
+  '/talent/$musicianId': typeof BrowseTalentMusicianIdRoute
   '/u/$userId': typeof BrowseUUserIdRoute
   '/api/public/cleanup-spotlight-videos': typeof ApiPublicCleanupSpotlightVideosRoute
   '/api/public/cleanup-stories': typeof ApiPublicCleanupStoriesRoute
@@ -1225,6 +1232,7 @@ export interface FileRoutesByTo {
   '/property/$listingId': typeof BrowsePropertyListingIdRoute
   '/services/$providerId': typeof BrowseServicesProviderIdRoute
   '/services/extras': typeof BrowseServicesExtrasRoute
+  '/talent/$musicianId': typeof BrowseTalentMusicianIdRoute
   '/u/$userId': typeof BrowseUUserIdRoute
   '/api/public/cleanup-spotlight-videos': typeof ApiPublicCleanupSpotlightVideosRoute
   '/api/public/cleanup-stories': typeof ApiPublicCleanupStoriesRoute
@@ -1380,6 +1388,7 @@ export interface FileRoutesById {
   '/_browse/property/$listingId': typeof BrowsePropertyListingIdRoute
   '/_browse/services/$providerId': typeof BrowseServicesProviderIdRoute
   '/_browse/services/extras': typeof BrowseServicesExtrasRoute
+  '/_browse/talent/$musicianId': typeof BrowseTalentMusicianIdRoute
   '/_browse/u/$userId': typeof BrowseUUserIdRoute
   '/api/public/cleanup-spotlight-videos': typeof ApiPublicCleanupSpotlightVideosRoute
   '/api/public/cleanup-stories': typeof ApiPublicCleanupStoriesRoute
@@ -1534,6 +1543,7 @@ export interface FileRouteTypes {
     | '/property/$listingId'
     | '/services/$providerId'
     | '/services/extras'
+    | '/talent/$musicianId'
     | '/u/$userId'
     | '/api/public/cleanup-spotlight-videos'
     | '/api/public/cleanup-stories'
@@ -1685,6 +1695,7 @@ export interface FileRouteTypes {
     | '/property/$listingId'
     | '/services/$providerId'
     | '/services/extras'
+    | '/talent/$musicianId'
     | '/u/$userId'
     | '/api/public/cleanup-spotlight-videos'
     | '/api/public/cleanup-stories'
@@ -1839,6 +1850,7 @@ export interface FileRouteTypes {
     | '/_browse/property/$listingId'
     | '/_browse/services/$providerId'
     | '/_browse/services/extras'
+    | '/_browse/talent/$musicianId'
     | '/_browse/u/$userId'
     | '/api/public/cleanup-spotlight-videos'
     | '/api/public/cleanup-stories'
@@ -2820,6 +2832,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BrowseServicesExtrasRouteImport
       parentRoute: typeof BrowseRouteRoute
     }
+    '/_browse/talent/$musicianId': {
+      id: '/_browse/talent/$musicianId'
+      path: '/talent/$musicianId'
+      fullPath: '/talent/$musicianId'
+      preLoaderRoute: typeof BrowseTalentMusicianIdRouteImport
+      parentRoute: typeof BrowseRouteRoute
+    }
     '/_browse/u/$userId': {
       id: '/_browse/u/$userId'
       path: '/u/$userId'
@@ -3116,6 +3135,7 @@ interface BrowseRouteRouteChildren {
   BrowsePropertyListingIdRoute: typeof BrowsePropertyListingIdRoute
   BrowseServicesProviderIdRoute: typeof BrowseServicesProviderIdRoute
   BrowseServicesExtrasRoute: typeof BrowseServicesExtrasRoute
+  BrowseTalentMusicianIdRoute: typeof BrowseTalentMusicianIdRoute
   BrowseUUserIdRoute: typeof BrowseUUserIdRoute
   BrowseArticlesIndexRoute: typeof BrowseArticlesIndexRoute
   BrowseCampusIndexRoute: typeof BrowseCampusIndexRoute
@@ -3141,6 +3161,7 @@ const BrowseRouteRouteChildren: BrowseRouteRouteChildren = {
   BrowsePropertyListingIdRoute: BrowsePropertyListingIdRoute,
   BrowseServicesProviderIdRoute: BrowseServicesProviderIdRoute,
   BrowseServicesExtrasRoute: BrowseServicesExtrasRoute,
+  BrowseTalentMusicianIdRoute: BrowseTalentMusicianIdRoute,
   BrowseUUserIdRoute: BrowseUUserIdRoute,
   BrowseArticlesIndexRoute: BrowseArticlesIndexRoute,
   BrowseCampusIndexRoute: BrowseCampusIndexRoute,

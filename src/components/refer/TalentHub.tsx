@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { BadgeCheck, Heart, MapPin, Music2, Play, Star, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,9 +18,13 @@ import {
   TALENT_BUCKET,
   talentDb,
   useMusicianMedia,
+  useMusicianFavorite,
   useMyMusician,
+  type MusicianStats,
+  type SignedMusicianMedia,
   type Musician,
 } from "@/lib/musician.queries";
+import { cn } from "@/lib/utils";
 
 function Media({ id, owner = false }: { id: string; owner?: boolean }) {
   const { tx } = useI18n();
@@ -58,149 +63,169 @@ function Media({ id, owner = false }: { id: string; owner?: boolean }) {
   );
 }
 
-export function MusicianCard({ musician }: { musician: Musician }) {
+export function MusicianCard({
+  musician,
+  media,
+  stats,
+}: {
+  musician: Musician;
+  media?: SignedMusicianMedia[];
+  stats?: MusicianStats;
+}) {
   const { tx } = useI18n();
-  const portfolio = useMusicianMedia(musician.id);
   const { user } = useUser();
   const { requireAuth } = useAuthGate();
-  const navigate = useNavigate();
   const cache = useQueryClient();
-  const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState("");
-  const [eventDate, setEventDate] = useState("");
-  const [busy, setBusy] = useState(false);
-  const sentEnquiries = useQuery({
-    queryKey: ["sent-musician-enquiries", musician.id, user?.id],
-    enabled: Boolean(open && user && user.id !== musician.user_id),
-    queryFn: async () => {
-      const result = await talentDb
-        .from("musician_enquiries")
-        .select("*")
-        .eq("musician_id", musician.id)
-        .eq("customer_id", user!.id)
-        .order("created_at", { ascending: false });
-      if (result.error) throw result.error;
-      return result.data;
-    },
-  });
-  const enquiry = async () => {
-    if (!requireAuth({ en: "Sign in to enquire.", fr: "Connectez-vous pour contacter." })) return;
-    setBusy(true);
+  const favorite = useMusicianFavorite(user?.id, musician.id);
+  const photo = media?.find((item) => item.media_type === "PHOTO");
+  const video = media?.find((item) => item.media_type === "VIDEO");
+  const rate =
+    musician.hourly_rate_minor !== null && musician.rate_currency
+      ? new Intl.NumberFormat(undefined, {
+          style: "currency",
+          currency: musician.rate_currency,
+          maximumFractionDigits: musician.rate_currency === "CAD" ? 2 : 0,
+        }).format(
+          musician.rate_currency === "CAD"
+            ? musician.hourly_rate_minor / 100
+            : musician.hourly_rate_minor,
+        )
+      : null;
+  const toggleFavorite = async (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (
+      !requireAuth({
+        en: "Sign in to save musicians.",
+        fr: "Connectez-vous pour enregistrer des musiciens.",
+      })
+    )
+      return;
     try {
-      const { error } = await talentDb.rpc("submit_musician_enquiry", {
-        _musician_id: musician.id,
-        _message: message.trim(),
-        _event_date: eventDate || null,
-      });
-      if (error) throw error;
-      setMessage("");
-      setEventDate("");
-      await cache.invalidateQueries({ queryKey: ["sent-musician-enquiries", musician.id] });
-      toast.success(tx("Enquiry sent", "Demande envoyée"));
+      if (favorite.data) {
+        const { error } = await talentDb
+          .from("musician_favorites")
+          .delete()
+          .eq("user_id", user!.id)
+          .eq("musician_id", musician.id);
+        if (error) throw error;
+      } else {
+        const { error } = await talentDb
+          .from("musician_favorites")
+          .insert({ user_id: user!.id, musician_id: musician.id });
+        if (error) throw error;
+      }
+      await cache.invalidateQueries({ queryKey: ["musician-favorite", user?.id, musician.id] });
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
-          : tx("Could not send enquiry", "Impossible d'envoyer la demande"),
+          : tx("Could not save musician.", "Impossible d'enregistrer ce musicien."),
       );
-    } finally {
-      setBusy(false);
-    }
-  };
-  const chat = async () => {
-    if (!requireAuth({ en: "Sign in to message.", fr: "Connectez-vous pour discuter." })) return;
-    try {
-      const id = await openMemberConversation(musician.user_id);
-      if (!id)
-        throw new Error(tx("Could not open conversation", "Impossible d'ouvrir la discussion"));
-      await navigate({ to: "/messages", search: { c: id } });
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not open conversation");
     }
   };
   return (
-    <article className="rounded-3xl border border-primary/20 bg-card p-4 shadow-sm">
-      {portfolio.data?.find(
-        (item) => item.media_type === "PHOTO" && item.review_status === "APPROVED",
-      ) ? (
-        <img
-          src={
-            portfolio.data.find(
-              (item) => item.media_type === "PHOTO" && item.review_status === "APPROVED",
-            )?.url
-          }
-          alt=""
-          className="mb-3 h-40 w-full rounded-2xl object-cover"
-        />
-      ) : null}
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <h3 className="font-bold">{musician.display_name}</h3>
-          <p className="text-xs text-muted-foreground">
-            {musician.city} · {musician.country}
-          </p>
-        </div>
-        <span className="text-xs font-bold text-primary">
-          {musician.online ? tx("Online", "En ligne") : tx("Offline", "Hors ligne")}
-        </span>
-      </div>
-      <p className="mt-2 text-sm">{musician.instruments.join(" · ")}</p>
-      {musician.biography ? (
-        <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{musician.biography}</p>
-      ) : null}
-      <Button className="mt-3 w-full rounded-full" onClick={() => setOpen(true)}>
-        {tx("View musician", "Voir le musicien")}
-      </Button>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90dvh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{musician.display_name}</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm">{musician.biography}</p>
-          <p className="text-sm">
-            {musician.genres.join(" · ")} {musician.experience}
-          </p>
-          <Media id={musician.id} />
-          {user?.id !== musician.user_id ? (
-            <>
-              <Button variant="outline" onClick={() => void chat()}>
-                {tx("Message", "Écrire")}
-              </Button>
-              {musician.accepting_enquiries ? (
-                <div className="space-y-2">
-                  <Textarea
-                    value={message}
-                    maxLength={2000}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder={tx("Describe your gig", "Décrivez votre événement")}
-                  />
-                  <Input
-                    type="date"
-                    value={eventDate}
-                    onChange={(e) => setEventDate(e.target.value)}
-                    aria-label={tx("Event date", "Date de l'événement")}
-                  />
-                  <Button disabled={busy || !message.trim()} onClick={() => void enquiry()}>
-                    {tx("Send gig enquiry", "Envoyer une demande")}
-                  </Button>
-                </div>
-              ) : (
-                <p>{tx("Not accepting enquiries", "Demandes indisponibles")}</p>
+    <article className="talent-card relative overflow-hidden rounded-[1.35rem] border border-primary/25 bg-card shadow-[0_12px_36px_rgba(4,0,14,.32)]">
+      <Link to="/talent/$musicianId" params={{ musicianId: musician.id }} className="block">
+        <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-primary/30 via-card to-violet-950">
+          {photo ? (
+            <img
+              src={photo.url}
+              alt={musician.display_name}
+              loading="lazy"
+              className="size-full object-cover transition-transform duration-500 hover:scale-[1.03]"
+            />
+          ) : video ? (
+            <video
+              src={video.url}
+              muted
+              loop
+              playsInline
+              autoPlay
+              preload="metadata"
+              className="size-full object-cover"
+            />
+          ) : (
+            <div className="grid size-full place-items-center text-primary/70">
+              <Music2 className="size-16" aria-hidden />
+            </div>
+          )}
+          <span
+            className={cn(
+              "absolute left-2 top-2 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold text-white shadow",
+              musician.online ? "bg-emerald-600" : "bg-black/65 backdrop-blur",
+            )}
+          >
+            <span
+              className={cn(
+                "size-1.5 rounded-full",
+                musician.online ? "animate-pulse bg-emerald-200" : "bg-red-400",
               )}
-              {sentEnquiries.isError ? (
-                <p role="alert">
-                  {tx("Could not load your enquiries", "Impossible de charger vos demandes")}
-                </p>
-              ) : null}
-              {sentEnquiries.data?.map((item) => (
-                <p key={item.id} className="rounded-xl border p-2 text-sm">
-                  {item.message} · {item.status}
-                </p>
-              ))}
-            </>
+            />
+            {musician.online ? tx("Online", "En ligne") : tx("Offline", "Hors ligne")}
+          </span>
+          {musician.accepting_enquiries ? (
+            <span className="absolute bottom-2 left-2 rounded-full bg-black/60 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur">
+              {tx("Available for booking", "Disponible pour réservation")}
+            </span>
           ) : null}
-        </DialogContent>
-      </Dialog>
+          {video ? (
+            <span className="absolute bottom-2 right-2 grid size-8 place-items-center rounded-full border border-white/60 bg-black/50 text-white">
+              <Play className="size-4 fill-current" aria-hidden />
+            </span>
+          ) : null}
+        </div>
+        <div className="space-y-1.5 p-3">
+          <h3 className="flex items-center gap-1 text-sm font-bold">
+            <span className="truncate">{musician.display_name}</span>
+            <BadgeCheck
+              className="size-4 shrink-0 fill-primary text-primary-foreground"
+              aria-label={tx("ASH approved musician", "Musicien approuvé par ASH")}
+            />
+          </h3>
+          <p className="truncate text-xs text-muted-foreground">
+            {musician.instruments.join(" · ")}
+            {musician.genres.length ? ` · ${musician.genres.slice(0, 2).join(", ")}` : ""}
+          </p>
+          <p className="flex flex-wrap items-baseline gap-1 pt-0.5">
+            {rate ? (
+              <>
+                <strong className="font-display text-xl font-black text-primary">{rate}</strong>
+                <span className="text-[11px] text-muted-foreground">{tx("/hour", "/h")}</span>
+              </>
+            ) : (
+              <span className="text-xs font-semibold text-primary">
+                {tx("Contact for rate", "Tarif sur demande")}
+              </span>
+            )}
+          </p>
+          <div className="flex items-center justify-between gap-1 text-[10px] text-muted-foreground">
+            <span className="flex min-w-0 items-center gap-1 truncate">
+              <MapPin className="size-3 shrink-0" aria-hidden />
+              {musician.city}, {musician.country}
+            </span>
+            {stats && stats.review_count > 0 ? (
+              <span className="flex shrink-0 items-center gap-1 text-foreground">
+                <Star className="size-3 fill-amber-400 text-amber-400" aria-hidden />
+                {Number(stats.rating_average).toFixed(1)} ({stats.review_count})
+              </span>
+            ) : null}
+          </div>
+        </div>
+      </Link>
+      <button
+        type="button"
+        onClick={(event) => void toggleFavorite(event)}
+        aria-label={
+          favorite.data
+            ? tx("Remove from favorites", "Retirer des favoris")
+            : tx("Add to favorites", "Ajouter aux favoris")
+        }
+        aria-pressed={Boolean(favorite.data)}
+        className="absolute right-2 top-2 grid size-9 place-items-center rounded-full bg-black/50 text-white backdrop-blur transition hover:scale-105"
+      >
+        <Heart className={cn("size-5", favorite.data && "fill-primary text-primary")} aria-hidden />
+      </button>
     </article>
   );
 }
@@ -220,6 +245,8 @@ export function MusicianManager() {
   const [country, setCountry] = useState("");
   const [genres, setGenres] = useState("");
   const [experience, setExperience] = useState("");
+  const [rateAmount, setRateAmount] = useState("");
+  const [rateCurrency, setRateCurrency] = useState<"CAD" | "XAF">("CAD");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [roles, setRoles] = useState<string[]>([]);
@@ -243,6 +270,7 @@ export function MusicianManager() {
       cache.invalidateQueries({ queryKey: ["musicians"] }),
       cache.invalidateQueries({ queryKey: ["musician-media"] }),
       cache.invalidateQueries({ queryKey: ["musician-enquiries"] }),
+      cache.invalidateQueries({ queryKey: ["musician-stats"] }),
     ]);
   };
   const status = useMutation({
@@ -273,6 +301,14 @@ export function MusicianManager() {
     setCountry(p?.country ?? region.detected);
     setGenres(p?.genres.join(", ") ?? "");
     setExperience(p?.experience ?? "");
+    setRateCurrency(p?.rate_currency ?? "CAD");
+    setRateAmount(
+      p?.hourly_rate_minor == null
+        ? ""
+        : p.rate_currency === "CAD"
+          ? (p.hourly_rate_minor / 100).toFixed(2)
+          : String(p.hourly_rate_minor),
+    );
     setRoles(p?.instruments ?? []);
     if (p) {
       const result = await talentDb
@@ -301,6 +337,28 @@ export function MusicianManager() {
       !roles.length
     )
       return;
+    const trimmedRate = rateAmount.trim();
+    let hourly_rate_minor: number | null = null;
+    let rate_currency: "CAD" | "XAF" | null = null;
+    if (trimmedRate) {
+      const validAmount =
+        rateCurrency === "CAD"
+          ? /^\d+(?:\.\d{1,2})?$/.test(trimmedRate)
+          : /^\d+$/.test(trimmedRate);
+      const amount = Number(trimmedRate);
+      const minor = Math.round(amount * (rateCurrency === "CAD" ? 100 : 1));
+      if (!validAmount || !Number.isSafeInteger(minor) || minor < 1 || minor > 1_000_000_000) {
+        toast.error(
+          tx(
+            "Enter a valid hourly rate (up to 2 decimals for CAD).",
+            "Saisissez un tarif valide (2 décimales maximum pour CAD).",
+          ),
+        );
+        return;
+      }
+      hourly_rate_minor = minor;
+      rate_currency = rateCurrency;
+    }
     setBusy(true);
     try {
       const values = {
@@ -313,6 +371,8 @@ export function MusicianManager() {
           .map((x) => x.trim())
           .filter(Boolean),
         experience: experience.trim(),
+        hourly_rate_minor,
+        rate_currency,
         instruments: roles,
       };
       const result = mine.data
@@ -384,6 +444,7 @@ export function MusicianManager() {
   return (
     <>
       <Button onClick={() => void openManager()} className="rounded-full">
+        {!mine.data ? <Plus className="mr-2 size-4" aria-hidden /> : null}
         {mine.data
           ? tx("Manage musician profile", "Gérer mon profil musicien")
           : tx("Become a Musician", "Devenir musicien")}
@@ -443,6 +504,35 @@ export function MusicianManager() {
               onChange={(e) => setExperience(e.target.value)}
             />
           </label>
+          <fieldset className="space-y-2">
+            <legend className="text-sm">
+              {tx("Hourly rate (optional)", "Tarif horaire (facultatif)")}
+            </legend>
+            <div className="grid grid-cols-[1fr_auto] gap-2">
+              <Input
+                value={rateAmount}
+                onChange={(e) => setRateAmount(e.target.value)}
+                inputMode="decimal"
+                placeholder={tx("Leave blank to ask", "Laisser vide pour demander")}
+                aria-label={tx("Hourly rate amount", "Montant du tarif horaire")}
+              />
+              <select
+                value={rateCurrency}
+                onChange={(e) => setRateCurrency(e.target.value as "CAD" | "XAF")}
+                aria-label={tx("Rate currency", "Devise du tarif")}
+                className="rounded-xl border border-input bg-background px-3 text-sm"
+              >
+                <option value="CAD">CAD</option>
+                <option value="XAF">XAF</option>
+              </select>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {tx(
+                "Rate changes are reviewed before appearing publicly.",
+                "Les changements de tarif sont examinés avant publication.",
+              )}
+            </p>
+          </fieldset>
           <label className="text-sm">
             {tx("City", "Ville")}
             <Input value={city} maxLength={100} onChange={(e) => setCity(e.target.value)} />
@@ -577,6 +667,33 @@ export function MusicianManager() {
                         </Button>
                       ))}
                     </div>
+                  ) : null}
+                  {e.status === "ACCEPTED" ? (
+                    e.completed_by_musician ? (
+                      <p className="text-xs text-muted-foreground">
+                        {tx(
+                          "Completion confirmed. Waiting for the customer.",
+                          "Prestation confirmée. En attente du client.",
+                        )}
+                      </p>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          const result = await talentDb.rpc("confirm_musician_gig_completed", {
+                            _enquiry_id: e.id,
+                          });
+                          if (result.error) toast.error(result.error.message);
+                          else {
+                            await refresh();
+                            toast.success(tx("Gig completion confirmed.", "Prestation confirmée."));
+                          }
+                        }}
+                      >
+                        {tx("Confirm gig completed", "Confirmer la prestation")}
+                      </Button>
+                    )
                   ) : null}
                 </div>
               ))}

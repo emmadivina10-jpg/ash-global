@@ -345,12 +345,7 @@ export function MarketBrowser({
     <>
       <div className="relative aspect-[4/5] overflow-hidden bg-muted">
         {l.image ? (
-          <img
-            src={l.image}
-            alt={l.title}
-            loading="lazy"
-            className="size-full object-cover transition-transform duration-200 group-hover:scale-105"
-          />
+          <img src={l.image} alt={l.title} loading="lazy" className="size-full object-contain" />
         ) : (
           <div className="flex size-full flex-col items-center justify-center gap-2 text-muted-foreground">
             <ImageOff className="size-8" aria-hidden />

@@ -4,6 +4,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Camera, Gift, ImagePlus, Loader2, Plus, Search, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "@/components/refer/AvatarUpload";
+import { Logo } from "@/components/refer/Logo";
+import { NotificationBell } from "@/components/refer/NotificationBell";
 import { PullToRefresh } from "@/components/refer/PullToRefresh";
 import { PostCard } from "@/components/refer/PostCard";
 import { CommunityVideoCard } from "@/components/refer/CommunityVideoCard";
@@ -82,6 +84,7 @@ function FeedPage() {
   const [videoTopic, setVideoTopic] = useState("all");
   const [communitySearch, setCommunitySearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [communityOpen, setCommunityOpen] = useState(false);
   const communityPosts =
     (isGuest ? publicVideos.data : posts)?.filter(
       (post) =>
@@ -267,25 +270,13 @@ function FeedPage() {
       }}
       label={tx("Refreshing", "Actualisation")}
     >
-      <div className="mx-auto w-full max-w-xl space-y-2">
-        <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
-          <div className="min-w-0 self-center">
-            <h1 className="sr-only">{tx("ASH Feed", "Fil ASH")}</h1>
-            {!isGuest && (
-              <Link
-                to="/profile"
-                aria-label={tx("My profile", "Mon profil")}
-                className="inline-flex rounded-full ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                <Avatar
-                  path={profile?.avatar_url}
-                  name={profile?.full_name}
-                  online
-                  className="size-11 shrink-0"
-                />
-              </Link>
-            )}
+      <div className="dark home-feed mx-auto min-h-dvh w-full max-w-xl space-y-3 bg-[#08070b] text-white">
+        <header className="flex items-center justify-between gap-2 px-4 py-2">
+          <div className="flex min-w-0 items-center gap-1">
+            <Logo />
+            <span className="font-display text-sm italic text-pink-400">Glo</span>
           </div>
+          <h1 className="font-display text-xl font-bold">{tx("Home", "Accueil")}</h1>
           <div className="flex items-center gap-1.5">
             {isApprovedInstructor ? (
               <Link
@@ -327,8 +318,36 @@ function FeedPage() {
             >
               <Plus aria-hidden />
             </Button>
+            <NotificationBell />
           </div>
         </header>
+
+        <div
+          role="tablist"
+          aria-label={tx("Feed categories", "Catégories du fil")}
+          className="flex gap-2 overflow-x-auto px-3 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {FEED_CATEGORIES.map((c) => {
+            const on = c.id === category;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                role="tab"
+                aria-selected={on}
+                onClick={() => setCategory(c.id)}
+                className={cn(
+                  "h-9 shrink-0 rounded-xl border px-4 text-xs font-bold transition-colors",
+                  on
+                    ? "border-pink-400/50 bg-gradient-to-r from-pink-600 to-primary text-white"
+                    : "border-white/10 bg-white/5 text-white/80 hover:text-white",
+                )}
+              >
+                {fr ? c.fr : c.en}
+              </button>
+            );
+          })}
+        </div>
 
         <Dialog
           open={composerOpen}
@@ -511,14 +530,45 @@ function FeedPage() {
           </div>
         )}
 
-        <StoriesRail />
+        <StoriesRail compact />
+        <div className="flex items-center gap-2 border-y border-white/10 px-3 py-3">
+          <Avatar path={profile?.avatar_url} name={profile?.full_name} className="size-10" />
+          <button
+            type="button"
+            className="h-10 min-w-0 flex-1 truncate rounded-full border border-pink-300/30 bg-white/5 px-4 text-left text-sm text-white/75"
+            onClick={() => {
+              if (
+                requireAuth({ en: "Sign in to share a post.", fr: "Connectez-vous pour publier." })
+              )
+                setComposerOpen(true);
+            }}
+          >
+            {tx("What's on your mind?", "Quoi de neuf ?")}
+          </button>
+          <button
+            type="button"
+            className="grid size-10 place-items-center rounded-xl bg-primary/10 text-pink-400"
+            aria-label={tx("Create a business post", "Créer une publication professionnelle")}
+            onClick={() => {
+              if (
+                requireAuth({ en: "Sign in to share a post.", fr: "Connectez-vous pour publier." })
+              )
+                setComposerOpen(true);
+            }}
+          >
+            <ImagePlus className="size-5" aria-hidden />
+          </button>
+        </div>
         <div className="flex justify-end">
           <Button
             type="button"
             variant="ghost"
             size="icon"
             aria-label={tx("Search community posts", "Rechercher des publications")}
-            onClick={() => setSearchOpen(true)}
+            onClick={() => {
+              setCommunityOpen(true);
+              setSearchOpen(true);
+            }}
             className={cn("rounded-full", communitySearch && "text-primary")}
           >
             <Search className="size-5" aria-hidden />
@@ -545,57 +595,63 @@ function FeedPage() {
           </DialogContent>
         </Dialog>
         {(isGuest ? publicVideos.data : posts)?.some((post) => post.images.length > 0) ? (
-          <section
-            aria-label={tx("Community posts", "Publications de la communauté")}
-            className="space-y-3 pb-3"
+          <details
+            className="px-3 pb-3"
+            open={communityOpen}
+            onToggle={(event) => setCommunityOpen(event.currentTarget.open)}
           >
-            <h2 className="font-display text-lg font-bold">
+            <summary className="cursor-pointer font-display text-sm font-bold">
               {tx("Community posts", "Publications de la communauté")}
-            </h2>
-            <nav
-              aria-label={tx("Video topics", "Thèmes vidéo")}
-              className="flex gap-2 overflow-x-auto pb-1"
+            </summary>
+            <section
+              aria-label={tx("Community posts", "Publications de la communauté")}
+              className="space-y-3 pt-3"
             >
-              {COMMUNITY_TOPICS.map((topic) => (
-                <Button
-                  key={topic.id}
-                  type="button"
-                  size="sm"
-                  variant={videoTopic === topic.id ? "default" : "outline"}
-                  aria-pressed={videoTopic === topic.id}
-                  onClick={() => setVideoTopic(topic.id)}
-                  className="h-9 shrink-0 rounded-full"
-                >
-                  {fr ? topic.fr : topic.en}
-                </Button>
-              ))}
-            </nav>
-            {communityPosts.length ? (
-              <SwipeDeck
-                key={`${videoTopic}:${communitySearch}`}
-                items={communityPosts}
-                getKey={(post) => post.id}
-                renderItem={(post) => {
-                  const instructor = instructors?.find((item) => item.user_id === post.author.id);
-                  return post.images.some(isStoryVideoSource) ? (
-                    <CommunityVideoCard
-                      post={post}
-                      {...(instructor ? { instructorId: instructor.id } : {})}
-                    />
-                  ) : (
-                    <PostCard post={post} currentUserId={me} />
-                  );
-                }}
-              />
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                {tx(
-                  "No posts match this category and search.",
-                  "Aucune publication ne correspond à cette catégorie et à cette recherche.",
-                )}
-              </p>
-            )}
-          </section>
+              <nav
+                aria-label={tx("Video topics", "Thèmes vidéo")}
+                className="flex gap-2 overflow-x-auto pb-1"
+              >
+                {COMMUNITY_TOPICS.map((topic) => (
+                  <Button
+                    key={topic.id}
+                    type="button"
+                    size="sm"
+                    variant={videoTopic === topic.id ? "default" : "outline"}
+                    aria-pressed={videoTopic === topic.id}
+                    onClick={() => setVideoTopic(topic.id)}
+                    className="h-9 shrink-0 rounded-full"
+                  >
+                    {fr ? topic.fr : topic.en}
+                  </Button>
+                ))}
+              </nav>
+              {communityPosts.length ? (
+                <SwipeDeck
+                  key={`${videoTopic}:${communitySearch}`}
+                  items={communityPosts}
+                  getKey={(post) => post.id}
+                  renderItem={(post) => {
+                    const instructor = instructors?.find((item) => item.user_id === post.author.id);
+                    return post.images.some(isStoryVideoSource) ? (
+                      <CommunityVideoCard
+                        post={post}
+                        {...(instructor ? { instructorId: instructor.id } : {})}
+                      />
+                    ) : (
+                      <PostCard post={post} currentUserId={me} />
+                    );
+                  }}
+                />
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {tx(
+                    "No posts match this category and search.",
+                    "Aucune publication ne correspond à cette catégorie et à cette recherche.",
+                  )}
+                </p>
+              )}
+            </section>
+          </details>
         ) : null}
         {isGuest && publicVideos.isError ? (
           <p role="alert" className="text-sm text-destructive">
@@ -609,33 +665,6 @@ function FeedPage() {
             onViewerClose={() => setSpotlightRequest(undefined)}
           />
         ) : null}
-
-        <div
-          role="tablist"
-          aria-label={tx("Discover", "Découvrir")}
-          className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          {FEED_CATEGORIES.map((c) => {
-            const on = c.id === category;
-            return (
-              <button
-                key={c.id}
-                type="button"
-                role="tab"
-                aria-selected={on}
-                onClick={() => setCategory(c.id)}
-                className={cn(
-                  "h-8 shrink-0 rounded-full border px-3.5 text-xs font-bold transition-colors",
-                  on
-                    ? "border-transparent bg-gradient-to-r from-primary to-gold text-primary-foreground shadow-[var(--shadow-gold)]"
-                    : "border-border bg-card text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {fr ? c.fr : c.en}
-              </button>
-            );
-          })}
-        </div>
 
         {isLoading || !spotlightsReady ? (
           <div className="space-y-3">
@@ -688,7 +717,7 @@ function FeedPage() {
               return (
                 <div key={post.id} className="space-y-4">
                   {block ? <DiscoveryRow block={block} /> : null}
-                  <PostCard post={post} currentUserId={me} />
+                  <PostCard post={post} currentUserId={me} home />
                 </div>
               );
             })}
