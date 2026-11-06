@@ -286,16 +286,16 @@ function FeedPage() {
           </button>
           <button
             type="button"
-            onClick={() =>
-              document.getElementById("home-stories")?.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-              })
-            }
+            onClick={() => {
+              if (
+                requireAuth({ en: "Sign in to share a post.", fr: "Connectez-vous pour publier." })
+              )
+                setComposerOpen(true);
+            }}
             className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border px-3 text-xs font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
           >
-            <Camera className="size-3.5" aria-hidden />
-            {tx("Create Story", "Créer une story")}
+            <Plus className="size-3.5" aria-hidden />
+            {tx("Create Post", "Publier")}
           </button>
         </div>
         <SpotlightComposer open={spotlightOpen} onOpenChange={setSpotlightOpen} hideTrigger />
@@ -517,24 +517,6 @@ function FeedPage() {
           </div>
         )}
 
-        <button
-          type="button"
-          onClick={() => {
-            if (
-              requireAuth({ en: "Sign in to share a post.", fr: "Connectez-vous pour publier." })
-            )
-              setComposerOpen(true);
-          }}
-          className="mx-3 flex items-center gap-3 rounded-full border border-border px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-muted"
-        >
-          <Avatar path={profile?.avatar_url} name={profile?.full_name} className="size-9 shrink-0" />
-          <span className="min-w-0 flex-1 truncate">
-            {tx(
-              "What's happening in your business?",
-              "Quoi de neuf dans votre entreprise ?",
-            )}
-          </span>
-        </button>
         <div id="home-stories">
           <StoriesRail compact />
         </div>

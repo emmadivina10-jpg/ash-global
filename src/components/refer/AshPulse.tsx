@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Avatar } from "./AvatarUpload";
-import { NotificationBell } from "./NotificationBell";
 import { useI18n } from "@/lib/i18n";
 import { playTabSound } from "@/lib/sound";
 
@@ -79,7 +78,7 @@ export function AshPulse({
         to="/services"
         onClick={playTabSound}
         style={{ left: "10%", top: "23%" }}
-        className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/60 bg-background px-3 py-1 text-[11px] font-bold tracking-widest text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+        className="absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border border-primary/60 bg-background px-3 py-1 text-[11px] font-bold tracking-widest text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
       >
         {tx("BUY", "ACHETER")}
       </Link>
@@ -87,14 +86,11 @@ export function AshPulse({
         to="/create"
         onClick={playTabSound}
         style={{ left: "90%", top: "23%" }}
-        className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-violet-400/60 bg-background px-3 py-1 text-[11px] font-bold tracking-widest text-violet-400 transition-colors hover:bg-violet-500 hover:text-white"
+        className="absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border border-violet-400/60 bg-background px-3 py-1 text-[11px] font-bold tracking-widest text-violet-400 transition-colors hover:bg-violet-500 hover:text-white"
       >
         {tx("SELL", "VENDRE")}
       </Link>
 
-      <div className="absolute right-2 top-2">
-        <NotificationBell />
-      </div>
     </section>
   );
 }

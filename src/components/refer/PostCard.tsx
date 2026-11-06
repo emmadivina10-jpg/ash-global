@@ -118,7 +118,7 @@ export function PostCard({
     <article
       ref={impressionRef as React.RefObject<HTMLElement>}
       className={cn(
-        "tile overflow-hidden",
+        home ? "overflow-hidden" : "tile overflow-hidden",
         !detail &&
           !home &&
           "rounded-3xl border border-border/60 bg-card bg-none shadow-[var(--shadow-card)]",
