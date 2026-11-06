@@ -4,8 +4,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Camera, ImagePlus, Loader2, Plus, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "@/components/refer/AvatarUpload";
-import { Logo } from "@/components/refer/Logo";
-import { NotificationBell } from "@/components/refer/NotificationBell";
+import { AshPulse } from "@/components/refer/AshPulse";
+import { SpotlightComposer } from "@/components/refer/SpotlightComposer";
 import { PullToRefresh } from "@/components/refer/PullToRefresh";
 import { PostCard } from "@/components/refer/PostCard";
 import { CommunityVideoCard } from "@/components/refer/CommunityVideoCard";
@@ -140,6 +140,7 @@ function FeedPage() {
   const [caption, setCaption] = useState("");
   const [postTopic, setPostTopic] = useState("");
   const [composerOpen, setComposerOpen] = useState(false);
+  const [spotlightOpen, setSpotlightOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const publishingRef = useRef(false);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
@@ -267,48 +268,44 @@ function FeedPage() {
       label={tx("Refreshing", "Actualisation")}
     >
       <div className="home-feed mx-auto min-h-dvh w-full bg-background text-foreground sm:max-w-xl lg:max-w-[40rem] lg:border-x lg:border-border">
-        <header className="flex items-center justify-between gap-3 border-b border-border px-3 py-2">
-          <Link
-            to="/feed"
-            aria-label="ASH Glo"
-            className="flex shrink-0 items-center gap-1.5 whitespace-nowrap lg:hidden"
+        <h1 className="sr-only">{tx("Home", "Accueil")}</h1>
+        <AshPulse avatarUrl={profile?.avatar_url} name={profile?.full_name} />
+        <div className="flex items-center justify-center gap-2 px-3 pb-3">
+          <button
+            type="button"
+            onClick={() => {
+              if (
+                requireAuth({ en: "Sign in to share a post.", fr: "Connectez-vous pour publier." })
+              )
+                setSpotlightOpen(true);
+            }}
+            className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border px-3 text-xs font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
           >
-            <Logo className="whitespace-nowrap" />
-            <span className="font-display text-sm font-bold italic leading-none text-primary">
-              Glo
-            </span>
-          </Link>
-          <h1 className="sr-only">{tx("Home", "Accueil")}</h1>
-          <div className="flex items-center gap-1">
-            <Button
-              type="button"
-              size="icon"
-              className="size-9 rounded-full bg-primary text-primary-foreground shadow-none hover:bg-primary/90 [&_svg]:size-5"
-              aria-label={tx("Create Business Post", "Créer une publication professionnelle")}
-              title={tx("Create Business Post", "Créer une publication professionnelle")}
-              onClick={() => {
-                if (
-                  !requireAuth({
-                    en: "Sign in to share a post.",
-                    fr: "Connectez-vous pour publier.",
-                  })
-                )
-                  return;
-                setComposerOpen(true);
-              }}
-            >
-              <Plus aria-hidden />
-            </Button>
-            <NotificationBell />
-          </div>
-        </header>
+            <Sparkles className="size-3.5" aria-hidden />
+            {tx("Create Spotlight", "Créer un Spotlight")}
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              document.getElementById("home-stories")?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              })
+            }
+            className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border px-3 text-xs font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
+          >
+            <Camera className="size-3.5" aria-hidden />
+            {tx("Create Story", "Créer une story")}
+          </button>
+        </div>
+        <SpotlightComposer open={spotlightOpen} onOpenChange={setSpotlightOpen} hideTrigger />
 
         <div
           role="tablist"
           aria-label={tx("Feed categories", "Catégories du fil")}
           className="flex gap-1 overflow-x-auto border-b border-border bg-background px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          {FEED_CATEGORIES.map((c) => {
+          {FEED_CATEGORIES.filter((c) => c.id === "for_you" || c.id === "following").map((c) => {
             const on = c.id === category;
             return (
               <button
@@ -538,7 +535,9 @@ function FeedPage() {
             )}
           </span>
         </button>
-        <StoriesRail compact />
+        <div id="home-stories">
+          <StoriesRail compact />
+        </div>
         {(isGuest ? publicVideos.data : posts)?.some((post) => post.images.length > 0) ? (
           <details
             className="px-3 pb-3"

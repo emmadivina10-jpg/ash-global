@@ -45,10 +45,8 @@ export function BusinessFollowButton({
         );
       }}
       className={cn(
-        "h-7 shrink-0 rounded-full border px-3 text-xs font-semibold transition-colors disabled:opacity-60",
-        following
-          ? "border-border text-foreground hover:border-destructive hover:text-destructive"
-          : "border-primary bg-primary text-primary-foreground hover:bg-primary/90",
+        "shrink-0 text-xs font-semibold transition-colors disabled:opacity-60",
+        following ? "text-muted-foreground hover:text-destructive" : "text-primary hover:underline",
       )}
     >
       {following ? tx("Following", "Abonné") : tx("Follow", "Suivre")}
