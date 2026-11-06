@@ -36,6 +36,7 @@ import { MediaLightbox } from "./MediaLightbox";
 import { actionFor } from "./feed-categories";
 import { useAuthGate } from "@/lib/guest-gate";
 import { DiscoverVideo } from "./DiscoverVideo";
+import { BusinessFollowButton } from "./BusinessFollowButton";
 
 function timeAgo(iso: string, fr: boolean) {
   const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
@@ -167,6 +168,9 @@ export function PostCard({
             {post.city ? ` · ${post.city}` : ""}
           </p>
         </div>
+        {home && currentUserId && !mine ? (
+          <BusinessFollowButton userId={currentUserId} targetId={post.author_id} />
+        ) : null}
         {mine ? (
           <SocialPostOwnerActions postId={post.id} caption={post.caption} />
         ) : currentUserId ? (

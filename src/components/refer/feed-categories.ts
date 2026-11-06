@@ -14,21 +14,16 @@ export type FeedCategory =
   | "property"
   | "vehicles"
   | "creators"
-  | "events";
+  | "events"
+  | "music"
+  | "opportunities";
 
 export const FEED_CATEGORIES: { id: FeedCategory; en: string; fr: string }[] = [
   { id: "for_you", en: "For You", fr: "Pour vous" },
   { id: "following", en: "Following", fr: "Abonnements" },
   { id: "business", en: "Business", fr: "Entreprises" },
-  { id: "products", en: "Products", fr: "Produits" },
-  { id: "services", en: "Services", fr: "Services" },
-  { id: "suppliers", en: "Suppliers", fr: "Fournisseurs" },
-  { id: "learn", en: "Learn", fr: "Apprendre" },
-  { id: "jobs", en: "Jobs", fr: "Emplois" },
-  { id: "property", en: "Property", fr: "Immobilier" },
-  { id: "vehicles", en: "Vehicles", fr: "Véhicules" },
-  { id: "creators", en: "Creators", fr: "Créateurs" },
-  { id: "events", en: "Events", fr: "Événements" },
+  { id: "music", en: "Music", fr: "Musique" },
+  { id: "opportunities", en: "Opportunities", fr: "Opportunités" },
 ];
 
 type Topic = Exclude<FeedCategory, "for_you" | "following" | "creators"> | "delivery";
@@ -45,6 +40,7 @@ const KEYWORDS: [Topic, RegExp][] = [
     /\b(property|apartment|appartement|house|maison|rent|louer|location|land|terrain|studio meublé)\b/i,
   ],
   ["vehicles", /\b(car|cars|voiture|vehicle|véhicule|motorbike|moto|toyota|for sale car)\b/i],
+  ["music", /\b(music|musique|musician|musicien|band|album|song|chanson|dj)\b/i],
   [
     "events",
     /\b(event|events|événement|evenement|concert|party|soirée|conference|conférence|register|inscription)\b/i,
@@ -72,6 +68,13 @@ export function classifyPost(caption: string): Topic | null {
 
 export function matchesCategory(caption: string, cat: FeedCategory, _images: number): boolean {
   if (cat === "for_you" || cat === "following") return true;
+  const topic = classifyPost(caption);
+  if (cat === "music" && topic === "music") return true;
+  if (
+    cat === "opportunities" &&
+    (topic === "jobs" || topic === "events" || topic === "property")
+  )
+    return true;
   const tags = new Set(
     [
       ...caption
@@ -81,6 +84,8 @@ export function matchesCategory(caption: string, cat: FeedCategory, _images: num
     ].map((match) => match[1]),
   );
   const aliases: Partial<Record<FeedCategory, string[]>> = {
+    music: ["music", "musique", "musician", "musicien"],
+    opportunities: ["opportunity", "opportunities", "opportunite", "opportunites"],
     business: ["business", "pro", "entreprise"],
     products: ["product", "products", "produit", "produits"],
     services: ["service", "services"],

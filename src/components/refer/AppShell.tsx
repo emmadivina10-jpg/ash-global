@@ -267,6 +267,15 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   // Some destinations appear in both lists — show each one once.
   const [sideExpanded, setSideExpanded] = useState(false);
+  const [sideCollapsed, setSideCollapsed] = useState(false);
+  useEffect(() => {
+    setSideCollapsed(window.localStorage.getItem("ash.sidebar.collapsed") === "1");
+  }, []);
+  const toggleSide = () => {
+    const next = !sideCollapsed;
+    setSideCollapsed(next);
+    window.localStorage.setItem("ash.sidebar.collapsed", next ? "1" : "0");
+  };
   const links = visible([...DESKTOP_NAV, ...SIDE_EXTRA]).filter(
     (item, index, all) => all.findIndex((other) => other.to === item.to) === index,
   );
@@ -275,10 +284,32 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="app-shell safe-top min-h-dvh bg-background">
       <PushBridge />
       <div className="app-shell-frame flex w-full">
-        <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col overflow-y-auto overscroll-contain border-r border-border bg-sidebar p-5 lg:flex">
-          <Link to="/services" className="mb-8 inline-flex">
-            <Logo />
-          </Link>
+        <aside
+          className={cn(
+            "sticky top-0 hidden h-dvh shrink-0 flex-col overflow-y-auto overscroll-contain border-r border-border bg-sidebar lg:flex",
+            sideCollapsed ? "w-[4.5rem] px-2 py-5" : "w-64 p-5",
+          )}
+        >
+          <div className={cn("mb-8 flex items-center gap-2", sideCollapsed && "flex-col")}>
+            <button
+              type="button"
+              onClick={toggleSide}
+              aria-label={
+                sideCollapsed
+                  ? tx("Expand sidebar", "Ouvrir la barre latérale")
+                  : tx("Collapse sidebar", "Réduire la barre latérale")
+              }
+              aria-expanded={!sideCollapsed}
+              className="grid size-9 shrink-0 place-items-center rounded-full text-foreground transition-colors hover:bg-sidebar-accent"
+            >
+              <Menu className="size-5" aria-hidden />
+            </button>
+            {sideCollapsed ? null : (
+              <Link to="/services" className="inline-flex">
+                <Logo />
+              </Link>
+            )}
+          </div>
           <nav className="flex flex-1 flex-col gap-0.5">
             <Link
               to="/profile"
@@ -287,13 +318,14 @@ export function AppShell({ children }: { children: ReactNode }) {
               <ProfileAvatar name={profile?.full_name} url={profile?.avatar_url} />
               <span className="truncate">{profile?.full_name || t("shell.member")}</span>
             </Link>
-            {(sideExpanded ? links : links.slice(0, SIDE_PREVIEW)).map((item, index) => (
+            {(sideExpanded || sideCollapsed ? links : links.slice(0, SIDE_PREVIEW)).map((item, index) => (
               <Link
                 key={item.to}
                 to={item.to}
                 className={cn(
                   "group relative flex items-center gap-3 rounded-xl px-2 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-sidebar-accent",
                   pathname === item.to && "bg-primary/10 font-semibold text-primary",
+                  sideCollapsed && "justify-center",
                 )}
               >
                 <span
@@ -304,13 +336,17 @@ export function AppShell({ children }: { children: ReactNode }) {
                 >
                   <item.icon className="size-[18px]" aria-hidden />
                 </span>
-                <span className="truncate">{navLabel(item)}</span>
-                {item.to === "/messages" && (
+                {sideCollapsed ? (
+                  <span className="sr-only">{navLabel(item)}</span>
+                ) : (
+                  <span className="truncate">{navLabel(item)}</span>
+                )}
+                {item.to === "/messages" && !sideCollapsed && (
                   <UnreadMessageBadge count={unreadMessages} className="ml-auto" />
                 )}
               </Link>
             ))}
-            {links.length > SIDE_PREVIEW ? (
+            {links.length > SIDE_PREVIEW && !sideCollapsed ? (
               <button
                 type="button"
                 onClick={() => setSideExpanded((v) => !v)}
@@ -334,10 +370,12 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <span className="grid size-9 place-items-center rounded-[0.8rem] bg-foreground text-background">
                   <Shield className="size-[18px]" aria-hidden />
                 </span>
-                {t("nav.admin")}
+                {sideCollapsed ? null : t("nav.admin")}
               </a>
             ) : null}
           </nav>
+          {sideCollapsed ? null : (
+            <>
           <RegionSwitcher className="mt-4 w-full justify-start" />
           <div className="mt-3 flex items-center justify-between gap-2">
             <LanguageSwitcher />
@@ -373,6 +411,8 @@ export function AppShell({ children }: { children: ReactNode }) {
               {t("shell.signOut")}
             </Button>
           </div>
+            </>
+          )}
         </aside>
 
         <div className="app-shell-column flex min-w-0 flex-1 flex-col">

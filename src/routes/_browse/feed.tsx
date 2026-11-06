@@ -34,7 +34,6 @@ import {
 import {
   isStoryVideoSource,
   useCreateSocialPost,
-  useFriendships,
   usePublicDiscoverVideoFeed,
   useSocialFeed,
 } from "@/lib/social.queries";
@@ -48,6 +47,7 @@ import { cn } from "@/lib/utils";
 import { useProfile, useUser } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
 import { useAuthGate } from "@/lib/guest-gate";
+import { useFollowedBusinessIds } from "@/lib/business-follow.queries";
 
 export const Route = createFileRoute("/_browse/feed")({
   head: () => ({
@@ -120,16 +120,16 @@ function FeedPage() {
   // Spotlights keep their slots too, so the Feed never shuffles under the reader.
   const navigate = useNavigate();
   const [category, setCategory] = useState<FeedCategory>("for_you");
-  const { data: friendships } = useFriendships();
+  const { data: followedBusinesses = [] } = useFollowedBusinessIds(me);
   const filtered = useMemo(() => {
     const all = posts ?? [];
     if (category === "for_you") return all;
     if (category === "following") {
-      const ids = new Set((friendships?.friends ?? []).map((f) => f.other.id));
+      const ids = new Set(followedBusinesses);
       return all.filter((p) => ids.has(p.author_id));
     }
     return all.filter((p) => matchesCategory(p.caption, category, p.images.length));
-  }, [posts, category, friendships]);
+  }, [posts, category, followedBusinesses]);
   const mixed = useMemo(
     () => interleaveSpotlights(filtered, category === "for_you" ? spotlights : []),
     [filtered, spotlights, category],
@@ -271,7 +271,7 @@ function FeedPage() {
           <Link
             to="/feed"
             aria-label="ASH Glo"
-            className="flex shrink-0 items-center gap-1.5 whitespace-nowrap"
+            className="flex shrink-0 items-center gap-1.5 whitespace-nowrap lg:hidden"
           >
             <Logo className="whitespace-nowrap" />
             <span className="font-display text-sm font-bold italic leading-none text-primary">
@@ -520,6 +520,24 @@ function FeedPage() {
           </div>
         )}
 
+        <button
+          type="button"
+          onClick={() => {
+            if (
+              requireAuth({ en: "Sign in to share a post.", fr: "Connectez-vous pour publier." })
+            )
+              setComposerOpen(true);
+          }}
+          className="mx-3 flex items-center gap-3 rounded-full border border-border px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-muted"
+        >
+          <Avatar path={profile?.avatar_url} name={profile?.full_name} className="size-9 shrink-0" />
+          <span className="min-w-0 flex-1 truncate">
+            {tx(
+              "What's happening in your business?",
+              "Quoi de neuf dans votre entreprise ?",
+            )}
+          </span>
+        </button>
         <StoriesRail compact />
         {(isGuest ? publicVideos.data : posts)?.some((post) => post.images.length > 0) ? (
           <details
