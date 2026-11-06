@@ -288,9 +288,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   // Some destinations appear in both lists — show each one once.
   const [sideExpanded, setSideExpanded] = useState(false);
-  const [sideCollapsed, setSideCollapsed] = useState(false);
+  const [sideCollapsed, setSideCollapsed] = useState(true);
   useEffect(() => {
-    setSideCollapsed(window.localStorage.getItem("ash.sidebar.collapsed") === "1");
+    setSideCollapsed(window.localStorage.getItem("ash.sidebar.collapsed") !== "0");
   }, []);
   const toggleSide = () => {
     const next = !sideCollapsed;
@@ -313,7 +313,14 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Menu className="size-5" aria-hidden />
           </button>
         ) : (
-        <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col overflow-y-auto overscroll-contain bg-background p-5 lg:flex">
+        <>
+        <button
+          type="button"
+          onClick={toggleSide}
+          aria-label={tx("Close sidebar", "Fermer la barre latérale")}
+          className="fixed inset-0 z-40 hidden bg-background/40 backdrop-blur-md lg:block"
+        />
+        <aside className="fixed inset-y-0 left-0 z-50 hidden w-72 animate-in slide-in-from-left flex-col overflow-y-auto overscroll-contain bg-background/80 p-5 backdrop-blur-xl duration-300 lg:flex">
           <div className="relative z-10 mb-6 flex items-center gap-2">
             <button
               type="button"
@@ -450,6 +457,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </>
           )}
         </aside>
+        </>
         )}
 
         <div className="app-shell-column flex min-w-0 flex-1 flex-col">

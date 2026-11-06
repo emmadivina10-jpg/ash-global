@@ -1017,10 +1017,10 @@ export function StoriesRail({
             <button
               type="button"
               onClick={openCreate}
-              className="flex h-24 w-20 shrink-0 flex-col items-center justify-center gap-2 rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/25 to-violet-950/40 text-white"
+              className="flex h-44 w-28 shrink-0 flex-col items-center justify-center gap-2 overflow-hidden rounded-xl bg-muted text-foreground"
               aria-label={tx("Create Story or Spotlight", "Créer une Story ou un Spotlight")}
             >
-              <span className="grid size-9 place-items-center rounded-full border border-pink-400 text-pink-400">
+              <span className="grid size-10 place-items-center rounded-full bg-primary text-primary-foreground">
                 <Plus className="size-5" aria-hidden />
               </span>
               <span className="sr-only">{tx("Create Story", "Créer une Story")}</span>
@@ -1036,7 +1036,7 @@ export function StoriesRail({
                 <button
                   key={isStory ? `story-${item.story.id}` : `spotlight-${item.spotlight.id}`}
                   type="button"
-                  className="flex w-20 shrink-0 flex-col items-center gap-1.5 text-center"
+                  className="relative flex h-44 w-28 shrink-0 flex-col justify-end overflow-hidden rounded-xl bg-muted text-left"
                   onClick={() => {
                     if (item.kind === "story") {
                       const groupIndex = stories.findIndex(
@@ -1048,15 +1048,17 @@ export function StoriesRail({
                     }
                   }}
                 >
-                  <span className="rounded-full bg-gradient-to-br from-pink-400 to-violet-600 p-0.5">
+                  <span className="absolute left-2 top-2 rounded-full bg-background p-0.5">
                     <Avatar
                       src={avatar}
                       name={name}
                       online={author.online}
-                      className="size-[4.25rem] !border-2 !border-black"
+                      className="size-10 !border-2 !border-background"
                     />
                   </span>
-                  <span className="w-full truncate text-xs text-white">{name}</span>
+                  <span className="w-full truncate bg-gradient-to-t from-black/70 to-transparent px-2 pb-2 pt-8 text-xs font-semibold text-white">
+                    {name}
+                  </span>
                 </button>
               );
             })}

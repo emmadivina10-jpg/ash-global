@@ -4,7 +4,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Camera, ImagePlus, Loader2, Plus, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "@/components/refer/AvatarUpload";
-import { AshPulse } from "@/components/refer/AshPulse";
 import { PullToRefresh } from "@/components/refer/PullToRefresh";
 import { PostCard } from "@/components/refer/PostCard";
 import { CommunityVideoCard } from "@/components/refer/CommunityVideoCard";
@@ -265,9 +264,8 @@ function FeedPage() {
       }}
       label={tx("Refreshing", "Actualisation")}
     >
-      <div className="home-feed mx-auto min-h-dvh w-full bg-background text-foreground sm:max-w-xl lg:max-w-[40rem] lg:border-x lg:border-border">
+      <div className="home-feed mx-auto min-h-dvh w-full bg-background text-foreground">
         <h1 className="sr-only">{tx("Home", "Accueil")}</h1>
-        <AshPulse avatarUrl={profile?.avatar_url} name={profile?.full_name} />
 
         <div
           role="tablist"
