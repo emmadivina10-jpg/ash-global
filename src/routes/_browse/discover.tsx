@@ -12,6 +12,7 @@ import {
   Star,
 } from "lucide-react";
 import { Avatar } from "@/components/refer/AvatarUpload";
+import { PostCard } from "@/components/refer/PostCard";
 import { DiscoverVideo } from "@/components/refer/DiscoverVideo";
 import { DiscoverVideoEngagement } from "@/components/refer/DiscoverVideoEngagement";
 import { LiveConnectVendorCard } from "@/components/refer/LiveConnectRail";
@@ -422,7 +423,7 @@ function DiscoverLiveConnectPage() {
     return (posts ?? []).filter((post) => {
       const content = `${post.caption} ${post.author.name}`.toLocaleLowerCase();
       return (
-        postVideos(post).length > 0 &&
+        post.images.length > 0 &&
         topicMatches(post.caption, "all") &&
         (!category ||
           category.id === "all" ||
@@ -514,64 +515,7 @@ function DiscoverLiveConnectPage() {
         </DialogContent>
       </Dialog>
 
-      <section className="relative overflow-hidden rounded-[2rem] border border-border bg-card px-5 py-7 shadow-sm sm:px-8 sm:py-9">
-        <div
-          className="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full bg-primary/10 blur-3xl"
-          aria-hidden
-        />
-        <p className="relative flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.18em] text-primary">
-          <Sparkles className="size-4" aria-hidden />
-          {tx("Discover on ASH", "Découvrir sur ASH")}
-        </p>
-        <h1 className="relative mt-3 max-w-2xl font-display text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl">
-          {tx("Find people ready to serve you.", "Trouvez des personnes prêtes à vous aider.")}
-        </h1>
-        <p className="relative mt-3 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
-          {tx(
-            "Meet real businesses, explore their services and start a conversation when you’re ready.",
-            "Découvrez des entreprises, explorez leurs services et contactez-les.",
-          )}
-        </p>
-        <div className="relative mt-5 flex max-w-xl flex-col gap-3 sm:flex-row">
-          {!user ? (
-            <Button
-              className="h-11 rounded-full px-5"
-              onClick={() => void navigate({ to: "/login" })}
-            >
-              {tx("Join ASH", "Rejoindre ASH")}
-            </Button>
-          ) : null}
-        </div>
-      </section>
-
-      <nav
-        aria-label={tx("Business categories", "Catégories d’entreprise")}
-        className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        <Button
-          type="button"
-          size="sm"
-          variant={selectedGroup === "ALL" ? "default" : "outline"}
-          aria-pressed={selectedGroup === "ALL"}
-          onClick={() => selectCategory("ALL")}
-          className="h-9 shrink-0 rounded-full px-4"
-        >
-          {tx("All", "Tout")}
-        </Button>
-        {CATEGORY_GROUPS.map((group) => (
-          <Button
-            key={group.id}
-            type="button"
-            size="sm"
-            variant={selectedGroup === group.id ? "default" : "outline"}
-            aria-pressed={selectedGroup === group.id}
-            onClick={() => selectCategory(group.id)}
-            className={cn("h-9 shrink-0 rounded-full px-4")}
-          >
-            {fr ? group.label.fr : group.label.en}
-          </Button>
-        ))}
-      </nav>
+      <StoriesRail />
 
       {isError ? (
         <section
@@ -713,7 +657,6 @@ function DiscoverLiveConnectPage() {
         ))}
       </nav>
 
-      <StoriesRail />
 
       <section
         aria-label={tx("Featured instructors", "Instructeurs à la une")}
@@ -782,7 +725,7 @@ function DiscoverLiveConnectPage() {
             {tx("From the community", "De la communauté")}
           </p>
           <h2 className="mt-1 font-display text-2xl font-bold text-foreground">
-            {tx("Videos on ASH", "Vidéos sur ASH")}
+            {tx("Posts on ASH", "Publications sur ASH")}
           </h2>
         </div>
         <nav
@@ -824,17 +767,25 @@ function DiscoverLiveConnectPage() {
             {videoPosts.map((post) => {
               const instructor = instructors?.find((item) => item.user_id === post.author.id);
               return (
-                <VideoCard
-                  key={post.id}
-                  post={post}
-                  {...(instructor ? { instructorId: instructor.id } : {})}
-                />
+                postVideos(post).length > 0 ? (
+                  <VideoCard
+                    key={post.id}
+                    post={post}
+                    {...(instructor ? { instructorId: instructor.id } : {})}
+                  />
+                ) : (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    currentUserId={user?.id ?? null}
+                  />
+                )
               );
             })}
           </div>
         ) : (
           <p className="rounded-3xl border border-dashed border-border bg-card/60 px-5 py-8 text-center text-sm text-muted-foreground">
-            {tx("No videos match this search.", "Aucune vidéo ne correspond à cette recherche.")}
+            {tx("No posts match this search.", "Aucune publication ne correspond à cette recherche.")}
           </p>
         )}
       </section>
