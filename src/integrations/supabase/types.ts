@@ -8428,6 +8428,18 @@ export type Database = {
         Args: { _spotlight_id: string }
         Returns: string
       }
+      discover_public_profiles: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          city: string
+          full_name: string
+          user_id: string
+          username: string
+          verified_tier: string
+          verified_until: string
+        }[]
+      }
       dispatch_approve_quote: {
         Args: { _fee: number; _job: string }
         Returns: undefined
