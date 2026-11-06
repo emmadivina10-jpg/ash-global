@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,7 +38,7 @@ function PostPage() {
     else void navigate({ to: "/feed" });
   }
 
-  return (
+  const page = (
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
       <header className="flex shrink-0 items-center gap-3 border-b border-border px-3 pb-2 pt-[calc(0.5rem+env(safe-area-inset-top))]">
         <button
@@ -78,4 +79,5 @@ function PostPage() {
       </div>
     </div>
   );
+  return typeof document === "undefined" ? page : createPortal(page, document.body);
 }
