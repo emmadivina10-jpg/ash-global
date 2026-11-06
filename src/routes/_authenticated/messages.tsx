@@ -731,7 +731,10 @@ function MessagesPage() {
             }
           >
             <div className="shrink-0 bg-background px-4 py-2">
-              <div className="flex items-center justify-end gap-2">
+              <div className="flex items-center gap-2">
+                <h1 className="mr-auto font-display text-2xl font-bold tracking-tight text-foreground">
+                  {tx("Business Chat", "Discussion entreprise")}
+                </h1>
                 <Button
                   size="icon"
                   variant="ghost"

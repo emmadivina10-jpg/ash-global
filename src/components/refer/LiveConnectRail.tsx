@@ -200,8 +200,8 @@ export function LiveConnectRail() {
       }}
     >
       <div>
-        <h3 className="mb-1 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
-          {tx("Business Chat", "Discussion entreprise")}
+        <h3 className="mb-1 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-primary">
+          {tx("Active vendors", "Vendeurs actifs")}
           {vendorsQuery.isSuccess ? (
             <span
               className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-primary/10 px-1.5 text-xs font-semibold text-primary"

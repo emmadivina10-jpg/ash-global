@@ -43,6 +43,7 @@ import { Route as AuthenticatedElectricityRouteImport } from './routes/_authenti
 import { Route as AuthenticatedFlightsRouteImport } from './routes/_authenticated/flights'
 import { Route as AuthenticatedFriendsRouteImport } from './routes/_authenticated/friends'
 import { Route as AuthenticatedFxAnalyticsRouteImport } from './routes/_authenticated/fx-analytics'
+import { Route as AuthenticatedGiftCardsRouteImport } from './routes/_authenticated/gift-cards'
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
 import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
 import { Route as AuthenticatedInvestmentRouteImport } from './routes/_authenticated/investment'
@@ -331,6 +332,11 @@ const AuthenticatedFxAnalyticsRoute =
     path: '/fx-analytics',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedGiftCardsRoute = AuthenticatedGiftCardsRouteImport.update({
+  id: '/gift-cards',
+  path: '/gift-cards',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedGroupsRoute = AuthenticatedGroupsRouteImport.update({
   id: '/groups',
   path: '/groups',
@@ -982,6 +988,7 @@ export interface FileRoutesByFullPath {
   '/flights': typeof AuthenticatedFlightsRoute
   '/friends': typeof AuthenticatedFriendsRoute
   '/fx-analytics': typeof AuthenticatedFxAnalyticsRoute
+  '/gift-cards': typeof AuthenticatedGiftCardsRoute
   '/groups': typeof AuthenticatedGroupsRoute
   '/inventory': typeof AuthenticatedInventoryRoute
   '/investment': typeof AuthenticatedInvestmentRoute
@@ -1132,6 +1139,7 @@ export interface FileRoutesByTo {
   '/flights': typeof AuthenticatedFlightsRoute
   '/friends': typeof AuthenticatedFriendsRoute
   '/fx-analytics': typeof AuthenticatedFxAnalyticsRoute
+  '/gift-cards': typeof AuthenticatedGiftCardsRoute
   '/groups': typeof AuthenticatedGroupsRoute
   '/inventory': typeof AuthenticatedInventoryRoute
   '/investment': typeof AuthenticatedInvestmentRoute
@@ -1286,6 +1294,7 @@ export interface FileRoutesById {
   '/_authenticated/flights': typeof AuthenticatedFlightsRoute
   '/_authenticated/friends': typeof AuthenticatedFriendsRoute
   '/_authenticated/fx-analytics': typeof AuthenticatedFxAnalyticsRoute
+  '/_authenticated/gift-cards': typeof AuthenticatedGiftCardsRoute
   '/_authenticated/groups': typeof AuthenticatedGroupsRoute
   '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
   '/_authenticated/investment': typeof AuthenticatedInvestmentRoute
@@ -1439,6 +1448,7 @@ export interface FileRouteTypes {
     | '/flights'
     | '/friends'
     | '/fx-analytics'
+    | '/gift-cards'
     | '/groups'
     | '/inventory'
     | '/investment'
@@ -1589,6 +1599,7 @@ export interface FileRouteTypes {
     | '/flights'
     | '/friends'
     | '/fx-analytics'
+    | '/gift-cards'
     | '/groups'
     | '/inventory'
     | '/investment'
@@ -1742,6 +1753,7 @@ export interface FileRouteTypes {
     | '/_authenticated/flights'
     | '/_authenticated/friends'
     | '/_authenticated/fx-analytics'
+    | '/_authenticated/gift-cards'
     | '/_authenticated/groups'
     | '/_authenticated/inventory'
     | '/_authenticated/investment'
@@ -2141,6 +2153,13 @@ declare module '@tanstack/react-router' {
       path: '/fx-analytics'
       fullPath: '/fx-analytics'
       preLoaderRoute: typeof AuthenticatedFxAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/gift-cards': {
+      id: '/_authenticated/gift-cards'
+      path: '/gift-cards'
+      fullPath: '/gift-cards'
+      preLoaderRoute: typeof AuthenticatedGiftCardsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/groups': {
@@ -2978,6 +2997,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFlightsRoute: typeof AuthenticatedFlightsRoute
   AuthenticatedFriendsRoute: typeof AuthenticatedFriendsRoute
   AuthenticatedFxAnalyticsRoute: typeof AuthenticatedFxAnalyticsRoute
+  AuthenticatedGiftCardsRoute: typeof AuthenticatedGiftCardsRoute
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRoute
   AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
   AuthenticatedInvestmentRoute: typeof AuthenticatedInvestmentRoute
@@ -3031,6 +3051,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFlightsRoute: AuthenticatedFlightsRoute,
   AuthenticatedFriendsRoute: AuthenticatedFriendsRoute,
   AuthenticatedFxAnalyticsRoute: AuthenticatedFxAnalyticsRoute,
+  AuthenticatedGiftCardsRoute: AuthenticatedGiftCardsRoute,
   AuthenticatedGroupsRoute: AuthenticatedGroupsRoute,
   AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
   AuthenticatedInvestmentRoute: AuthenticatedInvestmentRoute,

@@ -156,7 +156,20 @@ function MenuPage() {
   const tiles = sections
     .flatMap((section) => section.items)
     .filter((item) => !item.referral || region.referralEnabled);
-  const shown = showAll ? tiles : tiles.slice(0, 8);
+  const primary: MenuItem[] = [
+    { en: "My business", fr: "Mon entreprise", to: "/studio", icon: Store },
+    { en: "My bookings", fr: "Mes réservations", to: "/bookings", icon: CalendarDays },
+    { en: "ASH Wallet", fr: "Portefeuille ASH", to: "/wallet", icon: Wallet },
+    { en: "ASH Gift Cards", fr: "Cartes cadeaux ASH", to: "/gift-cards", icon: Gift },
+    { en: "Transactions", fr: "Transactions", to: "/transactions", icon: Receipt },
+    {
+      en: "Activity & notifications",
+      fr: "Activité et notifications",
+      to: "/notifications",
+      icon: Bell,
+    },
+  ];
+  const additional = tiles.filter((item) => !primary.some((main) => main.to === item.to));
   const legal = [
     { to: "/privacy", en: "Privacy Policy", fr: "Confidentialité" },
     { to: "/terms", en: "Terms of Service", fr: "Conditions" },
@@ -185,7 +198,10 @@ function MenuPage() {
   return (
     <div className="member-menu mx-auto w-full max-w-3xl space-y-5 pb-4">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-3xl font-bold text-foreground">Menu</h1>
+        <span className="text-xl font-black tracking-tight text-primary">
+          ASH <span className="italic">Glo</span>
+        </span>
+        <h1 className="font-display text-2xl font-bold text-foreground">Menu</h1>
         <div className="flex gap-1">
           <Link
             to="/search"
@@ -195,20 +211,20 @@ function MenuPage() {
             <Search className="size-6" aria-hidden />
           </Link>
           <Link
-            to="/settings"
-            aria-label={tx("Settings", "Paramètres")}
+            to="/notifications"
+            aria-label={tx("Notifications", "Notifications")}
             className="grid size-10 place-items-center rounded-full text-foreground hover:bg-muted"
           >
-            <Settings className="size-6" aria-hidden />
+            <Bell className="size-6" aria-hidden />
           </Link>
         </div>
       </div>
 
       <Link
         to="/profile"
-        className="flex items-center gap-3 rounded-2xl bg-card px-4 py-3.5 shadow-sm ring-1 ring-border"
+        className="flex items-center gap-3 rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/20 via-card to-violet-500/15 px-4 py-4 shadow-sm"
       >
-        <Avatar path={profile?.avatar_url} name={profile?.full_name} online className="size-12" />
+        <Avatar path={profile?.avatar_url} name={profile?.full_name} className="size-16" />
         <span className="flex min-w-0 flex-1 items-center gap-1 text-lg font-bold text-foreground">
           <span className="truncate">
             {profile?.full_name || tx("Your profile", "Votre profil")}
@@ -220,30 +236,43 @@ function MenuPage() {
         </span>
       </Link>
 
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-        {shown.map((item) => (
+      <div className="overflow-hidden rounded-3xl border border-primary/20 bg-card">
+        {primary.map((item) => (
           <Link
             key={item.to}
             to={item.to}
-            className="relative flex min-h-[5.5rem] flex-col justify-between gap-2 rounded-2xl bg-card p-3.5 shadow-sm ring-1 ring-border transition-colors hover:bg-muted/60"
+            className="flex min-h-16 items-center gap-4 border-b border-border px-4 py-3 last:border-0 transition-colors hover:bg-muted/60"
           >
             <item.icon className="size-7 text-primary" strokeWidth={1.75} aria-hidden />
-            <span className="text-[15px] font-semibold leading-tight text-foreground">
+            <span className="flex-1 text-[15px] font-semibold leading-tight text-foreground">
               {tx(item.en, item.fr)}
             </span>
-            {item.soon ? (
-              <span
-                className="absolute right-3 top-3 text-gold-foreground"
-                title={tx("Coming soon", "Bientôt disponible")}
-                aria-label={tx("Coming soon", "Bientôt disponible")}
-              >
-                <Hourglass className="size-3.5" aria-hidden />
-              </span>
-            ) : null}
+            <ChevronRight className="size-5 text-muted-foreground" aria-hidden />
           </Link>
         ))}
       </div>
-      {tiles.length > 8 ? (
+      {showAll ? (
+        <div className="overflow-hidden rounded-3xl border border-border bg-card">
+          {additional.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className="flex min-h-14 items-center gap-4 border-b border-border px-4 py-3 last:border-0 hover:bg-muted/60"
+            >
+              <item.icon className="size-6 text-primary" aria-hidden />
+              <span className="flex-1 text-sm font-semibold">{tx(item.en, item.fr)}</span>
+              {item.soon ? (
+                <Hourglass
+                  className="size-4 text-muted-foreground"
+                  aria-label={tx("Coming soon", "Bientôt disponible")}
+                />
+              ) : null}
+              <ChevronRight className="size-5 text-muted-foreground" aria-hidden />
+            </Link>
+          ))}
+        </div>
+      ) : null}
+      {additional.length > 0 ? (
         <Button
           variant="secondary"
           className="h-11 w-full rounded-xl text-[15px] font-bold"
