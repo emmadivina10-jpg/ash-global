@@ -5,7 +5,6 @@ import { Avatar } from "@/components/refer/AvatarUpload";
 import { Button } from "@/components/ui/button";
 import { useFriendships } from "@/lib/social.queries";
 import {
-  useLiveConnectVendors,
   useOnlineFriendIds,
   type LiveConnectVendor,
 } from "@/lib/live-connect.queries";
@@ -17,6 +16,8 @@ import { openMemberConversation } from "@/lib/contact-vendor";
 import { openConversation } from "@/lib/marketplace.queries";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useAvailableVendors } from "@/lib/available-vendors.queries";
+import { useUser } from "@/lib/queries";
 
 export function LiveConnectVendorCard({
   vendor,
@@ -92,7 +93,7 @@ export function LiveConnectVendorCard({
           <p
             className={cn(
               "mt-1 flex items-center gap-1.5 text-xs font-semibold",
-              online ? "text-green-500" : "text-red-500",
+              online ? "text-primary" : "text-muted-foreground",
             )}
           >
             {online ? <span className="live-connect-dot" aria-hidden /> : null}
@@ -157,6 +158,7 @@ export function LiveConnectRail() {
   const { tx } = useI18n();
   const navigate = useNavigate();
   const { country, seesEverything } = useRegion();
+  const { user } = useUser();
   const { data: friendships } = useFriendships();
   const friendIds = useMemo(
     () => (friendships?.friends ?? []).map((friend) => friend.other.id),
@@ -166,11 +168,10 @@ export function LiveConnectRail() {
   const friends = (friendships?.friends ?? []).filter((friend) =>
     onlineFriendIds?.has(friend.other.id),
   );
-  const vendorsQuery = useLiveConnectVendors(seesEverything ? null : country);
+  const vendorsQuery = useAvailableVendors(seesEverything ? null : country, user?.id);
   const vendors = vendorsQuery.data ?? [];
+  const { data: onlineVendorIds } = useOnlineFriendIds(vendors.map((vendor) => vendor.user_id));
   const [interacting, setInteracting] = useState(false);
-
-  const sortedVendors = [...vendors].sort((a, b) => Number(b.is_online) - Number(a.is_online));
 
   const startFriendChat = async (friendId: string) => {
     try {
@@ -185,7 +186,7 @@ export function LiveConnectRail() {
 
   return (
     <section
-      aria-label={tx("Online on ASH", "En ligne sur ASH")}
+      aria-label={tx("Friends and vendors", "Amis et vendeurs")}
       className="live-connect-section bg-background px-4 pt-2 pb-1"
       onPointerEnter={() => setInteracting(true)}
       onPointerLeave={() => setInteracting(false)}
@@ -225,19 +226,32 @@ export function LiveConnectRail() {
       ) : null}
 
       <div>
-        <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+        <h3 className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
           {tx("Available vendors", "Vendeurs disponibles")}
+          {vendorsQuery.isSuccess ? (
+            <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-primary/10 px-1.5 text-xs font-semibold text-primary" data-vendor-count={vendors.length}>
+              {vendors.length}
+            </span>
+          ) : null}
         </h3>
         <div className="min-h-[5rem]">
           {vendors.length ? (
             <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {sortedVendors.map((vendor: LiveConnectVendor) => (
-                <div
-                  key={vendor.provider_id}
-                  className={cn("live-connect-card-enter", interacting && "is-interacting")}
+              {vendors.map((vendor) => (
+                <Link
+                  key={vendor.id}
+                  to="/services/$providerId"
+                  params={{ providerId: vendor.id }}
+                  aria-label={tx(`View ${vendor.business_name}`, `Voir ${vendor.business_name}`)}
+                  data-vendor-id={vendor.id}
+                  className={cn("live-connect-card-enter flex w-20 shrink-0 flex-col items-center gap-1.5 rounded-lg p-1 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary", interacting && "is-interacting")}
                 >
-                  <LiveConnectVendorCard vendor={vendor} />
-                </div>
+                  <span className="relative block size-14 shrink-0">
+                    <Avatar path={vendor.avatar_url} name={vendor.business_name} className="size-14 rounded-full" />
+                    {onlineVendorIds?.has(vendor.user_id) ? <span className="absolute -right-0.5 bottom-0 size-3 rounded-full border-2 border-background bg-primary" aria-label={tx("Online", "En ligne")} /> : null}
+                  </span>
+                  <span className="w-full truncate text-[11px] font-semibold text-foreground">{vendor.business_name}</span>
+                </Link>
               ))}
             </div>
           ) : vendorsQuery.isLoading ? (
@@ -245,6 +259,11 @@ export function LiveConnectRail() {
               {[0, 1, 2, 3, 4].map((item) => (
                 <div key={item} className="size-12 shrink-0 animate-pulse rounded-full bg-muted" />
               ))}
+            </div>
+          ) : vendorsQuery.isError ? (
+            <div className="flex items-center gap-2 py-2" role="alert">
+              <p className="text-sm text-muted-foreground">{tx("Could not load vendors.", "Impossible de charger les vendeurs.")}</p>
+              <Button variant="ghost" size="sm" onClick={() => void vendorsQuery.refetch()}>{tx("Retry", "Réessayer")}</Button>
             </div>
           ) : (
             <p className="py-3 text-sm text-muted-foreground">
