@@ -37,7 +37,7 @@ export function AshPulse({
   return (
     <section
       aria-label={tx("ASH Pulse", "ASH Pulse")}
-      className="relative h-32 select-none overflow-hidden"
+      className="relative -mt-2 h-28 select-none overflow-hidden"
     >
       <svg viewBox="0 0 400 120" className="absolute inset-0 size-full" aria-hidden>
         {CURVES.map((curve) => (

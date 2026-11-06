@@ -5,7 +5,6 @@ import { Camera, ImagePlus, Loader2, Plus, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { AshPulse } from "@/components/refer/AshPulse";
-import { SpotlightComposer } from "@/components/refer/SpotlightComposer";
 import { PullToRefresh } from "@/components/refer/PullToRefresh";
 import { PostCard } from "@/components/refer/PostCard";
 import { CommunityVideoCard } from "@/components/refer/CommunityVideoCard";
@@ -140,7 +139,6 @@ function FeedPage() {
   const [caption, setCaption] = useState("");
   const [postTopic, setPostTopic] = useState("");
   const [composerOpen, setComposerOpen] = useState(false);
-  const [spotlightOpen, setSpotlightOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const publishingRef = useRef(false);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
@@ -270,35 +268,6 @@ function FeedPage() {
       <div className="home-feed mx-auto min-h-dvh w-full bg-background text-foreground sm:max-w-xl lg:max-w-[40rem] lg:border-x lg:border-border">
         <h1 className="sr-only">{tx("Home", "Accueil")}</h1>
         <AshPulse avatarUrl={profile?.avatar_url} name={profile?.full_name} />
-        <div className="flex items-center justify-center gap-2 px-3 pb-3">
-          <button
-            type="button"
-            onClick={() => {
-              if (
-                requireAuth({ en: "Sign in to share a post.", fr: "Connectez-vous pour publier." })
-              )
-                setSpotlightOpen(true);
-            }}
-            className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border px-3 text-xs font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
-          >
-            <Sparkles className="size-3.5" aria-hidden />
-            {tx("Create Spotlight", "Créer un Spotlight")}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              if (
-                requireAuth({ en: "Sign in to share a post.", fr: "Connectez-vous pour publier." })
-              )
-                setComposerOpen(true);
-            }}
-            className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border px-3 text-xs font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
-          >
-            <Plus className="size-3.5" aria-hidden />
-            {tx("Create Post", "Publier")}
-          </button>
-        </div>
-        <SpotlightComposer open={spotlightOpen} onOpenChange={setSpotlightOpen} hideTrigger />
 
         <div
           role="tablist"

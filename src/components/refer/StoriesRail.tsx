@@ -1023,9 +1023,7 @@ export function StoriesRail({
               <span className="grid size-9 place-items-center rounded-full border border-pink-400 text-pink-400">
                 <Plus className="size-5" aria-hidden />
               </span>
-              <span className="text-center text-xs font-semibold">
-                {tx("Create Story", "Créer une Story")}
-              </span>
+              <span className="sr-only">{tx("Create Story", "Créer une Story")}</span>
             </button>
             {railItems.map((item) => {
               const isStory = item.kind === "story";
