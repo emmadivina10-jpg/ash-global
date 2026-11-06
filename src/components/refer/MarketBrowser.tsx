@@ -343,9 +343,14 @@ export function MarketBrowser({
   }
   const listingContent = (l: Listing) => (
     <>
-      <div className="relative aspect-[4/5] overflow-hidden bg-muted">
+      <div className="relative aspect-square overflow-hidden rounded-md bg-muted">
         {l.image ? (
-          <img src={l.image} alt={l.title} loading="lazy" className="size-full object-contain" />
+          <img
+            src={l.image}
+            alt={l.title}
+            loading="lazy"
+            className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+          />
         ) : (
           <div className="flex size-full flex-col items-center justify-center gap-2 text-muted-foreground">
             <ImageOff className="size-8" aria-hidden />
@@ -353,33 +358,25 @@ export function MarketBrowser({
           </div>
         )}
       </div>
-      <div className="space-y-0.5 px-1.5 py-2 text-left">
-        <h3 className="line-clamp-2 text-sm font-semibold text-foreground sm:text-base">
-          {l.kind === "service" && l.cats?.[0] ? categoryLabel(l.cats[0], lang) : l.title}
-        </h3>
-        {l.kind === "service" && (
-          <p className="flex items-center gap-1 text-xs text-muted-foreground">
-            <span className="flex" aria-label={`${(l.rating ?? 0).toFixed(1)} / 5`}>
-              {[1, 2, 3, 4, 5].map((n) => (
-                <Star
-                  key={n}
-                  className={cn(
-                    "size-3",
-                    n <= Math.round(l.rating ?? 0)
-                      ? "fill-star text-star"
-                      : "text-muted-foreground/40",
-                  )}
-                  aria-hidden
-                />
-              ))}
-            </span>
-            {(l.ratingCount ?? 0) > 0
-              ? `${(l.rating ?? 0).toFixed(1)} (${l.ratingCount})`
-              : tx("New", "Nouveau")}
-          </p>
-        )}
-        <p className="truncate text-xs text-muted-foreground">
-          {l.city || tx("Location not provided", "Lieu non précisé")}
+      <div className="min-w-0 space-y-1 pt-2.5 text-left">
+        <p className="truncate text-sm font-bold tabular-nums text-foreground">{l.priceLabel}</p>
+        <h3 className="line-clamp-2 text-[13px] leading-snug text-foreground">{l.title}</h3>
+        {l.kind === "service" && l.cats?.[0] ? (
+          <p className="truncate text-xs text-muted-foreground">{categoryLabel(l.cats[0], lang)}</p>
+        ) : null}
+        <p className="flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
+          {l.kind === "service" ? (
+            <>
+              <Star className="size-3 shrink-0 fill-star text-star" aria-hidden />
+              <span className="shrink-0">
+                {(l.ratingCount ?? 0) > 0
+                  ? `${(l.rating ?? 0).toFixed(1)} (${l.ratingCount})`
+                  : tx("New", "Nouveau")}
+              </span>
+              <span aria-hidden>·</span>
+            </>
+          ) : null}
+          <span className="truncate">{l.city || tx("Location not provided", "Lieu non précisé")}</span>
         </p>
       </div>
     </>
@@ -681,19 +678,32 @@ export function MarketBrowser({
       </Dialog>
       <nav
         aria-label={tx("Market categories", "Catégories Market")}
-        className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none]"
+        className="-mx-1 flex items-center gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none]"
       >
         {categories.map((c) => (
-          <RoundIcon
+          <button
             key={c.value}
-            icon={c.icon}
-            label={c.label}
-            active={kind === c.value}
+            type="button"
+            aria-pressed={kind === c.value}
             onClick={() => setKind(c.value)}
-          />
+            className={cn(
+              "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-xs font-semibold transition-colors",
+              kind === c.value
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-border bg-background text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <c.icon className="size-3.5" aria-hidden />
+            {c.label}
+          </button>
         ))}
-        <Link to="/services/extras" onClick={playTabSound} className="contents">
-          <RoundIcon icon={LayoutGrid} label="Extras" />
+        <Link
+          to="/services/extras"
+          onClick={playTabSound}
+          className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-border bg-background px-3.5 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <LayoutGrid className="size-3.5" aria-hidden />
+          Extras
         </Link>
       </nav>
       <div className="flex items-baseline justify-between gap-2 border-t border-border pt-4">
@@ -757,7 +767,7 @@ export function MarketBrowser({
           </Button>
         </div>
       ) : (
-        <div className="-mx-4 grid grid-cols-2 gap-x-1 gap-y-3 sm:mx-0 sm:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 xl:grid-cols-4">
           {filtered.map((l) =>
             l.kind === "property" ? (
               <Link
