@@ -4256,24 +4256,18 @@ export type Database = {
       member_presence: {
         Row: {
           last_active_at: string
-          show_online: boolean
           updated_at: string
           user_id: string
-          vendor_discovery_enabled: boolean
         }
         Insert: {
           last_active_at?: string
-          show_online?: boolean
           updated_at?: string
           user_id: string
-          vendor_discovery_enabled?: boolean
         }
         Update: {
           last_active_at?: string
-          show_online?: boolean
           updated_at?: string
           user_id?: string
-          vendor_discovery_enabled?: boolean
         }
         Relationships: []
       }
@@ -8434,6 +8428,18 @@ export type Database = {
         Args: { _spotlight_id: string }
         Returns: string
       }
+      discover_public_profiles: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          city: string
+          full_name: string
+          user_id: string
+          username: string
+          verified_tier: string
+          verified_until: string
+        }[]
+      }
       dispatch_approve_quote: {
         Args: { _fee: number; _job: string }
         Returns: undefined
@@ -9102,30 +9108,7 @@ export type Database = {
         }
         Returns: Json
       }
-      list_live_connect_vendors: {
-        Args: { _country?: string | null; _limit?: number | null }
-        Returns: {
-          accepting_bookings: boolean
-          avatar_url: string | null
-          bio: string | null
-          business_name: string
-          categories: Database["public"]["Enums"]["service_category"][]
-          city: string | null
-          is_online: boolean
-          is_verified: boolean
-          last_active_at: string | null
-          provider_id: string
-          rating_avg: number
-          rating_count: number
-          services: Json
-          slug: string | null
-        }[]
-      }
-      set_live_connect_preferences: {
-        Args: { _show_online: boolean; _vendor_discovery_enabled: boolean }
-        Returns: undefined
-      }
-      touch_member_presence: { Args: { _session_id?: string }; Returns: undefined }
+      touch_member_presence: { Args: never; Returns: undefined }
       ugc_text_is_suspicious: { Args: { _text: string }; Returns: boolean }
       update_trip_status: {
         Args: { _booking_id: string; _status: string }

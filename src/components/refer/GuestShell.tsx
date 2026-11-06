@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   BriefcaseBusiness,
@@ -15,6 +15,7 @@ import {
   Store,
 } from "lucide-react";
 import { Logo } from "./Logo";
+import { AshOrbitMenu } from "./AshOrbitMenu";
 import { LanguageSwitcher, ThemeToggle } from "./Preferences";
 import { useI18n } from "@/lib/i18n";
 import { useServicesMode } from "@/lib/services-mode";
@@ -56,12 +57,9 @@ const SIDE_TILES = ["gold-gradient", "brand-gradient", "bg-gold", "bg-primary"];
  * action requires authentication rather than blocking browsing.
  */
 export function GuestShell({ children }: { children: ReactNode }) {
-  const { tx, lang } = useI18n();
+  const { lang } = useI18n();
   const servicesMode = useServicesMode();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const activeTab = GUEST_TABS.findIndex(
-    (item) => pathname === item.to || pathname.startsWith(`${item.to}/`),
-  );
   const label = (item: GuestNavItem) =>
     item.to === "/services" && servicesMode === "market"
       ? "Shop"
@@ -121,7 +119,7 @@ export function GuestShell({ children }: { children: ReactNode }) {
 
           <main
             className={cn(
-              "app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8 lg:pb-10",
+              "app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8 lg:pb-10",
               pathname === "/discover" ? "pt-0" : "pt-5",
             )}
           >
@@ -130,46 +128,33 @@ export function GuestShell({ children }: { children: ReactNode }) {
         </div>
       </div>
 
-      <nav
-        aria-label={tx("Main navigation", "Navigation principale")}
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden"
+      <AshOrbitMenu
+        ariaLabel={lang === "fr" ? "Navigation principale" : "Main navigation"}
+        launcherLabel={lang === "fr" ? "Ouvrir la navigation ASH" : "Open ASH navigation"}
       >
-        <ul className="relative grid grid-cols-5">
-          {activeTab >= 0 ? (
-            <li
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-y-0 left-0 z-0 w-1/5 transition-transform duration-300 ease-out motion-reduce:transition-none"
-              style={{ transform: `translateX(${activeTab * 100}%)` }}
-            >
-              <span className="absolute inset-x-2 top-0 h-0.5 rounded-b-full bg-primary" />
-            </li>
-          ) : null}
+        <ul className="ash-orbit-menu-grid">
           {GUEST_TABS.map((item) => {
             const active = pathname === item.to || pathname.startsWith(`${item.to}/`);
+
             return (
               <li key={item.to}>
                 <Link
                   to={item.to}
-                  className={cn(
-                    "flex flex-col items-center gap-1 py-2 text-[10px] font-semibold transition-colors",
-                    active ? "text-primary" : "text-muted-foreground hover:text-foreground",
-                  )}
+                  aria-current={active ? "page" : undefined}
+                  aria-label={label(item)}
+                  className={`ash-orbit-menu-link${active ? " is-active" : ""}`}
                 >
-                  <span
-                    className={cn(
-                      "member-icon-well grid size-7 place-items-center",
-                      active && "is-active",
-                    )}
-                  >
-                    <item.icon className="size-5" aria-hidden />
+                  <span className="ash-orbit-menu-icon">
+                    <item.icon className="size-6" aria-hidden />
                   </span>
-                  {label(item)}
+                  <span className="ash-orbit-menu-label">{label(item)}</span>
+                  {active && <span className="ash-orbit-active-dot" aria-hidden />}
                 </Link>
               </li>
             );
           })}
         </ul>
-      </nav>
+      </AshOrbitMenu>
     </div>
   );
 }

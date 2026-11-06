@@ -10,6 +10,8 @@
 <!-- LOVABLE:END -->
 
 - Native composer outside scrolling: no clipping.
+- Presence clients must use the connected schema's argumentless heartbeat and RLS-scoped reads; Live Connect remains unavailable until its schema is approved and applied. Why: local migrations do not establish deployed capabilities or authorize policy changes.
+- Messages storefront discovery uses paginated RLS-scoped provider reads independently of Live Connect; existing scoped presence reads only decorate avatars. Why: offline vendors remain discoverable without enabling unapproved presence capabilities.
 - Native Android release uses platform-scoped Capacitor identity, one preflight-resolved environment version exported through CM_ENV (explicit or confirmed Play maximum/base plus build counter), no release fallback to debug version, and fail-closed keystore signing in artifact-only CI; iOS workflow stays separate. Why: prevent guessed/stale or mismatched artifact versions while protecting signing and successful iOS builds without publishing.
 - Keep Bun's frozen lock for app/Android installs and a synchronized npm lock for the existing iOS npm workflow; do not switch managers to bypass failures. Why: preserve successful native dependency resolution without forcing an iOS migration.
 - Native iOS CI exports a signed IPA artifact with the existing Apple integration, without payment-secret groups or automatic TestFlight publishing. Why: the remote app owns payment configuration, while artifact builds must not distribute releases.

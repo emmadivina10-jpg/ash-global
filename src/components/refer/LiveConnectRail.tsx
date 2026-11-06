@@ -4,21 +4,19 @@ import { BadgeCheck, MessageCircle, Store } from "lucide-react";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { Button } from "@/components/ui/button";
 import { useFriendships } from "@/lib/social.queries";
-import {
-  useLiveConnectVendors,
-  useOnlineFriendIds,
-  type LiveConnectVendor,
-} from "@/lib/live-connect.queries";
+import { useOnlineFriendIds, type LiveConnectVendor } from "@/lib/live-connect.queries";
 import { useRegion } from "@/lib/region-context";
 import { trackEvent, useImpression } from "@/lib/activity";
 import { categoryLabel } from "@/lib/taxonomy";
 import { useI18n } from "@/lib/i18n";
-import { PresenceBadge, isShowableVendor } from "@/components/refer/PresenceBadge";
-import { playNotificationSound } from "@/lib/sound";
 import { openMemberConversation } from "@/lib/contact-vendor";
 import { openConversation } from "@/lib/marketplace.queries";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { playNotificationSound } from "@/lib/sound";
+import { useAvailableVendors } from "@/lib/available-vendors.queries";
+import { useUser } from "@/lib/queries";
+import { PresenceBadge } from "@/components/refer/PresenceBadge";
 
 export function LiveConnectVendorCard({
   vendor,
@@ -35,6 +33,9 @@ export function LiveConnectVendorCard({
     target_type: "provider",
     target_id: vendor.provider_id,
   });
+  const services = Array.isArray(vendor.services)
+    ? (vendor.services as { id: string; title: string; price: number }[])
+    : [];
 
   const message = async () => {
     try {
@@ -54,18 +55,16 @@ export function LiveConnectVendorCard({
     }
   };
 
-  const description = vendor.bio?.trim() || vendor.city?.trim() || "";
-  const category = vendor.categories[0];
   return (
     <article
       ref={impression}
       className={cn(
-        "live-connect-card w-[min(72vw,15rem)] shrink-0 rounded-2xl border border-border bg-card p-3 shadow-sm",
+        "live-connect-card w-[min(72vw,16rem)] shrink-0 rounded-2xl border border-border bg-card p-3 shadow-sm",
         !online && "opacity-90",
       )}
       data-vendor-id={vendor.provider_id}
     >
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-start gap-3">
         <Link
           to="/services/$providerId"
           params={{ providerId: vendor.provider_id }}
@@ -79,7 +78,9 @@ export function LiveConnectVendorCard({
           }
           aria-label={tx(`View ${vendor.business_name}`, `Voir ${vendor.business_name}`)}
         >
-          <Avatar path={vendor.avatar_url} name={vendor.business_name} className="size-11" />
+          <span className={cn(online && "live-connect-avatar")}>
+            <Avatar path={vendor.avatar_url} name={vendor.business_name} className="size-14" />
+          </span>
         </Link>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1">
@@ -88,35 +89,41 @@ export function LiveConnectVendorCard({
               <BadgeCheck className="size-4 shrink-0 text-primary" aria-label="Verified" />
             ) : null}
           </div>
-          <PresenceBadge online={online} className="mt-0.5" />
+          <PresenceBadge online={online} className="mt-1" />
         </div>
       </div>
-      {description || category ? (
-        <p className="mt-2 line-clamp-1 text-xs text-muted-foreground">
-          {category ? (
-            <span className="font-semibold text-primary">{categoryLabel(category, lang)}</span>
-          ) : null}
-          {category && description ? " · " : null}
-          {description}
+      <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">
+        {vendor.bio || vendor.city}
+      </p>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {vendor.categories.slice(0, 2).map((category) => (
+          <span
+            key={category}
+            className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary"
+          >
+            {categoryLabel(category, lang)}
+          </span>
+        ))}
+        {vendor.city ? (
+          <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] text-muted-foreground">
+            {vendor.city}
+          </span>
+        ) : null}
+      </div>
+      {services.length ? (
+        <p className="mt-2 truncate text-xs text-muted-foreground">
+          {services
+            .slice(0, 2)
+            .map((service) => service.title)
+            .join(" · ")}
         </p>
       ) : null}
-      <div className="mt-2.5 grid grid-cols-2 gap-2">
-        <Button
-          type="button"
-          size="sm"
-          className="h-8 rounded-full text-xs"
-          onClick={() => void message()}
-        >
-          <MessageCircle className="size-3.5" aria-hidden />
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <Button type="button" size="sm" className="rounded-full" onClick={() => void message()}>
+          <MessageCircle className="size-4" aria-hidden />
           {tx("Message", "Écrire")}
         </Button>
-        <Button
-          asChild
-          type="button"
-          size="sm"
-          variant="outline"
-          className="h-8 rounded-full text-xs"
-        >
+        <Button asChild type="button" size="sm" variant="outline" className="rounded-full">
           <Link
             to="/services/$providerId"
             params={{ providerId: vendor.provider_id }}
@@ -129,8 +136,8 @@ export function LiveConnectVendorCard({
               })
             }
           >
-            <Store className="size-3.5" aria-hidden />
-            {tx("Shop", "Boutique")}
+            <Store className="size-4" aria-hidden />
+            {tx("View shop", "Voir la boutique")}
           </Link>
         </Button>
       </div>
@@ -142,6 +149,7 @@ export function LiveConnectRail() {
   const { tx } = useI18n();
   const navigate = useNavigate();
   const { country, seesEverything } = useRegion();
+  const { user } = useUser();
   const { data: friendships } = useFriendships();
   const friendIds = useMemo(
     () => (friendships?.friends ?? []).map((friend) => friend.other.id),
@@ -151,38 +159,19 @@ export function LiveConnectRail() {
   const friends = (friendships?.friends ?? []).filter((friend) =>
     onlineFriendIds?.has(friend.other.id),
   );
-  const vendorsQuery = useLiveConnectVendors(seesEverything ? null : country);
-  const vendors = (vendorsQuery.data ?? []).filter(
-    (vendor) => vendor.is_online && isShowableVendor(vendor),
-  );
+  const vendorsQuery = useAvailableVendors(seesEverything ? null : country, user?.id);
+  const vendors = vendorsQuery.data ?? [];
+  const { data: onlineVendorIds } = useOnlineFriendIds(vendors.map((vendor) => vendor.user_id));
   // Soft notification when a vendor newly comes online (never on first load).
   const seenOnline = useRef<Set<string> | null>(null);
   useEffect(() => {
-    if (vendorsQuery.isLoading) return;
-    const ids = new Set(vendors.map((vendor) => vendor.provider_id));
+    if (!vendorsQuery.isSuccess || !onlineVendorIds) return;
+    const ids = new Set(vendors.filter((v) => onlineVendorIds.has(v.user_id)).map((v) => v.id));
     const previous = seenOnline.current;
     seenOnline.current = ids;
     if (previous && [...ids].some((id) => !previous.has(id))) playNotificationSound();
-  }, [vendors, vendorsQuery.isLoading]);
-  const [offset, setOffset] = useState(0);
+  }, [vendors, onlineVendorIds, vendorsQuery.isSuccess]);
   const [interacting, setInteracting] = useState(false);
-
-  useEffect(() => {
-    if (vendors.length < 2) return;
-    const timer = window.setInterval(() => {
-      if (document.visibilityState === "visible" && !interacting) {
-        setOffset((index) => (index + 1) % vendors.length);
-      }
-    }, 12_000);
-    return () => window.clearInterval(timer);
-  }, [interacting, vendors.length]);
-
-  const rotated = vendors.length
-    ? Array.from(
-        { length: vendors.length },
-        (_, index) => vendors[(offset + index) % vendors.length]!,
-      )
-    : [];
 
   const startFriendChat = async (friendId: string) => {
     try {
@@ -195,13 +184,10 @@ export function LiveConnectRail() {
     }
   };
 
-  if (!friends.length && !vendors.length && !vendorsQuery.isLoading && !vendorsQuery.isError)
-    return null;
-
   return (
     <section
-      aria-label={tx("Online on ASH", "En ligne sur ASH")}
-      className="live-connect-section border-b border-border bg-background px-4 pb-3 pt-2"
+      aria-label={tx("Friends and vendors", "Amis et vendeurs")}
+      className="live-connect-section bg-background px-4 pt-2 pb-1"
       onPointerEnter={() => setInteracting(true)}
       onPointerLeave={() => setInteracting(false)}
       onFocusCapture={() => setInteracting(true)}
@@ -210,20 +196,6 @@ export function LiveConnectRail() {
           setInteracting(false);
       }}
     >
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <div>
-          <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-primary">
-            {tx("Live Connect", "Live Connect")}
-          </p>
-          <h2 className="mt-1 font-display text-lg font-bold text-foreground">
-            {tx("Online on ASH", "En ligne sur ASH")}
-          </h2>
-        </div>
-        <Link to="/discover" className="text-xs font-bold text-primary hover:underline">
-          {tx("Discover", "Découvrir")}
-        </Link>
-      </div>
-
       {friends.length ? (
         <div className="mb-4">
           <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
@@ -254,38 +226,83 @@ export function LiveConnectRail() {
       ) : null}
 
       <div>
-        <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+        <h3 className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
           {tx("Available vendors", "Vendeurs disponibles")}
+          {vendorsQuery.isSuccess ? (
+            <span
+              className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-primary/10 px-1.5 text-xs font-semibold text-primary"
+              data-vendor-count={vendors.length}
+            >
+              {vendors.length}
+            </span>
+          ) : null}
         </h3>
-        {vendorsQuery.isLoading ? (
-          <div className="flex gap-3" aria-busy="true">
-            {[0, 1, 2].map((item) => (
-              <div
-                key={item}
-                className="h-32 w-[min(72vw,15rem)] shrink-0 animate-pulse rounded-2xl bg-muted"
-              />
-            ))}
-          </div>
-        ) : vendorsQuery.isError ? (
-          <p role="alert" className="text-sm text-destructive">
-            {tx("Available vendors could not be loaded.", "Impossible de charger les vendeurs.")}
-          </p>
-        ) : vendors.length ? (
-          <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {rotated.slice(0, 12).map((vendor: LiveConnectVendor) => (
-              <div
-                key={vendor.provider_id}
-                className={cn("live-connect-card-enter", interacting && "is-interacting")}
-              >
-                <LiveConnectVendorCard vendor={vendor} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="rounded-2xl bg-muted/50 px-3 py-3 text-sm text-muted-foreground">
-            {tx("No vendors are available right now.", "Aucun vendeur disponible pour le moment.")}
-          </p>
-        )}
+        <div className="min-h-[5rem]">
+          {vendors.length ? (
+            <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {vendors.map((vendor) => (
+                <Link
+                  key={vendor.id}
+                  to="/services/$providerId"
+                  params={{ providerId: vendor.id }}
+                  aria-label={tx(`View ${vendor.business_name}`, `Voir ${vendor.business_name}`)}
+                  data-vendor-id={vendor.id}
+                  className={cn(
+                    "live-connect-card-enter flex w-20 shrink-0 flex-col items-center gap-1.5 rounded-lg p-1 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                    interacting && "is-interacting",
+                  )}
+                >
+                  <span className="relative block size-14 shrink-0">
+                    <Avatar
+                      path={vendor.avatar_url}
+                      name={vendor.business_name}
+                      className="size-14 rounded-full"
+                    />
+                    <span
+                      className={cn(
+                        "presence-dot absolute -right-0.5 bottom-0 size-3 border-2 border-background",
+                        onlineVendorIds?.has(vendor.user_id)
+                          ? "presence-dot-online"
+                          : "presence-dot-offline",
+                      )}
+                      role="img"
+                      aria-label={
+                        onlineVendorIds?.has(vendor.user_id)
+                          ? tx("Online", "En ligne")
+                          : tx("Offline", "Hors ligne")
+                      }
+                    />
+                  </span>
+                  <span className="w-full truncate text-[11px] font-semibold text-foreground">
+                    {vendor.business_name}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          ) : vendorsQuery.isLoading ? (
+            <div className="flex items-center gap-3 py-2" aria-busy="true">
+              {[0, 1, 2, 3, 4].map((item) => (
+                <div key={item} className="size-12 shrink-0 animate-pulse rounded-full bg-muted" />
+              ))}
+            </div>
+          ) : vendorsQuery.isError ? (
+            <div className="flex items-center gap-2 py-2" role="alert">
+              <p className="text-sm text-muted-foreground">
+                {tx("Could not load vendors.", "Impossible de charger les vendeurs.")}
+              </p>
+              <Button variant="ghost" size="sm" onClick={() => void vendorsQuery.refetch()}>
+                {tx("Retry", "Réessayer")}
+              </Button>
+            </div>
+          ) : (
+            <p className="py-3 text-sm text-muted-foreground">
+              {tx(
+                "Discover vendors and services on ASH.",
+                "Découvrez les vendeurs et services sur ASH.",
+              )}
+            </p>
+          )}
+        </div>
       </div>
     </section>
   );

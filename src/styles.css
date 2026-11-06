@@ -3257,3 +3257,368 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
     animation: none;
   }
 }
+
+/* =========================================================
+   ASH GLO — ASH ORBIT FLOATING LAUNCHER & NAVIGATION
+========================================================= */
+
+.ash-orbit-launcher {
+  --orbit-pink: #ff315f;
+  --orbit-crimson: #d91e52;
+  --orbit-violet: #7546ff;
+  --orbit-lavender: #c5b4ff;
+
+  position: fixed;
+  right: max(18px, env(safe-area-inset-right));
+  bottom: calc(22px + env(safe-area-inset-bottom));
+  z-index: 120;
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 50%;
+  background:
+    linear-gradient(145deg, rgba(20, 14, 29, 0.96), rgba(8, 8, 16, 0.96)) padding-box,
+    linear-gradient(135deg, var(--orbit-pink), var(--orbit-violet)) border-box;
+  color: white;
+  box-shadow:
+    0 0 22px rgba(255, 49, 95, 0.28),
+    0 0 30px rgba(117, 70, 255, 0.24),
+    0 10px 30px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: box-shadow 180ms ease, transform 180ms ease;
+}
+
+.ash-orbit-launcher:hover {
+  box-shadow:
+    0 0 28px rgba(255, 49, 95, 0.38),
+    0 0 38px rgba(117, 70, 255, 0.32),
+    0 12px 34px rgba(0, 0, 0, 0.46);
+}
+
+.ash-orbit-launcher:active {
+  cursor: grabbing;
+  transform: scale(0.96);
+}
+
+.ash-orbit-brand-mark {
+  display: grid;
+  width: 37px;
+  height: 37px;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(125deg, #d91e52 0%, #ff477f 42%, #7546ff 100%);
+  color: white;
+  font-size: 20px;
+  font-weight: 950;
+  box-shadow:
+    0 0 18px rgba(255, 49, 95, 0.4),
+    0 0 20px rgba(117, 70, 255, 0.25);
+}
+
+.ash-orbit-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: rgba(5, 5, 12, 0.66);
+  backdrop-filter: blur(13px) saturate(0.75);
+  -webkit-backdrop-filter: blur(13px) saturate(0.75);
+  animation: ash-orbit-backdrop-in 180ms ease both;
+}
+
+.ash-orbit-dialog {
+  --orbit-pink: #ff315f;
+  --orbit-violet: #7546ff;
+  --orbit-lavender: #c5b4ff;
+
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 111;
+  display: flex;
+  width: min(520px, calc(100vw - 32px));
+  max-height: min(82dvh, 720px);
+  flex-direction: column;
+  overflow: hidden;
+  padding: 22px;
+  border: 1px solid transparent;
+  border-radius: 28px;
+  background:
+    linear-gradient(150deg, rgba(22, 19, 32, 0.98), rgba(9, 9, 17, 0.98)) padding-box,
+    linear-gradient(135deg, rgba(255, 49, 95, 0.8), rgba(197, 180, 255, 0.25), rgba(117, 70, 255, 0.8)) border-box;
+  color: #f8f5ff;
+  box-shadow:
+    0 0 36px rgba(255, 49, 95, 0.16),
+    0 0 48px rgba(117, 70, 255, 0.17),
+    0 28px 90px rgba(0, 0, 0, 0.58),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transform: translate(-50%, -50%);
+  animation: ash-orbit-dialog-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.ash-orbit-dialog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(197, 180, 255, 0.15);
+}
+
+.ash-orbit-dialog-header h2 {
+  margin: 3px 0 0;
+  color: #fff;
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+.ash-orbit-dialog-header p {
+  margin: 4px 0 0;
+  color: rgba(235, 228, 250, 0.62);
+  font-size: 12px;
+}
+
+.ash-orbit-dialog-eyebrow {
+  color: #ff6b9a;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.2em;
+}
+
+.ash-orbit-close {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(197, 180, 255, 0.2);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  cursor: pointer;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.ash-orbit-close:hover {
+  background: rgba(255, 255, 255, 0.13);
+  transform: rotate(90deg);
+}
+
+.ash-orbit-dialog-nav {
+  min-height: 0;
+  overflow-y: auto;
+  padding-top: 18px;
+  overscroll-behavior: contain;
+}
+
+.ash-orbit-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ash-orbit-menu-grid li {
+  min-width: 0;
+}
+
+.ash-orbit-menu-link {
+  position: relative;
+  display: flex;
+  min-height: 76px;
+  align-items: center;
+  gap: 13px;
+  padding: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(197, 180, 255, 0.13);
+  border-radius: 17px;
+  background: rgba(255, 255, 255, 0.045);
+  color: rgba(239, 234, 250, 0.85);
+  text-decoration: none;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease,
+    color 180ms ease;
+}
+
+.ash-orbit-menu-link:hover {
+  border-color: rgba(197, 180, 255, 0.35);
+  background: rgba(255, 255, 255, 0.09);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.ash-orbit-menu-link:active {
+  transform: scale(0.97);
+}
+
+.ash-orbit-menu-link.is-active {
+  border-color: rgba(255, 91, 151, 0.48);
+  background: linear-gradient(120deg, rgba(217, 30, 82, 0.2), rgba(117, 70, 255, 0.2));
+  color: #fff;
+  box-shadow: inset 0 0 18px rgba(197, 180, 255, 0.045);
+}
+
+.ash-orbit-menu-icon {
+  position: relative;
+  display: grid;
+  width: 43px;
+  height: 43px;
+  flex: 0 0 43px;
+  place-items: center;
+  border: 1px solid rgba(197, 180, 255, 0.18);
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(255, 49, 95, 0.18), rgba(117, 70, 255, 0.2));
+  color: #f4d8ff;
+}
+
+.ash-orbit-menu-label {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  color: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ash-orbit-active-dot {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--orbit-pink), var(--orbit-lavender));
+  box-shadow: 0 0 10px var(--orbit-pink);
+}
+
+.ash-orbit-avatar-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.ash-orbit-avatar-menu {
+  position: absolute;
+  right: -4px;
+  bottom: -3px;
+  display: grid;
+  width: 17px;
+  height: 17px;
+  place-items: center;
+  border: 1px solid rgba(197, 180, 255, 0.45);
+  border-radius: 50%;
+  background: #17121f;
+  color: white;
+}
+
+.ash-orbit-online-dot {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 10px;
+  height: 10px;
+  border: 2px solid #171321;
+  border-radius: 50%;
+  background: #35dc91;
+  box-shadow: 0 0 9px rgba(53, 220, 145, 0.65);
+}
+
+.ash-orbit-message-badge {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+}
+
+.ash-orbit-launcher:focus-visible,
+.ash-orbit-close:focus-visible,
+.ash-orbit-menu-link:focus-visible {
+  outline: 2px solid var(--orbit-lavender, #c5b4ff);
+  outline-offset: 3px;
+}
+
+@keyframes ash-orbit-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ash-orbit-dialog-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -47%) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@media (max-width: 480px) {
+  .ash-orbit-dialog {
+    width: calc(100vw - 24px);
+    padding: 17px;
+    border-radius: 23px;
+  }
+
+  .ash-orbit-menu-grid {
+    gap: 8px;
+  }
+
+  .ash-orbit-menu-link {
+    min-height: 68px;
+    gap: 9px;
+    padding: 9px;
+    border-radius: 14px;
+  }
+
+  .ash-orbit-menu-icon {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+    border-radius: 12px;
+  }
+
+  .ash-orbit-menu-label {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 350px) {
+  .ash-orbit-menu-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 1024px) {
+  .ash-orbit-launcher,
+  .ash-orbit-backdrop,
+  .ash-orbit-dialog {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ash-orbit-launcher,
+  .ash-orbit-backdrop,
+  .ash-orbit-dialog,
+  .ash-orbit-menu-link,
+  .ash-orbit-close {
+    animation: none !important;
+    transition: none !important;
+  }
+}

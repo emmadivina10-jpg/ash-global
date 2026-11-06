@@ -163,7 +163,6 @@ export function useSpotlightFeed(limit = 18, pinnedId?: string | null) {
                 .from("member_presence")
                 .select("user_id")
                 .in("user_id", authorIds)
-                .eq("show_online", true)
                 .gte("last_active_at", since)
             : Promise.resolve({ data: [] }),
           user && postRows.length
