@@ -11,7 +11,6 @@ import {
   House,
   Menu,
   MessageCircle,
-  PlusCircle,
   Search,
   Sparkles,
   Store,
@@ -44,17 +43,9 @@ const GUEST_NAV: GuestNavItem[] = [
 
 const GUEST_TABS: GuestNavItem[] = [
   { to: "/discover", en: "Discover", fr: "Découvrir", icon: Clapperboard },
-  { to: "/services", en: "Services", fr: "Services", icon: Sparkles },
+  { to: "/services", en: "Shop", fr: "Boutique", icon: Sparkles },
   { to: "/feed", en: "Home", fr: "Accueil", icon: House },
   { to: "/messages", en: "Messages", fr: "Messages", icon: MessageCircle },
-  { to: "/menu", en: "Menu", fr: "Menu", icon: Menu },
-];
-
-const DISCOVER_GUEST_TABS: GuestNavItem[] = [
-  { to: "/feed", en: "Home", fr: "Accueil", icon: House },
-  { to: "/discover", en: "Discover", fr: "Découvrir", icon: Clapperboard },
-  { to: "/create", en: "Create", fr: "Créer", icon: PlusCircle },
-  { to: "/messages", en: "Business Chat", fr: "Chat professionnel", icon: MessageCircle },
   { to: "/menu", en: "Menu", fr: "Menu", icon: Menu },
 ];
 
@@ -145,10 +136,7 @@ export function GuestShell({ children }: { children: ReactNode }) {
         aria-label={lang === "fr" ? "Navigation principale" : "Main navigation"}
       >
         <ul className="premium-nav-pill nav-bar-fill grid h-[3.75rem] grid-cols-5 border-t border-border">
-          {(pathname === "/discover" || pathname === "/feed"
-            ? DISCOVER_GUEST_TABS
-            : GUEST_TABS
-          ).map((item) => {
+          {GUEST_TABS.map((item) => {
             const active = pathname === item.to || pathname.startsWith(`${item.to}/`);
 
             return (

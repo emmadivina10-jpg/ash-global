@@ -88,13 +88,6 @@ const MOBILE_NAV: NavItem[] = [
   { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle, tour: "messages" },
 ];
 
-const DISCOVER_MOBILE_NAV: NavItem[] = [
-  { to: "/feed", en: "Home", fr: "Accueil", icon: House },
-  { to: "/discover", en: "Discover", fr: "Découvrir", icon: Compass },
-  { to: "/create", en: "Create", fr: "Créer", icon: PlusCircle },
-  { to: "/messages", en: "Business Chat", fr: "Chat professionnel", icon: MessageCircle },
-];
-
 const DESKTOP_NAV: NavItem[] = [
   { to: "/services", key: "nav.services" as TKey, icon: Store, tour: "market" },
   { to: "/feed", en: "Home", fr: "Accueil", icon: House, tour: "feed" },
@@ -582,7 +575,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {!pathname.startsWith("/post/") ? (
         <MobileNav
-          items={visible(pathname === "/discover" || onFeed ? DISCOVER_MOBILE_NAV : MOBILE_NAV)}
+          items={visible(MOBILE_NAV)}
           profile={profile}
           unreadMessages={unreadMessages}
         />
