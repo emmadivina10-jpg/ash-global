@@ -139,7 +139,7 @@ export function PostCard({
           </Link>
         </div>
       ) : null}
-      <header className="flex items-center gap-3 p-4 pb-3">
+      <header className={cn("flex items-center gap-3", home ? "px-3 py-2.5" : "p-4 pb-3")}>
         <button
           type="button"
           aria-label={post.author.name}
@@ -150,7 +150,7 @@ export function PostCard({
             name={post.author.name}
             online={post.author.online}
             hasUpdate={post.author.has_update}
-            className="size-10"
+            className={home ? "size-9" : "size-10"}
           />
         </button>
         <div className="min-w-0 flex-1">
@@ -180,7 +180,7 @@ export function PostCard({
       </header>
 
       {post.caption && !overlayCaption ? (
-        <div className="px-4 pb-3">
+        <div className={cn("pb-3", home ? "px-3" : "px-4")}>
           {detail ? (
             <SocialText
               text={post.caption}
@@ -236,6 +236,7 @@ export function PostCard({
                   className={cn(
                     "size-full min-h-0",
                     detail ? "max-h-[75dvh] object-contain" : "object-cover",
+                    !detail && home && post.images.length === 1 && "max-h-[min(72dvh,32rem)]",
                   )}
                 />
               </Button>

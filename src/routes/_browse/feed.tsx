@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { extractTags, recordTagInterest } from "@/lib/interests";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Camera, Gift, ImagePlus, Loader2, Plus, Search, Sparkles, X } from "lucide-react";
+import { Camera, ImagePlus, Loader2, Plus, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { Logo } from "@/components/refer/Logo";
@@ -24,7 +24,6 @@ import { SocialSuggestions } from "@/components/refer/SocialSuggestions";
 import { DiscoveryRow, useFeedDiscovery } from "@/components/refer/FeedDiscovery";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -81,9 +80,6 @@ function FeedPage() {
   const { data: posts, isLoading, refetch } = useSocialFeed(120);
   const publicVideos = usePublicDiscoverVideoFeed(120, isGuest);
   const { data: instructors } = useDiscoverInstructors();
-  const [videoTopic, setVideoTopic] = useState("all");
-  const [communitySearch, setCommunitySearch] = useState("");
-  const [searchOpen, setSearchOpen] = useState(false);
   const [communityOpen, setCommunityOpen] = useState(false);
   const communityPosts =
     (isGuest ? publicVideos.data : posts)?.filter(
@@ -93,8 +89,8 @@ function FeedPage() {
           post.caption,
           post.author.name,
           post.images.some(isStoryVideoSource),
-          videoTopic,
-          communitySearch,
+          "all",
+          "",
         ),
     ) ?? [];
   const isApprovedInstructor = Boolean(
@@ -270,39 +266,24 @@ function FeedPage() {
       }}
       label={tx("Refreshing", "Actualisation")}
     >
-      <div className="dark home-feed mx-auto min-h-dvh w-full max-w-xl space-y-3 bg-[#08070b] text-white">
-        <header className="flex items-center justify-between gap-2 px-4 py-2">
-          <div className="flex min-w-0 items-center gap-1">
-            <Logo />
-            <span className="font-display text-sm italic text-pink-400">Glo</span>
-          </div>
-          <h1 className="font-display text-xl font-bold">{tx("Home", "Accueil")}</h1>
-          <div className="flex items-center gap-1.5">
-            {isApprovedInstructor ? (
-              <Link
-                to="/discover/upload"
-                aria-label={tx("Upload a video", "Publier une vidéo")}
-                className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary"
-              >
-                <Camera className="size-5" aria-hidden />
-              </Link>
-            ) : null}
-            {!isGuest && (
-              <Link
-                to="/referral-rewards"
-                aria-label={tx("Open Referral rewards", "Ouvrir les récompenses de parrainage")}
-                className="inline-flex h-10 items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3 text-xs font-bold text-foreground transition-colors hover:bg-gold/20"
-              >
-                <Gift className="size-4 text-gold" aria-hidden />
-                <span className="hidden min-[390px]:inline">
-                  {tx("Referral rewards", "Parrainage")}
-                </span>
-              </Link>
-            )}
+      <div className="dark home-feed mx-auto min-h-dvh w-full max-w-xl space-y-2 bg-[#08070b] text-white md:max-w-2xl lg:max-w-[40rem] lg:border-x lg:border-white/10">
+        <header className="flex items-center justify-between gap-3 px-3 py-2">
+          <Link
+            to="/feed"
+            aria-label="ASH Glo"
+            className="flex shrink-0 items-center gap-1.5 whitespace-nowrap"
+          >
+            <Logo className="whitespace-nowrap" />
+            <span className="font-display text-sm font-bold italic leading-none text-pink-400">
+              Glo
+            </span>
+          </Link>
+          <h1 className="sr-only">{tx("Home", "Accueil")}</h1>
+          <div className="flex items-center gap-1">
             <Button
               type="button"
               size="icon"
-              className="size-10 rounded-full shadow-sm [&_svg]:size-6 motion-safe:transition-transform motion-safe:hover:rotate-90"
+              className="size-10 rounded-full bg-gradient-to-br from-pink-600 to-violet-600 text-white shadow-none hover:opacity-90 [&_svg]:size-5"
               aria-label={tx("Create Business Post", "Créer une publication professionnelle")}
               title={tx("Create Business Post", "Créer une publication professionnelle")}
               onClick={() => {
@@ -325,7 +306,7 @@ function FeedPage() {
         <div
           role="tablist"
           aria-label={tx("Feed categories", "Catégories du fil")}
-          className="flex gap-2 overflow-x-auto px-3 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex gap-1 overflow-x-auto border-b border-white/10 px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {FEED_CATEGORIES.map((c) => {
             const on = c.id === category;
@@ -337,10 +318,10 @@ function FeedPage() {
                 aria-selected={on}
                 onClick={() => setCategory(c.id)}
                 className={cn(
-                  "h-9 shrink-0 rounded-xl border px-4 text-xs font-bold transition-colors",
+                  "h-10 shrink-0 border-b-2 px-3 text-[13px] font-semibold transition-colors",
                   on
-                    ? "border-pink-400/50 bg-gradient-to-r from-pink-600 to-primary text-white"
-                    : "border-white/10 bg-white/5 text-white/80 hover:text-white",
+                    ? "border-pink-500 text-white"
+                    : "border-transparent text-white/55 hover:text-white",
                 )}
               >
                 {fr ? c.fr : c.en}
@@ -472,6 +453,15 @@ function FeedPage() {
               </span>
               <span>{caption.length}/1200</span>
             </div>
+            {isApprovedInstructor ? (
+              <Link
+                to="/discover/upload"
+                className="flex h-11 items-center gap-3 rounded-lg border border-border bg-background px-4 text-sm font-medium text-foreground"
+              >
+                <Camera className="size-5 text-primary" aria-hidden />
+                {tx("Upload a video", "Publier une vidéo")}
+              </Link>
+            ) : null}
             {!isApprovedInstructor ? (
               <p className="text-xs text-muted-foreground">
                 {tx(
@@ -512,7 +502,7 @@ function FeedPage() {
         </Dialog>
 
         {isGuest && (
-          <div className="tile flex items-center gap-3 rounded-3xl border border-primary/30 bg-primary/5 p-4">
+          <div className="mx-3 flex items-center gap-3 rounded-lg border border-pink-500/30 bg-pink-500/5 p-3">
             <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
               <Sparkles className="size-5" aria-hidden />
             </span>
@@ -531,69 +521,6 @@ function FeedPage() {
         )}
 
         <StoriesRail compact />
-        <div className="flex items-center gap-2 border-y border-white/10 px-3 py-3">
-          <Avatar path={profile?.avatar_url} name={profile?.full_name} className="size-10" />
-          <button
-            type="button"
-            className="h-10 min-w-0 flex-1 truncate rounded-full border border-pink-300/30 bg-white/5 px-4 text-left text-sm text-white/75"
-            onClick={() => {
-              if (
-                requireAuth({ en: "Sign in to share a post.", fr: "Connectez-vous pour publier." })
-              )
-                setComposerOpen(true);
-            }}
-          >
-            {tx("What's on your mind?", "Quoi de neuf ?")}
-          </button>
-          <button
-            type="button"
-            className="grid size-10 place-items-center rounded-xl bg-primary/10 text-pink-400"
-            aria-label={tx("Create a business post", "Créer une publication professionnelle")}
-            onClick={() => {
-              if (
-                requireAuth({ en: "Sign in to share a post.", fr: "Connectez-vous pour publier." })
-              )
-                setComposerOpen(true);
-            }}
-          >
-            <ImagePlus className="size-5" aria-hidden />
-          </button>
-        </div>
-        <div className="flex justify-end">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            aria-label={tx("Search community posts", "Rechercher des publications")}
-            onClick={() => {
-              setCommunityOpen(true);
-              setSearchOpen(true);
-            }}
-            className={cn("rounded-full", communitySearch && "text-primary")}
-          >
-            <Search className="size-5" aria-hidden />
-          </Button>
-        </div>
-        <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                {tx("Search community posts", "Rechercher des publications")}
-              </DialogTitle>
-            </DialogHeader>
-            <Input
-              value={communitySearch}
-              onChange={(event) => setCommunitySearch(event.target.value)}
-              placeholder={tx("Search posts and creators", "Rechercher publications et créateurs")}
-              aria-label={tx("Search posts and creators", "Rechercher publications et créateurs")}
-            />
-            {communitySearch ? (
-              <Button type="button" variant="outline" onClick={() => setCommunitySearch("")}>
-                {tx("Clear search", "Effacer la recherche")}
-              </Button>
-            ) : null}
-          </DialogContent>
-        </Dialog>
         {(isGuest ? publicVideos.data : posts)?.some((post) => post.images.length > 0) ? (
           <details
             className="px-3 pb-3"
@@ -607,27 +534,9 @@ function FeedPage() {
               aria-label={tx("Community posts", "Publications de la communauté")}
               className="space-y-3 pt-3"
             >
-              <nav
-                aria-label={tx("Video topics", "Thèmes vidéo")}
-                className="flex gap-2 overflow-x-auto pb-1"
-              >
-                {COMMUNITY_TOPICS.map((topic) => (
-                  <Button
-                    key={topic.id}
-                    type="button"
-                    size="sm"
-                    variant={videoTopic === topic.id ? "default" : "outline"}
-                    aria-pressed={videoTopic === topic.id}
-                    onClick={() => setVideoTopic(topic.id)}
-                    className="h-9 shrink-0 rounded-full"
-                  >
-                    {fr ? topic.fr : topic.en}
-                  </Button>
-                ))}
-              </nav>
               {communityPosts.length ? (
                 <SwipeDeck
-                  key={`${videoTopic}:${communitySearch}`}
+                  key="community"
                   items={communityPosts}
                   getKey={(post) => post.id}
                   renderItem={(post) => {
@@ -669,7 +578,7 @@ function FeedPage() {
         {isLoading || !spotlightsReady ? (
           <div className="space-y-3">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="h-56 animate-pulse rounded-3xl bg-muted" />
+              <div key={i} className="h-56 animate-pulse bg-white/5" />
             ))}
           </div>
         ) : mixed.length === 0 ? (
@@ -695,7 +604,7 @@ function FeedPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-2">
             {mixed.map((entry) => {
               if (entry.kind === "spotlight")
                 return (
@@ -715,7 +624,7 @@ function FeedPage() {
                   ? (discovery ?? [])[Math.floor(index / 4) - 1]
                   : undefined;
               return (
-                <div key={post.id} className="space-y-4">
+                <div key={post.id} className="space-y-2">
                   {block ? <DiscoveryRow block={block} /> : null}
                   <PostCard post={post} currentUserId={me} home />
                 </div>

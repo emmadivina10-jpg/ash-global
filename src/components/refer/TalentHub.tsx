@@ -1,7 +1,7 @@
 import { useState, type MouseEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { BadgeCheck, Heart, MapPin, Music2, Play, Star, Plus } from "lucide-react";
+import { BadgeCheck, Heart, Music2, Play, Star, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -124,16 +124,21 @@ export function MusicianCard({
       );
     }
   };
+  const availability = musician.accepting_enquiries
+    ? musician.online
+      ? tx("Available now", "Disponible maintenant")
+      : tx("Available for booking", "Disponible pour réservation")
+    : tx("Unavailable", "Indisponible");
   return (
-    <article className="talent-card relative overflow-hidden rounded-[1.35rem] border border-primary/25 bg-card shadow-[0_12px_36px_rgba(4,0,14,.32)]">
+    <article className="talent-card group relative">
       <Link to="/talent/$musicianId" params={{ musicianId: musician.id }} className="block">
-        <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-primary/30 via-card to-violet-950">
+        <div className="relative aspect-square overflow-hidden rounded-md bg-gradient-to-br from-pink-600/25 via-[#12091a] to-violet-950">
           {photo ? (
             <img
               src={photo.url}
               alt={musician.display_name}
               loading="lazy"
-              className="size-full object-cover transition-transform duration-500 hover:scale-[1.03]"
+              className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
             />
           ) : video ? (
             <video
@@ -146,71 +151,58 @@ export function MusicianCard({
               className="size-full object-cover"
             />
           ) : (
-            <div className="grid size-full place-items-center text-primary/70">
-              <Music2 className="size-16" aria-hidden />
+            <div className="grid size-full place-items-center text-pink-400/60">
+              <Music2 className="size-12" aria-hidden />
             </div>
           )}
-          <span
-            className={cn(
-              "absolute left-2 top-2 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold text-white shadow",
-              musician.online ? "bg-emerald-600" : "bg-black/65 backdrop-blur",
-            )}
-          >
-            <span
-              className={cn(
-                "size-1.5 rounded-full",
-                musician.online ? "animate-pulse bg-emerald-200" : "bg-red-400",
-              )}
-            />
-            {musician.online ? tx("Online", "En ligne") : tx("Offline", "Hors ligne")}
-          </span>
-          {musician.accepting_enquiries ? (
-            <span className="absolute bottom-2 left-2 rounded-full bg-black/60 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur">
-              {tx("Available for booking", "Disponible pour réservation")}
-            </span>
-          ) : null}
           {video ? (
-            <span className="absolute bottom-2 right-2 grid size-8 place-items-center rounded-full border border-white/60 bg-black/50 text-white">
-              <Play className="size-4 fill-current" aria-hidden />
+            <span className="absolute bottom-2 right-2 grid size-7 place-items-center rounded-full bg-black/55 text-white">
+              <Play className="size-3.5 fill-current" aria-hidden />
             </span>
           ) : null}
         </div>
-        <div className="space-y-1.5 p-3">
-          <h3 className="flex items-center gap-1 text-sm font-bold">
+        <div className="space-y-0.5 pt-2">
+          <h3 className="flex items-center gap-1 text-[13px] font-semibold text-white">
             <span className="truncate">{musician.display_name}</span>
             <BadgeCheck
-              className="size-4 shrink-0 fill-primary text-primary-foreground"
+              className="size-3.5 shrink-0 fill-pink-500 text-black"
               aria-label={tx("ASH approved musician", "Musicien approuvé par ASH")}
             />
+            {stats && stats.review_count > 0 ? (
+              <span className="ml-auto flex shrink-0 items-center gap-0.5 text-[11px] font-medium text-white/70">
+                <Star className="size-3 fill-amber-400 text-amber-400" aria-hidden />
+                {Number(stats.rating_average).toFixed(1)}
+              </span>
+            ) : null}
           </h3>
-          <p className="truncate text-xs text-muted-foreground">
+          <p className="truncate text-xs capitalize text-white/55">
             {musician.instruments.join(" · ")}
-            {musician.genres.length ? ` · ${musician.genres.slice(0, 2).join(", ")}` : ""}
           </p>
-          <p className="flex flex-wrap items-baseline gap-1 pt-0.5">
+          <p className="pt-0.5">
             {rate ? (
               <>
-                <strong className="font-display text-xl font-black text-primary">{rate}</strong>
-                <span className="text-[11px] text-muted-foreground">{tx("/hour", "/h")}</span>
+                <strong className="text-sm font-bold text-pink-400">{rate}</strong>{" "}
+                <span className="text-[11px] text-white/50">{tx("/hour", "/h")}</span>
               </>
             ) : (
-              <span className="text-xs font-semibold text-primary">
+              <span className="text-xs font-semibold text-pink-400">
                 {tx("Contact for rate", "Tarif sur demande")}
               </span>
             )}
           </p>
-          <div className="flex items-center justify-between gap-1 text-[10px] text-muted-foreground">
-            <span className="flex min-w-0 items-center gap-1 truncate">
-              <MapPin className="size-3 shrink-0" aria-hidden />
-              {musician.city}, {musician.country}
-            </span>
-            {stats && stats.review_count > 0 ? (
-              <span className="flex shrink-0 items-center gap-1 text-foreground">
-                <Star className="size-3 fill-amber-400 text-amber-400" aria-hidden />
-                {Number(stats.rating_average).toFixed(1)} ({stats.review_count})
-              </span>
-            ) : null}
-          </div>
+          <p className="flex items-center gap-1.5 text-[11px] text-white/70">
+            <span
+              className={cn(
+                "size-1.5 shrink-0 rounded-full",
+                musician.accepting_enquiries
+                  ? musician.online
+                    ? "animate-pulse bg-emerald-400"
+                    : "bg-emerald-400"
+                  : "bg-white/30",
+              )}
+            />
+            <span className="truncate">{availability}</span>
+          </p>
         </div>
       </Link>
       <button
@@ -222,15 +214,15 @@ export function MusicianCard({
             : tx("Add to favorites", "Ajouter aux favoris")
         }
         aria-pressed={Boolean(favorite.data)}
-        className="absolute right-2 top-2 grid size-9 place-items-center rounded-full bg-black/50 text-white backdrop-blur transition hover:scale-105"
+        className="absolute right-1.5 top-1.5 grid size-8 place-items-center rounded-full bg-black/45 text-white backdrop-blur transition hover:scale-105"
       >
-        <Heart className={cn("size-5", favorite.data && "fill-primary text-primary")} aria-hidden />
+        <Heart className={cn("size-4", favorite.data && "fill-pink-500 text-pink-500")} aria-hidden />
       </button>
     </article>
   );
 }
 
-export function MusicianManager() {
+export function MusicianManager({ compact = false }: { compact?: boolean } = {}) {
   const { tx, lang } = useI18n();
   const region = useRegion();
   const { user } = useUser();
@@ -443,12 +435,34 @@ export function MusicianManager() {
   };
   return (
     <>
-      <Button onClick={() => void openManager()} className="rounded-full">
-        {!mine.data ? <Plus className="mr-2 size-4" aria-hidden /> : null}
-        {mine.data
-          ? tx("Manage musician profile", "Gérer mon profil musicien")
-          : tx("Become a Musician", "Devenir musicien")}
-      </Button>
+      {compact ? (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => void openManager()}
+          aria-label={
+            mine.data
+              ? tx("Manage musician profile", "Gérer mon profil musicien")
+              : tx("Become a Musician", "Devenir musicien")
+          }
+          title={
+            mine.data
+              ? tx("Manage musician profile", "Gérer mon profil musicien")
+              : tx("Become a Musician", "Devenir musicien")
+          }
+          className="size-10 rounded-full text-white/80 hover:bg-white/10 hover:text-white [&_svg]:size-5"
+        >
+          {mine.data ? <Music2 aria-hidden /> : <Plus aria-hidden />}
+        </Button>
+      ) : (
+        <Button onClick={() => void openManager()} className="rounded-full">
+          {!mine.data ? <Plus className="mr-2 size-4" aria-hidden /> : null}
+          {mine.data
+            ? tx("Manage musician profile", "Gérer mon profil musicien")
+            : tx("Become a Musician", "Devenir musicien")}
+        </Button>
+      )}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[90dvh] overflow-y-auto">
           <DialogHeader>
