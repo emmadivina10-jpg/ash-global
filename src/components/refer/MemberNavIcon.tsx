@@ -22,7 +22,7 @@ export function MemberNavIcon({
           <stop offset="0%" stopColor={active ? "var(--primary)" : "currentColor"} />
           <stop offset="48%" stopColor={active ? "var(--primary-dark)" : "currentColor"} />
           <stop offset="52%" stopColor={active ? "var(--primary-dark)" : "currentColor"} />
-          <stop offset="100%" stopColor={active ? "var(--gold)" : "currentColor"} />
+          <stop offset="100%" stopColor={active ? "var(--verified-violet)" : "currentColor"} />
         </linearGradient>
       </defs>
     </Icon>

@@ -8,6 +8,7 @@ import {
   Clapperboard,
   Flame,
   GraduationCap,
+  House,
   Menu,
   MessageCircle,
   Search,
@@ -15,7 +16,6 @@ import {
   Store,
 } from "lucide-react";
 import { Logo } from "./Logo";
-import { AshOrbitMenu } from "./AshOrbitMenu";
 import { LanguageSwitcher, ThemeToggle } from "./Preferences";
 import { useI18n } from "@/lib/i18n";
 import { useServicesMode } from "@/lib/services-mode";
@@ -44,7 +44,7 @@ const GUEST_NAV: GuestNavItem[] = [
 const GUEST_TABS: GuestNavItem[] = [
   { to: "/discover", en: "Discover", fr: "Découvrir", icon: Clapperboard },
   { to: "/services", en: "Services", fr: "Services", icon: Sparkles },
-  { to: "/spotlight", en: "Spotlight", fr: "Spotlight", icon: Aperture },
+  { to: "/feed", en: "Home", fr: "Accueil", icon: House },
   { to: "/messages", en: "Messages", fr: "Messages", icon: MessageCircle },
   { to: "/menu", en: "Menu", fr: "Menu", icon: Menu },
 ];
@@ -119,8 +119,8 @@ export function GuestShell({ children }: { children: ReactNode }) {
 
           <main
             className={cn(
-              "app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8 lg:pb-10",
-              pathname === "/discover" ? "pt-0" : "pt-5",
+              "app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8 lg:pb-10",
+              pathname === "/discover" ? "px-0 pt-0 sm:px-0" : "pt-5",
             )}
           >
             {children}
@@ -128,11 +128,11 @@ export function GuestShell({ children }: { children: ReactNode }) {
         </div>
       </div>
 
-      <AshOrbitMenu
-        ariaLabel={lang === "fr" ? "Navigation principale" : "Main navigation"}
-        launcherLabel={lang === "fr" ? "Ouvrir la navigation ASH" : "Open ASH navigation"}
+      <nav
+        className="premium-mobile-nav fixed inset-x-0 z-40 lg:hidden"
+        aria-label={lang === "fr" ? "Navigation principale" : "Main navigation"}
       >
-        <ul className="ash-orbit-menu-grid">
+        <ul className="premium-nav-pill nav-bar-fill grid h-[3.75rem] grid-cols-5 border-t border-border">
           {GUEST_TABS.map((item) => {
             const active = pathname === item.to || pathname.startsWith(`${item.to}/`);
 
@@ -142,19 +142,18 @@ export function GuestShell({ children }: { children: ReactNode }) {
                   to={item.to}
                   aria-current={active ? "page" : undefined}
                   aria-label={label(item)}
-                  className={`ash-orbit-menu-link${active ? " is-active" : ""}`}
+                  className="premium-nav-item flex h-full flex-col items-center justify-center gap-1 pt-1 text-[10px] font-semibold"
                 >
-                  <span className="ash-orbit-menu-icon">
-                    <item.icon className="size-6" aria-hidden />
+                  <span className="relative grid size-7 place-items-center">
+                    <item.icon className="size-5" aria-hidden />
                   </span>
-                  <span className="ash-orbit-menu-label">{label(item)}</span>
-                  {active && <span className="ash-orbit-active-dot" aria-hidden />}
+                  <span className="truncate leading-none">{label(item)}</span>
                 </Link>
               </li>
             );
           })}
         </ul>
-      </AshOrbitMenu>
+      </nav>
     </div>
   );
 }

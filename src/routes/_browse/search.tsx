@@ -33,6 +33,10 @@ function SearchPage() {
   const { tx, lang } = useI18n();
   const fr = lang === "fr";
   const [term, setTerm] = useState("");
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search).get("q");
+    if (query) setTerm(query);
+  }, []);
   const { data, isFetching } = useUniversalSearch(term);
 
   useEffect(() => {

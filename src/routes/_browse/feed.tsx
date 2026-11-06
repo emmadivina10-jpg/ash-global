@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { PullToRefresh } from "@/components/refer/PullToRefresh";
 import { PostCard } from "@/components/refer/PostCard";
+import { CommunityVideoCard } from "@/components/refer/CommunityVideoCard";
+import { SwipeDeck } from "@/components/refer/SwipeDeck";
 import { StoriesRail, loadSpotlights, type SpotlightPost } from "@/components/refer/StoriesRail";
 import { useQuery } from "@tanstack/react-query";
 import { resetFeedRotation } from "@/lib/rotation";
@@ -15,6 +17,7 @@ import { SocialSuggestions } from "@/components/refer/SocialSuggestions";
 import { DiscoveryRow, useFeedDiscovery } from "@/components/refer/FeedDiscovery";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -22,8 +25,19 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { useCreateSocialPost, useFriendships, useSocialFeed } from "@/lib/social.queries";
-import { FEED_CATEGORIES, matchesCategory, type FeedCategory } from "@/components/refer/feed-categories";
+import {
+  isStoryVideoSource,
+  useCreateSocialPost,
+  useFriendships,
+  usePublicDiscoverVideoFeed,
+  useSocialFeed,
+} from "@/lib/social.queries";
+import { useDiscoverInstructors } from "@/lib/campus.queries";
+import {
+  FEED_CATEGORIES,
+  matchesCategory,
+  type FeedCategory,
+} from "@/components/refer/feed-categories";
 import { cn } from "@/lib/utils";
 import { useProfile, useUser } from "@/lib/queries";
 import { useI18n } from "@/lib/i18n";
@@ -58,6 +72,72 @@ function FeedPage() {
   const { isGuest, requireAuth } = useAuthGate();
   // Preserve the same safety-filtered, stable feed pool.
   const { data: posts, isLoading, refetch } = useSocialFeed(120);
+  const publicVideos = usePublicDiscoverVideoFeed(120, isGuest);
+  const { data: instructors } = useDiscoverInstructors();
+  const [videoTopic, setVideoTopic] = useState("all");
+  const [communitySearch, setCommunitySearch] = useState("");
+  const videoTopics = [
+    { id: "all", en: "All videos", fr: "Toutes", words: [] },
+    {
+      id: "food",
+      en: "Food",
+      fr: "Cuisine",
+      words: ["food", "chef", "cooking", "recipe", "restaurant"],
+    },
+    {
+      id: "tech",
+      en: "Tech",
+      fr: "Tech",
+      words: ["tech", "technology", "software", "computer", "digital"],
+    },
+    {
+      id: "beauty",
+      en: "Beauty",
+      fr: "Beauté",
+      words: ["beauty", "makeup", "hair", "skincare", "fashion"],
+    },
+    { id: "home", en: "Home", fr: "Maison", words: ["home", "interior", "decor", "furniture"] },
+    {
+      id: "events",
+      en: "Events",
+      fr: "Événements",
+      words: ["event", "events", "wedding", "party"],
+    },
+    {
+      id: "health",
+      en: "Health",
+      fr: "Santé",
+      words: ["health", "fitness", "wellness", "medical"],
+    },
+    { id: "pro", en: "Pro", fr: "Pro", words: ["professional", "business", "career", "freelance"] },
+    {
+      id: "homes",
+      en: "Homes",
+      fr: "Logement",
+      words: ["homes", "property", "real estate", "housing"],
+    },
+    { id: "deals", en: "Deals", fr: "Offres", words: ["deal", "deals", "discount", "offer"] },
+    { id: "services", en: "Services", fr: "Services", words: ["service", "services", "tutorial"] },
+    { id: "extra", en: "Extra", fr: "Autres", words: ["extra", "other", "community"] },
+  ];
+  const activeTopic = videoTopics.find((topic) => topic.id === videoTopic);
+  const communityPosts =
+    (isGuest ? publicVideos.data : posts)?.filter(
+      (post) =>
+        post.images.length > 0 &&
+        `${post.caption} ${post.author.name}`
+          .toLowerCase()
+          .includes(communitySearch.trim().toLowerCase()) &&
+        (!activeTopic ||
+          activeTopic.id === "all" ||
+          activeTopic.words.some((word) =>
+            `${post.caption} ${post.author.name}`.toLowerCase().includes(word),
+          )),
+    ) ?? [];
+  const isApprovedInstructor = Boolean(
+    user &&
+    instructors?.some((instructor) => instructor.user_id === user.id && instructor.is_active),
+  );
   const { data: profile } = useProfile();
   const { data: discovery } = useFeedDiscovery();
   const {
@@ -212,6 +292,15 @@ function FeedPage() {
             )}
           </div>
           <div className="flex items-center gap-1.5">
+            {isApprovedInstructor ? (
+              <Link
+                to="/discover/upload"
+                aria-label={tx("Upload a video", "Publier une vidéo")}
+                className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary"
+              >
+                <Camera className="size-5" aria-hidden />
+              </Link>
+            ) : null}
             {!isGuest && (
               <Link
                 to="/referral-rewards"
@@ -219,7 +308,9 @@ function FeedPage() {
                 className="inline-flex h-10 items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3 text-xs font-bold text-foreground transition-colors hover:bg-gold/20"
               >
                 <Gift className="size-4 text-gold" aria-hidden />
-                <span className="hidden min-[390px]:inline">{tx("Referral rewards", "Parrainage")}</span>
+                <span className="hidden min-[390px]:inline">
+                  {tx("Referral rewards", "Parrainage")}
+                </span>
               </Link>
             )}
             <Button
@@ -390,6 +481,70 @@ function FeedPage() {
         )}
 
         <StoriesRail />
+        {(isGuest ? publicVideos.data : posts)?.some((post) => post.images.length > 0) ? (
+          <section
+            aria-label={tx("Community posts", "Publications de la communauté")}
+            className="space-y-3 pb-3"
+          >
+            <h2 className="font-display text-lg font-bold">
+              {tx("Community posts", "Publications de la communauté")}
+            </h2>
+            <Input
+              value={communitySearch}
+              onChange={(event) => setCommunitySearch(event.target.value)}
+              placeholder={tx("Search posts and creators", "Rechercher publications et créateurs")}
+              aria-label={tx("Search posts and creators", "Rechercher publications et créateurs")}
+              className="h-10 rounded-full"
+            />
+            <nav
+              aria-label={tx("Video topics", "Thèmes vidéo")}
+              className="flex gap-2 overflow-x-auto pb-1"
+            >
+              {videoTopics.map((topic) => (
+                <Button
+                  key={topic.id}
+                  type="button"
+                  size="sm"
+                  variant={videoTopic === topic.id ? "default" : "outline"}
+                  aria-pressed={videoTopic === topic.id}
+                  onClick={() => setVideoTopic(topic.id)}
+                  className="h-9 shrink-0 rounded-full"
+                >
+                  {fr ? topic.fr : topic.en}
+                </Button>
+              ))}
+            </nav>
+            {communityPosts.length ? (
+              <SwipeDeck
+                items={communityPosts}
+                getKey={(post) => post.id}
+                renderItem={(post) => {
+                  const instructor = instructors?.find((item) => item.user_id === post.author.id);
+                  return post.images.some(isStoryVideoSource) ? (
+                    <CommunityVideoCard
+                      post={post}
+                      {...(instructor ? { instructorId: instructor.id } : {})}
+                    />
+                  ) : (
+                    <PostCard post={post} currentUserId={me} />
+                  );
+                }}
+              />
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                {tx(
+                  "No posts match this search.",
+                  "Aucune publication ne correspond à cette recherche.",
+                )}
+              </p>
+            )}
+          </section>
+        ) : null}
+        {isGuest && publicVideos.isError ? (
+          <p role="alert" className="text-sm text-destructive">
+            {tx("Community videos could not be loaded.", "Impossible de charger les vidéos.")}
+          </p>
+        ) : null}
         {spotlightRequest ? (
           <StoriesRail
             key={spotlightRequest.spotlightId}

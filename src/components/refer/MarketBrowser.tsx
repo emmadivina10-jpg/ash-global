@@ -343,7 +343,7 @@ export function MarketBrowser({
   }
   const listingContent = (l: Listing) => (
     <>
-      <div className="relative aspect-square overflow-hidden bg-muted">
+      <div className="relative aspect-[4/5] overflow-hidden bg-muted">
         {l.image ? (
           <img
             src={l.image}

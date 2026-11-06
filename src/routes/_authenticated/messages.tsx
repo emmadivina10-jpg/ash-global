@@ -142,8 +142,7 @@ function MessagesPage() {
   // iOS/WKWebView visual viewport. The chat becomes a true fullscreen surface
   // while a thread is open, so the shell navigation/orb cannot overlap it.
   const [visualViewportHeight, setVisualViewportHeight] = useState<number | null>(null);
-  // Reserve only the top shell space; ASH Orbit floats at the side and
-  // must not reduce the chat list's available vertical height.
+  // The inbox must fit between the shell header and the fixed tab bar.
   const [chromeReservePx, setChromeReservePx] = useState<number | null>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
@@ -162,7 +161,9 @@ function MessagesPage() {
       const main = document.querySelector<HTMLElement>("main.app-shell-scroll");
       if (!main) return;
       const top = Math.max(0, main.getBoundingClientRect().top + main.scrollTop);
-      setChromeReservePx(Math.round(top));
+      const nav = document.querySelector<HTMLElement>(".premium-mobile-nav");
+      const navHeight = mobileView === "list" ? (nav?.getBoundingClientRect().height ?? 0) : 0;
+      setChromeReservePx(Math.round(top + navHeight));
     };
 
     const updateViewport = () => {

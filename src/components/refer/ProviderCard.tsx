@@ -60,12 +60,12 @@ export function ProviderCard({
       <div className="relative">
         <div
           className={cn(
-            "grid h-40 grid-cols-1 gap-1 sm:h-44",
+            "grid h-48 grid-cols-1 gap-1 sm:h-52",
             hasTwoPhotos && "grid-cols-2",
             hasThreeOrMorePhotos && "grid-cols-[minmax(0,2fr)_minmax(0,1fr)]",
           )}
         >
-          <div className="relative h-40 w-full overflow-hidden bg-muted sm:h-44">
+          <div className="relative h-48 w-full overflow-hidden bg-muted sm:h-52">
             {cover ? (
               <img
                 src={cover.url}

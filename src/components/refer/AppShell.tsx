@@ -84,13 +84,13 @@ type NavItem = {
 const MOBILE_NAV: NavItem[] = [
   { to: "/discover", en: "Discover", fr: "Découvrir", icon: Compass },
   { to: "/services", en: "Shop", fr: "Boutique", icon: ShoppingBag, tour: "market" },
-  { to: "/spotlight", en: "Home", fr: "Accueil", icon: House },
+  { to: "/feed", en: "Home", fr: "Accueil", icon: House },
   { to: "/messages", key: "nav.messages" as TKey, icon: MessageCircle, tour: "messages" },
 ];
 
 const DESKTOP_NAV: NavItem[] = [
   { to: "/services", key: "nav.services" as TKey, icon: Store, tour: "market" },
-  { to: "/feed", en: "Feed", fr: "Fil", icon: Flame, tour: "feed" },
+  { to: "/feed", en: "Home", fr: "Accueil", icon: House, tour: "feed" },
   { to: "/discover", en: "Discover", fr: "Découvrir", icon: Clapperboard },
   { to: "/spotlight", en: "Spotlight", fr: "Spotlight", icon: Aperture },
   { to: "/flights", en: "Flights", fr: "Vols", icon: Plane },
@@ -559,7 +559,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="flex min-h-0 min-w-0 flex-1">
             <main
               className={cn(
-                "app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:px-8 lg:pb-10",
+                "app-shell-scroll min-h-0 min-w-0 flex-1 px-4 pb-[calc(5rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:px-8 lg:pb-10",
+                pathname === "/discover" && "px-0 pt-0 sm:px-0",
                 roomyMemberTab && "member-roomy-tab",
                 onFeed && "pt-1",
               )}

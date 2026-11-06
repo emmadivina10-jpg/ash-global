@@ -41,7 +41,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { type ServiceCategory } from "@/lib/marketplace";
+import { signPortfolioPaths, type ServiceCategory } from "@/lib/marketplace";
+import { useAvatarUrl } from "@/components/refer/AvatarUpload";
 import { categoryLabel } from "@/lib/taxonomy";
 import { formatDateTime, formatXAF } from "@/lib/format";
 import { useI18n, baseLang } from "@/lib/i18n";
@@ -1291,7 +1292,7 @@ function RelatedListings({
   country: string | null;
 }) {
   const { tx } = useI18n();
-  const { data } = useQuery({
+  const { data, isError } = useQuery({
     queryKey: ["related-providers", providerId, categories.join(","), country],
     queryFn: async () => {
       let q = supabase
@@ -1304,9 +1305,43 @@ function RelatedListings({
       if (categories.length) q = q.overlaps("categories", categories as never);
       const { data, error } = await q;
       if (error) throw error;
-      return data ?? [];
+      const providers = data ?? [];
+      if (!providers.length) return providers.map((provider) => ({ ...provider, image: null }));
+      const { data: photos, error: photoError } = await supabase
+        .from("portfolio_items")
+        .select("provider_id, image_path, created_at")
+        .in(
+          "provider_id",
+          providers.map((provider) => provider.id),
+        )
+        .order("created_at", { ascending: false });
+      if (photoError) throw photoError;
+      const paths = new Map<string, string>();
+      for (const photo of photos ?? []) {
+        if (!paths.has(photo.provider_id) && !isVideoSource(photo.image_path))
+          paths.set(photo.provider_id, photo.image_path);
+      }
+      const signed = await signPortfolioPaths(
+        [...paths.values()].filter((path) => !/^https?:\/\//i.test(path)),
+      );
+      return providers.map((provider) => ({
+        ...provider,
+        image: (() => {
+          const path = paths.get(provider.id);
+          return path ? (/^https?:\/\//i.test(path) ? path : (signed[path] ?? null)) : null;
+        })(),
+      }));
     },
   });
+  if (isError)
+    return (
+      <p role="alert" className="text-sm text-destructive">
+        {tx(
+          "Related listings could not be loaded.",
+          "Impossible de charger les annonces similaires.",
+        )}
+      </p>
+    );
   if (!data || data.length === 0) return null;
   return (
     <SectionCard title={tx("Related listings", "Annonces similaires")}>
@@ -1318,20 +1353,7 @@ function RelatedListings({
             params={{ providerId: p.id }}
             className="min-w-0"
           >
-            <div className="aspect-square overflow-hidden bg-muted">
-              {p.avatar_url ? (
-                <img
-                  src={p.avatar_url}
-                  alt={p.business_name}
-                  loading="lazy"
-                  className="size-full object-cover"
-                />
-              ) : (
-                <div className="grid size-full place-items-center font-display text-2xl font-bold text-primary/70">
-                  {p.business_name.slice(0, 2).toUpperCase()}
-                </div>
-              )}
-            </div>
+            <RelatedListingImage image={p.image} avatar={p.avatar_url} name={p.business_name} />
             <p className="mt-1 line-clamp-1 text-sm font-medium text-foreground">
               {p.business_name}
             </p>
@@ -1344,6 +1366,38 @@ function RelatedListings({
         ))}
       </div>
     </SectionCard>
+  );
+}
+
+function RelatedListingImage({
+  image,
+  avatar,
+  name,
+}: {
+  image: string | null;
+  avatar: string | null;
+  name: string;
+}) {
+  const avatarUrl = useAvatarUrl(avatar);
+  const [failed, setFailed] = useState<string | null>(null);
+  const src =
+    image && failed !== image ? image : avatarUrl && failed !== avatarUrl ? avatarUrl : null;
+  return (
+    <div className="aspect-square overflow-hidden rounded-xl bg-muted">
+      {src ? (
+        <img
+          src={src}
+          alt={name}
+          loading="lazy"
+          onError={() => setFailed(src)}
+          className="size-full object-cover"
+        />
+      ) : (
+        <div className="grid size-full place-items-center font-display text-2xl font-bold text-primary/70">
+          {name.slice(0, 2).toUpperCase()}
+        </div>
+      )}
+    </div>
   );
 }
 

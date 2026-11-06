@@ -18,12 +18,12 @@ export function ChatActionDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogPortal>
-        <DialogOverlay className="chat-action-overlay bg-foreground/20 backdrop-blur-md motion-reduce:animate-none" />
+        <DialogOverlay className="chat-action-overlay bg-black/50 backdrop-blur-sm motion-reduce:animate-none" />
         <Primitive.Content
           aria-describedby={undefined}
-          className="chat-action-panel fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-5 shadow-raised duration-300 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 motion-reduce:animate-none"
+          className="chat-action-panel fixed left-1/2 top-1/2 z-50 max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl border border-primary/20 bg-card p-5 shadow-2xl duration-300 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 motion-reduce:animate-none"
         >
-          <DialogTitle className="mb-5 pr-10 text-xl font-bold">{title}</DialogTitle>
+          <DialogTitle className="mb-5 pr-10 font-display text-xl font-bold">{title}</DialogTitle>
           <Primitive.Close asChild>
             <Button
               size="icon"
@@ -34,7 +34,9 @@ export function ChatActionDialog({
               <X />
             </Button>
           </Primitive.Close>
-          <div className="space-y-2 [&_button_svg]:size-5">{children}</div>
+          <div className="space-y-2 [&_button_svg]:size-5 [&>button]:rounded-2xl [&>button]:border [&>button]:border-border/60 [&>button]:bg-muted/40 [&>button]:transition-colors [&>button:hover]:bg-primary/10">
+            {children}
+          </div>
         </Primitive.Content>
       </DialogPortal>
     </Dialog>

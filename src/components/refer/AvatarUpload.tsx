@@ -21,7 +21,9 @@ const pendingAvatarUrls = new Map<string, Promise<string | null>>();
 if (typeof window !== "undefined") {
   try {
     const raw = window.localStorage.getItem(AVATAR_CACHE_KEY);
-    const saved = raw ? (JSON.parse(raw) as Record<string, { url: string; expiresAt: number }>) : {};
+    const saved = raw
+      ? (JSON.parse(raw) as Record<string, { url: string; expiresAt: number }>)
+      : {};
     const now = Date.now();
     for (const [k, v] of Object.entries(saved)) if (v.expiresAt > now) avatarUrlCache.set(k, v);
   } catch {
@@ -106,18 +108,24 @@ export function useAvatarUrl(path: string | null | undefined) {
 
 export function Avatar({
   path,
+  fallbackPath,
   name,
   className,
   online = false,
   hasUpdate = false,
 }: {
   path: string | null | undefined;
+  fallbackPath?: string | null | undefined;
   name?: string | null | undefined;
   className?: string | undefined;
   online?: boolean | undefined;
   hasUpdate?: boolean | undefined;
 }) {
   const url = useAvatarUrl(path);
+  const fallbackUrl = useAvatarUrl(fallbackPath);
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
+  const displayUrl =
+    url && failedUrl !== url ? url : fallbackUrl !== failedUrl ? fallbackUrl : null;
   const initials = (name ?? "")
     .split(" ")
     .filter(Boolean)
@@ -139,9 +147,10 @@ export function Avatar({
           hasUpdate && "ring-2 ring-background",
         )}
       >
-        {url ? (
+        {displayUrl ? (
           <img
-            src={url}
+            src={displayUrl}
+            onError={() => setFailedUrl(displayUrl)}
             alt={name ?? "Profile picture"}
             className="size-full object-cover"
             loading="lazy"

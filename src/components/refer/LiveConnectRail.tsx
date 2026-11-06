@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { BadgeCheck, MessageCircle, Store } from "lucide-react";
+import { BadgeCheck, Flame, MessageCircle, Store } from "lucide-react";
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { Button } from "@/components/ui/button";
 import { useFriendships } from "@/lib/social.queries";
@@ -17,6 +17,7 @@ import { playNotificationSound } from "@/lib/sound";
 import { useAvailableVendors } from "@/lib/available-vendors.queries";
 import { useUser } from "@/lib/queries";
 import { PresenceBadge } from "@/components/refer/PresenceBadge";
+import { useMemberStates } from "@/lib/social.queries";
 
 export function LiveConnectVendorCard({
   vendor,
@@ -160,7 +161,8 @@ export function LiveConnectRail() {
     onlineFriendIds?.has(friend.other.id),
   );
   const vendorsQuery = useAvailableVendors(seesEverything ? null : country, user?.id);
-  const vendors = vendorsQuery.data ?? [];
+  const vendors = (vendorsQuery.data ?? []).filter((vendor) => vendor.business_name?.trim());
+  const { data: vendorProfiles } = useMemberStates(vendors.map((vendor) => vendor.user_id));
   const { data: onlineVendorIds } = useOnlineFriendIds(vendors.map((vendor) => vendor.user_id));
   // Soft notification when a vendor newly comes online (never on first load).
   const seenOnline = useRef<Set<string> | null>(null);
@@ -187,7 +189,7 @@ export function LiveConnectRail() {
   return (
     <section
       aria-label={tx("Friends and vendors", "Amis et vendeurs")}
-      className="live-connect-section bg-background px-4 pt-2 pb-1"
+      className="live-connect-section bg-background px-4 pb-0 pt-0"
       onPointerEnter={() => setInteracting(true)}
       onPointerLeave={() => setInteracting(false)}
       onFocusCapture={() => setInteracting(true)}
@@ -197,7 +199,7 @@ export function LiveConnectRail() {
       }}
     >
       {friends.length ? (
-        <div className="mb-4">
+        <div className="mb-2">
           <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
             {tx("Online friends", "Amis en ligne")}
           </h3>
@@ -226,7 +228,7 @@ export function LiveConnectRail() {
       ) : null}
 
       <div>
-        <h3 className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+        <h3 className="mb-1 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
           {tx("Available vendors", "Vendeurs disponibles")}
           {vendorsQuery.isSuccess ? (
             <span
@@ -237,9 +239,9 @@ export function LiveConnectRail() {
             </span>
           ) : null}
         </h3>
-        <div className="min-h-[5rem]">
+        <div>
           {vendors.length ? (
-            <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {vendors.map((vendor) => (
                 <Link
                   key={vendor.id}
@@ -252,26 +254,20 @@ export function LiveConnectRail() {
                     interacting && "is-interacting",
                   )}
                 >
-                  <span className="relative block size-14 shrink-0">
+                  <span className="vendor-presence-avatar relative block size-14 shrink-0 rounded-full p-[2px]">
                     <Avatar
                       path={vendor.avatar_url}
+                      fallbackPath={vendorProfiles?.get(vendor.user_id)?.avatar_url}
                       name={vendor.business_name}
-                      className="size-14 rounded-full"
+                      className="size-full rounded-full"
                     />
                     <span
-                      className={cn(
-                        "presence-dot absolute -right-0.5 bottom-0 size-3 border-2 border-background",
-                        onlineVendorIds?.has(vendor.user_id)
-                          ? "presence-dot-online"
-                          : "presence-dot-offline",
-                      )}
+                      className="vendor-flame absolute -bottom-0.5 -right-0.5 z-10 grid size-5 place-items-center rounded-full"
+                      aria-label={tx("Provider", "Prestataire")}
                       role="img"
-                      aria-label={
-                        onlineVendorIds?.has(vendor.user_id)
-                          ? tx("Online", "En ligne")
-                          : tx("Offline", "Hors ligne")
-                      }
-                    />
+                    >
+                      <Flame className="size-3.5" fill="currentColor" aria-hidden />
+                    </span>
                   </span>
                   <span className="w-full truncate text-[11px] font-semibold text-foreground">
                     {vendor.business_name}
