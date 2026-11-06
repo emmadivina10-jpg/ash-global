@@ -299,7 +299,7 @@ export function MobileNav({
                   {isMore ? (
                     <span className="ash-orbit-avatar-wrap">
                       <Avatar
-                        src={profile?.avatar_url}
+                        path={profile?.avatar_url}
                         name={profile?.full_name}
                         className="member-avatar-ring size-9 p-[2px]"
                       />
@@ -311,7 +311,6 @@ export function MobileNav({
                     <MemberNavIcon
                       icon={item.icon}
                       active={active}
-                      className="size-6"
                     />
                   )}
 

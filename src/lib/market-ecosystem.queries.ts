@@ -179,7 +179,6 @@ export function useFxInstructors() {
           .from("member_presence")
           .select("user_id")
           .in("user_id", ids)
-          .eq("show_online", true)
           .gte("last_active_at", since),
       ]);
       const onlineIds = new Set((presence ?? []).map((row) => row.user_id));
@@ -327,7 +326,6 @@ export function useFxInstructorProfile(instructorId: string) {
           .from("member_presence")
           .select("user_id")
           .eq("user_id", data.user_id)
-          .eq("show_online", true)
           .gte("last_active_at", since)
           .maybeSingle(),
       ]);

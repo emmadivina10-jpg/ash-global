@@ -43,7 +43,6 @@ export function useUpcomingBirthdays() {
         supabase
           .from("member_presence")
           .select("user_id")
-          .eq("show_online", true)
           .gte("last_active_at", since),
       ]);
       const onlineIds = new Set((presence ?? []).map((row) => row.user_id));
