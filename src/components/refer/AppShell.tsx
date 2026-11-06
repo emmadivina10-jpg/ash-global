@@ -368,7 +368,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 {sideExpanded ? tx("See less", "Voir moins") : tx("See more", "Voir plus")}
               </button>
             ) : null}
-            {sideGroups.map((group) => {
+            {SIDE_GROUPS.map((group) => {
               const open = visible(group.items).some(
                 (item) => pathname === item.to || pathname.startsWith(`${item.to}/`),
               );
