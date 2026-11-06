@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { BadgeCheck, MessageCircle, Store } from "lucide-react";
 import { Avatar } from "@/components/refer/AvatarUpload";
@@ -13,6 +13,8 @@ import { useRegion } from "@/lib/region-context";
 import { trackEvent, useImpression } from "@/lib/activity";
 import { categoryLabel } from "@/lib/taxonomy";
 import { useI18n } from "@/lib/i18n";
+import { PresenceBadge, isShowableVendor } from "@/components/refer/PresenceBadge";
+import { playNotificationSound } from "@/lib/sound";
 import { openMemberConversation } from "@/lib/contact-vendor";
 import { openConversation } from "@/lib/marketplace.queries";
 import { cn } from "@/lib/utils";
@@ -33,9 +35,6 @@ export function LiveConnectVendorCard({
     target_type: "provider",
     target_id: vendor.provider_id,
   });
-  const services = Array.isArray(vendor.services)
-    ? (vendor.services as { id: string; title: string; price: number }[])
-    : [];
 
   const message = async () => {
     try {
@@ -55,16 +54,18 @@ export function LiveConnectVendorCard({
     }
   };
 
+  const description = vendor.bio?.trim() || vendor.city?.trim() || "";
+  const category = vendor.categories[0];
   return (
     <article
       ref={impression}
       className={cn(
-        "live-connect-card w-[min(82vw,19rem)] shrink-0 rounded-3xl border border-border bg-card p-4 shadow-sm",
+        "live-connect-card w-[min(72vw,15rem)] shrink-0 rounded-2xl border border-border bg-card p-3 shadow-sm",
         !online && "opacity-90",
       )}
       data-vendor-id={vendor.provider_id}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-center gap-2.5">
         <Link
           to="/services/$providerId"
           params={{ providerId: vendor.provider_id }}
@@ -78,7 +79,7 @@ export function LiveConnectVendorCard({
           }
           aria-label={tx(`View ${vendor.business_name}`, `Voir ${vendor.business_name}`)}
         >
-          <Avatar path={vendor.avatar_url} name={vendor.business_name} className="size-14" />
+          <Avatar path={vendor.avatar_url} name={vendor.business_name} className="size-11" />
         </Link>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1">
@@ -87,49 +88,35 @@ export function LiveConnectVendorCard({
               <BadgeCheck className="size-4 shrink-0 text-primary" aria-label="Verified" />
             ) : null}
           </div>
-          <p
-            className={cn(
-              "mt-1 flex items-center gap-1.5 text-xs font-semibold",
-              online ? "text-primary" : "text-muted-foreground",
-            )}
-          >
-            {online ? <span className="live-connect-dot" aria-hidden /> : null}
-            {online ? tx("Available now", "Disponible") : tx("Offline", "Hors ligne")}
-          </p>
+          <PresenceBadge online={online} className="mt-0.5" />
         </div>
       </div>
-      <p className="mt-3 line-clamp-2 min-h-9 text-xs leading-5 text-muted-foreground">
-        {vendor.bio || vendor.city || tx("ASH business", "Entreprise ASH")}
-      </p>
-      <div className="mt-2 flex flex-wrap gap-1.5">
-        {vendor.categories.slice(0, 2).map((category) => (
-          <span
-            key={category}
-            className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary"
-          >
-            {categoryLabel(category, lang)}
-          </span>
-        ))}
-        {vendor.city ? (
-          <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] text-muted-foreground">
-            {vendor.city}
-          </span>
-        ) : null}
-      </div>
-      {services.length ? (
-        <p className="mt-2 truncate text-xs text-muted-foreground">
-          {services
-            .slice(0, 2)
-            .map((service) => service.title)
-            .join(" · ")}
+      {description || category ? (
+        <p className="mt-2 line-clamp-1 text-xs text-muted-foreground">
+          {category ? (
+            <span className="font-semibold text-primary">{categoryLabel(category, lang)}</span>
+          ) : null}
+          {category && description ? " · " : null}
+          {description}
         </p>
       ) : null}
-      <div className="mt-4 grid grid-cols-2 gap-2">
-        <Button type="button" size="sm" className="rounded-full" onClick={() => void message()}>
-          <MessageCircle className="size-4" aria-hidden />
+      <div className="mt-2.5 grid grid-cols-2 gap-2">
+        <Button
+          type="button"
+          size="sm"
+          className="h-8 rounded-full text-xs"
+          onClick={() => void message()}
+        >
+          <MessageCircle className="size-3.5" aria-hidden />
           {tx("Message", "Écrire")}
         </Button>
-        <Button asChild type="button" size="sm" variant="outline" className="rounded-full">
+        <Button
+          asChild
+          type="button"
+          size="sm"
+          variant="outline"
+          className="h-8 rounded-full text-xs"
+        >
           <Link
             to="/services/$providerId"
             params={{ providerId: vendor.provider_id }}
@@ -142,8 +129,8 @@ export function LiveConnectVendorCard({
               })
             }
           >
-            <Store className="size-4" aria-hidden />
-            {tx("View shop", "Voir la boutique")}
+            <Store className="size-3.5" aria-hidden />
+            {tx("Shop", "Boutique")}
           </Link>
         </Button>
       </div>
@@ -165,7 +152,18 @@ export function LiveConnectRail() {
     onlineFriendIds?.has(friend.other.id),
   );
   const vendorsQuery = useLiveConnectVendors(seesEverything ? null : country);
-  const vendors = (vendorsQuery.data ?? []).filter((vendor) => vendor.is_online);
+  const vendors = (vendorsQuery.data ?? []).filter(
+    (vendor) => vendor.is_online && isShowableVendor(vendor),
+  );
+  // Soft notification when a vendor newly comes online (never on first load).
+  const seenOnline = useRef<Set<string> | null>(null);
+  useEffect(() => {
+    if (vendorsQuery.isLoading) return;
+    const ids = new Set(vendors.map((vendor) => vendor.provider_id));
+    const previous = seenOnline.current;
+    seenOnline.current = ids;
+    if (previous && [...ids].some((id) => !previous.has(id))) playNotificationSound();
+  }, [vendors, vendorsQuery.isLoading]);
   const [offset, setOffset] = useState(0);
   const [interacting, setInteracting] = useState(false);
 
@@ -203,7 +201,7 @@ export function LiveConnectRail() {
   return (
     <section
       aria-label={tx("Online on ASH", "En ligne sur ASH")}
-      className="live-connect-section border-b border-border bg-background px-4 py-4"
+      className="live-connect-section border-b border-border bg-background px-4 pb-3 pt-2"
       onPointerEnter={() => setInteracting(true)}
       onPointerLeave={() => setInteracting(false)}
       onFocusCapture={() => setInteracting(true)}
@@ -264,7 +262,7 @@ export function LiveConnectRail() {
             {[0, 1, 2].map((item) => (
               <div
                 key={item}
-                className="h-56 w-[min(82vw,19rem)] shrink-0 animate-pulse rounded-3xl bg-muted"
+                className="h-32 w-[min(72vw,15rem)] shrink-0 animate-pulse rounded-2xl bg-muted"
               />
             ))}
           </div>

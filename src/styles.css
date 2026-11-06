@@ -3072,11 +3072,11 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
 .nav-active-pill {
   position: absolute;
   left: 50%;
-  top: 50%;
-  width: 3.25rem;
-  height: 2.5rem;
+  top: 40%;
+  width: 3.5rem;
+  height: 1.9rem;
   translate: -50% -50%;
-  border-radius: 1rem;
+  border-radius: 9999px;
   background: linear-gradient(
     145deg,
     color-mix(in oklab, var(--primary) 26%, transparent),
@@ -3223,6 +3223,37 @@ body:has(.member-messages :is(textarea, input):focus) .fixed:has(> .wallet-orb) 
   .live-connect-avatar,
   .live-connect-nav-indicator,
   .live-connect-card-enter {
+    animation: none;
+  }
+}
+
+/* Vendor presence indicator: green pulse = online, red = offline */
+.presence-dot {
+  position: relative;
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: none;
+  border-radius: 9999px;
+}
+.presence-dot-online {
+  background: #22c55e;
+  animation: presence-pulse 2s ease-out infinite;
+}
+.presence-dot-offline {
+  background: #ef4444;
+}
+@keyframes presence-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(34 197 94 / 0.6);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 6px rgb(34 197 94 / 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .presence-dot-online {
     animation: none;
   }
 }

@@ -157,7 +157,7 @@ export function MobileNav({
           data-tour={item.tour}
           aria-current={active ? "page" : undefined}
           className={cn(
-            "premium-nav-item relative flex h-[3.75rem] min-w-0 flex-col items-center justify-center gap-0.5 px-0.5 pt-1 text-[10px] font-semibold",
+            "premium-nav-item relative flex h-[3.75rem] min-w-0 flex-col items-center justify-center gap-1 px-0.5 pt-1.5 text-[10px] font-semibold",
             active ? "text-primary" : "text-muted-foreground active:text-foreground",
           )}
         >
@@ -176,7 +176,7 @@ export function MobileNav({
               </>
             )}
           </span>
-          <span className="sr-only">{label(item)}</span>
+          <span className="max-w-full truncate leading-none">{label(item)}</span>
         </Link>
       </li>
     );
@@ -241,7 +241,7 @@ export function MobileNav({
               }}
               aria-current={pathname === "/menu" ? "page" : undefined}
               className={cn(
-                "premium-nav-item relative flex h-[3.75rem] min-w-0 flex-col items-center justify-center gap-0.5 px-0.5 pt-1 text-[10px] font-semibold",
+                "premium-nav-item relative flex h-[3.75rem] min-w-0 flex-col items-center justify-center gap-1 px-0.5 pt-1.5 text-[10px] font-semibold",
                 pathname === "/menu"
                   ? "text-primary"
                   : "text-muted-foreground active:text-foreground",
@@ -257,7 +257,7 @@ export function MobileNav({
                   <Menu className="size-3.5" strokeWidth={3} aria-hidden />
                 </span>
               </span>
-              <span className="sr-only">{t("nav.more")}</span>
+              <span className="max-w-full truncate leading-none">{t("nav.more")}</span>
             </Link>
           </li>
         </ul>

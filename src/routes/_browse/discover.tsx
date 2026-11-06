@@ -14,6 +14,8 @@ import {
 import { Avatar } from "@/components/refer/AvatarUpload";
 import { DiscoverVideo } from "@/components/refer/DiscoverVideo";
 import { DiscoverVideoEngagement } from "@/components/refer/DiscoverVideoEngagement";
+import { PresenceBadge, isShowableVendor } from "@/components/refer/PresenceBadge";
+import { SwipeDeck } from "@/components/refer/SwipeDeck";
 import { LiveConnectVendorCard } from "@/components/refer/LiveConnectRail";
 import { NotificationBell } from "@/components/refer/NotificationBell";
 import { StoriesRail } from "@/components/refer/StoriesRail";
@@ -122,7 +124,7 @@ function VideoCard({ post, instructorId }: { post: FeedPost; instructorId?: stri
   if (!video) return null;
   const title = firstLine(post.caption) || tx("Untitled video", "Vidéo sans titre");
   return (
-    <article className="w-full min-w-0 border-b border-border bg-background">
+    <article className="w-full min-w-0 bg-background">
       <DiscoverVideo
         compact
         src={video}
@@ -209,9 +211,9 @@ function DiscoverVendorCard({ vendor }: { vendor: LiveConnectVendor }) {
   return (
     <article
       ref={impression}
-      className="live-connect-discovery-card overflow-hidden rounded-3xl border border-border bg-card shadow-sm"
+      className="live-connect-discovery-card overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
     >
-      <div className="flex items-center gap-3 p-4">
+      <div className="flex items-center gap-3 p-3">
         <Link
           to="/services/$providerId"
           params={{ providerId: vendor.provider_id }}
@@ -225,11 +227,11 @@ function DiscoverVendorCard({ vendor }: { vendor: LiveConnectVendor }) {
           }
           aria-label={tx(`View ${vendor.business_name}`, `Voir ${vendor.business_name}`)}
         >
-          <Avatar path={vendor.avatar_url} name={vendor.business_name} className="size-14" />
+          <Avatar path={vendor.avatar_url} name={vendor.business_name} className="size-12" />
         </Link>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1">
-            <h2 className="truncate font-display text-base font-bold text-foreground">
+            <h2 className="truncate font-display text-sm font-bold text-foreground">
               {vendor.business_name}
             </h2>
             {vendor.is_verified ? (
@@ -239,59 +241,49 @@ function DiscoverVendorCard({ vendor }: { vendor: LiveConnectVendor }) {
               />
             ) : null}
           </div>
-          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1">
-              {vendor.is_online ? (
-                <>
-                  <span className="live-connect-dot" aria-hidden />
-                  <span className="font-semibold text-primary">{tx("Live now", "En ligne")}</span>
-                </>
-              ) : (
-                tx("Storefront", "Boutique")
-              )}
-            </span>
+          <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+            <PresenceBadge online={vendor.is_online} />
             {vendor.city ? (
               <span className="flex items-center gap-1">
-                <MapPin className="size-3.5" aria-hidden />
+                <MapPin className="size-3" aria-hidden />
                 {vendor.city}
               </span>
             ) : null}
             {vendor.rating_count > 0 ? (
               <span className="flex items-center gap-1">
-                <Star className="size-3.5 fill-current text-primary" aria-hidden />
+                <Star className="size-3 fill-current text-primary" aria-hidden />
                 {Number(vendor.rating_avg).toFixed(1)} ({vendor.rating_count})
               </span>
             ) : null}
           </div>
         </div>
       </div>
-      <p className="mx-4 line-clamp-2 min-h-10 text-sm leading-5 text-muted-foreground">
-        {vendor.bio || tx("Discover this ASH business.", "Découvrez cette entreprise ASH.")}
-      </p>
-      <div className="flex flex-wrap gap-1.5 px-4 pt-3">
-        {vendor.categories.slice(0, 3).map((category) => (
-          <span
-            key={category}
-            className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary"
-          >
-            {categoryLabel(category, lang)}
-          </span>
-        ))}
-      </div>
-      {Array.isArray(vendor.services) && vendor.services.length ? (
-        <div className="mx-4 mt-3 rounded-2xl bg-muted/50 p-3">
-          <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
-            {tx("Services", "Services")}
-          </p>
-          <p className="line-clamp-2 text-xs font-medium text-foreground">
-            {(vendor.services as { title: string }[])
-              .slice(0, 3)
-              .map((service) => service.title)
-              .join(" · ")}
-          </p>
+      {vendor.bio?.trim() ? (
+        <p className="mx-3 line-clamp-2 text-xs leading-5 text-muted-foreground">{vendor.bio}</p>
+      ) : null}
+      {vendor.categories.length ? (
+        <div className="flex flex-wrap gap-1.5 px-3 pt-2">
+          {vendor.categories.slice(0, 3).map((category) => (
+            <span
+              key={category}
+              className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary"
+            >
+              {categoryLabel(category, lang)}
+            </span>
+          ))}
         </div>
       ) : null}
-      <div className="grid grid-cols-2 gap-2 p-4">
+      {Array.isArray(vendor.services) && vendor.services.length ? (
+        <p className="mx-3 mt-2 line-clamp-1 text-xs font-medium text-foreground">
+          {(vendor.services as { title: string }[])
+            .slice(0, 3)
+            .map((service) => service.title)
+            .join(" · ")}
+        </p>
+      ) : null}
+      <div
+        className={cn("grid gap-2 p-3", vendor.accepting_bookings ? "grid-cols-3" : "grid-cols-2")}
+      >
         <Link
           to="/services/$providerId"
           params={{ providerId: vendor.provider_id }}
@@ -303,38 +295,38 @@ function DiscoverVendorCard({ vendor }: { vendor: LiveConnectVendor }) {
               target_id: vendor.provider_id,
             })
           }
-          className="inline-flex min-h-10 items-center justify-center rounded-full bg-primary px-3 text-center text-xs font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+          className="inline-flex min-h-9 items-center justify-center rounded-full bg-primary px-3 text-center text-xs font-bold text-primary-foreground transition-colors hover:bg-primary/90"
         >
-          {tx("View services", "Voir les services")}
+          {tx("View", "Voir")}
         </Link>
         <Button
           type="button"
           variant="outline"
-          className="min-h-10 rounded-full px-3 text-xs"
+          className="min-h-9 rounded-full px-3 text-xs"
           onClick={() => void messageVendor()}
         >
           <MessageCircle className="size-4" aria-hidden />
           {tx("Message", "Écrire")}
         </Button>
+        {vendor.accepting_bookings ? (
+          <Link
+            to="/services/$providerId"
+            params={{ providerId: vendor.provider_id }}
+            onClick={() =>
+              trackEvent({
+                event_type: "click",
+                surface: "discover",
+                target_type: "provider",
+                target_id: vendor.provider_id,
+                metadata: { action: "booking_entry" },
+              })
+            }
+            className="inline-flex min-h-9 items-center justify-center rounded-full bg-primary/10 px-3 text-xs font-bold text-primary hover:bg-primary/15"
+          >
+            {tx("Book", "Réserver")}
+          </Link>
+        ) : null}
       </div>
-      {vendor.accepting_bookings ? (
-        <Link
-          to="/services/$providerId"
-          params={{ providerId: vendor.provider_id }}
-          onClick={() =>
-            trackEvent({
-              event_type: "click",
-              surface: "discover",
-              target_type: "provider",
-              target_id: vendor.provider_id,
-              metadata: { action: "booking_entry" },
-            })
-          }
-          className="mx-4 mb-4 inline-flex min-h-9 w-[calc(100%-2rem)] items-center justify-center rounded-full bg-primary/10 px-3 text-xs font-bold text-primary hover:bg-primary/15"
-        >
-          {tx("Book a service", "Réserver un service")}
-        </Link>
-      ) : null}
     </article>
   );
 }
@@ -376,7 +368,7 @@ function DiscoverLiveConnectPage() {
 
   const filtered = useMemo(() => {
     const term = search.trim().toLocaleLowerCase();
-    return vendors.filter((vendor) => {
+    return vendors.filter(isShowableVendor).filter((vendor) => {
       const group = CATEGORY_GROUPS.find((item) => item.id === selectedGroup);
       const groupMatch =
         !group || vendor.categories.some((category) => group.categories.includes(category));
@@ -453,7 +445,7 @@ function DiscoverLiveConnectPage() {
   };
 
   return (
-    <main className="live-connect-discover mx-auto w-full max-w-7xl space-y-7 px-4 pb-8 pt-3 sm:px-6 lg:px-8">
+    <main className="live-connect-discover mx-auto w-full max-w-7xl space-y-5 px-4 pb-8 pt-1 sm:px-6 lg:px-8">
       <header className="flex items-center gap-2 border-b border-border pb-3">
         <Link
           to="/discover"
@@ -514,7 +506,7 @@ function DiscoverLiveConnectPage() {
         </DialogContent>
       </Dialog>
 
-      <section className="relative overflow-hidden rounded-[2rem] border border-border bg-card px-5 py-7 shadow-sm sm:px-8 sm:py-9">
+      <section className="relative overflow-hidden rounded-3xl border border-border bg-card px-4 py-4 shadow-sm sm:px-8 sm:py-9">
         <div
           className="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full bg-primary/10 blur-3xl"
           aria-hidden
@@ -523,10 +515,10 @@ function DiscoverLiveConnectPage() {
           <Sparkles className="size-4" aria-hidden />
           {tx("Discover on ASH", "Découvrir sur ASH")}
         </p>
-        <h1 className="relative mt-3 max-w-2xl font-display text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl">
+        <h1 className="relative mt-2 max-w-2xl font-display text-2xl font-extrabold tracking-tight text-foreground sm:text-5xl">
           {tx("Find people ready to serve you.", "Trouvez des personnes prêtes à vous aider.")}
         </h1>
-        <p className="relative mt-3 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
+        <p className="relative mt-2 max-w-xl text-xs leading-5 text-muted-foreground sm:text-base">
           {tx(
             "Meet real businesses, explore their services and start a conversation when you’re ready.",
             "Découvrez des entreprises, explorez leurs services et contactez-les.",
@@ -820,18 +812,16 @@ function DiscoverLiveConnectPage() {
             )}
           </p>
         ) : videoPosts.length ? (
-          <div className="mx-auto w-full max-w-3xl overflow-hidden rounded-3xl border border-border bg-background">
-            {videoPosts.map((post) => {
+          <SwipeDeck
+            items={videoPosts}
+            getKey={(post) => post.id}
+            renderItem={(post) => {
               const instructor = instructors?.find((item) => item.user_id === post.author.id);
               return (
-                <VideoCard
-                  key={post.id}
-                  post={post}
-                  {...(instructor ? { instructorId: instructor.id } : {})}
-                />
+                <VideoCard post={post} {...(instructor ? { instructorId: instructor.id } : {})} />
               );
-            })}
-          </div>
+            }}
+          />
         ) : (
           <p className="rounded-3xl border border-dashed border-border bg-card/60 px-5 py-8 text-center text-sm text-muted-foreground">
             {tx("No videos match this search.", "Aucune vidéo ne correspond à cette recherche.")}
