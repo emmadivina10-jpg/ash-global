@@ -266,15 +266,15 @@ function FeedPage() {
       }}
       label={tx("Refreshing", "Actualisation")}
     >
-      <div className="dark home-feed mx-auto min-h-dvh w-full max-w-xl space-y-2 bg-[#08070b] text-white md:max-w-2xl lg:max-w-[40rem] lg:border-x lg:border-white/10">
-        <header className="flex items-center justify-between gap-3 px-3 py-2">
+      <div className="home-feed mx-auto min-h-dvh w-full bg-background text-foreground sm:max-w-xl lg:max-w-[40rem] lg:border-x lg:border-border">
+        <header className="flex items-center justify-between gap-3 border-b border-border px-3 py-2">
           <Link
             to="/feed"
             aria-label="ASH Glo"
             className="flex shrink-0 items-center gap-1.5 whitespace-nowrap"
           >
             <Logo className="whitespace-nowrap" />
-            <span className="font-display text-sm font-bold italic leading-none text-pink-400">
+            <span className="font-display text-sm font-bold italic leading-none text-primary">
               Glo
             </span>
           </Link>
@@ -283,7 +283,7 @@ function FeedPage() {
             <Button
               type="button"
               size="icon"
-              className="size-10 rounded-full bg-gradient-to-br from-pink-600 to-violet-600 text-white shadow-none hover:opacity-90 [&_svg]:size-5"
+              className="size-9 rounded-full bg-primary text-primary-foreground shadow-none hover:bg-primary/90 [&_svg]:size-5"
               aria-label={tx("Create Business Post", "Créer une publication professionnelle")}
               title={tx("Create Business Post", "Créer une publication professionnelle")}
               onClick={() => {
@@ -306,7 +306,7 @@ function FeedPage() {
         <div
           role="tablist"
           aria-label={tx("Feed categories", "Catégories du fil")}
-          className="flex gap-1 overflow-x-auto border-b border-white/10 px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex gap-1 overflow-x-auto border-b border-border bg-background px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {FEED_CATEGORIES.map((c) => {
             const on = c.id === category;
@@ -318,10 +318,10 @@ function FeedPage() {
                 aria-selected={on}
                 onClick={() => setCategory(c.id)}
                 className={cn(
-                  "h-10 shrink-0 border-b-2 px-3 text-[13px] font-semibold transition-colors",
+                  "h-11 shrink-0 border-b-2 px-4 text-sm font-semibold transition-colors",
                   on
-                    ? "border-pink-500 text-white"
-                    : "border-transparent text-white/55 hover:text-white",
+                    ? "border-primary text-foreground"
+                    : "border-transparent text-muted-foreground hover:text-foreground",
                 )}
               >
                 {fr ? c.fr : c.en}
@@ -502,7 +502,7 @@ function FeedPage() {
         </Dialog>
 
         {isGuest && (
-          <div className="mx-3 flex items-center gap-3 rounded-lg border border-pink-500/30 bg-pink-500/5 p-3">
+          <div className="mx-3 my-2 flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 p-3">
             <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
               <Sparkles className="size-5" aria-hidden />
             </span>
@@ -578,7 +578,7 @@ function FeedPage() {
         {isLoading || !spotlightsReady ? (
           <div className="space-y-3">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="h-56 animate-pulse bg-white/5" />
+              <div key={i} className="h-56 animate-pulse bg-muted" />
             ))}
           </div>
         ) : mixed.length === 0 ? (

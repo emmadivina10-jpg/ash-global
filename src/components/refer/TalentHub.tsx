@@ -132,7 +132,7 @@ export function MusicianCard({
   return (
     <article className="talent-card group relative">
       <Link to="/talent/$musicianId" params={{ musicianId: musician.id }} className="block">
-        <div className="relative aspect-square overflow-hidden rounded-md bg-gradient-to-br from-pink-600/25 via-[#12091a] to-violet-950">
+        <div className="relative aspect-square overflow-hidden rounded-md bg-gradient-to-br from-primary/25 via-muted to-violet-500/30">
           {photo ? (
             <img
               src={photo.url}
@@ -151,7 +151,7 @@ export function MusicianCard({
               className="size-full object-cover"
             />
           ) : (
-            <div className="grid size-full place-items-center text-pink-400/60">
+            <div className="grid size-full place-items-center text-primary/60">
               <Music2 className="size-12" aria-hidden />
             </div>
           )}
@@ -162,35 +162,35 @@ export function MusicianCard({
           ) : null}
         </div>
         <div className="space-y-0.5 pt-2">
-          <h3 className="flex items-center gap-1 text-[13px] font-semibold text-white">
+          <h3 className="flex items-center gap-1 text-[13px] font-semibold text-foreground">
             <span className="truncate">{musician.display_name}</span>
             <BadgeCheck
-              className="size-3.5 shrink-0 fill-pink-500 text-black"
+              className="size-3.5 shrink-0 fill-primary text-primary-foreground"
               aria-label={tx("ASH approved musician", "Musicien approuvé par ASH")}
             />
             {stats && stats.review_count > 0 ? (
-              <span className="ml-auto flex shrink-0 items-center gap-0.5 text-[11px] font-medium text-white/70">
+              <span className="ml-auto flex shrink-0 items-center gap-0.5 text-[11px] font-medium text-muted-foreground">
                 <Star className="size-3 fill-amber-400 text-amber-400" aria-hidden />
                 {Number(stats.rating_average).toFixed(1)}
               </span>
             ) : null}
           </h3>
-          <p className="truncate text-xs capitalize text-white/55">
+          <p className="truncate text-xs capitalize text-muted-foreground">
             {musician.instruments.join(" · ")}
           </p>
           <p className="pt-0.5">
             {rate ? (
               <>
-                <strong className="text-sm font-bold text-pink-400">{rate}</strong>{" "}
-                <span className="text-[11px] text-white/50">{tx("/hour", "/h")}</span>
+                <strong className="text-sm font-bold text-primary">{rate}</strong>{" "}
+                <span className="text-[11px] text-muted-foreground">{tx("/hour", "/h")}</span>
               </>
             ) : (
-              <span className="text-xs font-semibold text-pink-400">
+              <span className="text-xs font-semibold text-primary">
                 {tx("Contact for rate", "Tarif sur demande")}
               </span>
             )}
           </p>
-          <p className="flex items-center gap-1.5 text-[11px] text-white/70">
+          <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
             <span
               className={cn(
                 "size-1.5 shrink-0 rounded-full",
@@ -198,7 +198,7 @@ export function MusicianCard({
                   ? musician.online
                     ? "animate-pulse bg-emerald-400"
                     : "bg-emerald-400"
-                  : "bg-white/30",
+                  : "bg-muted-foreground/40",
               )}
             />
             <span className="truncate">{availability}</span>
@@ -216,7 +216,7 @@ export function MusicianCard({
         aria-pressed={Boolean(favorite.data)}
         className="absolute right-1.5 top-1.5 grid size-8 place-items-center rounded-full bg-black/45 text-white backdrop-blur transition hover:scale-105"
       >
-        <Heart className={cn("size-4", favorite.data && "fill-pink-500 text-pink-500")} aria-hidden />
+        <Heart className={cn("size-4", favorite.data && "fill-primary text-primary")} aria-hidden />
       </button>
     </article>
   );
@@ -282,11 +282,18 @@ export function MusicianManager({ compact = false }: { compact?: boolean } = {})
       })
     )
       return;
-    if (mine.isLoading || mine.isError) {
-      toast.error(tx("Profile unavailable. Try again.", "Profil indisponible. Réessayez."));
-      return;
+    let p = mine.data;
+    if (!p || mine.isError) {
+      const retry = await mine.refetch();
+      if (retry.error) {
+        toast.error(
+          retry.error.message ||
+            tx("Profile unavailable. Try again.", "Profil indisponible. Réessayez."),
+        );
+        return;
+      }
+      p = retry.data;
     }
-    const p = mine.data;
     setName(p?.display_name ?? "");
     setBio(p?.biography ?? "");
     setCity(p?.city ?? "");
@@ -451,7 +458,7 @@ export function MusicianManager({ compact = false }: { compact?: boolean } = {})
               ? tx("Manage musician profile", "Gérer mon profil musicien")
               : tx("Become a Musician", "Devenir musicien")
           }
-          className="size-10 rounded-full text-white/80 hover:bg-white/10 hover:text-white [&_svg]:size-5"
+          className="size-10 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground [&_svg]:size-5"
         >
           {mine.data ? <Music2 aria-hidden /> : <Plus aria-hidden />}
         </Button>

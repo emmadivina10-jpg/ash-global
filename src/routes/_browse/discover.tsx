@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_browse/discover")({
   head: () => ({
     meta: [
-      { title: "ASH Talent — Discover musicians" },
+      { title: "ASH Talent - Discover musicians" },
       { name: "description", content: "Discover music providers and explore ASH." },
     ],
   }),
@@ -28,8 +28,8 @@ const chip = (on: boolean) =>
   cn(
     "inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-xs font-semibold transition-colors",
     on
-      ? "border-pink-500 bg-pink-500/15 text-white"
-      : "border-white/15 text-white/70 hover:text-white",
+      ? "border-primary bg-primary/15 text-foreground"
+      : "border-border text-muted-foreground hover:text-foreground",
   );
 
 function TalentPage() {
@@ -90,16 +90,16 @@ function TalentPage() {
   };
 
   return (
-    <main className="dark min-h-dvh w-full bg-[#08070b] text-white">
+    <main className="min-h-dvh w-full bg-background text-foreground">
       <div className="talent-discover mx-auto w-full max-w-7xl px-3 pb-8 pt-1 sm:px-5 lg:px-8">
-        <header className="sticky top-0 z-20 -mx-3 flex items-center justify-between gap-3 bg-[#08070b]/90 px-3 py-2 backdrop-blur sm:-mx-5 sm:px-5 lg:-mx-8 lg:px-8">
+        <header className="-mx-3 flex items-center justify-between gap-3 border-b border-border px-3 py-2 sm:-mx-5 sm:px-5 lg:-mx-8 lg:px-8">
           <Link
             to="/feed"
             aria-label="ASH Glo home"
             className="flex shrink-0 items-center gap-1.5 whitespace-nowrap"
           >
             <Logo className="whitespace-nowrap" />
-            <span className="font-display text-sm font-bold italic leading-none text-pink-400">
+            <span className="font-display text-sm font-bold italic leading-none text-primary">
               Glo
             </span>
           </Link>
@@ -110,11 +110,11 @@ function TalentPage() {
               size="icon"
               aria-label={tx("Search and filter musicians", "Rechercher et filtrer les musiciens")}
               onClick={() => setFilterOpen(true)}
-              className="relative size-10 rounded-full text-white/80 hover:bg-white/10 hover:text-white [&_svg]:size-5"
+              className="relative size-10 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground [&_svg]:size-5"
             >
               <Search aria-hidden />
               {filtersActive ? (
-                <span className="absolute right-2 top-2 size-2 rounded-full bg-pink-500" />
+                <span className="absolute right-2 top-2 size-2 rounded-full bg-primary" />
               ) : null}
             </Button>
             <MusicianManager compact />
@@ -131,8 +131,8 @@ function TalentPage() {
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder={tx(
-                "Search musicians, instruments, genres…",
-                "Rechercher musiciens, instruments, genres…",
+                "Search musicians, instruments, genres...",
+                "Rechercher musiciens, instruments, genres...",
               )}
               aria-label={tx(
                 "Search musicians, instruments and genres",
@@ -176,7 +176,7 @@ function TalentPage() {
                 className={chip(Boolean(location?.label && city === location.label))}
               >
                 <MapPin className="size-3.5" aria-hidden />
-                {busy ? tx("Finding…", "Recherche…") : tx("Near me", "Près de moi")}
+                {busy ? tx("Finding...", "Recherche...") : tx("Near me", "Près de moi")}
               </button>
               <button
                 type="button"
@@ -216,23 +216,23 @@ function TalentPage() {
           </DialogContent>
         </Dialog>
 
-        <section aria-label={tx("Musicians", "Musiciens")} className="pt-1">
+        <section aria-label={tx("Musicians", "Musiciens")} className="pt-3">
           <div className="mb-3 flex items-baseline justify-between">
-            <h1 className="font-display text-base font-semibold text-white">
+            <h1 className="font-display text-base font-semibold text-foreground">
               {tx("Musicians", "Musiciens")}
             </h1>
             {musicians.data ? (
-              <span className="text-xs text-white/50">{visibleMusicians.length}</span>
+              <span className="text-xs text-muted-foreground">{visibleMusicians.length}</span>
             ) : null}
           </div>
           {musicians.isLoading ? (
             <div
               role="status"
-              aria-label={tx("Finding talent…", "Recherche de talents…")}
+              aria-label={tx("Finding talent...", "Recherche de talents...")}
               className="grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-4 xl:grid-cols-5"
             >
               {[0, 1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="aspect-square animate-pulse rounded-md bg-white/5" />
+                <div key={i} className="aspect-square animate-pulse rounded-md bg-muted" />
               ))}
             </div>
           ) : musicians.isError ? (
@@ -256,7 +256,7 @@ function TalentPage() {
               ))}
             </div>
           ) : (
-            <div className="py-10 text-center text-sm text-white/60">
+            <div className="py-10 text-center text-sm text-muted-foreground">
               <p>
                 {tx(
                   "No approved musicians match these filters yet.",
@@ -264,7 +264,7 @@ function TalentPage() {
                 )}
               </p>
               {filtersActive ? (
-                <button type="button" onClick={resetFilters} className="mt-2 text-pink-400 underline">
+                <button type="button" onClick={resetFilters} className="mt-2 text-primary underline">
                   {tx("Clear filters", "Effacer les filtres")}
                 </button>
               ) : null}

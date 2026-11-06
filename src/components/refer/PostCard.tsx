@@ -121,7 +121,7 @@ export function PostCard({
         !detail &&
           !home &&
           "rounded-3xl border border-border/60 bg-card bg-none shadow-[var(--shadow-card)]",
-        !detail && home && "border-y border-border/60 bg-card bg-none",
+        !detail && home && "border-b border-border bg-background",
         detail && "rounded-none border-0 shadow-none sm:rounded-3xl sm:border",
       )}
     >
@@ -225,6 +225,7 @@ export function PostCard({
                 onClick={() => setPhoto(src)}
                 className={cn(
                   "h-auto min-h-0 w-full overflow-hidden rounded-none bg-muted p-0 touch-manipulation hover:bg-muted",
+                  !detail && home && post.images.length === 1 && "aspect-[4/5]",
                   !detail && post.images.length === 2 && "row-span-2",
                   !detail && post.images.length === 3 && index === 0 && "col-span-2",
                 )}
@@ -236,7 +237,6 @@ export function PostCard({
                   className={cn(
                     "size-full min-h-0",
                     detail ? "max-h-[75dvh] object-contain" : "object-cover",
-                    !detail && home && post.images.length === 1 && "max-h-[min(72dvh,32rem)]",
                   )}
                 />
               </Button>
