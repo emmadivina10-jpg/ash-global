@@ -487,7 +487,7 @@ function FeedPage() {
         <div id="home-stories">
           <StoriesRail compact />
         </div>
-        {(isGuest ? publicVideos.data : posts)?.some((post) => post.images.length > 0) ? (
+        {false ? (
           <details
             className="px-3 pb-3"
             open={communityOpen}
