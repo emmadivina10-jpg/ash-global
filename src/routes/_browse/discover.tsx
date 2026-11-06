@@ -406,7 +406,7 @@ function DiscoverLiveConnectPage() {
         creator: vendor.provider_id,
         relevance:
           (vendor.is_verified ? 0.3 : 0) +
-          Math.min(0.35, (vendor.rating_avg / 5) * 0.35) +
+          Math.min(0.35, ((vendor.rating_avg ?? 0) / 5) * 0.35) +
           (vendor.accepting_bookings ? 0.25 : 0) +
           Math.min(0.1, vendor.rating_count / 100),
         explorable: vendor.rating_count < 3,

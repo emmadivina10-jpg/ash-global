@@ -52,7 +52,6 @@ export function useNotifications(limit = 30) {
           .from("member_presence")
           .select("user_id")
           .in("user_id", actorIds)
-          .eq("show_online", true)
           .gte("last_active_at", since),
       ]);
       const onlineIds = new Set((presence ?? []).map((row) => row.user_id));

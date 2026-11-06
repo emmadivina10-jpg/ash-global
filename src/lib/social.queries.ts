@@ -269,7 +269,6 @@ export async function loadAuthors(ids: string[]): Promise<Map<string, SocialAuth
         .from("member_presence")
         .select("user_id")
         .in("user_id", unique)
-        .eq("show_online", true)
         .gte("last_active_at", since),
       supabase.from("stories").select("author_id").in("author_id", unique).gt("expires_at", now),
       supabase
