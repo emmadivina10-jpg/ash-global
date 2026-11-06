@@ -288,7 +288,7 @@ export function MusicianManager({ compact = false }: { compact?: boolean } = {})
       if (retry.error) {
         const details = retry.error as { code?: string; message?: string };
         const tableMissing =
-          details.code === "PGRST205" || /musician_profiles/.test(details.message ?? "");
+          details.code === "PGRST205" || details.code === "42P01";
         toast.error(
           tableMissing
             ? tx(
