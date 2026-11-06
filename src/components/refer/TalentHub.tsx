@@ -286,9 +286,17 @@ export function MusicianManager({ compact = false }: { compact?: boolean } = {})
     if (!p || mine.isError) {
       const retry = await mine.refetch();
       if (retry.error) {
+        const details = retry.error as { code?: string; message?: string };
+        const tableMissing =
+          details.code === "PGRST205" || /musician_profiles/.test(details.message ?? "");
         toast.error(
-          retry.error.message ||
-            tx("Profile unavailable. Try again.", "Profil indisponible. Réessayez."),
+          tableMissing
+            ? tx(
+                "Musician profiles aren't set up yet. Please try again later.",
+                "Les profils musiciens ne sont pas encore disponibles. Réessayez plus tard.",
+              )
+            : details.message ||
+                tx("Profile unavailable. Try again.", "Profil indisponible. Réessayez."),
         );
         return;
       }
