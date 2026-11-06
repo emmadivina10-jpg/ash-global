@@ -1,7 +1,14 @@
+
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import { ArrowLeft, Activity, LockKeyhole } from "lucide-react";
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, XAxis } from "recharts";
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  XAxis,
+} from "recharts";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -20,7 +27,9 @@ const illustration = Array.from({ length: 65 }, (_, i) => ({
   medium: 44 + 10 * Math.sin((i + 4) / 9),
   fast: 46 + 12 * Math.sin((i + 8) / 8),
 }));
+
 const periods = ["1D", "1W", "1M", "1Y"] as const;
+
 const labels = {
   "1D": ["00:00", "06:00", "12:00", "18:00", "24:00"],
   "1W": ["Mon", "Tue", "Thu", "Sat", "Sun"],
@@ -30,32 +39,52 @@ const labels = {
 
 export function AshInvestment() {
   const { tx, lang } = useI18n();
+
+  const router = useRouter();
+  const navigate = useNavigate();
+
   const [currency, setCurrency] = useState("USD");
   const [period, setPeriod] = useState<(typeof periods)[number]>("1M");
+
+  // Return to the actual previous screen instead of always navigating
+  // to Messages. Use Home as a safe fallback for direct entry.
+  const handleBack = () => {
+    if (router.history.canGoBack()) {
+      router.history.back();
+    } else {
+      void navigate({ to: "/feed" });
+    }
+  };
+
   return (
     <main className="mx-auto w-full max-w-6xl px-4 pb-24 pt-5 sm:px-8 sm:pt-8">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-5">
         <div className="flex items-center gap-3">
           <Button
-            asChild
             variant="ghost"
             size="icon"
-            aria-label={tx("Back to messages", "Retour aux messages")}
+            aria-label={tx("Go back", "Retour")}
+            onClick={handleBack}
           >
-            <Link to="/messages">
-              <ArrowLeft />
-            </Link>
+            <ArrowLeft />
           </Button>
+
           <div>
-            <p className="mb-1 text-xs font-semibold uppercase text-muted-foreground">ASH GLO</p>
-            <h1 className="text-2xl font-bold sm:text-3xl">ASH Investment</h1>
+            <p className="mb-1 text-xs font-semibold uppercase text-muted-foreground">
+              ASH GLO
+            </p>
+            <h1 className="text-2xl font-bold sm:text-3xl">
+              ASH Investment
+            </h1>
           </div>
         </div>
+
         <span className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
           <LockKeyhole className="size-4" />
           {tx("Not live · Preview", "Non actif · Aperçu")}
         </span>
       </header>
+
       <section className="py-7">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -63,6 +92,7 @@ export function AshInvestment() {
               <Activity className="size-5 text-success" />
               {tx("ASH market activity", "Activité du marché ASH")}
             </h2>
+
             <p className="mt-1 text-sm text-muted-foreground">
               {tx(
                 "Illustrative chart — no live market data",
@@ -70,6 +100,7 @@ export function AshInvestment() {
               )}
             </p>
           </div>
+
           <Select value={currency} onValueChange={setCurrency}>
             <SelectTrigger
               aria-label={tx("Chart currency", "Devise du graphique")}
@@ -77,6 +108,7 @@ export function AshInvestment() {
             >
               <SelectValue />
             </SelectTrigger>
+
             <SelectContent className="max-h-80">
               {DISPLAY_CURRENCIES.map((c) => (
                 <SelectItem key={c} value={c}>
@@ -86,8 +118,12 @@ export function AshInvestment() {
             </SelectContent>
           </Select>
         </div>
+
         <div className="mt-6 flex items-center justify-between gap-3 border-b border-border pb-3">
-          <div className="flex gap-1" aria-label={tx("Chart period", "Période du graphique")}>
+          <div
+            className="flex gap-1"
+            aria-label={tx("Chart period", "Période du graphique")}
+          >
             {periods.map((p) => (
               <Button
                 key={p}
@@ -100,8 +136,12 @@ export function AshInvestment() {
               </Button>
             ))}
           </div>
-          <span className="text-xs font-semibold text-muted-foreground">ASH / {currency}</span>
+
+          <span className="text-xs font-semibold text-muted-foreground">
+            ASH / {currency}
+          </span>
         </div>
+
         <div
           className="relative mt-4 h-72 w-full overflow-hidden sm:h-96"
           role="img"
@@ -111,16 +151,26 @@ export function AshInvestment() {
           )}
         >
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={illustration} margin={{ top: 30, right: 12, left: 12, bottom: 8 }}>
-              <CartesianGrid stroke="var(--border)" strokeDasharray="3 7" />
+            <LineChart
+              data={illustration}
+              margin={{ top: 30, right: 12, left: 12, bottom: 8 }}
+            >
+              <CartesianGrid
+                stroke="var(--border)"
+                strokeDasharray="3 7"
+              />
+
               <XAxis
                 dataKey="step"
                 ticks={[0, 16, 32, 48, 64]}
-                tickFormatter={(v) => labels[period][Math.round(Number(v) / 16)] ?? ""}
+                tickFormatter={(v) =>
+                  labels[period][Math.round(Number(v) / 16)] ?? ""
+                }
                 tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
                 axisLine={false}
                 tickLine={false}
               />
+
               <Line
                 type="monotone"
                 dataKey="slow"
@@ -129,6 +179,7 @@ export function AshInvestment() {
                 dot={false}
                 isAnimationActive={false}
               />
+
               <Line
                 type="monotone"
                 dataKey="medium"
@@ -137,6 +188,7 @@ export function AshInvestment() {
                 dot={false}
                 isAnimationActive={false}
               />
+
               <Line
                 type="monotone"
                 dataKey="fast"
@@ -147,11 +199,13 @@ export function AshInvestment() {
               />
             </LineChart>
           </ResponsiveContainer>
+
           <div
             aria-hidden
             className="investment-scan pointer-events-none absolute inset-y-6 w-px bg-success/40"
           />
         </div>
+
         <div className="mt-2 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-5 text-xs text-muted-foreground">
           <span>
             {tx(
@@ -159,17 +213,30 @@ export function AshInvestment() {
               "Illustration uniquement · Aucun signal d’investissement",
             )}
           </span>
-          <span>{tx("Investment is not open", "Investissement non ouvert")}</span>
+
+          <span>
+            {tx("Investment is not open", "Investissement non ouvert")}
+          </span>
         </div>
+
         <dl className="grid grid-cols-1 divide-y divide-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
           {[
             tx("Company value", "Valeur de l’entreprise"),
             tx("Buying & selling activity", "Activité d’achat et de vente"),
             tx("Investment timing", "Moment d’investissement"),
           ].map((label) => (
-            <div key={label} className="py-6 sm:px-5 sm:first:pl-0">
-              <dt className="text-sm text-muted-foreground">{label}</dt>
-              <dd className="mt-2 text-2xl font-semibold">—</dd>
+            <div
+              key={label}
+              className="py-6 sm:px-5 sm:first:pl-0"
+            >
+              <dt className="text-sm text-muted-foreground">
+                {label}
+              </dt>
+
+              <dd className="mt-2 text-2xl font-semibold">
+                —
+              </dd>
+
               <p className="mt-1 text-xs text-muted-foreground">
                 {tx("Data not available", "Données non disponibles")}
               </p>
