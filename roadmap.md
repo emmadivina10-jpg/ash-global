@@ -1,5 +1,8 @@
 # Roadmap
 
+## Messages vendors
+- [ ] Restore available storefront discovery independently of online status; round avatars and accurate count; verify signed-in Messages.
+
 ## Guest-First Experience
 - [x] Phase 1: GuestShell + AuthGateDialog + return-to-action via next=
 - [x] Phase 2: Browsing surfaces moved to public _browse layout; guest mode on each page
