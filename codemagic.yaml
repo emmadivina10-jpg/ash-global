@@ -5,8 +5,7 @@ workflows:
     max_build_duration: 60
 
     integrations:
-      app_store_connect: ash glo
-
+  app_store_connect: codemagic_ash_glo_2026_new1
     environment:
       ios_signing:
         distribution_type: app_store
